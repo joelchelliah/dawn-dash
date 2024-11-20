@@ -37,9 +37,10 @@ ChartJS.register(
 )
 
 interface SpeedRun {
-  discorduser: string
+  discorduser: string | null
   duration: string
-  uid: string
+  uid: number
+  _id: string
 }
 
 interface DataPoint {
@@ -99,7 +100,7 @@ const Chart: React.FC = () => {
               playerHistory.set(player, [])
             }
 
-            const timestamp = parseInt(run.uid)
+            const timestamp = run.uid
             if (!isNaN(timestamp)) {
               playerHistory.get(player)?.push({
                 x: timestamp,
@@ -205,13 +206,11 @@ const Chart: React.FC = () => {
   )
 
   useEffect(() => {
-    const fetchData = async () => {
-      const response = await fetch('/speedruns.json')
-      const speedruns = await response.json()
-      createChart(speedruns)
-    }
-
-    fetchData()
+    const basePath = process.env.PUBLIC_URL || ''
+    fetch(`${basePath}/speedruns.json`)
+      .then((response) => response.json())
+      .then((data) => createChart(data as SpeedRun[]))
+      .catch((error) => console.error('Error loading speedruns data:', error))
   }, [createChart, maxDuration, zoomLevel])
 
   return (
