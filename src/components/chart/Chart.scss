@@ -1,0 +1,79 @@
+.speedrun-chart {
+  background-color: #1a1a1a;
+  color: #ffffff;
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 20px;
+
+  .chart-title {
+    color: #ffffff;
+    font-size: 1.4rem;
+    margin: 0 0 25px 0;
+    font-weight: bold;
+    padding: 10px 20px;
+    background: linear-gradient(to right, #2a2a2a 0%, #1a1a1a 80%);
+    border-radius: 4px;
+  }
+
+  .controls {
+    margin-bottom: 20px;
+    text-align: center;
+
+    select {
+      background-color: #333;
+      color: #fff;
+      padding: 5px 10px;
+      border: 1px solid #666;
+      border-radius: 4px;
+      font-size: 14px;
+      margin: 0 40px 0 10px;
+    }
+  }
+
+  .chart-layout {
+    display: flex;
+    gap: 20px;
+
+    .outer-container {
+      flex: 1;
+      width: 95vw;
+      height: 80vh;
+      margin: auto;
+      overflow-y: auto;
+      overflow-x: scroll;
+      background-color: #1a1a1a;
+      border: 1px solid #333;
+    }
+
+    #legend-container {
+      width: 200px;
+      padding: 20px;
+      background-color: #1a1a1a;
+      border: 1px solid #333;
+      overflow: auto;
+      max-height: 80vh;
+
+      ul {
+        margin: 0;
+        padding: 0;
+      }
+
+      li {
+        white-space: nowrap;
+        min-width: min-content;
+      }
+    }
+  }
+
+  .chart-container {
+    padding: 20px;
+    transition:
+      width 0.3s,
+      height 0.3s;
+    overflow: visible;
+  }
+
+  canvas {
+    background-color: #1a1a1a;
+  }
+}

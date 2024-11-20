@@ -1,23 +1,18 @@
-import logo from './logo.svg'
 import './App.scss'
+import Chart from './components/chart/Chart'
 
 function App(): JSX.Element {
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <div className="header">
+        <img
+          src="https://blightbane.io/images/icons/cardart_4_53.webp"
+          alt="Dawncaster Logo"
+          className="app-logo"
+        />
+        <h1 className="app-title">Dawncaster Speedruns</h1>
+      </div>
+      <Chart />
     </div>
   )
 }
