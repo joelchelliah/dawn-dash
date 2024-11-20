@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/dawn-dash/static/css/main.bb74e4d8.css",
+    "main.js": "/dawn-dash/static/js/main.5a8b5639.js",
+    "index.html": "/dawn-dash/index.html",
+    "main.bb74e4d8.css.map": "/dawn-dash/static/css/main.bb74e4d8.css.map",
+    "main.5a8b5639.js.map": "/dawn-dash/static/js/main.5a8b5639.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.bb74e4d8.css",
+    "static/js/main.5a8b5639.js"
+  ]
+}
