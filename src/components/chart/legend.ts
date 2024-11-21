@@ -6,7 +6,7 @@ interface LegendItem {
   bestTime: number
 }
 
-export const createExternalLegend = (chart: ChartJS) => {
+export const createLegend = (chart: ChartJS) => {
   const legendContainer = document.getElementById('legend-container')
   if (!legendContainer) return
 

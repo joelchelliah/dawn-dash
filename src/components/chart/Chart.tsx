@@ -18,9 +18,10 @@ import {
 import moment from 'moment'
 
 import { createChartConfig } from './chartConfig'
-import { createExternalLegend } from './legend'
+import { createLegend } from './legend'
 import { yearBoundariesPlugin, yearBoundaries } from './yearBoundaries'
 import './Chart.scss'
+import { useSpeedrunData } from '../../hooks/useSpeedrunData'
 
 // Register the required components
 ChartJS.register(
@@ -200,18 +201,19 @@ const Chart: React.FC = () => {
         ),
       })
 
-      createExternalLegend(chartInstance.current)
+      createLegend(chartInstance.current)
     },
     [maxDuration]
   )
 
+  const { speedrunData, isLoadingSpeedrunData, isErrorSpeedrunData } = useSpeedrunData(
+    'Scion',
+    1000
+  )
+
   useEffect(() => {
-    const basePath = process.env.PUBLIC_URL || ''
-    fetch(`${basePath}/speedruns.json`)
-      .then((response) => response.json())
-      .then((data) => createChart(data as SpeedRun[]))
-      .catch((error) => console.error('Error loading speedruns data:', error))
-  }, [createChart, maxDuration, zoomLevel])
+    if (speedrunData) createChart(speedrunData)
+  }, [createChart, maxDuration, zoomLevel, speedrunData])
 
   return (
     <div className="speedrun-chart">
@@ -238,22 +240,24 @@ const Chart: React.FC = () => {
           onChange={(e) => setZoomLevel(parseInt(e.target.value))}
         >
           <option value="100">100%</option>
-          <option value="150">150%</option>
           <option value="200">200%</option>
           <option value="300">300%</option>
           <option value="400">400%</option>
           <option value="500">500%</option>
-          <option value="1000">1000%</option>
         </select>
       </div>
       <div className="chart-layout">
         <div className="outer-container">
-          <div
-            className="chart-container"
-            style={{ width: `${zoomLevel}%`, height: `${Math.max(100, zoomLevel / 1.5)}%` }}
-          >
-            <canvas ref={chartRef}></canvas>
-          </div>
+          {isLoadingSpeedrunData && <div className="chart-message">Loading data...</div>}
+          {isErrorSpeedrunData && <div className="chart-message error">Error loading data</div>}
+          {!isLoadingSpeedrunData && !isErrorSpeedrunData && (
+            <div
+              className="chart-container"
+              style={{ width: `${zoomLevel}%`, height: `${Math.max(100, zoomLevel / 1.5)}%` }}
+            >
+              <canvas ref={chartRef}></canvas>
+            </div>
+          )}
         </div>
         <div id="legend-container"></div>
       </div>

@@ -76,4 +76,15 @@
   canvas {
     background-color: #1a1a1a;
   }
+
+  .chart-message {
+    color: #fff;
+    text-align: center;
+    padding: 2rem;
+    font-size: 1.2rem;
+
+    &.error {
+      color: #ff6b6b;
+    }
+  }
 }
