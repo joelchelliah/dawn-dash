@@ -7,6 +7,8 @@ import { DataPoint, ViewMode } from '../../types/chart'
 const CHART_COLOR = '#ffffff'
 const GRID_COLOR = '#333333'
 
+const MIN_DAYS_BETWEEN_TICKS = 10
+
 /**
  * Creates the configuration object for the Chart.js instance
  * Could be split into:
@@ -30,10 +32,15 @@ export const createChartConfig = (
     mode: 'nearest',
   },
 
+  // Layout hooks
+  layout: {
+    padding: {
+      bottom: 10,
+    },
+  },
+
   // Axis scales configuration
-  // Could be moved to scales.ts
   scales: {
-    // X-axis (time) configuration
     x: {
       type: 'time',
       bounds: 'data',
@@ -50,9 +57,22 @@ export const createChartConfig = (
         maxRotation: 45,
         minRotation: 45,
         autoSkip: true,
-        maxTicksLimit: 15,
+        maxTicksLimit: 100,
         source: 'data',
-        autoSkipPadding: 100,
+        callback: function (value, index, ticks) {
+          // Skip if too close to previous tick
+          if (index > 0) {
+            const prevTick = ticks[index - 1]
+            const currentValue = Number(value)
+            const prevValue = Number(prevTick.value)
+            const diff = currentValue - prevValue
+
+            if (diff < 1000 * 60 * 60 * 24 * MIN_DAYS_BETWEEN_TICKS) {
+              return ''
+            }
+          }
+          return moment(value).format('MMM D')
+        },
       },
       grid: {
         color: GRID_COLOR,
@@ -95,8 +115,6 @@ export const createChartConfig = (
 
   // Plugin configurations
   plugins: {
-    // Tooltip configuration
-    // Could be moved to tooltips.ts
     tooltip: {
       // Filter tooltip visibility based on view mode
       filter: function (tooltipItem) {
