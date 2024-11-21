@@ -23,6 +23,7 @@ import { yearBoundariesPlugin, yearBoundaries } from './yearBoundaries'
 import './Chart.scss'
 import { useSpeedrunData } from '../../hooks/useSpeedrunData'
 import { DataPoint } from '../../types/chart'
+import { getColorByIndex } from '../../utils/colors'
 
 // Register the required components
 ChartJS.register(
@@ -56,24 +57,6 @@ const Chart: React.FC = () => {
   const [maxDuration, setMaxDuration] = useState(DEFAULT_MAX_DURATION)
   const [zoomLevel, setZoomLevel] = useState(DEFAULT_ZOOM_LEVEL)
   const [viewMode, setViewMode] = useState<ViewMode>('all')
-
-  /**
-   * Generates a color palette for the chart lines
-   * Could be moved to a separate utils file
-   */
-  const generateColors = (count: number): string[] => {
-    const colors: string[] = []
-    const baseHues = [0, 60, 120, 180, 240, 300]
-    const saturation = 70
-    const lightness = 60
-
-    for (let i = 0; i < count; i++) {
-      const hue = baseHues[i % baseHues.length] + Math.floor(i / baseHues.length) * 30
-      colors.push(`hsl(${hue}, ${saturation}%, ${lightness}%)`)
-    }
-
-    return colors
-  }
 
   /**
    * Main chart creation function
@@ -196,9 +179,8 @@ const Chart: React.FC = () => {
         }
       }
 
-      const colors = generateColors(playerHistory.size)
       const playerColors = Object.fromEntries(
-        Array.from(playerHistory.keys()).map((player, i) => [player, colors[i]])
+        Array.from(playerHistory.keys()).map((player, i) => [player, getColorByIndex(i)])
       )
 
       const datasets = Array.from(playerHistory.entries())

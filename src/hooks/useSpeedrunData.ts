@@ -3,6 +3,8 @@ import useSWR from 'swr'
 
 import { SpeedRunApiResponse, SpeedRunCategory, SpeedRunData } from '../types/speedRun'
 
+const REFRESH_INTERVAL = 5 * 60 * 1000 // 5 minutes
+
 export function useSpeedrunData(type: string, num: number) {
   const diff = 'Impossible'
   const { data, error, isLoading } = useSWR<SpeedRunData[]>(
@@ -11,7 +13,7 @@ export function useSpeedrunData(type: string, num: number) {
     {
       revalidateOnFocus: false, // Don't fetch again when window regains focus
       revalidateOnReconnect: false, // Don't fetch again on reconnection
-      refreshInterval: 3 * 60 * 1000,
+      refreshInterval: REFRESH_INTERVAL,
     }
   )
 
