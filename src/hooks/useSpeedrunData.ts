@@ -1,7 +1,7 @@
 import axios from 'axios'
 import useSWR from 'swr'
 
-import { SpeedRunApiResponse, SpeedRunCategory, SpeedRunData } from '../types/SpeedRunTypes'
+import { SpeedRunApiResponse, SpeedRunCategory, SpeedRunData } from '../types/speedRun'
 
 export function useSpeedrunData(type: string, num: number) {
   const diff = 'Impossible'
