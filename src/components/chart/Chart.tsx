@@ -14,16 +14,18 @@ import {
   Tooltip,
   Legend,
   Title,
+  ScriptableContext,
 } from 'chart.js'
 import moment from 'moment'
 
 import { createChartConfig } from './chartConfig'
+import { parseSpeedrunData } from './dataParser'
 import { createLegend } from './legend'
-import { yearBoundariesPlugin, yearBoundaries } from './yearBoundaries'
+import { yearBoundariesPlugin, calculateYearBoundaries } from './yearBoundaries'
 import './Chart.scss'
 import { useSpeedrunData } from '../../hooks/useSpeedrunData'
-import { DataPoint } from '../../types/chart'
-import { getColorByIndex } from '../../utils/colors'
+import { DataPoint, RecordPoint, ViewMode } from '../../types/chart'
+import { getColorMapping } from '../../utils/colors'
 
 // Register the required components
 ChartJS.register(
@@ -49,21 +51,18 @@ interface SpeedRun {
 const DEFAULT_MAX_DURATION = 18
 const DEFAULT_ZOOM_LEVEL = 100
 
-type ViewMode = 'all' | 'records'
-
 const Chart: React.FC = () => {
   const chartRef = useRef<HTMLCanvasElement>(null)
   const chartInstance = useRef<ChartJS | null>(null)
   const [maxDuration, setMaxDuration] = useState(DEFAULT_MAX_DURATION)
   const [zoomLevel, setZoomLevel] = useState(DEFAULT_ZOOM_LEVEL)
-  const [viewMode, setViewMode] = useState<ViewMode>('all')
+  const [viewMode, setViewMode] = useState<ViewMode>(ViewMode.SelfImproving)
 
   /**
    * Main chart creation function
    * Could be split into multiple files:
-   * - Data processing (parseSpeedrunData.ts)
    * - Record-breaking logic (recordBreakingView.ts)
-   * - All runs logic (allRunsView.ts)
+   * - Self-improving logic (selfImprovingView.ts)
    * - Chart initialization (initializeChart.ts)
    */
   const createChart = useCallback(
@@ -71,191 +70,67 @@ const Chart: React.FC = () => {
       if (!chartRef.current) return
 
       // Destroy existing chart if it exists
-      if (chartInstance.current) {
-        chartInstance.current.destroy()
-      }
+      if (chartInstance.current) chartInstance.current.destroy()
 
-      const playerHistory = new Map<string, DataPoint[]>()
-      const allRecordPoints: Array<{ player: string; run: DataPoint }> = []
+      const { playerHistory, allRecordPoints } = parseSpeedrunData(speedruns, maxDuration, viewMode)
+      const playerColors = getColorMapping(playerHistory)
 
-      // Process speedruns data
-      speedruns.reverse().forEach((run) => {
-        const player = run.discorduser
-        const durationMatch = run.duration.match(
-          /Duration: (?:\*\*)?(\d{2}):(\d{2}):(\d{2})(?:\*\*)?/
-        )
-
-        if (player && durationMatch) {
-          const hours = parseInt(durationMatch[1])
-          const minutes = parseInt(durationMatch[2])
-          const seconds = parseInt(durationMatch[3])
-          const totalMinutes = hours * 60 + minutes + seconds / 60
-
-          if (totalMinutes <= maxDuration) {
-            if (!playerHistory.has(player)) {
-              playerHistory.set(player, [])
-            }
-
-            const timestamp = run.uid
-            if (!isNaN(timestamp)) {
-              playerHistory.get(player)?.push({
-                x: timestamp,
-                y: totalMinutes,
-              })
-            }
-          }
-        }
-      })
-
-      // Handle different view modes
-      if (viewMode === 'records') {
-        let globalBestTime = Infinity
-
-        // Sort and find record-breaking runs
-        const allRuns = Array.from(playerHistory.entries())
-          .flatMap(([player, runs]) => runs.map((run) => ({ player, run })))
-          .sort((a, b) => a.run.x - b.run.x)
-
-        allRuns.forEach(({ player, run }) => {
-          if (run.y < globalBestTime) {
-            globalBestTime = run.y
-            allRecordPoints.push({ player, run })
-          }
-        })
-
-        // Clear existing history
-        playerHistory.clear()
-
-        // Create segments between record points
-        for (let i = 0; i < allRecordPoints.length; i++) {
-          const current = allRecordPoints[i]
-          const next = allRecordPoints[i + 1]
-
-          if (!playerHistory.has(current.player)) {
-            playerHistory.set(current.player, [])
-          }
-
-          // Add current record point (only once)
-          const currentPoints = playerHistory.get(current.player) || []
-          if (
-            !currentPoints.some((point) => point.x === current.run.x && point.y === current.run.y)
-          ) {
-            playerHistory.get(current.player)?.push(current.run)
-          }
-
-          if (next) {
-            // Add horizontal line
-            playerHistory.get(current.player)?.push({ x: next.run.x, y: current.run.y })
-
-            // Add vertical line to next player's segment
-            if (!playerHistory.has(next.player)) {
-              playerHistory.set(next.player, [])
-            }
-            playerHistory.get(next.player)?.push({ x: next.run.x, y: current.run.y })
-          }
-        }
-      } else {
-        // Original "all runs" logic
-        for (const [player, runs] of Array.from(playerHistory.entries())) {
-          runs.sort((a: DataPoint, b: DataPoint) => a.x - b.x)
-
-          let bestTime = Infinity
-          const improvedRuns = runs.filter((run: DataPoint) => {
-            if (run.y >= bestTime) return false
-            bestTime = run.y
-            return true
-          })
-
-          playerHistory.set(player, improvedRuns)
-        }
-      }
-
-      // Filter out players with fewer than 2 runs (only for 'all' mode)
-      if (viewMode === 'all') {
-        for (const [player, runs] of Array.from(playerHistory.entries())) {
-          if (runs.length <= 1) {
-            playerHistory.delete(player)
-          }
-        }
-      }
-
-      const playerColors = Object.fromEntries(
-        Array.from(playerHistory.keys()).map((player, i) => [player, getColorByIndex(i)])
-      )
-
-      const datasets = Array.from(playerHistory.entries())
-        .filter(([_, runs]) => runs.length > 0)
-        .map(([player, runs]) => ({
+      // Create datasets
+      const datasets = Array.from<[string, DataPoint[]], ChartDataset<'line', DataPoint[]>>(
+        playerHistory.entries(),
+        ([player, runs]) => ({
           label: player,
           data: runs,
           borderColor: playerColors[player],
           backgroundColor: playerColors[player],
-          pointRadius: (context: any) => {
+          pointRadius: (context: ScriptableContext<'line'>) => {
             const index = context.dataIndex
             const dataPoint = runs[index]
-            if (viewMode === 'records') {
-              const isRecord = allRecordPoints.some(
-                (record) =>
-                  record.run.x === dataPoint.x &&
-                  record.run.y === dataPoint.y &&
-                  record.player === player
-              )
-              return isRecord ? 6 : 0
-            } else {
-              return 6
-            }
+            const isRecord = allRecordPoints.some(
+              (record: RecordPoint) =>
+                record.run.x === dataPoint.x &&
+                record.run.y === dataPoint.y &&
+                record.player === player
+            )
+            return isRecord ? 6 : viewMode === 'records' ? 0 : 6
           },
-          pointHoverRadius: (context: any) => {
+          pointHoverRadius: (context: ScriptableContext<'line'>) => {
             const index = context.dataIndex
             const dataPoint = runs[index]
-            if (viewMode === 'records') {
-              const isRecord = allRecordPoints.some(
-                (record) =>
-                  record.run.x === dataPoint.x &&
-                  record.run.y === dataPoint.y &&
-                  record.player === player
-              )
-              return isRecord ? 8 : 0
-            } else {
-              return 8
-            }
+            const isRecord = allRecordPoints.some(
+              (record: RecordPoint) =>
+                record.run.x === dataPoint.x &&
+                record.run.y === dataPoint.y &&
+                record.player === player
+            )
+            return isRecord ? 8 : viewMode === 'records' ? 0 : 8
           },
           stepped: 'before',
           tension: 0,
           showLine: true,
-        }))
+        })
+      ).filter((dataset) => dataset.data.length > 0)
 
       if (datasets.length === 0) {
         console.warn('No valid data to display')
         return
       }
 
+      // Calculate chart boundaries
       const allDates = datasets.flatMap((ds) => ds.data.map((d) => d.x))
       const minDate = Math.min(...allDates)
       const maxDate = Math.max(...allDates)
 
-      // Calculate padding as 10% of the total date range, rounded up
+      // Calculate padding
       const totalDays = moment(maxDate).diff(moment(minDate), 'days')
       const paddingAmount = 0.025
       const paddingDays = Math.ceil(totalDays * paddingAmount)
       const paddedMinDate = moment(minDate).subtract(paddingDays, 'days').valueOf()
       const paddedMaxDate = moment(maxDate).add(1, 'days').valueOf()
 
-      // Clear existing year boundaries
-      yearBoundaries.length = 0
+      calculateYearBoundaries(minDate, maxDate)
 
-      // Calculate year boundaries
-      let currentYear = moment(minDate).year()
-      const endYear = moment(maxDate).year()
-      while (currentYear <= endYear) {
-        const yearStart = moment(`${currentYear}-01-01`).startOf('day').valueOf()
-        if (yearStart >= minDate && yearStart <= maxDate) {
-          yearBoundaries.push(yearStart)
-        }
-        currentYear++
-      }
-
-      // Find the fastest run time across all players
+      // Find the fastest run time
       const allRunTimes = datasets.flatMap(({ data }) => data.map(({ y }) => y))
       const fastestTime = Math.min(...allRunTimes)
       const paddedMinDuration = Math.max(0, fastestTime - 0.25)
@@ -329,7 +204,7 @@ const Chart: React.FC = () => {
           value={viewMode}
           onChange={(e) => setViewMode(e.target.value as ViewMode)}
         >
-          <option value="all">All runs</option>
+          <option value="self-improving">Self-improving runs</option>
           <option value="records">Record-breaking runs</option>
         </select>
       </div>

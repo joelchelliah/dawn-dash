@@ -1,3 +1,5 @@
+import { DataPoint } from '../types/chart'
+
 const BASE_HUES = [
   0, // Red
   210, // Blue
@@ -13,13 +15,10 @@ const COLOR_VARIANTS = [
   { saturation: 95, lightness: 75 }, // Brighter variant
 ] as const
 
-/**
- * Generates visually distinct colors
- * @param count Number of colors needed
- * @returns Array of HSL color strings
- */
-export const generateColors = (count: number): string[] => {
-  return Array.from({ length: count }, (_, i) => getColorByIndex(i))
+export function getColorMapping(playerMap: Map<string, DataPoint[]>): Record<string, string> {
+  return Object.fromEntries(
+    Array.from(playerMap.keys()).map((player, i) => [player, getColorByIndex(i)])
+  )
 }
 
 /**
@@ -27,7 +26,7 @@ export const generateColors = (count: number): string[] => {
  * @param index Color index
  * @returns HSL color string
  */
-export const getColorByIndex = (index: number): string => {
+function getColorByIndex(index: number): string {
   const maxBaseColors = BASE_HUES.length * COLOR_VARIANTS.length
 
   if (index < maxBaseColors) {

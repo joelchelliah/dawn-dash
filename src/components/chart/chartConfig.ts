@@ -1,7 +1,7 @@
 import { ChartOptions } from 'chart.js'
 import moment from 'moment'
 
-import { DataPoint } from '../../types/chart'
+import { DataPoint, ViewMode } from '../../types/chart'
 
 // Chart theme constants
 const CHART_COLOR = '#ffffff'
@@ -19,7 +19,7 @@ export const createChartConfig = (
   paddedMaxDate: number,
   paddedMinDuration: number,
   paddedMaxDuration: number,
-  viewMode: 'all' | 'records',
+  viewMode: ViewMode,
   allRecordPoints: Array<{ player: string; run: DataPoint }>
 ): ChartOptions => ({
   // Basic chart configuration
