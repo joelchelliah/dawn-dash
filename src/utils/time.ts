@@ -11,3 +11,15 @@ export function getDurationInMinutes(run: SpeedRunData): number | undefined {
 
   return hours * 60 + minutes + seconds / 60
 }
+
+export function formatTime(time: number) {
+  const hours = Math.floor(time / 60)
+  const minutes = Math.floor(time % 60)
+  const seconds = Math.floor((time * 60) % 60)
+
+  const hoursFormat = `${hours.toString().padStart(2, '0')}:`
+  const minutesFormat = `${minutes.toString().padStart(2, '0')}:${seconds
+    .toString()
+    .padStart(2, '0')}`
+  return hours > 0 ? `${hoursFormat}${minutesFormat}` : minutesFormat
+}

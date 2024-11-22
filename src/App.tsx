@@ -1,5 +1,5 @@
 import './App.scss'
-import Chart from './components/chart/Chart'
+import Chart from './components/Chart'
 
 function App(): JSX.Element {
   return (

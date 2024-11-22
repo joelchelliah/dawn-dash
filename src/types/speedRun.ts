@@ -11,9 +11,7 @@ export type SpeedRunApiResponse = {
   [key in SpeedRunCategory]: Array<{
     _id: string
     uid: number
-    stats: {
-      clock1: string
-    }
+    stats: { clock1: string }
     discorduser: string | null
   }>
 }

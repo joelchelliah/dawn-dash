@@ -3,7 +3,6 @@ import moment from 'moment'
 
 import { DataPoint, ViewMode } from '../../types/chart'
 
-// Chart theme constants
 const CHART_COLOR = '#ffffff'
 const GRID_COLOR = '#333333'
 

@@ -12,7 +12,7 @@ import {
   LinearScale,
   TimeScale,
   Tooltip,
-  Legend,
+  Legend as LegendJS,
   Title,
   ScriptableContext,
 } from 'chart.js'
@@ -20,12 +20,12 @@ import moment from 'moment'
 
 import { createChartConfig } from './chartConfig'
 import { parseSpeedrunData } from './dataParser'
-import { createLegend } from './legend'
 import { yearBoundariesPlugin, calculateYearBoundaries } from './yearBoundaries'
-import './Chart.scss'
+import './index.scss'
 import { useSpeedrunData } from '../../hooks/useSpeedrunData'
 import { DataPoint, RecordPoint, ViewMode } from '../../types/chart'
 import { getColorMapping } from '../../utils/colors'
+import Legend from '../Legend'
 
 // Register the required components
 ChartJS.register(
@@ -36,7 +36,7 @@ ChartJS.register(
   LineController,
   Title,
   Tooltip,
-  Legend,
+  LegendJS,
   TimeScale,
   yearBoundariesPlugin
 )
@@ -57,59 +57,52 @@ const Chart: React.FC = () => {
   const [maxDuration, setMaxDuration] = useState(DEFAULT_MAX_DURATION)
   const [zoomLevel, setZoomLevel] = useState(DEFAULT_ZOOM_LEVEL)
   const [viewMode, setViewMode] = useState<ViewMode>(ViewMode.SelfImproving)
+  const playerColors = useRef<Record<string, string>>({})
+  const [chartData, setChartData] = useState<ChartJS | null>(null)
 
-  /**
-   * Main chart creation function
-   * Could be split into multiple files:
-   * - Record-breaking logic (recordBreakingView.ts)
-   * - Self-improving logic (selfImprovingView.ts)
-   * - Chart initialization (initializeChart.ts)
-   */
   const createChart = useCallback(
     (speedruns: SpeedRun[]) => {
       if (!chartRef.current) return
 
-      // Destroy existing chart if it exists
       if (chartInstance.current) chartInstance.current.destroy()
 
       const { playerHistory, allRecordPoints } = parseSpeedrunData(speedruns, maxDuration, viewMode)
-      const playerColors = getColorMapping(playerHistory)
+
+      // Get colors for players
+      playerColors.current = getColorMapping(playerHistory)
 
       // Create datasets
-      const datasets = Array.from<[string, DataPoint[]], ChartDataset<'line', DataPoint[]>>(
-        playerHistory.entries(),
-        ([player, runs]) => ({
-          label: player,
-          data: runs,
-          borderColor: playerColors[player],
-          backgroundColor: playerColors[player],
-          pointRadius: (context: ScriptableContext<'line'>) => {
-            const index = context.dataIndex
-            const dataPoint = runs[index]
-            const isRecord = allRecordPoints.some(
-              (record: RecordPoint) =>
-                record.run.x === dataPoint.x &&
-                record.run.y === dataPoint.y &&
-                record.player === player
-            )
-            return isRecord ? 6 : viewMode === 'records' ? 0 : 6
-          },
-          pointHoverRadius: (context: ScriptableContext<'line'>) => {
-            const index = context.dataIndex
-            const dataPoint = runs[index]
-            const isRecord = allRecordPoints.some(
-              (record: RecordPoint) =>
-                record.run.x === dataPoint.x &&
-                record.run.y === dataPoint.y &&
-                record.player === player
-            )
-            return isRecord ? 8 : viewMode === 'records' ? 0 : 8
-          },
-          stepped: 'before',
-          tension: 0,
-          showLine: true,
-        })
-      ).filter((dataset) => dataset.data.length > 0)
+      const datasets = Array.from(playerHistory.entries(), ([player, runs]) => ({
+        label: player,
+        data: runs,
+        borderColor: playerColors.current[player],
+        backgroundColor: playerColors.current[player],
+        pointRadius: (context: ScriptableContext<'line'>) => {
+          const index = context.dataIndex
+          const dataPoint = runs[index]
+          const isRecord = allRecordPoints.some(
+            (record: RecordPoint) =>
+              record.run.x === dataPoint.x &&
+              record.run.y === dataPoint.y &&
+              record.player === player
+          )
+          return isRecord ? 6 : viewMode === 'records' ? 0 : 6
+        },
+        pointHoverRadius: (context: ScriptableContext<'line'>) => {
+          const index = context.dataIndex
+          const dataPoint = runs[index]
+          const isRecord = allRecordPoints.some(
+            (record: RecordPoint) =>
+              record.run.x === dataPoint.x &&
+              record.run.y === dataPoint.y &&
+              record.player === player
+          )
+          return isRecord ? 8 : viewMode === 'records' ? 0 : 8
+        },
+        stepped: 'before',
+        tension: 0,
+        showLine: true,
+      })).filter((dataset) => dataset.data.length > 0)
 
       if (datasets.length === 0) {
         console.warn('No valid data to display')
@@ -153,7 +146,7 @@ const Chart: React.FC = () => {
         ),
       })
 
-      createLegend(chartInstance.current)
+      setChartData(chartInstance.current)
     },
     [maxDuration, viewMode]
   )
@@ -221,7 +214,8 @@ const Chart: React.FC = () => {
             </div>
           )}
         </div>
-        <div id="legend-container"></div>
+
+        <Legend chart={chartData} playerColors={playerColors.current} />
       </div>
     </div>
   )
