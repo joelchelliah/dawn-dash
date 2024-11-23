@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import useSWR from 'swr'
 
@@ -13,14 +13,6 @@ export function useSpeedrunData(type: string) {
   const [localData, setLocalData] = useState<SpeedRunData[] | null>(null)
   const [shouldFetch, setShouldFetch] = useState(false)
 
-  const updateLocalDataAndCache = useCallback(
-    (data: SpeedRunData[]) => {
-      setLocalData(data)
-      saveToCache(type, data)
-    },
-    [type]
-  )
-
   useEffect(() => {
     const { data, isStale } = getFromCache<SpeedRunData[]>(type)
     if (data) {
@@ -31,7 +23,7 @@ export function useSpeedrunData(type: string) {
     }
   }, [type])
 
-  // Polling, regardless of cache
+  // Interval-based polling, regardless of cache
   useSWR<SpeedRunData[]>(
     ['speedruns', type, 'polling'],
     () => fetchSpeedruns(type, FETCH_DATA_SIZE),
@@ -39,7 +31,7 @@ export function useSpeedrunData(type: string) {
       refreshInterval: POLLING_INTERVAL,
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
-      onSuccess: updateLocalDataAndCache,
+      onSuccess: (newData) => saveToCache(type, newData),
     }
   )
 
@@ -51,7 +43,10 @@ export function useSpeedrunData(type: string) {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       refreshInterval: 0,
-      onSuccess: updateLocalDataAndCache,
+      onSuccess: (newData) => {
+        setLocalData(newData)
+        saveToCache(type, newData)
+      },
     }
   )
 

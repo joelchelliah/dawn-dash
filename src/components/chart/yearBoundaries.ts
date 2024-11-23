@@ -1,9 +1,10 @@
 import { Chart } from 'chart.js'
 import moment from 'moment'
 
-const YEAR_BOUNDARY_COLOR = '#bbbbbb'
-const YEAR_LABEL_OFFSET = 5
-const LINE_OFFSET = 20 - YEAR_LABEL_OFFSET
+const YEAR_BOUNDARY_COLOR = '#999999'
+const YEAR_LABEL_FONT = 'bold 12px Arial'
+const YEAR_LABEL_OFFSET = 0
+const LINE_OFFSET = 15 - YEAR_LABEL_OFFSET
 
 const yearBoundaries: number[] = []
 
@@ -48,35 +49,24 @@ export const yearBoundariesPlugin = {
   },
 }
 
-/**
- * Draws a vertical dotted line at the year boundary
- * @param ctx Canvas rendering context
- * @param yearLabelOffset X-coordinate for the line
- * @param chart Chart instance
- */
-const drawDottedLine = (ctx: CanvasRenderingContext2D, yearLabelOffset: number, chart: Chart) => {
+// Draws a vertical dotted line at the year boundary
+const drawDottedLine = (ctx: CanvasRenderingContext2D, x: number, chart: Chart) => {
   ctx.save()
-  ctx.setLineDash([5, 5])
+  ctx.setLineDash([5, 10])
   ctx.lineWidth = 1
   ctx.strokeStyle = YEAR_BOUNDARY_COLOR
   ctx.beginPath()
-  ctx.moveTo(yearLabelOffset, chart.chartArea.top + LINE_OFFSET) // Start below the label
-  ctx.lineTo(yearLabelOffset, chart.chartArea.bottom)
+  ctx.moveTo(x, chart.chartArea.top + LINE_OFFSET)
+  ctx.lineTo(x, chart.chartArea.bottom)
   ctx.stroke()
   ctx.restore()
 }
 
-/**
- * Draws the year label above the dotted line
- * @param ctx Canvas rendering context
- * @param yearStart Timestamp for the start of the year
- * @param yearLabelOffset X-coordinate for the label
- * @param chart Chart instance
- */
+// Draws the year label above the dotted line
 const drawYearLabel = (
   ctx: CanvasRenderingContext2D,
   yearStart: number,
-  yearLabelOffset: number,
+  x: number,
   chart: Chart
 ) => {
   const yearLabel = moment(yearStart).format('YYYY')
@@ -84,7 +74,7 @@ const drawYearLabel = (
   ctx.save()
   ctx.fillStyle = YEAR_BOUNDARY_COLOR
   ctx.textAlign = 'center'
-  ctx.font = 'bold 12px Arial'
-  ctx.fillText(yearLabel, yearLabelOffset, chart.chartArea.top + YEAR_LABEL_OFFSET)
+  ctx.font = YEAR_LABEL_FONT
+  ctx.fillText(yearLabel, x, chart.chartArea.top + YEAR_LABEL_OFFSET)
   ctx.restore()
 }
