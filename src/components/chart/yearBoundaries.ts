@@ -48,7 +48,6 @@ export const yearBoundariesPlugin = {
   },
 }
 
-// Draws a vertical dotted line at the year boundary
 const drawDottedLine = (ctx: CanvasRenderingContext2D, x: number, chart: Chart) => {
   ctx.save()
   ctx.setLineDash([5, 10])
@@ -61,7 +60,6 @@ const drawDottedLine = (ctx: CanvasRenderingContext2D, x: number, chart: Chart) 
   ctx.restore()
 }
 
-// Draws the year label above the dotted line
 const drawYearLabel = (
   ctx: CanvasRenderingContext2D,
   yearStart: number,

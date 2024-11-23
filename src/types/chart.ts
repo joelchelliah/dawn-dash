@@ -22,6 +22,6 @@ export interface ParsedPlayerData {
 }
 
 export enum ViewMode {
-  SelfImproving = 'self-improving',
+  Improvements = 'improvements',
   Records = 'records',
 }

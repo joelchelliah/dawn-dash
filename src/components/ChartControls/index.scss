@@ -1,0 +1,104 @@
+.chart-controls {
+  margin-bottom: 20px;
+  text-align: center;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+  gap: 20px;
+  padding: 15px;
+  background: #1f1f1f;
+  border-radius: 8px;
+
+  /* Fallback for browsers that don't support gap */
+  & > * + * {
+    margin-left: 20px;
+  }
+
+  .control-group {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    gap: 8px;
+
+    /* Fallback for browsers that don't support gap */
+    & > * + * {
+      margin-left: 8px;
+    }
+
+    label {
+      font-size: 14px;
+      font-weight: 500;
+      color: #aaa;
+    }
+
+    select {
+      background-color: #333;
+      color: #fff;
+      padding: 8px 32px 8px 12px;
+      border: 1px solid #444;
+      border-radius: 6px;
+      font-size: 14px;
+      cursor: pointer;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+
+      /* Fallback for browsers that don't support SVG background images */
+      background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23FFFFFF%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E');
+      background-repeat: no-repeat;
+      background-position: right 12px top 50%;
+      background-size: 10px auto;
+      -webkit-transition: all 0.2s ease;
+      transition: all 0.2s ease;
+
+      /* Remove default arrow in IE */
+      &::-ms-expand {
+        display: none;
+      }
+
+      /* Firefox specific styling */
+      @-moz-document url-prefix() {
+        padding-right: 25px; /* Adjust padding for Firefox */
+      }
+
+      &:hover {
+        background-color: #444;
+        border-color: #666;
+      }
+
+      &:focus {
+        outline: none;
+        border-color: #666;
+        -webkit-box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+        box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+      }
+
+      /* Ensure text is readable on iOS */
+      @supports (-webkit-touch-callout: none) {
+        font-size: 16px; /* Prevent zoom on focus in iOS */
+      }
+    }
+  }
+
+  /* Media query for mobile devices */
+  @media (max-width: 768px) {
+    padding: 10px;
+    gap: 15px;
+
+    .control-group select {
+      width: 100%;
+      max-width: 200px;
+    }
+  }
+}

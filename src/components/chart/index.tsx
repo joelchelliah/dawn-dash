@@ -1,4 +1,3 @@
-// src/components/Chart.js
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 
 import 'chartjs-adapter-moment'
@@ -21,7 +20,9 @@ import { useSpeedrunData } from '../../hooks/useSpeedrunData'
 import { ChartConfig, DataPoint, RecordPoint, ViewMode } from '../../types/chart'
 import { SpeedRunData } from '../../types/speedRun'
 import { getColorMapping } from '../../utils/colors'
-import Legend from '../Legend'
+import ChartControls from '../ChartControls'
+import Legend from '../ChartLegend'
+import { getTopPlayers } from '../ChartLegend/helper'
 
 import { createChartConfigOptions } from './chartConfig'
 import { parseSpeedrunData } from './dataParser'
@@ -42,6 +43,7 @@ ChartJS.register(
 )
 
 const DEFAULT_MAX_DURATION = 18
+const DEFAULT_PLAYER_LIMIT = 20
 const DEFAULT_ZOOM_LEVEL = 100
 
 const Chart: React.FC = () => {
@@ -49,9 +51,10 @@ const Chart: React.FC = () => {
   const chartInstance = useRef<ChartJS<'line', DataPoint[]> | null>(null)
   const [maxDuration, setMaxDuration] = useState(DEFAULT_MAX_DURATION)
   const [zoomLevel, setZoomLevel] = useState(DEFAULT_ZOOM_LEVEL)
-  const [viewMode, setViewMode] = useState<ViewMode>(ViewMode.SelfImproving)
+  const [viewMode, setViewMode] = useState<ViewMode>(ViewMode.Improvements)
   const playerColors = useRef<Record<string, string>>({})
   const [chartData, setChartData] = useState<ChartJS | null>(null)
+  const [playerLimit, setPlayerLimit] = useState<number | null>(DEFAULT_PLAYER_LIMIT)
 
   const createChart = useCallback(
     (speedruns: SpeedRunData[]) => {
@@ -60,12 +63,25 @@ const Chart: React.FC = () => {
       if (chartInstance.current) chartInstance.current.destroy()
 
       const { playerHistory, allRecordPoints } = parseSpeedrunData(speedruns, maxDuration, viewMode)
-
-      // Get colors for players
       playerColors.current = getColorMapping(playerHistory)
 
-      // Create datasets
-      const datasets = Array.from(playerHistory.entries(), ([player, runs]) => ({
+      let filteredPlayerHistory = playerHistory
+      if (playerLimit) {
+        const playerBestTimes = Array.from(playerHistory.entries()).reduce<Record<string, number>>(
+          (acc, [player, runs]) => {
+            acc[player] = Math.min(...runs.map((run) => run.y))
+            return acc
+          },
+          {}
+        )
+
+        const topPlayers = getTopPlayers(playerBestTimes, playerLimit)
+        filteredPlayerHistory = new Map(
+          Array.from(playerHistory.entries()).filter(([player]) => topPlayers.includes(player))
+        )
+      }
+
+      const datasets = Array.from(filteredPlayerHistory.entries(), ([player, runs]) => ({
         label: player,
         data: runs,
         borderColor: playerColors.current[player],
@@ -102,12 +118,10 @@ const Chart: React.FC = () => {
         return
       }
 
-      // Calculate chart boundaries
       const allDates = datasets.flatMap((ds) => ds.data.map((d) => d.x))
       const minDate = Math.min(...allDates)
       const maxDate = Math.max(...allDates)
 
-      // Calculate padding
       const totalDays = moment(maxDate).diff(moment(minDate), 'days')
       const paddingAmount = 0.025
       const paddingDays = Math.ceil(totalDays * paddingAmount)
@@ -116,13 +130,12 @@ const Chart: React.FC = () => {
 
       calculateYearBoundaries(minDate, maxDate)
 
-      // Find the fastest run time
       const allRunTimes = datasets.flatMap(({ data }) => data.map(({ y }) => y))
       const fastestTime = Math.min(...allRunTimes)
+      const slowestTime = Math.max(...allRunTimes)
       const paddedMinDuration = Math.max(0, fastestTime - 0.25)
-      const paddedMaxDuration = maxDuration + 0.25
+      const paddedMaxDuration = Math.min(slowestTime + 0.25, maxDuration)
 
-      // Create new chart
       const ctx = chartRef.current.getContext('2d')
       if (!ctx) return
 
@@ -141,7 +154,7 @@ const Chart: React.FC = () => {
 
       setChartData(chartInstance.current)
     },
-    [maxDuration, viewMode]
+    [maxDuration, viewMode, playerLimit]
   )
 
   const { speedrunData, isLoadingSpeedrunData, isErrorSpeedrunData } = useSpeedrunData('Scion')
@@ -152,45 +165,17 @@ const Chart: React.FC = () => {
 
   return (
     <div className="speedrun-chart">
-      <h2 className="chart-title">Sunforge Speedrun History</h2>
-      <div className="controls">
-        <label htmlFor="maxDuration">Max duration: </label>
-        <select
-          id="maxDuration"
-          value={maxDuration}
-          onChange={(e) => setMaxDuration(parseInt(e.target.value))}
-        >
-          <option value="12">12 minutes</option>
-          <option value="14">14 minutes</option>
-          <option value="18">18 minutes</option>
-          <option value="24">24 minutes</option>
-          <option value="32">32 minutes</option>
-          <option value="999999">All runs</option>
-        </select>
-
-        <label htmlFor="zoomLevel">Zoom level: </label>
-        <select
-          id="zoomLevel"
-          value={zoomLevel}
-          onChange={(e) => setZoomLevel(parseInt(e.target.value))}
-        >
-          <option value="100">100%</option>
-          <option value="200">200%</option>
-          <option value="300">300%</option>
-          <option value="400">400%</option>
-          <option value="500">500%</option>
-        </select>
-
-        <label htmlFor="viewMode">Show: </label>
-        <select
-          id="viewMode"
-          value={viewMode}
-          onChange={(e) => setViewMode(e.target.value as ViewMode)}
-        >
-          <option value="self-improving">Self-improving runs</option>
-          <option value="records">Record-breaking runs</option>
-        </select>
-      </div>
+      <h2 className="chart-title">Scion Impossible Speedruns</h2>
+      <ChartControls
+        viewMode={viewMode}
+        setViewMode={setViewMode}
+        maxDuration={maxDuration}
+        setMaxDuration={setMaxDuration}
+        playerLimit={playerLimit}
+        setPlayerLimit={setPlayerLimit}
+        zoomLevel={zoomLevel}
+        setZoomLevel={setZoomLevel}
+      />
       <div className="chart-layout">
         <div className="outer-container">
           {isLoadingSpeedrunData && <div className="chart-message">Loading data...</div>}

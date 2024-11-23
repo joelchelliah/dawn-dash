@@ -19,3 +19,15 @@ export function sortByPlayerBestTime(chart: ChartJS, playerBestTimes: Record<str
     return aTime - bTime
   })
 }
+
+export function getTopPlayers(
+  playerBestTimes: Record<string, number>,
+  limit: number | null
+): string[] {
+  if (!limit) return Object.keys(playerBestTimes)
+
+  return Object.entries(playerBestTimes)
+    .sort(([, aTime], [, bTime]) => aTime - bTime)
+    .slice(0, limit)
+    .map(([player]) => player)
+}

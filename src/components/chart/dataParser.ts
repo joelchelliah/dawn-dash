@@ -41,7 +41,7 @@ export function parseSpeedrunData(
   switch (viewMode) {
     case ViewMode.Records:
       return processRecordBreakingView(playerHistory)
-    case ViewMode.SelfImproving:
+    case ViewMode.Improvements:
       return processSelfImprovingRunsView(playerHistory)
     default:
       throw new Error(`Invalid view mode: ${viewMode}`)
