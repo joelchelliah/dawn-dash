@@ -2,9 +2,10 @@ import React from 'react'
 
 import { Chart as ChartJS } from 'chart.js'
 
+import { formatTime } from '../../utils/time'
+
 import { getPlayerBestTimes, sortByPlayerBestTime } from './helper'
 import './index.scss'
-import { formatTime } from '../../utils/time'
 
 interface LegendProps {
   chart: ChartJS | null

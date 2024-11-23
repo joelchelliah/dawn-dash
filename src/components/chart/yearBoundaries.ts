@@ -17,7 +17,6 @@ export const calculateYearBoundaries = (minDate: number, maxDate: number): void 
   // Clear existing year boundaries
   yearBoundaries.length = 0
 
-  // Calculate year boundaries
   let currentYear = moment(minDate).year()
   const endYear = moment(maxDate).year()
 

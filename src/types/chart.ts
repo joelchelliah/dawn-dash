@@ -1,3 +1,11 @@
+import { ChartDataset, ChartOptions } from 'chart.js'
+
+export interface ChartConfig {
+  type: 'line'
+  data: { datasets: ChartDataset<'line', DataPoint[]>[] }
+  options: ChartOptions<'line'>
+}
+
 export interface DataPoint {
   x: number
   y: number

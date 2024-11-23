@@ -20,6 +20,10 @@ export function formatDateAndTime(timestamp: number) {
   return moment(timestamp).format('MMM D, YYYY HH:mm:ss')
 }
 
+export function formatDateShort(timestamp: string | number) {
+  return moment(timestamp).format('MMM D')
+}
+
 export function formatTime(time: number) {
   const duration = moment.duration(time, 'minutes')
   const format = duration.asHours() >= 1 ? 'HH:mm:ss' : 'mm:ss'

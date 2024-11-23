@@ -1,8 +1,7 @@
 import { ChartOptions } from 'chart.js'
-import moment from 'moment'
 
-import { DataPoint, ViewMode } from '../../types/chart'
-import { formatDateAndTime, formatTime } from '../../utils/time'
+import { DataPoint } from '../../types/chart'
+import { formatDateAndTime, formatDateShort, formatTime } from '../../utils/time'
 
 const CHART_COLOR = '#ffffff'
 const GRID_COLOR = '#333333'
@@ -10,21 +9,14 @@ const GRID_COLOR = '#333333'
 const MIN_DAYS_BETWEEN_TICKS = 10
 
 /**
- * Creates the configuration object for the Chart.js instance
- * Could be split into:
- * - scales.ts (x and y axis configuration)
- * - tooltips.ts (tooltip behavior and formatting)
- * - theme.ts (colors and visual settings)
+ * Chart configuration options for the Chart.js instance
  */
-export const createChartConfig = (
+export const createChartConfigOptions = (
   paddedMinDate: number,
   paddedMaxDate: number,
   paddedMinDuration: number,
-  paddedMaxDuration: number,
-  viewMode: ViewMode,
-  allRecordPoints: Array<{ player: string; run: DataPoint }>
-): ChartOptions => ({
-  // Basic chart configuration
+  paddedMaxDuration: number
+): ChartOptions<'line'> => ({
   responsive: true,
   maintainAspectRatio: false,
   interaction: {
@@ -32,7 +24,6 @@ export const createChartConfig = (
     mode: 'nearest',
   },
 
-  // Layout hooks
   layout: {
     padding: {
       top: 30,
@@ -41,7 +32,6 @@ export const createChartConfig = (
     },
   },
 
-  // Axis scales configuration
   scales: {
     x: {
       type: 'time',
@@ -59,7 +49,6 @@ export const createChartConfig = (
         maxRotation: 45,
         minRotation: 45,
         autoSkip: true,
-        maxTicksLimit: 100,
         source: 'data',
         callback: function (value, index, ticks) {
           // Skip if too close to previous tick
@@ -73,13 +62,12 @@ export const createChartConfig = (
               return ''
             }
           }
-          return moment(value).format('MMM D')
+          return formatDateShort(value)
         },
       },
       grid: { color: GRID_COLOR },
     },
 
-    // Y-axis (duration) configuration
     y: {
       min: paddedMinDuration,
       max: Math.min(paddedMaxDuration, 1500),
@@ -96,27 +84,11 @@ export const createChartConfig = (
     },
   },
 
-  // Plugin configurations
   plugins: {
     tooltip: {
-      // Filter tooltip visibility based on view mode
-      filter: function (tooltipItem) {
-        if (!tooltipItem.raw) return false
-        const dataPoint = tooltipItem.raw as DataPoint
-        if (viewMode === 'records') {
-          return allRecordPoints.some(
-            (record) =>
-              record.run.x === dataPoint.x &&
-              record.run.y === dataPoint.y &&
-              record.player === tooltipItem.dataset.label
-          )
-        }
-        return true
-      },
       mode: 'point',
       intersect: true,
 
-      // Tooltip content formatting
       callbacks: {
         title: (tooltipItems) => {
           if (!tooltipItems.length || !tooltipItems[0].raw) return ''
@@ -132,7 +104,6 @@ export const createChartConfig = (
         },
       },
 
-      // Tooltip visual styling
       backgroundColor: 'rgba(0, 0, 0, 0.8)',
       titleColor: CHART_COLOR,
       bodyColor: CHART_COLOR,
@@ -141,8 +112,6 @@ export const createChartConfig = (
     },
 
     // Using custom legend instead
-    legend: {
-      display: false,
-    },
+    legend: { display: false },
   },
 })

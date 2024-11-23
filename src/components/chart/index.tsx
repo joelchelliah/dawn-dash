@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react'
 
 import 'chartjs-adapter-moment'
 import {
+  ScriptableContext,
   Chart as ChartJS,
   LineController,
   CategoryScale,
@@ -13,18 +14,19 @@ import {
   TimeScale,
   Tooltip,
   Title,
-  ScriptableContext,
 } from 'chart.js'
 import moment from 'moment'
 
-import { createChartConfig } from './chartConfig'
+import { useSpeedrunData } from '../../hooks/useSpeedrunData'
+import { ChartConfig, DataPoint, RecordPoint, ViewMode } from '../../types/chart'
+import { SpeedRunData } from '../../types/speedRun'
+import { getColorMapping } from '../../utils/colors'
+import Legend from '../Legend'
+
+import { createChartConfigOptions } from './chartConfig'
 import { parseSpeedrunData } from './dataParser'
 import { yearBoundariesPlugin, calculateYearBoundaries } from './yearBoundaries'
 import './index.scss'
-import { useSpeedrunData } from '../../hooks/useSpeedrunData'
-import { DataPoint, RecordPoint, ViewMode } from '../../types/chart'
-import { getColorMapping } from '../../utils/colors'
-import Legend from '../Legend'
 
 // Register the required components
 ChartJS.register(
@@ -39,19 +41,12 @@ ChartJS.register(
   yearBoundariesPlugin
 )
 
-interface SpeedRun {
-  discorduser: string | null
-  duration: string
-  uid: number
-  _id: string
-}
-
 const DEFAULT_MAX_DURATION = 18
 const DEFAULT_ZOOM_LEVEL = 100
 
 const Chart: React.FC = () => {
   const chartRef = useRef<HTMLCanvasElement>(null)
-  const chartInstance = useRef<ChartJS | null>(null)
+  const chartInstance = useRef<ChartJS<'line', DataPoint[]> | null>(null)
   const [maxDuration, setMaxDuration] = useState(DEFAULT_MAX_DURATION)
   const [zoomLevel, setZoomLevel] = useState(DEFAULT_ZOOM_LEVEL)
   const [viewMode, setViewMode] = useState<ViewMode>(ViewMode.SelfImproving)
@@ -59,7 +54,7 @@ const Chart: React.FC = () => {
   const [chartData, setChartData] = useState<ChartJS | null>(null)
 
   const createChart = useCallback(
-    (speedruns: SpeedRun[]) => {
+    (speedruns: SpeedRunData[]) => {
       if (!chartRef.current) return
 
       if (chartInstance.current) chartInstance.current.destroy()
@@ -131,18 +126,18 @@ const Chart: React.FC = () => {
       const ctx = chartRef.current.getContext('2d')
       if (!ctx) return
 
-      chartInstance.current = new ChartJS(ctx, {
+      const config: ChartConfig = {
         type: 'line',
         data: { datasets: datasets as ChartDataset<'line', DataPoint[]>[] },
-        options: createChartConfig(
+        options: createChartConfigOptions(
           paddedMinDate,
           paddedMaxDate,
           paddedMinDuration,
-          paddedMaxDuration,
-          viewMode,
-          allRecordPoints
+          paddedMaxDuration
         ),
-      })
+      }
+
+      chartInstance.current = new ChartJS(ctx, config)
 
       setChartData(chartInstance.current)
     },
