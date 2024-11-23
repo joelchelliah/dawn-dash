@@ -11,6 +11,7 @@ export const fetchSpeedruns = async (type: string, num: number): Promise<SpeedRu
 
   const response = await axios.get<[SpeedRunApiResponse]>(url)
   const end = performance.now()
+
   console.log(`Speedruns fetch took ${(end - start).toFixed(2)}ms`)
 
   const category = Object.keys(response.data[0])[0] as SpeedRunCategory

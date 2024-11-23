@@ -127,8 +127,6 @@ const Chart: React.FC = () => {
       const paddedMinDuration = Math.max(0, fastestTime - 0.25)
       const paddedMaxDuration = maxDuration + 0.25
 
-      console.log('paddedMinDuration: ', paddedMinDuration)
-
       // Create new chart
       const ctx = chartRef.current.getContext('2d')
       if (!ctx) return
@@ -151,10 +149,7 @@ const Chart: React.FC = () => {
     [maxDuration, viewMode]
   )
 
-  const { speedrunData, isLoadingSpeedrunData, isErrorSpeedrunData } = useSpeedrunData(
-    'Scion',
-    1000
-  )
+  const { speedrunData, isLoadingSpeedrunData, isErrorSpeedrunData } = useSpeedrunData('Scion')
 
   useEffect(() => {
     if (speedrunData) createChart(speedrunData)
