@@ -28,10 +28,7 @@ function Legend({ chart, playerColors }: LegendProps) {
             <li key={player}>
               <span className="color-marker" style={{ backgroundColor: playerColors[player] }} />
               <span className="player-info">
-                <span className="player-name">
-                  {player}
-                  <span className="separator"> - </span>
-                </span>
+                <span className="player-name">{player}</span>
                 <span className="player-time">{formatTime(bestTime)}</span>
               </span>
             </li>

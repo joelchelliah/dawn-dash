@@ -2,6 +2,7 @@ import { ChartOptions } from 'chart.js'
 import moment from 'moment'
 
 import { DataPoint, ViewMode } from '../../types/chart'
+import { formatDateAndTime, formatTime } from '../../utils/time'
 
 const CHART_COLOR = '#ffffff'
 const GRID_COLOR = '#333333'
@@ -34,7 +35,9 @@ export const createChartConfig = (
   // Layout hooks
   layout: {
     padding: {
+      top: 30,
       bottom: 10,
+      left: 10,
     },
   },
 
@@ -73,9 +76,7 @@ export const createChartConfig = (
           return moment(value).format('MMM D')
         },
       },
-      grid: {
-        color: GRID_COLOR,
-      },
+      grid: { color: GRID_COLOR },
     },
 
     // Y-axis (duration) configuration
@@ -88,27 +89,10 @@ export const createChartConfig = (
       },
       ticks: {
         color: CHART_COLOR,
-        callback: (tickValue: string | number) => {
-          // Duration formatting logic
-          // Could be moved to formatters.ts
-          if (tickValue === undefined) return ''
-          const value = Number(tickValue)
-          const hours = Math.floor(value / 60)
-          const minutes = Math.floor(value % 60)
-          const seconds = Math.floor((value * 60) % 60)
-          return `${hours.toString().padStart(2, '0')}:${minutes
-            .toString()
-            .padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
-        },
+        callback: (val: string | number) => val && formatTime(Number(val)),
       },
-      grid: {
-        color: GRID_COLOR,
-      },
-      title: {
-        display: true,
-        text: 'Run duration',
-        color: CHART_COLOR,
-      },
+      grid: { color: GRID_COLOR },
+      title: { display: false },
     },
   },
 
@@ -135,22 +119,16 @@ export const createChartConfig = (
       // Tooltip content formatting
       callbacks: {
         title: (tooltipItems) => {
-          // Timestamp formatting
           if (!tooltipItems.length || !tooltipItems[0].raw) return ''
           const dataPoint = tooltipItems[0].raw as DataPoint
-          return moment(dataPoint.x).format('MMM D, YYYY HH:mm:ss')
+
+          return formatDateAndTime(dataPoint.x)
         },
         label: (context) => {
-          // Duration formatting
           if (!context.raw) return ''
           const dataPoint = context.raw as DataPoint
-          const value = dataPoint.y
-          const hours = Math.floor(value / 60)
-          const minutes = Math.floor(value % 60)
-          const seconds = Math.floor((value * 60) % 60)
-          return `${context.dataset.label}: ${hours.toString().padStart(2, '0')}:${minutes
-            .toString()
-            .padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+
+          return `${context.dataset.label}: ${formatTime(dataPoint.y)}`
         },
       },
 
@@ -162,16 +140,8 @@ export const createChartConfig = (
       displayColors: true,
     },
 
-    // Legend configuration
-    // Note: Custom legend is created in legend.ts
+    // Using custom legend instead
     legend: {
-      position: 'right' as const,
-      align: 'start' as const,
-      labels: {
-        color: CHART_COLOR,
-        padding: 20,
-        boxWidth: 15,
-      },
       display: false,
     },
   },

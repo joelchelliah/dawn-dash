@@ -2,6 +2,8 @@ import { Chart } from 'chart.js'
 import moment from 'moment'
 
 const YEAR_BOUNDARY_COLOR = '#bbbbbb'
+const YEAR_LABEL_OFFSET = 5
+const LINE_OFFSET = 20 - YEAR_LABEL_OFFSET
 
 const yearBoundaries: number[] = []
 
@@ -50,28 +52,26 @@ export const yearBoundariesPlugin = {
  * Draws a vertical dotted line at the year boundary
  * @param ctx Canvas rendering context
  * @param yearLabelOffset X-coordinate for the line
- * @param chart The Chart.js instance
+ * @param chart Chart instance
  */
 const drawDottedLine = (ctx: CanvasRenderingContext2D, yearLabelOffset: number, chart: Chart) => {
-  const bottomOffset = 30
-
   ctx.save()
   ctx.setLineDash([5, 5])
   ctx.lineWidth = 1
   ctx.strokeStyle = YEAR_BOUNDARY_COLOR
   ctx.beginPath()
-  ctx.moveTo(yearLabelOffset, chart.chartArea.top)
-  ctx.lineTo(yearLabelOffset, chart.chartArea.bottom - bottomOffset)
+  ctx.moveTo(yearLabelOffset, chart.chartArea.top + LINE_OFFSET) // Start below the label
+  ctx.lineTo(yearLabelOffset, chart.chartArea.bottom)
   ctx.stroke()
   ctx.restore()
 }
 
 /**
- * Draws the year label below the dotted line
+ * Draws the year label above the dotted line
  * @param ctx Canvas rendering context
- * @param yearStart Timestamp for the year start
+ * @param yearStart Timestamp for the start of the year
  * @param yearLabelOffset X-coordinate for the label
- * @param chart The Chart.js instance
+ * @param chart Chart instance
  */
 const drawYearLabel = (
   ctx: CanvasRenderingContext2D,
@@ -79,13 +79,12 @@ const drawYearLabel = (
   yearLabelOffset: number,
   chart: Chart
 ) => {
-  const bottomOffset = 20
   const yearLabel = moment(yearStart).format('YYYY')
 
   ctx.save()
   ctx.fillStyle = YEAR_BOUNDARY_COLOR
   ctx.textAlign = 'center'
   ctx.font = 'bold 12px Arial'
-  ctx.fillText(yearLabel, yearLabelOffset, chart.chartArea.bottom - bottomOffset)
+  ctx.fillText(yearLabel, yearLabelOffset, chart.chartArea.top + YEAR_LABEL_OFFSET)
   ctx.restore()
 }

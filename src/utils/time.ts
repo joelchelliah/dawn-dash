@@ -1,3 +1,5 @@
+import moment from 'moment'
+
 import { SpeedRunData } from '../types/speedRun'
 
 export function getDurationInMinutes(run: SpeedRunData): number | undefined {
@@ -10,6 +12,10 @@ export function getDurationInMinutes(run: SpeedRunData): number | undefined {
   const seconds = parseInt(durationMatch[3])
 
   return hours * 60 + minutes + seconds / 60
+}
+
+export function formatDateAndTime(timestamp: number) {
+  return moment(timestamp).format('MMM D, YYYY HH:mm:ss')
 }
 
 export function formatTime(time: number) {

@@ -36,41 +36,20 @@
 
     .outer-container {
       flex: 1;
-      width: 95vw;
-      height: 80vh;
+      width: 80vw;
+      height: 85vh;
       margin: auto;
       overflow-y: auto;
-      overflow-x: scroll;
+      overflow-x: auto;
       background-color: #1a1a1a;
       border: 1px solid #333;
-    }
-
-    #legend-container {
-      width: 200px;
-      padding: 20px;
-      background-color: #1a1a1a;
-      border: 1px solid #333;
-      overflow: auto;
-      max-height: 80vh;
-
-      ul {
-        margin: 0;
-        padding: 0;
-      }
-
-      li {
-        white-space: nowrap;
-        min-width: min-content;
-      }
     }
   }
 
   .chart-container {
-    padding: 20px;
     transition:
       width 0.3s,
       height 0.3s;
-    overflow: visible;
   }
 
   canvas {

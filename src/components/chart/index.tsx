@@ -12,7 +12,6 @@ import {
   LinearScale,
   TimeScale,
   Tooltip,
-  Legend as LegendJS,
   Title,
   ScriptableContext,
 } from 'chart.js'
@@ -36,7 +35,6 @@ ChartJS.register(
   LineController,
   Title,
   Tooltip,
-  LegendJS,
   TimeScale,
   yearBoundariesPlugin
 )
@@ -119,7 +117,7 @@ const Chart: React.FC = () => {
       const paddingAmount = 0.025
       const paddingDays = Math.ceil(totalDays * paddingAmount)
       const paddedMinDate = moment(minDate).subtract(paddingDays, 'days').valueOf()
-      const paddedMaxDate = moment(maxDate).add(1, 'days').valueOf()
+      const paddedMaxDate = moment(maxDate).add(2, 'days').valueOf()
 
       calculateYearBoundaries(minDate, maxDate)
 
@@ -128,6 +126,8 @@ const Chart: React.FC = () => {
       const fastestTime = Math.min(...allRunTimes)
       const paddedMinDuration = Math.max(0, fastestTime - 0.25)
       const paddedMaxDuration = maxDuration + 0.25
+
+      console.log('paddedMinDuration: ', paddedMinDuration)
 
       // Create new chart
       const ctx = chartRef.current.getContext('2d')
