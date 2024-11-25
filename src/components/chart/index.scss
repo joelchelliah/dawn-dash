@@ -68,4 +68,23 @@
       color: #ff6b6b;
     }
   }
+
+  .rotate-device-message {
+    color: #ff6b6b;
+    text-align: center;
+    padding: 4px;
+    border-radius: 4px;
+    margin: 4px 0;
+    font-weight: bold;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    .rotate-icon {
+      font-size: 2rem;
+      display: inline-block;
+      transform: rotate(-90deg);
+      margin-bottom: 8px;
+    }
+  }
 }

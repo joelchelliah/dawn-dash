@@ -16,6 +16,7 @@ import {
 } from 'chart.js'
 import moment from 'moment'
 
+import { useDeviceOrientation } from '../../hooks/useDeviceOrientation'
 import { useSpeedrunData } from '../../hooks/useSpeedrunData'
 import { ChartConfig, DataPoint, RecordPoint, ViewMode } from '../../types/chart'
 import { SpeedRunData } from '../../types/speedRun'
@@ -55,6 +56,7 @@ const Chart: React.FC = () => {
   const playerColors = useRef<Record<string, string>>({})
   const [chartData, setChartData] = useState<ChartJS | null>(null)
   const [playerLimit, setPlayerLimit] = useState<number | null>(DEFAULT_PLAYER_LIMIT)
+  const { isLandscape, isMobile } = useDeviceOrientation()
 
   const createChart = useCallback(
     (speedruns: SpeedRunData[]) => {
@@ -160,8 +162,10 @@ const Chart: React.FC = () => {
   const { speedrunData, isLoadingSpeedrunData, isErrorSpeedrunData } = useSpeedrunData('Scion')
 
   useEffect(() => {
-    if (speedrunData) createChart(speedrunData)
-  }, [createChart, maxDuration, zoomLevel, speedrunData])
+    if (speedrunData && (!isMobile || (isMobile && isLandscape))) {
+      createChart(speedrunData)
+    }
+  }, [createChart, maxDuration, zoomLevel, speedrunData, isLandscape, isMobile])
 
   return (
     <div className="speedrun-chart">
@@ -177,19 +181,25 @@ const Chart: React.FC = () => {
         setZoomLevel={setZoomLevel}
       />
       <div className="chart-layout">
-        <div className="outer-container">
-          {isLoadingSpeedrunData && <div className="chart-message">Loading data...</div>}
-          {isErrorSpeedrunData && <div className="chart-message error">Error loading data</div>}
-          {!isLoadingSpeedrunData && !isErrorSpeedrunData && (
-            <div
-              className="chart-container"
-              style={{ width: `${zoomLevel}%`, height: `${Math.max(100, zoomLevel / 1.5)}%` }}
-            >
-              <canvas ref={chartRef}></canvas>
-            </div>
-          )}
-        </div>
-
+        {!isMobile || (isMobile && isLandscape) ? (
+          <div className="outer-container">
+            {isLoadingSpeedrunData && <div className="chart-message">Loading data...</div>}
+            {isErrorSpeedrunData && <div className="chart-message error">Error loading data</div>}
+            {!isLoadingSpeedrunData && !isErrorSpeedrunData && (
+              <div
+                className="chart-container"
+                style={{ width: `${zoomLevel}%`, height: `${Math.max(100, zoomLevel / 1.5)}%` }}
+              >
+                <canvas ref={chartRef}></canvas>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="rotate-device-message">
+            <span className="rotate-icon">📱</span>
+            Rotate your device to landscape mode to view the chart!
+          </div>
+        )}
         <Legend chart={chartData} playerColors={playerColors.current} />
       </div>
     </div>
