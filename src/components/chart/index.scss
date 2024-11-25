@@ -1,3 +1,5 @@
+@import '../../styles/breakpoints';
+
 .speedrun-chart {
   background-color: #1a1a1a;
   color: #ffffff;
@@ -19,6 +21,20 @@
     display: flex;
     gap: 20px;
 
+    @media (max-width: $breakpoint-tablet) {
+      flex-direction: column;
+
+      .outer-container {
+        width: 100% !important;
+        margin: 0;
+      }
+
+      .chart-container {
+        width: 100% !important;
+        min-width: 100%;
+      }
+    }
+
     .outer-container {
       flex: 1;
       width: 80vw;
@@ -28,6 +44,7 @@
       overflow-x: auto;
       background-color: #1a1a1a;
       border: 1px solid #333;
+      padding: 4px;
     }
   }
 

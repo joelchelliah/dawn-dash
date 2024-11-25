@@ -1,6 +1,8 @@
+@import '../../styles/breakpoints';
+
 .legend-container {
   width: 220px;
-  padding: 10px;
+  padding: 4px;
   background-color: #1a1a1a;
   border: 1px solid #333;
   overflow-y: auto;
@@ -46,6 +48,22 @@
         opacity: 0.7;
         flex-shrink: 0;
       }
+    }
+  }
+
+  @media (max-width: $breakpoint-tablet) {
+    width: 100%;
+    max-height: none;
+
+    ul {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    li {
+      flex: 1;
+      min-width: 200px;
     }
   }
 }

@@ -1,3 +1,9 @@
+@import '../../styles/breakpoints';
+
+// Control widths
+$control-min-width: 140px;
+$control-max-width: 300px;
+
 .chart-controls {
   margin-bottom: 20px;
   padding: 15px;
@@ -20,7 +26,7 @@
     flex-direction: column;
     align-items: center;
     gap: 4px;
-    min-width: 140px;
+    min-width: $control-min-width;
     width: 100%;
 
     label {
@@ -79,21 +85,21 @@
     }
   }
 
-  /* Large screens: all controls in one row */
-  @media (min-width: 1024px) {
+  //   Large screens: all controls in one row
+  @media (min-width: $breakpoint-desktop) {
     .controls-row {
       flex-direction: row;
       flex-wrap: nowrap;
       gap: 28px;
 
       .control-group {
-        flex: 0 1 300px;
+        flex: 0 1 $control-max-width;
       }
     }
   }
 
-  /* Medium screens: two controls per row */
-  @media (max-width: 1023px) and (min-width: 769px) {
+  //   Medium screens: two controls per row
+  @media (max-width: $breakpoint-tablet) and (min-width: ($breakpoint-mobile + 1)) {
     .controls-row {
       flex-direction: row;
       flex-wrap: wrap;
@@ -102,14 +108,14 @@
         flex: 0 0 calc(50% - 8px);
 
         select {
-          max-width: 300px;
+          max-width: $control-max-width;
         }
       }
     }
   }
 
-  /* Small screens: one control per row */
-  @media (max-width: 768px) {
+  // Small screens: one control per row
+  @media (max-width: $breakpoint-mobile) {
     .controls-row {
       flex-direction: column;
 
@@ -117,7 +123,7 @@
         width: 100%;
 
         select {
-          max-width: 300px;
+          max-width: $control-max-width;
         }
       }
     }
