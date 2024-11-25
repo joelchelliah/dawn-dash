@@ -1,48 +1,36 @@
 .chart-controls {
   margin-bottom: 20px;
-  text-align: center;
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-pack: center;
-  -ms-flex-pack: center;
-  justify-content: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  -ms-flex-wrap: wrap;
-  flex-wrap: wrap;
-  gap: 20px;
   padding: 15px;
   background: #1f1f1f;
   border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 
-  /* Fallback for browsers that don't support gap */
-  & > * + * {
-    margin-left: 20px;
+  .controls-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 16px;
+    width: 100%;
   }
 
   .control-group {
-    display: -webkit-box;
-    display: -ms-flexbox;
     display: flex;
-    -webkit-box-align: center;
-    -ms-flex-align: center;
+    flex-direction: column;
     align-items: center;
-    gap: 8px;
-
-    /* Fallback for browsers that don't support gap */
-    & > * + * {
-      margin-left: 8px;
-    }
+    gap: 4px;
+    min-width: 140px;
+    width: 100%;
 
     label {
       font-size: 14px;
-      font-weight: 500;
+      font-weight: 600;
       color: #aaa;
     }
 
     select {
+      width: 100%;
       background-color: #333;
       color: #fff;
       padding: 8px 32px 8px 12px;
@@ -91,14 +79,47 @@
     }
   }
 
-  /* Media query for mobile devices */
-  @media (max-width: 768px) {
-    padding: 10px;
-    gap: 15px;
+  /* Large screens: all controls in one row */
+  @media (min-width: 1024px) {
+    .controls-row {
+      flex-direction: row;
+      flex-wrap: nowrap;
+      gap: 28px;
 
-    .control-group select {
-      width: 100%;
-      max-width: 200px;
+      .control-group {
+        flex: 0 1 300px;
+      }
+    }
+  }
+
+  /* Medium screens: two controls per row */
+  @media (max-width: 1023px) and (min-width: 769px) {
+    .controls-row {
+      flex-direction: row;
+      flex-wrap: wrap;
+
+      .control-group {
+        flex: 0 0 calc(50% - 8px);
+
+        select {
+          max-width: 300px;
+        }
+      }
+    }
+  }
+
+  /* Small screens: one control per row */
+  @media (max-width: 768px) {
+    .controls-row {
+      flex-direction: column;
+
+      .control-group {
+        width: 100%;
+
+        select {
+          max-width: 300px;
+        }
+      }
     }
   }
 }
