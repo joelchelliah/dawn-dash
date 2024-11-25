@@ -188,7 +188,10 @@ const Chart: React.FC = () => {
             {!isLoadingSpeedrunData && !isErrorSpeedrunData && (
               <div
                 className="chart-container"
-                style={{ width: `${zoomLevel}%`, height: `${Math.max(100, zoomLevel / 1.5)}%` }}
+                style={{
+                  width: `${zoomLevel > 100 ? zoomLevel * 1.5 : zoomLevel}%`,
+                  height: `${Math.max(400, zoomLevel * 4)}px`,
+                }}
               >
                 <canvas ref={chartRef}></canvas>
               </div>

@@ -19,10 +19,7 @@ export const createChartConfigOptions = (
 ): ChartOptions<'line'> => ({
   responsive: true,
   maintainAspectRatio: false,
-  interaction: {
-    intersect: false,
-    mode: 'nearest',
-  },
+  resizeDelay: 0,
 
   layout: {
     padding: {
