@@ -157,20 +157,15 @@ function Chart({ selectedClass }: ChartProps) {
     useSpeedrunData(selectedClass)
 
   useEffect(() => {
-    if (speedrunData) {
-      console.log('calling createChart')
-      createChart(speedrunData)
-    }
+    if (speedrunData) createChart(speedrunData)
   }, [createChart, maxDuration, zoomLevel, speedrunData])
 
   useEffect(() => {
-    if (isLoadingSpeedrunData) {
-      setChartData(null)
-    }
+    if (isLoadingSpeedrunData) setChartData(null)
   }, [isLoadingSpeedrunData])
 
   const renderChart = () => {
-    if (isLoadingSpeedrunData) return <LoadingMessage selectedClass={selectedClass} />
+    if (isLoadingSpeedrunData || true) return <LoadingMessage selectedClass={selectedClass} />
     if (isErrorSpeedrunData) return <div className="chart-message error">Error loading data</div>
 
     return (

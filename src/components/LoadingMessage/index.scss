@@ -1,3 +1,5 @@
+@import '../../styles/animations';
+
 .loading-message {
   display: flex;
   flex-direction: column;
@@ -5,13 +7,14 @@
   justify-content: center;
   gap: 20px;
   padding: 40px;
-  color: #fff;
+  color: #ddd;
   font-size: 1.2rem;
 
   .loading-icon {
-    width: 64px;
-    height: 64px;
-    animation: pulse 1.2s ease-in-out infinite;
+    border-radius: 50%;
+    width: 80px;
+    height: 80px;
+    @include loadingPulse;
   }
 
   .loading-text {
@@ -27,49 +30,7 @@
     .loading-spinner {
       letter-spacing: 2px;
       margin-bottom: -5px;
-
-      & > span {
-        display: inline-block;
-        animation: dotPulse 1s infinite;
-
-        &:nth-child(2) {
-          animation-delay: 0.2s;
-        }
-
-        &:nth-child(3) {
-          animation-delay: 0.4s;
-        }
-      }
+      @include loadingDotsPulse;
     }
-  }
-}
-
-@keyframes pulse {
-  0% {
-    transform: scale(1);
-    opacity: 0.8;
-  }
-  50% {
-    transform: scale(1.1);
-    opacity: 1;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 0.8;
-  }
-}
-
-@keyframes dotPulse {
-  0% {
-    opacity: 0.2;
-    transform: scale(0.8);
-  }
-  20% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  100% {
-    opacity: 0.2;
-    transform: scale(0.8);
   }
 }

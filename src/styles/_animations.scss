@@ -1,0 +1,82 @@
+/**
+ * Rotates an element around the Y axis
+ * @param {string} $trigger - 'hover' for hover effect, 'auto' for automatic rotation on render
+ * @param {string} $parent - Parent selector for hover trigger (optional)
+ */
+@mixin rotateAroundY($trigger: 'auto', $parent: false) {
+  transition: transform 1s ease;
+  transform-style: preserve-3d;
+  perspective: 1000px;
+
+  @if $trigger == 'hover' {
+    @if $parent {
+      #{$parent} & {
+        transform: rotateY(360deg);
+      }
+    } @else {
+      &:hover {
+        transform: rotateY(360deg);
+      }
+    }
+  } @else {
+    animation: rotateY360 1s ease;
+  }
+}
+
+@mixin loadingPulse {
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+@mixin loadingDotsPulse {
+  & > span {
+    display: inline-block;
+    animation: dotPulse 1.2s infinite;
+
+    &:nth-child(2) {
+      animation-delay: 0.4s;
+    }
+
+    &:nth-child(3) {
+      animation-delay: 0.8s;
+    }
+  }
+}
+
+@keyframes rotateY360 {
+  from {
+    transform: rotateY(0deg);
+  }
+  to {
+    transform: rotateY(360deg);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.75;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0.75;
+  }
+}
+
+@keyframes dotPulse {
+  0% {
+    opacity: 0.2;
+    transform: scale(0.5);
+  }
+  30% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0.2;
+    transform: scale(0.5);
+  }
+}

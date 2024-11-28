@@ -1,3 +1,5 @@
+@import './styles/animations';
+
 body {
   margin: 0;
   padding: 0;
@@ -20,13 +22,11 @@ body {
       width: 50px;
       height: 50px;
       margin-right: 15px;
-      transition: transform 1s ease;
-      transform-style: preserve-3d;
-      perspective: 1000px;
+      @include rotateAroundY('hover', '.header:hover');
+    }
 
-      &:hover {
-        transform: rotateY(360deg);
-      }
+    &:hover .app-logo {
+      transform: rotateY(360deg);
     }
 
     .title-container {
