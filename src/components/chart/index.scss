@@ -10,15 +10,14 @@
   .chart-layout {
     display: flex;
     gap: 20px;
+    overflow: visible;
 
     .outer-container {
       flex: 1;
       width: 80vw;
-      height: auto;
+      height: fit-content;
       min-height: 400px;
-      max-height: 85vh;
       margin: auto;
-      overflow-y: auto;
       overflow-x: auto;
       background-color: #1a1a1a;
       border: 1px solid #333;
@@ -31,7 +30,6 @@
       .outer-container {
         width: 100% !important;
         margin: 0;
-        height: 50vh !important;
       }
 
       .chart-container {
@@ -43,6 +41,7 @@
       transition:
         width 0.3s,
         height 0.3s;
+      height: fit-content;
     }
   }
 
