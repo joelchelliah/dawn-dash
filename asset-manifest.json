@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.css": "/dawn-dash/static/css/main.099157b3.css",
-    "main.js": "/dawn-dash/static/js/main.cce97201.js",
+    "main.css": "/dawn-dash/static/css/main.a9d1fd37.css",
+    "main.js": "/dawn-dash/static/js/main.678a6a5d.js",
     "index.html": "/dawn-dash/index.html",
-    "main.099157b3.css.map": "/dawn-dash/static/css/main.099157b3.css.map",
-    "main.cce97201.js.map": "/dawn-dash/static/js/main.cce97201.js.map"
+    "main.a9d1fd37.css.map": "/dawn-dash/static/css/main.a9d1fd37.css.map",
+    "main.678a6a5d.js.map": "/dawn-dash/static/js/main.678a6a5d.js.map"
   },
   "entrypoints": [
-    "static/css/main.099157b3.css",
-    "static/js/main.cce97201.js"
+    "static/css/main.a9d1fd37.css",
+    "static/js/main.678a6a5d.js"
   ]
 }
