@@ -25,6 +25,7 @@ import { getColorMapping } from '../../utils/colors'
 import ChartControls from '../ChartControls'
 import Legend from '../ChartLegend'
 import { getTopPlayers } from '../ChartLegend/helper'
+import LoadingMessage from '../LoadingMessage'
 
 import { createChartConfigOptions } from './chartConfig'
 import { parseSpeedrunData } from './dataParser'
@@ -168,26 +169,37 @@ function Chart({ selectedClass }: ChartProps) {
     }
   }, [createChart, maxDuration, zoomLevel, speedrunData, isLandscape, isMobile])
 
+  useEffect(() => {
+    if (isLoadingSpeedrunData) {
+      setChartData(null)
+    }
+  }, [isLoadingSpeedrunData])
+
+  const renderChart = () => {
+    if (isLoadingSpeedrunData) {
+      return <LoadingMessage selectedClass={selectedClass} />
+    }
+    if (isErrorSpeedrunData) return <div className="chart-message error">Error loading data</div>
+
+    return (
+      <div
+        className="chart-container"
+        style={{
+          width: `${zoomLevel > 100 ? zoomLevel * 1.5 : zoomLevel}%`,
+          height: `${Math.max(500, zoomLevel * 4)}px`,
+        }}
+      >
+        <canvas ref={chartRef}></canvas>
+      </div>
+    )
+  }
+
   return (
     <div className="speedrun-chart">
       <ChartControls controls={controls} selectedClass={selectedClass} />
       <div className="chart-layout">
         {!isMobile || (isMobile && isLandscape) ? (
-          <div className="outer-container">
-            {isLoadingSpeedrunData && <div className="chart-message">Loading data...</div>}
-            {isErrorSpeedrunData && <div className="chart-message error">Error loading data</div>}
-            {!isLoadingSpeedrunData && !isErrorSpeedrunData && (
-              <div
-                className="chart-container"
-                style={{
-                  width: `${zoomLevel > 100 ? zoomLevel * 1.5 : zoomLevel}%`,
-                  height: `${Math.max(500, zoomLevel * 4)}px`,
-                }}
-              >
-                <canvas ref={chartRef}></canvas>
-              </div>
-            )}
-          </div>
+          <div className="outer-container">{renderChart()}</div>
         ) : (
           <div className="rotate-device-message">
             <span className="rotate-icon">📱</span>
