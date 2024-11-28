@@ -64,8 +64,12 @@ function Chart({ selectedClass }: ChartProps) {
 
   const createChart = useCallback(
     (speedruns: SpeedRunData[]) => {
-      if (!chartRef.current) return
+      if (!chartRef.current) {
+        console.warn('No chart ref available!')
+        return
+      }
 
+      // Cleanup old chart
       if (chartInstance.current) chartInstance.current.destroy()
 
       const { playerHistory, allRecordPoints } = parseSpeedrunData(speedruns, maxDuration, viewMode)
@@ -150,7 +154,6 @@ function Chart({ selectedClass }: ChartProps) {
       }
 
       chartInstance.current = new ChartJS(ctx, config)
-
       setChartData(chartInstance.current)
     },
     [maxDuration, viewMode, playerLimit, selectedClass]
@@ -162,31 +165,37 @@ function Chart({ selectedClass }: ChartProps) {
   const fromNow = useFromNow(lastUpdated, 'Data from')
 
   useEffect(() => {
-    if (speedrunData) createChart(speedrunData)
-  }, [createChart, maxDuration, zoomLevel, speedrunData])
+    if (chartRef.current && speedrunData) createChart(speedrunData)
+  }, [speedrunData, createChart])
 
   useEffect(() => {
     if (isLoading) setChartData(null)
   }, [isLoading])
 
-  const renderChart = () => {
-    if (isLoading)
-      return <LoadingMessage selectedClass={selectedClass} selectedDifficulty={difficulty} />
-    if (isError) return <div className="chart-message error">Error loading data</div>
+  useEffect(() => {
+    return () => {
+      if (chartInstance.current) chartInstance.current.destroy()
+    }
+  }, [])
 
-    return (
+  const renderChart = () => (
+    <>
+      {isLoading && (
+        <LoadingMessage selectedClass={selectedClass} selectedDifficulty={difficulty} />
+      )}
+      {isError && !isLoading && <div className="chart-message error">Error loading data</div>}
       <div
         className="chart-container"
         style={{
           width: `${zoomLevel > 100 ? zoomLevel * 1.5 : zoomLevel}%`,
           height: `${Math.max(500, zoomLevel * 4)}px`,
-          display: !isMobile || isMobileAndLandscape ? 'block' : 'none',
+          display: (!isMobile || isMobileAndLandscape) && !isLoading && !isError ? 'block' : 'none',
         }}
       >
         <canvas ref={chartRef}></canvas>
       </div>
-    )
-  }
+    </>
+  )
 
   const renderChartFooter = () => {
     if (isLoadingInBackground) return <LoadingDots text="Loading fresh data" />
