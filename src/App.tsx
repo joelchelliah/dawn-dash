@@ -1,7 +1,13 @@
+import { useState } from 'react'
+
 import './App.scss'
+import ButtonRow from './components/ButtonRow'
 import Chart from './components/Chart'
+import { SpeedRunClass } from './types/speedRun'
 
 function App(): JSX.Element {
+  const [selectedClass, setSelectedClass] = useState<SpeedRunClass>(SpeedRunClass.Arcanist)
+
   return (
     <div className="App">
       <div className="header">
@@ -12,7 +18,8 @@ function App(): JSX.Element {
         />
         <h1 className="app-title">Dawncaster Speedruns</h1>
       </div>
-      <Chart />
+      <ButtonRow onClassSelect={setSelectedClass} selectedClass={selectedClass} />
+      <Chart selectedClass={selectedClass} />
     </div>
   )
 }

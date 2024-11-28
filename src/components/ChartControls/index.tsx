@@ -1,29 +1,60 @@
-import React from 'react'
-
+import {
+  ALL_VALUE,
+  MAX_DURATION_OTHER_VALUES,
+  MAX_DURATION_SCION_VALUES,
+  PLAYER_LIMIT_VALUES,
+  VIEW_MODE_VALUES,
+  ZOOM_LEVEL_VALUES,
+} from '../../constants/chartControlValues'
+import { ChartControlState } from '../../hooks/useChartControlState'
 import { ViewMode } from '../../types/chart'
+import { SpeedRunClass } from '../../types/speedRun'
+
 import './index.scss'
 
 interface ChartControlsProps {
-  viewMode: ViewMode
-  setViewMode: (mode: ViewMode) => void
-  maxDuration: number
-  setMaxDuration: (duration: number) => void
-  playerLimit: number | null
-  setPlayerLimit: (limit: number | null) => void
-  zoomLevel: number
-  setZoomLevel: (level: number) => void
+  controls: ChartControlState
+  selectedClass: SpeedRunClass
 }
 
-function ChartControls({
-  viewMode,
-  setViewMode,
-  maxDuration,
-  setMaxDuration,
-  playerLimit,
-  setPlayerLimit,
-  zoomLevel,
-  setZoomLevel,
-}: ChartControlsProps) {
+const toPlayerLimitOption = (value: number | string) =>
+  value === ALL_VALUE ? { value: 'all', label: 'All' } : { value, label: `${value} players` }
+
+const toMinutesOption = (value: number | string) =>
+  value === ALL_VALUE ? { value: 999999, label: 'All' } : { value, label: `${value} minutes` }
+
+const toViewModeOption = (value: ViewMode) => {
+  const label = value === ViewMode.Improvements ? 'Self-improving runs' : 'Record-breaking runs'
+
+  return { value, label }
+}
+
+const toZoomLevelOption = (value: number) => ({ value, label: `${value}%` })
+
+function ChartControls({ controls, selectedClass }: ChartControlsProps) {
+  const {
+    maxDuration,
+    setMaxDuration,
+    viewMode,
+    setViewMode,
+    playerLimit,
+    setPlayerLimit,
+    zoomLevel,
+    setZoomLevel,
+  } = controls
+
+  const getDurationOptions = () =>
+    selectedClass === SpeedRunClass.Scion
+      ? MAX_DURATION_SCION_VALUES.map(toMinutesOption)
+      : MAX_DURATION_OTHER_VALUES.map(toMinutesOption)
+
+  const renderOptions = (options: { value: number | string; label: string }[]) =>
+    options.map(({ value, label }) => (
+      <option key={value} value={value}>
+        {label}
+      </option>
+    ))
+
   return (
     <div className="chart-controls">
       <div className="controls-row">
@@ -36,10 +67,7 @@ function ChartControls({
               setPlayerLimit(e.target.value === 'all' ? null : parseInt(e.target.value))
             }
           >
-            <option value="all">All</option>
-            <option value="3">Top 3</option>
-            <option value="5">Top 5</option>
-            <option value="10">Top 10</option>
+            {renderOptions(PLAYER_LIMIT_VALUES.map(toPlayerLimitOption))}
           </select>
         </div>
 
@@ -50,24 +78,18 @@ function ChartControls({
             value={maxDuration}
             onChange={(e) => setMaxDuration(parseInt(e.target.value))}
           >
-            <option value="12">12 minutes</option>
-            <option value="14">14 minutes</option>
-            <option value="18">18 minutes</option>
-            <option value="24">24 minutes</option>
-            <option value="32">32 minutes</option>
-            <option value="999999">All</option>
+            {renderOptions(getDurationOptions())}
           </select>
         </div>
 
         <div className="control-group">
-          <label htmlFor="viewMode">Chart type</label>
+          <label htmlFor="viewMode">View mode</label>
           <select
             id="viewMode"
             value={viewMode}
             onChange={(e) => setViewMode(e.target.value as ViewMode)}
           >
-            <option value={ViewMode.Improvements}>Self-improving runs</option>
-            <option value={ViewMode.Records}>Record-breaking runs</option>
+            {renderOptions(VIEW_MODE_VALUES.map(toViewModeOption))}
           </select>
         </div>
 
@@ -78,10 +100,7 @@ function ChartControls({
             value={zoomLevel}
             onChange={(e) => setZoomLevel(parseInt(e.target.value))}
           >
-            <option value={100}>100%</option>
-            <option value={200}>200%</option>
-            <option value={300}>300%</option>
-            <option value={400}>400%</option>
+            {renderOptions(ZOOM_LEVEL_VALUES.map(toZoomLevelOption))}
           </select>
         </div>
       </div>

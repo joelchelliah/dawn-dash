@@ -3,15 +3,20 @@ import { useEffect, useState } from 'react'
 import useSWR from 'swr'
 
 import { fetchSpeedruns } from '../services/blightbaneApi'
-import { SpeedRunData } from '../types/speedRun'
+import { SpeedRunClass, SpeedRunData } from '../types/speedRun'
 import { getFromCache, saveToCache } from '../utils/storage'
 
 const FETCH_DATA_SIZE = 1000
 const POLLING_INTERVAL = 10 * 60 * 1000
 
-export function useSpeedrunData(type: string) {
+export function useSpeedrunData(type: SpeedRunClass) {
   const [localData, setLocalData] = useState<SpeedRunData[] | null>(null)
   const [shouldFetch, setShouldFetch] = useState(false)
+
+  // Reset local data when type changes, so that we don't get false negatives for isLoading
+  useEffect(() => {
+    setLocalData(null)
+  }, [type])
 
   useEffect(() => {
     const { data, isStale } = getFromCache<SpeedRunData[]>(type)

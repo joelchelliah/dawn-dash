@@ -1,0 +1,46 @@
+@import '../../styles/breakpoints';
+
+.button-row {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  margin: 0 20px 20px 20px;
+  flex-wrap: nowrap;
+
+  @media (max-width: $breakpoint-tablet) {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+}
+
+.class-button {
+  flex: 1;
+  padding: 10px 20px;
+  background-color: #333;
+  color: #fff;
+  border: 1px solid #444;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 100px;
+  max-width: 450px;
+  text-align: center;
+  white-space: nowrap;
+
+  &:hover {
+    background-color: #444;
+  }
+
+  &.active {
+    background-color: #666;
+    border-color: #888;
+  }
+
+  @media (max-width: $breakpoint-tablet) {
+    flex: 1 1 calc(33.33% - 8px);
+  }
+
+  @media (max-width: $breakpoint-mobile) {
+    flex: 1 1 calc(50% - 6px);
+  }
+}

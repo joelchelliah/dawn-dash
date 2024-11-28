@@ -1,5 +1,3 @@
-import React from 'react'
-
 import { Chart as ChartJS } from 'chart.js'
 
 import { formatTime } from '../../utils/time'

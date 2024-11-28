@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import 'chartjs-adapter-moment'
 import {
@@ -16,10 +16,11 @@ import {
 } from 'chart.js'
 import moment from 'moment'
 
+import { useChartControlState } from '../../hooks/useChartControlState'
 import { useDeviceOrientation } from '../../hooks/useDeviceOrientation'
 import { useSpeedrunData } from '../../hooks/useSpeedrunData'
-import { ChartConfig, DataPoint, RecordPoint, ViewMode } from '../../types/chart'
-import { SpeedRunData } from '../../types/speedRun'
+import { ChartConfig, DataPoint, RecordPoint } from '../../types/chart'
+import { SpeedRunClass, SpeedRunData } from '../../types/speedRun'
 import { getColorMapping } from '../../utils/colors'
 import ChartControls from '../ChartControls'
 import Legend from '../ChartLegend'
@@ -43,20 +44,19 @@ ChartJS.register(
   yearBoundariesPlugin
 )
 
-const DEFAULT_MAX_DURATION = 18
-const DEFAULT_PLAYER_LIMIT = 20
-const DEFAULT_ZOOM_LEVEL = 100
+interface ChartProps {
+  selectedClass: SpeedRunClass
+}
 
-const Chart: React.FC = () => {
+function Chart({ selectedClass }: ChartProps) {
   const chartRef = useRef<HTMLCanvasElement>(null)
   const chartInstance = useRef<ChartJS<'line', DataPoint[]> | null>(null)
-  const [maxDuration, setMaxDuration] = useState(DEFAULT_MAX_DURATION)
-  const [zoomLevel, setZoomLevel] = useState(DEFAULT_ZOOM_LEVEL)
-  const [viewMode, setViewMode] = useState<ViewMode>(ViewMode.Improvements)
   const playerColors = useRef<Record<string, string>>({})
   const [chartData, setChartData] = useState<ChartJS | null>(null)
-  const [playerLimit, setPlayerLimit] = useState<number | null>(DEFAULT_PLAYER_LIMIT)
   const { isLandscape, isMobile } = useDeviceOrientation()
+
+  const controls = useChartControlState(selectedClass)
+  const { maxDuration, viewMode, playerLimit, zoomLevel } = controls
 
   const createChart = useCallback(
     (speedruns: SpeedRunData[]) => {
@@ -159,7 +159,8 @@ const Chart: React.FC = () => {
     [maxDuration, viewMode, playerLimit]
   )
 
-  const { speedrunData, isLoadingSpeedrunData, isErrorSpeedrunData } = useSpeedrunData('Scion')
+  const { speedrunData, isLoadingSpeedrunData, isErrorSpeedrunData } =
+    useSpeedrunData(selectedClass)
 
   useEffect(() => {
     if (speedrunData && (!isMobile || (isMobile && isLandscape))) {
@@ -169,17 +170,7 @@ const Chart: React.FC = () => {
 
   return (
     <div className="speedrun-chart">
-      <h2 className="chart-title">Scion Impossible Speedruns</h2>
-      <ChartControls
-        viewMode={viewMode}
-        setViewMode={setViewMode}
-        maxDuration={maxDuration}
-        setMaxDuration={setMaxDuration}
-        playerLimit={playerLimit}
-        setPlayerLimit={setPlayerLimit}
-        zoomLevel={zoomLevel}
-        setZoomLevel={setZoomLevel}
-      />
+      <ChartControls controls={controls} selectedClass={selectedClass} />
       <div className="chart-layout">
         {!isMobile || (isMobile && isLandscape) ? (
           <div className="outer-container">
@@ -190,7 +181,7 @@ const Chart: React.FC = () => {
                 className="chart-container"
                 style={{
                   width: `${zoomLevel > 100 ? zoomLevel * 1.5 : zoomLevel}%`,
-                  height: `${Math.max(400, zoomLevel * 4)}px`,
+                  height: `${Math.max(500, zoomLevel * 4)}px`,
                 }}
               >
                 <canvas ref={chartRef}></canvas>
