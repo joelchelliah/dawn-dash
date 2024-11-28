@@ -24,5 +24,9 @@ export function useDeviceOrientation() {
     }
   }, [])
 
-  return { isLandscape, isMobile }
+  return {
+    isMobile,
+    isMobileAndLandscape: isMobile && isLandscape,
+    isMobileAndPortrait: isMobile && !isLandscape,
+  }
 }

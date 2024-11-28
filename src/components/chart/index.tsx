@@ -54,7 +54,7 @@ function Chart({ selectedClass }: ChartProps) {
   const chartInstance = useRef<ChartJS<'line', DataPoint[]> | null>(null)
   const playerColors = useRef<Record<string, string>>({})
   const [chartData, setChartData] = useState<ChartJS | null>(null)
-  const { isLandscape, isMobile } = useDeviceOrientation()
+  const { isMobile, isMobileAndPortrait, isMobileAndLandscape } = useDeviceOrientation()
 
   const controls = useChartControlState(selectedClass)
   const { maxDuration, viewMode, playerLimit, zoomLevel } = controls
@@ -164,10 +164,11 @@ function Chart({ selectedClass }: ChartProps) {
     useSpeedrunData(selectedClass)
 
   useEffect(() => {
-    if (speedrunData && (!isMobile || (isMobile && isLandscape))) {
+    if (speedrunData) {
+      console.log('calling createChart')
       createChart(speedrunData)
     }
-  }, [createChart, maxDuration, zoomLevel, speedrunData, isLandscape, isMobile])
+  }, [createChart, maxDuration, zoomLevel, speedrunData])
 
   useEffect(() => {
     if (isLoadingSpeedrunData) {
@@ -176,9 +177,7 @@ function Chart({ selectedClass }: ChartProps) {
   }, [isLoadingSpeedrunData])
 
   const renderChart = () => {
-    if (isLoadingSpeedrunData) {
-      return <LoadingMessage selectedClass={selectedClass} />
-    }
+    if (isLoadingSpeedrunData) return <LoadingMessage selectedClass={selectedClass} />
     if (isErrorSpeedrunData) return <div className="chart-message error">Error loading data</div>
 
     return (
@@ -187,6 +186,7 @@ function Chart({ selectedClass }: ChartProps) {
         style={{
           width: `${zoomLevel > 100 ? zoomLevel * 1.5 : zoomLevel}%`,
           height: `${Math.max(500, zoomLevel * 4)}px`,
+          display: !isMobile || isMobileAndLandscape ? 'block' : 'none',
         }}
       >
         <canvas ref={chartRef}></canvas>
@@ -198,14 +198,15 @@ function Chart({ selectedClass }: ChartProps) {
     <div className="speedrun-chart">
       <ChartControls controls={controls} selectedClass={selectedClass} />
       <div className="chart-layout">
-        {!isMobile || (isMobile && isLandscape) ? (
-          <div className="outer-container">{renderChart()}</div>
-        ) : (
-          <div className="rotate-device-message">
-            <span className="rotate-icon">📱</span>
-            Rotate your device to landscape mode to view the chart!
-          </div>
-        )}
+        <div className="outer-container">
+          {renderChart()}
+          {isMobileAndPortrait && (
+            <div className="rotate-device-message">
+              <span className="rotate-icon">📱</span>
+              Rotate your device to landscape mode to view the chart!
+            </div>
+          )}
+        </div>
         <Legend chart={chartData} playerColors={playerColors.current} />
       </div>
     </div>

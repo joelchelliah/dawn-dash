@@ -16,7 +16,6 @@
       flex: 1;
       width: 80vw;
       height: fit-content;
-      min-height: 400px;
       margin: auto;
       overflow-x: auto;
       background-color: #1a1a1a;
@@ -60,8 +59,7 @@
     color: #ff6b6b;
     text-align: center;
     padding: 4px;
-    border-radius: 4px;
-    margin: 4px 0;
+    margin-bottom: 8px;
     font-weight: bold;
     display: flex;
     flex-direction: column;
