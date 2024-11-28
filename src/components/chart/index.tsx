@@ -14,7 +14,6 @@ import {
   Tooltip,
   Title,
 } from 'chart.js'
-import moment from 'moment'
 
 import { useChartControlState } from '../../hooks/useChartControlState'
 import { useDeviceOrientation } from '../../hooks/useDeviceOrientation'
@@ -27,6 +26,7 @@ import Legend from '../ChartLegend'
 import { getTopPlayers } from '../ChartLegend/helper'
 import LoadingMessage from '../LoadingMessage'
 
+import { padMaxDuration, padMinDuration, padMinMaxDates } from './chartAxisPadding'
 import { createChartConfigOptions } from './chartConfig'
 import { parseSpeedrunData } from './dataParser'
 import { yearBoundariesPlugin, calculateYearBoundaries } from './yearBoundaries'
@@ -121,23 +121,16 @@ function Chart({ selectedClass }: ChartProps) {
         return
       }
 
-      const allDates = datasets.flatMap((ds) => ds.data.map((d) => d.x))
-      const minDate = Math.min(...allDates)
-      const maxDate = Math.max(...allDates)
+      const allDates = datasets.flatMap(({ data }) => data.map(({ x }) => x))
+      const { paddedMinDate, paddedMaxDate } = padMinMaxDates(allDates)
 
-      const totalDays = moment(maxDate).diff(moment(minDate), 'days')
-      const paddingAmount = 0.025
-      const paddingDays = Math.ceil(totalDays * paddingAmount)
-      const paddedMinDate = moment(minDate).subtract(paddingDays, 'days').valueOf()
-      const paddedMaxDate = moment(maxDate).add(2, 'days').valueOf()
-
-      calculateYearBoundaries(minDate, maxDate)
+      calculateYearBoundaries(paddedMinDate, paddedMaxDate)
 
       const allRunTimes = datasets.flatMap(({ data }) => data.map(({ y }) => y))
       const fastestTime = Math.min(...allRunTimes)
       const slowestTime = Math.max(...allRunTimes)
-      const paddedMinDuration = Math.max(0, fastestTime - 0.25)
-      const paddedMaxDuration = Math.min(slowestTime + 0.25, maxDuration)
+      const paddedMinDuration = padMinDuration(fastestTime, selectedClass)
+      const paddedMaxDuration = padMaxDuration(slowestTime, selectedClass, maxDuration)
 
       const ctx = chartRef.current.getContext('2d')
       if (!ctx) return
@@ -157,7 +150,7 @@ function Chart({ selectedClass }: ChartProps) {
 
       setChartData(chartInstance.current)
     },
-    [maxDuration, viewMode, playerLimit]
+    [maxDuration, viewMode, playerLimit, selectedClass]
   )
 
   const { speedrunData, isLoadingSpeedrunData, isErrorSpeedrunData } =
