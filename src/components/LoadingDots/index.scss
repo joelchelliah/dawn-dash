@@ -1,0 +1,15 @@
+@import '../../styles/animations';
+
+.loading-dots-container {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.8rem;
+  letter-spacing: 2px;
+  margin-bottom: -2px;
+
+  .loading-dots {
+    display: inline-block;
+    @include loadingDotsPulse;
+  }
+}

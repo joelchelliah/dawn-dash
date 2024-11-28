@@ -8,6 +8,13 @@ export enum SpeedRunClass {
   Scion = 'Scion',
 }
 
+export enum Difficulty {
+  Normal = 'Normal',
+  Challenging = 'Challenging',
+  Hard = 'Hard',
+  Impossible = 'Impossible',
+}
+
 export interface SpeedRunData {
   _id: string
   uid: number
@@ -15,7 +22,7 @@ export interface SpeedRunData {
   discorduser: string | null
 }
 
-export type SpeedRunCategory = `${SpeedRunClass}-Impossible`
+export type SpeedRunCategory = `${SpeedRunClass}-${Difficulty}`
 
 export type SpeedRunApiResponse = {
   [key in SpeedRunCategory]: Array<{

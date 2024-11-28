@@ -5,6 +5,7 @@ const CACHE_DURATION = 10 * 60 * 1000
 type CachedData<T> = {
   data: T | null
   isStale: boolean
+  timestamp: number | null
 }
 
 export function saveToCache(key: string, data: unknown) {
@@ -21,15 +22,21 @@ export function getFromCache<T>(key: string): CachedData<T> {
     const data = localStorage.getItem(getCacheKey(key))
     const timestamp = localStorage.getItem(getTimestampKey(key))
 
-    if (!data || !timestamp) return { data: null, isStale: true }
+    if (!data || !timestamp) {
+      return { data: null, isStale: true, timestamp: null }
+    }
 
-    const isStale = Date.now() - parseInt(timestamp) > CACHE_DURATION
+    const parsedTimestamp = parseInt(timestamp)
+    const isStale = Date.now() - parsedTimestamp > CACHE_DURATION
 
-    return { data: JSON.parse(data) as T, isStale }
+    return {
+      data: JSON.parse(data) as T,
+      isStale,
+      timestamp: parsedTimestamp,
+    }
   } catch (error) {
     console.warn('Failed to read from cache:', error)
-
-    return { data: null, isStale: true }
+    return { data: null, isStale: true, timestamp: null }
   }
 }
 

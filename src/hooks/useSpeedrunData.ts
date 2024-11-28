@@ -3,61 +3,52 @@ import { useEffect, useState } from 'react'
 import useSWR from 'swr'
 
 import { fetchSpeedruns } from '../services/blightbaneApi'
-import { SpeedRunClass, SpeedRunData } from '../types/speedRun'
+import { Difficulty, SpeedRunClass, SpeedRunData } from '../types/speedRun'
 import { getFromCache, saveToCache } from '../utils/storage'
 
 const FETCH_DATA_SIZE = 1000
-const POLLING_INTERVAL = 10 * 60 * 1000
 
-export function useSpeedrunData(type: SpeedRunClass) {
+export function useSpeedrunData(type: SpeedRunClass, difficulty: Difficulty) {
   const [localData, setLocalData] = useState<SpeedRunData[] | null>(null)
-  const [shouldFetch, setShouldFetch] = useState(false)
+  const [isRefreshing, setIsRefreshing] = useState(false)
+  const cacheKey = `${type}-${difficulty}`
 
-  // Reset local data when type changes, so that we don't get false negatives for isLoading
+  // Reset local data when type/difficulty changes
   useEffect(() => {
     setLocalData(null)
-  }, [type])
+  }, [type, difficulty])
 
   useEffect(() => {
-    const { data, isStale } = getFromCache<SpeedRunData[]>(type)
+    const { data, isStale } = getFromCache<SpeedRunData[]>(cacheKey)
     if (data) {
       setLocalData(data)
-      setShouldFetch(isStale)
+      setIsRefreshing(isStale)
     } else {
-      setShouldFetch(true)
+      setIsRefreshing(true)
     }
-  }, [type])
+  }, [cacheKey])
 
-  // Interval-based polling, regardless of cache
-  useSWR<SpeedRunData[]>(
-    ['speedruns', type, 'polling'],
-    () => fetchSpeedruns(type, FETCH_DATA_SIZE),
-    {
-      refreshInterval: POLLING_INTERVAL,
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      onSuccess: (newData) => saveToCache(type, newData),
-    }
-  )
-
-  // Manual fetch, only if cache is stale
   const { data, error, isLoading } = useSWR<SpeedRunData[]>(
-    shouldFetch ? ['speedruns', type, 'manual'] : null,
-    () => fetchSpeedruns(type, FETCH_DATA_SIZE),
+    isRefreshing ? ['speedruns', 'manual'] : null,
+    () => fetchSpeedruns(type, difficulty, FETCH_DATA_SIZE),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       refreshInterval: 0,
       onSuccess: (newData) => {
         setLocalData(newData)
-        saveToCache(type, newData)
+        saveToCache(cacheKey, newData)
+        setIsRefreshing(false)
       },
     }
   )
 
   return {
     speedrunData: localData || data,
-    isLoadingSpeedrunData: isLoading && !localData,
-    isErrorSpeedrunData: error && !localData,
+    isLoading: (isLoading || isRefreshing) && !localData,
+    isLoadingInBackground: (isLoading || isRefreshing) && localData,
+    isError: error && !localData,
+    lastUpdated: getFromCache<SpeedRunData[]>(cacheKey).timestamp,
+    refresh: () => setIsRefreshing(true),
   }
 }

@@ -1,3 +1,4 @@
+@import '../../styles/animations';
 @import '../../styles/breakpoints';
 
 .speedrun-chart {
@@ -21,6 +22,37 @@
       background-color: #1a1a1a;
       border: 1px solid #333;
       padding: 4px;
+
+      .last-updated {
+        text-align: center;
+        color: #666;
+        font-size: 0.9rem;
+        padding: 8px 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        border-top: 1px dashed #333;
+        margin-top: 8px;
+        height: 24px;
+
+        .refresh-button {
+          background: none;
+          border: 1px solid #444;
+          color: #999;
+          padding: 4px 8px;
+          border-radius: 4px;
+          cursor: pointer;
+          font-size: 0.9rem;
+          transition: all 0.2s ease;
+
+          &:hover {
+            background: #333;
+            border-color: #666;
+            color: #fff;
+          }
+        }
+      }
     }
 
     @media (max-width: $breakpoint-tablet) {

@@ -1,5 +1,5 @@
 import {
-  ALL_VALUE,
+  DIFFICULTY_VALUES,
   MAX_DURATION_OTHER_VALUES,
   MAX_DURATION_SCION_VALUES,
   PLAYER_LIMIT_VALUES,
@@ -8,7 +8,7 @@ import {
 } from '../../constants/chartControlValues'
 import { ChartControlState } from '../../hooks/useChartControlState'
 import { ViewMode } from '../../types/chart'
-import { SpeedRunClass } from '../../types/speedRun'
+import { Difficulty, SpeedRunClass } from '../../types/speedRun'
 
 import './index.scss'
 
@@ -17,11 +17,9 @@ interface ChartControlsProps {
   selectedClass: SpeedRunClass
 }
 
-const toPlayerLimitOption = (value: number | string) =>
-  value === ALL_VALUE ? { value: 'all', label: 'All' } : { value, label: `${value} players` }
+const toPlayerLimitOption = (value: number) => ({ value, label: `${value} players` })
 
-const toMinutesOption = (value: number | string) =>
-  value === ALL_VALUE ? { value: 999999, label: 'All' } : { value, label: `${value} minutes` }
+const toMinutesOption = (value: number) => ({ value, label: `${value} minutes` })
 
 const toViewModeOption = (value: ViewMode) => {
   const label = value === ViewMode.Improvements ? 'Self-improving runs' : 'Record-breaking runs'
@@ -30,6 +28,8 @@ const toViewModeOption = (value: ViewMode) => {
 }
 
 const toZoomLevelOption = (value: number) => ({ value, label: `${value}%` })
+
+const toDifficultyOption = (value: string) => ({ value, label: value })
 
 function ChartControls({ controls, selectedClass }: ChartControlsProps) {
   const {
@@ -41,6 +41,8 @@ function ChartControls({ controls, selectedClass }: ChartControlsProps) {
     setPlayerLimit,
     zoomLevel,
     setZoomLevel,
+    difficulty,
+    setDifficulty,
   } = controls
 
   const getDurationOptions = () =>
@@ -58,6 +60,17 @@ function ChartControls({ controls, selectedClass }: ChartControlsProps) {
   return (
     <div className="chart-controls">
       <div className="controls-row">
+        <div className="control-group">
+          <label htmlFor="difficulty">Difficulty</label>
+          <select
+            id="difficulty"
+            value={difficulty}
+            onChange={(e) => setDifficulty(e.target.value as Difficulty)}
+          >
+            {renderOptions(DIFFICULTY_VALUES.map(toDifficultyOption))}
+          </select>
+        </div>
+
         <div className="control-group">
           <label htmlFor="playerLimit">Number of players</label>
           <select

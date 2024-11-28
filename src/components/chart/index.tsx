@@ -17,6 +17,7 @@ import {
 
 import { useChartControlState } from '../../hooks/useChartControlState'
 import { useDeviceOrientation } from '../../hooks/useDeviceOrientation'
+import { useFromNow } from '../../hooks/useFromNow'
 import { useSpeedrunData } from '../../hooks/useSpeedrunData'
 import { ChartConfig, DataPoint, RecordPoint } from '../../types/chart'
 import { SpeedRunClass, SpeedRunData } from '../../types/speedRun'
@@ -24,12 +25,14 @@ import { getColorMapping } from '../../utils/colors'
 import ChartControls from '../ChartControls'
 import Legend from '../ChartLegend'
 import { getTopPlayers } from '../ChartLegend/helper'
+import LoadingDots from '../LoadingDots'
 import LoadingMessage from '../LoadingMessage'
 
 import { padMaxDuration, padMinDuration, padMinMaxDates } from './chartAxisPadding'
 import { createChartConfigOptions } from './chartConfig'
 import { parseSpeedrunData } from './dataParser'
 import { yearBoundariesPlugin, calculateYearBoundaries } from './yearBoundaries'
+
 import './index.scss'
 
 // Register the required components
@@ -57,7 +60,7 @@ function Chart({ selectedClass }: ChartProps) {
   const { isMobile, isMobileAndPortrait, isMobileAndLandscape } = useDeviceOrientation()
 
   const controls = useChartControlState(selectedClass)
-  const { maxDuration, viewMode, playerLimit, zoomLevel } = controls
+  const { difficulty, playerLimit, maxDuration, viewMode, zoomLevel } = controls
 
   const createChart = useCallback(
     (speedruns: SpeedRunData[]) => {
@@ -153,20 +156,23 @@ function Chart({ selectedClass }: ChartProps) {
     [maxDuration, viewMode, playerLimit, selectedClass]
   )
 
-  const { speedrunData, isLoadingSpeedrunData, isErrorSpeedrunData } =
-    useSpeedrunData(selectedClass)
+  const { speedrunData, isLoading, isLoadingInBackground, isError, lastUpdated, refresh } =
+    useSpeedrunData(selectedClass, difficulty)
+
+  const fromNow = useFromNow(lastUpdated, 'Data from')
 
   useEffect(() => {
     if (speedrunData) createChart(speedrunData)
   }, [createChart, maxDuration, zoomLevel, speedrunData])
 
   useEffect(() => {
-    if (isLoadingSpeedrunData) setChartData(null)
-  }, [isLoadingSpeedrunData])
+    if (isLoading) setChartData(null)
+  }, [isLoading])
 
   const renderChart = () => {
-    if (isLoadingSpeedrunData || true) return <LoadingMessage selectedClass={selectedClass} />
-    if (isErrorSpeedrunData) return <div className="chart-message error">Error loading data</div>
+    if (isLoading)
+      return <LoadingMessage selectedClass={selectedClass} selectedDifficulty={difficulty} />
+    if (isError) return <div className="chart-message error">Error loading data</div>
 
     return (
       <div
@@ -182,6 +188,19 @@ function Chart({ selectedClass }: ChartProps) {
     )
   }
 
+  const renderChartFooter = () => {
+    if (isLoadingInBackground) return <LoadingDots text="Loading fresh data" />
+    if (!fromNow) return null
+    return (
+      <>
+        {fromNow}
+        <button onClick={refresh} className="refresh-button">
+          Refresh
+        </button>
+      </>
+    )
+  }
+
   return (
     <div className="speedrun-chart">
       <ChartControls controls={controls} selectedClass={selectedClass} />
@@ -194,6 +213,7 @@ function Chart({ selectedClass }: ChartProps) {
               Rotate your device to landscape mode to view the chart!
             </div>
           )}
+          <div className="last-updated">{renderChartFooter()}</div>
         </div>
         <Legend chart={chartData} playerColors={playerColors.current} />
       </div>
