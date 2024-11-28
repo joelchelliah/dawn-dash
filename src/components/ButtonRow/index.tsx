@@ -1,9 +1,9 @@
 import { SpeedRunClass } from '../../types/speedRun'
-
+import ClassButton from '../ClassButton'
 import './index.scss'
 
 interface ButtonRowProps {
-  onClassSelect: (className: SpeedRunClass) => void
+  onClassSelect: (classType: SpeedRunClass) => void
   selectedClass: SpeedRunClass
 }
 
@@ -12,14 +12,13 @@ function ButtonRow({ onClassSelect, selectedClass }: ButtonRowProps) {
 
   return (
     <div className="button-row">
-      {classes.map((className) => (
-        <button
-          key={className}
-          className={`class-button ${selectedClass === className ? 'active' : ''}`}
-          onClick={() => onClassSelect(className)}
-        >
-          {className}
-        </button>
+      {classes.map((classType) => (
+        <ClassButton
+          key={classType}
+          classType={classType}
+          isActive={selectedClass === classType}
+          onClick={() => onClassSelect(classType)}
+        />
       ))}
     </div>
   )

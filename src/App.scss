@@ -17,16 +17,35 @@ body {
     margin: 0 0 30px 20px;
 
     .app-logo {
-      width: 50px; // Adjust size as needed
-      height: 50px; // Adjust size as needed
-      margin-right: 15px; // Space between logo and title
+      width: 50px;
+      height: 50px;
+      margin-right: 15px;
+      transition: transform 1s ease;
+      transform-style: preserve-3d;
+      perspective: 1000px;
+
+      &:hover {
+        transform: rotateY(360deg);
+      }
     }
 
-    .app-title {
-      color: #ffffff;
-      font-size: 2rem;
-      margin: 0;
-      font-weight: bold;
+    .title-container {
+      .app-title {
+        background: linear-gradient(45deg, #ccaa2d, #3db33d);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        font-size: 2rem;
+        margin: 0;
+        font-weight: bold;
+      }
+
+      .app-subtitle {
+        color: #999;
+        font-size: 1rem;
+        margin: 0;
+        font-weight: normal;
+      }
     }
   }
 }

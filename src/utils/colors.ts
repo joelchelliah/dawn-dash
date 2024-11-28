@@ -1,4 +1,5 @@
 import { DataPoint } from '../types/chart'
+import { SpeedRunClass } from '../types/speedRun'
 
 const BASE_HUES = [
   0, // Red
@@ -52,5 +53,24 @@ function getColorByIndex(index: number): string {
     const { saturation, lightness } = COLOR_VARIANTS[variantIndex]
 
     return `hsl(${intermediateHue}, ${saturation}%, ${lightness}%)`
+  }
+}
+
+export function getClassColor(classType: SpeedRunClass, isSelected = false) {
+  switch (classType) {
+    case SpeedRunClass.Arcanist:
+      return isSelected ? '#4d8ae6' : '#3d73cc' // Blue
+    case SpeedRunClass.Hunter:
+      return isSelected ? '#e69640' : '#cc7f2d' // Orange
+    case SpeedRunClass.Knight:
+      return isSelected ? '#a65ee6' : '#9454cc' // Purple
+    case SpeedRunClass.Rogue:
+      return isSelected ? '#47cc47' : '#3db33d' // Green
+    case SpeedRunClass.Seeker:
+      return isSelected ? '#33cccc' : '#2daaaa' // Teal
+    case SpeedRunClass.Warrior:
+      return isSelected ? '#e64d4d' : '#cc3d3d' // Red
+    default:
+      return isSelected ? '#e6bf33' : '#ccaa2d' // Gold
   }
 }

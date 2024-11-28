@@ -16,7 +16,10 @@ function App(): JSX.Element {
           alt="Dawncaster Logo"
           className="app-logo"
         />
-        <h1 className="app-title">Dawncaster Speedruns</h1>
+        <div className="title-container">
+          <h1 className="app-title">Dawn-Dash</h1>
+          <h2 className="app-subtitle">Dawncaster speedruns</h2>
+        </div>
       </div>
       <ButtonRow onClassSelect={setSelectedClass} selectedClass={selectedClass} />
       <Chart selectedClass={selectedClass} />
