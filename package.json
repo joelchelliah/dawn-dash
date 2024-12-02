@@ -1,6 +1,5 @@
 {
   "name": "dawn-dash",
-  "homepage": "https://joelchelliah.github.io/dawn-dash",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
