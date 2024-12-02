@@ -51,6 +51,15 @@ function App(): JSX.Element {
         >
           Blightbane
         </a>
+        . This is an open source project. Check it out at{' '}
+        <a
+          href="https://github.com/joelchelliah/dawn-dash"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="gradient-link"
+        >
+          github.com/joelchelliah/dawn-dash
+        </a>
       </footer>
     </div>
   )
