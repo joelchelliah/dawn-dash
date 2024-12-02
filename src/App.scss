@@ -55,6 +55,12 @@ body {
     color: #999;
     font-size: 0.875rem;
 
+    .open-source-line {
+      display: block;
+      text-align: right;
+      margin-top: 10px;
+    }
+
     .gradient-link {
       @include yellowGreenGradient;
       text-decoration: none;
