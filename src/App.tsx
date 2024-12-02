@@ -18,11 +18,40 @@ function App(): JSX.Element {
         />
         <div className="title-container">
           <h1 className="app-title">Dawn-Dash</h1>
-          <h2 className="app-subtitle">Dawncaster speedruns</h2>
+          <h2 className="app-subtitle">Dawncaster speedrun charts</h2>
         </div>
       </div>
       <ButtonRow onClassSelect={setSelectedClass} selectedClass={selectedClass} />
       <Chart selectedClass={selectedClass} />
+      <footer className="footer">
+        Artwork and game data ©{' '}
+        <a
+          href="https://dawncaster.wanderlost.games/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="gradient-link"
+        >
+          Dawncaster
+        </a>{' '}
+        the game,{' '}
+        <a
+          href="https://wanderlost.games/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="gradient-link"
+        >
+          Wanderlost
+        </a>
+        , and{' '}
+        <a
+          href="https://blightbane.io/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="gradient-link"
+        >
+          Blightbane
+        </a>
+      </footer>
     </div>
   )
 }

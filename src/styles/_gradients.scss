@@ -1,0 +1,6 @@
+@mixin yellowGreenGradient {
+  background: linear-gradient(45deg, #ccaa2d, #249624);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}

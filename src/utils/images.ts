@@ -15,6 +15,6 @@ export function getClassImageUrl(classType: SpeedRunClass) {
     case SpeedRunClass.Warrior:
       return 'https://blightbane.io/images/classes/Warrior_I_M.webp'
     default:
-      return 'https://blightbane.io/images/classes/Scion_I_F.webp'
+      return 'https://blightbane.io/images/icons/cardart_5_50.webp'
   }
 }
