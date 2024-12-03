@@ -6,8 +6,7 @@ import {
   VIEW_MODE_VALUES,
   ZOOM_LEVEL_VALUES,
 } from '../../constants/chartControlValues'
-import { ChartControlState } from '../../hooks/useChartControlState'
-import { ViewMode } from '../../types/chart'
+import { ChartControlState, ViewMode } from '../../types/chart'
 import { Difficulty, SpeedRunClass } from '../../types/speedRun'
 
 import './index.scss'

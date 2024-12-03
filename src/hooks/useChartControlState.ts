@@ -8,21 +8,8 @@ import {
   MAX_DURATION_OTHER_DEFAULT,
   DIFFICULTY_DEFAULT,
 } from '../constants/chartControlValues'
-import { ViewMode } from '../types/chart'
-import { Difficulty, SpeedRunClass } from '../types/speedRun'
-
-export interface ChartControlState {
-  difficulty: Difficulty
-  setDifficulty: (value: Difficulty) => void
-  playerLimit: number | null
-  setPlayerLimit: (value: number | null) => void
-  maxDuration: number
-  setMaxDuration: (value: number) => void
-  viewMode: ViewMode
-  setViewMode: (value: ViewMode) => void
-  zoomLevel: number
-  setZoomLevel: (value: number) => void
-}
+import { ChartControlState, ViewMode } from '../types/chart'
+import { SpeedRunClass } from '../types/speedRun'
 
 export function useChartControlState(selectedClass: SpeedRunClass): ChartControlState {
   const maxDurationDefault =

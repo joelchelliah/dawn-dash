@@ -1,12 +1,18 @@
 import { useState } from 'react'
 
 import './App.scss'
+
 import ButtonRow from './components/ButtonRow'
 import Chart from './components/Chart'
+import { useChartControlState } from './hooks/useChartControlState'
+import { useUrlParams } from './hooks/useUrlParams'
 import { SpeedRunClass } from './types/speedRun'
 
 function App(): JSX.Element {
   const [selectedClass, setSelectedClass] = useState<SpeedRunClass>(SpeedRunClass.Arcanist)
+  const controls = useChartControlState(selectedClass)
+
+  useUrlParams(selectedClass, controls)
 
   return (
     <div className="App">
