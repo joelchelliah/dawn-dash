@@ -1,12 +1,11 @@
 # 🏃‍♂️ Dawn-Dash 💨
 
-A speedrun visualization tool for mobile RPG: [Dawncaster](https://dawncaster.wanderlost.games/).
+A speedrun visualization tool for the mobile RPG: [Dawncaster](https://dawncaster.wanderlost.games/).
 
-This app shows charts of speedrun records and speed-progressions for all modes and difficulties of the game.
+Charts of speedrun records and progressions for all modes and difficulties of the game. Only runs linked to a Dawncaster Discord account are shown.
 
-Did your run make it on to the list? Go find out at [Dawn-Dash](https://dawn-dash.com/)! 👀
+Did **your** run make it on to the list? Go find out at [Dawn-Dash](https://dawn-dash.com/)! 👀
 
-------------
 
 ## 🤝 Contribution
 
@@ -25,10 +24,9 @@ This project is open source, and contributions are **greatly** appreciated.
 - 📚 Update documentation as needed
 - 🧪 Test your changes thoroughly
 
-------------
 
 ## 🙏 Acknowledgments
 
-- [Dawncaster](https://dawncaster.wanderlost.games/) - The awesome game this tool is built for
-- [Wanderlost Games](https://wanderlost.games/) - Game developers
-- [Blightbane](https://blightbane.io/) - Official resource site for Dawncaster
+- [Dawncaster](https://dawncaster.wanderlost.games/) - The awesome game this tool is built for.
+- [Wanderlost Games](https://wanderlost.games/) - Game developers.
+- [Blightbane](https://blightbane.io/) - Official resource site for Dawncaster.
