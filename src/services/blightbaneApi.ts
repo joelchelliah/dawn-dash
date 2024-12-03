@@ -15,14 +15,10 @@ export const fetchSpeedruns = async (
   difficulty: Difficulty,
   num: number
 ): Promise<SpeedRunData[]> => {
-  const start = performance.now()
-  const url = `${BASE_URL}/speedruns?diff=${difficulty}&class=${type}&top=${num}&options=&nolimit=true`
+  const classParam = type === SpeedRunClass.Sunforge ? 'Scion' : type
+  const url = `${BASE_URL}/speedruns?diff=${difficulty}&class=${classParam}&top=${num}&options=&nolimit=true`
 
   const response = await axios.get<[SpeedRunApiResponse]>(url)
-  const end = performance.now()
-
-  console.log(`Speedruns fetch [${type}-${difficulty}] took ${(end - start).toFixed(2)}ms`)
-
   const category = Object.keys(response.data[0])[0] as SpeedRunCategory
 
   return response.data[0][category].map((run) => ({

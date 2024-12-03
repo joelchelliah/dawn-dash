@@ -13,6 +13,10 @@ interface LoadingMessageProps {
 function LoadingMessage({ selectedClass, selectedDifficulty }: LoadingMessageProps) {
   const imageUrl = getClassImageUrl(selectedClass)
   const color = getClassColor(selectedClass, true)
+  const classAndDifficulty =
+    selectedClass === SpeedRunClass.Sunforge
+      ? 'Sunforge'
+      : `${selectedClass} - ${selectedDifficulty}`
 
   return (
     <div className="loading-message">
@@ -20,7 +24,7 @@ function LoadingMessage({ selectedClass, selectedDifficulty }: LoadingMessagePro
       <div className="loading-text">
         Loading{' '}
         <span className="class-name" style={{ color }}>
-          {`${selectedClass} ${selectedDifficulty}`}
+          {classAndDifficulty}
         </span>{' '}
         data
         <LoadingDots />

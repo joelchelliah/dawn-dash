@@ -7,13 +7,13 @@ import { SpeedRunClass } from '../../types/speedRun'
  */
 
 export function padMinDuration(minDuration: number, selectedClass: SpeedRunClass) {
-  return selectedClass === SpeedRunClass.Scion
+  return selectedClass === SpeedRunClass.Sunforge
     ? Math.max(0, minDuration - 0.5)
     : Math.max(0, minDuration - 2)
 }
 
 export function padMaxDuration(maxDuration: number, selectedClass: SpeedRunClass, ceiling: number) {
-  return selectedClass === SpeedRunClass.Scion
+  return selectedClass === SpeedRunClass.Sunforge
     ? Math.max(ceiling, maxDuration + 0.5)
     : Math.max(ceiling, maxDuration + 2)
 }

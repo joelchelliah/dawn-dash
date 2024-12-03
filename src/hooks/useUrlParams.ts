@@ -1,52 +1,158 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useCallback } from 'react'
 
 import { useSearchParams } from 'react-router-dom'
 
+import {
+  DIFFICULTY_VALUES,
+  PLAYER_LIMIT_VALUES,
+  MAX_DURATION_SUNFORGE_VALUES,
+  MAX_DURATION_OTHER_VALUES,
+  VIEW_MODE_VALUES,
+  ZOOM_LEVEL_VALUES,
+} from '../constants/chartControlValues'
 import { ChartControlState, ViewMode } from '../types/chart'
 import { Difficulty, SpeedRunClass } from '../types/speedRun'
 
-export function useUrlParams(selectedClass: SpeedRunClass, controls: ChartControlState): void {
-  const [searchParams, setSearchParams] = useSearchParams()
-  const initializedRef = useRef(false)
+function setSearchParamsFromControls(
+  setSearchParams: (params: URLSearchParams, options?: { replace?: boolean }) => void,
+  selectedClass: SpeedRunClass,
+  controls: ChartControlState,
+  debounceTimeoutRef: React.MutableRefObject<NodeJS.Timeout | undefined>
+) {
+  const isSunforge = selectedClass === SpeedRunClass.Sunforge
 
-  // Update URL when controls change
-  useEffect(() => {
-    // Skip the first render to avoid overwriting URL params
-    if (!initializedRef.current) {
-      initializedRef.current = true
-      return
-    }
+  if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current)
 
+  debounceTimeoutRef.current = setTimeout(() => {
     const params = new URLSearchParams()
-
     params.set('class', selectedClass)
-    params.set('difficulty', controls.difficulty)
+    if (!isSunforge) params.set('difficulty', controls.difficulty)
     params.set('players', controls.playerLimit.toString())
     params.set('duration', controls.maxDuration.toString())
     params.set('view', controls.viewMode)
     params.set('zoom', controls.zoomLevel.toString())
 
-    if (params.toString() !== searchParams.toString()) {
-      setSearchParams(params)
-    }
-  }, [selectedClass, controls, setSearchParams, searchParams])
+    setSearchParams(params, { replace: true })
+  }, 100)
+}
 
-  // Read initial values from URL
+export function useUrlParams(selectedClass: SpeedRunClass, controls: ChartControlState): void {
+  const [searchParams, setSearchParams] = useSearchParams()
+  const isSunforge = selectedClass === SpeedRunClass.Sunforge
+
+  const prevControlStateRef = useRef(controls)
+  const debounceTimeoutRef = useRef<NodeJS.Timeout>()
+
+  // Validation helpers
+  const isValidDifficulty = (value: string): value is Difficulty =>
+    DIFFICULTY_VALUES.includes(value as Difficulty)
+
+  const isValidPlayerLimit = (value: number): boolean => PLAYER_LIMIT_VALUES.includes(value)
+
+  const isValidDuration = useCallback(
+    (value: number): boolean =>
+      isSunforge
+        ? MAX_DURATION_SUNFORGE_VALUES.includes(value)
+        : MAX_DURATION_OTHER_VALUES.includes(value),
+    [isSunforge]
+  )
+
+  const isValidViewMode = (value: string): value is ViewMode =>
+    VIEW_MODE_VALUES.includes(value as ViewMode)
+
+  const isValidZoomLevel = (value: number): boolean => ZOOM_LEVEL_VALUES.includes(value)
+
   useEffect(() => {
-    if (initializedRef.current) return // Skip if already initialized
+    const isUpdateFromControlChange = Object.entries(
+      controls as unknown as Record<string, unknown>
+    ).some(([key, value]) => prevControlStateRef.current[key as keyof ChartControlState] !== value)
 
-    const difficulty = searchParams.get('difficulty')
-    const players = searchParams.get('players')
-    const duration = searchParams.get('duration')
-    const view = searchParams.get('view')
-    const zoom = searchParams.get('zoom')
+    prevControlStateRef.current = controls
 
-    if (difficulty) controls.setDifficulty(difficulty as Difficulty)
-    if (players) controls.setPlayerLimit(parseInt(players))
-    if (duration) controls.setMaxDuration(parseInt(duration))
-    if (view) controls.setViewMode(view as ViewMode)
-    if (zoom) controls.setZoomLevel(parseInt(zoom))
+    if (isUpdateFromControlChange) {
+      // Update URL if controls have changed
+      if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current)
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []) // Empty dependency array for initial load only
+      debounceTimeoutRef.current = setTimeout(() => {
+        const params = new URLSearchParams()
+        params.set('class', selectedClass)
+        if (!isSunforge) params.set('difficulty', controls.difficulty)
+        params.set('players', controls.playerLimit.toString())
+        params.set('duration', controls.maxDuration.toString())
+        params.set('view', controls.viewMode)
+        params.set('zoom', controls.zoomLevel.toString())
+
+        setSearchParams(params, { replace: true })
+      }, 100)
+    } else {
+      // Otherwise, update controls from URL
+      const difficulty = searchParams.get('difficulty')
+      const players = searchParams.get('players')
+      const duration = searchParams.get('duration')
+      const view = searchParams.get('view')
+      const zoom = searchParams.get('zoom')
+
+      let areAllParamsValid = true
+
+      if (difficulty && !isSunforge && isValidDifficulty(difficulty)) {
+        controls.setDifficulty(difficulty)
+      } else if (difficulty) {
+        areAllParamsValid = false
+      }
+
+      if (players) {
+        const playerValue = parseInt(players)
+        if (isValidPlayerLimit(playerValue)) {
+          controls.setPlayerLimit(playerValue)
+        } else {
+          areAllParamsValid = false
+        }
+      }
+
+      if (duration) {
+        const durationValue = parseInt(duration)
+        if (isValidDuration(durationValue)) {
+          controls.setMaxDuration(durationValue)
+        } else {
+          areAllParamsValid = false
+        }
+      }
+
+      if (view && isValidViewMode(view)) {
+        controls.setViewMode(view)
+      } else if (view) {
+        areAllParamsValid = false
+      }
+
+      if (zoom) {
+        const zoomValue = parseInt(zoom)
+        if (isValidZoomLevel(zoomValue)) {
+          controls.setZoomLevel(zoomValue)
+        } else {
+          areAllParamsValid = false
+        }
+      }
+
+      // If any parameter is invalid, reset URL to previous valid state
+      if (!areAllParamsValid) {
+        if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current)
+
+        debounceTimeoutRef.current = setTimeout(() => {
+          const params = new URLSearchParams()
+          params.set('class', selectedClass)
+          if (!isSunforge) params.set('difficulty', controls.difficulty)
+          params.set('players', controls.playerLimit.toString())
+          params.set('duration', controls.maxDuration.toString())
+          params.set('view', controls.viewMode)
+          params.set('zoom', controls.zoomLevel.toString())
+
+          setSearchParams(params, { replace: true })
+        }, 100)
+      }
+    }
+
+    return () => {
+      if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current)
+    }
+  }, [searchParams, controls, selectedClass, setSearchParams, isSunforge, isValidDuration])
 }
