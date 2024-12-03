@@ -1,5 +1,14 @@
+@mixin yellowGreenGradientBackground($opacity: 1) {
+  background: linear-gradient(
+    45deg,
+    rgba(204, 170, 45, $opacity),
+    // #ccaa2d with opacity
+    rgba(36, 150, 36, $opacity) // #249624 with opacity
+  );
+}
+
 @mixin yellowGreenGradient {
-  background: linear-gradient(45deg, #ccaa2d, #249624);
+  @include yellowGreenGradientBackground;
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;

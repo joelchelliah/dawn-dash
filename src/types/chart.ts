@@ -31,8 +31,8 @@ export enum ViewMode {
 export interface ChartControlState {
   difficulty: Difficulty
   setDifficulty: (value: Difficulty) => void
-  playerLimit: number | null
-  setPlayerLimit: (value: number | null) => void
+  playerLimit: number
+  setPlayerLimit: (value: number) => void
   maxDuration: number
   setMaxDuration: (value: number) => void
   viewMode: ViewMode

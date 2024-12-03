@@ -15,7 +15,7 @@ export function useChartControlState(selectedClass: SpeedRunClass): ChartControl
   const maxDurationDefault =
     selectedClass === SpeedRunClass.Scion ? MAX_DURATION_SCION_DEFAULT : MAX_DURATION_OTHER_DEFAULT
 
-  const [playerLimit, setPlayerLimit] = useState<number | null>(PLAYER_LIMIT_DEFAULT)
+  const [playerLimit, setPlayerLimit] = useState(PLAYER_LIMIT_DEFAULT)
   const [maxDuration, setMaxDuration] = useState(maxDurationDefault)
   const [viewMode, setViewMode] = useState<ViewMode>(VIEW_MODE_DEFAULT)
   const [zoomLevel, setZoomLevel] = useState(ZOOM_LEVEL_DEFAULT)

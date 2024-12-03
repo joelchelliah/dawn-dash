@@ -4,6 +4,7 @@ import './App.scss'
 
 import ButtonRow from './components/ButtonRow'
 import Chart from './components/Chart'
+import ChartControls from './components/ChartControls'
 import { useChartControlState } from './hooks/useChartControlState'
 import { useUrlParams } from './hooks/useUrlParams'
 import { SpeedRunClass } from './types/speedRun'
@@ -27,8 +28,13 @@ function App(): JSX.Element {
           <h2 className="app-subtitle">Dawncaster speedrun charts</h2>
         </div>
       </div>
-      <ButtonRow onClassSelect={setSelectedClass} selectedClass={selectedClass} />
-      <Chart selectedClass={selectedClass} />
+
+      <div className="content">
+        <ButtonRow onClassSelect={setSelectedClass} selectedClass={selectedClass} />
+        <ChartControls controls={controls} selectedClass={selectedClass} />
+        <Chart controls={controls} selectedClass={selectedClass} />
+      </div>
+
       <footer className="footer">
         Artwork and game data ©{' '}
         <a

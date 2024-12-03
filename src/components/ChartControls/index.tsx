@@ -74,10 +74,8 @@ function ChartControls({ controls, selectedClass }: ChartControlsProps) {
           <label htmlFor="playerLimit">Number of players</label>
           <select
             id="playerLimit"
-            value={playerLimit || 'all'}
-            onChange={(e) =>
-              setPlayerLimit(e.target.value === 'all' ? null : parseInt(e.target.value))
-            }
+            value={playerLimit}
+            onChange={(e) => setPlayerLimit(parseInt(e.target.value))}
           >
             {renderOptions(PLAYER_LIMIT_VALUES.map(toPlayerLimitOption))}
           </select>

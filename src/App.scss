@@ -18,7 +18,19 @@ body {
   .header {
     display: flex;
     align-items: center;
-    margin: 0 0 30px 20px;
+    margin: 0 0 10px 20px;
+    position: relative;
+    padding-bottom: 20px;
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0px;
+      right: 20px;
+      height: 2px;
+      @include yellowGreenGradientBackground(0.25);
+    }
 
     .app-logo {
       width: 50px;
@@ -47,6 +59,14 @@ body {
         font-style: italic;
       }
     }
+  }
+
+  .content {
+    background-color: #1a1a1a;
+    color: #ffffff;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
   }
 
   .footer {
