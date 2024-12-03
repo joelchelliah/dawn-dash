@@ -13,7 +13,7 @@ import {
 import { ChartControlState, ViewMode } from '../types/chart'
 import { Difficulty, SpeedRunClass } from '../types/speedRun'
 
-function setSearchParamsFromControls(
+function setSearchParamsFromControlState(
   setSearchParams: (params: URLSearchParams, options?: { replace?: boolean }) => void,
   selectedClass: SpeedRunClass,
   controls: ChartControlState,
@@ -63,6 +63,7 @@ export function useUrlParams(selectedClass: SpeedRunClass, controls: ChartContro
   const isValidZoomLevel = (value: number): boolean => ZOOM_LEVEL_VALUES.includes(value)
 
   useEffect(() => {
+    const currentTimeout = debounceTimeoutRef.current
     const isUpdateFromControlChange = Object.entries(
       controls as unknown as Record<string, unknown>
     ).some(([key, value]) => prevControlStateRef.current[key as keyof ChartControlState] !== value)
@@ -70,22 +71,10 @@ export function useUrlParams(selectedClass: SpeedRunClass, controls: ChartContro
     prevControlStateRef.current = controls
 
     if (isUpdateFromControlChange) {
-      // Update URL if controls have changed
-      if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current)
-
-      debounceTimeoutRef.current = setTimeout(() => {
-        const params = new URLSearchParams()
-        params.set('class', selectedClass)
-        if (!isSunforge) params.set('difficulty', controls.difficulty)
-        params.set('players', controls.playerLimit.toString())
-        params.set('duration', controls.maxDuration.toString())
-        params.set('view', controls.viewMode)
-        params.set('zoom', controls.zoomLevel.toString())
-
-        setSearchParams(params, { replace: true })
-      }, 100)
+      // Update URL params if controls have changed
+      setSearchParamsFromControlState(setSearchParams, selectedClass, controls, debounceTimeoutRef)
     } else {
-      // Otherwise, update controls from URL
+      // Otherwise, update controls from URL params
       const difficulty = searchParams.get('difficulty')
       const players = searchParams.get('players')
       const duration = searchParams.get('duration')
@@ -133,26 +122,19 @@ export function useUrlParams(selectedClass: SpeedRunClass, controls: ChartContro
         }
       }
 
-      // If any parameter is invalid, reset URL to previous valid state
+      // If any parameter is invalid, reset URL to previous valid control state
       if (!areAllParamsValid) {
-        if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current)
-
-        debounceTimeoutRef.current = setTimeout(() => {
-          const params = new URLSearchParams()
-          params.set('class', selectedClass)
-          if (!isSunforge) params.set('difficulty', controls.difficulty)
-          params.set('players', controls.playerLimit.toString())
-          params.set('duration', controls.maxDuration.toString())
-          params.set('view', controls.viewMode)
-          params.set('zoom', controls.zoomLevel.toString())
-
-          setSearchParams(params, { replace: true })
-        }, 100)
+        setSearchParamsFromControlState(
+          setSearchParams,
+          selectedClass,
+          controls,
+          debounceTimeoutRef
+        )
       }
     }
 
     return () => {
-      if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current)
+      if (currentTimeout) clearTimeout(currentTimeout)
     }
   }, [searchParams, controls, selectedClass, setSearchParams, isSunforge, isValidDuration])
 }
