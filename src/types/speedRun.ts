@@ -5,7 +5,7 @@ export enum SpeedRunClass {
   Rogue = 'Rogue',
   Seeker = 'Seeker',
   Warrior = 'Warrior',
-  Scion = 'Scion',
+  Sunforge = 'Sunforge',
 }
 
 export enum Difficulty {

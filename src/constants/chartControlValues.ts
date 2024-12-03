@@ -7,8 +7,8 @@ export const DIFFICULTY_VALUES = Object.values(Difficulty)
 export const PLAYER_LIMIT_DEFAULT = 30
 export const PLAYER_LIMIT_VALUES = [3, 5, 10, 20, 30]
 
-export const MAX_DURATION_SCION_DEFAULT = 30
-export const MAX_DURATION_SCION_VALUES = [12, 15, 21, 30]
+export const MAX_DURATION_SUNFORGE_DEFAULT = 30
+export const MAX_DURATION_SUNFORGE_VALUES = [12, 15, 21, 30]
 
 export const MAX_DURATION_OTHER_DEFAULT = 240
 export const MAX_DURATION_OTHER_VALUES = [60, 90, 120, 240]

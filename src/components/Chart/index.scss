@@ -1,107 +1,99 @@
 @import '../../styles/animations';
 @import '../../styles/breakpoints';
 
-.speedrun-chart {
-  background-color: #1a1a1a;
-  color: #ffffff;
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 20px;
+.chart-layout {
+  display: flex;
+  gap: 20px;
+  overflow: visible;
 
-  .chart-layout {
-    display: flex;
-    gap: 20px;
-    overflow: visible;
+  .outer-container {
+    flex: 1;
+    width: 80vw;
+    height: fit-content;
+    margin: auto;
+    overflow-x: auto;
+    background-color: #1a1a1a;
+    border: 1px solid #333;
+    padding: 4px;
 
-    .outer-container {
-      flex: 1;
-      width: 80vw;
-      height: fit-content;
-      margin: auto;
-      overflow-x: auto;
-      background-color: #1a1a1a;
-      border: 1px solid #333;
-      padding: 4px;
+    .last-updated {
+      text-align: center;
+      color: #666;
+      font-size: 0.9rem;
+      padding: 8px 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border-top: 1px dashed #333;
+      margin-top: 8px;
+      height: 24px;
 
-      .last-updated {
-        text-align: center;
-        color: #666;
+      .refresh-button {
+        background: none;
+        border: 1px solid #444;
+        color: #999;
+        padding: 4px 8px;
+        border-radius: 4px;
+        cursor: pointer;
         font-size: 0.9rem;
-        padding: 8px 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        border-top: 1px dashed #333;
-        margin-top: 8px;
-        height: 24px;
+        transition: all 0.2s ease;
 
-        .refresh-button {
-          background: none;
-          border: 1px solid #444;
-          color: #999;
-          padding: 4px 8px;
-          border-radius: 4px;
-          cursor: pointer;
-          font-size: 0.9rem;
-          transition: all 0.2s ease;
-
-          &:hover {
-            background: #333;
-            border-color: #666;
-            color: #fff;
-          }
+        &:hover {
+          background: #333;
+          border-color: #666;
+          color: #fff;
         }
       }
     }
+  }
 
-    @media (max-width: $breakpoint-tablet) {
-      flex-direction: column;
+  @media (max-width: $breakpoint-tablet) {
+    flex-direction: column;
 
-      .outer-container {
-        width: 100% !important;
-        margin: 0;
-      }
-
-      .chart-container {
-        min-width: 100%;
-      }
+    .outer-container {
+      width: 100% !important;
+      margin: 0;
     }
 
     .chart-container {
-      transition:
-        width 0.3s,
-        height 0.3s;
-      height: fit-content;
+      min-width: 100%;
     }
   }
 
-  .chart-message {
-    color: #fff;
-    text-align: center;
-    padding: 2rem;
-    font-size: 1.2rem;
-
-    &.error {
-      color: #ff6b6b;
-    }
+  .chart-container {
+    transition:
+      width 0.3s,
+      height 0.3s;
+    height: fit-content;
   }
+}
 
-  .rotate-device-message {
+.chart-message {
+  color: #fff;
+  text-align: center;
+  padding: 2rem;
+  font-size: 1.2rem;
+
+  &.error {
     color: #ff6b6b;
-    text-align: center;
-    padding: 4px;
-    margin-bottom: 8px;
-    font-weight: bold;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+  }
+}
 
-    .rotate-icon {
-      font-size: 2rem;
-      display: inline-block;
-      transform: rotate(-90deg);
-      margin-bottom: 8px;
-    }
+.rotate-device-message {
+  color: #ff6b6b;
+  text-align: center;
+  padding: 4px;
+  margin-bottom: 8px;
+  font-weight: bold;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  .rotate-icon {
+    font-size: 2rem;
+    display: inline-block;
+    transform: rotate(-90deg);
+    margin-bottom: 8px;
   }
 }

@@ -82,6 +82,17 @@ $control-max-width: 300px;
       @supports (-webkit-touch-callout: none) {
         font-size: 16px; /* Prevent zoom on focus in iOS */
       }
+
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        background-color: #252525;
+        border-color: #444;
+
+        &:hover {
+          border-color: #444; // Prevent hover effect on disabled
+        }
+      }
     }
   }
 

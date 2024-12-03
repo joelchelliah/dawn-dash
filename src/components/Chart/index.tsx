@@ -15,14 +15,12 @@ import {
   Title,
 } from 'chart.js'
 
-import { useChartControlState } from '../../hooks/useChartControlState'
 import { useDeviceOrientation } from '../../hooks/useDeviceOrientation'
 import { useFromNow } from '../../hooks/useFromNow'
 import { useSpeedrunData } from '../../hooks/useSpeedrunData'
-import { ChartConfig, DataPoint, RecordPoint } from '../../types/chart'
+import { ChartConfig, ChartControlState, DataPoint, RecordPoint } from '../../types/chart'
 import { SpeedRunClass, SpeedRunData } from '../../types/speedRun'
 import { getColorMapping } from '../../utils/colors'
-import ChartControls from '../ChartControls'
 import Legend from '../ChartLegend'
 import { getTopPlayers } from '../ChartLegend/helper'
 import LoadingDots from '../LoadingDots'
@@ -50,16 +48,15 @@ ChartJS.register(
 
 interface ChartProps {
   selectedClass: SpeedRunClass
+  controls: ChartControlState
 }
 
-function Chart({ selectedClass }: ChartProps) {
+function Chart({ selectedClass, controls }: ChartProps) {
   const chartRef = useRef<HTMLCanvasElement>(null)
   const chartInstance = useRef<ChartJS<'line', DataPoint[]> | null>(null)
   const playerColors = useRef<Record<string, string>>({})
   const [chartData, setChartData] = useState<ChartJS | null>(null)
   const { isMobile, isMobileAndPortrait, isMobileAndLandscape } = useDeviceOrientation()
-
-  const controls = useChartControlState(selectedClass)
   const { difficulty, playerLimit, maxDuration, viewMode, zoomLevel } = controls
 
   const createChart = useCallback(
@@ -211,21 +208,18 @@ function Chart({ selectedClass }: ChartProps) {
   }
 
   return (
-    <div className="speedrun-chart">
-      <ChartControls controls={controls} selectedClass={selectedClass} />
-      <div className="chart-layout">
-        <div className="outer-container">
-          {renderChart()}
-          {isMobileAndPortrait && (
-            <div className="rotate-device-message">
-              <span className="rotate-icon">📱</span>
-              Rotate your device to landscape mode to view the chart!
-            </div>
-          )}
-          <div className="last-updated">{renderChartFooter()}</div>
-        </div>
-        <Legend chart={chartData} playerColors={playerColors.current} />
+    <div className="chart-layout">
+      <div className="outer-container">
+        {renderChart()}
+        {isMobileAndPortrait && (
+          <div className="rotate-device-message">
+            <span className="rotate-icon">📱</span>
+            Rotate your device to landscape mode to view the chart!
+          </div>
+        )}
+        <div className="last-updated">{renderChartFooter()}</div>
       </div>
+      <Legend chart={chartData} playerColors={playerColors.current} />
     </div>
   )
 }

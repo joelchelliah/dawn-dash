@@ -1,13 +1,12 @@
 import {
   DIFFICULTY_VALUES,
   MAX_DURATION_OTHER_VALUES,
-  MAX_DURATION_SCION_VALUES,
+  MAX_DURATION_SUNFORGE_VALUES,
   PLAYER_LIMIT_VALUES,
   VIEW_MODE_VALUES,
   ZOOM_LEVEL_VALUES,
 } from '../../constants/chartControlValues'
-import { ChartControlState } from '../../hooks/useChartControlState'
-import { ViewMode } from '../../types/chart'
+import { ChartControlState, ViewMode } from '../../types/chart'
 import { Difficulty, SpeedRunClass } from '../../types/speedRun'
 
 import './index.scss'
@@ -46,8 +45,8 @@ function ChartControls({ controls, selectedClass }: ChartControlsProps) {
   } = controls
 
   const getDurationOptions = () =>
-    selectedClass === SpeedRunClass.Scion
-      ? MAX_DURATION_SCION_VALUES.map(toMinutesOption)
+    selectedClass === SpeedRunClass.Sunforge
+      ? MAX_DURATION_SUNFORGE_VALUES.map(toMinutesOption)
       : MAX_DURATION_OTHER_VALUES.map(toMinutesOption)
 
   const renderOptions = (options: { value: number | string; label: string }[]) =>
@@ -66,6 +65,7 @@ function ChartControls({ controls, selectedClass }: ChartControlsProps) {
             id="difficulty"
             value={difficulty}
             onChange={(e) => setDifficulty(e.target.value as Difficulty)}
+            disabled={selectedClass === SpeedRunClass.Sunforge}
           >
             {renderOptions(DIFFICULTY_VALUES.map(toDifficultyOption))}
           </select>
@@ -75,10 +75,8 @@ function ChartControls({ controls, selectedClass }: ChartControlsProps) {
           <label htmlFor="playerLimit">Number of players</label>
           <select
             id="playerLimit"
-            value={playerLimit || 'all'}
-            onChange={(e) =>
-              setPlayerLimit(e.target.value === 'all' ? null : parseInt(e.target.value))
-            }
+            value={playerLimit}
+            onChange={(e) => setPlayerLimit(parseInt(e.target.value))}
           >
             {renderOptions(PLAYER_LIMIT_VALUES.map(toPlayerLimitOption))}
           </select>
