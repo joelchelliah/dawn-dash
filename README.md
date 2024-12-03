@@ -1,15 +1,16 @@
-# 🏃‍♂️ Dawn-Dash
+# 🏃‍♂️ Dawn-Dash 💨
 
 A speedrun visualization tool for mobile RPG: [Dawncaster](https://dawncaster.wanderlost.games/).
 
 This app shows charts of speedrun records and speed-progressions for all modes and difficulties of the game.
 
-Did your run make it on to the list? Go find out at [Dawn-Dash](https://dawn-dash.vercel.app/)! 👀
+Did your run make it on to the list? Go find out at [Dawn-Dash](https://dawn-dash.com/)! 👀
 
+------------
 
 ## 🤝 Contribution
 
-This project is open source, and any contributions are **greatly** appreciated.
+This project is open source, and contributions are **greatly** appreciated.
 
 ### How to contribute
 
@@ -23,6 +24,8 @@ This project is open source, and any contributions are **greatly** appreciated.
 - 📝 Write meaningful commit messages following [Conventional Commits](https://www.conventionalcommits.org/)
 - 📚 Update documentation as needed
 - 🧪 Test your changes thoroughly
+
+------------
 
 ## 🙏 Acknowledgments
 

@@ -52,7 +52,7 @@ function App(): JSX.Element {
           Blightbane
         </a>
         <div className="open-source-line">
-          This is an open source project. Check it out at{' '}
+          This is an open source project:{' '}
           <a
             href="https://github.com/joelchelliah/dawn-dash"
             target="_blank"
