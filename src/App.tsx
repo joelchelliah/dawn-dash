@@ -5,6 +5,7 @@ import './App.scss'
 import ButtonRow from './components/ButtonRow'
 import Chart from './components/Chart'
 import ChartControls from './components/ChartControls'
+import GithubLink from './components/GithubLink'
 import { useChartControlState } from './hooks/useChartControlState'
 import { useUrlParams } from './hooks/useUrlParams'
 import { SpeedRunClass } from './types/speedRun'
@@ -63,17 +64,7 @@ function App(): JSX.Element {
         >
           Blightbane
         </a>
-        <div className="open-source-line">
-          This is an open source project:{' '}
-          <a
-            href="https://github.com/joelchelliah/dawn-dash"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="gradient-link"
-          >
-            github.com/joelchelliah/dawn-dash
-          </a>{' '}
-        </div>
+        <GithubLink />
       </footer>
     </div>
   )

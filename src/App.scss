@@ -70,8 +70,11 @@ body {
   }
 
   .footer {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    white-space: pre-wrap;
     margin-top: auto;
-    padding: 30px 20px 10px;
     color: #999;
     font-size: 0.875rem;
 
