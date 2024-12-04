@@ -5,7 +5,8 @@ import './App.scss'
 import ButtonRow from './components/ButtonRow'
 import Chart from './components/Chart'
 import ChartControls from './components/ChartControls'
-import GithubLink from './components/GithubLink'
+import GradientLink from './components/GradientLink'
+import OpenSourceInfo from './components/OpenSourceInfo'
 import { useChartControlState } from './hooks/useChartControlState'
 import { useUrlParams } from './hooks/useUrlParams'
 import { SpeedRunClass } from './types/speedRun'
@@ -14,7 +15,7 @@ function App(): JSX.Element {
   const [selectedClass, setSelectedClass] = useState<SpeedRunClass>(SpeedRunClass.Arcanist)
   const controls = useChartControlState(selectedClass)
 
-  useUrlParams(selectedClass, controls)
+  useUrlParams(selectedClass, setSelectedClass, controls)
 
   return (
     <div className="App">
@@ -37,34 +38,13 @@ function App(): JSX.Element {
       </div>
 
       <footer className="footer">
-        Artwork and game data ©{' '}
-        <a
-          href="https://dawncaster.wanderlost.games/"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="gradient-link"
-        >
-          Dawncaster
-        </a>{' '}
-        the game,{' '}
-        <a
-          href="https://wanderlost.games/"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="gradient-link"
-        >
-          Wanderlost
-        </a>
-        , and{' '}
-        <a
-          href="https://blightbane.io/"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="gradient-link"
-        >
-          Blightbane
-        </a>
-        <GithubLink />
+        <div className="footer-credits">
+          Artwork and game data ©{' '}
+          <GradientLink text="Dawncaster" url="https://dawncaster.wanderlost.games/" /> the game,{' '}
+          <GradientLink text="Wanderlost" url="https://wanderlost.games/" />, and{' '}
+          <GradientLink text="Blightbane" url="https://blightbane.io/" />
+        </div>
+        <OpenSourceInfo />
       </footer>
     </div>
   )

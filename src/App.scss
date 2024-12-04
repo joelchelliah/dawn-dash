@@ -1,6 +1,6 @@
+@import './styles/breakpoints';
 @import './styles/animations';
 @import './styles/gradients';
-
 body {
   margin: 0;
   padding: 0;
@@ -21,16 +21,6 @@ body {
     margin: 0 0 10px 20px;
     position: relative;
     padding-bottom: 20px;
-
-    &::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 0px;
-      right: 20px;
-      height: 2px;
-      @include yellowGreenGradientBackground(0.25);
-    }
 
     .app-logo {
       width: 50px;
@@ -77,21 +67,15 @@ body {
     margin-top: auto;
     color: #999;
     font-size: 0.875rem;
+    flex-wrap: wrap;
 
-    .open-source-line {
-      display: block;
-      text-align: right;
-      margin-top: 10px;
-    }
+    .footer-credits {
+      @media (max-width: $breakpoint-tablet) {
+        max-width: 70vw;
+      }
 
-    .gradient-link {
-      @include yellowGreenGradient;
-      text-decoration: none;
-      transition: opacity 0.2s ease;
-      font-weight: 600;
-
-      &:hover {
-        opacity: 0.8;
+      @media (max-width: $breakpoint-mobile) {
+        max-width: 60vw;
       }
     }
   }

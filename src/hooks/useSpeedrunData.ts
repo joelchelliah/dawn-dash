@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 
 import useSWR from 'swr'
 
@@ -13,10 +13,15 @@ export function useSpeedrunData(type: SpeedRunClass, difficulty: Difficulty) {
   const [isRefreshing, setIsRefreshing] = useState(false)
   const cacheKey = `${type}-${difficulty}`
 
-  // Reset local data when type/difficulty changes
+  // To ensure that we don't associate a request with the wrong cache key
+  // E.g. if we change the class/difficulty, while still waiting on a request
+  const activeRequestRef = useRef<string>(cacheKey)
+
+  // Reset local data when class/difficulty changes
   useEffect(() => {
     setLocalData(null)
-  }, [type, difficulty])
+    activeRequestRef.current = cacheKey
+  }, [type, difficulty, cacheKey])
 
   useEffect(() => {
     const { data, isStale } = getFromCache<SpeedRunData[]>(cacheKey)
@@ -29,16 +34,19 @@ export function useSpeedrunData(type: SpeedRunClass, difficulty: Difficulty) {
   }, [cacheKey])
 
   const { data, error, isLoading } = useSWR<SpeedRunData[]>(
-    isRefreshing ? ['speedruns', 'manual'] : null,
+    isRefreshing ? ['speedruns', 'manual', cacheKey] : null,
     () => fetchSpeedruns(type, difficulty, FETCH_DATA_SIZE),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       refreshInterval: 0,
       onSuccess: (newData) => {
-        setLocalData(newData)
-        saveToCache(cacheKey, newData)
-        setIsRefreshing(false)
+        // Only update if this is still the active request
+        if (activeRequestRef.current === cacheKey) {
+          setLocalData(newData)
+          saveToCache(cacheKey, newData)
+          setIsRefreshing(false)
+        }
       },
     }
   )

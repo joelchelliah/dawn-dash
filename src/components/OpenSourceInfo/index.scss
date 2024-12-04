@@ -1,0 +1,77 @@
+@import '../../styles/_breakpoints.scss';
+@import '../../styles/_gradients.scss';
+
+$transition-duration: 0.5s;
+
+.open-source-info-container {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+
+  .hover-text {
+    transform: translateX(20px);
+    opacity: 0;
+    transition: all $transition-duration ease;
+    padding-right: 0.75rem;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+
+    .gradient-link {
+      padding-bottom: 2px;
+    }
+  }
+
+  .github-icon {
+    width: 16px;
+    height: 16px;
+    opacity: 0.6;
+    transition: all $transition-duration ease;
+    padding: 4px;
+    border: 2px solid transparent;
+    border-radius: 50%;
+    transform-origin: center;
+    background:
+      linear-gradient(black, black) padding-box,
+      linear-gradient(to right, $gradient-yellow, $gradient-green) border-box;
+  }
+
+  &:hover {
+    .hover-text {
+      transform: translateX(0);
+      opacity: 1;
+    }
+
+    .github-icon {
+      transform: scale(1.25);
+      opacity: 0.8;
+      background:
+        linear-gradient(black, black) padding-box,
+        linear-gradient(to right, $gradient-yellow-hover, $gradient-green-hover) border-box;
+    }
+  }
+
+  @media (max-width: $breakpoint-tablet) {
+    margin-top: 1rem;
+  }
+
+  @media (max-width: $breakpoint-mobile) {
+    margin-top: 1.25rem;
+
+    .github-icon {
+      display: none;
+    }
+
+    .hover-text {
+      transform: translateX(0);
+      opacity: 1;
+      transition: none;
+      white-space: normal;
+      flex-direction: column;
+      align-items: flex-end;
+      text-align: right;
+      gap: 2px;
+    }
+  }
+}
