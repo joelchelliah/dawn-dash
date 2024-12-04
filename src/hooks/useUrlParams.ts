@@ -36,14 +36,21 @@ function setSearchParamsFromControlState(
   }, 100)
 }
 
-export function useUrlParams(selectedClass: SpeedRunClass, controls: ChartControlState): void {
+export function useUrlParams(
+  selectedClass: SpeedRunClass,
+  setSelectedClass: (classType: SpeedRunClass) => void,
+  controls: ChartControlState
+): void {
   const [searchParams, setSearchParams] = useSearchParams()
   const isSunforge = selectedClass === SpeedRunClass.Sunforge
 
+  const prevClassRef = useRef(selectedClass)
   const prevControlStateRef = useRef(controls)
   const debounceTimeoutRef = useRef<NodeJS.Timeout>()
 
-  // Validation helpers
+  const isValidClass = (value: string): value is SpeedRunClass =>
+    Object.values(SpeedRunClass).includes(value as SpeedRunClass)
+
   const isValidDifficulty = (value: string): value is Difficulty =>
     DIFFICULTY_VALUES.includes(value as Difficulty)
 
@@ -67,14 +74,17 @@ export function useUrlParams(selectedClass: SpeedRunClass, controls: ChartContro
     const isUpdateFromControlChange = Object.entries(
       controls as unknown as Record<string, unknown>
     ).some(([key, value]) => prevControlStateRef.current[key as keyof ChartControlState] !== value)
+    const isUpdateFromClassChange = selectedClass !== prevClassRef.current
 
     prevControlStateRef.current = controls
+    prevClassRef.current = selectedClass
 
-    if (isUpdateFromControlChange) {
-      // Update URL params if controls have changed
+    if (isUpdateFromControlChange || isUpdateFromClassChange) {
+      // Update URL params if controls or class have changed
       setSearchParamsFromControlState(setSearchParams, selectedClass, controls, debounceTimeoutRef)
     } else {
-      // Otherwise, update controls from URL params
+      // Otherwise, update controls and class from URL params
+      const classParam = searchParams.get('class')
       const difficulty = searchParams.get('difficulty')
       const players = searchParams.get('players')
       const duration = searchParams.get('duration')
@@ -82,6 +92,12 @@ export function useUrlParams(selectedClass: SpeedRunClass, controls: ChartContro
       const zoom = searchParams.get('zoom')
 
       let areAllParamsValid = true
+
+      if (classParam && isValidClass(classParam)) {
+        setSelectedClass(classParam)
+      } else if (classParam) {
+        areAllParamsValid = false
+      }
 
       if (difficulty && !isSunforge && isValidDifficulty(difficulty)) {
         controls.setDifficulty(difficulty)
@@ -122,7 +138,7 @@ export function useUrlParams(selectedClass: SpeedRunClass, controls: ChartContro
         }
       }
 
-      // If any parameter is invalid, reset URL to previous valid control state
+      // If any parameter is invalid, reset URL to previous valid state
       if (!areAllParamsValid) {
         setSearchParamsFromControlState(
           setSearchParams,
@@ -136,5 +152,13 @@ export function useUrlParams(selectedClass: SpeedRunClass, controls: ChartContro
     return () => {
       if (currentTimeout) clearTimeout(currentTimeout)
     }
-  }, [searchParams, controls, selectedClass, setSearchParams, isSunforge, isValidDuration])
+  }, [
+    searchParams,
+    controls,
+    selectedClass,
+    setSearchParams,
+    isSunforge,
+    isValidDuration,
+    setSelectedClass,
+  ])
 }

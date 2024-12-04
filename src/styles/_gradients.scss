@@ -1,17 +1,20 @@
-$gradient-yellow: #ccaa2d;
+$gradient-yellow: hsl(47, 69%, 48%);
+$gradient-yellow-hover: #e4ca5f;
+
 $gradient-green: #249624;
+$gradient-green-hover: #2bc02b;
 
-@mixin yellowGreenGradientBackground($opacity: 1) {
-  background: linear-gradient(
-    45deg,
-    rgba($gradient-yellow, $opacity),
-    rgba($gradient-green, $opacity)
-  );
-}
-
-@mixin yellowGreenGradient {
-  @include yellowGreenGradientBackground;
+@mixin yellowGreenGradient($hover: false) {
+  @include yellowGreenGradientBackground($hover);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+}
+
+@mixin yellowGreenGradientBackground($hover: false) {
+  background: linear-gradient(
+    45deg,
+    if($hover, $gradient-yellow-hover, $gradient-yellow),
+    if($hover, $gradient-green-hover, $gradient-green)
+  );
 }

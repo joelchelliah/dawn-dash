@@ -22,16 +22,6 @@ body {
     position: relative;
     padding-bottom: 20px;
 
-    &::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 0px;
-      right: 20px;
-      height: 2px;
-      @include yellowGreenGradientBackground(0.25);
-    }
-
     .app-logo {
       width: 50px;
       height: 50px;
@@ -86,35 +76,6 @@ body {
 
       @media (max-width: $breakpoint-mobile) {
         max-width: 60vw;
-      }
-    }
-
-    .gradient-link {
-      @include yellowGreenGradient;
-      text-decoration: none;
-      transition: opacity 0.5s ease;
-      font-weight: 600;
-      position: relative;
-
-      &:hover {
-        opacity: 0.8;
-
-        &::after {
-          transform: scaleX(1);
-        }
-      }
-
-      &::after {
-        content: '';
-        position: absolute;
-        bottom: -2px;
-        left: 0;
-        width: 100%;
-        height: 1px;
-        @include yellowGreenGradientBackground(1);
-        transform: scaleX(0);
-        transition: transform 0.5s ease;
-        transform-origin: left;
       }
     }
   }
