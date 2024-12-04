@@ -37,33 +37,35 @@ function App(): JSX.Element {
       </div>
 
       <footer className="footer">
-        Artwork and game data ©{' '}
-        <a
-          href="https://dawncaster.wanderlost.games/"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="gradient-link"
-        >
-          Dawncaster
-        </a>{' '}
-        the game,{' '}
-        <a
-          href="https://wanderlost.games/"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="gradient-link"
-        >
-          Wanderlost
-        </a>
-        , and{' '}
-        <a
-          href="https://blightbane.io/"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="gradient-link"
-        >
-          Blightbane
-        </a>
+        <div className="footer-credits">
+          Artwork and game data ©{' '}
+          <a
+            href="https://dawncaster.wanderlost.games/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="gradient-link"
+          >
+            Dawncaster
+          </a>{' '}
+          the game,{' '}
+          <a
+            href="https://wanderlost.games/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="gradient-link"
+          >
+            Wanderlost
+          </a>
+          , and{' '}
+          <a
+            href="https://blightbane.io/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="gradient-link"
+          >
+            Blightbane
+          </a>
+        </div>
         <GithubLink />
       </footer>
     </div>

@@ -12,7 +12,7 @@ function GithubLink(): JSX.Element {
       >
         <GitHubIcon className="github-icon" />
         <div className="hover-text">
-          <span>This is an open source project: </span>
+          <span className="text">This is an open source project: </span>
           <span className="url">github.com/joelchelliah/dawn-dash</span>
         </div>
       </a>

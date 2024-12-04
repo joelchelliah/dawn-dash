@@ -1,3 +1,4 @@
+@import '../../styles/_breakpoints.scss';
 @import '../../styles/_gradients.scss';
 
 .github-container {
@@ -8,19 +9,37 @@
     display: flex;
     align-items: center;
     text-decoration: none;
-    color: var(--text-color);
     padding: 12px;
 
-    &:hover {
+    @media (min-width: $breakpoint-tablet) {
+      &:hover {
+        .hover-text {
+          width: auto;
+          padding-left: 0.5rem;
+          opacity: 1;
+        }
+
+        .github-icon {
+          transform: scale(1.25);
+          opacity: 0.8;
+        }
+      }
+    }
+
+    @media (max-width: $breakpoint-tablet) {
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      text-align: right;
+
       .hover-text {
         width: auto;
         padding-left: 0.5rem;
         opacity: 1;
-      }
+        white-space: normal;
 
-      .github-icon {
-        transform: scale(1.25);
-        opacity: 0.8;
+        .text {
+          display: none;
+        }
       }
     }
   }
@@ -29,7 +48,7 @@
     width: 16px;
     height: 16px;
     opacity: 0.6;
-    transition: all 0.2s ease;
+    transition: all 0.5s ease;
     padding: 4px;
     border: 2px solid transparent;
     border-radius: 50%;
@@ -39,12 +58,19 @@
       linear-gradient(to right, $gradient-yellow, $gradient-green) border-box;
   }
 
+  @media (max-width: $breakpoint-mobile) {
+    .github-icon {
+      width: 12px;
+      height: 12px;
+    }
+  }
+
   .hover-text {
     width: 0;
     overflow: hidden;
     white-space: nowrap;
     opacity: 0;
-    transition: all 0.3s ease;
+    transition: all 0.5s ease;
 
     .url {
       @include yellowGreenGradient;
