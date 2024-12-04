@@ -3,18 +3,25 @@
 
 .chart-layout {
   display: flex;
+  align-items: flex-start;
   gap: 20px;
   overflow: visible;
 
   .outer-container {
     flex: 1;
     width: 80vw;
-    height: fit-content;
+    display: flex;
+    flex-direction: column;
     margin: auto;
-    overflow-x: auto;
+    margin-top: 0;
     background-color: #1a1a1a;
     border: 1px solid #333;
     padding: 4px;
+
+    .chart-scroll-container {
+      height: 500px;
+      overflow: auto;
+    }
 
     .last-updated {
       text-align: center;
@@ -46,6 +53,15 @@
         }
       }
     }
+
+    .chart-container {
+      height: 100%;
+      transition: width 0.3s;
+
+      canvas {
+        min-height: 100%;
+      }
+    }
   }
 
   @media (max-width: $breakpoint-tablet) {
@@ -59,13 +75,6 @@
     .chart-container {
       min-width: 100%;
     }
-  }
-
-  .chart-container {
-    transition:
-      width 0.3s,
-      height 0.3s;
-    height: fit-content;
   }
 }
 

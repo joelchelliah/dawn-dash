@@ -175,25 +175,6 @@ function Chart({ selectedClass, controls }: ChartProps) {
     }
   }, [])
 
-  const renderChart = () => (
-    <>
-      {isLoading && (
-        <LoadingMessage selectedClass={selectedClass} selectedDifficulty={difficulty} />
-      )}
-      {isError && !isLoading && <div className="chart-message error">Error loading data</div>}
-      <div
-        className="chart-container"
-        style={{
-          width: `${zoomLevel > 100 ? zoomLevel * 1.5 : zoomLevel}%`,
-          height: `${Math.max(500, zoomLevel * 4)}px`,
-          display: (!isMobile || isMobileAndLandscape) && !isLoading && !isError ? 'block' : 'none',
-        }}
-      >
-        <canvas ref={chartRef}></canvas>
-      </div>
-    </>
-  )
-
   const renderChartFooter = () => {
     if (isLoadingInBackground) return <LoadingDots text="Loading fresh data" />
     if (!fromNow) return null
@@ -210,7 +191,23 @@ function Chart({ selectedClass, controls }: ChartProps) {
   return (
     <div className="chart-layout">
       <div className="outer-container">
-        {renderChart()}
+        <div className="chart-scroll-container">
+          {isLoading && (
+            <LoadingMessage selectedClass={selectedClass} selectedDifficulty={difficulty} />
+          )}
+          {isError && !isLoading && <div className="chart-message error">Error loading data</div>}
+          <div
+            className="chart-container"
+            style={{
+              width: `${zoomLevel > 100 ? zoomLevel * 1.5 : zoomLevel}%`,
+              height: `${Math.max(500, zoomLevel * 3)}px`,
+              display:
+                (!isMobile || isMobileAndLandscape) && !isLoading && !isError ? 'block' : 'none',
+            }}
+          >
+            <canvas ref={chartRef}></canvas>
+          </div>
+        </div>
         {isMobileAndPortrait && (
           <div className="rotate-device-message">
             <span className="rotate-icon">📱</span>
