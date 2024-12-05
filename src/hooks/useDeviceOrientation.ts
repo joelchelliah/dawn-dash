@@ -5,10 +5,14 @@ export function useDeviceOrientation() {
     // Discord's in-app browser doesn't support the Screen Orientation API
     const isDiscordBrowser = navigator.userAgent.includes('Discord')
 
+    console.log('isDiscordBrowser', isDiscordBrowser)
+
     if (screen.orientation?.type && !isDiscordBrowser) {
+      console.log('screen.orientation.type', screen.orientation.type)
       return screen.orientation.type.includes('landscape')
     }
 
+    console.log('window.innerWidth > window.innerHeight', window.innerWidth > window.innerHeight)
     return window.innerWidth > window.innerHeight
   }
 
@@ -39,6 +43,17 @@ export function useDeviceOrientation() {
       window.removeEventListener('resize', handleOrientation)
       window.removeEventListener('orientationchange', handleOrientation)
     }
+  }, [])
+
+  useEffect(() => {
+    console.log('ON LOAD')
+    console.log('User Agent:', navigator.userAgent)
+    console.log(
+      'Screen Orientation:',
+      screen.orientation ? screen.orientation.type : 'Not available'
+    )
+    console.log('Window dimensions:', window.innerWidth, window.innerHeight)
+    console.log('--------------------------------')
   }, [])
 
   return {
