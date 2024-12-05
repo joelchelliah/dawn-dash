@@ -28,7 +28,7 @@ function Legend({ chart, playerColors }: LegendProps) {
             <li key={player}>
               <span className="color-marker" style={{ backgroundColor: playerColors[player] }} />
               <span className="player-info">
-                <span className="player-name-container">
+                <span className={`player-name-container ${isFirstPlace ? 'has-trophy' : ''}`}>
                   <span className={`player-name ${isFirstPlace ? 'first-place' : ''}`}>
                     {player}
                   </span>

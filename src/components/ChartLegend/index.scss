@@ -61,6 +61,10 @@
           position: relative;
           @include rotateAroundY;
         }
+
+        &.has-trophy:hover .trophy {
+          transform: rotateY(360deg);
+        }
       }
 
       .player-time {
