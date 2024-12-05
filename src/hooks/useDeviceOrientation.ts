@@ -2,12 +2,13 @@ import { useState, useEffect } from 'react'
 
 export function useDeviceOrientation() {
   const checkOrientation = () => {
-    // Try Screen Orientation API first
-    // This is needed when opening the app from Discord's in-app browser
-    if (screen.orientation) {
+    // Discord's in-app browser doesn't support the Screen Orientation API
+    const isDiscordBrowser = navigator.userAgent.includes('Discord')
+
+    if (screen.orientation?.type && !isDiscordBrowser) {
       return screen.orientation.type.includes('landscape')
     }
-    // Fallback to window dimensions
+
     return window.innerWidth > window.innerHeight
   }
 
@@ -22,7 +23,6 @@ export function useDeviceOrientation() {
   useEffect(() => {
     const handleOrientation = () => setIsLandscape(checkOrientation())
 
-    // Listen to both screen orientation and resize events
     if (screen.orientation) {
       screen.orientation.addEventListener('change', handleOrientation)
     }
