@@ -1,3 +1,4 @@
+import { useDeviceOrientation } from '../../hooks/useDeviceOrientation'
 import { Difficulty, SpeedRunClass } from '../../types/speedRun'
 import { getClassColor } from '../../utils/colors'
 import { getClassImageUrl } from '../../utils/images'
@@ -11,6 +12,8 @@ interface LoadingMessageProps {
 }
 
 function LoadingMessage({ selectedClass, selectedDifficulty }: LoadingMessageProps) {
+  const { isMobileAndPortrait } = useDeviceOrientation()
+
   const imageUrl = getClassImageUrl(selectedClass)
   const color = getClassColor(selectedClass, true)
   const classAndDifficulty =
@@ -19,7 +22,7 @@ function LoadingMessage({ selectedClass, selectedDifficulty }: LoadingMessagePro
       : `${selectedClass} - ${selectedDifficulty}`
 
   return (
-    <div className="loading-message">
+    <div className={`loading-message ${isMobileAndPortrait ? '' : 'max-height'}`}>
       <img src={imageUrl} alt={`${selectedClass} icon`} className="loading-icon" />
       <div className="loading-text">
         Loading{' '}

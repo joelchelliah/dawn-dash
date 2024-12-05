@@ -177,12 +177,16 @@ function Chart({ selectedClass, controls }: ChartProps) {
   }, [])
 
   const renderChart = () => {
+    const isMobilePortraitLoading = isLoading && isMobileAndPortrait
+
     const widthMobilePortrait = zoomLevel * 2
     const widthDefault = zoomLevel > 100 ? zoomLevel * 1.5 : zoomLevel
     const width = isMobileAndPortrait ? widthMobilePortrait : widthDefault
 
     return (
-      <div className={'chart-scroll-container'}>
+      <div
+        className={`chart-scroll-container ${isMobilePortraitLoading ? 'mobile-portrait-loading' : ''}`}
+      >
         {isLoading && (
           <LoadingMessage selectedClass={selectedClass} selectedDifficulty={difficulty} />
         )}
@@ -202,8 +206,10 @@ function Chart({ selectedClass, controls }: ChartProps) {
   }
 
   const renderChartFooter = () => {
+    if (isLoading) return <LoadingDots text="" />
     if (isLoadingInBackground) return <LoadingDots text="Loading fresh data" />
     if (!fromNow) return null
+
     return (
       <>
         {fromNow}

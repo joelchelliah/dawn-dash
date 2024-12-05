@@ -1,5 +1,5 @@
 @import '../../styles/animations';
-@import '../../styles/breakpoints';
+@import '../../styles/constants';
 
 .chart-layout {
   display: flex;
@@ -19,11 +19,11 @@
     padding: 4px;
 
     .chart-scroll-container {
-      height: 500px;
+      height: $chart-container-height;
       overflow: auto;
 
-      &.hide {
-        display: none;
+      &.mobile-portrait-loading {
+        height: 275px;
       }
     }
 

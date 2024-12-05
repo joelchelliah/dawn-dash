@@ -1,5 +1,7 @@
-@import '../../styles/breakpoints';
+@import '../../styles/constants';
 @import '../../styles/animations';
+
+$message-padding: 40px;
 
 .loading-message {
   display: flex;
@@ -7,9 +9,13 @@
   align-items: center;
   justify-content: center;
   gap: 20px;
-  padding: 40px;
+  padding: $message-padding;
   color: #ddd;
   font-size: 1.2rem;
+
+  &.max-height {
+    height: $chart-container-height - 2 * $message-padding;
+  }
 
   .loading-icon {
     border-radius: 50%;
