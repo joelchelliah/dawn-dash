@@ -1,31 +1,28 @@
 import { useState, useEffect } from 'react'
 
 export function useDeviceOrientation() {
-  const checkOrientation = () => {
-    // Discord's in-app browser doesn't support the Screen Orientation API
-    const isDiscordBrowser = navigator.userAgent.includes('Discord')
-
-    console.log('isDiscordBrowser', isDiscordBrowser)
-
-    if (screen.orientation?.type && !isDiscordBrowser) {
-      console.log('screen.orientation.type', screen.orientation.type)
-      return screen.orientation.type.includes('landscape')
-    }
-
-    console.log('window.innerWidth > window.innerHeight', window.innerWidth > window.innerHeight)
-    return window.innerWidth > window.innerHeight
-  }
-
-  const checkMobile = () => {
+  const checkIsMobile = () => {
     const userAgent = navigator.userAgent.toLowerCase()
     return /mobile|android|iphone|ipad|ipod|blackberry|iemobile|opera mini/.test(userAgent)
   }
 
-  const [isLandscape, setIsLandscape] = useState(checkOrientation())
-  const isMobile = checkMobile()
+  const checkIsDiscord = () => {
+    return navigator.userAgent.toLowerCase().includes('discord')
+  }
+
+  const checkIsLandscape = () => {
+    if (screen.orientation?.type) return screen.orientation.type.includes('landscape')
+
+    // Fallback to window dimensions
+    return window.innerWidth > window.innerHeight
+  }
+
+  const isMobile = checkIsMobile()
+  const isDiscord = checkIsDiscord()
+  const [isLandscape, setIsLandscape] = useState(checkIsLandscape())
 
   useEffect(() => {
-    const handleOrientation = () => setIsLandscape(checkOrientation())
+    const handleOrientation = () => setIsLandscape(checkIsLandscape())
 
     if (screen.orientation) {
       screen.orientation.addEventListener('change', handleOrientation)
@@ -45,19 +42,11 @@ export function useDeviceOrientation() {
     }
   }, [])
 
-  useEffect(() => {
-    console.log('ON LOAD')
-    console.log('User Agent:', navigator.userAgent)
-    console.log(
-      'Screen Orientation:',
-      screen.orientation ? screen.orientation.type : 'Not available'
-    )
-    console.log('Window dimensions:', window.innerWidth, window.innerHeight)
-    console.log('--------------------------------')
-  }, [])
-
+  // NB: Discord browser is always locked to portrait
+  // Overriding to enable landscape-related features when in Discord browser
   return {
     isMobile,
+    isDiscord,
     isMobileAndLandscape: isMobile && isLandscape,
     isMobileAndPortrait: isMobile && !isLandscape,
   }

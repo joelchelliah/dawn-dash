@@ -21,6 +21,10 @@
     .chart-scroll-container {
       height: 500px;
       overflow: auto;
+
+      &.hide {
+        display: none;
+      }
     }
 
     .last-updated {
