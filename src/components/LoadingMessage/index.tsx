@@ -26,8 +26,10 @@ function LoadingMessage({ selectedClass, selectedDifficulty }: LoadingMessagePro
         <span className="class-name" style={{ color }}>
           {classAndDifficulty}
         </span>{' '}
-        data
-        <LoadingDots />
+        <span className="last-line">
+          data
+          <LoadingDots />
+        </span>
       </div>
     </div>
   )

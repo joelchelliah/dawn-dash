@@ -6,10 +6,6 @@ export function useDeviceOrientation() {
     return /mobile|android|iphone|ipad|ipod|blackberry|iemobile|opera mini/.test(userAgent)
   }
 
-  const checkIsDiscord = () => {
-    return navigator.userAgent.toLowerCase().includes('discord')
-  }
-
   const checkIsLandscape = () => {
     if (screen.orientation?.type) return screen.orientation.type.includes('landscape')
 
@@ -18,7 +14,6 @@ export function useDeviceOrientation() {
   }
 
   const isMobile = checkIsMobile()
-  const isDiscord = checkIsDiscord()
   const [isLandscape, setIsLandscape] = useState(checkIsLandscape())
 
   useEffect(() => {
@@ -42,11 +37,8 @@ export function useDeviceOrientation() {
     }
   }, [])
 
-  // NB: Discord browser is always locked to portrait
-  // Overriding to enable landscape-related features when in Discord browser
   return {
     isMobile,
-    isDiscord,
     isMobileAndLandscape: isMobile && isLandscape,
     isMobileAndPortrait: isMobile && !isLandscape,
   }

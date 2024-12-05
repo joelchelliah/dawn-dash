@@ -45,13 +45,6 @@ function App(): JSX.Element {
           <GradientLink text="Blightbane" url="https://blightbane.io/" />
         </div>
         <OpenSourceInfo />
-        <br />
-        <br />
-        {`Referrer: ${document.referrer}`}
-        <br />
-        {`Width: ${window.innerWidth}`}
-        <br />
-        {`Height: ${window.innerHeight}`}
       </footer>
     </div>
   )

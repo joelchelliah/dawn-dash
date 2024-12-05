@@ -1,0 +1,40 @@
+@import '../../styles/_animations.scss';
+
+.rotate-device-message {
+  color: #ff6b6b;
+  background-color: #252525;
+  text-align: center;
+  padding: 8px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+
+  .close-button {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: none;
+    border: 2px solid #bf4b4b;
+    border-radius: 25px;
+    color: #ff6b6b;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 2px 6px;
+    line-height: 1;
+    opacity: 0.6;
+    transition: opacity 0.2s ease;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+
+  .rotate-icon {
+    font-size: 2rem;
+    display: inline-block;
+    transform: rotate(-90deg);
+    margin-bottom: 8px;
+    @include rotateAroundZ(true);
+  }
+}

@@ -23,6 +23,14 @@
   }
 }
 
+@mixin rotateAroundZ($infinite: false) {
+  @if $infinite {
+    animation: rotateZ360 3s linear infinite;
+  } @else {
+    animation: rotateZ360 3s linear;
+  }
+}
+
 @mixin loadingPulse {
   animation: pulse 1.2s ease-in-out infinite;
 }
@@ -48,6 +56,15 @@
   }
   to {
     transform: rotateY(360deg);
+  }
+}
+
+@keyframes rotateZ360 {
+  from {
+    transform: rotateZ(-90deg);
+  }
+  to {
+    transform: rotateZ(270deg);
   }
 }
 

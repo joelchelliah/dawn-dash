@@ -25,6 +25,7 @@ import Legend from '../ChartLegend'
 import { getTopPlayers } from '../ChartLegend/helper'
 import LoadingDots from '../LoadingDots'
 import LoadingMessage from '../LoadingMessage'
+import RotateDeviceMessage from '../RotateDeviceMessage'
 
 import { padMaxDuration, padMinDuration, padMinMaxDates } from './chartAxisPadding'
 import { createChartConfigOptions } from './chartConfig'
@@ -56,7 +57,7 @@ function Chart({ selectedClass, controls }: ChartProps) {
   const chartInstance = useRef<ChartJS<'line', DataPoint[]> | null>(null)
   const playerColors = useRef<Record<string, string>>({})
   const [chartData, setChartData] = useState<ChartJS | null>(null)
-  const { isMobile, isDiscord, isMobileAndLandscape, isMobileAndPortrait } = useDeviceOrientation()
+  const { isMobileAndPortrait } = useDeviceOrientation()
   const { difficulty, playerLimit, maxDuration, viewMode, zoomLevel } = controls
 
   const createChart = useCallback(
@@ -176,13 +177,12 @@ function Chart({ selectedClass, controls }: ChartProps) {
   }, [])
 
   const renderChart = () => {
-    const showChart = !isMobile || isMobileAndLandscape || isDiscord || isLoading
-    const widthDiscordMobile = zoomLevel * 2
+    const widthMobilePortrait = zoomLevel * 2
     const widthDefault = zoomLevel > 100 ? zoomLevel * 1.5 : zoomLevel
-    const width = isMobile && isDiscord ? widthDiscordMobile : widthDefault
+    const width = isMobileAndPortrait ? widthMobilePortrait : widthDefault
 
     return (
-      <div className={`chart-scroll-container ${showChart ? '' : 'hide'}`}>
+      <div className={'chart-scroll-container'}>
         {isLoading && (
           <LoadingMessage selectedClass={selectedClass} selectedDifficulty={difficulty} />
         )}
@@ -192,7 +192,7 @@ function Chart({ selectedClass, controls }: ChartProps) {
           style={{
             width: `${width}%`,
             height: `${Math.max(500, zoomLevel * 3)}px`,
-            display: showChart ? 'block' : 'none',
+            display: isLoading ? 'none' : 'block',
           }}
         >
           <canvas ref={chartRef}></canvas>
@@ -218,12 +218,7 @@ function Chart({ selectedClass, controls }: ChartProps) {
     <div className="chart-layout">
       <div className="outer-container">
         {renderChart()}
-        {isMobileAndPortrait && !isDiscord && !isLoading && (
-          <div className="rotate-device-message">
-            <span className="rotate-icon">📱</span>
-            Rotate your device to landscape mode to view the chart!
-          </div>
-        )}
+        <RotateDeviceMessage />
         <div className="last-updated">{renderChartFooter()}</div>
       </div>
       <Legend chart={chartData} playerColors={playerColors.current} />

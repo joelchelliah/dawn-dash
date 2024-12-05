@@ -1,3 +1,4 @@
+@import '../../styles/breakpoints';
 @import '../../styles/animations';
 
 .loading-message {
@@ -22,15 +23,23 @@
     display: flex;
     align-items: center;
     gap: 8px;
+    text-align: center;
+
+    @media (max-width: $breakpoint-mobile) {
+      flex-direction: column;
+      white-space: normal;
+      word-break: break-word;
+    }
 
     .class-name {
       font-weight: bold;
     }
 
-    .loading-dots {
-      letter-spacing: 2px;
-      margin-bottom: -5px;
-      @include loadingDotsPulse;
+    .last-line {
+      display: flex;
+      flex-direction: row;
+      width: 75px;
+      justify-content: space-between;
     }
   }
 }
