@@ -35,7 +35,7 @@ body {
 
     .title-container {
       .app-title {
-        @include yellowGreenGradient;
+        @include yellowGreenGradient(false);
         font-size: 2rem;
         margin: 0;
         font-weight: bold;

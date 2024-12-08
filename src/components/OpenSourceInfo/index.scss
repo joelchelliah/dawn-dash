@@ -32,9 +32,7 @@ $transition-duration: 0.5s;
     border: 2px solid transparent;
     border-radius: 50%;
     transform-origin: center;
-    background:
-      linear-gradient(black, black) padding-box,
-      linear-gradient(to right, $gradient-yellow, $gradient-green) border-box;
+    @include yellowGreenGradientIcon(false);
   }
 
   &:hover {
@@ -46,9 +44,7 @@ $transition-duration: 0.5s;
     .github-icon {
       transform: scale(1.25);
       opacity: 0.8;
-      background:
-        linear-gradient(black, black) padding-box,
-        linear-gradient(to right, $gradient-yellow-hover, $gradient-green-hover) border-box;
+      @include yellowGreenGradientIcon(true);
     }
   }
 

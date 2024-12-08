@@ -20,8 +20,6 @@ $button-padding-vertical: 8px;
   position: relative;
   background: #1a1a1a;
   padding: 20px;
-  border-radius: 8px;
-  border: 1px solid #333;
   width: 90%;
   max-width: 400px;
   margin: auto;
@@ -62,20 +60,21 @@ $button-padding-vertical: 8px;
 
     button {
       padding: $button-padding-vertical $button-padding-horizontal;
-      border-radius: 4px;
+      border-radius: 8px;
       border: 1px solid #444;
       background: none;
       color: #ccc;
       cursor: pointer;
 
       &:hover {
+        color: #fff;
         background: #333;
         border-color: #666;
       }
 
       &.confirm {
         font-weight: bold;
-        @include yellowGreenGradient;
+        @include yellowGreenGradient(false);
 
         &:hover {
           @include yellowGreenGradient(true);

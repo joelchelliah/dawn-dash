@@ -1,13 +1,14 @@
 @import '../../styles/animations';
 @import '../../styles/constants';
+@import '../../styles/gradients';
 
 .legend-container {
   width: 220px;
   padding: 4px;
   background-color: #1a1a1a;
-  border: 1px solid #333;
   overflow-y: auto;
   height: 550px;
+  @include yellowGreenGradientBorder;
 
   ul {
     margin: 0;

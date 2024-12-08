@@ -1,14 +1,21 @@
 $gradient-yellow: hsl(47, 69%, 48%);
 $gradient-yellow-hover: #e4ca5f;
+$gradient-yellow-border: #9d8739;
 
 $gradient-green: #249624;
 $gradient-green-hover: #2bc02b;
+$gradient-green-border: #176616;
 
-@mixin yellowGreenGradient($hover: false) {
-  @include yellowGreenGradientBackground($hover);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+@mixin yellowGreenGradient($hover, $default: #fff) {
+  // Fallback
+  color: $default;
+
+  @supports (-webkit-background-clip: text) or (background-clip: text) {
+    @include yellowGreenGradientBackground($hover);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
 }
 
 @mixin yellowGreenGradientBackground($hover: false) {
@@ -19,32 +26,46 @@ $gradient-green-hover: #2bc02b;
   );
 }
 
-@mixin yellowGreenGradientBorder($hover: false) {
-  position: relative;
+@mixin yellowGreenGradientBorder {
+  border-radius: 8px;
+  // Fallback
+  border: 1px solid #333;
 
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    border: 1px solid transparent;
-    border-radius: inherit;
-    background: linear-gradient(
-        45deg,
-        if($hover, $gradient-yellow-hover, $gradient-yellow),
-        if($hover, $gradient-green-hover, $gradient-green)
-      )
-      border-box;
-    -webkit-mask:
-      linear-gradient(#fff 0 0) padding-box,
-      linear-gradient(#fff 0 0);
-    mask:
-      linear-gradient(#fff 0 0) padding-box,
-      linear-gradient(#fff 0 0);
-    -webkit-mask-composite: destination-out;
-    mask-composite: exclude;
-    pointer-events: none;
+  @supports (mask-composite: exclude) or (-webkit-mask-composite: destination-out) {
+    border: none;
+    position: relative;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      border: 1px solid transparent;
+      border-radius: inherit;
+      background: linear-gradient(45deg, $gradient-yellow-border, $gradient-green-border) border-box;
+      -webkit-mask:
+        linear-gradient(#fff 0 0) padding-box,
+        linear-gradient(#fff 0 0);
+      mask:
+        linear-gradient(#fff 0 0) padding-box,
+        linear-gradient(#fff 0 0);
+      -webkit-mask-composite: destination-out;
+      mask-composite: exclude;
+      pointer-events: none;
+    }
+  }
+}
+
+@mixin yellowGreenGradientIcon($hover) {
+  @if $hover {
+    background:
+      linear-gradient(black, black) padding-box,
+      linear-gradient(to right, $gradient-yellow-hover, $gradient-green-hover) border-box;
+  } @else {
+    background:
+      linear-gradient(black, black) padding-box,
+      linear-gradient(to right, $gradient-yellow, $gradient-green) border-box;
   }
 }
