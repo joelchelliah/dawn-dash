@@ -1,4 +1,4 @@
-const CACHE_NAME = 'dawn-dash-cache-v1'
+const CACHE_NAME = 'dawn-dash-cache-v2'
 const IMAGE_URLS = [
   'https://blightbane.io/images/classes/Arcanist_I_M.webp',
   'https://blightbane.io/images/classes/Hunter_I_F.webp',
@@ -8,7 +8,22 @@ const IMAGE_URLS = [
   'https://blightbane.io/images/classes/Warrior_I_M.webp',
   'https://blightbane.io/images/icons/cardart_4_53.webp',
   'https://blightbane.io/images/icons/cardart_5_50.webp',
+  'https://blightbane.io/images/bolgar.png',
 ]
+
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames.map((cacheName) => {
+          if (cacheName !== CACHE_NAME) {
+            return caches.delete(cacheName)
+          }
+        })
+      )
+    })
+  )
+})
 
 self.addEventListener('install', (event) => {
   event.waitUntil(

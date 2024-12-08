@@ -29,12 +29,25 @@ $button-padding-vertical: 8px;
   @include yellowGreenGradientBorder;
 
   h3 {
-    margin-top: 0;
-    color: #fff;
+    margin-top: 5px;
+    color: #aaa;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    .modal-icon {
+      margin-top: -5px;
+      width: 64px;
+      height: auto;
+      object-fit: contain;
+      filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.8));
+      opacity: 0.9;
+    }
   }
 
   p {
     color: #ccc;
+    line-height: 1.2;
   }
 
   .player {

@@ -19,13 +19,20 @@ function Modal({ isOpen, onClose, onConfirm, player, playerClass }: ModalProps) 
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <h3>Go to Blightbane?</h3>
+        <h3>
+          <img
+            src="https://blightbane.io/images/bolgar.png"
+            alt="Bolgar Blightbane"
+            className="modal-icon"
+          />
+          Go to Blightbane?
+        </h3>
         <p>
           Check out <span className="player">{`${player}'s`}</span> best{' '}
           <span className="player" style={{ color: classColor }}>
             {playerClass}
           </span>{' '}
-          run on Blightbane?
+          run on blightbane.io?
         </p>
         <div className="modal-buttons">
           <button onClick={onClose}>Nah</button>
