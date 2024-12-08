@@ -21,6 +21,11 @@
     align-items: center;
     transition: opacity 0.2s ease;
     white-space: nowrap;
+    cursor: pointer;
+
+    &:hover {
+      background-color: #2a2a2a;
+    }
 
     .color-marker {
       display: inline-block;

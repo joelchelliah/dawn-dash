@@ -22,7 +22,7 @@ export const fetchSpeedruns = async (
   const category = Object.keys(response.data[0])[0] as SpeedRunCategory
 
   return response.data[0][category].map((run) => ({
-    _id: run._id,
+    id: run._id,
     uid: run.uid,
     duration: run.stats?.clock1,
     discorduser: run.discorduser || null,

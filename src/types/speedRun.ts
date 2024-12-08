@@ -16,7 +16,7 @@ export enum Difficulty {
 }
 
 export interface SpeedRunData {
-  _id: string
+  id: string
   uid: number
   duration: string
   discorduser: string | null

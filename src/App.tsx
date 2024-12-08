@@ -6,6 +6,7 @@ import ButtonRow from './components/ButtonRow'
 import Chart from './components/Chart'
 import ChartControls from './components/ChartControls'
 import GradientLink from './components/GradientLink'
+import Modal from './components/Modal'
 import OpenSourceInfo from './components/OpenSourceInfo'
 import { useChartControlState } from './hooks/useChartControlState'
 import { useUrlParams } from './hooks/useUrlParams'
@@ -13,12 +14,34 @@ import { SpeedRunClass } from './types/speedRun'
 
 function App(): JSX.Element {
   const [selectedClass, setSelectedClass] = useState<SpeedRunClass>(SpeedRunClass.Arcanist)
+  const [selectedPlayer, setSelectedPlayer] = useState('')
+  const [selectedTimestamp, setSelectedTimestamp] = useState<number | undefined>()
+
   const controls = useChartControlState(selectedClass)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const handlePlayerClick = (player: string, timestamp: number) => {
+    setSelectedPlayer(player)
+    setSelectedTimestamp(timestamp)
+    setIsModalOpen(true)
+  }
+
+  const openInBlightbane = () => {
+    window.open(`https://blightbane.io/deck/${selectedTimestamp}`, '_blank')
+    setIsModalOpen(false)
+  }
 
   useUrlParams(selectedClass, setSelectedClass, controls)
 
   return (
     <div className="App">
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onConfirm={openInBlightbane}
+        player={selectedPlayer}
+        playerClass={selectedClass}
+      />
+
       <div className="header">
         <img
           src="https://blightbane.io/images/icons/cardart_4_53.webp"
@@ -34,7 +57,11 @@ function App(): JSX.Element {
       <div className="content">
         <ButtonRow onClassSelect={setSelectedClass} selectedClass={selectedClass} />
         <ChartControls controls={controls} selectedClass={selectedClass} />
-        <Chart controls={controls} selectedClass={selectedClass} />
+        <Chart
+          controls={controls}
+          selectedClass={selectedClass}
+          onPlayerClick={handlePlayerClick}
+        />
       </div>
 
       <footer className="footer">

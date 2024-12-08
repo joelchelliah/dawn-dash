@@ -18,3 +18,33 @@ $gradient-green-hover: #2bc02b;
     if($hover, $gradient-green-hover, $gradient-green)
   );
 }
+
+@mixin yellowGreenGradientBorder($hover: false) {
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border: 1px solid transparent;
+    border-radius: inherit;
+    background: linear-gradient(
+        45deg,
+        if($hover, $gradient-yellow-hover, $gradient-yellow),
+        if($hover, $gradient-green-hover, $gradient-green)
+      )
+      border-box;
+    -webkit-mask:
+      linear-gradient(#fff 0 0) padding-box,
+      linear-gradient(#fff 0 0);
+    mask:
+      linear-gradient(#fff 0 0) padding-box,
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: destination-out;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+}

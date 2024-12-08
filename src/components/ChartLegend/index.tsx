@@ -1,16 +1,19 @@
 import { Chart as ChartJS } from 'chart.js'
 
+import { DataPoint } from '../../types/chart'
 import { formatTime } from '../../utils/time'
 
 import { getPlayerBestTimes, sortByPlayerBestTime } from './helper'
+
 import './index.scss'
 
-interface LegendProps {
+interface ChartLegendProps {
   chart: ChartJS | null
   playerColors: Record<string, string>
+  onPlayerClick: (player: string, timestamp: number) => void
 }
 
-function Legend({ chart, playerColors }: LegendProps) {
+function ChartLegend({ chart, playerColors, onPlayerClick }: ChartLegendProps) {
   if (!chart?.data.datasets) return null
 
   const playerBestTimes = getPlayerBestTimes(chart)
@@ -23,9 +26,12 @@ function Legend({ chart, playerColors }: LegendProps) {
           const player = dataset.label || ''
           const bestTime = playerBestTimes[player]
           const isFirstPlace = index === 0
+          const bestRun = (dataset.data as DataPoint[]).reduce((best, current) =>
+            current.y < best.y ? current : best
+          )
 
           return (
-            <li key={player}>
+            <li key={player} onClick={() => onPlayerClick(player, bestRun.x)}>
               <span className="color-marker" style={{ backgroundColor: playerColors[player] }} />
               <span className="player-info">
                 <span className={`player-name-container ${isFirstPlace ? 'has-trophy' : ''}`}>
@@ -46,4 +52,4 @@ function Legend({ chart, playerColors }: LegendProps) {
   )
 }
 
-export default Legend
+export default ChartLegend

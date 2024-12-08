@@ -97,14 +97,16 @@ export const createChartConfigOptions = (
           if (!context.raw) return ''
           const dataPoint = context.raw as DataPoint
 
-          return `${context.dataset.label}: ${formatTime(dataPoint.y)}`
+          return ` ${context.dataset.label}: ${formatTime(dataPoint.y)}`
         },
       },
 
-      backgroundColor: 'rgba(0, 0, 0, 0.8)',
+      borderColor: '#999',
+      borderWidth: 1,
+      backgroundColor: 'rgba(0, 0, 0, 0.75)',
       titleColor: CHART_COLOR,
       bodyColor: CHART_COLOR,
-      padding: 10,
+      padding: 12,
       displayColors: true,
     },
 

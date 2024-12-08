@@ -18,10 +18,10 @@ import {
 import { useDeviceOrientation } from '../../hooks/useDeviceOrientation'
 import { useFromNow } from '../../hooks/useFromNow'
 import { useSpeedrunData } from '../../hooks/useSpeedrunData'
-import { ChartConfig, ChartControlState, DataPoint, RecordPoint } from '../../types/chart'
+import { ChartConfig, ChartControlState, DataPoint, RecordPoint, ViewMode } from '../../types/chart'
 import { SpeedRunClass, SpeedRunData } from '../../types/speedRun'
 import { getColorMapping } from '../../utils/colors'
-import Legend from '../ChartLegend'
+import ChartLegend from '../ChartLegend'
 import { getTopPlayers } from '../ChartLegend/helper'
 import LoadingDots from '../LoadingDots'
 import LoadingMessage from '../LoadingMessage'
@@ -48,11 +48,12 @@ ChartJS.register(
 )
 
 interface ChartProps {
-  selectedClass: SpeedRunClass
   controls: ChartControlState
+  selectedClass: SpeedRunClass
+  onPlayerClick: (player: string, timestamp: number) => void
 }
 
-function Chart({ selectedClass, controls }: ChartProps) {
+function Chart({ selectedClass, controls, onPlayerClick }: ChartProps) {
   const chartRef = useRef<HTMLCanvasElement>(null)
   const chartInstance = useRef<ChartJS<'line', DataPoint[]> | null>(null)
   const playerColors = useRef<Record<string, string>>({})
@@ -89,6 +90,10 @@ function Chart({ selectedClass, controls }: ChartProps) {
         )
       }
 
+      const isRecordsView = viewMode === ViewMode.Records
+      const pointSize = 6
+      const pointHoverSize = 10
+
       const datasets = Array.from(filteredPlayerHistory.entries(), ([player, runs]) => ({
         label: player,
         data: runs,
@@ -103,7 +108,8 @@ function Chart({ selectedClass, controls }: ChartProps) {
               record.run.y === dataPoint.y &&
               record.player === player
           )
-          return isRecord ? 6 : viewMode === 'records' ? 0 : 6
+
+          return isRecordsView ? (isRecord ? pointSize : 0) : pointSize
         },
         pointHoverRadius: (context: ScriptableContext<'line'>) => {
           const index = context.dataIndex
@@ -114,7 +120,8 @@ function Chart({ selectedClass, controls }: ChartProps) {
               record.run.y === dataPoint.y &&
               record.player === player
           )
-          return isRecord ? 8 : viewMode === 'records' ? 0 : 8
+
+          return isRecordsView ? (isRecord ? pointHoverSize : 0) : pointHoverSize
         },
         stepped: 'before',
         tension: 0,
@@ -227,7 +234,11 @@ function Chart({ selectedClass, controls }: ChartProps) {
         <RotateDeviceMessage />
         <div className="last-updated">{renderChartFooter()}</div>
       </div>
-      <Legend chart={chartData} playerColors={playerColors.current} />
+      <ChartLegend
+        chart={chartData}
+        playerColors={playerColors.current}
+        onPlayerClick={onPlayerClick}
+      />
     </div>
   )
 }
