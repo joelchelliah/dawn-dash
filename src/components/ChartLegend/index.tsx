@@ -21,33 +21,35 @@ function ChartLegend({ chart, playerColors, onPlayerClick }: ChartLegendProps) {
 
   return (
     <div className="legend-container">
-      <ul>
-        {sortedDatasets.map((dataset, index) => {
-          const player = dataset.label || ''
-          const bestTime = playerBestTimes[player]
-          const isFirstPlace = index === 0
-          const bestRun = (dataset.data as DataPoint[]).reduce((best, current) =>
-            current.y < best.y ? current : best
-          )
+      <div className="legend-container__content">
+        <ul>
+          {sortedDatasets.map((dataset, index) => {
+            const player = dataset.label || ''
+            const bestTime = playerBestTimes[player]
+            const isFirstPlace = index === 0
+            const bestRun = (dataset.data as DataPoint[]).reduce((best, current) =>
+              current.y < best.y ? current : best
+            )
 
-          return (
-            <li key={player} onClick={() => onPlayerClick(player, bestRun.x)}>
-              <span className="color-marker" style={{ backgroundColor: playerColors[player] }} />
-              <span className="player-info">
-                <span className={`player-name-container ${isFirstPlace ? 'has-trophy' : ''}`}>
-                  <span className={`player-name ${isFirstPlace ? 'first-place' : ''}`}>
-                    {player}
+            return (
+              <li key={player} onClick={() => onPlayerClick(player, bestRun.x)}>
+                <span className="color-marker" style={{ backgroundColor: playerColors[player] }} />
+                <span className="player-info">
+                  <span className={`player-name-container ${isFirstPlace ? 'has-trophy' : ''}`}>
+                    <span className={`player-name ${isFirstPlace ? 'first-place' : ''}`}>
+                      {player}
+                    </span>
+                    {isFirstPlace && <span className="trophy">🏆</span>}
                   </span>
-                  {isFirstPlace && <span className="trophy">🏆</span>}
+                  <span className={`player-time ${isFirstPlace ? 'first-place' : ''}`}>
+                    {formatTime(bestTime)}
+                  </span>
                 </span>
-                <span className={`player-time ${isFirstPlace ? 'first-place' : ''}`}>
-                  {formatTime(bestTime)}
-                </span>
-              </span>
-            </li>
-          )
-        })}
-      </ul>
+              </li>
+            )
+          })}
+        </ul>
+      </div>
     </div>
   )
 }
