@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState, useMemo, useRef } from 'react'
 
 import {
   MAX_DURATION_SUNFORGE_DEFAULT,
@@ -12,6 +12,9 @@ import { ChartControlState, ViewMode } from '../types/chart'
 import { Difficulty, SpeedRunClass } from '../types/speedRun'
 
 export function useChartControlState(selectedClass: SpeedRunClass): ChartControlState {
+  const isInitialMount = useRef(true)
+  const previousClass = useRef(selectedClass)
+
   const isSunforge = selectedClass === SpeedRunClass.Sunforge
   const maxDurationDefault = isSunforge ? MAX_DURATION_SUNFORGE_DEFAULT : MAX_DURATION_OTHER_DEFAULT
   const difficultyDefault = isSunforge ? Difficulty.Impossible : DIFFICULTY_DEFAULT
@@ -23,12 +26,22 @@ export function useChartControlState(selectedClass: SpeedRunClass): ChartControl
   const [difficulty, setDifficulty] = useState(difficultyDefault)
 
   useEffect(() => {
-    setPlayerLimit(PLAYER_LIMIT_DEFAULT)
-    setMaxDuration(maxDurationDefault)
-    setViewMode(VIEW_MODE_DEFAULT)
-    setZoomLevel(ZOOM_LEVEL_DEFAULT)
-    setDifficulty(difficultyDefault)
-  }, [difficultyDefault, maxDurationDefault, selectedClass])
+    if (isInitialMount.current) {
+      isInitialMount.current = false
+      return
+    }
+
+    const wasSunforge = previousClass.current === SpeedRunClass.Sunforge
+    previousClass.current = selectedClass
+
+    if (isSunforge !== wasSunforge) {
+      setPlayerLimit(PLAYER_LIMIT_DEFAULT)
+      setMaxDuration(maxDurationDefault)
+      setViewMode(VIEW_MODE_DEFAULT)
+      setZoomLevel(ZOOM_LEVEL_DEFAULT)
+      setDifficulty(difficultyDefault)
+    }
+  }, [difficultyDefault, maxDurationDefault, selectedClass, isSunforge])
 
   return useMemo(
     () => ({
