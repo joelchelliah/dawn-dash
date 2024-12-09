@@ -2,10 +2,20 @@
 
 A speedrun visualization tool for the mobile RPG: [Dawncaster](https://dawncaster.wanderlost.games/).
 
-Charts of speedrun records and progressions for all modes and difficulties of the game. Only runs linked to a Dawncaster Discord account are shown.
+Generates charts of speedrun records and progressions, for all modes and difficulties of the game.
 
-Did **your** run make it on to the list? Go find out at [Dawn-Dash](https://dawn-dash.com/)! 👀
+Only runs linked to a **Dawncaster Discord account** are visible. Your run must be submitted to [Blightbane](https://blightbane.io/) via the official [Dawncaster Discord](https://discord.gg/pfeMG9c) to be shown here.
 
+So... Did **your** run make it on to the list? Go find out at [Dawn-Dash](https://dawn-dash.com/)! 👀
+
+
+## 🤔 Ideas and feedback
+
+If you have any thoughts, questions, or feedback, you can either:
+
+- 💬 Reach out to me in the [Dawncaster Discord](https://discord.gg/pfeMG9c) (I'm joel6801)
+- 📝 Open an issue here to discuss your ideas
+- 🐞 Open an issue here to report a bug
 
 ## 🤝 Contribution
 

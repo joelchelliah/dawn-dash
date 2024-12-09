@@ -3,7 +3,7 @@ import { getClassColor } from '../../utils/colors'
 
 import './index.scss'
 
-interface ModalProps {
+interface BlightbaneModalProps {
   isOpen: boolean
   onClose: () => void
   onConfirm: () => void
@@ -11,7 +11,13 @@ interface ModalProps {
   playerClass: SpeedRunClass
 }
 
-function Modal({ isOpen, onClose, onConfirm, player, playerClass }: ModalProps) {
+function BlightbaneModal({
+  isOpen,
+  onClose,
+  onConfirm,
+  player,
+  playerClass,
+}: BlightbaneModalProps) {
   if (!isOpen) return null
 
   const classColor = getClassColor(playerClass)
@@ -45,4 +51,4 @@ function Modal({ isOpen, onClose, onConfirm, player, playerClass }: ModalProps) 
   )
 }
 
-export default Modal
+export default BlightbaneModal

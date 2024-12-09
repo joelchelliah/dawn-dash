@@ -2,11 +2,11 @@ import { useState } from 'react'
 
 import './App.scss'
 
+import BlightbaneModal from './components/BlightbaneModal'
 import ButtonRow from './components/ButtonRow'
 import Chart from './components/Chart'
 import ChartControls from './components/ChartControls'
 import GradientLink from './components/GradientLink'
-import Modal from './components/Modal'
 import OpenSourceInfo from './components/OpenSourceInfo'
 import { useChartControlState } from './hooks/useChartControlState'
 import { useUrlParams } from './hooks/useUrlParams'
@@ -34,7 +34,7 @@ function App(): JSX.Element {
 
   return (
     <div className="App">
-      <Modal
+      <BlightbaneModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onConfirm={openInBlightbane}
