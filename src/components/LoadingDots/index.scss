@@ -10,6 +10,6 @@
 
   .loading-dots {
     display: inline-block;
-    @include loadingDotsPulse;
+    @include pulsingDotsAnimation;
   }
 }

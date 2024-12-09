@@ -68,7 +68,7 @@
             line-height: 1;
             font-size: 1.2em;
             position: relative;
-            @include rotateAroundY;
+            @include rotateY360Animation('hover');
           }
 
           &.has-trophy:hover .trophy {

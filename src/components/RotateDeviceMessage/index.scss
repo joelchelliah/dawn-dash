@@ -35,6 +35,6 @@
     display: inline-block;
     transform: rotate(-90deg);
     margin-bottom: 8px;
-    @include rotateAroundZ(true);
+    @include rotateZ360Animation(true);
   }
 }
