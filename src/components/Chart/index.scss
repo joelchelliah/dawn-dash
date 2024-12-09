@@ -10,7 +10,8 @@
 
   .outer-container {
     flex: 1;
-    width: 80vw;
+    // To make sure that the chart doesn't push the legend out of the screen
+    max-width: calc(100% - 260px);
     display: flex;
     flex-direction: column;
     margin: auto;
@@ -72,8 +73,7 @@
     flex-direction: column;
 
     .outer-container {
-      width: 100% !important;
-      margin: 0;
+      max-width: 100%;
     }
 
     .chart-container {
