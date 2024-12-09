@@ -21,7 +21,7 @@ function ChartLegend({ chart, playerColors, onPlayerClick }: ChartLegendProps) {
 
   return (
     <div className="legend-container">
-      <div className="legend-container__content">
+      <div className="legend-content">
         <ul>
           {sortedDatasets.map((dataset, index) => {
             const player = dataset.label || ''
