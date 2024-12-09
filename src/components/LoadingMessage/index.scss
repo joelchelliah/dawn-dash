@@ -21,7 +21,7 @@ $message-padding: 40px;
     border-radius: 50%;
     width: 80px;
     height: 80px;
-    @include loadingPulse;
+    @include pulseAnimation;
   }
 
   .loading-text {

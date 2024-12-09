@@ -1,9 +1,9 @@
 /**
- * Rotates an element around the Y axis
- * @param {string} $trigger - 'hover' for hover effect, 'auto' for automatic rotation on render
- * @param {string} $parent - Parent selector for hover trigger (optional)
+ * Rotates element around the Y axis
+ * @param {string} $trigger - 'hover' = hover effect, 'auto' = rotate on render
+ * @param {string} $parent - selector for hover trigger
  */
-@mixin rotateAroundY($trigger: 'auto', $parent: false) {
+@mixin rotateY360Animation($trigger, $parent: false) {
   transition: transform 1s ease;
   transform-style: preserve-3d;
   perspective: 1000px;
@@ -23,39 +23,23 @@
   }
 }
 
-@mixin rotateAroundZ($infinite: false) {
-  @if $infinite {
-    animation: rotateZ360 3s linear infinite;
-  } @else {
-    animation: rotateZ360 3s linear;
-  }
-}
-
-@mixin loadingPulse {
-  animation: pulse 1.4s ease-in-out infinite;
-}
-
-@mixin loadingDotsPulse {
-  & > span {
-    display: inline-block;
-    animation: dotPulse 1.2s infinite;
-
-    &:nth-child(2) {
-      animation-delay: 0.4s;
-    }
-
-    &:nth-child(3) {
-      animation-delay: 0.8s;
-    }
-  }
-}
-
 @keyframes rotateY360 {
   from {
     transform: rotateY(0deg);
   }
   to {
     transform: rotateY(360deg);
+  }
+}
+
+/**
+ * Rotates element around the Y axis
+ */
+@mixin rotateZ360Animation($infinite) {
+  @if $infinite {
+    animation: rotateZ360 3s linear infinite;
+  } @else {
+    animation: rotateZ360 3s linear;
   }
 }
 
@@ -66,6 +50,10 @@
   to {
     transform: rotateZ(270deg);
   }
+}
+
+@mixin pulseAnimation {
+  animation: pulse 1.4s ease-in-out infinite;
 }
 
 @keyframes pulse {
@@ -83,6 +71,21 @@
   }
 }
 
+@mixin pulsingDotsAnimation {
+  & > span {
+    display: inline-block;
+    animation: dotPulse 1.2s infinite;
+
+    &:nth-child(2) {
+      animation-delay: 0.4s;
+    }
+
+    &:nth-child(3) {
+      animation-delay: 0.8s;
+    }
+  }
+}
+
 @keyframes dotPulse {
   0% {
     opacity: 0.2;
@@ -95,5 +98,21 @@
   100% {
     opacity: 0.2;
     transform: scale(0.5);
+  }
+}
+
+@mixin peekUpAnimation {
+  opacity: 0; // Start hidden. `Forwards` will make it visible.
+  animation: peekUp 0.6s ease-out 0.1s forwards;
+}
+
+@keyframes peekUp {
+  from {
+    transform: translateY(20%) scale(0.6);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 0.9;
   }
 }
