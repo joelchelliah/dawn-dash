@@ -9,7 +9,7 @@
   cursor: pointer;
   transition: all 0.2s ease;
   min-width: 100px;
-  max-width: 450px;
+  max-width: 400px;
   white-space: nowrap;
 
   display: flex;
@@ -43,6 +43,10 @@
 
   @media (max-width: $breakpoint-tablet) {
     flex: 1 1 calc(33.33% - 8px);
+
+    &:last-child:nth-child(odd) {
+      max-width: 100%;
+    }
   }
 
   @media (max-width: $breakpoint-mobile) {

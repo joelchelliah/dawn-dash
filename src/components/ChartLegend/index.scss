@@ -92,7 +92,7 @@
 
   @media (max-width: $breakpoint-tablet) {
     width: 100%;
-    max-height: none;
+    height: auto;
 
     ul {
       display: flex;
