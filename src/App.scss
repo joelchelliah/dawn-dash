@@ -10,7 +10,7 @@ body {
 .App {
   display: flex;
   flex-direction: column;
-  padding: 20px;
+  padding: 5px 10px 10px;
   background-color: #1a1a1a;
   min-height: 100vh;
   position: relative;
@@ -18,9 +18,13 @@ body {
   .header {
     display: flex;
     align-items: center;
-    margin: 0 0 10px 20px;
+    margin: 0 20px 5px;
     position: relative;
-    padding-bottom: 20px;
+    padding-bottom: 10px;
+
+    @media (max-width: $breakpoint-tablet) {
+      margin-top: 10px;
+    }
 
     .app-logo {
       width: 50px;

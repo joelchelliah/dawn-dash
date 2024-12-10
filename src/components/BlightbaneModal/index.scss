@@ -1,5 +1,6 @@
 @import '../../styles/animations.scss';
 @import '../../styles/gradients.scss';
+
 $button-padding-horizontal: 10px;
 $button-padding-vertical: 8px;
 
@@ -89,9 +90,8 @@ $button-padding-vertical: 8px;
         @include yellowGreenGradient(false);
 
         &:hover {
-          @include yellowGreenGradient(true);
-          border: none;
           padding: $button-padding-vertical $button-padding-horizontal + 1px;
+          @include yellowGreenGradient(true);
           @include yellowGreenGradientBorder;
         }
       }

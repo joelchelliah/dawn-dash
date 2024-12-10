@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 
-// Match the values from _breakpoints.scss
+// NB: Values should match breakpoints in _constants.scss
 const BREAKPOINT_TABLET = 1023
 
 export function useBreakpoint() {

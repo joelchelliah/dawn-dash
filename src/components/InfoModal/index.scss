@@ -1,0 +1,57 @@
+@import '../../styles/gradients';
+
+$button-padding-vertical: 8px;
+$button-padding-horizontal: 16px;
+
+.info-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.info-modal-content {
+  position: relative;
+  background: #1a1a1a;
+  padding: 20px;
+  width: 90%;
+  max-width: 400px;
+  margin: auto;
+  @include yellowGreenGradientBorder;
+
+  h3 {
+    color: #aaa;
+    margin-top: 0;
+  }
+
+  p {
+    color: #ccc;
+    line-height: 1.4;
+  }
+
+  .close-button {
+    margin: 5px 10px 0 0;
+    padding: $button-padding-vertical $button-padding-horizontal;
+    border-radius: 8px;
+    border: 1px solid #444;
+    background: none;
+    color: #ccc;
+    cursor: pointer;
+    float: right;
+
+    font-weight: bold;
+    @include yellowGreenGradient(false);
+
+    &:hover {
+      padding: $button-padding-vertical + 1px $button-padding-horizontal + 1px;
+      @include yellowGreenGradient(true);
+      @include yellowGreenGradientBorder;
+    }
+  }
+}
