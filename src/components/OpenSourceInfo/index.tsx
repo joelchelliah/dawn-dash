@@ -1,14 +1,14 @@
 import { useState } from 'react'
 
-import InfoModal from '../../components/InfoModal'
 import { useBreakpoint } from '../../hooks/useBreakpoint'
 import { GitHubIcon } from '../../utils/icons'
 import GradientLink from '../GradientLink'
+import InfoModal from '../Modal/InfoModal'
 
 import './index.scss'
 
 const infoText = (
-  <p style={{ lineHeight: 1.8 }}>
+  <p style={{ lineHeight: 1.8, marginBlockStart: 0, marginBlockEnd: 0 }}>
     <span>This is an open source project: </span>
     <GradientLink
       text="github.com/joelchelliah/dawn-dash"

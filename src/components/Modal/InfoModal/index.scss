@@ -1,0 +1,25 @@
+@import '../../../styles/gradients';
+
+$button-padding-vertical: 8px;
+$button-padding-horizontal: 16px;
+
+.modal-content {
+  .close-button {
+    margin: 5px 0 0 0;
+    padding: $button-padding-vertical $button-padding-horizontal;
+    border-radius: 8px;
+    border: 1px solid #444;
+    background: none;
+    cursor: pointer;
+    float: right;
+
+    font-weight: bold;
+    @include yellowGreenGradient(false, #ccc);
+
+    &:hover {
+      padding: $button-padding-vertical + 1px $button-padding-horizontal + 1px;
+      @include yellowGreenGradient(true, #fff);
+      @include yellowGreenGradientBorder;
+    }
+  }
+}

@@ -2,12 +2,12 @@ import { useState } from 'react'
 
 import './App.scss'
 
-import BlightbaneModal from './components/BlightbaneModal'
 import ButtonRow from './components/ButtonRow'
 import Chart from './components/Chart'
 import ChartControls from './components/ChartControls'
 import GradientLink from './components/GradientLink'
 import HeaderInfo from './components/HeaderInfo'
+import BlightbaneModal from './components/Modal/BlightbaneModal'
 import OpenSourceInfo from './components/OpenSourceInfo'
 import { useChartControlState } from './hooks/useChartControlState'
 import { useUrlParams } from './hooks/useUrlParams'
