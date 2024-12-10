@@ -61,10 +61,13 @@ $gradient-green-border: #176616;
 
 @mixin yellowGreenGradientIcon($hover) {
   @if $hover {
+    transform: scale(1.25);
+    opacity: 0.8;
     background:
       linear-gradient(black, black) padding-box,
       linear-gradient(to right, $gradient-yellow-hover, $gradient-green-hover) border-box;
   } @else {
+    opacity: 0.6;
     background:
       linear-gradient(black, black) padding-box,
       linear-gradient(to right, $gradient-yellow, $gradient-green) border-box;

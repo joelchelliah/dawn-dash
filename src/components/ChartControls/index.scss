@@ -93,7 +93,7 @@
   }
 
   //   Large screens: all controls in one row
-  @media (min-width: $breakpoint-desktop) {
+  @media (min-width: ($breakpoint-tablet + 1)) {
     .controls-row {
       flex-direction: row;
       flex-wrap: nowrap;

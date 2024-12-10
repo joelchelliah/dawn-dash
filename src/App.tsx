@@ -2,11 +2,12 @@ import { useState } from 'react'
 
 import './App.scss'
 
-import BlightbaneModal from './components/BlightbaneModal'
 import ButtonRow from './components/ButtonRow'
 import Chart from './components/Chart'
 import ChartControls from './components/ChartControls'
 import GradientLink from './components/GradientLink'
+import HeaderInfo from './components/HeaderInfo'
+import BlightbaneModal from './components/Modal/BlightbaneModal'
 import OpenSourceInfo from './components/OpenSourceInfo'
 import { useChartControlState } from './hooks/useChartControlState'
 import { useUrlParams } from './hooks/useUrlParams'
@@ -52,6 +53,7 @@ function App(): JSX.Element {
           <h1 className="app-title">Dawn-Dash</h1>
           <h2 className="app-subtitle">Dawncaster speedrun charts</h2>
         </div>
+        <HeaderInfo />
       </div>
 
       <div className="content">
