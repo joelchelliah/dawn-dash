@@ -1,12 +1,14 @@
 # 🏃‍♂️ Dawn-Dash 💨
 
-A speedrun visualization tool for the mobile RPG: [Dawncaster](https://dawncaster.wanderlost.games/).
+An open-source speedrun visualization tool for the mobile RPG: [Dawncaster](https://dawncaster.wanderlost.games/).
 
-Generates charts of speedrun records and progressions, for all modes and difficulties of the game.
+- 📉 Speedrun charts of record-breaking runs and player progressions, for all modes and difficulties of the game.
+- 🔍 Various filters and sorting options to focus on the runs you want to see.
+- 🔗 Only runs linked to a **Dawncaster Discord account** are visible. Your run must be submitted to [Blightbane](https://blightbane.io/) via the official [Dawncaster Discord](https://discord.gg/pfeMG9c) to be shown here. Anonymous runs are excluded for now.
 
-Only runs linked to a **Dawncaster Discord account** are visible. Your run must be submitted to [Blightbane](https://blightbane.io/) via the official [Dawncaster Discord](https://discord.gg/pfeMG9c) to be shown here.
+👀 So did **your** super-fast run make it on to the list? Go find out at:
 
-So... Did **your** run make it on to the list? Go find out at [Dawn-Dash](https://dawn-dash.com/)! 👀
+[![Dawn-Dash](./public/og-image.png "Click to visit Dawn-Dash")](https://dawn-dash.com/)
 
 
 ## 🤔 Ideas and feedback
