@@ -49,11 +49,11 @@ $button-padding-vertical: 8px;
 
       &.confirm {
         font-weight: bold;
-        @include yellowGreenGradient(false);
+        @include yellowGreenGradient(false, #ccc);
 
         &:hover {
           padding: $button-padding-vertical $button-padding-horizontal + 1px;
-          @include yellowGreenGradient(true);
+          @include yellowGreenGradient(true, #fff);
           @include yellowGreenGradientBorder;
         }
       }
