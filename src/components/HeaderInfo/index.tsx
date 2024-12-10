@@ -9,30 +9,38 @@ import './index.scss'
 
 function HeaderInfo(): JSX.Element {
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const { isTabletOrSmaller } = useBreakpoint()
-  const showOnHover = !isTabletOrSmaller
+  const { isDesktop, isTabletOrSmaller } = useBreakpoint()
 
   const onIconClick = () => {
     if (isTabletOrSmaller) setIsModalOpen(true)
   }
 
+  const infoText = (
+    <>
+      <p>
+        <b>Dawncaster</b> speedrun charts for all game modes and difficulties, based on
+        player-submitted data from{' '}
+        <GradientLink text="blightbane.io" url="https://blightbane.io/" />.
+      </p>
+      <p>
+        All the runs shown here are linked to Discord accounts, so only runs submitted via the
+        official <GradientLink text="Dawncaster Discord" url="https://discord.gg/pfeMG9c" /> are
+        included.
+      </p>
+    </>
+  )
+
   return (
     <div className="header-info-container">
-      {showOnHover && (
-        <div className="hover-text">
-          <p>
-            <b>Dawncaster</b> speedrun charts for all game modes and difficulties, based on
-            player-submitted data from{' '}
-            <GradientLink text="blightbane.io" url="https://blightbane.io/" />.
-            <br />
-            All the runs shown here are linked to Discord accounts, so only runs submitted via the
-            official <GradientLink text="Dawncaster Discord" url="https://discord.gg/pfeMG9c" /> are
-            included.
-          </p>
-        </div>
-      )}
+      {isDesktop && <div className="hover-text">{infoText}</div>}
+
       <QuestionIcon className="question-icon" onClick={onIconClick} />
-      <InfoModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+
+      <InfoModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+        <h3>What is Dawn-Dash?</h3>
+
+        {infoText}
+      </InfoModal>
     </div>
   )
 }

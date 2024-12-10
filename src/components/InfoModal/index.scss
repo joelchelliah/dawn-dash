@@ -26,12 +26,12 @@ $button-padding-horizontal: 16px;
   @include yellowGreenGradientBorder;
 
   h3 {
-    color: #aaa;
+    color: #ccc;
     margin-top: 0;
   }
 
   p {
-    color: #ccc;
+    color: #999;
     line-height: 1.4;
   }
 
@@ -41,16 +41,15 @@ $button-padding-horizontal: 16px;
     border-radius: 8px;
     border: 1px solid #444;
     background: none;
-    color: #ccc;
     cursor: pointer;
     float: right;
 
     font-weight: bold;
-    @include yellowGreenGradient(false);
+    @include yellowGreenGradient(false, #ccc);
 
     &:hover {
       padding: $button-padding-vertical + 1px $button-padding-horizontal + 1px;
-      @include yellowGreenGradient(true);
+      @include yellowGreenGradient(true, #fff);
       @include yellowGreenGradientBorder;
     }
   }

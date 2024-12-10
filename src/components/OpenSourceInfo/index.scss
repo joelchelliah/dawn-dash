@@ -33,6 +33,13 @@ $transition-duration: 0.5s;
     border-radius: 50%;
     transform-origin: center;
     @include yellowGreenGradientIcon(false);
+
+    @media (max-width: $breakpoint-tablet) {
+      position: absolute;
+      right: 25px;
+      bottom: 30px;
+      cursor: pointer;
+    }
   }
 
   &:hover {
@@ -43,29 +50,6 @@ $transition-duration: 0.5s;
 
     .github-icon {
       @include yellowGreenGradientIcon(true);
-    }
-  }
-
-  @media (max-width: $breakpoint-tablet) {
-    margin-top: 1rem;
-  }
-
-  @media (max-width: $breakpoint-mobile) {
-    margin-top: 1.25rem;
-
-    .github-icon {
-      display: none;
-    }
-
-    .hover-text {
-      transform: translateX(0);
-      opacity: 1;
-      transition: none;
-      white-space: normal;
-      flex-direction: column;
-      align-items: flex-end;
-      text-align: right;
-      gap: 2px;
     }
   }
 }

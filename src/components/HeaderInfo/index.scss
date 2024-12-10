@@ -13,15 +13,22 @@ $transition-duration: 0.5s;
 
   .hover-text {
     transform: translateX(20px);
+    margin-top: 5px;
     opacity: 0;
     transition: all $transition-duration ease;
     padding-right: 0.75rem;
     display: flex;
+    flex-direction: column;
     align-items: center;
     gap: 4px;
     max-width: 550px;
     white-space: normal;
     line-height: 1.4;
+
+    p {
+      margin-block-start: 0;
+      margin-block-end: 0;
+    }
   }
 
   .question-icon {
