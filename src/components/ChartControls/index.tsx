@@ -8,6 +8,7 @@ import {
 } from '../../constants/chartControlValues'
 import { ChartControlState, ViewMode } from '../../types/chart'
 import { Difficulty, SpeedRunClass } from '../../types/speedRun'
+import { ClassColorVariant, getClassColor } from '../../utils/colors'
 
 import './index.scss'
 
@@ -44,6 +45,9 @@ function ChartControls({ controls, selectedClass }: ChartControlsProps) {
     setDifficulty,
   } = controls
 
+  const borderColor = getClassColor(selectedClass, ClassColorVariant.Default)
+  const selectStyle = { borderColor }
+
   const getDurationOptions = () =>
     selectedClass === SpeedRunClass.Sunforge
       ? MAX_DURATION_SUNFORGE_VALUES.map(toMinutesOption)
@@ -66,6 +70,7 @@ function ChartControls({ controls, selectedClass }: ChartControlsProps) {
             value={difficulty}
             onChange={(e) => setDifficulty(e.target.value as Difficulty)}
             disabled={selectedClass === SpeedRunClass.Sunforge}
+            style={selectStyle}
           >
             {renderOptions(DIFFICULTY_VALUES.map(toDifficultyOption))}
           </select>
@@ -77,6 +82,7 @@ function ChartControls({ controls, selectedClass }: ChartControlsProps) {
             id="playerLimit"
             value={playerLimit}
             onChange={(e) => setPlayerLimit(parseInt(e.target.value))}
+            style={selectStyle}
           >
             {renderOptions(PLAYER_LIMIT_VALUES.map(toPlayerLimitOption))}
           </select>
@@ -88,6 +94,7 @@ function ChartControls({ controls, selectedClass }: ChartControlsProps) {
             id="maxDuration"
             value={maxDuration}
             onChange={(e) => setMaxDuration(parseInt(e.target.value))}
+            style={selectStyle}
           >
             {renderOptions(getDurationOptions())}
           </select>
@@ -99,6 +106,7 @@ function ChartControls({ controls, selectedClass }: ChartControlsProps) {
             id="viewMode"
             value={viewMode}
             onChange={(e) => setViewMode(e.target.value as ViewMode)}
+            style={selectStyle}
           >
             {renderOptions(VIEW_MODE_VALUES.map(toViewModeOption))}
           </select>
@@ -110,6 +118,7 @@ function ChartControls({ controls, selectedClass }: ChartControlsProps) {
             id="zoomLevel"
             value={zoomLevel}
             onChange={(e) => setZoomLevel(parseInt(e.target.value))}
+            style={selectStyle}
           >
             {renderOptions(ZOOM_LEVEL_VALUES.map(toZoomLevelOption))}
           </select>

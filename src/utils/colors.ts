@@ -1,3 +1,5 @@
+import tinycolor from 'tinycolor2'
+
 import { DataPoint } from '../types/chart'
 import { SpeedRunClass } from '../types/speedRun'
 
@@ -56,21 +58,49 @@ function getColorByIndex(index: number): string {
   }
 }
 
-export function getClassColor(classType: SpeedRunClass, isSelected = false) {
-  switch (classType) {
-    case SpeedRunClass.Arcanist:
-      return isSelected ? '#4d8ae6' : '#3d73cc' // Blue
-    case SpeedRunClass.Hunter:
-      return isSelected ? '#e69640' : '#cc7f2d' // Orange
-    case SpeedRunClass.Knight:
-      return isSelected ? '#a65ee6' : '#9454cc' // Purple
-    case SpeedRunClass.Rogue:
-      return isSelected ? '#47cc47' : '#3db33d' // Green
-    case SpeedRunClass.Seeker:
-      return isSelected ? '#33cccc' : '#2daaaa' // Teal
-    case SpeedRunClass.Warrior:
-      return isSelected ? '#e64d4d' : '#cc3d3d' // Red
+const CLASS_COLORS = {
+  [SpeedRunClass.Arcanist]: '#2973b5', // Blue
+  [SpeedRunClass.Hunter]: '#b4562c', // Orange
+  [SpeedRunClass.Knight]: '#6d53ad', // Purple
+  [SpeedRunClass.Rogue]: '#60984a', // Green
+  [SpeedRunClass.Seeker]: '#2f9c83', // Teal
+  [SpeedRunClass.Warrior]: '#a12b2a', // Red
+  [SpeedRunClass.Sunforge]: '#c49a33', // Gold
+}
+
+export enum ClassColorVariant {
+  Default,
+  Active,
+  Secondary,
+  Border,
+}
+
+export function getClassColor(
+  classType: SpeedRunClass,
+  variant: ClassColorVariant = ClassColorVariant.Default
+) {
+  const color = CLASS_COLORS[classType]
+
+  switch (variant) {
+    case ClassColorVariant.Active:
+      return lighten(color, 15)
+    case ClassColorVariant.Border:
+      return darken(color, 15)
     default:
-      return isSelected ? '#e6bf33' : '#ccaa2d' // Gold
+      return color
   }
+}
+
+function lighten(hex: string, percent: number): string {
+  return tinycolor(hex)
+    .brighten(percent)
+    .saturate(percent / 6)
+    .toString()
+}
+
+function darken(hex: string, percent: number): string {
+  return tinycolor(hex)
+    .darken(percent)
+    .desaturate(percent / 2)
+    .toString()
 }

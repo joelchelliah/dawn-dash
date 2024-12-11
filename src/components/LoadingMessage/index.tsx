@@ -1,6 +1,6 @@
 import { useDeviceOrientation } from '../../hooks/useDeviceOrientation'
 import { Difficulty, SpeedRunClass } from '../../types/speedRun'
-import { getClassColor } from '../../utils/colors'
+import { ClassColorVariant, getClassColor } from '../../utils/colors'
 import { getClassImageUrl } from '../../utils/images'
 import LoadingDots from '../LoadingDots'
 
@@ -15,7 +15,7 @@ function LoadingMessage({ selectedClass, selectedDifficulty }: LoadingMessagePro
   const { isMobileAndPortrait } = useDeviceOrientation()
 
   const imageUrl = getClassImageUrl(selectedClass)
-  const color = getClassColor(selectedClass, true)
+  const color = getClassColor(selectedClass, ClassColorVariant.Active)
   const classAndDifficulty =
     selectedClass === SpeedRunClass.Sunforge
       ? 'Sunforge'

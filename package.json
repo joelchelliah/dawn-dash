@@ -20,6 +20,7 @@
     "react-scripts": "5.0.1",
     "sass": "^1.81.0",
     "swr": "^2.2.5",
+    "tinycolor2": "^1.6.0",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
@@ -51,6 +52,7 @@
   },
   "devDependencies": {
     "@types/serviceworker": "^0.0.107",
+    "@types/tinycolor2": "^1.4.6",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
     "eslint": "^8.57.1",

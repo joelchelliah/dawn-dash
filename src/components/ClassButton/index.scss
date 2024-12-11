@@ -4,7 +4,7 @@
   flex: 1;
   padding: 5px;
   background-color: #333;
-  border: 1px solid #444;
+  border: 1px dashed #444;
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -33,12 +33,14 @@
   }
 
   &:hover {
-    background-color: #444;
+    background-color: #3f3f3f;
+    border-style: solid;
   }
 
   &.active {
-    background-color: #555;
-    border-color: #888;
+    background-color: #4a4a4a;
+    border-width: 1px;
+    border-style: solid;
   }
 
   @media (max-width: $breakpoint-tablet) {
