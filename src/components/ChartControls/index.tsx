@@ -45,8 +45,17 @@ function ChartControls({ controls, selectedClass }: ChartControlsProps) {
     setDifficulty,
   } = controls
 
-  const borderColor = getClassColor(selectedClass, ClassColorVariant.Default)
-  const selectStyle = { borderColor }
+  const isSunforge = selectedClass === SpeedRunClass.Sunforge
+
+  const labelColor = getClassColor(selectedClass, ClassColorVariant.Default)
+  const labelDisabledColor = getClassColor(selectedClass, ClassColorVariant.Disabled)
+
+  const selectColor = getClassColor(selectedClass, ClassColorVariant.ControlText)
+  const selectBorderColor = getClassColor(selectedClass, ClassColorVariant.ControlBorder)
+
+  const labelStyle = { color: labelColor }
+  const labelDisabledStyle = { color: labelDisabledColor }
+  const selectStyle = { borderColor: selectBorderColor, color: selectColor }
 
   const getDurationOptions = () =>
     selectedClass === SpeedRunClass.Sunforge
@@ -64,12 +73,14 @@ function ChartControls({ controls, selectedClass }: ChartControlsProps) {
     <div className="chart-controls">
       <div className="controls-row">
         <div className="control-group">
-          <label htmlFor="difficulty">Difficulty</label>
+          <label htmlFor="difficulty" style={isSunforge ? labelDisabledStyle : labelStyle}>
+            Difficulty
+          </label>
           <select
             id="difficulty"
             value={difficulty}
             onChange={(e) => setDifficulty(e.target.value as Difficulty)}
-            disabled={selectedClass === SpeedRunClass.Sunforge}
+            disabled={isSunforge}
             style={selectStyle}
           >
             {renderOptions(DIFFICULTY_VALUES.map(toDifficultyOption))}
@@ -77,7 +88,9 @@ function ChartControls({ controls, selectedClass }: ChartControlsProps) {
         </div>
 
         <div className="control-group">
-          <label htmlFor="playerLimit">Number of players</label>
+          <label htmlFor="playerLimit" style={labelStyle}>
+            Number of players
+          </label>
           <select
             id="playerLimit"
             value={playerLimit}
@@ -89,7 +102,9 @@ function ChartControls({ controls, selectedClass }: ChartControlsProps) {
         </div>
 
         <div className="control-group">
-          <label htmlFor="maxDuration">Max duration</label>
+          <label htmlFor="maxDuration" style={labelStyle}>
+            Max duration
+          </label>
           <select
             id="maxDuration"
             value={maxDuration}
@@ -101,7 +116,9 @@ function ChartControls({ controls, selectedClass }: ChartControlsProps) {
         </div>
 
         <div className="control-group">
-          <label htmlFor="viewMode">View mode</label>
+          <label htmlFor="viewMode" style={labelStyle}>
+            View mode
+          </label>
           <select
             id="viewMode"
             value={viewMode}
@@ -113,7 +130,9 @@ function ChartControls({ controls, selectedClass }: ChartControlsProps) {
         </div>
 
         <div className="control-group">
-          <label htmlFor="zoomLevel">Zoom level</label>
+          <label htmlFor="zoomLevel" style={labelStyle}>
+            Zoom level
+          </label>
           <select
             id="zoomLevel"
             value={zoomLevel}

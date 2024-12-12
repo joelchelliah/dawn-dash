@@ -71,8 +71,10 @@ const CLASS_COLORS = {
 export enum ClassColorVariant {
   Default,
   Active,
-  Secondary,
   Border,
+  ControlBorder,
+  ControlText,
+  Disabled,
 }
 
 export function getClassColor(
@@ -84,8 +86,14 @@ export function getClassColor(
   switch (variant) {
     case ClassColorVariant.Active:
       return lighten(color, 15)
+    case ClassColorVariant.ControlText:
+      return lighten(color, 45)
     case ClassColorVariant.Border:
       return darken(color, 15)
+    case ClassColorVariant.ControlBorder:
+      return darken(color, 10)
+    case ClassColorVariant.Disabled:
+      return darken(color, 20)
     default:
       return color
   }

@@ -26,7 +26,7 @@ $gradient-green-border: #176616;
   );
 }
 
-@mixin yellowGreenGradientBorder {
+@mixin yellowGreenGradientBorder($padding-vertical, $padding-horizontal) {
   border-radius: 8px;
 
   // Fallback
@@ -35,6 +35,7 @@ $gradient-green-border: #176616;
   @supports (mask-composite: exclude) or (-webkit-mask-composite: destination-out) {
     border: none;
     position: relative;
+    padding: $padding-vertical + 1px $padding-horizontal + 1px;
 
     &::before {
       content: '';

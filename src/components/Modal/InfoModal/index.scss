@@ -17,9 +17,8 @@ $button-padding-horizontal: 16px;
     @include yellowGreenGradient(false, #ccc);
 
     &:hover {
-      padding: $button-padding-vertical + 1px $button-padding-horizontal + 1px;
       @include yellowGreenGradient(true, #fff);
-      @include yellowGreenGradientBorder;
+      @include yellowGreenGradientBorder($button-padding-vertical, $button-padding-horizontal);
     }
   }
 }

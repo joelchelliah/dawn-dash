@@ -7,7 +7,7 @@
   padding: 4px;
   background-color: #1a1a1a;
   height: 550px;
-  @include yellowGreenGradientBorder;
+  @include yellowGreenGradientBorder(4px, 4px);
 
   .legend-content {
     height: 100%;

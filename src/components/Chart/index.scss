@@ -2,6 +2,9 @@
 @import '../../styles/constants';
 @import '../../styles/gradients';
 
+$button-padding-vertical: 4px;
+$button-padding-horizontal: 8px;
+
 .chart-layout {
   display: flex;
   align-items: flex-start;
@@ -18,7 +21,7 @@
     margin-top: 0;
     background-color: #1a1a1a;
     padding: 4px;
-    @include yellowGreenGradientBorder;
+    @include yellowGreenGradientBorder(4px, 4px);
 
     .chart-scroll-container {
       height: $chart-container-height;
@@ -46,7 +49,7 @@
         background: none;
         border: 1px solid #444;
         color: #999;
-        padding: 4px 8px;
+        padding: $button-padding-vertical $button-padding-horizontal;
         border-radius: 8px;
         cursor: pointer;
         font-size: 0.9rem;
@@ -54,7 +57,7 @@
         &:hover {
           background: #333;
           @include yellowGreenGradient(true, #fff);
-          border-color: #666;
+          @include yellowGreenGradientBorder($button-padding-vertical, $button-padding-horizontal);
         }
       }
     }
