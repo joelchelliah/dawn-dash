@@ -6,9 +6,16 @@ const IMAGE_URLS = [
   'https://blightbane.io/images/classes/Rogue_I_F.webp',
   'https://blightbane.io/images/classes/Seeker_I_M.webp',
   'https://blightbane.io/images/classes/Warrior_I_M.webp',
-  'https://blightbane.io/images/icons/cardart_4_53.webp',
-  'https://blightbane.io/images/icons/cardart_5_50.webp',
+  'https://blightbane.io/images/icons/cardart_4_53.webp', // Dash
+  'https://blightbane.io/images/icons/cardart_5_50.webp', // Sunforge
   'https://blightbane.io/images/bolgar.png',
+  'https://blightbane.io/images/dex.webp',
+  'https://blightbane.io/images/str.webp',
+  'https://blightbane.io/images/int.webp',
+  'https://blightbane.io/images/dexint.webp',
+  'https://blightbane.io/images/dexstr.webp',
+  'https://blightbane.io/images/intstr.webp',
+  'https://blightbane.io/images/holy.webp',
 ]
 
 self.addEventListener('activate', (event) => {

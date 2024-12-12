@@ -18,3 +18,22 @@ export function getClassImageUrl(classType: SpeedRunClass) {
       return 'https://blightbane.io/images/icons/cardart_5_50.webp'
   }
 }
+
+export function getEnergyImageUrl(classType: SpeedRunClass) {
+  switch (classType) {
+    case SpeedRunClass.Arcanist:
+      return 'https://blightbane.io/images/int.webp'
+    case SpeedRunClass.Hunter:
+      return 'https://blightbane.io/images/dexstr.webp'
+    case SpeedRunClass.Knight:
+      return 'https://blightbane.io/images/intstr.webp'
+    case SpeedRunClass.Rogue:
+      return 'https://blightbane.io/images/dex.webp'
+    case SpeedRunClass.Seeker:
+      return 'https://blightbane.io/images/dexint.webp'
+    case SpeedRunClass.Warrior:
+      return 'https://blightbane.io/images/str.webp'
+    default:
+      return 'https://blightbane.io/images/holy.webp'
+  }
+}

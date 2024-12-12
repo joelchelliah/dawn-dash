@@ -21,6 +21,7 @@ import { useSpeedrunData } from '../../hooks/useSpeedrunData'
 import { ChartConfig, ChartControlState, DataPoint, RecordPoint, ViewMode } from '../../types/chart'
 import { SpeedRunClass, SpeedRunData } from '../../types/speedRun'
 import { getColorMapping } from '../../utils/colors'
+import { getEnergyImageUrl } from '../../utils/images'
 import ChartLegend from '../ChartLegend'
 import { getTopPlayers } from '../ChartLegend/helper'
 import LoadingDots from '../LoadingDots'
@@ -215,11 +216,12 @@ function Chart({ selectedClass, controls, onPlayerClick }: ChartProps) {
   const renderChartFooter = () => {
     if (isLoading) return <LoadingDots text="" selectedClass={selectedClass} />
     if (isLoadingInBackground)
-      return <LoadingDots text="Loading fresh data" selectedClass={selectedClass} />
+      return <LoadingDots text="Loading fresh data" selectedClass={selectedClass} showEnergyImage />
     if (!fromNow) return null
 
     return (
       <>
+        <img src={getEnergyImageUrl(selectedClass)} alt="Energy" className="energy-image" />
         {fromNow}
         <button onClick={refresh} className="refresh-button">
           Refresh
