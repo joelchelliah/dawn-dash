@@ -74,13 +74,16 @@ $button-padding-horizontal: 8px;
 
   @media (max-width: $breakpoint-tablet) {
     flex-direction: column;
+    padding: 0 10px;
 
     .outer-container {
       max-width: 100%;
+      width: 100%;
     }
 
     .chart-container {
       min-width: 100%;
+      width: 100%;
     }
   }
 }

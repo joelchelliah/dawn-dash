@@ -213,8 +213,9 @@ function Chart({ selectedClass, controls, onPlayerClick }: ChartProps) {
   }
 
   const renderChartFooter = () => {
-    if (isLoading) return <LoadingDots text="" />
-    if (isLoadingInBackground) return <LoadingDots text="Loading fresh data" />
+    if (isLoading) return <LoadingDots text="" selectedClass={selectedClass} />
+    if (isLoadingInBackground)
+      return <LoadingDots text="Loading fresh data" selectedClass={selectedClass} />
     if (!fromNow) return null
 
     return (

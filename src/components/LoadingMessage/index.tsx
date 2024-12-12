@@ -31,7 +31,7 @@ function LoadingMessage({ selectedClass, selectedDifficulty }: LoadingMessagePro
         </span>{' '}
         <span className="last-line">
           data
-          <LoadingDots />
+          <LoadingDots selectedClass={selectedClass} />
         </span>
       </div>
     </div>
