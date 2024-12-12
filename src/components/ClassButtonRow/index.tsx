@@ -2,16 +2,16 @@ import { SpeedRunClass } from '../../types/speedRun'
 import ClassButton from '../ClassButton'
 import './index.scss'
 
-interface ButtonRowProps {
+interface ClassButtonRowProps {
   onClassSelect: (classType: SpeedRunClass) => void
   selectedClass: SpeedRunClass
 }
 
-function ButtonRow({ onClassSelect, selectedClass }: ButtonRowProps) {
+function ClassButtonRow({ onClassSelect, selectedClass }: ClassButtonRowProps) {
   const classes = Object.values(SpeedRunClass)
 
   return (
-    <div className="button-row">
+    <div className="class-button-row">
       {classes.map((classType) => (
         <ClassButton
           key={classType}
@@ -24,4 +24,4 @@ function ButtonRow({ onClassSelect, selectedClass }: ButtonRowProps) {
   )
 }
 
-export default ButtonRow
+export default ClassButtonRow

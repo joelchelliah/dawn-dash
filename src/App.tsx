@@ -2,9 +2,9 @@ import { useState } from 'react'
 
 import './App.scss'
 
-import ButtonRow from './components/ButtonRow'
 import Chart from './components/Chart'
 import ChartControls from './components/ChartControls'
+import ClassButtonRow from './components/ClassButtonRow'
 import GradientLink from './components/GradientLink'
 import HeaderInfo from './components/HeaderInfo'
 import BlightbaneModal from './components/Modal/BlightbaneModal'
@@ -57,7 +57,7 @@ function App(): JSX.Element {
       </div>
 
       <div className="content">
-        <ButtonRow onClassSelect={setSelectedClass} selectedClass={selectedClass} />
+        <ClassButtonRow onClassSelect={setSelectedClass} selectedClass={selectedClass} />
         <ChartControls controls={controls} selectedClass={selectedClass} />
         <Chart
           controls={controls}
