@@ -1,0 +1,67 @@
+@import '../../styles/constants.scss';
+@import '../../styles/gradients.scss';
+
+$button-padding-vertical: 4px;
+$button-padding-horizontal: 8px;
+
+.chart-footer {
+  text-align: center;
+  color: #888;
+  font-size: 0.9rem;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  border-top: 1px dashed #333;
+  margin-top: 8px;
+  height: 24px;
+
+  .footer-energy {
+    &.left,
+    &.right {
+      display: block;
+    }
+  }
+
+  .footer-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    &.loading {
+      margin-bottom: 4px;
+    }
+  }
+
+  .refresh-button {
+    background: none;
+    border: 1px solid #444;
+    color: #999;
+    padding: $button-padding-vertical $button-padding-horizontal;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+
+    &:hover {
+      background: #333;
+      @include yellowGreenGradient(true, #fff);
+      @include yellowGreenGradientBorder($button-padding-vertical, $button-padding-horizontal);
+    }
+  }
+
+  @media (max-width: $breakpoint-mobile) {
+    justify-content: center;
+
+    .footer-energy {
+      &.left {
+        &.loading {
+          display: none;
+        }
+      }
+      &.right {
+        display: none;
+      }
+    }
+  }
+}

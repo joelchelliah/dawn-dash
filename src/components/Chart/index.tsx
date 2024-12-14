@@ -15,16 +15,14 @@ import {
   Title,
 } from 'chart.js'
 
+import ChartFooter from '../../components/ChartFooter'
 import { useDeviceOrientation } from '../../hooks/useDeviceOrientation'
-import { useFromNow } from '../../hooks/useFromNow'
 import { useSpeedrunData } from '../../hooks/useSpeedrunData'
 import { ChartConfig, ChartControlState, DataPoint, RecordPoint, ViewMode } from '../../types/chart'
 import { SpeedRunClass, SpeedRunData } from '../../types/speedRun'
 import { getColorMapping } from '../../utils/colors'
-import { getEnergyImageUrl } from '../../utils/images'
 import ChartLegend from '../ChartLegend'
 import { getTopPlayers } from '../ChartLegend/helper'
-import LoadingDots from '../LoadingDots'
 import LoadingMessage from '../LoadingMessage'
 import RotateDeviceMessage from '../RotateDeviceMessage'
 
@@ -168,8 +166,6 @@ function Chart({ selectedClass, controls, onPlayerClick }: ChartProps) {
   const { speedrunData, isLoading, isLoadingInBackground, isError, lastUpdated, refresh } =
     useSpeedrunData(selectedClass, difficulty)
 
-  const fromNow = useFromNow(lastUpdated, 'Data from')
-
   useEffect(() => {
     if (chartRef.current && speedrunData) createChart(speedrunData)
   }, [speedrunData, createChart])
@@ -213,29 +209,18 @@ function Chart({ selectedClass, controls, onPlayerClick }: ChartProps) {
     )
   }
 
-  const renderChartFooter = () => {
-    if (isLoading) return <LoadingDots text="" selectedClass={selectedClass} />
-    if (isLoadingInBackground)
-      return <LoadingDots text="Loading fresh data" selectedClass={selectedClass} showEnergyImage />
-    if (!fromNow) return null
-
-    return (
-      <>
-        <img src={getEnergyImageUrl(selectedClass)} alt="Energy" className="energy-image" />
-        {fromNow}
-        <button onClick={refresh} className="refresh-button">
-          Refresh
-        </button>
-      </>
-    )
-  }
-
   return (
     <div className="chart-layout">
       <div className="outer-container">
         {renderChart()}
         <RotateDeviceMessage />
-        <div className="last-updated">{renderChartFooter()}</div>
+        <ChartFooter
+          isLoading={isLoading}
+          isLoadingInBackground={isLoadingInBackground}
+          lastUpdated={lastUpdated}
+          selectedClass={selectedClass}
+          refresh={refresh}
+        />
       </div>
       <ChartLegend
         chart={chartData}

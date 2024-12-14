@@ -2,9 +2,6 @@
 @import '../../styles/constants';
 @import '../../styles/gradients';
 
-$button-padding-vertical: 4px;
-$button-padding-horizontal: 8px;
-
 .chart-layout {
   display: flex;
   align-items: flex-start;
@@ -29,42 +26,6 @@ $button-padding-horizontal: 8px;
 
       &.mobile-portrait-loading {
         height: 275px;
-      }
-    }
-
-    .last-updated {
-      text-align: center;
-      color: #888;
-      font-size: 0.9rem;
-      padding: 8px 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      border-top: 1px dashed #333;
-      margin-top: 8px;
-      height: 24px;
-
-      .energy-image {
-        width: 22px;
-        height: 22px;
-        padding-bottom: 2px;
-      }
-
-      .refresh-button {
-        background: none;
-        border: 1px solid #444;
-        color: #999;
-        padding: $button-padding-vertical $button-padding-horizontal;
-        border-radius: 8px;
-        cursor: pointer;
-        font-size: 0.9rem;
-
-        &:hover {
-          background: #333;
-          @include yellowGreenGradient(true, #fff);
-          @include yellowGreenGradientBorder($button-padding-vertical, $button-padding-horizontal);
-        }
       }
     }
 

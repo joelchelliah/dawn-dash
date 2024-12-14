@@ -54,7 +54,7 @@ export function useSpeedrunData(type: SpeedRunClass, difficulty: Difficulty) {
   return {
     speedrunData: localData || data,
     isLoading: (isLoading || isRefreshing) && !localData,
-    isLoadingInBackground: (isLoading || isRefreshing) && localData,
+    isLoadingInBackground: Boolean((isLoading || isRefreshing) && localData),
     isError: error && !localData,
     lastUpdated: getFromCache<SpeedRunData[]>(cacheKey).timestamp,
     refresh: () => setIsRefreshing(true),
