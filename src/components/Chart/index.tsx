@@ -225,6 +225,8 @@ function Chart({ selectedClass, controls, onPlayerClick }: ChartProps) {
       <ChartLegend
         chart={chartData}
         playerColors={playerColors.current}
+        selectedClass={selectedClass}
+        isLoading={isLoading}
         onPlayerClick={onPlayerClick}
       />
     </div>

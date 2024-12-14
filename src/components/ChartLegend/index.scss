@@ -13,6 +13,17 @@
     height: 100%;
     overflow-y: auto;
 
+    .legend-loading {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+
+      @media (max-width: $breakpoint-tablet) {
+        margin: 10px 0;
+      }
+    }
+
     ul {
       margin: 0;
       padding: 0;

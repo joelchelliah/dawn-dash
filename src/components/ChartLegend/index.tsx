@@ -1,6 +1,8 @@
 import { Chart as ChartJS } from 'chart.js'
 
+import LoadingDots from '../../components/LoadingDots'
 import { DataPoint } from '../../types/chart'
+import { SpeedRunClass } from '../../types/speedRun'
 import { formatTime } from '../../utils/time'
 
 import { getPlayerBestTimes, sortByPlayerBestTime } from './helper'
@@ -10,11 +12,32 @@ import './index.scss'
 interface ChartLegendProps {
   chart: ChartJS | null
   playerColors: Record<string, string>
+  selectedClass: SpeedRunClass
+  isLoading: boolean
   onPlayerClick: (player: string, timestamp: number) => void
 }
 
-function ChartLegend({ chart, playerColors, onPlayerClick }: ChartLegendProps) {
-  if (!chart?.data.datasets) return null
+function ChartLegend({
+  chart,
+  playerColors,
+  onPlayerClick,
+  selectedClass,
+  isLoading,
+}: ChartLegendProps) {
+  if (!chart?.data.datasets || isLoading) {
+    return (
+      <div className="legend-container">
+        <div className="legend-content">
+          <ul></ul>
+          {isLoading && (
+            <div className="legend-loading">
+              <LoadingDots text="" selectedClass={selectedClass} />
+            </div>
+          )}
+        </div>
+      </div>
+    )
+  }
 
   const playerBestTimes = getPlayerBestTimes(chart)
   const sortedDatasets = sortByPlayerBestTime(chart, playerBestTimes)
