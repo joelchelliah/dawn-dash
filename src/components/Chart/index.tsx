@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import 'chartjs-adapter-moment'
 import {
@@ -21,6 +21,7 @@ import { useSpeedrunData } from '../../hooks/useSpeedrunData'
 import { ChartConfig, ChartControlState, DataPoint, RecordPoint, ViewMode } from '../../types/chart'
 import { SpeedRunClass, SpeedRunData } from '../../types/speedRun'
 import { getColorMapping } from '../../utils/colors'
+import { parseVersion, versionToString } from '../../utils/version'
 import ChartLegend from '../ChartLegend'
 import { getTopPlayers } from '../ChartLegend/helper'
 import LoadingMessage from '../LoadingMessage'
@@ -59,6 +60,7 @@ function Chart({ selectedClass, controls, onPlayerClick }: ChartProps) {
   const [chartData, setChartData] = useState<ChartJS | null>(null)
   const { isMobileAndPortrait } = useDeviceOrientation()
   const { difficulty, playerLimit, maxDuration, viewMode, gameVersion, zoomLevel } = controls
+  const gameVersionString = useMemo(() => versionToString(gameVersion), [gameVersion])
 
   const createChart = useCallback(
     (speedruns: SpeedRunData[]) => {
@@ -70,11 +72,13 @@ function Chart({ selectedClass, controls, onPlayerClick }: ChartProps) {
       // Cleanup old chart
       if (chartInstance.current) chartInstance.current.destroy()
 
+      // Re-parsing stringified version to avoid rerender issues when creating chart...
+      const parsedVersion = parseVersion(gameVersionString)
       const { playerHistory, allRecordPoints } = parseSpeedrunData(
         speedruns,
         maxDuration,
         viewMode,
-        gameVersion
+        parsedVersion
       )
       playerColors.current = getColorMapping(playerHistory)
 
@@ -165,7 +169,7 @@ function Chart({ selectedClass, controls, onPlayerClick }: ChartProps) {
       chartInstance.current = new ChartJS(ctx, config)
       setChartData(chartInstance.current)
     },
-    [maxDuration, viewMode, playerLimit, selectedClass, gameVersion]
+    [maxDuration, viewMode, playerLimit, selectedClass, gameVersionString]
   )
 
   const { speedrunData, isLoading, isLoadingInBackground, isError, lastUpdated, refresh } =

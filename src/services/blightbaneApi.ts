@@ -1,4 +1,4 @@
-import axios from 'axios'
+import axios, { isAxiosError } from 'axios'
 
 import {
   Difficulty,
@@ -38,7 +38,13 @@ export const fetchSpeedruns = async (
         discorduser: run.discorduser || null,
       }))
   } catch (error) {
-    console.error('API request failed:', error)
+    if (isAxiosError(error)) {
+      console.error('API request failed:', {
+        status: error.response?.status,
+        message: error.message,
+        data: error.response?.data,
+      })
+    }
     throw error
   }
 }
