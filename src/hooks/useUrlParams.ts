@@ -31,6 +31,7 @@ function setSearchParamsFromControlState(
     params.set('duration', controls.maxDuration.toString())
     params.set('view', controls.viewMode)
     params.set('zoom', controls.zoomLevel.toString())
+    params.set('version', Array.from(controls.gameVersions).join(','))
 
     setSearchParams(params, { replace: true })
   }, 100)

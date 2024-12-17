@@ -1,3 +1,5 @@
+import { useState, useRef, useEffect } from 'react'
+
 import {
   DIFFICULTY_VALUES,
   MAX_DURATION_OTHER_VALUES,
@@ -5,9 +7,10 @@ import {
   PLAYER_LIMIT_VALUES,
   VIEW_MODE_VALUES,
   ZOOM_LEVEL_VALUES,
+  GAME_VERSION_VALUES,
 } from '../../constants/chartControlValues'
 import { ChartControlState, ViewMode } from '../../types/chart'
-import { Difficulty, SpeedRunClass } from '../../types/speedRun'
+import { Difficulty, GameVersion, SpeedRunClass } from '../../types/speedRun'
 import { ClassColorVariant, getClassColor } from '../../utils/colors'
 
 import './index.scss'
@@ -43,7 +46,13 @@ function ChartControls({ controls, selectedClass }: ChartControlsProps) {
     setZoomLevel,
     difficulty,
     setDifficulty,
+    gameVersions,
+    setGameVersions,
   } = controls
+
+  const [isGameVersionDropdownOpen, setIsGameVersionDropdownOpen] = useState(false)
+  const [pendingGameVersions, setPendingGameVersions] = useState(gameVersions)
+  const gameVersionDropdownRef = useRef<HTMLDivElement>(null)
 
   const isSunforge = selectedClass === SpeedRunClass.Sunforge
 
@@ -68,6 +77,46 @@ function ChartControls({ controls, selectedClass }: ChartControlsProps) {
         {label}
       </option>
     ))
+
+  const handleGameVersionChange = (version: GameVersion) => {
+    const newVersions = new Set(pendingGameVersions)
+
+    if (newVersions.has(version)) newVersions.delete(version)
+    else newVersions.add(version)
+
+    setPendingGameVersions(newVersions)
+  }
+
+  const handleSelectAllGameVersions = () => setPendingGameVersions(new Set(GAME_VERSION_VALUES))
+
+  const handleDeselectAllGameVersions = () => setPendingGameVersions(new Set())
+
+  const handleApplyPendingGameVersions = () => {
+    setGameVersions(pendingGameVersions)
+    setIsGameVersionDropdownOpen(false)
+  }
+
+  const renderGameVersionSelectedLabel = () => {
+    const selectedCount = gameVersions.size
+    if (selectedCount === 0) return 'Select version'
+    if (selectedCount === GAME_VERSION_VALUES.length) return 'All versions'
+    return `${selectedCount} versions selected`
+  }
+
+  // Close game version dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        gameVersionDropdownRef.current &&
+        !gameVersionDropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsGameVersionDropdownOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
 
   return (
     <div className="chart-controls">
@@ -127,6 +176,57 @@ function ChartControls({ controls, selectedClass }: ChartControlsProps) {
           >
             {renderOptions(VIEW_MODE_VALUES.map(toViewModeOption))}
           </select>
+        </div>
+
+        <div className="control-group">
+          <label style={labelStyle}>Game versions</label>
+          <div className="multi-select-container" ref={gameVersionDropdownRef}>
+            <button
+              className="multi-select-trigger"
+              onClick={() => {
+                setIsGameVersionDropdownOpen(!isGameVersionDropdownOpen)
+                setPendingGameVersions(controls.gameVersions) // Reset temp state when opening
+              }}
+              style={selectStyle}
+            >
+              {renderGameVersionSelectedLabel()}
+            </button>
+            {isGameVersionDropdownOpen && (
+              <div className="multi-select">
+                {GAME_VERSION_VALUES.map((version) => (
+                  <label key={version} className="checkbox-option">
+                    <input
+                      type="checkbox"
+                      checked={pendingGameVersions.has(version)}
+                      onChange={() => handleGameVersionChange(version)}
+                    />
+                    <span>{version}</span>
+                  </label>
+                ))}
+                <div className="button-group">
+                  <button
+                    className="select-all-button"
+                    onClick={
+                      pendingGameVersions.size === GAME_VERSION_VALUES.length
+                        ? handleDeselectAllGameVersions
+                        : handleSelectAllGameVersions
+                    }
+                  >
+                    {pendingGameVersions.size === GAME_VERSION_VALUES.length
+                      ? 'Deselect All'
+                      : 'Select All'}
+                  </button>
+                  <button
+                    className="apply-button"
+                    onClick={handleApplyPendingGameVersions}
+                    disabled={pendingGameVersions.size === 0}
+                  >
+                    Apply
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="control-group">

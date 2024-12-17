@@ -90,6 +90,72 @@
     }
   }
 
+  .multi-select-container {
+    position: relative;
+    width: 100%;
+
+    .multi-select-trigger {
+      width: 100%;
+      background-color: #333;
+      color: #fff;
+      padding: 8px 32px 8px 16px;
+      border: 1px solid #444;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      text-align: left;
+      position: relative;
+
+      &::after {
+        content: '';
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        border-left: 5px solid transparent;
+        border-right: 5px solid transparent;
+        border-top: 5px solid #fff;
+      }
+
+      &:hover {
+        background-color: #3f3f3f;
+      }
+    }
+
+    .multi-select {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      margin-top: 4px;
+      background-color: #333;
+      border: 1px solid #444;
+      border-radius: 8px;
+      padding: 8px;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+
+      .checkbox-option {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: inherit;
+        cursor: pointer;
+        padding: 4px 0;
+
+        &:hover {
+          color: #bbb;
+        }
+
+        input[type='checkbox'] {
+          cursor: pointer;
+        }
+      }
+    }
+  }
+
   //   Large screens: all controls in one row
   @media (min-width: ($breakpoint-tablet + 1)) {
     .controls-row {
@@ -116,7 +182,9 @@
           margin-right: auto; // Push everything after it to the right
         }
 
-        select {
+        select,
+        .multi-select,
+        .multi-select-container {
           max-width: $control-max-width;
         }
       }
@@ -131,7 +199,9 @@
       .control-group {
         width: 100%;
 
-        select {
+        select,
+        .multi-select,
+        .multi-select-container {
           max-width: $control-max-width;
         }
       }

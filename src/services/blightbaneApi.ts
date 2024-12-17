@@ -21,6 +21,10 @@ export const fetchSpeedruns = async (
   const response = await axios.get<[SpeedRunApiResponse]>(url)
   const category = Object.keys(response.data[0])[0] as SpeedRunCategory
 
+  const test = response.data[0][category]
+
+  console.log(test[0])
+
   return response.data[0][category].map((run) => ({
     id: run._id,
     uid: run.uid,

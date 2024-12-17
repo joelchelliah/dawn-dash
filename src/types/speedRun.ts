@@ -15,6 +15,13 @@ export enum Difficulty {
   Impossible = 'Impossible',
 }
 
+export enum GameVersion {
+  Metamorphosis = 'Metamorphosis',
+  Infinitum = 'Infinitum',
+  Catalyst = 'Catalyst',
+  Eclypse = 'Eclypse',
+}
+
 export interface SpeedRunData {
   id: string
   uid: number

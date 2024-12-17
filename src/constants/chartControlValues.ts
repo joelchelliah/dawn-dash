@@ -1,5 +1,5 @@
 import { ViewMode } from '../types/chart'
-import { Difficulty } from '../types/speedRun'
+import { Difficulty, GameVersion } from '../types/speedRun'
 
 export const DIFFICULTY_DEFAULT = Difficulty.Impossible
 export const DIFFICULTY_VALUES = Object.values(Difficulty)
@@ -15,6 +15,9 @@ export const MAX_DURATION_OTHER_VALUES = [60, 90, 120, 240]
 
 export const VIEW_MODE_DEFAULT = ViewMode.Improvements
 export const VIEW_MODE_VALUES = [ViewMode.Improvements, ViewMode.Records]
+
+export const GAME_VERSION_DEFAULT = new Set(Object.values(GameVersion))
+export const GAME_VERSION_VALUES = Object.values(GameVersion)
 
 export const ZOOM_LEVEL_DEFAULT = 100
 export const ZOOM_LEVEL_VALUES = [100, 200, 300, 400]
