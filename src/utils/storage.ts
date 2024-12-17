@@ -1,4 +1,5 @@
-const CACHE_KEY_PREFIX = 'speedruns'
+const CACHE_VERSION = 'v2'
+const CACHE_KEY_PREFIX = `speedruns_${CACHE_VERSION}`
 const TIMESTAMP_KEY_PREFIX = `${CACHE_KEY_PREFIX}_timestamp`
 const CACHE_DURATION = 10 * 60 * 1000
 

@@ -58,7 +58,7 @@ function Chart({ selectedClass, controls, onPlayerClick }: ChartProps) {
   const playerColors = useRef<Record<string, string>>({})
   const [chartData, setChartData] = useState<ChartJS | null>(null)
   const { isMobileAndPortrait } = useDeviceOrientation()
-  const { difficulty, playerLimit, maxDuration, viewMode, zoomLevel } = controls
+  const { difficulty, playerLimit, maxDuration, viewMode, gameVersion, zoomLevel } = controls
 
   const createChart = useCallback(
     (speedruns: SpeedRunData[]) => {
@@ -70,7 +70,12 @@ function Chart({ selectedClass, controls, onPlayerClick }: ChartProps) {
       // Cleanup old chart
       if (chartInstance.current) chartInstance.current.destroy()
 
-      const { playerHistory, allRecordPoints } = parseSpeedrunData(speedruns, maxDuration, viewMode)
+      const { playerHistory, allRecordPoints } = parseSpeedrunData(
+        speedruns,
+        maxDuration,
+        viewMode,
+        gameVersion
+      )
       playerColors.current = getColorMapping(playerHistory)
 
       let filteredPlayerHistory = playerHistory
@@ -160,7 +165,7 @@ function Chart({ selectedClass, controls, onPlayerClick }: ChartProps) {
       chartInstance.current = new ChartJS(ctx, config)
       setChartData(chartInstance.current)
     },
-    [maxDuration, viewMode, playerLimit, selectedClass]
+    [maxDuration, viewMode, playerLimit, selectedClass, gameVersion]
   )
 
   const { speedrunData, isLoading, isLoadingInBackground, isError, lastUpdated, refresh } =

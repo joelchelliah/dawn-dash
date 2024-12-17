@@ -15,11 +15,10 @@ export enum Difficulty {
   Impossible = 'Impossible',
 }
 
-export enum GameVersion {
-  Metamorphosis = 'Metamorphosis',
-  Infinitum = 'Infinitum',
-  Catalyst = 'Catalyst',
-  Eclypse = 'Eclypse',
+export interface GameVersion {
+  major: number
+  minor: number
+  patch: number
 }
 
 export interface SpeedRunData {
@@ -27,6 +26,7 @@ export interface SpeedRunData {
   uid: number
   duration: string
   discorduser: string | null
+  version: GameVersion
 }
 
 export type SpeedRunCategory = `${SpeedRunClass}-${Difficulty}`
@@ -35,6 +35,7 @@ export type SpeedRunApiResponse = {
   [key in SpeedRunCategory]: Array<{
     _id: string
     uid: number
+    version: string
     stats: { clock1: string }
     discorduser: string | null
   }>

@@ -1,6 +1,6 @@
 import { ChartDataset, ChartOptions } from 'chart.js'
 
-import { GameVersion, Difficulty } from './speedRun'
+import { Difficulty, GameVersion } from './speedRun'
 
 export interface ChartConfig {
   type: 'line'
@@ -39,6 +39,6 @@ export interface ChartControlState {
   setViewMode: (value: ViewMode) => void
   zoomLevel: number
   setZoomLevel: (value: number) => void
-  gameVersions: Set<GameVersion>
-  setGameVersions: (value: Set<GameVersion>) => void
+  gameVersion: GameVersion
+  setGameVersion: (value: GameVersion) => void
 }

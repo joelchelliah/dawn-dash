@@ -1,17 +1,17 @@
-import { useState, useRef, useEffect } from 'react'
-
 import {
   DIFFICULTY_VALUES,
+  GAME_VERSION_LABEL_MAP,
+  GAME_VERSION_VALUES,
   MAX_DURATION_OTHER_VALUES,
   MAX_DURATION_SUNFORGE_VALUES,
   PLAYER_LIMIT_VALUES,
   VIEW_MODE_VALUES,
   ZOOM_LEVEL_VALUES,
-  GAME_VERSION_VALUES,
 } from '../../constants/chartControlValues'
 import { ChartControlState, ViewMode } from '../../types/chart'
-import { Difficulty, GameVersion, SpeedRunClass } from '../../types/speedRun'
+import { Difficulty, SpeedRunClass } from '../../types/speedRun'
 import { ClassColorVariant, getClassColor } from '../../utils/colors'
+import { parseVersion, versionToString } from '../../utils/version'
 
 import './index.scss'
 
@@ -19,6 +19,8 @@ interface ChartControlsProps {
   controls: ChartControlState
   selectedClass: SpeedRunClass
 }
+
+const toDifficultyOption = (value: string) => ({ value, label: value })
 
 const toPlayerLimitOption = (value: number) => ({ value, label: `${value} players` })
 
@@ -30,9 +32,15 @@ const toViewModeOption = (value: ViewMode) => {
   return { value, label }
 }
 
-const toZoomLevelOption = (value: number) => ({ value, label: `${value}%` })
+const toGameVersionOption = (value: string) => {
+  const label = GAME_VERSION_LABEL_MAP[value]
 
-const toDifficultyOption = (value: string) => ({ value, label: value })
+  if (!label) throw new Error(`No label found for game version: ${value}`)
+
+  return { value, label }
+}
+
+const toZoomLevelOption = (value: number) => ({ value, label: `${value}%` })
 
 function ChartControls({ controls, selectedClass }: ChartControlsProps) {
   const {
@@ -46,13 +54,9 @@ function ChartControls({ controls, selectedClass }: ChartControlsProps) {
     setZoomLevel,
     difficulty,
     setDifficulty,
-    gameVersions,
-    setGameVersions,
+    gameVersion,
+    setGameVersion,
   } = controls
-
-  const [isGameVersionDropdownOpen, setIsGameVersionDropdownOpen] = useState(false)
-  const [pendingGameVersions, setPendingGameVersions] = useState(gameVersions)
-  const gameVersionDropdownRef = useRef<HTMLDivElement>(null)
 
   const isSunforge = selectedClass === SpeedRunClass.Sunforge
 
@@ -77,46 +81,6 @@ function ChartControls({ controls, selectedClass }: ChartControlsProps) {
         {label}
       </option>
     ))
-
-  const handleGameVersionChange = (version: GameVersion) => {
-    const newVersions = new Set(pendingGameVersions)
-
-    if (newVersions.has(version)) newVersions.delete(version)
-    else newVersions.add(version)
-
-    setPendingGameVersions(newVersions)
-  }
-
-  const handleSelectAllGameVersions = () => setPendingGameVersions(new Set(GAME_VERSION_VALUES))
-
-  const handleDeselectAllGameVersions = () => setPendingGameVersions(new Set())
-
-  const handleApplyPendingGameVersions = () => {
-    setGameVersions(pendingGameVersions)
-    setIsGameVersionDropdownOpen(false)
-  }
-
-  const renderGameVersionSelectedLabel = () => {
-    const selectedCount = gameVersions.size
-    if (selectedCount === 0) return 'Select version'
-    if (selectedCount === GAME_VERSION_VALUES.length) return 'All versions'
-    return `${selectedCount} versions selected`
-  }
-
-  // Close game version dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        gameVersionDropdownRef.current &&
-        !gameVersionDropdownRef.current.contains(event.target as Node)
-      ) {
-        setIsGameVersionDropdownOpen(false)
-      }
-    }
-
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [])
 
   return (
     <div className="chart-controls">
@@ -179,54 +143,17 @@ function ChartControls({ controls, selectedClass }: ChartControlsProps) {
         </div>
 
         <div className="control-group">
-          <label style={labelStyle}>Game versions</label>
-          <div className="multi-select-container" ref={gameVersionDropdownRef}>
-            <button
-              className="multi-select-trigger"
-              onClick={() => {
-                setIsGameVersionDropdownOpen(!isGameVersionDropdownOpen)
-                setPendingGameVersions(controls.gameVersions) // Reset temp state when opening
-              }}
-              style={selectStyle}
-            >
-              {renderGameVersionSelectedLabel()}
-            </button>
-            {isGameVersionDropdownOpen && (
-              <div className="multi-select">
-                {GAME_VERSION_VALUES.map((version) => (
-                  <label key={version} className="checkbox-option">
-                    <input
-                      type="checkbox"
-                      checked={pendingGameVersions.has(version)}
-                      onChange={() => handleGameVersionChange(version)}
-                    />
-                    <span>{version}</span>
-                  </label>
-                ))}
-                <div className="button-group">
-                  <button
-                    className="select-all-button"
-                    onClick={
-                      pendingGameVersions.size === GAME_VERSION_VALUES.length
-                        ? handleDeselectAllGameVersions
-                        : handleSelectAllGameVersions
-                    }
-                  >
-                    {pendingGameVersions.size === GAME_VERSION_VALUES.length
-                      ? 'Deselect All'
-                      : 'Select All'}
-                  </button>
-                  <button
-                    className="apply-button"
-                    onClick={handleApplyPendingGameVersions}
-                    disabled={pendingGameVersions.size === 0}
-                  >
-                    Apply
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
+          <label htmlFor="gameVersion" style={labelStyle}>
+            Earliest version
+          </label>
+          <select
+            id="gameVersion"
+            value={versionToString(gameVersion)}
+            onChange={(e) => setGameVersion(parseVersion(e.target.value))}
+            style={selectStyle}
+          >
+            {renderOptions(GAME_VERSION_VALUES.map(toGameVersionOption))}
+          </select>
         </div>
 
         <div className="control-group">

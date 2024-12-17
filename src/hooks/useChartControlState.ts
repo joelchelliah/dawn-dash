@@ -11,6 +11,7 @@ import {
 } from '../constants/chartControlValues'
 import { ChartControlState, ViewMode } from '../types/chart'
 import { Difficulty, SpeedRunClass } from '../types/speedRun'
+import { parseVersion } from '../utils/version'
 
 export function useChartControlState(selectedClass: SpeedRunClass): ChartControlState {
   const isInitialMount = useRef(true)
@@ -25,7 +26,7 @@ export function useChartControlState(selectedClass: SpeedRunClass): ChartControl
   const [viewMode, setViewMode] = useState<ViewMode>(VIEW_MODE_DEFAULT)
   const [zoomLevel, setZoomLevel] = useState(ZOOM_LEVEL_DEFAULT)
   const [difficulty, setDifficulty] = useState(difficultyDefault)
-  const [gameVersions, setGameVersions] = useState(GAME_VERSION_DEFAULT)
+  const [gameVersion, setGameVersion] = useState(parseVersion(GAME_VERSION_DEFAULT))
 
   useEffect(() => {
     if (isInitialMount.current) {
@@ -42,7 +43,7 @@ export function useChartControlState(selectedClass: SpeedRunClass): ChartControl
       setViewMode(VIEW_MODE_DEFAULT)
       setZoomLevel(ZOOM_LEVEL_DEFAULT)
       setDifficulty(difficultyDefault)
-      setGameVersions(GAME_VERSION_DEFAULT)
+      setGameVersion(parseVersion(GAME_VERSION_DEFAULT))
     }
   }, [difficultyDefault, maxDurationDefault, selectedClass, isSunforge])
 
@@ -58,9 +59,9 @@ export function useChartControlState(selectedClass: SpeedRunClass): ChartControl
       setPlayerLimit,
       difficulty,
       setDifficulty,
-      gameVersions,
-      setGameVersions,
+      gameVersion,
+      setGameVersion,
     }),
-    [maxDuration, zoomLevel, viewMode, playerLimit, difficulty, gameVersions]
+    [maxDuration, zoomLevel, viewMode, playerLimit, difficulty, gameVersion]
   )
 }

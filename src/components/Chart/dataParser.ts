@@ -1,18 +1,21 @@
 import { DataPoint, ParsedPlayerData, ViewMode } from '../../types/chart'
-import { SpeedRunData } from '../../types/speedRun'
+import { GameVersion, SpeedRunData } from '../../types/speedRun'
 import { getDurationInMinutes } from '../../utils/time'
+import { isVersionAfter } from '../../utils/version'
 
 /**
  * Process raw speedrun data into chart-ready format
  * @param speedruns - Data from the API
  * @param maxDuration - Max duration in minutes
  * @param viewMode - Display mode ('all', 'records', etc.)
+ * @param minVersion - Minimum version to include
  * @returns Processed data containing player history and record points
  */
 export function parseSpeedrunData(
   speedruns: SpeedRunData[],
   maxDuration: number,
-  viewMode: ViewMode
+  viewMode: ViewMode,
+  minVersion: GameVersion
 ): ParsedPlayerData {
   const playerHistory = new Map<string, DataPoint[]>()
 
@@ -20,20 +23,22 @@ export function parseSpeedrunData(
   speedruns.reverse().forEach((run) => {
     const player = run.discorduser
     const duration = getDurationInMinutes(run)
+    const version = run.version
 
-    if (player && duration) {
-      if (duration <= maxDuration) {
-        if (!playerHistory.has(player)) {
-          playerHistory.set(player, [])
-        }
+    const isValidDuration = duration && duration <= maxDuration
+    const isValidVersion = version && isVersionAfter(version, minVersion)
 
-        const timestamp = run.uid
-        if (!isNaN(timestamp)) {
-          playerHistory.get(player)?.push({
-            x: timestamp,
-            y: duration,
-          })
-        }
+    if (player && isValidDuration && isValidVersion) {
+      if (!playerHistory.has(player)) {
+        playerHistory.set(player, [])
+      }
+
+      const timestamp = run.uid
+      if (!isNaN(timestamp)) {
+        playerHistory.get(player)?.push({
+          x: timestamp,
+          y: duration,
+        })
       }
     }
   })
