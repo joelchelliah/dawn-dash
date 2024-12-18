@@ -1,5 +1,7 @@
 import {
   DIFFICULTY_VALUES,
+  GAME_VERSION_LABEL_MAP,
+  GAME_VERSION_VALUES,
   MAX_DURATION_OTHER_VALUES,
   MAX_DURATION_SUNFORGE_VALUES,
   PLAYER_LIMIT_VALUES,
@@ -9,6 +11,7 @@ import {
 import { ChartControlState, ViewMode } from '../../types/chart'
 import { Difficulty, SpeedRunClass } from '../../types/speedRun'
 import { ClassColorVariant, getClassColor } from '../../utils/colors'
+import { parseVersion, versionToString } from '../../utils/version'
 
 import './index.scss'
 
@@ -16,6 +19,8 @@ interface ChartControlsProps {
   controls: ChartControlState
   selectedClass: SpeedRunClass
 }
+
+const toDifficultyOption = (value: string) => ({ value, label: value })
 
 const toPlayerLimitOption = (value: number) => ({ value, label: `${value} players` })
 
@@ -27,9 +32,15 @@ const toViewModeOption = (value: ViewMode) => {
   return { value, label }
 }
 
-const toZoomLevelOption = (value: number) => ({ value, label: `${value}%` })
+const toGameVersionOption = (value: string) => {
+  const label = GAME_VERSION_LABEL_MAP[value]
 
-const toDifficultyOption = (value: string) => ({ value, label: value })
+  if (!label) throw new Error(`No label found for game version: ${value}`)
+
+  return { value, label }
+}
+
+const toZoomLevelOption = (value: number) => ({ value, label: `${value}%` })
 
 function ChartControls({ controls, selectedClass }: ChartControlsProps) {
   const {
@@ -43,6 +54,8 @@ function ChartControls({ controls, selectedClass }: ChartControlsProps) {
     setZoomLevel,
     difficulty,
     setDifficulty,
+    gameVersion,
+    setGameVersion,
   } = controls
 
   const isSunforge = selectedClass === SpeedRunClass.Sunforge
@@ -126,6 +139,20 @@ function ChartControls({ controls, selectedClass }: ChartControlsProps) {
             style={selectStyle}
           >
             {renderOptions(VIEW_MODE_VALUES.map(toViewModeOption))}
+          </select>
+        </div>
+
+        <div className="control-group">
+          <label htmlFor="gameVersion" style={labelStyle}>
+            Earliest version
+          </label>
+          <select
+            id="gameVersion"
+            value={versionToString(gameVersion)}
+            onChange={(e) => setGameVersion(parseVersion(e.target.value))}
+            style={selectStyle}
+          >
+            {renderOptions(GAME_VERSION_VALUES.map(toGameVersionOption))}
           </select>
         </div>
 

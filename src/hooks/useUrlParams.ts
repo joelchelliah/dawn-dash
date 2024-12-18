@@ -9,9 +9,11 @@ import {
   MAX_DURATION_OTHER_VALUES,
   VIEW_MODE_VALUES,
   ZOOM_LEVEL_VALUES,
+  GAME_VERSION_VALUES,
 } from '../constants/chartControlValues'
 import { ChartControlState, ViewMode } from '../types/chart'
 import { Difficulty, SpeedRunClass } from '../types/speedRun'
+import { parseVersion, versionToString } from '../utils/version'
 
 function setSearchParamsFromControlState(
   setSearchParams: (params: URLSearchParams, options?: { replace?: boolean }) => void,
@@ -31,6 +33,7 @@ function setSearchParamsFromControlState(
     params.set('duration', controls.maxDuration.toString())
     params.set('view', controls.viewMode)
     params.set('zoom', controls.zoomLevel.toString())
+    params.set('version', versionToString(controls.gameVersion))
 
     setSearchParams(params, { replace: true })
   }, 100)
@@ -67,6 +70,8 @@ export function useUrlParams(
   const isValidViewMode = (value: string): value is ViewMode =>
     VIEW_MODE_VALUES.includes(value as ViewMode)
 
+  const isValidGameVersion = (value: string): boolean => GAME_VERSION_VALUES.includes(value)
+
   const isValidZoomLevel = (value: number): boolean => ZOOM_LEVEL_VALUES.includes(value)
 
   useEffect(() => {
@@ -90,7 +95,7 @@ export function useUrlParams(
       const duration = searchParams.get('duration')
       const view = searchParams.get('view')
       const zoom = searchParams.get('zoom')
-
+      const version = searchParams.get('version')
       let areAllParamsValid = true
 
       if (classParam && isValidClass(classParam)) {
@@ -107,26 +112,26 @@ export function useUrlParams(
 
       if (players) {
         const playerValue = parseInt(players)
-        if (isValidPlayerLimit(playerValue)) {
-          controls.setPlayerLimit(playerValue)
-        } else {
-          areAllParamsValid = false
-        }
+
+        if (isValidPlayerLimit(playerValue)) controls.setPlayerLimit(playerValue)
+        else areAllParamsValid = false
       }
 
       if (duration) {
         const durationValue = parseInt(duration)
-        if (isValidDuration(durationValue)) {
-          controls.setMaxDuration(durationValue)
-        } else {
-          areAllParamsValid = false
-        }
+
+        if (isValidDuration(durationValue)) controls.setMaxDuration(durationValue)
+        else areAllParamsValid = false
       }
 
-      if (view && isValidViewMode(view)) {
-        controls.setViewMode(view)
-      } else if (view) {
-        areAllParamsValid = false
+      if (view) {
+        if (isValidViewMode(view)) controls.setViewMode(view)
+        else areAllParamsValid = false
+      }
+
+      if (version) {
+        if (isValidGameVersion(version)) controls.setGameVersion(parseVersion(version))
+        else areAllParamsValid = false
       }
 
       if (zoom) {

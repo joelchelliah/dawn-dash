@@ -1,4 +1,4 @@
-import axios from 'axios'
+import axios, { isAxiosError } from 'axios'
 
 import {
   Difficulty,
@@ -7,6 +7,7 @@ import {
   SpeedRunClass,
   SpeedRunData,
 } from '../types/speedRun'
+import { parseVersion } from '../utils/version'
 
 const BASE_URL = 'https://blightbane.io/api'
 
@@ -18,13 +19,32 @@ export const fetchSpeedruns = async (
   const classParam = type === SpeedRunClass.Sunforge ? 'Scion' : type
   const url = `${BASE_URL}/speedruns?diff=${difficulty}&class=${classParam}&top=${num}&options=&nolimit=true`
 
-  const response = await axios.get<[SpeedRunApiResponse]>(url)
-  const category = Object.keys(response.data[0])[0] as SpeedRunCategory
+  try {
+    const response = await axios.get<[SpeedRunApiResponse]>(url)
 
-  return response.data[0][category].map((run) => ({
-    id: run._id,
-    uid: run.uid,
-    duration: run.stats?.clock1,
-    discorduser: run.discorduser || null,
-  }))
+    if (!response.data?.[0]) {
+      console.error('Invalid API response structure:', response.data)
+      return []
+    }
+
+    const category = Object.keys(response.data[0])[0] as SpeedRunCategory
+    return response.data[0][category]
+      .filter((run) => !!run.version) // Ignore runs with no version
+      .map((run) => ({
+        id: run._id,
+        uid: run.uid,
+        version: parseVersion(run.version),
+        duration: run.stats?.clock1,
+        discorduser: run.discorduser || null,
+      }))
+  } catch (error) {
+    if (isAxiosError(error)) {
+      console.error('API request failed:', {
+        status: error.response?.status,
+        message: error.message,
+        data: error.response?.data,
+      })
+    }
+    throw error
+  }
 }

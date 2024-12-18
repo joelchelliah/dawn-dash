@@ -1,5 +1,10 @@
 import { Chart as ChartJS } from 'chart.js'
 
+/**
+ * Get the best time for each player.
+ *
+ * @param chart - The chart instance.
+ */
 export function getPlayerBestTimes(chart: ChartJS) {
   return chart.data.datasets.reduce<Record<string, number>>((acc, dataset) => {
     const player = dataset.label || ''
@@ -12,22 +17,16 @@ export function getPlayerBestTimes(chart: ChartJS) {
   }, {})
 }
 
+/**
+ * Sort the chart's datasets by the player's best time.
+ *
+ * @param chart - The chart instance.
+ * @param playerBestTimes - A map of player names to their best times.
+ */
 export function sortByPlayerBestTime(chart: ChartJS, playerBestTimes: Record<string, number>) {
   return [...chart.data.datasets].sort((a, b) => {
     const aTime = playerBestTimes[a.label || ''] || Infinity
     const bTime = playerBestTimes[b.label || ''] || Infinity
     return aTime - bTime
   })
-}
-
-export function getTopPlayers(
-  playerBestTimes: Record<string, number>,
-  limit: number | null
-): string[] {
-  if (!limit) return Object.keys(playerBestTimes)
-
-  return Object.entries(playerBestTimes)
-    .sort(([, aTime], [, bTime]) => aTime - bTime)
-    .slice(0, limit)
-    .map(([player]) => player)
 }

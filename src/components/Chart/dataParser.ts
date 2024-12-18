@@ -1,18 +1,23 @@
 import { DataPoint, ParsedPlayerData, ViewMode } from '../../types/chart'
-import { SpeedRunData } from '../../types/speedRun'
+import { GameVersion, SpeedRunData } from '../../types/speedRun'
 import { getDurationInMinutes } from '../../utils/time'
+import { isVersionAfter } from '../../utils/version'
 
 /**
  * Process raw speedrun data into chart-ready format
+ *
  * @param speedruns - Data from the API
+ * @param playerLimit - The maximum number of players
  * @param maxDuration - Max duration in minutes
- * @param viewMode - Display mode ('all', 'records', etc.)
- * @returns Processed data containing player history and record points
+ * @param viewMode - Display mode ('records', 'improvements')
+ * @param minVersion - Minimum game version
  */
 export function parseSpeedrunData(
   speedruns: SpeedRunData[],
+  playerLimit: number,
   maxDuration: number,
-  viewMode: ViewMode
+  viewMode: ViewMode,
+  minVersion: GameVersion
 ): ParsedPlayerData {
   const playerHistory = new Map<string, DataPoint[]>()
 
@@ -20,38 +25,51 @@ export function parseSpeedrunData(
   speedruns.reverse().forEach((run) => {
     const player = run.discorduser
     const duration = getDurationInMinutes(run)
+    const version = run.version
 
-    if (player && duration) {
-      if (duration <= maxDuration) {
-        if (!playerHistory.has(player)) {
-          playerHistory.set(player, [])
-        }
+    const isValidDuration = duration && duration <= maxDuration
+    const isValidVersion = version && isVersionAfter(version, minVersion)
 
-        const timestamp = run.uid
-        if (!isNaN(timestamp)) {
-          playerHistory.get(player)?.push({
-            x: timestamp,
-            y: duration,
-          })
-        }
+    if (player && isValidDuration && isValidVersion) {
+      if (!playerHistory.has(player)) {
+        playerHistory.set(player, [])
+      }
+
+      const timestamp = run.uid
+      if (!isNaN(timestamp)) {
+        playerHistory.get(player)?.push({
+          x: timestamp,
+          y: duration,
+        })
       }
     }
   })
 
+  let parsedData: ParsedPlayerData
+
   switch (viewMode) {
     case ViewMode.Records:
-      return processRecordBreakingView(playerHistory)
+      parsedData = processRecordBreakingView(playerHistory)
+      break
     case ViewMode.Improvements:
-      return processSelfImprovingRunsView(playerHistory)
+      parsedData = processSelfImprovingRunsView(playerHistory)
+      break
     default:
       throw new Error(`Invalid view mode: ${viewMode}`)
+  }
+
+  const { playerHistory: processedPlayerHistory, allRecordPoints } = parsedData
+
+  return {
+    playerHistory: filterPlayerHistoryByPlayerLimit(processedPlayerHistory, playerLimit),
+    allRecordPoints,
   }
 }
 
 /**
  * Process player history for the record-breaking runs view
+ *
  * @param playerHistory - Map of player names to run data
- * @returns Processed data containing record-breaking runs
  */
 function processRecordBreakingView(playerHistory: Map<string, DataPoint[]>): ParsedPlayerData {
   let globalBestTime = Infinity
@@ -100,8 +118,8 @@ function processRecordBreakingView(playerHistory: Map<string, DataPoint[]>): Par
 
 /**
  * Process player history for the self-improving runs view
+ *
  * @param playerHistory - Map of player names to run data
- * @returns Processed data containing all self-improving runs
  */
 function processSelfImprovingRunsView(playerHistory: Map<string, DataPoint[]>): ParsedPlayerData {
   const newPlayerHistory = new Map(playerHistory)
@@ -145,4 +163,32 @@ function processSelfImprovingRunsView(playerHistory: Map<string, DataPoint[]>): 
   })
 
   return { playerHistory: newPlayerHistory, allRecordPoints }
+}
+
+/**
+ * Filter the player history by player limit.
+ *
+ * @param playerHistory - Map of player names to run data
+ * @param playerLimit - The maximum number of players
+ */
+function filterPlayerHistoryByPlayerLimit(
+  playerHistory: Map<string, DataPoint[]>,
+  playerLimit: number
+) {
+  const playerToBestTimeMap = Array.from(playerHistory.entries()).reduce<Record<string, number>>(
+    (acc, [player, runs]) => {
+      acc[player] = Math.min(...runs.map((run) => run.y))
+      return acc
+    },
+    {}
+  )
+
+  const topPlayers = Object.entries(playerToBestTimeMap)
+    .sort(([, aTime], [, bTime]) => aTime - bTime)
+    .slice(0, playerLimit)
+    .map(([player]) => player)
+
+  return new Map(
+    Array.from(playerHistory.entries()).filter(([player]) => topPlayers.includes(player))
+  )
 }
