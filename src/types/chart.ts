@@ -4,9 +4,11 @@ import { Difficulty, GameVersion } from './speedRun'
 
 export interface ChartConfig {
   type: 'line'
-  data: { datasets: ChartDataset<'line', DataPoint[]>[] }
+  data: { datasets: Dataset[] }
   options: ChartOptions<'line'>
 }
+
+export type Dataset = ChartDataset<'line', DataPoint[]>
 
 export interface DataPoint {
   x: number

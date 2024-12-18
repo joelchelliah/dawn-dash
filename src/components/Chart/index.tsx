@@ -6,7 +6,6 @@ import {
   Chart as ChartJS,
   LineController,
   CategoryScale,
-  ChartDataset,
   PointElement,
   LineElement,
   LinearScale,
@@ -18,17 +17,23 @@ import {
 import ChartFooter from '../../components/ChartFooter'
 import { useDeviceOrientation } from '../../hooks/useDeviceOrientation'
 import { useSpeedrunData } from '../../hooks/useSpeedrunData'
-import { ChartConfig, ChartControlState, DataPoint, RecordPoint, ViewMode } from '../../types/chart'
+import {
+  ChartConfig,
+  ChartControlState,
+  DataPoint,
+  Dataset,
+  RecordPoint,
+  ViewMode,
+} from '../../types/chart'
 import { SpeedRunClass, SpeedRunData } from '../../types/speedRun'
 import { getColorMapping } from '../../utils/colors'
 import { parseVersion, versionToString } from '../../utils/version'
 import ChartLegend from '../ChartLegend'
-import { getTopPlayers } from '../ChartLegend/helper'
 import LoadingMessage from '../LoadingMessage'
 import RotateDeviceMessage from '../RotateDeviceMessage'
 
 import { padMaxDuration, padMinDuration, padMinMaxDates } from './chartAxisPadding'
-import { createChartConfigOptions } from './chartConfig'
+import { createChartConfig } from './chartConfig'
 import { parseSpeedrunData } from './dataParser'
 import { yearBoundariesPlugin, calculateYearBoundaries } from './yearBoundaries'
 
@@ -59,50 +64,18 @@ function Chart({ selectedClass, controls, onPlayerClick }: ChartProps) {
   const playerColors = useRef<Record<string, string>>({})
   const [chartData, setChartData] = useState<ChartJS | null>(null)
   const { isMobileAndPortrait } = useDeviceOrientation()
+
   const { difficulty, playerLimit, maxDuration, viewMode, gameVersion, zoomLevel } = controls
+
   const gameVersionString = useMemo(() => versionToString(gameVersion), [gameVersion])
 
-  const createChart = useCallback(
-    (speedruns: SpeedRunData[]) => {
-      if (!chartRef.current) {
-        console.warn('No chart ref available!')
-        return
-      }
-
-      // Cleanup old chart
-      if (chartInstance.current) chartInstance.current.destroy()
-
-      // Re-parsing stringified version to avoid rerender issues when creating chart...
-      const parsedVersion = parseVersion(gameVersionString)
-      const { playerHistory, allRecordPoints } = parseSpeedrunData(
-        speedruns,
-        maxDuration,
-        viewMode,
-        parsedVersion
-      )
-      playerColors.current = getColorMapping(playerHistory)
-
-      let filteredPlayerHistory = playerHistory
-      if (playerLimit) {
-        const playerBestTimes = Array.from(playerHistory.entries()).reduce<Record<string, number>>(
-          (acc, [player, runs]) => {
-            acc[player] = Math.min(...runs.map((run) => run.y))
-            return acc
-          },
-          {}
-        )
-
-        const topPlayers = getTopPlayers(playerBestTimes, playerLimit)
-        filteredPlayerHistory = new Map(
-          Array.from(playerHistory.entries()).filter(([player]) => topPlayers.includes(player))
-        )
-      }
-
+  const createDatasets = useCallback(
+    (playerHistory: Map<string, DataPoint[]>, recordPoints: RecordPoint[]) => {
       const isRecordsView = viewMode === ViewMode.Records
       const pointSize = 6
       const pointHoverSize = 10
 
-      const datasets = Array.from(filteredPlayerHistory.entries(), ([player, runs]) => ({
+      const toDataset = (player: string, runs: DataPoint[]) => ({
         label: player,
         data: runs,
         borderColor: playerColors.current[player],
@@ -110,19 +83,18 @@ function Chart({ selectedClass, controls, onPlayerClick }: ChartProps) {
         pointRadius: (context: ScriptableContext<'line'>) => {
           const index = context.dataIndex
           const dataPoint = runs[index]
-          const isRecord = allRecordPoints.some(
+          const isRecord = recordPoints.some(
             (record: RecordPoint) =>
               record.run.x === dataPoint.x &&
               record.run.y === dataPoint.y &&
               record.player === player
           )
-
           return isRecordsView ? (isRecord ? pointSize : 0) : pointSize
         },
         pointHoverRadius: (context: ScriptableContext<'line'>) => {
           const index = context.dataIndex
           const dataPoint = runs[index]
-          const isRecord = allRecordPoints.some(
+          const isRecord = recordPoints.some(
             (record: RecordPoint) =>
               record.run.x === dataPoint.x &&
               record.run.y === dataPoint.y &&
@@ -134,12 +106,45 @@ function Chart({ selectedClass, controls, onPlayerClick }: ChartProps) {
         stepped: 'before',
         tension: 0,
         showLine: true,
-      })).filter((dataset) => dataset.data.length > 0)
+      })
+
+      return Array.from(playerHistory.entries(), ([player, runs]) =>
+        toDataset(player, runs)
+      ).filter(({ data }) => data.length > 0)
+    },
+    [viewMode]
+  )
+
+  const createChart = useCallback(
+    (speedruns: SpeedRunData[]) => {
+      if (!chartRef.current) {
+        console.warn('No chart ref available!')
+        return
+      }
+
+      // Cleanup old chart
+      if (chartInstance.current) chartInstance.current.destroy()
+
+      // NB: Re-parsing stringified version to avoid rerender issues when creating chart...
+      const parsedVersion = parseVersion(gameVersionString)
+      const { playerHistory, allRecordPoints } = parseSpeedrunData(
+        speedruns,
+        playerLimit,
+        maxDuration,
+        viewMode,
+        parsedVersion
+      )
+      playerColors.current = getColorMapping(playerHistory)
+
+      const datasets = createDatasets(playerHistory, allRecordPoints)
 
       if (datasets.length === 0) {
         console.warn('No valid data to display')
         return
       }
+
+      const ctx = chartRef.current.getContext('2d')
+      if (!ctx) return
 
       const allDates = datasets.flatMap(({ data }) => data.map(({ x }) => x))
       const { paddedMinDate, paddedMaxDate } = padMinMaxDates(allDates)
@@ -152,24 +157,17 @@ function Chart({ selectedClass, controls, onPlayerClick }: ChartProps) {
       const paddedMinDuration = padMinDuration(fastestTime, selectedClass)
       const paddedMaxDuration = padMaxDuration(slowestTime, selectedClass, maxDuration)
 
-      const ctx = chartRef.current.getContext('2d')
-      if (!ctx) return
-
-      const config: ChartConfig = {
-        type: 'line',
-        data: { datasets: datasets as ChartDataset<'line', DataPoint[]>[] },
-        options: createChartConfigOptions(
-          paddedMinDate,
-          paddedMaxDate,
-          paddedMinDuration,
-          paddedMaxDuration
-        ),
-      }
-
+      const config: ChartConfig = createChartConfig(
+        datasets as Dataset[],
+        paddedMinDate,
+        paddedMaxDate,
+        paddedMinDuration,
+        paddedMaxDuration
+      )
       chartInstance.current = new ChartJS(ctx, config)
       setChartData(chartInstance.current)
     },
-    [maxDuration, viewMode, playerLimit, selectedClass, gameVersionString]
+    [createDatasets, gameVersionString, maxDuration, playerLimit, selectedClass, viewMode]
   )
 
   const { speedrunData, isLoading, isLoadingInBackground, isError, lastUpdated, refresh } =
