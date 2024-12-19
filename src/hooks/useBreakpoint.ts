@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 
 // NB: Values should match breakpoints in _constants.scss
-const BREAKPOINT_TABLET = 1023
+const BREAKPOINT_TABLET = 1024
 
 export function useBreakpoint() {
   const [isTabletOrSmaller, setIsTabletOrSmaller] = useState(window.innerWidth <= BREAKPOINT_TABLET)

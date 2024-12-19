@@ -1,13 +1,13 @@
 @import '../../../styles/gradients';
 
-$button-padding-vertical: 8px;
-$button-padding-horizontal: 16px;
+$button-padding-vertical: 0.5rem;
+$button-padding-horizontal: 1rem;
 
 .modal-content {
   .close-button {
-    margin: 5px 0 0 0;
+    margin: 0.375rem 0 0 0;
     padding: $button-padding-vertical $button-padding-horizontal;
-    border-radius: 8px;
+    border-radius: 0.5rem;
     border: 1px solid #444;
     background: none;
     cursor: pointer;

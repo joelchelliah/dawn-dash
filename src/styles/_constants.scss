@@ -1,11 +1,13 @@
 // Chart
-$chart-container-height: 500px;
+$chart-container-height: 31.25rem;
+$chart-legend-height: 34.375rem;
+$chart-legend-width: 13.75rem;
 
 // Control widths
-$control-min-width: 140px;
-$control-max-width: 400px;
+$control-min-width: 8.75rem;
+$control-max-width: 25rem;
 
 // Breakpoints
 // NB: Values should match useBreakpoint.ts
-$breakpoint-mobile: 768px;
-$breakpoint-tablet: 1023px;
+$breakpoint-mobile: 48rem; // 768px
+$breakpoint-tablet: 64rem; // 1024px
