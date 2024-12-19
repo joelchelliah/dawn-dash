@@ -3,6 +3,7 @@ import { Chart as ChartJS } from 'chart.js'
 import LoadingDots from '../../components/LoadingDots'
 import { DataPoint } from '../../types/chart'
 import { SpeedRunClass } from '../../types/speedRun'
+import { ClassColorVariant, getClassColor } from '../../utils/colors'
 import { formatTime } from '../../utils/time'
 
 import { getPlayerBestTimes, sortByPlayerBestTime } from './helper'
@@ -24,9 +25,11 @@ function ChartLegend({
   selectedClass,
   isLoading,
 }: ChartLegendProps) {
+  const borderColor = getClassColor(selectedClass, ClassColorVariant.Border)
+
   if (!chart?.data.datasets || isLoading) {
     return (
-      <div className="legend-container">
+      <div className="legend-container" style={{ borderColor }}>
         <div className="legend-content">
           <ul></ul>
           {isLoading && (
@@ -43,7 +46,7 @@ function ChartLegend({
   const sortedDatasets = sortByPlayerBestTime(chart, playerBestTimes)
 
   return (
-    <div className="legend-container">
+    <div className="legend-container" style={{ borderColor }}>
       <div className="legend-content">
         <ul>
           {sortedDatasets.map((dataset, index) => {

@@ -26,7 +26,7 @@ import {
   ViewMode,
 } from '../../types/chart'
 import { SpeedRunClass, SpeedRunData } from '../../types/speedRun'
-import { getColorMapping } from '../../utils/colors'
+import { ClassColorVariant, getClassColor, getColorMapping } from '../../utils/colors'
 import { parseVersion, versionToString } from '../../utils/version'
 import ChartLegend from '../ChartLegend'
 import LoadingMessage from '../LoadingMessage'
@@ -216,9 +216,11 @@ function Chart({ selectedClass, controls, onPlayerClick }: ChartProps) {
     )
   }
 
+  const borderColor = getClassColor(selectedClass, ClassColorVariant.Border)
+
   return (
     <div className="chart-layout">
-      <div className="outer-container">
+      <div className="outer-container" style={{ borderColor }}>
         {renderChart()}
         <RotateDeviceMessage />
         <ChartFooter

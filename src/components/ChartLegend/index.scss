@@ -1,13 +1,14 @@
 @import '../../styles/animations';
 @import '../../styles/constants';
 @import '../../styles/gradients';
+@import '../../styles/borders';
 
 .legend-container {
   width: $chart-legend-width;
   padding: 0.25rem;
   background-color: #1a1a1a;
   height: $chart-legend-height;
-  @include yellowGreenGradientBorder(0.25rem, 0.25rem);
+  @include default_border();
 
   .legend-content {
     height: 100%;

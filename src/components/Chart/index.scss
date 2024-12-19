@@ -1,6 +1,7 @@
 @import '../../styles/animations';
 @import '../../styles/constants';
 @import '../../styles/gradients';
+@import '../../styles/borders';
 
 .chart-layout {
   display: flex;
@@ -18,7 +19,7 @@
     margin-top: 0;
     background-color: #1a1a1a;
     padding: 0.25rem;
-    @include yellowGreenGradientBorder(0.25rem, 0.25rem);
+    @include default_border();
 
     .chart-scroll-container {
       height: $chart-container-height;

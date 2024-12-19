@@ -1,5 +1,6 @@
 import { useFromNow } from '../../hooks/useFromNow'
 import { SpeedRunClass } from '../../types/speedRun'
+import { ClassColorVariant, getClassColor } from '../../utils/colors'
 import ClassEnergy from '../ClassEnergy'
 import LoadingDots from '../LoadingDots'
 
@@ -38,8 +39,10 @@ function ChartFooter({
     )
   }
 
+  const borderColor = getClassColor(selectedClass, ClassColorVariant.Border)
+
   return (
-    <div className="chart-footer">
+    <div className="chart-footer" style={{ borderColor }}>
       <div className={`footer-energy left ${isLoading ? 'loading' : ''}`}>
         <ClassEnergy classType={selectedClass} />
       </div>

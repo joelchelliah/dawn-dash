@@ -1,4 +1,4 @@
-@import '../../styles/gradients.scss';
+@import '../../styles/borders.scss';
 
 .modal-overlay {
   position: fixed;
@@ -20,7 +20,7 @@
   width: 90%;
   max-width: 400px;
   margin: auto;
-  @include yellowGreenGradientBorder(1.25rem, 1.25rem);
+  @include superFancyBorder(1.25rem, 1.25rem);
 
   h3 {
     color: #ccc;

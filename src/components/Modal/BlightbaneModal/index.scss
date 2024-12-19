@@ -1,5 +1,6 @@
 @import '../../../styles/animations.scss';
 @import '../../../styles/gradients.scss';
+@import '../../../styles/borders.scss';
 
 $button-padding-horizontal: 0.625rem;
 $button-padding-vertical: 0.5rem;
@@ -53,7 +54,7 @@ $button-padding-vertical: 0.5rem;
 
         &:hover {
           @include yellowGreenGradient(true, #fff);
-          @include yellowGreenGradientBorder($button-padding-vertical, $button-padding-horizontal);
+          @include superFancyBorder($button-padding-vertical, $button-padding-horizontal);
         }
       }
     }
