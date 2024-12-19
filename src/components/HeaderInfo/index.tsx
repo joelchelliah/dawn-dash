@@ -23,9 +23,8 @@ function HeaderInfo(): JSX.Element {
         <GradientLink text="blightbane.io" url="https://blightbane.io/" />.
       </p>
       <p>
-        All the runs shown here are linked to Discord accounts, so only runs submitted via the
-        official <GradientLink text="Dawncaster Discord" url="https://discord.gg/pfeMG9c" /> are
-        included.
+        The player names linked to these runs are their Discord accounts from the official{' '}
+        <GradientLink text="Dawncaster Discord" url="https://discord.gg/pfeMG9c" />.
       </p>
     </>
   )
