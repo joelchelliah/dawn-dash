@@ -27,7 +27,9 @@ const toPlayerLimitOption = (value: number) => ({ value, label: `${value} player
 const toMinutesOption = (value: number) => ({ value, label: `${value} minutes` })
 
 const toViewModeOption = (value: ViewMode) => {
-  const label = value === ViewMode.Improvements ? 'Self-improving runs' : 'Record-breaking runs'
+  let label = 'All runs'
+  if (value === ViewMode.Improvements) label = 'Self-improving runs'
+  if (value === ViewMode.Records) label = 'Record-breaking runs'
 
   return { value, label }
 }

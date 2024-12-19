@@ -4,6 +4,7 @@ import LoadingDots from '../../components/LoadingDots'
 import { DataPoint } from '../../types/chart'
 import { SpeedRunClass } from '../../types/speedRun'
 import { ClassColorVariant, getClassColor } from '../../utils/colors'
+import { isAnonymousPlayer } from '../../utils/players'
 import { formatTime } from '../../utils/time'
 
 import { getPlayerBestTimes, sortByPlayerBestTime } from './helper'
@@ -51,6 +52,9 @@ function ChartLegend({
         <ul>
           {sortedDatasets.map((dataset, index) => {
             const player = dataset.label || ''
+
+            if (isAnonymousPlayer(player)) return null
+
             const bestTime = playerBestTimes[player]
             const isFirstPlace = index === 0
             const bestRun = (dataset.data as DataPoint[]).reduce((best, current) =>
