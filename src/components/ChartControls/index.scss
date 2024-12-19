@@ -90,8 +90,8 @@
     }
   }
 
-  //   Large screens: all controls in one row
-  @media (min-width: ($breakpoint-tablet + 1)) {
+  // Large screens: all controls in one row
+  @media (min-width: ($breakpoint-tablet + 0.0625rem)) {
     .controls-row {
       flex-direction: row;
       flex-wrap: nowrap;
@@ -103,36 +103,28 @@
     }
   }
 
-  //   Medium screens: two controls per row
-  @media (max-width: $breakpoint-tablet) and (min-width: ($breakpoint-mobile + 1)) {
+  // Medium screens: three controls per row
+  @media (min-width: ($breakpoint-mobile + 0.0625rem)) and (max-width: $breakpoint-tablet) {
     .controls-row {
-      flex-direction: row;
-      flex-wrap: wrap;
-
       .control-group {
-        flex: 0 0 calc(50% - 0.5rem);
+        flex: 1 1 calc(33.33% - 1.25rem);
 
-        &:last-child:nth-child(odd) {
-          margin-right: auto; // Push everything after it to the right
-        }
-
-        select {
-          max-width: $control-max-width;
+        &:last-child:nth-child(3n + 1),
+        &:last-child:nth-child(3n + 2) {
+          margin-right: auto;
         }
       }
     }
   }
 
-  // Small screens: one control per row
+  // Small screens: two controls per row
   @media (max-width: $breakpoint-mobile) {
     .controls-row {
-      flex-direction: column;
-
       .control-group {
-        width: 100%;
+        flex: 1 1 calc(50% - 0.5rem);
 
-        select {
-          max-width: $control-max-width;
+        &:last-child:nth-child(odd) {
+          margin-right: auto;
         }
       }
     }
