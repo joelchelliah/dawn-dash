@@ -5,6 +5,7 @@ import {
   MAX_DURATION_OTHER_VALUES,
   MAX_DURATION_SUNFORGE_VALUES,
   PLAYER_LIMIT_VALUES,
+  VIEW_MODE_LABELS,
   VIEW_MODE_VALUES,
   ZOOM_LEVEL_VALUES,
 } from '../../constants/chartControlValues'
@@ -27,9 +28,9 @@ const toPlayerLimitOption = (value: number) => ({ value, label: `${value} player
 const toMinutesOption = (value: number) => ({ value, label: `${value} minutes` })
 
 const toViewModeOption = (value: ViewMode) => {
-  let label = 'All runs'
-  if (value === ViewMode.Improvements) label = 'Self-improving runs'
-  if (value === ViewMode.Records) label = 'Record-breaking runs'
+  const label = VIEW_MODE_LABELS[value]
+
+  if (!label) throw new Error(`No label found for view mode: ${value}`)
 
   return { value, label }
 }

@@ -24,21 +24,25 @@ function BlightbaneModal({
   const isAnonymous = isAnonymousPlayer(player)
 
   const renderText = () => {
+    const postFix = (
+      <>
+        <span className="player" style={{ color: classColor }}>
+          {playerClass}
+        </span>{' '}
+        run on Blightbane?
+      </>
+    )
     if (isAnonymous) {
       return (
         <p>
-          Check out the best <span className="player-anonymous">Anonymous</span> run on Blightbane?
+          Check out the best <span className="player-anonymous">Anonymous</span> {postFix}
         </p>
       )
     }
 
     return (
       <p>
-        Check out <span className="player">{`${player}'s`}</span> best{' '}
-        <span className="player" style={{ color: classColor }}>
-          {playerClass}
-        </span>{' '}
-        run on Blightbane?
+        Check out <span className="player">{`${player}'s`}</span> best {postFix}
       </p>
     )
   }
