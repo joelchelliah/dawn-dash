@@ -4,6 +4,7 @@ import LoadingDots from '../../components/LoadingDots'
 import { DataPoint } from '../../types/chart'
 import { SpeedRunClass } from '../../types/speedRun'
 import { ClassColorVariant, getClassColor } from '../../utils/colors'
+import { isAnonymousPlayer } from '../../utils/players'
 import { formatTime } from '../../utils/time'
 
 import { getPlayerBestTimes, sortByPlayerBestTime } from './helper'
@@ -51,6 +52,8 @@ function ChartLegend({
         <ul>
           {sortedDatasets.map((dataset, index) => {
             const player = dataset.label || ''
+            const isAnonymous = isAnonymousPlayer(player)
+
             const bestTime = playerBestTimes[player]
             const isFirstPlace = index === 0
             const bestRun = (dataset.data as DataPoint[]).reduce((best, current) =>
@@ -61,11 +64,16 @@ function ChartLegend({
               <li key={player} onClick={() => onPlayerClick(player, bestRun.x)}>
                 <span className="color-marker" style={{ backgroundColor: playerColors[player] }} />
                 <span className="player-info">
-                  <span className={`player-name-container ${isFirstPlace ? 'has-trophy' : ''}`}>
+                  <span
+                    className={`player-name-container ${
+                      isFirstPlace || isAnonymous ? 'has-special-icon' : ''
+                    }`}
+                  >
                     <span className={`player-name ${isFirstPlace ? 'first-place' : ''}`}>
-                      {player}
+                      {isAnonymous ? <i>Anonymous</i> : player}
                     </span>
-                    {isFirstPlace && <span className="trophy">🏆</span>}
+                    {isFirstPlace && <span className="special-icon">🏆</span>}
+                    {isAnonymous && <span className="special-icon">❓</span>}
                   </span>
                   <span className={`player-time ${isFirstPlace ? 'first-place' : ''}`}>
                     {formatTime(bestTime)}

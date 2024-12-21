@@ -4,9 +4,9 @@ An open-source speedrun visualization tool for the mobile RPG: [Dawncaster](http
 
 - 📉 Speedrun charts of record-breaking runs and player progressions, for all modes and difficulties of the game.
 - 🔍 Various filters and sorting options to focus on the runs you want to see.
-- 🔗 Only runs linked to a **Dawncaster Discord account** are visible. Your run must be submitted to [Blightbane](https://blightbane.io/) via the official [Dawncaster Discord](https://discord.gg/pfeMG9c) to be shown here. Anonymous runs are excluded for now.
+- 🔗 If you submitted your run via the official [Dawncaster Discord](https://discord.gg/pfeMG9c), your **Discord name** will be linked to your run here. Anonymous runs are only shown in the `All runs` **view mode**.
 
-👀 So did **your** super-fast run make it on to the list? Go find out at:
+... So did **your** super-fast run make it on to the list? 👀 Go find out at:
 
 [![Dawn-Dash](./public/og-image.png "Click to visit Dawn-Dash")](https://dawn-dash.com/)
 

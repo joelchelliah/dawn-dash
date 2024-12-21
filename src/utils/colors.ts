@@ -99,15 +99,15 @@ export function getClassColor(
   }
 }
 
-function lighten(hex: string, percent: number): string {
-  return tinycolor(hex)
+export function lighten(color: string, percent: number): string {
+  return tinycolor(color)
     .brighten(percent)
     .saturate(percent / 6)
     .toString()
 }
 
-function darken(hex: string, percent: number): string {
-  return tinycolor(hex)
+export function darken(color: string, percent: number): string {
+  return tinycolor(color)
     .darken(percent)
     .desaturate(percent / 2)
     .toString()

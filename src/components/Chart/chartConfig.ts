@@ -1,6 +1,7 @@
 import { ChartOptions } from 'chart.js'
 
 import { ChartConfig, DataPoint, Dataset } from '../../types/chart'
+import { isAnonymousPlayer } from '../../utils/players'
 import { formatDateAndTime, formatDateShort, formatTime } from '../../utils/time'
 
 const CHART_COLOR = '#ffffff'
@@ -116,8 +117,10 @@ function createChartConfigOptions(
           label: (context) => {
             if (!context.raw) return ''
             const dataPoint = context.raw as DataPoint
+            const player = context.dataset.label
+            const label = isAnonymousPlayer(player ?? '') ? 'Anonymous' : player
 
-            return ` ${context.dataset.label}: ${formatTime(dataPoint.y)}`
+            return ` ${label}: ${formatTime(dataPoint.y)}`
           },
         },
 

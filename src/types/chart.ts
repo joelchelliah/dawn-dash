@@ -26,6 +26,7 @@ export interface ParsedPlayerData {
 }
 
 export enum ViewMode {
+  All = 'all',
   Improvements = 'improvements',
   Records = 'records',
 }

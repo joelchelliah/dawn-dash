@@ -26,7 +26,8 @@ import {
   ViewMode,
 } from '../../types/chart'
 import { SpeedRunClass, SpeedRunData } from '../../types/speedRun'
-import { ClassColorVariant, getClassColor, getColorMapping } from '../../utils/colors'
+import { ClassColorVariant, getClassColor, getColorMapping, lighten } from '../../utils/colors'
+import { isAnonymousPlayer } from '../../utils/players'
 import { parseVersion, versionToString } from '../../utils/version'
 import ChartLegend from '../ChartLegend'
 import LoadingMessage from '../LoadingMessage'
@@ -72,41 +73,55 @@ function Chart({ selectedClass, controls, onPlayerClick }: ChartProps) {
   const createDatasets = useCallback(
     (playerHistory: Map<string, DataPoint[]>, recordPoints: RecordPoint[]) => {
       const isRecordsView = viewMode === ViewMode.Records
+      const isAllRunsView = viewMode === ViewMode.All
       const pointSize = 6
       const pointHoverSize = 10
 
-      const toDataset = (player: string, runs: DataPoint[]) => ({
-        label: player,
-        data: runs,
-        borderColor: playerColors.current[player],
-        backgroundColor: playerColors.current[player],
-        pointRadius: (context: ScriptableContext<'line'>) => {
-          const index = context.dataIndex
-          const dataPoint = runs[index]
-          const isRecord = recordPoints.some(
-            (record: RecordPoint) =>
-              record.run.x === dataPoint.x &&
-              record.run.y === dataPoint.y &&
-              record.player === player
-          )
-          return isRecordsView ? (isRecord ? pointSize : 0) : pointSize
-        },
-        pointHoverRadius: (context: ScriptableContext<'line'>) => {
-          const index = context.dataIndex
-          const dataPoint = runs[index]
-          const isRecord = recordPoints.some(
-            (record: RecordPoint) =>
-              record.run.x === dataPoint.x &&
-              record.run.y === dataPoint.y &&
-              record.player === player
-          )
+      const toDataset = (player: string, runs: DataPoint[]) => {
+        const isAnonymous = isAnonymousPlayer(player)
+        return {
+          label: player,
+          data: runs,
+          borderColor: isAnonymous ? '#999' : playerColors.current[player],
+          backgroundColor: isAnonymous ? '#111' : playerColors.current[player],
+          borderWidth: isAllRunsView ? 2 : 3,
+          pointHoverBorderColor: isAnonymous ? '#bbb' : lighten(playerColors.current[player], 20),
+          pointHoverBorderWidth: isAllRunsView ? 2 : 3,
+          pointStyle: isAnonymous ? 'rectRot' : 'circle',
+          borderDash: isAllRunsView ? [5, 5] : [],
+          pointRadius: (context: ScriptableContext<'line'>) => {
+            if (isAnonymous) return pointSize
 
-          return isRecordsView ? (isRecord ? pointHoverSize : 0) : pointHoverSize
-        },
-        stepped: 'before',
-        tension: 0,
-        showLine: true,
-      })
+            const index = context.dataIndex
+            const dataPoint = runs[index]
+            const isRecord = recordPoints.some(
+              (record: RecordPoint) =>
+                record.run.x === dataPoint.x &&
+                record.run.y === dataPoint.y &&
+                record.player === player
+            )
+            return isRecordsView ? (isRecord ? pointSize : 0) : pointSize
+          },
+          pointHoverRadius: (context: ScriptableContext<'line'>) => {
+            if (isAnonymous) return pointHoverSize
+
+            const index = context.dataIndex
+            const dataPoint = runs[index]
+            const isRecord = recordPoints.some(
+              (record: RecordPoint) =>
+                record.run.x === dataPoint.x &&
+                record.run.y === dataPoint.y &&
+                record.player === player
+            )
+
+            return isRecordsView ? (isRecord ? pointHoverSize : 0) : pointHoverSize
+          },
+          stepped: 'before',
+          tension: 0,
+          showLine: !isAnonymous,
+          order: isAnonymous ? 1 : 0,
+        }
+      }
 
       return Array.from(playerHistory.entries(), ([player, runs]) =>
         toDataset(player, runs)

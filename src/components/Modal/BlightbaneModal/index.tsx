@@ -1,5 +1,6 @@
 import { SpeedRunClass } from '../../../types/speedRun'
 import { getClassColor } from '../../../utils/colors'
+import { isAnonymousPlayer } from '../../../utils/players'
 import Modal from '../modal'
 
 import './index.scss'
@@ -20,6 +21,31 @@ function BlightbaneModal({
   playerClass,
 }: BlightbaneModalProps) {
   const classColor = getClassColor(playerClass)
+  const isAnonymous = isAnonymousPlayer(player)
+
+  const renderText = () => {
+    const postFix = (
+      <>
+        <span className="player" style={{ color: classColor }}>
+          {playerClass}
+        </span>{' '}
+        run on Blightbane?
+      </>
+    )
+    if (isAnonymous) {
+      return (
+        <p>
+          Check out the best <span className="player-anonymous">Anonymous</span> {postFix}
+        </p>
+      )
+    }
+
+    return (
+      <p>
+        Check out <span className="player">{`${player}'s`}</span> best {postFix}
+      </p>
+    )
+  }
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
@@ -31,13 +57,9 @@ function BlightbaneModal({
         />
         Go to Blightbane?
       </h3>
-      <p>
-        Check out <span className="player">{`${player}'s`}</span> best{' '}
-        <span className="player" style={{ color: classColor }}>
-          {playerClass}
-        </span>{' '}
-        run on Blightbane?
-      </p>
+
+      {renderText()}
+
       <div className="modal-buttons">
         <button onClick={onClose}>Nah</button>
         <button onClick={onConfirm} className="confirm">

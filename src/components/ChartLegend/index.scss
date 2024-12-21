@@ -74,16 +74,16 @@
             }
           }
 
-          .trophy {
+          .special-icon {
             flex-shrink: 0;
             margin-left: 0.25rem;
             line-height: 1;
             font-size: 1.2em;
             position: relative;
-            @include rotateY360Animation('hover');
+            @include rotateY360Animation('auto');
           }
 
-          &.has-trophy:hover .trophy {
+          &.has-special-icon:hover .special-icon {
             transform: rotateY(360deg);
           }
         }

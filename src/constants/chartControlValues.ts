@@ -14,7 +14,12 @@ export const MAX_DURATION_OTHER_DEFAULT = 240
 export const MAX_DURATION_OTHER_VALUES = [60, 90, 120, 240]
 
 export const VIEW_MODE_DEFAULT = ViewMode.Improvements
-export const VIEW_MODE_VALUES = [ViewMode.Improvements, ViewMode.Records]
+export const VIEW_MODE_VALUES = [ViewMode.All, ViewMode.Improvements, ViewMode.Records]
+export const VIEW_MODE_LABELS = {
+  [ViewMode.All]: 'All runs',
+  [ViewMode.Improvements]: 'Self-improving runs',
+  [ViewMode.Records]: 'Record-breaking runs',
+}
 
 export const GAME_VERSION_DEFAULT = '1.5.0'
 export const GAME_VERSION_VALUES = [
