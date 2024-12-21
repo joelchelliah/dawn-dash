@@ -130,9 +130,7 @@ function processRecordBreakingView(allPlayerHistory: Map<string, DataPoint[]>): 
 function processSelfImprovingRunsView(
   allPlayerHistory: Map<string, DataPoint[]>
 ): ParsedPlayerData {
-  const playerHistory = sortRunsAndFilterAwayNonImprovingRuns(
-    removeAnonymousPlayers(allPlayerHistory)
-  )
+  const playerHistory = sortRuns(removeAnonymousPlayers(allPlayerHistory), true)
 
   // Filter out players with fewer than 2 runs
   for (const [player, runs] of Array.from(playerHistory.entries())) {
@@ -167,7 +165,7 @@ function processSelfImprovingRunsView(
  * @param playerHistory - Map of player names to run data
  */
 function processAllRunsView(allPlayerHistory: Map<string, DataPoint[]>): ParsedPlayerData {
-  const playerHistory = sortRunsAndFilterAwayNonImprovingRuns(allPlayerHistory)
+  const playerHistory = sortRuns(allPlayerHistory, false)
 
   return { playerHistory, allRecordPoints: [] }
 }
@@ -194,22 +192,27 @@ function filterPlayerHistoryByPlayerLimit(
   )
 }
 
-function sortRunsAndFilterAwayNonImprovingRuns(
-  allPlayerHistory: Map<string, DataPoint[]>
+function sortRuns(
+  allPlayerHistory: Map<string, DataPoint[]>,
+  onlyKeepImprovingRuns: boolean
 ): Map<string, DataPoint[]> {
   const playerHistory = new Map(allPlayerHistory)
 
   for (const [player, runs] of Array.from(playerHistory.entries())) {
     runs.sort((a: DataPoint, b: DataPoint) => a.x - b.x)
 
-    let bestTime = Infinity
-    const improvedRuns = runs.filter((run: DataPoint) => {
-      if (run.y >= bestTime) return false
-      bestTime = run.y
-      return true
-    })
+    if (onlyKeepImprovingRuns) {
+      let bestTime = Infinity
+      const improvedRuns = runs.filter((run: DataPoint) => {
+        if (run.y >= bestTime) return false
+        bestTime = run.y
+        return true
+      })
 
-    playerHistory.set(player, improvedRuns)
+      playerHistory.set(player, improvedRuns)
+    } else {
+      playerHistory.set(player, runs)
+    }
   }
 
   return playerHistory

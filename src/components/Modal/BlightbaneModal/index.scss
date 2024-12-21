@@ -28,6 +28,11 @@ $button-padding-vertical: 0.5rem;
     font-weight: bold;
   }
 
+  .player-anonymous {
+    font-weight: bold;
+    font-style: italic;
+  }
+
   .modal-buttons {
     display: flex;
     justify-content: flex-end;

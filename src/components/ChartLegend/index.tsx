@@ -52,8 +52,7 @@ function ChartLegend({
         <ul>
           {sortedDatasets.map((dataset, index) => {
             const player = dataset.label || ''
-
-            if (isAnonymousPlayer(player)) return null
+            const isAnonymous = isAnonymousPlayer(player)
 
             const bestTime = playerBestTimes[player]
             const isFirstPlace = index === 0
@@ -65,11 +64,16 @@ function ChartLegend({
               <li key={player} onClick={() => onPlayerClick(player, bestRun.x)}>
                 <span className="color-marker" style={{ backgroundColor: playerColors[player] }} />
                 <span className="player-info">
-                  <span className={`player-name-container ${isFirstPlace ? 'has-trophy' : ''}`}>
+                  <span
+                    className={`player-name-container ${
+                      isFirstPlace || isAnonymous ? 'has-special-icon' : ''
+                    }`}
+                  >
                     <span className={`player-name ${isFirstPlace ? 'first-place' : ''}`}>
-                      {player}
+                      {isAnonymous ? <i>Anonymous</i> : player}
                     </span>
-                    {isFirstPlace && <span className="trophy">🏆</span>}
+                    {isFirstPlace && <span className="special-icon">🏆</span>}
+                    {isAnonymous && <span className="special-icon">❓</span>}
                   </span>
                   <span className={`player-time ${isFirstPlace ? 'first-place' : ''}`}>
                     {formatTime(bestTime)}
