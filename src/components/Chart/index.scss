@@ -42,7 +42,7 @@
 
   @media (max-width: $breakpoint-tablet) {
     flex-direction: column;
-    padding: 0 0.625rem;
+    padding: 0 0.625rem 0 0;
 
     .outer-container {
       max-width: 100%;
