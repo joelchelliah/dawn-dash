@@ -18,7 +18,7 @@ function ClassButton({ classType, isActive, onClick }: ClassButtonProps) {
   )
   const borderColor = getClassColor(
     classType,
-    isActive ? ClassColorVariant.Active : ClassColorVariant.Border
+    isActive ? ClassColorVariant.Active : ClassColorVariant.Dark
   )
 
   return (
@@ -27,7 +27,7 @@ function ClassButton({ classType, isActive, onClick }: ClassButtonProps) {
       onClick={onClick}
       style={{
         borderColor,
-        boxShadow: isActive ? `0 0 6px 1px ${borderColor}40` : undefined,
+        boxShadow: isActive ? `0 0 8px 1px ${borderColor}40` : undefined,
       }}
     >
       <img src={imageUrl} alt={`${classType} icon`} className="class-icon" />

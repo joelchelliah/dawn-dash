@@ -26,7 +26,7 @@ function ChartLegend({
   selectedClass,
   isLoading,
 }: ChartLegendProps) {
-  const borderColor = getClassColor(selectedClass, ClassColorVariant.Border)
+  const borderColor = getClassColor(selectedClass, ClassColorVariant.Dark)
 
   if (!chart?.data.datasets || isLoading) {
     return (

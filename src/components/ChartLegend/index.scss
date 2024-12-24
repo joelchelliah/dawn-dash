@@ -5,8 +5,8 @@
 
 .legend-container {
   width: $chart-legend-width;
-  padding: 0.25rem;
-  background-color: #1a1a1a;
+  padding: $padding-component 0.25rem;
+  background-color: $color-component-background;
   height: $chart-legend-height;
   @include default_border();
 

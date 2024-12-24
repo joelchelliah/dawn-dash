@@ -64,7 +64,7 @@ function Chart({ selectedClass, controls, onPlayerClick }: ChartProps) {
   const chartInstance = useRef<ChartJS<'line', DataPoint[]> | null>(null)
   const playerColors = useRef<Record<string, string>>({})
   const [chartData, setChartData] = useState<ChartJS | null>(null)
-  const { isMobileAndPortrait } = useDeviceOrientation()
+  const { isMobileAndPortrait, isMobileAndLandscape } = useDeviceOrientation()
 
   const { difficulty, playerLimit, maxDuration, viewMode, gameVersion, zoomLevel } = controls
 
@@ -205,9 +205,14 @@ function Chart({ selectedClass, controls, onPlayerClick }: ChartProps) {
   const renderChart = () => {
     const isMobilePortraitLoading = isLoading && isMobileAndPortrait
 
-    const widthMobilePortrait = zoomLevel * 2
+    const widthMobilePortrait = zoomLevel * 3
+    const widthMobileLandscape = zoomLevel * 2
     const widthDefault = zoomLevel > 100 ? zoomLevel * 1.5 : zoomLevel
-    const width = isMobileAndPortrait ? widthMobilePortrait : widthDefault
+    const width = isMobileAndPortrait
+      ? widthMobilePortrait
+      : isMobileAndLandscape
+        ? widthMobileLandscape
+        : widthDefault
 
     return (
       <div
@@ -231,7 +236,7 @@ function Chart({ selectedClass, controls, onPlayerClick }: ChartProps) {
     )
   }
 
-  const borderColor = getClassColor(selectedClass, ClassColorVariant.Border)
+  const borderColor = getClassColor(selectedClass, ClassColorVariant.Dark)
 
   return (
     <div className="chart-layout">

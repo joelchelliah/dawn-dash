@@ -12,6 +12,7 @@ import {
 import { ChartControlState, ViewMode } from '../../types/chart'
 import { Difficulty, SpeedRunClass } from '../../types/speedRun'
 import { ClassColorVariant, getClassColor } from '../../utils/colors'
+import { DropdownArrowIconUrl } from '../../utils/icons'
 import { parseVersion, versionToString } from '../../utils/version'
 
 import './index.scss'
@@ -63,15 +64,19 @@ function ChartControls({ controls, selectedClass }: ChartControlsProps) {
 
   const isSunforge = selectedClass === SpeedRunClass.Sunforge
 
-  const labelColor = getClassColor(selectedClass, ClassColorVariant.Default)
-  const labelDisabledColor = getClassColor(selectedClass, ClassColorVariant.Disabled)
-
+  const darkColor = getClassColor(selectedClass, ClassColorVariant.Dark)
+  const defaultColor = getClassColor(selectedClass, ClassColorVariant.Default)
   const selectColor = getClassColor(selectedClass, ClassColorVariant.ControlText)
   const selectBorderColor = getClassColor(selectedClass, ClassColorVariant.ControlBorder)
 
-  const labelStyle = { color: labelColor }
-  const labelDisabledStyle = { color: labelDisabledColor }
-  const selectStyle = { borderColor: selectBorderColor, color: selectColor }
+  const controlsBorderStyle = { borderColor: darkColor }
+  const labelStyle = { color: defaultColor }
+  const labelDisabledStyle = { color: darkColor }
+  const selectStyle = {
+    borderColor: selectBorderColor,
+    color: selectColor,
+    backgroundImage: DropdownArrowIconUrl(selectColor),
+  }
 
   const getDurationOptions = () =>
     selectedClass === SpeedRunClass.Sunforge
@@ -86,7 +91,7 @@ function ChartControls({ controls, selectedClass }: ChartControlsProps) {
     ))
 
   return (
-    <div className="chart-controls">
+    <div className="chart-controls" style={controlsBorderStyle}>
       <div className="controls-row">
         <div className="control-group">
           <label htmlFor="difficulty" style={isSunforge ? labelDisabledStyle : labelStyle}>

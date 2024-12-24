@@ -4,7 +4,7 @@ import './App.scss'
 
 import Chart from './components/Chart'
 import ChartControls from './components/ChartControls'
-import ClassButtonRow from './components/ClassButtonRow'
+import ClassButtons from './components/ClassButtons'
 import GradientLink from './components/GradientLink'
 import HeaderInfo from './components/HeaderInfo'
 import BlightbaneModal from './components/Modal/BlightbaneModal'
@@ -58,7 +58,7 @@ function App(): JSX.Element {
       </div>
 
       <div className="content">
-        <ClassButtonRow onClassSelect={setSelectedClass} selectedClass={selectedClass} />
+        <ClassButtons onClassSelect={setSelectedClass} selectedClass={selectedClass} />
         <ChartControls controls={controls} selectedClass={selectedClass} />
         <ViewModeInfo viewMode={controls.viewMode} />
         <Chart

@@ -39,7 +39,7 @@ function ChartFooter({
     )
   }
 
-  const borderColor = getClassColor(selectedClass, ClassColorVariant.Border)
+  const borderColor = getClassColor(selectedClass, ClassColorVariant.Dark)
 
   return (
     <div className="chart-footer" style={{ borderColor }}>
