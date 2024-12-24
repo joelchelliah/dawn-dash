@@ -3,12 +3,13 @@ interface IconProps {
   onClick?: () => void
 }
 
+// Tailwind size class for 24px
+const defaultSizeClass = 'w-8 h-8'
+
 export function GitHubIcon({ className = '', onClick }: IconProps): JSX.Element {
   return (
     <svg
-      className={className}
-      width="24"
-      height="24"
+      className={`${defaultSizeClass} ${className}`}
       viewBox="0 0 24 24"
       fill="currentColor"
       xmlns="http://www.w3.org/2000/svg"
@@ -22,7 +23,7 @@ export function GitHubIcon({ className = '', onClick }: IconProps): JSX.Element 
 export function QuestionIcon({ className = '', onClick }: IconProps): JSX.Element {
   return (
     <svg
-      className={className}
+      className={`${defaultSizeClass} ${className}`}
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
