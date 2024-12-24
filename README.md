@@ -8,7 +8,7 @@ An open-source speedrun visualization tool for the mobile RPG: [Dawncaster](http
 
 ... So did **your** super-fast run make it on to the list? 👀 Go find out at:
 
-[![Dawn-Dash](./public/og-image.png "Click to visit Dawn-Dash")](https://dawn-dash.com/)
+[![Dawn-Dash](./public/og-image-v2.png "Click to visit Dawn-Dash")](https://dawn-dash.com/)
 
 
 ## 🤔 Ideas and feedback
