@@ -6,12 +6,14 @@ import LoadingDots from '../../components/LoadingDots'
 import { DataPoint } from '../../types/chart'
 import { SpeedRunClass } from '../../types/speedRun'
 import { ClassColorVariant, getClassColor } from '../../utils/colors'
-import { isAnonymousPlayer } from '../../utils/players'
+import {
+  getPlayerBestTimes,
+  isAnonymousPlayer,
+  sortedDatasetsByPlayerBestTime,
+} from '../../utils/players'
 import { formatTime } from '../../utils/time'
 
-import { getPlayerBestTimes, sortByPlayerBestTime } from './helper'
-
-import './index.scss'
+import styles from './index.module.scss'
 
 interface ChartLegendProps {
   chart: ChartJS | null
@@ -32,11 +34,11 @@ function ChartLegend({
 
   if (!chart?.data.datasets || isLoading) {
     return (
-      <div className="legend-container" style={{ borderColor }}>
-        <div className="legend-content">
+      <div className={styles.container} style={{ borderColor }}>
+        <div className={styles.content}>
           <ul></ul>
           {isLoading && (
-            <div className="legend-loading">
+            <div className={styles.loading}>
               <LoadingDots text="" selectedClass={selectedClass} />
             </div>
           )}
@@ -46,38 +48,38 @@ function ChartLegend({
   }
 
   const playerBestTimes = getPlayerBestTimes(chart)
-  const sortedDatasets = sortByPlayerBestTime(chart, playerBestTimes)
+  const sortedDatasets = sortedDatasetsByPlayerBestTime(chart, playerBestTimes)
 
   return (
-    <div className="legend-container" style={{ borderColor }}>
-      <div className="legend-content">
+    <div className={styles.container} style={{ borderColor }}>
+      <div className={styles.content}>
         <ul>
           {sortedDatasets.map((dataset, index) => {
             const player = dataset.label || ''
             const isAnonymous = isAnonymousPlayer(player)
+            const isFastestTime = index === 0
 
             const bestTime = playerBestTimes[player]
-            const isFirstPlace = index === 0
             const bestRun = (dataset.data as DataPoint[]).reduce((best, current) =>
               current.y < best.y ? current : best
             )
 
             return (
               <li key={player} onClick={() => onPlayerClick(player, bestRun.x)}>
-                <span className="color-marker" style={{ backgroundColor: playerColors[player] }} />
-                <span className="player-info">
+                <span className={styles.marker} style={{ backgroundColor: playerColors[player] }} />
+                <span className={styles.player}>
                   <span
-                    className={`player-name-container ${
-                      isFirstPlace || isAnonymous ? 'has-special-icon' : ''
+                    className={`${styles.nameContainer} ${
+                      isFastestTime || isAnonymous ? styles.specialIconContainer : ''
                     }`}
                   >
-                    <span className={`player-name ${isFirstPlace ? 'first-place' : ''}`}>
+                    <span className={`${styles.name} ${isFastestTime ? styles.bestTime : ''}`}>
                       {isAnonymous ? <i>Anonymous</i> : player}
                     </span>
-                    {isFirstPlace && <span className="special-icon">🏆</span>}
-                    {isAnonymous && <span className="special-icon">❓</span>}
+                    {isFastestTime && <span className={styles.specialIcon}>🏆</span>}
+                    {isAnonymous && <span className={styles.specialIcon}>❓</span>}
                   </span>
-                  <span className={`player-time ${isFirstPlace ? 'first-place' : ''}`}>
+                  <span className={`${styles.time} ${isFastestTime ? styles.bestTime : ''}`}>
                     {formatTime(bestTime)}
                   </span>
                 </span>

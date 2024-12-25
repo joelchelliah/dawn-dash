@@ -1,0 +1,115 @@
+@use '../../styles' as *;
+
+.container {
+  width: $chart-legend-width;
+  padding: $padding-component 0.25rem;
+  background-color: $color-component-bg;
+  height: $chart-legend-height;
+  @include default_border();
+
+  @media (max-width: $breakpoint-tablet) {
+    width: 100%;
+    height: auto;
+  }
+}
+
+.content {
+  height: 100%;
+  overflow-y: auto;
+
+  ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  li {
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    transition: opacity 0.2s ease;
+    white-space: nowrap;
+    cursor: pointer;
+
+    &:hover {
+      background-color: #2a2a2a;
+    }
+  }
+
+  @media (max-width: $breakpoint-tablet) {
+    ul {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    li {
+      flex: 1;
+      min-width: 12.5rem;
+    }
+  }
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+
+  @media (max-width: $breakpoint-tablet) {
+    margin: 0.625rem 0;
+  }
+}
+
+.marker {
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  margin-right: 0.5rem;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.player {
+  color: #ffffff;
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  min-width: 0;
+}
+
+.nameContainer {
+  display: flex;
+  min-width: 0;
+  margin-right: 0.375rem;
+}
+
+.name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.time {
+  margin-left: 0.375rem;
+  opacity: 0.7;
+  flex-shrink: 0;
+}
+
+.bestTime {
+  font-weight: bold;
+  opacity: 1;
+}
+
+.specialIcon {
+  flex-shrink: 0;
+  margin-left: 0.25rem;
+  line-height: 1;
+  font-size: 1.2em;
+  position: relative;
+  @include rotateY360Animation('auto');
+}
+
+.specialIconContainer:hover .specialIcon {
+  transform: rotateY(360deg);
+}
