@@ -1,3 +1,5 @@
+import { memo } from 'react'
+
 import { SpeedRunClass } from '../../types/speedRun'
 
 import ClassButton from './ClassButton'
@@ -25,4 +27,4 @@ function ClassButtons({ onClassSelect, selectedClass }: ClassButtonsProps) {
   )
 }
 
-export default ClassButtons
+export default memo(ClassButtons)

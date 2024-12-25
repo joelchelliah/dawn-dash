@@ -1,3 +1,5 @@
+import { memo } from 'react'
+
 import { Chart as ChartJS } from 'chart.js'
 
 import LoadingDots from '../../components/LoadingDots'
@@ -88,4 +90,4 @@ function ChartLegend({
   )
 }
 
-export default ChartLegend
+export default memo(ChartLegend)

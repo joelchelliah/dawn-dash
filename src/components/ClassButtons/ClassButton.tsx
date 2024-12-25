@@ -1,3 +1,5 @@
+import { memo } from 'react'
+
 import { SpeedRunClass } from '../../types/speedRun'
 import { ClassColorVariant, getClassColor } from '../../utils/colors'
 import { getClassImageUrl } from '../../utils/images'
@@ -38,4 +40,4 @@ function ClassButton({ classType, isActive, onClick }: ClassButtonProps) {
   )
 }
 
-export default ClassButton
+export default memo(ClassButton)
