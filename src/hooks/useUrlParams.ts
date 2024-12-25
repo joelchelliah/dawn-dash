@@ -111,14 +111,14 @@ export function useUrlParams(
       }
 
       if (players) {
-        const playerValue = parseInt(players)
+        const playerValue = Number(players)
 
         if (isValidPlayerLimit(playerValue)) controls.setPlayerLimit(playerValue)
         else areAllParamsValid = false
       }
 
       if (duration) {
-        const durationValue = parseInt(duration)
+        const durationValue = Number(duration)
 
         if (isValidDuration(durationValue)) controls.setMaxDuration(durationValue)
         else areAllParamsValid = false
@@ -135,7 +135,7 @@ export function useUrlParams(
       }
 
       if (zoom) {
-        const zoomValue = parseInt(zoom)
+        const zoomValue = Number(zoom)
         if (isValidZoomLevel(zoomValue)) {
           controls.setZoomLevel(zoomValue)
         } else {

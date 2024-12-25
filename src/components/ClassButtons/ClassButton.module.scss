@@ -21,9 +21,8 @@
       border-style: solid;
     }
 
-    // Medium screens: three buttons per row
-    // Slightly earlier breakpoint here because it looks better
-    @media (max-width: ($breakpoint-tablet + 7.5rem)) {
+    // Medium+ screens: three buttons per row
+    @media (max-width: $breakpoint-tablet-plus) {
         flex: 1 1 calc(33.33% - 0.5rem);
 
         &:last-child:nth-child(odd) {

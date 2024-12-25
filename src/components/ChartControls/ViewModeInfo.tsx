@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { VIEW_MODE_LABELS } from '../../constants/chartControlValues'
 import { ViewMode } from '../../types/chart'
 
-import './index.scss'
+import styles from './ViewModeInfo.module.scss'
 
 interface ViewModeInfoProps {
   viewMode: ViewMode
@@ -32,10 +32,10 @@ function ViewModeInfo({ viewMode }: ViewModeInfoProps) {
   }
 
   return (
-    <div className="view-mode-info">
-      <div className="info-text-title">{getTitle()}</div>
-      <div className="info-text">{getInfoText()}</div>
-      <button className="close-button" onClick={() => setIsVisible(false)}>
+    <div className={styles.container}>
+      <div className={styles.title}>{getTitle()}</div>
+      <div className={styles.text}>{getInfoText()}</div>
+      <button className={styles.close} onClick={() => setIsVisible(false)}>
         ×
       </button>
     </div>

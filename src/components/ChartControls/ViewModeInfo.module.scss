@@ -1,0 +1,38 @@
+@use '../../styles' as *;
+
+.container {
+  margin: 0.5rem 0 0.75rem;
+  padding: $padding-component;
+  background: $color-component-bg;
+  border-radius: 0.5rem;
+  color: #999;
+  font-size: 0.875rem;
+  position: relative;
+}
+
+.title {
+  font-weight: bold;
+  padding-bottom: 0.25rem;
+}
+
+.text {
+  text-align: left;
+}
+
+.close {
+  position: absolute;
+  right: 0.5rem;
+  top: 30%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #666;
+  font-size: 1.25rem;
+  cursor: pointer;
+  padding: 0.25rem;
+  line-height: 1;
+
+  &:hover {
+    color: #999;
+  }
+}

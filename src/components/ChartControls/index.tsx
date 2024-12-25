@@ -12,17 +12,18 @@ import {
 import { ChartControlState, ViewMode } from '../../types/chart'
 import { Difficulty, SpeedRunClass } from '../../types/speedRun'
 import { ClassColorVariant, getClassColor } from '../../utils/colors'
-import { DropdownArrowIconUrl } from '../../utils/icons'
 import { parseVersion, versionToString } from '../../utils/version'
 
-import './index.scss'
+import ControlGroup from './ControlGroup'
+import styles from './index.module.scss'
+import ViewModeInfo from './ViewModeInfo'
 
 interface ChartControlsProps {
   controls: ChartControlState
   selectedClass: SpeedRunClass
 }
 
-const toDifficultyOption = (value: string) => ({ value, label: value })
+const toDifficultyOption = (value: Difficulty) => ({ value, label: value })
 
 const toPlayerLimitOption = (value: number) => ({ value, label: `${value} players` })
 
@@ -65,120 +66,76 @@ function ChartControls({ controls, selectedClass }: ChartControlsProps) {
   const isSunforge = selectedClass === SpeedRunClass.Sunforge
 
   const darkColor = getClassColor(selectedClass, ClassColorVariant.Dark)
-  const defaultColor = getClassColor(selectedClass, ClassColorVariant.Default)
-  const selectColor = getClassColor(selectedClass, ClassColorVariant.ControlText)
-  const selectBorderColor = getClassColor(selectedClass, ClassColorVariant.ControlBorder)
 
   const controlsBorderStyle = { borderColor: darkColor }
-  const labelStyle = { color: defaultColor }
-  const labelDisabledStyle = { color: darkColor }
-  const selectStyle = {
-    borderColor: selectBorderColor,
-    color: selectColor,
-    backgroundImage: DropdownArrowIconUrl(selectColor),
-  }
 
   const getDurationOptions = () =>
     selectedClass === SpeedRunClass.Sunforge
       ? MAX_DURATION_SUNFORGE_VALUES.map(toMinutesOption)
       : MAX_DURATION_OTHER_VALUES.map(toMinutesOption)
 
-  const renderOptions = (options: { value: number | string; label: string }[]) =>
-    options.map(({ value, label }) => (
-      <option key={value} value={value}>
-        {label}
-      </option>
-    ))
-
   return (
-    <div className="chart-controls" style={controlsBorderStyle}>
-      <div className="controls-row">
-        <div className="control-group">
-          <label htmlFor="difficulty" style={isSunforge ? labelDisabledStyle : labelStyle}>
-            Difficulty
-          </label>
-          <select
+    <>
+      <div className={styles.controls} style={controlsBorderStyle}>
+        <div className={styles.row}>
+          <ControlGroup
             id="difficulty"
+            selectedClass={selectedClass}
+            label="Difficulty"
+            options={DIFFICULTY_VALUES.map(toDifficultyOption)}
             value={difficulty}
-            onChange={(e) => setDifficulty(e.target.value as Difficulty)}
+            onChange={setDifficulty}
             disabled={isSunforge}
-            style={selectStyle}
-          >
-            {renderOptions(DIFFICULTY_VALUES.map(toDifficultyOption))}
-          </select>
-        </div>
+          />
 
-        <div className="control-group">
-          <label htmlFor="playerLimit" style={labelStyle}>
-            Number of players
-          </label>
-          <select
+          <ControlGroup
             id="playerLimit"
+            selectedClass={selectedClass}
+            label="Number of players"
+            options={PLAYER_LIMIT_VALUES.map(toPlayerLimitOption)}
             value={playerLimit}
-            onChange={(e) => setPlayerLimit(parseInt(e.target.value))}
-            style={selectStyle}
-          >
-            {renderOptions(PLAYER_LIMIT_VALUES.map(toPlayerLimitOption))}
-          </select>
-        </div>
+            onChange={setPlayerLimit}
+          />
 
-        <div className="control-group">
-          <label htmlFor="maxDuration" style={labelStyle}>
-            Max duration
-          </label>
-          <select
+          <ControlGroup
             id="maxDuration"
+            selectedClass={selectedClass}
+            label="Max duration"
+            options={getDurationOptions()}
             value={maxDuration}
-            onChange={(e) => setMaxDuration(parseInt(e.target.value))}
-            style={selectStyle}
-          >
-            {renderOptions(getDurationOptions())}
-          </select>
-        </div>
+            onChange={setMaxDuration}
+          />
 
-        <div className="control-group">
-          <label htmlFor="viewMode" style={labelStyle}>
-            View mode
-          </label>
-          <select
+          <ControlGroup
             id="viewMode"
+            selectedClass={selectedClass}
+            label="View mode"
+            options={VIEW_MODE_VALUES.map(toViewModeOption)}
             value={viewMode}
-            onChange={(e) => setViewMode(e.target.value as ViewMode)}
-            style={selectStyle}
-          >
-            {renderOptions(VIEW_MODE_VALUES.map(toViewModeOption))}
-          </select>
-        </div>
+            onChange={setViewMode}
+          />
 
-        <div className="control-group">
-          <label htmlFor="gameVersion" style={labelStyle}>
-            Earliest version
-          </label>
-          <select
+          <ControlGroup
             id="gameVersion"
+            selectedClass={selectedClass}
+            label="Earliest version"
+            options={GAME_VERSION_VALUES.map(toGameVersionOption)}
             value={versionToString(gameVersion)}
-            onChange={(e) => setGameVersion(parseVersion(e.target.value))}
-            style={selectStyle}
-          >
-            {renderOptions(GAME_VERSION_VALUES.map(toGameVersionOption))}
-          </select>
-        </div>
+            onChange={(val) => setGameVersion(parseVersion(val))}
+          />
 
-        <div className="control-group">
-          <label htmlFor="zoomLevel" style={labelStyle}>
-            Zoom level
-          </label>
-          <select
+          <ControlGroup
             id="zoomLevel"
+            selectedClass={selectedClass}
+            label="Zoom level"
+            options={ZOOM_LEVEL_VALUES.map(toZoomLevelOption)}
             value={zoomLevel}
-            onChange={(e) => setZoomLevel(parseInt(e.target.value))}
-            style={selectStyle}
-          >
-            {renderOptions(ZOOM_LEVEL_VALUES.map(toZoomLevelOption))}
-          </select>
+            onChange={setZoomLevel}
+          />
         </div>
       </div>
-    </div>
+      <ViewModeInfo viewMode={controls.viewMode} />
+    </>
   )
 }
 

@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { useBreakpoint } from '../../hooks/useBreakpoint'
 import { GitHubIcon } from '../../utils/icons'
 import GradientLink from '../GradientLink'
-import InfoModal from '../Modal/InfoModal'
+import InfoModal from '../Modals/InfoModal'
 
 import './index.scss'
 

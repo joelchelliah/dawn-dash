@@ -7,9 +7,8 @@ import ChartControls from './components/ChartControls'
 import ClassButtons from './components/ClassButtons'
 import GradientLink from './components/GradientLink'
 import HeaderInfo from './components/HeaderInfo'
-import BlightbaneModal from './components/Modal/BlightbaneModal'
+import BlightbaneModal from './components/Modals/BlightbaneModal'
 import OpenSourceInfo from './components/OpenSourceInfo'
-import ViewModeInfo from './components/ViewModeInfo'
 import { useChartControlState } from './hooks/useChartControlState'
 import { useUrlParams } from './hooks/useUrlParams'
 import { SpeedRunClass } from './types/speedRun'
@@ -60,7 +59,6 @@ function App(): JSX.Element {
       <div className="content">
         <ClassButtons onClassSelect={setSelectedClass} selectedClass={selectedClass} />
         <ChartControls controls={controls} selectedClass={selectedClass} />
-        <ViewModeInfo viewMode={controls.viewMode} />
         <Chart
           controls={controls}
           selectedClass={selectedClass}

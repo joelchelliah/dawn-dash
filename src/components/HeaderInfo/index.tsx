@@ -3,7 +3,7 @@ import { useState } from 'react'
 import GradientLink from '../../components/GradientLink'
 import { useBreakpoint } from '../../hooks/useBreakpoint'
 import { QuestionIcon } from '../../utils/icons'
-import InfoModal from '../Modal/InfoModal'
+import InfoModal from '../Modals/InfoModal'
 
 import './index.scss'
 
