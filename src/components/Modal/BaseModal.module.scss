@@ -1,6 +1,6 @@
-@import '../../styles/borders.scss';
+@use '../../styles' as *;
 
-.modal-overlay {
+.overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -13,7 +13,7 @@
   z-index: 9999;
 }
 
-.modal-content {
+.content {
   position: relative;
   background: #1a1a1a;
   padding: 1.25rem;
@@ -24,7 +24,11 @@
 
   h3 {
     color: #ccc;
-    margin-top: 0;
+    margin-top: 5px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-block-end: 0;
   }
 
   p {

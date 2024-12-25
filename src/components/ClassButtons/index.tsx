@@ -1,7 +1,7 @@
 import { SpeedRunClass } from '../../types/speedRun'
 
 import ClassButton from './ClassButton'
-import './index.scss'
+import styles from './index.module.scss'
 
 interface ClassButtonsProps {
   onClassSelect: (classType: SpeedRunClass) => void
@@ -12,7 +12,7 @@ function ClassButtons({ onClassSelect, selectedClass }: ClassButtonsProps) {
   const classes = Object.values(SpeedRunClass)
 
   return (
-    <div className="class-buttons">
+    <div className={styles.classButtons}>
       {classes.map((classType) => (
         <ClassButton
           key={classType}

@@ -1,4 +1,4 @@
-@import '../../styles/_gradients.scss';
+@use '../../styles' as *;
 
 .gradient-link {
   @include yellowGreenGradient(false);

@@ -1,6 +1,4 @@
-@import '../../styles/constants.scss';
-@import '../../styles/gradients.scss';
-@import '../../styles/borders.scss';
+@use '../../styles' as *;
 
 $button-padding-vertical: 0.25rem;
 $button-padding-horizontal: 0.5rem;

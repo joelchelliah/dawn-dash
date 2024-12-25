@@ -1,12 +1,9 @@
-@import '../../styles/animations';
-@import '../../styles/constants';
-@import '../../styles/gradients';
-@import '../../styles/borders';
+@use '../../styles' as *;
 
 .legend-container {
   width: $chart-legend-width;
   padding: $padding-component 0.25rem;
-  background-color: $color-component-background;
+  background-color: $color-component-bg;
   height: $chart-legend-height;
   @include default_border();
 

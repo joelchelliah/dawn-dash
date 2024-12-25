@@ -1,6 +1,6 @@
-import Modal from '../modal'
+import Modal from '../BaseModal'
 
-import './index.scss'
+import styles from './index.module.scss'
 
 interface InfoModalProps {
   additionalText?: string
@@ -14,12 +14,12 @@ function InfoModal({ additionalText, children, isOpen, onClose }: InfoModalProps
     <Modal isOpen={isOpen} onClose={onClose}>
       {children}
       {additionalText && (
-        <div className="additional-text">
+        <div>
           <br />
           {additionalText}
         </div>
       )}
-      <button onClick={onClose} className="close-button">
+      <button onClick={onClose} className={styles.close}>
         Nice!
       </button>
     </Modal>

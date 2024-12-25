@@ -2,7 +2,7 @@ import { SpeedRunClass } from '../../types/speedRun'
 import { ClassColorVariant, getClassColor } from '../../utils/colors'
 import { getClassImageUrl } from '../../utils/images'
 
-import './index.scss'
+import styles from './ClassButton.module.scss'
 
 interface ClassButtonProps {
   classType: SpeedRunClass
@@ -23,15 +23,15 @@ function ClassButton({ classType, isActive, onClick }: ClassButtonProps) {
 
   return (
     <button
-      className={`class-button ${isActive ? 'active' : ''}`}
+      className={`${styles.classButton} ${isActive ? styles.active : ''}`}
       onClick={onClick}
       style={{
         borderColor,
         boxShadow: isActive ? `0 0 8px 1px ${borderColor}40` : undefined,
       }}
     >
-      <img src={imageUrl} alt={`${classType} icon`} className="class-icon" />
-      <span className="class-type" style={{ color }}>
+      <img src={imageUrl} alt={`${classType} icon`} className={styles.classIcon} />
+      <span className={styles.classType} style={{ color }}>
         {classType}
       </span>
     </button>

@@ -1,0 +1,59 @@
+@use '../../styles' as *;
+
+.classButton {
+    flex: 1;
+    padding: 0.375rem;
+    background-color: #333;
+    border: 1px dashed #444;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-width: 6.25rem;
+    max-width: 25rem;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.5rem;
+
+    &:hover {
+      background-color: #3f3f3f;
+      border-style: solid;
+    }
+
+    // Medium screens: three buttons per row
+    // Slightly earlier breakpoint here because it looks better
+    @media (max-width: ($breakpoint-tablet + 7.5rem)) {
+        flex: 1 1 calc(33.33% - 0.5rem);
+
+        &:last-child:nth-child(odd) {
+          max-width: 100%; // This is why we need flex: 1 1 calc...
+        }
+      }
+
+      // Small screens: two buttons per row
+      @media (max-width: $breakpoint-mobile) {
+        flex: 1 1 calc(50% - 0.375rem);
+      }
+}
+
+.active {
+  background-color: #4a4a4a;
+  border-width: 1px;
+  border-style: solid;
+}
+
+.classIcon {
+  width: 2.25rem;
+  vertical-align: middle;
+  margin-right: 0.25rem;
+  border: 1px groove rgb(153, 153, 153);
+  border-radius: 0.25rem;
+  object-fit: cover;
+}
+
+.classType {
+  font-weight: 600;
+  font-size: 1rem;
+  line-height: 1.5rem;
+}

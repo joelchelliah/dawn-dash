@@ -1,4 +1,4 @@
-@import '../../styles/animations';
+@use '../../styles' as *;
 
 .loading-dots-container {
   display: flex;

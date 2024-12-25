@@ -1,4 +1,4 @@
-@import '../../styles/_animations.scss';
+@use '../../styles' as *;
 
 .rotate-device-message {
   color: #ff6b6b;

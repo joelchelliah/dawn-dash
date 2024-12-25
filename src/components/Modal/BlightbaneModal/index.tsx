@@ -1,9 +1,9 @@
 import { SpeedRunClass } from '../../../types/speedRun'
 import { getClassColor } from '../../../utils/colors'
 import { isAnonymousPlayer } from '../../../utils/players'
-import Modal from '../modal'
+import Modal from '../BaseModal'
 
-import './index.scss'
+import styles from './index.module.scss'
 
 interface BlightbaneModalProps {
   isOpen: boolean
@@ -26,7 +26,7 @@ function BlightbaneModal({
   const renderText = () => {
     const postFix = (
       <>
-        <span className="player" style={{ color: classColor }}>
+        <span className={styles.player} style={{ color: classColor }}>
           {playerClass}
         </span>{' '}
         run on Blightbane?
@@ -35,14 +35,14 @@ function BlightbaneModal({
     if (isAnonymous) {
       return (
         <p>
-          Check out the best <span className="player-anonymous">Anonymous</span> {postFix}
+          Check out the best <span className={styles.anonymous}>Anonymous</span> {postFix}
         </p>
       )
     }
 
     return (
       <p>
-        Check out <span className="player">{`${player}'s`}</span> best {postFix}
+        Check out <span className={styles.player}>{`${player}'s`}</span> best {postFix}
       </p>
     )
   }
@@ -53,16 +53,16 @@ function BlightbaneModal({
         <img
           src="https://blightbane.io/images/bolgar.png"
           alt="Bolgar Blightbane"
-          className="modal-icon"
+          className={styles.icon}
         />
         Go to Blightbane?
       </h3>
 
       {renderText()}
 
-      <div className="modal-buttons">
+      <div className={styles.buttons}>
         <button onClick={onClose}>Nah</button>
-        <button onClick={onConfirm} className="confirm">
+        <button onClick={onConfirm} className={styles.confirm}>
           Yeah!
         </button>
       </div>

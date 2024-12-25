@@ -1,5 +1,4 @@
-@import '../../styles/constants';
-@import '../../styles/animations';
+@use '../../styles' as *;
 
 $message-padding: 2.5rem;
 $loading-icon-size: 5rem;

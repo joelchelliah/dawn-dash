@@ -1,10 +1,9 @@
-@import '../../styles/constants';
-@import '../../styles/borders';
+@use '../../styles' as *;
 
 .chart-controls {
   margin-bottom: 0.875rem;
   padding: $padding-component;
-  background: $color-component-background;
+  background: $color-component-bg;
   border-radius: 0.5rem;
   display: flex;
   flex-direction: column;

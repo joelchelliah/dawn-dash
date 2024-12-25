@@ -1,5 +1,4 @@
-@import '../../styles/constants';
-@import '../../styles/gradients';
+@use '../../styles' as *;
 
 $transition-duration: 0.5s;
 
