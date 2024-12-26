@@ -189,12 +189,14 @@ function Chart({ selectedClass, controls, onPlayerClick }: ChartProps) {
     useSpeedrunData(selectedClass, difficulty)
 
   useEffect(() => {
-    if (chartRef.current && speedrunData) createChart(speedrunData)
-  }, [speedrunData, createChart])
-
-  useEffect(() => {
-    if (isLoading) setChartData(null)
-  }, [isLoading])
+    if (isLoading) {
+      // Destroy chart when loading
+      setChartData(null)
+    } else if (chartRef.current && speedrunData) {
+      // Only create chart when loading is complete
+      createChart(speedrunData)
+    }
+  }, [isLoading, speedrunData, createChart])
 
   useEffect(() => {
     return () => {

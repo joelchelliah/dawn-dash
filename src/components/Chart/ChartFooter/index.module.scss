@@ -4,13 +4,12 @@ $button-padding-vertical: 0.25rem;
 $button-padding-horizontal: 0.5rem;
 
 .container {
+  @extend %flex-center;
+  justify-content: space-between;
   text-align: center;
   color: #888;
   font-size: 0.9rem;
   padding: 0.75rem 0.5rem 0.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
   gap: 0.5rem;
   border-top: 1px dashed #333;
   margin-top: 0.5rem;
@@ -42,8 +41,7 @@ $button-padding-horizontal: 0.5rem;
 }
 
 .content {
-  display: flex;
-  align-items: center;
+  @extend %flex-center;
   gap: 0.5rem;
 
   &--loading-in-background {

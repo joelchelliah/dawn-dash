@@ -64,14 +64,11 @@ function ChartLegend({
             const bestRun = (dataset.data as DataPoint[]).reduce((best, current) =>
               current.y < best.y ? current : best
             )
-            const nameContainerClassName = cx(styles['name-container'], {
+            const nameContainerClassName = cx(styles['player__name-container'], {
               [styles['special-icon-container']]: isFastestTime || isAnonymous,
             })
-            const nameClassName = cx(styles['name'], {
-              [styles['fastest-time']]: isFastestTime,
-            })
-            const timeClassName = cx(styles['time'], {
-              [styles['fastest-time']]: isFastestTime,
+            const playerClassName = cx(styles['player'], {
+              [styles['player--fastest-time']]: isFastestTime,
             })
 
             return (
@@ -80,9 +77,11 @@ function ChartLegend({
                   className={styles['color-marker']}
                   style={{ backgroundColor: playerColors[player] }}
                 />
-                <span className={styles['player']}>
+                <span className={playerClassName}>
                   <span className={nameContainerClassName}>
-                    <span className={nameClassName}>{isAnonymous ? <i>Anonymous</i> : player}</span>
+                    <span className={styles['player__name']}>
+                      {isAnonymous ? <i>Anonymous</i> : player}
+                    </span>
                     {isFastestTime && (
                       <span className={styles['special-icon-container__special-icon']}>🏆</span>
                     )}
@@ -90,7 +89,7 @@ function ChartLegend({
                       <span className={styles['special-icon-container__special-icon']}>❓</span>
                     )}
                   </span>
-                  <span className={timeClassName}>{formatTime(bestTime)}</span>
+                  <span className={styles['player__time']}>{formatTime(bestTime)}</span>
                 </span>
               </li>
             )

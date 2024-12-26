@@ -23,8 +23,7 @@ $button-padding-vertical: 0.5rem;
 }
 
 .buttons {
-  display: flex;
-  justify-content: flex-end;
+  @extend %flex-end;
   gap: 0.625rem;
   margin-top: 1.25rem;
 

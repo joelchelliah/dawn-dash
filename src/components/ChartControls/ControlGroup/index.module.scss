@@ -1,10 +1,9 @@
 @use '../../../styles' as *;
 
 .group {
-  display: flex;
+  @extend %flex-center;
   flex-direction: column;
   flex: 0 1 $control-max-width; // Large screens: all controls in one row
-  align-items: center;
   gap: 0.25rem;
   min-width: $control-min-width;
   width: 100%;

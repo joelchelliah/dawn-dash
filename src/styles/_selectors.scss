@@ -1,0 +1,16 @@
+%flex-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+%flex-end {
+  display: flex;
+  justify-content: flex-end;
+}
+
+%truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

@@ -1,8 +1,7 @@
 @use '../../styles' as *;
 
 .container {
-  display: flex;
-  align-items: center;
+  @extend %flex-center;
   gap: 0.25rem;
   letter-spacing: 2px;
   margin-bottom: -0.25rem;

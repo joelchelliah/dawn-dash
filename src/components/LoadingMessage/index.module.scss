@@ -4,10 +4,8 @@ $message-padding: 2.5rem;
 $loading-icon-size: 5rem;
 
 .container {
-  display: flex;
+  @extend %flex-center;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
   gap: 1.25rem;
   padding: $message-padding 0 1rem;
   color: #ddd;
