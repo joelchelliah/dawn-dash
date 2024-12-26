@@ -16,12 +16,12 @@
     gap: 0.5rem;
 
     &:hover {
-      background-color: #3f3f3f;
+      background-color: $color-button-hover-bg;
       border-style: solid;
     }
 
     &--active {
-      background-color: #4a4a4a;
+      background-color: $color-button-active-bg;
       border-width: 1px;
       border-style: solid;
     }

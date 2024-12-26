@@ -59,7 +59,7 @@ $button-padding-horizontal: 0.5rem;
   font-size: 0.9rem;
 
   &:hover {
-    background: #333;
+    background: $color-button-hover-bg;
     @include yellowGreenGradient(true, #fff);
     @include superFancyBorder($button-padding-vertical, $button-padding-horizontal);
   }
