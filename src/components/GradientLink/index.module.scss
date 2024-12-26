@@ -1,6 +1,6 @@
 @use '../../styles' as *;
 
-.gradient-link {
+.link {
   @include yellowGreenGradient(false);
   text-decoration: none;
   transition: opacity 0.4s ease;

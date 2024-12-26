@@ -32,10 +32,10 @@ function ViewModeInfo({ viewMode }: ViewModeInfoProps) {
   }
 
   return (
-    <div className={styles.container}>
-      <div className={styles.title}>{getTitle()}</div>
-      <div className={styles.text}>{getInfoText()}</div>
-      <button className={styles.close} onClick={() => setIsVisible(false)}>
+    <div className={styles['container']}>
+      <div className={styles['title']}>{getTitle()}</div>
+      <div className={styles['text']}>{getInfoText()}</div>
+      <button className={styles['close-button']} onClick={() => setIsVisible(false)}>
         ×
       </button>
     </div>

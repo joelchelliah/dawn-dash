@@ -76,8 +76,8 @@ function ChartControls({ controls, selectedClass }: ChartControlsProps) {
 
   return (
     <>
-      <div className={styles.controls} style={controlsBorderStyle}>
-        <div className={styles.row}>
+      <div className={styles['controls']} style={controlsBorderStyle}>
+        <div className={styles['row']}>
           <ControlGroup
             id="difficulty"
             selectedClass={selectedClass}

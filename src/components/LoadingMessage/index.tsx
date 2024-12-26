@@ -4,7 +4,7 @@ import { ClassColorVariant, getClassColor } from '../../utils/colors'
 import { getClassImageUrl } from '../../utils/images'
 import LoadingDots from '../LoadingDots'
 
-import './index.scss'
+import styles from './index.module.scss'
 
 interface LoadingMessageProps {
   selectedClass: SpeedRunClass
@@ -22,14 +22,16 @@ function LoadingMessage({ selectedClass, selectedDifficulty }: LoadingMessagePro
       : `${selectedClass} - ${selectedDifficulty}`
 
   return (
-    <div className={`loading-message ${isMobileAndPortrait ? '' : 'max-height'}`}>
-      <img src={imageUrl} alt={`${selectedClass} icon`} className="loading-icon" />
-      <div className="loading-text">
+    <div
+      className={`${styles['container']} ${isMobileAndPortrait ? '' : styles['container--max-height']}`}
+    >
+      <img src={imageUrl} alt={`${selectedClass} icon`} className={styles['loading-icon']} />
+      <div className={styles['loading-text']}>
         Loading{' '}
-        <span className="class-name" style={{ color }}>
+        <span className={styles['class-name']} style={{ color }}>
           {classAndDifficulty}
         </span>{' '}
-        <span className="last-line">
+        <span className={styles['last-line']}>
           data
           <LoadingDots selectedClass={selectedClass} />
         </span>

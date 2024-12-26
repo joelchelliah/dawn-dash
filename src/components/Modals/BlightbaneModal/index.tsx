@@ -26,7 +26,7 @@ function BlightbaneModal({
   const renderText = () => {
     const postFix = (
       <>
-        <span className={styles.player} style={{ color: classColor }}>
+        <span className={styles['player']} style={{ color: classColor }}>
           {playerClass}
         </span>{' '}
         run on Blightbane?
@@ -35,14 +35,14 @@ function BlightbaneModal({
     if (isAnonymous) {
       return (
         <p>
-          Check out the best <span className={styles.anonymous}>Anonymous</span> {postFix}
+          Check out the best <span className={styles['anonymous']}>Anonymous</span> {postFix}
         </p>
       )
     }
 
     return (
       <p>
-        Check out <span className={styles.player}>{`${player}'s`}</span> best {postFix}
+        Check out <span className={styles['player']}>{`${player}'s`}</span> best {postFix}
       </p>
     )
   }
@@ -53,16 +53,16 @@ function BlightbaneModal({
         <img
           src="https://blightbane.io/images/bolgar.png"
           alt="Bolgar Blightbane"
-          className={styles.icon}
+          className={styles['icon']}
         />
         Go to Blightbane?
       </h3>
 
       {renderText()}
 
-      <div className={styles.buttons}>
+      <div className={styles['buttons']}>
         <button onClick={onClose}>Nah</button>
-        <button onClick={onConfirm} className={styles.confirm}>
+        <button onClick={onConfirm} className={styles['buttons__confirm-button']}>
           Yeah!
         </button>
       </div>

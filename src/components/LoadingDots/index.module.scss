@@ -1,15 +1,15 @@
 @use '../../styles' as *;
 
-.loading-dots-container {
+.container {
   display: flex;
   align-items: center;
   gap: 0.25rem;
   letter-spacing: 2px;
   margin-bottom: -0.25rem;
   margin-left: 0.25rem;
+}
 
-  .loading-dots {
-    display: inline-block;
-    @include pulsingDotsAnimation;
-  }
+.loading-dots {
+  display: inline-block;
+  @include pulsingDotsAnimation;
 }

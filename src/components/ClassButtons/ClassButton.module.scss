@@ -1,6 +1,6 @@
 @use '../../styles' as *;
 
-.classButton {
+.container {
     flex: 1;
     padding: 0.375rem;
     background-color: #333;
@@ -21,6 +21,12 @@
       border-style: solid;
     }
 
+    &--active {
+      background-color: #4a4a4a;
+      border-width: 1px;
+      border-style: solid;
+    }
+
     // Medium+ screens: three buttons per row
     @media (max-width: $breakpoint-tablet-plus) {
         flex: 1 1 calc(33.33% - 0.5rem);
@@ -30,19 +36,13 @@
         }
       }
 
-      // Small screens: two buttons per row
-      @media (max-width: $breakpoint-mobile) {
-        flex: 1 1 calc(50% - 0.375rem);
-      }
+    // Small screens: two buttons per row
+    @media (max-width: $breakpoint-mobile) {
+    flex: 1 1 calc(50% - 0.375rem);
+    }
 }
 
-.active {
-  background-color: #4a4a4a;
-  border-width: 1px;
-  border-style: solid;
-}
-
-.classIcon {
+.class-icon {
   width: 2.25rem;
   vertical-align: middle;
   margin-right: 0.25rem;
@@ -51,7 +51,7 @@
   object-fit: cover;
 }
 
-.classType {
+.class-type {
   font-weight: 600;
   font-size: 1rem;
   line-height: 1.5rem;

@@ -33,21 +33,21 @@ function App(): JSX.Element {
   useUrlParams(selectedClass, setSelectedClass, controls)
 
   return (
-    <div className={styles.container}>
-      <div className={styles.header}>
+    <div className={styles['container']}>
+      <div className={styles['header']}>
         <img
           src="https://blightbane.io/images/icons/cardart_4_53.webp"
           alt="Dawncaster Logo"
-          className={styles.header__logo}
+          className={styles['header__logo']}
         />
         <div>
-          <h1 className={styles.title}>Dawn-Dash</h1>
-          <h2 className={styles.subtitle}>Dawncaster speedrun charts</h2>
+          <h1 className={styles['title']}>Dawn-Dash</h1>
+          <h2 className={styles['subtitle']}>Dawncaster speedrun charts</h2>
         </div>
         <HeaderInfo />
       </div>
 
-      <div className={styles.content}>
+      <div className={styles['content']}>
         <ClassButtons onClassSelect={setSelectedClass} selectedClass={selectedClass} />
         <ChartControls controls={controls} selectedClass={selectedClass} />
         <Chart
@@ -57,8 +57,8 @@ function App(): JSX.Element {
         />
       </div>
 
-      <footer className={styles.footer}>
-        <div className={styles.credits}>
+      <footer className={styles['footer']}>
+        <div className={styles['credits']}>
           Artwork and game data ©{' '}
           <GradientLink text="Dawncaster" url="https://dawncaster.wanderlost.games/" /> the game,{' '}
           <GradientLink text="Wanderlost" url="https://wanderlost.games/" />, and{' '}

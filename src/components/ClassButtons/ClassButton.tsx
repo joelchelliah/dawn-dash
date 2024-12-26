@@ -25,15 +25,15 @@ function ClassButton({ classType, isActive, onClick }: ClassButtonProps) {
 
   return (
     <button
-      className={`${styles.classButton} ${isActive ? styles.active : ''}`}
+      className={`${styles['container']} ${isActive ? styles['container--active'] : ''}`}
       onClick={onClick}
       style={{
         borderColor,
         boxShadow: isActive ? `0 0 8px 1px ${borderColor}40` : undefined,
       }}
     >
-      <img src={imageUrl} alt={`${classType} icon`} className={styles.classIcon} />
-      <span className={styles.classType} style={{ color }}>
+      <img src={imageUrl} alt={`${classType} icon`} className={styles['class-icon']} />
+      <span className={styles['class-type']} style={{ color }}>
         {classType}
       </span>
     </button>

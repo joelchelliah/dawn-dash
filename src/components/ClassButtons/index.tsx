@@ -14,7 +14,7 @@ function ClassButtons({ onClassSelect, selectedClass }: ClassButtonsProps) {
   const classes = Object.values(SpeedRunClass)
 
   return (
-    <div className={styles.classButtons}>
+    <div className={styles['class-buttons']}>
       {classes.map((classType) => (
         <ClassButton
           key={classType}

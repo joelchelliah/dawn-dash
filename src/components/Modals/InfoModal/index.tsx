@@ -19,7 +19,7 @@ function InfoModal({ additionalText, children, isOpen, onClose }: InfoModalProps
           {additionalText}
         </div>
       )}
-      <button onClick={onClose} className={styles.close}>
+      <button onClick={onClose} className={styles['close-button']}>
         Nice!
       </button>
     </Modal>

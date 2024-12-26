@@ -59,7 +59,7 @@ function ControlGroup<T>({
   }
 
   return (
-    <div className={styles.group}>
+    <div className={styles['group']}>
       <label htmlFor={id} style={isSunforge ? labelDisabledStyle : labelStyle}>
         {label}
       </label>

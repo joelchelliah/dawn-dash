@@ -5,7 +5,7 @@ import { useBreakpoint } from '../../hooks/useBreakpoint'
 import { QuestionIcon } from '../../utils/icons'
 import InfoModal from '../Modals/InfoModal'
 
-import './index.scss'
+import styles from './index.module.scss'
 
 function HeaderInfo(): JSX.Element {
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -30,10 +30,10 @@ function HeaderInfo(): JSX.Element {
   )
 
   return (
-    <div className="header-info-container">
-      {isDesktop && <div className="hover-text">{infoText}</div>}
+    <div className={styles['container']}>
+      {isDesktop && <div className={styles['container__hover-text']}>{infoText}</div>}
 
-      <QuestionIcon className="question-icon" onClick={onIconClick} />
+      <QuestionIcon className={styles['container__question-icon']} onClick={onIconClick} />
 
       <InfoModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
         <h3>What is Dawn-Dash?</h3>
