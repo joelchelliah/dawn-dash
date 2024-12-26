@@ -1,8 +1,8 @@
-import { DataPoint, ParsedPlayerData, ViewMode } from '../../types/chart'
-import { GameVersion, SpeedRunData } from '../../types/speedRun'
-import { getPlayerName, removeAnonymousPlayers } from '../../utils/players'
-import { getDurationInMinutes } from '../../utils/time'
-import { isVersionAfter } from '../../utils/version'
+import { DataPoint, ParsedPlayerData, ViewMode } from '../../../types/chart'
+import { GameVersion, SpeedRunData } from '../../../types/speedRun'
+import { getPlayerName, removeAnonymousPlayers } from '../../../utils/players'
+import { getDurationInMinutes } from '../../../utils/time'
+import { isVersionAfter } from '../../../utils/version'
 
 /**
  * Process raw speedrun data into chart-ready format

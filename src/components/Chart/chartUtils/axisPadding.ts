@@ -1,6 +1,6 @@
 import moment from 'moment'
 
-import { SpeedRunClass } from '../../types/speedRun'
+import { SpeedRunClass } from '../../../types/speedRun'
 
 /**
  * Padding the min/max values of the chart axes to prevent clipping of points

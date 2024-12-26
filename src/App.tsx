@@ -1,7 +1,6 @@
 import { useState } from 'react'
 
-import './App.scss'
-
+import styles from './App.module.scss'
 import Chart from './components/Chart'
 import ChartControls from './components/ChartControls'
 import ClassButtons from './components/ClassButtons'
@@ -34,29 +33,21 @@ function App(): JSX.Element {
   useUrlParams(selectedClass, setSelectedClass, controls)
 
   return (
-    <div className="App">
-      <BlightbaneModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onConfirm={openInBlightbane}
-        player={selectedPlayer}
-        playerClass={selectedClass}
-      />
-
-      <div className="header">
+    <div className={styles.container}>
+      <div className={styles.header}>
         <img
           src="https://blightbane.io/images/icons/cardart_4_53.webp"
           alt="Dawncaster Logo"
-          className="app-logo"
+          className={styles.header__logo}
         />
-        <div className="title-container">
-          <h1 className="app-title">Dawn-Dash</h1>
-          <h2 className="app-subtitle">Dawncaster speedrun charts</h2>
+        <div>
+          <h1 className={styles.title}>Dawn-Dash</h1>
+          <h2 className={styles.subtitle}>Dawncaster speedrun charts</h2>
         </div>
         <HeaderInfo />
       </div>
 
-      <div className="content">
+      <div className={styles.content}>
         <ClassButtons onClassSelect={setSelectedClass} selectedClass={selectedClass} />
         <ChartControls controls={controls} selectedClass={selectedClass} />
         <Chart
@@ -66,8 +57,8 @@ function App(): JSX.Element {
         />
       </div>
 
-      <footer className="footer">
-        <div className="footer-credits">
+      <footer className={styles.footer}>
+        <div className={styles.credits}>
           Artwork and game data ©{' '}
           <GradientLink text="Dawncaster" url="https://dawncaster.wanderlost.games/" /> the game,{' '}
           <GradientLink text="Wanderlost" url="https://wanderlost.games/" />, and{' '}
@@ -75,6 +66,14 @@ function App(): JSX.Element {
         </div>
         <OpenSourceInfo />
       </footer>
+
+      <BlightbaneModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onConfirm={openInBlightbane}
+        player={selectedPlayer}
+        playerClass={selectedClass}
+      />
     </div>
   )
 }

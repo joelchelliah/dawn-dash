@@ -1,10 +1,10 @@
-import { useFromNow } from '../../hooks/useFromNow'
-import { SpeedRunClass } from '../../types/speedRun'
-import { ClassColorVariant, getClassColor } from '../../utils/colors'
-import ClassEnergy from '../ClassEnergy'
-import LoadingDots from '../LoadingDots'
+import { useFromNow } from '../../../hooks/useFromNow'
+import { SpeedRunClass } from '../../../types/speedRun'
+import { ClassColorVariant, getClassColor } from '../../../utils/colors'
+import ClassEnergy from '../../ClassEnergy'
+import LoadingDots from '../../LoadingDots'
 
-import './index.scss'
+import styles from './index.module.scss'
 
 interface ChartFooterProps {
   isLoading: boolean
@@ -32,7 +32,7 @@ function ChartFooter({
     return (
       <>
         {fromNow}
-        <button onClick={refresh} className="refresh-button">
+        <button onClick={refresh} className={styles['refresh-button']}>
           Refresh
         </button>
       </>
@@ -42,14 +42,18 @@ function ChartFooter({
   const borderColor = getClassColor(selectedClass, ClassColorVariant.Dark)
 
   return (
-    <div className="chart-footer" style={{ borderColor }}>
-      <div className={`footer-energy left ${isLoading ? 'loading' : ''}`}>
+    <div className={styles['container']} style={{ borderColor }}>
+      <div
+        className={`${styles['energy']} ${styles['energy--left']} ${isLoading ? styles['energy--loading'] : ''}`}
+      >
         <ClassEnergy classType={selectedClass} />
       </div>
-      <div className={`footer-content ${isLoadingInBackground ? 'loading' : ''}`}>
+      <div
+        className={`${styles['content']} ${isLoadingInBackground ? styles['content--loading'] : ''}`}
+      >
         {renderContent()}
       </div>
-      <div className="footer-energy right">
+      <div className={`${styles['energy']} ${styles['energy--right']}`}>
         <ClassEnergy classType={selectedClass} />
       </div>
     </div>

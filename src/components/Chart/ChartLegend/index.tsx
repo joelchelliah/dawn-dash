@@ -2,16 +2,16 @@ import { memo } from 'react'
 
 import { Chart as ChartJS } from 'chart.js'
 
-import LoadingDots from '../../components/LoadingDots'
-import { DataPoint } from '../../types/chart'
-import { SpeedRunClass } from '../../types/speedRun'
-import { ClassColorVariant, getClassColor } from '../../utils/colors'
+import { DataPoint } from '../../../types/chart'
+import { SpeedRunClass } from '../../../types/speedRun'
+import { ClassColorVariant, getClassColor } from '../../../utils/colors'
 import {
   getPlayerBestTimes,
   isAnonymousPlayer,
   sortedDatasetsByPlayerBestTime,
-} from '../../utils/players'
-import { formatTime } from '../../utils/time'
+} from '../../../utils/players'
+import { formatTime } from '../../../utils/time'
+import LoadingDots from '../../LoadingDots'
 
 import styles from './index.module.scss'
 
@@ -34,11 +34,11 @@ function ChartLegend({
 
   if (!chart?.data.datasets || isLoading) {
     return (
-      <div className={styles.container} style={{ borderColor }}>
-        <div className={styles.content}>
+      <div className={styles['container']} style={{ borderColor }}>
+        <div className={styles['content']}>
           <ul></ul>
           {isLoading && (
-            <div className={styles.loading}>
+            <div className={styles['loading']}>
               <LoadingDots text="" selectedClass={selectedClass} />
             </div>
           )}
@@ -51,8 +51,8 @@ function ChartLegend({
   const sortedDatasets = sortedDatasetsByPlayerBestTime(chart, playerBestTimes)
 
   return (
-    <div className={styles.container} style={{ borderColor }}>
-      <div className={styles.content}>
+    <div className={styles['container']} style={{ borderColor }}>
+      <div className={styles['content']}>
         <ul>
           {sortedDatasets.map((dataset, index) => {
             const player = dataset.label || ''
@@ -66,20 +66,31 @@ function ChartLegend({
 
             return (
               <li key={player} onClick={() => onPlayerClick(player, bestRun.x)}>
-                <span className={styles.marker} style={{ backgroundColor: playerColors[player] }} />
-                <span className={styles.player}>
+                <span
+                  className={styles['color-marker']}
+                  style={{ backgroundColor: playerColors[player] }}
+                />
+                <span className={styles['player']}>
                   <span
-                    className={`${styles.nameContainer} ${
-                      isFastestTime || isAnonymous ? styles.specialIconContainer : ''
+                    className={`${styles['name-container']} ${
+                      isFastestTime || isAnonymous ? styles['special-icon-container'] : ''
                     }`}
                   >
-                    <span className={`${styles.name} ${isFastestTime ? styles.bestTime : ''}`}>
+                    <span
+                      className={`${styles['name']} ${isFastestTime ? styles['fastest-time'] : ''}`}
+                    >
                       {isAnonymous ? <i>Anonymous</i> : player}
                     </span>
-                    {isFastestTime && <span className={styles.specialIcon}>🏆</span>}
-                    {isAnonymous && <span className={styles.specialIcon}>❓</span>}
+                    {isFastestTime && (
+                      <span className={styles['special-icon-container__special-icon']}>🏆</span>
+                    )}
+                    {isAnonymous && (
+                      <span className={styles['special-icon-container__special-icon']}>❓</span>
+                    )}
                   </span>
-                  <span className={`${styles.time} ${isFastestTime ? styles.bestTime : ''}`}>
+                  <span
+                    className={`${styles['time']} ${isFastestTime ? styles['fastest-time'] : ''}`}
+                  >
                     {formatTime(bestTime)}
                   </span>
                 </span>

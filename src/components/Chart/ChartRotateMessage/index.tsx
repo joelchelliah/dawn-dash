@@ -1,28 +1,28 @@
 import { useState } from 'react'
 
-import { useDeviceOrientation } from '../../hooks/useDeviceOrientation'
+import { useDeviceOrientation } from '../../../hooks/useDeviceOrientation'
 
-import './index.scss'
+import styles from './index.module.scss'
 
-function RotateDeviceMessage() {
+function ChartRotateMessage() {
   const { isMobileAndPortrait } = useDeviceOrientation()
   const [showRotateMessage, setShowRotateMessage] = useState(true)
 
   if (!isMobileAndPortrait || !showRotateMessage) return null
 
   return (
-    <div className="rotate-device-message">
+    <div className={styles['container']}>
       <button
-        className="close-button"
+        className={styles['close-button']}
         onClick={() => setShowRotateMessage(false)}
         aria-label="Close message"
       >
         ×
       </button>
-      <span className="rotate-icon">📱</span>
+      <span className={styles['rotate-icon']}>📱</span>
       Rotate your device for a better view!
     </div>
   )
 }
 
-export default RotateDeviceMessage
+export default ChartRotateMessage

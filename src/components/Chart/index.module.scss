@@ -1,0 +1,60 @@
+@use '../../styles' as *;
+
+.layout {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  overflow: visible;
+
+  @media (max-width: $breakpoint-tablet) {
+    flex-direction: column;
+    padding: 0 0.625rem 0 0;
+  }
+}
+
+.container {
+  flex: 1;
+  // To make sure that the chart doesn't push the legend out of the screen
+  max-width: calc(100% - ($chart-legend-width + 2rem));
+  display: flex;
+  flex-direction: column;
+  margin: auto;
+  margin-top: 0;
+  background-color: #1a1a1a;
+  padding: 0.25rem;
+  @include default_border();
+
+  @media (max-width: $breakpoint-tablet) {
+    max-width: 100%; // NB: Necessary to remove the `100% - legend-width` constraint
+    width: 100%;
+  }
+}
+
+.chart-container {
+  height: $chart-container-height;
+  overflow: auto;
+
+  &--mobilePortraitLoading {
+    height: 16.25rem;
+  }
+
+  &__chart {
+    height: 100%;
+    transition: width 0.5s; // Smoother transition when changing zoom level
+
+    canvas {
+      min-height: 100%;
+    }
+  }
+
+  &__error {
+    color: #ff6b6b;
+    text-align: center;
+    padding: 2rem;
+    font-size: 1.2rem;
+  }
+
+  @media (max-width: $breakpoint-tablet) {
+    width: 100%;
+  }
+}

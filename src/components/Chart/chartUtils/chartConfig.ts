@@ -1,8 +1,8 @@
 import { ChartOptions } from 'chart.js'
 
-import { ChartConfig, DataPoint, Dataset } from '../../types/chart'
-import { isAnonymousPlayer } from '../../utils/players'
-import { formatDateAndTime, formatDateShort, formatTime } from '../../utils/time'
+import { ChartConfig, DataPoint, Dataset } from '../../../types/chart'
+import { isAnonymousPlayer } from '../../../utils/players'
+import { formatDateAndTime, formatDateShort, formatTime } from '../../../utils/time'
 
 const CHART_COLOR = '#ffffff'
 const GRID_COLOR = '#333333'
