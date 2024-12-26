@@ -1,10 +1,10 @@
 import { memo } from 'react'
 
-import { SpeedRunClass } from '../../types/speedRun'
-import { ClassColorVariant, getClassColor } from '../../utils/colors'
-import { DropdownArrowIconUrl } from '../../utils/icons'
+import { SpeedRunClass } from '../../../types/speedRun'
+import { ClassColorVariant, getClassColor } from '../../../utils/colors'
+import { DropdownArrowIconUrl } from '../../../utils/icons'
 
-import styles from './ControlGroup.module.scss'
+import styles from './index.module.scss'
 
 interface ControlGroupProps<T> {
   id: string

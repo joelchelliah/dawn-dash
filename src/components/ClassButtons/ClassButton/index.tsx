@@ -1,10 +1,12 @@
 import { memo } from 'react'
 
-import { SpeedRunClass } from '../../types/speedRun'
-import { ClassColorVariant, getClassColor } from '../../utils/colors'
-import { getClassImageUrl } from '../../utils/images'
+import cx from 'classnames'
 
-import styles from './ClassButton.module.scss'
+import { SpeedRunClass } from '../../../types/speedRun'
+import { ClassColorVariant, getClassColor } from '../../../utils/colors'
+import { getClassImageUrl } from '../../../utils/images'
+
+import styles from './index.module.scss'
 
 interface ClassButtonProps {
   classType: SpeedRunClass
@@ -22,10 +24,13 @@ function ClassButton({ classType, isActive, onClick }: ClassButtonProps) {
     classType,
     isActive ? ClassColorVariant.Active : ClassColorVariant.Dark
   )
+  const buttonClassName = cx(styles['container'], {
+    [styles['container--active']]: isActive,
+  })
 
   return (
     <button
-      className={`${styles['container']} ${isActive ? styles['container--active'] : ''}`}
+      className={buttonClassName}
       onClick={onClick}
       style={{
         borderColor,

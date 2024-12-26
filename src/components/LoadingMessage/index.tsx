@@ -1,3 +1,5 @@
+import cx from 'classnames'
+
 import { useDeviceOrientation } from '../../hooks/useDeviceOrientation'
 import { Difficulty, SpeedRunClass } from '../../types/speedRun'
 import { ClassColorVariant, getClassColor } from '../../utils/colors'
@@ -20,11 +22,12 @@ function LoadingMessage({ selectedClass, selectedDifficulty }: LoadingMessagePro
     selectedClass === SpeedRunClass.Sunforge
       ? 'Sunforge'
       : `${selectedClass} - ${selectedDifficulty}`
+  const containerClassName = cx(styles['container'], {
+    [styles['container--max-height']]: !isMobileAndPortrait,
+  })
 
   return (
-    <div
-      className={`${styles['container']} ${isMobileAndPortrait ? '' : styles['container--max-height']}`}
-    >
+    <div className={containerClassName}>
       <img src={imageUrl} alt={`${selectedClass} icon`} className={styles['loading-icon']} />
       <div className={styles['loading-text']}>
         Loading{' '}

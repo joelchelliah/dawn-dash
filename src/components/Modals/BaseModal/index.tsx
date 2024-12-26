@@ -1,4 +1,4 @@
-import styles from './BaseModal.module.scss'
+import styles from './index.module.scss'
 
 interface BaseModalProps {
   children: React.ReactNode

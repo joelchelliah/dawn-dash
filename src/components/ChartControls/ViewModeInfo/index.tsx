@@ -1,9 +1,9 @@
 import { useState } from 'react'
 
-import { VIEW_MODE_LABELS } from '../../constants/chartControlValues'
-import { ViewMode } from '../../types/chart'
+import { VIEW_MODE_LABELS } from '../../../constants/chartControlValues'
+import { ViewMode } from '../../../types/chart'
 
-import styles from './ViewModeInfo.module.scss'
+import styles from './index.module.scss'
 
 interface ViewModeInfoProps {
   viewMode: ViewMode

@@ -13,6 +13,7 @@ import {
   Tooltip,
   Title,
 } from 'chart.js'
+import cx from 'classnames'
 
 import { useDeviceOrientation } from '../../hooks/useDeviceOrientation'
 import { useSpeedrunData } from '../../hooks/useSpeedrunData'
@@ -212,13 +213,12 @@ function Chart({ selectedClass, controls, onPlayerClick }: ChartProps) {
       : isMobileAndLandscape
         ? widthMobileLandscape
         : widthDefault
+    const chartContainerClassName = cx(styles['chart-container'], {
+      [styles['chart-container--mobilePortraitLoading']]: isMobilePortraitLoading,
+    })
 
     return (
-      <div
-        className={`${styles['chart-container']} ${
-          isMobilePortraitLoading ? styles['chart-container--mobilePortraitLoading'] : ''
-        }`}
-      >
+      <div className={chartContainerClassName}>
         {isLoading && (
           <LoadingMessage selectedClass={selectedClass} selectedDifficulty={difficulty} />
         )}

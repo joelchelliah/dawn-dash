@@ -1,3 +1,5 @@
+import cx from 'classnames'
+
 import { useFromNow } from '../../../hooks/useFromNow'
 import { SpeedRunClass } from '../../../types/speedRun'
 import { ClassColorVariant, getClassColor } from '../../../utils/colors'
@@ -40,20 +42,21 @@ function ChartFooter({
   }
 
   const borderColor = getClassColor(selectedClass, ClassColorVariant.Dark)
+  const contentClassName = cx(styles['content'], {
+    [styles['content--loading-in-background']]: isLoadingInBackground,
+  })
+  const energyLeftClassName = cx(styles['energy'], styles['energy--left'], {
+    [styles['energy--loading']]: isLoading,
+  })
+  const energyRightClassName = cx(styles['energy'], styles['energy--right'])
 
   return (
     <div className={styles['container']} style={{ borderColor }}>
-      <div
-        className={`${styles['energy']} ${styles['energy--left']} ${isLoading ? styles['energy--loading'] : ''}`}
-      >
+      <div className={energyLeftClassName}>
         <ClassEnergy classType={selectedClass} />
       </div>
-      <div
-        className={`${styles['content']} ${isLoadingInBackground ? styles['content--loading'] : ''}`}
-      >
-        {renderContent()}
-      </div>
-      <div className={`${styles['energy']} ${styles['energy--right']}`}>
+      <div className={contentClassName}>{renderContent()}</div>
+      <div className={energyRightClassName}>
         <ClassEnergy classType={selectedClass} />
       </div>
     </div>

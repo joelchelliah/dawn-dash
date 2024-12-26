@@ -1,6 +1,7 @@
 import { memo } from 'react'
 
 import { Chart as ChartJS } from 'chart.js'
+import cx from 'classnames'
 
 import { DataPoint } from '../../../types/chart'
 import { SpeedRunClass } from '../../../types/speedRun'
@@ -63,6 +64,15 @@ function ChartLegend({
             const bestRun = (dataset.data as DataPoint[]).reduce((best, current) =>
               current.y < best.y ? current : best
             )
+            const nameContainerClassName = cx(styles['name-container'], {
+              [styles['special-icon-container']]: isFastestTime || isAnonymous,
+            })
+            const nameClassName = cx(styles['name'], {
+              [styles['fastest-time']]: isFastestTime,
+            })
+            const timeClassName = cx(styles['time'], {
+              [styles['fastest-time']]: isFastestTime,
+            })
 
             return (
               <li key={player} onClick={() => onPlayerClick(player, bestRun.x)}>
@@ -71,16 +81,8 @@ function ChartLegend({
                   style={{ backgroundColor: playerColors[player] }}
                 />
                 <span className={styles['player']}>
-                  <span
-                    className={`${styles['name-container']} ${
-                      isFastestTime || isAnonymous ? styles['special-icon-container'] : ''
-                    }`}
-                  >
-                    <span
-                      className={`${styles['name']} ${isFastestTime ? styles['fastest-time'] : ''}`}
-                    >
-                      {isAnonymous ? <i>Anonymous</i> : player}
-                    </span>
+                  <span className={nameContainerClassName}>
+                    <span className={nameClassName}>{isAnonymous ? <i>Anonymous</i> : player}</span>
                     {isFastestTime && (
                       <span className={styles['special-icon-container__special-icon']}>🏆</span>
                     )}
@@ -88,11 +90,7 @@ function ChartLegend({
                       <span className={styles['special-icon-container__special-icon']}>❓</span>
                     )}
                   </span>
-                  <span
-                    className={`${styles['time']} ${isFastestTime ? styles['fastest-time'] : ''}`}
-                  >
-                    {formatTime(bestTime)}
-                  </span>
+                  <span className={timeClassName}>{formatTime(bestTime)}</span>
                 </span>
               </li>
             )
