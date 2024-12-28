@@ -5,7 +5,12 @@ import cx from 'classnames'
 
 import { DataPoint } from '../../../types/chart'
 import { SpeedRunClass } from '../../../types/speedRun'
-import { ClassColorVariant, getClassColor } from '../../../utils/colors'
+import {
+  anonymousBorderColor,
+  anonymousMarkerColor,
+  ClassColorVariant,
+  getClassColor,
+} from '../../../utils/colors'
 import {
   getPlayerBestTimes,
   isAnonymousPlayer,
@@ -64,23 +69,26 @@ function ChartLegend({
             const bestRun = (dataset.data as DataPoint[]).reduce((best, current) =>
               current.y < best.y ? current : best
             )
+            const markerStyle = isAnonymous
+              ? { backgroundColor: anonymousMarkerColor, borderColor: anonymousBorderColor }
+              : { backgroundColor: playerColors[player] }
             const nameContainerClassName = cx(styles['player__name-container'], {
               [styles['special-icon-container']]: isFastestTime || isAnonymous,
             })
             const playerClassName = cx(styles['player'], {
               [styles['player--fastest-time']]: isFastestTime,
             })
+            const playerNameClassName = cx(styles['player__name'], {
+              [styles['player__name--anonymous']]: isAnonymous,
+            })
 
             return (
               <li key={player} onClick={() => onPlayerClick(player, bestRun.x)}>
-                <span
-                  className={styles['color-marker']}
-                  style={{ backgroundColor: playerColors[player] }}
-                />
+                <span className={styles['color-marker']} style={markerStyle} />
                 <span className={playerClassName}>
                   <span className={nameContainerClassName}>
-                    <span className={styles['player__name']}>
-                      {isAnonymous ? <i>Anonymous</i> : player}
+                    <span className={playerNameClassName}>
+                      {isAnonymous ? 'Anonymous' : player}
                     </span>
                     {isFastestTime && (
                       <span className={styles['special-icon-container__special-icon']}>🏆</span>

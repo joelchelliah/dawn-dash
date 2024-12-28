@@ -26,7 +26,15 @@ import {
   ViewMode,
 } from '../../types/chart'
 import { SpeedRunClass, SpeedRunData } from '../../types/speedRun'
-import { ClassColorVariant, getClassColor, getColorMapping, lighten } from '../../utils/colors'
+import {
+  anonymousBorderColor,
+  anonymousBorderHoverColor,
+  anonymousMarkerColor,
+  ClassColorVariant,
+  getClassColor,
+  getColorMapping,
+  lighten,
+} from '../../utils/colors'
 import { isAnonymousPlayer } from '../../utils/players'
 import { parseVersion, versionToString } from '../../utils/version'
 import LoadingMessage from '../LoadingMessage'
@@ -82,10 +90,12 @@ function Chart({ selectedClass, controls, onPlayerClick }: ChartProps) {
         return {
           label: player,
           data: runs,
-          borderColor: isAnonymous ? '#999' : playerColors.current[player],
-          backgroundColor: isAnonymous ? '#111' : playerColors.current[player],
+          borderColor: isAnonymous ? anonymousBorderColor : playerColors.current[player],
+          backgroundColor: isAnonymous ? anonymousMarkerColor : playerColors.current[player],
           borderWidth: isAllRunsView ? 2 : 3,
-          pointHoverBorderColor: isAnonymous ? '#bbb' : lighten(playerColors.current[player], 20),
+          pointHoverBorderColor: isAnonymous
+            ? anonymousBorderHoverColor
+            : lighten(playerColors.current[player], 20),
           pointHoverBorderWidth: isAllRunsView ? 2 : 3,
           pointStyle: isAnonymous ? 'rectRot' : 'circle',
           borderDash: isAllRunsView ? [5, 5] : [],

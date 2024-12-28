@@ -3,6 +3,10 @@ import tinycolor from 'tinycolor2'
 import { DataPoint } from '../types/chart'
 import { SpeedRunClass } from '../types/speedRun'
 
+export const anonymousMarkerColor = '#111'
+export const anonymousBorderColor = '#777'
+export const anonymousBorderHoverColor = '#999'
+
 const BASE_HUES = [
   0, // Red
   210, // Blue

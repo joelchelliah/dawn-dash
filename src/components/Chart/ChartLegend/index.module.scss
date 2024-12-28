@@ -60,11 +60,12 @@
 
 .color-marker {
   display: inline-block;
-  width: 1rem;
-  height: 1rem;
+  width: 0.875rem;
+  height: 0.875rem;
   margin-right: 0.5rem;
   border-radius: 2px;
   flex-shrink: 0;
+  border: 1px solid transparent;
 }
 
 .player {
@@ -88,6 +89,11 @@
   &__name {
     flex: 1;
     @include text-truncate(100%);
+    &--anonymous {
+      opacity: 0.75;
+      font-style: italic;
+      font-size: font-size('xs');
+    }
   }
 
   &__time {
