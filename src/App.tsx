@@ -1,5 +1,7 @@
 import { useState } from 'react'
 
+import { useSearchParams } from 'react-router-dom'
+
 import styles from './App.module.scss'
 import Chart from './components/Chart'
 import ChartControls from './components/ChartControls'
@@ -8,16 +10,39 @@ import GradientLink from './components/GradientLink'
 import HeaderInfo from './components/HeaderInfo'
 import BlightbaneModal from './components/Modals/BlightbaneModal'
 import OpenSourceInfo from './components/OpenSourceInfo'
+import {
+  DIFFICULTY_VALUES,
+  DIFFICULTY_DEFAULT,
+  CLASS_DEFAULT,
+} from './constants/chartControlValues'
 import { useChartControlState } from './hooks/useChartControlState'
 import { useUrlParams } from './hooks/useUrlParams'
-import { SpeedRunClass } from './types/speedRun'
+import { Difficulty, SpeedRunClass } from './types/speedRun'
+
+// Using initial class and difficulty from the URL params (if available)
+// to prevent unwated intitial fetch based on default values
+function useInitialClassAndDifficulty() {
+  const [searchParams] = useSearchParams()
+  const classParam = searchParams.get('class')
+  const initialClass = Object.values(SpeedRunClass).includes(classParam as SpeedRunClass)
+    ? (classParam as SpeedRunClass)
+    : CLASS_DEFAULT
+
+  const difficultyParam = searchParams.get('difficulty')
+  const initialDifficulty = DIFFICULTY_VALUES.includes(difficultyParam as Difficulty)
+    ? (difficultyParam as Difficulty)
+    : DIFFICULTY_DEFAULT
+
+  return { initialClass, initialDifficulty }
+}
 
 function App(): JSX.Element {
-  const [selectedClass, setSelectedClass] = useState<SpeedRunClass>(SpeedRunClass.Arcanist)
+  const { initialClass, initialDifficulty } = useInitialClassAndDifficulty()
+  const [selectedClass, setSelectedClass] = useState<SpeedRunClass>(initialClass)
   const [selectedPlayer, setSelectedPlayer] = useState('')
   const [selectedTimestamp, setSelectedTimestamp] = useState<number | undefined>()
 
-  const controls = useChartControlState(selectedClass)
+  const controls = useChartControlState(selectedClass, initialDifficulty)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const handlePlayerClick = (player: string, timestamp: number) => {
     setSelectedPlayer(player)

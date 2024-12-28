@@ -13,17 +13,25 @@ export function useSpeedrunData(type: SpeedRunClass, difficulty: Difficulty) {
   const [isRefreshing, setIsRefreshing] = useState(false)
   const cacheKey = `${type}-${difficulty}`
 
-  // To ensure that we don't associate a request with the wrong cache key
-  // E.g. if we change the class/difficulty, while still waiting on a request
-  const activeRequestRef = useRef<string>(cacheKey)
+  // To prevent resetting data on initial mount
+  const isInitialMount = useRef(true)
 
-  // Reset local data when class/difficulty changes
-  useEffect(() => {
-    setLocalData(null)
-    activeRequestRef.current = cacheKey
-  }, [type, difficulty, cacheKey])
+  // - To skip the useEffect if the cache key hasn't changed
+  // - To ensure that we don't associate a request with the wrong cache key when fetching data
+  const prevCacheKeyRef = useRef<string>(cacheKey)
 
   useEffect(() => {
+    // Skip if nothing has changed
+    if (prevCacheKeyRef.current === cacheKey && !isInitialMount.current) {
+      return
+    }
+
+    // Always clear data on type/difficulty change, unless it's initial mount
+    if (!isInitialMount.current) {
+      setLocalData(null)
+    }
+
+    // Check cache and update state
     const { data, isStale } = getFromCache<SpeedRunData[]>(cacheKey)
     if (data) {
       setLocalData(data)
@@ -31,7 +39,10 @@ export function useSpeedrunData(type: SpeedRunClass, difficulty: Difficulty) {
     } else {
       setIsRefreshing(true)
     }
-  }, [cacheKey])
+
+    isInitialMount.current = false
+    prevCacheKeyRef.current = cacheKey
+  }, [type, difficulty, cacheKey])
 
   const { data, error, isLoading } = useSWR<SpeedRunData[]>(
     isRefreshing ? ['speedruns', 'manual', cacheKey] : null,
@@ -42,7 +53,7 @@ export function useSpeedrunData(type: SpeedRunClass, difficulty: Difficulty) {
       refreshInterval: 0,
       onSuccess: (newData) => {
         // Only update if this is still the active request
-        if (activeRequestRef.current === cacheKey) {
+        if (prevCacheKeyRef.current === cacheKey) {
           setLocalData(newData)
           saveToCache(cacheKey, newData)
           setIsRefreshing(false)
