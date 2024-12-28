@@ -188,6 +188,9 @@ function Chart({ selectedClass, controls, onPlayerClick }: ChartProps) {
   const { speedrunData, isLoading, isLoadingInBackground, isError, lastUpdated, refresh } =
     useSpeedrunData(selectedClass, difficulty)
 
+  // Debug:
+  // const isLoading = true
+
   useEffect(() => {
     if (isLoading) {
       // Destroy chart when loading

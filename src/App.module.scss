@@ -30,14 +30,14 @@
 
 .title {
   @include yellowGreenGradient(false);
-  font-size: 2rem;
+  font-size: font-size('lg');
   margin: 0;
   font-weight: bold;
 }
 
 .subtitle {
   color: #aaa;
-  font-size: 1rem;
+  font-size: font-size('sm');
   margin: 0;
   font-weight: normal;
   font-style: italic;
@@ -57,7 +57,7 @@
   white-space: pre-wrap;
   margin-top: auto;
   color: #999;
-  font-size: 0.875rem;
+  font-size: font-size('xs');
   flex-wrap: wrap;
 }
 

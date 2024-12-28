@@ -9,7 +9,7 @@
   width: 100%;
 
   label {
-    font-size: 0.875rem;
+    font-size: font-size('xs');
     font-weight: 600;
     color: #aaa;
   }
@@ -21,7 +21,7 @@
     padding: 0.5rem 2rem 0.5rem 1rem;
     border: 1px solid #444;
     border-radius: 0.5rem;
-    font-size: 0.875rem;
+    font-size: font-size('xs');
     cursor: pointer;
     -webkit-appearance: none;
     -moz-appearance: none;

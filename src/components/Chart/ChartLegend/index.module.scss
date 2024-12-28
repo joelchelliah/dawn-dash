@@ -86,7 +86,8 @@
   }
 
   &__name {
-    @extend %truncate;
+    flex: 1;
+    @include text-truncate(100%);
   }
 
   &__time {
@@ -98,10 +99,10 @@
 
 .special-icon-container {
   &__special-icon {
-    flex-shrink: 0;
+    flex-shrink: 0; // Maintain size of icon
     margin-left: 0.25rem;
-    line-height: 1;
-    font-size: 1.2em;
+    line-height: 0.875;
+    font-size: font-size('md');
     position: relative;
     @include rotateY360Animation('auto');
     @include rotateY360Animation('hover', '.special-icon-container:hover');
