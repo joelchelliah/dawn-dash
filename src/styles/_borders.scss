@@ -1,4 +1,4 @@
-@import './gradients';
+@use 'colors' as colors;
 
 @mixin superFancyBorder($padding-vertical, $padding-horizontal) {
   $border-width: 0.0625rem;
@@ -20,7 +20,7 @@
       bottom: 0;
       border: 1px solid transparent;
       border-radius: inherit;
-      background: linear-gradient(45deg, $gradient-yellow-border, $gradient-green-border) border-box;
+      background: linear-gradient(45deg, colors.$yellow-border, colors.$green-border) border-box;
       -webkit-mask:
         linear-gradient(#fff 0 0) padding-box,
         linear-gradient(#fff 0 0);

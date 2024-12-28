@@ -8,22 +8,23 @@ type CachedData<T> = {
   timestamp: number | null
 }
 
-export function saveToCache(key: string, data: unknown) {
+export function saveToCache<T>(key: string, data: T): void {
   try {
+    const cacheKey = getCacheKey(key)
     const cache = {
       data,
       timestamp: Date.now(),
     }
-
-    localStorage.setItem(getCacheKey(key), JSON.stringify(cache))
+    localStorage.setItem(cacheKey, JSON.stringify(cache))
   } catch (error) {
     console.warn('Failed to save to cache:', error)
   }
 }
 
 export function getFromCache<T>(key: string): CachedData<T> {
+  const cacheKey = getCacheKey(key)
   try {
-    const cache = localStorage.getItem(getCacheKey(key))
+    const cache = localStorage.getItem(cacheKey)
 
     if (!cache) {
       return { data: null, isStale: true, timestamp: null }
@@ -42,7 +43,6 @@ export function getFromCache<T>(key: string): CachedData<T> {
     return { data: null, isStale: true, timestamp: null }
   }
 }
-
 function getCacheKey(type: string) {
   return `${CACHE_KEY_PREFIX}_${type}`
 }

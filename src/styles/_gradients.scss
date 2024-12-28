@@ -1,10 +1,4 @@
-$gradient-yellow: hsl(47, 69%, 48%);
-$gradient-yellow-hover: #e4ca5f;
-$gradient-yellow-border: #9d8739;
-
-$gradient-green: #249624;
-$gradient-green-hover: #2bc02b;
-$gradient-green-border: #176616;
+@use 'colors' as colors;
 
 @mixin yellowGreenGradient($hover, $default: #fff) {
   // Fallback
@@ -21,8 +15,8 @@ $gradient-green-border: #176616;
 @mixin yellowGreenGradientBackground($hover: false) {
   background: linear-gradient(
     45deg,
-    if($hover, $gradient-yellow-hover, $gradient-yellow),
-    if($hover, $gradient-green-hover, $gradient-green)
+    if($hover, colors.$yellow-hover, colors.$yellow-base),
+    if($hover, colors.$green-hover, colors.$green-base)
   );
 }
 
@@ -32,11 +26,11 @@ $gradient-green-border: #176616;
     opacity: 0.8;
     background:
       linear-gradient(black, black) padding-box,
-      linear-gradient(to right, $gradient-yellow-hover, $gradient-green-hover) border-box;
+      linear-gradient(to right, colors.$yellow-hover, colors.$green-hover) border-box;
   } @else {
     opacity: 0.6;
     background:
       linear-gradient(black, black) padding-box,
-      linear-gradient(to right, $gradient-yellow, $gradient-green) border-box;
+      linear-gradient(to right, colors.$yellow-base, colors.$green-base) border-box;
   }
 }

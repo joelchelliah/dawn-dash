@@ -9,9 +9,9 @@ export function getDurationInMinutes(run: SpeedRunData): number | undefined {
 
   if (!durationMatch) return undefined
 
-  const hours = parseInt(durationMatch[1])
-  const minutes = parseInt(durationMatch[2])
-  const seconds = parseInt(durationMatch[3])
+  const hours = Number(durationMatch[1])
+  const minutes = Number(durationMatch[2])
+  const seconds = Number(durationMatch[3])
 
   return hours * 60 + minutes + seconds / 60
 }

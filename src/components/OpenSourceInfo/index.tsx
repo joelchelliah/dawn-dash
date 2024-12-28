@@ -3,9 +3,9 @@ import { useState } from 'react'
 import { useBreakpoint } from '../../hooks/useBreakpoint'
 import { GitHubIcon } from '../../utils/icons'
 import GradientLink from '../GradientLink'
-import InfoModal from '../Modal/InfoModal'
+import InfoModal from '../Modals/InfoModal'
 
-import './index.scss'
+import styles from './index.module.scss'
 
 const infoText = (
   <p style={{ lineHeight: 1.8, marginBlockStart: 0, marginBlockEnd: 0 }}>
@@ -25,10 +25,10 @@ function OpenSourceInfo(): JSX.Element {
     if (isTabletOrSmaller) setIsModalOpen(true)
   }
   return (
-    <div className="open-source-info-container">
-      {isDesktop && <div className="hover-text">{infoText}</div>}
+    <div className={styles['container']}>
+      {isDesktop && <div className={styles['container__hover-text']}>{infoText}</div>}
 
-      <GitHubIcon className="github-icon" onClick={onIconClick} />
+      <GitHubIcon className={styles['container__icon']} onClick={onIconClick} />
 
       <InfoModal
         isOpen={isModalOpen}

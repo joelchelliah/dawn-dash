@@ -1,10 +1,12 @@
+import cx from 'classnames'
+
 import { useDeviceOrientation } from '../../hooks/useDeviceOrientation'
 import { Difficulty, SpeedRunClass } from '../../types/speedRun'
 import { ClassColorVariant, getClassColor } from '../../utils/colors'
 import { getClassImageUrl } from '../../utils/images'
 import LoadingDots from '../LoadingDots'
 
-import './index.scss'
+import styles from './index.module.scss'
 
 interface LoadingMessageProps {
   selectedClass: SpeedRunClass
@@ -20,16 +22,19 @@ function LoadingMessage({ selectedClass, selectedDifficulty }: LoadingMessagePro
     selectedClass === SpeedRunClass.Sunforge
       ? 'Sunforge'
       : `${selectedClass} - ${selectedDifficulty}`
+  const containerClassName = cx(styles['container'], {
+    [styles['container--max-height']]: !isMobileAndPortrait,
+  })
 
   return (
-    <div className={`loading-message ${isMobileAndPortrait ? '' : 'max-height'}`}>
-      <img src={imageUrl} alt={`${selectedClass} icon`} className="loading-icon" />
-      <div className="loading-text">
+    <div className={containerClassName}>
+      <img src={imageUrl} alt={`${selectedClass} icon`} className={styles['loading-icon']} />
+      <div className={styles['loading-text']}>
         Loading{' '}
-        <span className="class-name" style={{ color }}>
+        <span className={styles['class-name']} style={{ color }}>
           {classAndDifficulty}
         </span>{' '}
-        <span className="last-line">
+        <span className={styles['last-line']}>
           data
           <LoadingDots selectedClass={selectedClass} />
         </span>

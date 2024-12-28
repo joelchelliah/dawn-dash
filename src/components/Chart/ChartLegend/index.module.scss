@@ -1,0 +1,110 @@
+@use '../../../styles' as *;
+
+.container {
+  width: $chart-legend-width;
+  padding: $padding-component 0.25rem;
+  background-color: $color-component-bg;
+  height: $chart-legend-height;
+  @include default_border();
+
+  @media (max-width: $breakpoint-tablet) {
+    width: 100%;
+    height: auto;
+  }
+}
+
+.content {
+  height: 100%;
+  overflow-y: auto;
+
+  ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  li {
+    @extend %flex-center;
+    padding: 0.5rem;
+    transition: opacity 0.2s ease;
+    white-space: nowrap;
+    cursor: pointer;
+
+    &:hover {
+      background-color: $color-list-hover-bg;
+    }
+  }
+
+  @media (max-width: $breakpoint-tablet) {
+    ul {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    li {
+      flex: 1;
+      min-width: 12.5rem;
+    }
+  }
+}
+
+.loading {
+  @extend %flex-center;
+  height: 100%;
+
+  @media (max-width: $breakpoint-tablet) {
+    margin: 0.625rem 0;
+  }
+}
+
+.color-marker {
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  margin-right: 0.5rem;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.player {
+  color: #ffffff;
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  min-width: 0;
+
+  &--fastest-time {
+    font-weight: bold;
+    opacity: 1;
+  }
+
+  &__name-container {
+    display: flex;
+    min-width: 0;
+    margin-right: 0.375rem;
+  }
+
+  &__name {
+    flex: 1;
+    @include text-truncate(100%);
+  }
+
+  &__time {
+    margin-left: 0.375rem;
+    opacity: 0.7;
+    flex-shrink: 0;
+  }
+}
+
+.special-icon-container {
+  &__special-icon {
+    flex-shrink: 0; // Maintain size of icon
+    margin-left: 0.25rem;
+    line-height: 0.875;
+    font-size: font-size('md');
+    position: relative;
+    @include rotateY360Animation('auto');
+    @include rotateY360Animation('hover', '.special-icon-container:hover');
+  }
+}

@@ -13,8 +13,8 @@ import {
   Tooltip,
   Title,
 } from 'chart.js'
+import cx from 'classnames'
 
-import ChartFooter from '../../components/ChartFooter'
 import { useDeviceOrientation } from '../../hooks/useDeviceOrientation'
 import { useSpeedrunData } from '../../hooks/useSpeedrunData'
 import {
@@ -29,16 +29,16 @@ import { SpeedRunClass, SpeedRunData } from '../../types/speedRun'
 import { ClassColorVariant, getClassColor, getColorMapping, lighten } from '../../utils/colors'
 import { isAnonymousPlayer } from '../../utils/players'
 import { parseVersion, versionToString } from '../../utils/version'
-import ChartLegend from '../ChartLegend'
 import LoadingMessage from '../LoadingMessage'
-import RotateDeviceMessage from '../RotateDeviceMessage'
 
-import { padMaxDuration, padMinDuration, padMinMaxDates } from './chartAxisPadding'
-import { createChartConfig } from './chartConfig'
-import { parseSpeedrunData } from './dataParser'
-import { yearBoundariesPlugin, calculateYearBoundaries } from './yearBoundaries'
-
-import './index.scss'
+import ChartFooter from './ChartFooter'
+import ChartLegend from './ChartLegend'
+import ChartRotateMessage from './ChartRotateMessage'
+import { padMaxDuration, padMinDuration, padMinMaxDates } from './chartUtils/axisPadding'
+import { createChartConfig } from './chartUtils/chartConfig'
+import { parseSpeedrunData } from './chartUtils/dataParser'
+import { yearBoundariesPlugin, calculateYearBoundaries } from './chartUtils/yearBoundaries'
+import styles from './index.module.scss'
 
 // Register the required components
 ChartJS.register(
@@ -188,13 +188,18 @@ function Chart({ selectedClass, controls, onPlayerClick }: ChartProps) {
   const { speedrunData, isLoading, isLoadingInBackground, isError, lastUpdated, refresh } =
     useSpeedrunData(selectedClass, difficulty)
 
-  useEffect(() => {
-    if (chartRef.current && speedrunData) createChart(speedrunData)
-  }, [speedrunData, createChart])
+  // Debug:
+  // const isLoading = true
 
   useEffect(() => {
-    if (isLoading) setChartData(null)
-  }, [isLoading])
+    if (isLoading) {
+      // Destroy chart when loading
+      setChartData(null)
+    } else if (chartRef.current && speedrunData) {
+      // Only create chart when loading is complete
+      createChart(speedrunData)
+    }
+  }, [isLoading, speedrunData, createChart])
 
   useEffect(() => {
     return () => {
@@ -213,25 +218,30 @@ function Chart({ selectedClass, controls, onPlayerClick }: ChartProps) {
       : isMobileAndLandscape
         ? widthMobileLandscape
         : widthDefault
+    const chartContainerClassName = cx(styles['chart-container'], {
+      [styles['chart-container--mobilePortraitLoading']]: isMobilePortraitLoading,
+    })
 
     return (
-      <div
-        className={`chart-scroll-container ${isMobilePortraitLoading ? 'mobile-portrait-loading' : ''}`}
-      >
+      <div className={chartContainerClassName}>
         {isLoading && (
           <LoadingMessage selectedClass={selectedClass} selectedDifficulty={difficulty} />
         )}
-        {isError && !isLoading && <div className="chart-message error">Error loading data</div>}
-        <div
-          className="chart-container"
-          style={{
-            width: `${width}%`,
-            height: `${Math.max(500, zoomLevel * 3)}px`,
-            display: isLoading ? 'none' : 'block',
-          }}
-        >
-          <canvas ref={chartRef}></canvas>
-        </div>
+        {isError && !isLoading && (
+          <div className={styles['chart-container__error']}>Error loading data</div>
+        )}
+        {!isError && !isLoading && (
+          <div
+            className={styles['chart-container__chart']}
+            style={{
+              width: `${width}%`,
+              height: `${Math.max(500, zoomLevel * 3)}px`,
+              display: isLoading ? 'none' : 'block',
+            }}
+          >
+            <canvas ref={chartRef}></canvas>
+          </div>
+        )}
       </div>
     )
   }
@@ -239,10 +249,10 @@ function Chart({ selectedClass, controls, onPlayerClick }: ChartProps) {
   const borderColor = getClassColor(selectedClass, ClassColorVariant.Dark)
 
   return (
-    <div className="chart-layout">
-      <div className="outer-container" style={{ borderColor }}>
+    <div className={styles['layout']}>
+      <div className={styles['container']} style={{ borderColor }}>
         {renderChart()}
-        <RotateDeviceMessage />
+        <ChartRotateMessage />
         <ChartFooter
           isLoading={isLoading}
           isLoadingInBackground={isLoadingInBackground}

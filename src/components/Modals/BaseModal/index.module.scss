@@ -1,0 +1,40 @@
+@use '../../../styles' as *;
+
+.overlay {
+  @extend %flex-center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 9999;
+}
+
+.content {
+  position: relative;
+  background: #1a1a1a;
+  padding: 1.25rem;
+  width: 90%;
+  max-width: 400px;
+  margin: auto;
+  @include superFancyBorder(1.25rem, 1.25rem);
+
+  h3 {
+    @extend %flex-center;
+    justify-content: flex-start;
+    color: #ccc;
+    margin-top: 5px;
+    gap: 0.5rem;
+    margin-block-end: 0;
+  }
+
+  p {
+    color: #aaa;
+    line-height: 1.4;
+  }
+
+  @media (max-width: $breakpoint-mobile) {
+    margin: auto 1.5rem;
+  }
+}
