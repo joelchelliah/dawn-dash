@@ -48,7 +48,7 @@ function BlightbaneModal({
   }
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
+    <Modal isOpen={isOpen} onClose={onClose} maxWidth={400}>
       <h3>
         <img
           src="https://blightbane.io/images/bolgar.png"

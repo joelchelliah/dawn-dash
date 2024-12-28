@@ -1,5 +1,7 @@
 @use '../../../styles' as *;
 
+$max-width: 32rem;
+
 .overlay {
   @extend %flex-center;
   position: fixed;
@@ -7,7 +9,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.7);
+  background-color: rgba(0, 0, 0, 0.8);
   z-index: 9999;
 }
 
@@ -16,9 +18,13 @@
   background: #1a1a1a;
   padding: 1.25rem;
   width: 90%;
-  max-width: 400px;
+  max-width: $max-width;
   margin: auto;
-  @include superFancyBorder(1.25rem, 1.25rem);
+  @include default-border;
+
+  &--without-class-border {
+    @include superFancyBorder(1.25rem, 1.25rem);
+  }
 
   h3 {
     @extend %flex-center;

@@ -10,6 +10,7 @@ import styles from './index.module.scss'
 const infoText = (
   <p style={{ lineHeight: 1.8, marginBlockStart: 0, marginBlockEnd: 0 }}>
     <span>This is an open source project: </span>
+    <br />
     <GradientLink
       text="github.com/joelchelliah/dawn-dash"
       url="https://github.com/joelchelliah/dawn-dash"

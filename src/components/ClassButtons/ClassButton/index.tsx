@@ -18,11 +18,11 @@ function ClassButton({ classType, isActive, onClick }: ClassButtonProps) {
   const imageUrl = getClassImageUrl(classType)
   const color = getClassColor(
     classType,
-    isActive ? ClassColorVariant.Active : ClassColorVariant.Default
+    isActive ? ClassColorVariant.Light : ClassColorVariant.Default
   )
   const borderColor = getClassColor(
     classType,
-    isActive ? ClassColorVariant.Active : ClassColorVariant.Dark
+    isActive ? ClassColorVariant.Light : ClassColorVariant.Darker
   )
   const buttonClassName = cx(styles['container'], {
     [styles['container--active']]: isActive,

@@ -41,7 +41,7 @@ function ChartFooter({
     )
   }
 
-  const borderColor = getClassColor(selectedClass, ClassColorVariant.Dark)
+  const borderColor = getClassColor(selectedClass, ClassColorVariant.Darker)
   const contentClassName = cx(styles['content'], {
     [styles['content--loading-in-background']]: isLoadingInBackground,
   })

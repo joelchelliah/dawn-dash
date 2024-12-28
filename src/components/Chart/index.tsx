@@ -256,7 +256,7 @@ function Chart({ selectedClass, controls, onPlayerClick }: ChartProps) {
     )
   }
 
-  const borderColor = getClassColor(selectedClass, ClassColorVariant.Dark)
+  const borderColor = getClassColor(selectedClass, ClassColorVariant.Darker)
 
   return (
     <div className={styles['layout']}>

@@ -1,3 +1,5 @@
+import { useState } from 'react'
+
 import {
   DIFFICULTY_VALUES,
   GAME_VERSION_LABEL_MAP,
@@ -13,10 +15,10 @@ import { ChartControlState, ViewMode } from '../../types/chart'
 import { Difficulty, SpeedRunClass } from '../../types/speedRun'
 import { ClassColorVariant, getClassColor } from '../../utils/colors'
 import { parseVersion, versionToString } from '../../utils/version'
+import ViewModeModal from '../Modals/ViewModeModal'
 
 import ControlGroup from './ControlGroup'
 import styles from './index.module.scss'
-import ViewModeInfo from './ViewModeInfo'
 
 interface ChartControlsProps {
   controls: ChartControlState
@@ -65,7 +67,7 @@ function ChartControls({ controls, selectedClass }: ChartControlsProps) {
 
   const isSunforge = selectedClass === SpeedRunClass.Sunforge
 
-  const darkColor = getClassColor(selectedClass, ClassColorVariant.Dark)
+  const darkColor = getClassColor(selectedClass, ClassColorVariant.Darker)
 
   const controlsBorderStyle = { borderColor: darkColor }
 
@@ -73,6 +75,8 @@ function ChartControls({ controls, selectedClass }: ChartControlsProps) {
     selectedClass === SpeedRunClass.Sunforge
       ? MAX_DURATION_SUNFORGE_VALUES.map(toMinutesOption)
       : MAX_DURATION_OTHER_VALUES.map(toMinutesOption)
+
+  const [isViewModeModalOpen, setIsViewModeModalOpen] = useState(false)
 
   return (
     <>
@@ -113,6 +117,7 @@ function ChartControls({ controls, selectedClass }: ChartControlsProps) {
             options={VIEW_MODE_VALUES.map(toViewModeOption)}
             value={viewMode}
             onChange={setViewMode}
+            onClick={() => setIsViewModeModalOpen(true)}
           />
 
           <ControlGroup
@@ -134,7 +139,13 @@ function ChartControls({ controls, selectedClass }: ChartControlsProps) {
           />
         </div>
       </div>
-      <ViewModeInfo viewMode={controls.viewMode} />
+      <ViewModeModal
+        isOpen={isViewModeModalOpen}
+        onClose={() => setIsViewModeModalOpen(false)}
+        onApply={setViewMode}
+        selectedClass={selectedClass}
+        currentViewMode={viewMode}
+      />
     </>
   )
 }
