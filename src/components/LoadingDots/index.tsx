@@ -9,7 +9,7 @@ interface LoadingDotsProps {
 }
 
 function LoadingDots({ text, selectedClass }: LoadingDotsProps) {
-  const color = getClassColor(selectedClass, ClassColorVariant.Light)
+  const color = getClassColor(selectedClass, ClassColorVariant.Lighter)
 
   return (
     <div className={styles['container']}>

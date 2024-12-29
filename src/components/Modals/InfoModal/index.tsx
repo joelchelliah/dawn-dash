@@ -1,4 +1,5 @@
-import Modal from '../BaseModal'
+import GradientButton from '../../Buttons/GradientButton'
+import Modal from '../Modal'
 
 import styles from './index.module.scss'
 
@@ -19,9 +20,9 @@ function InfoModal({ additionalText, children, isOpen, onClose }: InfoModalProps
           {additionalText}
         </div>
       )}
-      <button onClick={onClose} className={styles['close-button']}>
+      <GradientButton className={styles['close-button']} onClick={onClose}>
         Nice!
-      </button>
+      </GradientButton>
     </Modal>
   )
 }

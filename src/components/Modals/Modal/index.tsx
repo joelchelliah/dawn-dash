@@ -5,7 +5,7 @@ import { getClassColor, ClassColorVariant } from '../../../utils/colors'
 
 import styles from './index.module.scss'
 
-interface BaseModalProps {
+interface ModalProps {
   children: React.ReactNode
   selectedClass?: SpeedRunClass
   isOpen: boolean
@@ -13,13 +13,13 @@ interface BaseModalProps {
   maxWidth?: number
 }
 
-function BaseModal({
+function Modal({
   children,
   selectedClass,
   isOpen,
   onClose,
   maxWidth,
-}: BaseModalProps): JSX.Element | null {
+}: ModalProps): JSX.Element | null {
   if (!isOpen) return null
 
   const borderColor = selectedClass
@@ -43,4 +43,4 @@ function BaseModal({
   )
 }
 
-export default BaseModal
+export default Modal

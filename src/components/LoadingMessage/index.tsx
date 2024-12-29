@@ -17,7 +17,7 @@ function LoadingMessage({ selectedClass, selectedDifficulty }: LoadingMessagePro
   const { isMobileAndPortrait } = useDeviceOrientation()
 
   const imageUrl = getClassImageUrl(selectedClass)
-  const color = getClassColor(selectedClass, ClassColorVariant.Light)
+  const color = getClassColor(selectedClass, ClassColorVariant.Lighter)
   const classAndDifficulty =
     selectedClass === SpeedRunClass.Sunforge
       ? 'Sunforge'

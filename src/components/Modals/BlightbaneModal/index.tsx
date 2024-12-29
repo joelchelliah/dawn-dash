@@ -1,7 +1,10 @@
 import { SpeedRunClass } from '../../../types/speedRun'
-import { getClassColor } from '../../../utils/colors'
+import { ClassColorVariant, getClassColor } from '../../../utils/colors'
 import { isAnonymousPlayer } from '../../../utils/players'
-import Modal from '../BaseModal'
+import Button from '../../Buttons/Button'
+import ButtonRow from '../../Buttons/ButtonRow'
+import PrimaryButton from '../../Buttons/PrimaryButton'
+import Modal from '../Modal'
 
 import styles from './index.module.scss'
 
@@ -20,7 +23,7 @@ function BlightbaneModal({
   player,
   playerClass,
 }: BlightbaneModalProps) {
-  const classColor = getClassColor(playerClass)
+  const classColor = getClassColor(playerClass, ClassColorVariant.Light)
   const isAnonymous = isAnonymousPlayer(player)
 
   const renderText = () => {
@@ -48,8 +51,8 @@ function BlightbaneModal({
   }
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} maxWidth={400}>
-      <h3>
+    <Modal isOpen={isOpen} onClose={onClose} maxWidth={400} selectedClass={playerClass}>
+      <h3 className={styles['title']}>
         <img
           src="https://blightbane.io/images/bolgar.png"
           alt="Bolgar Blightbane"
@@ -60,12 +63,12 @@ function BlightbaneModal({
 
       {renderText()}
 
-      <div className={styles['buttons']}>
-        <button onClick={onClose}>Nah</button>
-        <button onClick={onConfirm} className={styles['buttons__confirm-button']}>
+      <ButtonRow>
+        <Button onClick={onClose}>Nah</Button>
+        <PrimaryButton selectedClass={playerClass} onClick={onConfirm}>
           Yeah!
-        </button>
-      </div>
+        </PrimaryButton>
+      </ButtonRow>
     </Modal>
   )
 }

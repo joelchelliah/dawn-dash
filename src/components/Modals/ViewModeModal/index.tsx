@@ -7,7 +7,10 @@ import { ViewMode } from '../../../types/chart'
 import { SpeedRunClass } from '../../../types/speedRun'
 import { ClassColorVariant, getClassColor } from '../../../utils/colors'
 import { getEnergyImageUrl } from '../../../utils/images'
-import Modal from '../BaseModal'
+import Button from '../../Buttons/Button'
+import ButtonRow from '../../Buttons/ButtonRow'
+import PrimaryButton from '../../Buttons/PrimaryButton'
+import Modal from '../Modal'
 
 import styles from './index.module.scss'
 
@@ -47,7 +50,7 @@ function ViewModeModal({
 
   if (!isOpen) return null
 
-  const lightColor = getClassColor(selectedClass, ClassColorVariant.Light)
+  const lighterColor = getClassColor(selectedClass, ClassColorVariant.Lighter)
   const defaultColor = getClassColor(selectedClass, ClassColorVariant.Default)
   const darkColor = getClassColor(selectedClass, ClassColorVariant.Dark)
   const darkestColor = getClassColor(selectedClass, ClassColorVariant.Darkest)
@@ -61,19 +64,13 @@ function ViewModeModal({
     borderColor: darkestColor,
   } as React.CSSProperties
 
-  const buttonStyle = {
-    borderColor: darkColor,
-    '--color': defaultColor,
-    '--hover-bg-color': defaultColor,
-  } as React.CSSProperties
-
   const customRadioStyle = {
     '--energy-icon': `url(${getEnergyImageUrl(selectedClass)})`,
     '--border-color': darkestColor,
   } as React.CSSProperties
 
   const labelTitleSelectedStyle = {
-    color: lightColor,
+    color: lighterColor,
   } as React.CSSProperties
 
   const handleApply = () => {
@@ -116,12 +113,12 @@ function ViewModeModal({
             )
           })}
         </div>
-        <div className={styles.buttons}>
-          <button onClick={onClose}>Cancel</button>
-          <button onClick={handleApply} style={buttonStyle}>
+        <ButtonRow>
+          <Button onClick={onClose}>Cancel</Button>
+          <PrimaryButton onClick={handleApply} selectedClass={selectedClass}>
             Apply
-          </button>
-        </div>
+          </PrimaryButton>
+        </ButtonRow>
       </div>
     </Modal>
   )

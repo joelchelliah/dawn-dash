@@ -74,6 +74,7 @@ const CLASS_COLORS = {
 
 export enum ClassColorVariant {
   ControlText,
+  Lighter,
   Light,
   Default,
   Dark,
@@ -90,8 +91,10 @@ export function getClassColor(
   switch (variant) {
     case ClassColorVariant.ControlText:
       return lighten(color, 45)
-    case ClassColorVariant.Light:
+    case ClassColorVariant.Lighter:
       return lighten(color, 15)
+    case ClassColorVariant.Light:
+      return lighten(color, 5)
     case ClassColorVariant.Dark:
       return darken(color, 10)
     case ClassColorVariant.Darker:

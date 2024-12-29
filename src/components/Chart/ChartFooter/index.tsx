@@ -3,6 +3,7 @@ import cx from 'classnames'
 import { useFromNow } from '../../../hooks/useFromNow'
 import { SpeedRunClass } from '../../../types/speedRun'
 import { ClassColorVariant, getClassColor } from '../../../utils/colors'
+import GradientButton from '../../Buttons/GradientButton'
 import ClassEnergy from '../../ClassEnergy'
 import LoadingDots from '../../LoadingDots'
 
@@ -34,9 +35,9 @@ function ChartFooter({
     return (
       <>
         {fromNow}
-        <button onClick={refresh} className={styles['refresh-button']}>
+        <GradientButton onClick={refresh} className={styles['refresh-button']} subtle>
           Refresh
-        </button>
+        </GradientButton>
       </>
     )
   }
