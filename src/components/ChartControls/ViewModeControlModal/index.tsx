@@ -1,16 +1,14 @@
 import { useEffect, useState } from 'react'
 
-import cx from 'classnames'
-
 import { VIEW_MODE_LABELS } from '../../../constants/chartControlValues'
 import { ViewMode } from '../../../types/chart'
 import { SpeedRunClass } from '../../../types/speedRun'
 import { ClassColorVariant, getClassColor } from '../../../utils/colors'
-import { getEnergyImageUrl } from '../../../utils/images'
 import Button from '../../Buttons/Button'
 import ButtonRow from '../../Buttons/ButtonRow'
 import PrimaryButton from '../../Buttons/PrimaryButton'
-import Modal from '../Modal'
+import Modal from '../../Modals/Modal'
+import ControlRadioButton from '../ControlRadioButton'
 
 import styles from './index.module.scss'
 
@@ -53,24 +51,10 @@ function ViewModeModal({
   const lighterColor = getClassColor(selectedClass, ClassColorVariant.Lighter)
   const defaultColor = getClassColor(selectedClass, ClassColorVariant.Default)
   const darkColor = getClassColor(selectedClass, ClassColorVariant.Dark)
-  const darkestColor = getClassColor(selectedClass, ClassColorVariant.Darkest)
 
   const headerStyle = {
     color: defaultColor,
     borderColor: darkColor,
-  } as React.CSSProperties
-
-  const optionStyle = {
-    borderColor: darkestColor,
-  } as React.CSSProperties
-
-  const customRadioStyle = {
-    '--energy-icon': `url(${getEnergyImageUrl(selectedClass)})`,
-    '--border-color': darkestColor,
-  } as React.CSSProperties
-
-  const labelTitleSelectedStyle = {
-    color: lighterColor,
   } as React.CSSProperties
 
   const handleApply = () => {
@@ -85,31 +69,25 @@ function ViewModeModal({
         <div className={styles['options']}>
           {Object.values(ViewMode).map((mode) => {
             const isSelected = selectedViewMode === mode
-            const optionClassName = cx(styles['option'], {
-              [styles['option--selected']]: isSelected,
-            })
+            const labelTitleSelectedStyle = {
+              color: lighterColor,
+            } as React.CSSProperties
             const labelTitleStyle = isSelected ? labelTitleSelectedStyle : {}
 
             return (
-              <label key={mode} className={optionClassName} style={optionStyle}>
-                <input
-                  type="radio"
-                  name="viewMode"
-                  value={mode}
-                  checked={selectedViewMode === mode}
-                  onChange={() => setSelectedViewMode(mode)}
-                  className={styles['radio-input']}
-                />
-                <span className={styles['radio-custom']} style={customRadioStyle} />
-                <span className={styles['label']}>
-                  <span className={styles['label__title']} style={labelTitleStyle}>
-                    {VIEW_MODE_LABELS[mode]}
-                  </span>
-                  <span className={styles['label__description']}>
-                    {getViewModeDescription(mode)}
-                  </span>
+              <ControlRadioButton
+                key={mode}
+                value={mode}
+                name="viewMode"
+                selectedClass={selectedClass}
+                isSelected={isSelected}
+                onChange={() => setSelectedViewMode(mode)}
+              >
+                <span className={styles['option-title']} style={labelTitleStyle}>
+                  {VIEW_MODE_LABELS[mode]}
                 </span>
-              </label>
+                <span className={styles['option-description']}>{getViewModeDescription(mode)}</span>
+              </ControlRadioButton>
             )
           })}
         </div>

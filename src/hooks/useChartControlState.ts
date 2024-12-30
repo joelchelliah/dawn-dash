@@ -7,11 +7,10 @@ import {
   ZOOM_LEVEL_DEFAULT,
   MAX_DURATION_OTHER_DEFAULT,
   DIFFICULTY_DEFAULT,
-  GAME_VERSION_DEFAULT,
+  SUBMISSION_WINDOW_DEFAULT,
 } from '../constants/chartControlValues'
-import { ChartControlState, ViewMode } from '../types/chart'
+import { ChartControlState, SubmissionWindow, ViewMode } from '../types/chart'
 import { Difficulty, SpeedRunClass } from '../types/speedRun'
-import { parseVersion } from '../utils/version'
 
 export function useChartControlState(
   selectedClass: SpeedRunClass,
@@ -27,7 +26,8 @@ export function useChartControlState(
   const [maxDuration, setMaxDuration] = useState(maxDurationDefault)
   const [viewMode, setViewMode] = useState<ViewMode>(VIEW_MODE_DEFAULT)
   const [zoomLevel, setZoomLevel] = useState(ZOOM_LEVEL_DEFAULT)
-  const [gameVersion, setGameVersion] = useState(parseVersion(GAME_VERSION_DEFAULT))
+  const [submissionWindow, setSubmissionWindow] =
+    useState<SubmissionWindow>(SUBMISSION_WINDOW_DEFAULT)
 
   // Use difficulty from URL params as initial default
   const [difficulty, setDifficulty] = useState(selectedDifficulty)
@@ -46,7 +46,7 @@ export function useChartControlState(
       setMaxDuration(maxDurationDefault)
       setViewMode(VIEW_MODE_DEFAULT)
       setZoomLevel(ZOOM_LEVEL_DEFAULT)
-      setGameVersion(parseVersion(GAME_VERSION_DEFAULT))
+      setSubmissionWindow(SUBMISSION_WINDOW_DEFAULT)
 
       // When class changes, always reset difficulty to DEFAULT regardless of URL params
       setDifficulty(DIFFICULTY_DEFAULT)
@@ -65,9 +65,9 @@ export function useChartControlState(
       setPlayerLimit,
       difficulty,
       setDifficulty,
-      gameVersion,
-      setGameVersion,
+      submissionWindow,
+      setSubmissionWindow,
     }),
-    [maxDuration, zoomLevel, viewMode, playerLimit, difficulty, gameVersion]
+    [maxDuration, zoomLevel, viewMode, playerLimit, difficulty, submissionWindow]
   )
 }

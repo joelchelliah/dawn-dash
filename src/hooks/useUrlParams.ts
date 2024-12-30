@@ -9,11 +9,12 @@ import {
   MAX_DURATION_OTHER_VALUES,
   VIEW_MODE_VALUES,
   ZOOM_LEVEL_VALUES,
+  LAST_DAYS_VALUES,
   GAME_VERSION_VALUES,
 } from '../constants/chartControlValues'
 import { ChartControlState, ViewMode } from '../types/chart'
 import { Difficulty, SpeedRunClass } from '../types/speedRun'
-import { parseVersion, versionToString } from '../utils/version'
+import { submissionWindowFromUrlString, submissionWindowToUrlString } from '../utils/version'
 
 function setSearchParamsFromControlState(
   setSearchParams: (params: URLSearchParams, options?: { replace?: boolean }) => void,
@@ -33,7 +34,7 @@ function setSearchParamsFromControlState(
     params.set('duration', controls.maxDuration.toString())
     params.set('view', controls.viewMode)
     params.set('zoom', controls.zoomLevel.toString())
-    params.set('version', versionToString(controls.gameVersion))
+    params.set('window', submissionWindowToUrlString(controls.submissionWindow))
 
     setSearchParams(params, { replace: true })
   }, 100)
@@ -70,7 +71,13 @@ export function useUrlParams(
   const isValidViewMode = (value: string): value is ViewMode =>
     VIEW_MODE_VALUES.includes(value as ViewMode)
 
-  const isValidGameVersion = (value: string): boolean => GAME_VERSION_VALUES.includes(value)
+  const isValidSubmissionWindow = (value: string): boolean => {
+    if (!value.includes('-')) return LAST_DAYS_VALUES.includes(value)
+
+    const [min, max] = value.split('-')
+
+    return GAME_VERSION_VALUES.includes(min) && GAME_VERSION_VALUES.includes(max)
+  }
 
   const isValidZoomLevel = (value: number): boolean => ZOOM_LEVEL_VALUES.includes(value)
 
@@ -95,7 +102,7 @@ export function useUrlParams(
       const duration = searchParams.get('duration')
       const view = searchParams.get('view')
       const zoom = searchParams.get('zoom')
-      const version = searchParams.get('version')
+      const submissionWindow = searchParams.get('window')
       let areAllParamsValid = true
 
       if (classParam && isValidClass(classParam)) {
@@ -129,8 +136,9 @@ export function useUrlParams(
         else areAllParamsValid = false
       }
 
-      if (version) {
-        if (isValidGameVersion(version)) controls.setGameVersion(parseVersion(version))
+      if (submissionWindow) {
+        if (isValidSubmissionWindow(submissionWindow))
+          controls.setSubmissionWindow(submissionWindowFromUrlString(submissionWindow))
         else areAllParamsValid = false
       }
 

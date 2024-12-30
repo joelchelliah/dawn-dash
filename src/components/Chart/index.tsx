@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import 'chartjs-adapter-moment'
 import {
@@ -36,7 +36,6 @@ import {
   lighten,
 } from '../../utils/colors'
 import { isAnonymousPlayer } from '../../utils/players'
-import { parseVersion, versionToString } from '../../utils/version'
 import LoadingMessage from '../LoadingMessage'
 
 import ChartFooter from './ChartFooter'
@@ -74,9 +73,7 @@ function Chart({ selectedClass, controls, onPlayerClick }: ChartProps) {
   const [chartData, setChartData] = useState<ChartJS | null>(null)
   const { isMobileAndPortrait, isMobileAndLandscape } = useDeviceOrientation()
 
-  const { difficulty, playerLimit, maxDuration, viewMode, gameVersion, zoomLevel } = controls
-
-  const gameVersionString = useMemo(() => versionToString(gameVersion), [gameVersion])
+  const { difficulty, playerLimit, maxDuration, viewMode, submissionWindow, zoomLevel } = controls
 
   const createDatasets = useCallback(
     (playerHistory: Map<string, DataPoint[]>, recordPoints: RecordPoint[]) => {
@@ -150,14 +147,12 @@ function Chart({ selectedClass, controls, onPlayerClick }: ChartProps) {
       // Cleanup old chart
       if (chartInstance.current) chartInstance.current.destroy()
 
-      // NB: Re-parsing stringified version to avoid rerender issues when creating chart...
-      const parsedVersion = parseVersion(gameVersionString)
       const { playerHistory, allRecordPoints } = parseSpeedrunData(
         speedruns,
         playerLimit,
         maxDuration,
         viewMode,
-        parsedVersion
+        submissionWindow
       )
       playerColors.current = getColorMapping(playerHistory)
 
@@ -192,7 +187,7 @@ function Chart({ selectedClass, controls, onPlayerClick }: ChartProps) {
       chartInstance.current = new ChartJS(ctx, config)
       setChartData(chartInstance.current)
     },
-    [createDatasets, gameVersionString, maxDuration, playerLimit, selectedClass, viewMode]
+    [createDatasets, submissionWindow, maxDuration, playerLimit, selectedClass, viewMode]
   )
 
   const { speedrunData, isLoading, isLoadingInBackground, isError, lastUpdated, refresh } =

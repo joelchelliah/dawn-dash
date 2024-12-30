@@ -12,7 +12,7 @@ interface ControlGroupProps<T> {
   label: string
   options: Option<T>[]
   value: T
-  onChange: (value: T) => void
+  onChange?: (value: T) => void
   disabled?: boolean
   onClick?: () => void
 }
@@ -58,6 +58,8 @@ function ControlGroup<T>({
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    if (!onChange) return
+
     const newValue = typeof value === 'number' ? Number(e.target.value) : e.target.value
 
     onChange(newValue as T)

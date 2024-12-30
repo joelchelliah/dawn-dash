@@ -1,8 +1,13 @@
-import { DataPoint, ParsedPlayerData, ViewMode } from '../../../types/chart'
-import { GameVersion, SpeedRunData } from '../../../types/speedRun'
+import { DataPoint, ParsedPlayerData, SubmissionWindow, ViewMode } from '../../../types/chart'
+import { SpeedRunData } from '../../../types/speedRun'
 import { getPlayerName, removeAnonymousPlayers } from '../../../utils/players'
 import { getDurationInMinutes } from '../../../utils/time'
-import { isVersionAfter } from '../../../utils/version'
+import {
+  isGameVersionRange,
+  isVersionEqualOrAfter,
+  isVersionEqualOrBefore,
+  parseVersion,
+} from '../../../utils/version'
 
 /**
  * Process raw speedrun data into chart-ready format
@@ -18,7 +23,7 @@ export function parseSpeedrunData(
   playerLimit: number,
   maxDuration: number,
   viewMode: ViewMode,
-  minVersion: GameVersion
+  submissionWindow: SubmissionWindow
 ): ParsedPlayerData {
   const playerHistory = new Map<string, DataPoint[]>()
 
@@ -28,8 +33,15 @@ export function parseSpeedrunData(
     const duration = getDurationInMinutes(run)
     const version = run.version
 
+    const [minVersion, maxVersion] = isGameVersionRange(submissionWindow)
+      ? [parseVersion(submissionWindow.min), parseVersion(submissionWindow.max)]
+      : [undefined, undefined]
+
     const isValidDuration = duration && duration <= maxDuration
-    const isValidVersion = version && isVersionAfter(version, minVersion)
+    const isValidVersion =
+      version &&
+      isVersionEqualOrAfter(version, minVersion) &&
+      isVersionEqualOrBefore(version, maxVersion)
 
     if (isValidDuration && isValidVersion) {
       if (!playerHistory.has(player)) {
