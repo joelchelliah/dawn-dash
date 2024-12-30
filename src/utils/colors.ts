@@ -68,16 +68,18 @@ const CLASS_COLORS = {
   [SpeedRunClass.Knight]: '#6d53ad', // Purple
   [SpeedRunClass.Rogue]: '#60984a', // Green
   [SpeedRunClass.Seeker]: '#2f9c83', // Teal
-  [SpeedRunClass.Warrior]: '#a12b2a', // Red
-  [SpeedRunClass.Sunforge]: '#c49a33', // Gold
+  [SpeedRunClass.Warrior]: '#b52121', // Red
+  [SpeedRunClass.Sunforge]: '#b58d28', // Gold
 }
 
 export enum ClassColorVariant {
-  Default,
-  Active,
-  ControlBorder,
-  Dark,
   ControlText,
+  Lighter,
+  Light,
+  Default,
+  Dark,
+  Darker,
+  Darkest,
 }
 
 export function getClassColor(
@@ -87,14 +89,18 @@ export function getClassColor(
   const color = CLASS_COLORS[classType]
 
   switch (variant) {
-    case ClassColorVariant.Active:
-      return lighten(color, 15)
     case ClassColorVariant.ControlText:
       return lighten(color, 45)
-    case ClassColorVariant.ControlBorder:
-      return darken(color, 10)
+    case ClassColorVariant.Lighter:
+      return lighten(color, 15)
+    case ClassColorVariant.Light:
+      return lighten(color, 5)
     case ClassColorVariant.Dark:
+      return darken(color, 10)
+    case ClassColorVariant.Darker:
       return darken(color, 15)
+    case ClassColorVariant.Darkest:
+      return darken(color, 20)
     default:
       return color
   }

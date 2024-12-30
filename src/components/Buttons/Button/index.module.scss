@@ -1,0 +1,17 @@
+@use '../../../styles' as *;
+
+.button {
+  background: none;
+  color: #ccc;
+  min-width: 4rem;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  border-radius: 0.25rem;
+  border: 1px solid #444;
+
+  &:hover {
+    color: #fff;
+    background: #333;
+    border-color: #666;
+  }
+}

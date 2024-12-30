@@ -7,15 +7,18 @@ import InfoModal from '../Modals/InfoModal'
 
 import styles from './index.module.scss'
 
-const infoText = (
-  <p style={{ lineHeight: 1.8, marginBlockStart: 0, marginBlockEnd: 0 }}>
-    <span>This is an open source project: </span>
-    <GradientLink
-      text="github.com/joelchelliah/dawn-dash"
-      url="https://github.com/joelchelliah/dawn-dash"
-    />
-  </p>
-)
+function getInfoText(multiline = false): JSX.Element {
+  return (
+    <p style={{ lineHeight: 1.8, marginBlockStart: 0, marginBlockEnd: 0 }}>
+      <span>This is an open source project: </span>
+      {multiline && <br />}
+      <GradientLink
+        text="github.com/joelchelliah/dawn-dash"
+        url="https://github.com/joelchelliah/dawn-dash"
+      />
+    </p>
+  )
+}
 
 function OpenSourceInfo(): JSX.Element {
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -26,7 +29,7 @@ function OpenSourceInfo(): JSX.Element {
   }
   return (
     <div className={styles['container']}>
-      {isDesktop && <div className={styles['container__hover-text']}>{infoText}</div>}
+      {isDesktop && <div className={styles['container__hover-text']}>{getInfoText()}</div>}
 
       <GitHubIcon className={styles['container__icon']} onClick={onIconClick} />
 
@@ -35,7 +38,7 @@ function OpenSourceInfo(): JSX.Element {
         additionalText={'Feedback, ideas, and contributions are welcome!'}
         onClose={() => setIsModalOpen(false)}
       >
-        {infoText}
+        {getInfoText(true)}
       </InfoModal>
     </div>
   )

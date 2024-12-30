@@ -1,0 +1,7 @@
+@use '../../../styles' as *;
+
+.button-row {
+  @extend %flex-end;
+  gap: 0.625rem;
+  margin-top: 1.25rem;
+}
