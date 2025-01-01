@@ -1,0 +1,23 @@
+$thumb-size: 1.375rem;
+
+.thumb {
+  position: absolute;
+  width: $thumb-size;
+  height: $thumb-size;
+  background-image: var(--energy-icon);
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  border-radius: 50%;
+  top: 50%;
+  transform: translate(-50%, -52%);
+  cursor: pointer;
+
+  &:hover {
+    transform: translate(-50%, -52%) scale(1.2) !important;
+  }
+
+  &:active {
+    transform: translate(-50%, -52%) scale(0.9) !important;
+  }
+}

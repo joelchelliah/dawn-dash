@@ -1,0 +1,37 @@
+@use '../../../styles' as *;
+
+.slider {
+  padding: 1rem 2.5rem 1rem 0.5rem;
+}
+
+.track {
+  position: relative;
+  height: 0.5rem;
+  background: var(--track-color);
+  border-radius: 1rem;
+  margin: 1rem 0;
+}
+
+.track-fill {
+  position: absolute;
+  height: 100%;
+  background: var(--fill-color);
+  border-radius: 2px;
+}
+
+.marks {
+  position: relative;
+  height: 20px;
+  margin-top: -0.5rem;
+}
+
+.mark {
+  position: absolute;
+  transform: translateX(-50%);
+  padding-top: 0.125rem;
+}
+
+.mark-label {
+  color: var(--mark-color);
+  font-size: font-size('xs');
+}

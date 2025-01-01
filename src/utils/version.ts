@@ -15,27 +15,19 @@ export function parseVersion(version: string): GameVersion {
 export function isVersionEqualOrAfter(version: GameVersion, target?: GameVersion): boolean {
   if (!target) return true
 
-  const { major, minor, patch } = version
-  const { major: targetMajor, minor: targetMinor, patch: targetPatch } = target
+  const { major, minor } = version
+  const { major: targetMajor, minor: targetMinor } = target
 
-  return (
-    major > targetMajor ||
-    (major === targetMajor && minor > targetMinor) ||
-    (major === targetMajor && minor === targetMinor && patch >= targetPatch)
-  )
+  return major > targetMajor || (major === targetMajor && minor >= targetMinor)
 }
 
 export function isVersionEqualOrBefore(version: GameVersion, target?: GameVersion): boolean {
   if (!target) return true
 
-  const { major, minor, patch } = version
-  const { major: targetMajor, minor: targetMinor, patch: targetPatch } = target
+  const { major, minor } = version
+  const { major: targetMajor, minor: targetMinor } = target
 
-  return (
-    major < targetMajor ||
-    (major === targetMajor && minor < targetMinor) ||
-    (major === targetMajor && minor === targetMinor && patch <= targetPatch)
-  )
+  return major < targetMajor || (major === targetMajor && minor <= targetMinor)
 }
 
 export function versionToString(version: GameVersion): string {
@@ -51,6 +43,10 @@ export function isAllGameVersions(window: GameVersionRange): boolean {
     window.min === GAME_VERSION_VALUES[0] &&
     window.max === GAME_VERSION_VALUES[GAME_VERSION_VALUES.length - 1]
   )
+}
+
+export function isSingleGameVersion(window: GameVersionRange): boolean {
+  return window.min === window.max
 }
 
 export function isLastXDays(window: SubmissionWindow): window is string {

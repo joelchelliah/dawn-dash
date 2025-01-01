@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 
+import DoubleThumbSlider from '../../../components/Sliders/DoubleThumbSlider'
+import SingleThumbSlider from '../../../components/Sliders/SingleThumbSlider'
 import {
   GAME_VERSION_VALUES,
   LAST_DAYS_VALUES,
@@ -16,8 +18,6 @@ import Modal from '../../Modals/Modal'
 import ControlRadioButton from '../ControlRadioButton'
 
 import styles from './index.module.scss'
-import NumberOfDaysSlider from './NumberOfDaysSlider'
-import VersionRangeSlider from './VersionRangeSlider'
 
 interface SubmissionWindowModalProps {
   isOpen: boolean
@@ -81,7 +81,7 @@ function SubmissionWindowModal({
     borderColor: darkColor,
   } as React.CSSProperties
 
-  const handleVersionChange = ([min, max]: [string, string]) => {
+  const handleVersionChange = (min: string, max: string) => {
     setMinVersion(min)
     setMaxVersion(max)
   }
@@ -99,9 +99,17 @@ function SubmissionWindowModal({
     const min = SUBMISSION_WINDOW_LABEL_MAP[minVersion]
     const max = SUBMISSION_WINDOW_LABEL_MAP[maxVersion]
 
+    if (minVersion === maxVersion) {
+      return (
+        <span>
+          Only show runs submitted during: <strong>{min}</strong>
+        </span>
+      )
+    }
+
     return (
       <span>
-        Only show runs submitted between <strong>{min}</strong> and <strong>{max}</strong>
+        Only show runs submitted between: <strong>{min}</strong> and <strong>{max}</strong>
       </span>
     )
   }
@@ -109,7 +117,7 @@ function SubmissionWindowModal({
   const renderLastXDays = () => {
     return (
       <span>
-        Only show runs submittend in the last <strong>{lastXDays}</strong> days
+        Only show runs submitted in the last <strong>{lastXDays}</strong> days
       </span>
     )
   }
@@ -141,13 +149,15 @@ function SubmissionWindowModal({
             Game versions:
           </span>
           <span className={styles['option-description']}>{renderMinMaxVersionsNamed()}</span>
-          <VersionRangeSlider
-            selectedClass={selectedClass}
-            minVersion={minVersion}
-            maxVersion={maxVersion}
+          <DoubleThumbSlider
+            ariaLabel="Game versions"
+            selectedVal1={minVersion}
+            selectedVal2={maxVersion}
+            values={GAME_VERSION_VALUES}
             onChange={handleVersionChange}
             onPointerDown={() => setSelectedWindowMode(SubmissionWindowMode.MinMaxVersion)}
             isActive={selectedWindowMode === SubmissionWindowMode.MinMaxVersion}
+            selectedClass={selectedClass}
           />
         </ControlRadioButton>
 
@@ -164,15 +174,17 @@ function SubmissionWindowModal({
               selectedWindowMode === SubmissionWindowMode.LastXDays ? labelTitleSelectedStyle : {}
             }
           >
-            League:
+            Days since:
           </span>
           <span className={styles['option-description']}>{renderLastXDays()}</span>
-          <NumberOfDaysSlider
-            selectedClass={selectedClass}
-            value={lastXDays}
+          <SingleThumbSlider
+            ariaLabel="Days since"
+            selectedValue={lastXDays}
+            values={LAST_DAYS_VALUES}
             onChange={setLastXDays}
             onPointerDown={() => setSelectedWindowMode(SubmissionWindowMode.LastXDays)}
             isActive={selectedWindowMode === SubmissionWindowMode.LastXDays}
+            selectedClass={selectedClass}
           />
         </ControlRadioButton>
 

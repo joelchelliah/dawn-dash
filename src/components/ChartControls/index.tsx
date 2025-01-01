@@ -13,7 +13,7 @@ import {
 import { ChartControlState, ViewMode } from '../../types/chart'
 import { Difficulty, SpeedRunClass } from '../../types/speedRun'
 import { ClassColorVariant, getClassColor } from '../../utils/colors'
-import { isAllGameVersions, isGameVersionRange } from '../../utils/version'
+import { isAllGameVersions, isGameVersionRange, isSingleGameVersion } from '../../utils/version'
 
 import ControlGroup from './ControlGroup'
 import styles from './index.module.scss'
@@ -71,12 +71,17 @@ function ChartControls({ controls, selectedClass }: ChartControlsProps) {
   const getSubmissionWindowOption = () => {
     const value = submissionWindow
     if (isGameVersionRange(value)) {
-      const label = isAllGameVersions(value)
-        ? 'All versions'
-        : `Versions ${value.min} - ${value.max}`
+      if (isAllGameVersions(value)) {
+        return { value, label: 'All versions' }
+      }
 
-      return { value, label }
+      if (isSingleGameVersion(value)) {
+        return { value, label: `Version: ${SUBMISSION_WINDOW_LABEL_MAP[value.min]}` }
+      }
+
+      return { value, label: `Versions: ${value.min} - ${value.max}` }
     }
+
     return { value, label: SUBMISSION_WINDOW_LABEL_MAP[value] }
   }
 
