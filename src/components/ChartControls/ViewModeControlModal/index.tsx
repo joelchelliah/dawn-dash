@@ -20,16 +20,28 @@ interface ViewModeModalProps {
   currentViewMode: ViewMode
 }
 
-function getViewModeDescription(mode: ViewMode): string {
+function getViewModeDescription(mode: ViewMode): React.ReactNode {
   switch (mode) {
     case ViewMode.All:
-      return 'All available runs, from both verified and anonymous players.'
+      return <span>All available runs, from both verified and anonymous players.</span>
     case ViewMode.Improvements:
-      return 'Runs where the players improved their personal best time. Only runs that beat a previous personal best time are included.'
+      return (
+        <span>
+          Runs where the players improved their{' '}
+          <span className={styles['option-description__highlight']}>personal best time</span>. Only
+          runs that have beaten an earlier personal record are included.
+        </span>
+      )
     case ViewMode.Records:
-      return 'Runs that broke the global record at the time. This also includes anonymous runs.'
+      return (
+        <span>
+          Runs that broke the{' '}
+          <span className={styles['option-description__highlight']}>global record</span> at the time
+          of submission.
+        </span>
+      )
     default:
-      return ''
+      return null
   }
 }
 

@@ -97,8 +97,6 @@ function Chart({ selectedClass, controls, onPlayerClick }: ChartProps) {
           pointStyle: isAnonymous ? 'rectRot' : 'circle',
           borderDash: isAllRunsView ? [5, 5] : [],
           pointRadius: (context: ScriptableContext<'line'>) => {
-            if (isAnonymous) return pointSize
-
             const index = context.dataIndex
             const dataPoint = runs[index]
             const isRecord = recordPoints.some(
@@ -110,8 +108,6 @@ function Chart({ selectedClass, controls, onPlayerClick }: ChartProps) {
             return isRecordsView ? (isRecord ? pointSize : 0) : pointSize
           },
           pointHoverRadius: (context: ScriptableContext<'line'>) => {
-            if (isAnonymous) return pointHoverSize
-
             const index = context.dataIndex
             const dataPoint = runs[index]
             const isRecord = recordPoints.some(
@@ -125,7 +121,7 @@ function Chart({ selectedClass, controls, onPlayerClick }: ChartProps) {
           },
           stepped: 'before',
           tension: 0,
-          showLine: !isAnonymous,
+          showLine: isRecordsView || !isAnonymous,
           order: isAnonymous ? 1 : 0,
         }
       }

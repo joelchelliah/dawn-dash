@@ -24,4 +24,9 @@
   font-size: font-size('xs');
   margin-top: 0.125rem;
   line-height: 1.2;
+
+  &__highlight {
+    font-weight: bold;
+    color: #ccc;
+  }
 }

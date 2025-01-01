@@ -131,7 +131,7 @@ function ChartControls({ controls, selectedClass }: ChartControlsProps) {
           <ControlGroup
             id="submissionWindow"
             selectedClass={selectedClass}
-            label="Submissions from"
+            label="Runs from"
             options={[getSubmissionWindowOption()]}
             value={submissionWindow}
             onClick={() => setIsSubmissionWindowModalOpen(true)}

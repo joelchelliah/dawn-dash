@@ -1,6 +1,6 @@
 import { DataPoint, ParsedPlayerData, SubmissionWindow, ViewMode } from '../../../types/chart'
 import { SpeedRunData } from '../../../types/speedRun'
-import { getPlayerName, removeAnonymousPlayers } from '../../../utils/players'
+import { getPlayerName, isAnonymousPlayer, removeAnonymousPlayers } from '../../../utils/players'
 import { getDurationInMinutes, isWithinLastXDays } from '../../../utils/time'
 import {
   isGameVersionRange,
@@ -94,12 +94,10 @@ export function parseSpeedrunData(
  */
 function processRecordBreakingView(allPlayerHistory: Map<string, DataPoint[]>): ParsedPlayerData {
   let globalBestTime = Infinity
-
-  const playerHistory = removeAnonymousPlayers(allPlayerHistory)
   const allRecordPoints: Array<{ player: string; run: DataPoint }> = []
 
-  // Sort and find record-breaking runs across all players
-  const allRuns = Array.from(playerHistory.entries())
+  // Sort and find record-breaking runs across all players (including anonymous runs)
+  const allRuns = Array.from(allPlayerHistory.entries())
     .flatMap(([player, runs]) => runs.map((run) => ({ player, run })))
     .sort((a, b) => a.run.x - b.run.x)
 
@@ -109,13 +107,14 @@ function processRecordBreakingView(allPlayerHistory: Map<string, DataPoint[]>): 
       allRecordPoints.push({ player, run })
     }
   })
+  const filteredRuns = filterOutAllAnonymousRunsExceptTheBestOne(allRecordPoints)
 
   // Rewrite player history to include extra lines between record points
   const newPlayerHistory = new Map<string, DataPoint[]>()
 
-  for (let i = 0; i < allRecordPoints.length; i++) {
-    const current = allRecordPoints[i]
-    const next = allRecordPoints[i + 1]
+  for (let i = 0; i < filteredRuns.length; i++) {
+    const current = filteredRuns[i]
+    const next = filteredRuns[i + 1]
 
     if (!newPlayerHistory.has(current.player)) {
       newPlayerHistory.set(current.player, [])
@@ -233,4 +232,21 @@ function sortRuns(
   }
 
   return playerHistory
+}
+
+function filterOutAllAnonymousRunsExceptTheBestOne(
+  allRecordPoints: Array<{ player: string; run: DataPoint }>
+) {
+  const bestAnonymousRun = allRecordPoints
+    .filter(({ player }) => isAnonymousPlayer(player))
+    .reduce((best, current) => (best.run.y > current.run.y ? current : best), {
+      player: '',
+      run: { x: 0, y: Infinity },
+    })
+
+  return allRecordPoints.filter(
+    ({ player, run }) =>
+      !isAnonymousPlayer(player) ||
+      (run.x === bestAnonymousRun.run.x && run.y === bestAnonymousRun.run.y)
+  )
 }
