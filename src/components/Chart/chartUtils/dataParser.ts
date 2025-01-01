@@ -1,9 +1,10 @@
 import { DataPoint, ParsedPlayerData, SubmissionWindow, ViewMode } from '../../../types/chart'
 import { SpeedRunData } from '../../../types/speedRun'
 import { getPlayerName, removeAnonymousPlayers } from '../../../utils/players'
-import { getDurationInMinutes } from '../../../utils/time'
+import { getDurationInMinutes, isWithinLastXDays } from '../../../utils/time'
 import {
   isGameVersionRange,
+  isLastXDays,
   isVersionEqualOrAfter,
   isVersionEqualOrBefore,
   parseVersion,
@@ -36,14 +37,18 @@ export function parseSpeedrunData(
     const [minVersion, maxVersion] = isGameVersionRange(submissionWindow)
       ? [parseVersion(submissionWindow.min), parseVersion(submissionWindow.max)]
       : [undefined, undefined]
+    const daysSinceSubmission = isLastXDays(submissionWindow) ? submissionWindow : undefined
 
     const isValidDuration = duration && duration <= maxDuration
     const isValidVersion =
-      version &&
-      isVersionEqualOrAfter(version, minVersion) &&
-      isVersionEqualOrBefore(version, maxVersion)
+      !minVersion || !maxVersion
+        ? true
+        : version &&
+          isVersionEqualOrAfter(version, minVersion) &&
+          isVersionEqualOrBefore(version, maxVersion)
+    const isValidDate = !daysSinceSubmission || isWithinLastXDays(run.uid, daysSinceSubmission)
 
-    if (isValidDuration && isValidVersion) {
+    if (isValidDuration && isValidVersion && isValidDate) {
       if (!playerHistory.has(player)) {
         playerHistory.set(player, [])
       }

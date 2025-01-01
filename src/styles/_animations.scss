@@ -116,3 +116,17 @@
     opacity: 0.9;
   }
 }
+
+@mixin fadeInAnimation {
+  opacity: 0; // Start hidden. `Forwards` will make it visible.
+  animation: fadeIn 1s ease-out 0.2s forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

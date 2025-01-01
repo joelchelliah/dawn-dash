@@ -48,10 +48,13 @@
   }
 
   &__error {
-    color: #ff6b6b;
+    color: #dd6b6b;
     text-align: center;
     padding: 2rem;
     font-size: font-size('md');
+    // There is a small window of time where the chart is still getting created and the error message is visible.
+    // This animation is to make the error message fade in after the chart is fully loaded.
+    @include fadeInAnimation();
   }
 
   @media (max-width: $breakpoint-tablet) {

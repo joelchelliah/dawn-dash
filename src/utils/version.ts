@@ -12,18 +12,14 @@ export function parseVersion(version: string): GameVersion {
   return { major, minor, patch }
 }
 
-export function isVersionEqualOrAfter(version: GameVersion, target?: GameVersion): boolean {
-  if (!target) return true
-
+export function isVersionEqualOrAfter(version: GameVersion, target: GameVersion): boolean {
   const { major, minor } = version
   const { major: targetMajor, minor: targetMinor } = target
 
   return major > targetMajor || (major === targetMajor && minor >= targetMinor)
 }
 
-export function isVersionEqualOrBefore(version: GameVersion, target?: GameVersion): boolean {
-  if (!target) return true
-
+export function isVersionEqualOrBefore(version: GameVersion, target: GameVersion): boolean {
   const { major, minor } = version
   const { major: targetMajor, minor: targetMinor } = target
 

@@ -29,3 +29,7 @@ export function formatTime(time: number) {
   const format = duration.asHours() >= 1 ? 'HH:mm:ss' : 'mm:ss'
   return moment.utc(duration.asMilliseconds()).format(format)
 }
+
+export function isWithinLastXDays(timestamp: number, daysString: string) {
+  return Date.now() - timestamp <= Number(daysString) * 24 * 60 * 60 * 1000
+}

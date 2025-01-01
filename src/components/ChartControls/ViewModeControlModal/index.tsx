@@ -23,11 +23,11 @@ interface ViewModeModalProps {
 function getViewModeDescription(mode: ViewMode): string {
   switch (mode) {
     case ViewMode.All:
-      return 'Show all available runs, including anonymous runs.'
+      return 'All available runs, from both verified and anonymous players.'
     case ViewMode.Improvements:
-      return 'Show verified runs where the players improved their personal best time.'
+      return 'Runs where the players improved their personal best time. Only runs that beat a previous personal best time are included.'
     case ViewMode.Records:
-      return 'Show verified runs that broke the global record at the time.'
+      return 'Runs that broke the global record at the time. This also includes anonymous runs.'
     default:
       return ''
   }

@@ -145,7 +145,12 @@ function Chart({ selectedClass, controls, onPlayerClick }: ChartProps) {
       }
 
       // Cleanup old chart
-      if (chartInstance.current) chartInstance.current.destroy()
+      if (chartInstance.current) {
+        chartInstance.current.destroy()
+        chartInstance.current = null
+        // Also clear chartData, to keep the legend in sync
+        setChartData(null)
+      }
 
       const { playerHistory, allRecordPoints } = parseSpeedrunData(
         speedruns,
@@ -185,7 +190,7 @@ function Chart({ selectedClass, controls, onPlayerClick }: ChartProps) {
         paddedMaxDuration
       )
       chartInstance.current = new ChartJS(ctx, config)
-      setChartData(chartInstance.current)
+      setChartData(chartInstance.current) // Update chartData with new instance
     },
     [createDatasets, submissionWindow, maxDuration, playerLimit, selectedClass, viewMode]
   )
@@ -227,6 +232,9 @@ function Chart({ selectedClass, controls, onPlayerClick }: ChartProps) {
       [styles['chart-container--mobilePortraitLoading']]: isMobilePortraitLoading,
     })
 
+    const hasChartData = chartInstance.current?.data?.datasets?.length
+    console.log(hasChartData)
+
     return (
       <div className={chartContainerClassName}>
         {isLoading && (
@@ -234,6 +242,11 @@ function Chart({ selectedClass, controls, onPlayerClick }: ChartProps) {
         )}
         {isError && !isLoading && (
           <div className={styles['chart-container__error']}>Error loading data</div>
+        )}
+        {!isError && !isLoading && !hasChartData && (
+          <div className={styles['chart-container__error']}>
+            No runs found for the selected filters
+          </div>
         )}
         {!isError && !isLoading && (
           <div
