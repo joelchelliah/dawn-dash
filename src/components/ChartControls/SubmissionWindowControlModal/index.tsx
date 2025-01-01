@@ -14,6 +14,7 @@ import { isGameVersionRange, isLastXDays } from '../../../utils/version'
 import Button from '../../Buttons/Button'
 import ButtonRow from '../../Buttons/ButtonRow'
 import PrimaryButton from '../../Buttons/PrimaryButton'
+import SecondaryButton from '../../Buttons/SecondaryButton'
 import Modal from '../../Modals/Modal'
 import ControlRadioButton from '../ControlRadioButton'
 
@@ -92,6 +93,14 @@ function SubmissionWindowModal({
     } else {
       onApply(lastXDays)
     }
+    onClose()
+  }
+
+  const handleReset = () => {
+    onApply({
+      min: GAME_VERSION_VALUES[0],
+      max: GAME_VERSION_VALUES[GAME_VERSION_VALUES.length - 1],
+    })
     onClose()
   }
 
@@ -189,6 +198,9 @@ function SubmissionWindowModal({
         </ControlRadioButton>
 
         <ButtonRow>
+          <SecondaryButton onClick={handleReset} selectedClass={selectedClass}>
+            Reset
+          </SecondaryButton>
           <Button onClick={onClose}>Cancel</Button>
           <PrimaryButton onClick={handleApply} selectedClass={selectedClass}>
             Apply
