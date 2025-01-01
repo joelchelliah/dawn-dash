@@ -229,7 +229,6 @@ function Chart({ selectedClass, controls, onPlayerClick }: ChartProps) {
     })
 
     const hasChartData = chartInstance.current?.data?.datasets?.length
-    console.log(hasChartData)
 
     return (
       <div className={chartContainerClassName}>
