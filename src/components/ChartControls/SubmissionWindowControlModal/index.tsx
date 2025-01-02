@@ -111,14 +111,17 @@ function SubmissionWindowModal({
     if (minVersion === maxVersion) {
       return (
         <span>
-          Only show runs submitted during: <strong>{min}</strong>
+          Only show runs submitted during: <br />
+          <span className={styles['option-description__highlight']}>{min}</span>
         </span>
       )
     }
 
     return (
       <span>
-        Only show runs submitted between: <strong>{min}</strong> and <strong>{max}</strong>
+        Only show runs submitted between: <br />
+        <span className={styles['option-description__highlight']}>{min}</span> and{' '}
+        <span className={styles['option-description__highlight']}>{max}</span>
       </span>
     )
   }
@@ -126,7 +129,8 @@ function SubmissionWindowModal({
   const renderLastXDays = () => {
     return (
       <span>
-        Only show runs submitted in the last <strong>{lastXDays}</strong> days
+        Only show runs from the last{' '}
+        <span className={styles['option-description__highlight']}>{lastXDays}</span> days
       </span>
     )
   }

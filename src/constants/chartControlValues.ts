@@ -40,7 +40,7 @@ export const LAST_DAYS_VALUES = ['120', '90', '60', '30']
 export const SUBMISSION_WINDOW_DEFAULT = { min: '1.5', max: '1.14' }
 export const SUBMISSION_WINDOW_VALUES = [...GAME_VERSION_VALUES, ...LAST_DAYS_VALUES]
 export const SUBMISSION_WINDOW_LABEL_MAP: Record<string, string> = {
-  '1.5': '1.5',
+  '1.5': '1.5 (Earliest available)',
   '1.6': '1.6 (Infinitum)',
   '1.7': '1.7 (Trials of the Sunforge)',
   '1.8': '1.8 (Mask of Misery)',
