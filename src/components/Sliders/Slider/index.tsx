@@ -99,7 +99,7 @@ function Slider({
       <div className={styles['marks']}>
         {values.map((value, i) => (
           <div key={value} className={styles['mark']} style={getMarkStyle(i)}>
-            <span className={styles['mark-label']}>{value}</span>
+            <span className={styles['mark__label']}>{value}</span>
           </div>
         ))}
       </div>

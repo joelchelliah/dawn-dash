@@ -29,9 +29,19 @@
   position: absolute;
   transform: translateX(-50%);
   padding-top: 0.125rem;
-}
 
-.mark-label {
-  color: var(--mark-color);
-  font-size: font-size('xs');
+  &__label {
+    color: var(--mark-color);
+    font-size: font-size('xs');
+  }
+
+  // Rotate the marks on mobile so that they are more readable
+  @media (max-width: $breakpoint-mobile) {
+    padding-top: 0.25rem;
+    transform: translateX(-60%) rotate(-45deg);
+
+    .mark__label {
+      font-size: font-size('xxs');
+    }
+  }
 }
