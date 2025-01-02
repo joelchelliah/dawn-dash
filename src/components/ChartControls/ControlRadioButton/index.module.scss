@@ -1,0 +1,74 @@
+@use '../../../styles' as *;
+
+$energy-icon-size: 1rem;
+$energy-icon-empty-size: 0.875rem;
+$separator-border: 1px dashed #444;
+
+.radio-button {
+  @extend %flex-start;
+  gap: 0.75rem;
+  position: relative;
+  cursor: pointer;
+  padding: 1rem 0.5rem;
+  border-top: $separator-border;
+  opacity: 0.6;
+
+  &:last-child {
+    border-bottom: $separator-border;
+  }
+
+  &:hover {
+    background-color: #2a2a2a;
+  }
+
+  &--selected {
+    background-color: #222;
+    opacity: 1;
+  }
+
+  &__input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+
+    &:checked + .radio-button__custom {
+      border-color: var(--border-color);
+      background-color: transparent;
+
+      &::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: $energy-icon-size;
+        height: $energy-icon-size;
+        background-image: var(--energy-icon);
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+      }
+    }
+
+    &:focus + .radio-button__custom {
+      box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+    }
+  }
+
+  &__custom {
+    position: relative;
+    width: $energy-icon-empty-size;
+    height: $energy-icon-empty-size;
+    border: 2px solid var(--border-color);
+    border-radius: 50%;
+    margin-top: 0.125rem;
+    transition: all 0.2s ease;
+  }
+
+  &__label {
+    @extend %flex-column;
+    gap: 4px;
+    flex: 1;
+  }
+}

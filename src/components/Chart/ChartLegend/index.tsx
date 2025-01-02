@@ -38,7 +38,7 @@ function ChartLegend({
 }: ChartLegendProps) {
   const borderColor = getClassColor(selectedClass, ClassColorVariant.Darker)
 
-  if (!chart?.data.datasets || isLoading) {
+  if (!chart?.data.datasets?.length || isLoading) {
     return (
       <div className={styles['container']} style={{ borderColor }}>
         <div className={styles['content']}>

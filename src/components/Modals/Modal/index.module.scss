@@ -1,6 +1,7 @@
 @use '../../../styles' as *;
 
 $max-width: 32rem;
+$background-color: #1a1a1a;
 
 .overlay {
   @extend %flex-center;
@@ -15,7 +16,7 @@ $max-width: 32rem;
 
 .content {
   position: relative;
-  background: #1a1a1a;
+  background: $background-color;
   padding: 1.25rem;
   width: 90%;
   max-width: $max-width;
@@ -42,5 +43,11 @@ $max-width: 32rem;
 
   @media (max-width: $breakpoint-mobile) {
     margin: auto 1.5rem;
+  }
+
+  // Make the modal scrollable on mobile landscape
+  @media (orientation: landscape) and (max-height: 600px) {
+    max-height: 80vh;
+    overflow-y: auto;
   }
 }

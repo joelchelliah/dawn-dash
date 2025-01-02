@@ -1,6 +1,6 @@
 import { ChartDataset, ChartOptions } from 'chart.js'
 
-import { Difficulty, GameVersion } from './speedRun'
+import { Difficulty } from './speedRun'
 
 export interface ChartConfig {
   type: 'line'
@@ -31,6 +31,18 @@ export enum ViewMode {
   Records = 'records',
 }
 
+export enum SubmissionWindowMode {
+  MinMaxVersion = 'MinMaxVersion',
+  LastXDays = 'LastXDays',
+}
+
+export interface GameVersionRange {
+  min: string
+  max: string
+}
+
+export type SubmissionWindow = GameVersionRange | string
+
 export interface ChartControlState {
   difficulty: Difficulty
   setDifficulty: (value: Difficulty) => void
@@ -42,6 +54,6 @@ export interface ChartControlState {
   setViewMode: (value: ViewMode) => void
   zoomLevel: number
   setZoomLevel: (value: number) => void
-  gameVersion: GameVersion
-  setGameVersion: (value: GameVersion) => void
+  submissionWindow: SubmissionWindow
+  setSubmissionWindow: (value: SubmissionWindow) => void
 }

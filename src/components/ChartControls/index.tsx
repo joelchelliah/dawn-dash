@@ -2,11 +2,10 @@ import { useState } from 'react'
 
 import {
   DIFFICULTY_VALUES,
-  GAME_VERSION_LABEL_MAP,
-  GAME_VERSION_VALUES,
   MAX_DURATION_OTHER_VALUES,
   MAX_DURATION_SUNFORGE_VALUES,
   PLAYER_LIMIT_VALUES,
+  SUBMISSION_WINDOW_LABEL_MAP,
   VIEW_MODE_LABELS,
   VIEW_MODE_VALUES,
   ZOOM_LEVEL_VALUES,
@@ -14,11 +13,12 @@ import {
 import { ChartControlState, ViewMode } from '../../types/chart'
 import { Difficulty, SpeedRunClass } from '../../types/speedRun'
 import { ClassColorVariant, getClassColor } from '../../utils/colors'
-import { parseVersion, versionToString } from '../../utils/version'
-import ViewModeModal from '../Modals/ViewModeModal'
+import { isAllGameVersions, isGameVersionRange, isSingleGameVersion } from '../../utils/version'
 
 import ControlGroup from './ControlGroup'
 import styles from './index.module.scss'
+import SubmissionWindowModal from './SubmissionWindowControlModal'
+import ViewModeModal from './ViewModeControlModal'
 
 interface ChartControlsProps {
   controls: ChartControlState
@@ -39,14 +39,6 @@ const toViewModeOption = (value: ViewMode) => {
   return { value, label }
 }
 
-const toGameVersionOption = (value: string) => {
-  const label = GAME_VERSION_LABEL_MAP[value]
-
-  if (!label) throw new Error(`No label found for game version: ${value}`)
-
-  return { value, label }
-}
-
 const toZoomLevelOption = (value: number) => ({ value, label: `${value}%` })
 
 function ChartControls({ controls, selectedClass }: ChartControlsProps) {
@@ -61,8 +53,8 @@ function ChartControls({ controls, selectedClass }: ChartControlsProps) {
     setZoomLevel,
     difficulty,
     setDifficulty,
-    gameVersion,
-    setGameVersion,
+    submissionWindow,
+    setSubmissionWindow,
   } = controls
 
   const isSunforge = selectedClass === SpeedRunClass.Sunforge
@@ -76,8 +68,25 @@ function ChartControls({ controls, selectedClass }: ChartControlsProps) {
       ? MAX_DURATION_SUNFORGE_VALUES.map(toMinutesOption)
       : MAX_DURATION_OTHER_VALUES.map(toMinutesOption)
 
-  const [isViewModeModalOpen, setIsViewModeModalOpen] = useState(false)
+  const getSubmissionWindowOption = () => {
+    const value = submissionWindow
+    if (isGameVersionRange(value)) {
+      if (isAllGameVersions(value)) {
+        return { value, label: 'All versions' }
+      }
 
+      if (isSingleGameVersion(value)) {
+        return { value, label: `Version: ${SUBMISSION_WINDOW_LABEL_MAP[value.min]}` }
+      }
+
+      return { value, label: `Versions: ${value.min} - ${value.max}` }
+    }
+
+    return { value, label: SUBMISSION_WINDOW_LABEL_MAP[value] }
+  }
+
+  const [isViewModeModalOpen, setIsViewModeModalOpen] = useState(false)
+  const [isSubmissionWindowModalOpen, setIsSubmissionWindowModalOpen] = useState(false)
   return (
     <>
       <div className={styles['controls']} style={controlsBorderStyle}>
@@ -116,17 +125,16 @@ function ChartControls({ controls, selectedClass }: ChartControlsProps) {
             label="View mode"
             options={VIEW_MODE_VALUES.map(toViewModeOption)}
             value={viewMode}
-            onChange={setViewMode}
             onClick={() => setIsViewModeModalOpen(true)}
           />
 
           <ControlGroup
-            id="gameVersion"
+            id="submissionWindow"
             selectedClass={selectedClass}
-            label="Earliest version"
-            options={GAME_VERSION_VALUES.map(toGameVersionOption)}
-            value={versionToString(gameVersion)}
-            onChange={(val) => setGameVersion(parseVersion(val))}
+            label="Runs from"
+            options={[getSubmissionWindowOption()]}
+            value={submissionWindow}
+            onClick={() => setIsSubmissionWindowModalOpen(true)}
           />
 
           <ControlGroup
@@ -139,12 +147,21 @@ function ChartControls({ controls, selectedClass }: ChartControlsProps) {
           />
         </div>
       </div>
+
       <ViewModeModal
         isOpen={isViewModeModalOpen}
         onClose={() => setIsViewModeModalOpen(false)}
         onApply={setViewMode}
         selectedClass={selectedClass}
         currentViewMode={viewMode}
+      />
+
+      <SubmissionWindowModal
+        isOpen={isSubmissionWindowModalOpen}
+        onClose={() => setIsSubmissionWindowModalOpen(false)}
+        onApply={setSubmissionWindow}
+        selectedClass={selectedClass}
+        currentSubmissionWindow={submissionWindow}
       />
     </>
   )

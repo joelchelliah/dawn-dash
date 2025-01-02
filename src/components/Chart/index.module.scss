@@ -40,18 +40,20 @@
 
   &__chart {
     height: 100%;
-    transition: width 0.5s; // Smoother transition when changing zoom level
+
+    transition:
+      // Smoother transition when changing zoom level
+      width 0.5s,
+      // Fade out when updating
+      opacity 0.3s ease-in-out;
+
+    &--updating {
+      opacity: 0;
+    }
 
     canvas {
       min-height: 100%;
     }
-  }
-
-  &__error {
-    color: #ff6b6b;
-    text-align: center;
-    padding: 2rem;
-    font-size: font-size('md');
   }
 
   @media (max-width: $breakpoint-tablet) {
