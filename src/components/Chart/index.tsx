@@ -14,6 +14,7 @@ import {
   Title,
 } from 'chart.js'
 import cx from 'classnames'
+import { useNavigate } from 'react-router-dom'
 
 import { useDeviceOrientation } from '../../hooks/useDeviceOrientation'
 import { useSpeedrunData } from '../../hooks/useSpeedrunData'
@@ -38,6 +39,7 @@ import {
 import { isAnonymousPlayer } from '../../utils/players'
 import LoadingMessage from '../LoadingMessage'
 
+import ChartErrorMessage from './ChartErrorMessage'
 import ChartFooter from './ChartFooter'
 import ChartLegend from './ChartLegend'
 import ChartRotateMessage from './ChartRotateMessage'
@@ -46,6 +48,11 @@ import { createChartConfig } from './chartUtils/chartConfig'
 import { parseSpeedrunData } from './chartUtils/dataParser'
 import { yearBoundariesPlugin, calculateYearBoundaries } from './chartUtils/yearBoundaries'
 import styles from './index.module.scss'
+
+// Chart update delay in milliseconds
+// This is to prevent the chart from being updated too often
+// which can cause flickering in the chart rendering
+const CHART_UPDATE_DELAY = 200
 
 // Register the required components
 ChartJS.register(
@@ -72,8 +79,14 @@ function Chart({ selectedClass, controls, onPlayerClick }: ChartProps) {
   const playerColors = useRef<Record<string, string>>({})
   const [chartData, setChartData] = useState<ChartJS | null>(null)
   const { isMobileAndPortrait, isMobileAndLandscape } = useDeviceOrientation()
+  const navigate = useNavigate()
 
   const { difficulty, playerLimit, maxDuration, viewMode, submissionWindow, zoomLevel } = controls
+
+  const resetToDefaults = () => {
+    navigate(`/?class=${selectedClass}&difficulty=${difficulty}`, { replace: true })
+    window.location.reload()
+  }
 
   const createDatasets = useCallback(
     (playerHistory: Map<string, DataPoint[]>, recordPoints: RecordPoint[]) => {
@@ -197,15 +210,43 @@ function Chart({ selectedClass, controls, onPlayerClick }: ChartProps) {
   // Debug:
   // const isLoading = true
 
+  // For debouncing the chart update
+  const updateTimeoutRef = useRef<NodeJS.Timeout>()
+
+  // For
+  const [isUpdating, setIsUpdating] = useState(false)
+
   useEffect(() => {
+    // Clear data and exit if loading
     if (isLoading) {
-      // Destroy chart when loading
       setChartData(null)
-    } else if (chartRef.current && speedrunData) {
-      // Only create chart when loading is complete
-      createChart(speedrunData)
+      return
     }
-  }, [isLoading, speedrunData, createChart])
+
+    // Exit if no chart (canvas) or data
+    if (!chartRef.current || !speedrunData) {
+      return
+    }
+
+    // Clear old timeout
+    if (updateTimeoutRef.current) {
+      clearTimeout(updateTimeoutRef.current)
+    }
+
+    // Schedule new debounced update
+    setIsUpdating(true)
+    updateTimeoutRef.current = setTimeout(() => {
+      createChart(speedrunData)
+      setIsUpdating(false)
+    }, CHART_UPDATE_DELAY)
+
+    return () => {
+      if (updateTimeoutRef.current) {
+        clearTimeout(updateTimeoutRef.current)
+      }
+    }
+    // Chart update should be triggered by the controls state as well!
+  }, [isLoading, speedrunData, createChart, controls])
 
   useEffect(() => {
     return () => {
@@ -227,25 +268,34 @@ function Chart({ selectedClass, controls, onPlayerClick }: ChartProps) {
     const chartContainerClassName = cx(styles['chart-container'], {
       [styles['chart-container--mobilePortraitLoading']]: isMobilePortraitLoading,
     })
+    const chartClassName = cx(styles['chart-container__chart'], {
+      [styles['chart-container__chart--updating']]: isUpdating,
+    })
 
     const hasChartData = chartInstance.current?.data?.datasets?.length
 
     return (
       <div className={chartContainerClassName}>
-        {isLoading && (
-          <LoadingMessage selectedClass={selectedClass} selectedDifficulty={difficulty} />
-        )}
-        {isError && !isLoading && (
-          <div className={styles['chart-container__error']}>Error loading data</div>
-        )}
-        {!isError && !isLoading && !hasChartData && (
-          <div className={styles['chart-container__error']}>
-            No runs found for the selected filters
-          </div>
-        )}
+        <LoadingMessage
+          isVisible={isLoading}
+          selectedClass={selectedClass}
+          selectedDifficulty={difficulty}
+        />
+        <ChartErrorMessage
+          isVisible={isError && !isLoading}
+          selectedClass={selectedClass}
+          message="Error loading data!"
+        />
+        <ChartErrorMessage
+          isVisible={!isError && !isLoading && !hasChartData}
+          selectedClass={selectedClass}
+          message="No runs found for the selected filters!"
+          buttonText="Reset filters"
+          onClick={resetToDefaults}
+        />
         {!isError && !isLoading && (
           <div
-            className={styles['chart-container__chart']}
+            className={chartClassName}
             style={{
               width: `${width}%`,
               height: `${Math.max(500, zoomLevel * 3)}px`,

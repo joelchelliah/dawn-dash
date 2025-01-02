@@ -11,10 +11,13 @@ import styles from './index.module.scss'
 interface LoadingMessageProps {
   selectedClass: SpeedRunClass
   selectedDifficulty: Difficulty
+  isVisible: boolean
 }
 
-function LoadingMessage({ selectedClass, selectedDifficulty }: LoadingMessageProps) {
+function LoadingMessage({ isVisible, selectedClass, selectedDifficulty }: LoadingMessageProps) {
   const { isMobileAndPortrait } = useDeviceOrientation()
+
+  if (!isVisible) return null
 
   const imageUrl = getClassImageUrl(selectedClass)
   const color = getClassColor(selectedClass, ClassColorVariant.Lighter)
