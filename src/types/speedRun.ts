@@ -8,6 +8,17 @@ export enum SpeedRunClass {
   Sunforge = 'Sunforge',
 }
 
+export enum SpeedRunSubclass {
+  All = 'All',
+  Arcanist = 'Arcanist',
+  Hunter = 'Hunter',
+  Knight = 'Knight',
+  Rogue = 'Rogue',
+  Seeker = 'Seeker',
+  Warrior = 'Warrior',
+  Hybrid = 'Hybrid',
+}
+
 export enum Difficulty {
   Normal = 'Normal',
   Challenging = 'Challenging',
@@ -35,6 +46,7 @@ export type SpeedRunApiResponse = {
   [key in SpeedRunCategory]: Array<{
     _id: string
     uid: number
+    subclass: string
     version: string
     stats: { clock1: string }
     discorduser: string | null
