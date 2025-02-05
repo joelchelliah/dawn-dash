@@ -1,7 +1,8 @@
 import { ViewMode } from '../types/chart'
-import { Difficulty, SpeedRunClass } from '../types/speedRun'
+import { Difficulty, SpeedRunClass, SpeedRunSubclass } from '../types/speedRun'
 
 export const CLASS_DEFAULT = SpeedRunClass.Arcanist
+export const SUBCLASS_DEFAULT = SpeedRunSubclass.All
 
 export const DIFFICULTY_DEFAULT = Difficulty.Impossible
 export const DIFFICULTY_VALUES = Object.values(Difficulty)

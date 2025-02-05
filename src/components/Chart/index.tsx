@@ -81,7 +81,8 @@ function Chart({ selectedClass, controls, onPlayerClick }: ChartProps) {
   const { isMobileAndPortrait, isMobileAndLandscape } = useDeviceOrientation()
   const navigate = useNavigate()
 
-  const { difficulty, playerLimit, maxDuration, viewMode, submissionWindow, zoomLevel } = controls
+  const { subclass, difficulty, playerLimit, maxDuration, viewMode, submissionWindow, zoomLevel } =
+    controls
 
   const resetToDefaults = () => {
     navigate(`/?class=${selectedClass}&difficulty=${difficulty}`, { replace: true })
@@ -166,7 +167,8 @@ function Chart({ selectedClass, controls, onPlayerClick }: ChartProps) {
         playerLimit,
         maxDuration,
         viewMode,
-        submissionWindow
+        submissionWindow,
+        subclass
       )
       playerColors.current = getColorMapping(playerHistory)
 

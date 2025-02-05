@@ -6,6 +6,7 @@ import {
   SpeedRunCategory,
   SpeedRunClass,
   SpeedRunData,
+  SpeedRunSubclass,
 } from '../types/speedRun'
 import { parseVersion } from '../utils/version'
 
@@ -36,6 +37,7 @@ export const fetchSpeedruns = async (
         version: parseVersion(run.version),
         duration: run.stats?.clock1,
         discorduser: run.discorduser || null,
+        subclass: run.subclass as SpeedRunSubclass,
       }))
   } catch (error) {
     if (isAxiosError(error)) {

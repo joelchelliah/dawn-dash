@@ -1,6 +1,6 @@
 import { ChartDataset, ChartOptions } from 'chart.js'
 
-import { Difficulty } from './speedRun'
+import { Difficulty, SpeedRunSubclass } from './speedRun'
 
 export interface ChartConfig {
   type: 'line'
@@ -44,6 +44,8 @@ export interface GameVersionRange {
 export type SubmissionWindow = GameVersionRange | string
 
 export interface ChartControlState {
+  subclass: SpeedRunSubclass | null
+  setSubclass: (value: SpeedRunSubclass | null) => void
   difficulty: Difficulty
   setDifficulty: (value: Difficulty) => void
   playerLimit: number

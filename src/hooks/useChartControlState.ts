@@ -8,9 +8,10 @@ import {
   MAX_DURATION_OTHER_DEFAULT,
   DIFFICULTY_DEFAULT,
   SUBMISSION_WINDOW_DEFAULT,
+  SUBCLASS_DEFAULT,
 } from '../constants/chartControlValues'
 import { ChartControlState, SubmissionWindow, ViewMode } from '../types/chart'
-import { Difficulty, SpeedRunClass } from '../types/speedRun'
+import { Difficulty, SpeedRunClass, SpeedRunSubclass } from '../types/speedRun'
 
 export function useChartControlState(
   selectedClass: SpeedRunClass,
@@ -18,6 +19,7 @@ export function useChartControlState(
 ): ChartControlState {
   const isInitialMount = useRef(true)
   const previousClass = useRef(selectedClass)
+  const [subclass, setSubclass] = useState<SpeedRunSubclass | null>(null)
 
   const isSunforge = selectedClass === SpeedRunClass.Sunforge
   const maxDurationDefault = isSunforge ? MAX_DURATION_SUNFORGE_DEFAULT : MAX_DURATION_OTHER_DEFAULT
@@ -50,6 +52,12 @@ export function useChartControlState(
 
       // When class changes, always reset difficulty to DEFAULT regardless of URL params
       setDifficulty(DIFFICULTY_DEFAULT)
+
+      if (isSunforge) {
+        setSubclass(SUBCLASS_DEFAULT)
+      } else {
+        setSubclass(null)
+      }
     }
   }, [maxDurationDefault, selectedClass, isSunforge])
 
@@ -67,7 +75,9 @@ export function useChartControlState(
       setDifficulty,
       submissionWindow,
       setSubmissionWindow,
+      subclass,
+      setSubclass,
     }),
-    [maxDuration, zoomLevel, viewMode, playerLimit, difficulty, submissionWindow]
+    [maxDuration, zoomLevel, viewMode, playerLimit, difficulty, submissionWindow, subclass]
   )
 }

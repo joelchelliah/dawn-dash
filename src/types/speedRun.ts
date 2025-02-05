@@ -38,6 +38,7 @@ export interface SpeedRunData {
   duration: string
   discorduser: string | null
   version: GameVersion
+  subclass: SpeedRunSubclass
 }
 
 export type SpeedRunCategory = `${SpeedRunClass}-${Difficulty}`

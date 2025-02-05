@@ -18,7 +18,7 @@ import {
 } from './constants/chartControlValues'
 import { useChartControlState } from './hooks/useChartControlState'
 import { useUrlParams } from './hooks/useUrlParams'
-import { Difficulty, SpeedRunClass, SpeedRunSubclass } from './types/speedRun'
+import { Difficulty, SpeedRunClass } from './types/speedRun'
 
 // Using initial class and difficulty from the URL params (if available)
 // to prevent unwated intitial fetch based on default values
@@ -40,7 +40,6 @@ function useInitialClassAndDifficulty() {
 function App(): JSX.Element {
   const { initialClass, initialDifficulty } = useInitialClassAndDifficulty()
   const [selectedClass, setSelectedClass] = useState<SpeedRunClass>(initialClass)
-  const [selectedSubclass, setSelectedSubclass] = useState<SpeedRunSubclass>(SpeedRunSubclass.All)
   const [selectedPlayer, setSelectedPlayer] = useState('')
   const [selectedTimestamp, setSelectedTimestamp] = useState<number | undefined>()
 
@@ -77,10 +76,10 @@ function App(): JSX.Element {
 
       <div className={styles['content']}>
         <ClassButtons onClassSelect={setSelectedClass} selectedClass={selectedClass} />
-        {isSunforge && (
+        {isSunforge && controls.subclass && (
           <SubclassButtons
-            onSubclassSelect={setSelectedSubclass}
-            selectedSubclass={selectedSubclass}
+            onSubclassSelect={controls.setSubclass}
+            selectedSubclass={controls.subclass}
           />
         )}
         <ChartControls controls={controls} selectedClass={selectedClass} />

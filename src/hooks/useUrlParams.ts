@@ -13,7 +13,7 @@ import {
   GAME_VERSION_VALUES,
 } from '../constants/chartControlValues'
 import { ChartControlState, ViewMode } from '../types/chart'
-import { Difficulty, SpeedRunClass } from '../types/speedRun'
+import { Difficulty, SpeedRunClass, SpeedRunSubclass } from '../types/speedRun'
 import { submissionWindowFromUrlString, submissionWindowToUrlString } from '../utils/version'
 
 function setSearchParamsFromControlState(
@@ -29,6 +29,7 @@ function setSearchParamsFromControlState(
   debounceTimeoutRef.current = setTimeout(() => {
     const params = new URLSearchParams()
     params.set('class', selectedClass)
+    if (isSunforge) params.set('subclass', controls.subclass || SpeedRunSubclass.All)
     if (!isSunforge) params.set('difficulty', controls.difficulty)
     params.set('players', controls.playerLimit.toString())
     params.set('duration', controls.maxDuration.toString())
@@ -54,6 +55,9 @@ export function useUrlParams(
 
   const isValidClass = (value: string): value is SpeedRunClass =>
     Object.values(SpeedRunClass).includes(value as SpeedRunClass)
+
+  const isValidSubclass = (value: string): value is SpeedRunSubclass =>
+    Object.values(SpeedRunSubclass).includes(value as SpeedRunSubclass)
 
   const isValidDifficulty = (value: string): value is Difficulty =>
     DIFFICULTY_VALUES.includes(value as Difficulty)
@@ -97,6 +101,7 @@ export function useUrlParams(
     } else {
       // Otherwise, update controls and class from URL params
       const classParam = searchParams.get('class')
+      const subclassParam = searchParams.get('subclass')
       const difficulty = searchParams.get('difficulty')
       const players = searchParams.get('players')
       const duration = searchParams.get('duration')
@@ -108,6 +113,12 @@ export function useUrlParams(
       if (classParam && isValidClass(classParam)) {
         setSelectedClass(classParam)
       } else if (classParam) {
+        areAllParamsValid = false
+      }
+
+      if (subclassParam && isValidSubclass(subclassParam)) {
+        controls.setSubclass(subclassParam)
+      } else if (subclassParam) {
         areAllParamsValid = false
       }
 
