@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-import { useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 
 import styles from './App.module.scss'
 import Chart from './components/Chart'
@@ -42,6 +42,7 @@ function App(): JSX.Element {
   const [selectedClass, setSelectedClass] = useState<SpeedRunClass>(initialClass)
   const [selectedPlayer, setSelectedPlayer] = useState('')
   const [selectedTimestamp, setSelectedTimestamp] = useState<number | undefined>()
+  const navigate = useNavigate()
 
   const controls = useChartControlState(selectedClass, initialDifficulty)
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -57,19 +58,26 @@ function App(): JSX.Element {
     setIsModalOpen(false)
   }
 
+  const resetToDefaults = () => {
+    navigate(`/?class=${selectedClass}&difficulty=${controls.difficulty}`, { replace: true })
+    window.location.reload()
+  }
+
   useUrlParams(selectedClass, setSelectedClass, controls)
 
   return (
     <div className={styles['container']}>
       <div className={styles['header']}>
-        <img
-          src="https://blightbane.io/images/icons/cardart_4_53.webp"
-          alt="Dawncaster Logo"
-          className={styles['header__logo']}
-        />
-        <div>
-          <h1 className={styles['title']}>Dawn-Dash</h1>
-          <h2 className={styles['subtitle']}>Dawncaster speedrun charts</h2>
+        <div className={styles['logo-and-title']} onClick={resetToDefaults}>
+          <img
+            src="https://blightbane.io/images/icons/cardart_4_53.webp"
+            alt="Dawncaster Logo"
+            className={styles['logo']}
+          />
+          <div>
+            <h1 className={styles['title']}>Dawn-Dash</h1>
+            <h2 className={styles['subtitle']}>Dawncaster speedrun charts</h2>
+          </div>
         </div>
         <HeaderInfo />
       </div>

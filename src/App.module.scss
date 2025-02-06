@@ -18,14 +18,19 @@
   @media (max-width: $breakpoint-tablet) {
     margin-top: 0.625rem;
   }
+}
 
-  &__logo {
-    width: 3.25rem;
-    height: 3.25rem;
-    margin-top: 0.25rem;
-    margin-right: 1rem;
-    @include rotateY360Animation('hover', '.header:hover');
-  }
+.logo-and-title {
+  @extend %flex-center;
+  cursor: pointer;
+}
+
+.logo {
+  width: 3.25rem;
+  height: 3.25rem;
+  margin-top: 0.25rem;
+  margin-right: 1rem;
+  @include rotateY360Animation('hover', '.logo-and-title:hover');
 }
 
 .title {
