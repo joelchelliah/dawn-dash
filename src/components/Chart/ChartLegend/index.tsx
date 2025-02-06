@@ -4,13 +4,15 @@ import { Chart as ChartJS } from 'chart.js'
 import cx from 'classnames'
 
 import { DataPoint } from '../../../types/chart'
-import { SpeedRunClass } from '../../../types/speedRun'
+import { SpeedRunClass, SpeedRunSubclass } from '../../../types/speedRun'
 import {
   anonymousBorderColor,
   anonymousMarkerColor,
   ClassColorVariant,
   getClassColor,
+  getSubclassColor,
 } from '../../../utils/colors'
+import { getEnergyImageUrl } from '../../../utils/images'
 import {
   getPlayerBestTimes,
   isAnonymousPlayer,
@@ -25,6 +27,7 @@ interface ChartLegendProps {
   chart: ChartJS | null
   playerColors: Record<string, string>
   selectedClass: SpeedRunClass
+  subclass: SpeedRunSubclass | null
   isLoading: boolean
   onPlayerClick: (player: string, timestamp: number) => void
 }
@@ -34,6 +37,7 @@ function ChartLegend({
   playerColors,
   onPlayerClick,
   selectedClass,
+  subclass,
   isLoading,
 }: ChartLegendProps) {
   const borderColor = getClassColor(selectedClass, ClassColorVariant.Darker)
@@ -53,12 +57,55 @@ function ChartLegend({
     )
   }
 
+  const renderSubclassEnergyIcons = () => {
+    if (subclass === SpeedRunSubclass.Hybrid) {
+      const arcanist = getEnergyImageUrl(SpeedRunSubclass.Arcanist)
+      const warrior = getEnergyImageUrl(SpeedRunSubclass.Warrior)
+      const rogue = getEnergyImageUrl(SpeedRunSubclass.Rogue)
+
+      return (
+        <>
+          <img src={arcanist} alt={`${subclass} icon`} />
+          <img src={warrior} alt={`${subclass} icon`} />
+          <img src={rogue} alt={`${subclass} icon`} />
+        </>
+      )
+    }
+
+    const icon = getEnergyImageUrl(subclass ?? SpeedRunSubclass.All)
+
+    return <img src={icon} alt={`${subclass} icon`} />
+  }
+
+  const renderTitle = () => {
+    const titleColor = getClassColor(selectedClass, ClassColorVariant.Default)
+    const subtitleColor = getSubclassColor(subclass ?? SpeedRunSubclass.All, false)
+    const classEnergy = getEnergyImageUrl(selectedClass)
+    const subclassEnergyIcons = renderSubclassEnergyIcons()
+
+    return (
+      <div className={styles['content__title']} style={{ color: titleColor }}>
+        <img src={classEnergy} alt={`${selectedClass} icon`} />
+        {selectedClass}
+        <img src={classEnergy} alt={`${selectedClass} icon`} />
+        {subclass && (
+          <div className={styles['content__title__subtitle']} style={{ color: subtitleColor }}>
+            {subclassEnergyIcons}
+            <span>{subclass}</span>
+            {subclassEnergyIcons}
+          </div>
+        )}
+      </div>
+    )
+  }
+
   const playerBestTimes = getPlayerBestTimes(chart)
   const sortedDatasets = sortedDatasetsByPlayerBestTime(chart, playerBestTimes)
 
   return (
     <div className={styles['container']} style={{ borderColor }}>
       <div className={styles['content']}>
+        {renderTitle()}
         <ul>
           {sortedDatasets.map((dataset, index) => {
             const player = dataset.label || ''

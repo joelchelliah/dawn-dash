@@ -330,6 +330,7 @@ function Chart({ selectedClass, controls, onPlayerClick }: ChartProps) {
         chart={chartData}
         playerColors={playerColors.current}
         selectedClass={selectedClass}
+        subclass={subclass}
         isLoading={isLoading}
         onPlayerClick={onPlayerClick}
       />

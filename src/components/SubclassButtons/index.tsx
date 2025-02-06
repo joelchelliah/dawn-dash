@@ -22,7 +22,7 @@ function SubclassButtons({ onSubclassSelect, selectedSubclass }: SubclassButtons
   return (
     <div className={styles['subclass-buttons']} style={borderStyle}>
       <h3 className={styles['subclass-buttons__title']} style={{ color: defaultColor }}>
-        Sunforge Subclass
+        Sunforge subclass
       </h3>
 
       <div className={styles['subclass-buttons__buttons']}>

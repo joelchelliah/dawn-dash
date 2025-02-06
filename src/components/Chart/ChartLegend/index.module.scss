@@ -35,6 +35,33 @@
     }
   }
 
+  &__title {
+    font-size: font-size('md');
+    text-align: center;
+    font-weight: 600;
+    margin-block-end: 0.75rem;
+    margin-block-start: 0;
+
+    img {
+      width: 1rem;
+      margin: 0 0.5rem;
+    }
+
+    &__subtitle {
+      margin-top: 0.375rem;
+      font-size: font-size('sm');
+
+      img {
+        width: 0.75rem;
+        margin: 0 0.25rem;
+      }
+
+      span {
+        margin: 0 0.25rem;
+      }
+    }
+  }
+
   @media (max-width: $breakpoint-tablet) {
     ul {
       display: flex;

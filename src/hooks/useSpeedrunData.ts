@@ -6,7 +6,7 @@ import { fetchSpeedruns } from '../services/blightbaneApi'
 import { Difficulty, SpeedRunClass, SpeedRunData } from '../types/speedRun'
 import { getFromCache, saveToCache } from '../utils/storage'
 
-const FETCH_DATA_SIZE = 1000
+const FETCH_DATA_SIZE = 10000
 
 export function useSpeedrunData(type: SpeedRunClass, difficulty: Difficulty) {
   const [localData, setLocalData] = useState<SpeedRunData[] | null>(null)

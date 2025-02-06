@@ -7,7 +7,8 @@
   background: $color-component-bg;
   border-radius: 0.5rem;
   @include default_border(dashed);
-  animation: dropdown 0.5s cubic-bezier(0.075, 0.82, 0.165, 1) forwards;
+  overflow: hidden; // Prevent inner content from showing outside the container during the animation
+  animation: dropdown 1s cubic-bezier(0.1, 1, 0.2, 1) forwards;
 
   &__title {
     flex: 1;
@@ -27,10 +28,12 @@
 
 @keyframes dropdown {
   from {
+    max-height: 0;
     opacity: 0;
     transform: translateY(-30px);
   }
   to {
+    max-height: 1000px;
     opacity: 1;
     transform: translateY(0);
   }
