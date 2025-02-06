@@ -203,7 +203,7 @@ function Chart({ selectedClass, controls, onPlayerClick }: ChartProps) {
       chartInstance.current = new ChartJS(ctx, config)
       setChartData(chartInstance.current) // Update chartData with new instance
     },
-    [createDatasets, submissionWindow, maxDuration, playerLimit, selectedClass, viewMode]
+    [createDatasets, subclass, submissionWindow, maxDuration, playerLimit, selectedClass, viewMode]
   )
 
   const { speedrunData, isLoading, isLoadingInBackground, isError, lastUpdated, refresh } =
