@@ -106,6 +106,7 @@ function App(): JSX.Element {
         onConfirm={openInBlightbane}
         player={selectedPlayer}
         playerClass={selectedClass}
+        subclass={controls.subclass}
       />
     </div>
   )
