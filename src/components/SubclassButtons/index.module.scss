@@ -25,16 +25,3 @@
     gap: 0.5rem;
   }
 }
-
-@keyframes dropdown {
-  from {
-    max-height: 0;
-    opacity: 0;
-    transform: translateY(-30px);
-  }
-  to {
-    max-height: 1000px;
-    opacity: 1;
-    transform: translateY(0);
-  }
-}

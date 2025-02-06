@@ -32,6 +32,17 @@
 
     &:hover {
       background-color: $color-list-hover-bg;
+
+      .player__name {
+        font-weight: 600;
+      }
+
+      .color-marker {
+        width: 0.625rem;
+        height: 0.625rem;
+        margin-right: 0.625rem;
+        animation: rotateZ360 0.5s linear infinite;
+      }
     }
   }
 
