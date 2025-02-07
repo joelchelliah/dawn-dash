@@ -133,6 +133,21 @@ export function darken(color: string, percent: number): string {
     .toString()
 }
 
+export function saturate(color: string, percent: number): string {
+  return tinycolor(color)
+    .lighten(percent / 10)
+    .saturate(percent)
+    .toString()
+}
+
+export function desaturate(color: string, percent: number): string {
+  return tinycolor(color)
+    .darken(percent / 10)
+    .setAlpha((100 - percent) / 100)
+    .desaturate(percent)
+    .toString()
+}
+
 function shadeColorByVariant(color: string, variant: ClassColorVariant): string {
   switch (variant) {
     case ClassColorVariant.ControlText:

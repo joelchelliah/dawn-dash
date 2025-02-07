@@ -30,12 +30,14 @@ interface ChartLegendProps {
   subclass: SpeedRunSubclass | null
   isLoading: boolean
   onPlayerClick: (player: string, timestamp: number) => void
+  onPlayerHover: (player: string | null) => void
 }
 
 function ChartLegend({
   chart,
   playerColors,
   onPlayerClick,
+  onPlayerHover,
   selectedClass,
   subclass,
   isLoading,
@@ -130,7 +132,12 @@ function ChartLegend({
             })
 
             return (
-              <li key={player} onClick={() => onPlayerClick(player, bestRun.x)}>
+              <li
+                key={player}
+                onClick={() => onPlayerClick(player, bestRun.x)}
+                onMouseEnter={() => onPlayerHover(player)}
+                onMouseLeave={() => onPlayerHover(null)}
+              >
                 <span className={styles['color-marker']} style={markerStyle} />
                 <span className={playerClassName}>
                   <span className={nameContainerClassName}>
