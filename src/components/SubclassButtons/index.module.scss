@@ -7,8 +7,6 @@
   background: $color-component-bg;
   border-radius: 0.5rem;
   @include default_border(dashed);
-  overflow: hidden; // Prevent inner content from showing outside the container during the animation
-  animation: dropdown 2s cubic-bezier(0.1, 1, 0.2, 1) forwards;
 
   &__title {
     flex: 1;

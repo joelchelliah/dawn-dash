@@ -33,7 +33,7 @@
 }
 
 /**
- * Rotates element around the Y axis
+ * Rotates element around the Z axis
  */
 @mixin rotateZ360Animation($infinite) {
   @if $infinite {
@@ -49,6 +49,18 @@
   }
   to {
     transform: rotateZ(270deg);
+  }
+}
+
+@keyframes rotateZ360AndScale {
+  0% {
+    transform: rotateZ(0deg) scale(0.75);
+  }
+  50% {
+    transform: rotateZ(360deg) scale(1);
+  }
+  100% {
+    transform: rotateZ(720deg) scale(0.75);
   }
 }
 
@@ -128,18 +140,5 @@
   }
   to {
     opacity: 1;
-  }
-}
-
-@keyframes dropdown {
-  from {
-    max-height: 0;
-    opacity: 0;
-    transform: translateY(-30px);
-  }
-  to {
-    max-height: 1000px;
-    opacity: 1;
-    transform: translateY(0);
   }
 }
