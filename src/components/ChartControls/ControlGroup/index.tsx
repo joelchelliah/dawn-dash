@@ -32,15 +32,13 @@ function ControlGroup<T>({
   disabled,
   onClick,
 }: ControlGroupProps<T>) {
-  const isSunforge = selectedClass === SpeedRunClass.Sunforge
-
-  const darkColor = getClassColor(selectedClass, ClassColorVariant.Darker)
+  const darkestColor = getClassColor(selectedClass, ClassColorVariant.Darkest)
   const defaultColor = getClassColor(selectedClass, ClassColorVariant.Default)
   const selectColor = getClassColor(selectedClass, ClassColorVariant.ControlText)
   const selectBorderColor = getClassColor(selectedClass, ClassColorVariant.Dark)
 
   const labelStyle = { color: defaultColor }
-  const labelDisabledStyle = { color: darkColor }
+  const labelDisabledStyle = { color: darkestColor }
   const selectStyle = {
     borderColor: selectBorderColor,
     color: selectColor,
@@ -74,7 +72,7 @@ function ControlGroup<T>({
 
   return (
     <div className={styles['group']}>
-      <label htmlFor={id} style={isSunforge ? labelDisabledStyle : labelStyle}>
+      <label htmlFor={id} style={disabled ? labelDisabledStyle : labelStyle}>
         {label}
       </label>
       <select

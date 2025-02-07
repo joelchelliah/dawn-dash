@@ -32,9 +32,11 @@ import {
   anonymousBorderHoverColor,
   anonymousMarkerColor,
   ClassColorVariant,
+  desaturate,
   getClassColor,
   getColorMapping,
   lighten,
+  saturate,
 } from '../../utils/colors'
 import { isAnonymousPlayer } from '../../utils/players'
 import LoadingMessage from '../LoadingMessage'
@@ -81,7 +83,8 @@ function Chart({ selectedClass, controls, onPlayerClick }: ChartProps) {
   const { isMobileAndPortrait, isMobileAndLandscape } = useDeviceOrientation()
   const navigate = useNavigate()
 
-  const { difficulty, playerLimit, maxDuration, viewMode, submissionWindow, zoomLevel } = controls
+  const { subclass, difficulty, playerLimit, maxDuration, viewMode, submissionWindow, zoomLevel } =
+    controls
 
   const resetToDefaults = () => {
     navigate(`/?class=${selectedClass}&difficulty=${difficulty}`, { replace: true })
@@ -166,7 +169,8 @@ function Chart({ selectedClass, controls, onPlayerClick }: ChartProps) {
         playerLimit,
         maxDuration,
         viewMode,
-        submissionWindow
+        submissionWindow,
+        subclass
       )
       playerColors.current = getColorMapping(playerHistory)
 
@@ -201,7 +205,7 @@ function Chart({ selectedClass, controls, onPlayerClick }: ChartProps) {
       chartInstance.current = new ChartJS(ctx, config)
       setChartData(chartInstance.current) // Update chartData with new instance
     },
-    [createDatasets, submissionWindow, maxDuration, playerLimit, selectedClass, viewMode]
+    [createDatasets, subclass, submissionWindow, maxDuration, playerLimit, selectedClass, viewMode]
   )
 
   const { speedrunData, isLoading, isLoadingInBackground, isError, lastUpdated, refresh } =
@@ -311,6 +315,41 @@ function Chart({ selectedClass, controls, onPlayerClick }: ChartProps) {
 
   const borderColor = getClassColor(selectedClass, ClassColorVariant.Darker)
 
+  const onPlayerHover = useCallback(
+    (hoveredPlayer: string | null) => {
+      if (!chartInstance.current) return
+
+      chartInstance.current.data.datasets.forEach((dataset) => {
+        const player = dataset.label || ''
+        const isAnonymous = isAnonymousPlayer(player)
+        const borderColor = isAnonymous ? anonymousBorderColor : playerColors.current[player]
+        const backgroundColor = isAnonymous ? anonymousMarkerColor : playerColors.current[player]
+        const isCurrentPlayerHovered = player === hoveredPlayer
+        const isAllRunsView = viewMode === ViewMode.All
+
+        dataset.borderWidth = isAllRunsView ? 2 : 3
+        dataset.borderDash = isAllRunsView ? [5, 5] : []
+        dataset.borderColor = borderColor
+        dataset.backgroundColor = backgroundColor
+
+        if (hoveredPlayer) {
+          if (isCurrentPlayerHovered) {
+            dataset.borderColor = saturate(borderColor, 60)
+            dataset.backgroundColor = saturate(backgroundColor, 60)
+            dataset.borderDash = []
+          } else {
+            dataset.borderColor = desaturate(borderColor, 60)
+            dataset.backgroundColor = desaturate(backgroundColor, 60)
+            dataset.borderWidth = 1
+          }
+        }
+      })
+
+      chartInstance.current.update('none')
+    },
+    [viewMode]
+  )
+
   return (
     <div className={styles['layout']}>
       <div className={styles['container']} style={{ borderColor }}>
@@ -328,8 +367,10 @@ function Chart({ selectedClass, controls, onPlayerClick }: ChartProps) {
         chart={chartData}
         playerColors={playerColors.current}
         selectedClass={selectedClass}
+        subclass={subclass}
         isLoading={isLoading}
         onPlayerClick={onPlayerClick}
+        onPlayerHover={onPlayerHover}
       />
     </div>
   )

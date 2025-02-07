@@ -1,5 +1,5 @@
-import { SpeedRunClass } from '../../../types/speedRun'
-import { ClassColorVariant, getClassColor } from '../../../utils/colors'
+import { SpeedRunClass, SpeedRunSubclass } from '../../../types/speedRun'
+import { ClassColorVariant, getClassColor, getSubclassColor } from '../../../utils/colors'
 import { isAnonymousPlayer } from '../../../utils/players'
 import Button from '../../Buttons/Button'
 import ButtonRow from '../../Buttons/ButtonRow'
@@ -14,6 +14,7 @@ interface BlightbaneModalProps {
   onConfirm: () => void
   player: string
   playerClass: SpeedRunClass
+  subclass: SpeedRunSubclass | null
 }
 
 function BlightbaneModal({
@@ -22,15 +23,21 @@ function BlightbaneModal({
   onConfirm,
   player,
   playerClass,
+  subclass,
 }: BlightbaneModalProps) {
   const classColor = getClassColor(playerClass, ClassColorVariant.Light)
+  const subclassColor = getSubclassColor(subclass ?? SpeedRunSubclass.All, true)
   const isAnonymous = isAnonymousPlayer(player)
 
   const renderText = () => {
+    const subclassTag = subclass && subclass !== SpeedRunSubclass.All ? ` (${subclass})` : ''
     const postFix = (
       <>
         <span className={styles['player']} style={{ color: classColor }}>
           {playerClass}
+          <span className={styles['subclass']} style={{ color: subclassColor }}>
+            {subclassTag}
+          </span>
         </span>{' '}
         run on Blightbane?
       </>

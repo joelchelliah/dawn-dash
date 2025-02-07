@@ -13,7 +13,6 @@
   min-width: 6.25rem;
   max-width: 25rem;
   white-space: nowrap;
-  gap: 0.5rem;
 
   &:hover {
     background-color: $color-button-hover-bg;
@@ -26,31 +25,32 @@
     border-style: solid;
   }
 
-  // Medium+ screens: three buttons per row
+  // Medium+ screens: four buttons per row
   @media (max-width: $breakpoint-tablet-plus) {
-    flex: 1 1 calc(33.33% - 0.5rem);
+    flex: 1 1 calc(25% - 0.75rem);
 
     &:last-child:nth-child(odd) {
       max-width: 100%; // This is why we need flex: 1 1 calc...
     }
   }
 
-  // Small screens: two buttons per row
+  // Small screens: three buttons per row
   @media (max-width: $breakpoint-mobile) {
-    flex: 1 1 calc(50% - 0.375rem);
+    flex: 1 1 calc(33.33% - 0.75rem);
   }
 }
 
-.class-icon {
-  width: 2.25rem;
-  vertical-align: middle;
-  margin-right: 0.25rem;
-  border: 1px groove rgb(153, 153, 153);
-  border-radius: 0.25rem;
-  object-fit: cover;
+.subclass-icons {
+  img {
+    width: 1rem;
+    vertical-align: middle;
+    object-fit: cover;
+    margin-right: 0.125rem;
+  }
+  margin-right: 0.375rem;
 }
 
-.class-type {
+.subclass-type {
   font-weight: 600;
   font-size: font-size('sm');
   line-height: 1.5rem;

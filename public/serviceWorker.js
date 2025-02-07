@@ -16,6 +16,7 @@ const IMAGE_URLS = [
   'https://blightbane.io/images/dexstr.webp',
   'https://blightbane.io/images/intstr.webp',
   'https://blightbane.io/images/holy.webp',
+  'https://blightbane.io/images/neutral.webp',
 ]
 
 self.addEventListener('activate', (event) => {

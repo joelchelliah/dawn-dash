@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-import { useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 
 import styles from './App.module.scss'
 import Chart from './components/Chart'
@@ -10,6 +10,7 @@ import GradientLink from './components/GradientLink'
 import HeaderInfo from './components/HeaderInfo'
 import BlightbaneModal from './components/Modals/BlightbaneModal'
 import OpenSourceInfo from './components/OpenSourceInfo'
+import SubclassButtons from './components/SubclassButtons'
 import {
   DIFFICULTY_VALUES,
   DIFFICULTY_DEFAULT,
@@ -41,6 +42,7 @@ function App(): JSX.Element {
   const [selectedClass, setSelectedClass] = useState<SpeedRunClass>(initialClass)
   const [selectedPlayer, setSelectedPlayer] = useState('')
   const [selectedTimestamp, setSelectedTimestamp] = useState<number | undefined>()
+  const navigate = useNavigate()
 
   const controls = useChartControlState(selectedClass, initialDifficulty)
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -49,10 +51,16 @@ function App(): JSX.Element {
     setSelectedTimestamp(timestamp)
     setIsModalOpen(true)
   }
+  const isSunforge = selectedClass === SpeedRunClass.Sunforge
 
   const openInBlightbane = () => {
     window.open(`https://blightbane.io/deck/${selectedTimestamp}`, '_blank')
     setIsModalOpen(false)
+  }
+
+  const resetToDefaults = () => {
+    navigate(`/?class=${selectedClass}&difficulty=${controls.difficulty}`, { replace: true })
+    window.location.reload()
   }
 
   useUrlParams(selectedClass, setSelectedClass, controls)
@@ -60,20 +68,28 @@ function App(): JSX.Element {
   return (
     <div className={styles['container']}>
       <div className={styles['header']}>
-        <img
-          src="https://blightbane.io/images/icons/cardart_4_53.webp"
-          alt="Dawncaster Logo"
-          className={styles['header__logo']}
-        />
-        <div>
-          <h1 className={styles['title']}>Dawn-Dash</h1>
-          <h2 className={styles['subtitle']}>Dawncaster speedrun charts</h2>
+        <div className={styles['logo-and-title']} onClick={resetToDefaults}>
+          <img
+            src="https://blightbane.io/images/icons/cardart_4_53.webp"
+            alt="Dawncaster Logo"
+            className={styles['logo']}
+          />
+          <div>
+            <h1 className={styles['title']}>Dawn-Dash</h1>
+            <h2 className={styles['subtitle']}>Dawncaster speedrun charts</h2>
+          </div>
         </div>
         <HeaderInfo />
       </div>
 
       <div className={styles['content']}>
         <ClassButtons onClassSelect={setSelectedClass} selectedClass={selectedClass} />
+        {isSunforge && controls.subclass && (
+          <SubclassButtons
+            onSubclassSelect={controls.setSubclass}
+            selectedSubclass={controls.subclass}
+          />
+        )}
         <ChartControls controls={controls} selectedClass={selectedClass} />
         <Chart
           controls={controls}
@@ -98,6 +114,7 @@ function App(): JSX.Element {
         onConfirm={openInBlightbane}
         player={selectedPlayer}
         playerClass={selectedClass}
+        subclass={controls.subclass}
       />
     </div>
   )

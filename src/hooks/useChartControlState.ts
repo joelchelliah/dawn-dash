@@ -8,9 +8,11 @@ import {
   MAX_DURATION_OTHER_DEFAULT,
   DIFFICULTY_DEFAULT,
   SUBMISSION_WINDOW_DEFAULT,
+  SUBCLASS_DEFAULT,
+  VIEW_MODE_SUNFORGE_DEFAULT,
 } from '../constants/chartControlValues'
 import { ChartControlState, SubmissionWindow, ViewMode } from '../types/chart'
-import { Difficulty, SpeedRunClass } from '../types/speedRun'
+import { Difficulty, SpeedRunClass, SpeedRunSubclass } from '../types/speedRun'
 
 export function useChartControlState(
   selectedClass: SpeedRunClass,
@@ -20,11 +22,14 @@ export function useChartControlState(
   const previousClass = useRef(selectedClass)
 
   const isSunforge = selectedClass === SpeedRunClass.Sunforge
+  const subclassDefault = isSunforge ? SUBCLASS_DEFAULT : null
   const maxDurationDefault = isSunforge ? MAX_DURATION_SUNFORGE_DEFAULT : MAX_DURATION_OTHER_DEFAULT
+  const viewModeDefault = isSunforge ? VIEW_MODE_SUNFORGE_DEFAULT : VIEW_MODE_DEFAULT
 
+  const [subclass, setSubclass] = useState<SpeedRunSubclass | null>(subclassDefault)
   const [playerLimit, setPlayerLimit] = useState(PLAYER_LIMIT_DEFAULT)
   const [maxDuration, setMaxDuration] = useState(maxDurationDefault)
-  const [viewMode, setViewMode] = useState<ViewMode>(VIEW_MODE_DEFAULT)
+  const [viewMode, setViewMode] = useState<ViewMode>(viewModeDefault)
   const [zoomLevel, setZoomLevel] = useState(ZOOM_LEVEL_DEFAULT)
   const [submissionWindow, setSubmissionWindow] =
     useState<SubmissionWindow>(SUBMISSION_WINDOW_DEFAULT)
@@ -42,16 +47,17 @@ export function useChartControlState(
     previousClass.current = selectedClass
 
     if (isSunforge !== wasSunforge) {
+      setSubclass(subclassDefault)
       setPlayerLimit(PLAYER_LIMIT_DEFAULT)
       setMaxDuration(maxDurationDefault)
-      setViewMode(VIEW_MODE_DEFAULT)
       setZoomLevel(ZOOM_LEVEL_DEFAULT)
       setSubmissionWindow(SUBMISSION_WINDOW_DEFAULT)
+      setViewMode(viewModeDefault)
 
       // When class changes, always reset difficulty to DEFAULT regardless of URL params
       setDifficulty(DIFFICULTY_DEFAULT)
     }
-  }, [maxDurationDefault, selectedClass, isSunforge])
+  }, [maxDurationDefault, selectedClass, isSunforge, subclassDefault, viewModeDefault])
 
   return useMemo(
     () => ({
@@ -67,7 +73,9 @@ export function useChartControlState(
       setDifficulty,
       submissionWindow,
       setSubmissionWindow,
+      subclass,
+      setSubclass,
     }),
-    [maxDuration, zoomLevel, viewMode, playerLimit, difficulty, submissionWindow]
+    [maxDuration, zoomLevel, viewMode, playerLimit, difficulty, submissionWindow, subclass]
   )
 }

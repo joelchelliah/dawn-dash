@@ -1,5 +1,5 @@
 import { DataPoint, ParsedPlayerData, SubmissionWindow, ViewMode } from '../../../types/chart'
-import { SpeedRunData } from '../../../types/speedRun'
+import { SpeedRunData, SpeedRunSubclass } from '../../../types/speedRun'
 import { getPlayerName, isAnonymousPlayer, removeAnonymousPlayers } from '../../../utils/players'
 import { getDurationInMinutes, isWithinLastXDays } from '../../../utils/time'
 import {
@@ -18,50 +18,58 @@ import {
  * @param maxDuration - Max duration in minutes
  * @param viewMode - Display mode ('records', 'improvements')
  * @param minVersion - Minimum game version
+ * @param subclass - Sunforge subclass
  */
 export function parseSpeedrunData(
   speedruns: SpeedRunData[],
   playerLimit: number,
   maxDuration: number,
   viewMode: ViewMode,
-  submissionWindow: SubmissionWindow
+  submissionWindow: SubmissionWindow,
+  subclass: SpeedRunSubclass | null
 ): ParsedPlayerData {
   const playerHistory = new Map<string, DataPoint[]>()
 
-  // Reverse because the data has the newest runs first
-  speedruns.reverse().forEach((run) => {
-    const player = getPlayerName(run)
-    const duration = getDurationInMinutes(run)
-    const version = run.version
+  speedruns
+    // Reverse because the data has the newest runs first
+    .reverse()
+    .filter((run) => {
+      if (!subclass || subclass === SpeedRunSubclass.All) return true
+      return run.subclass === subclass
+    })
+    .forEach((run) => {
+      const player = getPlayerName(run)
+      const duration = getDurationInMinutes(run)
+      const version = run.version
 
-    const [minVersion, maxVersion] = isGameVersionRange(submissionWindow)
-      ? [parseVersion(submissionWindow.min), parseVersion(submissionWindow.max)]
-      : [undefined, undefined]
-    const daysSinceSubmission = isLastXDays(submissionWindow) ? submissionWindow : undefined
+      const [minVersion, maxVersion] = isGameVersionRange(submissionWindow)
+        ? [parseVersion(submissionWindow.min), parseVersion(submissionWindow.max)]
+        : [undefined, undefined]
+      const daysSinceSubmission = isLastXDays(submissionWindow) ? submissionWindow : undefined
 
-    const isValidDuration = duration && duration <= maxDuration
-    const isValidVersion =
-      !minVersion || !maxVersion
-        ? true
-        : version &&
-          isVersionEqualOrAfter(version, minVersion) &&
-          isVersionEqualOrBefore(version, maxVersion)
-    const isValidDate = !daysSinceSubmission || isWithinLastXDays(run.uid, daysSinceSubmission)
+      const isValidDuration = duration && duration <= maxDuration
+      const isValidVersion =
+        !minVersion || !maxVersion
+          ? true
+          : version &&
+            isVersionEqualOrAfter(version, minVersion) &&
+            isVersionEqualOrBefore(version, maxVersion)
+      const isValidDate = !daysSinceSubmission || isWithinLastXDays(run.uid, daysSinceSubmission)
 
-    if (isValidDuration && isValidVersion && isValidDate) {
-      if (!playerHistory.has(player)) {
-        playerHistory.set(player, [])
+      if (isValidDuration && isValidVersion && isValidDate) {
+        if (!playerHistory.has(player)) {
+          playerHistory.set(player, [])
+        }
+
+        const timestamp = run.uid
+        if (!isNaN(timestamp)) {
+          playerHistory.get(player)?.push({
+            x: timestamp,
+            y: duration,
+          })
+        }
       }
-
-      const timestamp = run.uid
-      if (!isNaN(timestamp)) {
-        playerHistory.get(player)?.push({
-          x: timestamp,
-          y: duration,
-        })
-      }
-    }
-  })
+    })
 
   let parsedData: ParsedPlayerData
 

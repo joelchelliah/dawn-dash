@@ -1,7 +1,7 @@
 import tinycolor from 'tinycolor2'
 
 import { DataPoint } from '../types/chart'
-import { SpeedRunClass } from '../types/speedRun'
+import { SpeedRunClass, SpeedRunSubclass } from '../types/speedRun'
 
 export const anonymousMarkerColor = '#111'
 export const anonymousBorderColor = '#777'
@@ -72,6 +72,17 @@ const CLASS_COLORS = {
   [SpeedRunClass.Sunforge]: '#b58d28', // Gold
 }
 
+const SUBCLASS_COLORS = {
+  [SpeedRunSubclass.Arcanist]: '#2973b5', // Blue
+  [SpeedRunSubclass.Hunter]: '#b4562c', // Orange
+  [SpeedRunSubclass.Knight]: '#6d53ad', // Purple
+  [SpeedRunSubclass.Rogue]: '#60984a', // Green
+  [SpeedRunSubclass.Seeker]: '#2f9c83', // Teal
+  [SpeedRunSubclass.Warrior]: '#b52121', // Red
+  [SpeedRunSubclass.All]: '#b58d28', // Gold
+  [SpeedRunSubclass.Hybrid]: '#BBB', // Grey
+}
+
 export enum ClassColorVariant {
   ControlText,
   Lighter,
@@ -88,6 +99,56 @@ export function getClassColor(
 ) {
   const color = CLASS_COLORS[classType]
 
+  return shadeColorByVariant(color, variant)
+}
+
+export function getSubclassColor(subclass: SpeedRunSubclass, isActive: boolean) {
+  const color = SUBCLASS_COLORS[subclass]
+  const isLightShadedColor = [
+    SpeedRunSubclass.Hybrid,
+    SpeedRunSubclass.Rogue,
+    SpeedRunSubclass.Seeker,
+    SpeedRunSubclass.All,
+  ].includes(subclass)
+  const variant = isActive
+    ? ClassColorVariant.Light
+    : isLightShadedColor
+      ? ClassColorVariant.Dark
+      : ClassColorVariant.Default
+
+  return shadeColorByVariant(color, variant)
+}
+
+export function lighten(color: string, percent: number): string {
+  return tinycolor(color)
+    .brighten(percent)
+    .saturate(percent / 6)
+    .toString()
+}
+
+export function darken(color: string, percent: number): string {
+  return tinycolor(color)
+    .darken(percent)
+    .desaturate(percent / 2)
+    .toString()
+}
+
+export function saturate(color: string, percent: number): string {
+  return tinycolor(color)
+    .lighten(percent / 10)
+    .saturate(percent)
+    .toString()
+}
+
+export function desaturate(color: string, percent: number): string {
+  return tinycolor(color)
+    .darken(percent / 10)
+    .setAlpha((100 - percent) / 100)
+    .desaturate(percent)
+    .toString()
+}
+
+function shadeColorByVariant(color: string, variant: ClassColorVariant): string {
   switch (variant) {
     case ClassColorVariant.ControlText:
       return lighten(color, 45)
@@ -104,18 +165,4 @@ export function getClassColor(
     default:
       return color
   }
-}
-
-export function lighten(color: string, percent: number): string {
-  return tinycolor(color)
-    .brighten(percent)
-    .saturate(percent / 6)
-    .toString()
-}
-
-export function darken(color: string, percent: number): string {
-  return tinycolor(color)
-    .darken(percent)
-    .desaturate(percent / 2)
-    .toString()
 }

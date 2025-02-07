@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'v3'
+const CACHE_VERSION = 'v4'
 const CACHE_KEY_PREFIX = `speedruns_${CACHE_VERSION}`
 const CACHE_DURATION = 10 * 60 * 1000 // 10 minutes
 

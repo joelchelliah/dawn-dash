@@ -1,4 +1,4 @@
-import { SpeedRunClass } from '../types/speedRun'
+import { SpeedRunClass, SpeedRunSubclass } from '../types/speedRun'
 
 export function getClassImageUrl(classType: SpeedRunClass) {
   switch (classType) {
@@ -19,21 +19,31 @@ export function getClassImageUrl(classType: SpeedRunClass) {
   }
 }
 
-export function getEnergyImageUrl(classType: SpeedRunClass) {
+export function getEnergyImageUrl(classType: SpeedRunClass | SpeedRunSubclass) {
   switch (classType) {
     case SpeedRunClass.Arcanist:
+    case SpeedRunSubclass.Arcanist:
       return 'https://blightbane.io/images/int.webp'
     case SpeedRunClass.Hunter:
+    case SpeedRunSubclass.Hunter:
       return 'https://blightbane.io/images/dexstr.webp'
     case SpeedRunClass.Knight:
+    case SpeedRunSubclass.Knight:
       return 'https://blightbane.io/images/intstr.webp'
     case SpeedRunClass.Rogue:
+    case SpeedRunSubclass.Rogue:
       return 'https://blightbane.io/images/dex.webp'
     case SpeedRunClass.Seeker:
+    case SpeedRunSubclass.Seeker:
       return 'https://blightbane.io/images/dexint.webp'
     case SpeedRunClass.Warrior:
+    case SpeedRunSubclass.Warrior:
       return 'https://blightbane.io/images/str.webp'
-    default:
+    case SpeedRunClass.Sunforge:
       return 'https://blightbane.io/images/holy.webp'
+    case SpeedRunSubclass.Hybrid:
+      return 'https://blightbane.io/images/neutral.webp'
+    default:
+      return 'https://blightbane.io/images/neutral.webp'
   }
 }
