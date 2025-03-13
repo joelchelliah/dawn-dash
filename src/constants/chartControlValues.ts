@@ -36,10 +36,11 @@ export const GAME_VERSION_VALUES = [
   '1.12', // Siege of Shadows
   '1.13', // Thornwind Pass
   '1.14', // Eclypse
+  '1.15', // Infernal Invasion
 ]
 export const LAST_DAYS_VALUES = ['120', '90', '60', '30']
 
-export const SUBMISSION_WINDOW_DEFAULT = { min: '1.5', max: '1.14' }
+export const SUBMISSION_WINDOW_DEFAULT = { min: '1.5', max: '1.15' }
 export const SUBMISSION_WINDOW_VALUES = [...GAME_VERSION_VALUES, ...LAST_DAYS_VALUES]
 export const SUBMISSION_WINDOW_LABEL_MAP: Record<string, string> = {
   '1.5': '1.5 (Earliest available)',
@@ -52,6 +53,7 @@ export const SUBMISSION_WINDOW_LABEL_MAP: Record<string, string> = {
   '1.12': '1.12 (Siege of Shadows)',
   '1.13': '1.13 (Thornwind Pass)',
   '1.14': '1.14 (Eclypse)',
+  '1.15': '1.15 (Infernal Invasion)',
   '120': 'Last 120 days',
   '90': 'Last 90 days',
   '60': 'Last 60 days',
