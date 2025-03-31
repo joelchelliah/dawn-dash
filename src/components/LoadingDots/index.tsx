@@ -4,12 +4,12 @@ import { getClassColor, ClassColorVariant } from '../../utils/colors'
 import styles from './index.module.scss'
 
 interface LoadingDotsProps {
-  selectedClass: SpeedRunClass
+  selectedClass?: SpeedRunClass
   text?: string
 }
 
 function LoadingDots({ text, selectedClass }: LoadingDotsProps) {
-  const color = getClassColor(selectedClass, ClassColorVariant.Lighter)
+  const color = getClassColor(selectedClass || SpeedRunClass.Arcanist, ClassColorVariant.Lighter)
 
   return (
     <div className={styles['container']}>

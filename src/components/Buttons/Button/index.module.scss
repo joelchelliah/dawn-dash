@@ -14,4 +14,15 @@
     background: #333;
     border-color: #666;
   }
+
+  &--loading {
+    background: #222;
+    height: 2rem;
+
+    &:hover {
+      background: #222;
+      border-color: #444;
+      cursor: default;
+    }
+  }
 }
