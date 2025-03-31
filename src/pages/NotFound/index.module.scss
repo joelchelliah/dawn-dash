@@ -1,0 +1,38 @@
+@use './styles/index' as *;
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  text-align: center;
+  padding: 0 1rem;
+  background-color: #1a1a1a;
+  color: #aaa;
+
+  p {
+    font-size: font-size('md');
+    margin: 2rem 0;
+    max-width: 600px;
+  }
+}
+
+.title {
+  @include yellowGreenGradient(false);
+  font-size: font-size('lg');
+  margin: 0;
+  font-weight: bold;
+}
+
+.back-button {
+  color: $color-chart-footer;
+  min-width: 7.5rem !important;
+  padding: 0.75rem 0.5rem !important;
+  margin-left: 0.5rem;
+
+  &:hover {
+    padding-top: 0.8125rem !important;
+    padding-bottom: 0.8125rem !important;
+  }
+}

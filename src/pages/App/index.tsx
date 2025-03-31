@@ -2,23 +2,24 @@ import { useState } from 'react'
 
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
-import styles from './App.module.scss'
-import Chart from './components/Chart'
-import ChartControls from './components/ChartControls'
-import ClassButtons from './components/ClassButtons'
-import GradientLink from './components/GradientLink'
-import HeaderInfo from './components/HeaderInfo'
-import BlightbaneModal from './components/Modals/BlightbaneModal'
-import OpenSourceInfo from './components/OpenSourceInfo'
-import SubclassButtons from './components/SubclassButtons'
+import Chart from '../../components/Chart'
+import ChartControls from '../../components/ChartControls'
+import ClassButtons from '../../components/ClassButtons'
+import GradientLink from '../../components/GradientLink'
+import HeaderInfo from '../../components/HeaderInfo'
+import BlightbaneModal from '../../components/Modals/BlightbaneModal'
+import OpenSourceInfo from '../../components/OpenSourceInfo'
+import SubclassButtons from '../../components/SubclassButtons'
 import {
   DIFFICULTY_VALUES,
   DIFFICULTY_DEFAULT,
   CLASS_DEFAULT,
-} from './constants/chartControlValues'
-import { useChartControlState } from './hooks/useChartControlState'
-import { useUrlParams } from './hooks/useUrlParams'
-import { Difficulty, SpeedRunClass } from './types/speedRun'
+} from '../../constants/chartControlValues'
+import { useChartControlState } from '../../hooks/useChartControlState'
+import { useUrlParams } from '../../hooks/useUrlParams'
+import { Difficulty, SpeedRunClass } from '../../types/speedRun'
+
+import styles from './index.module.scss'
 
 // Using initial class and difficulty from the URL params (if available)
 // to prevent unwated intitial fetch based on default values
