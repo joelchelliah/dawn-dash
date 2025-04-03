@@ -89,7 +89,9 @@
   border-radius: 4px;
 
   @media (max-width: $breakpoint-mobile) {
-    min-width: 400px;
+    min-width: auto;
+    width: 100%;
+    flex: 1 0 100%;
   }
 }
 
@@ -98,6 +100,12 @@
   background-color: $color-component-bg;
   padding: 1rem;
   border-radius: 4px;
+
+  @media (max-width: $breakpoint-mobile) {
+    flex: 1 0 100%;
+    width: 100%;
+    margin-top: 1rem;
+  }
 }
 
 .left-panel,
@@ -160,6 +168,15 @@
     margin-bottom: 0.5rem;
   }
 
+  &.expansion-check-boxes {
+    label {
+      @media (max-width: $breakpoint-mobile) {
+        width: calc(50% - 0.5rem);
+        min-width: 0;
+      }
+    }
+  }
+
   &.rarity-check-boxes {
     label {
       width: auto;
@@ -168,7 +185,12 @@
       flex: 0 0 auto;
 
       @media (max-width: $breakpoint-mobile) {
-        margin-right: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        width: calc(50% - 0.5rem);
+        min-width: 0;
+        margin-right: 0;
       }
     }
   }
@@ -319,7 +341,7 @@
 
   &__name {
     display: inline-block;
-    width: 8rem;
+    width: 10rem;
     @include text-truncate;
   }
 

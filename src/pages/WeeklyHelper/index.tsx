@@ -267,7 +267,7 @@ function WeeklyHelper(): JSX.Element {
           <div className={styles['filters']}>
             <div className={styles['filter-group']}>
               <h4>Expansions</h4>
-              <div className={styles['check-boxes']}>
+              <div className={cx(styles['check-boxes'], styles['expansion-check-boxes'])}>
                 {Object.values(Expansion).map((expansion) => (
                   <label key={expansion}>
                     <input
