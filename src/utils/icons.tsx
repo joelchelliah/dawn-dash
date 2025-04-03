@@ -41,3 +41,70 @@ export function DropdownArrowIconUrl(fillColor: string) {
   const encodedSvg = `data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22${encodeURIComponent(fillColor)}%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E`
   return `url('${encodedSvg}')`
 }
+
+export function TripleStarsIcon({ className = '', onClick }: IconProps): JSX.Element {
+  return (
+    <svg
+      className={className}
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      xmlns="http://www.w3.org/2000/svg"
+      onClick={onClick}
+    >
+      <path d="M12 2L13.5 7H18.5L14.5 10L16 15L12 12L8 15L9.5 10L5.5 7H10.5L12 2Z" />
+      <path d="M6 13L7.5 18H12.5L8.5 21L10 26L6 23L2 26L3.5 21L-0.5 18H4.5L6 13Z" />
+      <path d="M18 13L19.5 18H24.5L20.5 21L22 26L18 23L14 26L15.5 21L11.5 18H16.5L18 13Z" />
+    </svg>
+  )
+}
+
+export function DoubleStarsIcon({ className = '', onClick }: IconProps): JSX.Element {
+  return (
+    <svg
+      className={className}
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      xmlns="http://www.w3.org/2000/svg"
+      onClick={onClick}
+    >
+      <path d="M5 4L7 10H13L8 14L10 20L5 16L0 20L2 14L-3 10H3L5 4Z" />
+      <path d="M19 4L21 10H27L22 14L24 20L19 16L14 20L16 14L11 10H17L19 4Z" />
+    </svg>
+  )
+}
+
+export function SingleStarIcon({ className = '', onClick }: IconProps): JSX.Element {
+  return (
+    <svg
+      className={className}
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      xmlns="http://www.w3.org/2000/svg"
+      onClick={onClick}
+    >
+      <path d="M12 6L13.5 11H18.5L14.5 14L16 19L12 16L8 19L9.5 14L5.5 11H10.5L12 6Z" />
+    </svg>
+  )
+}
+
+export function CircleIcon({ className = '', onClick }: IconProps): JSX.Element {
+  return (
+    <svg
+      className={className}
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      xmlns="http://www.w3.org/2000/svg"
+      onClick={onClick}
+    >
+      <circle cx="12" cy="14" r="6.5" />
+    </svg>
+  )
+}

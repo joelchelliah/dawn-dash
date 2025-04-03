@@ -17,6 +17,7 @@ const IMAGE_URLS = [
   'https://blightbane.io/images/intstr.webp',
   'https://blightbane.io/images/holy.webp',
   'https://blightbane.io/images/neutral.webp',
+  'https://blightbane.io/images/icons/Dance%20of%20Blight_eclypse.webp', // Dance of Blight
 ]
 
 self.addEventListener('activate', (event) => {

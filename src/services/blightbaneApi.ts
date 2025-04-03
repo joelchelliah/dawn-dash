@@ -1,5 +1,6 @@
 import axios, { isAxiosError } from 'axios'
 
+import { CardData, CardsApiResponse } from '../types/cards'
 import {
   Difficulty,
   SpeedRunApiResponse,
@@ -40,13 +41,59 @@ export const fetchSpeedruns = async (
         subclass: run.subclass as SpeedRunSubclass,
       }))
   } catch (error) {
-    if (isAxiosError(error)) {
-      console.error('API request failed:', {
-        status: error.response?.status,
-        message: error.message,
-        data: error.response?.data,
-      })
-    }
+    handleError(error, 'Error fetching speedruns')
     throw error
+  }
+}
+
+export const fetchCards = async (): Promise<CardData[]> => {
+  const numExpansions = 8
+  const numBanners = 12
+  const aggregatedCards = []
+
+  console.log('Fetching cards...')
+
+  for (let exp = 0; exp < numExpansions; exp++) {
+    for (let banner = 0; banner < numBanners; banner++) {
+      // Too many monster cards. SKIPPING...
+      if (exp == 0 && banner == 11) continue
+
+      const url = `${BASE_URL}/cards?search=&rarity=&category=&type=&banner=${banner}&exp=${exp}`
+      try {
+        const response = await axios.get<CardsApiResponse>(url)
+        const { card_len, cards } = response.data
+
+        if (card_len > 100) {
+          throw new Error(`Too many cards! Banner: ${banner}, Exp: ${exp}`)
+        }
+
+        const output = cards.map((card) => ({
+          name: card.name,
+          description: card.description,
+          rarity: card.rarity,
+          type: card.type,
+          category: card.category,
+          expansion: card.expansion,
+          color: card.color,
+        }))
+
+        aggregatedCards.push(...output)
+      } catch (error) {
+        handleError(error, `Error fetching cards for banner: ${banner}, exp: ${exp}`)
+        throw error
+      }
+    }
+  }
+
+  return aggregatedCards
+}
+
+function handleError(error: unknown, msg: string) {
+  if (isAxiosError(error)) {
+    console.error(msg ?? 'API request failed:', {
+      status: error.response?.status,
+      message: error.message,
+      data: error.response?.data,
+    })
   }
 }

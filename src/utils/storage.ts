@@ -2,15 +2,22 @@ const CACHE_VERSION = 'v4'
 const CACHE_KEY_PREFIX = `speedruns_${CACHE_VERSION}`
 const CACHE_DURATION = 10 * 60 * 1000 // 10 minutes
 
+const CARDS_CACHE_VERSION = 'v0'
+const CARDS_CACHE_KEY_PREFIX = `cards_${CARDS_CACHE_VERSION}`
+const CARDS_CACHE_DURATION = 14 * 24 * 60 * 60 * 1000 // 2 weeks
+
+type CacheType = 'speedruns' | 'cards'
+
 type CachedData<T> = {
   data: T | null
   isStale: boolean
   timestamp: number | null
 }
 
-export function saveToCache<T>(key: string, data: T): void {
+export function saveToCache<T>(cacheType: CacheType, data: T, key?: string): void {
+  const cacheKey = getCacheKey(cacheType, key)
+
   try {
-    const cacheKey = getCacheKey(key)
     const cache = {
       data,
       timestamp: Date.now(),
@@ -21,8 +28,9 @@ export function saveToCache<T>(key: string, data: T): void {
   }
 }
 
-export function getFromCache<T>(key: string): CachedData<T> {
-  const cacheKey = getCacheKey(key)
+export function getFromCache<T>(cacheType: CacheType, key?: string): CachedData<T> {
+  const cacheKey = getCacheKey(cacheType, key)
+
   try {
     const cache = localStorage.getItem(cacheKey)
 
@@ -31,7 +39,7 @@ export function getFromCache<T>(key: string): CachedData<T> {
     }
 
     const { data, timestamp } = JSON.parse(cache)
-    const isStale = Date.now() - timestamp > CACHE_DURATION
+    const isStale = Date.now() - timestamp > getCacheDuration(cacheType)
 
     return {
       data: data as T,
@@ -43,6 +51,19 @@ export function getFromCache<T>(key: string): CachedData<T> {
     return { data: null, isStale: true, timestamp: null }
   }
 }
-function getCacheKey(type: string) {
+
+function getCacheKey(cacheType: CacheType, key?: string) {
+  return key && cacheType === 'speedruns' ? getSpeedrunCacheKey(key) : getCardsCacheKey()
+}
+
+function getSpeedrunCacheKey(type: string) {
   return `${CACHE_KEY_PREFIX}_${type}`
+}
+
+function getCardsCacheKey() {
+  return CARDS_CACHE_KEY_PREFIX
+}
+
+function getCacheDuration(cacheType: CacheType = 'speedruns') {
+  return cacheType === 'speedruns' ? CACHE_DURATION : CARDS_CACHE_DURATION
 }

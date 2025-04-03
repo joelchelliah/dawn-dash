@@ -32,7 +32,7 @@ export function useSpeedrunData(type: SpeedRunClass, difficulty: Difficulty) {
     }
 
     // Check cache and update state
-    const { data, isStale } = getFromCache<SpeedRunData[]>(cacheKey)
+    const { data, isStale } = getFromCache<SpeedRunData[]>('speedruns', cacheKey)
     if (data) {
       setLocalData(data)
       setIsRefreshing(isStale)
@@ -55,7 +55,7 @@ export function useSpeedrunData(type: SpeedRunClass, difficulty: Difficulty) {
         // Only update if this is still the active request
         if (prevCacheKeyRef.current === cacheKey) {
           setLocalData(newData)
-          saveToCache(cacheKey, newData)
+          saveToCache('speedruns', newData, cacheKey)
           setIsRefreshing(false)
         }
       },
@@ -67,7 +67,7 @@ export function useSpeedrunData(type: SpeedRunClass, difficulty: Difficulty) {
     isLoading: (isLoading || isRefreshing) && !localData,
     isLoadingInBackground: Boolean((isLoading || isRefreshing) && localData),
     isError: error && !localData,
-    lastUpdated: getFromCache<SpeedRunData[]>(cacheKey).timestamp,
+    lastUpdated: getFromCache<SpeedRunData[]>('speedruns', cacheKey).timestamp,
     refresh: () => setIsRefreshing(true),
   }
 }
