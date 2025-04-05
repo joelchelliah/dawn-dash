@@ -233,7 +233,7 @@
   }
 
   span {
-    font-size: font-size('sm');
+    font-size: font-size('xs');
     color: #888;
     margin: 0 0.5rem;
   }
@@ -241,12 +241,25 @@
 
 .results-container {
   margin-top: 1rem;
+
+  @media (max-width: $breakpoint-mobile) {
+    margin-top: 0.5rem;
+  }
 }
 
 .results-info {
-  font-size: font-size('sm');
+  font-size: font-size('xs');
   color: #aaa;
-  margin: 0.5rem 0;
+  margin: 1.5rem 0 1rem;
+
+  &__keywords {
+    font-size: font-size('xxs');
+    color: #999;
+  }
+
+  @media (max-width: $breakpoint-mobile) {
+    margin: 0 0 1rem;
+  }
 }
 
 .results-cards {
@@ -348,20 +361,32 @@
   &__keywords {
     display: inline-block;
     color: #aaa;
-    width: 8rem;
+    width: 12rem;
     @include text-truncate;
     margin-left: auto;
     text-align: right;
     font-style: italic;
-    font-size: font-size('xxs');
+
+    @media (max-width: $breakpoint-mobile) {
+      font-size: font-size('xxs');
+      width: 8rem;
+    }
   }
 
   &__expansion {
-    color: #999;
+    display: inline-block;
+    color: #777;
     width: 8rem;
+    @include text-truncate;
     margin-left: auto;
     margin-right: 0.5rem;
     text-align: right;
+
+    @media (max-width: $breakpoint-mobile) {
+      font-size: font-size('xxs');
+      width: 6rem;
+      margin-left: 0.5rem;
+    }
   }
 }
 

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import cx from 'classnames'
 import { useNavigate } from 'react-router-dom'
@@ -126,14 +126,14 @@ const excludedCategories = [3, 6, 7, 8, 9, 12, 13, 16]
 // Skip other cards that can never be collected
 const excludedCards = ['Elite Lightning Bolt', 'Elite Fireball', 'Elite Frostbolt', 'Soulfire Bomb']
 
-function WeeklyHelper(): JSX.Element {
+function CardCodex(): JSX.Element {
   const navigate = useNavigate()
   const { cardData, isLoading, isLoadingInBackground, isError, lastUpdated, refresh } =
     useCardData()
   const fromNow = useFromNow(lastUpdated, 'Card data last fetched')
 
   const resetToDefaults = () => {
-    navigate(`/top/secret/misc/weekly-helper`, { replace: true })
+    navigate(`misc/codex/cards`, { replace: true })
     window.location.reload()
   }
 
@@ -175,11 +175,6 @@ function WeeklyHelper(): JSX.Element {
     }))
   }
 
-  // Find matching cards when keywords or filters change
-  useEffect(() => {
-    findMatchingCards()
-  }, [keywords, expansionFilters, rarityFilters, bannerFilters])
-
   const resetFilters = () => {
     setKeywords('')
     setParsedKeywords([])
@@ -189,7 +184,7 @@ function WeeklyHelper(): JSX.Element {
     findMatchingCards()
   }
 
-  const findMatchingCards = () => {
+  const findMatchingCards = useCallback(() => {
     const parsed = keywords
       .split(/,\s+or\s+|,\s*|\s+or\s+/)
       .map((keyword) => keyword.trim())
@@ -227,12 +222,20 @@ function WeeklyHelper(): JSX.Element {
         if (a.color !== b.color) {
           return a.color - b.color
         }
-        return b.rarity - a.rarity
+        if (a.rarity !== b.rarity) {
+          return b.rarity - a.rarity
+        }
+        return a.name.localeCompare(b.name)
       })
       .filter((card, index, self) => index === self.findIndex(({ name }) => name === card.name))
 
     setMatchingCards(filtered)
-  }
+  }, [bannerFilters, cardData, expansionFilters, keywords, rarityFilters])
+
+  // Find matching cards when keywords or filters change
+  useEffect(() => {
+    findMatchingCards()
+  }, [keywords, expansionFilters, rarityFilters, bannerFilters, findMatchingCards])
 
   const renderPanelContent = (content: JSX.Element) => (
     <>
@@ -246,7 +249,7 @@ function WeeklyHelper(): JSX.Element {
 
   const renderLeftPanel = () => (
     <div className={styles['left-panel']}>
-      <h3>🔍 Search & Filter</h3>
+      <h3>🔍 Search</h3>
 
       {renderPanelContent(
         <>
@@ -361,7 +364,9 @@ function WeeklyHelper(): JSX.Element {
       <div className={styles['results-container']} key={parsedKeywords.join(',')}>
         <div className={styles['results-info']}>
           <strong>Found {matchingCards.length} cards matching: </strong>
-          {`[ ${parsedKeywords.join(', ')} ]`}
+          <div
+            className={styles['results-info__keywords']}
+          >{`[ ${parsedKeywords.join(', ')} ]`}</div>
         </div>
 
         {Object.entries(cardsByBanner).map(([banner, cards]) => (
@@ -419,12 +424,12 @@ function WeeklyHelper(): JSX.Element {
         <div className={styles['logo-and-title']} onClick={resetToDefaults}>
           <img
             src="https://blightbane.io/images/icons/Dance%20of%20Blight_eclypse.webp"
-            alt="Weekly Helper Logo"
+            alt="Card Codex Logo"
             className={styles['logo']}
           />
           <div>
-            <h1 className={styles['title']}>Weekly Helper</h1>
-            <h2 className={styles['subtitle']}>Helpful tools for the weekly challenge</h2>
+            <h1 className={styles['title']}>Codex: Cards</h1>
+            <h2 className={styles['subtitle']}>Search & filter all cards in the game</h2>
           </div>
         </div>
       </div>
@@ -437,4 +442,4 @@ function WeeklyHelper(): JSX.Element {
   )
 }
 
-export default WeeklyHelper
+export default CardCodex
