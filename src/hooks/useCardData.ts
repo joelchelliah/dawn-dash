@@ -9,6 +9,7 @@ import { getFromCache, saveToCache } from '../utils/storage'
 export function useCardData() {
   const [localData, setLocalData] = useState<CardData[] | null>(null)
   const [isRefreshing, setIsRefreshing] = useState(false)
+  const [progress, setProgress] = useState(0)
 
   useEffect(() => {
     // Check cache and update state
@@ -23,7 +24,7 @@ export function useCardData() {
 
   const { data, error, isLoading } = useSWR<CardData[]>(
     isRefreshing ? ['cards'] : null,
-    () => fetchCards(),
+    () => fetchCards(setProgress),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
@@ -32,6 +33,7 @@ export function useCardData() {
         setLocalData(newData)
         saveToCache('cards', newData)
         setIsRefreshing(false)
+        setProgress(100) // Ensure progress is complete
       },
     }
   )
@@ -41,7 +43,12 @@ export function useCardData() {
     isLoading: (isLoading || isRefreshing) && !localData,
     isLoadingInBackground: Boolean((isLoading || isRefreshing) && localData),
     isError: error && !localData,
+    isErrorInBackground: Boolean(error && localData),
     lastUpdated: getFromCache<CardData[]>('cards').timestamp,
-    refresh: () => setIsRefreshing(true),
+    refresh: () => {
+      setProgress(0)
+      setIsRefreshing(true)
+    },
+    progress,
   }
 }

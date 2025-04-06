@@ -128,9 +128,17 @@ const excludedCards = ['Elite Lightning Bolt', 'Elite Fireball', 'Elite Frostbol
 
 function CardCodex(): JSX.Element {
   const navigate = useNavigate()
-  const { cardData, isLoading, isLoadingInBackground, isError, lastUpdated, refresh } =
-    useCardData()
-  const fromNow = useFromNow(lastUpdated, 'Card data last synced')
+  const {
+    cardData,
+    isLoading,
+    isLoadingInBackground,
+    isError,
+    isErrorInBackground,
+    lastUpdated,
+    refresh,
+    progress,
+  } = useCardData()
+  const fromNow = useFromNow(lastUpdated, 'Card data synced')
 
   const resetToDefaults = () => {
     navigate(`misc/codex/cards`, { replace: true })
@@ -237,105 +245,108 @@ function CardCodex(): JSX.Element {
     findMatchingCards()
   }, [keywords, expansionFilters, rarityFilters, bannerFilters, findMatchingCards])
 
-  const renderPanelContent = (content: JSX.Element) => (
-    <>
-      {isLoading && (
-        <div className={styles['loading']}>⏳ Loading card data... This may take a while.</div>
-      )}
-      {isError && !isLoading && <div className={styles['error']}>Error loading card data</div>}
-      {!isError && !isLoading && content}
-    </>
-  )
-
   const renderLeftPanel = () => (
     <div className={styles['left-panel']}>
       <h3>🔍 Search</h3>
 
-      {renderPanelContent(
-        <>
-          <div className={styles['input-container']}>
-            <input
-              type="text"
-              placeholder="Keywords..."
-              value={keywords}
-              onChange={(e) => setKeywords(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  findMatchingCards()
-                }
-              }}
-            />
-          </div>
+      <div className={styles['input-container']}>
+        <input
+          type="text"
+          placeholder="Keywords..."
+          value={keywords}
+          onChange={(e) => setKeywords(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              findMatchingCards()
+            }
+          }}
+        />
+      </div>
 
-          <div className={styles['filters']}>
-            <div className={styles['filter-group']}>
-              <h4>Expansions</h4>
-              <div className={cx(styles['check-boxes'], styles['expansion-check-boxes'])}>
-                {Object.values(Expansion).map((expansion) => (
-                  <label key={expansion}>
-                    <input
-                      type="checkbox"
-                      checked={expansionFilters[expansion]}
-                      onChange={() => handleExpansionChange(expansion)}
-                    />
-                    {expansion}
-                  </label>
-                ))}
-              </div>
+      <div className={styles['filters']}>
+        <div className={styles['filter-group']}>
+          <h4>Expansions</h4>
+          <div className={cx(styles['check-boxes'], styles['expansion-check-boxes'])}>
+            {Object.values(Expansion).map((expansion) => (
+              <label key={expansion}>
+                <input
+                  type="checkbox"
+                  checked={expansionFilters[expansion]}
+                  onChange={() => handleExpansionChange(expansion)}
+                />
+                {expansion}
+              </label>
+            ))}
+          </div>
+        </div>
+
+        <div className={styles['filter-group']}>
+          <h4>Rarities</h4>
+          <div className={cx(styles['check-boxes'], styles['rarity-check-boxes'])}>
+            {Object.values(Rarity).map((rarity) => (
+              <label key={rarity}>
+                <input
+                  type="checkbox"
+                  checked={rarityFilters[rarity]}
+                  onChange={() => handleRarityChange(rarity)}
+                />
+                {}
+                {rarity}
+              </label>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className={styles['filter-group']}>
+        <h4>Banners</h4>
+        <div className={styles['check-boxes']}>
+          {Object.values(Banner).map((banner) => (
+            <label key={banner}>
+              <input
+                type="checkbox"
+                checked={bannerFilters[banner]}
+                onChange={() => handleBannerChange(banner)}
+              />
+              {banner}
+            </label>
+          ))}
+        </div>
+      </div>
+
+      <ButtonRow align="left">
+        <Button onClick={refresh} isLoading={isLoadingInBackground}>
+          Resync data
+        </Button>
+
+        <Button onClick={resetFilters}>Reset</Button>
+        <GradientButton subtle onClick={findMatchingCards}>
+          Search
+        </GradientButton>
+      </ButtonRow>
+
+      <div
+        className={cx(styles['last-updated'], {
+          [styles['last-updated--loading']]: isLoadingInBackground,
+          [styles['last-updated--error']]: isErrorInBackground,
+        })}
+      >
+        {isLoadingInBackground ? (
+          <>
+            <div>⏳ Syncing card data: {progress}%</div>
+            <div className={styles['last-updated__progress-container']}>
+              <div
+                className={styles['last-updated__progress-bar']}
+                style={{ width: `${progress}%` }}
+              />
             </div>
-
-            <div className={styles['filter-group']}>
-              <h4>Rarities</h4>
-              <div className={cx(styles['check-boxes'], styles['rarity-check-boxes'])}>
-                {Object.values(Rarity).map((rarity) => (
-                  <label key={rarity}>
-                    <input
-                      type="checkbox"
-                      checked={rarityFilters[rarity]}
-                      onChange={() => handleRarityChange(rarity)}
-                    />
-                    {}
-                    {rarity}
-                  </label>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <div className={styles['filter-group']}>
-            <h4>Banners</h4>
-            <div className={styles['check-boxes']}>
-              {Object.values(Banner).map((banner) => (
-                <label key={banner}>
-                  <input
-                    type="checkbox"
-                    checked={bannerFilters[banner]}
-                    onChange={() => handleBannerChange(banner)}
-                  />
-                  {banner}
-                </label>
-              ))}
-            </div>
-          </div>
-
-          <ButtonRow align="left">
-            <Button onClick={refresh} isLoading={isLoadingInBackground}>
-              Resync data
-            </Button>
-
-            <Button onClick={resetFilters}>Reset</Button>
-            <GradientButton subtle onClick={findMatchingCards}>
-              Search
-            </GradientButton>
-          </ButtonRow>
-
-          <div className={styles['last-updated']}>
-            {isLoadingInBackground
-              ? '⏳ Fetching fresh card data... This may take a while.'
-              : fromNow}
-          </div>
-        </>
-      )}
+          </>
+        ) : isErrorInBackground ? (
+          <div>💥 Error syncing card data... Try again later!</div>
+        ) : (
+          fromNow
+        )}
+      </div>
     </div>
   )
 
@@ -414,7 +425,7 @@ function CardCodex(): JSX.Element {
         <h3>🃏 Results</h3>
         <span>( Monster cards not included )</span>
       </div>
-      {renderPanelContent(<>{renderMatchingCards()}</>)}
+      {renderMatchingCards()}
     </div>
   )
 
@@ -435,8 +446,24 @@ function CardCodex(): JSX.Element {
       </div>
 
       <div className={styles['content']}>
-        {renderLeftPanel()}
-        {renderRightPanel()}
+        {isLoading && (
+          <div className={styles['loading']}>
+            <div>⏳ Loading delicious card data... Please be patient!</div>
+            <div className={styles['loading__progress-container']}>
+              <div className={styles['loading__progress-bar']} style={{ width: `${progress}%` }} />
+            </div>
+            <div className={styles['loading__progress-text']}>{progress}% complete</div>
+          </div>
+        )}
+        {isError && !isLoading && (
+          <div className={styles['error']}>💥 Error loading card data... Try again later!</div>
+        )}
+        {!isError && !isLoading && (
+          <>
+            {renderLeftPanel()}
+            {renderRightPanel()}
+          </>
+        )}
       </div>
     </div>
   )

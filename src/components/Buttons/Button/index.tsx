@@ -1,6 +1,6 @@
 import cx from 'classnames'
 
-import LoadingDots from '../../LoadingDots'
+import LoadingDots from '../../shared/LoadingDots'
 
 import styles from './index.module.scss'
 
@@ -25,7 +25,7 @@ function Button({
 
   return (
     <button className={buttonClassName} onClick={onClick} style={style} disabled={isLoading}>
-      {isLoading ? <LoadingDots /> : children}
+      {isLoading ? <LoadingDots color="#bbb" /> : children}
     </button>
   )
 }

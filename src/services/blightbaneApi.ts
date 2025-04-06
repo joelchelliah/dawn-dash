@@ -46,12 +46,12 @@ export const fetchSpeedruns = async (
   }
 }
 
-export const fetchCards = async (): Promise<CardData[]> => {
+export const fetchCards = async (onProgress: (progress: number) => void): Promise<CardData[]> => {
   const numExpansions = 8
   const numBanners = 12
   const aggregatedCards = []
-
-  console.log('Fetching cards...')
+  const totalRequests = numExpansions * numBanners - 1 // TODO: remove -1 after fixing Monster cards request
+  let completedRequests = 0
 
   for (let exp = 0; exp < numExpansions; exp++) {
     for (let banner = 0; banner < numBanners; banner++) {
@@ -78,6 +78,10 @@ export const fetchCards = async (): Promise<CardData[]> => {
         }))
 
         aggregatedCards.push(...output)
+
+        completedRequests++
+        const currentProgress = Math.floor((completedRequests / totalRequests) * 100)
+        onProgress(currentProgress)
       } catch (error) {
         handleError(error, `Error fetching cards for banner: ${banner}, exp: ${exp}`)
         throw error
