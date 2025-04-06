@@ -90,7 +90,6 @@
 
   @media (max-width: $breakpoint-mobile) {
     min-width: auto;
-    width: 100%;
     flex: 1 0 100%;
   }
 }
@@ -102,8 +101,7 @@
   border-radius: 4px;
 
   @media (max-width: $breakpoint-mobile) {
-    flex: 1 0 100%;
-    width: 100%;
+    flex: 1;
     margin-top: 1rem;
   }
 }
@@ -128,7 +126,6 @@
 
   input {
     flex: 1;
-    min-width: 20rem;
     padding: 0.5rem;
     border: 1px solid #888;
     border-radius: 0.25rem;
@@ -164,7 +161,7 @@
     align-items: center;
     gap: 0.25rem;
     width: calc(33.33% - 0.5rem);
-    min-width: 100px;
+    min-width: 80px;
     margin-bottom: 0.5rem;
   }
 

@@ -130,7 +130,7 @@ function CardCodex(): JSX.Element {
   const navigate = useNavigate()
   const { cardData, isLoading, isLoadingInBackground, isError, lastUpdated, refresh } =
     useCardData()
-  const fromNow = useFromNow(lastUpdated, 'Card data last fetched')
+  const fromNow = useFromNow(lastUpdated, 'Card data last synced')
 
   const resetToDefaults = () => {
     navigate(`misc/codex/cards`, { replace: true })
@@ -320,10 +320,10 @@ function CardCodex(): JSX.Element {
 
           <ButtonRow align="left">
             <Button onClick={refresh} isLoading={isLoadingInBackground}>
-              Re-fetch data
+              Resync data
             </Button>
 
-            <Button onClick={resetFilters}>Reset filters</Button>
+            <Button onClick={resetFilters}>Reset</Button>
             <GradientButton subtle onClick={findMatchingCards}>
               Search
             </GradientButton>
@@ -423,13 +423,13 @@ function CardCodex(): JSX.Element {
       <div className={styles['header']}>
         <div className={styles['logo-and-title']} onClick={resetToDefaults}>
           <img
-            src="https://blightbane.io/images/icons/Dance%20of%20Blight_eclypse.webp"
+            src="https://blightbane.io/images/icons/cards_metamorphosis_2_48.webp"
             alt="Card Codex Logo"
             className={styles['logo']}
           />
           <div>
             <h1 className={styles['title']}>Codex: Cards</h1>
-            <h2 className={styles['subtitle']}>Search & filter all cards in the game</h2>
+            <h2 className={styles['subtitle']}>Search, filter & keep track!</h2>
           </div>
         </div>
       </div>
