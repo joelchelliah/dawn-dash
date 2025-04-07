@@ -1,0 +1,14 @@
+@use '../../../../styles' as *;
+
+.button-row {
+  gap: 0.625rem;
+  margin-top: 1.25rem;
+
+  &--left {
+    @extend %flex-start;
+  }
+
+  &--right {
+    @extend %flex-end;
+  }
+}

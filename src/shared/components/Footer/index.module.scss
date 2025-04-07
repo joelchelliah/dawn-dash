@@ -1,0 +1,21 @@
+@use './styles/index' as *;
+
+.footer {
+  @extend %flex-center;
+  padding: 1rem;
+  white-space: pre-wrap;
+  margin-top: auto;
+  color: #999;
+  font-size: font-size('xs');
+  flex-wrap: wrap;
+}
+
+.credits {
+  @media (max-width: $breakpoint-tablet) {
+    max-width: 70vw;
+  }
+
+  @media (max-width: $breakpoint-mobile) {
+    max-width: 60vw;
+  }
+}

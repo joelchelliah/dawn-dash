@@ -3,13 +3,19 @@ import { useCallback, useEffect, useState } from 'react'
 import cx from 'classnames'
 import { useNavigate } from 'react-router-dom'
 
-import Button from '../../components/Buttons/Button'
-import ButtonRow from '../../components/Buttons/ButtonRow'
-import GradientButton from '../../components/Buttons/GradientButton'
-import { useCardData } from '../../hooks/useCardData'
-import { useFromNow } from '../../hooks/useFromNow'
-import { CardData } from '../../types/cards'
-import { CircleIcon, DoubleStarsIcon, SingleStarIcon, TripleStarsIcon } from '../../utils/icons'
+import Footer from '../../shared/components/Footer'
+import { useCardData } from '../../codex/hooks/useCardData'
+import { CardData } from '../../codex/types/cards'
+import Button from '../../shared/components/Buttons/Button'
+import ButtonRow from '../../shared/components/Buttons/ButtonRow'
+import GradientButton from '../../shared/components/Buttons/GradientButton'
+import { useFromNow } from '../../shared/hooks/useFromNow'
+import {
+  CircleIcon,
+  DoubleStarsIcon,
+  SingleStarIcon,
+  TripleStarsIcon,
+} from '../../shared/utils/icons'
 
 import styles from './index.module.scss'
 
@@ -465,6 +471,8 @@ function CardCodex(): JSX.Element {
           </>
         )}
       </div>
+
+      <Footer />
     </div>
   )
 }

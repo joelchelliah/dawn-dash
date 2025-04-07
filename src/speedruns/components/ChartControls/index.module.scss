@@ -1,0 +1,26 @@
+@use '../../../styles' as *;
+
+.controls {
+  margin-bottom: 1.25rem;
+  padding: $padding-component;
+  background: $color-component-bg;
+  border-radius: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  @include default_border(dashed);
+}
+
+.row {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  gap: 1.75rem;
+
+  // Smaller screens: several controls per row
+  @media (max-width: ($breakpoint-tablet-plus)) {
+    flex-wrap: wrap;
+    gap: 1rem;
+    width: 100%;
+  }
+}

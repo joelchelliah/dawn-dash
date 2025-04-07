@@ -1,0 +1,32 @@
+@use '../../../../styles' as *;
+
+.container {
+  h3 {
+    @extend %flex-center;
+    margin: 0 0 0.25rem;
+    padding-bottom: 1rem;
+    font-size: font-size('md');
+  }
+}
+
+.options {
+  @extend %flex-column;
+  margin-bottom: 1.5rem;
+}
+
+.option-title {
+  font-weight: bold;
+  color: #ccc;
+}
+
+.option-description {
+  color: #bbb;
+  font-size: font-size('xs');
+  margin-top: 0.125rem;
+  line-height: 1.2;
+
+  &__highlight {
+    font-weight: bold;
+    color: #ccc;
+  }
+}

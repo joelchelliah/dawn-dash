@@ -2,7 +2,7 @@ import React from 'react'
 
 import { useNavigate } from 'react-router-dom'
 
-import GradientButton from '../../components/Buttons/GradientButton'
+import GradientButton from '../../shared/components/Buttons/GradientButton'
 
 import styles from './index.module.scss'
 
