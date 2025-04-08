@@ -10,11 +10,14 @@
   padding: 0 1rem;
   background-color: #1a1a1a;
   color: #aaa;
+  gap: 1rem;
 
   p {
     font-size: font-size('md');
-    margin: 2rem 0;
+    margin: 2rem 1.5rem;
     max-width: 600px;
+    color: #777;
+    line-height: 1.5;
   }
 }
 
@@ -23,6 +26,14 @@
   font-size: font-size('lg');
   margin: 0;
   font-weight: bold;
+}
+
+.image {
+  width: 100px;
+  height: 100px;
+  margin-top: 1.5rem;
+  -webkit-mask-image: radial-gradient(circle, black 50%, transparent 75%);
+  mask-image: radial-gradient(circle, black 50%, transparent 75%);
 }
 
 .back-button {

@@ -3,13 +3,19 @@ import { useCallback, useEffect, useState } from 'react'
 import cx from 'classnames'
 import { useNavigate } from 'react-router-dom'
 
-import Button from '../../components/Buttons/Button'
-import ButtonRow from '../../components/Buttons/ButtonRow'
-import GradientButton from '../../components/Buttons/GradientButton'
-import { useCardData } from '../../hooks/useCardData'
-import { useFromNow } from '../../hooks/useFromNow'
-import { CardData } from '../../types/cards'
-import { CircleIcon, DoubleStarsIcon, SingleStarIcon, TripleStarsIcon } from '../../utils/icons'
+import Footer from '../../shared/components/Footer'
+import { useCardData } from '../../codex/hooks/useCardData'
+import { CardData } from '../../codex/types/cards'
+import Button from '../../shared/components/Buttons/Button'
+import ButtonRow from '../../shared/components/Buttons/ButtonRow'
+import GradientButton from '../../shared/components/Buttons/GradientButton'
+import { useFromNow } from '../../shared/hooks/useFromNow'
+import {
+  CircleIcon,
+  DoubleStarsIcon,
+  SingleStarIcon,
+  TripleStarsIcon,
+} from '../../shared/utils/icons'
 
 import styles from './index.module.scss'
 
@@ -128,9 +134,17 @@ const excludedCards = ['Elite Lightning Bolt', 'Elite Fireball', 'Elite Frostbol
 
 function CardCodex(): JSX.Element {
   const navigate = useNavigate()
-  const { cardData, isLoading, isLoadingInBackground, isError, lastUpdated, refresh } =
-    useCardData()
-  const fromNow = useFromNow(lastUpdated, 'Card data last fetched')
+  const {
+    cardData,
+    isLoading,
+    isLoadingInBackground,
+    isError,
+    isErrorInBackground,
+    lastUpdated,
+    refresh,
+    progress,
+  } = useCardData()
+  const fromNow = useFromNow(lastUpdated, 'Card data synced')
 
   const resetToDefaults = () => {
     navigate(`misc/codex/cards`, { replace: true })
@@ -237,105 +251,108 @@ function CardCodex(): JSX.Element {
     findMatchingCards()
   }, [keywords, expansionFilters, rarityFilters, bannerFilters, findMatchingCards])
 
-  const renderPanelContent = (content: JSX.Element) => (
-    <>
-      {isLoading && (
-        <div className={styles['loading']}>⏳ Loading card data... This may take a while.</div>
-      )}
-      {isError && !isLoading && <div className={styles['error']}>Error loading card data</div>}
-      {!isError && !isLoading && content}
-    </>
-  )
-
   const renderLeftPanel = () => (
     <div className={styles['left-panel']}>
       <h3>🔍 Search</h3>
 
-      {renderPanelContent(
-        <>
-          <div className={styles['input-container']}>
-            <input
-              type="text"
-              placeholder="Keywords..."
-              value={keywords}
-              onChange={(e) => setKeywords(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  findMatchingCards()
-                }
-              }}
-            />
-          </div>
+      <div className={styles['input-container']}>
+        <input
+          type="text"
+          placeholder="Keywords..."
+          value={keywords}
+          onChange={(e) => setKeywords(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              findMatchingCards()
+            }
+          }}
+        />
+      </div>
 
-          <div className={styles['filters']}>
-            <div className={styles['filter-group']}>
-              <h4>Expansions</h4>
-              <div className={cx(styles['check-boxes'], styles['expansion-check-boxes'])}>
-                {Object.values(Expansion).map((expansion) => (
-                  <label key={expansion}>
-                    <input
-                      type="checkbox"
-                      checked={expansionFilters[expansion]}
-                      onChange={() => handleExpansionChange(expansion)}
-                    />
-                    {expansion}
-                  </label>
-                ))}
-              </div>
+      <div className={styles['filters']}>
+        <div className={styles['filter-group']}>
+          <h4>Expansions</h4>
+          <div className={cx(styles['check-boxes'], styles['expansion-check-boxes'])}>
+            {Object.values(Expansion).map((expansion) => (
+              <label key={expansion}>
+                <input
+                  type="checkbox"
+                  checked={expansionFilters[expansion]}
+                  onChange={() => handleExpansionChange(expansion)}
+                />
+                {expansion}
+              </label>
+            ))}
+          </div>
+        </div>
+
+        <div className={styles['filter-group']}>
+          <h4>Rarities</h4>
+          <div className={cx(styles['check-boxes'], styles['rarity-check-boxes'])}>
+            {Object.values(Rarity).map((rarity) => (
+              <label key={rarity}>
+                <input
+                  type="checkbox"
+                  checked={rarityFilters[rarity]}
+                  onChange={() => handleRarityChange(rarity)}
+                />
+                {}
+                {rarity}
+              </label>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className={styles['filter-group']}>
+        <h4>Banners</h4>
+        <div className={styles['check-boxes']}>
+          {Object.values(Banner).map((banner) => (
+            <label key={banner}>
+              <input
+                type="checkbox"
+                checked={bannerFilters[banner]}
+                onChange={() => handleBannerChange(banner)}
+              />
+              {banner}
+            </label>
+          ))}
+        </div>
+      </div>
+
+      <ButtonRow align="left">
+        <Button onClick={refresh} isLoading={isLoadingInBackground}>
+          Resync data
+        </Button>
+
+        <Button onClick={resetFilters}>Reset</Button>
+        <GradientButton subtle onClick={findMatchingCards}>
+          Search
+        </GradientButton>
+      </ButtonRow>
+
+      <div
+        className={cx(styles['last-updated'], {
+          [styles['last-updated--loading']]: isLoadingInBackground,
+          [styles['last-updated--error']]: isErrorInBackground,
+        })}
+      >
+        {isLoadingInBackground ? (
+          <>
+            <div>⏳ Syncing card data: {progress}%</div>
+            <div className={styles['last-updated__progress-container']}>
+              <div
+                className={styles['last-updated__progress-bar']}
+                style={{ width: `${progress}%` }}
+              />
             </div>
-
-            <div className={styles['filter-group']}>
-              <h4>Rarities</h4>
-              <div className={cx(styles['check-boxes'], styles['rarity-check-boxes'])}>
-                {Object.values(Rarity).map((rarity) => (
-                  <label key={rarity}>
-                    <input
-                      type="checkbox"
-                      checked={rarityFilters[rarity]}
-                      onChange={() => handleRarityChange(rarity)}
-                    />
-                    {}
-                    {rarity}
-                  </label>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <div className={styles['filter-group']}>
-            <h4>Banners</h4>
-            <div className={styles['check-boxes']}>
-              {Object.values(Banner).map((banner) => (
-                <label key={banner}>
-                  <input
-                    type="checkbox"
-                    checked={bannerFilters[banner]}
-                    onChange={() => handleBannerChange(banner)}
-                  />
-                  {banner}
-                </label>
-              ))}
-            </div>
-          </div>
-
-          <ButtonRow align="left">
-            <Button onClick={refresh} isLoading={isLoadingInBackground}>
-              Re-fetch data
-            </Button>
-
-            <Button onClick={resetFilters}>Reset filters</Button>
-            <GradientButton subtle onClick={findMatchingCards}>
-              Search
-            </GradientButton>
-          </ButtonRow>
-
-          <div className={styles['last-updated']}>
-            {isLoadingInBackground
-              ? '⏳ Fetching fresh card data... This may take a while.'
-              : fromNow}
-          </div>
-        </>
-      )}
+          </>
+        ) : isErrorInBackground ? (
+          <div>💥 Error syncing card data... Try again later!</div>
+        ) : (
+          fromNow
+        )}
+      </div>
     </div>
   )
 
@@ -414,7 +431,7 @@ function CardCodex(): JSX.Element {
         <h3>🃏 Results</h3>
         <span>( Monster cards not included )</span>
       </div>
-      {renderPanelContent(<>{renderMatchingCards()}</>)}
+      {renderMatchingCards()}
     </div>
   )
 
@@ -423,21 +440,39 @@ function CardCodex(): JSX.Element {
       <div className={styles['header']}>
         <div className={styles['logo-and-title']} onClick={resetToDefaults}>
           <img
-            src="https://blightbane.io/images/icons/Dance%20of%20Blight_eclypse.webp"
-            alt="Card Codex Logo"
+            src="https://blightbane.io/images/icons/cards_metamorphosis_2_48.webp"
+            alt="Cardex Logo"
             className={styles['logo']}
           />
           <div>
-            <h1 className={styles['title']}>Codex: Cards</h1>
-            <h2 className={styles['subtitle']}>Search & filter all cards in the game</h2>
+            <h1 className={styles['title']}>Dawn-Dash : Cardex</h1>
+            <h2 className={styles['subtitle']}>Dawncaster cards search, filtering & tracking</h2>
           </div>
         </div>
       </div>
 
       <div className={styles['content']}>
-        {renderLeftPanel()}
-        {renderRightPanel()}
+        {isLoading && (
+          <div className={styles['loading']}>
+            <div>⏳ Loading delicious card data... Please be patient!</div>
+            <div className={styles['loading__progress-container']}>
+              <div className={styles['loading__progress-bar']} style={{ width: `${progress}%` }} />
+            </div>
+            <div className={styles['loading__progress-text']}>{progress}% complete</div>
+          </div>
+        )}
+        {isError && !isLoading && (
+          <div className={styles['error']}>💥 Error loading card data... Try again later!</div>
+        )}
+        {!isError && !isLoading && (
+          <>
+            {renderLeftPanel()}
+            {renderRightPanel()}
+          </>
+        )}
       </div>
+
+      <Footer />
     </div>
   )
 }

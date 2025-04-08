@@ -1,0 +1,49 @@
+@use '../../../styles' as *;
+
+$message-padding: 2.5rem;
+$loading-icon-size: 5rem;
+
+.container {
+  @extend %flex-center;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: $message-padding 0 1rem;
+  color: #ddd;
+  font-size: font-size('md');
+
+  &--max-height {
+    height: $chart-container-height - 2 * $message-padding;
+  }
+}
+
+.loading-icon {
+  border-radius: 50%;
+  width: $loading-icon-size;
+  height: $loading-icon-size;
+  @include pulseAnimation;
+}
+
+.loading-text {
+  opacity: 0.8;
+  display: flex;
+  gap: 0.5rem;
+  text-align: center;
+
+  @media (max-width: $breakpoint-mobile) {
+    flex-direction: column;
+    align-items: center;
+    white-space: normal;
+    word-break: break-word;
+  }
+}
+
+.class-name {
+  font-weight: bold;
+}
+
+.last-line {
+  display: flex;
+  flex-direction: row;
+  width: 5.5rem;
+  justify-content: space-between;
+}

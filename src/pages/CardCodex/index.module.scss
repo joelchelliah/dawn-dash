@@ -53,6 +53,7 @@
 
 .content {
   display: flex;
+  justify-content: center;
   gap: 2rem;
   padding: 0.5rem 1rem;
 
@@ -62,23 +63,58 @@
 }
 
 .loading {
+  @extend %flex-center;
+  flex-direction: column;
   font-size: font-size('md');
-  color: #aaa;
+  color: #bbb;
   height: 30vh;
   text-align: center;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+
+  @media (max-width: $breakpoint-mobile) {
+    font-size: font-size('sm');
+    margin: 0 2.5rem;
+  }
+
+  &__progress-container {
+    width: 100%;
+    max-width: 400px;
+    height: 0.75rem;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+    margin: 3rem 0 1.5rem;
+    overflow: hidden;
+
+    @media (max-width: $breakpoint-mobile) {
+      margin: 2rem 0 1rem;
+      height: 0.5rem;
+    }
+  }
+
+  &__progress-bar {
+    height: 100%;
+    background: linear-gradient(to right, $yellow-base, $green-base);
+    border-radius: 5px;
+    transition: width 0.3s ease;
+  }
+
+  &__progress-text {
+    font-size: 0.875rem;
+    color: #888;
+  }
 }
 
 .error {
+  @extend %flex-center;
   font-size: font-size('md');
-  color: #f55;
+  color: #d44;
   height: 30vh;
   text-align: center;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+
+  @media (max-width: $breakpoint-mobile) {
+    font-size: font-size('sm');
+    height: 20vh;
+    margin: 0 3.5rem;
+  }
 }
 
 .left-panel {
@@ -90,7 +126,6 @@
 
   @media (max-width: $breakpoint-mobile) {
     min-width: auto;
-    width: 100%;
     flex: 1 0 100%;
   }
 }
@@ -102,8 +137,7 @@
   border-radius: 4px;
 
   @media (max-width: $breakpoint-mobile) {
-    flex: 1 0 100%;
-    width: 100%;
+    flex: 1;
     margin-top: 1rem;
   }
 }
@@ -128,7 +162,6 @@
 
   input {
     flex: 1;
-    min-width: 20rem;
     padding: 0.5rem;
     border: 1px solid #888;
     border-radius: 0.25rem;
@@ -164,7 +197,7 @@
     align-items: center;
     gap: 0.25rem;
     width: calc(33.33% - 0.5rem);
-    min-width: 100px;
+    min-width: 80px;
     margin-bottom: 0.5rem;
   }
 
@@ -221,6 +254,35 @@
   font-size: font-size('xs');
   color: #888;
   margin: 1rem 0 0 0.125rem;
+
+  &--loading {
+    color: #aaa;
+  }
+
+  &--error {
+    color: #d44;
+  }
+
+  &__progress-container {
+    width: 100%;
+    height: 0.75rem;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+    margin: 1.25rem 0;
+    overflow: hidden;
+
+    @media (max-width: $breakpoint-mobile) {
+      margin: 0.75rem 0;
+      height: 0.5rem;
+    }
+  }
+
+  &__progress-bar {
+    height: 100%;
+    background: linear-gradient(to right, $yellow-base, $green-base);
+    border-radius: 5px;
+    transition: width 0.3s ease;
+  }
 }
 
 .results-title {
