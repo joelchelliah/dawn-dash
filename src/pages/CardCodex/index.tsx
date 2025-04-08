@@ -441,12 +441,12 @@ function CardCodex(): JSX.Element {
         <div className={styles['logo-and-title']} onClick={resetToDefaults}>
           <img
             src="https://blightbane.io/images/icons/cards_metamorphosis_2_48.webp"
-            alt="Card Codex Logo"
+            alt="Cardex Logo"
             className={styles['logo']}
           />
           <div>
-            <h1 className={styles['title']}>Codex: Cards</h1>
-            <h2 className={styles['subtitle']}>Search, filter & keep track!</h2>
+            <h1 className={styles['title']}>Dawn-Dash : Cardex</h1>
+            <h2 className={styles['subtitle']}>Dawncaster cards search, filtering & tracking</h2>
           </div>
         </div>
       </div>

@@ -19,6 +19,7 @@ const IMAGE_URLS = [
   'https://blightbane.io/images/neutral.webp',
   'https://blightbane.io/images/icons/Dance%20of%20Blight_eclypse.webp', // Dance of Blight
   'https://blightbane.io/images/icons/cards_metamorphosis_2_48.webp', // Abracardabra
+  'https://blightbane.io/images/monsters/dc_dantelion.webp', // Dantelion
 ]
 
 self.addEventListener('activate', (event) => {
