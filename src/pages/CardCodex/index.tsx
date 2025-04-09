@@ -156,7 +156,7 @@ function CardCodex(): JSX.Element {
       <div className={styles['input-container']}>
         <input
           type="text"
-          placeholder="Keywords..."
+          placeholder="Keywords, separated, by, comma"
           value={keywords}
           onChange={(e) => setKeywords(e.target.value)}
         />
