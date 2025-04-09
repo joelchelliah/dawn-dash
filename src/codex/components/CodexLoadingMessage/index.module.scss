@@ -1,0 +1,42 @@
+@use '../../../styles/index' as *;
+
+.loading {
+  @extend %flex-center;
+  flex-direction: column;
+  font-size: font-size('md');
+  color: #bbb;
+  height: 30vh;
+  text-align: center;
+
+  @media (max-width: $breakpoint-mobile) {
+    font-size: font-size('sm');
+    margin: 0 2.5rem;
+  }
+
+  &__progress-container {
+    width: 100%;
+    max-width: 400px;
+    height: 0.75rem;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+    margin: 3rem 0 1.5rem;
+    overflow: hidden;
+
+    @media (max-width: $breakpoint-mobile) {
+      margin: 2rem 0 1rem;
+      height: 0.5rem;
+    }
+  }
+
+  &__progress-bar {
+    height: 100%;
+    background: linear-gradient(to right, $yellow-base, $green-base);
+    border-radius: 5px;
+    transition: width 0.3s ease;
+  }
+
+  &__progress-text {
+    font-size: 0.875rem;
+    color: #888;
+  }
+}

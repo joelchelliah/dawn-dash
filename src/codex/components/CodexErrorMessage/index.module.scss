@@ -1,0 +1,15 @@
+@use '../../../styles/index' as *;
+
+.error {
+  @extend %flex-center;
+  font-size: font-size('md');
+  color: #d44;
+  height: 30vh;
+  text-align: center;
+
+  @media (max-width: $breakpoint-mobile) {
+    font-size: font-size('sm');
+    height: 20vh;
+    margin: 0 3.5rem;
+  }
+}

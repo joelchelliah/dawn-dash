@@ -41,6 +41,11 @@
   font-size: font-size('lg');
   margin: 0;
   font-weight: bold;
+
+  @media (max-width: $breakpoint-mobile) {
+    font-size: font-size('md');
+    margin-bottom: 0.25rem;
+  }
 }
 
 .subtitle {
@@ -59,61 +64,6 @@
 
   @media (max-width: $breakpoint-mobile) {
     flex-direction: column;
-  }
-}
-
-.loading {
-  @extend %flex-center;
-  flex-direction: column;
-  font-size: font-size('md');
-  color: #bbb;
-  height: 30vh;
-  text-align: center;
-
-  @media (max-width: $breakpoint-mobile) {
-    font-size: font-size('sm');
-    margin: 0 2.5rem;
-  }
-
-  &__progress-container {
-    width: 100%;
-    max-width: 400px;
-    height: 0.75rem;
-    background-color: rgba(255, 255, 255, 0.1);
-    border-radius: 5px;
-    margin: 3rem 0 1.5rem;
-    overflow: hidden;
-
-    @media (max-width: $breakpoint-mobile) {
-      margin: 2rem 0 1rem;
-      height: 0.5rem;
-    }
-  }
-
-  &__progress-bar {
-    height: 100%;
-    background: linear-gradient(to right, $yellow-base, $green-base);
-    border-radius: 5px;
-    transition: width 0.3s ease;
-  }
-
-  &__progress-text {
-    font-size: 0.875rem;
-    color: #888;
-  }
-}
-
-.error {
-  @extend %flex-center;
-  font-size: font-size('md');
-  color: #d44;
-  height: 30vh;
-  text-align: center;
-
-  @media (max-width: $breakpoint-mobile) {
-    font-size: font-size('sm');
-    height: 20vh;
-    margin: 0 3.5rem;
   }
 }
 
@@ -172,61 +122,6 @@
 
 .filters {
   margin-top: 1rem;
-}
-
-.filter-group {
-  margin: 2rem 0;
-
-  h4 {
-    margin-top: 0;
-    margin-bottom: 0.5rem;
-    font-size: font-size('sm');
-    color: #ddd;
-    padding-bottom: 0.5rem;
-    border-bottom: 1px solid #444;
-  }
-}
-
-.check-boxes {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-
-  label {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    width: calc(33.33% - 0.5rem);
-    min-width: 80px;
-    margin-bottom: 0.5rem;
-  }
-
-  &.expansion-check-boxes {
-    label {
-      @media (max-width: $breakpoint-mobile) {
-        width: calc(50% - 0.5rem);
-        min-width: 0;
-      }
-    }
-  }
-
-  &.rarity-check-boxes {
-    label {
-      width: auto;
-      min-width: 20px;
-      margin-right: 1.5rem;
-      flex: 0 0 auto;
-
-      @media (max-width: $breakpoint-mobile) {
-        display: flex;
-        align-items: center;
-        gap: 0.25rem;
-        width: calc(50% - 0.5rem);
-        min-width: 0;
-        margin-right: 0;
-      }
-    }
-  }
 }
 
 .buttons {
@@ -435,7 +330,7 @@
     }
   }
 
-  &__expansion {
+  &__card-set {
     display: inline-block;
     color: #777;
     width: 8rem;

@@ -14,7 +14,6 @@ import {
   Title,
 } from 'chart.js'
 import cx from 'classnames'
-import { useNavigate } from 'react-router-dom'
 
 import { useDeviceOrientation } from '../../../shared/hooks/useDeviceOrientation'
 import { useSpeedrunData } from '../../hooks/useSpeedrunData'
@@ -40,6 +39,7 @@ import {
 } from '../../utils/colors'
 import { isAnonymousPlayer } from '../../utils/players'
 import ClassLoadingMessage from '../ClassLoadingMessage'
+import { useNavigation } from '../../../shared/hooks/useNavigation'
 
 import ChartErrorMessage from './ChartErrorMessage'
 import ChartFooter from './ChartFooter'
@@ -81,15 +81,10 @@ function Chart({ selectedClass, controls, onPlayerClick }: ChartProps) {
   const playerColors = useRef<Record<string, string>>({})
   const [chartData, setChartData] = useState<ChartJS | null>(null)
   const { isMobileAndPortrait, isMobileAndLandscape } = useDeviceOrientation()
-  const navigate = useNavigate()
+  const { resetToSpeedruns } = useNavigation()
 
   const { subclass, difficulty, playerLimit, maxDuration, viewMode, submissionWindow, zoomLevel } =
     controls
-
-  const resetToDefaults = () => {
-    navigate(`/?class=${selectedClass}&difficulty=${difficulty}`, { replace: true })
-    window.location.reload()
-  }
 
   const createDatasets = useCallback(
     (playerHistory: Map<string, DataPoint[]>, recordPoints: RecordPoint[]) => {
@@ -295,7 +290,7 @@ function Chart({ selectedClass, controls, onPlayerClick }: ChartProps) {
           selectedClass={selectedClass}
           message="No runs found for the selected filters!"
           buttonText="Reset filters"
-          onClick={resetToDefaults}
+          onClick={() => resetToSpeedruns(selectedClass, difficulty)}
         />
         {!isError && !isLoading && (
           <div

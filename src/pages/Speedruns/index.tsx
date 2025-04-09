@@ -1,7 +1,6 @@
 import { useState } from 'react'
 
-import { useNavigate } from 'react-router-dom'
-
+import { useNavigation } from '../../shared/hooks/useNavigation'
 import Footer from '../../shared/components/Footer'
 import { useInitialClassAndDifficulty } from '../../speedruns/hooks/useInitialClassAndDifficulty'
 import BlightbaneModal from '../../speedruns/components/BlightbaneModal'
@@ -21,7 +20,7 @@ function App(): JSX.Element {
   const [selectedClass, setSelectedClass] = useState<SpeedRunClass>(initialClass)
   const [selectedPlayer, setSelectedPlayer] = useState('')
   const [selectedTimestamp, setSelectedTimestamp] = useState<number | undefined>()
-  const navigate = useNavigate()
+  const { resetToSpeedruns } = useNavigation()
 
   const controls = useChartControlState(selectedClass, initialDifficulty)
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -38,17 +37,15 @@ function App(): JSX.Element {
     setIsModalOpen(false)
   }
 
-  const resetToDefaults = () => {
-    navigate(`/?class=${selectedClass}&difficulty=${controls.difficulty}`, { replace: true })
-    window.location.reload()
-  }
-
   useUrlParams(selectedClass, setSelectedClass, controls)
 
   return (
     <div className={styles['container']}>
       <div className={styles['header']}>
-        <div className={styles['logo-and-title']} onClick={resetToDefaults}>
+        <div
+          className={styles['logo-and-title']}
+          onClick={() => resetToSpeedruns(selectedClass, controls.difficulty)}
+        >
           <img
             src="https://blightbane.io/images/icons/cardart_4_53.webp"
             alt="Dawncaster Logo"
