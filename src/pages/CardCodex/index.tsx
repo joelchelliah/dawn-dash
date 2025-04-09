@@ -2,8 +2,10 @@ import { useEffect, useState } from 'react'
 
 import cx from 'classnames'
 
+import GradientLink from '../../shared/components/GradientLink'
 import CodexLoadingMessage from '../../codex/components/CodexLoadingMessage'
 import CodexErrorMessage from '../../codex/components/CodexErrorMessage'
+import { allFormattingFilters, useFormattingFilters } from '../../codex/hooks/useFormattingFilters'
 import { useNavigation } from '../../shared/hooks/useNavigation'
 import { isArrayEqual } from '../../shared/utils/lists'
 import FilterGroup from '../../codex/components/FilterGroup'
@@ -20,7 +22,9 @@ import { useFromNow } from '../../shared/hooks/useFromNow'
 import {
   CircleIcon,
   DoubleStarsIcon,
+  MagnifyingGlassIcon,
   SingleStarIcon,
+  StackedCardsIcon,
   TripleStarsIcon,
 } from '../../shared/utils/icons'
 
@@ -67,6 +71,16 @@ function CardCodex(): JSX.Element {
     useRarityFilters()
   const { bannerFilters, isBannerIndexSelected, handleBannerFilterToggle, resetBannerFilters } =
     useBannerFilters()
+  const {
+    formattingFilters,
+    handleFormattingFilterToggle,
+    getFormattingFilterName,
+    resetFormattingFilters,
+    shouldShowRarity,
+    shouldShowDescription,
+    shouldShowKeywords,
+    shouldShowCardSet,
+  } = useFormattingFilters()
   const { isCardStruck, toggleCardStrike, resetStruckCards } = useCardStrike()
 
   const resetFilters = () => {
@@ -75,7 +89,7 @@ function CardCodex(): JSX.Element {
     resetCardSetFilters()
     resetRarityFilters()
     resetBannerFilters()
-    resetStruckCards()
+    resetFormattingFilters()
   }
 
   useEffect(() => {
@@ -134,7 +148,10 @@ function CardCodex(): JSX.Element {
 
   const renderLeftPanel = () => (
     <div className={styles['left-panel']}>
-      <h3>🔍 Search</h3>
+      <div className={styles['panel-header']}>
+        <MagnifyingGlassIcon />
+        Search
+      </div>
 
       <div className={styles['input-container']}>
         <input
@@ -167,14 +184,19 @@ function CardCodex(): JSX.Element {
           type="banner"
           onFilterToggle={handleBannerFilterToggle}
         />
+        <FilterGroup
+          title="Results formatting"
+          filters={allFormattingFilters}
+          selectedFilters={formattingFilters}
+          type="formatting"
+          onFilterToggle={handleFormattingFilterToggle}
+          getFilterLabel={getFormattingFilterName}
+        />
       </div>
 
-      <ButtonRow align="left">
-        <Button onClick={refresh} isLoading={isLoadingInBackground}>
-          Resync data
-        </Button>
-
-        <Button onClick={resetFilters}>Reset</Button>
+      <ButtonRow align="left" includeBorder>
+        <Button onClick={resetFilters}>Reset search</Button>
+        <Button onClick={resetStruckCards}>Reset tracked cards</Button>
       </ButtonRow>
 
       <div
@@ -198,6 +220,11 @@ function CardCodex(): JSX.Element {
         ) : (
           fromNow
         )}
+        {!(isLoading || isLoadingInBackground) && (
+          <div>
+            <GradientLink text="Resync data?" onClick={refresh} />
+          </div>
+        )}
       </div>
     </div>
   )
@@ -211,6 +238,19 @@ function CardCodex(): JSX.Element {
 
     return `{ ${matches.join(', ')} }`
   }
+
+  const cleanUpDescription = (description: string) =>
+    description
+      .replace(/<br\s*\/?>/g, '\n')
+      .replace(/<[^>]*>?/g, '')
+      .replace(/\[\[/g, '[') // Replace [[ with [
+      .replace(/\]\]/g, ']') // Replace ]] with ]
+      .replace(/\(\[/g, '(') // Replace ([ with (
+      .replace(/\(\{/g, '(') // Replace ({ with (
+      .replace(/\]\)/g, ')') // Replace ]) with )
+      .replace(/\}\)/g, ')') // Replace }) with )
+      .replace(/\n+/g, '\n')
+      .trim()
 
   const renderMatchingCards = () => {
     if (parsedKeywords.length === 0) return null
@@ -236,22 +276,35 @@ function CardCodex(): JSX.Element {
           <div key={banner} className={styles['results-cards']}>
             <div className={styles[`results-cards__banner--${banner}`]}>
               {cards.map((card) => {
-                const className = cx(styles['result-card'], {
-                  [styles['result-card--struck']]: isCardStruck(card),
+                const className = cx(styles['result-card-container'], {
+                  [styles['result-card-container--struck']]: isCardStruck(card),
                 })
 
                 return (
-                  <div key={card.name} className={className} onClick={() => toggleCardStrike(card)}>
-                    <span className={styles['result-card__rarity']}>
-                      {indexToRarityIconMap[card.rarity as keyof typeof indexToRarityIconMap]}
-                    </span>
-                    <span className={styles['result-card__name']}>{card.name}</span>
-                    <span className={styles['result-card__keywords']}>
-                      {findMatchingKeywords(card)}
-                    </span>
-                    <span className={styles['result-card__card-set']}>
-                      {getCardSetNameFromIndex(card.expansion)}
-                    </span>
+                  <div className={className} key={card.name} onClick={() => toggleCardStrike(card)}>
+                    <div className={styles['result-card']}>
+                      {shouldShowRarity && (
+                        <span className={styles['result-card__rarity']}>
+                          {indexToRarityIconMap[card.rarity as keyof typeof indexToRarityIconMap]}
+                        </span>
+                      )}
+                      <span className={styles['result-card__name']}>{card.name}</span>
+                      {shouldShowKeywords && (
+                        <span className={styles['result-card__keywords']}>
+                          {findMatchingKeywords(card)}
+                        </span>
+                      )}
+                      {shouldShowCardSet && (
+                        <span className={styles['result-card__card-set']}>
+                          {getCardSetNameFromIndex(card.expansion)}
+                        </span>
+                      )}
+                    </div>
+                    {shouldShowDescription && (
+                      <div className={styles['result-card__description']}>
+                        {cleanUpDescription(card.description)}
+                      </div>
+                    )}
                   </div>
                 )
               })}
@@ -264,9 +317,9 @@ function CardCodex(): JSX.Element {
 
   const renderRightPanel = () => (
     <div className={styles['right-panel']}>
-      <div className={styles['results-title']}>
-        <h3>🃏 Results</h3>
-        <span>( Monster cards not included )</span>
+      <div className={styles['panel-header']}>
+        <StackedCardsIcon />
+        Results
       </div>
       {renderMatchingCards()}
     </div>

@@ -88,21 +88,20 @@
 
   @media (max-width: $breakpoint-mobile) {
     flex: 1;
-    margin-top: 1rem;
   }
 }
 
-.left-panel,
-.right-panel {
-  h3 {
-    margin-top: 0;
-    margin-bottom: 1.5rem;
-    color: #ddd;
-    font-weight: bold;
-    font-size: font-size('md');
-    border-bottom: 1px solid #444;
-    padding-bottom: 0.5rem;
-  }
+.panel-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  color: #ddd;
+  font-weight: bold;
+  font-size: font-size('md');
+  border-bottom: 1px solid #444;
+  padding-bottom: 0.5rem;
 }
 
 .input-container {
@@ -148,7 +147,7 @@
 .last-updated {
   font-size: font-size('xs');
   color: #888;
-  margin: 1rem 0 0 0.125rem;
+  margin: 1.5rem 0 0 0.125rem;
 
   &--loading {
     color: #aaa;
@@ -187,12 +186,6 @@
     border-bottom: none;
     margin-bottom: 0;
     display: inline-block;
-  }
-
-  span {
-    font-size: font-size('xs');
-    color: #888;
-    margin: 0 0.5rem;
   }
 }
 
@@ -278,21 +271,14 @@
   }
 }
 
-.result-card {
+.result-card-container {
   display: flex;
-  flex-direction: row;
-  align-items: center;
-  padding: 0.5rem 0;
-  border-bottom: 1px dashed #111;
-  margin: -0.3125rem 0;
-  cursor: pointer;
+  flex-direction: column;
+  border-bottom: 1px dashed #555;
+  padding-bottom: 0.25rem;
 
   &:last-child {
     border-bottom: none;
-  }
-
-  &:hover {
-    background-color: rgba(255, 255, 255, 0.01);
   }
 
   &--struck {
@@ -302,6 +288,20 @@
     // Wierd visual effect work-around...
     margin-left: -0.5rem;
     padding-left: 0.5rem;
+  }
+}
+
+.result-card {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 0.5rem 0;
+  margin: -0.3125rem 0;
+  cursor: pointer;
+  min-height: 1.25rem;
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.01);
   }
 
   &__rarity {
@@ -342,8 +342,13 @@
     @media (max-width: $breakpoint-mobile) {
       font-size: font-size('xxs');
       width: 6rem;
-      margin-left: 0.5rem;
     }
+  }
+
+  &__description {
+    font-size: font-size('xxs');
+    color: #aaa;
+    margin-bottom: 0.125rem;
   }
 }
 

@@ -53,4 +53,15 @@
       }
     }
   }
+
+  &--formatting {
+    label {
+      width: calc(50% - 1.5rem);
+
+      @media (max-width: $breakpoint-mobile) {
+        width: auto;
+        margin-right: 1rem;
+      }
+    }
+  }
 }

@@ -6,10 +6,18 @@ interface FilterGroupProps {
   title: string
   filters: string[]
   selectedFilters: Record<string, boolean>
-  type: 'card-set' | 'rarity' | 'banner'
+  type: 'card-set' | 'rarity' | 'banner' | 'formatting'
   onFilterToggle: (filter: string) => void
+  getFilterLabel?: (filter: string) => string
 }
-function FilterGroup({ title, filters, selectedFilters, type, onFilterToggle }: FilterGroupProps) {
+function FilterGroup({
+  title,
+  filters,
+  selectedFilters,
+  type,
+  onFilterToggle,
+  getFilterLabel,
+}: FilterGroupProps) {
   const className = cx(styles['check-boxes'], styles[`check-boxes--${type}`])
 
   return (
@@ -23,7 +31,7 @@ function FilterGroup({ title, filters, selectedFilters, type, onFilterToggle }: 
               checked={selectedFilters[filter]}
               onChange={() => onFilterToggle(filter)}
             />
-            {filter}
+            {getFilterLabel ? getFilterLabel(filter) : filter}
           </label>
         ))}
       </div>
