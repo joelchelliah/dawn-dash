@@ -307,8 +307,12 @@
   }
 
   &__rarity {
-    margin-right: 0.75rem;
+    margin-right: 0.5rem;
     min-width: 1.5rem;
+
+    @media (max-width: $breakpoint-mobile) {
+      margin-right: 0.25rem;
+    }
   }
 
   &__name {
