@@ -10,10 +10,10 @@ const defaultRarityFilters = {
 }
 
 const rarityIndexMap = {
-  [RarityFilterOption.Common]: 0,
-  [RarityFilterOption.Uncommon]: 1,
-  [RarityFilterOption.Rare]: 2,
   [RarityFilterOption.Legendary]: 3,
+  [RarityFilterOption.Rare]: 2,
+  [RarityFilterOption.Uncommon]: 1,
+  [RarityFilterOption.Common]: 0,
 }
 
 export const allRarities: Rarity[] = Rarity.getAll()

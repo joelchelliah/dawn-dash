@@ -223,6 +223,39 @@ function CardCodex(): JSX.Element {
     e.preventDefault()
   }
 
+  const getRarityFilterLabel = (filter: string) => {
+    switch (filter) {
+      case 'Legendary':
+        return (
+          <span className={styles['filter-label']}>
+            <TripleStarsIcon className={styles['filter-icon--legendary']} />
+            Legendary
+          </span>
+        )
+      case 'Rare':
+        return (
+          <span className={styles['filter-label']}>
+            <DoubleStarsIcon className={styles['filter-icon--rare']} />
+            Rare
+          </span>
+        )
+      case 'Uncommon':
+        return (
+          <span className={styles['filter-label']}>
+            <SingleStarIcon className={styles['filter-icon--uncommon']} />
+            Uncommon
+          </span>
+        )
+      default:
+        return (
+          <span className={styles['filter-label']}>
+            <CircleIcon className={styles['filter-icon--common']} />
+            Common
+          </span>
+        )
+    }
+  }
+
   const renderLeftPanel = () => (
     <div className={styles['left-panel']}>
       <div className={styles['panel-header']}>
@@ -255,6 +288,7 @@ function CardCodex(): JSX.Element {
             selectedFilters={rarityFilters}
             type="rarity"
             onFilterToggle={toggleRarityFilter}
+            getFilterLabel={getRarityFilterLabel}
           />
           <FilterGroup
             title="Banners"

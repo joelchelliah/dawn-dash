@@ -8,7 +8,7 @@ interface FilterGroupProps {
   selectedFilters: Record<string, boolean>
   type: 'card-set' | 'rarity' | 'banner' | 'formatting'
   onFilterToggle: (filter: string) => void
-  getFilterLabel?: (filter: string) => string
+  getFilterLabel?: (filter: string) => React.ReactNode
 }
 function FilterGroup({
   title,

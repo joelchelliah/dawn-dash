@@ -1,5 +1,10 @@
 @use './styles/index' as *;
 
+$legendary-filter-color: #ffd700;
+$rare-filter-color: #007bff;
+$uncommon-filter-color: #28a745;
+$common-filter-color: #90561c;
+
 .container {
   display: flex;
   flex-direction: column;
@@ -123,6 +128,44 @@
 
 .filters {
   margin-top: 1rem;
+}
+
+.filter-label {
+  display: flex;
+  align-items: center;
+}
+
+.filter-icon {
+  width: 1rem;
+  height: 1rem;
+  padding-right: 0.25rem;
+
+  &--legendary {
+    @extend .filter-icon;
+    color: $legendary-filter-color;
+    height: 1.25rem;
+  }
+
+  &--rare {
+    @extend .filter-icon;
+    color: $rare-filter-color;
+    width: 1.25rem;
+  }
+
+  &--uncommon {
+    @extend .filter-icon;
+    color: $uncommon-filter-color;
+    width: 1.25rem;
+    height: 1.25rem;
+    padding-right: 0.125rem;
+    margin-left: -0.125rem;
+  }
+
+  &--common {
+    @extend .filter-icon;
+    color: $common-filter-color;
+    width: 1.25rem;
+  }
 }
 
 .buttons {
@@ -359,7 +402,7 @@
 }
 
 .rarity-icon {
-  color: #90561c;
+  color: $common-filter-color;
 
   &--0 {
     @extend .rarity-icon;
@@ -375,7 +418,7 @@
     height: 22px;
     margin-top: 0.125rem;
     margin-left: -0.125rem;
-    color: rgb(44, 201, 97);
+    color: $uncommon-filter-color;
   }
 
   &--2 {
@@ -383,13 +426,13 @@
     width: 20px;
     height: 18px;
     margin-top: 0.25rem;
-    color: rgb(27, 119, 238);
+    color: $rare-filter-color;
   }
 
   &--3 {
     @extend .rarity-icon;
     width: 20px;
     height: 22px;
-    color: rgb(230, 224, 61);
+    color: $legendary-filter-color;
   }
 }
