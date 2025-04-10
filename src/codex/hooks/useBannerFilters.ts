@@ -1,69 +1,49 @@
-import { useState } from 'react'
+import { Banner, BannerFilterOption, SharedFilterOption } from '../types/filters'
 
-enum Banner {
-  Green = 'Green',
-  Blue = 'Blue',
-  Red = 'Red',
-  Purple = 'Purple',
-  Brown = 'Brown',
-  Aqua = 'Aqua',
-  Gold = 'Gold',
-  Black = 'Black',
-  Orange = 'Orange',
+import { createFilterHook } from './useFilterFactory'
+
+const defaultBannerFilters: Record<string, boolean> = {
+  [BannerFilterOption.Green]: true,
+  [BannerFilterOption.Blue]: true,
+  [BannerFilterOption.Red]: true,
+  [BannerFilterOption.Purple]: true,
+  [BannerFilterOption.Brown]: true,
+  [BannerFilterOption.Aqua]: true,
+  [BannerFilterOption.Gold]: true,
+  [BannerFilterOption.Black]: true,
+  [BannerFilterOption.Orange]: true,
+  [SharedFilterOption.All]: false,
+  [SharedFilterOption.None]: false,
 }
 
-const defaultBannerFilters = {
-  [Banner.Green]: true,
-  [Banner.Blue]: true,
-  [Banner.Red]: true,
-  [Banner.Purple]: true,
-  [Banner.Brown]: true,
-  [Banner.Aqua]: true,
-  [Banner.Gold]: true,
-  [Banner.Black]: true,
-  [Banner.Orange]: true,
+const bannerIndexMap: Record<string, number> = {
+  [BannerFilterOption.Green]: 1,
+  [BannerFilterOption.Blue]: 2,
+  [BannerFilterOption.Red]: 3,
+  [BannerFilterOption.Purple]: 4,
+  [BannerFilterOption.Brown]: 5,
+  [BannerFilterOption.Aqua]: 6,
+  // Skipping 7 (unused)
+  [BannerFilterOption.Gold]: 8,
+  [BannerFilterOption.Black]: 9,
+  [BannerFilterOption.Orange]: 10,
 }
 
-const bannerIndexMap = {
-  [Banner.Green]: 1,
-  [Banner.Blue]: 2,
-  [Banner.Red]: 3,
-  [Banner.Purple]: 4,
-  [Banner.Brown]: 5,
-  [Banner.Aqua]: 6,
-  [Banner.Gold]: 8,
-  [Banner.Black]: 9,
-  [Banner.Orange]: 10,
-}
+export const allBanners: string[] = Banner.getAll()
 
-export const allBanners: Banner[] = Object.values(Banner)
+const useBaseBannerFilters = createFilterHook({
+  defaultFilters: defaultBannerFilters,
+  allValues: allBanners,
+  indexMap: bannerIndexMap,
+})
 
 export const useBannerFilters = () => {
-  const [bannerFilters, setBannerFilters] = useState<Record<string, boolean>>(defaultBannerFilters)
-
-  const selectedBannerIndices = Object.keys(bannerFilters)
-    .filter((key) => bannerFilters[key])
-    .map((banner) => bannerIndexMap[banner as keyof typeof bannerIndexMap])
-
-  const isBannerIndexSelected = (index: number) => {
-    return selectedBannerIndices.includes(index)
-  }
-
-  const handleBannerFilterToggle = (banner: string) => {
-    setBannerFilters((prevFilters) => ({
-      ...prevFilters,
-      [banner]: !prevFilters[banner],
-    }))
-  }
-
-  const resetBannerFilters = () => {
-    setBannerFilters(defaultBannerFilters)
-  }
+  const { filters, isIndexSelected, handleFilterToggle, resetFilters } = useBaseBannerFilters()
 
   return {
-    bannerFilters,
-    isBannerIndexSelected,
-    handleBannerFilterToggle,
-    resetBannerFilters,
+    bannerFilters: filters,
+    isBannerIndexSelected: isIndexSelected,
+    handleBannerFilterToggle: handleFilterToggle,
+    resetBannerFilters: resetFilters,
   }
 }

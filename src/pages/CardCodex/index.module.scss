@@ -116,6 +116,8 @@
     border-radius: 0.25rem;
     background-color: $color-base-bg;
     color: #ffffff;
+    // Font size should not be smaller than 1rem, to prevent zooming in on focus
+    font-size: font-size('sm');
   }
 }
 

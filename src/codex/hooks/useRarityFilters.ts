@@ -1,54 +1,36 @@
-import { useState } from 'react'
+import { Rarity, RarityFilterOption } from '../types/filters'
 
-enum Rarity {
-  Common = 'Common',
-  Uncommon = 'Uncommon',
-  Rare = 'Rare',
-  Legendary = 'Legendary',
-}
+import { createFilterHook } from './useFilterFactory'
 
 const defaultRarityFilters = {
-  [Rarity.Common]: false,
-  [Rarity.Uncommon]: false,
-  [Rarity.Rare]: true,
-  [Rarity.Legendary]: true,
+  [RarityFilterOption.Legendary]: true,
+  [RarityFilterOption.Rare]: true,
+  [RarityFilterOption.Uncommon]: false,
+  [RarityFilterOption.Common]: false,
 }
 
 const rarityIndexMap = {
-  [Rarity.Common]: 0,
-  [Rarity.Uncommon]: 1,
-  [Rarity.Rare]: 2,
-  [Rarity.Legendary]: 3,
+  [RarityFilterOption.Common]: 0,
+  [RarityFilterOption.Uncommon]: 1,
+  [RarityFilterOption.Rare]: 2,
+  [RarityFilterOption.Legendary]: 3,
 }
 
-export const allRarities: Rarity[] = Object.values(Rarity)
+export const allRarities: Rarity[] = Rarity.getAll()
+
+const useBaseRarityFilters = createFilterHook({
+  defaultFilters: defaultRarityFilters,
+  allValues: allRarities,
+  indexMap: rarityIndexMap,
+})
 
 export const useRarityFilters = () => {
-  const [rarityFilters, setRarityFilters] = useState<Record<string, boolean>>(defaultRarityFilters)
-
-  const selectedRarityIndices = Object.keys(rarityFilters)
-    .filter((key) => rarityFilters[key])
-    .map((rarity) => rarityIndexMap[rarity as keyof typeof rarityIndexMap])
-
-  const isRarityIndexSelected = (index: number) => {
-    return selectedRarityIndices.includes(index)
-  }
-
-  const handleRarityFilterToggle = (rarity: string) => {
-    setRarityFilters((prevFilters) => ({
-      ...prevFilters,
-      [rarity]: !prevFilters[rarity],
-    }))
-  }
-
-  const resetRarityFilters = () => {
-    setRarityFilters(defaultRarityFilters)
-  }
+  const { filters, isIndexSelected, handleFilterToggle, resetFilters } = useBaseRarityFilters()
 
   return {
-    rarityFilters,
-    isRarityIndexSelected,
-    handleRarityFilterToggle,
-    resetRarityFilters,
+    rarityFilters: filters,
+    isRarityIndexSelected: isIndexSelected,
+    handleRarityFilterToggle: handleFilterToggle,
+    resetRarityFilters: resetFilters,
   }
 }
