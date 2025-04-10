@@ -9,6 +9,7 @@ interface ButtonProps {
   onClick: () => void
   className?: string
   isLoading?: boolean
+  type?: 'button' | 'submit'
   style?: React.CSSProperties
 }
 
@@ -18,13 +19,20 @@ function Button({
   className,
   style,
   isLoading = false,
+  type,
 }: ButtonProps): JSX.Element {
   const buttonClassName = cx(styles['button'], className, {
     [styles['button--loading']]: isLoading,
   })
 
   return (
-    <button className={buttonClassName} onClick={onClick} style={style} disabled={isLoading}>
+    <button
+      className={buttonClassName}
+      onClick={onClick}
+      style={style}
+      disabled={isLoading}
+      type={type}
+    >
       {isLoading ? <LoadingDots color="#bbb" /> : children}
     </button>
   )

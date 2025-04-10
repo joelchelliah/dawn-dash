@@ -146,6 +146,10 @@ function CardCodex(): JSX.Element {
     isBannerIndexSelected,
   ])
 
+  const preventFormSubmission = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+  }
+
   const renderLeftPanel = () => (
     <div className={styles['left-panel']}>
       <div className={styles['panel-header']}>
@@ -153,51 +157,58 @@ function CardCodex(): JSX.Element {
         Search
       </div>
 
-      <div className={styles['input-container']}>
-        <input
-          type="text"
-          placeholder="Keywords, separated, by, comma"
-          value={keywords}
-          onChange={(e) => setKeywords(e.target.value)}
-        />
-      </div>
+      <form onSubmit={preventFormSubmission} aria-label="Card search and filters">
+        <div className={styles['input-container']}>
+          <input
+            type="text"
+            placeholder="Keywords, separated, by, comma"
+            value={keywords}
+            onChange={(e) => setKeywords(e.target.value)}
+            aria-label="Search keywords"
+          />
+        </div>
 
-      <div className={styles['filters']}>
-        <FilterGroup
-          title="Card Sets"
-          filters={allCardSets}
-          selectedFilters={cardSetFilters}
-          type="card-set"
-          onFilterToggle={handleCardSetFilterToggle}
-        />
-        <FilterGroup
-          title="Rarities"
-          filters={allRarities}
-          selectedFilters={rarityFilters}
-          type="rarity"
-          onFilterToggle={handleRarityFilterToggle}
-        />
-        <FilterGroup
-          title="Banners"
-          filters={allBanners}
-          selectedFilters={bannerFilters}
-          type="banner"
-          onFilterToggle={handleBannerFilterToggle}
-        />
-        <FilterGroup
-          title="Results formatting"
-          filters={allFormattingFilters}
-          selectedFilters={formattingFilters}
-          type="formatting"
-          onFilterToggle={handleFormattingFilterToggle}
-          getFilterLabel={getFormattingFilterName}
-        />
-      </div>
+        <div className={styles['filters']}>
+          <FilterGroup
+            title="Card Sets"
+            filters={allCardSets}
+            selectedFilters={cardSetFilters}
+            type="card-set"
+            onFilterToggle={handleCardSetFilterToggle}
+          />
+          <FilterGroup
+            title="Rarities"
+            filters={allRarities}
+            selectedFilters={rarityFilters}
+            type="rarity"
+            onFilterToggle={handleRarityFilterToggle}
+          />
+          <FilterGroup
+            title="Banners"
+            filters={allBanners}
+            selectedFilters={bannerFilters}
+            type="banner"
+            onFilterToggle={handleBannerFilterToggle}
+          />
+          <FilterGroup
+            title="Results formatting"
+            filters={allFormattingFilters}
+            selectedFilters={formattingFilters}
+            type="formatting"
+            onFilterToggle={handleFormattingFilterToggle}
+            getFilterLabel={getFormattingFilterName}
+          />
+        </div>
 
-      <ButtonRow align="left" includeBorder>
-        <Button onClick={resetFilters}>Reset search</Button>
-        <Button onClick={resetStruckCards}>Reset tracked cards</Button>
-      </ButtonRow>
+        <ButtonRow align="left" includeBorder>
+          <Button onClick={resetFilters} type="button">
+            Reset search
+          </Button>
+          <Button onClick={resetStruckCards} type="button">
+            Reset tracked cards
+          </Button>
+        </ButtonRow>
+      </form>
 
       <div
         className={cx(styles['last-updated'], {
