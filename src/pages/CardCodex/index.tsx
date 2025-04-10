@@ -1,7 +1,11 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import cx from 'classnames'
 
+import {
+  cacheCardCodexSearchFilters,
+  getCachedCardCodexSearchFilters,
+} from '../../codex/utils/codexFilterStore'
 import GradientLink from '../../shared/components/GradientLink'
 import CodexLoadingMessage from '../../codex/components/CodexLoadingMessage'
 import CodexErrorMessage from '../../codex/components/CodexErrorMessage'
@@ -31,10 +35,10 @@ import {
 import styles from './index.module.scss'
 
 const indexToRarityIconMap = {
-  [0]: <CircleIcon className={styles['rarity-icon--0']} />,
-  [1]: <SingleStarIcon className={styles['rarity-icon--1']} />,
-  [2]: <DoubleStarsIcon className={styles['rarity-icon--2']} />,
-  [3]: <TripleStarsIcon className={styles['rarity-icon--3']} />,
+  [0]: <CircleIcon className={styles['rarity-icon--common']} />,
+  [1]: <SingleStarIcon className={styles['rarity-icon--uncommon']} />,
+  [2]: <DoubleStarsIcon className={styles['rarity-icon--rare']} />,
+  [3]: <TripleStarsIcon className={styles['rarity-icon--legendary']} />,
 }
 
 // Skip summons, performance, form, hymn, affixes, attunements, ingredients
@@ -44,6 +48,11 @@ const excludedCards = ['Elite Lightning Bolt', 'Elite Fireball', 'Elite Frostbol
 
 function CardCodex(): JSX.Element {
   const { resetToCardCodex } = useNavigation()
+
+  // Tracking first user interaction on filter to avoid inital cache saves on load
+  const hasUserChangedFilter = useRef(false)
+  const filterDebounceTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+
   const {
     cardData,
     isLoading,
@@ -55,8 +64,9 @@ function CardCodex(): JSX.Element {
     progress,
   } = useCardData()
   const fromNow = useFromNow(lastUpdated, 'Card data synced')
+  const cachedFilters = getCachedCardCodexSearchFilters()
 
-  const [keywords, setKeywords] = useState('')
+  const [keywords, setKeywordsUntracked] = useState(cachedFilters?.keywords || '')
   const [parsedKeywords, setParsedKeywords] = useState<string[]>([])
   const [matchingCards, setMatchingCards] = useState<CardData[]>([])
 
@@ -66,11 +76,11 @@ function CardCodex(): JSX.Element {
     getCardSetNameFromIndex,
     handleCardSetFilterToggle,
     resetCardSetFilters,
-  } = useCardSetFilters()
+  } = useCardSetFilters(cachedFilters?.cardSets)
   const { rarityFilters, isRarityIndexSelected, handleRarityFilterToggle, resetRarityFilters } =
-    useRarityFilters()
+    useRarityFilters(cachedFilters?.rarities)
   const { bannerFilters, isBannerIndexSelected, handleBannerFilterToggle, resetBannerFilters } =
-    useBannerFilters()
+    useBannerFilters(cachedFilters?.banners)
   const {
     formattingFilters,
     handleFormattingFilterToggle,
@@ -80,8 +90,50 @@ function CardCodex(): JSX.Element {
     shouldShowDescription,
     shouldShowKeywords,
     shouldShowCardSet,
-  } = useFormattingFilters()
-  const { isCardStruck, toggleCardStrike, resetStruckCards } = useCardStrike()
+  } = useFormattingFilters(cachedFilters?.formatting)
+  const {
+    struckCards,
+    isCardStruck,
+    toggleCardStrike: toggleCardStrikeUntracked,
+    resetStruckCards,
+  } = useCardStrike(cachedFilters?.struckCards)
+
+  // --------------------------------------------------
+  // ------ Tracking user interaction on filters ------
+  // ------ to avoid initial cache saves on load ------
+  // --------------------------------------------------
+  const setKeywords = (keywords: string) => {
+    hasUserChangedFilter.current = true
+    setKeywordsUntracked(keywords)
+  }
+  const toggleCardSetFilter = (cardSet: string) => {
+    hasUserChangedFilter.current = true
+    handleCardSetFilterToggle(cardSet)
+  }
+  const toggleRarityFilter = (rarity: string) => {
+    hasUserChangedFilter.current = true
+    handleRarityFilterToggle(rarity)
+  }
+  const toggleBannerFilter = (banner: string) => {
+    hasUserChangedFilter.current = true
+    handleBannerFilterToggle(banner)
+  }
+  const toggleFormattingFilter = (formatting: string) => {
+    hasUserChangedFilter.current = true
+    handleFormattingFilterToggle(formatting)
+  }
+  const toggleCardStrike = (card: CardData) => {
+    hasUserChangedFilter.current = true
+    toggleCardStrikeUntracked(card)
+  }
+  // --------------------------------------------------
+  // --------------------------------------------------
+
+  console.log('rarityFilters', rarityFilters)
+  console.log('isRarityIndexSelected(0)', isRarityIndexSelected(0))
+  console.log('isRarityIndexSelected(1)', isRarityIndexSelected(1))
+  console.log('isRarityIndexSelected(2)', isRarityIndexSelected(2))
+  console.log('isRarityIndexSelected(3)', isRarityIndexSelected(3))
 
   const resetFilters = () => {
     setKeywords('')
@@ -146,6 +198,70 @@ function CardCodex(): JSX.Element {
     isBannerIndexSelected,
   ])
 
+  useEffect(() => {
+    if (!hasUserChangedFilter.current) return
+
+    if (filterDebounceTimeoutRef.current) {
+      clearTimeout(filterDebounceTimeoutRef.current)
+    }
+
+    // Debounced caching of filters
+    filterDebounceTimeoutRef.current = setTimeout(() => {
+      cacheCardCodexSearchFilters({
+        keywords,
+        cardSets: cardSetFilters,
+        rarities: rarityFilters,
+        banners: bannerFilters,
+        formatting: formattingFilters,
+        struckCards,
+        lastUpdated: Date.now(),
+      })
+    }, 1000)
+
+    return () => {
+      if (filterDebounceTimeoutRef.current) {
+        clearTimeout(filterDebounceTimeoutRef.current)
+      }
+    }
+  }, [bannerFilters, cardSetFilters, formattingFilters, keywords, rarityFilters, struckCards])
+
+  const preventFormSubmission = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+  }
+
+  const getRarityFilterLabel = (filter: string) => {
+    switch (filter) {
+      case 'Legendary':
+        return (
+          <span className={styles['filter-label']}>
+            <TripleStarsIcon className={styles['filter-icon--legendary']} />
+            Legendary
+          </span>
+        )
+      case 'Rare':
+        return (
+          <span className={styles['filter-label']}>
+            <DoubleStarsIcon className={styles['filter-icon--rare']} />
+            Rare
+          </span>
+        )
+      case 'Uncommon':
+        return (
+          <span className={styles['filter-label']}>
+            <SingleStarIcon className={styles['filter-icon--uncommon']} />
+            Uncommon
+          </span>
+        )
+      default:
+        return (
+          <span className={styles['filter-label']}>
+            <CircleIcon className={styles['filter-icon--common']} />
+            Common
+          </span>
+        )
+    }
+  }
+
   const renderLeftPanel = () => (
     <div className={styles['left-panel']}>
       <div className={styles['panel-header']}>
@@ -153,51 +269,59 @@ function CardCodex(): JSX.Element {
         Search
       </div>
 
-      <div className={styles['input-container']}>
-        <input
-          type="text"
-          placeholder="Keywords, separated, by, comma"
-          value={keywords}
-          onChange={(e) => setKeywords(e.target.value)}
-        />
-      </div>
+      <form onSubmit={preventFormSubmission} aria-label="Card search and filters">
+        <div className={styles['input-container']}>
+          <input
+            type="text"
+            placeholder="Keywords, separated, by, comma"
+            value={keywords}
+            onChange={(e) => setKeywords(e.target.value)}
+            aria-label="Search keywords"
+          />
+        </div>
 
-      <div className={styles['filters']}>
-        <FilterGroup
-          title="Card Sets"
-          filters={allCardSets}
-          selectedFilters={cardSetFilters}
-          type="card-set"
-          onFilterToggle={handleCardSetFilterToggle}
-        />
-        <FilterGroup
-          title="Rarities"
-          filters={allRarities}
-          selectedFilters={rarityFilters}
-          type="rarity"
-          onFilterToggle={handleRarityFilterToggle}
-        />
-        <FilterGroup
-          title="Banners"
-          filters={allBanners}
-          selectedFilters={bannerFilters}
-          type="banner"
-          onFilterToggle={handleBannerFilterToggle}
-        />
-        <FilterGroup
-          title="Results formatting"
-          filters={allFormattingFilters}
-          selectedFilters={formattingFilters}
-          type="formatting"
-          onFilterToggle={handleFormattingFilterToggle}
-          getFilterLabel={getFormattingFilterName}
-        />
-      </div>
+        <div className={styles['filters']}>
+          <FilterGroup
+            title="Card Sets"
+            filters={allCardSets}
+            selectedFilters={cardSetFilters}
+            type="card-set"
+            onFilterToggle={toggleCardSetFilter}
+          />
+          <FilterGroup
+            title="Rarities"
+            filters={allRarities}
+            selectedFilters={rarityFilters}
+            type="rarity"
+            onFilterToggle={toggleRarityFilter}
+            getFilterLabel={getRarityFilterLabel}
+          />
+          <FilterGroup
+            title="Banners"
+            filters={allBanners}
+            selectedFilters={bannerFilters}
+            type="banner"
+            onFilterToggle={toggleBannerFilter}
+          />
+          <FilterGroup
+            title="Results formatting"
+            filters={allFormattingFilters}
+            selectedFilters={formattingFilters}
+            type="formatting"
+            onFilterToggle={toggleFormattingFilter}
+            getFilterLabel={getFormattingFilterName}
+          />
+        </div>
 
-      <ButtonRow align="left" includeBorder>
-        <Button onClick={resetFilters}>Reset search</Button>
-        <Button onClick={resetStruckCards}>Reset tracked cards</Button>
-      </ButtonRow>
+        <ButtonRow align="left" includeBorder>
+          <Button onClick={resetFilters} type="button">
+            Reset search
+          </Button>
+          <Button onClick={resetStruckCards} type="button">
+            Reset tracked cards
+          </Button>
+        </ButtonRow>
+      </form>
 
       <div
         className={cx(styles['last-updated'], {

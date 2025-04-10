@@ -1,7 +1,7 @@
 import React from 'react'
 
 import ReactDOM from 'react-dom/client'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 
 import CardCodex from './pages/CardCodex'
 import NotFound from './pages/NotFound'
@@ -15,7 +15,12 @@ root.render(
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Speedruns />} />
-        <Route path="/misc/codex/cards" element={<CardCodex />} />
+
+        <Route path="/codex/cards" element={<CardCodex />} />
+
+        {/* Old route */}
+        <Route path="/misc/codex/cards" element={<Navigate to="/codex/cards" replace />} />
+
         <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>

@@ -1,17 +1,12 @@
-import { useState } from 'react'
+import { CardCodexSearchFilterCache, Formatting, FormattingFilterOption } from '../types/filters'
 
-enum Formatting {
-  ShowRarity = 'ShowRarity',
-  ShowDescription = 'ShowDescription',
-  ShowKeywords = 'ShowKeywords',
-  ShowCardSet = 'ShowCardSet',
-}
+import { createFilterHook } from './useFilterFactory'
 
 const defaultFormattingFilters = {
-  [Formatting.ShowRarity]: true,
-  [Formatting.ShowDescription]: false,
-  [Formatting.ShowKeywords]: true,
-  [Formatting.ShowCardSet]: true,
+  [FormattingFilterOption.ShowRarity]: true,
+  [FormattingFilterOption.ShowDescription]: false,
+  [FormattingFilterOption.ShowKeywords]: true,
+  [FormattingFilterOption.ShowCardSet]: true,
 }
 
 const formattingToStringMap = {
@@ -21,36 +16,27 @@ const formattingToStringMap = {
   [Formatting.ShowCardSet]: 'Show card set',
 }
 
-export const allFormattingFilters = Object.values(Formatting)
-export const useFormattingFilters = () => {
-  const [formattingFilters, setFormattingFilters] =
-    useState<Record<string, boolean>>(defaultFormattingFilters)
+export const allFormattingFilters = Formatting.getAll()
 
-  const handleFormattingFilterToggle = (filter: string) => {
-    setFormattingFilters((prevFilters) => ({
-      ...prevFilters,
-      [filter]: !prevFilters[filter],
-    }))
-  }
+const useBaseFormattingFilters = createFilterHook({
+  defaultFilters: defaultFormattingFilters,
+  allValues: allFormattingFilters,
+  valueToStringMap: formattingToStringMap,
+})
 
-  const getFormattingFilterName = (filter: string) => {
-    return formattingToStringMap[filter as keyof typeof formattingToStringMap]
-  }
-
-  const resetFormattingFilters = () => {
-    setFormattingFilters(defaultFormattingFilters)
-  }
-
-  const shouldShowRarity = formattingFilters[Formatting.ShowRarity]
-  const shouldShowDescription = formattingFilters[Formatting.ShowDescription]
-  const shouldShowKeywords = formattingFilters[Formatting.ShowKeywords]
-  const shouldShowCardSet = formattingFilters[Formatting.ShowCardSet]
+export const useFormattingFilters = (cachedFilters?: CardCodexSearchFilterCache['formatting']) => {
+  const { filters, handleFilterToggle, getValueToString, resetFilters } =
+    useBaseFormattingFilters(cachedFilters)
+  const shouldShowRarity = filters[Formatting.ShowRarity]
+  const shouldShowDescription = filters[Formatting.ShowDescription]
+  const shouldShowKeywords = filters[Formatting.ShowKeywords]
+  const shouldShowCardSet = filters[Formatting.ShowCardSet]
 
   return {
-    formattingFilters,
-    handleFormattingFilterToggle,
-    getFormattingFilterName,
-    resetFormattingFilters,
+    formattingFilters: filters,
+    handleFormattingFilterToggle: handleFilterToggle,
+    getFormattingFilterName: getValueToString,
+    resetFormattingFilters: resetFilters,
     shouldShowRarity,
     shouldShowDescription,
     shouldShowKeywords,

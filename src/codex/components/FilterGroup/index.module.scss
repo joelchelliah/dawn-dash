@@ -38,19 +38,12 @@
 
   &--rarity {
     label {
-      width: auto;
+      display: flex;
+      align-items: center;
       min-width: 20px;
-      margin-right: 1.5rem;
-      flex: 0 0 auto;
-
-      @media (max-width: $breakpoint-mobile) {
-        display: flex;
-        align-items: center;
-        gap: 0.25rem;
-        width: calc(50% - 0.5rem);
-        min-width: 0;
-        margin-right: 0;
-      }
+      gap: 0.25rem;
+      width: calc(50% - 0.5rem);
+      margin-right: 0;
     }
   }
 
@@ -64,4 +57,9 @@
       }
     }
   }
+}
+
+.input--rarity {
+  width: 1rem;
+  height: 1rem;
 }
