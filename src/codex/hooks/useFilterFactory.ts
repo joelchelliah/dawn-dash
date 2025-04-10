@@ -18,8 +18,8 @@ export function createFilterHook({
   indexToValueMap?: Record<number, string>
   valueToStringMap?: Record<string, string>
 }) {
-  return () => {
-    const [filters, setFilters] = useState<Record<string, boolean>>(defaultFilters)
+  return (cachedFilters: Record<string, boolean> | undefined) => {
+    const [filters, setFilters] = useState<Record<string, boolean>>(cachedFilters || defaultFilters)
 
     const selectedIndices = indexMap
       ? Object.keys(filters)

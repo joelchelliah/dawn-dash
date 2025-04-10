@@ -1,4 +1,4 @@
-import { Rarity, RarityFilterOption } from '../types/filters'
+import { CardCodexSearchFilterCache, Rarity, RarityFilterOption } from '../types/filters'
 
 import { createFilterHook } from './useFilterFactory'
 
@@ -24,8 +24,9 @@ const useBaseRarityFilters = createFilterHook({
   indexMap: rarityIndexMap,
 })
 
-export const useRarityFilters = () => {
-  const { filters, isIndexSelected, handleFilterToggle, resetFilters } = useBaseRarityFilters()
+export const useRarityFilters = (cachedFilters?: CardCodexSearchFilterCache['rarities']) => {
+  const { filters, isIndexSelected, handleFilterToggle, resetFilters } =
+    useBaseRarityFilters(cachedFilters)
 
   return {
     rarityFilters: filters,

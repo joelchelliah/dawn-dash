@@ -1,4 +1,9 @@
-import { CardSet, CardSetFilterOption, SharedFilterOption } from '../types/filters'
+import {
+  CardCodexSearchFilterCache,
+  CardSet,
+  CardSetFilterOption,
+  SharedFilterOption,
+} from '../types/filters'
 
 import { createFilterHook } from './useFilterFactory'
 
@@ -41,9 +46,9 @@ const useBaseCardSetFilters = createFilterHook({
   indexToValueMap: indexToCardSetMap,
 })
 
-export const useCardSetFilters = () => {
+export const useCardSetFilters = (cachedFilters?: CardCodexSearchFilterCache['cardSets']) => {
   const { filters, isIndexSelected, getValueFromIndex, handleFilterToggle, resetFilters } =
-    useBaseCardSetFilters()
+    useBaseCardSetFilters(cachedFilters)
 
   return {
     cardSetFilters: filters,

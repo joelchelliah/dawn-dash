@@ -1,4 +1,9 @@
-import { Banner, BannerFilterOption, SharedFilterOption } from '../types/filters'
+import {
+  Banner,
+  BannerFilterOption,
+  CardCodexSearchFilterCache,
+  SharedFilterOption,
+} from '../types/filters'
 
 import { createFilterHook } from './useFilterFactory'
 
@@ -37,8 +42,9 @@ const useBaseBannerFilters = createFilterHook({
   indexMap: bannerIndexMap,
 })
 
-export const useBannerFilters = () => {
-  const { filters, isIndexSelected, handleFilterToggle, resetFilters } = useBaseBannerFilters()
+export const useBannerFilters = (cachedFilters?: CardCodexSearchFilterCache['banners']) => {
+  const { filters, isIndexSelected, handleFilterToggle, resetFilters } =
+    useBaseBannerFilters(cachedFilters)
 
   return {
     bannerFilters: filters,

@@ -81,3 +81,15 @@ export const Formatting = {
   ...FormattingFilterOption,
   getAll: (): Formatting[] => [...Object.values(FormattingFilterOption)],
 }
+
+// -------------------- Cache --------------------
+
+export interface CardCodexSearchFilterCache {
+  keywords: string
+  cardSets: Record<string, boolean>
+  rarities: Record<string, boolean>
+  banners: Record<string, boolean>
+  formatting: Record<string, boolean>
+  struckCards: string[]
+  lastUpdated: number
+}

@@ -1,7 +1,11 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import cx from 'classnames'
 
+import {
+  cacheCardCodexSearchFilters,
+  getCachedCardCodexSearchFilters,
+} from '../../codex/utils/codexFilterStore'
 import GradientLink from '../../shared/components/GradientLink'
 import CodexLoadingMessage from '../../codex/components/CodexLoadingMessage'
 import CodexErrorMessage from '../../codex/components/CodexErrorMessage'
@@ -44,6 +48,11 @@ const excludedCards = ['Elite Lightning Bolt', 'Elite Fireball', 'Elite Frostbol
 
 function CardCodex(): JSX.Element {
   const { resetToCardCodex } = useNavigation()
+
+  // Tracking first user interaction on filter to avoid inital cache saves on load
+  const hasUserChangedFilter = useRef(false)
+  const filterDebounceTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+
   const {
     cardData,
     isLoading,
@@ -55,8 +64,9 @@ function CardCodex(): JSX.Element {
     progress,
   } = useCardData()
   const fromNow = useFromNow(lastUpdated, 'Card data synced')
+  const cachedFilters = getCachedCardCodexSearchFilters()
 
-  const [keywords, setKeywords] = useState('')
+  const [keywords, setKeywordsUntracked] = useState(cachedFilters?.keywords || '')
   const [parsedKeywords, setParsedKeywords] = useState<string[]>([])
   const [matchingCards, setMatchingCards] = useState<CardData[]>([])
 
@@ -66,11 +76,11 @@ function CardCodex(): JSX.Element {
     getCardSetNameFromIndex,
     handleCardSetFilterToggle,
     resetCardSetFilters,
-  } = useCardSetFilters()
+  } = useCardSetFilters(cachedFilters?.cardSets)
   const { rarityFilters, isRarityIndexSelected, handleRarityFilterToggle, resetRarityFilters } =
-    useRarityFilters()
+    useRarityFilters(cachedFilters?.rarities)
   const { bannerFilters, isBannerIndexSelected, handleBannerFilterToggle, resetBannerFilters } =
-    useBannerFilters()
+    useBannerFilters(cachedFilters?.banners)
   const {
     formattingFilters,
     handleFormattingFilterToggle,
@@ -80,8 +90,44 @@ function CardCodex(): JSX.Element {
     shouldShowDescription,
     shouldShowKeywords,
     shouldShowCardSet,
-  } = useFormattingFilters()
-  const { isCardStruck, toggleCardStrike, resetStruckCards } = useCardStrike()
+  } = useFormattingFilters(cachedFilters?.formatting)
+  const {
+    struckCards,
+    isCardStruck,
+    toggleCardStrike: toggleCardStrikeUntracked,
+    resetStruckCards,
+  } = useCardStrike(cachedFilters?.struckCards)
+
+  // --------------------------------------------------
+  // ------ Tracking user interaction on filters ------
+  // ------ to avoid initial cache saves on load ------
+  // --------------------------------------------------
+  const setKeywords = (keywords: string) => {
+    hasUserChangedFilter.current = true
+    setKeywordsUntracked(keywords)
+  }
+  const toggleCardSetFilter = (cardSet: string) => {
+    hasUserChangedFilter.current = true
+    handleCardSetFilterToggle(cardSet)
+  }
+  const toggleRarityFilter = (rarity: string) => {
+    hasUserChangedFilter.current = true
+    handleRarityFilterToggle(rarity)
+  }
+  const toggleBannerFilter = (banner: string) => {
+    hasUserChangedFilter.current = true
+    handleBannerFilterToggle(banner)
+  }
+  const toggleFormattingFilter = (formatting: string) => {
+    hasUserChangedFilter.current = true
+    handleFormattingFilterToggle(formatting)
+  }
+  const toggleCardStrike = (card: CardData) => {
+    hasUserChangedFilter.current = true
+    toggleCardStrikeUntracked(card)
+  }
+  // --------------------------------------------------
+  // --------------------------------------------------
 
   const resetFilters = () => {
     setKeywords('')
@@ -146,6 +192,33 @@ function CardCodex(): JSX.Element {
     isBannerIndexSelected,
   ])
 
+  useEffect(() => {
+    if (!hasUserChangedFilter.current) return
+
+    if (filterDebounceTimeoutRef.current) {
+      clearTimeout(filterDebounceTimeoutRef.current)
+    }
+
+    // Debounced caching of filters
+    filterDebounceTimeoutRef.current = setTimeout(() => {
+      cacheCardCodexSearchFilters({
+        keywords,
+        cardSets: cardSetFilters,
+        rarities: rarityFilters,
+        banners: bannerFilters,
+        formatting: formattingFilters,
+        struckCards,
+        lastUpdated: Date.now(),
+      })
+    }, 1000)
+
+    return () => {
+      if (filterDebounceTimeoutRef.current) {
+        clearTimeout(filterDebounceTimeoutRef.current)
+      }
+    }
+  }, [bannerFilters, cardSetFilters, formattingFilters, keywords, rarityFilters, struckCards])
+
   const preventFormSubmission = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
   }
@@ -174,28 +247,28 @@ function CardCodex(): JSX.Element {
             filters={allCardSets}
             selectedFilters={cardSetFilters}
             type="card-set"
-            onFilterToggle={handleCardSetFilterToggle}
+            onFilterToggle={toggleCardSetFilter}
           />
           <FilterGroup
             title="Rarities"
             filters={allRarities}
             selectedFilters={rarityFilters}
             type="rarity"
-            onFilterToggle={handleRarityFilterToggle}
+            onFilterToggle={toggleRarityFilter}
           />
           <FilterGroup
             title="Banners"
             filters={allBanners}
             selectedFilters={bannerFilters}
             type="banner"
-            onFilterToggle={handleBannerFilterToggle}
+            onFilterToggle={toggleBannerFilter}
           />
           <FilterGroup
             title="Results formatting"
             filters={allFormattingFilters}
             selectedFilters={formattingFilters}
             type="formatting"
-            onFilterToggle={handleFormattingFilterToggle}
+            onFilterToggle={toggleFormattingFilter}
             getFilterLabel={getFormattingFilterName}
           />
         </div>

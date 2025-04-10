@@ -1,4 +1,4 @@
-import { Formatting, FormattingFilterOption } from '../types/filters'
+import { CardCodexSearchFilterCache, Formatting, FormattingFilterOption } from '../types/filters'
 
 import { createFilterHook } from './useFilterFactory'
 
@@ -24,8 +24,9 @@ const useBaseFormattingFilters = createFilterHook({
   valueToStringMap: formattingToStringMap,
 })
 
-export const useFormattingFilters = () => {
-  const { filters, handleFilterToggle, getValueToString, resetFilters } = useBaseFormattingFilters()
+export const useFormattingFilters = (cachedFilters?: CardCodexSearchFilterCache['formatting']) => {
+  const { filters, handleFilterToggle, getValueToString, resetFilters } =
+    useBaseFormattingFilters(cachedFilters)
   const shouldShowRarity = filters[Formatting.ShowRarity]
   const shouldShowDescription = filters[Formatting.ShowDescription]
   const shouldShowKeywords = filters[Formatting.ShowKeywords]
