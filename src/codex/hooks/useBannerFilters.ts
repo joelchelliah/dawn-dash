@@ -17,7 +17,7 @@ const defaultBannerFilters: Record<string, boolean> = {
   [BannerFilterOption.Gold]: true,
   [BannerFilterOption.Black]: true,
   [BannerFilterOption.Orange]: true,
-  [SharedFilterOption.All]: false,
+  [SharedFilterOption.All]: true,
   [SharedFilterOption.None]: false,
 }
 

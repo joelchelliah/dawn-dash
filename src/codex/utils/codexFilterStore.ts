@@ -1,7 +1,7 @@
 import { CardCodexSearchFilterCache } from '../types/filters'
 
 const CARDS_FILTER_CACHE_VERSION = 'v0'
-const CARDS_FILTER_CACHE_KEY = `codex_cards_${CARDS_FILTER_CACHE_VERSION}`
+const CARDS_FILTER_CACHE_KEY = `codex_cards_filters_${CARDS_FILTER_CACHE_VERSION}`
 
 // TODO: Rewrite to use as a hook
 

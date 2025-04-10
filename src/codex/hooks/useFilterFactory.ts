@@ -1,5 +1,6 @@
 import { useState } from 'react'
 
+import { notNullOrUndefined } from '../../shared/utils/object'
 import { SharedFilterOption } from '../types/filters'
 
 /**
@@ -27,13 +28,11 @@ export function createFilterHook({
           .flatMap((filter) => {
             const indices = indexMap[filter]
             // Special case for card sets that have multiple indices
-            return indices ? (Array.isArray(indices) ? indices : [indices]) : []
+            return notNullOrUndefined(indices) ? (Array.isArray(indices) ? indices : [indices]) : []
           })
       : []
 
-    const isIndexSelected = (index: number) => {
-      return selectedIndices.includes(index)
-    }
+    const isIndexSelected = (index: number) => selectedIndices.includes(index)
 
     const getValueFromIndex = indexToValueMap
       ? (index: number) => {
@@ -48,26 +47,49 @@ export function createFilterHook({
       : () => ''
 
     const handleFilterToggle = (filter: string) => {
+      // 'ALL' is selected:
       if (filter === SharedFilterOption.All) {
         const newFilters: Record<string, boolean> = {}
         allValues.forEach((key) => {
           newFilters[key] = key !== SharedFilterOption.None
         })
         setFilters(newFilters)
-      } else if (filter === SharedFilterOption.None) {
+        return
+      }
+      // 'NONE' is selected:
+      if (filter === SharedFilterOption.None) {
         const newFilters: Record<string, boolean> = {}
         allValues.forEach((key) => {
           newFilters[key] = key === SharedFilterOption.None
         })
         setFilters(newFilters)
-      } else {
-        setFilters((prevFilters) => ({
-          ...prevFilters,
-          [SharedFilterOption.All]: false,
-          [SharedFilterOption.None]: false,
-          [filter]: !prevFilters[filter],
-        }))
+        return
       }
+
+      setFilters((prevFilters) => {
+        const updatedFilters = { ...prevFilters, [filter]: !prevFilters[filter] }
+
+        const filterKeys = Object.keys(prevFilters)
+        const hasAllOrNoneOptions =
+          filterKeys.includes(SharedFilterOption.All) &&
+          filterKeys.includes(SharedFilterOption.None)
+
+        // If All/None options don't exist, just return the updated filters
+        if (!hasAllOrNoneOptions) return updatedFilters
+
+        // Correctly handle the 'ALL' and 'NONE' options based on state of regular filters
+        const regularFilters = Object.entries(updatedFilters).filter(
+          ([key]) => key !== SharedFilterOption.All && key !== SharedFilterOption.None
+        )
+        const allRegularTrue = regularFilters.every(([_, value]) => value)
+        const allRegularFalse = regularFilters.every(([_, value]) => !value)
+
+        return {
+          ...updatedFilters,
+          [SharedFilterOption.All]: allRegularTrue,
+          [SharedFilterOption.None]: allRegularFalse,
+        }
+      })
     }
 
     const resetFilters = () => setFilters(defaultFilters)

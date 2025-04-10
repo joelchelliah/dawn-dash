@@ -144,6 +144,7 @@ $common-filter-color: #90561c;
     @extend .filter-icon;
     color: $legendary-filter-color;
     height: 1.25rem;
+    padding-bottom: 0.125rem;
   }
 
   &--rare {
@@ -404,7 +405,7 @@ $common-filter-color: #90561c;
 .rarity-icon {
   color: $common-filter-color;
 
-  &--0 {
+  &--common {
     @extend .rarity-icon;
     width: 14px;
     height: 14px;
@@ -412,7 +413,7 @@ $common-filter-color: #90561c;
     margin-left: 0.125rem;
   }
 
-  &--1 {
+  &--uncommon {
     @extend .rarity-icon;
     width: 22px;
     height: 22px;
@@ -421,7 +422,7 @@ $common-filter-color: #90561c;
     color: $uncommon-filter-color;
   }
 
-  &--2 {
+  &--rare {
     @extend .rarity-icon;
     width: 20px;
     height: 18px;
@@ -429,7 +430,7 @@ $common-filter-color: #90561c;
     color: $rare-filter-color;
   }
 
-  &--3 {
+  &--legendary {
     @extend .rarity-icon;
     width: 20px;
     height: 22px;

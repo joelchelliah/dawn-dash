@@ -35,10 +35,10 @@ import {
 import styles from './index.module.scss'
 
 const indexToRarityIconMap = {
-  [0]: <CircleIcon className={styles['rarity-icon--0']} />,
-  [1]: <SingleStarIcon className={styles['rarity-icon--1']} />,
-  [2]: <DoubleStarsIcon className={styles['rarity-icon--2']} />,
-  [3]: <TripleStarsIcon className={styles['rarity-icon--3']} />,
+  [0]: <CircleIcon className={styles['rarity-icon--common']} />,
+  [1]: <SingleStarIcon className={styles['rarity-icon--uncommon']} />,
+  [2]: <DoubleStarsIcon className={styles['rarity-icon--rare']} />,
+  [3]: <TripleStarsIcon className={styles['rarity-icon--legendary']} />,
 }
 
 // Skip summons, performance, form, hymn, affixes, attunements, ingredients
@@ -128,6 +128,12 @@ function CardCodex(): JSX.Element {
   }
   // --------------------------------------------------
   // --------------------------------------------------
+
+  console.log('rarityFilters', rarityFilters)
+  console.log('isRarityIndexSelected(0)', isRarityIndexSelected(0))
+  console.log('isRarityIndexSelected(1)', isRarityIndexSelected(1))
+  console.log('isRarityIndexSelected(2)', isRarityIndexSelected(2))
+  console.log('isRarityIndexSelected(3)', isRarityIndexSelected(3))
 
   const resetFilters = () => {
     setKeywords('')

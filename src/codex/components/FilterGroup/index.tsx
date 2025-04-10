@@ -19,6 +19,9 @@ function FilterGroup({
   getFilterLabel,
 }: FilterGroupProps) {
   const className = cx(styles['check-boxes'], styles[`check-boxes--${type}`])
+  const inputClassName = cx({
+    [styles['input--rarity']]: type === 'rarity',
+  })
 
   return (
     <div className={styles['filter-group']}>
@@ -30,6 +33,7 @@ function FilterGroup({
               type="checkbox"
               checked={selectedFilters[filter]}
               onChange={() => onFilterToggle(filter)}
+              className={inputClassName}
             />
             {getFilterLabel ? getFilterLabel(filter) : filter}
           </label>
