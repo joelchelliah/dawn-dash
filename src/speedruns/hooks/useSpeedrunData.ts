@@ -6,7 +6,7 @@ import { getFromCache, saveToCache } from '../../shared/utils/storage'
 import { fetchSpeedruns } from '../services/speedrunsApi'
 import { Difficulty, SpeedRunClass, SpeedRunData } from '../types/speedRun'
 
-const FETCH_DATA_SIZE = 10000
+const FETCH_DATA_SIZE = 50000
 
 export function useSpeedrunData(type: SpeedRunClass, difficulty: Difficulty) {
   const [localData, setLocalData] = useState<SpeedRunData[] | null>(null)
