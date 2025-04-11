@@ -1,0 +1,3 @@
+[functions.sync-cards]
+verify_jwt = false
+schedule = "0 0 * * 0"  # Run at midnight every Sunday

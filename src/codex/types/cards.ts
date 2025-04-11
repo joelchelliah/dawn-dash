@@ -1,4 +1,5 @@
 export type CardData = {
+  id: number
   name: string
   description: string
   rarity: number
@@ -6,16 +7,5 @@ export type CardData = {
   category: number
   expansion: number
   color: number
-}
-
-export type CardsApiResponse = {
-  card_len: number
-  cards: Array<
-    CardData & {
-      id: number
-      artwork: string
-      tier: string
-      hasEvents: boolean
-    }
-  >
+  blightbane_id: number
 }

@@ -129,12 +129,6 @@ function CardCodex(): JSX.Element {
   // --------------------------------------------------
   // --------------------------------------------------
 
-  console.log('rarityFilters', rarityFilters)
-  console.log('isRarityIndexSelected(0)', isRarityIndexSelected(0))
-  console.log('isRarityIndexSelected(1)', isRarityIndexSelected(1))
-  console.log('isRarityIndexSelected(2)', isRarityIndexSelected(2))
-  console.log('isRarityIndexSelected(3)', isRarityIndexSelected(3))
-
   const resetFilters = () => {
     setKeywords('')
     setParsedKeywords([])
