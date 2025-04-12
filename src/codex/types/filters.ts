@@ -1,3 +1,5 @@
+export type FilterType = 'card-set' | 'rarity' | 'banner' | 'formatting'
+
 export enum SharedFilterOption {
   All = 'All',
   None = 'None',

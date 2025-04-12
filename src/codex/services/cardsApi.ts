@@ -38,7 +38,7 @@ export const fetchCards = async (onProgress: (progress: number) => void): Promis
       offset += SUPABASE_MAX_PAGE_SIZE
       hasMore = cards.length === SUPABASE_MAX_PAGE_SIZE
 
-      const progress = Math.floor(Math.min(15 + (offset / (count || 1)) * 85, 100))
+      const progress = Math.floor(Math.min(15 + (offset / (count || 1)) * 85, 95))
       onProgress(progress)
     }
 
