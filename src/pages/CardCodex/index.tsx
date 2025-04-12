@@ -167,16 +167,6 @@ function CardCodex(): JSX.Element {
                 description.toLowerCase().includes(keyword.toLowerCase())
             )
         )
-        .sort((a, b) => {
-          if (a.color !== b.color) {
-            return a.color - b.color
-          }
-          if (a.rarity !== b.rarity) {
-            return b.rarity - a.rarity
-          }
-          return a.name.localeCompare(b.name)
-        })
-        .filter((card, index, self) => index === self.findIndex(({ name }) => name === card.name))
 
       if (!isArrayEqual(filteredCards, matchingCards, 'name')) {
         setMatchingCards(filteredCards)

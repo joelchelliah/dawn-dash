@@ -2,19 +2,18 @@ import { useEffect, useState } from 'react'
 
 import useSWR from 'swr'
 
+import { isNotNullOrEmpty } from '../../shared/utils/lists'
 import { getFromCache, saveToCache } from '../../shared/utils/storage'
 import { fetchCards } from '../services/cardsApi'
 import { CardData } from '../types/cards'
-
 export function useCardData() {
   const [localData, setLocalData] = useState<CardData[] | null>(null)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [progress, setProgress] = useState(0)
 
   useEffect(() => {
-    // Check cache and update state
     const { data, isStale } = getFromCache<CardData[]>('cards')
-    if (data) {
+    if (isNotNullOrEmpty(data)) {
       setLocalData(data)
       setIsRefreshing(isStale)
     } else {
@@ -33,7 +32,7 @@ export function useCardData() {
         setLocalData(newData)
         saveToCache('cards', newData)
         setIsRefreshing(false)
-        setProgress(100) // Ensure progress is complete
+        setProgress(100)
       },
     }
   )

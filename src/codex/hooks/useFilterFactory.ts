@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-import { notNullOrUndefined } from '../../shared/utils/object'
+import { isNotNullOrUndefined } from '../../shared/utils/object'
 import { SharedFilterOption } from '../types/filters'
 
 /**
@@ -28,7 +28,11 @@ export function createFilterHook({
           .flatMap((filter) => {
             const indices = indexMap[filter]
             // Special case for card sets that have multiple indices
-            return notNullOrUndefined(indices) ? (Array.isArray(indices) ? indices : [indices]) : []
+            return isNotNullOrUndefined(indices)
+              ? Array.isArray(indices)
+                ? indices
+                : [indices]
+              : []
           })
       : []
 
