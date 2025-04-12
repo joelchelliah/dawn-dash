@@ -31,6 +31,7 @@ import {
   StackedCardsIcon,
   TripleStarsIcon,
 } from '../../shared/utils/icons'
+import Header from '../../shared/components/Header'
 
 import styles from './index.module.scss'
 
@@ -435,19 +436,12 @@ function CardCodex(): JSX.Element {
 
   return (
     <div className={styles['container']}>
-      <div className={styles['header']}>
-        <div className={styles['logo-and-title']} onClick={resetToCardCodex}>
-          <img
-            src="https://blightbane.io/images/icons/cards_metamorphosis_2_48.webp"
-            alt="Cardex Logo"
-            className={styles['logo']}
-          />
-          <div>
-            <h1 className={styles['title']}>Dawn-Dash : Cardex</h1>
-            <h2 className={styles['subtitle']}>Dawncaster card search & filter</h2>
-          </div>
-        </div>
-      </div>
+      <Header
+        onLogoClick={resetToCardCodex}
+        logoSrc="https://blightbane.io/images/icons/cards_metamorphosis_2_48.webp"
+        title="Dawn-Dash : Cardex"
+        subtitle="Dawncaster card search & filter"
+      />
 
       <div className={styles['content']}>
         <CodexLoadingMessage isVisible={isLoading} progress={progress} />

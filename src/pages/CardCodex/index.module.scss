@@ -16,51 +16,6 @@ $common-filter-color: #90561c;
   font-size: font-size('sm');
 }
 
-.header {
-  @extend %flex-center;
-  justify-content: flex-start;
-  margin: 0.25rem 1.25rem 0.375rem;
-  position: relative;
-  padding-bottom: 0.625rem;
-
-  @media (max-width: $breakpoint-tablet) {
-    margin-top: 0.625rem;
-  }
-}
-
-.logo-and-title {
-  @extend %flex-center;
-  cursor: pointer;
-}
-
-.logo {
-  width: 3.25rem;
-  height: 3.25rem;
-  margin-top: 0.25rem;
-  margin-right: 1rem;
-  @include rotateY360Animation('hover', '.logo-and-title:hover');
-}
-
-.title {
-  @include yellowGreenGradient(false);
-  font-size: font-size('lg');
-  margin: 0;
-  font-weight: bold;
-
-  @media (max-width: $breakpoint-mobile) {
-    font-size: font-size('md');
-    margin-bottom: 0.25rem;
-  }
-}
-
-.subtitle {
-  color: #aaa;
-  font-size: font-size('sm');
-  margin: 0;
-  font-weight: normal;
-  font-style: italic;
-}
-
 .content {
   display: flex;
   justify-content: center;
