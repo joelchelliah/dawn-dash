@@ -1,12 +1,15 @@
 import cx from 'classnames'
 
+import { FilterType } from '../../types/filters'
+
+import Checkbox from './Checkbox'
 import styles from './index.module.scss'
 
 interface FilterGroupProps {
   title: string
   filters: string[]
   selectedFilters: Record<string, boolean>
-  type: 'card-set' | 'rarity' | 'banner' | 'formatting'
+  type: FilterType
   onFilterToggle: (filter: string) => void
   getFilterLabel?: (filter: string) => React.ReactNode
 }
@@ -19,24 +22,19 @@ function FilterGroup({
   getFilterLabel,
 }: FilterGroupProps) {
   const className = cx(styles['check-boxes'], styles[`check-boxes--${type}`])
-  const inputClassName = cx({
-    [styles['input--rarity']]: type === 'rarity',
-  })
 
   return (
     <div className={styles['filter-group']}>
       <h4>{title}</h4>
       <div className={className}>
         {filters.map((filter) => (
-          <label key={filter}>
-            <input
-              type="checkbox"
-              checked={selectedFilters[filter]}
-              onChange={() => onFilterToggle(filter)}
-              className={inputClassName}
-            />
-            {getFilterLabel ? getFilterLabel(filter) : filter}
-          </label>
+          <Checkbox
+            key={filter}
+            checked={selectedFilters[filter]}
+            onChange={() => onFilterToggle(filter)}
+            checkboxLabel={getFilterLabel ? getFilterLabel(filter) : filter}
+            type={type}
+          />
         ))}
       </div>
     </div>
