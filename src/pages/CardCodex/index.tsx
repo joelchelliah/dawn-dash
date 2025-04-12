@@ -129,12 +129,6 @@ function CardCodex(): JSX.Element {
   // --------------------------------------------------
   // --------------------------------------------------
 
-  console.log('rarityFilters', rarityFilters)
-  console.log('isRarityIndexSelected(0)', isRarityIndexSelected(0))
-  console.log('isRarityIndexSelected(1)', isRarityIndexSelected(1))
-  console.log('isRarityIndexSelected(2)', isRarityIndexSelected(2))
-  console.log('isRarityIndexSelected(3)', isRarityIndexSelected(3))
-
   const resetFilters = () => {
     setKeywords('')
     setParsedKeywords([])
@@ -173,16 +167,6 @@ function CardCodex(): JSX.Element {
                 description.toLowerCase().includes(keyword.toLowerCase())
             )
         )
-        .sort((a, b) => {
-          if (a.color !== b.color) {
-            return a.color - b.color
-          }
-          if (a.rarity !== b.rarity) {
-            return b.rarity - a.rarity
-          }
-          return a.name.localeCompare(b.name)
-        })
-        .filter((card, index, self) => index === self.findIndex(({ name }) => name === card.name))
 
       if (!isArrayEqual(filteredCards, matchingCards, 'name')) {
         setMatchingCards(filteredCards)

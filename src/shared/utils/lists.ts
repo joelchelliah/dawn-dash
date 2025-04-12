@@ -23,3 +23,7 @@ export const isArrayEqual = <T extends string | object>(
 
   return false
 }
+
+export const isNotNullOrEmpty = <T>(list: T[] | null | undefined): list is NonNullable<T>[] => {
+  return list !== null && list !== undefined && list.length > 0
+}

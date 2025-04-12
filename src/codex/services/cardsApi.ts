@@ -1,52 +1,60 @@
-import axios from 'axios'
-
+import {
+  supabase,
+  SUPABASE_MAX_PAGE_SIZE,
+  SUPABASE_TABLE_CARDS,
+} from '../../shared/config/supabase'
 import { handleError } from '../../shared/utils/apiErrorHandling'
-import { CardData, CardsApiResponse } from '../types/cards'
-
-const BASE_URL = 'https://blightbane.io/api'
+import { CardData } from '../types/cards'
 
 export const fetchCards = async (onProgress: (progress: number) => void): Promise<CardData[]> => {
-  const numExpansions = 8
-  const numBanners = 12
-  const aggregatedCards = []
-  const totalRequests = numExpansions * numBanners - 1 // TODO: remove -1 after fixing Monster cards request
-  let completedRequests = 0
+  try {
+    onProgress(10)
 
-  for (let exp = 0; exp < numExpansions; exp++) {
-    for (let banner = 0; banner < numBanners; banner++) {
-      // Too many monster cards. SKIPPING...
-      if (exp == 0 && banner == 11) continue
+    let allCards: CardData[] = []
+    let hasMore = true
+    let offset = 0
 
-      const url = `${BASE_URL}/cards?search=&rarity=&category=&type=&banner=${banner}&exp=${exp}`
-      try {
-        const response = await axios.get<CardsApiResponse>(url)
-        const { card_len, cards } = response.data
+    while (hasMore) {
+      const {
+        data: cards,
+        error,
+        count,
+      } = await supabase
+        .from(SUPABASE_TABLE_CARDS)
+        .select('*', { count: 'exact' })
+        .range(offset, offset + SUPABASE_MAX_PAGE_SIZE - 1)
 
-        if (card_len > 100) {
-          throw new Error(`Too many cards! Banner: ${banner}, Exp: ${exp}`)
-        }
-
-        const output = cards.map((card) => ({
-          name: card.name,
-          description: card.description,
-          rarity: card.rarity,
-          type: card.type,
-          category: card.category,
-          expansion: card.expansion,
-          color: card.color,
-        }))
-
-        aggregatedCards.push(...output)
-
-        completedRequests++
-        const currentProgress = Math.floor((completedRequests / totalRequests) * 100)
-        onProgress(currentProgress)
-      } catch (error) {
-        handleError(error, `Error fetching cards for banner: ${banner}, exp: ${exp}`)
+      if (error) {
+        console.error('Supabase error:', error)
         throw error
       }
-    }
-  }
 
-  return aggregatedCards
+      if (!cards) {
+        console.warn('No cards returned from Supabase')
+        return []
+      }
+
+      allCards = [...allCards, ...cards]
+      offset += SUPABASE_MAX_PAGE_SIZE
+      hasMore = cards.length === SUPABASE_MAX_PAGE_SIZE
+
+      const progress = Math.floor(Math.min(15 + (offset / (count || 1)) * 85, 100))
+      onProgress(progress)
+    }
+
+    const sortedUniqueCards = allCards
+      .sort((a, b) => {
+        if (a.color !== b.color) return a.color - b.color
+        if (a.rarity !== b.rarity) return b.rarity - a.rarity
+
+        return a.name.localeCompare(b.name)
+      })
+      .filter((card, index, self) => index === self.findIndex(({ name }) => name === card.name))
+
+    onProgress(100)
+    return sortedUniqueCards
+  } catch (error) {
+    handleError(error, 'Error fetching cards from Supabase')
+    throw error
+  }
 }

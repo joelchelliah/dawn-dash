@@ -1,2 +1,2 @@
-export const notNullOrUndefined = <T>(value: T): value is NonNullable<T> =>
+export const isNotNullOrUndefined = <T>(value: T): value is NonNullable<T> =>
   value !== null && value !== undefined
