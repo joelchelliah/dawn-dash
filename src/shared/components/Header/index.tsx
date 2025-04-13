@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from 'react'
 
 import { Link } from 'react-router-dom'
 
+import GradientLink from '../GradientLink'
+import InfoModal from '../Modals/InfoModal'
 import { HamburgerIcon } from '../../utils/icons'
 
 import styles from './index.module.scss'
@@ -15,6 +17,7 @@ interface HeaderProps {
 
 const Header = ({ onLogoClick, logoSrc, title, subtitle }: HeaderProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [isAboutInfoOpen, setIsAboutInfoOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
   const hamburgerRef = useRef<HTMLButtonElement>(null)
 
@@ -51,31 +54,64 @@ const Header = ({ onLogoClick, logoSrc, title, subtitle }: HeaderProps) => {
         </div>
       </div>
 
-      <button
-        ref={hamburgerRef}
-        className={styles['hamburger']}
-        onClick={toggleMenu}
-        aria-label="Toggle menu"
-      >
-        <HamburgerIcon />
-      </button>
+      <div className={styles['hamburger']}>
+        <button
+          ref={hamburgerRef}
+          className={styles['hamburger__button']}
+          onClick={toggleMenu}
+          aria-label="Toggle menu"
+        >
+          <HamburgerIcon className={styles['hamburger__button__icon']} />
+        </button>
+      </div>
 
       <div
         ref={menuRef}
         className={`${styles['side-menu']} ${isMenuOpen ? styles['side-menu--open'] : ''}`}
       >
-        <nav className={styles['nav']}>
-          <Link to="/" className={styles['nav-link']}>
-            Home
-          </Link>
-          <Link to="/about" className={styles['nav-link']}>
-            About
-          </Link>
-          <Link to="/contact" className={styles['nav-link']}>
-            Contact
-          </Link>
+        <nav className={styles['side-menu__nav']}>
+          <div className={styles['side-menu__nav-link-container']}>
+            <Link to="/" className={styles['side-menu__nav-link']}>
+              Speedruns
+            </Link>
+          </div>
+          <div className={styles['side-menu__nav-link-container']}>
+            <Link to="/codex/cards" className={styles['side-menu__nav-link']}>
+              Cardex
+            </Link>
+          </div>
+          <div className={styles['side-menu__nav-link-container']}>
+            <Link
+              to=""
+              className={styles['side-menu__nav-link']}
+              onClick={() => setIsAboutInfoOpen(true)}
+            >
+              About
+            </Link>
+          </div>
         </nav>
       </div>
+      <InfoModal isOpen={isAboutInfoOpen} onClose={() => setIsAboutInfoOpen(false)}>
+        <h3>Dawn-Dash</h3>
+
+        <p>
+          <b>Dawncaster</b> speedrun charts for all game modes and difficulties, based on
+          player-submitted data from{' '}
+          <GradientLink text="blightbane.io" url="https://blightbane.io/" />.
+        </p>
+        <p>
+          The player names linked to these runs are their Discord accounts from the official{' '}
+          <GradientLink text="Dawncaster Discord" url="https://discord.gg/pfeMG9c" />.
+        </p>
+        <div className={styles['info-divider']} />
+
+        <h3>Cardex</h3>
+
+        <p className={styles['info-last-paragraph']}>
+          A search and tool for finding cards available in <b>Dawncaster</b>, with several options
+          for filtering, tracking, and formatting the output.
+        </p>
+      </InfoModal>
     </div>
   )
 }

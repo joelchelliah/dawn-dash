@@ -1,5 +1,6 @@
 import { useState } from 'react'
 
+import Header from '../../shared/components/Header'
 import { useNavigation } from '../../shared/hooks/useNavigation'
 import Footer from '../../shared/components/Footer'
 import { useInitialClassAndDifficulty } from '../../speedruns/hooks/useInitialClassAndDifficulty'
@@ -7,7 +8,6 @@ import BlightbaneModal from '../../speedruns/components/BlightbaneModal'
 import Chart from '../../speedruns/components/Chart'
 import ChartControls from '../../speedruns/components/ChartControls'
 import ClassButtons from '../../speedruns/components/ClassButtons'
-import HeaderInfo from '../../speedruns/components/HeaderInfo'
 import SubclassButtons from '../../speedruns/components/SubclassButtons'
 import { useChartControlState } from '../../speedruns/hooks/useChartControlState'
 import { useUrlParams } from '../../speedruns/hooks/useUrlParams'
@@ -41,23 +41,12 @@ function App(): JSX.Element {
 
   return (
     <div className={styles['container']}>
-      <div className={styles['header']}>
-        <div
-          className={styles['logo-and-title']}
-          onClick={() => resetToSpeedruns(selectedClass, controls.difficulty)}
-        >
-          <img
-            src="https://blightbane.io/images/icons/cardart_4_53.webp"
-            alt="Dawncaster Logo"
-            className={styles['logo']}
-          />
-          <div>
-            <h1 className={styles['title']}>Dawn-Dash</h1>
-            <h2 className={styles['subtitle']}>Dawncaster speedrun charts</h2>
-          </div>
-        </div>
-        <HeaderInfo />
-      </div>
+      <Header
+        onLogoClick={() => resetToSpeedruns(selectedClass, controls.difficulty)}
+        logoSrc="https://blightbane.io/images/icons/cardart_4_53.webp"
+        title="Dawn-Dash"
+        subtitle="Dawncaster speedrun charts"
+      />
 
       <div className={styles['content']}>
         <ClassButtons onClassSelect={setSelectedClass} selectedClass={selectedClass} />

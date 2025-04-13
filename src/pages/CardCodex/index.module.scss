@@ -9,7 +9,7 @@ $common-filter-color: #90561c;
   display: flex;
   flex-direction: column;
   padding: 0.375rem 0.625rem 0.625rem;
-  background-color: #1a1a1a;
+  background-color: $color-base-bg;
   color: #bbb;
   min-height: 100vh;
   position: relative;
