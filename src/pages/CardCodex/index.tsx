@@ -441,6 +441,7 @@ function CardCodex(): JSX.Element {
         logoSrc={AbracadabraImageUrl}
         title="Dawn-Dash : Cardex"
         subtitle="Dawncaster card search & filter"
+        currentPage="cardex"
       />
 
       <div className={styles['content']}>

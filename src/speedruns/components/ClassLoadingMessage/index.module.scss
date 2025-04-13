@@ -8,7 +8,7 @@ $loading-icon-size: 5rem;
   flex-direction: column;
   gap: 1.25rem;
   padding: $message-padding 0 1rem;
-  color: #ddd;
+  color: $color-primary-base;
   font-size: font-size('md');
 
   &--max-height {

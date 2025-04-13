@@ -124,7 +124,7 @@ function createChartConfigOptions(
           },
         },
 
-        borderColor: '#999',
+        borderColor: '#888',
         borderWidth: 1,
         backgroundColor: 'rgba(0, 0, 0, 0.75)',
         titleColor: CHART_COLOR,

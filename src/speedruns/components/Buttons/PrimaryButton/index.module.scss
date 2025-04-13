@@ -4,7 +4,7 @@
   color: var(--color);
 
   &:hover {
-    color: #ddd;
+    color: $color-primary-hover;
     background: var(--hover-bg-color) !important;
   }
 }

@@ -47,6 +47,7 @@ function App(): JSX.Element {
         logoSrc={DashImageUrl}
         title="Dawn-Dash"
         subtitle="Dawncaster speedrun charts"
+        currentPage="speedruns"
       />
 
       <div className={styles['content']}>

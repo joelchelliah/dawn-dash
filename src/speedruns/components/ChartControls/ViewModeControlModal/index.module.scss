@@ -16,17 +16,23 @@
 
 .option-title {
   font-weight: bold;
-  color: #ccc;
+  color: $color-primary-base;
 }
 
 .option-description {
-  color: #bbb;
+  color: $color-primary-muted;
   font-size: font-size('xs');
   margin-top: 0.125rem;
   line-height: 1.2;
 
+  &--active {
+    .option-description__highlight {
+      font-weight: bold;
+      color: $color-primary-active;
+    }
+  }
+
   &__highlight {
     font-weight: bold;
-    color: #ccc;
   }
 }

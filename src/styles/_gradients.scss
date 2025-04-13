@@ -1,8 +1,8 @@
 @use 'colors' as colors;
 
-@mixin yellowGreenGradient($hover, $default: #fff) {
+@mixin yellowGreenGradient($hover) {
   // Fallback
-  color: $default;
+  color: if($hover, colors.$color-primary-hover, colors.$color-primary-base);
 
   @supports (-webkit-background-clip: text) or (background-clip: text) {
     @include yellowGreenGradientBackground($hover);

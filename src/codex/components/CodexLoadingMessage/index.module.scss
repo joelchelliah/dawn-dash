@@ -4,13 +4,13 @@
   @extend %flex-center;
   flex-direction: column;
   font-size: font-size('md');
-  color: #bbb;
+  color: $color-primary-base;
   height: 30vh;
   text-align: center;
 
   @media (max-width: $breakpoint-mobile) {
     font-size: font-size('sm');
-    margin: 0 2.5rem;
+    margin: 0 4.5rem;
   }
 
   &__progress-container {

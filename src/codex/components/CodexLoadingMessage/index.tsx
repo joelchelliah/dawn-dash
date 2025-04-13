@@ -10,7 +10,7 @@ const CodexLoadingMessage = ({ isVisible, progress }: CodexLoadingMessageProps) 
 
   return (
     <div className={styles['loading']}>
-      <div>⏳ Loading delicious card data... Please be patient!</div>
+      <div>⏳ Loading card data... Please be patient!</div>
       <div className={styles['loading__progress-container']}>
         <div className={styles['loading__progress-bar']} style={{ width: `${progress}%` }} />
       </div>

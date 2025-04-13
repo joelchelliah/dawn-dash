@@ -2,26 +2,26 @@
 
 .button {
   background: none;
-  color: #ccc;
+  color: $color-primary-base;
   min-width: 4rem;
   padding: 0.5rem 1rem;
   cursor: pointer;
   border-radius: 0.25rem;
-  border: 1px solid #444;
+  border: 1px solid $color-component-border;
 
   &:hover {
-    color: #fff;
-    background: #333;
-    border-color: #666;
+    color: $color-primary-hover;
+    background: $color-component-bg-hover;
+    border-color: $color-component-border-hover;
   }
 
   &--loading {
-    background: #222;
+    background: $color-component-bg;
     height: 2rem;
 
     &:hover {
-      background: #222;
-      border-color: #444;
+      background: $color-component-bg;
+      border-color: $color-component-border;
       cursor: default;
     }
   }

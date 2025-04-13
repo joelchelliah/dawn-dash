@@ -1,7 +1,7 @@
 import { Chart } from 'chart.js'
 import moment from 'moment'
 
-const YEAR_BOUNDARY_COLOR = '#999999'
+const YEAR_BOUNDARY_COLOR = '#888'
 const YEAR_LABEL_FONT = 'bold 12px Arial'
 const YEAR_LABEL_OFFSET = 0
 const LINE_OFFSET = 15 - YEAR_LABEL_OFFSET

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 
 import { Link } from 'react-router-dom'
+import cx from 'classnames'
 
 import GradientLink from '../GradientLink'
 import InfoModal from '../Modals/InfoModal'
@@ -13,9 +14,10 @@ interface HeaderProps {
   logoSrc: string
   title: string
   subtitle: string
+  currentPage: 'speedruns' | 'cardex'
 }
 
-const Header = ({ onLogoClick, logoSrc, title, subtitle }: HeaderProps) => {
+const Header = ({ onLogoClick, logoSrc, title, subtitle, currentPage }: HeaderProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isAboutInfoOpen, setIsAboutInfoOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
@@ -44,6 +46,14 @@ const Header = ({ onLogoClick, logoSrc, title, subtitle }: HeaderProps) => {
     }
   }, [isMenuOpen])
 
+  const speedrunsLinkContainerClassNames = cx(
+    styles['side-menu__nav-link-container'],
+    currentPage === 'speedruns' ? styles['side-menu__nav-link-container--active'] : ''
+  )
+  const cardexLinkContainerClassNames = cx(
+    styles['side-menu__nav-link-container'],
+    currentPage === 'cardex' ? styles['side-menu__nav-link-container--active'] : ''
+  )
   return (
     <div className={styles['header']}>
       <div className={styles['logo-and-title']} onClick={onLogoClick}>
@@ -70,12 +80,12 @@ const Header = ({ onLogoClick, logoSrc, title, subtitle }: HeaderProps) => {
         className={`${styles['side-menu']} ${isMenuOpen ? styles['side-menu--open'] : ''}`}
       >
         <nav className={styles['side-menu__nav']}>
-          <div className={styles['side-menu__nav-link-container']}>
+          <div className={speedrunsLinkContainerClassNames}>
             <Link to="/" className={styles['side-menu__nav-link']}>
               Speedruns
             </Link>
           </div>
-          <div className={styles['side-menu__nav-link-container']}>
+          <div className={cardexLinkContainerClassNames}>
             <Link to="/codex/cards" className={styles['side-menu__nav-link']}>
               Cardex
             </Link>

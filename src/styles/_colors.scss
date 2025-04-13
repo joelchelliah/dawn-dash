@@ -1,3 +1,4 @@
+// Gradient colors
 $yellow-base: #cfaa26;
 $yellow-hover: #e4ca5f;
 $yellow-border: #9d8739;
@@ -6,12 +7,30 @@ $green-base: #249624;
 $green-hover: #2bc02b;
 $green-border: #176616;
 
+// Primary colors
+$color-primary-base: #ddd;
+$color-primary-active: #eee;
+$color-primary-hover: #fff;
+$color-primary-muted: #aaa;
+$color-primary-dark: #888;
+
+// Component colors
 $color-base-bg: #1a1a1a;
+
 $color-component-bg: #1f1f1f;
+$color-component-bg-hover: #2c2c2c;
+
+$color-component-border-dark: #444;
 $color-component-border: #666;
+$color-component-border-hover: #888;
 
-$color-list-hover-bg: #2c2c2c;
-$color-button-hover-bg: #3f3f3f;
-$color-button-active-bg: #494949;
+$color-list-bg-active: #222;
+$color-list-bg-hover: #2c2c2c;
 
-$color-chart-footer: #888;
+$color-button-bg: #333;
+$color-button-bg-active: #444;
+$color-button-bg-hover: #494949;
+
+// TODO:
+// - Add rarity colors
+// - Add banner colors
