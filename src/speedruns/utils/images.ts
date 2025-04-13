@@ -1,21 +1,38 @@
 import { SpeedRunClass, SpeedRunSubclass } from '../types/speedRun'
+import {
+  ArcanistImageUrl,
+  HunterImageUrl,
+  KnightImageUrl,
+  RogueImageUrl,
+  SeekerImageUrl,
+  WarriorImageUrl,
+  SunforgeImageUrl,
+  IntImageUrl,
+  DexStrImageUrl,
+  IntStrImageUrl,
+  DexImageUrl,
+  DexIntImageUrl,
+  StrImageUrl,
+  HolyImageUrl,
+  NeutralImageUrl,
+} from '../../shared/utils/imageUrls'
 
 export function getClassImageUrl(classType: SpeedRunClass) {
   switch (classType) {
     case SpeedRunClass.Arcanist:
-      return 'https://blightbane.io/images/classes/Arcanist_I_M.webp'
+      return ArcanistImageUrl
     case SpeedRunClass.Hunter:
-      return 'https://blightbane.io/images/classes/Hunter_I_F.webp'
+      return HunterImageUrl
     case SpeedRunClass.Knight:
-      return 'https://blightbane.io/images/classes/Knight_I_M.webp'
+      return KnightImageUrl
     case SpeedRunClass.Rogue:
-      return 'https://blightbane.io/images/classes/Rogue_I_F.webp'
+      return RogueImageUrl
     case SpeedRunClass.Seeker:
-      return 'https://blightbane.io/images/classes/Seeker_I_M.webp'
+      return SeekerImageUrl
     case SpeedRunClass.Warrior:
-      return 'https://blightbane.io/images/classes/Warrior_I_M.webp'
+      return WarriorImageUrl
     default:
-      return 'https://blightbane.io/images/icons/cardart_5_50.webp'
+      return SunforgeImageUrl
   }
 }
 
@@ -23,27 +40,27 @@ export function getEnergyImageUrl(classType: SpeedRunClass | SpeedRunSubclass) {
   switch (classType) {
     case SpeedRunClass.Arcanist:
     case SpeedRunSubclass.Arcanist:
-      return 'https://blightbane.io/images/int.webp'
+      return IntImageUrl
     case SpeedRunClass.Hunter:
     case SpeedRunSubclass.Hunter:
-      return 'https://blightbane.io/images/dexstr.webp'
+      return DexStrImageUrl
     case SpeedRunClass.Knight:
     case SpeedRunSubclass.Knight:
-      return 'https://blightbane.io/images/intstr.webp'
+      return IntStrImageUrl
     case SpeedRunClass.Rogue:
     case SpeedRunSubclass.Rogue:
-      return 'https://blightbane.io/images/dex.webp'
+      return DexImageUrl
     case SpeedRunClass.Seeker:
     case SpeedRunSubclass.Seeker:
-      return 'https://blightbane.io/images/dexint.webp'
+      return DexIntImageUrl
     case SpeedRunClass.Warrior:
     case SpeedRunSubclass.Warrior:
-      return 'https://blightbane.io/images/str.webp'
+      return StrImageUrl
     case SpeedRunClass.Sunforge:
-      return 'https://blightbane.io/images/holy.webp'
+      return HolyImageUrl
     case SpeedRunSubclass.Hybrid:
-      return 'https://blightbane.io/images/neutral.webp'
+      return NeutralImageUrl
     default:
-      return 'https://blightbane.io/images/neutral.webp'
+      return NeutralImageUrl
   }
 }

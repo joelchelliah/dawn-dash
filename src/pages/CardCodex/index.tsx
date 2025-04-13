@@ -32,9 +32,9 @@ import {
   TripleStarsIcon,
 } from '../../shared/utils/icons'
 import Header from '../../shared/components/Header'
+import { AbracadabraImageUrl } from '../../shared/utils/imageUrls'
 
 import styles from './index.module.scss'
-
 const indexToRarityIconMap = {
   [0]: <CircleIcon className={styles['rarity-icon--common']} />,
   [1]: <SingleStarIcon className={styles['rarity-icon--uncommon']} />,
@@ -438,7 +438,7 @@ function CardCodex(): JSX.Element {
     <div className={styles['container']}>
       <Header
         onLogoClick={resetToCardCodex}
-        logoSrc="https://blightbane.io/images/icons/cards_metamorphosis_2_48.webp"
+        logoSrc={AbracadabraImageUrl}
         title="Dawn-Dash : Cardex"
         subtitle="Dawncaster card search & filter"
       />

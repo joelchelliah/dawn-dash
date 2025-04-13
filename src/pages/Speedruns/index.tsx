@@ -12,6 +12,7 @@ import SubclassButtons from '../../speedruns/components/SubclassButtons'
 import { useChartControlState } from '../../speedruns/hooks/useChartControlState'
 import { useUrlParams } from '../../speedruns/hooks/useUrlParams'
 import { SpeedRunClass } from '../../speedruns/types/speedRun'
+import { DashImageUrl } from '../../shared/utils/imageUrls'
 
 import styles from './index.module.scss'
 
@@ -43,7 +44,7 @@ function App(): JSX.Element {
     <div className={styles['container']}>
       <Header
         onLogoClick={() => resetToSpeedruns(selectedClass, controls.difficulty)}
-        logoSrc="https://blightbane.io/images/icons/cardart_4_53.webp"
+        logoSrc={DashImageUrl}
         title="Dawn-Dash"
         subtitle="Dawncaster speedrun charts"
       />

@@ -108,8 +108,9 @@ const Header = ({ onLogoClick, logoSrc, title, subtitle }: HeaderProps) => {
         <h3>Cardex</h3>
 
         <p className={styles['info-last-paragraph']}>
-          A search and tool for finding cards available in <b>Dawncaster</b>, with several options
-          for filtering, tracking, and formatting the output.
+          A codex and multi-search tool for all the cards available in <b>Dawncaster</b>. Has
+          several options for filtering, tracking, and formatting the output, to help you plan out
+          your run!
         </p>
       </InfoModal>
     </div>

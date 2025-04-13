@@ -1,4 +1,6 @@
 const CACHE_NAME = 'dawn-dash-cache-v2'
+
+// Must include all image urls exposed by src/shared/utils/imageUrls.tsx
 const IMAGE_URLS = [
   'https://blightbane.io/images/classes/Arcanist_I_M.webp',
   'https://blightbane.io/images/classes/Hunter_I_F.webp',

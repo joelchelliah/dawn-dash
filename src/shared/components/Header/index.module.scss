@@ -120,7 +120,6 @@
     border-right: none;
     border-radius: 0;
 
-    // Only needed for the fancy border on mobile
     @include supportsSuperFancyBorder {
       &::before {
         border-radius: 0;
