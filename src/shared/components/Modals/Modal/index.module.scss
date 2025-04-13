@@ -30,14 +30,14 @@ $background-color: #1a1a1a;
   h3 {
     @extend %flex-center;
     justify-content: flex-start;
-    color: #ccc;
+    color: $color-primary-base;
     margin-top: 5px;
     gap: 0.5rem;
     margin-block-end: 0;
   }
 
   p {
-    color: #aaa;
+    color: $color-primary-muted;
     line-height: 1.4;
   }
 

@@ -35,6 +35,7 @@
 
       .player__name {
         font-weight: 600;
+        color: $color-primary-hover;
       }
 
       .color-marker {
@@ -107,7 +108,7 @@
 }
 
 .player {
-  color: #ffffff;
+  color: $color-primary-base;
   display: flex;
   justify-content: space-between;
   width: 100%;
@@ -115,6 +116,7 @@
 
   &--fastest-time {
     font-weight: bold;
+    color: $color-primary-active;
     opacity: 1;
   }
 

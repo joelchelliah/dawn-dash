@@ -9,14 +9,13 @@
   text-align: center;
   padding: 0 1rem;
   background-color: #1a1a1a;
-  color: #aaa;
+  color: $color-primary-muted;
   gap: 1rem;
 
   p {
     font-size: font-size('md');
     margin: 2rem 1.5rem;
     max-width: 600px;
-    color: #777;
     line-height: 1.5;
   }
 }

@@ -41,7 +41,7 @@ $checked-color: #0066cc;
 
 .checkbox-label-text {
   margin-left: 0.25rem;
-  color: #ddd;
+  color: $color-primary-base;
   opacity: 0.6;
 
   &--checked {

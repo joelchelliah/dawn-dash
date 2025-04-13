@@ -40,7 +40,7 @@
 }
 
 .subtitle {
-  color: #aaa;
+  color: $color-primary-muted;
   font-size: font-size('sm');
   margin: 0;
   font-weight: normal;
@@ -69,7 +69,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #999;
+    color: $color-primary-base;
 
     &__icon {
       width: 1rem;
@@ -83,7 +83,7 @@
     }
 
     &:hover {
-      color: #ddd;
+      color: $color-primary-hover;
 
       .hamburger__button__icon {
         @include yellowGreenGradientIcon(true);
@@ -161,10 +161,18 @@
         @include yellowGreenGradient(true);
       }
     }
+
+    &--active {
+      background-color: $color-list-active-bg;
+
+      .side-menu__nav-link {
+        @include yellowGreenGradient(false);
+      }
+    }
   }
 
   &__nav-link {
-    color: #ddd;
+    color: $color-primary-base;
     text-decoration: none;
     font-size: font-size('sm');
     padding: 0.75rem;

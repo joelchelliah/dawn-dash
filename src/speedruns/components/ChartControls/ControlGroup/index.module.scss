@@ -11,15 +11,15 @@
   label {
     font-size: font-size('xs');
     font-weight: 600;
-    color: #aaa;
+    color: $color-primary-muted;
   }
 
   select {
     width: 100%;
     background-color: #333;
-    color: #333;
+    color: $color-primary-base;
     padding: 0.5rem 2rem 0.5rem 1rem;
-    border: 1px solid #444;
+    border: 1px solid $color-component-border;
     border-radius: 0.5rem;
     font-size: font-size('xs');
     cursor: pointer;
@@ -66,10 +66,10 @@
       opacity: 0.5;
       cursor: not-allowed;
       background-color: #252525;
-      border-color: #444;
+      border-color: $color-component-border-dark;
 
       &:hover {
-        border-color: #444; // Prevent hover effect on disabled
+        border-color: $color-component-border-dark; // Prevent hover effect on disabled
       }
     }
   }
