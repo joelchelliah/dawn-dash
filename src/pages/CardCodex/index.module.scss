@@ -1,10 +1,5 @@
 @use './styles/index' as *;
 
-$legendary-filter-color: #ffd700;
-$rare-filter-color: #007bff;
-$uncommon-filter-color: #28a745;
-$common-filter-color: #90561c;
-
 .container {
   display: flex;
   flex-direction: column;
@@ -88,6 +83,24 @@ $common-filter-color: #90561c;
 .filter-label {
   display: flex;
   align-items: center;
+
+  &:hover {
+    .filter-icon--legendary {
+      color: $color-rarity-legendary-hover;
+    }
+
+    .filter-icon--rare {
+      color: $color-rarity-rare-hover;
+    }
+
+    .filter-icon--uncommon {
+      color: $color-rarity-uncommon-hover;
+    }
+
+    .filter-icon--common {
+      color: $color-rarity-common-hover;
+    }
+  }
 }
 
 .filter-icon {
@@ -97,20 +110,20 @@ $common-filter-color: #90561c;
 
   &--legendary {
     @extend .filter-icon;
-    color: $legendary-filter-color;
+    color: $color-rarity-legendary;
     height: 1.25rem;
     padding-bottom: 0.125rem;
   }
 
   &--rare {
     @extend .filter-icon;
-    color: $rare-filter-color;
+    color: $color-rarity-rare;
     width: 1.25rem;
   }
 
   &--uncommon {
     @extend .filter-icon;
-    color: $uncommon-filter-color;
+    color: $color-rarity-uncommon;
     width: 1.25rem;
     height: 1.25rem;
     padding-right: 0.125rem;
@@ -119,7 +132,7 @@ $common-filter-color: #90561c;
 
   &--common {
     @extend .filter-icon;
-    color: $common-filter-color;
+    color: $color-rarity-common;
     width: 1.25rem;
   }
 }
@@ -207,47 +220,47 @@ $common-filter-color: #90561c;
 
     &--1 {
       @extend .results-cards__banner;
-      background: linear-gradient(to right, #003710, $color-component-bg);
+      background: linear-gradient(to right, $color-banner-1, $color-component-bg);
     }
 
     &--2 {
       @extend .results-cards__banner;
-      background: linear-gradient(to right, #001d45, $color-component-bg);
+      background: linear-gradient(to right, $color-banner-2, $color-component-bg);
     }
 
     &--3 {
       @extend .results-cards__banner;
-      background: linear-gradient(to right, #4f0000, $color-component-bg);
+      background: linear-gradient(to right, $color-banner-3, $color-component-bg);
     }
 
     &--4 {
       @extend .results-cards__banner;
-      background: linear-gradient(to right, #370054, $color-component-bg);
+      background: linear-gradient(to right, $color-banner-4, $color-component-bg);
     }
 
     &--5 {
       @extend .results-cards__banner;
-      background: linear-gradient(to right, #3a1300, $color-component-bg);
+      background: linear-gradient(to right, $color-banner-5, $color-component-bg);
     }
 
     &--6 {
       @extend .results-cards__banner;
-      background: linear-gradient(to right, #00434c, $color-component-bg);
+      background: linear-gradient(to right, $color-banner-6, $color-component-bg);
     }
 
     &--8 {
       @extend .results-cards__banner;
-      background: linear-gradient(to right, #474500, $color-component-bg);
+      background: linear-gradient(to right, $color-banner-8, $color-component-bg);
     }
 
     &--9 {
       @extend .results-cards__banner;
-      background: linear-gradient(to right, #000000, $color-component-bg);
+      background: linear-gradient(to right, $color-banner-9, $color-component-bg);
     }
 
     &--10 {
       @extend .results-cards__banner;
-      background: linear-gradient(to right, #471a00, $color-component-bg);
+      background: linear-gradient(to right, $color-banner-10, $color-component-bg);
     }
   }
 }
@@ -266,6 +279,7 @@ $common-filter-color: #90561c;
     text-decoration: line-through;
     opacity: 0.5;
     background-color: rgba(0, 0, 0, 0.5) !important;
+
     // Wierd visual effect work-around...
     margin-left: -0.5rem;
     padding-left: 0.5rem;
@@ -274,6 +288,20 @@ $common-filter-color: #90561c;
   &:hover {
     color: $color-primary-hover;
     background-color: rgba(255, 255, 255, 0.03);
+
+    // Wierd visual effect work-around...
+    margin-left: -0.5rem;
+    padding-left: 0.5rem;
+
+    &:first-child {
+      margin-top: -0.25rem;
+      padding-top: 0.25rem;
+    }
+
+    &:last-child {
+      margin-bottom: -0.25rem;
+      padding-bottom: 0.5rem;
+    }
 
     .result-card__description {
       color: $color-primary-base;
@@ -349,7 +377,8 @@ $common-filter-color: #90561c;
 }
 
 .rarity-icon {
-  color: $common-filter-color;
+  color: $color-rarity-common;
+  filter: drop-shadow(0 0 0.125rem rgba(0, 0, 0, 0.5));
 
   &--common {
     @extend .rarity-icon;
@@ -365,7 +394,7 @@ $common-filter-color: #90561c;
     height: 22px;
     margin-top: 0.125rem;
     margin-left: -0.125rem;
-    color: $uncommon-filter-color;
+    color: $color-rarity-uncommon;
   }
 
   &--rare {
@@ -373,13 +402,13 @@ $common-filter-color: #90561c;
     width: 20px;
     height: 18px;
     margin-top: 0.25rem;
-    color: $rare-filter-color;
+    color: $color-rarity-rare;
   }
 
   &--legendary {
     @extend .rarity-icon;
     width: 20px;
     height: 22px;
-    color: $legendary-filter-color;
+    color: $color-rarity-legendary;
   }
 }

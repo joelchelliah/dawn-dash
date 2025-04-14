@@ -1,4 +1,4 @@
-// Gradient colors
+// -- Gradient colors -- //
 $yellow-base: #cfaa26;
 $yellow-hover: #e4ca5f;
 $yellow-border: #9d8739;
@@ -6,15 +6,17 @@ $yellow-border: #9d8739;
 $green-base: #249624;
 $green-hover: #2bc02b;
 $green-border: #176616;
+// -- -- -- -- -- -- -- //
 
-// Primary colors
+// -- Primary colors -- //
 $color-primary-base: #ddd;
 $color-primary-active: #eee;
 $color-primary-hover: #fff;
 $color-primary-muted: #aaa;
 $color-primary-dark: #888;
+// -- -- -- -- -- -- -- //
 
-// Component colors
+// -- Component colors -- //
 $color-base-bg: #1a1a1a;
 
 $color-component-bg: #1f1f1f;
@@ -30,7 +32,27 @@ $color-list-bg-hover: #2c2c2c;
 $color-button-bg: #333;
 $color-button-bg-active: #444;
 $color-button-bg-hover: #494949;
+// -- -- -- -- -- -- -- //
 
-// TODO:
-// - Add rarity colors
-// - Add banner colors
+// -- Rarity colors -- //
+$color-rarity-common: #945415;
+$color-rarity-common-hover: #b37431;
+$color-rarity-uncommon: #1eba42;
+$color-rarity-uncommon-hover: #4ddd6c;
+$color-rarity-rare: #007bff;
+$color-rarity-rare-hover: #32a6ff;
+$color-rarity-legendary: #ffd900;
+$color-rarity-legendary-hover: #fff067;
+// -- -- -- -- -- -- -- //
+
+// -- Banner colors -- //
+$color-banner-1: #003710;
+$color-banner-2: #001d45;
+$color-banner-3: #580000;
+$color-banner-4: #370054;
+$color-banner-5: #3f230d;
+$color-banner-6: #00434c;
+$color-banner-8: #504c00;
+$color-banner-9: #111;
+$color-banner-10: #582800;
+// -- -- -- -- -- -- -- //
