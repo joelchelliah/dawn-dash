@@ -1,0 +1,157 @@
+@use '../../../../styles' as *;
+
+.hamburger {
+  width: 2.5rem;
+  height: 2.5rem;
+  background-color: $color-base-bg;
+  border: 1px solid $color-component-bg;
+  border-radius: 8px;
+  margin-top: 0.5rem;
+
+  &__button {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: $color-primary-base;
+
+    &__icon {
+      width: 1.5rem;
+      height: 1.5rem;
+      transition: all 0.5s ease;
+      padding: 0.25rem;
+      border: 2px solid transparent;
+      border-radius: 20%;
+      transform-origin: center;
+      @include yellowGreenGradientIcon(false);
+    }
+
+    &:hover {
+      color: $color-primary-hover;
+
+      .hamburger__button__icon {
+        @include yellowGreenGradientIcon(true);
+      }
+    }
+  }
+}
+
+.side-menu {
+  position: fixed;
+  top: 5rem;
+  right: -15rem;
+  opacity: 0;
+  width: 15rem;
+  background-color: $color-base-bg;
+  box-shadow: -0.5rem 1rem 1rem rgba(0, 0, 0, 0.5);
+  transition: all 0.3s ease;
+  z-index: 5;
+  height: auto;
+  @include superFancyBorder(0, 0, fixed);
+
+  &--open {
+    right: 1.625rem;
+    opacity: 1;
+  }
+
+  @media (max-width: $breakpoint-mobile) {
+    width: 100%;
+    right: -100%;
+    box-shadow:
+      0 2rem 4rem rgba(0, 0, 0, 0.85),
+      0 -2rem 4rem rgba(0, 0, 0, 0.85);
+    border-left: none;
+    border-right: none;
+    border-radius: 0;
+
+    @include supportsSuperFancyBorder {
+      &::before {
+        border-radius: 0;
+        border-left: none;
+        border-right: none;
+      }
+    }
+
+    &--open {
+      right: 0;
+    }
+  }
+
+  &__nav {
+    display: flex;
+    flex-direction: column;
+    padding: 0.25rem 0 0;
+    gap: 0.25rem;
+  }
+
+  &__nav-link-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    border-bottom: 1px solid $color-component-border;
+    padding: 0 0rem 0.25rem 0.5rem;
+    margin: -0.25rem 0 0 0;
+
+    &:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    &:hover {
+      background-color: $color-list-bg-hover;
+
+      .side-menu__nav-link {
+        font-weight: bold;
+        @include yellowGreenGradient(true);
+      }
+    }
+
+    &--active {
+      background-color: $color-list-bg-active;
+
+      .side-menu__nav-link {
+        @include yellowGreenGradient(false);
+      }
+    }
+  }
+
+  &__nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: $color-primary-base;
+    text-decoration: none;
+    font-size: font-size('md');
+    padding: 0.5rem 0.25rem 0.5rem 0.125rem;
+    transition: all 0.3s ease;
+
+    @media (max-width: $breakpoint-mobile) {
+      font-size: font-size('sm');
+    }
+
+    &__icon {
+      width: 2.5rem;
+      height: 2.5rem;
+      @include rotateY360Animation('hover', '.side-menu__nav-link:hover');
+
+      @media (max-width: $breakpoint-mobile) {
+        width: 2rem;
+        height: 2rem;
+      }
+    }
+  }
+}
+
+.info-divider {
+  border-top: 1px solid $color-component-border;
+  margin: 0.5rem 0 1.5rem;
+}
+
+.info-last-paragraph {
+  margin-bottom: 1.5rem;
+}
