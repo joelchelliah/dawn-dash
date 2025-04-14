@@ -3,9 +3,10 @@ import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import cx from 'classnames'
 
+import { HamburgerIcon } from '../../utils/icons'
+import { AbracadabraImageUrl, DashImageUrl, RushedForgeryImageUrl } from '../../utils/imageUrls'
 import GradientLink from '../GradientLink'
 import InfoModal from '../Modals/InfoModal'
-import { HamburgerIcon } from '../../utils/icons'
 
 import styles from './index.module.scss'
 
@@ -82,11 +83,21 @@ const Header = ({ onLogoClick, logoSrc, title, subtitle, currentPage }: HeaderPr
         <nav className={styles['side-menu__nav']}>
           <div className={speedrunsLinkContainerClassNames}>
             <Link to="/" className={styles['side-menu__nav-link']}>
+              <img
+                src={DashImageUrl}
+                alt="Speedruns logo"
+                className={styles['side-menu__nav-link__icon']}
+              />
               Speedruns
             </Link>
           </div>
           <div className={cardexLinkContainerClassNames}>
             <Link to="/codex/cards" className={styles['side-menu__nav-link']}>
+              <img
+                src={AbracadabraImageUrl}
+                alt="Cardex logo"
+                className={styles['side-menu__nav-link__icon']}
+              />
               Cardex
             </Link>
           </div>
@@ -96,6 +107,11 @@ const Header = ({ onLogoClick, logoSrc, title, subtitle, currentPage }: HeaderPr
               className={styles['side-menu__nav-link']}
               onClick={() => setIsAboutInfoOpen(true)}
             >
+              <img
+                src={RushedForgeryImageUrl}
+                alt="About logo"
+                className={styles['side-menu__nav-link__icon']}
+              />
               About
             </Link>
           </div>

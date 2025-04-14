@@ -52,8 +52,8 @@
 }
 
 .hamburger {
-  width: 1.75rem;
-  height: 1.75rem;
+  width: 2.5rem;
+  height: 2.5rem;
   background-color: $color-base-bg;
   border: 1px solid $color-component-bg;
   border-radius: 8px;
@@ -72,8 +72,8 @@
     color: $color-primary-base;
 
     &__icon {
-      width: 1rem;
-      height: 1rem;
+      width: 1.5rem;
+      height: 1.5rem;
       transition: all 0.5s ease;
       padding: 0.25rem;
       border: 2px solid transparent;
@@ -95,9 +95,9 @@
 .side-menu {
   position: fixed;
   top: 5rem;
-  right: -200px;
+  right: -15rem;
   opacity: 0;
-  width: 200px;
+  width: 15rem;
   background-color: $color-base-bg;
   box-shadow: -0.5rem 1rem 1rem rgba(0, 0, 0, 0.5);
   transition: all 0.3s ease;
@@ -106,7 +106,7 @@
   @include superFancyBorder(0, 0, fixed);
 
   &--open {
-    right: 1.5rem;
+    right: 1.625rem;
     opacity: 1;
   }
 
@@ -172,11 +172,29 @@
   }
 
   &__nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
     color: $color-primary-base;
     text-decoration: none;
-    font-size: font-size('sm');
-    padding: 0.75rem;
+    font-size: font-size('md');
+    padding: 0.5rem 0.25rem 0.5rem 0.125rem;
     transition: all 0.3s ease;
+
+    @media (max-width: $breakpoint-mobile) {
+      font-size: font-size('sm');
+    }
+
+    &__icon {
+      width: 2.5rem;
+      height: 2.5rem;
+      @include rotateY360Animation('hover', '.side-menu__nav-link:hover');
+
+      @media (max-width: $breakpoint-mobile) {
+        width: 2rem;
+        height: 2rem;
+      }
+    }
   }
 }
 
