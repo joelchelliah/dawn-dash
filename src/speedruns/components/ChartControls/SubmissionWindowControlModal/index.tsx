@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 
+import cx from 'classnames'
+
 import Button from '../../../../shared/components/Buttons/Button'
 import ButtonRow from '../../../../shared/components/Buttons/ButtonRow'
 import DoubleThumbSlider from '../../../components/Sliders/DoubleThumbSlider'
@@ -107,10 +109,15 @@ function SubmissionWindowModal({
   const renderMinMaxVersionsNamed = () => {
     const min = SUBMISSION_WINDOW_LABEL_MAP[minVersion]
     const max = SUBMISSION_WINDOW_LABEL_MAP[maxVersion]
+    const minMaxOptionDescriptionClassName = cx(
+      styles['option-description'],
+      selectedWindowMode === SubmissionWindowMode.MinMaxVersion &&
+        styles['option-description--active']
+    )
 
     if (minVersion === maxVersion) {
       return (
-        <span>
+        <span className={minMaxOptionDescriptionClassName}>
           Only show runs submitted during: <br />
           <span className={styles['option-description__highlight']}>{min}</span>
         </span>
@@ -118,7 +125,7 @@ function SubmissionWindowModal({
     }
 
     return (
-      <span>
+      <span className={minMaxOptionDescriptionClassName}>
         Only show runs submitted between: <br />
         <span className={styles['option-description__highlight']}>{min}</span> and{' '}
         <span className={styles['option-description__highlight']}>{max}</span>
@@ -127,8 +134,13 @@ function SubmissionWindowModal({
   }
 
   const renderLastXDays = () => {
+    const lastXDaysOptionDescriptionClassName = cx(
+      styles['option-description'],
+      selectedWindowMode === SubmissionWindowMode.LastXDays && styles['option-description--active']
+    )
+
     return (
-      <span>
+      <span className={lastXDaysOptionDescriptionClassName}>
         Only show runs from the last{' '}
         <span className={styles['option-description__highlight']}>{lastXDays}</span> days
       </span>
@@ -161,7 +173,7 @@ function SubmissionWindowModal({
           >
             Game versions:
           </span>
-          <span className={styles['option-description']}>{renderMinMaxVersionsNamed()}</span>
+          {renderMinMaxVersionsNamed()}
           <DoubleThumbSlider
             ariaLabel="Game versions"
             selectedVal1={minVersion}
@@ -189,7 +201,7 @@ function SubmissionWindowModal({
           >
             Days since:
           </span>
-          <span className={styles['option-description']}>{renderLastXDays()}</span>
+          {renderLastXDays()}
           <SingleThumbSlider
             ariaLabel="Days since"
             selectedValue={lastXDays}

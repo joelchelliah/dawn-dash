@@ -1,4 +1,6 @@
 const CACHE_NAME = 'dawn-dash-cache-v2'
+
+// Must include all image urls exposed by src/shared/utils/imageUrls.tsx
 const IMAGE_URLS = [
   'https://blightbane.io/images/classes/Arcanist_I_M.webp',
   'https://blightbane.io/images/classes/Hunter_I_F.webp',
@@ -20,6 +22,7 @@ const IMAGE_URLS = [
   'https://blightbane.io/images/icons/Dance%20of%20Blight_eclypse.webp', // Dance of Blight
   'https://blightbane.io/images/icons/cards_metamorphosis_2_48.webp', // Abracardabra
   'https://blightbane.io/images/monsters/dc_dantelion.webp', // Dantelion
+  'https://blightbane.io/images/icons/Forgery_eclypse-miniset.webp', // Rushed Forgery
 ]
 
 self.addEventListener('activate', (event) => {

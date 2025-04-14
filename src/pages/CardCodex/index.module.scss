@@ -9,56 +9,11 @@ $common-filter-color: #90561c;
   display: flex;
   flex-direction: column;
   padding: 0.375rem 0.625rem 0.625rem;
-  background-color: #1a1a1a;
-  color: #bbb;
+  background-color: $color-base-bg;
+  color: $color-primary-base;
   min-height: 100vh;
   position: relative;
   font-size: font-size('sm');
-}
-
-.header {
-  @extend %flex-center;
-  justify-content: flex-start;
-  margin: 0.25rem 1.25rem 0.375rem;
-  position: relative;
-  padding-bottom: 0.625rem;
-
-  @media (max-width: $breakpoint-tablet) {
-    margin-top: 0.625rem;
-  }
-}
-
-.logo-and-title {
-  @extend %flex-center;
-  cursor: pointer;
-}
-
-.logo {
-  width: 3.25rem;
-  height: 3.25rem;
-  margin-top: 0.25rem;
-  margin-right: 1rem;
-  @include rotateY360Animation('hover', '.logo-and-title:hover');
-}
-
-.title {
-  @include yellowGreenGradient(false);
-  font-size: font-size('lg');
-  margin: 0;
-  font-weight: bold;
-
-  @media (max-width: $breakpoint-mobile) {
-    font-size: font-size('md');
-    margin-bottom: 0.25rem;
-  }
-}
-
-.subtitle {
-  color: #aaa;
-  font-size: font-size('sm');
-  margin: 0;
-  font-weight: normal;
-  font-style: italic;
 }
 
 .content {
@@ -102,10 +57,10 @@ $common-filter-color: #90561c;
   align-items: center;
   gap: 0.5rem;
   margin-bottom: 1.5rem;
-  color: #ddd;
+  color: $color-primary-base;
   font-weight: bold;
   font-size: font-size('md');
-  border-bottom: 1px solid #444;
+  border-bottom: 1px solid $color-component-border-dark;
   padding-bottom: 0.5rem;
 }
 
@@ -120,7 +75,7 @@ $common-filter-color: #90561c;
     border: 1px solid #888;
     border-radius: 0.25rem;
     background-color: $color-base-bg;
-    color: #ffffff;
+    color: $color-primary-base;
     // Font size should not be smaller than 1rem, to prevent zooming in on focus
     font-size: font-size('sm');
   }
@@ -169,34 +124,13 @@ $common-filter-color: #90561c;
   }
 }
 
-.buttons {
-  display: flex;
-  gap: 1rem;
-  margin-top: 3rem;
-
-  button {
-    padding: 0.5rem 1rem;
-    border: 1px solid #888;
-    border-radius: 0.25rem;
-    background-color: $color-base-bg;
-    color: #ffffff;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-
-    &:hover {
-      background-color: #333;
-      border-color: #aaa;
-    }
-  }
-}
-
 .last-updated {
   font-size: font-size('xs');
-  color: #888;
+  color: $color-primary-dark;
   margin: 1.5rem 0 0 0.125rem;
 
   &--loading {
-    color: #aaa;
+    color: $color-primary-muted;
   }
 
   &--error {
@@ -226,7 +160,7 @@ $common-filter-color: #90561c;
 }
 
 .results-title {
-  border-bottom: 1px solid #444;
+  border-bottom: 1px solid $color-component-border-dark;
 
   h3 {
     border-bottom: none;
@@ -245,12 +179,13 @@ $common-filter-color: #90561c;
 
 .results-info {
   font-size: font-size('xs');
-  color: #aaa;
+  color: $color-primary-muted;
   margin: 1.5rem 0 1rem;
 
   &__keywords {
     font-size: font-size('xxs');
-    color: #999;
+    color: $color-primary-muted;
+    margin-top: 0.25rem;
   }
 
   @media (max-width: $breakpoint-mobile) {
@@ -262,7 +197,7 @@ $common-filter-color: #90561c;
   display: flex;
   flex-direction: column;
   font-size: font-size('xs');
-  color: #eee;
+  color: $color-primary-base;
   gap: 0.125rem;
 
   &__banner {
@@ -320,7 +255,7 @@ $common-filter-color: #90561c;
 .result-card-container {
   display: flex;
   flex-direction: column;
-  border-bottom: 1px dashed #555;
+  border-bottom: 1px dashed $color-component-border;
   padding-bottom: 0.25rem;
 
   &:last-child {
@@ -335,6 +270,15 @@ $common-filter-color: #90561c;
     margin-left: -0.5rem;
     padding-left: 0.5rem;
   }
+
+  &:hover {
+    color: $color-primary-hover;
+    background-color: rgba(255, 255, 255, 0.03);
+
+    .result-card__description {
+      color: $color-primary-base;
+    }
+  }
 }
 
 .result-card {
@@ -345,10 +289,6 @@ $common-filter-color: #90561c;
   margin: -0.3125rem 0;
   cursor: pointer;
   min-height: 1.25rem;
-
-  &:hover {
-    background-color: rgba(255, 255, 255, 0.01);
-  }
 
   &__rarity {
     margin-right: 0.5rem;
@@ -363,11 +303,15 @@ $common-filter-color: #90561c;
     display: inline-block;
     width: 10rem;
     @include text-truncate;
+
+    @media (max-width: $breakpoint-mobile) {
+      font-size: font-size('xxs');
+    }
   }
 
   &__keywords {
     display: inline-block;
-    color: #aaa;
+    color: $color-primary-muted;
     width: 12rem;
     @include text-truncate;
     margin-left: auto;
@@ -377,12 +321,13 @@ $common-filter-color: #90561c;
     @media (max-width: $breakpoint-mobile) {
       font-size: font-size('xxs');
       width: 8rem;
+      margin-right: 0.25rem;
     }
   }
 
   &__card-set {
     display: inline-block;
-    color: #777;
+    color: $color-primary-dark;
     width: 8rem;
     @include text-truncate;
     margin-left: auto;
@@ -391,14 +336,15 @@ $common-filter-color: #90561c;
 
     @media (max-width: $breakpoint-mobile) {
       font-size: font-size('xxs');
-      width: 6rem;
+      width: 8rem;
     }
   }
 
   &__description {
     font-size: font-size('xxs');
-    color: #aaa;
+    color: $color-primary-muted;
     margin-bottom: 0.125rem;
+    cursor: pointer;
   }
 }
 

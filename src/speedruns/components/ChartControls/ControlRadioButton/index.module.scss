@@ -2,7 +2,7 @@
 
 $energy-icon-size: 1rem;
 $energy-icon-empty-size: 0.875rem;
-$separator-border: 1px dashed #444;
+$separator-border: 1px dashed $color-component-border-dark;
 
 .radio-button {
   @extend %flex-start;
@@ -18,11 +18,11 @@ $separator-border: 1px dashed #444;
   }
 
   &:hover {
-    background-color: #2a2a2a;
+    background-color: $color-list-bg-hover;
   }
 
   &--selected {
-    background-color: #222;
+    background-color: $color-list-bg-active;
     opacity: 1;
   }
 

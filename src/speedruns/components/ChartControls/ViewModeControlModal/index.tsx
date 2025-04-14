@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 
+import cx from 'classnames'
+
 import Button from '../../../../shared/components/Buttons/Button'
 import ButtonRow from '../../../../shared/components/Buttons/ButtonRow'
 import { VIEW_MODE_LABELS } from '../../../constants/chartControlValues'
@@ -85,6 +87,10 @@ function ViewModeModal({
               color: lighterColor,
             } as React.CSSProperties
             const labelTitleStyle = isSelected ? labelTitleSelectedStyle : {}
+            const optionDescriptionClassName = cx(
+              styles['option-description'],
+              isSelected && styles['option-description--active']
+            )
 
             return (
               <ControlRadioButton
@@ -98,7 +104,7 @@ function ViewModeModal({
                 <span className={styles['option-title']} style={labelTitleStyle}>
                   {VIEW_MODE_LABELS[mode]}
                 </span>
-                <span className={styles['option-description']}>{getViewModeDescription(mode)}</span>
+                <span className={optionDescriptionClassName}>{getViewModeDescription(mode)}</span>
               </ControlRadioButton>
             )
           })}

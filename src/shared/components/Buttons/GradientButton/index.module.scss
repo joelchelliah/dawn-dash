@@ -6,11 +6,11 @@
   min-width: 5rem;
 
   &--colored {
-    @include yellowGreenGradient(false, #ccc);
+    @include yellowGreenGradient(false);
   }
 
   &:hover {
-    @include yellowGreenGradient(true, #fff);
+    @include yellowGreenGradient(true);
     @include superFancyBorder($padding-button-vertical, $padding-button-horizontal);
   }
 }
