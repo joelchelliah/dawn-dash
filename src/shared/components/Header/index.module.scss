@@ -154,7 +154,7 @@
     }
 
     &:hover {
-      background-color: $color-list-hover-bg;
+      background-color: $color-list-bg-hover;
 
       .side-menu__nav-link {
         font-weight: bold;
@@ -163,7 +163,7 @@
     }
 
     &--active {
-      background-color: $color-list-active-bg;
+      background-color: $color-list-bg-active;
 
       .side-menu__nav-link {
         @include yellowGreenGradient(false);

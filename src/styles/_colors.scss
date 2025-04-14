@@ -24,10 +24,13 @@ $color-component-border-dark: #444;
 $color-component-border: #666;
 $color-component-border-hover: #888;
 
-$color-list-active-bg: #222;
-$color-list-hover-bg: #2c2c2c;
+$color-list-bg-active: #222;
+$color-list-bg-hover: #2c2c2c;
 
-$color-button-hover-bg: #3f3f3f;
-$color-button-active-bg: #494949;
+$color-button-bg: #333;
+$color-button-bg-active: #444;
+$color-button-bg-hover: #494949;
 
-$color-chart-footer: #888;
+// TODO:
+// - Add rarity colors
+// - Add banner colors

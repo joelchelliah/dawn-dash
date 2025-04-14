@@ -39,5 +39,5 @@
 
 @mixin default_border($type: solid) {
   border-radius: 0.25rem;
-  border: 1px $type #333;
+  border: 1px $type colors.$color-component-border;
 }

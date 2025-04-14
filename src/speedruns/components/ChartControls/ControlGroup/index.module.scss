@@ -16,7 +16,7 @@
 
   select {
     width: 100%;
-    background-color: #333;
+    background-color: $color-button-bg;
     color: $color-primary-base;
     padding: 0.5rem 2rem 0.5rem 1rem;
     border: 1px solid $color-component-border;
@@ -48,7 +48,7 @@
     }
 
     &:hover {
-      background-color: $color-button-hover-bg;
+      background-color: $color-button-bg-hover;
       border-color: inherit;
     }
 

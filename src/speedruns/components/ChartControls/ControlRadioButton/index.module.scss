@@ -18,11 +18,11 @@ $separator-border: 1px dashed $color-component-border-dark;
   }
 
   &:hover {
-    background-color: #2a2a2a;
+    background-color: $color-list-bg-hover;
   }
 
   &--selected {
-    background-color: #222;
+    background-color: $color-list-bg-active;
     opacity: 1;
   }
 
