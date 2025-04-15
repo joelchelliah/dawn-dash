@@ -24,6 +24,7 @@ import Button from '../../shared/components/Buttons/Button'
 import ButtonRow from '../../shared/components/Buttons/ButtonRow'
 import {
   CircleIcon,
+  CrossIcon,
   DoubleStarsIcon,
   MagnifyingGlassIcon,
   SingleStarIcon,
@@ -42,9 +43,14 @@ const indexToRarityIconMap = {
 }
 
 // Skip summons, performance, form, hymn, affixes, attunements, ingredients
-const excludedCategories = [3, 6, 7, 8, 9, 12, 13, 16]
+const nonCollectibleCategories = [3, 6, 7, 8, 9, 12, 13, 16]
 // Skip other cards that can never be collected
-const excludedCards = ['Elite Lightning Bolt', 'Elite Fireball', 'Elite Frostbolt', 'Soulfire Bomb']
+const nonCollectibleCards = [
+  'Elite Lightning Bolt',
+  'Elite Fireball',
+  'Elite Frostbolt',
+  'Soulfire Bomb',
+]
 
 function CardCodex(): JSX.Element {
   const { resetToCardCodex } = useNavigation()
@@ -138,6 +144,10 @@ function CardCodex(): JSX.Element {
     resetFormattingFilters()
   }
 
+  const isNonCollectible = ({ name, category }: CardData) =>
+    nonCollectibleCards.some((card) => card.toLowerCase() === name.toLowerCase()) ||
+    nonCollectibleCategories.includes(category)
+
   useEffect(() => {
     const parsed = keywords
       .split(/,\s+or\s+|,\s*|\s+or\s+/)
@@ -153,14 +163,7 @@ function CardCodex(): JSX.Element {
         .filter(({ expansion }) => isCardSetIndexSelected(expansion))
         .filter(({ rarity }) => isRarityIndexSelected(rarity))
         .filter(({ color }) => isBannerIndexSelected(color))
-        .filter(
-          ({ name, category }) =>
-            shouldShowNonCollectibles ||
-            (!excludedCards.some(
-              (excludedCard) => excludedCard.toLowerCase() === name.toLowerCase()
-            ) &&
-              !excludedCategories.includes(category))
-        )
+        .filter((card) => shouldShowNonCollectibles || !isNonCollectible(card))
 
         .filter(
           ({ name, description }) =>
@@ -383,6 +386,11 @@ function CardCodex(): JSX.Element {
                         </span>
                       )}
                       <span className={styles['result-card__name']}>{card.name}</span>
+                      {shouldShowNonCollectibles && (
+                        <span className={styles['result-card__non-collectible']}>
+                          {isNonCollectible(card) && <CrossIcon />}
+                        </span>
+                      )}
                       {shouldShowKeywords && (
                         <span className={styles['result-card__keywords']}>
                           {findMatchingKeywords(card)}

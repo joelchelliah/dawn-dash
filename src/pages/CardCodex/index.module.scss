@@ -284,6 +284,19 @@
     }
   }
 
+  &__non-collectible {
+    display: inline-block;
+    margin-left: 0.5rem;
+    color: $color-primary-muted;
+
+    svg {
+      position: relative;
+      top: 0.1875rem;
+      width: 1rem;
+      height: 1rem;
+    }
+  }
+
   &__keywords {
     display: inline-block;
     color: $color-primary-muted;
