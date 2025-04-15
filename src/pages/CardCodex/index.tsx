@@ -56,6 +56,7 @@ const nonCollectibleCategories = [
   19, // Offerings
 ]
 const nonCollectibleCategoriesForMonsterExpansion = [
+  0, // Actions
   1, // Items
   4, // Enchantments
   11, // Revelations
