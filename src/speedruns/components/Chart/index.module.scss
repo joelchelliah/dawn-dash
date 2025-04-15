@@ -20,7 +20,7 @@
   flex-direction: column;
   margin: auto;
   margin-top: 0;
-  background-color: #1a1a1a;
+  background-color: $color-base-bg;
   padding: 0.25rem;
   @include default_border();
 

@@ -85,7 +85,7 @@
   input {
     flex: 1;
     padding: 0.5rem;
-    border: 1px solid #888;
+    border: 1px solid $color-component-border;
     border-radius: 0.25rem;
     background-color: $color-base-bg;
     color: $color-primary-base;
@@ -117,6 +117,10 @@
 
     .filter-icon--common {
       color: $color-rarity-common-hover;
+    }
+
+    .filter-icon-extra--non-collectible {
+      color: $color-danger-hover;
     }
   }
 }
@@ -155,7 +159,7 @@
   }
 }
 
-.extra-filter-icon {
+.filter-icon-extra {
   width: 0.75rem;
   height: 0.75rem;
   padding-right: 0.25rem;
@@ -164,8 +168,12 @@
   color: $color-primary-muted;
 
   &--non-collectible {
-    @extend .extra-filter-icon;
-    color: #c22;
+    @extend .filter-icon-extra;
+    color: $color-danger-base;
+
+    &:hover {
+      color: $color-danger-hover;
+    }
   }
 }
 
@@ -308,7 +316,7 @@
       top: 0.125rem;
       width: 0.75rem;
       height: 0.75rem;
-      color: #c22;
+      color: $color-danger-base;
     }
 
     @media (max-width: $breakpoint-mobile) {

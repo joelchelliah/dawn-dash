@@ -1,7 +1,6 @@
 @use '../../../../styles' as *;
 
 $max-width: 32rem;
-$background-color: #1a1a1a;
 
 .overlay {
   @extend %flex-center;
@@ -16,7 +15,7 @@ $background-color: #1a1a1a;
 
 .content {
   position: relative;
-  background: $background-color;
+  background: $color-component-bg;
   padding: 1.25rem;
   width: 90%;
   max-width: $max-width;

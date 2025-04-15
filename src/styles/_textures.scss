@@ -18,7 +18,7 @@ $texture-stars: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
   @if $position == 'upper' {
     @include _applyTexture($texture-stars, before, 4rem, to bottom, 8rem);
   } @else {
-    @include _applyTexture($texture-stars, after, 4rem, to top, 14rem);
+    @include _applyTexture($texture-stars, after, 4rem, to top, 12rem);
   }
 }
 

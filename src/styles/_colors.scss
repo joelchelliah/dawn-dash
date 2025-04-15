@@ -16,6 +16,12 @@ $color-primary-muted: #aaa;
 $color-primary-dark: #888;
 // -- -- -- -- -- -- -- //
 
+// -- Extra colors -- //
+$color-danger-base: #b22;
+$color-danger-hover: #e22;
+$color-danger-error: #d33;
+// -- -- -- -- -- -- -- //
+
 // -- Component colors -- //
 $color-base-bg: #1a1a1a;
 
@@ -32,6 +38,7 @@ $color-list-bg-hover: #2c2c2c;
 $color-button-bg: #333;
 $color-button-bg-active: #444;
 $color-button-bg-hover: #494949;
+$color-button-bg-disabled: #222;
 // -- -- -- -- -- -- -- //
 
 // -- Rarity colors -- //

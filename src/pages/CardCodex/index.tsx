@@ -285,7 +285,7 @@ function CardCodex(): JSX.Element {
       case ExtraFilterOption.IncludeNonCollectibleCards:
         return (
           <span className={styles['filter-label']}>
-            <CrossIcon className={styles['extra-filter-icon--non-collectible']} />
+            <CrossIcon className={styles['filter-icon-extra--non-collectible']} />
             {name}
           </span>
         )
