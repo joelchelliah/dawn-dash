@@ -1,5 +1,21 @@
 @use './styles/index' as *;
 
+// Weird visual effect work-around for struck cards and hover effect
+@mixin cardOverlayPositioningFix {
+  margin-left: -0.5rem;
+  padding-left: 0.5rem;
+
+  &:first-child {
+    margin-top: -0.25rem;
+    padding-top: 0.25rem;
+  }
+
+  &:last-child {
+    margin-bottom: -0.25rem;
+    padding-bottom: 0.5rem;
+  }
+}
+
 .container {
   display: flex;
   flex-direction: column;
@@ -259,29 +275,13 @@
     text-decoration: line-through;
     opacity: 0.5;
     background-color: rgba(0, 0, 0, 0.5) !important;
-
-    // Wierd visual effect work-around...
-    margin-left: -0.5rem;
-    padding-left: 0.5rem;
+    @include cardOverlayPositioningFix;
   }
 
   &:hover {
     color: $color-primary-hover;
     background-color: rgba(255, 255, 255, 0.03);
-
-    // Wierd visual effect work-around...
-    margin-left: -0.5rem;
-    padding-left: 0.5rem;
-
-    &:first-child {
-      margin-top: -0.25rem;
-      padding-top: 0.25rem;
-    }
-
-    &:last-child {
-      margin-bottom: -0.25rem;
-      padding-bottom: 0.5rem;
-    }
+    @include cardOverlayPositioningFix;
 
     .result-card__description {
       color: $color-primary-base;
