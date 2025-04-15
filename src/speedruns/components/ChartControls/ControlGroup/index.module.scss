@@ -65,7 +65,7 @@
     &:disabled {
       opacity: 0.5;
       cursor: not-allowed;
-      background-color: #252525;
+      background-color: $color-button-bg-disabled;
       border-color: $color-component-border-dark;
 
       &:hover {

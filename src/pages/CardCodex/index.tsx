@@ -2,11 +2,13 @@ import { useEffect, useRef, useState } from 'react'
 
 import cx from 'classnames'
 
+import { allExtraFilters, useExtraFilters } from '../../codex/hooks/useExtraFilters'
+import { ExtraFilterOption } from '../../codex/types/filters'
+import CodexLastUpdated from '../../codex/components/CodexLastUpdated'
 import {
   cacheCardCodexSearchFilters,
   getCachedCardCodexSearchFilters,
 } from '../../codex/utils/codexFilterStore'
-import GradientLink from '../../shared/components/GradientLink'
 import CodexLoadingMessage from '../../codex/components/CodexLoadingMessage'
 import CodexErrorMessage from '../../codex/components/CodexErrorMessage'
 import { allFormattingFilters, useFormattingFilters } from '../../codex/hooks/useFormattingFilters'
@@ -22,9 +24,9 @@ import { useCardData } from '../../codex/hooks/useCardData'
 import { CardData } from '../../codex/types/cards'
 import Button from '../../shared/components/Buttons/Button'
 import ButtonRow from '../../shared/components/Buttons/ButtonRow'
-import { useFromNow } from '../../shared/hooks/useFromNow'
 import {
   CircleIcon,
+  CrossIcon,
   DoubleStarsIcon,
   MagnifyingGlassIcon,
   SingleStarIcon,
@@ -43,9 +45,14 @@ const indexToRarityIconMap = {
 }
 
 // Skip summons, performance, form, hymn, affixes, attunements, ingredients
-const excludedCategories = [3, 6, 7, 8, 9, 12, 13, 16]
+const nonCollectibleCategories = [3, 6, 7, 8, 9, 12, 13, 16]
 // Skip other cards that can never be collected
-const excludedCards = ['Elite Lightning Bolt', 'Elite Fireball', 'Elite Frostbolt', 'Soulfire Bomb']
+const nonCollectibleCards = [
+  'Elite Lightning Bolt',
+  'Elite Fireball',
+  'Elite Frostbolt',
+  'Soulfire Bomb',
+]
 
 function CardCodex(): JSX.Element {
   const { resetToCardCodex } = useNavigation()
@@ -64,7 +71,6 @@ function CardCodex(): JSX.Element {
     refresh,
     progress,
   } = useCardData()
-  const fromNow = useFromNow(lastUpdated, 'Card data synced')
   const cachedFilters = getCachedCardCodexSearchFilters()
 
   const [keywords, setKeywordsUntracked] = useState(cachedFilters?.keywords || '')
@@ -83,15 +89,22 @@ function CardCodex(): JSX.Element {
   const { bannerFilters, isBannerIndexSelected, handleBannerFilterToggle, resetBannerFilters } =
     useBannerFilters(cachedFilters?.banners)
   const {
+    extraFilters,
+    handleExtraFilterToggle,
+    getExtraFilterName,
+    resetExtraFilters,
+    shouldIncludeMonsterCards,
+    shouldIncludeNonCollectibleCards,
+  } = useExtraFilters(cachedFilters?.extras)
+  const {
     formattingFilters,
     handleFormattingFilterToggle,
     getFormattingFilterName,
     resetFormattingFilters,
-    shouldShowRarity,
     shouldShowDescription,
     shouldShowKeywords,
     shouldShowCardSet,
-    shouldShowNonCollectibles,
+    shouldShowRarity,
   } = useFormattingFilters(cachedFilters?.formatting)
   const {
     struckCards,
@@ -120,6 +133,10 @@ function CardCodex(): JSX.Element {
     hasUserChangedFilter.current = true
     handleBannerFilterToggle(banner)
   }
+  const toggleExtraFilter = (extra: string) => {
+    hasUserChangedFilter.current = true
+    handleExtraFilterToggle(extra)
+  }
   const toggleFormattingFilter = (formatting: string) => {
     hasUserChangedFilter.current = true
     handleFormattingFilterToggle(formatting)
@@ -137,8 +154,13 @@ function CardCodex(): JSX.Element {
     resetCardSetFilters()
     resetRarityFilters()
     resetBannerFilters()
+    resetExtraFilters()
     resetFormattingFilters()
   }
+
+  const isNonCollectible = ({ name, category }: CardData) =>
+    nonCollectibleCards.some((card) => card.toLowerCase() === name.toLowerCase()) ||
+    nonCollectibleCategories.includes(category)
 
   useEffect(() => {
     const parsed = keywords
@@ -155,14 +177,7 @@ function CardCodex(): JSX.Element {
         .filter(({ expansion }) => isCardSetIndexSelected(expansion))
         .filter(({ rarity }) => isRarityIndexSelected(rarity))
         .filter(({ color }) => isBannerIndexSelected(color))
-        .filter(
-          ({ name, category }) =>
-            shouldShowNonCollectibles ||
-            (!excludedCards.some(
-              (excludedCard) => excludedCard.toLowerCase() === name.toLowerCase()
-            ) &&
-              !excludedCategories.includes(category))
-        )
+        .filter((card) => shouldIncludeNonCollectibleCards || !isNonCollectible(card))
 
         .filter(
           ({ name, description }) =>
@@ -186,7 +201,8 @@ function CardCodex(): JSX.Element {
     isCardSetIndexSelected,
     isRarityIndexSelected,
     isBannerIndexSelected,
-    shouldShowNonCollectibles,
+    shouldIncludeMonsterCards,
+    shouldIncludeNonCollectibleCards,
   ])
 
   useEffect(() => {
@@ -203,6 +219,7 @@ function CardCodex(): JSX.Element {
         cardSets: cardSetFilters,
         rarities: rarityFilters,
         banners: bannerFilters,
+        extras: extraFilters,
         formatting: formattingFilters,
         struckCards,
         lastUpdated: Date.now(),
@@ -214,7 +231,15 @@ function CardCodex(): JSX.Element {
         clearTimeout(filterDebounceTimeoutRef.current)
       }
     }
-  }, [bannerFilters, cardSetFilters, formattingFilters, keywords, rarityFilters, struckCards])
+  }, [
+    bannerFilters,
+    cardSetFilters,
+    extraFilters,
+    formattingFilters,
+    keywords,
+    rarityFilters,
+    struckCards,
+  ])
 
   const preventFormSubmission = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -250,6 +275,22 @@ function CardCodex(): JSX.Element {
             Common
           </span>
         )
+    }
+  }
+
+  const getExtraFilterLabel = (filter: string) => {
+    const name = getExtraFilterName(filter)
+
+    switch (filter) {
+      case ExtraFilterOption.IncludeNonCollectibleCards:
+        return (
+          <span className={styles['filter-label']}>
+            <CrossIcon className={styles['filter-icon-extra--non-collectible']} />
+            {name}
+          </span>
+        )
+      default:
+        return <span className={styles['filter-label']}>{name}</span>
     }
   }
 
@@ -295,7 +336,15 @@ function CardCodex(): JSX.Element {
             onFilterToggle={toggleBannerFilter}
           />
           <FilterGroup
-            title="Results formatting"
+            title="Extras"
+            filters={allExtraFilters}
+            selectedFilters={extraFilters}
+            type="extra"
+            onFilterToggle={toggleExtraFilter}
+            getFilterLabel={getExtraFilterLabel}
+          />
+          <FilterGroup
+            title="Formatting"
             filters={allFormattingFilters}
             selectedFilters={formattingFilters}
             type="formatting"
@@ -314,33 +363,14 @@ function CardCodex(): JSX.Element {
         </ButtonRow>
       </form>
 
-      <div
-        className={cx(styles['last-updated'], {
-          [styles['last-updated--loading']]: isLoadingInBackground,
-          [styles['last-updated--error']]: isErrorInBackground,
-        })}
-      >
-        {isLoadingInBackground ? (
-          <>
-            <div>⏳ Syncing card data: {progress}%</div>
-            <div className={styles['last-updated__progress-container']}>
-              <div
-                className={styles['last-updated__progress-bar']}
-                style={{ width: `${progress}%` }}
-              />
-            </div>
-          </>
-        ) : isErrorInBackground ? (
-          <div>💥 Error syncing card data... Try again later!</div>
-        ) : (
-          fromNow
-        )}
-        {!(isLoading || isLoadingInBackground) && (
-          <div>
-            <GradientLink text="Resync data?" onClick={refresh} />
-          </div>
-        )}
-      </div>
+      <CodexLastUpdated
+        lastUpdated={lastUpdated}
+        isLoading={isLoading}
+        isLoadingInBackground={isLoadingInBackground}
+        isErrorInBackground={isErrorInBackground}
+        progress={progress}
+        refresh={refresh}
+      />
     </div>
   )
 
@@ -404,6 +434,11 @@ function CardCodex(): JSX.Element {
                         </span>
                       )}
                       <span className={styles['result-card__name']}>{card.name}</span>
+                      {shouldIncludeNonCollectibleCards && (
+                        <span className={styles['result-card__non-collectible']}>
+                          {isNonCollectible(card) && <CrossIcon />}
+                        </span>
+                      )}
                       {shouldShowKeywords && (
                         <span className={styles['result-card__keywords']}>
                           {findMatchingKeywords(card)}

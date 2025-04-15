@@ -3,7 +3,7 @@
 .error {
   @extend %flex-center;
   font-size: font-size('md');
-  color: #d44;
+  color: $color-danger-error;
   height: 30vh;
   text-align: center;
 

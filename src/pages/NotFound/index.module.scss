@@ -8,9 +8,11 @@
   height: 100vh;
   text-align: center;
   padding: 0 1rem;
-  background-color: #1a1a1a;
+  background-color: $color-base-bg;
   color: $color-primary-muted;
   gap: 1rem;
+  @include starsTexture('upper');
+  @include starsTexture('lower');
 
   p {
     font-size: font-size('md');

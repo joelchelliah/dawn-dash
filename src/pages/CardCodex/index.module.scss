@@ -1,5 +1,21 @@
 @use './styles/index' as *;
 
+// Weird visual effect work-around for struck cards and hover effect
+@mixin cardOverlayPositioningFix {
+  margin-left: -0.5rem;
+  padding-left: 0.5rem;
+
+  &:first-child {
+    margin-top: -0.25rem;
+    padding-top: 0.25rem;
+  }
+
+  &:last-child {
+    margin-bottom: -0.25rem;
+    padding-bottom: 0.5rem;
+  }
+}
+
 .container {
   display: flex;
   flex-direction: column;
@@ -7,8 +23,9 @@
   background-color: $color-base-bg;
   color: $color-primary-base;
   min-height: 100vh;
-  position: relative;
   font-size: font-size('sm');
+  @include starsTexture('upper');
+  @include starsTexture('lower');
 }
 
 .content {
@@ -28,6 +45,7 @@
   background-color: $color-component-bg;
   padding: 1rem;
   border-radius: 4px;
+  max-height: max-content;
 
   @media (max-width: $breakpoint-mobile) {
     min-width: auto;
@@ -67,7 +85,7 @@
   input {
     flex: 1;
     padding: 0.5rem;
-    border: 1px solid #888;
+    border: 1px solid $color-component-border;
     border-radius: 0.25rem;
     background-color: $color-base-bg;
     color: $color-primary-base;
@@ -99,6 +117,10 @@
 
     .filter-icon--common {
       color: $color-rarity-common-hover;
+    }
+
+    .filter-icon-extra--non-collectible {
+      color: $color-danger-hover;
     }
   }
 }
@@ -137,38 +159,21 @@
   }
 }
 
-.last-updated {
-  font-size: font-size('xs');
-  color: $color-primary-dark;
-  margin: 1.5rem 0 0 0.125rem;
+.filter-icon-extra {
+  width: 0.75rem;
+  height: 0.75rem;
+  padding-right: 0.25rem;
+  position: relative;
+  top: 0.0625rem;
+  color: $color-primary-muted;
 
-  &--loading {
-    color: $color-primary-muted;
-  }
+  &--non-collectible {
+    @extend .filter-icon-extra;
+    color: $color-danger-base;
 
-  &--error {
-    color: #d44;
-  }
-
-  &__progress-container {
-    width: 100%;
-    height: 0.75rem;
-    background-color: rgba(255, 255, 255, 0.1);
-    border-radius: 5px;
-    margin: 1.25rem 0;
-    overflow: hidden;
-
-    @media (max-width: $breakpoint-mobile) {
-      margin: 0.75rem 0;
-      height: 0.5rem;
+    &:hover {
+      color: $color-danger-hover;
     }
-  }
-
-  &__progress-bar {
-    height: 100%;
-    background: linear-gradient(to right, $yellow-base, $green-base);
-    border-radius: 5px;
-    transition: width 0.3s ease;
   }
 }
 
@@ -213,54 +218,34 @@
   color: $color-primary-base;
   gap: 0.125rem;
 
+  $banner-colors-map: (
+    1: $color-banner-1,
+    2: $color-banner-2,
+    3: $color-banner-3,
+    4: $color-banner-4,
+    5: $color-banner-5,
+    6: $color-banner-6,
+    8: $color-banner-8,
+    9: $color-banner-9,
+    10: $color-banner-10,
+  );
+
   &__banner {
     padding: 0.25rem 0.5rem;
     border-top: 1px solid $color-component-bg;
     border-bottom: 1px solid $color-component-bg;
+  }
 
-    &--1 {
+  // Generate all banner variations
+  @each $number, $color in $banner-colors-map {
+    &__banner--#{$number} {
       @extend .results-cards__banner;
-      background: linear-gradient(to right, $color-banner-1, $color-component-bg);
+      @include rainTexture($color, false);
     }
 
-    &--2 {
-      @extend .results-cards__banner;
-      background: linear-gradient(to right, $color-banner-2, $color-component-bg);
-    }
-
-    &--3 {
-      @extend .results-cards__banner;
-      background: linear-gradient(to right, $color-banner-3, $color-component-bg);
-    }
-
-    &--4 {
-      @extend .results-cards__banner;
-      background: linear-gradient(to right, $color-banner-4, $color-component-bg);
-    }
-
-    &--5 {
-      @extend .results-cards__banner;
-      background: linear-gradient(to right, $color-banner-5, $color-component-bg);
-    }
-
-    &--6 {
-      @extend .results-cards__banner;
-      background: linear-gradient(to right, $color-banner-6, $color-component-bg);
-    }
-
-    &--8 {
-      @extend .results-cards__banner;
-      background: linear-gradient(to right, $color-banner-8, $color-component-bg);
-    }
-
-    &--9 {
-      @extend .results-cards__banner;
-      background: linear-gradient(to right, $color-banner-9, $color-component-bg);
-    }
-
-    &--10 {
-      @extend .results-cards__banner;
-      background: linear-gradient(to right, $color-banner-10, $color-component-bg);
+    // Flip texture on even rows
+    &:nth-child(even) &__banner--#{$number} {
+      @include rainTexture($color, true);
     }
   }
 }
@@ -279,29 +264,13 @@
     text-decoration: line-through;
     opacity: 0.5;
     background-color: rgba(0, 0, 0, 0.5) !important;
-
-    // Wierd visual effect work-around...
-    margin-left: -0.5rem;
-    padding-left: 0.5rem;
+    @include cardOverlayPositioningFix;
   }
 
   &:hover {
     color: $color-primary-hover;
     background-color: rgba(255, 255, 255, 0.03);
-
-    // Wierd visual effect work-around...
-    margin-left: -0.5rem;
-    padding-left: 0.5rem;
-
-    &:first-child {
-      margin-top: -0.25rem;
-      padding-top: 0.25rem;
-    }
-
-    &:last-child {
-      margin-bottom: -0.25rem;
-      padding-bottom: 0.5rem;
-    }
+    @include cardOverlayPositioningFix;
 
     .result-card__description {
       color: $color-primary-base;
@@ -337,19 +306,39 @@
     }
   }
 
+  &__non-collectible {
+    display: inline-block;
+    margin: 0 0.5rem 0 0.25rem;
+    color: $color-primary-muted;
+
+    svg {
+      position: relative;
+      top: 0.125rem;
+      width: 0.75rem;
+      height: 0.75rem;
+      color: $color-danger-base;
+    }
+
+    @media (max-width: $breakpoint-mobile) {
+      svg {
+        top: 0;
+        width: 0.625rem;
+        height: 0.625rem;
+      }
+    }
+  }
+
   &__keywords {
     display: inline-block;
     color: $color-primary-muted;
     width: 12rem;
     @include text-truncate;
-    margin-left: auto;
-    text-align: right;
+    margin-left: 0.5rem;
     font-style: italic;
 
     @media (max-width: $breakpoint-mobile) {
       font-size: font-size('xxs');
       width: 8rem;
-      margin-right: 0.25rem;
     }
   }
 
@@ -371,8 +360,12 @@
   &__description {
     font-size: font-size('xxs');
     color: $color-primary-muted;
-    margin-bottom: 0.125rem;
+    margin: 0 0.5rem 0.25rem 2rem;
     cursor: pointer;
+
+    @media (max-width: $breakpoint-mobile) {
+      margin: 0 0.5rem 0 1.75rem;
+    }
   }
 }
 

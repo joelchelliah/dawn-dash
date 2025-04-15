@@ -29,6 +29,12 @@ $checked-color: #0e5dac;
     margin-right: 0;
   }
 
+  &--extra {
+    width: 100%;
+    margin-bottom: 0.5rem;
+    cursor: pointer;
+  }
+
   &--formatting {
     width: calc(50% - 1.5rem);
 

@@ -3,7 +3,7 @@
 .error-message {
   @extend %flex-center;
   flex-direction: column;
-  color: #dd6b6b; // Color overridden by class color
+  color: $color-danger-error; // Color overridden by class color
   text-align: center;
   margin-top: 2rem;
   padding: 1.25rem;
