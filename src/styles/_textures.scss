@@ -1,0 +1,42 @@
+@use 'colors' as colors;
+
+$texture-rain: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M-10 40L40 -10M0 50L50 0M-10 60L60 -10' stroke='white' stroke-width='0.5' stroke-opacity='0.5' fill='none'/%3E%3C/svg%3E");
+$texture-rain-flipped: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M50 40L0 -10M40 50L-10 0M50 60L-20 -10' stroke='white' stroke-width='0.5' stroke-opacity='0.5' fill='none'/%3E%3C/svg%3E");
+
+@mixin rainTexture($color, $flipped: false) {
+  background: linear-gradient(to right, $color, colors.$color-component-bg);
+
+  @if $flipped {
+    @include _applyTexture($texture-rain-flipped);
+  } @else {
+    @include _applyTexture($texture-rain);
+  }
+}
+
+@mixin _applyTexture($texture) {
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0.2;
+    pointer-events: none;
+    background-size: 4rem 4rem;
+    background-image: $texture;
+  }
+
+  // Fading mask effect
+  @supports (
+    (mask-image: linear-gradient(to right, black, transparent)) or
+      (-webkit-mask-image: linear-gradient(to right, black, transparent))
+  ) {
+    &::before {
+      -webkit-mask-image: linear-gradient(to right, rgba(0, 0, 0, 1) 50%, rgba(0, 0, 0, 0));
+      mask-image: linear-gradient(to right, rgba(0, 0, 0, 1) 50%, rgba(0, 0, 0, 0));
+    }
+  }
+}

@@ -213,54 +213,34 @@
   color: $color-primary-base;
   gap: 0.125rem;
 
+  $banner-colors-map: (
+    1: $color-banner-1,
+    2: $color-banner-2,
+    3: $color-banner-3,
+    4: $color-banner-4,
+    5: $color-banner-5,
+    6: $color-banner-6,
+    8: $color-banner-8,
+    9: $color-banner-9,
+    10: $color-banner-10,
+  );
+
   &__banner {
     padding: 0.25rem 0.5rem;
     border-top: 1px solid $color-component-bg;
     border-bottom: 1px solid $color-component-bg;
+  }
 
-    &--1 {
+  // Generate all banner variations
+  @each $number, $color in $banner-colors-map {
+    &__banner--#{$number} {
       @extend .results-cards__banner;
-      background: linear-gradient(to right, $color-banner-1, $color-component-bg);
+      @include rainTexture($color, false);
     }
 
-    &--2 {
-      @extend .results-cards__banner;
-      background: linear-gradient(to right, $color-banner-2, $color-component-bg);
-    }
-
-    &--3 {
-      @extend .results-cards__banner;
-      background: linear-gradient(to right, $color-banner-3, $color-component-bg);
-    }
-
-    &--4 {
-      @extend .results-cards__banner;
-      background: linear-gradient(to right, $color-banner-4, $color-component-bg);
-    }
-
-    &--5 {
-      @extend .results-cards__banner;
-      background: linear-gradient(to right, $color-banner-5, $color-component-bg);
-    }
-
-    &--6 {
-      @extend .results-cards__banner;
-      background: linear-gradient(to right, $color-banner-6, $color-component-bg);
-    }
-
-    &--8 {
-      @extend .results-cards__banner;
-      background: linear-gradient(to right, $color-banner-8, $color-component-bg);
-    }
-
-    &--9 {
-      @extend .results-cards__banner;
-      background: linear-gradient(to right, $color-banner-9, $color-component-bg);
-    }
-
-    &--10 {
-      @extend .results-cards__banner;
-      background: linear-gradient(to right, $color-banner-10, $color-component-bg);
+    // Flip texture on even rows
+    &:nth-child(even) &__banner--#{$number} {
+      @include rainTexture($color, true);
     }
   }
 }
