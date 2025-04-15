@@ -1,0 +1,51 @@
+@use '../../../styles/index' as *;
+
+.last-updated {
+  font-size: font-size('xs');
+  color: $color-primary-dark;
+  margin: 1.5rem 0 0 0.125rem;
+
+  &--loading {
+    color: $color-primary-muted;
+  }
+
+  &--error {
+    color: #d44;
+  }
+
+  &__progress-message {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 2rem;
+
+    svg {
+      width: 1.125rem;
+      height: 1.125rem;
+      position: relative;
+      top: 0.0625rem;
+      @include rotateZ360Animation(true);
+    }
+  }
+
+  &__progress-container {
+    width: 100%;
+    height: 0.75rem;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+    margin: 1rem 0;
+    overflow: hidden;
+
+    @media (max-width: $breakpoint-mobile) {
+      margin: 0.75rem 0;
+      height: 0.5rem;
+    }
+  }
+
+  &__progress-bar {
+    height: 100%;
+    background: linear-gradient(to right, $yellow-base, $green-base);
+    border-radius: 5px;
+    transition: width 0.3s ease;
+  }
+}

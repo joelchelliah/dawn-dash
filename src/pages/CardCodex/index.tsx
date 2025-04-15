@@ -2,11 +2,11 @@ import { useEffect, useRef, useState } from 'react'
 
 import cx from 'classnames'
 
+import CodexLastUpdated from '../../codex/components/CodexLastUpdated'
 import {
   cacheCardCodexSearchFilters,
   getCachedCardCodexSearchFilters,
 } from '../../codex/utils/codexFilterStore'
-import GradientLink from '../../shared/components/GradientLink'
 import CodexLoadingMessage from '../../codex/components/CodexLoadingMessage'
 import CodexErrorMessage from '../../codex/components/CodexErrorMessage'
 import { allFormattingFilters, useFormattingFilters } from '../../codex/hooks/useFormattingFilters'
@@ -22,7 +22,6 @@ import { useCardData } from '../../codex/hooks/useCardData'
 import { CardData } from '../../codex/types/cards'
 import Button from '../../shared/components/Buttons/Button'
 import ButtonRow from '../../shared/components/Buttons/ButtonRow'
-import { useFromNow } from '../../shared/hooks/useFromNow'
 import {
   CircleIcon,
   DoubleStarsIcon,
@@ -64,7 +63,6 @@ function CardCodex(): JSX.Element {
     refresh,
     progress,
   } = useCardData()
-  const fromNow = useFromNow(lastUpdated, 'Card data synced')
   const cachedFilters = getCachedCardCodexSearchFilters()
 
   const [keywords, setKeywordsUntracked] = useState(cachedFilters?.keywords || '')
@@ -314,33 +312,14 @@ function CardCodex(): JSX.Element {
         </ButtonRow>
       </form>
 
-      <div
-        className={cx(styles['last-updated'], {
-          [styles['last-updated--loading']]: isLoadingInBackground,
-          [styles['last-updated--error']]: isErrorInBackground,
-        })}
-      >
-        {isLoadingInBackground ? (
-          <>
-            <div>⏳ Syncing card data: {progress}%</div>
-            <div className={styles['last-updated__progress-container']}>
-              <div
-                className={styles['last-updated__progress-bar']}
-                style={{ width: `${progress}%` }}
-              />
-            </div>
-          </>
-        ) : isErrorInBackground ? (
-          <div>💥 Error syncing card data... Try again later!</div>
-        ) : (
-          fromNow
-        )}
-        {!(isLoading || isLoadingInBackground) && (
-          <div>
-            <GradientLink text="Resync data?" onClick={refresh} />
-          </div>
-        )}
-      </div>
+      <CodexLastUpdated
+        lastUpdated={lastUpdated}
+        isLoading={isLoading}
+        isLoadingInBackground={isLoadingInBackground}
+        isErrorInBackground={isErrorInBackground}
+        progress={progress}
+        refresh={refresh}
+      />
     </div>
   )
 
