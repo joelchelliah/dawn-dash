@@ -71,7 +71,7 @@ export const Banner = {
 // -------------------- Extra --------------------
 
 export enum ExtraFilterOption {
-  // IncludeMonsterCards = 'IncludeMonsterCards',
+  IncludeMonsterCards = 'IncludeMonsterCards',
   IncludeNonCollectibleCards = 'IncludeNonCollectibleCards',
 }
 
@@ -89,7 +89,6 @@ export enum FormattingFilterOption {
   ShowDescription = 'ShowDescription',
   ShowKeywords = 'ShowKeywords',
   ShowCardSet = 'ShowCardSet',
-  ShowNonCollectibles = 'ShowNonCollectibles',
 }
 
 export type Formatting = FormattingFilterOption
