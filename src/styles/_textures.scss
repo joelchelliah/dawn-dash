@@ -2,41 +2,69 @@
 
 $texture-rain: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M-10 40L40 -10M0 50L50 0M-10 60L60 -10' stroke='white' stroke-width='0.5' stroke-opacity='0.5' fill='none'/%3E%3C/svg%3E");
 $texture-rain-flipped: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M50 40L0 -10M40 50L-10 0M50 60L-20 -10' stroke='white' stroke-width='0.5' stroke-opacity='0.5' fill='none'/%3E%3C/svg%3E");
+$texture-stars: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cdefs%3E%3Cstyle%3Ecircle%7Bfill:white;%7D%3C/style%3E%3C/defs%3E%3Ccircle cx='10' cy='15' r='1'/%3E%3Ccircle cx='30' cy='5' r='1.5'/%3E%3Ccircle cx='50' cy='25' r='1'/%3E%3Ccircle cx='75' cy='10' r='1'/%3E%3Ccircle cx='90' cy='35' r='2'/%3E%3Ccircle cx='5' cy='45' r='1'/%3E%3Ccircle cx='25' cy='55' r='1'/%3E%3Ccircle cx='45' cy='70' r='2.5'/%3E%3Ccircle cx='65' cy='40' r='1'/%3E%3Ccircle cx='85' cy='60' r='1'/%3E%3Ccircle cx='15' cy='80' r='1.5'/%3E%3Ccircle cx='35' cy='95' r='1'/%3E%3Ccircle cx='55' cy='85' r='1'/%3E%3Ccircle cx='70' cy='75' r='2'/%3E%3Ccircle cx='95' cy='90' r='1'/%3E%3C/svg%3E");
 
 @mixin rainTexture($color, $flipped: false) {
   background: linear-gradient(to right, $color, colors.$color-component-bg);
 
   @if $flipped {
-    @include _applyTexture($texture-rain-flipped);
+    @include _applyTexture($texture-rain-flipped, before);
   } @else {
-    @include _applyTexture($texture-rain);
+    @include _applyTexture($texture-rain, before);
   }
 }
 
-@mixin _applyTexture($texture) {
-  position: relative;
+@mixin starsTexture($position) {
+  @if $position == 'upper' {
+    @include _applyTexture($texture-stars, before, 4rem, to bottom, 8rem);
+  } @else {
+    @include _applyTexture($texture-stars, after, 4rem, to top, 14rem);
+  }
+}
 
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    opacity: 0.2;
-    pointer-events: none;
-    background-size: 4rem 4rem;
-    background-image: $texture;
+@mixin _applyTexture($texture, $pseudo, $size: 2rem, $mask-direction: to right, $height: 100%) {
+  $mask-from-opacity: 1;
+  $mask-cutoff: 50%;
+
+  @if ($mask-direction == to top or $mask-direction == to bottom) {
+    $mask-from-opacity: 0.65;
+    $mask-cutoff: 65%;
   }
 
-  // Fading mask effect
-  @supports (
-    (mask-image: linear-gradient(to right, black, transparent)) or
-      (-webkit-mask-image: linear-gradient(to right, black, transparent))
-  ) {
-    &::before {
-      -webkit-mask-image: linear-gradient(to right, rgba(0, 0, 0, 1) 50%, rgba(0, 0, 0, 0));
-      mask-image: linear-gradient(to right, rgba(0, 0, 0, 1) 50%, rgba(0, 0, 0, 0));
+  position: relative;
+
+  &::#{$pseudo} {
+    content: '';
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: $height;
+    opacity: 0.25;
+    pointer-events: none;
+    background-size: $size $size;
+    background-image: $texture;
+
+    @if $pseudo == before {
+      top: 0;
+    } @else if $pseudo == after {
+      bottom: 0;
+    }
+
+    // Fading mask effect
+    @supports (
+      (mask-image: linear-gradient($mask-direction, black, transparent)) or
+        (-webkit-mask-image: linear-gradient($mask-direction, black, transparent))
+    ) {
+      -webkit-mask-image: linear-gradient(
+        $mask-direction,
+        rgba(0, 0, 0, $mask-from-opacity) $mask-cutoff,
+        rgba(0, 0, 0, 0)
+      );
+      mask-image: linear-gradient(
+        $mask-direction,
+        rgba(0, 0, 0, $mask-from-opacity) $mask-cutoff,
+        rgba(0, 0, 0, 0)
+      );
     }
   }
 }

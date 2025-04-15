@@ -23,8 +23,9 @@
   background-color: $color-base-bg;
   color: $color-primary-base;
   min-height: 100vh;
-  position: relative;
   font-size: font-size('sm');
+  @include starsTexture('upper');
+  @include starsTexture('lower');
 }
 
 .content {
