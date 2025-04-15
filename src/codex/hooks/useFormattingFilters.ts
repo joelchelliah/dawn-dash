@@ -7,7 +7,6 @@ const defaultFormattingFilters = {
   [FormattingFilterOption.ShowDescription]: false,
   [FormattingFilterOption.ShowKeywords]: true,
   [FormattingFilterOption.ShowCardSet]: true,
-  [FormattingFilterOption.ShowNonCollectibles]: false,
 }
 
 const formattingToStringMap = {
@@ -15,7 +14,6 @@ const formattingToStringMap = {
   [Formatting.ShowDescription]: 'Show card description',
   [Formatting.ShowKeywords]: 'Show matching keywords',
   [Formatting.ShowCardSet]: 'Show card set',
-  [Formatting.ShowNonCollectibles]: 'Show non-collectibles',
 }
 
 export const allFormattingFilters = Formatting.getAll()
@@ -33,7 +31,6 @@ export const useFormattingFilters = (cachedFilters?: CardCodexSearchFilterCache[
   const shouldShowDescription = filters[Formatting.ShowDescription]
   const shouldShowKeywords = filters[Formatting.ShowKeywords]
   const shouldShowCardSet = filters[Formatting.ShowCardSet]
-  const shouldShowNonCollectibles = filters[Formatting.ShowNonCollectibles]
   return {
     formattingFilters: filters,
     handleFormattingFilterToggle: handleFilterToggle,
@@ -43,6 +40,5 @@ export const useFormattingFilters = (cachedFilters?: CardCodexSearchFilterCache[
     shouldShowDescription,
     shouldShowKeywords,
     shouldShowCardSet,
-    shouldShowNonCollectibles,
   }
 }

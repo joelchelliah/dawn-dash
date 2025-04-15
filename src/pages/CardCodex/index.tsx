@@ -27,6 +27,7 @@ import ButtonRow from '../../shared/components/Buttons/ButtonRow'
 import {
   CircleIcon,
   CrossIcon,
+  SkullIcon,
   DoubleStarsIcon,
   MagnifyingGlassIcon,
   SingleStarIcon,
@@ -42,16 +43,39 @@ const indexToRarityIconMap = {
   [1]: <SingleStarIcon className={styles['rarity-icon--uncommon']} />,
   [2]: <DoubleStarsIcon className={styles['rarity-icon--rare']} />,
   [3]: <TripleStarsIcon className={styles['rarity-icon--legendary']} />,
+  [4]: <SkullIcon className={styles['rarity-icon--monster']} />,
 }
 
-// Skip summons, performance, form, hymn, affixes, attunements, ingredients
-const nonCollectibleCategories = [3, 6, 7, 8, 9, 12, 13, 16]
+const nonCollectibleCategories = [
+  3, // Conjurations
+  6, // Summons
+  7, // Performances
+  8, // Forms
+  13, // Attunements
+  16, // Ingredients
+  19, // Offerings
+]
+const nonCollectibleCategoriesForMonsterExpansion = [
+  1, // Items
+  4, // Enchantments
+  11, // Revelations
+  12, // Affixes
+  14, // Equipment effects
+  17, // Paths II and III
+]
 // Skip other cards that can never be collected
 const nonCollectibleCards = [
   'Elite Lightning Bolt',
   'Elite Fireball',
   'Elite Frostbolt',
   'Soulfire Bomb',
+  'Imp Offer 1',
+  'Imp Offer 2',
+  'Imp Offer 3',
+  'Imp Offer 4',
+  'Imp Offer 5',
+  'Imp Offer 6',
+  'Offer of Doom',
 ]
 
 function CardCodex(): JSX.Element {
@@ -162,6 +186,9 @@ function CardCodex(): JSX.Element {
     nonCollectibleCards.some((card) => card.toLowerCase() === name.toLowerCase()) ||
     nonCollectibleCategories.includes(category)
 
+  const isNonCollectibleForMonsterExpansion = ({ expansion, category }: CardData) =>
+    expansion === 0 && nonCollectibleCategoriesForMonsterExpansion.includes(category)
+
   useEffect(() => {
     const parsed = keywords
       .split(/,\s+or\s+|,\s*|\s+or\s+/)
@@ -173,12 +200,30 @@ function CardCodex(): JSX.Element {
     }
 
     if (cardData) {
+      const monsterExpansion = 0
+      const monsterRarity = 4
+      const monsterBanner = 11
       const filteredCards = cardData
-        .filter(({ expansion }) => isCardSetIndexSelected(expansion))
-        .filter(({ rarity }) => isRarityIndexSelected(rarity))
-        .filter(({ color }) => isBannerIndexSelected(color))
-        .filter((card) => shouldIncludeNonCollectibleCards || !isNonCollectible(card))
-
+        .filter(({ expansion }) =>
+          expansion === monsterExpansion
+            ? shouldIncludeMonsterCards
+            : isCardSetIndexSelected(expansion)
+        )
+        .filter(({ rarity }) =>
+          rarity === monsterRarity ? shouldIncludeMonsterCards : isRarityIndexSelected(rarity)
+        )
+        .filter(({ color }) =>
+          color === monsterBanner ? shouldIncludeMonsterCards : isBannerIndexSelected(color)
+        )
+        .filter((card) => {
+          if (card.expansion !== monsterExpansion) {
+            return shouldIncludeNonCollectibleCards || !isNonCollectible(card)
+          }
+          if (isNonCollectibleForMonsterExpansion(card)) {
+            return shouldIncludeNonCollectibleCards && shouldIncludeMonsterCards
+          }
+          return true
+        })
         .filter(
           ({ name, description }) =>
             parsed.length === 0 ||
@@ -282,10 +327,17 @@ function CardCodex(): JSX.Element {
     const name = getExtraFilterName(filter)
 
     switch (filter) {
+      case ExtraFilterOption.IncludeMonsterCards:
+        return (
+          <span className={styles['filter-label']}>
+            <SkullIcon className={styles['filter-icon--monster']} />
+            {name}
+          </span>
+        )
       case ExtraFilterOption.IncludeNonCollectibleCards:
         return (
           <span className={styles['filter-label']}>
-            <CrossIcon className={styles['filter-icon-extra--non-collectible']} />
+            <CrossIcon className={styles['filter-icon--non-collectible']} />
             {name}
           </span>
         )
@@ -436,7 +488,8 @@ function CardCodex(): JSX.Element {
                       <span className={styles['result-card__name']}>{card.name}</span>
                       {shouldIncludeNonCollectibleCards && (
                         <span className={styles['result-card__non-collectible']}>
-                          {isNonCollectible(card) && <CrossIcon />}
+                          {(isNonCollectible(card) ||
+                            isNonCollectibleForMonsterExpansion(card)) && <CrossIcon />}
                         </span>
                       )}
                       {shouldShowKeywords && (

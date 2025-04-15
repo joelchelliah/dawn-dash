@@ -3,12 +3,12 @@ import { ExtraFilterOption, Extra, CardCodexSearchFilterCache } from '../types/f
 import { createFilterHook } from './useFilterFactory'
 
 const defaultExtraFilters = {
-  // [ExtraFilterOption.IncludeMonsterCards]: false,
+  [ExtraFilterOption.IncludeMonsterCards]: false,
   [ExtraFilterOption.IncludeNonCollectibleCards]: false,
 }
 
 const extraToStringMap = {
-  // [ExtraFilterOption.IncludeMonsterCards]: 'Include monster cards',
+  [ExtraFilterOption.IncludeMonsterCards]: 'Include monster cards',
   [ExtraFilterOption.IncludeNonCollectibleCards]: 'Include non-collectible cards',
 }
 
@@ -23,7 +23,7 @@ const useBaseExtraFilters = createFilterHook({
 export const useExtraFilters = (cachedFilters?: CardCodexSearchFilterCache['extras']) => {
   const { filters, handleFilterToggle, getValueToString, resetFilters } =
     useBaseExtraFilters(cachedFilters)
-  // const shouldIncludeMonsterCards = filters[ExtraFilterOption.IncludeMonsterCards]
+  const shouldIncludeMonsterCards = filters[ExtraFilterOption.IncludeMonsterCards]
   const shouldIncludeNonCollectibleCards = filters[ExtraFilterOption.IncludeNonCollectibleCards]
 
   return {
@@ -31,7 +31,7 @@ export const useExtraFilters = (cachedFilters?: CardCodexSearchFilterCache['extr
     handleExtraFilterToggle: handleFilterToggle,
     getExtraFilterName: getValueToString,
     resetExtraFilters: resetFilters,
-    shouldIncludeMonsterCards: false, // TODO!
+    shouldIncludeMonsterCards,
     shouldIncludeNonCollectibleCards,
   }
 }

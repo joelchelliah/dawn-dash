@@ -9,3 +9,15 @@ export type CardData = {
   color: number
   blightbane_id: number
 }
+
+export type CardsApiResponse = {
+  card_len: number
+  cards: Array<
+    Omit<CardData, 'blightbane_id'> & {
+      id: number
+      artwork: string
+      tier: string
+      hasEvents: boolean
+    }
+  >
+}
