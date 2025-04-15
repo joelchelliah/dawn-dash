@@ -44,6 +44,7 @@
   background-color: $color-component-bg;
   padding: 1rem;
   border-radius: 4px;
+  max-height: max-content;
 
   @media (max-width: $breakpoint-mobile) {
     min-width: auto;
