@@ -4,7 +4,7 @@ import useSWR from 'swr'
 
 import { isNotNullOrEmpty } from '../../shared/utils/lists'
 import { getFromCache, saveToCache } from '../../shared/utils/storage'
-import { fetchCards } from '../services/cardsApi'
+import { fetchCards } from '../services/cardsApiBlightbane'
 import { CardData } from '../types/cards'
 export function useCardData() {
   const [localData, setLocalData] = useState<CardData[] | null>(null)
