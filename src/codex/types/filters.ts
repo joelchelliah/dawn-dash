@@ -75,6 +75,7 @@ export enum FormattingFilterOption {
   ShowDescription = 'ShowDescription',
   ShowKeywords = 'ShowKeywords',
   ShowCardSet = 'ShowCardSet',
+  ShowNonCollectibles = 'ShowNonCollectibles',
 }
 
 export type Formatting = FormattingFilterOption

@@ -91,6 +91,7 @@ function CardCodex(): JSX.Element {
     shouldShowDescription,
     shouldShowKeywords,
     shouldShowCardSet,
+    shouldShowNonCollectibles,
   } = useFormattingFilters(cachedFilters?.formatting)
   const {
     struckCards,
@@ -151,14 +152,18 @@ function CardCodex(): JSX.Element {
 
     if (cardData) {
       const filteredCards = cardData
-        .filter(({ category }) => !excludedCategories.includes(category))
         .filter(({ expansion }) => isCardSetIndexSelected(expansion))
         .filter(({ rarity }) => isRarityIndexSelected(rarity))
         .filter(({ color }) => isBannerIndexSelected(color))
         .filter(
-          ({ name }) =>
-            !excludedCards.some((excludedCard) => excludedCard.toLowerCase() === name.toLowerCase())
+          ({ name, category }) =>
+            shouldShowNonCollectibles ||
+            (!excludedCards.some(
+              (excludedCard) => excludedCard.toLowerCase() === name.toLowerCase()
+            ) &&
+              !excludedCategories.includes(category))
         )
+
         .filter(
           ({ name, description }) =>
             parsed.length === 0 ||
@@ -181,6 +186,7 @@ function CardCodex(): JSX.Element {
     isCardSetIndexSelected,
     isRarityIndexSelected,
     isBannerIndexSelected,
+    shouldShowNonCollectibles,
   ])
 
   useEffect(() => {

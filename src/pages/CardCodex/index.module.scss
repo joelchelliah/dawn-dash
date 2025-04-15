@@ -378,7 +378,7 @@
 
 .rarity-icon {
   color: $color-rarity-common;
-  filter: drop-shadow(0 0 0.125rem rgba(0, 0, 0, 0.5));
+  filter: drop-shadow(0.125rem 0.125rem 0.0625rem rgba(0, 0, 0, 0.9));
 
   &--common {
     @extend .rarity-icon;
