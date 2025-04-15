@@ -1,4 +1,4 @@
-export type FilterType = 'card-set' | 'rarity' | 'banner' | 'formatting'
+export type FilterType = 'card-set' | 'rarity' | 'banner' | 'extra' | 'formatting'
 
 export enum SharedFilterOption {
   All = 'All',
@@ -68,6 +68,20 @@ export const Banner = {
   ],
 }
 
+// -------------------- Extra --------------------
+
+export enum ExtraFilterOption {
+  // IncludeMonsterCards = 'IncludeMonsterCards',
+  IncludeNonCollectibleCards = 'IncludeNonCollectibleCards',
+}
+
+export type Extra = ExtraFilterOption
+
+export const Extra = {
+  ...ExtraFilterOption,
+  getAll: (): Extra[] => [...Object.values(ExtraFilterOption)],
+}
+
 // -------------------- Formatting --------------------
 
 export enum FormattingFilterOption {
@@ -92,6 +106,7 @@ export interface CardCodexSearchFilterCache {
   cardSets: Record<string, boolean>
   rarities: Record<string, boolean>
   banners: Record<string, boolean>
+  extras: Record<string, boolean>
   formatting: Record<string, boolean>
   struckCards: string[]
   lastUpdated: number

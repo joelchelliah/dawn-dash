@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 
 import cx from 'classnames'
 
+import { allExtraFilters, useExtraFilters } from '../../codex/hooks/useExtraFilters'
+import { ExtraFilterOption } from '../../codex/types/filters'
 import CodexLastUpdated from '../../codex/components/CodexLastUpdated'
 import {
   cacheCardCodexSearchFilters,
@@ -87,15 +89,22 @@ function CardCodex(): JSX.Element {
   const { bannerFilters, isBannerIndexSelected, handleBannerFilterToggle, resetBannerFilters } =
     useBannerFilters(cachedFilters?.banners)
   const {
+    extraFilters,
+    handleExtraFilterToggle,
+    getExtraFilterName,
+    resetExtraFilters,
+    shouldIncludeMonsterCards,
+    shouldIncludeNonCollectibleCards,
+  } = useExtraFilters(cachedFilters?.extras)
+  const {
     formattingFilters,
     handleFormattingFilterToggle,
     getFormattingFilterName,
     resetFormattingFilters,
-    shouldShowRarity,
     shouldShowDescription,
     shouldShowKeywords,
     shouldShowCardSet,
-    shouldShowNonCollectibles,
+    shouldShowRarity,
   } = useFormattingFilters(cachedFilters?.formatting)
   const {
     struckCards,
@@ -124,6 +133,10 @@ function CardCodex(): JSX.Element {
     hasUserChangedFilter.current = true
     handleBannerFilterToggle(banner)
   }
+  const toggleExtraFilter = (extra: string) => {
+    hasUserChangedFilter.current = true
+    handleExtraFilterToggle(extra)
+  }
   const toggleFormattingFilter = (formatting: string) => {
     hasUserChangedFilter.current = true
     handleFormattingFilterToggle(formatting)
@@ -141,6 +154,7 @@ function CardCodex(): JSX.Element {
     resetCardSetFilters()
     resetRarityFilters()
     resetBannerFilters()
+    resetExtraFilters()
     resetFormattingFilters()
   }
 
@@ -163,7 +177,7 @@ function CardCodex(): JSX.Element {
         .filter(({ expansion }) => isCardSetIndexSelected(expansion))
         .filter(({ rarity }) => isRarityIndexSelected(rarity))
         .filter(({ color }) => isBannerIndexSelected(color))
-        .filter((card) => shouldShowNonCollectibles || !isNonCollectible(card))
+        .filter((card) => shouldIncludeNonCollectibleCards || !isNonCollectible(card))
 
         .filter(
           ({ name, description }) =>
@@ -187,7 +201,8 @@ function CardCodex(): JSX.Element {
     isCardSetIndexSelected,
     isRarityIndexSelected,
     isBannerIndexSelected,
-    shouldShowNonCollectibles,
+    shouldIncludeMonsterCards,
+    shouldIncludeNonCollectibleCards,
   ])
 
   useEffect(() => {
@@ -204,6 +219,7 @@ function CardCodex(): JSX.Element {
         cardSets: cardSetFilters,
         rarities: rarityFilters,
         banners: bannerFilters,
+        extras: extraFilters,
         formatting: formattingFilters,
         struckCards,
         lastUpdated: Date.now(),
@@ -215,7 +231,15 @@ function CardCodex(): JSX.Element {
         clearTimeout(filterDebounceTimeoutRef.current)
       }
     }
-  }, [bannerFilters, cardSetFilters, formattingFilters, keywords, rarityFilters, struckCards])
+  }, [
+    bannerFilters,
+    cardSetFilters,
+    extraFilters,
+    formattingFilters,
+    keywords,
+    rarityFilters,
+    struckCards,
+  ])
 
   const preventFormSubmission = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -251,6 +275,22 @@ function CardCodex(): JSX.Element {
             Common
           </span>
         )
+    }
+  }
+
+  const getExtraFilterLabel = (filter: string) => {
+    const name = getExtraFilterName(filter)
+
+    switch (filter) {
+      case ExtraFilterOption.IncludeNonCollectibleCards:
+        return (
+          <span className={styles['filter-label']}>
+            <CrossIcon className={styles['extra-filter-icon--non-collectible']} />
+            {name}
+          </span>
+        )
+      default:
+        return <span className={styles['filter-label']}>{name}</span>
     }
   }
 
@@ -296,7 +336,15 @@ function CardCodex(): JSX.Element {
             onFilterToggle={toggleBannerFilter}
           />
           <FilterGroup
-            title="Results formatting"
+            title="Extras"
+            filters={allExtraFilters}
+            selectedFilters={extraFilters}
+            type="extra"
+            onFilterToggle={toggleExtraFilter}
+            getFilterLabel={getExtraFilterLabel}
+          />
+          <FilterGroup
+            title="Formatting"
             filters={allFormattingFilters}
             selectedFilters={formattingFilters}
             type="formatting"
@@ -386,7 +434,7 @@ function CardCodex(): JSX.Element {
                         </span>
                       )}
                       <span className={styles['result-card__name']}>{card.name}</span>
-                      {shouldShowNonCollectibles && (
+                      {shouldIncludeNonCollectibleCards && (
                         <span className={styles['result-card__non-collectible']}>
                           {isNonCollectible(card) && <CrossIcon />}
                         </span>

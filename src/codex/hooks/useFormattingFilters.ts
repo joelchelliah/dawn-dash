@@ -15,7 +15,7 @@ const formattingToStringMap = {
   [Formatting.ShowDescription]: 'Show card description',
   [Formatting.ShowKeywords]: 'Show matching keywords',
   [Formatting.ShowCardSet]: 'Show card set',
-  [Formatting.ShowNonCollectibles]: 'Show non-collectible cards',
+  [Formatting.ShowNonCollectibles]: 'Show non-collectibles',
 }
 
 export const allFormattingFilters = Formatting.getAll()
