@@ -2,9 +2,13 @@ import { useEffect, useState, useRef } from 'react'
 
 import useSWR from 'swr'
 
-import { getFromCache, saveToCache } from '../../shared/utils/storage'
 import { fetchSpeedruns } from '../services/speedrunsApi'
 import { Difficulty, SpeedRunClass, SpeedRunData } from '../types/speedRun'
+import {
+  cacheSpeedrunData,
+  getCachedSpeedrunData,
+  getCachedSpeedrunDataTimestamp,
+} from '../utils/speedrunsStore'
 
 const FETCH_DATA_SIZE = 50000
 
@@ -32,7 +36,7 @@ export function useSpeedrunData(type: SpeedRunClass, difficulty: Difficulty) {
     }
 
     // Check cache and update state
-    const { data, isStale } = getFromCache<SpeedRunData[]>('speedruns', cacheKey)
+    const { data, isStale } = getCachedSpeedrunData(cacheKey)
     if (data) {
       setLocalData(data)
       setIsRefreshing(isStale)
@@ -55,7 +59,7 @@ export function useSpeedrunData(type: SpeedRunClass, difficulty: Difficulty) {
         // Only update if this is still the active request
         if (prevCacheKeyRef.current === cacheKey) {
           setLocalData(newData)
-          saveToCache('speedruns', newData, cacheKey)
+          cacheSpeedrunData(cacheKey, newData)
           setIsRefreshing(false)
         }
       },
@@ -67,7 +71,7 @@ export function useSpeedrunData(type: SpeedRunClass, difficulty: Difficulty) {
     isLoading: (isLoading || isRefreshing) && !localData,
     isLoadingInBackground: Boolean((isLoading || isRefreshing) && localData),
     isError: error && !localData,
-    lastUpdated: getFromCache<SpeedRunData[]>('speedruns', cacheKey).timestamp,
+    lastUpdated: getCachedSpeedrunDataTimestamp(cacheKey),
     refresh: () => setIsRefreshing(true),
   }
 }

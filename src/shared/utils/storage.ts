@@ -1,22 +1,12 @@
-const CACHE_VERSION = 'v4'
-const CACHE_KEY_PREFIX = `speedruns_${CACHE_VERSION}`
-const CACHE_DURATION = 10 * 60 * 1000 // 10 minutes
+import { CachedData } from '../types/cache'
 
-const CARDS_CACHE_VERSION = 'v1'
-const CARDS_CACHE_KEY_PREFIX = `codex_cards_${CARDS_CACHE_VERSION}`
-const CARDS_CACHE_DURATION = 24 * 60 * 60 * 1000 // 1 day
-
-type CacheType = 'speedruns' | 'cards'
-
-type CachedData<T> = {
-  data: T | null
-  isStale: boolean
-  timestamp: number | null
+const emptyCacheState = {
+  data: null,
+  isStale: true,
+  timestamp: null,
 }
 
-export function saveToCache<T>(cacheType: CacheType, data: T, key?: string): void {
-  const cacheKey = getCacheKey(cacheType, key)
-
+export function saveToCache<T>(cacheKey: string, data: T): void {
   try {
     const cache = {
       data,
@@ -28,18 +18,14 @@ export function saveToCache<T>(cacheType: CacheType, data: T, key?: string): voi
   }
 }
 
-export function getFromCache<T>(cacheType: CacheType, key?: string): CachedData<T> {
-  const cacheKey = getCacheKey(cacheType, key)
-
+export function getFromCache<T>(cacheKey: string, cacheDuration: number | null): CachedData<T> {
   try {
     const cache = localStorage.getItem(cacheKey)
 
-    if (!cache) {
-      return { data: null, isStale: true, timestamp: null }
-    }
+    if (!cache) return emptyCacheState
 
     const { data, timestamp } = JSON.parse(cache)
-    const isStale = Date.now() - timestamp > getCacheDuration(cacheType)
+    const isStale = cacheDuration ? Date.now() - timestamp > cacheDuration : false
 
     return {
       data: data as T,
@@ -48,22 +34,6 @@ export function getFromCache<T>(cacheType: CacheType, key?: string): CachedData<
     }
   } catch (error) {
     console.warn('Failed to read from cache:', error)
-    return { data: null, isStale: true, timestamp: null }
+    return emptyCacheState
   }
-}
-
-function getCacheKey(cacheType: CacheType, key?: string) {
-  return key && cacheType === 'speedruns' ? getSpeedrunCacheKey(key) : getCardsCacheKey()
-}
-
-function getSpeedrunCacheKey(type: string) {
-  return `${CACHE_KEY_PREFIX}_${type}`
-}
-
-function getCardsCacheKey() {
-  return CARDS_CACHE_KEY_PREFIX
-}
-
-function getCacheDuration(cacheType: CacheType = 'speedruns') {
-  return cacheType === 'speedruns' ? CACHE_DURATION : CARDS_CACHE_DURATION
 }
