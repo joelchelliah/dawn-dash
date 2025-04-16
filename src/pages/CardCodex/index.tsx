@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 
 import cx from 'classnames'
 
+import GradientDivider from '../../shared/components/GradientDivider'
 import {
   isNonCollectibleForRegularExpansions,
   isNonCollectibleForMonsterExpansion,
@@ -317,9 +318,10 @@ function CardCodex(): JSX.Element {
   const renderLeftPanel = () => (
     <div className={styles['left-panel']}>
       <div className={styles['panel-header']}>
-        <MagnifyingGlassIcon />
-        Search
+        <MagnifyingGlassIcon className={styles['panel-header__magnifying-glass-icon']} />
+        <span className={styles['panel-header__title']}>Search</span>
       </div>
+      <GradientDivider spacingBottom="lg" />
 
       <form onSubmit={preventFormSubmission} aria-label="Card search and filters">
         <div className={styles['input-container']}>
@@ -476,9 +478,10 @@ function CardCodex(): JSX.Element {
   const renderRightPanel = () => (
     <div className={styles['right-panel']}>
       <div className={styles['panel-header']}>
-        <StackedCardsIcon />
-        Results
+        <StackedCardsIcon className={styles['panel-header__cards-icon']} />
+        <span className={styles['panel-header__title']}>Results</span>
       </div>
+      <GradientDivider spacingBottom="lg" />
       {renderMatchingCards()}
     </div>
   )

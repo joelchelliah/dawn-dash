@@ -1,5 +1,7 @@
 import cx from 'classnames'
 
+import GradientDivider from '../../GradientDivider'
+
 import styles from './index.module.scss'
 
 interface ButtonRowProps {
@@ -19,7 +21,12 @@ function ButtonRow({
     [styles['button-row--border']]: includeBorder,
   })
 
-  return <div className={className}>{children}</div>
+  return (
+    <div className={styles['button-row-container']}>
+      {includeBorder && <GradientDivider spacingBottom="lg" />}
+      <div className={className}>{children}</div>
+    </div>
+  )
 }
 
 export default ButtonRow
