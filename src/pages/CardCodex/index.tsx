@@ -8,7 +8,7 @@ import {
   parseCardDescription,
   isNonCollectible,
   containsNonCollectible,
-} from '../../codex/utils/cards'
+} from '../../codex/utils/cardHelper'
 import { allExtraFilters, useExtraFilters } from '../../codex/hooks/useExtraFilters'
 import { ExtraFilterOption } from '../../codex/types/filters'
 import CodexLastUpdated from '../../codex/components/CodexLastUpdated'
