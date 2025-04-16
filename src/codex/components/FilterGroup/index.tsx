@@ -30,6 +30,7 @@ function FilterGroup({
         {filters.map((filter) => (
           <Checkbox
             key={filter}
+            name={filter}
             checked={selectedFilters[filter]}
             onChange={() => onFilterToggle(filter)}
             checkboxLabel={getFilterLabel ? getFilterLabel(filter) : filter}

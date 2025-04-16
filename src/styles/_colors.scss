@@ -14,6 +14,7 @@ $color-primary-active: #eee;
 $color-primary-hover: #fff;
 $color-primary-muted: #aaa;
 $color-primary-dark: #888;
+$color-primary-ultimate-despair: #000;
 // -- -- -- -- -- -- -- //
 
 // -- Extra colors -- //
@@ -40,9 +41,9 @@ $color-button-bg-active: #444;
 $color-button-bg-hover: #494949;
 $color-button-bg-disabled: #222;
 
-$color-checkbox-bg: #26790b;
-$color-checkbox-border-light: #329813;
-$color-checkbox-border-dark: #165800;
+$color-checkbox-bg: #23790b;
+$color-checkbox-border-light: #77a822;
+$color-checkbox-border-dark: #154e02;
 // -- -- -- -- -- -- -- //
 
 // -- Rarity colors -- //
@@ -67,4 +68,29 @@ $color-banner-8: #504c00;
 $color-banner-9: #111;
 $color-banner-10: #582800;
 $color-banner-11: #300;
+
+$banner-index-to-color-map: (
+  1: $color-banner-1,
+  2: $color-banner-2,
+  3: $color-banner-3,
+  4: $color-banner-4,
+  5: $color-banner-5,
+  6: $color-banner-6,
+  8: $color-banner-8,
+  9: $color-banner-9,
+  10: $color-banner-10,
+  11: $color-banner-11,
+);
+
+$banner-name-to-color-map: (
+  'Green': $color-banner-1,
+  'Blue': $color-banner-2,
+  'Red': $color-banner-3,
+  'Purple': $color-banner-4,
+  'Brown': $color-banner-5,
+  'Aqua': $color-banner-6,
+  'Gold': $color-banner-8,
+  'Black': $color-banner-9,
+  'Orange': $color-banner-10,
+);
 // -- -- -- -- -- -- -- //
