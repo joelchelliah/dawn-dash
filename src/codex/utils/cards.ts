@@ -40,7 +40,7 @@ export const isNonCollectibleForRegularExpansions = ({ name, category }: CardDat
 export const isNonCollectibleForMonsterExpansion = ({ expansion, category }: CardData) =>
   expansion === 0 && NON_COLLECTIBLE_CATEGORIES_FOR_MONSTER_EXPANSION.includes(category)
 
-export const isAlwaysNonCollectible = (card: CardData) =>
+export const isNonCollectible = (card: CardData) =>
   isNonCollectibleForRegularExpansions(card) || isNonCollectibleForMonsterExpansion(card)
 
 export const parseCardDescription = (description: string) =>
@@ -55,3 +55,6 @@ export const parseCardDescription = (description: string) =>
     .replace(/\}\)/g, ')') // Replace }) with )
     .replace(/\n+/g, '\n')
     .trim()
+
+export const containsNonCollectible = (cards: CardData[]) =>
+  cards.some((card) => isNonCollectible(card))

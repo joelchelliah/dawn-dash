@@ -6,7 +6,8 @@ import {
   isNonCollectibleForRegularExpansions,
   isNonCollectibleForMonsterExpansion,
   parseCardDescription,
-  isAlwaysNonCollectible,
+  isNonCollectible,
+  containsNonCollectible,
 } from '../../codex/utils/cards'
 import { allExtraFilters, useExtraFilters } from '../../codex/hooks/useExtraFilters'
 import { ExtraFilterOption } from '../../codex/types/filters'
@@ -439,12 +440,13 @@ function CardCodex(): JSX.Element {
                           {indexToRarityIconMap[card.rarity as keyof typeof indexToRarityIconMap]}
                         </span>
                       )}
+                      {shouldIncludeNonCollectibleCards &&
+                        containsNonCollectible(matchingCards) && (
+                          <span className={styles['result-card__non-collectible']}>
+                            {isNonCollectible(card) && <CrossIcon />}
+                          </span>
+                        )}
                       <span className={styles['result-card__name']}>{card.name}</span>
-                      {shouldIncludeNonCollectibleCards && (
-                        <span className={styles['result-card__non-collectible']}>
-                          {isAlwaysNonCollectible(card) && <CrossIcon />}
-                        </span>
-                      )}
                       {shouldShowKeywords && (
                         <span className={styles['result-card__keywords']}>
                           {findMatchingKeywords(card)}
