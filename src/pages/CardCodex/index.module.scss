@@ -224,33 +224,18 @@
   color: $color-primary-base;
   gap: 0.125rem;
 
-  $banner-colors-map: (
-    1: $color-banner-1,
-    2: $color-banner-2,
-    3: $color-banner-3,
-    4: $color-banner-4,
-    5: $color-banner-5,
-    6: $color-banner-6,
-    8: $color-banner-8,
-    9: $color-banner-9,
-    10: $color-banner-10,
-    11: $color-banner-11,
-  );
-
   &__banner {
     padding: 0.25rem 0.5rem;
     border-top: 1px solid $color-component-bg;
     border-bottom: 1px solid $color-component-bg;
   }
 
-  // Generate all banner variations
-  @each $number, $color in $banner-colors-map {
+  // Apply rain texture and color to all banner variations
+  @each $number, $color in $banner-index-to-color-map {
     &__banner--#{$number} {
       @extend .results-cards__banner;
       @include rainTexture($color, false);
     }
-
-    // Flip texture on even rows
     &:nth-child(even) &__banner--#{$number} {
       @include rainTexture($color, true);
     }
@@ -300,6 +285,8 @@
 
     @media (max-width: $breakpoint-mobile) {
       margin-right: 0.25rem;
+      position: relative;
+      bottom: 0.0625rem;
     }
   }
 
@@ -313,14 +300,10 @@
     }
   }
 
-  &__monster {
-    display: inline-block;
-    margin: 0 0.5rem 0 0.25rem;
-  }
-
   &__non-collectible {
     display: inline-block;
-    margin: 0 0.5rem 0 0.25rem;
+    width: 0.75rem;
+    margin: 0 0.25rem 0 -0.4375rem;
 
     svg {
       position: relative;
@@ -331,6 +314,9 @@
     }
 
     @media (max-width: $breakpoint-mobile) {
+      width: 0.625rem;
+      margin: 0 0.25rem 0 -0.25rem;
+
       svg {
         top: 0;
         width: 0.625rem;
@@ -422,7 +408,7 @@
     height: 18px;
     position: relative;
     top: 0.25rem;
-    margin-right: 0.8125rem;
+    left: 0.0625rem;
     color: $color-danger-base;
   }
 }

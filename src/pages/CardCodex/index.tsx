@@ -2,6 +2,13 @@ import { useEffect, useRef, useState } from 'react'
 
 import cx from 'classnames'
 
+import {
+  isNonCollectibleForRegularExpansions,
+  isNonCollectibleForMonsterExpansion,
+  parseCardDescription,
+  isNonCollectible,
+  containsNonCollectible,
+} from '../../codex/utils/cards'
 import { allExtraFilters, useExtraFilters } from '../../codex/hooks/useExtraFilters'
 import { ExtraFilterOption } from '../../codex/types/filters'
 import CodexLastUpdated from '../../codex/components/CodexLastUpdated'
@@ -45,39 +52,6 @@ const indexToRarityIconMap = {
   [3]: <TripleStarsIcon className={styles['rarity-icon--legendary']} />,
   [4]: <SkullIcon className={styles['rarity-icon--monster']} />,
 }
-
-const nonCollectibleCategories = [
-  3, // Conjurations
-  6, // Summons
-  7, // Performances
-  8, // Forms
-  13, // Attunements
-  16, // Ingredients
-  19, // Offerings
-]
-const nonCollectibleCategoriesForMonsterExpansion = [
-  0, // Actions
-  1, // Items
-  4, // Enchantments
-  11, // Revelations
-  12, // Affixes
-  14, // Equipment effects
-  17, // Paths II and III
-]
-// Skip other cards that can never be collected
-const nonCollectibleCards = [
-  'Elite Lightning Bolt',
-  'Elite Fireball',
-  'Elite Frostbolt',
-  'Soulfire Bomb',
-  'Imp Offer 1',
-  'Imp Offer 2',
-  'Imp Offer 3',
-  'Imp Offer 4',
-  'Imp Offer 5',
-  'Imp Offer 6',
-  'Offer of Doom',
-]
 
 function CardCodex(): JSX.Element {
   const { resetToCardCodex } = useNavigation()
@@ -183,13 +157,6 @@ function CardCodex(): JSX.Element {
     resetFormattingFilters()
   }
 
-  const isNonCollectible = ({ name, category }: CardData) =>
-    nonCollectibleCards.some((card) => card.toLowerCase() === name.toLowerCase()) ||
-    nonCollectibleCategories.includes(category)
-
-  const isNonCollectibleForMonsterExpansion = ({ expansion, category }: CardData) =>
-    expansion === 0 && nonCollectibleCategoriesForMonsterExpansion.includes(category)
-
   useEffect(() => {
     const parsed = keywords
       .split(/,\s+or\s+|,\s*|\s+or\s+/)
@@ -218,7 +185,7 @@ function CardCodex(): JSX.Element {
         )
         .filter((card) => {
           if (card.expansion !== monsterExpansion) {
-            return shouldIncludeNonCollectibleCards || !isNonCollectible(card)
+            return shouldIncludeNonCollectibleCards || !isNonCollectibleForRegularExpansions(card)
           }
           if (isNonCollectibleForMonsterExpansion(card)) {
             return shouldIncludeNonCollectibleCards && shouldIncludeMonsterCards
@@ -437,19 +404,6 @@ function CardCodex(): JSX.Element {
     return `{ ${matches.join(', ')} }`
   }
 
-  const cleanUpDescription = (description: string) =>
-    description
-      .replace(/<br\s*\/?>/g, '\n')
-      .replace(/<[^>]*>?/g, '')
-      .replace(/\[\[/g, '[') // Replace [[ with [
-      .replace(/\]\]/g, ']') // Replace ]] with ]
-      .replace(/\(\[/g, '(') // Replace ([ with (
-      .replace(/\(\{/g, '(') // Replace ({ with (
-      .replace(/\]\)/g, ')') // Replace ]) with )
-      .replace(/\}\)/g, ')') // Replace }) with )
-      .replace(/\n+/g, '\n')
-      .trim()
-
   const renderMatchingCards = () => {
     if (parsedKeywords.length === 0) return null
 
@@ -486,13 +440,13 @@ function CardCodex(): JSX.Element {
                           {indexToRarityIconMap[card.rarity as keyof typeof indexToRarityIconMap]}
                         </span>
                       )}
+                      {shouldIncludeNonCollectibleCards &&
+                        containsNonCollectible(matchingCards) && (
+                          <span className={styles['result-card__non-collectible']}>
+                            {isNonCollectible(card) && <CrossIcon />}
+                          </span>
+                        )}
                       <span className={styles['result-card__name']}>{card.name}</span>
-                      {shouldIncludeNonCollectibleCards && (
-                        <span className={styles['result-card__non-collectible']}>
-                          {(isNonCollectible(card) ||
-                            isNonCollectibleForMonsterExpansion(card)) && <CrossIcon />}
-                        </span>
-                      )}
                       {shouldShowKeywords && (
                         <span className={styles['result-card__keywords']}>
                           {findMatchingKeywords(card)}
@@ -506,7 +460,7 @@ function CardCodex(): JSX.Element {
                     </div>
                     {shouldShowDescription && (
                       <div className={styles['result-card__description']}>
-                        {cleanUpDescription(card.description)}
+                        {parseCardDescription(card.description)}
                       </div>
                     )}
                   </div>
