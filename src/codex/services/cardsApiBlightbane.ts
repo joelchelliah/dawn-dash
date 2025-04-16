@@ -2,9 +2,10 @@ import { handleError } from '../../shared/utils/apiErrorHandling'
 import { CardData, CardsApiResponse } from '../types/cards'
 
 const BLIGHTBANE_URL = 'https://blightbane.io/api'
-const PROGRESS_INTERVAL = 50
-const PROGRESS_INCREMENT_FAST = 15
-const PROGRESS_INCREMENT_SLOW = 1
+const PROGRESS_INTERVAL = 100
+const PROGRESS_INCREMENT_3x = 9
+const PROGRESS_INCREMENT_2x = 6
+const PROGRESS_INCREMENT_1x = 3
 
 export const fetchCards = async (onProgress: (progress: number) => void): Promise<CardData[]> => {
   let currentProgress = 5
@@ -15,29 +16,29 @@ export const fetchCards = async (onProgress: (progress: number) => void): Promis
 
   try {
     const progressTimer = setInterval(() => {
-      if (currentProgress < 80) {
-        currentProgress += currentProgress < 70 ? PROGRESS_INCREMENT_FAST : PROGRESS_INCREMENT_SLOW
+      if (currentProgress < 95) {
+        if (currentProgress < 40) currentProgress += PROGRESS_INCREMENT_3x
+        if (currentProgress < 60) currentProgress += PROGRESS_INCREMENT_2x
+        currentProgress += PROGRESS_INCREMENT_1x
         onProgress(currentProgress)
       }
     }, PROGRESS_INTERVAL)
 
     const response = await fetch(url)
     clearInterval(progressTimer)
-    onProgress(80)
 
     if (!response.ok) {
       throw new Error(`HTTP error: ${response.status}`)
     }
 
     const data: CardsApiResponse = await response.json()
-    onProgress(85) // Data received
     const { card_len, cards } = data
 
     if (card_len === 0) {
       throw new Error(`No cards returned from Blightbane!`)
     }
 
-    onProgress(90) // Starting data processing
+    onProgress(95)
 
     const sortedUniqueCards = cards
       .map((card) => ({
