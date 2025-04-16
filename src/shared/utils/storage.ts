@@ -2,7 +2,7 @@ const CACHE_VERSION = 'v4'
 const CACHE_KEY_PREFIX = `speedruns_${CACHE_VERSION}`
 const CACHE_DURATION = 10 * 60 * 1000 // 10 minutes
 
-const CARDS_CACHE_VERSION = 'v0'
+const CARDS_CACHE_VERSION = 'v1'
 const CARDS_CACHE_KEY_PREFIX = `codex_cards_${CARDS_CACHE_VERSION}`
 const CARDS_CACHE_DURATION = 24 * 60 * 60 * 1000 // 1 day
 
