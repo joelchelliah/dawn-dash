@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 
 import cx from 'classnames'
 
+import WeeklyChallengeButton from '../../codex/components/WeeklyChallengeButton'
+import { useWeeklyChallengeFilterData } from '../../codex/hooks/useWeeklyChallengeFilterData'
 import GradientDivider from '../../shared/components/GradientDivider'
 import {
   isNonCollectibleForRegularExpansions,
@@ -71,6 +73,8 @@ function CardCodex(): JSX.Element {
     refresh,
     progress,
   } = useCardData()
+  const { filterData, isFilterDataError, isFilterDataLoading } = useWeeklyChallengeFilterData()
+
   const cachedFilters = getCachedCardCodexSearchFilters()
 
   const [keywords, setKeywordsUntracked] = useState(cachedFilters?.keywords || '')
@@ -82,12 +86,20 @@ function CardCodex(): JSX.Element {
     isCardSetIndexSelected,
     getCardSetNameFromIndex,
     handleCardSetFilterToggle,
+    enableAllCardSetFilters,
+    enableSpecificCardSetFilters,
     resetCardSetFilters,
   } = useCardSetFilters(cachedFilters?.cardSets)
   const { rarityFilters, isRarityIndexSelected, handleRarityFilterToggle, resetRarityFilters } =
     useRarityFilters(cachedFilters?.rarities)
-  const { bannerFilters, isBannerIndexSelected, handleBannerFilterToggle, resetBannerFilters } =
-    useBannerFilters(cachedFilters?.banners)
+  const {
+    bannerFilters,
+    isBannerIndexSelected,
+    handleBannerFilterToggle,
+    enableAllBannerFilters,
+    enableSpecificBannerFilters,
+    resetBannerFilters,
+  } = useBannerFilters(cachedFilters?.banners)
   const {
     extraFilters,
     handleExtraFilterToggle,
@@ -147,6 +159,25 @@ function CardCodex(): JSX.Element {
   }
   // --------------------------------------------------
   // --------------------------------------------------
+
+  const setFiltersFromWeeklyChallengeData = () => {
+    if (filterData && !isFilterDataError) {
+      hasUserChangedFilter.current = true
+      setKeywords(
+        Array.from(
+          new Set([...Array.from(filterData.keywords), ...Array.from(filterData.specialKeywords)])
+        ).join(', ')
+      )
+
+      if (filterData.isBoundless) {
+        enableAllCardSetFilters()
+        enableAllBannerFilters()
+      } else {
+        enableSpecificCardSetFilters(Array.from(filterData.cardSets))
+        enableSpecificBannerFilters(Array.from(filterData.banners))
+      }
+    }
+  }
 
   const resetFilters = () => {
     setKeywords('')
@@ -383,6 +414,16 @@ function CardCodex(): JSX.Element {
             Reset tracked cards
           </Button>
         </ButtonRow>
+
+        {(!isFilterDataError || isFilterDataLoading) && (
+          <ButtonRow align="left">
+            <WeeklyChallengeButton
+              isLoading={isFilterDataLoading}
+              challengeName={filterData?.name}
+              onClick={setFiltersFromWeeklyChallengeData}
+            />
+          </ButtonRow>
+        )}
       </form>
 
       <CodexLastUpdated

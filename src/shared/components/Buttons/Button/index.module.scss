@@ -16,13 +16,13 @@
   }
 
   &--loading {
-    background: $color-component-bg;
-    height: 2rem;
-
-    &:hover {
-      background: $color-component-bg;
-      border-color: $color-component-border;
-      cursor: default;
-    }
+    background: $color-component-bg !important;
+    border-color: $color-component-border !important;
+    cursor: default !important;
   }
+}
+
+.loading-dots {
+  position: relative;
+  bottom: 1px;
 }

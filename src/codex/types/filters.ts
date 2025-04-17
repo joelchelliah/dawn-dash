@@ -110,3 +110,14 @@ export interface CardCodexSearchFilterCache {
   struckCards: string[]
   lastUpdated: number
 }
+
+// ------------ Weekly Challenge ------------
+
+export type WeeklyChallengeFilterData = {
+  name: string
+  keywords: Set<string>
+  specialKeywords: Set<string>
+  cardSets: Set<CardSet>
+  banners: Set<Banner>
+  isBoundless: boolean
+}
