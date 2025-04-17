@@ -1,13 +1,16 @@
+import cx from 'classnames'
+
 import styles from './index.module.scss'
 
 interface LoadingDotsProps {
   color: string
   text?: string
+  className?: string
 }
 
-function LoadingDots({ text, color }: LoadingDotsProps) {
+function LoadingDots({ text, color, className }: LoadingDotsProps) {
   return (
-    <div className={styles['container']}>
+    <div className={cx(styles['container'], className)}>
       {text}{' '}
       <span className={styles['loading-dots']} style={{ color }}>
         <span>●</span>

@@ -33,7 +33,7 @@ function Button({
       disabled={isLoading}
       type={type}
     >
-      {isLoading ? <LoadingDots color="#bbb" /> : children}
+      {isLoading ? <LoadingDots color="#bbb" className={styles['loading-dots']} /> : children}
     </button>
   )
 }

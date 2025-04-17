@@ -10,7 +10,6 @@ const NON_COLLECTIBLE_CATEGORIES = [
   19, // Offerings
 ]
 const NON_COLLECTIBLE_CATEGORIES_FOR_MONSTER_EXPANSION = [
-  0, // Actions
   1, // Items
   4, // Enchantments
   11, // Revelations

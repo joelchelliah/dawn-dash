@@ -2,13 +2,16 @@ import { useEffect, useRef, useState } from 'react'
 
 import cx from 'classnames'
 
+import WeeklyChallengeButton from '../../codex/components/WeeklyChallengeButton'
+import { useWeeklyChallengeFilterData } from '../../codex/hooks/useWeeklyChallengeFilterData'
+import GradientDivider from '../../shared/components/GradientDivider'
 import {
   isNonCollectibleForRegularExpansions,
   isNonCollectibleForMonsterExpansion,
   parseCardDescription,
   isNonCollectible,
   containsNonCollectible,
-} from '../../codex/utils/cards'
+} from '../../codex/utils/cardHelper'
 import { allExtraFilters, useExtraFilters } from '../../codex/hooks/useExtraFilters'
 import { ExtraFilterOption } from '../../codex/types/filters'
 import CodexLastUpdated from '../../codex/components/CodexLastUpdated'
@@ -70,6 +73,8 @@ function CardCodex(): JSX.Element {
     refresh,
     progress,
   } = useCardData()
+  const { filterData, isFilterDataError, isFilterDataLoading } = useWeeklyChallengeFilterData()
+
   const cachedFilters = getCachedCardCodexSearchFilters()
 
   const [keywords, setKeywordsUntracked] = useState(cachedFilters?.keywords || '')
@@ -81,12 +86,20 @@ function CardCodex(): JSX.Element {
     isCardSetIndexSelected,
     getCardSetNameFromIndex,
     handleCardSetFilterToggle,
+    enableAllCardSetFilters,
+    enableSpecificCardSetFilters,
     resetCardSetFilters,
   } = useCardSetFilters(cachedFilters?.cardSets)
   const { rarityFilters, isRarityIndexSelected, handleRarityFilterToggle, resetRarityFilters } =
     useRarityFilters(cachedFilters?.rarities)
-  const { bannerFilters, isBannerIndexSelected, handleBannerFilterToggle, resetBannerFilters } =
-    useBannerFilters(cachedFilters?.banners)
+  const {
+    bannerFilters,
+    isBannerIndexSelected,
+    handleBannerFilterToggle,
+    enableAllBannerFilters,
+    enableSpecificBannerFilters,
+    resetBannerFilters,
+  } = useBannerFilters(cachedFilters?.banners)
   const {
     extraFilters,
     handleExtraFilterToggle,
@@ -146,6 +159,25 @@ function CardCodex(): JSX.Element {
   }
   // --------------------------------------------------
   // --------------------------------------------------
+
+  const setFiltersFromWeeklyChallengeData = () => {
+    if (filterData && !isFilterDataError) {
+      hasUserChangedFilter.current = true
+      setKeywords(
+        Array.from(
+          new Set([...Array.from(filterData.keywords), ...Array.from(filterData.specialKeywords)])
+        ).join(', ')
+      )
+
+      if (filterData.isBoundless) {
+        enableAllCardSetFilters()
+        enableAllBannerFilters()
+      } else {
+        enableSpecificCardSetFilters(Array.from(filterData.cardSets))
+        enableSpecificBannerFilters(Array.from(filterData.banners))
+      }
+    }
+  }
 
   const resetFilters = () => {
     setKeywords('')
@@ -317,9 +349,10 @@ function CardCodex(): JSX.Element {
   const renderLeftPanel = () => (
     <div className={styles['left-panel']}>
       <div className={styles['panel-header']}>
-        <MagnifyingGlassIcon />
-        Search
+        <MagnifyingGlassIcon className={styles['panel-header__magnifying-glass-icon']} />
+        <span className={styles['panel-header__title']}>Search</span>
       </div>
+      <GradientDivider spacingBottom="lg" />
 
       <form onSubmit={preventFormSubmission} aria-label="Card search and filters">
         <div className={styles['input-container']}>
@@ -381,6 +414,16 @@ function CardCodex(): JSX.Element {
             Reset tracked cards
           </Button>
         </ButtonRow>
+
+        {(!isFilterDataError || isFilterDataLoading) && (
+          <ButtonRow align="left">
+            <WeeklyChallengeButton
+              isLoading={isFilterDataLoading}
+              challengeName={filterData?.name}
+              onClick={setFiltersFromWeeklyChallengeData}
+            />
+          </ButtonRow>
+        )}
       </form>
 
       <CodexLastUpdated
@@ -476,9 +519,10 @@ function CardCodex(): JSX.Element {
   const renderRightPanel = () => (
     <div className={styles['right-panel']}>
       <div className={styles['panel-header']}>
-        <StackedCardsIcon />
-        Results
+        <StackedCardsIcon className={styles['panel-header__cards-icon']} />
+        <span className={styles['panel-header__title']}>Results</span>
       </div>
+      <GradientDivider spacingBottom="lg" />
       {renderMatchingCards()}
     </div>
   )

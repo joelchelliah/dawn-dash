@@ -1,8 +1,11 @@
 @use '../../../../styles' as *;
 
+.button-row-container {
+  margin-top: 1.25rem;
+}
+
 .button-row {
   gap: 0.625rem;
-  margin-top: 1.25rem;
 
   &--left {
     @extend %flex-start;
@@ -10,10 +13,5 @@
 
   &--right {
     @extend %flex-end;
-  }
-
-  &--border {
-    border-top: 1px solid $color-component-border-dark;
-    padding-top: 1rem;
   }
 }

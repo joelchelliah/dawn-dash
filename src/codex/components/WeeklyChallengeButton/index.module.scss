@@ -1,0 +1,29 @@
+@use '../../../styles/index' as *;
+
+.weekly-challenge-button {
+  padding: 0.75rem 0.5rem !important;
+  min-width: 15rem !important;
+
+  &--loading {
+    padding: 0.8125rem 0.5rem !important;
+  }
+
+  &:hover {
+    padding: 0.8125rem 0.5rem !important;
+  }
+
+  &__content {
+    @include yellowGreenGradient(true);
+    line-height: 1.5;
+    transition: transform 0s ease-in-out;
+
+    &--success {
+      font-size: font-size('md');
+      font-weight: bold;
+      transform: rotate(-365deg);
+      transition:
+        transform 0.25s ease-in-out,
+        font-size 0.3s ease-in-out;
+    }
+  }
+}

@@ -96,6 +96,30 @@ export function createFilterHook({
       })
     }
 
+    const enableAllFilters = () => {
+      setFilters((prevFilters) => {
+        return Object.keys(prevFilters).reduce(
+          (acc, key) => {
+            acc[key] = key !== SharedFilterOption.None
+            return acc
+          },
+          {} as typeof prevFilters
+        )
+      })
+    }
+
+    const enableSpecificFilters = (keys: string[]) => {
+      setFilters((prevFilters) => {
+        return Object.keys(prevFilters).reduce(
+          (acc, key) => {
+            acc[key] = keys.includes(key)
+            return acc
+          },
+          {} as typeof prevFilters
+        )
+      })
+    }
+
     const resetFilters = () => setFilters(defaultFilters)
 
     return {
@@ -104,6 +128,8 @@ export function createFilterHook({
       getValueFromIndex,
       getValueToString,
       handleFilterToggle,
+      enableAllFilters,
+      enableSpecificFilters,
       resetFilters,
     }
   }

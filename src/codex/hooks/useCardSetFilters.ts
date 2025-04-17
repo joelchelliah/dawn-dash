@@ -47,14 +47,22 @@ const useBaseCardSetFilters = createFilterHook({
 })
 
 export const useCardSetFilters = (cachedFilters?: CardCodexSearchFilterCache['cardSets']) => {
-  const { filters, isIndexSelected, getValueFromIndex, handleFilterToggle, resetFilters } =
-    useBaseCardSetFilters(cachedFilters)
-
+  const {
+    filters,
+    isIndexSelected,
+    getValueFromIndex,
+    handleFilterToggle,
+    enableAllFilters,
+    enableSpecificFilters,
+    resetFilters,
+  } = useBaseCardSetFilters(cachedFilters)
   return {
     cardSetFilters: filters,
     isCardSetIndexSelected: isIndexSelected,
     getCardSetNameFromIndex: getValueFromIndex,
     handleCardSetFilterToggle: handleFilterToggle,
+    enableAllCardSetFilters: enableAllFilters,
+    enableSpecificCardSetFilters: enableSpecificFilters,
     resetCardSetFilters: resetFilters,
   }
 }

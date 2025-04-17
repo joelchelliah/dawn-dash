@@ -1,5 +1,6 @@
 import cx from 'classnames'
 
+import GradientDivider from '../../../shared/components/GradientDivider'
 import { FilterType } from '../../types/filters'
 
 import Checkbox from './Checkbox'
@@ -26,6 +27,7 @@ function FilterGroup({
   return (
     <div className={styles['filter-group']}>
       <h4>{title}</h4>
+      <GradientDivider spacingBottom="sm" />
       <div className={className}>
         {filters.map((filter) => (
           <Checkbox
