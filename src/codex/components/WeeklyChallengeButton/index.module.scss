@@ -1,29 +1,68 @@
 @use '../../../styles/index' as *;
 
+$bounce-curve: cubic-bezier(0.34, 1.56, 0.64, 1.6);
+$subtle-bounce-curve: cubic-bezier(0.68, 1.4, 0.32, 1);
+
 .weekly-challenge-button {
   padding: 0.75rem 0.5rem !important;
-  min-width: 15rem !important;
+  width: 17.125rem !important;
 
   &--loading {
     padding: 0.8125rem 0.5rem !important;
+  }
+
+  &--success {
+    animation: success-button-pulse 0.5s ease-in-out;
+    @include yellowGreenGradient(true);
+    @include superFancyBorder($padding-button-vertical, $padding-button-horizontal);
   }
 
   &:hover {
     padding: 0.8125rem 0.5rem !important;
   }
 
+  &__challenge-name {
+    font-weight: bold;
+    @include text-truncate;
+    padding: 0.125rem 0.5rem;
+  }
+
   &__content {
     @include yellowGreenGradient(true);
     line-height: 1.5;
-    transition: transform 0s ease-in-out;
+    transition:
+      transform 0.3s $bounce-curve,
+      font-size 0s ease-in-out;
 
     &--success {
       font-size: font-size('md');
       font-weight: bold;
       transform: rotate(-365deg);
       transition:
-        transform 0.25s ease-in-out,
-        font-size 0.3s ease-in-out;
+        transform 0.5s $subtle-bounce-curve,
+        font-size 0.5s $subtle-bounce-curve;
     }
+
+    &--reverting {
+      font-size: font-size('md');
+      font-weight: bold;
+      transform: rotate(-5deg);
+      transition: transform 0s;
+    }
+  }
+}
+
+@keyframes success-button-pulse {
+  0% {
+    transform: scale(1, 1);
+  }
+  20% {
+    transform: scale(0.95, 0.5);
+  }
+  50% {
+    transform: scale(1.1, 1.2);
+  }
+  100% {
+    transform: scale(1, 1);
   }
 }

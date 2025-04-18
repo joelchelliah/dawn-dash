@@ -75,8 +75,6 @@ function CardCodex(): JSX.Element {
   } = useCardData()
   const { filterData, isFilterDataError, isFilterDataLoading } = useWeeklyChallengeFilterData()
 
-  console.log('filterData', filterData)
-
   const cachedFilters = getCachedCardCodexSearchFilters()
 
   const [keywords, setKeywordsUntracked] = useState(cachedFilters?.keywords || '')

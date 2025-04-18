@@ -20,8 +20,8 @@ function WeeklyChallengeButton({
   const contentDefault = useMemo(
     () => (
       <>
-        Optimize for Weekly Challenge: <br />
-        <b>{challengeName}</b>
+        Optimize for Weekly Challenge:
+        <div className={styles['weekly-challenge-button__challenge-name']}>{challengeName}</div>
       </>
     ),
     [challengeName]
@@ -29,35 +29,39 @@ function WeeklyChallengeButton({
   const contentSuccess = useMemo(() => 'OPTIMIZED!', [])
   const [content, setContent] = useState<ReactNode>(contentDefault)
   const [isSuccess, setIsSuccess] = useState(false)
+  const [isReverting, setIsReverting] = useState(false)
+
+  const isAnimating = isSuccess || isReverting
 
   const handleClick = () => {
-    if (challengeName && !isSuccess) {
+    if (challengeName && !isAnimating) {
       onClick()
       setIsSuccess(true)
-      setTimeout(() => setIsSuccess(false), 2000)
+      setTimeout(() => {
+        setIsReverting(true)
+        setIsSuccess(false)
+        setTimeout(() => setIsReverting(false), 100)
+      }, 2000)
     }
   }
 
   useEffect(() => {
     if (!challengeName) setContent('-')
-    else if (isSuccess) setContent(contentSuccess)
+    else if (isAnimating) setContent(contentSuccess)
     else setContent(contentDefault)
-  }, [challengeName, contentDefault, contentSuccess, isSuccess])
+  }, [challengeName, contentDefault, contentSuccess, isAnimating])
 
   const buttonClassName = cx(styles['weekly-challenge-button'], {
     [styles['weekly-challenge-button--loading']]: isLoading,
+    [styles['weekly-challenge-button--success']]: isSuccess,
   })
   const contentClassName = cx(styles['weekly-challenge-button__content'], {
     [styles['weekly-challenge-button__content--success']]: isSuccess,
+    [styles['weekly-challenge-button__content--reverting']]: isReverting,
   })
 
   return (
-    <GradientButton
-      onClick={handleClick}
-      isLoading={isLoading}
-      isAnimating={isSuccess}
-      className={buttonClassName}
-    >
+    <GradientButton onClick={handleClick} isLoading={isLoading} className={buttonClassName}>
       <div className={contentClassName}>{content}</div>
     </GradientButton>
   )
