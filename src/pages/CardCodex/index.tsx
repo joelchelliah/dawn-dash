@@ -75,6 +75,8 @@ function CardCodex(): JSX.Element {
   } = useCardData()
   const { filterData, isFilterDataError, isFilterDataLoading } = useWeeklyChallengeFilterData()
 
+  console.log('filterData', filterData)
+
   const cachedFilters = getCachedCardCodexSearchFilters()
 
   const [keywords, setKeywordsUntracked] = useState(cachedFilters?.keywords || '')
@@ -86,8 +88,7 @@ function CardCodex(): JSX.Element {
     isCardSetIndexSelected,
     getCardSetNameFromIndex,
     handleCardSetFilterToggle,
-    enableAllCardSetFilters,
-    enableSpecificCardSetFilters,
+    enableCardSetFilters,
     resetCardSetFilters,
   } = useCardSetFilters(cachedFilters?.cardSets)
   const { rarityFilters, isRarityIndexSelected, handleRarityFilterToggle, resetRarityFilters } =
@@ -96,8 +97,7 @@ function CardCodex(): JSX.Element {
     bannerFilters,
     isBannerIndexSelected,
     handleBannerFilterToggle,
-    enableAllBannerFilters,
-    enableSpecificBannerFilters,
+    enableBannerFilters,
     resetBannerFilters,
   } = useBannerFilters(cachedFilters?.banners)
   const {
@@ -169,13 +169,8 @@ function CardCodex(): JSX.Element {
         ).join(', ')
       )
 
-      if (filterData.isBoundless) {
-        enableAllCardSetFilters()
-        enableAllBannerFilters()
-      } else {
-        enableSpecificCardSetFilters(Array.from(filterData.cardSets))
-        enableSpecificBannerFilters(Array.from(filterData.banners))
-      }
+      enableCardSetFilters(Array.from(filterData.cardSets))
+      enableBannerFilters(Array.from(filterData.banners))
     }
   }
 

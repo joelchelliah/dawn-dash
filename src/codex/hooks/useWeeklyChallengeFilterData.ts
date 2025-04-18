@@ -16,9 +16,12 @@ export function useWeeklyChallengeFilterData() {
         name: data.name,
         keywords: data.keywords,
         specialKeywords: data.specialKeywords,
-        cardSets: getCardSetsForExpansions(data.expansions),
-        banners: getBannersForClasses(data.classes),
-        isBoundless: data.isBoundless,
+        cardSets: getCardSets(data.expansions, data.isBoundless),
+        banners: getBanners(
+          data.classes,
+          data.hasAccessToAllColors || data.isBoundless,
+          data.hasAccessToHoly
+        ),
       }
     : null
 
@@ -31,7 +34,9 @@ export function useWeeklyChallengeFilterData() {
   }
 }
 
-const getCardSetsForExpansions = (expansions: Set<string>) => {
+const getCardSets = (expansions: Set<string>, isBoundless: boolean) => {
+  if (isBoundless) return new Set([CardSet.All])
+
   const cardSets: CardSet[] = Array.from(expansions)
     .map((expansion) => {
       switch (expansion.toLowerCase()) {
@@ -58,8 +63,14 @@ const getCardSetsForExpansions = (expansions: Set<string>) => {
   return new Set(cardSets)
 }
 
-const getBannersForClasses = (classes: Set<string>) => {
-  const banners: Banner[] = Array.from(classes).flatMap((className) => {
+const getBanners = (
+  classes: Set<string>,
+  hasAccessToAllColors: boolean,
+  hasAccessToHoly: boolean
+) => {
+  if (hasAccessToAllColors) return new Set([Banner.All])
+
+  const bannersFromClasses: Banner[] = Array.from(classes).flatMap((className) => {
     switch (className.toLowerCase()) {
       case 'rogue':
         return [Banner.Green]
@@ -78,5 +89,10 @@ const getBannersForClasses = (classes: Set<string>) => {
     }
   })
 
-  return new Set([...banners, Banner.Brown, Banner.Black])
+  return new Set([
+    ...bannersFromClasses,
+    Banner.Brown,
+    Banner.Black,
+    ...(hasAccessToHoly ? [Banner.Gold] : []),
+  ])
 }

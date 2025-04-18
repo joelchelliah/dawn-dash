@@ -119,5 +119,4 @@ export type WeeklyChallengeFilterData = {
   specialKeywords: Set<string>
   cardSets: Set<CardSet>
   banners: Set<Banner>
-  isBoundless: boolean
 }

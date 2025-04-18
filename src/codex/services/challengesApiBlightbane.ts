@@ -23,11 +23,21 @@ export const fetchLatestChallengeData = async (): Promise<ChallengeData | null> 
     }
 
     const {
-      challenge: { name, scoringParams, expansions, setups, affixes },
+      challenge: { name, scoringParams, expansions, setups, affixes, additionalTalents },
     }: ChallengeApiResponse = await latestChallengeResponse.json()
 
-    const isBoundlessSpoils = (affix: string) =>
-      affix.toLowerCase().includes('boundless spoils'.toLowerCase())
+    const isBoundless = affixes.some(
+      (malignancy) => malignancy.toLowerCase() === 'boundless spoils'
+    )
+    const isDeckedOut = affixes.some((malignancy) => malignancy.toLowerCase() === 'decked out')
+
+    const isHolyTalent = (talent: string) =>
+      ['devotion', 'initiation', 'faithbound'].some((it) => talent.toLowerCase().includes(it))
+
+    const isHolyWeaponPower = (power: string) =>
+      ['holy weapon', 'devout weapon', 'zealous weapon', 'angelic weapon', 'vengeful weapon'].some(
+        (it) => power.toLowerCase().includes(it)
+      )
 
     return {
       name,
@@ -39,7 +49,11 @@ export const fetchLatestChallengeData = async (): Promise<ChallengeData | null> 
       ),
       expansions: new Set(expansions),
       classes: new Set(setups.map((setup) => setup.class)),
-      isBoundless: affixes.some(isBoundlessSpoils),
+      isBoundless: isBoundless,
+      hasAccessToAllColors: isBoundless || isDeckedOut,
+      hasAccessToHoly:
+        additionalTalents.some(isHolyTalent) ||
+        setups.every(({ power }) => isHolyWeaponPower(power)),
     }
   } catch (error) {
     handleError(error, 'Error fetching latest challenge from Blightbane')

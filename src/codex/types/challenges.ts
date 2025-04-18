@@ -5,6 +5,8 @@ export type ChallengeData = {
   expansions: Set<string>
   classes: Set<string>
   isBoundless: boolean
+  hasAccessToAllColors: boolean
+  hasAccessToHoly: boolean
 }
 
 export type ChallengeApiResponse = {

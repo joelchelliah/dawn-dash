@@ -43,21 +43,14 @@ const useBaseBannerFilters = createFilterHook({
 })
 
 export const useBannerFilters = (cachedFilters?: CardCodexSearchFilterCache['banners']) => {
-  const {
-    filters,
-    isIndexSelected,
-    handleFilterToggle,
-    enableAllFilters,
-    enableSpecificFilters,
-    resetFilters,
-  } = useBaseBannerFilters(cachedFilters)
+  const { filters, isIndexSelected, handleFilterToggle, enableFilters, resetFilters } =
+    useBaseBannerFilters(cachedFilters)
 
   return {
     bannerFilters: filters,
     isBannerIndexSelected: isIndexSelected,
     handleBannerFilterToggle: handleFilterToggle,
-    enableAllBannerFilters: enableAllFilters,
-    enableSpecificBannerFilters: enableSpecificFilters,
+    enableBannerFilters: enableFilters,
     resetBannerFilters: resetFilters,
   }
 }
