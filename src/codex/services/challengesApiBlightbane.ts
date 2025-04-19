@@ -40,6 +40,7 @@ export const fetchLatestChallengeData = async (): Promise<ChallengeData | null> 
       )
 
     return {
+      id: latestChallengeId,
       name,
       keywords: new Set(scoringParams.keywords),
       specialKeywords: new Set(

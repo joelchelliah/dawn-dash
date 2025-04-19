@@ -1,4 +1,5 @@
 export type ChallengeData = {
+  id: number
   name: string
   keywords: Set<string>
   specialKeywords: Set<string>

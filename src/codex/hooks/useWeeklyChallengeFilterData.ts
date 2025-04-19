@@ -13,6 +13,7 @@ export function useWeeklyChallengeFilterData() {
 
   const filterData: WeeklyChallengeFilterData | null = data
     ? {
+        id: data.id,
         name: data.name,
         keywords: data.keywords,
         specialKeywords: data.specialKeywords,

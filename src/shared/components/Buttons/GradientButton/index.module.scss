@@ -2,7 +2,6 @@
 
 // Increased specificity to override the button styles
 .gradient-button.gradient-button {
-  font-weight: bold;
   min-width: 5rem;
 
   &--colored {
@@ -20,5 +19,9 @@
       @include yellowGreenGradient(true);
       @include superFancyBorder($padding-button-vertical, $padding-button-horizontal);
     }
+  }
+
+  &--bold {
+    font-weight: bold;
   }
 }

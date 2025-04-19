@@ -114,6 +114,7 @@ export interface CardCodexSearchFilterCache {
 // ------------ Weekly Challenge ------------
 
 export type WeeklyChallengeFilterData = {
+  id: number
   name: string
   keywords: Set<string>
   specialKeywords: Set<string>

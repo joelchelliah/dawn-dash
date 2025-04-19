@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 
 import cx from 'classnames'
 
+import GradientButton from '../../shared/components/Buttons/GradientButton'
 import WeeklyChallengeButton from '../../codex/components/WeeklyChallengeButton'
 import { useWeeklyChallengeFilterData } from '../../codex/hooks/useWeeklyChallengeFilterData'
 import GradientDivider from '../../shared/components/GradientDivider'
@@ -32,7 +33,6 @@ import { allRarities, useRarityFilters } from '../../codex/hooks/useRarityFilter
 import Footer from '../../shared/components/Footer'
 import { useCardData } from '../../codex/hooks/useCardData'
 import { CardData } from '../../codex/types/cards'
-import Button from '../../shared/components/Buttons/Button'
 import ButtonRow from '../../shared/components/Buttons/ButtonRow'
 import {
   CircleIcon,
@@ -400,12 +400,12 @@ function CardCodex(): JSX.Element {
         </div>
 
         <ButtonRow align="left" includeBorder>
-          <Button onClick={resetFilters} type="button">
+          <GradientButton subtle onClick={resetFilters} className={styles['filter-button']}>
             Reset search
-          </Button>
-          <Button onClick={resetStruckCards} type="button">
+          </GradientButton>
+          <GradientButton subtle onClick={resetStruckCards} className={styles['filter-button']}>
             Reset tracked cards
-          </Button>
+          </GradientButton>
         </ButtonRow>
 
         {(!isFilterDataError || isFilterDataLoading) && (
@@ -413,6 +413,7 @@ function CardCodex(): JSX.Element {
             <WeeklyChallengeButton
               isLoading={isFilterDataLoading}
               challengeName={filterData?.name}
+              challengeId={filterData?.id}
               onClick={setFiltersFromWeeklyChallengeData}
             />
           </ButtonRow>

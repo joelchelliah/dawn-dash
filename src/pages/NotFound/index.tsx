@@ -24,7 +24,7 @@ function NotFound(): JSX.Element {
       <img src={DantelionImageUrl} alt="Dantelion" className={styles['image']} />
       <p>You have trespassed into the abyss from which no soul returns!</p>
 
-      <GradientButton className={styles['back-button']} onClick={goBack}>
+      <GradientButton bold className={styles['back-button']} onClick={goBack}>
         Go back
       </GradientButton>
     </div>
