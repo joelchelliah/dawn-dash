@@ -196,6 +196,16 @@
   }
 }
 
+.filter-button {
+  padding-left: 0.8125rem !important;
+  padding-right: 0.8125rem !important;
+
+  &:hover {
+    padding-left: 0.875rem !important;
+    padding-right: 0.875rem !important;
+  }
+}
+
 .results-container {
   margin-top: 1rem;
 

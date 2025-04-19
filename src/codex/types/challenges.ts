@@ -1,10 +1,13 @@
 export type ChallengeData = {
+  id: number
   name: string
   keywords: Set<string>
   specialKeywords: Set<string>
   expansions: Set<string>
   classes: Set<string>
   isBoundless: boolean
+  hasAccessToAllColors: boolean
+  hasAccessToHoly: boolean
 }
 
 export type ChallengeApiResponse = {

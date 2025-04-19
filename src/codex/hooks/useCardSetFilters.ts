@@ -52,8 +52,7 @@ export const useCardSetFilters = (cachedFilters?: CardCodexSearchFilterCache['ca
     isIndexSelected,
     getValueFromIndex,
     handleFilterToggle,
-    enableAllFilters,
-    enableSpecificFilters,
+    enableFilters,
     resetFilters,
   } = useBaseCardSetFilters(cachedFilters)
   return {
@@ -61,8 +60,7 @@ export const useCardSetFilters = (cachedFilters?: CardCodexSearchFilterCache['ca
     isCardSetIndexSelected: isIndexSelected,
     getCardSetNameFromIndex: getValueFromIndex,
     handleCardSetFilterToggle: handleFilterToggle,
-    enableAllCardSetFilters: enableAllFilters,
-    enableSpecificCardSetFilters: enableSpecificFilters,
+    enableCardSetFilters: enableFilters,
     resetCardSetFilters: resetFilters,
   }
 }

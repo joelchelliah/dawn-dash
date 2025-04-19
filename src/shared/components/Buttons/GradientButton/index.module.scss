@@ -2,7 +2,6 @@
 
 // Increased specificity to override the button styles
 .gradient-button.gradient-button {
-  font-weight: bold;
   min-width: 5rem;
 
   &--colored {
@@ -22,24 +21,7 @@
     }
   }
 
-  &--success-animation {
-    animation: success-pulse 0.5s ease-in-out;
-    @include yellowGreenGradient(true);
-    @include superFancyBorder($padding-button-vertical, $padding-button-horizontal);
-  }
-}
-
-@keyframes success-pulse {
-  0% {
-    transform: scale(1, 1);
-  }
-  20% {
-    transform: scale(0.95, 0.5);
-  }
-  50% {
-    transform: scale(1.1, 1.2);
-  }
-  100% {
-    transform: scale(1, 1);
+  &--bold {
+    font-weight: bold;
   }
 }

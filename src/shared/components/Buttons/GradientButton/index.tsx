@@ -8,27 +8,27 @@ interface GradientButtonProps {
   children: React.ReactNode
   onClick: () => void
   isLoading?: boolean
-  isAnimating?: boolean
   className?: string
   subtle?: boolean
+  bold?: boolean
 }
 
 function GradientButton({
   children,
   onClick,
   isLoading,
-  isAnimating,
   className,
   subtle,
+  bold,
 }: GradientButtonProps): JSX.Element {
   const handleClick = () => {
-    if (!isAnimating && !isLoading) onClick()
+    if (!isLoading) onClick()
   }
 
   const buttonClassName = cx(styles['gradient-button'], className, {
     [styles['gradient-button--colored']]: !subtle && !isLoading,
     [styles['gradient-button--subtle']]: subtle && !isLoading,
-    [styles['gradient-button--success-animation']]: isAnimating,
+    [styles['gradient-button--bold']]: bold,
   })
 
   return (
