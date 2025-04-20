@@ -93,8 +93,8 @@ function WeeklyChallengeButton({
                 malignancies into account.
               </li>
               <li>
-                Enables all <b>banners</b> that are relevant for the available class loadouts, fixed
-                malignancies, and starting talents.
+                Enables all <b>banners</b> that are relevant for the class loadouts, malignancies,
+                and starting talents.
               </li>
             </ul>
             <p>All other options are left unchanged.</p>

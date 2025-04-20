@@ -7,11 +7,15 @@ import WeeklyChallengeButton from '../../codex/components/WeeklyChallengeButton'
 import { useWeeklyChallengeFilterData } from '../../codex/hooks/useWeeklyChallengeFilterData'
 import GradientDivider from '../../shared/components/GradientDivider'
 import {
-  isNonCollectibleForRegularExpansions,
-  isNonCollectibleForMonsterExpansion,
+  isNonCollectibleRegularCard,
+  isNonCollectibleMonsterCard,
   parseCardDescription,
   isNonCollectible,
   containsNonCollectible,
+  isReallyMonsterCard,
+  hasMonsterExpansion,
+  hasMonsterRarity,
+  hasMonsterBanner,
 } from '../../codex/utils/cardHelper'
 import { allExtraFilters, useExtraFilters } from '../../codex/hooks/useExtraFilters'
 import { ExtraFilterOption } from '../../codex/types/filters'
@@ -193,28 +197,26 @@ function CardCodex(): JSX.Element {
     }
 
     if (cardData) {
-      const monsterExpansion = 0
-      const monsterRarity = 4
-      const monsterBanner = 11
       const filteredCards = cardData
-        .filter(({ expansion }) =>
-          expansion === monsterExpansion
-            ? shouldIncludeMonsterCards
-            : isCardSetIndexSelected(expansion)
+        .filter((card) =>
+          hasMonsterExpansion(card)
+            ? shouldIncludeMonsterCards || !isReallyMonsterCard(card)
+            : isCardSetIndexSelected(card.expansion)
         )
-        .filter(({ rarity }) =>
-          rarity === monsterRarity ? shouldIncludeMonsterCards : isRarityIndexSelected(rarity)
+        .filter((card) =>
+          hasMonsterRarity(card) ? shouldIncludeMonsterCards : isRarityIndexSelected(card.rarity)
         )
-        .filter(({ color }) =>
-          color === monsterBanner ? shouldIncludeMonsterCards : isBannerIndexSelected(color)
+        .filter((card) =>
+          hasMonsterBanner(card) ? shouldIncludeMonsterCards : isBannerIndexSelected(card.color)
         )
         .filter((card) => {
-          if (card.expansion !== monsterExpansion) {
-            return shouldIncludeNonCollectibleCards || !isNonCollectibleForRegularExpansions(card)
+          if (isNonCollectibleRegularCard(card)) {
+            return shouldIncludeNonCollectibleCards || !isNonCollectibleRegularCard(card)
           }
-          if (isNonCollectibleForMonsterExpansion(card)) {
+          if (isNonCollectibleMonsterCard(card)) {
             return shouldIncludeNonCollectibleCards && shouldIncludeMonsterCards
           }
+
           return true
         })
         .filter(
