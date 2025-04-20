@@ -225,6 +225,11 @@
       font-size: font-size('xxs');
       color: $color-primary-muted;
       margin-top: 0.25rem;
+
+      &__full-match {
+        font-weight: bold;
+        color: lighten($color-primary-muted, 2%);
+      }
     }
   }
 
@@ -284,10 +289,26 @@
   }
 
   &--struck {
+    @include cardOverlayPositioningFix;
     text-decoration: line-through;
     opacity: 0.5;
     background-color: rgba(0, 0, 0, 0.5) !important;
+  }
+
+  &--full-match {
     @include cardOverlayPositioningFix;
+    position: relative;
+    background: linear-gradient(
+      45deg,
+      rgba(155, 255, 255, 0) 0%,
+      rgba(255, 55, 255, 0.05) 20%,
+      rgba(255, 255, 155, 0.1) 40%,
+      rgba(255, 55, 255, 0.05) 60%,
+      rgba(155, 255, 255, 0) 80%,
+      rgba(155, 255, 255, 0) 100%
+    );
+    background-size: 200% 200%;
+    animation: sparkle-shift 2s linear infinite;
   }
 
   &:hover {
@@ -441,5 +462,14 @@
     top: 0.25rem;
     left: 0.0625rem;
     color: $color-danger-base;
+  }
+}
+
+@keyframes sparkle-shift {
+  0% {
+    background-position: 0% 0%;
+  }
+  100% {
+    background-position: 200% 200%;
   }
 }

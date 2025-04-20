@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { Fragment, useEffect, useRef, useState } from 'react'
 
 import cx from 'classnames'
 
@@ -15,6 +15,7 @@ import {
   hasMonsterExpansion,
   hasMonsterRarity,
   hasMonsterBanner,
+  isFullMatch,
 } from '../../codex/utils/cardHelper'
 import { allExtraFilters, useExtraFilters } from '../../codex/hooks/useExtraFilters'
 import { ExtraFilterOption } from '../../codex/types/filters'
@@ -191,7 +192,7 @@ function CardCodex(): JSX.Element {
       .map((keyword) => keyword.trim())
       .filter(Boolean)
 
-    if (!isArrayEqual(parsed, parsedKeywords)) {
+    if (!isArrayEqual(parsedKeywords, parsed)) {
       setParsedKeywords(parsed)
     }
 
@@ -460,9 +461,26 @@ function CardCodex(): JSX.Element {
     ) : (
       <div className={styles['results-container__info']}>
         <strong>{`Found ${matchingCards.length} cards matching:`}</strong>
-        <div
-          className={styles['results-container__info__keywords']}
-        >{`[ ${parsedKeywords.join(', ')} ]`}</div>
+        <div className={styles['results-container__info__keywords']}>
+          {'[ '}
+          {parsedKeywords.map((keyword, index) => {
+            const fullMatch = matchingCards.some(
+              ({ name }) => name.toLowerCase() === keyword.toLowerCase()
+            )
+
+            const className = fullMatch
+              ? styles['results-container__info__keywords__full-match']
+              : ''
+
+            return (
+              <Fragment key={keyword}>
+                <span className={className}>{keyword}</span>
+                <span>{index < parsedKeywords.length - 1 && ', '}</span>
+              </Fragment>
+            )
+          })}
+          {` ]`}
+        </div>
       </div>
     )
 
@@ -482,8 +500,10 @@ function CardCodex(): JSX.Element {
           <div key={banner} className={styles['results-cards']}>
             <div className={styles[`results-cards__banner--${banner}`]}>
               {cards.map((card) => {
+                const fullMatch = parsedKeywords.some((keyword) => isFullMatch(card, keyword))
                 const className = cx(styles['result-card-container'], {
                   [styles['result-card-container--struck']]: isCardStruck(card),
+                  [styles['result-card-container--full-match']]: fullMatch,
                 })
 
                 return (
