@@ -12,7 +12,6 @@ import {
   parseCardDescription,
   isNonCollectible,
   containsNonCollectible,
-  isReallyMonsterCard,
   hasMonsterExpansion,
   hasMonsterRarity,
   hasMonsterBanner,
@@ -84,7 +83,7 @@ function CardCodex(): JSX.Element {
   const [keywords, setKeywordsUntracked] = useState(cachedFilters?.keywords || '')
   const [parsedKeywords, setParsedKeywords] = useState<string[]>([])
   const [matchingCards, setMatchingCards] = useState<CardData[]>([])
-
+  const [showCardsWithoutKeywords, setShowCardsWithoutKeywords] = useState(false)
   const {
     cardSetFilters,
     isCardSetIndexSelected,
@@ -200,7 +199,7 @@ function CardCodex(): JSX.Element {
       const filteredCards = cardData
         .filter((card) =>
           hasMonsterExpansion(card)
-            ? shouldIncludeMonsterCards || !isReallyMonsterCard(card)
+            ? shouldIncludeMonsterCards
             : isCardSetIndexSelected(card.expansion)
         )
         .filter((card) =>
@@ -280,6 +279,12 @@ function CardCodex(): JSX.Element {
     rarityFilters,
     struckCards,
   ])
+
+  useEffect(() => {
+    if (parsedKeywords.length > 0) {
+      setShowCardsWithoutKeywords(false)
+    }
+  }, [parsedKeywords])
 
   const preventFormSubmission = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -444,7 +449,22 @@ function CardCodex(): JSX.Element {
   }
 
   const renderMatchingCards = () => {
-    if (parsedKeywords.length === 0) return null
+    const showingCardsWithoutKeywords = parsedKeywords.length === 0 && showCardsWithoutKeywords
+    const infoText = showingCardsWithoutKeywords ? (
+      <div className={styles['results-container__info']}>
+        <div className={styles['results-container__info--warning']}>
+          Found <strong>{matchingCards.length}</strong> cards, matching only the filters!
+        </div>
+        Type something into the search bar to narrow down the result.
+      </div>
+    ) : (
+      <div className={styles['results-container__info']}>
+        <strong>{`Found ${matchingCards.length} cards matching:`}</strong>
+        <div
+          className={styles['results-container__info__keywords']}
+        >{`[ ${parsedKeywords.join(', ')} ]`}</div>
+      </div>
+    )
 
     const cardsByBanner = matchingCards.reduce(
       (acc, card) => {
@@ -456,12 +476,7 @@ function CardCodex(): JSX.Element {
 
     return (
       <div className={styles['results-container']} key={parsedKeywords.join(',')}>
-        <div className={styles['results-info']}>
-          <strong>Found {matchingCards.length} cards matching: </strong>
-          <div
-            className={styles['results-info__keywords']}
-          >{`[ ${parsedKeywords.join(', ')} ]`}</div>
-        </div>
+        {infoText}
 
         {Object.entries(cardsByBanner).map(([banner, cards]) => (
           <div key={banner} className={styles['results-cards']}>
@@ -486,14 +501,14 @@ function CardCodex(): JSX.Element {
                           </span>
                         )}
                       <span className={styles['result-card__name']}>{card.name}</span>
-                      {shouldShowKeywords && (
+                      {shouldShowKeywords && !showCardsWithoutKeywords && (
                         <span className={styles['result-card__keywords']}>
                           {findMatchingKeywords(card)}
                         </span>
                       )}
                       {shouldShowCardSet && (
                         <span className={styles['result-card__card-set']}>
-                          {getCardSetNameFromIndex(card.expansion)}
+                          {getCardSetNameFromIndex(card.expansion) ?? '-'}
                         </span>
                       )}
                     </div>
@@ -512,6 +527,24 @@ function CardCodex(): JSX.Element {
     )
   }
 
+  const renderNoKeywords = () => (
+    <div className={styles['results-container']}>
+      <div className={styles['results-container__info']}>
+        No <strong>keywords</strong> have been provided yet. Type something into the search bar,
+        or...
+      </div>
+
+      <GradientButton
+        className={styles['results-container__no-keywords-button']}
+        subtle
+        onClick={() => setShowCardsWithoutKeywords(true)}
+      >
+        Show <strong>all card matches</strong> based <br />
+        only on the filters
+      </GradientButton>
+    </div>
+  )
+
   const renderRightPanel = () => (
     <div className={styles['right-panel']}>
       <div className={styles['panel-header']}>
@@ -519,7 +552,9 @@ function CardCodex(): JSX.Element {
         <span className={styles['panel-header__title']}>Results</span>
       </div>
       <GradientDivider spacingBottom="lg" />
-      {renderMatchingCards()}
+      {parsedKeywords.length > 0 || showCardsWithoutKeywords
+        ? renderMatchingCards()
+        : renderNoKeywords()}
     </div>
   )
 

@@ -54,7 +54,7 @@ export const useCardSetFilters = (cachedFilters?: CardCodexSearchFilterCache['ca
     handleFilterToggle,
     enableFilters,
     resetFilters,
-  } = useBaseCardSetFilters(cachedFilters)
+  } = useBaseCardSetFilters(cachedFilters, '__')
   return {
     cardSetFilters: filters,
     isCardSetIndexSelected: isIndexSelected,

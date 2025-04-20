@@ -1,5 +1,5 @@
 import { handleError } from '../../shared/utils/apiErrorHandling'
-import { CardData, CardsApiResponse } from '../types/cards'
+import { CardApiResponse, CardData, CardsApiResponse } from '../types/cards'
 
 const BLIGHTBANE_URL = 'https://blightbane.io/api'
 const PROGRESS_INTERVAL = 100
@@ -44,6 +44,7 @@ export const fetchCards = async (onProgress: (progress: number) => void): Promis
       .map((card) => ({
         ...card,
         blightbane_id: card.id,
+        expansion: getActualExpansion(card),
       }))
       .sort((a, b) => {
         if (a.color !== b.color) return a.color - b.color
@@ -59,4 +60,26 @@ export const fetchCards = async (onProgress: (progress: number) => void): Promis
     handleError(error, 'Error fetching cards from Blightbane')
     return []
   }
+}
+
+const ACTUALLY_CORE_CARDS = ['Elite Prayer', 'Monolith']
+const ACTUALLY_ECLYPSE_CARDS = [
+  'Battlespear C',
+  'Battlespear D',
+  'Battlespear E',
+  'Battlespear H',
+  'Battlespear L',
+  'Battlespear U',
+]
+
+/*
+ * Better mapping of card expansions so that they make more sense in the search results.
+ * This is needed because a lot of conjured or non-collectible cards seem to be placed in the
+ * monster expansion (0).
+ */
+const getActualExpansion = (card: CardApiResponse): number => {
+  if (ACTUALLY_CORE_CARDS.includes(card.name)) return 1
+  if (ACTUALLY_ECLYPSE_CARDS.includes(card.name)) return 7
+
+  return card.expansion
 }
