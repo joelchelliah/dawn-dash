@@ -8,6 +8,7 @@
   cursor: pointer;
   border-radius: 0.25rem;
   border: 1px solid $color-component-border;
+  font-size: font-size('xs');
 
   &:hover {
     color: $color-primary-hover;

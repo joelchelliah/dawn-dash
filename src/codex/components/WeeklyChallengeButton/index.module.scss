@@ -7,13 +7,8 @@ $transition-duration: 0.5s;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: 19rem;
+  width: 20rem;
   min-height: 4.5rem;
-
-  @media (max-width: $breakpoint-mobile) {
-    width: 100%;
-    justify-content: space-between;
-  }
 }
 
 .icon {
@@ -35,7 +30,7 @@ $transition-duration: 0.5s;
 
 .weekly-challenge-button {
   padding: 0.75rem 0.5rem !important;
-  width: 16.5rem !important;
+  width: 17rem !important;
 
   &--loading {
     padding: 0.8125rem 0.5rem !important;

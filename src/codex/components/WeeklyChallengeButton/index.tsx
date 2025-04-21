@@ -68,7 +68,7 @@ function WeeklyChallengeButton({
 
   return (
     <div className={styles['container']}>
-      <GradientButton bold onClick={handleClick} isLoading={isLoading} className={buttonClassName}>
+      <GradientButton onClick={handleClick} isLoading={isLoading} className={buttonClassName}>
         <div className={contentClassName}>{content}</div>
       </GradientButton>
       {challengeName && challengeId && (
