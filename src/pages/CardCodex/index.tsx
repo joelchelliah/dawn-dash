@@ -1,49 +1,28 @@
-import { Fragment, useEffect, useRef, useState } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 
 import cx from 'classnames'
 
+import SearchPanel from '../../codex/components/SearchPanel'
+import { useSearchFilters } from '../../codex/hooks/useSearchFilters'
 import GradientButton from '../../shared/components/Buttons/GradientButton'
-import WeeklyChallengeButton from '../../codex/components/WeeklyChallengeButton'
-import { useWeeklyChallengeFilterData } from '../../codex/hooks/useWeeklyChallengeFilterData'
 import GradientDivider from '../../shared/components/GradientDivider'
 import {
-  isNonCollectibleRegularCard,
-  isNonCollectibleMonsterCard,
   parseCardDescription,
   isNonCollectible,
   containsNonCollectible,
-  hasMonsterExpansion,
-  hasMonsterRarity,
-  hasMonsterBanner,
   isFullMatch,
 } from '../../codex/utils/cardHelper'
-import { allExtraFilters, useExtraFilters } from '../../codex/hooks/useExtraFilters'
-import { ExtraFilterOption } from '../../codex/types/filters'
-import CodexLastUpdated from '../../codex/components/CodexLastUpdated'
-import {
-  cacheCardCodexSearchFilters,
-  getCachedCardCodexSearchFilters,
-} from '../../codex/utils/codexFilterStore'
 import CodexLoadingMessage from '../../codex/components/CodexLoadingMessage'
 import CodexErrorMessage from '../../codex/components/CodexErrorMessage'
-import { allFormattingFilters, useFormattingFilters } from '../../codex/hooks/useFormattingFilters'
 import { useNavigation } from '../../shared/hooks/useNavigation'
-import { isArrayEqual } from '../../shared/utils/lists'
-import FilterGroup from '../../codex/components/FilterGroup'
-import { useCardStrike } from '../../codex/hooks/useCardStrike'
-import { allBanners, useBannerFilters } from '../../codex/hooks/useBannerFilters'
-import { useCardSetFilters, allCardSets } from '../../codex/hooks/useCardSetFilters'
-import { allRarities, useRarityFilters } from '../../codex/hooks/useRarityFilters'
 import Footer from '../../shared/components/Footer'
 import { useCardData } from '../../codex/hooks/useCardData'
 import { CardData } from '../../codex/types/cards'
-import ButtonRow from '../../shared/components/Buttons/ButtonRow'
 import {
   CircleIcon,
   CrossIcon,
   SkullIcon,
   DoubleStarsIcon,
-  MagnifyingGlassIcon,
   SingleStarIcon,
   StackedCardsIcon,
   TripleStarsIcon,
@@ -52,6 +31,7 @@ import Header from '../../shared/components/Header'
 import { AbracadabraImageUrl } from '../../shared/utils/imageUrls'
 
 import styles from './index.module.scss'
+
 const indexToRarityIconMap = {
   [0]: <CircleIcon className={styles['rarity-icon--common']} />,
   [1]: <SingleStarIcon className={styles['rarity-icon--uncommon']} />,
@@ -63,10 +43,6 @@ const indexToRarityIconMap = {
 function CardCodex(): JSX.Element {
   const { resetToCardCodex } = useNavigation()
 
-  // Tracking first user interaction on filter to avoid inital cache saves on load
-  const hasUserChangedFilter = useRef(false)
-  const filterDebounceTimeoutRef = useRef<NodeJS.Timeout | null>(null)
-
   const {
     cardData,
     isLoading,
@@ -77,367 +53,30 @@ function CardCodex(): JSX.Element {
     refresh,
     progress,
   } = useCardData()
-  const { filterData, isFilterDataError, isFilterDataLoading } = useWeeklyChallengeFilterData()
 
-  const cachedFilters = getCachedCardCodexSearchFilters()
-
-  const [keywords, setKeywordsUntracked] = useState(cachedFilters?.keywords || '')
-  const [parsedKeywords, setParsedKeywords] = useState<string[]>([])
-  const [matchingCards, setMatchingCards] = useState<CardData[]>([])
-  const [showCardsWithoutKeywords, setShowCardsWithoutKeywords] = useState(false)
+  const useSearchFiltersHook = useSearchFilters(cardData)
   const {
-    cardSetFilters,
-    isCardSetIndexSelected,
-    getCardSetNameFromIndex,
-    handleCardSetFilterToggle,
-    enableCardSetFilters,
-    resetCardSetFilters,
-  } = useCardSetFilters(cachedFilters?.cardSets)
-  const { rarityFilters, isRarityIndexSelected, handleRarityFilterToggle, resetRarityFilters } =
-    useRarityFilters(cachedFilters?.rarities)
-  const {
-    bannerFilters,
-    isBannerIndexSelected,
-    handleBannerFilterToggle,
-    enableBannerFilters,
-    resetBannerFilters,
-  } = useBannerFilters(cachedFilters?.banners)
-  const {
-    extraFilters,
-    handleExtraFilterToggle,
-    getExtraFilterName,
-    resetExtraFilters,
-    shouldIncludeMonsterCards,
-    shouldIncludeNonCollectibleCards,
-  } = useExtraFilters(cachedFilters?.extras)
-  const {
-    formattingFilters,
-    handleFormattingFilterToggle,
-    getFormattingFilterName,
-    resetFormattingFilters,
-    shouldShowDescription,
-    shouldShowKeywords,
-    shouldShowCardSet,
-    shouldShowRarity,
-  } = useFormattingFilters(cachedFilters?.formatting)
-  const {
-    struckCards,
-    isCardStruck,
-    toggleCardStrike: toggleCardStrikeUntracked,
-    resetStruckCards,
-  } = useCardStrike(cachedFilters?.struckCards)
-
-  // --------------------------------------------------
-  // ------ Tracking user interaction on filters ------
-  // ------ to avoid initial cache saves on load ------
-  // --------------------------------------------------
-  const setKeywords = (keywords: string) => {
-    hasUserChangedFilter.current = true
-    setKeywordsUntracked(keywords)
-  }
-  const toggleCardSetFilter = (cardSet: string) => {
-    hasUserChangedFilter.current = true
-    handleCardSetFilterToggle(cardSet)
-  }
-  const toggleRarityFilter = (rarity: string) => {
-    hasUserChangedFilter.current = true
-    handleRarityFilterToggle(rarity)
-  }
-  const toggleBannerFilter = (banner: string) => {
-    hasUserChangedFilter.current = true
-    handleBannerFilterToggle(banner)
-  }
-  const toggleExtraFilter = (extra: string) => {
-    hasUserChangedFilter.current = true
-    handleExtraFilterToggle(extra)
-  }
-  const toggleFormattingFilter = (formatting: string) => {
-    hasUserChangedFilter.current = true
-    handleFormattingFilterToggle(formatting)
-  }
-  const toggleCardStrike = (card: CardData) => {
-    hasUserChangedFilter.current = true
-    toggleCardStrikeUntracked(card)
-  }
-  // --------------------------------------------------
-  // --------------------------------------------------
-
-  const setFiltersFromWeeklyChallengeData = () => {
-    if (filterData && !isFilterDataError) {
-      hasUserChangedFilter.current = true
-      setKeywords(
-        Array.from(
-          new Set([...Array.from(filterData.keywords), ...Array.from(filterData.specialKeywords)])
-        ).join(', ')
-      )
-
-      enableCardSetFilters(Array.from(filterData.cardSets))
-      enableBannerFilters(Array.from(filterData.banners))
-    }
-  }
-
-  const resetFilters = () => {
-    setKeywords('')
-    setParsedKeywords([])
-    resetCardSetFilters()
-    resetRarityFilters()
-    resetBannerFilters()
-    resetExtraFilters()
-    resetFormattingFilters()
-  }
-
-  useEffect(() => {
-    const parsed = keywords
-      .split(/,\s+or\s+|,\s*|\s+or\s+/)
-      .map((keyword) => keyword.trim())
-      .filter(Boolean)
-
-    if (!isArrayEqual(parsedKeywords, parsed)) {
-      setParsedKeywords(parsed)
-    }
-
-    if (cardData) {
-      const filteredCards = cardData
-        .filter((card) =>
-          hasMonsterExpansion(card)
-            ? shouldIncludeMonsterCards
-            : isCardSetIndexSelected(card.expansion)
-        )
-        .filter((card) =>
-          hasMonsterRarity(card) ? shouldIncludeMonsterCards : isRarityIndexSelected(card.rarity)
-        )
-        .filter((card) =>
-          hasMonsterBanner(card) ? shouldIncludeMonsterCards : isBannerIndexSelected(card.color)
-        )
-        .filter((card) => {
-          if (isNonCollectibleRegularCard(card)) {
-            return shouldIncludeNonCollectibleCards || !isNonCollectibleRegularCard(card)
-          }
-          if (isNonCollectibleMonsterCard(card)) {
-            return shouldIncludeNonCollectibleCards && shouldIncludeMonsterCards
-          }
-
-          return true
-        })
-        .filter(
-          ({ name, description }) =>
-            parsed.length === 0 ||
-            parsed.some(
-              (keyword) =>
-                name.toLowerCase().includes(keyword.toLowerCase()) ||
-                description.toLowerCase().includes(keyword.toLowerCase())
-            )
-        )
-
-      if (!isArrayEqual(filteredCards, matchingCards, 'name')) {
-        setMatchingCards(filteredCards)
-      }
-    }
-  }, [
     parsedKeywords,
     matchingCards,
-    cardData,
-    keywords,
-    isCardSetIndexSelected,
-    isRarityIndexSelected,
-    isBannerIndexSelected,
-    shouldIncludeMonsterCards,
-    shouldIncludeNonCollectibleCards,
-  ])
+    useCardSetFilters,
+    useExtraFilters,
+    useFormattingFilters,
+    useCardStrike,
+  } = useSearchFiltersHook
 
-  useEffect(() => {
-    if (!hasUserChangedFilter.current) return
+  const [showCardsWithoutKeywords, setShowCardsWithoutKeywords] = useState(false)
 
-    if (filterDebounceTimeoutRef.current) {
-      clearTimeout(filterDebounceTimeoutRef.current)
-    }
-
-    // Debounced caching of filters
-    filterDebounceTimeoutRef.current = setTimeout(() => {
-      cacheCardCodexSearchFilters({
-        keywords,
-        cardSets: cardSetFilters,
-        rarities: rarityFilters,
-        banners: bannerFilters,
-        extras: extraFilters,
-        formatting: formattingFilters,
-        struckCards,
-        lastUpdated: Date.now(),
-      })
-    }, 1000)
-
-    return () => {
-      if (filterDebounceTimeoutRef.current) {
-        clearTimeout(filterDebounceTimeoutRef.current)
-      }
-    }
-  }, [
-    bannerFilters,
-    cardSetFilters,
-    extraFilters,
-    formattingFilters,
-    keywords,
-    rarityFilters,
-    struckCards,
-  ])
+  const { getCardSetNameFromIndex } = useCardSetFilters
+  const { shouldIncludeNonCollectibleCards } = useExtraFilters
+  const { shouldShowDescription, shouldShowKeywords, shouldShowCardSet, shouldShowRarity } =
+    useFormattingFilters
+  const { isCardStruck, toggleCardStrike } = useCardStrike
 
   useEffect(() => {
     if (parsedKeywords.length > 0) {
       setShowCardsWithoutKeywords(false)
     }
   }, [parsedKeywords])
-
-  const preventFormSubmission = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-  }
-
-  const getRarityFilterLabel = (filter: string) => {
-    switch (filter) {
-      case 'Legendary':
-        return (
-          <span className={styles['filter-label']}>
-            <TripleStarsIcon className={styles['filter-icon--legendary']} />
-            Legendary
-          </span>
-        )
-      case 'Rare':
-        return (
-          <span className={styles['filter-label']}>
-            <DoubleStarsIcon className={styles['filter-icon--rare']} />
-            Rare
-          </span>
-        )
-      case 'Uncommon':
-        return (
-          <span className={styles['filter-label']}>
-            <SingleStarIcon className={styles['filter-icon--uncommon']} />
-            Uncommon
-          </span>
-        )
-      default:
-        return (
-          <span className={styles['filter-label']}>
-            <CircleIcon className={styles['filter-icon--common']} />
-            Common
-          </span>
-        )
-    }
-  }
-
-  const getExtraFilterLabel = (filter: string) => {
-    const name = getExtraFilterName(filter)
-
-    switch (filter) {
-      case ExtraFilterOption.IncludeMonsterCards:
-        return (
-          <span className={styles['filter-label']}>
-            <SkullIcon className={styles['filter-icon--monster']} />
-            {name}
-          </span>
-        )
-      case ExtraFilterOption.IncludeNonCollectibleCards:
-        return (
-          <span className={styles['filter-label']}>
-            <CrossIcon className={styles['filter-icon--non-collectible']} />
-            {name}
-          </span>
-        )
-      default:
-        return <span className={styles['filter-label']}>{name}</span>
-    }
-  }
-
-  const renderLeftPanel = () => (
-    <div className={styles['left-panel']}>
-      <div className={styles['panel-header']}>
-        <MagnifyingGlassIcon className={styles['panel-header__magnifying-glass-icon']} />
-        <span className={styles['panel-header__title']}>Search</span>
-      </div>
-      <GradientDivider spacingBottom="lg" />
-
-      <form onSubmit={preventFormSubmission} aria-label="Card search and filters">
-        <div className={styles['input-container']}>
-          <input
-            type="text"
-            placeholder="Keywords, separated, by, comma"
-            value={keywords}
-            onChange={(e) => setKeywords(e.target.value)}
-            aria-label="Search keywords"
-          />
-        </div>
-
-        <div className={styles['filters']}>
-          <FilterGroup
-            title="Card Sets"
-            filters={allCardSets}
-            selectedFilters={cardSetFilters}
-            type="card-set"
-            onFilterToggle={toggleCardSetFilter}
-          />
-          <FilterGroup
-            title="Rarities"
-            filters={allRarities}
-            selectedFilters={rarityFilters}
-            type="rarity"
-            onFilterToggle={toggleRarityFilter}
-            getFilterLabel={getRarityFilterLabel}
-          />
-          <FilterGroup
-            title="Banners"
-            filters={allBanners}
-            selectedFilters={bannerFilters}
-            type="banner"
-            onFilterToggle={toggleBannerFilter}
-          />
-          <FilterGroup
-            title="Extras"
-            filters={allExtraFilters}
-            selectedFilters={extraFilters}
-            type="extra"
-            onFilterToggle={toggleExtraFilter}
-            getFilterLabel={getExtraFilterLabel}
-          />
-          <FilterGroup
-            title="Formatting"
-            filters={allFormattingFilters}
-            selectedFilters={formattingFilters}
-            type="formatting"
-            onFilterToggle={toggleFormattingFilter}
-            getFilterLabel={getFormattingFilterName}
-          />
-        </div>
-
-        <ButtonRow align="left" includeBorder>
-          <GradientButton subtle onClick={resetFilters} className={styles['filter-button']}>
-            Reset search
-          </GradientButton>
-          <GradientButton subtle onClick={resetStruckCards} className={styles['filter-button']}>
-            Reset tracked cards
-          </GradientButton>
-        </ButtonRow>
-
-        {(!isFilterDataError || isFilterDataLoading) && (
-          <ButtonRow align="left">
-            <WeeklyChallengeButton
-              isLoading={isFilterDataLoading}
-              challengeName={filterData?.name}
-              challengeId={filterData?.id}
-              onClick={setFiltersFromWeeklyChallengeData}
-            />
-          </ButtonRow>
-        )}
-      </form>
-
-      <CodexLastUpdated
-        lastUpdated={lastUpdated}
-        isLoading={isLoading}
-        isLoadingInBackground={isLoadingInBackground}
-        isErrorInBackground={isErrorInBackground}
-        progress={progress}
-        refresh={refresh}
-      />
-    </div>
-  )
 
   const findMatchingKeywords = (card: CardData) => {
     const matches = parsedKeywords.filter(
@@ -593,7 +232,15 @@ function CardCodex(): JSX.Element {
         <CodexErrorMessage isVisible={isError && !isLoading} />
         {!isError && !isLoading && (
           <>
-            {renderLeftPanel()}
+            <SearchPanel
+              useSearchFilters={useSearchFiltersHook}
+              cardDataLastUpdated={lastUpdated}
+              cardDataIsLoading={isLoading}
+              cardDataIsLoadingInBackground={isLoadingInBackground}
+              cardDataIsErrorInBackground={isErrorInBackground}
+              cardDataProgress={progress}
+              cardDataRefresh={refresh}
+            />
             {renderRightPanel()}
           </>
         )}

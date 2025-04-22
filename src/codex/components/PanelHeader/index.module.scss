@@ -1,0 +1,27 @@
+@use '../../../styles/index' as *;
+
+.panel-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+  color: $color-primary-base;
+  padding-bottom: 0.75rem;
+
+  &__magnifying-glass-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    transform: rotate(5deg);
+  }
+
+  &__cards-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+    transform: rotate(-5deg);
+  }
+
+  &__title {
+    font-weight: bold;
+    font-size: font-size('md');
+  }
+}
