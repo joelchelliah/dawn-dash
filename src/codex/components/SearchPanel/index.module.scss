@@ -1,0 +1,133 @@
+@use '../../../styles/index' as *;
+
+.search-panel {
+  flex: 1;
+  min-width: 500px;
+  background-color: $color-component-bg;
+  padding: 1rem;
+  border-radius: 4px;
+  max-height: max-content;
+
+  @media (max-width: $breakpoint-mobile) {
+    min-width: auto;
+    flex: 1 0 100%;
+  }
+}
+
+// Search bar
+.input-container {
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+
+  input {
+    flex: 1;
+    padding: 0.5rem;
+    border: 1px solid $color-component-border;
+    border-radius: 0.25rem;
+    background-color: $color-base-bg;
+    color: $color-primary-base;
+    // Font size should not be smaller than 1rem, to prevent zooming in on focus
+    font-size: font-size('sm');
+  }
+}
+
+// Filters
+.filters {
+  margin-top: 1rem;
+}
+
+.filter-label {
+  display: flex;
+  align-items: center;
+
+  &:hover {
+    .filter-icon--legendary {
+      color: $color-rarity-legendary-hover;
+    }
+
+    .filter-icon--rare {
+      color: $color-rarity-rare-hover;
+    }
+
+    .filter-icon--uncommon {
+      color: $color-rarity-uncommon-hover;
+    }
+
+    .filter-icon--common {
+      color: $color-rarity-common-hover;
+    }
+
+    .filter-icon--monster {
+      color: $color-danger-hover;
+    }
+
+    .filter-icon--non-collectible {
+      color: $color-danger-hover;
+    }
+  }
+}
+
+.filter-icon {
+  width: 1rem;
+  height: 1rem;
+  padding-right: 0.25rem;
+
+  &--legendary {
+    @extend .filter-icon;
+    color: $color-rarity-legendary;
+    height: 1.25rem;
+    padding-bottom: 0.125rem;
+  }
+
+  &--rare {
+    @extend .filter-icon;
+    color: $color-rarity-rare;
+    width: 1.25rem;
+  }
+
+  &--uncommon {
+    @extend .filter-icon;
+    color: $color-rarity-uncommon;
+    width: 1.25rem;
+    height: 1.25rem;
+    padding-right: 0.125rem;
+    margin-left: -0.125rem;
+  }
+
+  &--common {
+    @extend .filter-icon;
+    color: $color-rarity-common;
+    width: 1.25rem;
+  }
+
+  &--monster {
+    @extend .filter-icon;
+    width: 1.25rem;
+    height: 1.25rem;
+    position: relative;
+    top: 0.0625rem;
+    right: 0.125rem;
+    margin-right: -0.25rem;
+    color: $color-danger-base;
+  }
+
+  &--non-collectible {
+    @extend .filter-icon;
+    width: 1rem;
+    height: 0.75rem;
+    position: relative;
+    top: 0.0625rem;
+    color: $color-danger-base;
+  }
+}
+
+.filter-button {
+  padding-left: 0.8125rem !important;
+  padding-right: 0.8125rem !important;
+
+  &:hover {
+    padding-left: 0.875rem !important;
+    padding-right: 0.875rem !important;
+  }
+}

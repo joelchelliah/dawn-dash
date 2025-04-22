@@ -11,7 +11,18 @@ import {
   getCachedCardDataTimestamp,
 } from '../utils/codexCardsStore'
 
-export function useCardData() {
+export interface UseCardData {
+  cardData: CardData[] | undefined
+  isLoading: boolean
+  isLoadingInBackground: boolean
+  isError: boolean
+  isErrorInBackground: boolean
+  lastUpdated: number | null
+  refresh: () => void
+  progress: number
+}
+
+export function useCardData(): UseCardData {
   const [localData, setLocalData] = useState<CardData[] | null>(null)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [progress, setProgress] = useState(0)
