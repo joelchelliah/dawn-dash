@@ -1,10 +1,10 @@
-import { ExtraFilterOption } from '../../types/filters'
-import { allFormattingFilters } from '../../hooks/useFormattingFilters'
+import { ExtraFilterOption, RarityFilterOption } from '../../types/filters'
+import { allFormattingFilters } from '../../hooks/useSearchFilters/useFormattingFilters'
 import { UseSearchFilters } from '../../hooks/useSearchFilters'
-import { allRarities } from '../../hooks/useRarityFilters'
-import { allBanners } from '../../hooks/useBannerFilters'
-import { allExtraFilters } from '../../hooks/useExtraFilters'
-import { allCardSets } from '../../hooks/useCardSetFilters'
+import { allRarities } from '../../hooks/useSearchFilters/useRarityFilters'
+import { allBanners } from '../../hooks/useSearchFilters/useBannerFilters'
+import { allExtraFilters } from '../../hooks/useSearchFilters/useExtraFilters'
+import { allCardSets } from '../../hooks/useSearchFilters/useCardSetFilters'
 import {
   CircleIcon,
   CrossIcon,
@@ -15,13 +15,14 @@ import {
 } from '../../../shared/utils/icons'
 import GradientButton from '../../../shared/components/Buttons/GradientButton'
 import ButtonRow from '../../../shared/components/Buttons/ButtonRow'
-import FilterGroup from '../FilterGroup'
-import WeeklyChallengeButton from '../WeeklyChallengeButton'
 import CodexLastUpdated from '../CodexLastUpdated'
 import PanelHeader from '../PanelHeader'
 import { UseCardData } from '../../hooks/useCardData'
 
+import FilterGroup from './FilterGroup'
+import WeeklyChallengeButton from './WeeklyChallengeButton'
 import styles from './index.module.scss'
+import SearchField from './SearchField'
 
 interface SearchPanelProps {
   useSearchFilters: UseSearchFilters
@@ -53,21 +54,21 @@ const SearchPanel = ({ useSearchFilters, useCardData }: SearchPanelProps) => {
 
   const getRarityFilterLabel = (filter: string) => {
     switch (filter) {
-      case 'Legendary':
+      case RarityFilterOption.Legendary:
         return (
           <span className={styles['filter-label']}>
             <TripleStarsIcon className={styles['filter-icon--legendary']} />
             Legendary
           </span>
         )
-      case 'Rare':
+      case RarityFilterOption.Rare:
         return (
           <span className={styles['filter-label']}>
             <DoubleStarsIcon className={styles['filter-icon--rare']} />
             Rare
           </span>
         )
-      case 'Uncommon':
+      case RarityFilterOption.Uncommon:
         return (
           <span className={styles['filter-label']}>
             <SingleStarIcon className={styles['filter-icon--uncommon']} />
@@ -116,15 +117,7 @@ const SearchPanel = ({ useSearchFilters, useCardData }: SearchPanelProps) => {
       <PanelHeader type="Search" />
 
       <form onSubmit={preventFormSubmission} aria-label="Card search and filters">
-        <div className={styles['input-container']}>
-          <input
-            type="text"
-            placeholder="Keywords, separated, by, comma"
-            value={keywords}
-            onChange={(e) => setKeywords(e.target.value)}
-            aria-label="Search keywords"
-          />
-        </div>
+        <SearchField keywords={keywords} setKeywords={setKeywords} />
 
         <div className={styles['filters']}>
           <FilterGroup
@@ -167,7 +160,7 @@ const SearchPanel = ({ useSearchFilters, useCardData }: SearchPanelProps) => {
           />
         </div>
 
-        <ButtonRow align="left" includeBorder>
+        <ButtonRow align="left" includeBorder className={styles['button-row']}>
           <GradientButton subtle onClick={resetFilters} className={styles['filter-button']}>
             Reset search
           </GradientButton>
@@ -177,7 +170,7 @@ const SearchPanel = ({ useSearchFilters, useCardData }: SearchPanelProps) => {
         </ButtonRow>
 
         {(!isWeeklyChallengeError || isWeelyChallengeLoading) && (
-          <ButtonRow align="left">
+          <ButtonRow align="left" className={styles['button-row--weekly-challenge']}>
             <WeeklyChallengeButton
               isLoading={isWeelyChallengeLoading}
               challengeName={weeklyChallengeData?.name}

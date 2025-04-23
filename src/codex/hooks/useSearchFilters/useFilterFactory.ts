@@ -1,7 +1,7 @@
 import { useState } from 'react'
 
-import { isNotNullOrUndefined } from '../../shared/utils/object'
-import { SharedFilterOption } from '../types/filters'
+import { isNotNullOrUndefined } from '../../../shared/utils/object'
+import { SharedFilterOption } from '../../types/filters'
 
 /**
  * Factory function to create reusable filter hooks

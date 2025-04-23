@@ -3,7 +3,7 @@ import {
   BannerFilterOption,
   CardCodexSearchFilterCache,
   SharedFilterOption,
-} from '../types/filters'
+} from '../../types/filters'
 
 import { createFilterHook } from './useFilterFactory'
 

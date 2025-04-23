@@ -1,4 +1,4 @@
-import { CardCodexSearchFilterCache, Formatting, FormattingFilterOption } from '../types/filters'
+import { CardCodexSearchFilterCache, Formatting, FormattingFilterOption } from '../../types/filters'
 
 import { createFilterHook } from './useFilterFactory'
 

@@ -2,10 +2,10 @@ import { ReactNode, useEffect, useMemo, useState } from 'react'
 
 import cx from 'classnames'
 
-import GradientButton from '../../../shared/components/Buttons/GradientButton'
-import GradientLink from '../../../shared/components/GradientLink'
-import InfoModal from '../../../shared/components/Modals/InfoModal'
-import { QuestionIcon } from '../../../shared/utils/icons'
+import GradientButton from '../../../../shared/components/Buttons/GradientButton'
+import GradientLink from '../../../../shared/components/GradientLink'
+import InfoModal from '../../../../shared/components/Modals/InfoModal'
+import { QuestionIcon } from '../../../../shared/utils/icons'
 
 import styles from './index.module.scss'
 

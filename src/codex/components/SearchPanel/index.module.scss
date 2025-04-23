@@ -14,24 +14,6 @@
   }
 }
 
-// Search bar
-.input-container {
-  display: flex;
-  flex-direction: row;
-  gap: 0.5rem;
-
-  input {
-    flex: 1;
-    padding: 0.5rem;
-    border: 1px solid $color-component-border;
-    border-radius: 0.25rem;
-    background-color: $color-base-bg;
-    color: $color-primary-base;
-    // Font size should not be smaller than 1rem, to prevent zooming in on focus
-    font-size: font-size('sm');
-  }
-}
-
 // Filters
 .filters {
   margin-top: 1rem;
@@ -119,6 +101,15 @@
     position: relative;
     top: 0.0625rem;
     color: $color-danger-base;
+  }
+}
+
+.button-row {
+  @extend %flex-start;
+  width: 17.125rem;
+
+  &--weekly-challenge {
+    width: 20rem;
   }
 }
 

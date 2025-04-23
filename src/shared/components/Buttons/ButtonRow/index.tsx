@@ -8,23 +8,24 @@ interface ButtonRowProps {
   align?: 'left' | 'right'
   includeBorder?: boolean
   children: React.ReactNode
+  className?: string
 }
 
 function ButtonRow({
   children,
   align = 'right',
   includeBorder = false,
+  className,
 }: ButtonRowProps): JSX.Element {
-  const className = cx(styles['button-row'], {
+  const buttonRowClassName = cx(styles['button-row'], className, {
     [styles['button-row--left']]: align === 'left',
     [styles['button-row--right']]: align === 'right',
-    [styles['button-row--border']]: includeBorder,
   })
 
   return (
     <div className={styles['button-row-container']}>
       {includeBorder && <GradientDivider spacingBottom="lg" />}
-      <div className={className}>{children}</div>
+      <div className={buttonRowClassName}>{children}</div>
     </div>
   )
 }

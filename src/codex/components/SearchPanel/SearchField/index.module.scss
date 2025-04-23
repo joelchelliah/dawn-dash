@@ -1,0 +1,55 @@
+@use '../../../../styles/index' as *;
+
+$clear-button-width: 1.75rem;
+
+.input-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+  position: relative;
+
+  input {
+    flex: 1;
+    padding: 0.5rem;
+    padding-right: calc($clear-button-width + 0.5rem);
+    border: 1px solid $color-component-border;
+    border-radius: 0.25rem;
+    background-color: $color-base-bg;
+    color: $color-primary-base;
+    // Font size should not be smaller than 1rem, to prevent zooming in on focus
+    font-size: font-size('sm');
+  }
+
+  .clear-button {
+    position: absolute;
+    top: 1px;
+    right: 1px;
+    bottom: 1px;
+    background-color: $color-button-bg;
+    border-radius: 0.25rem;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    border-width: 0;
+    width: $clear-button-width;
+    cursor: pointer;
+    color: $color-primary-base;
+    transition: all 0.5s ease;
+
+    &:hover {
+      background-color: $color-button-bg-hover;
+      color: $color-primary-hover;
+      transition: all 0.5s ease;
+
+      &::before {
+        @include yellowGreenGradient(true);
+      }
+    }
+
+    &::before {
+      content: '×';
+      font-size: 1.5rem;
+      line-height: 1;
+    }
+  }
+}

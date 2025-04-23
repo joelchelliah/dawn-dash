@@ -1,6 +1,6 @@
 import cx from 'classnames'
 
-import { FilterType } from '../../../types/filters'
+import { FilterType } from '../../../../types/filters'
 
 import styles from './index.module.scss'
 
