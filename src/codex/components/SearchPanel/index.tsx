@@ -19,28 +19,16 @@ import FilterGroup from '../FilterGroup'
 import WeeklyChallengeButton from '../WeeklyChallengeButton'
 import CodexLastUpdated from '../CodexLastUpdated'
 import PanelHeader from '../PanelHeader'
+import { UseCardData } from '../../hooks/useCardData'
 
 import styles from './index.module.scss'
 
 interface SearchPanelProps {
   useSearchFilters: UseSearchFilters
-  cardDataLastUpdated: number | null
-  cardDataIsLoading: boolean
-  cardDataIsLoadingInBackground: boolean
-  cardDataIsErrorInBackground: boolean
-  cardDataProgress: number
-  cardDataRefresh: () => void
+  useCardData: UseCardData
 }
 
-const SearchPanel = ({
-  useSearchFilters,
-  cardDataLastUpdated,
-  cardDataIsLoading,
-  cardDataIsLoadingInBackground,
-  cardDataIsErrorInBackground,
-  cardDataProgress,
-  cardDataRefresh,
-}: SearchPanelProps) => {
+const SearchPanel = ({ useSearchFilters, useCardData }: SearchPanelProps) => {
   const {
     keywords,
     setKeywords,
@@ -124,8 +112,8 @@ const SearchPanel = ({
   }
 
   return (
-    <div className={styles['left-panel']}>
-      <PanelHeader title="Search" />
+    <div className={styles['search-panel']}>
+      <PanelHeader type="Search" />
 
       <form onSubmit={preventFormSubmission} aria-label="Card search and filters">
         <div className={styles['input-container']}>
@@ -201,12 +189,12 @@ const SearchPanel = ({
       </form>
 
       <CodexLastUpdated
-        lastUpdated={cardDataLastUpdated}
-        isLoading={cardDataIsLoading}
-        isLoadingInBackground={cardDataIsLoadingInBackground}
-        isErrorInBackground={cardDataIsErrorInBackground}
-        progress={cardDataProgress}
-        refresh={cardDataRefresh}
+        lastUpdated={useCardData.lastUpdated}
+        isLoading={useCardData.isLoading}
+        isLoadingInBackground={useCardData.isLoadingInBackground}
+        isErrorInBackground={useCardData.isErrorInBackground}
+        progress={useCardData.progress}
+        refresh={useCardData.refresh}
       />
     </div>
   )
