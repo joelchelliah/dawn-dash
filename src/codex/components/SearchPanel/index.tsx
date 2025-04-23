@@ -1,3 +1,5 @@
+import cx from 'classnames'
+
 import { ExtraFilterOption, RarityFilterOption } from '../../types/filters'
 import { allFormattingFilters } from '../../hooks/useSearchFilters/useFormattingFilters'
 import { UseSearchFilters } from '../../hooks/useSearchFilters'
@@ -164,7 +166,11 @@ const SearchPanel = ({ useSearchFilters, useCardData }: SearchPanelProps) => {
           <GradientButton subtle onClick={resetFilters} className={styles['filter-button']}>
             Reset search
           </GradientButton>
-          <GradientButton subtle onClick={resetStruckCards} className={styles['filter-button']}>
+          <GradientButton
+            subtle
+            onClick={resetStruckCards}
+            className={cx(styles['filter-button'], styles['filter-button--fill-width'])}
+          >
             Reset tracked cards
           </GradientButton>
         </ButtonRow>

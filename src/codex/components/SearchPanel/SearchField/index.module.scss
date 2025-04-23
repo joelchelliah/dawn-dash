@@ -22,6 +22,10 @@ $clear-button-width: 1.75rem;
   }
 
   .clear-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
     position: absolute;
     top: 1px;
     right: 1px;
@@ -40,6 +44,7 @@ $clear-button-width: 1.75rem;
       background-color: $color-button-bg-hover;
       color: $color-primary-hover;
       transition: all 0.5s ease;
+      font-weight: bold;
 
       &::before {
         @include yellowGreenGradient(true);
@@ -50,6 +55,9 @@ $clear-button-width: 1.75rem;
       content: '×';
       font-size: 1.5rem;
       line-height: 1;
+      display: block;
+      text-align: center;
+      width: 100%;
     }
   }
 }

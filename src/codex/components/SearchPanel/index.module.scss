@@ -106,14 +106,28 @@
 
 .button-row {
   @extend %flex-start;
-  width: 17.125rem;
+  width: 20rem;
+
+  @media (max-width: $breakpoint-mobile) {
+    width: 16rem;
+  }
 
   &--weekly-challenge {
-    width: 20rem;
+    width: 23rem;
+
+    @media (max-width: $breakpoint-mobile) {
+      width: 18.75rem;
+    }
   }
 }
 
 .filter-button {
+  width: 100%;
+
+  @media (max-width: $breakpoint-mobile) {
+    width: auto;
+  }
+
   padding-left: 0.8125rem !important;
   padding-right: 0.8125rem !important;
 
