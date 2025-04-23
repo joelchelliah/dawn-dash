@@ -1,4 +1,4 @@
-import { CardCodexSearchFilterCache, Rarity, RarityFilterOption } from '../types/filters'
+import { CardCodexSearchFilterCache, Rarity, RarityFilterOption } from '../../types/filters'
 
 import { createFilterHook } from './useFilterFactory'
 

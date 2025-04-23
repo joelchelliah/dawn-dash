@@ -1,7 +1,7 @@
 import { useState } from 'react'
 
-import { CardCodexSearchFilterCache } from '../types/filters'
-import { CardData } from '../types/cards'
+import { CardCodexSearchFilterCache } from '../../types/filters'
+import { CardData } from '../../types/cards'
 
 export const useCardStrike = (cachedFilters?: CardCodexSearchFilterCache['struckCards']) => {
   const [struckCards, setStruckCards] = useState<string[]>(cachedFilters || [])
