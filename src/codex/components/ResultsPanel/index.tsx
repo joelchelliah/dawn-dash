@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import cx from 'classnames'
 
@@ -22,6 +22,7 @@ import { UseSearchFilters } from '../../hooks/useSearchFilters'
 import PanelHeader from '../PanelHeader'
 
 import styles from './index.module.scss'
+import KeywordsSummary from './KeywordsSummary'
 
 interface ResultsPanelProps {
   useSearchFilters: UseSearchFilters
@@ -69,39 +70,6 @@ const ResultsPanel = ({ useSearchFilters }: ResultsPanelProps) => {
 
   const renderMatchingCards = () => {
     const showingCardsWithoutKeywords = parsedKeywords.length === 0 && showCardsWithoutKeywords
-    const infoText = showingCardsWithoutKeywords ? (
-      <div className={styles['results-container__info']}>
-        <div className={styles['results-container__info--warning']}>
-          Found <strong>{matchingCards.length}</strong> cards, matching only the filters!
-        </div>
-        Type something into the search bar to narrow down the result.
-      </div>
-    ) : (
-      <div className={styles['results-container__info']}>
-        <strong>{`Found ${matchingCards.length} cards matching:`}</strong>
-        <div className={styles['results-container__info__keywords']}>
-          {'[ '}
-          {parsedKeywords.map((keyword, index) => {
-            const fullMatch = matchingCards.some(
-              ({ name }) => name.toLowerCase() === keyword.toLowerCase()
-            )
-
-            const className = fullMatch
-              ? styles['results-container__info__keywords__full-match']
-              : ''
-
-            return (
-              <Fragment key={keyword}>
-                <span className={className}>{keyword}</span>
-                <span>{index < parsedKeywords.length - 1 && ', '}</span>
-              </Fragment>
-            )
-          })}
-          {` ]`}
-        </div>
-      </div>
-    )
-
     const cardsByBanner = matchingCards.reduce(
       (acc, card) => {
         acc[card.color] = [...(acc[card.color] || []), card]
@@ -112,7 +80,12 @@ const ResultsPanel = ({ useSearchFilters }: ResultsPanelProps) => {
 
     return (
       <div className={styles['results-container']} key={parsedKeywords.join(',')}>
-        {infoText}
+        <KeywordsSummary
+          matchingCards={matchingCards}
+          parsedKeywords={parsedKeywords}
+          showingCardsWithoutKeywords={showingCardsWithoutKeywords}
+          className={styles['results-container__info']}
+        />
 
         {Object.entries(cardsByBanner).map(([banner, cards]) => (
           <div key={banner} className={styles['results-cards']}>
@@ -165,31 +138,30 @@ const ResultsPanel = ({ useSearchFilters }: ResultsPanelProps) => {
     )
   }
 
-  const renderNoKeywords = () => (
-    <div className={styles['results-container']}>
-      <div className={styles['results-container__info']}>
-        No <strong>keywords</strong> have been provided yet. Type something into the search bar,
-        or...
-      </div>
-
-      <GradientButton
-        className={styles['results-container__no-keywords-button']}
-        subtle
-        onClick={() => setShowCardsWithoutKeywords(true)}
-      >
-        Show <strong>all card matches</strong> based <br />
-        only on the filters
-      </GradientButton>
-    </div>
-  )
-
   return (
     <div className={styles['results-panel']}>
       <PanelHeader type="Results" />
 
-      {parsedKeywords.length > 0 || showCardsWithoutKeywords
-        ? renderMatchingCards()
-        : renderNoKeywords()}
+      {parsedKeywords.length > 0 || showCardsWithoutKeywords ? (
+        renderMatchingCards()
+      ) : (
+        <div className={styles['results-container']}>
+          <div className={styles['results-container__info']}>
+            No <strong>keywords</strong> have been provided yet. Type something into the search bar,
+            or...
+          </div>
+
+          <GradientButton
+            className={styles['results-container__no-keywords-button']}
+            subtle
+            onClick={() => setShowCardsWithoutKeywords(true)}
+          >
+            Show <strong>all card</strong> matching
+            <br />
+            only the filters
+          </GradientButton>
+        </div>
+      )}
     </div>
   )
 }

@@ -1,0 +1,17 @@
+@use '../../../../styles/index' as *;
+
+.no-keywords-warning {
+  font-size: font-size('xs');
+  color: $color-danger-hover;
+}
+
+.keywords-summary {
+  font-size: font-size('xxs');
+  color: $color-primary-muted;
+  margin-top: 0.25rem;
+
+  &__full-match {
+    font-weight: bold;
+    color: rgba($color-rarity-legendary, 0.5);
+  }
+}
