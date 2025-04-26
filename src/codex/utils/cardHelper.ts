@@ -1,3 +1,10 @@
+import {
+  DexImageUrl,
+  HealthImageUrl,
+  HolyImageUrl,
+  IntImageUrl,
+  StrImageUrl,
+} from '../../shared/utils/imageUrls'
 import { CardData } from '../types/cards'
 
 const NON_COLLECTIBLE_CATEGORIES = [
@@ -55,17 +62,20 @@ export const isNonCollectibleMonsterCard = (card: CardData) =>
 export const isNonCollectible = (card: CardData) =>
   isNonCollectibleRegularCard(card) || isNonCollectibleMonsterCard(card)
 
-export const parseCardDescription = (description: string) =>
+export const parseCardDescription = (description: string, iconClassName: string) =>
   description
-    .replace(/<br\s*\/?>/g, '\n')
-    .replace(/<[^>]*>?/g, '')
+    .replace(/<br\s*\/?>/g, '<br />') // Normalize <br> tags
     .replace(/\[\[/g, '[') // Replace [[ with [
     .replace(/\]\]/g, ']') // Replace ]] with ]
     .replace(/\(\[/g, '(') // Replace ([ with (
     .replace(/\(\{/g, '(') // Replace ({ with (
     .replace(/\]\)/g, ')') // Replace ]) with )
     .replace(/\}\)/g, ')') // Replace }) with )
-    .replace(/\n+/g, '\n')
+    .replaceAll('HEALTH', `<img class="${iconClassName}" src="${HealthImageUrl}" alt="HEALTH" />`)
+    .replaceAll('HOLY', `<img class="${iconClassName}" src="${HolyImageUrl}" alt="HOLY" />`)
+    .replaceAll('STR', `<img class="${iconClassName}" src="${StrImageUrl}" alt="STR" />`)
+    .replaceAll('INT', `<img class="${iconClassName}" src="${IntImageUrl}" alt="INT" />`)
+    .replaceAll('DEX', `<img class="${iconClassName}" src="${DexImageUrl}" alt="DEX" />`)
     .trim()
 
 export const containsNonCollectible = (cards: CardData[]) =>

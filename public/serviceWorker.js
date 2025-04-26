@@ -23,6 +23,7 @@ const IMAGE_URLS = [
   'https://blightbane.io/images/icons/cards_metamorphosis_2_48.webp', // Abracardabra
   'https://blightbane.io/images/monsters/dc_dantelion.webp', // Dantelion
   'https://blightbane.io/images/icons/Forgery_eclypse-miniset.webp', // Rushed Forgery
+  'https://blightbane.io/images/health.webp', // HEALTH
 ]
 
 self.addEventListener('activate', (event) => {

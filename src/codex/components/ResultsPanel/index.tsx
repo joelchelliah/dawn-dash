@@ -124,9 +124,22 @@ const ResultsPanel = ({ useSearchFilters }: ResultsPanelProps) => {
                       )}
                     </div>
                     {shouldShowDescription && (
-                      <div className={styles['result-card__description']}>
-                        {parseCardDescription(card.description)}
-                      </div>
+                      <div
+                        className={cx(styles['result-card__description'], {
+                          [styles['result-card__description--rarity_margin']]:
+                            shouldShowRarity && !shouldIncludeNonCollectibleCards,
+                          [styles['result-card__description--non-collectible_margin']]:
+                            !shouldShowRarity && shouldIncludeNonCollectibleCards,
+                          [styles['result-card__description--rarity_and_non-collectible_margin']]:
+                            shouldShowRarity && shouldIncludeNonCollectibleCards,
+                        })}
+                        dangerouslySetInnerHTML={{
+                          __html: parseCardDescription(
+                            card.description,
+                            styles['result-card__description__icon']
+                          ),
+                        }}
+                      />
                     )}
                   </div>
                 )
