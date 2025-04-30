@@ -1,0 +1,2 @@
+[functions.sync-talents]
+verify_jwt = true

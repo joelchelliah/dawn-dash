@@ -3,11 +3,11 @@
 export interface CardData {
   name: string
   description: string
-  rarity: string
-  type: string
-  category: string
-  expansion: string
-  color: string
+  rarity: number
+  type: number
+  category: number
+  expansion: number
+  color: number
   blightbane_id: number
 }
 
@@ -21,4 +21,50 @@ export type CardsApiResponse = {
       hasEvents: boolean
     }
   >
+}
+
+export interface TalentData {
+  name: string
+  description: string
+  flavour_text: string
+  tier: number
+  expansion: number
+  events: string[]
+  requires_classes: string[]
+  requires_energy: string[]
+  requires_talents: number[]
+  required_by_talents: number[]
+  blightbane_id: number
+}
+
+export type TalentsApiResponse = {
+  card_len: number
+  cards: Array<
+    Omit<
+      TalentData,
+      | 'flavor_text'
+      | 'events'
+      | 'requires_classes'
+      | 'requires_energy'
+      | 'requires_talents'
+      | 'required_by_talents'
+      | 'blightbane_id'
+    > & {
+      id: number
+      rarity: number
+      hasEvents: boolean
+    }
+  >
+}
+
+export type TalentApiResponse = Omit<
+  TalentData,
+  | 'requires_classes'
+  | 'requires_energy'
+  | 'requires_talents'
+  | 'required_by_talents'
+  | 'blightbane_id'
+> & {
+  id: number
+  version: string
 }
