@@ -80,6 +80,3 @@ export const parseCardDescription = (description: string, iconClassName: string)
 
 export const containsNonCollectible = (cards: CardData[]) =>
   cards.some((card) => isNonCollectible(card))
-
-export const isFullMatch = (card: CardData, keyword: string) =>
-  card.name.toLowerCase() === keyword.toLowerCase()
