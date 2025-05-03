@@ -88,12 +88,18 @@ serve(async (req) => {
       }
     )
 
-    console.info('Clearing existing cards from database...')
-    const { error: deleteError } = await supabaseClient.from(CARDS_TABLE).delete().neq('id', 0)
+    // Parse the URL to get query parameters
+    const url = new URL(req.url)
+    const clearTable = url.searchParams.get('clear') === 'true'
 
-    if (deleteError) {
-      console.error('Error clearing cards:', deleteError)
-      throw deleteError
+    if (clearTable) {
+      console.info('Clearing existing cards from database...')
+      const { error: deleteError } = await supabaseClient.from(CARDS_TABLE).delete().neq('id', 0)
+
+      if (deleteError) {
+        console.error('Error clearing cards:', deleteError)
+        throw deleteError
+      }
     }
 
     console.info('Fetching new cards from Blightbane API...')

@@ -33,7 +33,7 @@ export interface TalentData {
   requires_classes: string[]
   requires_energy: string[]
   requires_talents: number[]
-  required_by_talents: number[]
+  required_for_talents: number[]
   blightbane_id: number
 }
 
@@ -42,12 +42,12 @@ export type TalentsApiResponse = {
   cards: Array<
     Omit<
       TalentData,
-      | 'flavor_text'
+      | 'flavour_text'
       | 'events'
       | 'requires_classes'
       | 'requires_energy'
       | 'requires_talents'
-      | 'required_by_talents'
+      | 'required_for_talents'
       | 'blightbane_id'
     > & {
       id: number
@@ -59,12 +59,16 @@ export type TalentsApiResponse = {
 
 export type TalentApiResponse = Omit<
   TalentData,
+  | 'flavour_text'
   | 'requires_classes'
   | 'requires_energy'
   | 'requires_talents'
-  | 'required_by_talents'
+  | 'required_for_talents'
   | 'blightbane_id'
 > & {
   id: number
   version: string
+  prereq: (number | string)[]
+  ispreq: (number | string)[]
+  flavortext: string | null
 }

@@ -4,7 +4,7 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 import { corsHeaders } from '../_shared/cors.ts'
-import { TalentData, TalentsApiResponse } from '../_shared/types.ts'
+import { TalentApiResponse, TalentData, TalentsApiResponse } from '../_shared/types.ts'
 
 /*
  * Supabase function for syncing talents from Blightbane API to Supabase database
@@ -41,19 +41,24 @@ async function fetchTalentsFromBlightbane(): Promise<TalentData[]> {
         continue
       }
 
-      const output = talents.map((talent) => ({
-        name: talent.name,
-        description: talent.description,
-        flavour_text: '',
-        tier: talent.rarity,
-        expansion: talent.expansion,
-        events: [],
-        requires_classes: [],
-        requires_energy: [],
-        requires_talents: [],
-        required_by_talents: [],
-        blightbane_id: talent.id,
-      }))
+      const output = await Promise.all(
+        talents.map(async (talent) => {
+          const details = await fetchDetailedTalent(talent.name)
+          return {
+            name: talent.name,
+            description: talent.description,
+            flavour_text: details.flavortext ?? '',
+            tier: talent.rarity,
+            expansion: talent.expansion,
+            events: details.events,
+            requires_classes: [],
+            requires_energy: [],
+            requires_talents: details.prereq.map(Number),
+            required_for_talents: details.ispreq.map(Number),
+            blightbane_id: talent.id,
+          }
+        })
+      )
 
       aggregatedTalents.push(...output)
     } catch (error) {
@@ -63,6 +68,18 @@ async function fetchTalentsFromBlightbane(): Promise<TalentData[]> {
 
   console.info(`Talent fetch completed. Total talents fetched: ${aggregatedTalents.length}`)
   return aggregatedTalents
+}
+
+async function fetchDetailedTalent(talentName: string): Promise<TalentApiResponse> {
+  const safeTalentName = talentName.replace(/ /g, '%20')
+  console.info(`Fetching details for ${safeTalentName}`)
+
+  try {
+    const url = `${BLIGHTBANE_URL}/card/${safeTalentName}?talent=true`
+    return fetch(url).then((res) => res.json())
+  } catch (error) {
+    throw `Error fetching details for ${safeTalentName}: ${error}`
+  }
 }
 
 serve(async (req) => {
@@ -85,33 +102,53 @@ serve(async (req) => {
       }
     )
 
-    console.info('Clearing existing talents from database...')
-    const { error: deleteError } = await supabaseClient.from(TALENTS_TABLE).delete().neq('id', 0)
-
-    // TODO: Probably don't want to clear each time... find a way to only insert new ones???
-
-    if (deleteError) {
-      console.error('Error clearing talents:', deleteError)
-      throw deleteError
-    }
-
-    console.info('Fetching new talents from Blightbane API...')
+    console.info('Fetching talents from Blightbane API...')
     const talents = await fetchTalentsFromBlightbane()
 
-    // TODO: For new talents, we need to fetch from detailed endpoint and update the talent data
+    const url = new URL(req.url)
+    let clearTable = url.searchParams.get('clear') === 'true'
+    if (!clearTable && req.method === 'POST') {
+      const body = await req.json().catch(() => ({}))
+      if (body.clear === true) clearTable = true
+    }
 
-    console.info(`Inserting ${talents.length} new talents into database...`)
-    const { data, error } = await supabaseClient.from(TALENTS_TABLE).insert(talents).select()
+    if (clearTable) {
+      console.info('Clearing existing talents...')
+      const { error } = await supabaseClient.from(TALENTS_TABLE).delete().neq('id', 0)
+      if (error) {
+        console.error('Error clearing table:', error)
+        throw error
+      }
+    }
 
-    if (error) {
-      console.error('Error inserting talents:', error)
-      throw error
+    const { data: existingTalents, error: fetchError } = await supabaseClient
+      .from(TALENTS_TABLE)
+      .select('blightbane_id')
+
+    if (fetchError) {
+      console.error('Error fetching existing talents:', fetchError)
+      throw fetchError
+    }
+
+    const existingIds = new Set(existingTalents.map((t) => t.blightbane_id))
+    const newTalents = talents.filter((talent) => !existingIds.has(talent.blightbane_id))
+
+    if (newTalents.length > 0) {
+      console.info(`Inserting ${newTalents.length} new talents into database...`)
+      const { error } = await supabaseClient.from(TALENTS_TABLE).insert(newTalents).select()
+
+      if (error) {
+        console.error('Error inserting talents:', error)
+        throw error
+      }
+    } else {
+      console.info('No new talents to insert')
     }
 
     console.info('Successfully completed talent sync')
-    return new Response(JSON.stringify({ data }), {
+    return new Response('DONE!', {
       status: 200,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      headers: { ...corsHeaders, 'Content-Type': 'text/plain' },
     })
   } catch (error) {
     console.error('Fatal error in sync-talents function:', error)
