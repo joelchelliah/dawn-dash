@@ -4,6 +4,7 @@ const blightbaneImagesUrl = 'https://blightbane.io/images'
 export const DashImageUrl = `${blightbaneImagesUrl}/icons/cardart_4_53.webp`
 export const DanceOfBlightImageUrl = `${blightbaneImagesUrl}/icons/Dance%20of%20Blight_eclypse.webp`
 export const AbracadabraImageUrl = `${blightbaneImagesUrl}/icons/cards_metamorphosis_2_48.webp`
+export const EleganceImageUrl = `${blightbaneImagesUrl}/icons/elegance.webp`
 export const DantelionImageUrl = `${blightbaneImagesUrl}/monsters/dc_dantelion.webp`
 export const RushedForgeryImageUrl = `${blightbaneImagesUrl}/icons/Forgery_eclypse-miniset.webp`
 

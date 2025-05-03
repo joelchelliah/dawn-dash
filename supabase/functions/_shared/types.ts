@@ -1,5 +1,5 @@
 // Exact copy of CardData from src/codex/types/cards.ts
-// Duplicated here because Supabase functions can't import from src/codex/types/cards.ts
+// Duplicated here because Supabase functions can't import from there
 export interface CardData {
   name: string
   description: string
@@ -23,6 +23,8 @@ export type CardsApiResponse = {
   >
 }
 
+// Exact copy of TalentData from src/codex/types/talents.ts
+// Duplicated here because Supabase functions can't import from there
 export interface TalentData {
   name: string
   description: string
@@ -35,6 +37,7 @@ export interface TalentData {
   requires_talents: number[]
   required_for_talents: number[]
   blightbane_id: number
+  last_updated: string
 }
 
 export type TalentsApiResponse = {

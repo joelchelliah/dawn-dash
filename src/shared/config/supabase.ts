@@ -13,3 +13,4 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 export const SUPABASE_MAX_PAGE_SIZE = 1000
 export const SUPABASE_TABLE_CARDS = 'Cards'
+export const SUPABASE_TABLE_TALENTS = 'Talents'

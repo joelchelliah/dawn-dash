@@ -1,3 +1,4 @@
+import { mapAndSortCardsData } from '../utils/cardsResponseMapper'
 import {
   supabase,
   SUPABASE_MAX_PAGE_SIZE,
@@ -42,14 +43,7 @@ export const fetchCards = async (onProgress: (progress: number) => void): Promis
       onProgress(progress)
     }
 
-    const sortedUniqueCards = allCards
-      .sort((a, b) => {
-        if (a.color !== b.color) return a.color - b.color
-        if (a.rarity !== b.rarity) return b.rarity - a.rarity
-
-        return a.name.localeCompare(b.name)
-      })
-      .filter((card, index, self) => index === self.findIndex(({ name }) => name === card.name))
+    const sortedUniqueCards = mapAndSortCardsData(allCards)
 
     onProgress(100)
     return sortedUniqueCards

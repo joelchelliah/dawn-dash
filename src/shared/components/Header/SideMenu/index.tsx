@@ -11,7 +11,7 @@ import InfoModal from '../../Modals/InfoModal'
 import styles from './index.module.scss'
 
 interface SideMenuProps {
-  currentPage: 'speedruns' | 'cardex'
+  currentPage: 'speedruns' | 'cardex' | 'skilldex'
 }
 
 const SideMenu = ({ currentPage }: SideMenuProps) => {

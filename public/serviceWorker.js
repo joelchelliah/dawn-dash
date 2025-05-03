@@ -21,6 +21,7 @@ const IMAGE_URLS = [
   'https://blightbane.io/images/neutral.webp',
   'https://blightbane.io/images/icons/Dance%20of%20Blight_eclypse.webp', // Dance of Blight
   'https://blightbane.io/images/icons/cards_metamorphosis_2_48.webp', // Abracardabra
+  'https://blightbane.io/images/icons/elegance.webp', // Elegance
   'https://blightbane.io/images/monsters/dc_dantelion.webp', // Dantelion
   'https://blightbane.io/images/icons/Forgery_eclypse-miniset.webp', // Rushed Forgery
   'https://blightbane.io/images/health.webp', // HEALTH

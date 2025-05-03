@@ -6,7 +6,7 @@ interface HeaderProps {
   logoSrc: string
   title: string
   subtitle: string
-  currentPage: 'speedruns' | 'cardex'
+  currentPage: 'speedruns' | 'cardex' | 'skilldex'
 }
 
 const Header = ({ onLogoClick, logoSrc, title, subtitle, currentPage }: HeaderProps) => {
