@@ -1,4 +1,4 @@
-import ResultsPanel from '../../codex/components/ResultsPanel'
+import CardResultsPanel from '../../codex/components/ResultsPanels/CardResultsPanel'
 import CardSearchPanel from '../../codex/components/SearchPanels/CardSearchPanel'
 import { useCardSearchFilters } from '../../codex/hooks/useSearchFilters'
 import CodexLoadingMessage from '../../codex/components/CodexLoadingMessage'
@@ -38,7 +38,7 @@ function CardCodex(): JSX.Element {
               useSearchFilters={useSearchFiltersHook}
               useCardData={useCardDataHook}
             />
-            <ResultsPanel useSearchFilters={useSearchFiltersHook} />
+            <CardResultsPanel useSearchFilters={useSearchFiltersHook} />
           </>
         )}
       </div>

@@ -1,3 +1,4 @@
+import TalentResultsPanel from '../../codex/components/ResultsPanels/TalentResultsPanel'
 import { useTalentSearchFilters } from '../../codex/hooks/useSearchFilters'
 import TalentSearchPanel from '../../codex/components/SearchPanels/TalentSearchPanel'
 import { EleganceImageUrl } from '../../shared/utils/imageUrls'
@@ -35,7 +36,7 @@ function TalentCodex(): JSX.Element {
               useSearchFilters={useSearchFiltersHook}
               useTalentData={useTalentDataHook}
             />
-            {/* <ResultsPanel useSearchFilters={useSearchFiltersHook} /> */}
+            <TalentResultsPanel useSearchFilters={useSearchFiltersHook} />
           </>
         )}
       </div>

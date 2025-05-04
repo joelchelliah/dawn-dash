@@ -1,4 +1,4 @@
-import GradientLink from '../../../../shared/components/GradientLink'
+import GradientLink from '../../../../../shared/components/GradientLink'
 import {
   CircleIcon,
   SingleStarIcon,
@@ -6,15 +6,15 @@ import {
   TripleStarsIcon,
   SkullIcon,
   CrossIcon,
-} from '../../../../shared/utils/icons'
-import { createCx } from '../../../../shared/utils/classnames'
-import { UseCardSearchFilters } from '../../../hooks/useSearchFilters'
-import { CardData } from '../../../types/cards'
+} from '../../../../../shared/utils/icons'
+import { createCx } from '../../../../../shared/utils/classnames'
+import { UseCardSearchFilters } from '../../../../hooks/useSearchFilters'
+import { CardData } from '../../../../types/cards'
 import {
   isNonCollectible,
   containsNonCollectible,
   parseCardDescription,
-} from '../../../utils/cardHelper'
+} from '../../../../utils/cardHelper'
 
 import styles from './index.module.scss'
 

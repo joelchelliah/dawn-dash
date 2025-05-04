@@ -1,29 +1,27 @@
 import { Fragment } from 'react/jsx-runtime'
 
-import { CardData } from '../../../types/cards'
-
 import styles from './index.module.scss'
 
 interface KeywordsSummaryProps {
-  matchingCards: CardData[]
+  matches: string[]
   parsedKeywords: string[]
-  showingCardsWithoutKeywords: boolean
+  showingResultsWithoutKeywords: boolean
   className?: string
 }
 
 const KeywordsSummary = ({
-  matchingCards,
+  matches,
   parsedKeywords,
-  showingCardsWithoutKeywords,
+  showingResultsWithoutKeywords,
   className,
 }: KeywordsSummaryProps) => {
-  if (showingCardsWithoutKeywords) {
+  if (showingResultsWithoutKeywords) {
     return (
       <div className={className}>
         <div className={styles['no-keywords-warning']}>
-          Found <strong>{matchingCards.length}</strong> cards, matching only the filters!
+          Found <strong>{matches.length}</strong> results, matching only the filters!
         </div>
-        {matchingCards.length > 0
+        {matches.length > 0
           ? 'Type something into the search bar to narrow down the result.'
           : 'Try enabling more filters.'}
       </div>
@@ -32,14 +30,11 @@ const KeywordsSummary = ({
 
   return (
     <div className={className}>
-      Found <strong>{matchingCards.length}</strong> cards matching:
+      Found <strong>{matches.length}</strong> results matching:
       <div className={styles['keywords-summary']}>
         {'[ '}
         {parsedKeywords.map((keyword, index) => {
-          const fullMatch = matchingCards.some(
-            ({ name }) => name.toLowerCase() === keyword.toLowerCase()
-          )
-
+          const fullMatch = matches.some((match) => match.toLowerCase() === keyword.toLowerCase())
           const className = fullMatch ? styles['keywords-summary__full-match'] : ''
 
           return (
