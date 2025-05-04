@@ -1,0 +1,36 @@
+@use '../../../../../styles/index' as *;
+
+.talent-tree-container {
+  width: 100%;
+  overflow: auto;
+  margin-top: 1rem;
+}
+
+.talent-tree {
+  width: 100%;
+  height: 100%;
+  min-height: 500px;
+}
+
+.tree-link {
+  fill: none;
+  stroke: $color-primary-base;
+  stroke-width: 1px;
+  opacity: 0.5;
+}
+
+.tree-node {
+  cursor: pointer;
+}
+
+.tree-node-circle {
+  fill: #fff;
+  stroke: #666;
+  stroke-width: 2px;
+}
+
+.tree-node-text {
+  font-size: 12px;
+  font-family: sans-serif;
+  fill: $color-primary-base;
+}

@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 
-import { parseCardDescription } from '../../../utils/cardHelper'
 import GradientButton from '../../../../shared/components/Buttons/GradientButton'
 import { UseTalentSearchFilters } from '../../../hooks/useSearchFilters'
 import PanelHeader from '../../PanelHeader'
@@ -8,6 +7,7 @@ import { createCx } from '../../../../shared/utils/classnames'
 import KeywordsSummary from '../KeywordsSummary'
 
 import styles from './index.module.scss'
+import TalentTree from './TalentTree'
 
 interface TalentResultsPanelProps {
   useSearchFilters: UseTalentSearchFilters
@@ -37,15 +37,7 @@ const TalentResultsPanel = ({ useSearchFilters }: TalentResultsPanelProps) => {
           className={cx('results-container__info')}
         />
 
-        {matchingTalents.map((talent) => (
-          <div key={talent.name} className={cx('results-cards')}>
-            <div>
-              <b>{talent.name}</b>
-            </div>
-            <div dangerouslySetInnerHTML={{ __html: parseCardDescription(talent.description) }} />
-            <br />
-          </div>
-        ))}
+        <TalentTree talents={matchingTalents} />
       </div>
     )
   }

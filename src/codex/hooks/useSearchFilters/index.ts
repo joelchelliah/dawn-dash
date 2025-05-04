@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 
-import { TalentData } from '../../types/talents'
+import { ParsedTalentData } from '../../types/talents'
 import { WeeklyChallengeFilterData } from '../../types/filters'
 import {
   hasMonsterBanner,
@@ -50,7 +50,7 @@ export interface UseTalentSearchFilters {
   keywords: string
   setKeywords: (keywords: string) => void
   parsedKeywords: string[]
-  matchingTalents: TalentData[]
+  matchingTalents: ParsedTalentData[]
   useCardSetFilters: ReturnType<typeof useCardSetFilters>
   useTierFilters: ReturnType<typeof useTierFilters>
   resetFilters: () => void
@@ -285,13 +285,13 @@ export const useCardSearchFilters = (cardData: CardData[] | undefined): UseCardS
 }
 
 export const useTalentSearchFilters = (
-  talentData: TalentData[] | undefined
+  talentData: ParsedTalentData[] | undefined
 ): UseTalentSearchFilters => {
   const cachedFilters = getCachedTalentCodexSearchFilters()
 
   const [keywords, setKeywordsUntracked] = useState(cachedFilters?.keywords || '')
   const [parsedKeywords, setParsedKeywords] = useState<string[]>([])
-  const [matchingTalents, setMatchingTalents] = useState<TalentData[]>([])
+  const [matchingTalents, setMatchingTalents] = useState<ParsedTalentData[]>([])
 
   // TODO: Extras with Offers, talents from invasion events?
 
@@ -415,7 +415,7 @@ const parseKeywords = (keywords: string): string[] =>
     .filter(Boolean)
 
 const isNameOrDescriptionIncluded = (
-  { name, description }: CardData | TalentData,
+  { name, description }: CardData | ParsedTalentData,
   keywords: string[]
 ): boolean =>
   keywords.length === 0 ||
