@@ -9,10 +9,10 @@ import {
   cacheTalentData,
 } from '../utils/codexTalentsStore'
 import { isNotNullOrEmpty } from '../../shared/utils/lists'
-import { TalentData } from '../types/talents'
+import { ParsedTalentData } from '../types/talents'
 
 export interface UseTalentData {
-  talentData: TalentData[] | undefined
+  talentData: ParsedTalentData[] | undefined
   isLoading: boolean
   isLoadingInBackground: boolean
   isError: boolean
@@ -23,7 +23,7 @@ export interface UseTalentData {
 }
 
 export function useTalentData(): UseTalentData {
-  const [localData, setLocalData] = useState<TalentData[] | null>(null)
+  const [localData, setLocalData] = useState<ParsedTalentData[] | null>(null)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [progress, setProgress] = useState(0)
 
@@ -37,7 +37,7 @@ export function useTalentData(): UseTalentData {
     }
   }, [])
 
-  const { data, error, isLoading } = useSWR<TalentData[]>(
+  const { data, error, isLoading } = useSWR<ParsedTalentData[]>(
     isRefreshing ? ['talents'] : null,
     () => fetchTalents(setProgress),
     {
