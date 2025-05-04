@@ -7,7 +7,11 @@ const CACHE_KEY = `codex_cards_${CACHE_VERSION}`
 const CACHE_DURATION = 24 * 60 * 60 * 1000 // 1 day
 
 export function cacheCardData(cards: CardData[]) {
-  saveToCache(CACHE_KEY, cards)
+  try {
+    saveToCache(CACHE_KEY, cards)
+  } catch (e) {
+    console.warn('Failed to cache cards:', e)
+  }
 }
 
 export function getCachedCardData(): CachedData<CardData[]> {

@@ -7,6 +7,7 @@ import { useFromNow } from '../../../shared/hooks/useFromNow'
 import styles from './index.module.scss'
 
 interface CodexLastUpdatedProps {
+  type: 'card' | 'talent'
   lastUpdated: number | null
   isLoading: boolean
   isLoadingInBackground: boolean
@@ -16,6 +17,7 @@ interface CodexLastUpdatedProps {
 }
 
 const CodexLastUpdated = ({
+  type,
   lastUpdated,
   isLoading,
   isLoadingInBackground,
@@ -23,7 +25,10 @@ const CodexLastUpdated = ({
   progress,
   refresh,
 }: CodexLastUpdatedProps) => {
-  const fromNow = useFromNow(lastUpdated, 'Card data synced')
+  const fromNow = useFromNow(
+    lastUpdated,
+    `${type.charAt(0).toUpperCase() + type.slice(1)} data synced`
+  )
 
   return (
     <div
@@ -35,7 +40,7 @@ const CodexLastUpdated = ({
       {isLoadingInBackground ? (
         <>
           <div className={styles['last-updated__progress-message']}>
-            <HourglassIcon /> Syncing card data: {progress}%
+            <HourglassIcon /> Syncing {type} data: {progress}%
           </div>
           <div className={styles['last-updated__progress-container']}>
             <div
@@ -45,7 +50,7 @@ const CodexLastUpdated = ({
           </div>
         </>
       ) : isErrorInBackground ? (
-        <div>💥 Error syncing card data... Try again later!</div>
+        <div>💥 Error syncing {type} data... Try again later!</div>
       ) : (
         fromNow
       )}

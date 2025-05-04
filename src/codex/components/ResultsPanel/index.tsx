@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 
 import GradientButton from '../../../shared/components/Buttons/GradientButton'
 import { CardData } from '../../types/cards'
-import { UseSearchFilters } from '../../hooks/useSearchFilters'
+import { UseCardSearchFilters } from '../../hooks/useSearchFilters'
 import PanelHeader from '../PanelHeader'
 import { createCx } from '../../../shared/utils/classnames'
 
@@ -11,7 +11,7 @@ import KeywordsSummary from './KeywordsSummary'
 import ResultCard from './ResultCard'
 
 interface ResultsPanelProps {
-  useSearchFilters: UseSearchFilters
+  useSearchFilters: UseCardSearchFilters
 }
 
 const cx = createCx(styles)

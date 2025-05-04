@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 
+import { TalentData } from '../../types/talents'
 import { WeeklyChallengeFilterData } from '../../types/filters'
 import {
   hasMonsterBanner,
@@ -12,7 +13,9 @@ import { isArrayEqual } from '../../../shared/utils/lists'
 import { CardData } from '../../types/cards'
 import {
   cacheCardCodexSearchFilters,
+  cacheTalentCodexSearchFilters,
   getCachedCardCodexSearchFilters,
+  getCachedTalentCodexSearchFilters,
 } from '../../utils/codexFilterStore'
 import { useWeeklyChallengeFilterData } from '../useWeeklyChallengeFilterData'
 
@@ -22,8 +25,9 @@ import { useBannerFilters } from './useBannerFilters'
 import { useExtraFilters } from './useExtraFilters'
 import { useFormattingFilters } from './useFormattingFilters'
 import { useCardStrike } from './useCardStrike'
+import { useTierFilters } from './useTierFilters'
 
-export interface UseSearchFilters {
+export interface UseCardSearchFilters {
   keywords: string
   setKeywords: (keywords: string) => void
   parsedKeywords: string[]
@@ -42,7 +46,17 @@ export interface UseSearchFilters {
   isWeeklyChallengeError: boolean
 }
 
-export const useSearchFilters = (cardData: CardData[] | undefined): UseSearchFilters => {
+export interface UseTalentSearchFilters {
+  keywords: string
+  setKeywords: (keywords: string) => void
+  parsedKeywords: string[]
+  matchingTalents: TalentData[]
+  useCardSetFilters: ReturnType<typeof useCardSetFilters>
+  useTierFilters: ReturnType<typeof useTierFilters>
+  resetFilters: () => void
+}
+
+export const useCardSearchFilters = (cardData: CardData[] | undefined): UseCardSearchFilters => {
   const cachedFilters = getCachedCardCodexSearchFilters()
   const { filterData, isFilterDataError, isFilterDataLoading } = useWeeklyChallengeFilterData()
 
@@ -201,10 +215,7 @@ export const useSearchFilters = (cardData: CardData[] | undefined): UseSearchFil
   // --------------------------------------------------
 
   useEffect(() => {
-    const parsed = keywords
-      .split(/,\s+or\s+|,\s*|\s+or\s+/)
-      .map((keyword) => keyword.trim())
-      .filter(Boolean)
+    const parsed = parseKeywords(keywords)
 
     if (!isArrayEqual(parsedKeywords, parsed)) {
       setParsedKeywords(parsed)
@@ -233,15 +244,7 @@ export const useSearchFilters = (cardData: CardData[] | undefined): UseSearchFil
 
           return true
         })
-        .filter(
-          ({ name, description }) =>
-            parsed.length === 0 ||
-            parsed.some(
-              (keyword) =>
-                name.toLowerCase().includes(keyword.toLowerCase()) ||
-                description.toLowerCase().includes(keyword.toLowerCase())
-            )
-        )
+        .filter((card) => isNameOrDescriptionIncluded(card, parsed))
 
       if (!isArrayEqual(filteredCards, matchingCards, 'name')) {
         setMatchingCards(filteredCards)
@@ -280,3 +283,144 @@ export const useSearchFilters = (cardData: CardData[] | undefined): UseSearchFil
     isWeeklyChallengeError: isFilterDataError,
   }
 }
+
+export const useTalentSearchFilters = (
+  talentData: TalentData[] | undefined
+): UseTalentSearchFilters => {
+  const cachedFilters = getCachedTalentCodexSearchFilters()
+
+  const [keywords, setKeywordsUntracked] = useState(cachedFilters?.keywords || '')
+  const [parsedKeywords, setParsedKeywords] = useState<string[]>([])
+  const [matchingTalents, setMatchingTalents] = useState<TalentData[]>([])
+
+  // TODO: Extras with Offers, talents from invasion events?
+
+  const untrackedUseCardSetFilters = useCardSetFilters(cachedFilters?.cardSets)
+  const untrackedUseTierFilters = useTierFilters(cachedFilters?.tiers)
+
+  // --------------------------------------------------
+  // ------ Tracking user interaction on filters ------
+  // ------ to avoid initial cache saves on load ------
+  // --------------------------------------------------
+  const hasUserChangedFilter = useRef(false)
+
+  const trackedSetKeywords = (keywords: string) => {
+    hasUserChangedFilter.current = true
+    setKeywordsUntracked(keywords)
+  }
+
+  const trackedUseCardSetFilters = {
+    ...untrackedUseCardSetFilters,
+    handleCardSetFilterToggle: (cardSet: string) => {
+      hasUserChangedFilter.current = true
+      untrackedUseCardSetFilters.handleCardSetFilterToggle(cardSet)
+    },
+  }
+
+  const trackedUseTierFilters = {
+    ...untrackedUseTierFilters,
+    handleTierFilterToggle: (tier: string) => {
+      hasUserChangedFilter.current = true
+      untrackedUseTierFilters.handleTierFilterToggle(tier)
+    },
+  }
+  // --------------------------------------------------
+  // --------------------------------------------------
+
+  const { cardSetFilters, isCardSetIndexSelected, resetCardSetFilters } = trackedUseCardSetFilters
+  const { tierFilters, isTierIndexSelected, resetTierFilters } = trackedUseTierFilters
+
+  const resetFilters = () => {
+    trackedSetKeywords('')
+    setParsedKeywords([])
+    resetCardSetFilters()
+    resetTierFilters()
+  }
+
+  // --------------------------------------------------
+  // -------- Debounced caching of filters ------------
+  // --------------------------------------------------
+  const filterDebounceTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  useEffect(() => {
+    if (!hasUserChangedFilter.current) return
+
+    if (filterDebounceTimeoutRef.current) {
+      clearTimeout(filterDebounceTimeoutRef.current)
+    }
+
+    filterDebounceTimeoutRef.current = setTimeout(() => {
+      cacheTalentCodexSearchFilters({
+        keywords,
+        cardSets: cardSetFilters,
+        tiers: tierFilters,
+        lastUpdated: Date.now(),
+      })
+    }, 1000)
+
+    return () => {
+      if (filterDebounceTimeoutRef.current) {
+        clearTimeout(filterDebounceTimeoutRef.current)
+      }
+    }
+  }, [cardSetFilters, tierFilters, keywords])
+
+  // --------------------------------------------------
+  // ------------- Filtering logic --------------------
+  // --------------------------------------------------
+
+  useEffect(() => {
+    const parsed = parseKeywords(keywords)
+
+    if (!isArrayEqual(parsedKeywords, parsed)) {
+      setParsedKeywords(parsed)
+    }
+
+    if (talentData) {
+      const filteredTalents = talentData
+        .filter((talent) => isCardSetIndexSelected(talent.expansion))
+        .filter((talent) => isTierIndexSelected(talent.tier))
+        .filter((talent) => isNameOrDescriptionIncluded(talent, parsed))
+
+      if (!isArrayEqual(filteredTalents, matchingTalents, 'name')) {
+        setMatchingTalents(filteredTalents)
+      }
+    }
+  }, [
+    talentData,
+    isCardSetIndexSelected,
+    isTierIndexSelected,
+    keywords,
+    matchingTalents,
+    parsedKeywords,
+  ])
+  // --------------------------------------------------
+  // --------------------------------------------------
+
+  return {
+    keywords,
+    setKeywords: trackedSetKeywords,
+    parsedKeywords,
+    matchingTalents,
+    useCardSetFilters: trackedUseCardSetFilters,
+    useTierFilters: trackedUseTierFilters,
+    resetFilters,
+  }
+}
+
+const parseKeywords = (keywords: string): string[] =>
+  keywords
+    .split(/,\s+or\s+|,\s*|\s+or\s+/)
+    .map((keyword) => keyword.trim())
+    .filter(Boolean)
+
+const isNameOrDescriptionIncluded = (
+  { name, description }: CardData | TalentData,
+  keywords: string[]
+): boolean =>
+  keywords.length === 0 ||
+  keywords.some(
+    (keyword) =>
+      name.toLowerCase().includes(keyword.toLowerCase()) ||
+      description.toLowerCase().includes(keyword.toLowerCase())
+  )

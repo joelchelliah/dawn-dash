@@ -11,5 +11,9 @@ export const useNavigation = () => {
     router.replace('/codex/cards')
   }
 
-  return { resetToSpeedruns, resetToCardCodex }
+  const resetToTalentCodex = () => {
+    router.replace('/codex/talents')
+  }
+
+  return { resetToSpeedruns, resetToCardCodex, resetToTalentCodex }
 }
