@@ -7,7 +7,11 @@ const CACHE_KEY = `codex_talents_${CACHE_VERSION}`
 const CACHE_DURATION = 24 * 60 * 60 * 1000 // 1 day
 
 export function cacheTalentData(talents: TalentData[]) {
-  saveToCache(CACHE_KEY, talents)
+  try {
+    saveToCache(CACHE_KEY, talents)
+  } catch (e) {
+    console.warn('Failed to cache talents:', e)
+  }
 }
 
 export function getCachedTalentData(): CachedData<TalentData[]> {

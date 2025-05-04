@@ -8,7 +8,7 @@ import {
   CrossIcon,
 } from '../../../../shared/utils/icons'
 import { createCx } from '../../../../shared/utils/classnames'
-import { UseSearchFilters } from '../../../hooks/useSearchFilters'
+import { UseCardSearchFilters } from '../../../hooks/useSearchFilters'
 import { CardData } from '../../../types/cards'
 import {
   isNonCollectible,
@@ -20,7 +20,7 @@ import styles from './index.module.scss'
 
 interface ResultCardProps {
   card: CardData
-  useSearchFilters: UseSearchFilters
+  useSearchFilters: UseCardSearchFilters
   showCardsWithoutKeywords: boolean
 }
 

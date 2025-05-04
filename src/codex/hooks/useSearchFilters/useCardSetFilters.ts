@@ -9,12 +9,12 @@ import { createFilterHook } from './useFilterFactory'
 
 const defaultCardSetFilterValueMap: Record<string, boolean> = {
   [CardSetFilterOption.Core]: true,
-  [CardSetFilterOption.Metaprogress]: false,
-  [CardSetFilterOption.Metamorphosis]: false,
-  [CardSetFilterOption.Infinitum]: false,
-  [CardSetFilterOption.Catalyst]: false,
-  [CardSetFilterOption.Eclypse]: false,
-  [SharedFilterOption.All]: false,
+  [CardSetFilterOption.Metaprogress]: true,
+  [CardSetFilterOption.Metamorphosis]: true,
+  [CardSetFilterOption.Infinitum]: true,
+  [CardSetFilterOption.Catalyst]: true,
+  [CardSetFilterOption.Eclypse]: true,
+  [SharedFilterOption.All]: true,
   [SharedFilterOption.None]: false,
 }
 

@@ -1,6 +1,6 @@
 import ResultsPanel from '../../codex/components/ResultsPanel'
-import SearchPanel from '../../codex/components/SearchPanel'
-import { useSearchFilters } from '../../codex/hooks/useSearchFilters'
+import CardSearchPanel from '../../codex/components/SearchPanels/CardSearchPanel'
+import { useCardSearchFilters } from '../../codex/hooks/useSearchFilters'
 import CodexLoadingMessage from '../../codex/components/CodexLoadingMessage'
 import CodexErrorMessage from '../../codex/components/CodexErrorMessage'
 import { useNavigation } from '../../shared/hooks/useNavigation'
@@ -17,7 +17,7 @@ function CardCodex(): JSX.Element {
   const useCardDataHook = useCardData()
   const { cardData, isLoading, isError, progress } = useCardDataHook
 
-  const useSearchFiltersHook = useSearchFilters(cardData)
+  const useSearchFiltersHook = useCardSearchFilters(cardData)
 
   return (
     <div className={styles['container']}>
@@ -34,7 +34,10 @@ function CardCodex(): JSX.Element {
         <CodexErrorMessage isVisible={isError && !isLoading} />
         {!isError && !isLoading && (
           <>
-            <SearchPanel useSearchFilters={useSearchFiltersHook} useCardData={useCardDataHook} />
+            <CardSearchPanel
+              useSearchFilters={useSearchFiltersHook}
+              useCardData={useCardDataHook}
+            />
             <ResultsPanel useSearchFilters={useSearchFiltersHook} />
           </>
         )}

@@ -9,9 +9,14 @@ export const useNavigation = () => {
   }
 
   const resetToCardCodex = () => {
-    navigate('/misc/codex/cards', { replace: true })
+    navigate('/codex/cards', { replace: true })
     window.location.reload()
   }
 
-  return { resetToSpeedruns, resetToCardCodex }
+  const resetToTalentCodex = () => {
+    navigate('/codex/talents', { replace: true })
+    window.location.reload()
+  }
+
+  return { resetToSpeedruns, resetToCardCodex, resetToTalentCodex }
 }
