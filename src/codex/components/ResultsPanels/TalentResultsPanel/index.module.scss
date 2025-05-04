@@ -1,0 +1,68 @@
+@use '../../../../styles/index' as *;
+
+.results-panel {
+  flex: 2;
+  background-color: $color-component-bg;
+  padding: 1rem;
+  border-radius: 4px;
+
+  @media (max-width: $breakpoint-mobile) {
+    flex: 1;
+  }
+}
+
+.results-container {
+  display: flex;
+  flex-direction: column;
+  margin-top: 1rem;
+
+  &__info {
+    font-size: font-size('xs');
+    color: $color-primary-muted;
+    margin: 0 0 1rem;
+  }
+
+  &__no-keywords-button {
+    margin: 2.5rem auto;
+    font-size: font-size('sm');
+    line-height: 1.2;
+    padding: 0.75rem 1.25rem !important;
+
+    &:hover {
+      padding: 0.8125rem 1.25rem !important;
+    }
+  }
+
+  @media (max-width: $breakpoint-mobile) {
+    margin-top: 0.5rem;
+
+    &__no-keywords-button {
+      margin: 1rem auto;
+    }
+  }
+}
+
+.results-cards {
+  display: flex;
+  flex-direction: column;
+  font-size: font-size('xs');
+  color: $color-primary-base;
+  gap: 0.125rem;
+
+  &__banner {
+    padding: 0.25rem 0.5rem;
+    border-top: 1px solid $color-component-bg;
+    border-bottom: 1px solid $color-component-bg;
+  }
+
+  // Apply rain texture and color to all banner variations
+  @each $number, $color in $banner-index-to-color-map {
+    &__banner--#{$number} {
+      @extend .results-cards__banner;
+      @include rainTexture($color, false);
+    }
+    &:nth-child(even) &__banner--#{$number} {
+      @include rainTexture($color, true);
+    }
+  }
+}

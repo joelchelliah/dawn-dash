@@ -1,3 +1,4 @@
+import CardResultsPanel from '../codex/components/ResultsPanels/CardResultsPanel'
 import CardSearchPanel from '../codex/components/SearchPanels/CardSearchPanel'
 import { useCardSearchFilters } from '../codex/hooks/useSearchFilters'
 import CodexLoadingMessage from '../codex/components/CodexLoadingMessage'
@@ -8,7 +9,6 @@ import Header from '../shared/components/Header'
 import { AbracadabraImageUrl } from '../shared/utils/imageUrls'
 
 import { useCardData } from './hooks/useCardData'
-import ResultsPanel from './components/ResultsPanel'
 import styles from './cards.module.scss'
 
 function Cards(): JSX.Element {
@@ -38,7 +38,7 @@ function Cards(): JSX.Element {
               useSearchFilters={useSearchFiltersHook}
               useCardData={useCardDataHook}
             />
-            <ResultsPanel useSearchFilters={useSearchFiltersHook} />
+            <CardResultsPanel useSearchFilters={useSearchFiltersHook} />
           </>
         )}
       </div>

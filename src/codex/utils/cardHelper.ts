@@ -62,8 +62,8 @@ export const isNonCollectibleMonsterCard = (card: CardData) =>
 export const isNonCollectible = (card: CardData) =>
   isNonCollectibleRegularCard(card) || isNonCollectibleMonsterCard(card)
 
-export const parseCardDescription = (description: string, iconClassName: string) =>
-  description
+export const parseCardDescription = (description: string, iconClassName?: string) => {
+  const parsedDescription = description
     .replace(/<br\s*\/?>/g, '<br />') // Normalize <br> tags
     .replace(/\[\[/g, '[') // Replace [[ with [
     .replace(/\]\]/g, ']') // Replace ]] with ]
@@ -71,12 +71,19 @@ export const parseCardDescription = (description: string, iconClassName: string)
     .replace(/\(\{/g, '(') // Replace ({ with (
     .replace(/\]\)/g, ')') // Replace ]) with )
     .replace(/\}\)/g, ')') // Replace }) with )
+
+  if (!iconClassName) {
+    return parsedDescription.trim()
+  }
+
+  return parsedDescription
     .replaceAll('HEALTH', `<img class="${iconClassName}" src="${HealthImageUrl}" alt="HEALTH" />`)
     .replaceAll('HOLY', `<img class="${iconClassName}" src="${HolyImageUrl}" alt="HOLY" />`)
     .replaceAll('STR', `<img class="${iconClassName}" src="${StrImageUrl}" alt="STR" />`)
     .replaceAll('INT', `<img class="${iconClassName}" src="${IntImageUrl}" alt="INT" />`)
     .replaceAll('DEX', `<img class="${iconClassName}" src="${DexImageUrl}" alt="DEX" />`)
     .trim()
+}
 
 export const containsNonCollectible = (cards: CardData[]) =>
   cards.some((card) => isNonCollectible(card))
