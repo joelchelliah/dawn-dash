@@ -16,7 +16,7 @@
   fill: none;
   stroke: $color-primary-base;
   stroke-width: 1px;
-  opacity: 0.5;
+  opacity: 0.25;
 }
 
 .tree-node {
@@ -30,7 +30,6 @@
 }
 
 .tree-node-text {
-  font-size: 12px;
-  font-family: sans-serif;
+  font-size: font-size('xs');
   fill: $color-primary-base;
 }

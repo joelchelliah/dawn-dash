@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 
+import { TalentTreeNode, TalentTreeNodeType } from '../../../types/talents'
 import GradientButton from '../../../../shared/components/Buttons/GradientButton'
 import { UseTalentSearchFilters } from '../../../hooks/useSearchFilters'
 import PanelHeader from '../../PanelHeader'
@@ -17,7 +18,26 @@ const cx = createCx(styles)
 
 const TalentResultsPanel = ({ useSearchFilters }: TalentResultsPanelProps) => {
   const [showCardsWithoutKeywords, setShowCardsWithoutKeywords] = useState(false)
-  const { parsedKeywords, matchingTalents } = useSearchFilters
+  const { parsedKeywords, matchingTalentTree } = useSearchFilters
+
+  function collectTalentNames(nodes: TalentTreeNode[]): string[] {
+    let names: string[] = []
+    for (const node of nodes) {
+      if (node.type === TalentTreeNodeType.TALENT) {
+        names.push(node.name)
+        names = names.concat(collectTalentNames(node.children))
+      } else {
+        names = names.concat(collectTalentNames(node.children))
+      }
+    }
+    return names
+  }
+
+  const allTalentNames = collectTalentNames([
+    ...(matchingTalentTree?.noReqNode.children ?? []),
+    ...(matchingTalentTree?.energyNodes ?? []),
+    ...(matchingTalentTree?.classNodes ?? []),
+  ])
 
   useEffect(() => {
     if (parsedKeywords.length > 0) {
@@ -31,13 +51,13 @@ const TalentResultsPanel = ({ useSearchFilters }: TalentResultsPanelProps) => {
     return (
       <div className={cx('results-container')} key={parsedKeywords.join(',')}>
         <KeywordsSummary
-          matches={matchingTalents.map((talent) => talent.name)}
+          matches={allTalentNames}
           parsedKeywords={parsedKeywords}
           showingResultsWithoutKeywords={showingTalentsWithoutKeywords}
           className={cx('results-container__info')}
         />
 
-        <TalentTree talents={matchingTalents} />
+        <TalentTree talentTree={matchingTalentTree} />
       </div>
     )
   }

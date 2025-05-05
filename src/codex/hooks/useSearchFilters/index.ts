@@ -1,6 +1,13 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 
-import { ParsedTalentData } from '../../types/talents'
+import { isNotNullOrUndefined } from '../../../shared/utils/object'
+import {
+  TalentTree,
+  TalentTreeNode,
+  TalentTreeNodeType,
+  TalentTreeRequirementNode,
+  TalentTreeTalentNode,
+} from '../../types/talents'
 import { WeeklyChallengeFilterData } from '../../types/filters'
 import {
   hasMonsterBanner,
@@ -50,7 +57,7 @@ export interface UseTalentSearchFilters {
   keywords: string
   setKeywords: (keywords: string) => void
   parsedKeywords: string[]
-  matchingTalents: ParsedTalentData[]
+  matchingTalentTree: TalentTree | undefined
   useCardSetFilters: ReturnType<typeof useCardSetFilters>
   useTierFilters: ReturnType<typeof useTierFilters>
   resetFilters: () => void
@@ -285,13 +292,13 @@ export const useCardSearchFilters = (cardData: CardData[] | undefined): UseCardS
 }
 
 export const useTalentSearchFilters = (
-  talentData: ParsedTalentData[] | undefined
+  talentTree: TalentTree | undefined
 ): UseTalentSearchFilters => {
   const cachedFilters = getCachedTalentCodexSearchFilters()
 
   const [keywords, setKeywordsUntracked] = useState(cachedFilters?.keywords || '')
   const [parsedKeywords, setParsedKeywords] = useState<string[]>([])
-  const [matchingTalents, setMatchingTalents] = useState<ParsedTalentData[]>([])
+  const [matchingTalentTree, setMatchingTalentTree] = useState<TalentTree | undefined>(undefined)
 
   // TODO: Extras with Offers, talents from invasion events?
 
@@ -368,6 +375,29 @@ export const useTalentSearchFilters = (
   // --------------------------------------------------
   // ------------- Filtering logic --------------------
   // --------------------------------------------------
+  const filterTalentTreeNode = useCallback(function <
+    T extends TalentTreeTalentNode | TalentTreeRequirementNode,
+  >(node: T, filterFn: (talent: TalentTreeTalentNode) => boolean): T | null {
+    if (node.type === TalentTreeNodeType.TALENT) {
+      const filteredChildren = node.children
+        .map((child) => filterTalentTreeNode(child, filterFn))
+        .filter(isNotNullOrUndefined)
+
+      if (filterFn(node) || filteredChildren.length > 0) {
+        return { ...node, children: filteredChildren } as T
+      }
+      return null
+    } else {
+      const filteredChildren = node.children
+        .map((child) => filterTalentTreeNode(child, filterFn))
+        .filter(isNotNullOrUndefined)
+
+      if (filteredChildren.length > 0) {
+        return { ...node, children: filteredChildren } as T
+      }
+      return null
+    }
+  }, [])
 
   useEffect(() => {
     const parsed = parseKeywords(keywords)
@@ -376,23 +406,45 @@ export const useTalentSearchFilters = (
       setParsedKeywords(parsed)
     }
 
-    if (talentData) {
-      const filteredTalents = talentData
-        .filter((talent) => isCardSetIndexSelected(talent.expansion))
-        .filter((talent) => isTierIndexSelected(talent.tier))
-        .filter((talent) => isNameOrDescriptionIncluded(talent, parsed))
+    if (talentTree) {
+      const filterFn = (node: TalentTreeTalentNode) =>
+        isCardSetIndexSelected(node.expansion) &&
+        isTierIndexSelected(node.tier) &&
+        isNameOrDescriptionIncluded(node, parsed)
 
-      if (!isArrayEqual(filteredTalents, matchingTalents, 'name')) {
-        setMatchingTalents(filteredTalents)
+      const filteredTalentNodes = talentTree.noReqNode.children
+        .map((node) => filterTalentTreeNode(node, filterFn))
+        .filter(isNotNullOrUndefined)
+
+      const filteredClassNodes = talentTree.classNodes
+        .map((node) => filterTalentTreeNode(node, filterFn))
+        .filter(isNotNullOrUndefined)
+
+      const filteredEnergyNodes = talentTree.energyNodes
+        .map((node) => filterTalentTreeNode(node, filterFn))
+        .filter(isNotNullOrUndefined)
+
+      const filteredTree: TalentTree = {
+        noReqNode: {
+          ...talentTree.noReqNode,
+          children: filteredTalentNodes,
+        },
+        classNodes: filteredClassNodes,
+        energyNodes: filteredEnergyNodes,
+      }
+
+      if (!matchingTalentTree || !isTalentTreeEqual(filteredTree, matchingTalentTree)) {
+        setMatchingTalentTree(filteredTree)
       }
     }
   }, [
-    talentData,
+    talentTree,
     isCardSetIndexSelected,
     isTierIndexSelected,
     keywords,
-    matchingTalents,
     parsedKeywords,
+    matchingTalentTree,
+    filterTalentTreeNode,
   ])
   // --------------------------------------------------
   // --------------------------------------------------
@@ -401,7 +453,7 @@ export const useTalentSearchFilters = (
     keywords,
     setKeywords: trackedSetKeywords,
     parsedKeywords,
-    matchingTalents,
+    matchingTalentTree,
     useCardSetFilters: trackedUseCardSetFilters,
     useTierFilters: trackedUseTierFilters,
     resetFilters,
@@ -415,7 +467,7 @@ const parseKeywords = (keywords: string): string[] =>
     .filter(Boolean)
 
 const isNameOrDescriptionIncluded = (
-  { name, description }: CardData | ParsedTalentData,
+  { name, description }: CardData | TalentTreeTalentNode,
   keywords: string[]
 ): boolean =>
   keywords.length === 0 ||
@@ -424,3 +476,28 @@ const isNameOrDescriptionIncluded = (
       name.toLowerCase().includes(keyword.toLowerCase()) ||
       description.toLowerCase().includes(keyword.toLowerCase())
   )
+
+const isTalentTreeEqual = (talentTreeA: TalentTree, talentTreeB: TalentTree): boolean =>
+  isTalentTreeNodeEqual(talentTreeA.noReqNode, talentTreeB.noReqNode) &&
+  areTalentTreeNodesEqual(talentTreeA.classNodes, talentTreeB.classNodes) &&
+  areTalentTreeNodesEqual(talentTreeA.energyNodes, talentTreeB.energyNodes)
+
+const areTalentTreeNodesEqual = (nodesA: TalentTreeNode[], nodesB: TalentTreeNode[]): boolean =>
+  nodesA.length === nodesB.length &&
+  nodesA.every((a) => nodesB.some((b) => isTalentTreeNodeEqual(a, b))) &&
+  nodesB.every((b) => nodesA.some((a) => isTalentTreeNodeEqual(a, b)))
+
+const isTalentTreeNodeEqual = (nodeA: TalentTreeNode, nodeB: TalentTreeNode): boolean => {
+  if (nodeA.type !== nodeB.type) return false
+
+  if (nodeA.type === TalentTreeNodeType.TALENT && nodeB.type === TalentTreeNodeType.TALENT) {
+    return (
+      nodeA.name === nodeB.name &&
+      nodeA.description === nodeB.description &&
+      nodeA.tier === nodeB.tier &&
+      areTalentTreeNodesEqual(nodeA.children, nodeB.children)
+    )
+  } else {
+    return nodeA.name === nodeB.name && areTalentTreeNodesEqual(nodeA.children, nodeB.children)
+  }
+}
