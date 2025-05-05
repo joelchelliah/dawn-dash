@@ -13,9 +13,9 @@ import styles from './skills.module.scss'
 function Skills(): JSX.Element {
   const { resetToTalentCodex } = useNavigation()
   const useTalentDataHook = useTalentData()
-  const { talentData, isLoading, isError, progress } = useTalentDataHook
+  const { talentTree, isLoading, isError, progress } = useTalentDataHook
 
-  const useSearchFiltersHook = useTalentSearchFilters(talentData)
+  const useSearchFiltersHook = useTalentSearchFilters(talentTree)
 
   return (
     <div className={styles['container']}>
