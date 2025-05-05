@@ -1,23 +1,23 @@
 import { CachedData } from '../../shared/types/cache'
 import { getFromCache, saveToCache } from '../../shared/utils/storage'
-import { ParsedTalentData } from '../types/talents'
+import { TalentTree } from '../types/talents'
 
 const CACHE_VERSION = 'v0'
 const CACHE_KEY = `codex_talents_${CACHE_VERSION}`
 const CACHE_DURATION = 24 * 60 * 60 * 1000 // 1 day
 
-export function cacheTalentData(talents: ParsedTalentData[]) {
+export function cacheTalentTree(talentTree: TalentTree) {
   try {
-    saveToCache(CACHE_KEY, talents)
+    saveToCache(CACHE_KEY, talentTree)
   } catch (e) {
     console.warn('Failed to cache talents:', e)
   }
 }
 
-export function getCachedTalentData(): CachedData<ParsedTalentData[]> {
+export function getCachedTalentTree(): CachedData<TalentTree> {
   return getFromCache(CACHE_KEY, CACHE_DURATION)
 }
 
-export function getCachedTalentDataTimestamp(): number | null {
-  return getCachedTalentData().timestamp
+export function getCachedTalentTreeTimestamp(): number | null {
+  return getCachedTalentTree().timestamp
 }

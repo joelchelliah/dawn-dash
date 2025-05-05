@@ -1,15 +1,13 @@
-import { mapAndSortTalentsData } from '../utils/talentsResponseMapper'
+import { mapTalentsDataToTalentTree } from '../utils/talentsResponseMapper'
 import {
   supabase,
   SUPABASE_MAX_PAGE_SIZE,
   SUPABASE_TABLE_TALENTS,
 } from '../../shared/config/supabase'
 import { handleError } from '../../shared/utils/apiErrorHandling'
-import { ParsedTalentData, TalentData } from '../types/talents'
+import { TalentData, TalentTree } from '../types/talents'
 
-export const fetchTalents = async (
-  onProgress: (progress: number) => void
-): Promise<ParsedTalentData[]> => {
+export const fetchTalents = async (onProgress: (progress: number) => void): Promise<TalentTree> => {
   try {
     onProgress(10)
 
@@ -33,8 +31,8 @@ export const fetchTalents = async (
       }
 
       if (!talents) {
-        console.warn('No talents returned from Supabase')
-        return []
+        console.error('No talents returned from Supabase')
+        throw new Error('No talents returned from Supabase')
       }
 
       allTalents = [...allTalents, ...talents]
@@ -45,7 +43,7 @@ export const fetchTalents = async (
       onProgress(progress)
     }
 
-    const sortedUniqueTalents = mapAndSortTalentsData(allTalents)
+    const sortedUniqueTalents = mapTalentsDataToTalentTree(allTalents)
 
     onProgress(100)
     return sortedUniqueTalents
