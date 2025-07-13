@@ -1,6 +1,6 @@
 import { useEffect, useRef, useCallback } from 'react'
 
-import { useSearchParams } from 'react-router-dom'
+import { NextRouter, useRouter } from 'next/router'
 
 import {
   DIFFICULTY_VALUES,
@@ -17,7 +17,7 @@ import { Difficulty, SpeedRunClass, SpeedRunSubclass } from '../types/speedRun'
 import { submissionWindowFromUrlString, submissionWindowToUrlString } from '../utils/gameVersion'
 
 function setSearchParamsFromControlState(
-  setSearchParams: (params: URLSearchParams, options?: { replace?: boolean }) => void,
+  router: NextRouter,
   selectedClass: SpeedRunClass,
   controls: ChartControlState,
   debounceTimeoutRef: React.MutableRefObject<NodeJS.Timeout | undefined>
@@ -26,18 +26,24 @@ function setSearchParamsFromControlState(
 
   if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current)
 
-  debounceTimeoutRef.current = setTimeout(() => {
-    const params = new URLSearchParams()
-    params.set('class', selectedClass)
-    if (isSunforge) params.set('subclass', controls.subclass || SpeedRunSubclass.All)
-    if (!isSunforge) params.set('difficulty', controls.difficulty)
-    params.set('players', controls.playerLimit.toString())
-    params.set('duration', controls.maxDuration.toString())
-    params.set('view', controls.viewMode)
-    params.set('zoom', controls.zoomLevel.toString())
-    params.set('window', submissionWindowToUrlString(controls.submissionWindow))
+  // console.log('selectedClass', selectedClass)
+  // console.log('controls', controls)
+  // console.log('router', router)
 
-    setSearchParams(params, { replace: true })
+  debounceTimeoutRef.current = setTimeout(() => {
+    router.replace({
+      pathname: router.pathname,
+      query: {
+        class: selectedClass,
+        subclass: isSunforge ? controls.subclass || SpeedRunSubclass.All : router.query.subclass,
+        difficulty: isSunforge ? router.query.difficulty : controls.difficulty,
+        players: controls.playerLimit.toString(),
+        duration: controls.maxDuration.toString(),
+        view: controls.viewMode,
+        zoom: controls.zoomLevel.toString(),
+        window: submissionWindowToUrlString(controls.submissionWindow),
+      },
+    })
   }, 100)
 }
 
@@ -46,7 +52,18 @@ export function useUrlParams(
   setSelectedClass: (classType: SpeedRunClass) => void,
   controls: ChartControlState
 ): void {
-  const [searchParams, setSearchParams] = useSearchParams()
+  const router = useRouter()
+  const {
+    class: classParam,
+    subclass: subclassParam,
+    difficulty,
+    players,
+    duration,
+    view,
+    zoom,
+    window: submissionWindow,
+  } = router.query
+
   const isSunforge = selectedClass === SpeedRunClass.Sunforge
 
   const prevClassRef = useRef(selectedClass)
@@ -95,35 +112,30 @@ export function useUrlParams(
     prevControlStateRef.current = controls
     prevClassRef.current = selectedClass
 
+    console.log('isUpdateFromControlChange', isUpdateFromControlChange)
+    // console.log('isUpdateFromClassChange', isUpdateFromClassChange)
+
     if (isUpdateFromControlChange || isUpdateFromClassChange) {
       // Update URL params if controls or class have changed
-      setSearchParamsFromControlState(setSearchParams, selectedClass, controls, debounceTimeoutRef)
+      setSearchParamsFromControlState(router, selectedClass, controls, debounceTimeoutRef)
     } else {
       // Otherwise, update controls and class from URL params
-      const classParam = searchParams.get('class')
-      const subclassParam = searchParams.get('subclass')
-      const difficulty = searchParams.get('difficulty')
-      const players = searchParams.get('players')
-      const duration = searchParams.get('duration')
-      const view = searchParams.get('view')
-      const zoom = searchParams.get('zoom')
-      const submissionWindow = searchParams.get('window')
       let areAllParamsValid = true
 
-      if (classParam && isValidClass(classParam)) {
-        setSelectedClass(classParam)
+      if (classParam && isValidClass(classParam as string)) {
+        setSelectedClass(classParam as SpeedRunClass)
       } else if (classParam) {
         areAllParamsValid = false
       }
 
-      if (subclassParam && isValidSubclass(subclassParam)) {
-        controls.setSubclass(subclassParam)
+      if (subclassParam && isValidSubclass(subclassParam as string)) {
+        controls.setSubclass(subclassParam as SpeedRunSubclass)
       } else if (subclassParam) {
         areAllParamsValid = false
       }
 
-      if (difficulty && !isSunforge && isValidDifficulty(difficulty)) {
-        controls.setDifficulty(difficulty)
+      if (difficulty && !isSunforge && isValidDifficulty(difficulty as string)) {
+        controls.setDifficulty(difficulty as Difficulty)
       } else if (difficulty) {
         areAllParamsValid = false
       }
@@ -143,13 +155,13 @@ export function useUrlParams(
       }
 
       if (view) {
-        if (isValidViewMode(view)) controls.setViewMode(view)
+        if (isValidViewMode(view as string)) controls.setViewMode(view as ViewMode)
         else areAllParamsValid = false
       }
 
       if (submissionWindow) {
-        if (isValidSubmissionWindow(submissionWindow))
-          controls.setSubmissionWindow(submissionWindowFromUrlString(submissionWindow))
+        if (isValidSubmissionWindow(submissionWindow as string))
+          controls.setSubmissionWindow(submissionWindowFromUrlString(submissionWindow as string))
         else areAllParamsValid = false
       }
 
@@ -164,25 +176,29 @@ export function useUrlParams(
 
       // If any parameter is invalid, reset URL to previous valid state
       if (!areAllParamsValid) {
-        setSearchParamsFromControlState(
-          setSearchParams,
-          selectedClass,
-          controls,
-          debounceTimeoutRef
-        )
+        setSearchParamsFromControlState(router, selectedClass, controls, debounceTimeoutRef)
       }
     }
 
     return () => {
       if (currentTimeout) clearTimeout(currentTimeout)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
-    searchParams,
     controls,
     selectedClass,
-    setSearchParams,
     isSunforge,
     isValidDuration,
     setSelectedClass,
+    classParam,
+    subclassParam,
+    difficulty,
+    players,
+    duration,
+    view,
+    submissionWindow,
+    zoom,
+    // NB: Never use whole router object in dependencies!
+    // router,
   ])
 }

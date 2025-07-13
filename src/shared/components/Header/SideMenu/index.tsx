@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 
-import { Link } from 'react-router-dom'
+import Link from 'next/link'
 import cx from 'classnames'
 
 import { HamburgerIcon } from '../../../utils/icons'
@@ -71,7 +71,7 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
       >
         <nav className={styles['side-menu__nav']}>
           <div className={speedrunsLinkContainerClassNames}>
-            <Link to="/" className={styles['side-menu__nav-link']}>
+            <Link href="/" className={styles['side-menu__nav-link']}>
               <img
                 src={DashImageUrl}
                 alt="Speedruns logo"
@@ -82,7 +82,7 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
           </div>
 
           <div className={cardexLinkContainerClassNames}>
-            <Link to="/codex/cards" className={styles['side-menu__nav-link']}>
+            <Link href="/codex/cards" className={styles['side-menu__nav-link']}>
               <img
                 src={AbracadabraImageUrl}
                 alt="Cardex logo"
@@ -94,7 +94,7 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
 
           <div className={styles['side-menu__nav-link-container']}>
             <Link
-              to=""
+              href=""
               className={styles['side-menu__nav-link']}
               onClick={() => setIsAboutInfoOpen(true)}
             >

@@ -8,23 +8,21 @@ import moment from 'moment'
  * @returns A string representing the time since the given timestamp.
  */
 export function useFromNow(timestamp: number | null, prefix: string) {
-  const [fromNow, setFromNow] = useState<string | 'Never'>(() =>
-    timestamp ? moment(timestamp).fromNow() : 'Never'
-  )
+  const [fromNow, setFromNow] = useState<string>('')
 
   useEffect(() => {
     if (!timestamp) {
-      setFromNow('Never')
+      setFromNow('')
       return
     }
 
-    setFromNow(moment(timestamp).fromNow())
+    setFromNow(`${prefix} ${moment(timestamp).fromNow()}`)
     const timer = setInterval(() => {
-      setFromNow(moment(timestamp).fromNow())
+      setFromNow(`${prefix} ${moment(timestamp).fromNow()}`)
     }, 1000)
 
     return () => clearInterval(timer)
-  }, [timestamp])
+  }, [timestamp, prefix])
 
-  return fromNow === 'Never' ? null : `${prefix} ${fromNow}`
+  return fromNow || null
 }
