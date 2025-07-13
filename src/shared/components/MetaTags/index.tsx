@@ -18,11 +18,16 @@ const MetaTags = () => {
       <meta property="og:image:height" content="630" />
       <meta property="og:url" content={metaTags.ogUrl} />
       <meta property="og:type" content="website" />
-      <meta property="og:site_name" content="dawn-dash.com" />
 
-      {/* Twitter */}
+      {/* The url shown in discord */}
+      <meta property="og:site_name" content={metaTags.ogSiteName} />
+
+      {/* These twitter tags are what allow the large images in discord */}
       <meta name="twitter:card" content="summary_large_image" />
       <meta property="twitter:image" content={metaTags.twitterImage} />
+
+      {/* Discord stripe color */}
+      <meta name="theme-color" content="#249624"></meta>
     </Helmet>
   )
 }
