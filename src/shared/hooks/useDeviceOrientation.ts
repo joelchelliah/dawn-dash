@@ -7,10 +7,11 @@ export function useDeviceOrientation() {
   }
 
   const checkIsLandscape = () => {
-    if (screen.orientation?.type) return screen.orientation.type.includes('landscape')
-
+    if (typeof window !== 'undefined' && screen.orientation?.type) {
+      return screen.orientation.type.includes('landscape')
+    }
     // Fallback to window dimensions
-    return window.innerWidth > window.innerHeight
+    return typeof window !== 'undefined' && window.innerWidth > window.innerHeight
   }
 
   const isMobile = checkIsMobile()
@@ -19,21 +20,25 @@ export function useDeviceOrientation() {
   useEffect(() => {
     const handleOrientation = () => setIsLandscape(checkIsLandscape())
 
-    if (screen.orientation) {
+    if (typeof window !== 'undefined' && screen.orientation) {
       screen.orientation.addEventListener('change', handleOrientation)
     }
-    window.addEventListener('resize', handleOrientation)
-    window.addEventListener('orientationchange', handleOrientation)
+    if (typeof window !== 'undefined') {
+      window.addEventListener('resize', handleOrientation)
+      window.addEventListener('orientationchange', handleOrientation)
+    }
 
     // Force an immediate check
     handleOrientation()
 
     return () => {
-      if (screen.orientation) {
+      if (typeof window !== 'undefined' && screen.orientation) {
         screen.orientation.removeEventListener('change', handleOrientation)
       }
-      window.removeEventListener('resize', handleOrientation)
-      window.removeEventListener('orientationchange', handleOrientation)
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('resize', handleOrientation)
+        window.removeEventListener('orientationchange', handleOrientation)
+      }
     }
   }, [])
 

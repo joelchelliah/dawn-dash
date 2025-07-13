@@ -1,16 +1,14 @@
-import { useNavigate } from 'react-router-dom'
+import { useRouter } from 'next/router'
 
 export const useNavigation = () => {
-  const navigate = useNavigate()
+  const router = useRouter()
 
   const resetToSpeedruns = (selectedClass: string, difficulty: string) => {
-    navigate(`/?class=${selectedClass}&difficulty=${difficulty}`, { replace: true })
-    window.location.reload()
+    router.replace(`/?class=${selectedClass}&difficulty=${difficulty}`)
   }
 
   const resetToCardCodex = () => {
-    navigate('/misc/codex/cards', { replace: true })
-    window.location.reload()
+    router.replace('/codex/cards')
   }
 
   return { resetToSpeedruns, resetToCardCodex }

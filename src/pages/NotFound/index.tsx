@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { useNavigate } from 'react-router-dom'
+import { useRouter } from 'next/router'
 
 import GradientButton from '../../shared/components/Buttons/GradientButton'
 import { DantelionImageUrl } from '../../shared/utils/imageUrls'
@@ -8,13 +8,13 @@ import { DantelionImageUrl } from '../../shared/utils/imageUrls'
 import styles from './index.module.scss'
 
 function NotFound(): JSX.Element {
-  const navigate = useNavigate()
+  const router = useRouter()
 
   const goBack = () => {
     if (window.history.length > 1) {
-      navigate(-1)
+      router.back()
     } else {
-      navigate('/')
+      router.push('/')
     }
   }
 

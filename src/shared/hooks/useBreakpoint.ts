@@ -4,15 +4,18 @@ import { useState, useEffect } from 'react'
 const BREAKPOINT_TABLET = 1024
 
 export function useBreakpoint() {
-  const [isTabletOrSmaller, setIsTabletOrSmaller] = useState(window.innerWidth <= BREAKPOINT_TABLET)
-  const [isDesktop, setIsDesktop] = useState(window.innerWidth > BREAKPOINT_TABLET)
+  const [isTabletOrSmaller, setIsTabletOrSmaller] = useState(false)
+  const [isDesktop, setIsDesktop] = useState(false)
 
   useEffect(() => {
+    if (typeof window === 'undefined') return
+
     const handleResize = () => {
       setIsTabletOrSmaller(window.innerWidth <= BREAKPOINT_TABLET)
       setIsDesktop(window.innerWidth > BREAKPOINT_TABLET)
     }
 
+    handleResize()
     window.addEventListener('resize', handleResize)
     return () => window.removeEventListener('resize', handleResize)
   }, [])
