@@ -1,6 +1,7 @@
 export default async function handler(req, res) {
   const { path } = req.query
-  const prerenderUrl = `https://service.prerender.io/https://dawn-dash.com${path || '/'}`
+  const url = 'https://www.dawn-dash.com'
+  const prerenderUrl = `https://service.prerender.io/${url}${path || '/'}`
   const response = await fetch(prerenderUrl, {
     headers: {
       'X-Prerender-Token': process.env.PRERENDER_TOKEN,
