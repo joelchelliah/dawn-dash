@@ -1,7 +1,7 @@
 {
   "rewrites": [
     {
-      "source": "/(.*)",
+      "source": "/:path*",
       "has": [
         {
           "type": "header",
@@ -9,7 +9,7 @@
           "value": "(?i)(googlebot|bingbot|yandex|baiduspider|facebookexternalhit|twitterbot|linkedinbot|embedly|quora link preview|showyoubot|outbrain|pinterest|slackbot|vkShare|W3C_Validator|redditbot|applebot|whatsapp|flipboard|tumblr|bitlybot|SkypeUriPreview|nuzzel|Discordbot|Google Page Speed|Qwantify|pinterestbot|Bitrix link preview|XING-contenttabreceiver|Chrome-Lighthouse)"
         }
       ],
-      "destination": "https://service.prerender.io/https://dawn-dash.com/:1"
+      "destination": "/api/prerender?path=/:path*"
     }
   ]
 }
