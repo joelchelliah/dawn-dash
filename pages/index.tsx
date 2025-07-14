@@ -1,6 +1,6 @@
 import Head from 'next/head'
 
-import Speedruns from '../src/pages/Speedruns'
+import Speedruns from '../src/speedruns'
 
 export default function SpeedrunsPage() {
   return (

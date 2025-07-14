@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react'
+
 import styles from './index.module.scss'
 
 interface SearchFieldProps {
@@ -6,6 +8,12 @@ interface SearchFieldProps {
 }
 
 const SearchField = ({ keywords, setKeywords }: SearchFieldProps) => {
+  const [isClient, setIsClient] = useState(false)
+
+  useEffect(() => setIsClient(true), [])
+
+  if (!isClient) return <></>
+
   return (
     <div className={styles['input-container']}>
       <input

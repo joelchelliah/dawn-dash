@@ -1,6 +1,6 @@
 import Head from 'next/head'
 
-import CardCodex from '../../src/pages/CardCodex'
+import CardCodex from '../../src/codex/cards'
 
 export default function CardexPage() {
   return (
@@ -23,8 +23,6 @@ export default function CardexPage() {
         {/* The url shown in Discord */}
         <meta property="og:site_name" content="dawn-dash.com/codex/cards" />
 
-        {/* Allow the large images in Discord */}
-        <meta name="twitter:card" content="summary_large_image" />
         <meta property="twitter:image" content="https://www.dawn-dash.com/og-image-cardex.png" />
       </Head>
       <CardCodex />

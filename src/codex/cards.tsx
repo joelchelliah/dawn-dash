@@ -1,15 +1,15 @@
-import ResultsPanel from '../../codex/components/ResultsPanel'
-import SearchPanel from '../../codex/components/SearchPanel'
-import { useSearchFilters } from '../../codex/hooks/useSearchFilters'
-import CodexLoadingMessage from '../../codex/components/CodexLoadingMessage'
-import CodexErrorMessage from '../../codex/components/CodexErrorMessage'
-import { useNavigation } from '../../shared/hooks/useNavigation'
-import Footer from '../../shared/components/Footer'
-import { useCardData } from '../../codex/hooks/useCardData'
-import Header from '../../shared/components/Header'
-import { AbracadabraImageUrl } from '../../shared/utils/imageUrls'
+import { useNavigation } from '../shared/hooks/useNavigation'
+import Footer from '../shared/components/Footer'
+import Header from '../shared/components/Header'
+import { AbracadabraImageUrl } from '../shared/utils/imageUrls'
 
-import styles from './index.module.scss'
+import { useSearchFilters } from './hooks/useSearchFilters'
+import { useCardData } from './hooks/useCardData'
+import ResultsPanel from './components/ResultsPanel'
+import SearchPanel from './components/SearchPanel'
+import CodexLoadingMessage from './components/CodexLoadingMessage'
+import CodexErrorMessage from './components/CodexErrorMessage'
+import styles from './cards.module.scss'
 
 function CardCodex(): JSX.Element {
   const { resetToCardCodex } = useNavigation()
