@@ -11,7 +11,7 @@ import CodexLoadingMessage from './components/CodexLoadingMessage'
 import CodexErrorMessage from './components/CodexErrorMessage'
 import styles from './cards.module.scss'
 
-function CardCodex(): JSX.Element {
+function Cards(): JSX.Element {
   const { resetToCardCodex } = useNavigation()
 
   const useCardDataHook = useCardData()
@@ -25,7 +25,7 @@ function CardCodex(): JSX.Element {
         onLogoClick={resetToCardCodex}
         logoSrc={AbracadabraImageUrl}
         title="Dawn-Dash : Cardex"
-        subtitle="Dawncaster card search & filter"
+        subtitle="Dawncaster card codex"
         currentPage="cardex"
       />
 
@@ -45,4 +45,4 @@ function CardCodex(): JSX.Element {
   )
 }
 
-export default CardCodex
+export default Cards

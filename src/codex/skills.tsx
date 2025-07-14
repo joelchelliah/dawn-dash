@@ -1,10 +1,10 @@
-import { EleganceImageUrl } from '../../shared/utils/imageUrls'
-import Header from '../../shared/components/Header'
-import { useNavigation } from '../../shared/hooks/useNavigation'
+import { EleganceImageUrl } from '../shared/utils/imageUrls'
+import Header from '../shared/components/Header'
+import { useNavigation } from '../shared/hooks/useNavigation'
 
-import styles from './index.module.scss'
+import styles from './skills.module.scss'
 
-function TalentCodex(): JSX.Element {
+function Skills(): JSX.Element {
   const { resetToCardCodex } = useNavigation()
 
   return (
@@ -13,7 +13,7 @@ function TalentCodex(): JSX.Element {
         onLogoClick={resetToCardCodex}
         logoSrc={EleganceImageUrl}
         title="Dawn-Dash : Skilldex"
-        subtitle="Dawncaster talent search & filter"
+        subtitle="Dawncaster talents codex"
         currentPage="skilldex"
       />
 
@@ -24,4 +24,4 @@ function TalentCodex(): JSX.Element {
   )
 }
 
-export default TalentCodex
+export default Skills

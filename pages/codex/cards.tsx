@@ -1,6 +1,6 @@
 import Head from 'next/head'
 
-import CardCodex from '../../src/codex/cards'
+import Cards from '../../src/codex/cards'
 
 export default function CardexPage() {
   return (
@@ -25,7 +25,7 @@ export default function CardexPage() {
 
         <meta property="twitter:image" content="https://www.dawn-dash.com/og-image-cardex.png" />
       </Head>
-      <CardCodex />
+      <Cards />
     </>
   )
 }
