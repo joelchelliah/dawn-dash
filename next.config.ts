@@ -1,6 +1,24 @@
 import withPWA from 'next-pwa'
 
-export default withPWA({
+const nextConfig = {
+  reactStrictMode: true,
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'blightbane.io',
+        pathname: '/images/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'dawn-dash.com',
+        pathname: '/**',
+      },
+    ],
+  },
+}
+
+const wpaConfig = withPWA({
   dest: 'public',
   runtimeCaching: [
     {
@@ -18,11 +36,10 @@ export default withPWA({
       },
     },
   ],
-  // Next.js options:
-  reactStrictMode: true,
-  images: {
-    domains: ['blightbane.io', 'dawn-dash.com'],
-  },
-  // next-pwa options:
   disable: process.env.NODE_ENV === 'development',
 })
+
+export default {
+  ...nextConfig,
+  ...wpaConfig,
+}

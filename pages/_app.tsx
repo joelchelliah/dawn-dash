@@ -3,8 +3,6 @@ import '../styles/index.scss'
 import Head from 'next/head'
 import Script from 'next/script'
 
-import ServiceWorkerRegistration from '../components/serviceWorkerRegistration'
-
 import type { AppProps } from 'next/app'
 
 export default function App({ Component, pageProps }: AppProps) {
@@ -31,7 +29,6 @@ export default function App({ Component, pageProps }: AppProps) {
         `}
       </Script>
 
-      <ServiceWorkerRegistration />
       <Component {...pageProps} />
     </>
   )
