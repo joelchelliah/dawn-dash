@@ -11,6 +11,7 @@ export default function CardexPage() {
           name="description"
           content="Dawncaster card search & filter - Browse and search through all Dawncaster cards with advanced filtering options!"
         />
+
         <meta property="og:title" content="Dawn-Dash : Cardex" />
         <meta
           property="og:description"
