@@ -6,7 +6,11 @@ const emptyCacheState = {
   timestamp: null,
 }
 
+const isClient = typeof window !== 'undefined'
+
 export function saveToCache<T>(cacheKey: string, data: T): void {
+  if (!isClient) return
+
   try {
     const cache = {
       data,
@@ -19,6 +23,8 @@ export function saveToCache<T>(cacheKey: string, data: T): void {
 }
 
 export function getFromCache<T>(cacheKey: string, cacheDuration: number | null): CachedData<T> {
+  if (!isClient) return emptyCacheState
+
   try {
     const cache = localStorage.getItem(cacheKey)
 
