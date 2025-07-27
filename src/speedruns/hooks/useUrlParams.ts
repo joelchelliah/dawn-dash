@@ -112,9 +112,6 @@ export function useUrlParams(
     prevControlStateRef.current = controls
     prevClassRef.current = selectedClass
 
-    console.log('isUpdateFromControlChange', isUpdateFromControlChange)
-    // console.log('isUpdateFromClassChange', isUpdateFromClassChange)
-
     if (isUpdateFromControlChange || isUpdateFromClassChange) {
       // Update URL params if controls or class have changed
       setSearchParamsFromControlState(router, selectedClass, controls, debounceTimeoutRef)

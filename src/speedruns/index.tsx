@@ -1,22 +1,22 @@
 import { useState } from 'react'
 
-import Header from '../../shared/components/Header'
-import { useNavigation } from '../../shared/hooks/useNavigation'
-import Footer from '../../shared/components/Footer'
-import { useInitialClassAndDifficulty } from '../../speedruns/hooks/useInitialClassAndDifficulty'
-import BlightbaneModal from '../../speedruns/components/BlightbaneModal'
-import Chart from '../../speedruns/components/Chart'
-import ChartControls from '../../speedruns/components/ChartControls'
-import ClassButtons from '../../speedruns/components/ClassButtons'
-import SubclassButtons from '../../speedruns/components/SubclassButtons'
-import { useChartControlState } from '../../speedruns/hooks/useChartControlState'
-import { useUrlParams } from '../../speedruns/hooks/useUrlParams'
-import { SpeedRunClass } from '../../speedruns/types/speedRun'
-import { DashImageUrl } from '../../shared/utils/imageUrls'
+import Header from '../shared/components/Header'
+import { useNavigation } from '../shared/hooks/useNavigation'
+import Footer from '../shared/components/Footer'
+import { DashImageUrl } from '../shared/utils/imageUrls'
 
+import { useInitialClassAndDifficulty } from './hooks/useInitialClassAndDifficulty'
+import { useChartControlState } from './hooks/useChartControlState'
+import { useUrlParams } from './hooks/useUrlParams'
+import { SpeedRunClass } from './types/speedRun'
+import Chart from './components/Chart'
+import ChartControls from './components/ChartControls'
+import ClassButtons from './components/ClassButtons'
+import SubclassButtons from './components/SubclassButtons'
+import BlightbaneModal from './components/BlightbaneModal'
 import styles from './index.module.scss'
 
-function App(): JSX.Element {
+function Speedruns(): JSX.Element {
   const { initialClass, initialDifficulty } = useInitialClassAndDifficulty()
   const [selectedClass, setSelectedClass] = useState<SpeedRunClass>(initialClass)
   const [selectedPlayer, setSelectedPlayer] = useState('')
@@ -80,4 +80,4 @@ function App(): JSX.Element {
   )
 }
 
-export default App
+export default Speedruns

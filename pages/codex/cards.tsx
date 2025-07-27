@@ -1,6 +1,6 @@
 import Head from 'next/head'
 
-import CardCodex from '../../src/pages/CardCodex'
+import Cards from '../../src/codex/cards'
 
 export default function CardexPage() {
   return (
@@ -11,6 +11,7 @@ export default function CardexPage() {
           name="description"
           content="Dawncaster card search & filter - Browse and search through all Dawncaster cards with advanced filtering options!"
         />
+
         <meta property="og:title" content="Dawn-Dash : Cardex" />
         <meta
           property="og:description"
@@ -22,11 +23,9 @@ export default function CardexPage() {
         {/* The url shown in Discord */}
         <meta property="og:site_name" content="dawn-dash.com/codex/cards" />
 
-        {/* Allow the large images in Discord */}
-        <meta name="twitter:card" content="summary_large_image" />
         <meta property="twitter:image" content="https://www.dawn-dash.com/og-image-cardex.png" />
       </Head>
-      <CardCodex />
+      <Cards />
     </>
   )
 }

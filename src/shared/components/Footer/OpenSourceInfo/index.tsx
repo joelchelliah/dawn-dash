@@ -27,6 +27,7 @@ function OpenSourceInfo(): JSX.Element {
   const onIconClick = () => {
     if (isTabletOrSmaller) setIsModalOpen(true)
   }
+
   return (
     <div className={styles['container']}>
       {isDesktop && <div className={styles['container__hover-text']}>{getInfoText()}</div>}
