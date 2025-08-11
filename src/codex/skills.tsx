@@ -26,6 +26,7 @@ function Skills(): JSX.Element {
         subtitle="Dawncaster talents codex"
         currentPage="skilldex"
       />
+      <div className={styles['work-in-progress']}> WORK IN PROGRESS . . .</div>
 
       <div className={styles['content']}>
         <CodexLoadingMessage isVisible={isLoading} progress={progress} />
