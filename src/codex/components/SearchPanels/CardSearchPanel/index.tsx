@@ -1,12 +1,12 @@
 import cx from 'classnames'
 
-import { ExtraFilterOption, RarityFilterOption } from '../../types/filters'
-import { allFormattingFilters } from '../../hooks/useSearchFilters/useFormattingFilters'
-import { UseSearchFilters } from '../../hooks/useSearchFilters'
-import { allRarities } from '../../hooks/useSearchFilters/useRarityFilters'
-import { allBanners } from '../../hooks/useSearchFilters/useBannerFilters'
-import { allExtraFilters } from '../../hooks/useSearchFilters/useExtraFilters'
-import { allCardSets } from '../../hooks/useSearchFilters/useCardSetFilters'
+import { ExtraFilterOption, RarityFilterOption } from '../../../types/filters'
+import { allFormattingFilters } from '../../../hooks/useSearchFilters/useFormattingFilters'
+import { UseCardSearchFilters } from '../../../hooks/useSearchFilters'
+import { allRarities } from '../../../hooks/useSearchFilters/useRarityFilters'
+import { allBanners } from '../../../hooks/useSearchFilters/useBannerFilters'
+import { allExtraFilters } from '../../../hooks/useSearchFilters/useExtraFilters'
+import { allCardSets } from '../../../hooks/useSearchFilters/useCardSetFilters'
 import {
   CircleIcon,
   CrossIcon,
@@ -14,24 +14,24 @@ import {
   SingleStarIcon,
   SkullIcon,
   TripleStarsIcon,
-} from '../../../shared/utils/icons'
-import GradientButton from '../../../shared/components/Buttons/GradientButton'
-import ButtonRow from '../../../shared/components/Buttons/ButtonRow'
-import CodexLastUpdated from '../CodexLastUpdated'
-import PanelHeader from '../PanelHeader'
-import { UseCardData } from '../../hooks/useCardData'
+} from '../../../../shared/utils/icons'
+import GradientButton from '../../../../shared/components/Buttons/GradientButton'
+import ButtonRow from '../../../../shared/components/Buttons/ButtonRow'
+import CodexLastUpdated from '../../CodexLastUpdated'
+import PanelHeader from '../../PanelHeader'
+import { UseCardData } from '../../../hooks/useCardData'
+import FilterGroup from '../shared/FilterGroup'
+import WeeklyChallengeButton from '../shared/WeeklyChallengeButton'
+import SearchField from '../shared/SearchField'
 
-import FilterGroup from './FilterGroup'
-import WeeklyChallengeButton from './WeeklyChallengeButton'
 import styles from './index.module.scss'
-import SearchField from './SearchField'
 
-interface SearchPanelProps {
-  useSearchFilters: UseSearchFilters
+interface CardSearchPanelProps {
+  useSearchFilters: UseCardSearchFilters
   useCardData: UseCardData
 }
 
-const SearchPanel = ({ useSearchFilters, useCardData }: SearchPanelProps) => {
+const CardSearchPanel = ({ useSearchFilters, useCardData }: CardSearchPanelProps) => {
   const {
     keywords,
     setKeywords,
@@ -188,6 +188,7 @@ const SearchPanel = ({ useSearchFilters, useCardData }: SearchPanelProps) => {
       </form>
 
       <CodexLastUpdated
+        type="card"
         lastUpdated={useCardData.lastUpdated}
         isLoading={useCardData.isLoading}
         isLoadingInBackground={useCardData.isLoadingInBackground}
@@ -199,4 +200,4 @@ const SearchPanel = ({ useSearchFilters, useCardData }: SearchPanelProps) => {
   )
 }
 
-export default SearchPanel
+export default CardSearchPanel

@@ -1,13 +1,24 @@
 import { getFromCache, saveToCache } from '../../shared/utils/storage'
-import { CardCodexSearchFilterCache } from '../types/filters'
+import { CardCodexSearchFilterCache, TalentCodexSearchFilterCache } from '../types/filters'
 
-const CACHE_VERSION = 'v0'
-const CACHE_KEY = `codex_cards_filters_${CACHE_VERSION}`
+const CARDS_CACHE_VERSION = 'v0'
+const CARDS_CACHE_KEY = `codex_cards_filters_${CARDS_CACHE_VERSION}`
 
 export const cacheCardCodexSearchFilters = (filters: CardCodexSearchFilterCache) => {
-  saveToCache(CACHE_KEY, filters)
+  saveToCache(CARDS_CACHE_KEY, filters)
 }
 
 export const getCachedCardCodexSearchFilters = (): CardCodexSearchFilterCache | null => {
-  return getFromCache<CardCodexSearchFilterCache>(CACHE_KEY, null).data
+  return getFromCache<CardCodexSearchFilterCache>(CARDS_CACHE_KEY, null).data
+}
+
+const TALENTS_CACHE_VERSION = 'v0'
+const TALENTS_CACHE_KEY = `codex_talents_filters_${TALENTS_CACHE_VERSION}`
+
+export const cacheTalentCodexSearchFilters = (filters: TalentCodexSearchFilterCache) => {
+  saveToCache(TALENTS_CACHE_KEY, filters)
+}
+
+export const getCachedTalentCodexSearchFilters = (): TalentCodexSearchFilterCache | null => {
+  return getFromCache<TalentCodexSearchFilterCache>(TALENTS_CACHE_KEY, null).data
 }

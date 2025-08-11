@@ -1,22 +1,22 @@
 import { useEffect, useState } from 'react'
 
-import GradientButton from '../../../shared/components/Buttons/GradientButton'
-import { CardData } from '../../types/cards'
-import { UseSearchFilters } from '../../hooks/useSearchFilters'
-import PanelHeader from '../PanelHeader'
-import { createCx } from '../../../shared/utils/classnames'
+import GradientButton from '../../../../shared/components/Buttons/GradientButton'
+import { CardData } from '../../../types/cards'
+import { UseCardSearchFilters } from '../../../hooks/useSearchFilters'
+import PanelHeader from '../../PanelHeader'
+import { createCx } from '../../../../shared/utils/classnames'
+import KeywordsSummary from '../KeywordsSummary'
 
 import styles from './index.module.scss'
-import KeywordsSummary from './KeywordsSummary'
 import ResultCard from './ResultCard'
 
-interface ResultsPanelProps {
-  useSearchFilters: UseSearchFilters
+interface CardResultsPanelProps {
+  useSearchFilters: UseCardSearchFilters
 }
 
 const cx = createCx(styles)
 
-const ResultsPanel = ({ useSearchFilters }: ResultsPanelProps) => {
+const CardResultsPanel = ({ useSearchFilters }: CardResultsPanelProps) => {
   const [showCardsWithoutKeywords, setShowCardsWithoutKeywords] = useState(false)
   const { parsedKeywords, matchingCards } = useSearchFilters
 
@@ -39,9 +39,9 @@ const ResultsPanel = ({ useSearchFilters }: ResultsPanelProps) => {
     return (
       <div className={cx('results-container')} key={parsedKeywords.join(',')}>
         <KeywordsSummary
-          matchingCards={matchingCards}
+          matches={matchingCards.map((card) => card.name)}
           parsedKeywords={parsedKeywords}
-          showingCardsWithoutKeywords={showingCardsWithoutKeywords}
+          showingResultsWithoutKeywords={showingCardsWithoutKeywords}
           className={cx('results-container__info')}
         />
 
@@ -91,4 +91,4 @@ const ResultsPanel = ({ useSearchFilters }: ResultsPanelProps) => {
   )
 }
 
-export default ResultsPanel
+export default CardResultsPanel

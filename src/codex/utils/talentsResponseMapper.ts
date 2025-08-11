@@ -1,50 +1,110 @@
 import { isNotNullOrUndefined } from '../../shared/utils/object'
-import { ParsedTalentData, TalentData } from '../types/talents'
+import {
+  TalentData,
+  TalentTree,
+  TalentTreeNodeType,
+  TalentTreeRequirementNode,
+  TalentTreeTalentNode,
+} from '../types/talents'
 
-export const mapAndSortTalentsData = (unparsedTalents: TalentData[]): ParsedTalentData[] => {
-  const sortedTalents = sortAndRemoveDuplicates(unparsedTalents)
-  const blightbaneIdToTalent = new Map<number, ParsedTalentData>()
+export const mapTalentsDataToTalentTree = (unparsedTalents: TalentData[]): TalentTree => {
+  const uniqueUnparsedTalents = removeDuplicateTalents(unparsedTalents)
+  const idToUnparsedTalent = new Map<number, TalentData>()
 
-  const parsedTalents = sortedTalents.map((talent) => {
-    const parsed: ParsedTalentData = {
-      id: talent.id,
+  uniqueUnparsedTalents.forEach((talent) => {
+    idToUnparsedTalent.set(talent.blightbane_id, talent)
+  })
+
+  function buildTalentNode(talent: TalentData, visited = new Set<number>()): TalentTreeTalentNode {
+    if (visited.has(talent.blightbane_id)) {
+      throw new Error(`Failed to parse talent: ${talent.name} (Recursive loop detected!)`)
+    }
+
+    visited.add(talent.blightbane_id)
+
+    const children = (talent.required_for_talents || [])
+      .map((id) => idToUnparsedTalent.get(id))
+      .filter(isNotNullOrUndefined)
+      .map((child) => buildTalentNode(child, new Set(visited)))
+
+    return {
+      type: TalentTreeNodeType.TALENT,
       name: talent.name,
       description: talent.description,
       flavourText: talent.flavour_text,
       tier: talent.tier,
       expansion: talent.expansion,
       events: talent.events,
-      requiresClasses: talent.requires_classes,
-      requiresEnergy: talent.requires_energy,
-      // To be filled in the next step
-      requiresTalents: [],
-      requiredForTalents: [],
+      children,
     }
-    blightbaneIdToTalent.set(talent.blightbane_id, parsed)
+  }
 
-    return parsed
-  })
+  const isRootTalent = (talent: TalentData) =>
+    talent.requires_talents.length === 0 &&
+    talent.requires_classes.length === 0 &&
+    talent.requires_energy.length === 0
 
-  // Second pass to fill in `requiresTalents` and `requiredForTalents`
-  return parsedTalents.map((talent, idx) => {
-    const unparsedTalent = sortedTalents[idx]
-    return {
-      ...talent,
-      requiresTalents: (unparsedTalent.requires_talents || [])
-        .map((id) => blightbaneIdToTalent.get(id))
-        .filter(isNotNullOrUndefined),
-      requiredForTalents: (unparsedTalent.required_for_talents || [])
-        .map((id) => blightbaneIdToTalent.get(id))
-        .filter(isNotNullOrUndefined),
-    }
-  })
+  const hasClass = (className: string) => (talent: TalentData) =>
+    talent.requires_classes.includes(className)
+  const hasEnergy = (energy: string) => (talent: TalentData) =>
+    talent.requires_energy.includes(energy)
+
+  const rootNoRequirementsNode: TalentTreeRequirementNode = {
+    type: TalentTreeNodeType.NO_REQUIREMENTS,
+    name: 'No Requirements',
+    children: sortNodes<TalentTreeTalentNode>(
+      uniqueUnparsedTalents.filter(isRootTalent).map((talent) => buildTalentNode(talent))
+    ),
+  }
+  const rootClassRequirementNodes: TalentTreeRequirementNode[] = requirementClasses.map((name) => ({
+    type: TalentTreeNodeType.CLASS_REQUIREMENT,
+    name,
+    children: sortNodes<TalentTreeTalentNode>(
+      uniqueUnparsedTalents.filter(hasClass(name)).map((talent) => buildTalentNode(talent))
+    ),
+  }))
+
+  const rootEnergyRequirementNodes: TalentTreeRequirementNode[] = requirementEnergies.map(
+    (name) => ({
+      type: TalentTreeNodeType.ENERGY_REQUIREMENT,
+      name,
+      children: sortNodes<TalentTreeTalentNode>(
+        uniqueUnparsedTalents.filter(hasEnergy(name)).map((talent) => buildTalentNode(talent))
+      ),
+    })
+  )
+
+  return {
+    noReqNode: rootNoRequirementsNode,
+    classNodes: rootClassRequirementNodes,
+    energyNodes: rootEnergyRequirementNodes,
+  }
 }
 
-const sortAndRemoveDuplicates = (talents: TalentData[]) =>
-  talents
-    .sort((a, b) => {
+const removeDuplicateTalents = (talents: TalentData[]) =>
+  talents.filter(
+    (talent, index, self) => index === self.findIndex(({ name }) => name === talent.name)
+  )
+
+const sortNodes = <T extends TalentTreeTalentNode | TalentTreeRequirementNode>(talents: T[]): T[] =>
+  talents.sort((a, b) => {
+    if (a.type === TalentTreeNodeType.TALENT && b.type === TalentTreeNodeType.TALENT) {
       if (a.tier !== b.tier) return a.tier - b.tier
 
       return a.name.localeCompare(b.name)
-    })
-    .filter((talent, index, self) => index === self.findIndex(({ name }) => name === talent.name))
+    } else {
+      return a.name.localeCompare(b.name)
+    }
+  })
+
+const requirementClasses = [
+  'Arcanist',
+  'Hunter',
+  'Knight',
+  'Rogue',
+  'Seeker',
+  'Warrior',
+  'Sunforge',
+]
+
+const requirementEnergies = ['DEX', 'DEX2', 'INT', 'INT2', 'STR', 'STR2', 'STR3']

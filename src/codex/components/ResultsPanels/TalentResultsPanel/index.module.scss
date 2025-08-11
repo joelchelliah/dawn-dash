@@ -1,4 +1,4 @@
-@use '../../../styles/index' as *;
+@use '../../../../styles/index' as *;
 
 .results-panel {
   flex: 2;
@@ -42,27 +42,10 @@
   }
 }
 
-.results-cards {
+.results {
   display: flex;
   flex-direction: column;
   font-size: font-size('xs');
   color: $color-primary-base;
   gap: 0.125rem;
-
-  &__banner {
-    padding: 0.25rem 0.5rem;
-    border-top: 1px solid $color-component-bg;
-    border-bottom: 1px solid $color-component-bg;
-  }
-
-  // Apply rain texture and color to all banner variations
-  @each $number, $color in $banner-index-to-color-map {
-    &__banner--#{$number} {
-      @extend .results-cards__banner;
-      @include rainTexture($color, false);
-    }
-    &:nth-child(even) &__banner--#{$number} {
-      @include rainTexture($color, true);
-    }
-  }
 }

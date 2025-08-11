@@ -2,17 +2,17 @@ import { useEffect, useState } from 'react'
 
 import useSWR from 'swr'
 
+import { isNotNullOrUndefined } from '../../shared/utils/object'
 import { fetchTalents } from '../services/talentsApiSupabase'
 import {
-  getCachedTalentDataTimestamp,
-  getCachedTalentData,
-  cacheTalentData,
+  getCachedTalentTreeTimestamp,
+  getCachedTalentTree,
+  cacheTalentTree,
 } from '../utils/codexTalentsStore'
-import { isNotNullOrEmpty } from '../../shared/utils/lists'
-import { TalentData } from '../types/talents'
+import { TalentTree } from '../types/talents'
 
 export interface UseTalentData {
-  talentData: TalentData[] | undefined
+  talentTree: TalentTree | undefined
   isLoading: boolean
   isLoadingInBackground: boolean
   isError: boolean
@@ -23,13 +23,13 @@ export interface UseTalentData {
 }
 
 export function useTalentData(): UseTalentData {
-  const [localData, setLocalData] = useState<TalentData[] | null>(null)
+  const [localData, setLocalData] = useState<TalentTree | null>(null)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [progress, setProgress] = useState(0)
 
   useEffect(() => {
-    const { data, isStale } = getCachedTalentData()
-    if (isNotNullOrEmpty(data)) {
+    const { data, isStale } = getCachedTalentTree()
+    if (isNotNullOrUndefined(data)) {
       setLocalData(data)
       setIsRefreshing(isStale)
     } else {
@@ -37,7 +37,7 @@ export function useTalentData(): UseTalentData {
     }
   }, [])
 
-  const { data, error, isLoading } = useSWR<TalentData[]>(
+  const { data, error, isLoading } = useSWR<TalentTree>(
     isRefreshing ? ['talents'] : null,
     () => fetchTalents(setProgress),
     {
@@ -46,7 +46,7 @@ export function useTalentData(): UseTalentData {
       refreshInterval: 0,
       onSuccess: (newData) => {
         setLocalData(newData)
-        cacheTalentData(newData)
+        cacheTalentTree(newData)
         setIsRefreshing(false)
         setProgress(100)
       },
@@ -54,12 +54,12 @@ export function useTalentData(): UseTalentData {
   )
 
   return {
-    talentData: localData || data,
+    talentTree: localData || data,
     isLoading: (isLoading || isRefreshing) && !localData,
     isLoadingInBackground: Boolean((isLoading || isRefreshing) && localData),
     isError: error && !localData,
     isErrorInBackground: Boolean(error && localData),
-    lastUpdated: getCachedTalentDataTimestamp(),
+    lastUpdated: getCachedTalentTreeTimestamp(),
     refresh: () => {
       setProgress(0)
       setIsRefreshing(true)
