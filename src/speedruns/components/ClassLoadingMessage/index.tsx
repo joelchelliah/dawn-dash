@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import cx from 'classnames'
 
 import { useDeviceOrientation } from '../../../shared/hooks/useDeviceOrientation'
@@ -35,7 +36,13 @@ function ClassLoadingMessage({
 
   return (
     <div className={containerClassName}>
-      <img src={imageUrl} alt={`${selectedClass} icon`} className={styles['loading-icon']} />
+      <Image
+        src={imageUrl}
+        alt={`${selectedClass} icon`}
+        className={styles['loading-icon']}
+        width={70}
+        height={70}
+      />
       <div className={styles['loading-text']}>
         Loading{' '}
         <span className={styles['class-name']} style={{ color }}>

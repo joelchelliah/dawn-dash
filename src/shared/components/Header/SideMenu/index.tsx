@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 
+import Image from 'next/image'
 import Link from 'next/link'
 import cx from 'classnames'
 
@@ -23,6 +24,16 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen)
   }
+
+  const getNavLinkImage = (url: string, alt: string) => (
+    <Image
+      src={url}
+      alt={alt}
+      className={styles['side-menu__nav-link__icon']}
+      width={40}
+      height={40}
+    />
+  )
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -72,22 +83,14 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
         <nav className={styles['side-menu__nav']}>
           <div className={speedrunsLinkContainerClassNames}>
             <Link href="/" className={styles['side-menu__nav-link']}>
-              <img
-                src={DashImageUrl}
-                alt="Speedruns logo"
-                className={styles['side-menu__nav-link__icon']}
-              />
+              {getNavLinkImage(DashImageUrl, 'Speedruns logo')}
               Speedruns
             </Link>
           </div>
 
           <div className={cardexLinkContainerClassNames}>
             <Link href="/codex/cards" className={styles['side-menu__nav-link']}>
-              <img
-                src={AbracadabraImageUrl}
-                alt="Cardex logo"
-                className={styles['side-menu__nav-link__icon']}
-              />
+              {getNavLinkImage(AbracadabraImageUrl, 'Cardex logo')}
               Cardex
             </Link>
           </div>
@@ -98,11 +101,7 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
               className={styles['side-menu__nav-link']}
               onClick={() => setIsAboutInfoOpen(true)}
             >
-              <img
-                src={RushedForgeryImageUrl}
-                alt="About logo"
-                className={styles['side-menu__nav-link__icon']}
-              />
+              {getNavLinkImage(RushedForgeryImageUrl, 'About logo')}
               About
             </Link>
           </div>

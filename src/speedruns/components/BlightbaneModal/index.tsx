@@ -1,5 +1,8 @@
+import Image from 'next/image'
+
 import Button from '../../../shared/components/Buttons/Button'
 import ButtonRow from '../../../shared/components/Buttons/ButtonRow'
+import { BolgarImageUrl } from '../../../shared/utils/imageUrls'
 import { SpeedRunClass, SpeedRunSubclass } from '../../types/speedRun'
 import { ClassColorVariant, getClassColor, getSubclassColor } from '../../utils/colors'
 import { isAnonymousPlayer } from '../../utils/players'
@@ -60,10 +63,12 @@ function BlightbaneModal({
   return (
     <ClassModal isOpen={isOpen} onClose={onClose} maxWidth={400} selectedClass={playerClass}>
       <h3 className={styles['title']}>
-        <img
-          src="https://blightbane.io/images/bolgar.png"
+        <Image
+          src={BolgarImageUrl}
           alt="Bolgar Blightbane"
           className={styles['icon']}
+          width={64}
+          height={44}
         />
         Go to Blightbane?
       </h3>

@@ -17,8 +17,6 @@
 }
 
 .logo {
-  width: 3.25rem;
-  height: 3.25rem;
   @include rotateY360Animation('hover', '.logo-and-title:hover');
 }
 

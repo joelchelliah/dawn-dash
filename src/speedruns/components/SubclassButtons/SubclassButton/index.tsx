@@ -1,5 +1,6 @@
 import { memo } from 'react'
 
+import Image from 'next/image'
 import cx from 'classnames'
 
 import { SpeedRunSubclass } from '../../../types/speedRun'
@@ -14,28 +15,28 @@ interface SubclassButtonProps {
   onClick: () => void
 }
 
+const renderIcon = (icon: string, alt: string) => (
+  <Image src={icon} alt={alt} width={16} height={16} />
+)
+
 function getSubclassIcons(subclass: SpeedRunSubclass) {
   if (subclass === SpeedRunSubclass.Hybrid) {
-    const icon1 = getEnergyImageUrl(SpeedRunSubclass.Arcanist)
-    const icon2 = getEnergyImageUrl(SpeedRunSubclass.Warrior)
-    const icon3 = getEnergyImageUrl(SpeedRunSubclass.Rogue)
+    const arcanist = getEnergyImageUrl(SpeedRunSubclass.Arcanist)
+    const warrior = getEnergyImageUrl(SpeedRunSubclass.Warrior)
+    const rogue = getEnergyImageUrl(SpeedRunSubclass.Rogue)
 
     return (
       <div className={styles['subclass-icons']}>
-        <img src={icon1} alt={`${subclass} icon`} />
-        <img src={icon2} alt={`${subclass} icon`} />
-        <img src={icon3} alt={`${subclass} icon`} />
+        {renderIcon(arcanist, `${subclass} icon`)}
+        {renderIcon(warrior, `${subclass} icon`)}
+        {renderIcon(rogue, `${subclass} icon`)}
       </div>
     )
   }
 
   const iconUrl = getEnergyImageUrl(subclass)
 
-  return (
-    <div className={styles['subclass-icons']}>
-      <img src={iconUrl} alt={`${subclass} icon`} />
-    </div>
-  )
+  return <div className={styles['subclass-icons']}>{renderIcon(iconUrl, `${subclass} icon`)}</div>
 }
 
 function SubclassButton({ subclass, isActive, onClick }: SubclassButtonProps) {

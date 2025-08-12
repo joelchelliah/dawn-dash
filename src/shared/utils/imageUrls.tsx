@@ -29,3 +29,4 @@ export const NeutralImageUrl = `${blightbaneImagesUrl}/neutral.webp`
 
 // Other
 export const HealthImageUrl = `${blightbaneImagesUrl}/health.webp`
+export const BolgarImageUrl = `${blightbaneImagesUrl}/bolgar.png`

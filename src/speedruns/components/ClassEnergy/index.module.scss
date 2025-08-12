@@ -1,12 +1,15 @@
 @use '../../../styles' as *;
 
+$icon-size: 20px;
+$icon-size-mobile: 16px;
+
 .energy {
-  width: 1.25rem;
-  height: 1.25rem;
+  width: $icon-size;
+  height: $icon-size;
   padding-top: 2px;
 
   @media (max-width: $breakpoint-mobile) {
-    width: 1rem;
-    height: 1rem;
+    width: $icon-size-mobile;
+    height: $icon-size-mobile;
   }
 }

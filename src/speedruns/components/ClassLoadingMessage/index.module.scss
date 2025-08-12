@@ -1,7 +1,6 @@
 @use '../../../styles' as *;
 
 $message-padding: 2.5rem;
-$loading-icon-size: 5rem;
 
 .container {
   @extend %flex-center;
@@ -18,8 +17,6 @@ $loading-icon-size: 5rem;
 
 .loading-icon {
   border-radius: 50%;
-  width: $loading-icon-size;
-  height: $loading-icon-size;
   @include pulseAnimation;
 }
 

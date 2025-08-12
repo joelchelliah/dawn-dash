@@ -1,5 +1,6 @@
 import { memo } from 'react'
 
+import Image from 'next/image'
 import { Chart as ChartJS } from 'chart.js'
 import cx from 'classnames'
 
@@ -59,6 +60,10 @@ function ChartLegend({
     )
   }
 
+  const renderIcon = (icon: string, alt: string, size = 16) => (
+    <Image src={icon} alt={alt} width={size} height={size} />
+  )
+
   const renderSubclassEnergyIcons = () => {
     if (subclass === SpeedRunSubclass.Hybrid) {
       const arcanist = getEnergyImageUrl(SpeedRunSubclass.Arcanist)
@@ -67,16 +72,16 @@ function ChartLegend({
 
       return (
         <>
-          <img src={arcanist} alt={`${subclass} icon`} />
-          <img src={warrior} alt={`${subclass} icon`} />
-          <img src={rogue} alt={`${subclass} icon`} />
+          {renderIcon(arcanist, `${subclass} icon`, 12)}
+          {renderIcon(warrior, `${subclass} icon`, 12)}
+          {renderIcon(rogue, `${subclass} icon`, 12)}
         </>
       )
     }
 
     const icon = getEnergyImageUrl(subclass ?? SpeedRunSubclass.All)
 
-    return <img src={icon} alt={`${subclass} icon`} />
+    return renderIcon(icon, `${subclass} icon`, 12)
   }
 
   const renderTitle = () => {
@@ -87,9 +92,9 @@ function ChartLegend({
 
     return (
       <div className={styles['content__title']} style={{ color: titleColor }}>
-        <img src={classEnergy} alt={`${selectedClass} icon`} />
+        {renderIcon(classEnergy, `${selectedClass} icon`)}
         {selectedClass}
-        <img src={classEnergy} alt={`${selectedClass} icon`} />
+        {renderIcon(classEnergy, `${selectedClass} icon`)}
         {subclass && (
           <div className={styles['content__title__subtitle']} style={{ color: subtitleColor }}>
             {subclassEnergyIcons}

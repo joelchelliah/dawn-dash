@@ -1,5 +1,6 @@
 import { memo } from 'react'
 
+import Image from 'next/image'
 import cx from 'classnames'
 
 import { SpeedRunClass } from '../../../types/speedRun'
@@ -37,7 +38,13 @@ function ClassButton({ classType, isActive, onClick }: ClassButtonProps) {
         boxShadow: isActive ? `0 0 8px 1px ${borderColor}40` : undefined,
       }}
     >
-      <img src={imageUrl} alt={`${classType} icon`} className={styles['class-icon']} />
+      <Image
+        src={imageUrl}
+        alt={`${classType} icon`}
+        className={styles['class-icon']}
+        width={36}
+        height={36}
+      />
       <span className={styles['class-type']} style={{ color }}>
         {classType}
       </span>

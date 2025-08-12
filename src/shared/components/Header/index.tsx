@@ -1,3 +1,5 @@
+import Image from 'next/image'
+
 import SideMenu from './SideMenu'
 import styles from './index.module.scss'
 
@@ -13,7 +15,7 @@ const Header = ({ onLogoClick, logoSrc, title, subtitle, currentPage }: HeaderPr
   return (
     <div className={styles['header']}>
       <div className={styles['logo-and-title']} onClick={onLogoClick}>
-        <img src={logoSrc} alt="Header logo" className={styles['logo']} />
+        <Image src={logoSrc} alt="Header logo" className={styles['logo']} width={52} height={52} />
         <div>
           <h1 className={styles['title']}>{title}</h1>
           <h2 className={styles['subtitle']}>{subtitle}</h2>

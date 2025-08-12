@@ -135,14 +135,7 @@
     }
 
     &__icon {
-      width: 2.5rem;
-      height: 2.5rem;
       @include rotateY360Animation('hover', '.side-menu__nav-link:hover');
-
-      @media (max-width: $breakpoint-mobile) {
-        width: 2rem;
-        height: 2rem;
-      }
     }
   }
 }
