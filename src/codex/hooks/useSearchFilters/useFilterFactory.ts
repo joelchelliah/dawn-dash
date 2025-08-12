@@ -20,7 +20,16 @@ export function createFilterHook({
   valueToStringMap?: Record<string, string>
 }) {
   return (cachedFilters: Record<string, boolean> | undefined, defaultFilterValue?: string) => {
-    const [filters, setFilters] = useState<Record<string, boolean>>(cachedFilters || defaultFilters)
+    const initialFilters = { ...defaultFilters }
+    if (cachedFilters) {
+      Object.keys(cachedFilters).forEach((key) => {
+        if (key in defaultFilters) {
+          initialFilters[key] = Boolean(cachedFilters[key])
+        }
+      })
+    }
+
+    const [filters, setFilters] = useState<Record<string, boolean>>(initialFilters)
 
     const selectedIndices = indexMap
       ? Object.keys(filters)
