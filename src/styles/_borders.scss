@@ -38,6 +38,9 @@
 }
 
 @mixin default_border($type: solid) {
-  border-radius: 0.25rem;
-  border: 1px $type colors.$color-component-border;
+  & {
+    // Wrapping in &{} to prevent deprecation warning about declarations appearing after nested rules.
+    border-radius: 0.25rem;
+    border: 1px $type colors.$color-component-border;
+  }
 }

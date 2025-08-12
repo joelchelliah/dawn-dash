@@ -1,4 +1,6 @@
 @use '../../../../../../styles/index' as *;
+@use 'sass:map';
+@use 'sass:list';
 
 $checkbox-size: 1rem;
 $checkmark-size: 0.625rem;
@@ -37,7 +39,7 @@ $checkmark-size: 0.625rem;
     @each $name, $color in $banner-name-to-color-map {
       &--#{$name} {
         // Check if the banner name is even or odd
-        @if index(map-keys($banner-name-to-color-map), $name) % 2 == 0 {
+        @if list.index(map.keys($banner-name-to-color-map), $name) % 2 == 0 {
           // Only apply texture when checked
           &[data-checked='true'] {
             @include rainTexture(rgba($color, 0.75), true);

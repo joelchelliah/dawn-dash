@@ -21,10 +21,10 @@
 }
 
 .title {
-  @include yellowGreenGradient(false);
   font-size: font-size('lg');
   margin: 0;
   font-weight: bold;
+  @include yellowGreenGradient(false);
 
   @media (max-width: $breakpoint-mobile) {
     font-size: font-size('md');

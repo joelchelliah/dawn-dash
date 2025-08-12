@@ -1,3 +1,5 @@
+@use 'sass:map';
+
 $font-sizes: (
   'xxs': 0.75rem,
   'xs': 0.875rem,
@@ -13,7 +15,7 @@ $font-sizes: (
 }
 
 @function font-size($size) {
-  @return map-get($font-sizes, $size);
+  @return map.get($font-sizes, $size);
 }
 
 @mixin text-truncate($max-width: 100%) {
