@@ -1,6 +1,8 @@
-import cx from 'classnames'
+import { createCx } from '../../../utils/classnames'
 
 import styles from './index.module.scss'
+
+const cx = createCx(styles)
 
 interface ModalProps {
   children: React.ReactNode
@@ -19,12 +21,12 @@ function Modal({
 }: ModalProps): JSX.Element | null {
   if (!isOpen) return null
 
-  const contentClassName = cx(styles['content'], {
-    [styles['content--without-class-border']]: !borderColor,
+  const contentClassName = cx('content', {
+    'content--without-class-border': !borderColor,
   })
 
   return (
-    <div className={styles['overlay']} onClick={onClose}>
+    <div className={cx('overlay')} onClick={onClose}>
       <div
         className={contentClassName}
         onClick={(e) => e.stopPropagation()}

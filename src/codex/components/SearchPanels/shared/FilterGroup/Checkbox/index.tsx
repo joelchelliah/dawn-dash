@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 
-import cx from 'classnames'
-
+import { createCx } from '../../../../../../shared/utils/classnames'
 import { FilterType } from '../../../../../types/filters'
 
 import styles from './index.module.scss'
+
+const cx = createCx(styles)
 
 interface CheckboxProps {
   name: string
@@ -32,13 +33,13 @@ const Checkbox = ({ checkboxLabel, checked, onChange, type, name }: CheckboxProp
   }, [])
 
   const labelClassName = cx(
-    styles['checkbox-label'],
-    styles[`checkbox-label--${type}`],
-    styles[`checkbox-label--${type}--${name}`]
+    'checkbox-label',
+    `checkbox-label--${type}`,
+    `checkbox-label--${type}--${name}`
   )
-  const checkboxClassName = cx(styles['checkbox'], styles[`checkbox--${type}`])
-  const labelTextClassName = cx(styles['checkbox-label-text'], {
-    [styles['checkbox-label-text--checked']]: isHydrated ? checked : false,
+  const checkboxClassName = cx('checkbox', `checkbox--${type}`)
+  const labelTextClassName = cx('checkbox-label-text', {
+    'checkbox-label-text--checked': isHydrated ? checked : false,
   })
 
   return (

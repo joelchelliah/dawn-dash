@@ -1,6 +1,8 @@
-import cx from 'classnames'
+import { createCx } from '../../utils/classnames'
 
 import styles from './index.module.scss'
+
+const cx = createCx(styles)
 
 interface GradientLinkProps {
   text: string
@@ -12,12 +14,7 @@ interface GradientLinkProps {
 function GradientLink({ text, url, onClick, className }: GradientLinkProps): JSX.Element {
   if (url) {
     return (
-      <a
-        href={url}
-        target="_blank"
-        rel="noopener noreferrer"
-        className={cx(styles['link'], className)}
-      >
+      <a href={url} target="_blank" rel="noopener noreferrer" className={cx('link', className)}>
         {text}
       </a>
     )
@@ -25,7 +22,7 @@ function GradientLink({ text, url, onClick, className }: GradientLinkProps): JSX
 
   if (onClick) {
     return (
-      <button onClick={onClick} className={styles['button-link']}>
+      <button onClick={onClick} className={cx('button-link')}>
         {text}
       </button>
     )

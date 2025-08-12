@@ -1,6 +1,10 @@
 import { Fragment } from 'react/jsx-runtime'
 
+import { createCx } from '../../../../shared/utils/classnames'
+
 import styles from './index.module.scss'
+
+const cx = createCx(styles)
 
 interface KeywordsSummaryProps {
   matches: string[]
@@ -18,7 +22,7 @@ const KeywordsSummary = ({
   if (showingResultsWithoutKeywords) {
     return (
       <div className={className}>
-        <div className={styles['no-keywords-warning']}>
+        <div className={cx('no-keywords-warning')}>
           Found <strong>{matches.length}</strong> results, matching only the filters!
         </div>
         {matches.length > 0
@@ -31,11 +35,13 @@ const KeywordsSummary = ({
   return (
     <div className={className}>
       Found <strong>{matches.length}</strong> results matching:
-      <div className={styles['keywords-summary']}>
+      <div className={cx('keywords-summary')}>
         {'[ '}
         {parsedKeywords.map((keyword, index) => {
           const fullMatch = matches.some((match) => match.toLowerCase() === keyword.toLowerCase())
-          const className = fullMatch ? styles['keywords-summary__full-match'] : ''
+          const className = cx({
+            'keywords-summary__full-match': fullMatch,
+          })
 
           return (
             <Fragment key={keyword}>

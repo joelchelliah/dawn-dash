@@ -1,8 +1,9 @@
-import cx from 'classnames'
-
+import { createCx } from '../../../utils/classnames'
 import LoadingDots from '../../LoadingDots'
 
 import styles from './index.module.scss'
+
+const cx = createCx(styles)
 
 interface ButtonProps {
   children: React.ReactNode
@@ -21,8 +22,8 @@ function Button({
   isLoading = false,
   type,
 }: ButtonProps): JSX.Element {
-  const buttonClassName = cx(styles['button'], className, {
-    [styles['button--loading']]: isLoading,
+  const buttonClassName = cx('button', className, {
+    'button--loading': isLoading,
   })
 
   return (
@@ -33,7 +34,7 @@ function Button({
       disabled={isLoading}
       type={type}
     >
-      {isLoading ? <LoadingDots color="#bbb" className={styles['loading-dots']} /> : children}
+      {isLoading ? <LoadingDots color="#bbb" className={cx('loading-dots')} /> : children}
     </button>
   )
 }

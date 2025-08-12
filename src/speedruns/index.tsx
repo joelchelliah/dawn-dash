@@ -1,5 +1,6 @@
 import { useState } from 'react'
 
+import { createCx } from '../shared/utils/classnames'
 import Header from '../shared/components/Header'
 import { useNavigation } from '../shared/hooks/useNavigation'
 import Footer from '../shared/components/Footer'
@@ -15,6 +16,8 @@ import ClassButtons from './components/ClassButtons'
 import SubclassButtons from './components/SubclassButtons'
 import BlightbaneModal from './components/BlightbaneModal'
 import styles from './index.module.scss'
+
+const cx = createCx(styles)
 
 function Speedruns(): JSX.Element {
   const { initialClass, initialDifficulty } = useInitialClassAndDifficulty()
@@ -41,7 +44,7 @@ function Speedruns(): JSX.Element {
   useUrlParams(selectedClass, setSelectedClass, controls)
 
   return (
-    <div className={styles['container']}>
+    <div className={cx('container')}>
       <Header
         onLogoClick={() => resetToSpeedruns(selectedClass, controls.difficulty)}
         logoSrc={DashImageUrl}
@@ -50,7 +53,7 @@ function Speedruns(): JSX.Element {
         currentPage="speedruns"
       />
 
-      <div className={styles['content']}>
+      <div className={cx('content')}>
         <ClassButtons onClassSelect={setSelectedClass} selectedClass={selectedClass} />
         {isSunforge && controls.subclass && (
           <SubclassButtons

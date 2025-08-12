@@ -1,5 +1,4 @@
-import cx from 'classnames'
-
+import { createCx } from '../../../../shared/utils/classnames'
 import { ExtraFilterOption, RarityFilterOption } from '../../../types/filters'
 import { allFormattingFilters } from '../../../hooks/useSearchFilters/useFormattingFilters'
 import { UseCardSearchFilters } from '../../../hooks/useSearchFilters'
@@ -25,6 +24,8 @@ import WeeklyChallengeButton from '../shared/WeeklyChallengeButton'
 import SearchField from '../shared/SearchField'
 
 import styles from './index.module.scss'
+
+const cx = createCx(styles)
 
 interface CardSearchPanelProps {
   useSearchFilters: UseCardSearchFilters
@@ -58,29 +59,29 @@ const CardSearchPanel = ({ useSearchFilters, useCardData }: CardSearchPanelProps
     switch (filter) {
       case RarityFilterOption.Legendary:
         return (
-          <span className={styles['filter-label']}>
-            <TripleStarsIcon className={styles['filter-icon--legendary']} />
+          <span className={cx('filter-label')}>
+            <TripleStarsIcon className={cx('filter-icon--legendary')} />
             Legendary
           </span>
         )
       case RarityFilterOption.Rare:
         return (
-          <span className={styles['filter-label']}>
-            <DoubleStarsIcon className={styles['filter-icon--rare']} />
+          <span className={cx('filter-label')}>
+            <DoubleStarsIcon className={cx('filter-icon--rare')} />
             Rare
           </span>
         )
       case RarityFilterOption.Uncommon:
         return (
-          <span className={styles['filter-label']}>
-            <SingleStarIcon className={styles['filter-icon--uncommon']} />
+          <span className={cx('filter-label')}>
+            <SingleStarIcon className={cx('filter-icon--uncommon')} />
             Uncommon
           </span>
         )
       default:
         return (
-          <span className={styles['filter-label']}>
-            <CircleIcon className={styles['filter-icon--common']} />
+          <span className={cx('filter-label')}>
+            <CircleIcon className={cx('filter-icon--common')} />
             Common
           </span>
         )
@@ -93,20 +94,20 @@ const CardSearchPanel = ({ useSearchFilters, useCardData }: CardSearchPanelProps
     switch (filter) {
       case ExtraFilterOption.IncludeMonsterCards:
         return (
-          <span className={styles['filter-label']}>
-            <SkullIcon className={styles['filter-icon--monster']} />
+          <span className={cx('filter-label')}>
+            <SkullIcon className={cx('filter-icon--monster')} />
             {name}
           </span>
         )
       case ExtraFilterOption.IncludeNonCollectibleCards:
         return (
-          <span className={styles['filter-label']}>
-            <CrossIcon className={styles['filter-icon--non-collectible']} />
+          <span className={cx('filter-label')}>
+            <CrossIcon className={cx('filter-icon--non-collectible')} />
             {name}
           </span>
         )
       default:
-        return <span className={styles['filter-label']}>{name}</span>
+        return <span className={cx('filter-label')}>{name}</span>
     }
   }
 
@@ -115,13 +116,13 @@ const CardSearchPanel = ({ useSearchFilters, useCardData }: CardSearchPanelProps
   }
 
   return (
-    <div className={styles['search-panel']}>
+    <div className={cx('search-panel')}>
       <PanelHeader type="Search" />
 
       <form onSubmit={preventFormSubmission} aria-label="Card search and filters">
         <SearchField keywords={keywords} setKeywords={setKeywords} />
 
-        <div className={styles['filters']}>
+        <div className={cx('filters')}>
           <FilterGroup
             title="Card Sets"
             filters={allCardSets}
@@ -162,11 +163,11 @@ const CardSearchPanel = ({ useSearchFilters, useCardData }: CardSearchPanelProps
           />
         </div>
 
-        <ButtonRow align="left" includeBorder className={styles['button-row']}>
+        <ButtonRow align="left" includeBorder className={cx('button-row')}>
           <GradientButton
             subtle
             onClick={resetFilters}
-            className={styles['filter-button']}
+            className={cx('filter-button')}
             showClickAnimation
           >
             Reset search
@@ -174,7 +175,7 @@ const CardSearchPanel = ({ useSearchFilters, useCardData }: CardSearchPanelProps
           <GradientButton
             subtle
             onClick={resetStruckCards}
-            className={cx(styles['filter-button'], styles['filter-button--fill-width'])}
+            className={cx('filter-button', 'filter-button--fill-width')}
             showClickAnimation
           >
             Reset tracked cards
@@ -182,7 +183,7 @@ const CardSearchPanel = ({ useSearchFilters, useCardData }: CardSearchPanelProps
         </ButtonRow>
 
         {(!isWeeklyChallengeError || isWeelyChallengeLoading) && (
-          <ButtonRow align="left" className={styles['button-row--weekly-challenge']}>
+          <ButtonRow align="left" className={cx('button-row--weekly-challenge')}>
             <WeeklyChallengeButton
               isLoading={isWeelyChallengeLoading}
               challengeName={weeklyChallengeData?.name}

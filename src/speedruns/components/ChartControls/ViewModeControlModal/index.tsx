@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 
-import cx from 'classnames'
-
+import { createCx } from '../../../../shared/utils/classnames'
 import Button from '../../../../shared/components/Buttons/Button'
 import ButtonRow from '../../../../shared/components/Buttons/ButtonRow'
 import { VIEW_MODE_LABELS } from '../../../constants/chartControlValues'
@@ -13,6 +12,8 @@ import ClassModal from '../../ClassModal'
 import ControlRadioButton from '../ControlRadioButton'
 
 import styles from './index.module.scss'
+
+const cx = createCx(styles)
 
 interface ViewModeModalProps {
   isOpen: boolean
@@ -30,16 +31,16 @@ function getViewModeDescription(mode: ViewMode): React.ReactNode {
       return (
         <span>
           Runs where the players improved their{' '}
-          <span className={styles['option-description__highlight']}>personal best time</span>. Only
-          runs that have beaten an earlier personal record are included.
+          <span className={cx('option-description__highlight')}>personal best time</span>. Only runs
+          that have beaten an earlier personal record are included.
         </span>
       )
     case ViewMode.Records:
       return (
         <span>
           Runs that broke the{' '}
-          <span className={styles['option-description__highlight']}>global record</span> at the time
-          of submission.
+          <span className={cx('option-description__highlight')}>global record</span> at the time of
+          submission.
         </span>
       )
     default:
@@ -78,19 +79,18 @@ function ViewModeModal({
 
   return (
     <ClassModal isOpen={isOpen} onClose={onClose} selectedClass={selectedClass}>
-      <div className={styles['container']}>
+      <div className={cx('container')}>
         <h3 style={headerStyle}>View Mode</h3>
-        <div className={styles['options']}>
+        <div className={cx('options')}>
           {Object.values(ViewMode).map((mode) => {
             const isSelected = selectedViewMode === mode
             const labelTitleSelectedStyle = {
               color: lighterColor,
             } as React.CSSProperties
             const labelTitleStyle = isSelected ? labelTitleSelectedStyle : {}
-            const optionDescriptionClassName = cx(
-              styles['option-description'],
-              isSelected && styles['option-description--active']
-            )
+            const optionDescriptionClassName = cx('option-description', {
+              'option-description--active': isSelected,
+            })
 
             return (
               <ControlRadioButton
@@ -101,7 +101,7 @@ function ViewModeModal({
                 isSelected={isSelected}
                 onChange={() => setSelectedViewMode(mode)}
               >
-                <span className={styles['option-title']} style={labelTitleStyle}>
+                <span className={cx('option-title')} style={labelTitleStyle}>
                   {VIEW_MODE_LABELS[mode]}
                 </span>
                 <span className={optionDescriptionClassName}>{getViewModeDescription(mode)}</span>

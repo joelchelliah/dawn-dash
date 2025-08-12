@@ -1,10 +1,11 @@
 import { useState } from 'react'
 
-import cx from 'classnames'
-
+import { createCx } from '../../../utils/classnames'
 import Button from '../Button'
 
 import styles from './index.module.scss'
+
+const cx = createCx(styles)
 
 interface GradientButtonProps {
   children: React.ReactNode
@@ -37,11 +38,11 @@ function GradientButton({
     }
   }
 
-  const buttonClassName = cx(styles['gradient-button'], className, {
-    [styles['gradient-button--colored']]: !subtle && !isLoading,
-    [styles['gradient-button--subtle']]: subtle && !isLoading,
-    [styles['gradient-button--bold']]: bold,
-    [styles['gradient-button--pulse']]: isAnimating,
+  const buttonClassName = cx('gradient-button', className, {
+    'gradient-button--colored': !subtle && !isLoading,
+    'gradient-button--subtle': subtle && !isLoading,
+    'gradient-button--bold': bold,
+    'gradient-button--pulse': isAnimating,
   })
 
   return (

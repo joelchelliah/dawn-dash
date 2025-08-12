@@ -2,9 +2,12 @@ import { memo } from 'react'
 
 import { SpeedRunClass, SpeedRunSubclass } from '../../types/speedRun'
 import { ClassColorVariant, getClassColor } from '../../utils/colors'
+import { createCx } from '../../../shared/utils/classnames'
 
 import styles from './index.module.scss'
 import SubclassButton from './SubclassButton'
+
+const cx = createCx(styles)
 
 interface SubclassButtonsProps {
   onSubclassSelect: (subclass: SpeedRunSubclass) => void
@@ -20,12 +23,12 @@ function SubclassButtons({ onSubclassSelect, selectedSubclass }: SubclassButtons
   const borderStyle = { borderColor: darkColor }
 
   return (
-    <div className={styles['subclass-buttons']} style={borderStyle}>
-      <h3 className={styles['subclass-buttons__title']} style={{ color: defaultColor }}>
+    <div className={cx('subclass-buttons')} style={borderStyle}>
+      <h3 className={cx('subclass-buttons__title')} style={{ color: defaultColor }}>
         Sunforge subclass
       </h3>
 
-      <div className={styles['subclass-buttons__buttons']}>
+      <div className={cx('subclass-buttons__buttons')}>
         {subclasses.map((subclass) => (
           <SubclassButton
             key={subclass}

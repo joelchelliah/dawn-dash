@@ -1,13 +1,15 @@
 import { memo } from 'react'
 
 import Image from 'next/image'
-import cx from 'classnames'
 
+import { createCx } from '../../../../shared/utils/classnames'
 import { SpeedRunClass } from '../../../types/speedRun'
 import { ClassColorVariant, getClassColor } from '../../../utils/colors'
 import { getClassImageUrl } from '../../../utils/images'
 
 import styles from './index.module.scss'
+
+const cx = createCx(styles)
 
 interface ClassButtonProps {
   classType: SpeedRunClass
@@ -25,8 +27,8 @@ function ClassButton({ classType, isActive, onClick }: ClassButtonProps) {
     classType,
     isActive ? ClassColorVariant.Lighter : ClassColorVariant.Darker
   )
-  const buttonClassName = cx(styles['container'], {
-    [styles['container--active']]: isActive,
+  const buttonClassName = cx('container', {
+    'container--active': isActive,
   })
 
   return (
@@ -41,11 +43,11 @@ function ClassButton({ classType, isActive, onClick }: ClassButtonProps) {
       <Image
         src={imageUrl}
         alt={`${classType} icon`}
-        className={styles['class-icon']}
+        className={cx('class-icon')}
         width={36}
         height={36}
       />
-      <span className={styles['class-type']} style={{ color }}>
+      <span className={cx('class-type')} style={{ color }}>
         {classType}
       </span>
     </button>

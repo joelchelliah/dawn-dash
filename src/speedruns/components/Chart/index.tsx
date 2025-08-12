@@ -13,8 +13,8 @@ import {
   Tooltip,
   Title,
 } from 'chart.js'
-import cx from 'classnames'
 
+import { createCx } from '../../../shared/utils/classnames'
 import { useDeviceOrientation } from '../../../shared/hooks/useDeviceOrientation'
 import { useSpeedrunData } from '../../hooks/useSpeedrunData'
 import {
@@ -68,6 +68,8 @@ ChartJS.register(
 // This is to prevent the chart from being updated too often
 // which can cause flickering in the chart rendering
 const CHART_UPDATE_DELAY = 200
+
+const cx = createCx(styles)
 
 interface ChartProps {
   controls: ChartControlState
@@ -258,12 +260,11 @@ function Chart({ selectedClass, controls, onPlayerClick }: ChartProps) {
       : isMobileAndLandscape
         ? widthMobileLandscape
         : widthDefault
-    const chartContainerClassName = cx(styles['chart-container'], {
-      [styles['chart-container--mobilePortraitLoading']]: isMobilePortraitLoading,
+    const chartContainerClassName = cx('chart-container', {
+      'chart-container--mobilePortraitLoading': isMobilePortraitLoading,
     })
-    const chartClassName = cx(styles['chart-container__chart'], {
-      // Use isPending instead of isUpdating
-      [styles['chart-container__chart--updating']]: isPending,
+    const chartClassName = cx('chart-container__chart', {
+      'chart-container__chart--updating': isPending,
     })
 
     const hasChartData = chartInstance.current?.data?.datasets?.length
@@ -341,8 +342,8 @@ function Chart({ selectedClass, controls, onPlayerClick }: ChartProps) {
   )
 
   return (
-    <div className={styles['layout']}>
-      <div className={styles['container']} style={{ borderColor }}>
+    <div className={cx('layout')}>
+      <div className={cx('container')} style={{ borderColor }}>
         {renderChart()}
         <ChartRotateMessage />
         <ChartFooter

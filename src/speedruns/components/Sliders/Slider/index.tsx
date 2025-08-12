@@ -7,8 +7,11 @@ import { SpeedRunClass } from '../../../types/speedRun'
 import { ClassColorVariant, getClassColor } from '../../../utils/colors'
 import { getEnergyImageUrl } from '../../../utils/images'
 import Thumb from '../Thumb'
+import { createCx } from '../../../../shared/utils/classnames'
 
 import styles from './index.module.scss'
+
+const cx = createCx(styles)
 
 interface SliderProps {
   state: SliderState
@@ -74,18 +77,18 @@ function Slider({
   }
 
   return (
-    <div {...groupProps} className={styles['slider']}>
+    <div {...groupProps} className={cx('slider')}>
       <div
         {...trackProps}
         ref={trackRef}
-        className={styles['track']}
+        className={cx('track')}
         style={trackStyle}
         onPointerDown={(e) => {
           onPointerDown()
           trackProps.onPointerDown?.(e)
         }}
       >
-        <div className={styles['track-fill']} style={fillStyle} />
+        <div className={cx('track-fill')} style={fillStyle} />
         {Array.from({ length: doubleThumbs ? 2 : 1 }).map((_, index) => (
           <Thumb
             key={index}
@@ -96,10 +99,10 @@ function Slider({
           />
         ))}
       </div>
-      <div className={styles['marks']}>
+      <div className={cx('marks')}>
         {values.map((value, i) => (
-          <div key={value} className={styles['mark']} style={getMarkStyle(i)}>
-            <span className={styles['mark__label']}>{value}</span>
+          <div key={value} className={cx('mark')} style={getMarkStyle(i)}>
+            <span className={cx('mark__label')}>{value}</span>
           </div>
         ))}
       </div>

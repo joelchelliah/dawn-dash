@@ -2,18 +2,20 @@ import { useState, useEffect, useRef } from 'react'
 
 import Image from 'next/image'
 import Link from 'next/link'
-import cx from 'classnames'
 
 import { HamburgerIcon } from '../../../utils/icons'
 import { AbracadabraImageUrl, DashImageUrl, RushedForgeryImageUrl } from '../../../utils/imageUrls'
 import GradientLink from '../../GradientLink'
 import InfoModal from '../../Modals/InfoModal'
+import { createCx } from '../../../utils/classnames'
 
 import styles from './index.module.scss'
 
 interface SideMenuProps {
   currentPage: 'speedruns' | 'cardex' | 'skilldex'
 }
+
+const cx = createCx(styles)
 
 const SideMenu = ({ currentPage }: SideMenuProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -26,13 +28,7 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
   }
 
   const getNavLinkImage = (url: string, alt: string) => (
-    <Image
-      src={url}
-      alt={alt}
-      className={styles['side-menu__nav-link__icon']}
-      width={40}
-      height={40}
-    />
+    <Image src={url} alt={alt} className={cx('side-menu__nav-link__icon')} width={40} height={40} />
   )
 
   useEffect(() => {
@@ -54,51 +50,51 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
     }
   }, [isMenuOpen])
 
-  const speedrunsLinkContainerClassNames = cx(
-    styles['side-menu__nav-link-container'],
-    currentPage === 'speedruns' ? styles['side-menu__nav-link-container--active'] : ''
-  )
-  const cardexLinkContainerClassNames = cx(
-    styles['side-menu__nav-link-container'],
-    currentPage === 'cardex' ? styles['side-menu__nav-link-container--active'] : ''
-  )
+  const speedrunsLinkContainerClassNames = cx('side-menu__nav-link-container', {
+    'side-menu__nav-link-container--active': currentPage === 'speedruns',
+  })
+  const cardexLinkContainerClassNames = cx('side-menu__nav-link-container', {
+    'side-menu__nav-link-container--active': currentPage === 'cardex',
+  })
 
   return (
     <>
-      <div className={styles['hamburger']}>
+      <div className={cx('hamburger')}>
         <button
           ref={hamburgerRef}
-          className={styles['hamburger__button']}
+          className={cx('hamburger__button')}
           onClick={toggleMenu}
           aria-label="Toggle menu"
         >
-          <HamburgerIcon className={styles['hamburger__button__icon']} />
+          <HamburgerIcon className={cx('hamburger__button__icon')} />
         </button>
       </div>
 
       <div
         ref={menuRef}
-        className={`${styles['side-menu']} ${isMenuOpen ? styles['side-menu--open'] : ''}`}
+        className={cx('side-menu', {
+          'side-menu--open': isMenuOpen,
+        })}
       >
-        <nav className={styles['side-menu__nav']}>
+        <nav className={cx('side-menu__nav')}>
           <div className={speedrunsLinkContainerClassNames}>
-            <Link href="/" className={styles['side-menu__nav-link']}>
+            <Link href="/" className={cx('side-menu__nav-link')}>
               {getNavLinkImage(DashImageUrl, 'Speedruns logo')}
               Speedruns
             </Link>
           </div>
 
           <div className={cardexLinkContainerClassNames}>
-            <Link href="/codex/cards" className={styles['side-menu__nav-link']}>
+            <Link href="/codex/cards" className={cx('side-menu__nav-link')}>
               {getNavLinkImage(AbracadabraImageUrl, 'Cardex logo')}
               Cardex
             </Link>
           </div>
 
-          <div className={styles['side-menu__nav-link-container']}>
+          <div className={cx('side-menu__nav-link-container')}>
             <Link
               href=""
-              className={styles['side-menu__nav-link']}
+              className={cx('side-menu__nav-link')}
               onClick={() => setIsAboutInfoOpen(true)}
             >
               {getNavLinkImage(RushedForgeryImageUrl, 'About logo')}
@@ -120,11 +116,11 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
           The player names linked to these runs are their Discord accounts from the official{' '}
           <GradientLink text="Dawncaster Discord" url="https://discord.gg/pfeMG9c" />.
         </p>
-        <div className={styles['info-divider']} />
+        <div className={cx('info-divider')} />
 
         <h3>Cardex</h3>
 
-        <p className={styles['info-last-paragraph']}>
+        <p className={cx('info-last-paragraph')}>
           A codex and multi-search tool for all the cards available in <b>Dawncaster</b>. Has
           several options for filtering, tracking, and formatting the output, to help you plan out
           your run!

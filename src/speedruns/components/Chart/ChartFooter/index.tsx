@@ -1,5 +1,4 @@
-import cx from 'classnames'
-
+import { createCx } from '../../../../shared/utils/classnames'
 import GradientButton from '../../../../shared/components/Buttons/GradientButton'
 import { useFromNow } from '../../../../shared/hooks/useFromNow'
 import { SpeedRunClass } from '../../../types/speedRun'
@@ -8,6 +7,8 @@ import ClassEnergy from '../../ClassEnergy'
 import ClassLoadingDots from '../../ClassLoadingDots'
 
 import styles from './index.module.scss'
+
+const cx = createCx(styles)
 
 interface ChartFooterProps {
   isLoading: boolean
@@ -35,7 +36,7 @@ function ChartFooter({
     return (
       <>
         {fromNow}
-        <GradientButton onClick={refresh} className={styles['refresh-button']} subtle>
+        <GradientButton onClick={refresh} className={cx('refresh-button')} subtle>
           Refresh
         </GradientButton>
       </>
@@ -43,16 +44,16 @@ function ChartFooter({
   }
 
   const borderColor = getClassColor(selectedClass, ClassColorVariant.Darker)
-  const contentClassName = cx(styles['content'], {
-    [styles['content--loading-in-background']]: isLoadingInBackground,
+  const contentClassName = cx('content', {
+    'content--loading-in-background': isLoadingInBackground,
   })
-  const energyLeftClassName = cx(styles['energy'], styles['energy--left'], {
-    [styles['energy--loading']]: isLoading,
+  const energyLeftClassName = cx('energy', 'energy--left', {
+    'energy--loading': isLoading,
   })
-  const energyRightClassName = cx(styles['energy'], styles['energy--right'])
+  const energyRightClassName = cx('energy', 'energy--right')
 
   return (
-    <div className={styles['container']} style={{ borderColor }}>
+    <div className={cx('container')} style={{ borderColor }}>
       <div className={energyLeftClassName}>
         <ClassEnergy classType={selectedClass} />
       </div>

@@ -14,11 +14,14 @@ import { ChartControlState, ViewMode } from '../../types/chart'
 import { Difficulty, SpeedRunClass } from '../../types/speedRun'
 import { ClassColorVariant, getClassColor } from '../../utils/colors'
 import { isAllGameVersions, isGameVersionRange, isSingleGameVersion } from '../../utils/gameVersion'
+import { createCx } from '../../../shared/utils/classnames'
 
 import ControlGroup from './ControlGroup'
 import styles from './index.module.scss'
 import SubmissionWindowModal from './SubmissionWindowControlModal'
 import ViewModeModal from './ViewModeControlModal'
+
+const cx = createCx(styles)
 
 interface ChartControlsProps {
   controls: ChartControlState
@@ -89,8 +92,8 @@ function ChartControls({ controls, selectedClass }: ChartControlsProps) {
   const [isSubmissionWindowModalOpen, setIsSubmissionWindowModalOpen] = useState(false)
   return (
     <>
-      <div className={styles['controls']} style={controlsBorderStyle}>
-        <div className={styles['row']}>
+      <div className={cx('controls')} style={controlsBorderStyle}>
+        <div className={cx('row')}>
           <ControlGroup
             id="difficulty"
             selectedClass={selectedClass}

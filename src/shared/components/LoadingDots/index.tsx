@@ -1,6 +1,8 @@
-import cx from 'classnames'
+import { createCx } from '../../utils/classnames'
 
 import styles from './index.module.scss'
+
+const cx = createCx(styles)
 
 interface LoadingDotsProps {
   color: string
@@ -10,9 +12,9 @@ interface LoadingDotsProps {
 
 function LoadingDots({ text, color, className }: LoadingDotsProps) {
   return (
-    <div className={cx(styles['container'], className)}>
+    <div className={cx('container', className)}>
       {text}{' '}
-      <span className={styles['loading-dots']} style={{ color }}>
+      <span className={cx('loading-dots')} style={{ color }}>
         <span>●</span>
         <span>●</span>
         <span>●</span>

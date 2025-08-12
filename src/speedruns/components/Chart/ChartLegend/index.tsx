@@ -2,8 +2,8 @@ import { memo } from 'react'
 
 import Image from 'next/image'
 import { Chart as ChartJS } from 'chart.js'
-import cx from 'classnames'
 
+import { createCx } from '../../../../shared/utils/classnames'
 import { DataPoint } from '../../../types/chart'
 import { SpeedRunClass, SpeedRunSubclass } from '../../../types/speedRun'
 import {
@@ -23,6 +23,8 @@ import { formatTime } from '../../../utils/time'
 import ClassLoadingDots from '../../ClassLoadingDots'
 
 import styles from './index.module.scss'
+
+const cx = createCx(styles)
 
 interface ChartLegendProps {
   chart: ChartJS | null
@@ -47,11 +49,11 @@ function ChartLegend({
 
   if (!chart?.data.datasets?.length || isLoading) {
     return (
-      <div className={styles['container']} style={{ borderColor }}>
-        <div className={styles['content']}>
+      <div className={cx('container')} style={{ borderColor }}>
+        <div className={cx('content')}>
           <ul></ul>
           {isLoading && (
-            <div className={styles['loading']}>
+            <div className={cx('loading')}>
               <ClassLoadingDots text="" selectedClass={selectedClass} />
             </div>
           )}
@@ -91,12 +93,12 @@ function ChartLegend({
     const subclassEnergyIcons = renderSubclassEnergyIcons()
 
     return (
-      <div className={styles['content__title']} style={{ color: titleColor }}>
+      <div className={cx('content__title')} style={{ color: titleColor }}>
         {renderIcon(classEnergy, `${selectedClass} icon`)}
         {selectedClass}
         {renderIcon(classEnergy, `${selectedClass} icon`)}
         {subclass && (
-          <div className={styles['content__title__subtitle']} style={{ color: subtitleColor }}>
+          <div className={cx('content__title__subtitle')} style={{ color: subtitleColor }}>
             {subclassEnergyIcons}
             <span>{subclass}</span>
             {subclassEnergyIcons}
@@ -110,8 +112,8 @@ function ChartLegend({
   const sortedDatasets = sortedDatasetsByPlayerBestTime(chart, playerBestTimes)
 
   return (
-    <div className={styles['container']} style={{ borderColor }}>
-      <div className={styles['content']}>
+    <div className={cx('container')} style={{ borderColor }}>
+      <div className={cx('content')}>
         {renderTitle()}
         <ul>
           {sortedDatasets.map((dataset, index) => {
@@ -126,14 +128,14 @@ function ChartLegend({
             const markerStyle = isAnonymous
               ? { backgroundColor: anonymousMarkerColor, borderColor: anonymousBorderColor }
               : { backgroundColor: playerColors[player] }
-            const nameContainerClassName = cx(styles['player__name-container'], {
-              [styles['special-icon-container']]: isFastestTime || isAnonymous,
+            const nameContainerClassName = cx('player__name-container', {
+              'special-icon-container': isFastestTime || isAnonymous,
             })
-            const playerClassName = cx(styles['player'], {
-              [styles['player--fastest-time']]: isFastestTime,
+            const playerClassName = cx('player', {
+              'player--fastest-time': isFastestTime,
             })
-            const playerNameClassName = cx(styles['player__name'], {
-              [styles['player__name--anonymous']]: isAnonymous,
+            const playerNameClassName = cx('player__name', {
+              'player__name--anonymous': isAnonymous,
             })
 
             return (
@@ -143,20 +145,20 @@ function ChartLegend({
                 onMouseEnter={() => onPlayerHover(player)}
                 onMouseLeave={() => onPlayerHover(null)}
               >
-                <span className={styles['color-marker']} style={markerStyle} />
+                <span className={cx('color-marker')} style={markerStyle} />
                 <span className={playerClassName}>
                   <span className={nameContainerClassName}>
                     <span className={playerNameClassName}>
                       {isAnonymous ? 'Anonymous' : player}
                     </span>
                     {isFastestTime && (
-                      <span className={styles['special-icon-container__special-icon']}>🏆</span>
+                      <span className={cx('special-icon-container__special-icon')}>🏆</span>
                     )}
                     {isAnonymous && (
-                      <span className={styles['special-icon-container__special-icon']}>❓</span>
+                      <span className={cx('special-icon-container__special-icon')}>❓</span>
                     )}
                   </span>
-                  <span className={styles['player__time']}>{formatTime(bestTime)}</span>
+                  <span className={cx('player__time')}>{formatTime(bestTime)}</span>
                 </span>
               </li>
             )

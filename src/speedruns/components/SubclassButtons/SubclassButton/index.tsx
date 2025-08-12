@@ -1,13 +1,15 @@
 import { memo } from 'react'
 
 import Image from 'next/image'
-import cx from 'classnames'
 
+import { createCx } from '../../../../shared/utils/classnames'
 import { SpeedRunSubclass } from '../../../types/speedRun'
 import { getSubclassColor } from '../../../utils/colors'
 import { getEnergyImageUrl } from '../../../utils/images'
 
 import styles from './index.module.scss'
+
+const cx = createCx(styles)
 
 interface SubclassButtonProps {
   subclass: SpeedRunSubclass
@@ -26,7 +28,7 @@ function getSubclassIcons(subclass: SpeedRunSubclass) {
     const rogue = getEnergyImageUrl(SpeedRunSubclass.Rogue)
 
     return (
-      <div className={styles['subclass-icons']}>
+      <div className={cx('subclass-icons')}>
         {renderIcon(arcanist, `${subclass} icon`)}
         {renderIcon(warrior, `${subclass} icon`)}
         {renderIcon(rogue, `${subclass} icon`)}
@@ -36,15 +38,15 @@ function getSubclassIcons(subclass: SpeedRunSubclass) {
 
   const iconUrl = getEnergyImageUrl(subclass)
 
-  return <div className={styles['subclass-icons']}>{renderIcon(iconUrl, `${subclass} icon`)}</div>
+  return <div className={cx('subclass-icons')}>{renderIcon(iconUrl, `${subclass} icon`)}</div>
 }
 
 function SubclassButton({ subclass, isActive, onClick }: SubclassButtonProps) {
   const icons = getSubclassIcons(subclass)
   const color = getSubclassColor(subclass, isActive)
   const borderColor = getSubclassColor(subclass, isActive)
-  const buttonClassName = cx(styles['container'], {
-    [styles['container--active']]: isActive,
+  const buttonClassName = cx('container', {
+    'container--active': isActive,
   })
 
   return (
@@ -57,7 +59,7 @@ function SubclassButton({ subclass, isActive, onClick }: SubclassButtonProps) {
       }}
     >
       {icons}
-      <span className={styles['subclass-type']} style={{ color }}>
+      <span className={cx('subclass-type')} style={{ color }}>
         {subclass}
       </span>
     </button>
