@@ -163,13 +163,19 @@ const CardSearchPanel = ({ useSearchFilters, useCardData }: CardSearchPanelProps
         </div>
 
         <ButtonRow align="left" includeBorder className={styles['button-row']}>
-          <GradientButton subtle onClick={resetFilters} className={styles['filter-button']}>
+          <GradientButton
+            subtle
+            onClick={resetFilters}
+            className={styles['filter-button']}
+            showClickAnimation
+          >
             Reset search
           </GradientButton>
           <GradientButton
             subtle
             onClick={resetStruckCards}
             className={cx(styles['filter-button'], styles['filter-button--fill-width'])}
+            showClickAnimation
           >
             Reset tracked cards
           </GradientButton>

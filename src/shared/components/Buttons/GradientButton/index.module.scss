@@ -1,5 +1,7 @@
 @use '../../../../styles' as *;
 
+$transition-duration: 0.5s;
+
 // Increased specificity to override the button styles
 .gradient-button.gradient-button {
   min-width: 5rem;
@@ -23,5 +25,24 @@
 
   &--bold {
     font-weight: bold;
+  }
+
+  &--pulse {
+    animation: pulse $transition-duration ease-in-out;
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1, 1);
+  }
+  20% {
+    transform: scale(0.95, 0.75);
+  }
+  50% {
+    transform: scale(1.1, 1.2);
+  }
+  100% {
+    transform: scale(1, 1);
   }
 }

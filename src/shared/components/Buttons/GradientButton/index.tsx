@@ -1,3 +1,5 @@
+import { useState } from 'react'
+
 import cx from 'classnames'
 
 import Button from '../Button'
@@ -11,6 +13,7 @@ interface GradientButtonProps {
   className?: string
   subtle?: boolean
   bold?: boolean
+  showClickAnimation?: boolean
 }
 
 function GradientButton({
@@ -20,15 +23,25 @@ function GradientButton({
   className,
   subtle,
   bold,
+  showClickAnimation = false,
 }: GradientButtonProps): JSX.Element {
+  const [isAnimating, setIsAnimating] = useState(false)
+
   const handleClick = () => {
-    if (!isLoading) onClick()
+    if (!isLoading) {
+      if (showClickAnimation) {
+        setIsAnimating(true)
+        setTimeout(() => setIsAnimating(false), 200)
+      }
+      onClick()
+    }
   }
 
   const buttonClassName = cx(styles['gradient-button'], className, {
     [styles['gradient-button--colored']]: !subtle && !isLoading,
     [styles['gradient-button--subtle']]: subtle && !isLoading,
     [styles['gradient-button--bold']]: bold,
+    [styles['gradient-button--pulse']]: isAnimating,
   })
 
   return (
