@@ -21,10 +21,10 @@
     "jsx": "preserve",
     "baseUrl": "src",
     "paths": {
-      "*": [
-        "*",
-        "*/index"
-      ]
+      "@/*": ["*"],
+      "@/shared/*": ["shared/*"],
+      "@/codex/*": ["codex/*"],
+      "@/speedruns/*": ["speedruns/*"]
     },
     "incremental": true
   },
