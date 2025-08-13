@@ -9,13 +9,13 @@ export default function CardexPage() {
         <title>Dawn-Dash : Cardex</title>
         <meta
           name="description"
-          content="Dawncaster card search & filter - Browse and search through all Dawncaster cards with advanced filtering options!"
+          content="Dawncaster cards - Browse and search through all Dawncaster cards with advanced filtering options!"
         />
 
         <meta property="og:title" content="Dawn-Dash : Cardex" />
         <meta
           property="og:description"
-          content="Dawncaster card search & filter - Browse and search through all Dawncaster cards with advanced filtering options!"
+          content="Dawncaster cards - Browse and search through all Dawncaster cards with advanced filtering options!"
         />
         <meta property="og:image" content="https://www.dawn-dash.com/og-image-cardex.png" />
         <meta property="og:url" content="https://www.dawn-dash.com/codex/cards" />
