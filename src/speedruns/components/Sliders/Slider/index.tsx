@@ -3,11 +3,13 @@ import { useRef } from 'react'
 import { useSlider } from '@react-aria/slider'
 import { SliderState } from '@react-stately/slider'
 
-import { SpeedRunClass } from '../../../types/speedRun'
-import { ClassColorVariant, getClassColor } from '../../../utils/colors'
-import { getEnergyImageUrl } from '../../../utils/images'
+import { createCx } from '@/shared/utils/classnames'
+
+import { SpeedRunClass } from '@/speedruns/types/speedRun'
+import { ClassColorVariant, getClassColor } from '@/speedruns/utils/colors'
+import { getEnergyImageUrl } from '@/speedruns/utils/images'
+
 import Thumb from '../Thumb'
-import { createCx } from '../../../../shared/utils/classnames'
 
 import styles from './index.module.scss'
 

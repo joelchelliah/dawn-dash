@@ -3,11 +3,11 @@ import { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 
-import { HamburgerIcon } from '../../../utils/icons'
-import { AbracadabraImageUrl, DashImageUrl, RushedForgeryImageUrl } from '../../../utils/imageUrls'
-import GradientLink from '../../GradientLink'
-import InfoModal from '../../Modals/InfoModal'
-import { createCx } from '../../../utils/classnames'
+import { HamburgerIcon } from '@/shared/utils/icons'
+import { AbracadabraImageUrl, DashImageUrl, RushedForgeryImageUrl } from '@/shared/utils/imageUrls'
+import { createCx } from '@/shared/utils/classnames'
+import GradientLink from '@/shared/components/GradientLink'
+import InfoModal from '@/shared/components/Modals/InfoModal'
 
 import styles from './index.module.scss'
 

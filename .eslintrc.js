@@ -11,6 +11,12 @@ module.exports = {
     react: {
       version: 'detect',
     },
+    'import/resolver': {
+      typescript: {
+        alwaysTryTypes: true,
+        project: './tsconfig.json',
+      },
+    },
   },
   extends: [
     'plugin:react/recommended',
@@ -45,6 +51,11 @@ module.exports = {
           {
             pattern: 'react',
             group: 'external',
+            position: 'before',
+          },
+          {
+            pattern: '@/shared/**',
+            group: 'internal',
             position: 'before',
           },
         ],

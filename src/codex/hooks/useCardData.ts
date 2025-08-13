@@ -2,14 +2,15 @@ import { useEffect, useState } from 'react'
 
 import useSWR from 'swr'
 
-import { isNotNullOrEmpty } from '../../shared/utils/lists'
-import { fetchCards } from '../services/cardsApiBlightbane'
-import { CardData } from '../types/cards'
+import { isNotNullOrEmpty } from '@/shared/utils/lists'
+
+import { fetchCards } from '@/codex/services/cardsApiBlightbane'
+import { CardData } from '@/codex/types/cards'
 import {
   cacheCardData,
   getCachedCardData,
   getCachedCardDataTimestamp,
-} from '../utils/codexCardsStore'
+} from '@/codex/utils/codexCardsStore'
 
 export interface UseCardData {
   cardData: CardData[] | undefined

@@ -5,7 +5,7 @@ import { mergeProps } from '@react-aria/utils'
 import { VisuallyHidden } from '@react-aria/visually-hidden'
 import { SliderState } from '@react-stately/slider'
 
-import { createCx } from '../../../../shared/utils/classnames'
+import { createCx } from '@/shared/utils/classnames'
 
 import styles from './index.module.scss'
 

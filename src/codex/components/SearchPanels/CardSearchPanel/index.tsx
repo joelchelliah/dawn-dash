@@ -1,11 +1,4 @@
-import { createCx } from '../../../../shared/utils/classnames'
-import { ExtraFilterOption, RarityFilterOption } from '../../../types/filters'
-import { allFormattingFilters } from '../../../hooks/useSearchFilters/useFormattingFilters'
-import { UseCardSearchFilters } from '../../../hooks/useSearchFilters'
-import { allRarities } from '../../../hooks/useSearchFilters/useRarityFilters'
-import { allBanners } from '../../../hooks/useSearchFilters/useBannerFilters'
-import { allExtraFilters } from '../../../hooks/useSearchFilters/useExtraFilters'
-import { allCardSets } from '../../../hooks/useSearchFilters/useCardSetFilters'
+import { createCx } from '@/shared/utils/classnames'
 import {
   CircleIcon,
   CrossIcon,
@@ -13,12 +6,21 @@ import {
   SingleStarIcon,
   SkullIcon,
   TripleStarsIcon,
-} from '../../../../shared/utils/icons'
-import GradientButton from '../../../../shared/components/Buttons/GradientButton'
-import ButtonRow from '../../../../shared/components/Buttons/ButtonRow'
+} from '@/shared/utils/icons'
+import GradientButton from '@/shared/components/Buttons/GradientButton'
+import ButtonRow from '@/shared/components/Buttons/ButtonRow'
+
+import { ExtraFilterOption, RarityFilterOption } from '@/codex/types/filters'
+import { UseCardSearchFilters } from '@/codex/hooks/useSearchFilters'
+import { allFormattingFilters } from '@/codex/hooks/useSearchFilters/useFormattingFilters'
+import { allRarities } from '@/codex/hooks/useSearchFilters/useRarityFilters'
+import { allBanners } from '@/codex/hooks/useSearchFilters/useBannerFilters'
+import { allExtraFilters } from '@/codex/hooks/useSearchFilters/useExtraFilters'
+import { allCardSets } from '@/codex/hooks/useSearchFilters/useCardSetFilters'
+import { UseCardData } from '@/codex/hooks/useCardData'
+
 import CodexLastUpdated from '../../CodexLastUpdated'
 import PanelHeader from '../../PanelHeader'
-import { UseCardData } from '../../../hooks/useCardData'
 import FilterGroup from '../shared/FilterGroup'
 import WeeklyChallengeButton from '../shared/WeeklyChallengeButton'
 import SearchField from '../shared/SearchField'

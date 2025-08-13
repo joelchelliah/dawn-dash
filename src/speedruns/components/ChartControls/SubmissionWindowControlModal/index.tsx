@@ -1,19 +1,21 @@
 import { useEffect, useState } from 'react'
 
-import { createCx } from '../../../../shared/utils/classnames'
-import Button from '../../../../shared/components/Buttons/Button'
-import ButtonRow from '../../../../shared/components/Buttons/ButtonRow'
-import DoubleThumbSlider from '../../../components/Sliders/DoubleThumbSlider'
-import SingleThumbSlider from '../../../components/Sliders/SingleThumbSlider'
+import { createCx } from '@/shared/utils/classnames'
+import Button from '@/shared/components/Buttons/Button'
+import ButtonRow from '@/shared/components/Buttons/ButtonRow'
+
 import {
   GAME_VERSION_VALUES,
   LAST_DAYS_VALUES,
   SUBMISSION_WINDOW_LABEL_MAP,
-} from '../../../constants/chartControlValues'
-import { SubmissionWindow } from '../../../types/chart'
-import { SpeedRunClass } from '../../../types/speedRun'
-import { ClassColorVariant, getClassColor } from '../../../utils/colors'
-import { isGameVersionRange, isLastXDays } from '../../../utils/gameVersion'
+} from '@/speedruns/constants/chartControlValues'
+import { SubmissionWindow } from '@/speedruns/types/chart'
+import { SpeedRunClass } from '@/speedruns/types/speedRun'
+import { ClassColorVariant, getClassColor } from '@/speedruns/utils/colors'
+import { isGameVersionRange, isLastXDays } from '@/speedruns/utils/gameVersion'
+import DoubleThumbSlider from '@/speedruns/components/Sliders/DoubleThumbSlider'
+import SingleThumbSlider from '@/speedruns/components/Sliders/SingleThumbSlider'
+
 import PrimaryButton from '../../Buttons/PrimaryButton'
 import SecondaryButton from '../../Buttons/SecondaryButton'
 import ClassModal from '../../ClassModal'

@@ -1,11 +1,8 @@
-import { mapTalentsDataToTalentTree } from '../utils/talentsResponseMapper'
-import {
-  supabase,
-  SUPABASE_MAX_PAGE_SIZE,
-  SUPABASE_TABLE_TALENTS,
-} from '../../shared/config/supabase'
-import { handleError } from '../../shared/utils/apiErrorHandling'
-import { TalentData, TalentTree } from '../types/talents'
+import { handleError } from '@/shared/utils/apiErrorHandling'
+import { supabase, SUPABASE_MAX_PAGE_SIZE, SUPABASE_TABLE_TALENTS } from '@/shared/config/supabase'
+
+import { mapTalentsDataToTalentTree } from '@/codex/utils/talentsResponseMapper'
+import { TalentData, TalentTree } from '@/codex/types/talents'
 
 export const fetchTalents = async (onProgress: (progress: number) => void): Promise<TalentTree> => {
   try {

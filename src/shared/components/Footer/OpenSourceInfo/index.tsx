@@ -1,9 +1,9 @@
 import { useState } from 'react'
 
-import { useBreakpoint } from '../../../hooks/useBreakpoint'
-import { GitHubIcon } from '../../../utils/icons'
-import GradientLink from '../../GradientLink'
-import InfoModal from '../../Modals/InfoModal'
+import { useBreakpoint } from '@/shared/hooks/useBreakpoint'
+import { GitHubIcon } from '@/shared/utils/icons'
+import GradientLink from '@/shared/components/GradientLink'
+import InfoModal from '@/shared/components/Modals/InfoModal'
 
 import styles from './index.module.scss'
 

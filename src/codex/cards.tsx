@@ -1,15 +1,15 @@
-import { createCx } from '../shared/utils/classnames'
-import Header from '../shared/components/Header'
-import { useNavigation } from '../shared/hooks/useNavigation'
-import Footer from '../shared/components/Footer'
-import { AbracadabraImageUrl } from '../shared/utils/imageUrls'
+import { createCx } from '@/shared/utils/classnames'
+import { useNavigation } from '@/shared/hooks/useNavigation'
+import { AbracadabraImageUrl } from '@/shared/utils/imageUrls'
+import Footer from '@/shared/components/Footer'
+import Header from '@/shared/components/Header'
 
 import CardResultsPanel from './components/ResultsPanels/CardResultsPanel'
 import { useCardSearchFilters } from './hooks/useSearchFilters'
 import CardSearchPanel from './components/SearchPanels/CardSearchPanel'
 import { useCardData } from './hooks/useCardData'
-import CodexLoadingMessage from './components/CodexLoadingMessage'
 import CodexErrorMessage from './components/CodexErrorMessage'
+import CodexLoadingMessage from './components/CodexLoadingMessage'
 import styles from './cards.module.scss'
 
 const cx = createCx(styles)

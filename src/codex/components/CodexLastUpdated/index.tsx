@@ -1,7 +1,7 @@
-import { createCx } from '../../../shared/utils/classnames'
-import GradientLink from '../../../shared/components/GradientLink'
-import { HourglassIcon } from '../../../shared/utils/icons'
-import { useFromNow } from '../../../shared/hooks/useFromNow'
+import GradientLink from '@/shared/components/GradientLink'
+import { HourglassIcon } from '@/shared/utils/icons'
+import { useFromNow } from '@/shared/hooks/useFromNow'
+import { createCx } from '@/shared/utils/classnames'
 
 import styles from './index.module.scss'
 

@@ -2,14 +2,15 @@ import { useEffect, useState } from 'react'
 
 import useSWR from 'swr'
 
-import { isNotNullOrUndefined } from '../../shared/utils/object'
-import { fetchTalents } from '../services/talentsApiSupabase'
+import { isNotNullOrUndefined } from '@/shared/utils/object'
+
+import { fetchTalents } from '@/codex/services/talentsApiSupabase'
 import {
   getCachedTalentTreeTimestamp,
   getCachedTalentTree,
   cacheTalentTree,
-} from '../utils/codexTalentsStore'
-import { TalentTree } from '../types/talents'
+} from '@/codex/utils/codexTalentsStore'
+import { TalentTree } from '@/codex/types/talents'
 
 export interface UseTalentData {
   talentTree: TalentTree | undefined

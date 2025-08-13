@@ -1,29 +1,31 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 
-import { isNotNullOrUndefined } from '../../../shared/utils/object'
+import { isNotNullOrUndefined } from '@/shared/utils/object'
+import { isArrayEqual } from '@/shared/utils/lists'
+
 import {
   TalentTree,
   TalentTreeNode,
   TalentTreeNodeType,
   TalentTreeRequirementNode,
   TalentTreeTalentNode,
-} from '../../types/talents'
-import { WeeklyChallengeFilterData } from '../../types/filters'
+} from '@/codex/types/talents'
+import { WeeklyChallengeFilterData } from '@/codex/types/filters'
 import {
   hasMonsterBanner,
   hasMonsterExpansion,
   hasMonsterRarity,
   isNonCollectibleMonsterCard,
   isNonCollectibleRegularCard,
-} from '../../utils/cardHelper'
-import { isArrayEqual } from '../../../shared/utils/lists'
-import { CardData } from '../../types/cards'
+} from '@/codex/utils/cardHelper'
+import { CardData } from '@/codex/types/cards'
 import {
   cacheCardCodexSearchFilters,
   cacheTalentCodexSearchFilters,
   getCachedCardCodexSearchFilters,
   getCachedTalentCodexSearchFilters,
-} from '../../utils/codexFilterStore'
+} from '@/codex/utils/codexFilterStore'
+
 import { useWeeklyChallengeFilterData } from '../useWeeklyChallengeFilterData'
 
 import { useCardSetFilters } from './useCardSetFilters'

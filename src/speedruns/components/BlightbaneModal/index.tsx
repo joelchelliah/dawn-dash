@@ -1,14 +1,16 @@
 import Image from 'next/image'
 
-import Button from '../../../shared/components/Buttons/Button'
-import ButtonRow from '../../../shared/components/Buttons/ButtonRow'
-import { BolgarImageUrl } from '../../../shared/utils/imageUrls'
-import { SpeedRunClass, SpeedRunSubclass } from '../../types/speedRun'
-import { ClassColorVariant, getClassColor, getSubclassColor } from '../../utils/colors'
-import { isAnonymousPlayer } from '../../utils/players'
+import { createCx } from '@/shared/utils/classnames'
+import Button from '@/shared/components/Buttons/Button'
+import ButtonRow from '@/shared/components/Buttons/ButtonRow'
+import { BolgarImageUrl } from '@/shared/utils/imageUrls'
+
+import { ClassColorVariant, getClassColor, getSubclassColor } from '@/speedruns/utils/colors'
+import { isAnonymousPlayer } from '@/speedruns/utils/players'
+import { SpeedRunClass, SpeedRunSubclass } from '@/speedruns/types/speedRun'
+
 import PrimaryButton from '../Buttons/PrimaryButton'
 import ClassModal from '../ClassModal'
-import { createCx } from '../../../shared/utils/classnames'
 
 import styles from './index.module.scss'
 

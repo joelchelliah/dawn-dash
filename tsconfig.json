@@ -24,7 +24,7 @@
       "@/*": ["*"],
       "@/shared/*": ["shared/*"],
       "@/codex/*": ["codex/*"],
-      "@/speedruns/*": ["speedruns/*"]
+      "@/speedruns/*": ["speedruns/*"],
     },
     "incremental": true
   },

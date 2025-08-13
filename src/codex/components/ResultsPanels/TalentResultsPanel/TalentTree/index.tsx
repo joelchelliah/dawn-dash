@@ -2,12 +2,13 @@ import { useEffect, useRef } from 'react'
 
 import * as d3 from 'd3'
 
+import { createCx } from '@/shared/utils/classnames'
+
 import {
   TalentTreeRequirementNode,
   TalentTreeTalentNode,
   TalentTree as TalentTreeType,
-} from '../../../../types/talents'
-import { createCx } from '../../../../../shared/utils/classnames'
+} from '@/codex/types/talents'
 
 import styles from './index.module.scss'
 

@@ -1,10 +1,10 @@
 import { useState } from 'react'
 
-import { createCx } from '../shared/utils/classnames'
-import Header from '../shared/components/Header'
-import { useNavigation } from '../shared/hooks/useNavigation'
-import Footer from '../shared/components/Footer'
-import { DashImageUrl } from '../shared/utils/imageUrls'
+import { createCx } from '@/shared/utils/classnames'
+import Header from '@/shared/components/Header'
+import { useNavigation } from '@/shared/hooks/useNavigation'
+import Footer from '@/shared/components/Footer'
+import { DashImageUrl } from '@/shared/utils/imageUrls'
 
 import { useInitialClassAndDifficulty } from './hooks/useInitialClassAndDifficulty'
 import { useChartControlState } from './hooks/useChartControlState'

@@ -1,14 +1,16 @@
 import { useEffect, useState } from 'react'
 
-import { TalentTreeNode, TalentTreeNodeType } from '../../../types/talents'
-import GradientButton from '../../../../shared/components/Buttons/GradientButton'
-import { UseTalentSearchFilters } from '../../../hooks/useSearchFilters'
+import GradientButton from '@/shared/components/Buttons/GradientButton'
+import { createCx } from '@/shared/utils/classnames'
+
+import { TalentTreeNode, TalentTreeNodeType } from '@/codex/types/talents'
+import { UseTalentSearchFilters } from '@/codex/hooks/useSearchFilters'
+
 import PanelHeader from '../../PanelHeader'
-import { createCx } from '../../../../shared/utils/classnames'
 import KeywordsSummary from '../KeywordsSummary'
 
-import styles from './index.module.scss'
 import TalentTree from './TalentTree'
+import styles from './index.module.scss'
 
 interface TalentResultsPanelProps {
   useSearchFilters: UseTalentSearchFilters

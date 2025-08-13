@@ -1,7 +1,7 @@
 import { useState } from 'react'
 
-import { createCx } from '../../../utils/classnames'
-import Button from '../Button'
+import { createCx } from '@/shared/utils/classnames'
+import Button from '@/shared/components/Buttons/Button'
 
 import styles from './index.module.scss'
 

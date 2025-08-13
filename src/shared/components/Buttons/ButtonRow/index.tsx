@@ -1,5 +1,5 @@
-import { createCx } from '../../../utils/classnames'
-import GradientDivider from '../../GradientDivider'
+import { createCx } from '@/shared/utils/classnames'
+import GradientDivider from '@/shared/components/GradientDivider'
 
 import styles from './index.module.scss'
 

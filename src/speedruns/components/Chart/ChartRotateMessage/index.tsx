@@ -1,7 +1,7 @@
 import { useState } from 'react'
 
-import { createCx } from '../../../../shared/utils/classnames'
-import { useDeviceOrientation } from '../../../../shared/hooks/useDeviceOrientation'
+import { createCx } from '@/shared/utils/classnames'
+import { useDeviceOrientation } from '@/shared/hooks/useDeviceOrientation'
 
 import styles from './index.module.scss'
 

@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 
-import { createCx } from '../../../../../../shared/utils/classnames'
-import { FilterType } from '../../../../../types/filters'
+import { createCx } from '@/shared/utils/classnames'
+
+import { FilterType } from '@/codex/types/filters'
 
 import styles from './index.module.scss'
 

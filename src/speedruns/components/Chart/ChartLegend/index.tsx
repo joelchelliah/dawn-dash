@@ -3,23 +3,25 @@ import { memo } from 'react'
 import Image from 'next/image'
 import { Chart as ChartJS } from 'chart.js'
 
-import { createCx } from '../../../../shared/utils/classnames'
-import { DataPoint } from '../../../types/chart'
-import { SpeedRunClass, SpeedRunSubclass } from '../../../types/speedRun'
+import { createCx } from '@/shared/utils/classnames'
+
+import { DataPoint } from '@/speedruns/types/chart'
+import { SpeedRunClass, SpeedRunSubclass } from '@/speedruns/types/speedRun'
 import {
   anonymousBorderColor,
   anonymousMarkerColor,
   ClassColorVariant,
   getClassColor,
   getSubclassColor,
-} from '../../../utils/colors'
-import { getEnergyImageUrl } from '../../../utils/images'
+} from '@/speedruns/utils/colors'
+import { getEnergyImageUrl } from '@/speedruns/utils/images'
 import {
   getPlayerBestTimes,
   isAnonymousPlayer,
   sortedDatasetsByPlayerBestTime,
-} from '../../../utils/players'
-import { formatTime } from '../../../utils/time'
+} from '@/speedruns/utils/players'
+import { formatTime } from '@/speedruns/utils/time'
+
 import ClassLoadingDots from '../../ClassLoadingDots'
 
 import styles from './index.module.scss'

@@ -1,6 +1,6 @@
 import { Fragment } from 'react/jsx-runtime'
 
-import { createCx } from '../../../../shared/utils/classnames'
+import { createCx } from '@/shared/utils/classnames'
 
 import styles from './index.module.scss'
 

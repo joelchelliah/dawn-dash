@@ -1,6 +1,7 @@
-import { CachedData } from '../../shared/types/cache'
-import { getFromCache, saveToCache } from '../../shared/utils/storage'
-import { CardData } from '../types/cards'
+import { CachedData } from '@/shared/types/cache'
+import { getFromCache, saveToCache } from '@/shared/utils/storage'
+
+import { CardData } from '@/codex/types/cards'
 
 const CACHE_VERSION = 'v1'
 const CACHE_KEY = `codex_cards_${CACHE_VERSION}`

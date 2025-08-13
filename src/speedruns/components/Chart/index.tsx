@@ -14,9 +14,10 @@ import {
   Title,
 } from 'chart.js'
 
-import { createCx } from '../../../shared/utils/classnames'
-import { useDeviceOrientation } from '../../../shared/hooks/useDeviceOrientation'
-import { useSpeedrunData } from '../../hooks/useSpeedrunData'
+import { createCx } from '@/shared/utils/classnames'
+import { useDeviceOrientation } from '@/shared/hooks/useDeviceOrientation'
+import { useNavigation } from '@/shared/hooks/useNavigation'
+
 import {
   ChartConfig,
   ChartControlState,
@@ -24,8 +25,8 @@ import {
   Dataset,
   RecordPoint,
   ViewMode,
-} from '../../types/chart'
-import { SpeedRunClass, SpeedRunData } from '../../types/speedRun'
+} from '@/speedruns/types/chart'
+import { SpeedRunClass, SpeedRunData } from '@/speedruns/types/speedRun'
 import {
   anonymousBorderColor,
   anonymousBorderHoverColor,
@@ -36,10 +37,11 @@ import {
   getColorMapping,
   lighten,
   saturate,
-} from '../../utils/colors'
-import { isAnonymousPlayer } from '../../utils/players'
+} from '@/speedruns/utils/colors'
+import { isAnonymousPlayer } from '@/speedruns/utils/players'
+import { useSpeedrunData } from '@/speedruns/hooks/useSpeedrunData'
+
 import ClassLoadingMessage from '../ClassLoadingMessage'
-import { useNavigation } from '../../../shared/hooks/useNavigation'
 
 import ChartErrorMessage from './ChartErrorMessage'
 import ChartFooter from './ChartFooter'

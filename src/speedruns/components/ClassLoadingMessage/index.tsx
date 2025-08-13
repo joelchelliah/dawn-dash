@@ -1,10 +1,12 @@
 import Image from 'next/image'
 
-import { createCx } from '../../../shared/utils/classnames'
-import { useDeviceOrientation } from '../../../shared/hooks/useDeviceOrientation'
-import { Difficulty, SpeedRunClass } from '../../types/speedRun'
-import { ClassColorVariant, getClassColor } from '../../utils/colors'
-import { getClassImageUrl } from '../../utils/images'
+import { createCx } from '@/shared/utils/classnames'
+import { useDeviceOrientation } from '@/shared/hooks/useDeviceOrientation'
+
+import { Difficulty, SpeedRunClass } from '@/speedruns/types/speedRun'
+import { ClassColorVariant, getClassColor } from '@/speedruns/utils/colors'
+import { getClassImageUrl } from '@/speedruns/utils/images'
+
 import ClassLoadingDots from '../ClassLoadingDots'
 
 import styles from './index.module.scss'

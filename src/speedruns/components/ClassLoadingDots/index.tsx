@@ -1,6 +1,7 @@
-import LoadingDots from '../../../shared/components/LoadingDots'
-import { SpeedRunClass } from '../../types/speedRun'
-import { getClassColor, ClassColorVariant } from '../../utils/colors'
+import LoadingDots from '@/shared/components/LoadingDots'
+
+import { SpeedRunClass } from '@/speedruns/types/speedRun'
+import { getClassColor, ClassColorVariant } from '@/speedruns/utils/colors'
 
 interface ClassLoadingDotsProps {
   selectedClass?: SpeedRunClass

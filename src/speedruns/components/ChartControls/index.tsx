@@ -1,5 +1,7 @@
 import { useState } from 'react'
 
+import { createCx } from '@/shared/utils/classnames'
+
 import {
   DIFFICULTY_VALUES,
   MAX_DURATION_OTHER_VALUES,
@@ -9,12 +11,15 @@ import {
   VIEW_MODE_LABELS,
   VIEW_MODE_VALUES,
   ZOOM_LEVEL_VALUES,
-} from '../../constants/chartControlValues'
-import { ChartControlState, ViewMode } from '../../types/chart'
-import { Difficulty, SpeedRunClass } from '../../types/speedRun'
-import { ClassColorVariant, getClassColor } from '../../utils/colors'
-import { isAllGameVersions, isGameVersionRange, isSingleGameVersion } from '../../utils/gameVersion'
-import { createCx } from '../../../shared/utils/classnames'
+} from '@/speedruns/constants/chartControlValues'
+import { ChartControlState, ViewMode } from '@/speedruns/types/chart'
+import { Difficulty, SpeedRunClass } from '@/speedruns/types/speedRun'
+import { ClassColorVariant, getClassColor } from '@/speedruns/utils/colors'
+import {
+  isAllGameVersions,
+  isGameVersionRange,
+  isSingleGameVersion,
+} from '@/speedruns/utils/gameVersion'
 
 import ControlGroup from './ControlGroup'
 import styles from './index.module.scss'

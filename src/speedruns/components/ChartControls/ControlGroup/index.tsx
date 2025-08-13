@@ -1,9 +1,10 @@
 import { memo } from 'react'
 
-import { DropdownArrowIconUrl } from '../../../../shared/utils/icons'
-import { SpeedRunClass } from '../../../types/speedRun'
-import { ClassColorVariant, getClassColor } from '../../../utils/colors'
-import { createCx } from '../../../../shared/utils/classnames'
+import { createCx } from '@/shared/utils/classnames'
+import { DropdownArrowIconUrl } from '@/shared/utils/icons'
+
+import { SpeedRunClass } from '@/speedruns/types/speedRun'
+import { ClassColorVariant, getClassColor } from '@/speedruns/utils/colors'
 
 import styles from './index.module.scss'
 

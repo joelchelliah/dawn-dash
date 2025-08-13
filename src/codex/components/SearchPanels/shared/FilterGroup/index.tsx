@@ -1,6 +1,7 @@
-import { createCx } from '../../../../../shared/utils/classnames'
-import GradientDivider from '../../../../../shared/components/GradientDivider'
-import { FilterType } from '../../../../types/filters'
+import { createCx } from '@/shared/utils/classnames'
+import GradientDivider from '@/shared/components/GradientDivider'
+
+import { FilterType } from '@/codex/types/filters'
 
 import Checkbox from './Checkbox'
 import styles from './index.module.scss'

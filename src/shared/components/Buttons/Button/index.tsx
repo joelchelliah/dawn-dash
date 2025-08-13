@@ -1,5 +1,5 @@
-import { createCx } from '../../../utils/classnames'
-import LoadingDots from '../../LoadingDots'
+import { createCx } from '@/shared/utils/classnames'
+import LoadingDots from '@/shared/components/LoadingDots'
 
 import styles from './index.module.scss'
 

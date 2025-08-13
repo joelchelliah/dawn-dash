@@ -1,8 +1,10 @@
-import { createCx } from '../../../../shared/utils/classnames'
-import GradientButton from '../../../../shared/components/Buttons/GradientButton'
-import { useFromNow } from '../../../../shared/hooks/useFromNow'
-import { SpeedRunClass } from '../../../types/speedRun'
-import { ClassColorVariant, getClassColor } from '../../../utils/colors'
+import { createCx } from '@/shared/utils/classnames'
+import GradientButton from '@/shared/components/Buttons/GradientButton'
+import { useFromNow } from '@/shared/hooks/useFromNow'
+
+import { SpeedRunClass } from '@/speedruns/types/speedRun'
+import { ClassColorVariant, getClassColor } from '@/speedruns/utils/colors'
+
 import ClassEnergy from '../../ClassEnergy'
 import ClassLoadingDots from '../../ClassLoadingDots'
 

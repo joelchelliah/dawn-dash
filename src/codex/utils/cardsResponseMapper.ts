@@ -1,4 +1,4 @@
-import { CardApiResponse, CardData } from '../types/cards'
+import { CardApiResponse, CardData } from '@/codex/types/cards'
 
 // When using cards data from Blightbane API
 export const mapAndSortCardsResponse = (cards: CardApiResponse[]): CardData[] =>

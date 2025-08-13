@@ -1,16 +1,16 @@
-import { createCx } from '../shared/utils/classnames'
-import Header from '../shared/components/Header'
-import { useNavigation } from '../shared/hooks/useNavigation'
-import Footer from '../shared/components/Footer'
-import { EleganceImageUrl } from '../shared/utils/imageUrls'
+import { createCx } from '@/shared/utils/classnames'
+import { useNavigation } from '@/shared/hooks/useNavigation'
+import { EleganceImageUrl } from '@/shared/utils/imageUrls'
+import Footer from '@/shared/components/Footer'
+import Header from '@/shared/components/Header'
 
-import styles from './skills.module.scss'
+import TalentResultsPanel from './components/ResultsPanels/TalentResultsPanel'
+import TalentSearchPanel from './components/SearchPanels/TalentSearchPanel'
 import CodexErrorMessage from './components/CodexErrorMessage'
 import CodexLoadingMessage from './components/CodexLoadingMessage'
-import { useTalentData } from './hooks/useTalentData'
 import { useTalentSearchFilters } from './hooks/useSearchFilters'
-import TalentSearchPanel from './components/SearchPanels/TalentSearchPanel'
-import TalentResultsPanel from './components/ResultsPanels/TalentResultsPanel'
+import { useTalentData } from './hooks/useTalentData'
+import styles from './skills.module.scss'
 
 const cx = createCx(styles)
 

@@ -1,8 +1,9 @@
 import { memo } from 'react'
 
-import { SpeedRunClass, SpeedRunSubclass } from '../../types/speedRun'
-import { ClassColorVariant, getClassColor } from '../../utils/colors'
-import { createCx } from '../../../shared/utils/classnames'
+import { createCx } from '@/shared/utils/classnames'
+
+import { SpeedRunClass, SpeedRunSubclass } from '@/speedruns/types/speedRun'
+import { ClassColorVariant, getClassColor } from '@/speedruns/utils/colors'
 
 import styles from './index.module.scss'
 import SubclassButton from './SubclassButton'

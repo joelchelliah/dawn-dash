@@ -1,6 +1,6 @@
-import { MagnifyingGlassIcon, StackedCardsIcon } from '../../../shared/utils/icons'
-import GradientDivider from '../../../shared/components/GradientDivider'
-import { createCx } from '../../../shared/utils/classnames'
+import { MagnifyingGlassIcon, StackedCardsIcon } from '@/shared/utils/icons'
+import GradientDivider from '@/shared/components/GradientDivider'
+import { createCx } from '@/shared/utils/classnames'
 
 import styles from './index.module.scss'
 

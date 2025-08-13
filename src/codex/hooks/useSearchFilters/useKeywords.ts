@@ -1,6 +1,6 @@
 import { useDeferredValue, useState, useEffect } from 'react'
 
-import { isArrayEqual } from '../../../shared/utils/lists'
+import { isArrayEqual } from '@/shared/utils/lists'
 
 interface UseKeywords {
   keywords: string

@@ -1,7 +1,8 @@
 import { memo } from 'react'
 
-import { SpeedRunClass } from '../../types/speedRun'
-import { createCx } from '../../../shared/utils/classnames'
+import { createCx } from '@/shared/utils/classnames'
+
+import { SpeedRunClass } from '@/speedruns/types/speedRun'
 
 import ClassButton from './ClassButton'
 import styles from './index.module.scss'

@@ -2,10 +2,11 @@ import { memo } from 'react'
 
 import Image from 'next/image'
 
-import { createCx } from '../../../../shared/utils/classnames'
-import { SpeedRunSubclass } from '../../../types/speedRun'
-import { getSubclassColor } from '../../../utils/colors'
-import { getEnergyImageUrl } from '../../../utils/images'
+import { createCx } from '@/shared/utils/classnames'
+
+import { SpeedRunSubclass } from '@/speedruns/types/speedRun'
+import { getSubclassColor } from '@/speedruns/utils/colors'
+import { getEnergyImageUrl } from '@/speedruns/utils/images'
 
 import styles from './index.module.scss'
 

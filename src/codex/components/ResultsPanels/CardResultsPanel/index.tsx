@@ -1,14 +1,16 @@
 import { useEffect, useState } from 'react'
 
-import GradientButton from '../../../../shared/components/Buttons/GradientButton'
-import { CardData } from '../../../types/cards'
-import { UseCardSearchFilters } from '../../../hooks/useSearchFilters'
-import PanelHeader from '../../PanelHeader'
-import { createCx } from '../../../../shared/utils/classnames'
-import KeywordsSummary from '../KeywordsSummary'
+import GradientButton from '@/shared/components/Buttons/GradientButton'
+import { createCx } from '@/shared/utils/classnames'
 
-import styles from './index.module.scss'
+import { CardData } from '@/codex/types/cards'
+import { UseCardSearchFilters } from '@/codex/hooks/useSearchFilters'
+
+import KeywordsSummary from '../KeywordsSummary'
+import PanelHeader from '../../PanelHeader'
+
 import ResultCard from './ResultCard'
+import styles from './index.module.scss'
 
 interface CardResultsPanelProps {
   useSearchFilters: UseCardSearchFilters

@@ -1,8 +1,9 @@
 import Image from 'next/image'
 
-import { createCx } from '../../../shared/utils/classnames'
-import { SpeedRunClass } from '../../types/speedRun'
-import { getEnergyImageUrl } from '../../utils/images'
+import { createCx } from '@/shared/utils/classnames'
+
+import { SpeedRunClass } from '@/speedruns/types/speedRun'
+import { getEnergyImageUrl } from '@/speedruns/utils/images'
 
 import styles from './index.module.scss'
 

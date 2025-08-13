@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react'
 
-import { createCx } from '../../../../shared/utils/classnames'
-import Button from '../../../../shared/components/Buttons/Button'
-import ButtonRow from '../../../../shared/components/Buttons/ButtonRow'
-import { VIEW_MODE_LABELS } from '../../../constants/chartControlValues'
-import { ViewMode } from '../../../types/chart'
-import { SpeedRunClass } from '../../../types/speedRun'
-import { ClassColorVariant, getClassColor } from '../../../utils/colors'
+import { createCx } from '@/shared/utils/classnames'
+import Button from '@/shared/components/Buttons/Button'
+import ButtonRow from '@/shared/components/Buttons/ButtonRow'
+
+import { VIEW_MODE_LABELS } from '@/speedruns/constants/chartControlValues'
+import { ViewMode } from '@/speedruns/types/chart'
+import { SpeedRunClass } from '@/speedruns/types/speedRun'
+import { ClassColorVariant, getClassColor } from '@/speedruns/utils/colors'
+
 import PrimaryButton from '../../Buttons/PrimaryButton'
 import ClassModal from '../../ClassModal'
 import ControlRadioButton from '../ControlRadioButton'
