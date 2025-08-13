@@ -58,11 +58,11 @@ $transition-duration: 0.5s;
   }
 
   &__content {
-    @include yellowGreenGradient(true);
     line-height: 1.5;
     transition:
       transform $transition-duration $bounce-curve,
       font-size 0s ease-in-out;
+    @include yellowGreenGradient(true);
 
     &--success {
       font-size: font-size('md');
