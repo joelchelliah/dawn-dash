@@ -71,8 +71,8 @@ const TalentResultsPanel = ({ useSearchFilters }: TalentResultsPanelProps) => {
       ) : (
         <div className={cx('results-container')}>
           <div className={cx('results-container__info')}>
-            No <strong>keywords</strong> have been provided yet. Type something into the search bar,
-            or...
+            No <strong>keywords</strong> have been provided yet. Do you want to see all talents
+            matching only the filters?
           </div>
 
           <GradientButton
