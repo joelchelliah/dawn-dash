@@ -8,6 +8,7 @@ const cx = createCx(styles)
 
 interface KeywordsSummaryProps {
   matches: string[]
+  struckCards?: string[]
   parsedKeywords: string[]
   showingResultsWithoutKeywords: boolean
   className?: string
@@ -15,6 +16,7 @@ interface KeywordsSummaryProps {
 
 const KeywordsSummary = ({
   matches,
+  struckCards = [],
   parsedKeywords,
   showingResultsWithoutKeywords,
   className,
@@ -32,9 +34,33 @@ const KeywordsSummary = ({
     )
   }
 
+  const renderMatchesCountText = () => {
+    const resultsStr = matches.length === 1 ? 'result' : 'results'
+
+    return (
+      <span>
+        Found <strong>{matches.length}</strong> {resultsStr} matching:
+      </span>
+    )
+  }
+
+  const renderStruckCountText = () => {
+    const struckCount = matches.filter((match) => struckCards.includes(match)).length
+
+    if (struckCount === 0) {
+      return null
+    }
+
+    return (
+      <div>
+        You have marked <strong>{struckCount}</strong> of these cards as tracked.
+      </div>
+    )
+  }
+
   return (
     <div className={className}>
-      Found <strong>{matches.length}</strong> results matching:
+      {renderMatchesCountText()}
       <div className={cx('keywords-summary')}>
         {'[ '}
         {parsedKeywords.map((keyword, index) => {
@@ -52,6 +78,7 @@ const KeywordsSummary = ({
         })}
         {` ]`}
       </div>
+      <div className={cx('keywords-tracked')}>{renderStruckCountText()}</div>
     </div>
   )
 }
