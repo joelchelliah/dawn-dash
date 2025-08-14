@@ -4,7 +4,12 @@ import Image from 'next/image'
 import Link from 'next/link'
 
 import { HamburgerIcon } from '@/shared/utils/icons'
-import { AbracadabraImageUrl, DashImageUrl, RushedForgeryImageUrl } from '@/shared/utils/imageUrls'
+import {
+  AbracadabraImageUrl,
+  DashImageUrl,
+  EleganceImageUrl,
+  RushedForgeryImageUrl,
+} from '@/shared/utils/imageUrls'
 import { createCx } from '@/shared/utils/classnames'
 import GradientLink from '@/shared/components/GradientLink'
 import InfoModal from '@/shared/components/Modals/InfoModal'
@@ -16,6 +21,9 @@ interface SideMenuProps {
 }
 
 const cx = createCx(styles)
+
+// TODO: Remove this once Skilldex is ready
+const isDev = process.env.NODE_ENV === 'development'
 
 const SideMenu = ({ currentPage }: SideMenuProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -56,6 +64,9 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
   const cardexLinkContainerClassNames = cx('side-menu__nav-link-container', {
     'side-menu__nav-link-container--active': currentPage === 'cardex',
   })
+  const skilldexLinkContainerClassNames = cx('side-menu__nav-link-container', {
+    'side-menu__nav-link-container--active': currentPage === 'skilldex',
+  })
 
   return (
     <>
@@ -91,6 +102,15 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
             </Link>
           </div>
 
+          {isDev && (
+            <div className={skilldexLinkContainerClassNames}>
+              <Link href="/codex/skills" className={cx('side-menu__nav-link')}>
+                {getNavLinkImage(EleganceImageUrl, 'Skilldex logo')}
+                Skilldex (W.I.P.)
+              </Link>
+            </div>
+          )}
+
           <div className={cx('side-menu__nav-link-container')}>
             <Link
               href=""
@@ -105,7 +125,9 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
       </div>
 
       <InfoModal isOpen={isAboutInfoOpen} onClose={() => setIsAboutInfoOpen(false)}>
-        <h3>Dawn-Dash</h3>
+        <h3 className={cx('info-title')}>
+          {getNavLinkImage(DashImageUrl, 'Speedruns logo')} Dawn-Dash
+        </h3>
 
         <p>
           <b>Dawncaster</b> speedrun charts for all game modes and difficulties, based on
@@ -118,13 +140,30 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
         </p>
         <div className={cx('info-divider')} />
 
-        <h3>Cardex</h3>
+        <h3 className={cx('info-title')}>
+          {getNavLinkImage(AbracadabraImageUrl, 'Cardex logo')} Cardex
+        </h3>
 
         <p className={cx('info-last-paragraph')}>
           A codex and multi-search tool for all the cards available in <b>Dawncaster</b>. Has
           several options for filtering, tracking, and formatting the output, to help you plan out
           your run!
         </p>
+
+        {isDev && (
+          <>
+            <div className={cx('info-divider')} />
+
+            <h3 className={cx('info-title')}>
+              {getNavLinkImage(EleganceImageUrl, 'Skilldex logo')} Skilldex
+            </h3>
+
+            <p className={cx('info-last-paragraph')}>
+              A codex and talent-tree-like vizualisation for all the skills available in{' '}
+              <b>Dawncaster</b>. Currently still in development, so only supports basic filtering.
+            </p>
+          </>
+        )}
       </InfoModal>
     </>
   )

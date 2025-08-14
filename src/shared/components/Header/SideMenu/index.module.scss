@@ -140,6 +140,18 @@
   }
 }
 
+.info-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  img {
+    height: 1.5rem;
+    width: 1.5rem;
+    border-radius: 20px;
+  }
+}
+
 .info-divider {
   border-top: 1px solid $color-component-border;
   margin: 0.5rem 0 1.5rem;
