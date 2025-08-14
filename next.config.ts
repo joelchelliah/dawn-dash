@@ -1,3 +1,5 @@
+import path from 'path'
+
 import withPWA from 'next-pwa'
 
 const nextConfig = {
@@ -15,6 +17,19 @@ const nextConfig = {
         pathname: '/**',
       },
     ],
+  },
+  sassOptions: {
+    includePaths: [path.join(__dirname, 'src/styles')],
+  },
+  webpack: (config) => {
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@': path.join(__dirname, 'src'),
+      '@/shared': path.join(__dirname, 'src/shared'),
+      '@/codex': path.join(__dirname, 'src/codex'),
+      '@/speedruns': path.join(__dirname, 'src/speedruns'),
+    }
+    return config
   },
 }
 

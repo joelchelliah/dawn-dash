@@ -1,4 +1,4 @@
-@use '../../../styles' as *;
+@use 'index' as *;
 
 .header {
   display: flex;
@@ -17,16 +17,14 @@
 }
 
 .logo {
-  width: 3.25rem;
-  height: 3.25rem;
   @include rotateY360Animation('hover', '.logo-and-title:hover');
 }
 
 .title {
-  @include yellowGreenGradient(false);
   font-size: font-size('lg');
   margin: 0;
   font-weight: bold;
+  @include yellowGreenGradient(false);
 
   @media (max-width: $breakpoint-mobile) {
     font-size: font-size('md');

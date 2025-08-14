@@ -1,29 +1,31 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 
-import { isNotNullOrUndefined } from '../../../shared/utils/object'
+import { isNotNullOrUndefined } from '@/shared/utils/object'
+import { isArrayEqual } from '@/shared/utils/lists'
+
 import {
   TalentTree,
   TalentTreeNode,
   TalentTreeNodeType,
   TalentTreeRequirementNode,
   TalentTreeTalentNode,
-} from '../../types/talents'
-import { WeeklyChallengeFilterData } from '../../types/filters'
+} from '@/codex/types/talents'
+import { WeeklyChallengeFilterData } from '@/codex/types/filters'
 import {
   hasMonsterBanner,
   hasMonsterExpansion,
   hasMonsterRarity,
   isNonCollectibleMonsterCard,
   isNonCollectibleRegularCard,
-} from '../../utils/cardHelper'
-import { isArrayEqual } from '../../../shared/utils/lists'
-import { CardData } from '../../types/cards'
+} from '@/codex/utils/cardHelper'
+import { CardData } from '@/codex/types/cards'
 import {
   cacheCardCodexSearchFilters,
   cacheTalentCodexSearchFilters,
   getCachedCardCodexSearchFilters,
   getCachedTalentCodexSearchFilters,
-} from '../../utils/codexFilterStore'
+} from '@/codex/utils/codexFilterStore'
+
 import { useWeeklyChallengeFilterData } from '../useWeeklyChallengeFilterData'
 
 import { useCardSetFilters } from './useCardSetFilters'
@@ -33,6 +35,7 @@ import { useExtraFilters } from './useExtraFilters'
 import { useFormattingFilters } from './useFormattingFilters'
 import { useCardStrike } from './useCardStrike'
 import { useTierFilters } from './useTierFilters'
+import { useKeywords } from './useKeywords'
 
 export interface UseCardSearchFilters {
   keywords: string
@@ -66,9 +69,12 @@ export interface UseTalentSearchFilters {
 export const useCardSearchFilters = (cardData: CardData[] | undefined): UseCardSearchFilters => {
   const cachedFilters = getCachedCardCodexSearchFilters()
   const { filterData, isFilterDataError, isFilterDataLoading } = useWeeklyChallengeFilterData()
-
-  const [keywords, setKeywordsUntracked] = useState(cachedFilters?.keywords || '')
-  const [parsedKeywords, setParsedKeywords] = useState<string[]>([])
+  const {
+    keywords,
+    setKeywords: setKeywordsUntracked,
+    parsedKeywords,
+    resetParsedKeywords,
+  } = useKeywords(cachedFilters?.keywords)
   const [matchingCards, setMatchingCards] = useState<CardData[]>([])
 
   const untrackedUseCardSetFilters = useCardSetFilters(cachedFilters?.cardSets)
@@ -151,7 +157,7 @@ export const useCardSearchFilters = (cardData: CardData[] | undefined): UseCardS
 
   const resetFilters = () => {
     trackedSetKeywords('')
-    setParsedKeywords([])
+    resetParsedKeywords()
     resetCardSetFilters()
     resetRarityFilters()
     resetBannerFilters()
@@ -222,12 +228,6 @@ export const useCardSearchFilters = (cardData: CardData[] | undefined): UseCardS
   // --------------------------------------------------
 
   useEffect(() => {
-    const parsed = parseKeywords(keywords)
-
-    if (!isArrayEqual(parsedKeywords, parsed)) {
-      setParsedKeywords(parsed)
-    }
-
     if (cardData) {
       const filteredCards = cardData
         .filter((card) =>
@@ -251,7 +251,7 @@ export const useCardSearchFilters = (cardData: CardData[] | undefined): UseCardS
 
           return true
         })
-        .filter((card) => isNameOrDescriptionIncluded(card, parsed))
+        .filter((card) => isNameOrDescriptionIncluded(card, parsedKeywords))
 
       if (!isArrayEqual(filteredCards, matchingCards, 'name')) {
         setMatchingCards(filteredCards)
@@ -262,9 +262,8 @@ export const useCardSearchFilters = (cardData: CardData[] | undefined): UseCardS
     isBannerIndexSelected,
     isCardSetIndexSelected,
     isRarityIndexSelected,
-    keywords,
-    matchingCards,
     parsedKeywords,
+    matchingCards,
     shouldIncludeMonsterCards,
     shouldIncludeNonCollectibleCards,
   ])
@@ -295,9 +294,12 @@ export const useTalentSearchFilters = (
   talentTree: TalentTree | undefined
 ): UseTalentSearchFilters => {
   const cachedFilters = getCachedTalentCodexSearchFilters()
-
-  const [keywords, setKeywordsUntracked] = useState(cachedFilters?.keywords || '')
-  const [parsedKeywords, setParsedKeywords] = useState<string[]>([])
+  const {
+    keywords,
+    setKeywords: setKeywordsUntracked,
+    parsedKeywords,
+    resetParsedKeywords,
+  } = useKeywords(cachedFilters?.keywords)
   const [matchingTalentTree, setMatchingTalentTree] = useState<TalentTree | undefined>(undefined)
 
   // TODO: Extras with Offers, talents from invasion events?
@@ -339,7 +341,7 @@ export const useTalentSearchFilters = (
 
   const resetFilters = () => {
     trackedSetKeywords('')
-    setParsedKeywords([])
+    resetParsedKeywords()
     resetCardSetFilters()
     resetTierFilters()
   }
@@ -400,17 +402,11 @@ export const useTalentSearchFilters = (
   }, [])
 
   useEffect(() => {
-    const parsed = parseKeywords(keywords)
-
-    if (!isArrayEqual(parsedKeywords, parsed)) {
-      setParsedKeywords(parsed)
-    }
-
     if (talentTree) {
       const filterFn = (node: TalentTreeTalentNode) =>
         isCardSetIndexSelected(node.expansion) &&
         isTierIndexSelected(node.tier) &&
-        isNameOrDescriptionIncluded(node, parsed)
+        isNameOrDescriptionIncluded(node, parsedKeywords)
 
       const filteredTalentNodes = talentTree.noReqNode.children
         .map((node) => filterTalentTreeNode(node, filterFn))
@@ -441,7 +437,6 @@ export const useTalentSearchFilters = (
     talentTree,
     isCardSetIndexSelected,
     isTierIndexSelected,
-    keywords,
     parsedKeywords,
     matchingTalentTree,
     filterTalentTreeNode,
@@ -459,12 +454,6 @@ export const useTalentSearchFilters = (
     resetFilters,
   }
 }
-
-const parseKeywords = (keywords: string): string[] =>
-  keywords
-    .split(/,\s+or\s+|,\s*|\s+or\s+/)
-    .map((keyword) => keyword.trim())
-    .filter(Boolean)
 
 const isNameOrDescriptionIncluded = (
   { name, description }: CardData | TalentTreeTalentNode,

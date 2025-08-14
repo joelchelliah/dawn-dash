@@ -1,11 +1,13 @@
-import { mapAndSortCardsData } from '../utils/cardsResponseMapper'
+import { handleError } from '@/shared/utils/apiErrorHandling'
+
+import { CardData } from '@/codex/types/cards'
+import { mapAndSortCardsData } from '@/codex/utils/cardsResponseMapper'
+
 import {
   supabase,
   SUPABASE_MAX_PAGE_SIZE,
   SUPABASE_TABLE_CARDS,
 } from '../../shared/config/supabase'
-import { handleError } from '../../shared/utils/apiErrorHandling'
-import { CardData } from '../types/cards'
 
 export const fetchCards = async (onProgress: (progress: number) => void): Promise<CardData[]> => {
   try {

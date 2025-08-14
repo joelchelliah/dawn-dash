@@ -1,10 +1,11 @@
-import cx from 'classnames'
-
-import GradientLink from '../../../shared/components/GradientLink'
-import { HourglassIcon } from '../../../shared/utils/icons'
-import { useFromNow } from '../../../shared/hooks/useFromNow'
+import GradientLink from '@/shared/components/GradientLink'
+import { HourglassIcon } from '@/shared/utils/icons'
+import { useFromNow } from '@/shared/hooks/useFromNow'
+import { createCx } from '@/shared/utils/classnames'
 
 import styles from './index.module.scss'
+
+const cx = createCx(styles)
 
 interface CodexLastUpdatedProps {
   type: 'card' | 'talent'
@@ -32,21 +33,18 @@ const CodexLastUpdated = ({
 
   return (
     <div
-      className={cx(styles['last-updated'], {
-        [styles['last-updated--loading']]: isLoadingInBackground,
-        [styles['last-updated--error']]: isErrorInBackground,
+      className={cx('last-updated', {
+        'last-updated--loading': isLoadingInBackground,
+        'last-updated--error': isErrorInBackground,
       })}
     >
       {isLoadingInBackground ? (
         <>
-          <div className={styles['last-updated__progress-message']}>
+          <div className={cx('last-updated__progress-message')}>
             <HourglassIcon /> Syncing {type} data: {progress}%
           </div>
-          <div className={styles['last-updated__progress-container']}>
-            <div
-              className={styles['last-updated__progress-bar']}
-              style={{ width: `${progress}%` }}
-            />
+          <div className={cx('last-updated__progress-container')}>
+            <div className={cx('last-updated__progress-bar')} style={{ width: `${progress}%` }} />
           </div>
         </>
       ) : isErrorInBackground ? (

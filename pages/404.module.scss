@@ -1,4 +1,4 @@
-@use '../src/styles/index' as *;
+@use 'index' as *;
 
 .container {
   display: flex;
@@ -23,10 +23,10 @@
 }
 
 .title {
-  @include yellowGreenGradient(false);
   font-size: font-size('lg');
   margin: 0;
   font-weight: bold;
+  @include yellowGreenGradient(false);
 }
 
 .image {

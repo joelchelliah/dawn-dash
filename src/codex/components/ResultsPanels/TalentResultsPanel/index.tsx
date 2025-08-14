@@ -1,14 +1,16 @@
 import { useEffect, useState } from 'react'
 
-import { TalentTreeNode, TalentTreeNodeType } from '../../../types/talents'
-import GradientButton from '../../../../shared/components/Buttons/GradientButton'
-import { UseTalentSearchFilters } from '../../../hooks/useSearchFilters'
+import GradientButton from '@/shared/components/Buttons/GradientButton'
+import { createCx } from '@/shared/utils/classnames'
+
+import { TalentTreeNode, TalentTreeNodeType } from '@/codex/types/talents'
+import { UseTalentSearchFilters } from '@/codex/hooks/useSearchFilters'
+
 import PanelHeader from '../../PanelHeader'
-import { createCx } from '../../../../shared/utils/classnames'
 import KeywordsSummary from '../KeywordsSummary'
 
-import styles from './index.module.scss'
 import TalentTree from './TalentTree'
+import styles from './index.module.scss'
 
 interface TalentResultsPanelProps {
   useSearchFilters: UseTalentSearchFilters
@@ -71,8 +73,8 @@ const TalentResultsPanel = ({ useSearchFilters }: TalentResultsPanelProps) => {
       ) : (
         <div className={cx('results-container')}>
           <div className={cx('results-container__info')}>
-            No <strong>keywords</strong> have been provided yet. Type something into the search bar,
-            or...
+            No <strong>keywords</strong> have been provided yet. Do you want to see all talents
+            matching only the filters?
           </div>
 
           <GradientButton

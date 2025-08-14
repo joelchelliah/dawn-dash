@@ -1,12 +1,16 @@
 import { memo } from 'react'
 
-import cx from 'classnames'
+import Image from 'next/image'
 
-import { SpeedRunClass } from '../../../types/speedRun'
-import { ClassColorVariant, getClassColor } from '../../../utils/colors'
-import { getClassImageUrl } from '../../../utils/images'
+import { createCx } from '@/shared/utils/classnames'
+
+import { SpeedRunClass } from '@/speedruns/types/speedRun'
+import { ClassColorVariant, getClassColor } from '@/speedruns/utils/colors'
+import { getClassImageUrl } from '@/speedruns/utils/images'
 
 import styles from './index.module.scss'
+
+const cx = createCx(styles)
 
 interface ClassButtonProps {
   classType: SpeedRunClass
@@ -24,8 +28,8 @@ function ClassButton({ classType, isActive, onClick }: ClassButtonProps) {
     classType,
     isActive ? ClassColorVariant.Lighter : ClassColorVariant.Darker
   )
-  const buttonClassName = cx(styles['container'], {
-    [styles['container--active']]: isActive,
+  const buttonClassName = cx('container', {
+    'container--active': isActive,
   })
 
   return (
@@ -37,8 +41,14 @@ function ClassButton({ classType, isActive, onClick }: ClassButtonProps) {
         boxShadow: isActive ? `0 0 8px 1px ${borderColor}40` : undefined,
       }}
     >
-      <img src={imageUrl} alt={`${classType} icon`} className={styles['class-icon']} />
-      <span className={styles['class-type']} style={{ color }}>
+      <Image
+        src={imageUrl}
+        alt={`${classType} icon`}
+        className={cx('class-icon')}
+        width={36}
+        height={36}
+      />
+      <span className={cx('class-type')} style={{ color }}>
         {classType}
       </span>
     </button>

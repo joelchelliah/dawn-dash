@@ -1,0 +1,35 @@
+name: Keep Supabase Alive
+
+on:
+  schedule:
+    # Run every other day at 2 AM UTC
+    - cron: '0 2 */2 * *'
+  workflow_dispatch: # Allow manual triggering
+
+jobs:
+  ping-supabase:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Ping Supabase Function
+        run: |
+          # Get the Supabase function URL from environment or construct it
+          SUPABASE_URL="${SUPABASE_URL}"
+          FUNCTION_URL="$SUPABASE_URL/functions/v1/sync-talents"
+
+          echo "Pinging Supabase function: $FUNCTION_URL"
+
+          curl -X GET "$FUNCTION_URL" \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer $SUPABASE_ANON_KEY" \
+            --max-time 30 \
+            --retry 3 \
+            --retry-delay 5 \
+            --silent \
+            --show-error || echo "Request completed (response code may vary)"
+
+          echo "Supabase ping completed"
+
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}

@@ -4,8 +4,9 @@ import {
   HolyImageUrl,
   IntImageUrl,
   StrImageUrl,
-} from '../../shared/utils/imageUrls'
-import { CardData } from '../types/cards'
+} from '@/shared/utils/imageUrls'
+
+import { CardData } from '@/codex/types/cards'
 
 const NON_COLLECTIBLE_CATEGORIES = [
   3, // Conjurations

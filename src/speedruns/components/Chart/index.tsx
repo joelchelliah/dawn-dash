@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState, useTransition } from 'react'
 
 import 'chartjs-adapter-moment'
 import {
@@ -13,10 +13,11 @@ import {
   Tooltip,
   Title,
 } from 'chart.js'
-import cx from 'classnames'
 
-import { useDeviceOrientation } from '../../../shared/hooks/useDeviceOrientation'
-import { useSpeedrunData } from '../../hooks/useSpeedrunData'
+import { createCx } from '@/shared/utils/classnames'
+import { useDeviceOrientation } from '@/shared/hooks/useDeviceOrientation'
+import { useNavigation } from '@/shared/hooks/useNavigation'
+
 import {
   ChartConfig,
   ChartControlState,
@@ -24,8 +25,8 @@ import {
   Dataset,
   RecordPoint,
   ViewMode,
-} from '../../types/chart'
-import { SpeedRunClass, SpeedRunData } from '../../types/speedRun'
+} from '@/speedruns/types/chart'
+import { SpeedRunClass, SpeedRunData } from '@/speedruns/types/speedRun'
 import {
   anonymousBorderColor,
   anonymousBorderHoverColor,
@@ -36,10 +37,11 @@ import {
   getColorMapping,
   lighten,
   saturate,
-} from '../../utils/colors'
-import { isAnonymousPlayer } from '../../utils/players'
+} from '@/speedruns/utils/colors'
+import { isAnonymousPlayer } from '@/speedruns/utils/players'
+import { useSpeedrunData } from '@/speedruns/hooks/useSpeedrunData'
+
 import ClassLoadingMessage from '../ClassLoadingMessage'
-import { useNavigation } from '../../../shared/hooks/useNavigation'
 
 import ChartErrorMessage from './ChartErrorMessage'
 import ChartFooter from './ChartFooter'
@@ -50,11 +52,6 @@ import { createChartConfig } from './chartUtils/chartConfig'
 import { parseSpeedrunData } from './chartUtils/dataParser'
 import { yearBoundariesPlugin, calculateYearBoundaries } from './chartUtils/yearBoundaries'
 import styles from './index.module.scss'
-
-// Chart update delay in milliseconds
-// This is to prevent the chart from being updated too often
-// which can cause flickering in the chart rendering
-const CHART_UPDATE_DELAY = 200
 
 // Register the required components
 ChartJS.register(
@@ -69,6 +66,13 @@ ChartJS.register(
   yearBoundariesPlugin
 )
 
+// Chart update delay in milliseconds
+// This is to prevent the chart from being updated too often
+// which can cause flickering in the chart rendering
+const CHART_UPDATE_DELAY = 200
+
+const cx = createCx(styles)
+
 interface ChartProps {
   controls: ChartControlState
   selectedClass: SpeedRunClass
@@ -82,6 +86,10 @@ function Chart({ selectedClass, controls, onPlayerClick }: ChartProps) {
   const [chartData, setChartData] = useState<ChartJS | null>(null)
   const { isMobileAndPortrait, isMobileAndLandscape } = useDeviceOrientation()
   const { resetToSpeedruns } = useNavigation()
+
+  // Combine useTransition with debouncing to prevent flickering
+  const [isPending, startTransition] = useTransition()
+  const updateTimeoutRef = useRef<NodeJS.Timeout>()
 
   const { subclass, difficulty, playerLimit, maxDuration, viewMode, submissionWindow, zoomLevel } =
     controls
@@ -206,15 +214,6 @@ function Chart({ selectedClass, controls, onPlayerClick }: ChartProps) {
   const { speedrunData, isLoading, isLoadingInBackground, isError, lastUpdated, refresh } =
     useSpeedrunData(selectedClass, difficulty)
 
-  // Debug:
-  // const isLoading = true
-
-  // For debouncing the chart update
-  const updateTimeoutRef = useRef<NodeJS.Timeout>()
-
-  // For
-  const [isUpdating, setIsUpdating] = useState(false)
-
   useEffect(() => {
     // Clear data and exit if loading
     if (isLoading) {
@@ -227,16 +226,16 @@ function Chart({ selectedClass, controls, onPlayerClick }: ChartProps) {
       return
     }
 
-    // Clear old timeout
+    // Clear old timeout to prevent rapid updates
     if (updateTimeoutRef.current) {
       clearTimeout(updateTimeoutRef.current)
     }
 
-    // Schedule new debounced update
-    setIsUpdating(true)
+    // Schedule debounced transition to prevent flickering
     updateTimeoutRef.current = setTimeout(() => {
-      createChart(speedrunData)
-      setIsUpdating(false)
+      startTransition(() => {
+        createChart(speedrunData)
+      })
     }, CHART_UPDATE_DELAY)
 
     return () => {
@@ -244,8 +243,7 @@ function Chart({ selectedClass, controls, onPlayerClick }: ChartProps) {
         clearTimeout(updateTimeoutRef.current)
       }
     }
-    // Chart update should be triggered by the controls state as well!
-  }, [isLoading, speedrunData, createChart, controls])
+  }, [isLoading, speedrunData, createChart, controls, startTransition])
 
   useEffect(() => {
     return () => {
@@ -264,11 +262,11 @@ function Chart({ selectedClass, controls, onPlayerClick }: ChartProps) {
       : isMobileAndLandscape
         ? widthMobileLandscape
         : widthDefault
-    const chartContainerClassName = cx(styles['chart-container'], {
-      [styles['chart-container--mobilePortraitLoading']]: isMobilePortraitLoading,
+    const chartContainerClassName = cx('chart-container', {
+      'chart-container--mobilePortraitLoading': isMobilePortraitLoading,
     })
-    const chartClassName = cx(styles['chart-container__chart'], {
-      [styles['chart-container__chart--updating']]: isUpdating,
+    const chartClassName = cx('chart-container__chart', {
+      'chart-container__chart--updating': isPending,
     })
 
     const hasChartData = chartInstance.current?.data?.datasets?.length
@@ -346,8 +344,8 @@ function Chart({ selectedClass, controls, onPlayerClick }: ChartProps) {
   )
 
   return (
-    <div className={styles['layout']}>
-      <div className={styles['container']} style={{ borderColor }}>
+    <div className={cx('layout')}>
+      <div className={cx('container')} style={{ borderColor }}>
         {renderChart()}
         <ChartRotateMessage />
         <ChartFooter

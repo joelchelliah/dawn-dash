@@ -1,10 +1,14 @@
 import { memo } from 'react'
 
-import { DropdownArrowIconUrl } from '../../../../shared/utils/icons'
-import { SpeedRunClass } from '../../../types/speedRun'
-import { ClassColorVariant, getClassColor } from '../../../utils/colors'
+import { createCx } from '@/shared/utils/classnames'
+import { DropdownArrowIconUrl } from '@/shared/utils/icons'
+
+import { SpeedRunClass } from '@/speedruns/types/speedRun'
+import { ClassColorVariant, getClassColor } from '@/speedruns/utils/colors'
 
 import styles from './index.module.scss'
+
+const cx = createCx(styles)
 
 interface ControlGroupProps<T> {
   id: string
@@ -71,7 +75,7 @@ function ControlGroup<T>({
   }
 
   return (
-    <div className={styles['group']}>
+    <div className={cx('group')}>
       <label htmlFor={id} style={disabled ? labelDisabledStyle : labelStyle}>
         {label}
       </label>

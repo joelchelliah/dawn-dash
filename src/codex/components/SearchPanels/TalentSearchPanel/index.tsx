@@ -1,11 +1,13 @@
-import { allTiers } from '../../../hooks/useSearchFilters/useTierFilters'
-import { UseTalentSearchFilters } from '../../../hooks/useSearchFilters'
-import { allCardSets } from '../../../hooks/useSearchFilters/useCardSetFilters'
-import GradientButton from '../../../../shared/components/Buttons/GradientButton'
-import ButtonRow from '../../../../shared/components/Buttons/ButtonRow'
+import GradientButton from '@/shared/components/Buttons/GradientButton'
+import ButtonRow from '@/shared/components/Buttons/ButtonRow'
+
+import { allTiers } from '@/codex/hooks/useSearchFilters/useTierFilters'
+import { UseTalentSearchFilters } from '@/codex/hooks/useSearchFilters'
+import { allCardSets } from '@/codex/hooks/useSearchFilters/useCardSetFilters'
+import { UseTalentData } from '@/codex/hooks/useTalentData'
+
 import CodexLastUpdated from '../../CodexLastUpdated'
 import PanelHeader from '../../PanelHeader'
-import { UseTalentData } from '../../../hooks/useTalentData'
 import FilterGroup from '../shared/FilterGroup'
 import SearchField from '../shared/SearchField'
 
@@ -51,7 +53,12 @@ const TalentSearchPanel = ({ useSearchFilters, useTalentData }: TalentSearchPane
         </div>
 
         <ButtonRow align="left" includeBorder className={styles['button-row']}>
-          <GradientButton subtle onClick={resetFilters} className={styles['filter-button']}>
+          <GradientButton
+            subtle
+            onClick={resetFilters}
+            className={styles['filter-button']}
+            showClickAnimation
+          >
             Reset search
           </GradientButton>
         </ButtonRow>

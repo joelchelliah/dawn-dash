@@ -1,26 +1,29 @@
 import { useEffect, useState } from 'react'
 
-import cx from 'classnames'
+import { createCx } from '@/shared/utils/classnames'
+import Button from '@/shared/components/Buttons/Button'
+import ButtonRow from '@/shared/components/Buttons/ButtonRow'
 
-import Button from '../../../../shared/components/Buttons/Button'
-import ButtonRow from '../../../../shared/components/Buttons/ButtonRow'
-import DoubleThumbSlider from '../../../components/Sliders/DoubleThumbSlider'
-import SingleThumbSlider from '../../../components/Sliders/SingleThumbSlider'
 import {
   GAME_VERSION_VALUES,
   LAST_DAYS_VALUES,
   SUBMISSION_WINDOW_LABEL_MAP,
-} from '../../../constants/chartControlValues'
-import { SubmissionWindow } from '../../../types/chart'
-import { SpeedRunClass } from '../../../types/speedRun'
-import { ClassColorVariant, getClassColor } from '../../../utils/colors'
-import { isGameVersionRange, isLastXDays } from '../../../utils/gameVersion'
+} from '@/speedruns/constants/chartControlValues'
+import { SubmissionWindow } from '@/speedruns/types/chart'
+import { SpeedRunClass } from '@/speedruns/types/speedRun'
+import { ClassColorVariant, getClassColor } from '@/speedruns/utils/colors'
+import { isGameVersionRange, isLastXDays } from '@/speedruns/utils/gameVersion'
+import DoubleThumbSlider from '@/speedruns/components/Sliders/DoubleThumbSlider'
+import SingleThumbSlider from '@/speedruns/components/Sliders/SingleThumbSlider'
+
 import PrimaryButton from '../../Buttons/PrimaryButton'
 import SecondaryButton from '../../Buttons/SecondaryButton'
 import ClassModal from '../../ClassModal'
 import ControlRadioButton from '../ControlRadioButton'
 
 import styles from './index.module.scss'
+
+const cx = createCx(styles)
 
 interface SubmissionWindowModalProps {
   isOpen: boolean
@@ -109,17 +112,15 @@ function SubmissionWindowModal({
   const renderMinMaxVersionsNamed = () => {
     const min = SUBMISSION_WINDOW_LABEL_MAP[minVersion]
     const max = SUBMISSION_WINDOW_LABEL_MAP[maxVersion]
-    const minMaxOptionDescriptionClassName = cx(
-      styles['option-description'],
-      selectedWindowMode === SubmissionWindowMode.MinMaxVersion &&
-        styles['option-description--active']
-    )
+    const minMaxOptionDescriptionClassName = cx('option-description', {
+      'option-description--active': selectedWindowMode === SubmissionWindowMode.MinMaxVersion,
+    })
 
     if (minVersion === maxVersion) {
       return (
         <span className={minMaxOptionDescriptionClassName}>
           Only show runs submitted during: <br />
-          <span className={styles['option-description__highlight']}>{min}</span>
+          <span className={cx('option-description__highlight')}>{min}</span>
         </span>
       )
     }
@@ -127,22 +128,21 @@ function SubmissionWindowModal({
     return (
       <span className={minMaxOptionDescriptionClassName}>
         Only show runs submitted between: <br />
-        <span className={styles['option-description__highlight']}>{min}</span> and{' '}
-        <span className={styles['option-description__highlight']}>{max}</span>
+        <span className={cx('option-description__highlight')}>{min}</span> and{' '}
+        <span className={cx('option-description__highlight')}>{max}</span>
       </span>
     )
   }
 
   const renderLastXDays = () => {
-    const lastXDaysOptionDescriptionClassName = cx(
-      styles['option-description'],
-      selectedWindowMode === SubmissionWindowMode.LastXDays && styles['option-description--active']
-    )
+    const lastXDaysOptionDescriptionClassName = cx('option-description', {
+      'option-description--active': selectedWindowMode === SubmissionWindowMode.LastXDays,
+    })
 
     return (
       <span className={lastXDaysOptionDescriptionClassName}>
         Only show runs from the last{' '}
-        <span className={styles['option-description__highlight']}>{lastXDays}</span> days
+        <span className={cx('option-description__highlight')}>{lastXDays}</span> days
       </span>
     )
   }
@@ -153,7 +153,7 @@ function SubmissionWindowModal({
 
   return (
     <ClassModal isOpen={isOpen} onClose={onClose} selectedClass={selectedClass} maxWidth={800}>
-      <div className={styles['container']}>
+      <div className={cx('container')}>
         <h3 style={headerStyle}>Submission Window</h3>
 
         <ControlRadioButton
@@ -164,7 +164,7 @@ function SubmissionWindowModal({
           onChange={() => setSelectedWindowMode(SubmissionWindowMode.MinMaxVersion)}
         >
           <span
-            className={styles['option-title']}
+            className={cx('option-title')}
             style={
               selectedWindowMode === SubmissionWindowMode.MinMaxVersion
                 ? labelTitleSelectedStyle
@@ -194,7 +194,7 @@ function SubmissionWindowModal({
           onChange={() => setSelectedWindowMode(SubmissionWindowMode.LastXDays)}
         >
           <span
-            className={styles['option-title']}
+            className={cx('option-title')}
             style={
               selectedWindowMode === SubmissionWindowMode.LastXDays ? labelTitleSelectedStyle : {}
             }

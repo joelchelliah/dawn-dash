@@ -1,6 +1,7 @@
 import axios from 'axios'
 
-import { handleError } from '../../shared/utils/apiErrorHandling'
+import { handleError } from '@/shared/utils/apiErrorHandling'
+
 import {
   Difficulty,
   SpeedRunApiResponse,

@@ -1,8 +1,13 @@
-import { SpeedRunClass } from '../../../types/speedRun'
-import { ClassColorVariant, getClassColor } from '../../../utils/colors'
+import { createCx } from '@/shared/utils/classnames'
+
+import { SpeedRunClass } from '@/speedruns/types/speedRun'
+import { ClassColorVariant, getClassColor } from '@/speedruns/utils/colors'
+
 import PrimaryButton from '../../Buttons/PrimaryButton'
 
 import styles from './index.module.scss'
+
+const cx = createCx(styles)
 
 interface ChartErrorMessageProps {
   selectedClass: SpeedRunClass
@@ -25,7 +30,7 @@ function ChartErrorMessage({
   }
 
   return (
-    <div className={styles['error-message']} style={errorMessageStyle}>
+    <div className={cx('error-message')} style={errorMessageStyle}>
       {message}
       {onClick && (
         <PrimaryButton selectedClass={selectedClass} onClick={onClick}>

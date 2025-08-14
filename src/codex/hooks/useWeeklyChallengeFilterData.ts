@@ -1,9 +1,10 @@
 import useSWR from 'swr'
 
-import { ChallengeData } from '../types/challenges'
-import { fetchLatestChallengeData } from '../services/challengesApiBlightbane'
-import { Banner, CardSet, WeeklyChallengeFilterData } from '../types/filters'
-import { isNotNullOrUndefined } from '../../shared/utils/object'
+import { isNotNullOrUndefined } from '@/shared/utils/object'
+
+import { fetchLatestChallengeData } from '@/codex/services/challengesApiBlightbane'
+import { ChallengeData } from '@/codex/types/challenges'
+import { Banner, CardSet, WeeklyChallengeFilterData } from '@/codex/types/filters'
 
 export function useWeeklyChallengeFilterData() {
   const { data, error, isLoading, isValidating, mutate } = useSWR<ChallengeData | null>(

@@ -1,12 +1,20 @@
-import Button from '../../../shared/components/Buttons/Button'
-import ButtonRow from '../../../shared/components/Buttons/ButtonRow'
-import { SpeedRunClass, SpeedRunSubclass } from '../../types/speedRun'
-import { ClassColorVariant, getClassColor, getSubclassColor } from '../../utils/colors'
-import { isAnonymousPlayer } from '../../utils/players'
+import Image from 'next/image'
+
+import { createCx } from '@/shared/utils/classnames'
+import Button from '@/shared/components/Buttons/Button'
+import ButtonRow from '@/shared/components/Buttons/ButtonRow'
+import { BolgarImageUrl } from '@/shared/utils/imageUrls'
+
+import { ClassColorVariant, getClassColor, getSubclassColor } from '@/speedruns/utils/colors'
+import { isAnonymousPlayer } from '@/speedruns/utils/players'
+import { SpeedRunClass, SpeedRunSubclass } from '@/speedruns/types/speedRun'
+
 import PrimaryButton from '../Buttons/PrimaryButton'
 import ClassModal from '../ClassModal'
 
 import styles from './index.module.scss'
+
+const cx = createCx(styles)
 
 interface BlightbaneModalProps {
   isOpen: boolean
@@ -33,9 +41,9 @@ function BlightbaneModal({
     const subclassTag = subclass && subclass !== SpeedRunSubclass.All ? ` (${subclass})` : ''
     const postFix = (
       <>
-        <span className={styles['player']} style={{ color: classColor }}>
+        <span className={cx('player')} style={{ color: classColor }}>
           {playerClass}
-          <span className={styles['subclass']} style={{ color: subclassColor }}>
+          <span className={cx('subclass')} style={{ color: subclassColor }}>
             {subclassTag}
           </span>
         </span>{' '}
@@ -45,25 +53,27 @@ function BlightbaneModal({
     if (isAnonymous) {
       return (
         <p>
-          Check out the best <span className={styles['anonymous']}>Anonymous</span> {postFix}
+          Check out the best <span className={cx('anonymous')}>Anonymous</span> {postFix}
         </p>
       )
     }
 
     return (
       <p>
-        Check out <span className={styles['player']}>{`${player}'s`}</span> best {postFix}
+        Check out <span className={cx('player')}>{`${player}'s`}</span> best {postFix}
       </p>
     )
   }
 
   return (
     <ClassModal isOpen={isOpen} onClose={onClose} maxWidth={400} selectedClass={playerClass}>
-      <h3 className={styles['title']}>
-        <img
-          src="https://blightbane.io/images/bolgar.png"
+      <h3 className={cx('title')}>
+        <Image
+          src={BolgarImageUrl}
           alt="Bolgar Blightbane"
-          className={styles['icon']}
+          className={cx('icon')}
+          width={64}
+          height={44}
         />
         Go to Blightbane?
       </h3>

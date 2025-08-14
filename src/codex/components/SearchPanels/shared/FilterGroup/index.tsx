@@ -1,10 +1,12 @@
-import cx from 'classnames'
+import { createCx } from '@/shared/utils/classnames'
+import GradientDivider from '@/shared/components/GradientDivider'
 
-import GradientDivider from '../../../../../shared/components/GradientDivider'
-import { FilterType } from '../../../../types/filters'
+import { FilterType } from '@/codex/types/filters'
 
 import Checkbox from './Checkbox'
 import styles from './index.module.scss'
+
+const cx = createCx(styles)
 
 interface FilterGroupProps {
   title: string
@@ -22,10 +24,10 @@ function FilterGroup({
   onFilterToggle,
   getFilterLabel,
 }: FilterGroupProps) {
-  const className = cx(styles['check-boxes'], styles[`check-boxes--${type}`])
+  const className = cx('check-boxes', `check-boxes--${type}`)
 
   return (
-    <div className={styles['filter-group']}>
+    <div className={cx('filter-group')}>
       <h4>{title}</h4>
       <GradientDivider spacingBottom="sm" />
       <div className={className}>

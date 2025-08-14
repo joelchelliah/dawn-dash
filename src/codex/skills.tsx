@@ -1,14 +1,18 @@
-import TalentResultsPanel from '../codex/components/ResultsPanels/TalentResultsPanel'
-import { useTalentSearchFilters } from '../codex/hooks/useSearchFilters'
-import TalentSearchPanel from '../codex/components/SearchPanels/TalentSearchPanel'
-import { EleganceImageUrl } from '../shared/utils/imageUrls'
-import Header from '../shared/components/Header'
-import { useNavigation } from '../shared/hooks/useNavigation'
-import { useTalentData } from '../codex/hooks/useTalentData'
-import CodexLoadingMessage from '../codex/components/CodexLoadingMessage'
-import CodexErrorMessage from '../codex/components/CodexErrorMessage'
+import { createCx } from '@/shared/utils/classnames'
+import { useNavigation } from '@/shared/hooks/useNavigation'
+import { EleganceImageUrl } from '@/shared/utils/imageUrls'
+import Footer from '@/shared/components/Footer'
+import Header from '@/shared/components/Header'
 
+import TalentResultsPanel from './components/ResultsPanels/TalentResultsPanel'
+import TalentSearchPanel from './components/SearchPanels/TalentSearchPanel'
+import CodexErrorMessage from './components/CodexErrorMessage'
+import CodexLoadingMessage from './components/CodexLoadingMessage'
+import { useTalentSearchFilters } from './hooks/useSearchFilters'
+import { useTalentData } from './hooks/useTalentData'
 import styles from './skills.module.scss'
+
+const cx = createCx(styles)
 
 function Skills(): JSX.Element {
   const { resetToTalentCodex } = useNavigation()
@@ -18,7 +22,7 @@ function Skills(): JSX.Element {
   const useSearchFiltersHook = useTalentSearchFilters(talentTree)
 
   return (
-    <div className={styles['container']}>
+    <div className={cx('container')}>
       <Header
         onLogoClick={resetToTalentCodex}
         logoSrc={EleganceImageUrl}
@@ -26,9 +30,10 @@ function Skills(): JSX.Element {
         subtitle="Dawncaster talents codex"
         currentPage="skilldex"
       />
-      <div className={styles['work-in-progress']}> WORK IN PROGRESS . . .</div>
 
-      <div className={styles['content']}>
+      <div className={cx('work-in-progress')}> WORK IN PROGRESS . . .</div>
+
+      <div className={cx('content')}>
         <CodexLoadingMessage isVisible={isLoading} progress={progress} />
         <CodexErrorMessage isVisible={isError && !isLoading} />
         {!isError && !isLoading && (
@@ -41,6 +46,8 @@ function Skills(): JSX.Element {
           </>
         )}
       </div>
+
+      <Footer />
     </div>
   )
 }

@@ -5,7 +5,11 @@ import { mergeProps } from '@react-aria/utils'
 import { VisuallyHidden } from '@react-aria/visually-hidden'
 import { SliderState } from '@react-stately/slider'
 
+import { createCx } from '@/shared/utils/classnames'
+
 import styles from './index.module.scss'
+
+const cx = createCx(styles)
 
 interface ThumbProps {
   state: SliderState
@@ -30,7 +34,7 @@ function Thumb({ state, trackRef, index, energyIcon }: ThumbProps) {
   } as React.CSSProperties
 
   return (
-    <div {...thumbProps} className={styles['thumb']} style={thumbStyle}>
+    <div {...thumbProps} className={cx('thumb')} style={thumbStyle}>
       <VisuallyHidden>
         <input ref={inputRef} {...mergeProps(inputProps)} />
       </VisuallyHidden>

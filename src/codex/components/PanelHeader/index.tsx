@@ -1,7 +1,10 @@
-import { MagnifyingGlassIcon, StackedCardsIcon } from '../../../shared/utils/icons'
-import GradientDivider from '../../../shared/components/GradientDivider'
+import { MagnifyingGlassIcon, StackedCardsIcon } from '@/shared/utils/icons'
+import GradientDivider from '@/shared/components/GradientDivider'
+import { createCx } from '@/shared/utils/classnames'
 
 import styles from './index.module.scss'
+
+const cx = createCx(styles)
 
 interface PanelHeaderProps {
   type: 'Search' | 'Results'
@@ -12,17 +15,17 @@ const PanelHeader = ({ type }: PanelHeaderProps) => {
 
   const renderIcon = () => {
     if (type === 'Search') {
-      return <MagnifyingGlassIcon className={styles['panel-header__magnifying-glass-icon']} />
+      return <MagnifyingGlassIcon className={cx('panel-header__magnifying-glass-icon')} />
     } else {
-      return <StackedCardsIcon className={styles['panel-header__cards-icon']} />
+      return <StackedCardsIcon className={cx('panel-header__cards-icon')} />
     }
   }
 
   return (
     <>
-      <div className={styles['panel-header']}>
+      <div className={cx('panel-header')}>
         {renderIcon()}
-        <span className={styles['panel-header__title']}>{title}</span>
+        <span className={cx('panel-header__title')}>{title}</span>
       </div>
       <GradientDivider spacingBottom="lg" />
     </>

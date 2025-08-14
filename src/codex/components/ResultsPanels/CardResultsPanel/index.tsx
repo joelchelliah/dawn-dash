@@ -1,14 +1,16 @@
 import { useEffect, useState } from 'react'
 
-import GradientButton from '../../../../shared/components/Buttons/GradientButton'
-import { CardData } from '../../../types/cards'
-import { UseCardSearchFilters } from '../../../hooks/useSearchFilters'
-import PanelHeader from '../../PanelHeader'
-import { createCx } from '../../../../shared/utils/classnames'
-import KeywordsSummary from '../KeywordsSummary'
+import GradientButton from '@/shared/components/Buttons/GradientButton'
+import { createCx } from '@/shared/utils/classnames'
 
-import styles from './index.module.scss'
+import { CardData } from '@/codex/types/cards'
+import { UseCardSearchFilters } from '@/codex/hooks/useSearchFilters'
+
+import KeywordsSummary from '../KeywordsSummary'
+import PanelHeader from '../../PanelHeader'
+
 import ResultCard from './ResultCard'
+import styles from './index.module.scss'
 
 interface CardResultsPanelProps {
   useSearchFilters: UseCardSearchFilters
@@ -18,7 +20,8 @@ const cx = createCx(styles)
 
 const CardResultsPanel = ({ useSearchFilters }: CardResultsPanelProps) => {
   const [showCardsWithoutKeywords, setShowCardsWithoutKeywords] = useState(false)
-  const { parsedKeywords, matchingCards } = useSearchFilters
+  const { parsedKeywords, matchingCards, useCardStrike } = useSearchFilters
+  const { struckCards } = useCardStrike
 
   useEffect(() => {
     if (parsedKeywords.length > 0) {
@@ -40,6 +43,7 @@ const CardResultsPanel = ({ useSearchFilters }: CardResultsPanelProps) => {
       <div className={cx('results-container')} key={parsedKeywords.join(',')}>
         <KeywordsSummary
           matches={matchingCards.map((card) => card.name)}
+          struckCards={struckCards}
           parsedKeywords={parsedKeywords}
           showingResultsWithoutKeywords={showingCardsWithoutKeywords}
           className={cx('results-container__info')}
@@ -72,8 +76,8 @@ const CardResultsPanel = ({ useSearchFilters }: CardResultsPanelProps) => {
       ) : (
         <div className={cx('results-container')}>
           <div className={cx('results-container__info')}>
-            No <strong>keywords</strong> have been provided yet. Type something into the search bar,
-            or...
+            No <strong>keywords</strong> have been provided yet. Do you want to see all cards
+            matching only the filters?
           </div>
 
           <GradientButton

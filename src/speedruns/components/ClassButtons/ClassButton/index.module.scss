@@ -1,4 +1,4 @@
-@use '../../../../styles' as *;
+@use 'index' as *;
 
 .container {
   @extend %flex-center;
@@ -42,7 +42,6 @@
 }
 
 .class-icon {
-  width: 2.25rem;
   vertical-align: middle;
   margin-right: 0.25rem;
   border: 1px groove rgb(153, 153, 153);

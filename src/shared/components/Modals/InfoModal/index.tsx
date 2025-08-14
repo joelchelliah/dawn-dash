@@ -1,5 +1,5 @@
-import GradientButton from '../../Buttons/GradientButton'
-import Modal from '../Modal'
+import GradientButton from '@/shared/components/Buttons/GradientButton'
+import Modal from '@/shared/components/Modals/Modal'
 
 import styles from './index.module.scss'
 

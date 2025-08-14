@@ -1,4 +1,4 @@
-@use '../../../../styles/index' as *;
+@use 'index' as *;
 
 .search-panel {
   flex: 1;
@@ -123,16 +123,15 @@
 
 .filter-button {
   width: 100%;
-
-  @media (max-width: $breakpoint-mobile) {
-    width: auto;
-  }
-
   padding-left: 0.8125rem !important;
   padding-right: 0.8125rem !important;
 
   &:hover {
     padding-left: 0.875rem !important;
     padding-right: 0.875rem !important;
+  }
+
+  @media (max-width: $breakpoint-mobile) {
+    width: auto;
   }
 }

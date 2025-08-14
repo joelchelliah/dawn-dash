@@ -8,21 +8,33 @@ $texture-stars: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
   background: linear-gradient(to right, $color, colors.$color-component-bg);
 
   @if $flipped {
-    @include _applyTexture($texture-rain-flipped, before);
+    @include _applyTexture($texture-rain-flipped, before, 0.35);
   } @else {
-    @include _applyTexture($texture-rain, before);
+    @include _applyTexture($texture-rain, before, 0.35);
   }
 }
 
 @mixin starsTexture($position) {
   @if $position == 'upper' {
-    @include _applyTexture($texture-stars, before, 4rem, to bottom, 8rem);
+    @include _applyTexture($texture-stars, before, 0.25, 4rem, to bottom, 8rem);
   } @else {
-    @include _applyTexture($texture-stars, after, 4rem, to top, 12rem);
+    @include _applyTexture($texture-stars, after, 0.25, 4rem, to top, 12rem);
   }
 }
 
-@mixin _applyTexture($texture, $pseudo, $size: 2rem, $mask-direction: to right, $height: 100%) {
+@mixin _applyTexture(
+  $texture,
+  $pseudo,
+  $texture-opacity,
+  $size: 2rem,
+  $mask-direction: to right,
+  $height: 100%
+) {
+  & {
+    // Wrapping in &{} to prevent deprecation warning about declarations appearing after nested rules.
+    position: relative;
+  }
+
   $mask-from-opacity: 1;
   $mask-cutoff: 50%;
 
@@ -31,15 +43,13 @@ $texture-stars: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
     $mask-cutoff: 40%;
   }
 
-  position: relative;
-
   &::#{$pseudo} {
     content: '';
     position: absolute;
     left: 0;
     width: 100%;
     height: $height;
-    opacity: 0.25;
+    opacity: $texture-opacity;
     pointer-events: none;
     background-size: $size $size;
     background-image: $texture;

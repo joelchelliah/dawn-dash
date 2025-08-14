@@ -1,6 +1,7 @@
-import { CachedData } from '../../shared/types/cache'
-import { getFromCache, saveToCache } from '../../shared/utils/storage'
-import { TalentTree } from '../types/talents'
+import { CachedData } from '@/shared/types/cache'
+import { getFromCache, saveToCache } from '@/shared/utils/storage'
+
+import { TalentTree } from '@/codex/types/talents'
 
 const CACHE_VERSION = 'v0'
 const CACHE_KEY = `codex_talents_${CACHE_VERSION}`

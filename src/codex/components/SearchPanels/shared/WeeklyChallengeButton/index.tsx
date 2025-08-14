@@ -1,13 +1,14 @@
 import { ReactNode, useEffect, useMemo, useState } from 'react'
 
-import cx from 'classnames'
-
-import GradientButton from '../../../../../shared/components/Buttons/GradientButton'
-import GradientLink from '../../../../../shared/components/GradientLink'
-import InfoModal from '../../../../../shared/components/Modals/InfoModal'
-import { QuestionIcon } from '../../../../../shared/utils/icons'
+import { createCx } from '@/shared/utils/classnames'
+import GradientButton from '@/shared/components/Buttons/GradientButton'
+import GradientLink from '@/shared/components/GradientLink'
+import InfoModal from '@/shared/components/Modals/InfoModal'
+import { QuestionIcon } from '@/shared/utils/icons'
 
 import styles from './index.module.scss'
+
+const cx = createCx(styles)
 
 interface WeeklyChallengeButtonProps {
   isLoading: boolean
@@ -26,7 +27,7 @@ function WeeklyChallengeButton({
     () => (
       <>
         Optimize for Weekly Challenge:
-        <div className={styles['weekly-challenge-button__challenge-name']}>{challengeName}</div>
+        <div className={cx('weekly-challenge-button__challenge-name')}>{challengeName}</div>
       </>
     ),
     [challengeName]
@@ -57,23 +58,23 @@ function WeeklyChallengeButton({
     else setContent(contentDefault)
   }, [challengeName, contentDefault, contentSuccess, isAnimating])
 
-  const buttonClassName = cx(styles['weekly-challenge-button'], {
-    [styles['weekly-challenge-button--loading']]: isLoading,
-    [styles['weekly-challenge-button--success']]: isSuccess,
+  const buttonClassName = cx('weekly-challenge-button', {
+    'weekly-challenge-button--loading': isLoading,
+    'weekly-challenge-button--success': isSuccess,
   })
-  const contentClassName = cx(styles['weekly-challenge-button__content'], {
-    [styles['weekly-challenge-button__content--success']]: isSuccess,
-    [styles['weekly-challenge-button__content--reverting']]: isReverting,
+  const contentClassName = cx('weekly-challenge-button__content', {
+    'weekly-challenge-button__content--success': isSuccess,
+    'weekly-challenge-button__content--reverting': isReverting,
   })
 
   return (
-    <div className={styles['container']}>
+    <div className={cx('container')}>
       <GradientButton onClick={handleClick} isLoading={isLoading} className={buttonClassName}>
         <div className={contentClassName}>{content}</div>
       </GradientButton>
       {challengeName && challengeId && (
         <>
-          <QuestionIcon className={styles['icon']} onClick={() => setIsModalOpen(true)} />
+          <QuestionIcon className={cx('icon')} onClick={() => setIsModalOpen(true)} />
           <InfoModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
             <h3>Weekly challenge optimization</h3>
 

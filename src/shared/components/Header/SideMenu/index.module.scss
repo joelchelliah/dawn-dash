@@ -1,4 +1,4 @@
-@use '../../../../styles' as *;
+@use 'index' as *;
 
 .hamburger {
   width: 2.5rem;
@@ -135,15 +135,20 @@
     }
 
     &__icon {
-      width: 2.5rem;
-      height: 2.5rem;
       @include rotateY360Animation('hover', '.side-menu__nav-link:hover');
-
-      @media (max-width: $breakpoint-mobile) {
-        width: 2rem;
-        height: 2rem;
-      }
     }
+  }
+}
+
+.info-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  img {
+    height: 1.5rem;
+    width: 1.5rem;
+    border-radius: 20px;
   }
 }
 

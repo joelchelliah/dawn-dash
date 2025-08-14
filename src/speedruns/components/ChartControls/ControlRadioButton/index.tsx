@@ -1,12 +1,14 @@
 import React from 'react'
 
-import cx from 'classnames'
+import { createCx } from '@/shared/utils/classnames'
 
-import { SpeedRunClass } from '../../../types/speedRun'
-import { ClassColorVariant, getClassColor } from '../../../utils/colors'
-import { getEnergyImageUrl } from '../../../utils/images'
+import { SpeedRunClass } from '@/speedruns/types/speedRun'
+import { ClassColorVariant, getClassColor } from '@/speedruns/utils/colors'
+import { getEnergyImageUrl } from '@/speedruns/utils/images'
 
 import styles from './index.module.scss'
+
+const cx = createCx(styles)
 
 interface ControlRadioButtonProps {
   selectedClass: SpeedRunClass
@@ -27,8 +29,8 @@ function ControlRadioButton({
 }: ControlRadioButtonProps) {
   const darkestColor = getClassColor(selectedClass, ClassColorVariant.Darkest)
 
-  const radioButtonClassName = cx(styles['radio-button'], {
-    [styles['radio-button--selected']]: isSelected,
+  const radioButtonClassName = cx('radio-button', {
+    'radio-button--selected': isSelected,
   })
   const radioButtonStyle = {
     borderColor: darkestColor,
@@ -47,10 +49,10 @@ function ControlRadioButton({
         value={value}
         checked={isSelected}
         onChange={() => onChange(value)}
-        className={styles['radio-button__input']}
+        className={cx('radio-button__input')}
       />
-      <span className={styles['radio-button__custom']} style={customRadioStyle} />
-      <span className={styles['radio-button__label']}>{children}</span>
+      <span className={cx('radio-button__custom')} style={customRadioStyle} />
+      <span className={cx('radio-button__label')}>{children}</span>
     </label>
   )
 }

@@ -26,10 +26,6 @@ function setSearchParamsFromControlState(
 
   if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current)
 
-  // console.log('selectedClass', selectedClass)
-  // console.log('controls', controls)
-  // console.log('router', router)
-
   debounceTimeoutRef.current = setTimeout(() => {
     router.replace({
       pathname: router.pathname,

@@ -1,4 +1,4 @@
-@use '../../../../styles' as *;
+@use 'index' as *;
 
 .container {
   @extend %flex-center;
@@ -42,7 +42,6 @@
 
 .subclass-icons {
   img {
-    width: 1rem;
     vertical-align: middle;
     object-fit: cover;
     margin-right: 0.125rem;

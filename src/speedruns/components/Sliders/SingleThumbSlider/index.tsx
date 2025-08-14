@@ -1,7 +1,8 @@
 import { useNumberFormatter } from '@react-aria/i18n'
 import { useSliderState } from '@react-stately/slider'
 
-import { SpeedRunClass } from '../../../types/speedRun'
+import { SpeedRunClass } from '@/speedruns/types/speedRun'
+
 import Slider from '../Slider'
 
 interface SingleThumbSliderProps {

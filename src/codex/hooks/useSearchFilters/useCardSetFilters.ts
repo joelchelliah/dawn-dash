@@ -3,7 +3,7 @@ import {
   CardSet,
   CardSetFilterOption,
   SharedFilterOption,
-} from '../../types/filters'
+} from '@/codex/types/filters'
 
 import { createFilterHook } from './useFilterFactory'
 

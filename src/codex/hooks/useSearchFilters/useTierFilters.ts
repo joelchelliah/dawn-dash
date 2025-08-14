@@ -3,7 +3,7 @@ import {
   TalentCodexSearchFilterCache,
   Tier,
   TierFilterOption,
-} from '../../types/filters'
+} from '@/codex/types/filters'
 
 import { createFilterHook } from './useFilterFactory'
 

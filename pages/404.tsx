@@ -1,14 +1,16 @@
 import React from 'react'
 
-import Image from 'next/image'
 import { useRouter } from 'next/router'
 
+import { createCx } from '../src/shared/utils/classnames'
 import GradientButton from '../src/shared/components/Buttons/GradientButton'
 import { DantelionImageUrl } from '../src/shared/utils/imageUrls'
 
 import styles from './404.module.scss'
 
-export default function Custom404() {
+const cx = createCx(styles)
+
+export default function Custom404(): JSX.Element {
   const router = useRouter()
 
   const goBack = () => {
@@ -20,18 +22,20 @@ export default function Custom404() {
   }
 
   return (
-    <div className={styles['container']}>
-      <h1 className={styles['title']}>404 - Whoops!</h1>
-      <Image
+    <div className={cx('container')}>
+      <h1 className={cx('title')}>404 - Whoops!</h1>
+      <p>Looks like you&apos;ve wandered into the void.</p>
+      <p>This page doesn&apos;t exist in our realm.</p>
+
+      <img
         src={DantelionImageUrl}
-        alt="Dantelion"
-        className={styles['image']}
+        alt="Dantelion image"
+        className={cx('image')}
         width={150}
         height={150}
       />
-      <p>You have trespassed into the abyss from which no soul returns!</p>
 
-      <GradientButton bold className={styles['back-button']} onClick={goBack}>
+      <GradientButton bold className={cx('back-button')} onClick={goBack}>
         Go back
       </GradientButton>
     </div>

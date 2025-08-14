@@ -1,35 +1,37 @@
-import CardResultsPanel from '../codex/components/ResultsPanels/CardResultsPanel'
-import CardSearchPanel from '../codex/components/SearchPanels/CardSearchPanel'
-import { useCardSearchFilters } from '../codex/hooks/useSearchFilters'
-import CodexLoadingMessage from '../codex/components/CodexLoadingMessage'
-import CodexErrorMessage from '../codex/components/CodexErrorMessage'
-import { useNavigation } from '../shared/hooks/useNavigation'
-import Footer from '../shared/components/Footer'
-import Header from '../shared/components/Header'
-import { AbracadabraImageUrl } from '../shared/utils/imageUrls'
+import { createCx } from '@/shared/utils/classnames'
+import { useNavigation } from '@/shared/hooks/useNavigation'
+import { AbracadabraImageUrl } from '@/shared/utils/imageUrls'
+import Footer from '@/shared/components/Footer'
+import Header from '@/shared/components/Header'
 
+import CardResultsPanel from './components/ResultsPanels/CardResultsPanel'
+import { useCardSearchFilters } from './hooks/useSearchFilters'
+import CardSearchPanel from './components/SearchPanels/CardSearchPanel'
 import { useCardData } from './hooks/useCardData'
+import CodexErrorMessage from './components/CodexErrorMessage'
+import CodexLoadingMessage from './components/CodexLoadingMessage'
 import styles from './cards.module.scss'
+
+const cx = createCx(styles)
 
 function Cards(): JSX.Element {
   const { resetToCardCodex } = useNavigation()
-
   const useCardDataHook = useCardData()
   const { cardData, isLoading, isError, progress } = useCardDataHook
 
   const useSearchFiltersHook = useCardSearchFilters(cardData)
 
   return (
-    <div className={styles['container']}>
+    <div className={cx('container')}>
       <Header
         onLogoClick={resetToCardCodex}
         logoSrc={AbracadabraImageUrl}
         title="Dawn-Dash : Cardex"
-        subtitle="Dawncaster card codex"
+        subtitle="Dawncaster cards codex"
         currentPage="cardex"
       />
 
-      <div className={styles['content']}>
+      <div className={cx('content')}>
         <CodexLoadingMessage isVisible={isLoading} progress={progress} />
         <CodexErrorMessage isVisible={isError && !isLoading} />
         {!isError && !isLoading && (

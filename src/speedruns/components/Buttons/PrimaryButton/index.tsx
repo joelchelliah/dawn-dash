@@ -1,8 +1,12 @@
-import Button from '../../../../shared/components/Buttons/Button'
-import { SpeedRunClass } from '../../../types/speedRun'
-import { getClassColor, ClassColorVariant } from '../../../utils/colors'
+import { createCx } from '@/shared/utils/classnames'
+import Button from '@/shared/components/Buttons/Button'
+
+import { SpeedRunClass } from '@/speedruns/types/speedRun'
+import { ClassColorVariant, getClassColor } from '@/speedruns/utils/colors'
 
 import styles from './index.module.scss'
+
+const cx = createCx(styles)
 
 interface PrimaryButtonProps {
   children: React.ReactNode
@@ -21,7 +25,7 @@ function PrimaryButton({ children, onClick, selectedClass }: PrimaryButtonProps)
   } as React.CSSProperties
 
   return (
-    <Button className={styles['primary-button']} style={buttonStyle} onClick={onClick}>
+    <Button className={cx('primary-button')} style={buttonStyle} onClick={onClick}>
       {children}
     </Button>
   )

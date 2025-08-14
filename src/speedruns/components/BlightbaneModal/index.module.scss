@@ -1,4 +1,4 @@
-@use '../../../styles' as *;
+@use 'index' as *;
 
 h3.title {
   margin-top: 0.5rem;
@@ -7,9 +7,8 @@ h3.title {
 
 .icon {
   margin-top: -1rem;
+  margin-bottom: -0.125rem;
   margin-left: -0.375rem;
-  width: 4rem;
-  height: auto;
   object-fit: contain;
   filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.8));
   @include peekUpAnimation;

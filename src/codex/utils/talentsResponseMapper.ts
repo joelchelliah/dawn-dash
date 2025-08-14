@@ -1,11 +1,12 @@
-import { isNotNullOrUndefined } from '../../shared/utils/object'
+import { isNotNullOrUndefined } from '@/shared/utils/object'
+
 import {
   TalentData,
   TalentTree,
   TalentTreeNodeType,
   TalentTreeRequirementNode,
   TalentTreeTalentNode,
-} from '../types/talents'
+} from '@/codex/types/talents'
 
 export const mapTalentsDataToTalentTree = (unparsedTalents: TalentData[]): TalentTree => {
   const uniqueUnparsedTalents = removeDuplicateTalents(unparsedTalents)

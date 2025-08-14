@@ -12,7 +12,7 @@ export const useNavigation = () => {
   }
 
   const resetToTalentCodex = () => {
-    router.replace('/codex/talents')
+    router.replace('/codex/skills')
   }
 
   return { resetToSpeedruns, resetToCardCodex, resetToTalentCodex }

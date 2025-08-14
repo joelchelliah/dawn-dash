@@ -1,5 +1,10 @@
-import { handleError } from '../../shared/utils/apiErrorHandling'
-import { AllChallengesApiResponse, ChallengeApiResponse, ChallengeData } from '../types/challenges'
+import { handleError } from '@/shared/utils/apiErrorHandling'
+
+import {
+  AllChallengesApiResponse,
+  ChallengeApiResponse,
+  ChallengeData,
+} from '@/codex/types/challenges'
 
 const BLIGHTBANE_URL = 'https://blightbane.io/api'
 
