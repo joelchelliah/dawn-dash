@@ -3,11 +3,25 @@ import { useEffect, useRef } from 'react'
 import * as d3 from 'd3'
 
 import { createCx } from '@/shared/utils/classnames'
+import {
+  DexImageUrl,
+  IntImageUrl,
+  StrImageUrl,
+  NeutralImageUrl,
+  ArcanistImageUrl,
+  HunterImageUrl,
+  KnightImageUrl,
+  RogueImageUrl,
+  SeekerImageUrl,
+  WarriorImageUrl,
+  SunforgeImageUrl,
+} from '@/shared/utils/imageUrls'
 
 import {
   TalentTreeRequirementNode,
   TalentTreeTalentNode,
   TalentTree as TalentTreeType,
+  TalentTreeNodeType,
 } from '@/codex/types/talents'
 
 import styles from './index.module.scss'
@@ -21,7 +35,51 @@ interface TalentTreeProps {
 interface TreeNode {
   name: string
   description: string
+  nodeType?: TalentTreeNodeType
   children?: TreeNode[]
+}
+
+const getRequirementIconUrl = (
+  isClassRequirement: boolean,
+  name: string
+): { count: number; url: string } => {
+  if (isClassRequirement) {
+    switch (name) {
+      case 'Arcanist':
+        return { count: 1, url: ArcanistImageUrl }
+      case 'Hunter':
+        return { count: 1, url: HunterImageUrl }
+      case 'Knight':
+        return { count: 1, url: KnightImageUrl }
+      case 'Rogue':
+        return { count: 1, url: RogueImageUrl }
+      case 'Seeker':
+        return { count: 1, url: SeekerImageUrl }
+      case 'Warrior':
+        return { count: 1, url: WarriorImageUrl }
+      default:
+        return { count: 1, url: SunforgeImageUrl }
+    }
+  }
+
+  switch (name) {
+    case 'DEX':
+      return { count: 1, url: DexImageUrl }
+    case 'DEX2':
+      return { count: 2, url: DexImageUrl }
+    case 'INT':
+      return { count: 1, url: IntImageUrl }
+    case 'INT2':
+      return { count: 2, url: IntImageUrl }
+    case 'STR':
+      return { count: 1, url: StrImageUrl }
+    case 'STR2':
+      return { count: 2, url: StrImageUrl }
+    case 'STR3':
+      return { count: 3, url: StrImageUrl }
+    default:
+      return { count: 1, url: NeutralImageUrl }
+  }
 }
 
 const TalentTree = ({ talentTree }: TalentTreeProps) => {
@@ -38,6 +96,7 @@ const TalentTree = ({ talentTree }: TalentTreeProps) => {
       return {
         name: node.name,
         description: node.description,
+        nodeType: TalentTreeNodeType.TALENT,
         children: children.length > 0 ? children : undefined,
       }
     }
@@ -48,6 +107,7 @@ const TalentTree = ({ talentTree }: TalentTreeProps) => {
       return {
         name: node.name,
         description: `TODO description for ${node.name}`,
+        nodeType: node.type,
         children: children.length > 0 ? children : undefined,
       }
     }
@@ -121,94 +181,161 @@ const TalentTree = ({ talentTree }: TalentTreeProps) => {
     // Add nodes
     const nodes = svg
       .selectAll('.node')
-      .data(treeData.descendants().filter((d) => d.depth > 0)) // Skip virtual root node
+      .data(treeData.descendants().filter(({ depth }) => depth > 0)) // Skip virtual root node
       .enter()
       .append('g')
       .attr('class', cx('tree-node'))
-      .attr('transform', (d) => `translate(${d.y ?? 0},${d.x ?? 0})`)
+      .attr('transform', ({ y, x }) => `translate(${y ?? 0},${x ?? 0})`)
 
-    // Add rectangular boxes for nodes
-    nodes
-      .append('rect')
-      .attr('width', nodeWidth)
-      .attr('height', nodeHeight)
-      .attr('x', -nodeWidth / 2)
-      .attr('y', -nodeHeight / 2)
-      .attr('class', cx('tree-node-rect'))
+    // Create defs element for clipPaths
+    const defs = svg.append('defs')
 
-    // Add separator line
-    nodes
-      .append('line')
-      .attr('x1', -nodeWidth / 2)
-      .attr('y1', -nodeHeight / 2 + nameHeight)
-      .attr('x2', nodeWidth / 2)
-      .attr('y2', -nodeHeight / 2 + nameHeight)
-      .attr('class', cx('tree-node-separator'))
+    // Render nodes based on depth
+    nodes.each(function ({ depth, data }, _index) {
+      const nodeElement = d3.select(this)
 
-    // Add content group
-    const contentGroups = nodes.append('g').attr('class', cx('tree-node-content'))
+      if (depth === 1) {
+        if (data.nodeType) {
+          const isClassRequirement = data.nodeType === TalentTreeNodeType.CLASS_REQUIREMENT
+          const { count, url } = getRequirementIconUrl(isClassRequirement, data.name)
 
-    // Helper function to wrap text
-    const wrapText = (text: string, width: number, fontSize: number) => {
-      const words = text.split(' ')
-      const lines: string[] = []
-      let currentLine = words[0]
+          let circleRadius = 0
+          if (isClassRequirement) {
+            circleRadius = 23
+          } else if (count === 1) {
+            circleRadius = 13
+          } else if (count === 2) {
+            circleRadius = 17
+          } else if (count === 3) {
+            circleRadius = 26
+          }
 
-      for (let i = 1; i < words.length; i++) {
-        const word = words[i]
-        const testLine = currentLine + ' ' + word
-        const testWidth = testLine.length * fontSize * 0.6 // Approximate character width
+          nodeElement.append('circle').attr('r', circleRadius).attr('class', cx('tree-node-circle'))
 
-        if (testWidth > width) {
-          lines.push(currentLine)
-          currentLine = word
-        } else {
-          currentLine = testLine
+          if (count > 0) {
+            const iconSize = isClassRequirement ? 42 : 22
+            const spacing = 2
+            const totalWidth = count * iconSize + (count - 1) * spacing
+            const startX = -totalWidth / 2
+
+            for (let i = 0; i < count; i++) {
+              const x = startX + i * (iconSize + spacing)
+
+              if (count === 1) {
+                // Single icon - apply circular clipping
+                const clipId = `circle-clip-${_index}-${i}`
+
+                defs
+                  .append('clipPath')
+                  .attr('id', clipId)
+                  .append('circle')
+                  .attr('r', iconSize / 2)
+                  .attr('cx', x + iconSize / 2)
+                  .attr('cy', -iconSize / 2 + iconSize / 2)
+
+                nodeElement
+                  .append('image')
+                  .attr('href', url)
+                  .attr('x', x)
+                  .attr('y', -iconSize / 2)
+                  .attr('width', iconSize)
+                  .attr('height', iconSize)
+                  .attr('clip-path', `url(#${clipId})`)
+              } else {
+                // Multiple icons - no clipping, place them next to each other
+                nodeElement
+                  .append('image')
+                  .attr('href', url)
+                  .attr('x', x)
+                  .attr('y', -iconSize / 2)
+                  .attr('width', iconSize)
+                  .attr('height', iconSize)
+              }
+            }
+          }
         }
+      } else {
+        // Rectangular nodes with text for depth > 1 (talent nodes)
+        // Add rectangular boxes for nodes
+        nodeElement
+          .append('rect')
+          .attr('width', nodeWidth)
+          .attr('height', nodeHeight)
+          .attr('x', -nodeWidth / 2)
+          .attr('y', -nodeHeight / 2)
+          .attr('class', cx('tree-node-rect'))
+
+        // Add separator line
+        nodeElement
+          .append('line')
+          .attr('x1', -nodeWidth / 2)
+          .attr('y1', -nodeHeight / 2 + nameHeight)
+          .attr('x2', nodeWidth / 2)
+          .attr('y2', -nodeHeight / 2 + nameHeight)
+          .attr('class', cx('tree-node-separator'))
+
+        // Add content group
+        const contentGroup = nodeElement.append('g').attr('class', cx('tree-node-content'))
+
+        // Helper function to wrap text
+        const wrapText = (text: string, width: number, fontSize: number) => {
+          const words = text.split(' ')
+          const lines: string[] = []
+          let currentLine = words[0]
+
+          for (let i = 1; i < words.length; i++) {
+            const word = words[i]
+            const testLine = currentLine + ' ' + word
+            const testWidth = testLine.length * fontSize * 0.6 // Approximate character width
+
+            if (testWidth > width) {
+              lines.push(currentLine)
+              currentLine = word
+            } else {
+              currentLine = testLine
+            }
+          }
+          lines.push(currentLine)
+          return lines
+        }
+
+        // Add name text with wrapping
+        const nameGroup = contentGroup
+          .append('g')
+          .attr('transform', `translate(0, ${-nodeHeight / 2 + nameHeight / 2})`)
+
+        const nameLines = wrapText(data.name, nodeWidth - 10, 10) // 10px font size
+        const nameLineHeight = 12
+
+        nameLines.forEach((line, i) => {
+          nameGroup
+            .append('text')
+            .attr('x', 0)
+            .attr('y', i * nameLineHeight - ((nameLines.length - 1) * nameLineHeight) / 2)
+            .text(line)
+            .attr('class', cx('tree-node-name'))
+        })
+
+        // Add description text with wrapping
+        const descGroup = contentGroup
+          .append('g')
+          .attr(
+            'transform',
+            `translate(0, ${-nodeHeight / 2 + nameHeight + descriptionHeight / 2})`
+          )
+
+        const descLines = wrapText(data.description, nodeWidth - 10, 8) // 8px font size
+        const descLineHeight = 10
+
+        descLines.forEach((line, i) => {
+          descGroup
+            .append('text')
+            .attr('x', 0)
+            .attr('y', i * descLineHeight - ((descLines.length - 1) * descLineHeight) / 2)
+            .text(line)
+            .attr('class', cx('tree-node-description'))
+        })
       }
-      lines.push(currentLine)
-      return lines
-    }
-
-    // Add name text with wrapping
-    const nameGroups = contentGroups
-      .append('g')
-      .attr('transform', (_d) => `translate(0, ${-nodeHeight / 2 + nameHeight / 2})`)
-
-    nameGroups.each(function (d) {
-      const nameLines = wrapText(d.data.name, nodeWidth - 10, 10) // 10px font size
-      const lineHeight = 12
-
-      nameLines.forEach((line, i) => {
-        d3.select(this)
-          .append('text')
-          .attr('x', 0)
-          .attr('y', i * lineHeight - ((nameLines.length - 1) * lineHeight) / 2)
-          .text(line)
-          .attr('class', cx('tree-node-name'))
-      })
-    })
-
-    // Add description text with wrapping
-    const descGroups = contentGroups
-      .append('g')
-      .attr(
-        'transform',
-        (_d) => `translate(0, ${-nodeHeight / 2 + nameHeight + descriptionHeight / 2})`
-      )
-
-    descGroups.each(function (d) {
-      const descLines = wrapText(d.data.description, nodeWidth - 10, 8) // 8px font size
-      const lineHeight = 10
-
-      descLines.forEach((line, i) => {
-        d3.select(this)
-          .append('text')
-          .attr('x', 0)
-          .attr('y', i * lineHeight - ((descLines.length - 1) * lineHeight) / 2)
-          .text(line)
-          .attr('class', cx('tree-node-description'))
-      })
     })
   }, [talentTree])
 

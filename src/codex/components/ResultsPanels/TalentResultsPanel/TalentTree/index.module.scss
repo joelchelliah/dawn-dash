@@ -25,10 +25,16 @@
 
 .tree-node-rect {
   fill: $color-component-bg;
-  stroke: #666;
+  stroke: $color-primary-dark;
   stroke-width: 2px;
   rx: 8px;
   ry: 8px;
+}
+
+.tree-node-circle {
+  fill: $color-component-bg;
+  stroke: $color-component-bg-hover;
+  stroke-width: 2px;
 }
 
 .tree-node-content {
