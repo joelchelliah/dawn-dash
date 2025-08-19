@@ -61,14 +61,23 @@ const TalentTree = ({ talentTree }: TalentTreeProps) => {
         ...talentTree.classNodes.map(buildTreeFromOtherRequirement),
       ],
     })
-    const treeLayout = d3.tree<TreeNode>().nodeSize([50, 200])
+
+    // Node dimensions
+    const nodeWidth = 200
+    const nodeHeight = 80
+    const nameHeight = 25
+    const descriptionHeight = 55
+    const horizontalSpacing = nodeWidth * 1.4
+    const verticalSpacing = nodeHeight * 1.4
+
+    const treeLayout = d3.tree<TreeNode>().nodeSize([verticalSpacing, horizontalSpacing])
     const treeData = treeLayout(treeNode)
 
     // Shift all nodes left so that the root talents are at y=0
     // (same as the virtual root node, which we are not rendering)
     // NB: Y is horizontal, X is vertical!
     // TODO: This needs some work to make it look good!
-    const leftPadding = 10
+    const leftPadding = nodeWidth * 0.25
     const offset =
       treeNode.children && treeNode.children.length > 0
         ? (treeNode.children[0].y ?? 0) - leftPadding
@@ -118,20 +127,89 @@ const TalentTree = ({ talentTree }: TalentTreeProps) => {
       .attr('class', cx('tree-node'))
       .attr('transform', (d) => `translate(${d.y ?? 0},${d.x ?? 0})`)
 
-    // Add circles for nodes
-    nodes.append('circle').attr('r', 10).attr('class', cx('tree-node-circle'))
-
-    // Add text labels
+    // Add rectangular boxes for nodes
     nodes
-      .append('text')
-      .attr('x', 0)
-      .attr('y', -16)
-      .attr('text-anchor', 'middle')
-      .text((d) => d.data.name)
-      .attr('class', cx('tree-node-text'))
+      .append('rect')
+      .attr('width', nodeWidth)
+      .attr('height', nodeHeight)
+      .attr('x', -nodeWidth / 2)
+      .attr('y', -nodeHeight / 2)
+      .attr('class', cx('tree-node-rect'))
 
-    // Add tooltips
-    nodes.append('title').text((d) => d.data.description)
+    // Add separator line
+    nodes
+      .append('line')
+      .attr('x1', -nodeWidth / 2)
+      .attr('y1', -nodeHeight / 2 + nameHeight)
+      .attr('x2', nodeWidth / 2)
+      .attr('y2', -nodeHeight / 2 + nameHeight)
+      .attr('class', cx('tree-node-separator'))
+
+    // Add content group
+    const contentGroups = nodes.append('g').attr('class', cx('tree-node-content'))
+
+    // Helper function to wrap text
+    const wrapText = (text: string, width: number, fontSize: number) => {
+      const words = text.split(' ')
+      const lines: string[] = []
+      let currentLine = words[0]
+
+      for (let i = 1; i < words.length; i++) {
+        const word = words[i]
+        const testLine = currentLine + ' ' + word
+        const testWidth = testLine.length * fontSize * 0.6 // Approximate character width
+
+        if (testWidth > width) {
+          lines.push(currentLine)
+          currentLine = word
+        } else {
+          currentLine = testLine
+        }
+      }
+      lines.push(currentLine)
+      return lines
+    }
+
+    // Add name text with wrapping
+    const nameGroups = contentGroups
+      .append('g')
+      .attr('transform', (_d) => `translate(0, ${-nodeHeight / 2 + nameHeight / 2})`)
+
+    nameGroups.each(function (d) {
+      const nameLines = wrapText(d.data.name, nodeWidth - 10, 10) // 10px font size
+      const lineHeight = 12
+
+      nameLines.forEach((line, i) => {
+        d3.select(this)
+          .append('text')
+          .attr('x', 0)
+          .attr('y', i * lineHeight - ((nameLines.length - 1) * lineHeight) / 2)
+          .text(line)
+          .attr('class', cx('tree-node-name'))
+      })
+    })
+
+    // Add description text with wrapping
+    const descGroups = contentGroups
+      .append('g')
+      .attr(
+        'transform',
+        (_d) => `translate(0, ${-nodeHeight / 2 + nameHeight + descriptionHeight / 2})`
+      )
+
+    descGroups.each(function (d) {
+      const descLines = wrapText(d.data.description, nodeWidth - 10, 8) // 8px font size
+      const lineHeight = 10
+
+      descLines.forEach((line, i) => {
+        d3.select(this)
+          .append('text')
+          .attr('x', 0)
+          .attr('y', i * lineHeight - ((descLines.length - 1) * lineHeight) / 2)
+          .text(line)
+          .attr('class', cx('tree-node-description'))
+      })
+    })
   }, [talentTree])
 
   return (

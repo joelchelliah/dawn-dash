@@ -23,13 +23,32 @@
   cursor: pointer;
 }
 
-.tree-node-circle {
-  fill: #fff;
+.tree-node-rect {
+  fill: $color-component-bg;
   stroke: #666;
   stroke-width: 2px;
+  rx: 8px;
+  ry: 8px;
 }
 
-.tree-node-text {
-  font-size: font-size('xs');
+.tree-node-content {
+  pointer-events: none;
+}
+
+.tree-node-name {
+  font-size: font-size('xxs');
+  font-weight: 600;
   fill: $color-primary-base;
+  text-anchor: middle;
+}
+
+.tree-node-description {
+  font-size: font-size('xxxs');
+  fill: #666;
+  text-anchor: middle;
+}
+
+.tree-node-separator {
+  stroke: #ccc;
+  stroke-width: 1px;
 }

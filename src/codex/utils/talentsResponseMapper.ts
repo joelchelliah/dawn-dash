@@ -57,6 +57,7 @@ export const mapTalentsDataToTalentTree = (unparsedTalents: TalentData[]): Talen
       uniqueUnparsedTalents.filter(isRootTalent).map((talent) => buildTalentNode(talent))
     ),
   }
+
   const rootClassRequirementNodes: TalentTreeRequirementNode[] = requirementClasses.map((name) => ({
     type: TalentTreeNodeType.CLASS_REQUIREMENT,
     name,
