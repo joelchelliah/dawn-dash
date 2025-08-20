@@ -2,15 +2,16 @@ import styles from './index.module.scss'
 
 type CodexLoadingMessageProps = {
   isVisible: boolean
+  codexType: 'card' | 'talent'
   progress: number
 }
 
-const CodexLoadingMessage = ({ isVisible, progress }: CodexLoadingMessageProps) => {
+const CodexLoadingMessage = ({ isVisible, codexType, progress }: CodexLoadingMessageProps) => {
   if (!isVisible) return null
 
   return (
     <div className={styles['loading']}>
-      <div>⏳ Loading card data... Please be patient!</div>
+      <div>⏳ Loading {codexType} data... Please be patient!</div>
       <div className={styles['loading__progress-container']}>
         <div className={styles['loading__progress-bar']} style={{ width: `${progress}%` }} />
       </div>
