@@ -30,7 +30,9 @@ const NON_COLLECTIBLE_CARDS = [
   'Elite Lightning Bolt',
   'Elite Fireball',
   'Elite Frostbolt',
+
   'Soulfire Bomb',
+
   'Imp Offer 1',
   'Imp Offer 2',
   'Imp Offer 3',
@@ -38,12 +40,22 @@ const NON_COLLECTIBLE_CARDS = [
   'Imp Offer 5',
   'Imp Offer 6',
   'Offer of Doom',
+
   'Battlespear C',
   'Battlespear D',
   'Battlespear E',
   'Battlespear H',
   'Battlespear L',
   'Battlespear U',
+
+  'City of Gold',
+  'Font of Youth',
+  'Sunken Forge',
+  'Wasteland',
+
+  'Bloodbank',
+  'Vexing Echo 1',
+  'Vexing Echo 2',
 ]
 
 export const hasMonsterExpansion = (card: CardData) => card.expansion === 0
