@@ -221,7 +221,7 @@ const TalentTree = ({ talentTree }: TalentTreeProps) => {
       .style('stroke', (link) => {
         const parentData = link.source.data
 
-        const getLinkColor = (name: string, type: TalentTreeNodeType | undefined) => {
+        const getLinkColor = (name: string, type: TalentTreeNodeType | undefined): string => {
           const colorGrey = darken(
             getClassColor(CharacterClass.Neutral, ClassColorVariant.Darkest),
             15
