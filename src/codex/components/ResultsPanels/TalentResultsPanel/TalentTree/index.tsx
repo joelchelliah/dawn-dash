@@ -16,7 +16,7 @@ import {
   WarriorImageUrl,
   SunforgeImageUrl,
 } from '@/shared/utils/imageUrls'
-import { ClassColorVariant, getClassColor, lighten } from '@/shared/utils/classColors'
+import { ClassColorVariant, darken, getClassColor, lighten } from '@/shared/utils/classColors'
 import { CharacterClass } from '@/shared/types/characterClass'
 import { isNotNullOrUndefined } from '@/shared/utils/object'
 
@@ -199,6 +199,48 @@ const TalentTree = ({ talentTree }: TalentTreeProps) => {
       .append('path')
       .attr('class', cx('tree-link'))
       .attr('d', (d) => linkGenerator(d as unknown as d3.HierarchyPointNode<TreeNode>))
+      .style('stroke', (link) => {
+        const parentData = link.source.data
+
+        const getLinkColor = (name: string, type: TalentTreeNodeType | undefined) => {
+          const colorGrey = darken(
+            getClassColor(CharacterClass.Neutral, ClassColorVariant.Darkest),
+            15
+          )
+
+          if (type === TalentTreeNodeType.CLASS_REQUIREMENT) {
+            return getClassColor(name as CharacterClass, ClassColorVariant.Dark)
+          } else if (type === TalentTreeNodeType.ENERGY_REQUIREMENT) {
+            const colorRed = getClassColor(CharacterClass.Warrior, ClassColorVariant.Dark)
+            const colorGreen = getClassColor(CharacterClass.Rogue, ClassColorVariant.Dark)
+            const colorBlue = getClassColor(CharacterClass.Arcanist, ClassColorVariant.Dark)
+
+            switch (name) {
+              case 'DEX':
+              case 'DEX2':
+                return colorGreen
+              case 'INT':
+              case 'INT2':
+                return colorBlue
+              case 'STR':
+              case 'STR2':
+              case 'STR3':
+                return colorRed
+              default:
+                return colorGrey
+            }
+          } else if (type === TalentTreeNodeType.TALENT) {
+            let currentNode = link.source
+            while (currentNode.parent && currentNode.data.nodeType === TalentTreeNodeType.TALENT) {
+              currentNode = currentNode.parent
+            }
+            return getLinkColor(currentNode.data.name, currentNode.data.nodeType)
+          }
+          return colorGrey
+        }
+
+        return getLinkColor(parentData.name, parentData.nodeType)
+      })
 
     // Add nodes
     const nodes = svg
