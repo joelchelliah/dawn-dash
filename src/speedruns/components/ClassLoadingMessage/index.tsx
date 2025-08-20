@@ -2,9 +2,10 @@ import Image from 'next/image'
 
 import { createCx } from '@/shared/utils/classnames'
 import { useDeviceOrientation } from '@/shared/hooks/useDeviceOrientation'
+import { ClassColorVariant, getClassColor } from '@/shared/utils/classColors'
+import { CharacterClass } from '@/shared/types/characterClass'
 
 import { Difficulty, SpeedRunClass } from '@/speedruns/types/speedRun'
-import { ClassColorVariant, getClassColor } from '@/speedruns/utils/colors'
 import { getClassImageUrl } from '@/speedruns/utils/images'
 
 import ClassLoadingDots from '../ClassLoadingDots'
@@ -31,7 +32,7 @@ function ClassLoadingMessage({
   const imageUrl = getClassImageUrl(selectedClass)
   const color = getClassColor(selectedClass, ClassColorVariant.Lighter)
   const classAndDifficulty =
-    selectedClass === SpeedRunClass.Sunforge
+    selectedClass === CharacterClass.Sunforge
       ? 'Sunforge'
       : `${selectedClass} - ${selectedDifficulty}`
   const containerClassName = cx('container', {

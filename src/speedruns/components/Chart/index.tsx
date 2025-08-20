@@ -17,6 +17,7 @@ import {
 import { createCx } from '@/shared/utils/classnames'
 import { useDeviceOrientation } from '@/shared/hooks/useDeviceOrientation'
 import { useNavigation } from '@/shared/hooks/useNavigation'
+import { ClassColorVariant, getClassColor, lighten } from '@/shared/utils/classColors'
 
 import {
   ChartConfig,
@@ -31,11 +32,8 @@ import {
   anonymousBorderColor,
   anonymousBorderHoverColor,
   anonymousMarkerColor,
-  ClassColorVariant,
   desaturate,
-  getClassColor,
   getColorMapping,
-  lighten,
   saturate,
 } from '@/speedruns/utils/colors'
 import { isAnonymousPlayer } from '@/speedruns/utils/players'

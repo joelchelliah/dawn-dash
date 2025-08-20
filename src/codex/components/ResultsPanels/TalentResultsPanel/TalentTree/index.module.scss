@@ -31,10 +31,16 @@
   ry: 8px;
 }
 
-.tree-node-circle {
+.tree-root-node-circle {
   fill: $color-component-bg;
-  stroke: $color-component-bg-hover;
+  stroke: var(--color, $color-component-bg-hover);
   stroke-width: 2px;
+}
+
+.tree-root-node-label {
+  font-size: font-size('xs');
+  font-weight: 600;
+  text-anchor: middle;
 }
 
 .tree-node-content {

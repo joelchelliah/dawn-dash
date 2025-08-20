@@ -1,11 +1,13 @@
+import { CharacterClass } from '@/shared/types/characterClass'
+
 export enum SpeedRunClass {
-  Arcanist = 'Arcanist',
-  Hunter = 'Hunter',
-  Knight = 'Knight',
-  Rogue = 'Rogue',
-  Seeker = 'Seeker',
-  Warrior = 'Warrior',
-  Sunforge = 'Sunforge',
+  Arcanist = CharacterClass.Arcanist,
+  Hunter = CharacterClass.Hunter,
+  Knight = CharacterClass.Knight,
+  Rogue = CharacterClass.Rogue,
+  Seeker = CharacterClass.Seeker,
+  Warrior = CharacterClass.Warrior,
+  Sunforge = CharacterClass.Sunforge,
 }
 
 export enum SpeedRunSubclass {

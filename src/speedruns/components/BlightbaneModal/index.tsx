@@ -4,8 +4,9 @@ import { createCx } from '@/shared/utils/classnames'
 import Button from '@/shared/components/Buttons/Button'
 import ButtonRow from '@/shared/components/Buttons/ButtonRow'
 import { BolgarImageUrl } from '@/shared/utils/imageUrls'
+import { ClassColorVariant, getClassColor } from '@/shared/utils/classColors'
 
-import { ClassColorVariant, getClassColor, getSubclassColor } from '@/speedruns/utils/colors'
+import { getSubclassColor } from '@/speedruns/utils/colors'
 import { isAnonymousPlayer } from '@/speedruns/utils/players'
 import { SpeedRunClass, SpeedRunSubclass } from '@/speedruns/types/speedRun'
 

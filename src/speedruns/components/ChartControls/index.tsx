@@ -1,6 +1,8 @@
 import { useState } from 'react'
 
 import { createCx } from '@/shared/utils/classnames'
+import { ClassColorVariant, getClassColor } from '@/shared/utils/classColors'
+import { CharacterClass } from '@/shared/types/characterClass'
 
 import {
   DIFFICULTY_VALUES,
@@ -14,7 +16,6 @@ import {
 } from '@/speedruns/constants/chartControlValues'
 import { ChartControlState, ViewMode } from '@/speedruns/types/chart'
 import { Difficulty, SpeedRunClass } from '@/speedruns/types/speedRun'
-import { ClassColorVariant, getClassColor } from '@/speedruns/utils/colors'
 import {
   isAllGameVersions,
   isGameVersionRange,
@@ -65,14 +66,14 @@ function ChartControls({ controls, selectedClass }: ChartControlsProps) {
     setSubmissionWindow,
   } = controls
 
-  const isSunforge = selectedClass === SpeedRunClass.Sunforge
+  const isSunforge = selectedClass === CharacterClass.Sunforge
 
   const darkColor = getClassColor(selectedClass, ClassColorVariant.Darker)
 
   const controlsBorderStyle = { borderColor: darkColor }
 
   const getDurationOptions = () =>
-    selectedClass === SpeedRunClass.Sunforge
+    selectedClass === CharacterClass.Sunforge
       ? MAX_DURATION_SUNFORGE_VALUES.map(toMinutesOption)
       : MAX_DURATION_OTHER_VALUES.map(toMinutesOption)
 

@@ -1,7 +1,7 @@
 import Modal from '@/shared/components/Modals/Modal'
+import { ClassColorVariant, getClassColor } from '@/shared/utils/classColors'
 
 import { SpeedRunClass } from '@/speedruns/types/speedRun'
-import { getClassColor, ClassColorVariant } from '@/speedruns/utils/colors'
 
 interface ClassModalProps {
   children: React.ReactNode

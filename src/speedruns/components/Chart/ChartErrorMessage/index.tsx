@@ -1,7 +1,7 @@
 import { createCx } from '@/shared/utils/classnames'
+import { ClassColorVariant, getClassColor } from '@/shared/utils/classColors'
 
 import { SpeedRunClass } from '@/speedruns/types/speedRun'
-import { ClassColorVariant, getClassColor } from '@/speedruns/utils/colors'
 
 import PrimaryButton from '../../Buttons/PrimaryButton'
 

@@ -1,9 +1,9 @@
 import { createCx } from '@/shared/utils/classnames'
 import GradientButton from '@/shared/components/Buttons/GradientButton'
 import { useFromNow } from '@/shared/hooks/useFromNow'
+import { ClassColorVariant, getClassColor } from '@/shared/utils/classColors'
 
 import { SpeedRunClass } from '@/speedruns/types/speedRun'
-import { ClassColorVariant, getClassColor } from '@/speedruns/utils/colors'
 
 import ClassEnergy from '../../ClassEnergy'
 import ClassLoadingDots from '../../ClassLoadingDots'

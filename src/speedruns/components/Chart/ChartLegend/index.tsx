@@ -4,14 +4,13 @@ import Image from 'next/image'
 import { Chart as ChartJS } from 'chart.js'
 
 import { createCx } from '@/shared/utils/classnames'
+import { ClassColorVariant, getClassColor } from '@/shared/utils/classColors'
 
 import { DataPoint } from '@/speedruns/types/chart'
 import { SpeedRunClass, SpeedRunSubclass } from '@/speedruns/types/speedRun'
 import {
   anonymousBorderColor,
   anonymousMarkerColor,
-  ClassColorVariant,
-  getClassColor,
   getSubclassColor,
 } from '@/speedruns/utils/colors'
 import { getEnergyImageUrl } from '@/speedruns/utils/images'

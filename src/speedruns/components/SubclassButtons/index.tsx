@@ -1,9 +1,10 @@
 import { memo } from 'react'
 
 import { createCx } from '@/shared/utils/classnames'
+import { ClassColorVariant, getClassColor } from '@/shared/utils/classColors'
+import { CharacterClass } from '@/shared/types/characterClass'
 
-import { SpeedRunClass, SpeedRunSubclass } from '@/speedruns/types/speedRun'
-import { ClassColorVariant, getClassColor } from '@/speedruns/utils/colors'
+import { SpeedRunSubclass } from '@/speedruns/types/speedRun'
 
 import styles from './index.module.scss'
 import SubclassButton from './SubclassButton'
@@ -18,8 +19,8 @@ interface SubclassButtonsProps {
 function SubclassButtons({ onSubclassSelect, selectedSubclass }: SubclassButtonsProps) {
   const subclasses = Object.values(SpeedRunSubclass)
 
-  const defaultColor = getClassColor(SpeedRunClass.Sunforge, ClassColorVariant.Default)
-  const darkColor = getClassColor(SpeedRunClass.Sunforge, ClassColorVariant.Darker)
+  const defaultColor = getClassColor(CharacterClass.Sunforge, ClassColorVariant.Default)
+  const darkColor = getClassColor(CharacterClass.Sunforge, ClassColorVariant.Darker)
 
   const borderStyle = { borderColor: darkColor }
 

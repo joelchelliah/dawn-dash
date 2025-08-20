@@ -16,6 +16,9 @@ import {
   WarriorImageUrl,
   SunforgeImageUrl,
 } from '@/shared/utils/imageUrls'
+import { ClassColorVariant, getClassColor, lighten } from '@/shared/utils/classColors'
+import { CharacterClass } from '@/shared/types/characterClass'
+import { isNotNullOrUndefined } from '@/shared/utils/object'
 
 import {
   TalentTreeRequirementNode,
@@ -39,46 +42,52 @@ interface TreeNode {
   children?: TreeNode[]
 }
 
-const getRequirementIconUrl = (
+const getRequirementIconProps = (
   isClassRequirement: boolean,
-  name: string
-): { count: number; url: string } => {
+  label: string
+): { count: number; url: string; color: string; label: string } => {
   if (isClassRequirement) {
-    switch (name) {
-      case 'Arcanist':
-        return { count: 1, url: ArcanistImageUrl }
-      case 'Hunter':
-        return { count: 1, url: HunterImageUrl }
-      case 'Knight':
-        return { count: 1, url: KnightImageUrl }
-      case 'Rogue':
-        return { count: 1, url: RogueImageUrl }
-      case 'Seeker':
-        return { count: 1, url: SeekerImageUrl }
-      case 'Warrior':
-        return { count: 1, url: WarriorImageUrl }
+    const color = getClassColor(label as CharacterClass, ClassColorVariant.Dark)
+    switch (label) {
+      case CharacterClass.Arcanist:
+        return { count: 1, url: ArcanistImageUrl, color, label }
+      case CharacterClass.Hunter:
+        return { count: 1, url: HunterImageUrl, color, label }
+      case CharacterClass.Knight:
+        return { count: 1, url: KnightImageUrl, color, label }
+      case CharacterClass.Rogue:
+        return { count: 1, url: RogueImageUrl, color, label }
+      case CharacterClass.Seeker:
+        return { count: 1, url: SeekerImageUrl, color, label }
+      case CharacterClass.Warrior:
+        return { count: 1, url: WarriorImageUrl, color, label }
       default:
-        return { count: 1, url: SunforgeImageUrl }
+        return { count: 1, url: SunforgeImageUrl, color, label }
     }
   }
 
-  switch (name) {
+  const colorGrey = getClassColor(CharacterClass.Neutral, ClassColorVariant.Default)
+  const colorRed = getClassColor(CharacterClass.Warrior, ClassColorVariant.Default)
+  const colorGreen = getClassColor(CharacterClass.Rogue, ClassColorVariant.Default)
+  const colorBlue = getClassColor(CharacterClass.Arcanist, ClassColorVariant.Default)
+
+  switch (label) {
     case 'DEX':
-      return { count: 1, url: DexImageUrl }
+      return { count: 1, url: DexImageUrl, color: colorGreen, label: 'DEX' }
     case 'DEX2':
-      return { count: 2, url: DexImageUrl }
+      return { count: 2, url: DexImageUrl, color: colorGreen, label: '2 DEX' }
     case 'INT':
-      return { count: 1, url: IntImageUrl }
+      return { count: 1, url: IntImageUrl, color: colorBlue, label: 'INT' }
     case 'INT2':
-      return { count: 2, url: IntImageUrl }
+      return { count: 2, url: IntImageUrl, color: colorBlue, label: '2 INT' }
     case 'STR':
-      return { count: 1, url: StrImageUrl }
+      return { count: 1, url: StrImageUrl, color: colorRed, label: 'STR' }
     case 'STR2':
-      return { count: 2, url: StrImageUrl }
+      return { count: 2, url: StrImageUrl, color: colorRed, label: '2 STR' }
     case 'STR3':
-      return { count: 3, url: StrImageUrl }
+      return { count: 3, url: StrImageUrl, color: colorRed, label: '3 STR' }
     default:
-      return { count: 1, url: NeutralImageUrl }
+      return { count: 1, url: NeutralImageUrl, color: colorGrey, label: 'No requirements' }
   }
 }
 
@@ -101,14 +110,20 @@ const TalentTree = ({ talentTree }: TalentTreeProps) => {
       }
     }
 
-    const buildTreeFromOtherRequirement = (node: TalentTreeRequirementNode): TreeNode => {
+    const buildTreeFromOtherRequirement = (
+      node: TalentTreeRequirementNode
+    ): TreeNode | undefined => {
       const children = node.children.map(buildTreeFromTalent)
+
+      if (children.length === 0) {
+        return undefined
+      }
 
       return {
         name: node.name,
-        description: `TODO description for ${node.name}`,
+        description: `MISSING description for ${node.name}`,
         nodeType: node.type,
-        children: children.length > 0 ? children : undefined,
+        children,
       }
     }
 
@@ -117,9 +132,9 @@ const TalentTree = ({ talentTree }: TalentTreeProps) => {
       description: '',
       children: [
         buildTreeFromOtherRequirement(talentTree.noReqNode),
-        ...talentTree.energyNodes.map(buildTreeFromOtherRequirement),
-        ...talentTree.classNodes.map(buildTreeFromOtherRequirement),
-      ],
+        ...talentTree.energyNodes.map(buildTreeFromOtherRequirement).filter(isNotNullOrUndefined),
+        ...talentTree.classNodes.map(buildTreeFromOtherRequirement).filter(isNotNullOrUndefined),
+      ].filter(isNotNullOrUndefined),
     })
 
     // Node dimensions
@@ -149,13 +164,20 @@ const TalentTree = ({ talentTree }: TalentTreeProps) => {
     const allNodes = treeData.descendants()
     const minX = d3.min(allNodes, (d) => d.x) ?? 0
     const maxX = d3.max(allNodes, (d) => d.x) ?? 0
+    const maxDepth = d3.max(allNodes, (d) => d.depth) ?? 0
+
     const topPadding = 40
     const bottomPadding = 1500
-    const svgHeight = maxX - minX + topPadding + bottomPadding
+    const svgHeight = 0.92 * maxX - minX + topPadding + bottomPadding
+
+    // Calculate width based on max depth
+    const baseWidth = 1050 // Width for depth 4
+    const svgWidth = Math.max(400, (maxDepth / 4) * baseWidth) // Minimum 400px, scale with depth
 
     const svg = d3
       .select(svgRef.current)
-      .attr('width', 900)
+      .attr('viewBox', `0 0 ${svgWidth} ${svgHeight}`)
+      .attr('width', svgWidth)
       .attr('height', svgHeight)
       .append('g')
       .attr('transform', `translate(50, ${-minX + topPadding})`)
@@ -197,11 +219,14 @@ const TalentTree = ({ talentTree }: TalentTreeProps) => {
       if (depth === 1) {
         if (data.nodeType) {
           const isClassRequirement = data.nodeType === TalentTreeNodeType.CLASS_REQUIREMENT
-          const { count, url } = getRequirementIconUrl(isClassRequirement, data.name)
+          const { count, url, color, label } = getRequirementIconProps(
+            isClassRequirement,
+            data.name
+          )
 
           let circleRadius = 0
           if (isClassRequirement) {
-            circleRadius = 23
+            circleRadius = 26
           } else if (count === 1) {
             circleRadius = 13
           } else if (count === 2) {
@@ -210,10 +235,23 @@ const TalentTree = ({ talentTree }: TalentTreeProps) => {
             circleRadius = 26
           }
 
-          nodeElement.append('circle').attr('r', circleRadius).attr('class', cx('tree-node-circle'))
+          nodeElement
+            .append('circle')
+            .attr('r', circleRadius)
+            .attr('class', cx('tree-root-node-circle'))
+            .style('--color', color)
+
+          nodeElement
+            .append('text')
+            .attr('x', 0)
+            .attr('y', -circleRadius - 8)
+            .attr('text-anchor', 'middle')
+            .attr('class', cx('tree-root-node-label'))
+            .style('fill', lighten(color, 5))
+            .text(label)
 
           if (count > 0) {
-            const iconSize = isClassRequirement ? 42 : 22
+            const iconSize = isClassRequirement ? 46 : 22
             const spacing = 2
             const totalWidth = count * iconSize + (count - 1) * spacing
             const startX = -totalWidth / 2
