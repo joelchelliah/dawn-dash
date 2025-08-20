@@ -26,6 +26,7 @@ import {
   TalentTree as TalentTreeType,
   TalentTreeNodeType,
 } from '@/codex/types/talents'
+import { parseTalentDescriptionLine } from '@/codex/utils/talentHelper'
 
 import styles from './index.module.scss'
 
@@ -176,13 +177,29 @@ const TalentTree = ({ talentTree }: TalentTreeProps) => {
     const baseWidth = 1050 // Width for depth 4
     const svgWidth = Math.max(400, (maxDepth / 4) * baseWidth) // Minimum 400px, scale with depth
 
-    const svg = d3
+    const mainSvg = d3
       .select(svgRef.current)
       .attr('viewBox', `0 -10 ${svgWidth} ${svgHeight}`)
       .attr('width', svgWidth)
       .attr('height', svgHeight)
-      .append('g')
-      .attr('transform', `translate(50, ${-minX + topPadding})`)
+
+    // Define icons in defs on the main SVG
+    const defs = mainSvg.append('defs')
+
+    // Add icon definitions
+    const icons = [
+      { id: 'health-icon', url: 'https://blightbane.io/images/health.webp' },
+      { id: 'holy-icon', url: 'https://blightbane.io/images/holy.webp' },
+      { id: 'str-icon', url: 'https://blightbane.io/images/str.webp' },
+      { id: 'int-icon', url: 'https://blightbane.io/images/int.webp' },
+      { id: 'dex-icon', url: 'https://blightbane.io/images/dex.webp' },
+    ]
+
+    icons.forEach(({ id, url }) => {
+      defs.append('image').attr('id', id).attr('href', url).attr('width', 12).attr('height', 12)
+    })
+
+    const svg = mainSvg.append('g').attr('transform', `translate(50, ${-minX + topPadding})`)
 
     // Link generator for drawing horizontal tree edges between nodes.
     // Expects objects with {source, target}, where each has .x (vertical) and .y (horizontal) coordinates.
@@ -252,9 +269,6 @@ const TalentTree = ({ talentTree }: TalentTreeProps) => {
       .append('g')
       .attr('class', cx('tree-node'))
       .attr('transform', ({ y, x }) => `translate(${y ?? 0},${x ?? 0})`)
-
-    // Create defs element for clipPaths
-    const defs = svg.append('defs')
 
     // Add filter for talent node glow effect
     defs
@@ -422,16 +436,31 @@ const TalentTree = ({ talentTree }: TalentTreeProps) => {
             `translate(0, ${-nodeHeight / 2 + nameHeight + descriptionHeight / 2})`
           )
 
-        const descLines = wrapText(data.description, nodeWidth, 10) // 8px font size
-        const descLineHeight = 10
+        const descLines = wrapText(data.description, nodeWidth, 10)
+        const descLineHeight = 11
 
         descLines.forEach((line, i) => {
-          descGroup
-            .append('text')
-            .attr('x', 0)
-            .attr('y', i * descLineHeight - ((descLines.length - 1) * descLineHeight) / 2)
-            .text(line)
+          const segments = parseTalentDescriptionLine(line)
+          const foreignObject = descGroup
+            .append('foreignObject')
+            .attr('x', -nodeWidth / 2)
+            .attr('y', i * descLineHeight - ((descLines.length - 1) * descLineHeight) / 2 - 9)
+            .attr('width', nodeWidth)
+            .attr('height', descLineHeight)
+
+          let htmlContent = ''
+          segments.forEach((segment) => {
+            if (segment.type === 'text') {
+              htmlContent += segment.content
+            } else if (segment.type === 'image' && 'icon' in segment) {
+              htmlContent += `<img src="${segment.icon}" width="8" height="8" style="vertical-align: middle; margin: 0 1px 1px;" />`
+            }
+          })
+
+          foreignObject
+            .append('xhtml:div')
             .attr('class', cx('talent-node-description'))
+            .html(htmlContent)
         })
       }
     })

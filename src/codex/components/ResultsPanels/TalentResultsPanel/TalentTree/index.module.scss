@@ -77,8 +77,10 @@
 
 .talent-node-description {
   font-size: font-size('xxxs');
-  fill: $color-primary-muted;
-  text-anchor: middle;
+  color: $color-primary-muted;
+  text-align: center;
+  line-height: 1.2;
+  word-wrap: break-word;
 }
 
 .talent-node-separator {
