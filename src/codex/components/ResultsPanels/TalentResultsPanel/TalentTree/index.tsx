@@ -39,6 +39,7 @@ interface TreeNode {
   name: string
   description: string
   nodeType?: TalentTreeNodeType
+  tier?: number
   children?: TreeNode[]
 }
 
@@ -106,6 +107,7 @@ const TalentTree = ({ talentTree }: TalentTreeProps) => {
         name: node.name,
         description: node.description,
         nodeType: TalentTreeNodeType.TALENT,
+        tier: node.tier,
         children: children.length > 0 ? children : undefined,
       }
     }
@@ -139,9 +141,9 @@ const TalentTree = ({ talentTree }: TalentTreeProps) => {
 
     // Node dimensions
     const nodeWidth = 200
-    const nodeHeight = 80
+    const nodeHeight = 85
     const nameHeight = 25
-    const descriptionHeight = 55
+    const descriptionHeight = 65
     const horizontalSpacing = nodeWidth * 1.4
     const verticalSpacing = nodeHeight * 1.4
 
@@ -176,7 +178,7 @@ const TalentTree = ({ talentTree }: TalentTreeProps) => {
 
     const svg = d3
       .select(svgRef.current)
-      .attr('viewBox', `0 0 ${svgWidth} ${svgHeight}`)
+      .attr('viewBox', `0 -10 ${svgWidth} ${svgHeight}`)
       .attr('width', svgWidth)
       .attr('height', svgHeight)
       .append('g')
@@ -253,6 +255,18 @@ const TalentTree = ({ talentTree }: TalentTreeProps) => {
 
     // Create defs element for clipPaths
     const defs = svg.append('defs')
+
+    // Add filter for talent node glow effect
+    defs
+      .append('filter')
+      .attr('id', 'talent-glow')
+      .append('feGaussianBlur')
+      .attr('stdDeviation', '8')
+      .attr('result', 'coloredBlur')
+
+    defs.select('#talent-glow').append('feMerge').append('feMergeNode').attr('in', 'coloredBlur')
+
+    defs.select('#talent-glow').append('feMerge').append('feMergeNode').attr('in', 'SourceGraphic')
 
     // Render nodes based on depth
     nodes.each(function ({ depth, data }, _index) {
@@ -335,24 +349,34 @@ const TalentTree = ({ talentTree }: TalentTreeProps) => {
           }
         }
       } else {
-        // Rectangular nodes with text for depth > 1 (talent nodes)
-        // Add rectangular boxes for nodes
+        // Talent nodes
+
+        nodeElement
+          .append('rect')
+          .attr('width', nodeWidth + 6)
+          .attr('height', nodeHeight + 6)
+          .attr('x', -(nodeWidth + 6) / 2)
+          .attr('y', -(nodeHeight + 6) / 2)
+          .attr('class', cx('talent-node-glow', `talent-node-glow--tier-${data.tier || 0}`))
+
         nodeElement
           .append('rect')
           .attr('width', nodeWidth)
           .attr('height', nodeHeight)
           .attr('x', -nodeWidth / 2)
           .attr('y', -nodeHeight / 2)
-          .attr('class', cx('tree-node-rect'))
+          .attr('class', cx('talent-node', `talent-node--tier-${data.tier || 0}`))
 
-        // Add separator line
         nodeElement
           .append('line')
           .attr('x1', -nodeWidth / 2)
           .attr('y1', -nodeHeight / 2 + nameHeight)
           .attr('x2', nodeWidth / 2)
           .attr('y2', -nodeHeight / 2 + nameHeight)
-          .attr('class', cx('tree-node-separator'))
+          .attr(
+            'class',
+            cx('talent-node-separator', `talent-node-separator--tier-${data.tier || 0}`)
+          )
 
         // Add content group
         const contentGroup = nodeElement.append('g').attr('class', cx('tree-node-content'))
@@ -379,22 +403,16 @@ const TalentTree = ({ talentTree }: TalentTreeProps) => {
           return lines
         }
 
-        // Add name text with wrapping
         const nameGroup = contentGroup
           .append('g')
           .attr('transform', `translate(0, ${-nodeHeight / 2 + nameHeight / 2})`)
 
-        const nameLines = wrapText(data.name, nodeWidth - 10, 10) // 10px font size
-        const nameLineHeight = 12
-
-        nameLines.forEach((line, i) => {
-          nameGroup
-            .append('text')
-            .attr('x', 0)
-            .attr('y', i * nameLineHeight - ((nameLines.length - 1) * nameLineHeight) / 2)
-            .text(line)
-            .attr('class', cx('tree-node-name'))
-        })
+        nameGroup
+          .append('text')
+          .attr('x', 0)
+          .attr('y', 4)
+          .text(data.name)
+          .attr('class', cx('talent-node-name'))
 
         // Add description text with wrapping
         const descGroup = contentGroup
@@ -404,7 +422,7 @@ const TalentTree = ({ talentTree }: TalentTreeProps) => {
             `translate(0, ${-nodeHeight / 2 + nameHeight + descriptionHeight / 2})`
           )
 
-        const descLines = wrapText(data.description, nodeWidth - 10, 8) // 8px font size
+        const descLines = wrapText(data.description, nodeWidth, 10) // 8px font size
         const descLineHeight = 10
 
         descLines.forEach((line, i) => {
@@ -413,7 +431,7 @@ const TalentTree = ({ talentTree }: TalentTreeProps) => {
             .attr('x', 0)
             .attr('y', i * descLineHeight - ((descLines.length - 1) * descLineHeight) / 2)
             .text(line)
-            .attr('class', cx('tree-node-description'))
+            .attr('class', cx('talent-node-description'))
         })
       }
     })

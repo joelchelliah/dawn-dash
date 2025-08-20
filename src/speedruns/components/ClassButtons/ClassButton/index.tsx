@@ -4,8 +4,8 @@ import Image from 'next/image'
 
 import { createCx } from '@/shared/utils/classnames'
 import { ClassColorVariant, getClassColor } from '@/shared/utils/classColors'
+import { CharacterClass } from '@/shared/types/characterClass'
 
-import { SpeedRunClass } from '@/speedruns/types/speedRun'
 import { getClassImageUrl } from '@/speedruns/utils/images'
 
 import styles from './index.module.scss'
@@ -13,7 +13,7 @@ import styles from './index.module.scss'
 const cx = createCx(styles)
 
 interface ClassButtonProps {
-  classType: SpeedRunClass
+  classType: CharacterClass
   isActive: boolean
   onClick: () => void
 }

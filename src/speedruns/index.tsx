@@ -5,11 +5,11 @@ import Header from '@/shared/components/Header'
 import { useNavigation } from '@/shared/hooks/useNavigation'
 import Footer from '@/shared/components/Footer'
 import { DashImageUrl } from '@/shared/utils/imageUrls'
+import { CharacterClass } from '@/shared/types/characterClass'
 
 import { useInitialClassAndDifficulty } from './hooks/useInitialClassAndDifficulty'
 import { useChartControlState } from './hooks/useChartControlState'
 import { useUrlParams } from './hooks/useUrlParams'
-import { SpeedRunClass } from './types/speedRun'
 import Chart from './components/Chart'
 import ChartControls from './components/ChartControls'
 import ClassButtons from './components/ClassButtons'
@@ -21,7 +21,7 @@ const cx = createCx(styles)
 
 function Speedruns(): JSX.Element {
   const { initialClass, initialDifficulty } = useInitialClassAndDifficulty()
-  const [selectedClass, setSelectedClass] = useState<SpeedRunClass>(initialClass)
+  const [selectedClass, setSelectedClass] = useState<CharacterClass>(initialClass)
   const [selectedPlayer, setSelectedPlayer] = useState('')
   const [selectedTimestamp, setSelectedTimestamp] = useState<number | undefined>()
   const { resetToSpeedruns } = useNavigation()
@@ -34,7 +34,7 @@ function Speedruns(): JSX.Element {
     setSelectedTimestamp(timestamp)
     setIsModalOpen(true)
   }
-  const isSunforge = selectedClass === SpeedRunClass.Sunforge
+  const isSunforge = selectedClass === CharacterClass.Sunforge
 
   const openInBlightbane = () => {
     window.open(`https://blightbane.io/deck/${selectedTimestamp}`, '_blank')

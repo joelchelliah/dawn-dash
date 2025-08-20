@@ -5,9 +5,10 @@ import { Chart as ChartJS } from 'chart.js'
 
 import { createCx } from '@/shared/utils/classnames'
 import { ClassColorVariant, getClassColor } from '@/shared/utils/classColors'
+import { CharacterClass } from '@/shared/types/characterClass'
 
 import { DataPoint } from '@/speedruns/types/chart'
-import { SpeedRunClass, SpeedRunSubclass } from '@/speedruns/types/speedRun'
+import { SpeedRunSubclass } from '@/speedruns/types/speedRun'
 import {
   anonymousBorderColor,
   anonymousMarkerColor,
@@ -30,7 +31,7 @@ const cx = createCx(styles)
 interface ChartLegendProps {
   chart: ChartJS | null
   playerColors: Record<string, string>
-  selectedClass: SpeedRunClass
+  selectedClass: CharacterClass
   subclass: SpeedRunSubclass | null
   isLoading: boolean
   onPlayerClick: (player: string, timestamp: number) => void

@@ -3,8 +3,7 @@ import { memo } from 'react'
 import { createCx } from '@/shared/utils/classnames'
 import { DropdownArrowIconUrl } from '@/shared/utils/icons'
 import { ClassColorVariant, getClassColor } from '@/shared/utils/classColors'
-
-import { SpeedRunClass } from '@/speedruns/types/speedRun'
+import { CharacterClass } from '@/shared/types/characterClass'
 
 import styles from './index.module.scss'
 
@@ -12,7 +11,7 @@ const cx = createCx(styles)
 
 interface ControlGroupProps<T> {
   id: string
-  selectedClass: SpeedRunClass
+  selectedClass: CharacterClass
   label: string
   options: Option<T>[]
   value: T

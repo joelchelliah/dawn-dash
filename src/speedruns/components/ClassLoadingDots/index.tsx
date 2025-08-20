@@ -2,10 +2,8 @@ import LoadingDots from '@/shared/components/LoadingDots'
 import { CharacterClass } from '@/shared/types/characterClass'
 import { ClassColorVariant, getClassColor } from '@/shared/utils/classColors'
 
-import { SpeedRunClass } from '@/speedruns/types/speedRun'
-
 interface ClassLoadingDotsProps {
-  selectedClass?: SpeedRunClass
+  selectedClass?: CharacterClass
   text?: string
 }
 

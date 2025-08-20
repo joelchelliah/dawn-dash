@@ -5,10 +5,11 @@ import Button from '@/shared/components/Buttons/Button'
 import ButtonRow from '@/shared/components/Buttons/ButtonRow'
 import { BolgarImageUrl } from '@/shared/utils/imageUrls'
 import { ClassColorVariant, getClassColor } from '@/shared/utils/classColors'
+import { CharacterClass } from '@/shared/types/characterClass'
 
 import { getSubclassColor } from '@/speedruns/utils/colors'
 import { isAnonymousPlayer } from '@/speedruns/utils/players'
-import { SpeedRunClass, SpeedRunSubclass } from '@/speedruns/types/speedRun'
+import { SpeedRunSubclass } from '@/speedruns/types/speedRun'
 
 import PrimaryButton from '../Buttons/PrimaryButton'
 import ClassModal from '../ClassModal'
@@ -22,7 +23,7 @@ interface BlightbaneModalProps {
   onClose: () => void
   onConfirm: () => void
   player: string
-  playerClass: SpeedRunClass
+  playerClass: CharacterClass
   subclass: SpeedRunSubclass | null
 }
 

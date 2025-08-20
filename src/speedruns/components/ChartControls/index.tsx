@@ -15,7 +15,7 @@ import {
   ZOOM_LEVEL_VALUES,
 } from '@/speedruns/constants/chartControlValues'
 import { ChartControlState, ViewMode } from '@/speedruns/types/chart'
-import { Difficulty, SpeedRunClass } from '@/speedruns/types/speedRun'
+import { Difficulty } from '@/speedruns/types/speedRun'
 import {
   isAllGameVersions,
   isGameVersionRange,
@@ -31,7 +31,7 @@ const cx = createCx(styles)
 
 interface ChartControlsProps {
   controls: ChartControlState
-  selectedClass: SpeedRunClass
+  selectedClass: CharacterClass
 }
 
 const toDifficultyOption = (value: Difficulty) => ({ value, label: value })

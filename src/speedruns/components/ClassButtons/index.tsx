@@ -1,8 +1,7 @@
 import { memo } from 'react'
 
 import { createCx } from '@/shared/utils/classnames'
-
-import { SpeedRunClass } from '@/speedruns/types/speedRun'
+import { CharacterClass } from '@/shared/types/characterClass'
 
 import ClassButton from './ClassButton'
 import styles from './index.module.scss'
@@ -10,12 +9,12 @@ import styles from './index.module.scss'
 const cx = createCx(styles)
 
 interface ClassButtonsProps {
-  onClassSelect: (classType: SpeedRunClass) => void
-  selectedClass: SpeedRunClass
+  onClassSelect: (classType: CharacterClass) => void
+  selectedClass: CharacterClass
 }
 
 function ClassButtons({ onClassSelect, selectedClass }: ClassButtonsProps) {
-  const classes = Object.values(SpeedRunClass)
+  const classes = Object.values(CharacterClass)
 
   return (
     <div className={cx('class-buttons')}>

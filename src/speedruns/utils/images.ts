@@ -1,4 +1,6 @@
-import { SpeedRunClass, SpeedRunSubclass } from '../types/speedRun'
+import { CharacterClass } from '@/shared/types/characterClass'
+
+import { SpeedRunSubclass } from '../types/speedRun'
 import {
   ArcanistImageUrl,
   HunterImageUrl,
@@ -17,46 +19,46 @@ import {
   NeutralImageUrl,
 } from '../../shared/utils/imageUrls'
 
-export function getClassImageUrl(classType: SpeedRunClass) {
+export function getClassImageUrl(classType: CharacterClass) {
   switch (classType) {
-    case SpeedRunClass.Arcanist:
+    case CharacterClass.Arcanist:
       return ArcanistImageUrl
-    case SpeedRunClass.Hunter:
+    case CharacterClass.Hunter:
       return HunterImageUrl
-    case SpeedRunClass.Knight:
+    case CharacterClass.Knight:
       return KnightImageUrl
-    case SpeedRunClass.Rogue:
+    case CharacterClass.Rogue:
       return RogueImageUrl
-    case SpeedRunClass.Seeker:
+    case CharacterClass.Seeker:
       return SeekerImageUrl
-    case SpeedRunClass.Warrior:
+    case CharacterClass.Warrior:
       return WarriorImageUrl
     default:
       return SunforgeImageUrl
   }
 }
 
-export function getEnergyImageUrl(classType: SpeedRunClass | SpeedRunSubclass) {
+export function getEnergyImageUrl(classType: CharacterClass | SpeedRunSubclass) {
   switch (classType) {
-    case SpeedRunClass.Arcanist:
+    case CharacterClass.Arcanist:
     case SpeedRunSubclass.Arcanist:
       return IntImageUrl
-    case SpeedRunClass.Hunter:
+    case CharacterClass.Hunter:
     case SpeedRunSubclass.Hunter:
       return DexStrImageUrl
-    case SpeedRunClass.Knight:
+    case CharacterClass.Knight:
     case SpeedRunSubclass.Knight:
       return IntStrImageUrl
-    case SpeedRunClass.Rogue:
+    case CharacterClass.Rogue:
     case SpeedRunSubclass.Rogue:
       return DexImageUrl
-    case SpeedRunClass.Seeker:
+    case CharacterClass.Seeker:
     case SpeedRunSubclass.Seeker:
       return DexIntImageUrl
-    case SpeedRunClass.Warrior:
+    case CharacterClass.Warrior:
     case SpeedRunSubclass.Warrior:
       return StrImageUrl
-    case SpeedRunClass.Sunforge:
+    case CharacterClass.Sunforge:
       return HolyImageUrl
     case SpeedRunSubclass.Hybrid:
       return NeutralImageUrl

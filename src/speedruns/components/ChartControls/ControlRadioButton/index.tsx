@@ -2,8 +2,8 @@ import React from 'react'
 
 import { createCx } from '@/shared/utils/classnames'
 import { ClassColorVariant, getClassColor } from '@/shared/utils/classColors'
+import { CharacterClass } from '@/shared/types/characterClass'
 
-import { SpeedRunClass } from '@/speedruns/types/speedRun'
 import { getEnergyImageUrl } from '@/speedruns/utils/images'
 
 import styles from './index.module.scss'
@@ -11,7 +11,7 @@ import styles from './index.module.scss'
 const cx = createCx(styles)
 
 interface ControlRadioButtonProps {
-  selectedClass: SpeedRunClass
+  selectedClass: CharacterClass
   value: string
   name: string
   onChange: (value: string) => void

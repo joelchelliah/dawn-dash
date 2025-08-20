@@ -4,10 +4,10 @@ import { createCx } from '@/shared/utils/classnames'
 import Button from '@/shared/components/Buttons/Button'
 import ButtonRow from '@/shared/components/Buttons/ButtonRow'
 import { ClassColorVariant, getClassColor } from '@/shared/utils/classColors'
+import { CharacterClass } from '@/shared/types/characterClass'
 
 import { VIEW_MODE_LABELS } from '@/speedruns/constants/chartControlValues'
 import { ViewMode } from '@/speedruns/types/chart'
-import { SpeedRunClass } from '@/speedruns/types/speedRun'
 
 import PrimaryButton from '../../Buttons/PrimaryButton'
 import ClassModal from '../../ClassModal'
@@ -21,7 +21,7 @@ interface ViewModeModalProps {
   isOpen: boolean
   onClose: () => void
   onApply: (viewMode: ViewMode) => void
-  selectedClass: SpeedRunClass
+  selectedClass: CharacterClass
   currentViewMode: ViewMode
 }
 

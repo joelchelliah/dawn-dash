@@ -1,11 +1,10 @@
 import Modal from '@/shared/components/Modals/Modal'
 import { ClassColorVariant, getClassColor } from '@/shared/utils/classColors'
-
-import { SpeedRunClass } from '@/speedruns/types/speedRun'
+import { CharacterClass } from '@/shared/types/characterClass'
 
 interface ClassModalProps {
   children: React.ReactNode
-  selectedClass?: SpeedRunClass
+  selectedClass?: CharacterClass
   isOpen: boolean
   onClose: () => void
   maxWidth?: number

@@ -1,7 +1,6 @@
 import { createCx } from '@/shared/utils/classnames'
 import { ClassColorVariant, getClassColor } from '@/shared/utils/classColors'
-
-import { SpeedRunClass } from '@/speedruns/types/speedRun'
+import { CharacterClass } from '@/shared/types/characterClass'
 
 import PrimaryButton from '../../Buttons/PrimaryButton'
 
@@ -10,7 +9,7 @@ import styles from './index.module.scss'
 const cx = createCx(styles)
 
 interface ChartErrorMessageProps {
-  selectedClass: SpeedRunClass
+  selectedClass: CharacterClass
   message: string
   isVisible: boolean
   buttonText?: string

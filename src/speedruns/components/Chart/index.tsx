@@ -18,6 +18,7 @@ import { createCx } from '@/shared/utils/classnames'
 import { useDeviceOrientation } from '@/shared/hooks/useDeviceOrientation'
 import { useNavigation } from '@/shared/hooks/useNavigation'
 import { ClassColorVariant, getClassColor, lighten } from '@/shared/utils/classColors'
+import { CharacterClass } from '@/shared/types/characterClass'
 
 import {
   ChartConfig,
@@ -27,7 +28,7 @@ import {
   RecordPoint,
   ViewMode,
 } from '@/speedruns/types/chart'
-import { SpeedRunClass, SpeedRunData } from '@/speedruns/types/speedRun'
+import { SpeedRunData } from '@/speedruns/types/speedRun'
 import {
   anonymousBorderColor,
   anonymousBorderHoverColor,
@@ -73,7 +74,7 @@ const cx = createCx(styles)
 
 interface ChartProps {
   controls: ChartControlState
-  selectedClass: SpeedRunClass
+  selectedClass: CharacterClass
   onPlayerClick: (player: string, timestamp: number) => void
 }
 

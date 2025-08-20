@@ -5,8 +5,8 @@ import { SliderState } from '@react-stately/slider'
 
 import { createCx } from '@/shared/utils/classnames'
 import { ClassColorVariant, getClassColor } from '@/shared/utils/classColors'
+import { CharacterClass } from '@/shared/types/characterClass'
 
-import { SpeedRunClass } from '@/speedruns/types/speedRun'
 import { getEnergyImageUrl } from '@/speedruns/utils/images'
 
 import Thumb from '../Thumb'
@@ -21,7 +21,7 @@ interface SliderProps {
   onPointerDown: () => void
   ariaLabel: string
   isActive: boolean
-  selectedClass: SpeedRunClass
+  selectedClass: CharacterClass
   doubleThumbs?: boolean
 }
 
