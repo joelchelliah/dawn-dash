@@ -296,7 +296,7 @@ const TalentTree = ({ talentTree }: TalentTreeProps) => {
 
           let circleRadius = 0
           if (isClassRequirement) {
-            circleRadius = 26
+            circleRadius = 28
           } else if (count === 1) {
             circleRadius = 13
           } else if (count === 2) {
@@ -321,7 +321,7 @@ const TalentTree = ({ talentTree }: TalentTreeProps) => {
             .text(label)
 
           if (count > 0) {
-            const iconSize = isClassRequirement ? 46 : 22
+            const iconSize = isClassRequirement ? 52 : 22
             const spacing = 2
             const totalWidth = count * iconSize + (count - 1) * spacing
             const startX = -totalWidth / 2
