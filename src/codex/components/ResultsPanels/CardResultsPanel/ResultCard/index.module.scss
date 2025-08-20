@@ -53,6 +53,10 @@
     background-color: rgba(0, 0, 0, 0.5) !important;
   }
 
+  &--hidden {
+    display: none;
+  }
+
   &--full-match {
     @include cardOverlayPositioningFix;
     position: relative;
@@ -95,6 +99,10 @@
 
   &--struck {
     text-decoration: line-through;
+  }
+
+  &--hidden {
+    display: none;
   }
 
   &__rarity {
@@ -227,6 +235,10 @@
 
     &--struck {
       text-decoration: line-through;
+    }
+
+    &--hidden {
+      display: none;
     }
 
     &__icon {

@@ -44,6 +44,7 @@ const ResultCard = ({ card, useSearchFilters, showCardsWithoutKeywords }: Result
     shouldShowKeywords,
     shouldShowCardSet,
     shouldShowBlightbaneLink,
+    shouldHideTrackedCards,
   } = useFormattingFilters
   const { isCardStruck, toggleCardStrike } = useCardStrike
 
@@ -60,13 +61,16 @@ const ResultCard = ({ card, useSearchFilters, showCardsWithoutKeywords }: Result
   const isFullMatch = parsedKeywords.some(
     (keyword) => card.name.toLowerCase() === keyword.toLowerCase()
   )
+  const isStruck = isCardStruck(card)
 
   const cardContainerClassName = cx('result-card-container', {
-    'result-card-container--struck': isCardStruck(card),
+    'result-card-container--struck': isStruck,
     'result-card-container--full-match': isFullMatch,
+    'result-card-container--hidden': shouldHideTrackedCards && isStruck,
   })
   const cardClassName = cx('result-card', {
-    'result-card--struck': isCardStruck(card),
+    'result-card--struck': isStruck,
+    'result-card--hidden': shouldHideTrackedCards && isStruck,
   })
 
   const indexToRarityIconMap = {
@@ -84,7 +88,8 @@ const ResultCard = ({ card, useSearchFilters, showCardsWithoutKeywords }: Result
       !shouldShowRarity && shouldIncludeNonCollectibleCards,
     'result-card__description--rarity_and_non-collectible_margin':
       shouldShowRarity && shouldIncludeNonCollectibleCards,
-    'result-card__description--struck': isCardStruck(card),
+    'result-card__description--struck': isStruck,
+    'result-card__description--hidden': shouldHideTrackedCards && isStruck,
   })
   const blightbaneLinkClassName = cx('result-card__blightbane-link', {
     'result-card__blightbane-link--rarity_margin':

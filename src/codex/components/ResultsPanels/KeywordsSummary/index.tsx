@@ -1,6 +1,9 @@
-import { Fragment } from 'react/jsx-runtime'
+import { Fragment, useState } from 'react'
 
 import { createCx } from '@/shared/utils/classnames'
+import GradientLink from '@/shared/components/GradientLink'
+
+import { useCardStrike } from '../../../hooks/useSearchFilters/useCardStrike'
 
 import styles from './index.module.scss'
 
@@ -8,19 +11,29 @@ const cx = createCx(styles)
 
 interface KeywordsSummaryProps {
   matches: string[]
-  struckCards?: string[]
+  useCardStrike?: ReturnType<typeof useCardStrike>
   parsedKeywords: string[]
   showingResultsWithoutKeywords: boolean
+  shouldHideTrackedCards?: boolean
   className?: string
 }
 
 const KeywordsSummary = ({
   matches,
-  struckCards = [],
+  useCardStrike,
   parsedKeywords,
   showingResultsWithoutKeywords,
+  shouldHideTrackedCards = false,
   className,
 }: KeywordsSummaryProps) => {
+  const [undoTrackedAnimationKey, setUndoTrackedAnimationKey] = useState(0)
+
+  const handleUndoLastTrackedCard = () => {
+    if (useCardStrike?.undoLastTrackedCard) {
+      useCardStrike.undoLastTrackedCard()
+      setUndoTrackedAnimationKey((prev) => prev + 1)
+    }
+  }
   if (showingResultsWithoutKeywords) {
     return (
       <div className={className}>
@@ -45,15 +58,46 @@ const KeywordsSummary = ({
   }
 
   const renderStruckCountText = () => {
+    if (!useCardStrike) {
+      return null
+    }
+
+    const { struckCards, lastUndoneTrackedCard } = useCardStrike
     const struckCount = matches.filter((match) => struckCards.includes(match)).length
+    const struckHiddenInfo = shouldHideTrackedCards ? (
+      <div>
+        <span className={cx('keywords-tracked__hidden-info')}>
+          Your tracked cards will be hidden.
+        </span>
+        <br />
+        {struckCount > 0 && (
+          <GradientLink text="Undo last tracked card?" onClick={handleUndoLastTrackedCard} />
+        )}
+        {lastUndoneTrackedCard && (
+          <span
+            key={undoTrackedAnimationKey}
+            className={cx('keywords-tracked__untracked-info', {
+              'keywords-tracked__untracked-info--last-one-undone': struckCount === 0,
+            })}
+          >
+            {' '}
+            Untracked: <strong>{lastUndoneTrackedCard}</strong>
+          </span>
+        )}
+      </div>
+    ) : null
 
     if (struckCount === 0) {
-      return null
+      return struckHiddenInfo
     }
 
     return (
       <div>
-        You have marked <strong>{struckCount}</strong> of these cards as tracked.
+        You have marked <strong>{struckCount}</strong> of these cards as{' '}
+        <s>
+          <strong>tracked</strong>
+        </s>
+        .{struckHiddenInfo}
       </div>
     )
   }
