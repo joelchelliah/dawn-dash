@@ -2,8 +2,10 @@ import { useEffect, useState, useRef } from 'react'
 
 import useSWR from 'swr'
 
+import { CharacterClass } from '@/shared/types/characterClass'
+
 import { fetchSpeedruns } from '../services/speedrunsApi'
-import { Difficulty, SpeedRunClass, SpeedRunData } from '../types/speedRun'
+import { Difficulty, SpeedRunData } from '../types/speedRun'
 import {
   cacheSpeedrunData,
   getCachedSpeedrunData,
@@ -12,7 +14,7 @@ import {
 
 const FETCH_DATA_SIZE = 50000
 
-export function useSpeedrunData(type: SpeedRunClass, difficulty: Difficulty) {
+export function useSpeedrunData(type: CharacterClass, difficulty: Difficulty) {
   const [localData, setLocalData] = useState<SpeedRunData[] | null>(null)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const cacheKey = `${type}-${difficulty}`

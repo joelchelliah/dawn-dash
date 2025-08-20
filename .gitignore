@@ -29,3 +29,6 @@ supabase/.temp
 
 # Next.js
 .next
+
+# TypeScript
+*.tsbuildinfo

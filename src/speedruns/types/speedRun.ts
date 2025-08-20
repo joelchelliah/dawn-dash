@@ -1,12 +1,4 @@
-export enum SpeedRunClass {
-  Arcanist = 'Arcanist',
-  Hunter = 'Hunter',
-  Knight = 'Knight',
-  Rogue = 'Rogue',
-  Seeker = 'Seeker',
-  Warrior = 'Warrior',
-  Sunforge = 'Sunforge',
-}
+import { CharacterClass } from '@/shared/types/characterClass'
 
 export enum SpeedRunSubclass {
   All = 'All',
@@ -41,7 +33,7 @@ export interface SpeedRunData {
   subclass: SpeedRunSubclass
 }
 
-export type SpeedRunCategory = `${SpeedRunClass}-${Difficulty}`
+export type SpeedRunCategory = `${CharacterClass}-${Difficulty}`
 
 export type SpeedRunApiResponse = {
   [key in SpeedRunCategory]: Array<{

@@ -94,3 +94,33 @@ $banner-name-to-color-map: (
   'Orange': $color-banner-10,
 );
 // -- -- -- -- -- -- -- //
+
+// -- Talent colors -- //
+$color-talent-0: #ffcdb2;
+$color-talent-1: #ffcdb2;
+$color-talent-2: #1eff00;
+$color-talent-3: #0070dd;
+$color-talent-4: #0070dd;
+$color-talent-5: #a335ee;
+$color-talent-6: #ff8000;
+
+$talent-index-to-color-map: (
+  0: $color-talent-0,
+  1: $color-talent-1,
+  2: $color-talent-2,
+  3: $color-talent-3,
+  4: $color-talent-4,
+  5: $color-talent-5,
+  6: $color-talent-6,
+);
+
+$talent-name-to-color-map: (
+  'Tier 0': $color-talent-0,
+  'Tier 1': $color-talent-1,
+  'Tier 2': $color-talent-2,
+  'Tier 3': $color-talent-3,
+  'Tier 4': $color-talent-4,
+  'Tier 5': $color-talent-5,
+  'Tier 6': $color-talent-6,
+);
+// -- -- -- -- -- -- -- //

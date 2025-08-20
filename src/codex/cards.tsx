@@ -32,7 +32,7 @@ function Cards(): JSX.Element {
       />
 
       <div className={cx('content')}>
-        <CodexLoadingMessage isVisible={isLoading} progress={progress} />
+        <CodexLoadingMessage isVisible={isLoading} progress={progress} codexType="card" />
         <CodexErrorMessage isVisible={isError && !isLoading} />
         {!isError && !isLoading && (
           <>

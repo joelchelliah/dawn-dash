@@ -1,15 +1,14 @@
 import LoadingDots from '@/shared/components/LoadingDots'
-
-import { SpeedRunClass } from '@/speedruns/types/speedRun'
-import { getClassColor, ClassColorVariant } from '@/speedruns/utils/colors'
+import { CharacterClass } from '@/shared/types/characterClass'
+import { ClassColorVariant, getClassColor } from '@/shared/utils/classColors'
 
 interface ClassLoadingDotsProps {
-  selectedClass?: SpeedRunClass
+  selectedClass?: CharacterClass
   text?: string
 }
 
 function ClassLoadingDots({ text, selectedClass }: ClassLoadingDotsProps) {
-  const color = getClassColor(selectedClass || SpeedRunClass.Arcanist, ClassColorVariant.Lighter)
+  const color = getClassColor(selectedClass || CharacterClass.Arcanist, ClassColorVariant.Lighter)
 
   return <LoadingDots text={text} color={color} />
 }

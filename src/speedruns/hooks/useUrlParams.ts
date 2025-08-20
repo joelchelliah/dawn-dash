@@ -2,6 +2,8 @@ import { useEffect, useRef, useCallback } from 'react'
 
 import { NextRouter, useRouter } from 'next/router'
 
+import { CharacterClass } from '@/shared/types/characterClass'
+
 import {
   DIFFICULTY_VALUES,
   PLAYER_LIMIT_VALUES,
@@ -13,16 +15,16 @@ import {
   GAME_VERSION_VALUES,
 } from '../constants/chartControlValues'
 import { ChartControlState, ViewMode } from '../types/chart'
-import { Difficulty, SpeedRunClass, SpeedRunSubclass } from '../types/speedRun'
+import { Difficulty, SpeedRunSubclass } from '../types/speedRun'
 import { submissionWindowFromUrlString, submissionWindowToUrlString } from '../utils/gameVersion'
 
 function setSearchParamsFromControlState(
   router: NextRouter,
-  selectedClass: SpeedRunClass,
+  selectedClass: CharacterClass,
   controls: ChartControlState,
   debounceTimeoutRef: React.MutableRefObject<NodeJS.Timeout | undefined>
 ) {
-  const isSunforge = selectedClass === SpeedRunClass.Sunforge
+  const isSunforge = selectedClass === CharacterClass.Sunforge
 
   if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current)
 
@@ -44,8 +46,8 @@ function setSearchParamsFromControlState(
 }
 
 export function useUrlParams(
-  selectedClass: SpeedRunClass,
-  setSelectedClass: (classType: SpeedRunClass) => void,
+  selectedClass: CharacterClass,
+  setSelectedClass: (classType: CharacterClass) => void,
   controls: ChartControlState
 ): void {
   const router = useRouter()
@@ -60,14 +62,14 @@ export function useUrlParams(
     window: submissionWindow,
   } = router.query
 
-  const isSunforge = selectedClass === SpeedRunClass.Sunforge
+  const isSunforge = selectedClass === CharacterClass.Sunforge
 
   const prevClassRef = useRef(selectedClass)
   const prevControlStateRef = useRef(controls)
   const debounceTimeoutRef = useRef<NodeJS.Timeout>()
 
-  const isValidClass = (value: string): value is SpeedRunClass =>
-    Object.values(SpeedRunClass).includes(value as SpeedRunClass)
+  const isValidClass = (value: string): value is CharacterClass =>
+    Object.values(CharacterClass).includes(value as CharacterClass)
 
   const isValidSubclass = (value: string): value is SpeedRunSubclass =>
     Object.values(SpeedRunSubclass).includes(value as SpeedRunSubclass)
@@ -116,7 +118,7 @@ export function useUrlParams(
       let areAllParamsValid = true
 
       if (classParam && isValidClass(classParam as string)) {
-        setSelectedClass(classParam as SpeedRunClass)
+        setSelectedClass(classParam as CharacterClass)
       } else if (classParam) {
         areAllParamsValid = false
       }

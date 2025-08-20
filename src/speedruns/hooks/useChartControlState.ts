@@ -1,5 +1,7 @@
 import { useEffect, useState, useMemo, useRef } from 'react'
 
+import { CharacterClass } from '@/shared/types/characterClass'
+
 import {
   MAX_DURATION_SUNFORGE_DEFAULT,
   PLAYER_LIMIT_DEFAULT,
@@ -12,16 +14,16 @@ import {
   VIEW_MODE_SUNFORGE_DEFAULT,
 } from '../constants/chartControlValues'
 import { ChartControlState, SubmissionWindow, ViewMode } from '../types/chart'
-import { Difficulty, SpeedRunClass, SpeedRunSubclass } from '../types/speedRun'
+import { Difficulty, SpeedRunSubclass } from '../types/speedRun'
 
 export function useChartControlState(
-  selectedClass: SpeedRunClass,
+  selectedClass: CharacterClass,
   selectedDifficulty: Difficulty
 ): ChartControlState {
   const isInitialMount = useRef(true)
   const previousClass = useRef(selectedClass)
 
-  const isSunforge = selectedClass === SpeedRunClass.Sunforge
+  const isSunforge = selectedClass === CharacterClass.Sunforge
   const subclassDefault = isSunforge ? SUBCLASS_DEFAULT : null
   const maxDurationDefault = isSunforge ? MAX_DURATION_SUNFORGE_DEFAULT : MAX_DURATION_OTHER_DEFAULT
   const viewModeDefault = isSunforge ? VIEW_MODE_SUNFORGE_DEFAULT : VIEW_MODE_DEFAULT
@@ -43,7 +45,7 @@ export function useChartControlState(
       return
     }
 
-    const wasSunforge = previousClass.current === SpeedRunClass.Sunforge
+    const wasSunforge = previousClass.current === CharacterClass.Sunforge
     previousClass.current = selectedClass
 
     if (isSunforge !== wasSunforge) {

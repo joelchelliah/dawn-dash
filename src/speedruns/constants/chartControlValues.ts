@@ -1,7 +1,9 @@
-import { ViewMode } from '../types/chart'
-import { Difficulty, SpeedRunClass, SpeedRunSubclass } from '../types/speedRun'
+import { CharacterClass } from '@/shared/types/characterClass'
 
-export const CLASS_DEFAULT = SpeedRunClass.Arcanist
+import { ViewMode } from '../types/chart'
+import { Difficulty, SpeedRunSubclass } from '../types/speedRun'
+
+export const CLASS_DEFAULT = CharacterClass.Arcanist
 export const SUBCLASS_DEFAULT = SpeedRunSubclass.All
 
 export const DIFFICULTY_DEFAULT = Difficulty.Impossible

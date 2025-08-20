@@ -1,6 +1,6 @@
 import moment from 'moment'
 
-import { SpeedRunClass } from '../../../types/speedRun'
+import { CharacterClass } from '@/shared/types/characterClass'
 
 /**
  * Padding the min/max values of the chart axes to prevent clipping of points
@@ -9,14 +9,18 @@ import { SpeedRunClass } from '../../../types/speedRun'
 const SUNFORGE_DURATION_PADDING = 0.5
 const OTHER_DURATION_PADDING = 4
 
-export function padMinDuration(minDuration: number, selectedClass: SpeedRunClass) {
-  return selectedClass === SpeedRunClass.Sunforge
+export function padMinDuration(minDuration: number, selectedClass: CharacterClass) {
+  return selectedClass === CharacterClass.Sunforge
     ? Math.max(0, minDuration - SUNFORGE_DURATION_PADDING)
     : Math.max(0, minDuration - OTHER_DURATION_PADDING)
 }
 
-export function padMaxDuration(maxDuration: number, selectedClass: SpeedRunClass, ceiling: number) {
-  return selectedClass === SpeedRunClass.Sunforge
+export function padMaxDuration(
+  maxDuration: number,
+  selectedClass: CharacterClass,
+  ceiling: number
+) {
+  return selectedClass === CharacterClass.Sunforge
     ? Math.max(ceiling, maxDuration + SUNFORGE_DURATION_PADDING)
     : Math.max(ceiling, maxDuration + OTHER_DURATION_PADDING)
 }

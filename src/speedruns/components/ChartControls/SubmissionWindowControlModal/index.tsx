@@ -3,6 +3,8 @@ import { useEffect, useState } from 'react'
 import { createCx } from '@/shared/utils/classnames'
 import Button from '@/shared/components/Buttons/Button'
 import ButtonRow from '@/shared/components/Buttons/ButtonRow'
+import { ClassColorVariant, getClassColor } from '@/shared/utils/classColors'
+import { CharacterClass } from '@/shared/types/characterClass'
 
 import {
   GAME_VERSION_VALUES,
@@ -10,8 +12,6 @@ import {
   SUBMISSION_WINDOW_LABEL_MAP,
 } from '@/speedruns/constants/chartControlValues'
 import { SubmissionWindow } from '@/speedruns/types/chart'
-import { SpeedRunClass } from '@/speedruns/types/speedRun'
-import { ClassColorVariant, getClassColor } from '@/speedruns/utils/colors'
 import { isGameVersionRange, isLastXDays } from '@/speedruns/utils/gameVersion'
 import DoubleThumbSlider from '@/speedruns/components/Sliders/DoubleThumbSlider'
 import SingleThumbSlider from '@/speedruns/components/Sliders/SingleThumbSlider'
@@ -29,7 +29,7 @@ interface SubmissionWindowModalProps {
   isOpen: boolean
   onClose: () => void
   onApply: (submissionWindow: SubmissionWindow) => void
-  selectedClass: SpeedRunClass
+  selectedClass: CharacterClass
   currentSubmissionWindow: SubmissionWindow
 }
 

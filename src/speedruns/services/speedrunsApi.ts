@@ -1,12 +1,12 @@
 import axios from 'axios'
 
 import { handleError } from '@/shared/utils/apiErrorHandling'
+import { CharacterClass } from '@/shared/types/characterClass'
 
 import {
   Difficulty,
   SpeedRunApiResponse,
   SpeedRunCategory,
-  SpeedRunClass,
   SpeedRunData,
   SpeedRunSubclass,
 } from '../types/speedRun'
@@ -15,11 +15,11 @@ import { parseVersion } from '../utils/gameVersion'
 const BASE_URL = 'https://blightbane.io/api'
 
 export const fetchSpeedruns = async (
-  type: SpeedRunClass,
+  type: CharacterClass,
   difficulty: Difficulty,
   num: number
 ): Promise<SpeedRunData[]> => {
-  const classParam = type === SpeedRunClass.Sunforge ? 'Scion' : type
+  const classParam = type === CharacterClass.Sunforge ? 'Scion' : type
   const url = `${BASE_URL}/speedruns?diff=${difficulty}&class=${classParam}&top=${num}&options=&nolimit=true`
 
   try {

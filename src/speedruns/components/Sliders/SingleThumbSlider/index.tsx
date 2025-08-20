@@ -1,7 +1,7 @@
 import { useNumberFormatter } from '@react-aria/i18n'
 import { useSliderState } from '@react-stately/slider'
 
-import { SpeedRunClass } from '@/speedruns/types/speedRun'
+import { CharacterClass } from '@/shared/types/characterClass'
 
 import Slider from '../Slider'
 
@@ -12,7 +12,7 @@ interface SingleThumbSliderProps {
   onPointerDown: () => void
   ariaLabel: string
   isActive: boolean
-  selectedClass: SpeedRunClass
+  selectedClass: CharacterClass
 }
 
 function SingleThumbSlider({
