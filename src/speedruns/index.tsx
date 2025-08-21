@@ -4,6 +4,7 @@ import { createCx } from '@/shared/utils/classnames'
 import Header from '@/shared/components/Header'
 import { useNavigation } from '@/shared/hooks/useNavigation'
 import Footer from '@/shared/components/Footer'
+import ErrorBoundary from '@/shared/components/ErrorBoundary'
 import { DashImageUrl } from '@/shared/utils/imageUrls'
 import { CharacterClass } from '@/shared/types/characterClass'
 
@@ -62,11 +63,13 @@ function Speedruns(): JSX.Element {
           />
         )}
         <ChartControls controls={controls} selectedClass={selectedClass} />
-        <Chart
-          controls={controls}
-          selectedClass={selectedClass}
-          onPlayerClick={handlePlayerClick}
-        />
+        <ErrorBoundary componentName="Chart">
+          <Chart
+            controls={controls}
+            selectedClass={selectedClass}
+            onPlayerClick={handlePlayerClick}
+          />
+        </ErrorBoundary>
       </div>
 
       <Footer />
