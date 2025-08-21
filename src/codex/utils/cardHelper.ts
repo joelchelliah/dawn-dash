@@ -27,11 +27,34 @@ const NON_COLLECTIBLE_CATEGORIES_FOR_MONSTER_EXPANSION = [
 ]
 
 const NON_COLLECTIBLE_CARDS = [
+  'Ascension I',
+  'Ascension II',
+  'Ascension III',
+
+  'Hymn of Penance I',
+  'Hymn of Penance II',
+  'Hymn of Penance III',
+
+  'Hymn of Power I',
+  'Hymn of Power II',
+  'Hymn of Power III',
+
+  'Hymn of Vitality I',
+  'Hymn of Vitality II',
+  'Hymn of Vitality III',
+
+  'Hymn of Light I',
+  'Hymn of Light II',
+  'Hymn of Light III',
+
+  'The Dawnbringer',
+
   'Elite Lightning Bolt',
   'Elite Fireball',
   'Elite Frostbolt',
 
   'Soulfire Bomb',
+  'Shrapnel Bomb',
 
   'Imp Offer 1',
   'Imp Offer 2',
@@ -53,9 +76,19 @@ const NON_COLLECTIBLE_CARDS = [
   'Sunken Forge',
   'Wasteland',
 
+  'Alignment',
   'Bloodbank',
   'Vexing Echo 1',
   'Vexing Echo 2',
+
+  'Pirate Ink I',
+  'Pirate Ink II',
+  'Pirate Ink III',
+
+  'Larceny INT',
+  'Larceny STR',
+  'Larceny DEX',
+  'Larceny HOLY',
 ]
 
 export const hasMonsterExpansion = (card: CardData) => card.expansion === 0

@@ -31,12 +31,13 @@ const sortAndRemoveDuplicates = (cards: CardData[]) =>
 
 /*
  * Better mapping of card expansions so that they make more sense in the search results.
- * This is needed because a lot of conjured or non-collectible cards seem to be placed in the
- * monster expansion (0).
+ * This is needed because some conjured or non-collectible cards seem to be placed in
+ * expansions that feel unintuitive.
  */
 const getActualExpansion = (card: CardApiResponse | CardData): number => {
   if (ACTUALLY_CORE_CARDS.includes(card.name)) return 1
   if (ACTUALLY_ECLYPSE_CARDS.includes(card.name)) return 7
+  if (ACTUALLY_MONSTER_CARDS.includes(card.name)) return 0
 
   return card.expansion
 }
@@ -50,3 +51,4 @@ const ACTUALLY_ECLYPSE_CARDS = [
   'Battlespear L',
   'Battlespear U',
 ]
+const ACTUALLY_MONSTER_CARDS = ["Typhon's Cunning II", "Typhon's Cunning III"]
