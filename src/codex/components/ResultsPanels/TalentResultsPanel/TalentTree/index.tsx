@@ -102,8 +102,8 @@ const TalentTree = ({ talentTree }: TalentTreeProps) => {
     // Clear previous visualization
     d3.select(svgRef.current).selectAll('*').remove()
 
-    const buildTreeFromTalent = (node: TalentTreeTalentNode): TreeNode => {
-      const children = node.children.map(buildTreeFromTalent)
+    const buildTreeFromTalentNode = (node: TalentTreeTalentNode): TreeNode => {
+      const children = node.children.map(buildTreeFromTalentNode)
       return {
         name: node.name,
         description: node.description,
@@ -113,10 +113,10 @@ const TalentTree = ({ talentTree }: TalentTreeProps) => {
       }
     }
 
-    const buildTreeFromOtherRequirement = (
+    const buildTreeFromRequirementNode = (
       node: TalentTreeRequirementNode
     ): TreeNode | undefined => {
-      const children = node.children.map(buildTreeFromTalent)
+      const children = node.children.map(buildTreeFromTalentNode)
 
       if (children.length === 0) {
         return undefined
@@ -130,13 +130,16 @@ const TalentTree = ({ talentTree }: TalentTreeProps) => {
       }
     }
 
+    console.log('talentTree.offerNode:', talentTree.offerNode)
+
     const treeNode = d3.hierarchy<TreeNode>({
       name: 'Root',
       description: '',
       children: [
-        buildTreeFromOtherRequirement(talentTree.noReqNode),
-        ...talentTree.energyNodes.map(buildTreeFromOtherRequirement).filter(isNotNullOrUndefined),
-        ...talentTree.classNodes.map(buildTreeFromOtherRequirement).filter(isNotNullOrUndefined),
+        buildTreeFromRequirementNode(talentTree.noReqNode),
+        ...talentTree.energyNodes.map(buildTreeFromRequirementNode).filter(isNotNullOrUndefined),
+        ...talentTree.classNodes.map(buildTreeFromRequirementNode).filter(isNotNullOrUndefined),
+        buildTreeFromRequirementNode(talentTree.offerNode),
       ].filter(isNotNullOrUndefined),
     })
 

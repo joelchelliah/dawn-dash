@@ -6,6 +6,8 @@ import {
   StrImageUrl,
 } from '@/shared/utils/imageUrls'
 
+import { TalentTreeTalentNode } from '../types/talents'
+
 export const parseTalentDescriptionLine = (line: string) => {
   const parsedDescription = line
     .replace(/<br\s*\/?>/g, '<br />') // Normalize <br> tags
@@ -53,3 +55,13 @@ export const parseTalentDescriptionLine = (line: string) => {
 
   return segments
 }
+
+export const isOffer = (talent: TalentTreeTalentNode) =>
+  hasMonsterExpansion(talent) && hasOfferPrefix(talent)
+
+export const isEventBasedTalent = (talent: TalentTreeTalentNode) =>
+  hasMonsterExpansion(talent) && !hasOfferPrefix(talent)
+
+const hasMonsterExpansion = (talent: TalentTreeTalentNode) => talent.expansion === 0
+
+const hasOfferPrefix = (talent: TalentTreeTalentNode) => talent.name.startsWith('Offer of')

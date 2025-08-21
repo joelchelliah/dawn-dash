@@ -25,6 +25,7 @@ import {
   getCachedCardCodexSearchFilters,
   getCachedTalentCodexSearchFilters,
 } from '@/codex/utils/codexFilterStore'
+import { isEventBasedTalent, isOffer } from '@/codex/utils/talentHelper'
 
 import { useWeeklyChallengeFilterData } from '../useWeeklyChallengeFilterData'
 
@@ -346,7 +347,12 @@ export const useTalentSearchFilters = (
 
   const { cardSetFilters, isCardSetIndexSelected, resetCardSetFilters } = trackedUseCardSetFilters
   const { tierFilters, isTierIndexSelected, resetTierFilters } = trackedUseTierFilters
-  const { talentExtraFilters, resetTalentExtraFilters } = trackedUseTalentExtraFilters
+  const {
+    talentExtraFilters,
+    shouldIncludeOffers,
+    shouldIncludeEventBasedTalents,
+    resetTalentExtraFilters,
+  } = trackedUseTalentExtraFilters
 
   const resetFilters = () => {
     trackedSetKeywords('')
@@ -403,6 +409,7 @@ export const useTalentSearchFilters = (
 
   const traverseTree = useCallback(
     (talentTree: TalentTree, visitTalent: (talent: TalentTreeTalentNode) => void) => {
+      traverseNode(talentTree.offerNode, visitTalent)
       traverseNode(talentTree.noReqNode, visitTalent)
       talentTree.classNodes.forEach((node) => traverseNode(node, visitTalent))
       talentTree.energyNodes.forEach((node) => traverseNode(node, visitTalent))
@@ -470,9 +477,15 @@ export const useTalentSearchFilters = (
       const filterFn = (node: TalentTreeTalentNode) =>
         isCardSetIndexSelected(node.expansion) &&
         isTierIndexSelected(node.tier) &&
+        (shouldIncludeOffers || !isOffer(node)) &&
+        (shouldIncludeEventBasedTalents || !isEventBasedTalent(node)) &&
         isNameOrDescriptionIncluded(node, parsedKeywords)
 
       const matchingTalentNames = collectMatchingTalentNames(talentTree, filterFn)
+
+      const filteredOfferNodes = talentTree.offerNode.children
+        .map((node) => filterTalentTreeNode(node, matchingTalentNames))
+        .filter(isNotNullOrUndefined)
 
       const filteredTalentNodes = talentTree.noReqNode.children
         .map((node) => filterTalentTreeNode(node, matchingTalentNames))
@@ -487,6 +500,10 @@ export const useTalentSearchFilters = (
         .filter(isNotNullOrUndefined)
 
       const filteredTree: TalentTree = {
+        offerNode: {
+          ...talentTree.offerNode,
+          children: filteredOfferNodes,
+        },
         noReqNode: {
           ...talentTree.noReqNode,
           children: filteredTalentNodes,
@@ -507,6 +524,8 @@ export const useTalentSearchFilters = (
     matchingTalentTree,
     filterTalentTreeNode,
     collectMatchingTalentNames,
+    shouldIncludeOffers,
+    shouldIncludeEventBasedTalents,
   ])
   // --------------------------------------------------
   // --------------------------------------------------
@@ -535,6 +554,7 @@ const isNameOrDescriptionIncluded = (
   )
 
 const isTalentTreeEqual = (talentTreeA: TalentTree, talentTreeB: TalentTree): boolean =>
+  isTalentTreeNodeEqual(talentTreeA.offerNode, talentTreeB.offerNode) &&
   isTalentTreeNodeEqual(talentTreeA.noReqNode, talentTreeB.noReqNode) &&
   areTalentTreeNodesEqual(talentTreeA.classNodes, talentTreeB.classNodes) &&
   areTalentTreeNodesEqual(talentTreeA.energyNodes, talentTreeB.energyNodes)

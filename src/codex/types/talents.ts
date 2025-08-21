@@ -18,6 +18,7 @@ export enum TalentTreeNodeType {
   CLASS_REQUIREMENT = 'CLASS_REQUIREMENT',
   ENERGY_REQUIREMENT = 'ENERGY_REQUIREMENT',
   NO_REQUIREMENTS = 'NO_REQUIREMENTS',
+  OFFER = 'OFFER',
 }
 
 export type TalentTreeRequirementNode = {
@@ -25,6 +26,7 @@ export type TalentTreeRequirementNode = {
     | TalentTreeNodeType.CLASS_REQUIREMENT
     | TalentTreeNodeType.ENERGY_REQUIREMENT
     | TalentTreeNodeType.NO_REQUIREMENTS
+    | TalentTreeNodeType.OFFER
   name: string
   children: TalentTreeTalentNode[]
 }
@@ -41,6 +43,7 @@ export type TalentTreeTalentNode = {
 }
 
 export type TalentTree = {
+  offerNode: TalentTreeRequirementNode
   noReqNode: TalentTreeRequirementNode
   classNodes: TalentTreeRequirementNode[]
   energyNodes: TalentTreeRequirementNode[]
