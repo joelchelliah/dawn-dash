@@ -12,6 +12,7 @@ const defaultFormattingFilters = {
   [FormattingFilterOption.ShowKeywords]: true,
   [FormattingFilterOption.ShowCardSet]: true,
   [FormattingFilterOption.ShowBlightbaneLink]: false,
+  [FormattingFilterOption.HideTrackedCards]: false,
 }
 
 const formattingToStringMap = {
@@ -20,6 +21,7 @@ const formattingToStringMap = {
   [Formatting.ShowKeywords]: 'Show matching keywords',
   [Formatting.ShowCardSet]: 'Show card set',
   [Formatting.ShowBlightbaneLink]: 'Show Blightbane link',
+  [Formatting.HideTrackedCards]: 'Hide tracked cards',
 }
 
 export const allFormattingFilters = Formatting.getAll()
@@ -38,6 +40,7 @@ export const useFormattingFilters = (cachedFilters?: CardCodexSearchFilterCache[
   const shouldShowKeywords = filters[Formatting.ShowKeywords]
   const shouldShowCardSet = filters[Formatting.ShowCardSet]
   const shouldShowBlightbaneLink = filters[Formatting.ShowBlightbaneLink]
+  const shouldHideTrackedCards = filters[Formatting.HideTrackedCards]
 
   return {
     formattingFilters: filters,
@@ -49,5 +52,6 @@ export const useFormattingFilters = (cachedFilters?: CardCodexSearchFilterCache[
     shouldShowKeywords,
     shouldShowCardSet,
     shouldShowBlightbaneLink,
+    shouldHideTrackedCards,
   }
 }

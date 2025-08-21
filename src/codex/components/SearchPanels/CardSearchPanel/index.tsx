@@ -156,7 +156,7 @@ const CardSearchPanel = ({ useSearchFilters, useCardData }: CardSearchPanelProps
             getFilterLabel={getExtraFilterLabel}
           />
           <FilterGroup
-            title="Formatting"
+            title="Results formatting"
             filters={allFormattingFilters}
             selectedFilters={formattingFilters}
             type="formatting"

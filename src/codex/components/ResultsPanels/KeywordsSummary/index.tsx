@@ -1,6 +1,9 @@
-import { Fragment } from 'react/jsx-runtime'
+import { Fragment, useState } from 'react'
 
 import { createCx } from '@/shared/utils/classnames'
+import GradientLink from '@/shared/components/GradientLink'
+
+import { useCardStrike } from '../../../hooks/useSearchFilters/useCardStrike'
 
 import styles from './index.module.scss'
 
@@ -8,33 +11,47 @@ const cx = createCx(styles)
 
 interface KeywordsSummaryProps {
   matches: string[]
-  struckCards?: string[]
+  useCardStrike?: ReturnType<typeof useCardStrike>
   parsedKeywords: string[]
   showingResultsWithoutKeywords: boolean
+  shouldHideTrackedCards?: boolean
   className?: string
 }
 
 const KeywordsSummary = ({
   matches,
-  struckCards = [],
+  useCardStrike,
   parsedKeywords,
   showingResultsWithoutKeywords,
+  shouldHideTrackedCards = false,
   className,
 }: KeywordsSummaryProps) => {
-  if (showingResultsWithoutKeywords) {
-    return (
-      <div className={className}>
-        <div className={cx('no-keywords-warning')}>
-          Found <strong>{matches.length}</strong> results, matching only the filters!
-        </div>
-        {matches.length > 0
-          ? 'Type something into the search bar to narrow down the result.'
-          : 'Try enabling more filters.'}
-      </div>
-    )
+  const [undoTrackedAnimationKey, setUndoTrackedAnimationKey] = useState(0)
+  const hasParsedKeywords = parsedKeywords.length > 0
+
+  const handleUndoLastTrackedCard = () => {
+    if (useCardStrike?.undoLastTrackedCard) {
+      useCardStrike.undoLastTrackedCard()
+      setUndoTrackedAnimationKey((prev) => prev + 1)
+    }
   }
 
   const renderMatchesCountText = () => {
+    if (showingResultsWithoutKeywords) {
+      return (
+        <>
+          <div className={cx('no-keywords-warning')}>
+            Found <strong>{matches.length}</strong> results, matching only the filters!
+          </div>
+          <span className={cx('no-keywords-hint')}>
+            {matches.length > 0
+              ? 'Type something into the search bar to narrow down the result.'
+              : 'Try enabling more filters.'}
+          </span>
+        </>
+      )
+    }
+
     const resultsStr = matches.length === 1 ? 'result' : 'results'
 
     return (
@@ -45,15 +62,51 @@ const KeywordsSummary = ({
   }
 
   const renderStruckCountText = () => {
-    const struckCount = matches.filter((match) => struckCards.includes(match)).length
-
-    if (struckCount === 0) {
+    if (!useCardStrike) {
       return null
     }
 
-    return (
+    const { struckCards, lastUndoneTrackedCard } = useCardStrike
+    const struckCount = matches.filter((match) => struckCards.includes(match)).length
+
+    const struckHiddenInfo = shouldHideTrackedCards ? (
       <div>
-        You have marked <strong>{struckCount}</strong> of these cards as tracked.
+        <span className={cx('keywords-tracked__hidden-info')}>
+          Your tracked cards will be hidden.
+        </span>
+        <br />
+        {struckCount > 0 && (
+          <GradientLink text="Undo last tracked card?" onClick={handleUndoLastTrackedCard} />
+        )}
+        {lastUndoneTrackedCard && (
+          <span
+            key={undoTrackedAnimationKey}
+            className={cx('keywords-tracked__untracked-info', {
+              'keywords-tracked__untracked-info--last-one-undone': struckCount === 0,
+            })}
+          >
+            {' '}
+            Untracked: <strong>{lastUndoneTrackedCard}</strong>
+          </span>
+        )}
+      </div>
+    ) : null
+
+    const trackedInfoContainerClassName = cx('keywords-tracked__info-container', {
+      'keywords-tracked__info-container--hidden': shouldHideTrackedCards,
+    })
+
+    if (struckCount === 0) {
+      return <div className={trackedInfoContainerClassName}>{struckHiddenInfo}</div>
+    }
+
+    return (
+      <div className={trackedInfoContainerClassName}>
+        You have marked <strong>{struckCount}</strong> of these cards as{' '}
+        <s>
+          <strong>tracked</strong>
+        </s>
+        .{struckHiddenInfo}
       </div>
     )
   }
@@ -62,7 +115,7 @@ const KeywordsSummary = ({
     <div className={className}>
       {renderMatchesCountText()}
       <div className={cx('keywords-summary')}>
-        {'[ '}
+        {hasParsedKeywords && '[ '}
         {parsedKeywords.map((keyword, index) => {
           const fullMatch = matches.some((match) => match.toLowerCase() === keyword.toLowerCase())
           const className = cx({
@@ -76,7 +129,7 @@ const KeywordsSummary = ({
             </Fragment>
           )
         })}
-        {` ]`}
+        {hasParsedKeywords && ` ]`}
       </div>
       <div className={cx('keywords-tracked')}>{renderStruckCountText()}</div>
     </div>

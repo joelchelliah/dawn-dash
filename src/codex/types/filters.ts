@@ -110,6 +110,7 @@ export enum FormattingFilterOption {
   ShowKeywords = 'ShowKeywords',
   ShowCardSet = 'ShowCardSet',
   ShowBlightbaneLink = 'ShowBlightbaneLink',
+  HideTrackedCards = 'HideTrackedCards',
 }
 
 export type Formatting = FormattingFilterOption

@@ -5,6 +5,11 @@
   color: $color-danger-hover;
 }
 
+.no-keywords-hint {
+  font-size: font-size('xxs');
+  color: $color-primary-muted;
+}
+
 .keywords-summary {
   font-size: font-size('xxs');
   color: $color-primary-muted;
@@ -20,4 +25,46 @@
   font-size: font-size('xxs');
   color: $color-primary-dark;
   margin-top: 0.5rem;
+
+  &__info-container {
+    height: 1rem;
+
+    &--hidden {
+      height: 2.75rem;
+    }
+  }
+
+  &__hidden-info {
+    font-size: font-size('xxs');
+    color: $color-danger-base;
+  }
+
+  &__untracked-info {
+    display: inline-block;
+    font-size: font-size('xxs');
+    color: $color-primary-muted;
+    margin: 0 0 0 0.875rem;
+    animation: fadeOut 1.4s ease-out forwards;
+
+    &--last-one-undone {
+      display: block;
+      margin: 0.875rem 0 0 0;
+    }
+  }
+}
+
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+  }
+  40% {
+    opacity: 1;
+  }
+  95% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+    display: none;
+  }
 }

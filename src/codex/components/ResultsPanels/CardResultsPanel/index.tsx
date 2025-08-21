@@ -20,8 +20,8 @@ const cx = createCx(styles)
 
 const CardResultsPanel = ({ useSearchFilters }: CardResultsPanelProps) => {
   const [showCardsWithoutKeywords, setShowCardsWithoutKeywords] = useState(false)
-  const { parsedKeywords, matchingCards, useCardStrike } = useSearchFilters
-  const { struckCards } = useCardStrike
+  const { parsedKeywords, matchingCards, useCardStrike, useFormattingFilters } = useSearchFilters
+  const { shouldHideTrackedCards } = useFormattingFilters
 
   useEffect(() => {
     if (parsedKeywords.length > 0) {
@@ -43,9 +43,10 @@ const CardResultsPanel = ({ useSearchFilters }: CardResultsPanelProps) => {
       <div className={cx('results-container')} key={parsedKeywords.join(',')}>
         <KeywordsSummary
           matches={matchingCards.map((card) => card.name)}
-          struckCards={struckCards}
+          useCardStrike={useCardStrike}
           parsedKeywords={parsedKeywords}
           showingResultsWithoutKeywords={showingCardsWithoutKeywords}
+          shouldHideTrackedCards={shouldHideTrackedCards}
           className={cx('results-container__info')}
         />
 
