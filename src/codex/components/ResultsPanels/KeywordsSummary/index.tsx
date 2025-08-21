@@ -27,6 +27,7 @@ const KeywordsSummary = ({
   className,
 }: KeywordsSummaryProps) => {
   const [undoTrackedAnimationKey, setUndoTrackedAnimationKey] = useState(0)
+  const hasParsedKeywords = parsedKeywords.length > 0
 
   const handleUndoLastTrackedCard = () => {
     if (useCardStrike?.undoLastTrackedCard) {
@@ -34,20 +35,23 @@ const KeywordsSummary = ({
       setUndoTrackedAnimationKey((prev) => prev + 1)
     }
   }
-  if (showingResultsWithoutKeywords) {
-    return (
-      <div className={className}>
-        <div className={cx('no-keywords-warning')}>
-          Found <strong>{matches.length}</strong> results, matching only the filters!
-        </div>
-        {matches.length > 0
-          ? 'Type something into the search bar to narrow down the result.'
-          : 'Try enabling more filters.'}
-      </div>
-    )
-  }
 
   const renderMatchesCountText = () => {
+    if (showingResultsWithoutKeywords) {
+      return (
+        <>
+          <div className={cx('no-keywords-warning')}>
+            Found <strong>{matches.length}</strong> results, matching only the filters!
+          </div>
+          <span className={cx('no-keywords-hint')}>
+            {matches.length > 0
+              ? 'Type something into the search bar to narrow down the result.'
+              : 'Try enabling more filters.'}
+          </span>
+        </>
+      )
+    }
+
     const resultsStr = matches.length === 1 ? 'result' : 'results'
 
     return (
@@ -111,7 +115,7 @@ const KeywordsSummary = ({
     <div className={className}>
       {renderMatchesCountText()}
       <div className={cx('keywords-summary')}>
-        {'[ '}
+        {hasParsedKeywords && '[ '}
         {parsedKeywords.map((keyword, index) => {
           const fullMatch = matches.some((match) => match.toLowerCase() === keyword.toLowerCase())
           const className = cx({
@@ -125,7 +129,7 @@ const KeywordsSummary = ({
             </Fragment>
           )
         })}
-        {` ]`}
+        {hasParsedKeywords && ` ]`}
       </div>
       <div className={cx('keywords-tracked')}>{renderStruckCountText()}</div>
     </div>

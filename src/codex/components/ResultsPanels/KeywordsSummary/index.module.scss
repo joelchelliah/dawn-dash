@@ -5,6 +5,11 @@
   color: $color-danger-hover;
 }
 
+.no-keywords-hint {
+  font-size: font-size('xxs');
+  color: $color-primary-muted;
+}
+
 .keywords-summary {
   font-size: font-size('xxs');
   color: $color-primary-muted;
