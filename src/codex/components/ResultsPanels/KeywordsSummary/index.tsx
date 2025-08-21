@@ -64,6 +64,7 @@ const KeywordsSummary = ({
 
     const { struckCards, lastUndoneTrackedCard } = useCardStrike
     const struckCount = matches.filter((match) => struckCards.includes(match)).length
+
     const struckHiddenInfo = shouldHideTrackedCards ? (
       <div>
         <span className={cx('keywords-tracked__hidden-info')}>
@@ -87,12 +88,16 @@ const KeywordsSummary = ({
       </div>
     ) : null
 
+    const trackedInfoContainerClassName = cx('keywords-tracked__info-container', {
+      'keywords-tracked__info-container--hidden': shouldHideTrackedCards,
+    })
+
     if (struckCount === 0) {
-      return struckHiddenInfo
+      return <div className={trackedInfoContainerClassName}>{struckHiddenInfo}</div>
     }
 
     return (
-      <div>
+      <div className={trackedInfoContainerClassName}>
         You have marked <strong>{struckCount}</strong> of these cards as{' '}
         <s>
           <strong>tracked</strong>
