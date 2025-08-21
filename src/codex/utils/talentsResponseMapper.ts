@@ -10,23 +10,21 @@ import {
 
 export const mapTalentsDataToTalentTree = (unparsedTalents: TalentData[]): TalentTree => {
   const uniqueUnparsedTalents = removeDuplicateTalents(unparsedTalents)
-  const idToUnparsedTalent = new Map<number, TalentData>()
-
-  uniqueUnparsedTalents.forEach((talent) => {
-    idToUnparsedTalent.set(talent.blightbane_id, talent)
-  })
+  const idToUnparsedTalent = new Map(
+    uniqueUnparsedTalents.map((talent) => [talent.blightbane_id, talent])
+  )
 
   function buildTalentNode(talent: TalentData, visited = new Set<number>()): TalentTreeTalentNode {
     if (visited.has(talent.blightbane_id)) {
       throw new Error(`Failed to parse talent: ${talent.name} (Recursive loop detected!)`)
     }
 
-    visited.add(talent.blightbane_id)
+    const newVisited = new Set(visited).add(talent.blightbane_id)
 
     const children = (talent.required_for_talents || [])
       .map((id) => idToUnparsedTalent.get(id))
       .filter(isNotNullOrUndefined)
-      .map((child) => buildTalentNode(child, new Set(visited)))
+      .map((child) => buildTalentNode(child, newVisited))
 
     return {
       type: TalentTreeNodeType.TALENT,
@@ -83,20 +81,21 @@ export const mapTalentsDataToTalentTree = (unparsedTalents: TalentData[]): Talen
   }
 }
 
-const removeDuplicateTalents = (talents: TalentData[]) =>
-  talents.filter(
-    (talent, index, self) => index === self.findIndex(({ name }) => name === talent.name)
-  )
+const removeDuplicateTalents = (talents: TalentData[]): TalentData[] => {
+  const seen = new Set<string>()
+  return talents.filter((talent) => {
+    if (seen.has(talent.name)) return false
+    seen.add(talent.name)
+    return true
+  })
+}
 
 const sortNodes = <T extends TalentTreeTalentNode | TalentTreeRequirementNode>(talents: T[]): T[] =>
   talents.sort((a, b) => {
     if (a.type === TalentTreeNodeType.TALENT && b.type === TalentTreeNodeType.TALENT) {
-      if (a.tier !== b.tier) return a.tier - b.tier
-
-      return a.name.localeCompare(b.name)
-    } else {
-      return a.name.localeCompare(b.name)
+      return a.tier !== b.tier ? a.tier - b.tier : a.name.localeCompare(b.name)
     }
+    return a.name.localeCompare(b.name)
   })
 
 const requirementClasses = [

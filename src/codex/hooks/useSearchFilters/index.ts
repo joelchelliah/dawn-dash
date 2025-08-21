@@ -378,7 +378,6 @@ export const useTalentSearchFilters = (
   // ------------- Filtering logic --------------------
   // --------------------------------------------------
 
-  // Helper functions for tree traversal
   const traverseNode = useCallback(
     (node: TalentTreeNode, visitTalent: (talent: TalentTreeTalentNode) => void) => {
       if (node.type === TalentTreeNodeType.TALENT) {
