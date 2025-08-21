@@ -377,28 +377,82 @@ export const useTalentSearchFilters = (
   // --------------------------------------------------
   // ------------- Filtering logic --------------------
   // --------------------------------------------------
+
+  // Helper functions for tree traversal
+  const traverseNode = useCallback(
+    (node: TalentTreeNode, visitTalent: (talent: TalentTreeTalentNode) => void) => {
+      if (node.type === TalentTreeNodeType.TALENT) {
+        visitTalent(node)
+        node.children.forEach((child) => traverseNode(child, visitTalent))
+      } else {
+        node.children.forEach((child) => traverseNode(child, visitTalent))
+      }
+    },
+    []
+  )
+
+  const traverseTree = useCallback(
+    (talentTree: TalentTree, visitTalent: (talent: TalentTreeTalentNode) => void) => {
+      traverseNode(talentTree.noReqNode, visitTalent)
+      talentTree.classNodes.forEach((node) => traverseNode(node, visitTalent))
+      talentTree.energyNodes.forEach((node) => traverseNode(node, visitTalent))
+    },
+    [traverseNode]
+  )
+
+  const hasMatchInDescendants = useCallback(
+    (node: TalentTreeNode, targets: Set<string>): boolean => {
+      if (node.type === TalentTreeNodeType.TALENT && targets.has(node.name)) return true
+      return node.children.some((child) => hasMatchInDescendants(child, targets))
+    },
+    []
+  )
+
+  const collectMatchingTalentNames = useCallback(
+    (
+      talentTree: TalentTree,
+      isMatchingTalent: (talent: TalentTreeTalentNode) => boolean
+    ): Set<string> => {
+      const directMatches = new Set<string>()
+
+      // Step 1: Find direct matches
+      traverseTree(talentTree, (node) => {
+        if (isMatchingTalent(node)) directMatches.add(node.name)
+      })
+
+      const allMatches = new Set(directMatches)
+
+      // Step 2: Add ancestors and descendants
+      traverseTree(talentTree, (node) => {
+        // If any descendant is a direct match, add this node (ancestor)
+        if (hasMatchInDescendants(node, directMatches)) {
+          allMatches.add(node.name)
+        }
+
+        // If this node is a direct match, add all its descendants
+        if (directMatches.has(node.name)) {
+          traverseNode(node, (descendant) => allMatches.add(descendant.name))
+        }
+      })
+
+      return allMatches
+    },
+    [traverseTree, hasMatchInDescendants, traverseNode]
+  )
+
   const filterTalentTreeNode = useCallback(function <
     T extends TalentTreeTalentNode | TalentTreeRequirementNode,
-  >(node: T, filterFn: (talent: TalentTreeTalentNode) => boolean): T | null {
-    if (node.type === TalentTreeNodeType.TALENT) {
-      const filteredChildren = node.children
-        .map((child) => filterTalentTreeNode(child, filterFn))
-        .filter(isNotNullOrUndefined)
+  >(node: T, matchingTalentNames: Set<string>): T | null {
+    const filteredChildren = node.children
+      .map((child) => filterTalentTreeNode(child, matchingTalentNames))
+      .filter(isNotNullOrUndefined)
 
-      if (filterFn(node) || filteredChildren.length > 0) {
-        return { ...node, children: filteredChildren } as T
-      }
-      return null
-    } else {
-      const filteredChildren = node.children
-        .map((child) => filterTalentTreeNode(child, filterFn))
-        .filter(isNotNullOrUndefined)
+    const shouldInclude =
+      node.type === TalentTreeNodeType.TALENT
+        ? matchingTalentNames.has(node.name) || filteredChildren.length > 0
+        : filteredChildren.length > 0
 
-      if (filteredChildren.length > 0) {
-        return { ...node, children: filteredChildren } as T
-      }
-      return null
-    }
+    return shouldInclude ? ({ ...node, children: filteredChildren } as T) : null
   }, [])
 
   useEffect(() => {
@@ -408,16 +462,18 @@ export const useTalentSearchFilters = (
         isTierIndexSelected(node.tier) &&
         isNameOrDescriptionIncluded(node, parsedKeywords)
 
+      const matchingTalentNames = collectMatchingTalentNames(talentTree, filterFn)
+
       const filteredTalentNodes = talentTree.noReqNode.children
-        .map((node) => filterTalentTreeNode(node, filterFn))
+        .map((node) => filterTalentTreeNode(node, matchingTalentNames))
         .filter(isNotNullOrUndefined)
 
       const filteredClassNodes = talentTree.classNodes
-        .map((node) => filterTalentTreeNode(node, filterFn))
+        .map((node) => filterTalentTreeNode(node, matchingTalentNames))
         .filter(isNotNullOrUndefined)
 
       const filteredEnergyNodes = talentTree.energyNodes
-        .map((node) => filterTalentTreeNode(node, filterFn))
+        .map((node) => filterTalentTreeNode(node, matchingTalentNames))
         .filter(isNotNullOrUndefined)
 
       const filteredTree: TalentTree = {
@@ -440,6 +496,7 @@ export const useTalentSearchFilters = (
     parsedKeywords,
     matchingTalentTree,
     filterTalentTreeNode,
+    collectMatchingTalentNames,
   ])
   // --------------------------------------------------
   // --------------------------------------------------
