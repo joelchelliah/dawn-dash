@@ -5,6 +5,7 @@ import { allTiers } from '@/codex/hooks/useSearchFilters/useTierFilters'
 import { UseTalentSearchFilters } from '@/codex/hooks/useSearchFilters'
 import { allCardSets } from '@/codex/hooks/useSearchFilters/useCardSetFilters'
 import { UseTalentData } from '@/codex/hooks/useTalentData'
+import { allTalentExtraFilters } from '@/codex/hooks/useSearchFilters/useTalentExtraFilters'
 
 import CodexLastUpdated from '../../CodexLastUpdated'
 import PanelHeader from '../../PanelHeader'
@@ -19,10 +20,18 @@ interface TalentSearchPanelProps {
 }
 
 const TalentSearchPanel = ({ useSearchFilters, useTalentData }: TalentSearchPanelProps) => {
-  const { keywords, setKeywords, useCardSetFilters, useTierFilters, resetFilters } =
-    useSearchFilters
+  const {
+    keywords,
+    setKeywords,
+    useCardSetFilters,
+    useTierFilters,
+    useTalentExtraFilters,
+    resetFilters,
+  } = useSearchFilters
   const { cardSetFilters, handleCardSetFilterToggle } = useCardSetFilters
   const { tierFilters, handleTierFilterToggle } = useTierFilters
+  const { talentExtraFilters, handleTalentExtraFilterToggle, getTalentExtraFilterName } =
+    useTalentExtraFilters
 
   const preventFormSubmission = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -49,6 +58,15 @@ const TalentSearchPanel = ({ useSearchFilters, useTalentData }: TalentSearchPane
             selectedFilters={tierFilters}
             type="tier"
             onFilterToggle={handleTierFilterToggle}
+          />
+          <FilterGroup
+            title="Extras (TODO!)"
+            filters={allTalentExtraFilters}
+            selectedFilters={talentExtraFilters}
+            type="extra"
+            onFilterToggle={handleTalentExtraFilterToggle}
+            // TODO: Add filter labels
+            getFilterLabel={(filter) => getTalentExtraFilterName(filter)}
           />
         </div>
 

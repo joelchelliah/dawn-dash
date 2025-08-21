@@ -436,7 +436,7 @@ const TalentTree = ({ talentTree }: TalentTreeProps) => {
             `translate(0, ${-nodeHeight / 2 + nameHeight + descriptionHeight / 2})`
           )
 
-        const descLines = wrapText(data.description, nodeWidth + 30, 10)
+        const descLines = wrapText(data.description, nodeWidth + 10, 10)
         const descLineHeight = 11
 
         descLines.forEach((line, i) => {

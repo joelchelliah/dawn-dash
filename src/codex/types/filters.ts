@@ -88,7 +88,7 @@ export const Banner = {
   ],
 }
 
-// -------------------- Extra --------------------
+// -------------------- Card Extra --------------------
 
 export enum ExtraFilterOption {
   IncludeMonsterCards = 'IncludeMonsterCards',
@@ -100,6 +100,20 @@ export type Extra = ExtraFilterOption
 export const Extra = {
   ...ExtraFilterOption,
   getAll: (): Extra[] => [...Object.values(ExtraFilterOption)],
+}
+
+// -------------------- Talent Extra --------------------
+
+export enum TalentExtraFilterOption {
+  IncludeOffers = 'IncludeOffers',
+  IncludeEventBasedTalents = 'IncludeEventBasedTalents',
+}
+
+export type TalentExtra = TalentExtraFilterOption
+
+export const TalentExtra = {
+  ...TalentExtraFilterOption,
+  getAll: (): TalentExtra[] => [...Object.values(TalentExtraFilterOption)],
 }
 
 // -------------------- Formatting --------------------
@@ -137,6 +151,7 @@ export interface TalentCodexSearchFilterCache {
   keywords: string
   cardSets: Record<string, boolean>
   tiers: Record<string, boolean>
+  extras: Record<string, boolean>
   lastUpdated: number
 }
 

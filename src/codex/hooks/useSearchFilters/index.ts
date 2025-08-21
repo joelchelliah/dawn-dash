@@ -36,6 +36,7 @@ import { useFormattingFilters } from './useFormattingFilters'
 import { useCardStrike } from './useCardStrike'
 import { useTierFilters } from './useTierFilters'
 import { useKeywords } from './useKeywords'
+import { useTalentExtraFilters } from './useTalentExtraFilters'
 
 export interface UseCardSearchFilters {
   keywords: string
@@ -63,6 +64,7 @@ export interface UseTalentSearchFilters {
   matchingTalentTree: TalentTree | undefined
   useCardSetFilters: ReturnType<typeof useCardSetFilters>
   useTierFilters: ReturnType<typeof useTierFilters>
+  useTalentExtraFilters: ReturnType<typeof useTalentExtraFilters>
   resetFilters: () => void
 }
 
@@ -302,11 +304,9 @@ export const useTalentSearchFilters = (
   } = useKeywords(cachedFilters?.keywords)
   const [matchingTalentTree, setMatchingTalentTree] = useState<TalentTree | undefined>(undefined)
 
-  // TODO: Extras with Offers, talents from invasion events?
-
   const untrackedUseCardSetFilters = useCardSetFilters(cachedFilters?.cardSets)
   const untrackedUseTierFilters = useTierFilters(cachedFilters?.tiers)
-
+  const untrackedUseTalentExtraFilters = useTalentExtraFilters(cachedFilters?.extras)
   // --------------------------------------------------
   // ------ Tracking user interaction on filters ------
   // ------ to avoid initial cache saves on load ------
@@ -333,17 +333,27 @@ export const useTalentSearchFilters = (
       untrackedUseTierFilters.handleTierFilterToggle(tier)
     },
   }
+
+  const trackedUseTalentExtraFilters = {
+    ...untrackedUseTalentExtraFilters,
+    handleTalentExtraFilterToggle: (talentExtra: string) => {
+      hasUserChangedFilter.current = true
+      untrackedUseTalentExtraFilters.handleTalentExtraFilterToggle(talentExtra)
+    },
+  }
   // --------------------------------------------------
   // --------------------------------------------------
 
   const { cardSetFilters, isCardSetIndexSelected, resetCardSetFilters } = trackedUseCardSetFilters
   const { tierFilters, isTierIndexSelected, resetTierFilters } = trackedUseTierFilters
+  const { talentExtraFilters, resetTalentExtraFilters } = trackedUseTalentExtraFilters
 
   const resetFilters = () => {
     trackedSetKeywords('')
     resetParsedKeywords()
     resetCardSetFilters()
     resetTierFilters()
+    resetTalentExtraFilters()
   }
 
   // --------------------------------------------------
@@ -363,6 +373,7 @@ export const useTalentSearchFilters = (
         keywords,
         cardSets: cardSetFilters,
         tiers: tierFilters,
+        extras: talentExtraFilters,
         lastUpdated: Date.now(),
       })
     }, 1000)
@@ -372,7 +383,7 @@ export const useTalentSearchFilters = (
         clearTimeout(filterDebounceTimeoutRef.current)
       }
     }
-  }, [cardSetFilters, tierFilters, keywords])
+  }, [cardSetFilters, tierFilters, keywords, talentExtraFilters])
 
   // --------------------------------------------------
   // ------------- Filtering logic --------------------
@@ -507,6 +518,7 @@ export const useTalentSearchFilters = (
     matchingTalentTree,
     useCardSetFilters: trackedUseCardSetFilters,
     useTierFilters: trackedUseTierFilters,
+    useTalentExtraFilters: trackedUseTalentExtraFilters,
     resetFilters,
   }
 }
