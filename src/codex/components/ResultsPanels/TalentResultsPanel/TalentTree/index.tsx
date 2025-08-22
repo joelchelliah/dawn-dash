@@ -28,7 +28,8 @@ import {
 } from '@/codex/types/talents'
 import { parseTalentDescriptionLine } from '@/codex/utils/talentHelper'
 import { buildHierarchicalTreeFromTalentTree } from '@/codex/utils/treeHelper'
-import { useCollapsibleNodes } from '@/codex/hooks/useCollapsibleNodes'
+import { useExpandableNodes } from '@/codex/hooks/useExpandableNodes'
+import { useFormattingTalentFilters } from '@/codex/hooks/useSearchFilters/useFormattingTalentFilters'
 
 import styles from './index.module.scss'
 
@@ -36,6 +37,7 @@ const cx = createCx(styles)
 
 interface TalentTreeProps {
   talentTree: TalentTreeType | undefined
+  useFormattingFilters: ReturnType<typeof useFormattingTalentFilters>
 }
 
 const getRequirementIconProps = (
@@ -93,9 +95,10 @@ const getRequirementIconProps = (
   }
 }
 
-const TalentTree = ({ talentTree }: TalentTreeProps) => {
+const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
   const svgRef = useRef<SVGSVGElement>(null)
-  const { collapsedNodes, collapseNode } = useCollapsibleNodes()
+  const { shouldShowDescription } = useFormattingFilters
+  const { toggleNodeVisibility, isNodeVisible } = useExpandableNodes(shouldShowDescription)
 
   useEffect(() => {
     if (!svgRef.current || !talentTree) return
@@ -143,8 +146,7 @@ const TalentTree = ({ talentTree }: TalentTreeProps) => {
 
     const getDynamicVerticalSpacing = (node: HierarchicalTalentTreeNode) => {
       if (node.type === TalentTreeNodeType.TALENT) {
-        const isCollapsed = collapsedNodes.has(node.name)
-        if (isCollapsed) {
+        if (!isNodeVisible(node.name)) {
           return nameHeight * 2.8
         }
 
@@ -393,8 +395,7 @@ const TalentTree = ({ talentTree }: TalentTreeProps) => {
           }
         }
       } else {
-        // Talent nodes - calculate dynamic height for this specific node
-        const isCollapsed = collapsedNodes.has(data.name)
+        const isCollapsed = !isNodeVisible(data.name)
         const descLines = wrapText(data.description, nodeWidth + 10, 10)
         const descriptionHeight = isCollapsed
           ? collapsedDescriptionHeight
@@ -419,7 +420,7 @@ const TalentTree = ({ talentTree }: TalentTreeProps) => {
           .style('cursor', 'pointer')
           .on('click', function (event) {
             event.stopPropagation()
-            collapseNode(data.name)
+            toggleNodeVisibility(data.name)
           })
 
         if (!isCollapsed) {
@@ -486,7 +487,7 @@ const TalentTree = ({ talentTree }: TalentTreeProps) => {
         }
       }
     })
-  }, [talentTree, collapsedNodes, collapseNode])
+  }, [talentTree, isNodeVisible, toggleNodeVisibility])
 
   return (
     <div className={cx('talent-tree-container')}>

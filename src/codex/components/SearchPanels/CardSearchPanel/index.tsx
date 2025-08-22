@@ -12,7 +12,7 @@ import ButtonRow from '@/shared/components/Buttons/ButtonRow'
 
 import { ExtraCardFilterOption, RarityFilterOption } from '@/codex/types/filters'
 import { UseAllCardSearchFilters } from '@/codex/hooks/useSearchFilters'
-import { allFormattingFilters } from '@/codex/hooks/useSearchFilters/useFormattingFilters'
+import { allFormattingCardFilters } from '@/codex/hooks/useSearchFilters/useFormattingCardFilters'
 import { allRarities } from '@/codex/hooks/useSearchFilters/useRarityFilters'
 import { allBanners } from '@/codex/hooks/useSearchFilters/useBannerFilters'
 import { allExtraCardFilters } from '@/codex/hooks/useSearchFilters/useExtraCardFilters'
@@ -158,7 +158,7 @@ const CardSearchPanel = ({ useSearchFilters, useCardData }: CardSearchPanelProps
           />
           <FilterGroup
             title="Results formatting"
-            filters={allFormattingFilters}
+            filters={allFormattingCardFilters}
             selectedFilters={formattingFilters}
             type="formatting"
             onFilterToggle={handleFormattingFilterToggle}

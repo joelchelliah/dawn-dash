@@ -20,7 +20,7 @@ const cx = createCx(styles)
 
 const TalentResultsPanel = ({ useSearchFilters }: TalentResultsPanelProps) => {
   const [showCardsWithoutKeywords, setShowCardsWithoutKeywords] = useState(false)
-  const { parsedKeywords, matchingTalentTree } = useSearchFilters
+  const { parsedKeywords, matchingTalentTree, useFormattingFilters } = useSearchFilters
 
   function collectTalentNames(nodes: TalentTreeNode[]): string[] {
     let names: string[] = []
@@ -60,7 +60,7 @@ const TalentResultsPanel = ({ useSearchFilters }: TalentResultsPanelProps) => {
           className={cx('results-container__info')}
         />
 
-        <TalentTree talentTree={matchingTalentTree} />
+        <TalentTree talentTree={matchingTalentTree} useFormattingFilters={useFormattingFilters} />
       </div>
     )
   }

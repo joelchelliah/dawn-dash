@@ -22,7 +22,7 @@ import { useCardSetFilters } from './useCardSetFilters'
 import { useRarityFilters } from './useRarityFilters'
 import { useBannerFilters } from './useBannerFilters'
 import { useExtraCardFilters } from './useExtraCardFilters'
-import { useFormattingFilters } from './useFormattingFilters'
+import { useFormattingCardFilters } from './useFormattingCardFilters'
 import { useCardStrike } from './useCardStrike'
 import { useKeywords } from './useKeywords'
 import { useFilterTracking } from './useFilterTracking'
@@ -36,7 +36,7 @@ export interface UseAllCardSearchFilters {
   useRarityFilters: ReturnType<typeof useRarityFilters>
   useBannerFilters: ReturnType<typeof useBannerFilters>
   useExtraCardFilters: ReturnType<typeof useExtraCardFilters>
-  useFormattingFilters: ReturnType<typeof useFormattingFilters>
+  useFormattingFilters: ReturnType<typeof useFormattingCardFilters>
   useCardStrike: ReturnType<typeof useCardStrike>
   resetFilters: () => void
   resetStruckCards: () => void
@@ -63,7 +63,7 @@ export const useAllCardSearchFilters = (
   const untrackedUseRarityFilters = useRarityFilters(cachedFilters?.rarities)
   const untrackedUseBannerFilters = useBannerFilters(cachedFilters?.banners)
   const untrackedUseExtraCardFilters = useExtraCardFilters(cachedFilters?.extras)
-  const untrackedUseFormattingFilters = useFormattingFilters(cachedFilters?.formatting)
+  const untrackedUseFormattingFilters = useFormattingCardFilters(cachedFilters?.formatting)
   const untrackedUseCardStrike = useCardStrike(cachedFilters?.struckCards)
 
   // --------------------------------------------------

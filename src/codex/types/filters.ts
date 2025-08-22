@@ -88,7 +88,7 @@ export const Banner = {
   ],
 }
 
-// -------------------- Card Extra --------------------
+// -------------------- Extra Card --------------------
 
 export enum ExtraCardFilterOption {
   IncludeMonsterCards = 'IncludeMonsterCards',
@@ -102,7 +102,7 @@ export const ExtraCard = {
   getAll: (): ExtraCard[] => [...Object.values(ExtraCardFilterOption)],
 }
 
-// -------------------- Talent Extra --------------------
+// -------------------- Extra Talent --------------------
 
 export enum ExtraTalentFilterOption {
   IncludeOffers = 'IncludeOffers',
@@ -116,9 +116,9 @@ export const ExtraTalent = {
   getAll: (): ExtraTalent[] => [...Object.values(ExtraTalentFilterOption)],
 }
 
-// -------------------- Formatting --------------------
+// -------------------- Formatting Card --------------------
 
-export enum FormattingFilterOption {
+export enum FormattingCardFilterOption {
   ShowRarity = 'ShowRarity',
   ShowDescription = 'ShowDescription',
   ShowKeywords = 'ShowKeywords',
@@ -127,11 +127,24 @@ export enum FormattingFilterOption {
   HideTrackedCards = 'HideTrackedCards',
 }
 
-export type Formatting = FormattingFilterOption
+export type FormattingCard = FormattingCardFilterOption
 
-export const Formatting = {
-  ...FormattingFilterOption,
-  getAll: (): Formatting[] => [...Object.values(FormattingFilterOption)],
+export const FormattingCard = {
+  ...FormattingCardFilterOption,
+  getAll: (): FormattingCard[] => [...Object.values(FormattingCardFilterOption)],
+}
+
+// -------------------- Formatting Talent --------------------
+
+export enum FormattingTalentFilterOption {
+  ShowDescriptionByDefault = 'ShowDescriptionByDefault',
+}
+
+export type FormattingTalent = FormattingTalentFilterOption
+
+export const FormattingTalent = {
+  ...FormattingTalentFilterOption,
+  getAll: (): FormattingTalent[] => [...Object.values(FormattingTalentFilterOption)],
 }
 
 // -------------------- Cache --------------------
@@ -152,6 +165,7 @@ export interface TalentCodexSearchFilterCache {
   cardSets: Record<string, boolean>
   tiers: Record<string, boolean>
   extras: Record<string, boolean>
+  formatting: Record<string, boolean>
   lastUpdated: number
 }
 

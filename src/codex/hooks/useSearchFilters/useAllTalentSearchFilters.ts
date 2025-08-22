@@ -21,6 +21,7 @@ import { useExtraTalentFilters } from './useExtraTalentFilters'
 import { useTierFilters } from './useTierFilters'
 import { useKeywords } from './useKeywords'
 import { useFilterTracking } from './useFilterTracking'
+import { useFormattingTalentFilters } from './useFormattingTalentFilters'
 
 export interface UseAllTalentSearchFilters {
   keywords: string
@@ -30,6 +31,7 @@ export interface UseAllTalentSearchFilters {
   useCardSetFilters: ReturnType<typeof useCardSetFilters>
   useTierFilters: ReturnType<typeof useTierFilters>
   useExtraTalentFilters: ReturnType<typeof useExtraTalentFilters>
+  useFormattingFilters: ReturnType<typeof useFormattingTalentFilters>
   resetFilters: () => void
 }
 
@@ -48,6 +50,7 @@ export const useAllTalentSearchFilters = (
   const untrackedUseCardSetFilters = useCardSetFilters(cachedFilters?.cardSets)
   const untrackedUseTierFilters = useTierFilters(cachedFilters?.tiers)
   const untrackedUseExtraTalentFilters = useExtraTalentFilters(cachedFilters?.extras)
+  const untrackedUseFormattingFilters = useFormattingTalentFilters(cachedFilters?.formatting)
   // --------------------------------------------------
   // ------ Tracking user interaction on filters ------
   // --------------------------------------------------
@@ -57,6 +60,7 @@ export const useAllTalentSearchFilters = (
     cardSet: 'handleCardSetFilterToggle' as const,
     tier: 'handleTierFilterToggle' as const,
     extraTalent: 'handleExtraTalentFilterToggle' as const,
+    formatting: 'handleFormattingFilterToggle' as const,
   } as const
 
   const trackedSetKeywords = createTrackedSetter(setKeywordsUntracked)
@@ -65,15 +69,17 @@ export const useAllTalentSearchFilters = (
     untrackedUseCardSetFilters,
     TRACKED_FILTER_HANDLER.cardSet
   )
-
   const trackedUseTierFilters = createTrackedFilter(
     untrackedUseTierFilters,
     TRACKED_FILTER_HANDLER.tier
   )
-
   const trackedUseExtraTalentFilters = createTrackedFilter(
     untrackedUseExtraTalentFilters,
     TRACKED_FILTER_HANDLER.extraTalent
+  )
+  const trackedUseFormattingFilters = createTrackedFilter(
+    untrackedUseFormattingFilters,
+    TRACKED_FILTER_HANDLER.formatting
   )
   // --------------------------------------------------
   // --------------------------------------------------
@@ -86,6 +92,7 @@ export const useAllTalentSearchFilters = (
     shouldIncludeEventBasedTalents,
     resetExtraTalentFilters,
   } = trackedUseExtraTalentFilters
+  const { formattingFilters, resetFormattingFilters } = trackedUseFormattingFilters
 
   const resetFilters = () => {
     trackedSetKeywords('')
@@ -93,6 +100,7 @@ export const useAllTalentSearchFilters = (
     resetCardSetFilters()
     resetTierFilters()
     resetExtraTalentFilters()
+    resetFormattingFilters()
   }
 
   // --------------------------------------------------
@@ -113,6 +121,7 @@ export const useAllTalentSearchFilters = (
         cardSets: cardSetFilters,
         tiers: tierFilters,
         extras: extraTalentFilters,
+        formatting: formattingFilters,
         lastUpdated: Date.now(),
       })
     }, 1000)
@@ -122,7 +131,14 @@ export const useAllTalentSearchFilters = (
         clearTimeout(filterDebounceTimeoutRef.current)
       }
     }
-  }, [cardSetFilters, tierFilters, keywords, extraTalentFilters, hasUserChangedFilter])
+  }, [
+    cardSetFilters,
+    tierFilters,
+    keywords,
+    extraTalentFilters,
+    formattingFilters,
+    hasUserChangedFilter,
+  ])
 
   // --------------------------------------------------
   // ------------- Filtering logic --------------------
@@ -288,6 +304,7 @@ export const useAllTalentSearchFilters = (
     useCardSetFilters: trackedUseCardSetFilters,
     useTierFilters: trackedUseTierFilters,
     useExtraTalentFilters: trackedUseExtraTalentFilters,
+    useFormattingFilters: trackedUseFormattingFilters,
     resetFilters,
   }
 }

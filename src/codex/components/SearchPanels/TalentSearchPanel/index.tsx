@@ -6,6 +6,7 @@ import { UseAllTalentSearchFilters } from '@/codex/hooks/useSearchFilters'
 import { allCardSets } from '@/codex/hooks/useSearchFilters/useCardSetFilters'
 import { UseTalentData } from '@/codex/hooks/useTalentData'
 import { allExtraTalentFilters } from '@/codex/hooks/useSearchFilters/useExtraTalentFilters'
+import { allFormattingTalentFilters } from '@/codex/hooks/useSearchFilters/useFormattingTalentFilters'
 
 import CodexLastUpdated from '../../CodexLastUpdated'
 import PanelHeader from '../../PanelHeader'
@@ -26,12 +27,15 @@ const TalentSearchPanel = ({ useSearchFilters, useTalentData }: TalentSearchPane
     useCardSetFilters,
     useTierFilters,
     useExtraTalentFilters,
+    useFormattingFilters,
     resetFilters,
   } = useSearchFilters
   const { cardSetFilters, handleCardSetFilterToggle } = useCardSetFilters
   const { tierFilters, handleTierFilterToggle } = useTierFilters
   const { extraTalentFilters, handleExtraTalentFilterToggle, getExtraTalentFilterName } =
     useExtraTalentFilters
+  const { formattingFilters, handleFormattingFilterToggle, getFormattingFilterName } =
+    useFormattingFilters
 
   const preventFormSubmission = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -67,6 +71,14 @@ const TalentSearchPanel = ({ useSearchFilters, useTalentData }: TalentSearchPane
             onFilterToggle={handleExtraTalentFilterToggle}
             // TODO: Add filter labels
             getFilterLabel={(filter) => getExtraTalentFilterName(filter)}
+          />
+          <FilterGroup
+            title="Results formatting"
+            filters={allFormattingTalentFilters}
+            selectedFilters={formattingFilters}
+            type="formatting"
+            onFilterToggle={handleFormattingFilterToggle}
+            getFilterLabel={getFormattingFilterName}
           />
         </div>
 
