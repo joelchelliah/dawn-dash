@@ -1,15 +1,15 @@
 import {
   ArcanistImageUrl,
-  DanceOfBlightImageUrl,
   DexImageUrl,
+  EventImageUrl,
   HealthImageUrl,
   HolyImageUrl,
   HunterImageUrl,
+  InfernalContractUrl,
   IntImageUrl,
   KnightImageUrl,
   NeutralImageUrl,
   RogueImageUrl,
-  RushedForgeryImageUrl,
   SeekerImageUrl,
   StrImageUrl,
   SunforgeImageUrl,
@@ -79,9 +79,9 @@ export const getTalentRequirementIconProps = (
     case 'STR3':
       return { count: 3, url: StrImageUrl, color: colorRed, label: '3 STR' }
     case 'Offers':
-      return { count: 1, url: DanceOfBlightImageUrl, color: colorOffers, label: 'Offers' }
+      return { count: 1, url: InfernalContractUrl, color: colorOffers, label: 'Offers' }
     case 'Events':
-      return { count: 1, url: RushedForgeryImageUrl, color: colorEvents, label: 'Events' }
+      return { count: 1, url: EventImageUrl, color: colorEvents, label: 'Events' }
     case 'No Requirements':
       return { count: 1, url: NeutralImageUrl, color: colorGrey, label: 'No requirements' }
     default:

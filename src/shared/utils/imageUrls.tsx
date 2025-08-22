@@ -1,11 +1,12 @@
 const blightbaneImagesUrl = 'https://blightbane.io/images'
 
 // Cards
-export const DashImageUrl = `${blightbaneImagesUrl}/icons/cardart_4_53.webp`
-export const DanceOfBlightImageUrl = `${blightbaneImagesUrl}/icons/Dance%20of%20Blight_eclypse.webp`
 export const AbracadabraImageUrl = `${blightbaneImagesUrl}/icons/cards_metamorphosis_2_48.webp`
-export const EleganceImageUrl = `${blightbaneImagesUrl}/icons/elegance.webp`
+export const DanceOfBlightImageUrl = `${blightbaneImagesUrl}/icons/Dance%20of%20Blight_eclypse.webp`
 export const DantelionImageUrl = `${blightbaneImagesUrl}/monsters/dc_dantelion.webp`
+export const DashImageUrl = `${blightbaneImagesUrl}/icons/cardart_4_53.webp`
+export const EleganceImageUrl = `${blightbaneImagesUrl}/icons/elegance.webp`
+export const InfernalContractUrl = `${blightbaneImagesUrl}/icons/cardart_3_10.webp`
 export const RushedForgeryImageUrl = `${blightbaneImagesUrl}/icons/Forgery_eclypse-miniset.webp`
 
 // Classes
@@ -30,3 +31,4 @@ export const NeutralImageUrl = `${blightbaneImagesUrl}/neutral.webp`
 // Other
 export const HealthImageUrl = `${blightbaneImagesUrl}/health.webp`
 export const BolgarImageUrl = `${blightbaneImagesUrl}/bolgar.png`
+export const EventImageUrl = `${blightbaneImagesUrl}/events/opportunity_image.webp`
