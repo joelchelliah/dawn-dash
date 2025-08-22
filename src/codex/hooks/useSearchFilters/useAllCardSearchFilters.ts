@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { isArrayEqual } from '@/shared/utils/lists'
 
@@ -212,46 +212,55 @@ export const useAllCardSearchFilters = (
   // ------------- Filtering logic --------------------
   // --------------------------------------------------
 
+  const isMatchingCard = useCallback(
+    (card: CardData) => {
+      const passesExpansionFilter = hasMonsterExpansion(card)
+        ? shouldIncludeMonsterCards
+        : isCardSetIndexSelected(card.expansion)
+      const passesRarityFilter = hasMonsterRarity(card)
+        ? shouldIncludeMonsterCards
+        : isRarityIndexSelected(card.rarity)
+      const passesBannerFilter = hasMonsterBanner(card)
+        ? shouldIncludeMonsterCards
+        : isBannerIndexSelected(card.color)
+
+      const passesCollectibilityFilter = (() => {
+        if (isNonCollectibleRegularCard(card)) {
+          return shouldIncludeNonCollectibleCards
+        }
+        if (isNonCollectibleMonsterCard(card)) {
+          return shouldIncludeNonCollectibleCards && shouldIncludeMonsterCards
+        }
+        return true
+      })()
+
+      return (
+        passesExpansionFilter &&
+        passesRarityFilter &&
+        passesBannerFilter &&
+        passesCollectibilityFilter &&
+        isNameOrDescriptionIncluded(card, parsedKeywords)
+      )
+    },
+    [
+      shouldIncludeMonsterCards,
+      isCardSetIndexSelected,
+      isRarityIndexSelected,
+      isBannerIndexSelected,
+      shouldIncludeNonCollectibleCards,
+      parsedKeywords,
+    ]
+  )
+
   useEffect(() => {
     if (cardData) {
-      const filteredCards = cardData
-        .filter((card) =>
-          hasMonsterExpansion(card)
-            ? shouldIncludeMonsterCards
-            : isCardSetIndexSelected(card.expansion)
-        )
-        .filter((card) =>
-          hasMonsterRarity(card) ? shouldIncludeMonsterCards : isRarityIndexSelected(card.rarity)
-        )
-        .filter((card) =>
-          hasMonsterBanner(card) ? shouldIncludeMonsterCards : isBannerIndexSelected(card.color)
-        )
-        .filter((card) => {
-          if (isNonCollectibleRegularCard(card)) {
-            return shouldIncludeNonCollectibleCards || !isNonCollectibleRegularCard(card)
-          }
-          if (isNonCollectibleMonsterCard(card)) {
-            return shouldIncludeNonCollectibleCards && shouldIncludeMonsterCards
-          }
-
-          return true
-        })
-        .filter((card) => isNameOrDescriptionIncluded(card, parsedKeywords))
+      const filteredCards = cardData.filter(isMatchingCard)
 
       if (!isArrayEqual(filteredCards, matchingCards, 'name')) {
         setMatchingCards(filteredCards)
       }
     }
-  }, [
-    cardData,
-    isBannerIndexSelected,
-    isCardSetIndexSelected,
-    isRarityIndexSelected,
-    parsedKeywords,
-    matchingCards,
-    shouldIncludeMonsterCards,
-    shouldIncludeNonCollectibleCards,
-  ])
+  }, [cardData, isMatchingCard, matchingCards])
   // --------------------------------------------------
   // --------------------------------------------------
 

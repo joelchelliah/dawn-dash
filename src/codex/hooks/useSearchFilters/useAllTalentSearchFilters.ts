@@ -215,24 +215,22 @@ export const useAllTalentSearchFilters = (
   )
 
   const isMatchingTalent = useCallback(
-    (node: TalentTreeTalentNode) => {
+    (talent: TalentTreeTalentNode) => {
       const passesExpansionFilter =
         shouldIncludeOffers ||
         shouldIncludeEventBasedTalents ||
-        isCardSetIndexSelected(node.expansion)
+        isCardSetIndexSelected(talent.expansion)
+      const passesTierFilter = isTierIndexSelected(talent.tier)
 
-      const passesOfferFilter = !isTalentOffer(node) || shouldIncludeOffers
-      const passesEventFilter = !isTalentEventBased(node) || shouldIncludeEventBasedTalents
-
-      const passesTierFilter = isTierIndexSelected(node.tier)
-      const passesKeywordFilter = isNameOrDescriptionIncluded(node, parsedKeywords)
+      const passesOfferFilter = !isTalentOffer(talent) || shouldIncludeOffers
+      const passesEventFilter = !isTalentEventBased(talent) || shouldIncludeEventBasedTalents
 
       return (
         passesExpansionFilter &&
+        passesTierFilter &&
         passesOfferFilter &&
         passesEventFilter &&
-        passesTierFilter &&
-        passesKeywordFilter
+        isNameOrDescriptionIncluded(talent, parsedKeywords)
       )
     },
     [
