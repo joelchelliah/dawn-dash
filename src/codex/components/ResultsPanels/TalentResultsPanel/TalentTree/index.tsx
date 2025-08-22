@@ -3,30 +3,19 @@ import { useEffect, useRef } from 'react'
 import * as d3 from 'd3'
 
 import { createCx } from '@/shared/utils/classnames'
-import {
-  DexImageUrl,
-  IntImageUrl,
-  StrImageUrl,
-  NeutralImageUrl,
-  ArcanistImageUrl,
-  HunterImageUrl,
-  KnightImageUrl,
-  RogueImageUrl,
-  SeekerImageUrl,
-  WarriorImageUrl,
-  SunforgeImageUrl,
-  DanceOfBlightImageUrl,
-  RushedForgeryImageUrl,
-} from '@/shared/utils/imageUrls'
-import { ClassColorVariant, darken, getClassColor, lighten } from '@/shared/utils/classColors'
-import { CharacterClass } from '@/shared/types/characterClass'
+import { lighten } from '@/shared/utils/classColors'
 
 import {
   TalentTree as TalentTreeType,
   TalentTreeNodeType,
   HierarchicalTalentTreeNode,
 } from '@/codex/types/talents'
-import { parseTalentDescriptionLine } from '@/codex/utils/talentHelper'
+import {
+  getLinkColor,
+  getTalentRequirementIconProps,
+  parseTalentDescriptionLine,
+  wrapText,
+} from '@/codex/utils/talentHelper'
 import { buildHierarchicalTreeFromTalentTree } from '@/codex/utils/treeHelper'
 import { useExpandableNodes } from '@/codex/hooks/useExpandableNodes'
 import { useFormattingTalentFilters } from '@/codex/hooks/useSearchFilters/useFormattingTalentFilters'
@@ -38,61 +27,6 @@ const cx = createCx(styles)
 interface TalentTreeProps {
   talentTree: TalentTreeType | undefined
   useFormattingFilters: ReturnType<typeof useFormattingTalentFilters>
-}
-
-const getRequirementIconProps = (
-  isClassRequirement: boolean,
-  label: string
-): { count: number; url: string; color: string; label: string } => {
-  if (isClassRequirement) {
-    const color = getClassColor(label as CharacterClass, ClassColorVariant.Dark)
-    switch (label) {
-      case CharacterClass.Arcanist:
-        return { count: 1, url: ArcanistImageUrl, color, label }
-      case CharacterClass.Hunter:
-        return { count: 1, url: HunterImageUrl, color, label }
-      case CharacterClass.Knight:
-        return { count: 1, url: KnightImageUrl, color, label }
-      case CharacterClass.Rogue:
-        return { count: 1, url: RogueImageUrl, color, label }
-      case CharacterClass.Seeker:
-        return { count: 1, url: SeekerImageUrl, color, label }
-      case CharacterClass.Warrior:
-        return { count: 1, url: WarriorImageUrl, color, label }
-      default:
-        return { count: 1, url: SunforgeImageUrl, color, label }
-    }
-  }
-
-  const colorGrey = getClassColor(CharacterClass.Neutral, ClassColorVariant.Default)
-  const colorRed = getClassColor(CharacterClass.Warrior, ClassColorVariant.Default)
-  const colorGreen = getClassColor(CharacterClass.Rogue, ClassColorVariant.Default)
-  const colorBlue = getClassColor(CharacterClass.Arcanist, ClassColorVariant.Default)
-
-  switch (label) {
-    case 'DEX':
-      return { count: 1, url: DexImageUrl, color: colorGreen, label: 'DEX' }
-    case 'DEX2':
-      return { count: 2, url: DexImageUrl, color: colorGreen, label: '2 DEX' }
-    case 'INT':
-      return { count: 1, url: IntImageUrl, color: colorBlue, label: 'INT' }
-    case 'INT2':
-      return { count: 2, url: IntImageUrl, color: colorBlue, label: '2 INT' }
-    case 'STR':
-      return { count: 1, url: StrImageUrl, color: colorRed, label: 'STR' }
-    case 'STR2':
-      return { count: 2, url: StrImageUrl, color: colorRed, label: '2 STR' }
-    case 'STR3':
-      return { count: 3, url: StrImageUrl, color: colorRed, label: '3 STR' }
-    case 'Offers':
-      return { count: 1, url: DanceOfBlightImageUrl, color: darken(colorRed, 10), label: 'Offers' }
-    case 'Events':
-      return { count: 1, url: RushedForgeryImageUrl, color: colorGrey, label: 'Events' }
-    case 'No Requirements':
-      return { count: 1, url: NeutralImageUrl, color: colorGrey, label: 'No requirements' }
-    default:
-      throw new Error(`Unknown requirement label: ${label}`)
-  }
 }
 
 const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
@@ -119,30 +53,6 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
     const defaultVerticalSpacing = 100
     const horizontalSpacing = nodeWidth * 1.4
     // - - - - - - - - - - - - - - - - - -
-
-    const wrapText = (text: string, width: number, fontSize: number) => {
-      const approxCharacterWidth = fontSize * 0.61
-      const words = text.split(' ')
-      const lines: string[] = [''] // Start with an empty line for slight padding
-      let currentLine = words[0]
-
-      const stripHtmlTags = (str: string) => str.replace(/<\/?(?:b|nobr)>/gi, '')
-
-      for (let i = 1; i < words.length; i++) {
-        const word = words[i]
-        const testLine = currentLine + ' ' + word
-        const testWidth = stripHtmlTags(testLine).length * approxCharacterWidth
-
-        if (testWidth > width) {
-          lines.push(currentLine)
-          currentLine = word
-        } else {
-          currentLine = testLine
-        }
-      }
-      lines.push(currentLine)
-      return lines
-    }
 
     const getDynamicVerticalSpacing = (node: HierarchicalTalentTreeNode) => {
       if (node.type === TalentTreeNodeType.TALENT) {
@@ -207,22 +117,7 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
       .attr('width', svgWidth)
       .attr('height', svgHeight)
 
-    // Define icons in defs on the main SVG
     const defs = mainSvg.append('defs')
-
-    // Add icon definitions
-    const icons = [
-      { id: 'health-icon', url: 'https://blightbane.io/images/health.webp' },
-      { id: 'holy-icon', url: 'https://blightbane.io/images/holy.webp' },
-      { id: 'str-icon', url: 'https://blightbane.io/images/str.webp' },
-      { id: 'int-icon', url: 'https://blightbane.io/images/int.webp' },
-      { id: 'dex-icon', url: 'https://blightbane.io/images/dex.webp' },
-    ]
-
-    icons.forEach(({ id, url }) => {
-      defs.append('image').attr('id', id).attr('href', url).attr('width', 12).attr('height', 12)
-    })
-
     const svg = mainSvg.append('g').attr('transform', `translate(50, ${-minX + topPadding})`)
 
     const generateLinkPath = (d: d3.HierarchyPointLink<HierarchicalTalentTreeNode>) => {
@@ -247,46 +142,9 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
       .attr('class', cx('tree-link'))
       .attr('d', generateLinkPath)
       .style('stroke', (link) => {
-        const parentData = link.source.data
+        const { name, type } = link.source.data
 
-        const getLinkColor = (name: string, type: TalentTreeNodeType | undefined): string => {
-          const colorGrey = darken(
-            getClassColor(CharacterClass.Neutral, ClassColorVariant.Darkest),
-            15
-          )
-
-          if (type === TalentTreeNodeType.CLASS_REQUIREMENT) {
-            return getClassColor(name as CharacterClass, ClassColorVariant.Dark)
-          } else if (type === TalentTreeNodeType.ENERGY_REQUIREMENT) {
-            const colorRed = getClassColor(CharacterClass.Warrior, ClassColorVariant.Dark)
-            const colorGreen = getClassColor(CharacterClass.Rogue, ClassColorVariant.Dark)
-            const colorBlue = getClassColor(CharacterClass.Arcanist, ClassColorVariant.Dark)
-
-            switch (name) {
-              case 'DEX':
-              case 'DEX2':
-                return colorGreen
-              case 'INT':
-              case 'INT2':
-                return colorBlue
-              case 'STR':
-              case 'STR2':
-              case 'STR3':
-                return colorRed
-              default:
-                return colorGrey
-            }
-          } else if (type === TalentTreeNodeType.TALENT) {
-            let currentNode = link.source
-            while (currentNode.parent && currentNode.data.type === TalentTreeNodeType.TALENT) {
-              currentNode = currentNode.parent
-            }
-            return getLinkColor(currentNode.data.name, currentNode.data.type)
-          }
-          return colorGrey
-        }
-
-        return getLinkColor(parentData.name, parentData.type)
+        return getLinkColor(link, name, type)
       })
 
     // Add nodes
@@ -317,7 +175,7 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
       if (depth === 1) {
         if (data.type) {
           const isClassRequirement = data.type === TalentTreeNodeType.CLASS_REQUIREMENT
-          const { count, url, color, label } = getRequirementIconProps(
+          const { count, url, color, label } = getTalentRequirementIconProps(
             isClassRequirement,
             data.name
           )
