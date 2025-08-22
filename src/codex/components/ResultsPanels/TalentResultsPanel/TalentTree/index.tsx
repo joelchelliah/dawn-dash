@@ -20,15 +20,14 @@ import {
 } from '@/shared/utils/imageUrls'
 import { ClassColorVariant, darken, getClassColor, lighten } from '@/shared/utils/classColors'
 import { CharacterClass } from '@/shared/types/characterClass'
-import { isNotNullOrUndefined } from '@/shared/utils/object'
 
 import {
-  TalentTreeRequirementNode,
-  TalentTreeTalentNode,
   TalentTree as TalentTreeType,
   TalentTreeNodeType,
+  HierarchicalTalentTreeNode,
 } from '@/codex/types/talents'
 import { parseTalentDescriptionLine } from '@/codex/utils/talentHelper'
+import { buildHierarchicalTreeFromTalentTree } from '@/codex/utils/treeHelper'
 
 import styles from './index.module.scss'
 
@@ -36,14 +35,6 @@ const cx = createCx(styles)
 
 interface TalentTreeProps {
   talentTree: TalentTreeType | undefined
-}
-
-interface TreeNode {
-  name: string
-  description: string
-  nodeType?: TalentTreeNodeType
-  tier?: number
-  children?: TreeNode[]
 }
 
 const getRequirementIconProps = (
@@ -110,54 +101,66 @@ const TalentTree = ({ talentTree }: TalentTreeProps) => {
     // Clear previous visualization
     d3.select(svgRef.current).selectAll('*').remove()
 
-    const buildTreeFromTalentNode = (node: TalentTreeTalentNode): TreeNode => {
-      const children = node.children.map(buildTreeFromTalentNode)
-      return {
-        name: node.name,
-        description: node.description,
-        nodeType: TalentTreeNodeType.TALENT,
-        tier: node.tier,
-        children: children.length > 0 ? children : undefined,
-      }
-    }
+    const treeNode = d3.hierarchy<HierarchicalTalentTreeNode>(
+      buildHierarchicalTreeFromTalentTree(talentTree)
+    )
 
-    const buildTreeFromRequirementNode = (
-      node: TalentTreeRequirementNode
-    ): TreeNode | undefined => {
-      const children = node.children.map(buildTreeFromTalentNode)
-
-      if (children.length === 0) {
-        return undefined
-      }
-
-      return {
-        name: node.name,
-        description: `MISSING description for ${node.name}`,
-        nodeType: node.type,
-        children,
-      }
-    }
-
-    const treeNode = d3.hierarchy<TreeNode>({
-      name: 'Root',
-      description: '',
-      children: [
-        buildTreeFromRequirementNode(talentTree.noReqNode),
-        ...talentTree.energyNodes.map(buildTreeFromRequirementNode).filter(isNotNullOrUndefined),
-        ...talentTree.classNodes.map(buildTreeFromRequirementNode).filter(isNotNullOrUndefined),
-        buildTreeFromRequirementNode(talentTree.offerNode),
-      ].filter(isNotNullOrUndefined),
-    })
-
-    // Node dimensions
+    // - - - - - Node dimensions - - - - -
     const nodeWidth = 200
-    const nodeHeight = 85
     const nameHeight = 25
-    const descriptionHeight = 65
+    const baseDescriptionHeight = 20
+    const descriptionLineHeight = 11
+    const defaultVerticalSpacing = 100
     const horizontalSpacing = nodeWidth * 1.4
-    const verticalSpacing = nodeHeight * 1.4
+    // - - - - - - - - - - - - - - - - - -
 
-    const treeLayout = d3.tree<TreeNode>().nodeSize([verticalSpacing, horizontalSpacing])
+    const wrapText = (text: string, width: number, fontSize: number) => {
+      const approxCharacterWidth = fontSize * 0.61
+      const words = text.split(' ')
+      const lines: string[] = [''] // Start with an empty line for slight padding
+      let currentLine = words[0]
+
+      const stripHtmlTags = (str: string) => str.replace(/<\/?(?:b|nobr)>/gi, '')
+
+      for (let i = 1; i < words.length; i++) {
+        const word = words[i]
+        const testLine = currentLine + ' ' + word
+        const testWidth = stripHtmlTags(testLine).length * approxCharacterWidth
+
+        if (testWidth > width) {
+          lines.push(currentLine)
+          currentLine = word
+        } else {
+          currentLine = testLine
+        }
+      }
+      lines.push(currentLine)
+      return lines
+    }
+
+    const getDynamicVerticalSpacing = (node: HierarchicalTalentTreeNode) => {
+      if (node.type === TalentTreeNodeType.TALENT) {
+        const descLines = wrapText(node.description, nodeWidth + 10, 10)
+        const descriptionHeight = Math.max(
+          baseDescriptionHeight,
+          descLines.length * descriptionLineHeight
+        )
+
+        return (nameHeight + descriptionHeight) * 1.7
+      }
+      return defaultVerticalSpacing
+    }
+
+    const treeLayout = d3
+      .tree<HierarchicalTalentTreeNode>()
+      .nodeSize([defaultVerticalSpacing, horizontalSpacing])
+      .separation((a, b) => {
+        const aVertical = getDynamicVerticalSpacing(a.data)
+        const bVertical = getDynamicVerticalSpacing(b.data)
+        const minSeparation = (aVertical + bVertical) / (2 * defaultVerticalSpacing)
+
+        return a.parent === b.parent ? minSeparation : minSeparation * 1.25
+      })
     const treeData = treeLayout(treeNode)
 
     // Shift all nodes left so that the root talents are at y=0
@@ -180,7 +183,9 @@ const TalentTree = ({ talentTree }: TalentTreeProps) => {
 
     const topPadding = 40
     const bottomPadding = 1500
-    const svgHeight = 0.92 * maxX - minX + topPadding + bottomPadding
+    const minFactorForEverythingToFitInContainer = 0.925
+    const svgHeight =
+      minFactorForEverythingToFitInContainer * maxX - minX + topPadding + bottomPadding
 
     // Calculate width based on max depth
     const baseWidth = 1050 // Width for depth 4
@@ -215,7 +220,10 @@ const TalentTree = ({ talentTree }: TalentTreeProps) => {
     // The .x() and .y() accessors map these coordinates for the SVG path.
     // Used to visually connect parent and child nodes in the tree.
     const linkGenerator = d3
-      .linkHorizontal<d3.HierarchyPointNode<TreeNode>, d3.HierarchyPointNode<TreeNode>>()
+      .linkHorizontal<
+        d3.HierarchyPointNode<HierarchicalTalentTreeNode>,
+        d3.HierarchyPointNode<HierarchicalTalentTreeNode>
+      >()
       .x((d) => d.y)
       .y((d) => d.x)
 
@@ -226,7 +234,9 @@ const TalentTree = ({ talentTree }: TalentTreeProps) => {
       .enter()
       .append('path')
       .attr('class', cx('tree-link'))
-      .attr('d', (d) => linkGenerator(d as unknown as d3.HierarchyPointNode<TreeNode>))
+      .attr('d', (d) =>
+        linkGenerator(d as unknown as d3.HierarchyPointNode<HierarchicalTalentTreeNode>)
+      )
       .style('stroke', (link) => {
         const parentData = link.source.data
 
@@ -259,15 +269,15 @@ const TalentTree = ({ talentTree }: TalentTreeProps) => {
             }
           } else if (type === TalentTreeNodeType.TALENT) {
             let currentNode = link.source
-            while (currentNode.parent && currentNode.data.nodeType === TalentTreeNodeType.TALENT) {
+            while (currentNode.parent && currentNode.data.type === TalentTreeNodeType.TALENT) {
               currentNode = currentNode.parent
             }
-            return getLinkColor(currentNode.data.name, currentNode.data.nodeType)
+            return getLinkColor(currentNode.data.name, currentNode.data.type)
           }
           return colorGrey
         }
 
-        return getLinkColor(parentData.name, parentData.nodeType)
+        return getLinkColor(parentData.name, parentData.type)
       })
 
     // Add nodes
@@ -296,16 +306,16 @@ const TalentTree = ({ talentTree }: TalentTreeProps) => {
       const nodeElement = d3.select(this)
 
       if (depth === 1) {
-        if (data.nodeType) {
-          const isClassRequirement = data.nodeType === TalentTreeNodeType.CLASS_REQUIREMENT
+        if (data.type) {
+          const isClassRequirement = data.type === TalentTreeNodeType.CLASS_REQUIREMENT
           const { count, url, color, label } = getRequirementIconProps(
             isClassRequirement,
             data.name
           )
           const showBiggerIcons =
             isClassRequirement ||
-            data.nodeType === TalentTreeNodeType.OFFER_REQUIREMENT ||
-            data.nodeType === TalentTreeNodeType.EVENT_BASED_REQUIREMENT
+            data.type === TalentTreeNodeType.OFFER_REQUIREMENT ||
+            data.type === TalentTreeNodeType.EVENT_BASED_REQUIREMENT
 
           let circleRadius = 0
           if (showBiggerIcons) {
@@ -376,30 +386,36 @@ const TalentTree = ({ talentTree }: TalentTreeProps) => {
           }
         }
       } else {
-        // Talent nodes
+        // Talent nodes - calculate dynamic height for this specific node
+        const descLines = wrapText(data.description, nodeWidth + 10, 10)
+        const descriptionHeight = Math.max(
+          baseDescriptionHeight,
+          descLines.length * descriptionLineHeight
+        )
+        const dynamicNodeHeight = nameHeight + descriptionHeight + 6
 
         nodeElement
           .append('rect')
           .attr('width', nodeWidth + 6)
-          .attr('height', nodeHeight + 6)
+          .attr('height', dynamicNodeHeight + 6)
           .attr('x', -(nodeWidth + 6) / 2)
-          .attr('y', -(nodeHeight + 6) / 2)
+          .attr('y', -(dynamicNodeHeight + 6) / 2)
           .attr('class', cx('talent-node-glow', `talent-node-glow--tier-${data.tier || 0}`))
 
         nodeElement
           .append('rect')
           .attr('width', nodeWidth)
-          .attr('height', nodeHeight)
+          .attr('height', dynamicNodeHeight)
           .attr('x', -nodeWidth / 2)
-          .attr('y', -nodeHeight / 2)
+          .attr('y', -dynamicNodeHeight / 2)
           .attr('class', cx('talent-node', `talent-node--tier-${data.tier || 0}`))
 
         nodeElement
           .append('line')
           .attr('x1', -nodeWidth / 2)
-          .attr('y1', -nodeHeight / 2 + nameHeight)
+          .attr('y1', -dynamicNodeHeight / 2 + nameHeight)
           .attr('x2', nodeWidth / 2)
-          .attr('y2', -nodeHeight / 2 + nameHeight)
+          .attr('y2', -dynamicNodeHeight / 2 + nameHeight)
           .attr(
             'class',
             cx('talent-node-separator', `talent-node-separator--tier-${data.tier || 0}`)
@@ -408,31 +424,9 @@ const TalentTree = ({ talentTree }: TalentTreeProps) => {
         // Add content group
         const contentGroup = nodeElement.append('g').attr('class', cx('tree-node-content'))
 
-        // Helper function to wrap text
-        const wrapText = (text: string, width: number, fontSize: number) => {
-          const words = text.split(' ')
-          const lines: string[] = []
-          let currentLine = words[0]
-
-          for (let i = 1; i < words.length; i++) {
-            const word = words[i]
-            const testLine = currentLine + ' ' + word
-            const testWidth = testLine.length * fontSize * 0.6 // Approximate character width
-
-            if (testWidth > width) {
-              lines.push(currentLine)
-              currentLine = word
-            } else {
-              currentLine = testLine
-            }
-          }
-          lines.push(currentLine)
-          return lines
-        }
-
         const nameGroup = contentGroup
           .append('g')
-          .attr('transform', `translate(0, ${-nodeHeight / 2 + nameHeight / 2})`)
+          .attr('transform', `translate(0, ${-dynamicNodeHeight / 2 + nameHeight / 2})`)
 
         nameGroup
           .append('text')
@@ -446,20 +440,20 @@ const TalentTree = ({ talentTree }: TalentTreeProps) => {
           .append('g')
           .attr(
             'transform',
-            `translate(0, ${-nodeHeight / 2 + nameHeight + descriptionHeight / 2})`
+            `translate(0, ${-dynamicNodeHeight / 2 + nameHeight + descriptionHeight / 2})`
           )
-
-        const descLines = wrapText(data.description, nodeWidth + 10, 10)
-        const descLineHeight = 11
 
         descLines.forEach((line, i) => {
           const segments = parseTalentDescriptionLine(line)
           const foreignObject = descGroup
             .append('foreignObject')
             .attr('x', -nodeWidth / 2)
-            .attr('y', i * descLineHeight - ((descLines.length - 1) * descLineHeight) / 2 - 9)
+            .attr(
+              'y',
+              i * descriptionLineHeight - ((descLines.length - 1) * descriptionLineHeight) / 2 - 9
+            )
             .attr('width', nodeWidth)
-            .attr('height', descLineHeight)
+            .attr('height', descriptionLineHeight)
 
           let htmlContent = ''
           segments.forEach((segment) => {

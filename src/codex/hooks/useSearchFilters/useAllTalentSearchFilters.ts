@@ -14,6 +14,7 @@ import {
   getCachedTalentCodexSearchFilters,
 } from '@/codex/utils/codexFilterStore'
 import { isTalentEventBased, isTalentOffer } from '@/codex/utils/talentHelper'
+import { isTalentTreeEqual } from '@/codex/utils/treeHelper'
 
 import { useCardSetFilters } from './useCardSetFilters'
 import { useExtraTalentFilters } from './useExtraTalentFilters'
@@ -302,29 +303,3 @@ const isNameOrDescriptionIncluded = (
       name.toLowerCase().includes(keyword.toLowerCase()) ||
       description.toLowerCase().includes(keyword.toLowerCase())
   )
-
-const isTalentTreeEqual = (talentTreeA: TalentTree, talentTreeB: TalentTree): boolean =>
-  isTalentTreeNodeEqual(talentTreeA.offerNode, talentTreeB.offerNode) &&
-  isTalentTreeNodeEqual(talentTreeA.noReqNode, talentTreeB.noReqNode) &&
-  areTalentTreeNodesEqual(talentTreeA.classNodes, talentTreeB.classNodes) &&
-  areTalentTreeNodesEqual(talentTreeA.energyNodes, talentTreeB.energyNodes)
-
-const areTalentTreeNodesEqual = (nodesA: TalentTreeNode[], nodesB: TalentTreeNode[]): boolean =>
-  nodesA.length === nodesB.length &&
-  nodesA.every((a) => nodesB.some((b) => isTalentTreeNodeEqual(a, b))) &&
-  nodesB.every((b) => nodesA.some((a) => isTalentTreeNodeEqual(a, b)))
-
-const isTalentTreeNodeEqual = (nodeA: TalentTreeNode, nodeB: TalentTreeNode): boolean => {
-  if (nodeA.type !== nodeB.type) return false
-
-  if (nodeA.type === TalentTreeNodeType.TALENT && nodeB.type === TalentTreeNodeType.TALENT) {
-    return (
-      nodeA.name === nodeB.name &&
-      nodeA.description === nodeB.description &&
-      nodeA.tier === nodeB.tier &&
-      areTalentTreeNodesEqual(nodeA.children, nodeB.children)
-    )
-  } else {
-    return nodeA.name === nodeB.name && areTalentTreeNodesEqual(nodeA.children, nodeB.children)
-  }
-}

@@ -52,3 +52,12 @@ export type TalentTree = {
 }
 
 export type TalentTreeNode = TalentTreeTalentNode | TalentTreeRequirementNode
+
+// Simplified recursive tree node for hierarchical rendering via d3.js
+export interface HierarchicalTalentTreeNode {
+  name: string
+  description: string
+  type?: TalentTreeNodeType
+  tier?: number
+  children?: HierarchicalTalentTreeNode[]
+}
