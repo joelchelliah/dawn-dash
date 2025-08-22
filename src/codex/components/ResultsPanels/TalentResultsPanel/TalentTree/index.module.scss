@@ -88,11 +88,16 @@
   font-weight: 600;
   fill: $color-primary-base;
   text-anchor: middle;
+
+  &--collapsed {
+    font-size: font-size('sm');
+  }
 }
 
 .talent-node-description {
   font-size: font-size('xxxs');
-  color: $color-primary-muted;
+  color: $color-primary-base;
+  opacity: 0.8;
   text-align: center;
   line-height: 1.2;
   word-wrap: break-word;

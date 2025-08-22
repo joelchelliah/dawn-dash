@@ -28,6 +28,7 @@ import {
 } from '@/codex/types/talents'
 import { parseTalentDescriptionLine } from '@/codex/utils/talentHelper'
 import { buildHierarchicalTreeFromTalentTree } from '@/codex/utils/treeHelper'
+import { useCollapsibleNodes } from '@/codex/hooks/useCollapsibleNodes'
 
 import styles from './index.module.scss'
 
@@ -94,6 +95,7 @@ const getRequirementIconProps = (
 
 const TalentTree = ({ talentTree }: TalentTreeProps) => {
   const svgRef = useRef<SVGSVGElement>(null)
+  const { collapsedNodes, collapseNode } = useCollapsibleNodes()
 
   useEffect(() => {
     if (!svgRef.current || !talentTree) return
@@ -108,7 +110,8 @@ const TalentTree = ({ talentTree }: TalentTreeProps) => {
     // - - - - - Node dimensions - - - - -
     const nodeWidth = 200
     const nameHeight = 25
-    const baseDescriptionHeight = 20
+    const minDescriptionHeight = 20
+    const collapsedDescriptionHeight = 4
     const descriptionLineHeight = 11
     const defaultVerticalSpacing = 100
     const horizontalSpacing = nodeWidth * 1.4
@@ -140,9 +143,14 @@ const TalentTree = ({ talentTree }: TalentTreeProps) => {
 
     const getDynamicVerticalSpacing = (node: HierarchicalTalentTreeNode) => {
       if (node.type === TalentTreeNodeType.TALENT) {
+        const isCollapsed = collapsedNodes.has(node.name)
+        if (isCollapsed) {
+          return nameHeight * 2.8
+        }
+
         const descLines = wrapText(node.description, nodeWidth + 10, 10)
         const descriptionHeight = Math.max(
-          baseDescriptionHeight,
+          minDescriptionHeight,
           descLines.length * descriptionLineHeight
         )
 
@@ -386,11 +394,11 @@ const TalentTree = ({ talentTree }: TalentTreeProps) => {
         }
       } else {
         // Talent nodes - calculate dynamic height for this specific node
+        const isCollapsed = collapsedNodes.has(data.name)
         const descLines = wrapText(data.description, nodeWidth + 10, 10)
-        const descriptionHeight = Math.max(
-          baseDescriptionHeight,
-          descLines.length * descriptionLineHeight
-        )
+        const descriptionHeight = isCollapsed
+          ? collapsedDescriptionHeight
+          : Math.max(minDescriptionHeight, descLines.length * descriptionLineHeight)
         const dynamicNodeHeight = nameHeight + descriptionHeight + 6
 
         nodeElement
@@ -408,17 +416,24 @@ const TalentTree = ({ talentTree }: TalentTreeProps) => {
           .attr('x', -nodeWidth / 2)
           .attr('y', -dynamicNodeHeight / 2)
           .attr('class', cx('talent-node', `talent-node--tier-${data.tier || 0}`))
+          .style('cursor', 'pointer')
+          .on('click', function (event) {
+            event.stopPropagation()
+            collapseNode(data.name)
+          })
 
-        nodeElement
-          .append('line')
-          .attr('x1', -nodeWidth / 2)
-          .attr('y1', -dynamicNodeHeight / 2 + nameHeight)
-          .attr('x2', nodeWidth / 2)
-          .attr('y2', -dynamicNodeHeight / 2 + nameHeight)
-          .attr(
-            'class',
-            cx('talent-node-separator', `talent-node-separator--tier-${data.tier || 0}`)
-          )
+        if (!isCollapsed) {
+          nodeElement
+            .append('line')
+            .attr('x1', -nodeWidth / 2)
+            .attr('y1', -dynamicNodeHeight / 2 + nameHeight)
+            .attr('x2', nodeWidth / 2)
+            .attr('y2', -dynamicNodeHeight / 2 + nameHeight)
+            .attr(
+              'class',
+              cx('talent-node-separator', `talent-node-separator--tier-${data.tier || 0}`)
+            )
+        }
 
         // Add content group
         const contentGroup = nodeElement.append('g').attr('class', cx('tree-node-content'))
@@ -430,47 +445,48 @@ const TalentTree = ({ talentTree }: TalentTreeProps) => {
         nameGroup
           .append('text')
           .attr('x', 0)
-          .attr('y', 4)
+          .attr('y', isCollapsed ? 10 : 4)
           .text(data.name)
-          .attr('class', cx('talent-node-name'))
+          .attr('class', cx('talent-node-name', { 'talent-node-name--collapsed': isCollapsed }))
 
-        // Add description text with wrapping
-        const descGroup = contentGroup
-          .append('g')
-          .attr(
-            'transform',
-            `translate(0, ${-dynamicNodeHeight / 2 + nameHeight + descriptionHeight / 2})`
-          )
-
-        descLines.forEach((line, i) => {
-          const segments = parseTalentDescriptionLine(line)
-          const foreignObject = descGroup
-            .append('foreignObject')
-            .attr('x', -nodeWidth / 2)
+        if (!isCollapsed) {
+          const descGroup = contentGroup
+            .append('g')
             .attr(
-              'y',
-              i * descriptionLineHeight - ((descLines.length - 1) * descriptionLineHeight) / 2 - 9
+              'transform',
+              `translate(0, ${-dynamicNodeHeight / 2 + nameHeight + descriptionHeight / 2})`
             )
-            .attr('width', nodeWidth)
-            .attr('height', descriptionLineHeight)
 
-          let htmlContent = ''
-          segments.forEach((segment) => {
-            if (segment.type === 'text') {
-              htmlContent += segment.content
-            } else if (segment.type === 'image' && 'icon' in segment) {
-              htmlContent += `<img src="${segment.icon}" width="8" height="8" style="vertical-align: middle; margin: 0 1px 1px;" />`
-            }
+          descLines.forEach((line, i) => {
+            const segments = parseTalentDescriptionLine(line)
+            const foreignObject = descGroup
+              .append('foreignObject')
+              .attr('x', -nodeWidth / 2)
+              .attr(
+                'y',
+                i * descriptionLineHeight - ((descLines.length - 1) * descriptionLineHeight) / 2 - 9
+              )
+              .attr('width', nodeWidth)
+              .attr('height', descriptionLineHeight)
+
+            let htmlContent = ''
+            segments.forEach((segment) => {
+              if (segment.type === 'text') {
+                htmlContent += segment.content
+              } else if (segment.type === 'image' && 'icon' in segment) {
+                htmlContent += `<img src="${segment.icon}" width="8" height="8" style="vertical-align: middle; margin: 0 1px 1px;" />`
+              }
+            })
+
+            foreignObject
+              .append('xhtml:div')
+              .attr('class', cx('talent-node-description'))
+              .html(htmlContent)
           })
-
-          foreignObject
-            .append('xhtml:div')
-            .attr('class', cx('talent-node-description'))
-            .html(htmlContent)
-        })
+        }
       }
     })
-  }, [talentTree])
+  }, [talentTree, collapsedNodes, collapseNode])
 
   return (
     <div className={cx('talent-tree-container')}>
