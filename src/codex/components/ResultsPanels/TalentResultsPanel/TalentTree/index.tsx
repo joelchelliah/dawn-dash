@@ -329,7 +329,7 @@ const TalentTree = ({ talentTree }: TalentTreeProps) => {
             .attr('x', 0)
             .attr('y', -circleRadius - 8)
             .attr('text-anchor', 'middle')
-            .attr('class', cx('tree-root-node-label'))
+            .attr('class', cx('tree-root-node-label', `tree-root-node-label--depth-${maxDepth}`))
             .style('fill', lighten(color, 5))
             .text(label)
 
