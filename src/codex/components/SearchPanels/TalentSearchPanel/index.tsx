@@ -1,5 +1,7 @@
 import GradientButton from '@/shared/components/Buttons/GradientButton'
 import ButtonRow from '@/shared/components/Buttons/ButtonRow'
+import { createCx } from '@/shared/utils/classnames'
+import { FlameIcon, ScrollIcon } from '@/shared/utils/icons'
 
 import { allTiers } from '@/codex/hooks/useSearchFilters/useTierFilters'
 import { UseAllTalentSearchFilters } from '@/codex/hooks/useSearchFilters'
@@ -7,6 +9,7 @@ import { allCardSets } from '@/codex/hooks/useSearchFilters/useCardSetFilters'
 import { UseTalentData } from '@/codex/hooks/useTalentData'
 import { allExtraTalentFilters } from '@/codex/hooks/useSearchFilters/useExtraTalentFilters'
 import { allFormattingTalentFilters } from '@/codex/hooks/useSearchFilters/useFormattingTalentFilters'
+import { ExtraTalentFilterOption } from '@/codex/types/filters'
 
 import CodexLastUpdated from '../../CodexLastUpdated'
 import PanelHeader from '../../PanelHeader'
@@ -14,6 +17,8 @@ import FilterGroup from '../shared/FilterGroup'
 import SearchField from '../shared/SearchField'
 
 import styles from './index.module.scss'
+
+const cx = createCx(styles)
 
 interface TalentSearchPanelProps {
   useSearchFilters: UseAllTalentSearchFilters
@@ -36,6 +41,29 @@ const TalentSearchPanel = ({ useSearchFilters, useTalentData }: TalentSearchPane
     useExtraTalentFilters
   const { formattingFilters, handleFormattingFilterToggle, getFormattingFilterName } =
     useFormattingFilters
+
+  const getExtraFilterLabel = (filter: string) => {
+    const name = getExtraTalentFilterName(filter)
+
+    switch (filter) {
+      case ExtraTalentFilterOption.IncludeOffers:
+        return (
+          <span className={cx('filter-label')}>
+            <ScrollIcon className={cx('filter-icon--scroll')} />
+            {name}
+          </span>
+        )
+      case ExtraTalentFilterOption.IncludeEventBasedTalents:
+        return (
+          <span className={cx('filter-label')}>
+            <FlameIcon className={cx('filter-icon--flame')} />
+            {name}
+          </span>
+        )
+      default:
+        return <span className={cx('filter-label')}>{name}</span>
+    }
+  }
 
   const preventFormSubmission = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -69,8 +97,7 @@ const TalentSearchPanel = ({ useSearchFilters, useTalentData }: TalentSearchPane
             selectedFilters={extraTalentFilters}
             type="extra"
             onFilterToggle={handleExtraTalentFilterToggle}
-            // TODO: Add filter labels
-            getFilterLabel={(filter) => getExtraTalentFilterName(filter)}
+            getFilterLabel={getExtraFilterLabel}
           />
           <FilterGroup
             title="Results formatting"

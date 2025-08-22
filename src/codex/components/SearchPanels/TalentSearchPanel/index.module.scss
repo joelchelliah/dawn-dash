@@ -24,27 +24,11 @@
   align-items: center;
 
   &:hover {
-    .filter-icon--legendary {
-      color: $color-rarity-legendary-hover;
-    }
-
-    .filter-icon--rare {
-      color: $color-rarity-rare-hover;
-    }
-
-    .filter-icon--uncommon {
-      color: $color-rarity-uncommon-hover;
-    }
-
-    .filter-icon--common {
-      color: $color-rarity-common-hover;
-    }
-
-    .filter-icon--monster {
+    .filter-icon--scroll {
       color: $color-danger-hover;
     }
 
-    .filter-icon--non-collectible {
+    .filter-icon--flame {
       color: $color-danger-hover;
     }
   }
@@ -55,51 +39,23 @@
   height: 1rem;
   padding-right: 0.25rem;
 
-  &--legendary {
+  &--scroll {
     @extend .filter-icon;
-    color: $color-rarity-legendary;
-    height: 1.25rem;
-    padding-bottom: 0.125rem;
-  }
-
-  &--rare {
-    @extend .filter-icon;
-    color: $color-rarity-rare;
-    width: 1.25rem;
-  }
-
-  &--uncommon {
-    @extend .filter-icon;
-    color: $color-rarity-uncommon;
-    width: 1.25rem;
-    height: 1.25rem;
-    padding-right: 0.125rem;
-    margin-left: -0.125rem;
-  }
-
-  &--common {
-    @extend .filter-icon;
-    color: $color-rarity-common;
-    width: 1.25rem;
-  }
-
-  &--monster {
-    @extend .filter-icon;
-    width: 1.25rem;
-    height: 1.25rem;
+    width: 1.125rem;
+    height: 1.125rem;
     position: relative;
-    top: 0.0625rem;
     right: 0.125rem;
     margin-right: -0.25rem;
     color: $color-danger-base;
   }
 
-  &--non-collectible {
+  &--flame {
     @extend .filter-icon;
-    width: 1rem;
-    height: 0.75rem;
+    width: 1.125rem;
+    height: 1.125rem;
     position: relative;
-    top: 0.0625rem;
+    margin: 0 -0.125rem;
+    bottom: 0.125rem;
     color: $color-danger-base;
   }
 }
