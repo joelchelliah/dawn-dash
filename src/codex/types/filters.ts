@@ -90,30 +90,30 @@ export const Banner = {
 
 // -------------------- Card Extra --------------------
 
-export enum ExtraFilterOption {
+export enum ExtraCardFilterOption {
   IncludeMonsterCards = 'IncludeMonsterCards',
   IncludeNonCollectibleCards = 'IncludeNonCollectibleCards',
 }
 
-export type Extra = ExtraFilterOption
+export type ExtraCard = ExtraCardFilterOption
 
-export const Extra = {
-  ...ExtraFilterOption,
-  getAll: (): Extra[] => [...Object.values(ExtraFilterOption)],
+export const ExtraCard = {
+  ...ExtraCardFilterOption,
+  getAll: (): ExtraCard[] => [...Object.values(ExtraCardFilterOption)],
 }
 
 // -------------------- Talent Extra --------------------
 
-export enum TalentExtraFilterOption {
+export enum ExtraTalentFilterOption {
   IncludeOffers = 'IncludeOffers',
   IncludeEventBasedTalents = 'IncludeEventBasedTalents',
 }
 
-export type TalentExtra = TalentExtraFilterOption
+export type ExtraTalent = ExtraTalentFilterOption
 
-export const TalentExtra = {
-  ...TalentExtraFilterOption,
-  getAll: (): TalentExtra[] => [...Object.values(TalentExtraFilterOption)],
+export const ExtraTalent = {
+  ...ExtraTalentFilterOption,
+  getAll: (): ExtraTalent[] => [...Object.values(ExtraTalentFilterOption)],
 }
 
 // -------------------- Formatting --------------------

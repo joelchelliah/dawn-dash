@@ -5,7 +5,7 @@ import Footer from '@/shared/components/Footer'
 import Header from '@/shared/components/Header'
 
 import CardResultsPanel from './components/ResultsPanels/CardResultsPanel'
-import { useCardSearchFilters } from './hooks/useSearchFilters'
+import { useAllCardSearchFilters } from './hooks/useSearchFilters'
 import CardSearchPanel from './components/SearchPanels/CardSearchPanel'
 import { useCardData } from './hooks/useCardData'
 import CodexErrorMessage from './components/CodexErrorMessage'
@@ -19,7 +19,7 @@ function Cards(): JSX.Element {
   const useCardDataHook = useCardData()
   const { cardData, isLoading, isError, progress } = useCardDataHook
 
-  const useSearchFiltersHook = useCardSearchFilters(cardData)
+  const useSearchFiltersHook = useAllCardSearchFilters(cardData)
 
   return (
     <div className={cx('container')}>

@@ -2,10 +2,10 @@ import GradientButton from '@/shared/components/Buttons/GradientButton'
 import ButtonRow from '@/shared/components/Buttons/ButtonRow'
 
 import { allTiers } from '@/codex/hooks/useSearchFilters/useTierFilters'
-import { UseTalentSearchFilters } from '@/codex/hooks/useSearchFilters'
+import { UseAllTalentSearchFilters } from '@/codex/hooks/useSearchFilters'
 import { allCardSets } from '@/codex/hooks/useSearchFilters/useCardSetFilters'
 import { UseTalentData } from '@/codex/hooks/useTalentData'
-import { allTalentExtraFilters } from '@/codex/hooks/useSearchFilters/useTalentExtraFilters'
+import { allExtraTalentFilters } from '@/codex/hooks/useSearchFilters/useExtraTalentFilters'
 
 import CodexLastUpdated from '../../CodexLastUpdated'
 import PanelHeader from '../../PanelHeader'
@@ -15,7 +15,7 @@ import SearchField from '../shared/SearchField'
 import styles from './index.module.scss'
 
 interface TalentSearchPanelProps {
-  useSearchFilters: UseTalentSearchFilters
+  useSearchFilters: UseAllTalentSearchFilters
   useTalentData: UseTalentData
 }
 
@@ -25,13 +25,13 @@ const TalentSearchPanel = ({ useSearchFilters, useTalentData }: TalentSearchPane
     setKeywords,
     useCardSetFilters,
     useTierFilters,
-    useTalentExtraFilters,
+    useExtraTalentFilters,
     resetFilters,
   } = useSearchFilters
   const { cardSetFilters, handleCardSetFilterToggle } = useCardSetFilters
   const { tierFilters, handleTierFilterToggle } = useTierFilters
-  const { talentExtraFilters, handleTalentExtraFilterToggle, getTalentExtraFilterName } =
-    useTalentExtraFilters
+  const { extraTalentFilters, handleExtraTalentFilterToggle, getExtraTalentFilterName } =
+    useExtraTalentFilters
 
   const preventFormSubmission = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -61,12 +61,12 @@ const TalentSearchPanel = ({ useSearchFilters, useTalentData }: TalentSearchPane
           />
           <FilterGroup
             title="Extras"
-            filters={allTalentExtraFilters}
-            selectedFilters={talentExtraFilters}
+            filters={allExtraTalentFilters}
+            selectedFilters={extraTalentFilters}
             type="extra"
-            onFilterToggle={handleTalentExtraFilterToggle}
+            onFilterToggle={handleExtraTalentFilterToggle}
             // TODO: Add filter labels
-            getFilterLabel={(filter) => getTalentExtraFilterName(filter)}
+            getFilterLabel={(filter) => getExtraTalentFilterName(filter)}
           />
         </div>
 

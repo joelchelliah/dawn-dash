@@ -9,7 +9,7 @@ import {
 } from '@/shared/utils/icons'
 import { createCx } from '@/shared/utils/classnames'
 
-import { UseCardSearchFilters } from '@/codex/hooks/useSearchFilters'
+import { UseAllCardSearchFilters } from '@/codex/hooks/useSearchFilters'
 import { CardData } from '@/codex/types/cards'
 import {
   isNonCollectible,
@@ -21,7 +21,7 @@ import styles from './index.module.scss'
 
 interface ResultCardProps {
   card: CardData
-  useSearchFilters: UseCardSearchFilters
+  useSearchFilters: UseAllCardSearchFilters
   showCardsWithoutKeywords: boolean
 }
 
@@ -32,12 +32,12 @@ const ResultCard = ({ card, useSearchFilters, showCardsWithoutKeywords }: Result
     parsedKeywords,
     matchingCards,
     useCardSetFilters,
-    useExtraFilters,
+    useExtraCardFilters,
     useFormattingFilters,
     useCardStrike,
   } = useSearchFilters
   const { getCardSetNameFromIndex } = useCardSetFilters
-  const { shouldIncludeNonCollectibleCards } = useExtraFilters
+  const { shouldIncludeNonCollectibleCards } = useExtraCardFilters
   const {
     shouldShowRarity,
     shouldShowDescription,

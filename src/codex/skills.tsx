@@ -8,7 +8,7 @@ import TalentResultsPanel from './components/ResultsPanels/TalentResultsPanel'
 import TalentSearchPanel from './components/SearchPanels/TalentSearchPanel'
 import CodexErrorMessage from './components/CodexErrorMessage'
 import CodexLoadingMessage from './components/CodexLoadingMessage'
-import { useTalentSearchFilters } from './hooks/useSearchFilters'
+import { useAllTalentSearchFilters } from './hooks/useSearchFilters'
 import { useTalentData } from './hooks/useTalentData'
 import styles from './skills.module.scss'
 
@@ -19,7 +19,7 @@ function Skills(): JSX.Element {
   const useTalentDataHook = useTalentData()
   const { talentTree, isLoading, isError, progress } = useTalentDataHook
 
-  const useSearchFiltersHook = useTalentSearchFilters(talentTree)
+  const useSearchFiltersHook = useAllTalentSearchFilters(talentTree)
 
   return (
     <div className={cx('container')}>

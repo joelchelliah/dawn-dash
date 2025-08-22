@@ -4,7 +4,7 @@ import GradientButton from '@/shared/components/Buttons/GradientButton'
 import { createCx } from '@/shared/utils/classnames'
 
 import { TalentTreeNode, TalentTreeNodeType } from '@/codex/types/talents'
-import { UseTalentSearchFilters } from '@/codex/hooks/useSearchFilters'
+import { UseAllTalentSearchFilters } from '@/codex/hooks/useSearchFilters'
 
 import PanelHeader from '../../PanelHeader'
 import KeywordsSummary from '../KeywordsSummary'
@@ -13,7 +13,7 @@ import TalentTree from './TalentTree'
 import styles from './index.module.scss'
 
 interface TalentResultsPanelProps {
-  useSearchFilters: UseTalentSearchFilters
+  useSearchFilters: UseAllTalentSearchFilters
 }
 
 const cx = createCx(styles)
