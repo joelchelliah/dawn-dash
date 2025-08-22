@@ -211,20 +211,19 @@ export const useAllTalentSearchFilters = (
 
   const isMatchingTalent = useCallback(
     (talent: TalentTreeTalentNode) => {
-      const passesExpansionFilter =
-        shouldIncludeOffers ||
-        shouldIncludeEventBasedTalents ||
-        isCardSetIndexSelected(talent.expansion)
-      const passesTierFilter = isTierIndexSelected(talent.tier)
+      const isOffer = isTalentOffer(talent)
+      const isEventBased = isTalentEventBased(talent)
 
-      const passesOfferFilter = !isTalentOffer(talent) || shouldIncludeOffers
-      const passesEventFilter = !isTalentEventBased(talent) || shouldIncludeEventBasedTalents
+      const passesExpansionFilter =
+        (isOffer && shouldIncludeOffers) ||
+        (isEventBased && shouldIncludeEventBasedTalents) ||
+        (!isOffer && !isEventBased && isCardSetIndexSelected(talent.expansion))
+
+      const passesTierFilter = isTierIndexSelected(talent.tier)
 
       return (
         passesExpansionFilter &&
         passesTierFilter &&
-        passesOfferFilter &&
-        passesEventFilter &&
         isNameOrDescriptionIncluded(talent, parsedKeywords)
       )
     },
