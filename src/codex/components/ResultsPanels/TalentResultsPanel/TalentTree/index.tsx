@@ -215,28 +215,27 @@ const TalentTree = ({ talentTree }: TalentTreeProps) => {
 
     const svg = mainSvg.append('g').attr('transform', `translate(50, ${-minX + topPadding})`)
 
-    // Link generator for drawing horizontal tree edges between nodes.
-    // Expects objects with {source, target}, where each has .x (vertical) and .y (horizontal) coordinates.
-    // The .x() and .y() accessors map these coordinates for the SVG path.
-    // Used to visually connect parent and child nodes in the tree.
-    const linkGenerator = d3
-      .linkHorizontal<
-        d3.HierarchyPointNode<HierarchicalTalentTreeNode>,
-        d3.HierarchyPointNode<HierarchicalTalentTreeNode>
-      >()
-      .x((d) => d.y)
-      .y((d) => d.x)
+    const generateLinkPath = (d: d3.HierarchyPointLink<HierarchicalTalentTreeNode>) => {
+      const isRootNode = d.source.depth <= 1
+      const xOffset = 10
+      const sourceX = isRootNode ? d.source.y + xOffset : d.source.y + nodeWidth / 2 - xOffset
+      const sourceY = d.source.x
+      const targetX = d.target.y - nodeWidth / 2
+      const targetY = d.target.x
 
-    // Add links between parent and child nodes
+      // Smooth horizontal curve
+      const midX = (sourceX + targetX) / 2
+      return `M${sourceX},${sourceY}C${midX},${sourceY} ${midX},${targetY} ${targetX},${targetY}`
+    }
+
+    // Links between parent and child nodes
     svg
       .selectAll('.link')
       .data(treeData.links().filter((link) => link.source.depth > 0)) // Skip links from virtual root
       .enter()
       .append('path')
       .attr('class', cx('tree-link'))
-      .attr('d', (d) =>
-        linkGenerator(d as unknown as d3.HierarchyPointNode<HierarchicalTalentTreeNode>)
-      )
+      .attr('d', generateLinkPath)
       .style('stroke', (link) => {
         const parentData = link.source.data
 
