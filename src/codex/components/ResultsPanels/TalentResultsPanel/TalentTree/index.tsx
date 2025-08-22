@@ -15,6 +15,8 @@ import {
   SeekerImageUrl,
   WarriorImageUrl,
   SunforgeImageUrl,
+  DanceOfBlightImageUrl,
+  RushedForgeryImageUrl,
 } from '@/shared/utils/imageUrls'
 import { ClassColorVariant, darken, getClassColor, lighten } from '@/shared/utils/classColors'
 import { CharacterClass } from '@/shared/types/characterClass'
@@ -88,8 +90,14 @@ const getRequirementIconProps = (
       return { count: 2, url: StrImageUrl, color: colorRed, label: '2 STR' }
     case 'STR3':
       return { count: 3, url: StrImageUrl, color: colorRed, label: '3 STR' }
-    default:
+    case 'Offers':
+      return { count: 1, url: DanceOfBlightImageUrl, color: darken(colorRed, 10), label: 'Offers' }
+    case 'Events':
+      return { count: 1, url: RushedForgeryImageUrl, color: colorGrey, label: 'Events' }
+    case 'No Requirements':
       return { count: 1, url: NeutralImageUrl, color: colorGrey, label: 'No requirements' }
+    default:
+      throw new Error(`Unknown requirement label: ${label}`)
   }
 }
 
@@ -129,8 +137,6 @@ const TalentTree = ({ talentTree }: TalentTreeProps) => {
         children,
       }
     }
-
-    console.log('talentTree.offerNode:', talentTree.offerNode)
 
     const treeNode = d3.hierarchy<TreeNode>({
       name: 'Root',
@@ -296,9 +302,13 @@ const TalentTree = ({ talentTree }: TalentTreeProps) => {
             isClassRequirement,
             data.name
           )
+          const showBiggerIcons =
+            isClassRequirement ||
+            data.nodeType === TalentTreeNodeType.OFFER_REQUIREMENT ||
+            data.nodeType === TalentTreeNodeType.EVENT_BASED_REQUIREMENT
 
           let circleRadius = 0
-          if (isClassRequirement) {
+          if (showBiggerIcons) {
             circleRadius = 28
           } else if (count === 1) {
             circleRadius = 13
@@ -324,7 +334,7 @@ const TalentTree = ({ talentTree }: TalentTreeProps) => {
             .text(label)
 
           if (count > 0) {
-            const iconSize = isClassRequirement ? 52 : 22
+            const iconSize = showBiggerIcons ? 52 : 22
             const spacing = 2
             const totalWidth = count * iconSize + (count - 1) * spacing
             const startX = -totalWidth / 2

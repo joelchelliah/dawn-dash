@@ -25,7 +25,7 @@ import {
   getCachedCardCodexSearchFilters,
   getCachedTalentCodexSearchFilters,
 } from '@/codex/utils/codexFilterStore'
-import { isEventBasedTalent, isOffer } from '@/codex/utils/talentHelper'
+import { isTalentEventBased, isTalentOffer } from '@/codex/utils/talentHelper'
 
 import { useWeeklyChallengeFilterData } from '../useWeeklyChallengeFilterData'
 
@@ -457,75 +457,95 @@ export const useTalentSearchFilters = (
     [traverseTree, hasMatchInDescendants, traverseNode]
   )
 
-  const filterTalentTreeNode = useCallback(function <
-    T extends TalentTreeTalentNode | TalentTreeRequirementNode,
-  >(node: T, matchingTalentNames: Set<string>): T | null {
-    const filteredChildren = node.children
-      .map((child) => filterTalentTreeNode(child, matchingTalentNames))
-      .filter(isNotNullOrUndefined)
+  const filterTalentTreeNode = useCallback(
+    <T extends TalentTreeTalentNode | TalentTreeRequirementNode>(
+      node: T,
+      matchingTalentNames: Set<string>
+    ): T | null => {
+      const filteredChildren = node.children
+        .map((child) => filterTalentTreeNode(child, matchingTalentNames))
+        .filter(isNotNullOrUndefined)
 
-    const shouldInclude =
-      node.type === TalentTreeNodeType.TALENT
-        ? matchingTalentNames.has(node.name) || filteredChildren.length > 0
-        : filteredChildren.length > 0
+      const shouldInclude =
+        node.type === TalentTreeNodeType.TALENT
+          ? matchingTalentNames.has(node.name) || filteredChildren.length > 0
+          : filteredChildren.length > 0
 
-    return shouldInclude ? ({ ...node, children: filteredChildren } as T) : null
-  }, [])
+      return shouldInclude ? ({ ...node, children: filteredChildren } as T) : null
+    },
+    []
+  )
+
+  const isMatchingTalent = useCallback(
+    (node: TalentTreeTalentNode) => {
+      const passesExpansionFilter =
+        shouldIncludeOffers ||
+        shouldIncludeEventBasedTalents ||
+        isCardSetIndexSelected(node.expansion)
+
+      const passesOfferFilter = !isTalentOffer(node) || shouldIncludeOffers
+      const passesEventFilter = !isTalentEventBased(node) || shouldIncludeEventBasedTalents
+
+      const passesTierFilter = isTierIndexSelected(node.tier)
+      const passesKeywordFilter = isNameOrDescriptionIncluded(node, parsedKeywords)
+
+      return (
+        passesExpansionFilter &&
+        passesOfferFilter &&
+        passesEventFilter &&
+        passesTierFilter &&
+        passesKeywordFilter
+      )
+    },
+    [
+      shouldIncludeOffers,
+      shouldIncludeEventBasedTalents,
+      isCardSetIndexSelected,
+      isTierIndexSelected,
+      parsedKeywords,
+    ]
+  )
 
   useEffect(() => {
-    if (talentTree) {
-      const filterFn = (node: TalentTreeTalentNode) =>
-        isCardSetIndexSelected(node.expansion) &&
-        isTierIndexSelected(node.tier) &&
-        (shouldIncludeOffers || !isOffer(node)) &&
-        (shouldIncludeEventBasedTalents || !isEventBasedTalent(node)) &&
-        isNameOrDescriptionIncluded(node, parsedKeywords)
+    if (!talentTree) return
 
-      const matchingTalentNames = collectMatchingTalentNames(talentTree, filterFn)
+    const matchingTalentNames = collectMatchingTalentNames(talentTree, isMatchingTalent)
 
-      const filteredOfferNodes = talentTree.offerNode.children
-        .map((node) => filterTalentTreeNode(node, matchingTalentNames))
-        .filter(isNotNullOrUndefined)
+    const filteredOfferNodes = talentTree.offerNode.children
+      .map((node) => filterTalentTreeNode(node, matchingTalentNames))
+      .filter(isNotNullOrUndefined)
+    const filteredTalentNodes = talentTree.noReqNode.children
+      .map((node) => filterTalentTreeNode(node, matchingTalentNames))
+      .filter(isNotNullOrUndefined)
+    const filteredClassNodes = talentTree.classNodes
+      .map((node) => filterTalentTreeNode(node, matchingTalentNames))
+      .filter(isNotNullOrUndefined)
+    const filteredEnergyNodes = talentTree.energyNodes
+      .map((node) => filterTalentTreeNode(node, matchingTalentNames))
+      .filter(isNotNullOrUndefined)
 
-      const filteredTalentNodes = talentTree.noReqNode.children
-        .map((node) => filterTalentTreeNode(node, matchingTalentNames))
-        .filter(isNotNullOrUndefined)
+    const filteredTree: TalentTree = {
+      offerNode: {
+        ...talentTree.offerNode,
+        children: filteredOfferNodes,
+      },
+      noReqNode: {
+        ...talentTree.noReqNode,
+        children: filteredTalentNodes,
+      },
+      classNodes: filteredClassNodes,
+      energyNodes: filteredEnergyNodes,
+    }
 
-      const filteredClassNodes = talentTree.classNodes
-        .map((node) => filterTalentTreeNode(node, matchingTalentNames))
-        .filter(isNotNullOrUndefined)
-
-      const filteredEnergyNodes = talentTree.energyNodes
-        .map((node) => filterTalentTreeNode(node, matchingTalentNames))
-        .filter(isNotNullOrUndefined)
-
-      const filteredTree: TalentTree = {
-        offerNode: {
-          ...talentTree.offerNode,
-          children: filteredOfferNodes,
-        },
-        noReqNode: {
-          ...talentTree.noReqNode,
-          children: filteredTalentNodes,
-        },
-        classNodes: filteredClassNodes,
-        energyNodes: filteredEnergyNodes,
-      }
-
-      if (!matchingTalentTree || !isTalentTreeEqual(filteredTree, matchingTalentTree)) {
-        setMatchingTalentTree(filteredTree)
-      }
+    if (!matchingTalentTree || !isTalentTreeEqual(filteredTree, matchingTalentTree)) {
+      setMatchingTalentTree(filteredTree)
     }
   }, [
-    talentTree,
-    isCardSetIndexSelected,
-    isTierIndexSelected,
-    parsedKeywords,
-    matchingTalentTree,
-    filterTalentTreeNode,
     collectMatchingTalentNames,
-    shouldIncludeOffers,
-    shouldIncludeEventBasedTalents,
+    filterTalentTreeNode,
+    isMatchingTalent,
+    matchingTalentTree,
+    talentTree,
   ])
   // --------------------------------------------------
   // --------------------------------------------------

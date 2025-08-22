@@ -60,7 +60,7 @@ const TalentSearchPanel = ({ useSearchFilters, useTalentData }: TalentSearchPane
             onFilterToggle={handleTierFilterToggle}
           />
           <FilterGroup
-            title="Extras (TODO!)"
+            title="Extras"
             filters={allTalentExtraFilters}
             selectedFilters={talentExtraFilters}
             type="extra"

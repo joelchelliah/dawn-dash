@@ -53,7 +53,7 @@ export const mapTalentsDataToTalentTree = (unparsedTalents: TalentData[]): Talen
     talent.requires_energy.includes(energy)
 
   const rootOfferNode: TalentTreeRequirementNode = {
-    type: TalentTreeNodeType.OFFER,
+    type: TalentTreeNodeType.OFFER_REQUIREMENT,
     name: 'Offers',
     children: sortNodes<TalentTreeTalentNode>(
       uniqueUnparsedTalents.filter(isOffer).map((talent) => buildTalentNode(talent))

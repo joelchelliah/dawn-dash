@@ -56,12 +56,12 @@ export const parseTalentDescriptionLine = (line: string) => {
   return segments
 }
 
-export const isOffer = (talent: TalentTreeTalentNode) =>
-  hasMonsterExpansion(talent) && hasOfferPrefix(talent)
+export const isTalentOffer = (talent: TalentTreeTalentNode) =>
+  hasTalentMonsterExpansion(talent) && hasTalentOfferPrefix(talent)
 
-export const isEventBasedTalent = (talent: TalentTreeTalentNode) =>
-  hasMonsterExpansion(talent) && !hasOfferPrefix(talent)
+export const isTalentEventBased = (talent: TalentTreeTalentNode) =>
+  hasTalentMonsterExpansion(talent) && !hasTalentOfferPrefix(talent)
 
-const hasMonsterExpansion = (talent: TalentTreeTalentNode) => talent.expansion === 0
+const hasTalentMonsterExpansion = (talent: TalentTreeTalentNode) => talent.expansion === 0
 
-const hasOfferPrefix = (talent: TalentTreeTalentNode) => talent.name.startsWith('Offer of')
+const hasTalentOfferPrefix = (talent: TalentTreeTalentNode) => talent.name.startsWith('Offer of')
