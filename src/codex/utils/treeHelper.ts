@@ -49,6 +49,7 @@ export const buildHierarchicalTreeFromTalentTree = (
       ...talentTree.classNodes
         .map(buildHierarchicalTreeNodeFromRequirementNode)
         .filter(isNotNullOrUndefined),
+      buildHierarchicalTreeNodeFromRequirementNode(talentTree.eventNode),
       buildHierarchicalTreeNodeFromRequirementNode(talentTree.offerNode),
     ].filter(isNotNullOrUndefined),
   }

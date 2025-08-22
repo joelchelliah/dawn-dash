@@ -159,6 +159,7 @@ export const useAllTalentSearchFilters = (
   const traverseTree = useCallback(
     (talentTree: TalentTree, visitTalent: (talent: TalentTreeTalentNode) => void) => {
       traverseNode(talentTree.offerNode, visitTalent)
+      traverseNode(talentTree.eventNode, visitTalent)
       traverseNode(talentTree.noReqNode, visitTalent)
       talentTree.classNodes.forEach((node) => traverseNode(node, visitTalent))
       talentTree.energyNodes.forEach((node) => traverseNode(node, visitTalent))
@@ -260,6 +261,9 @@ export const useAllTalentSearchFilters = (
     const filteredOfferNodes = talentTree.offerNode.children
       .map((node) => filterTalentTreeNode(node, matchingTalentNames))
       .filter(isNotNullOrUndefined)
+    const filteredEventNodes = talentTree.eventNode.children
+      .map((node) => filterTalentTreeNode(node, matchingTalentNames))
+      .filter(isNotNullOrUndefined)
     const filteredTalentNodes = talentTree.noReqNode.children
       .map((node) => filterTalentTreeNode(node, matchingTalentNames))
       .filter(isNotNullOrUndefined)
@@ -274,6 +278,10 @@ export const useAllTalentSearchFilters = (
       offerNode: {
         ...talentTree.offerNode,
         children: filteredOfferNodes,
+      },
+      eventNode: {
+        ...talentTree.eventNode,
+        children: filteredEventNodes,
       },
       noReqNode: {
         ...talentTree.noReqNode,

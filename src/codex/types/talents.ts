@@ -19,7 +19,7 @@ export enum TalentTreeNodeType {
   ENERGY_REQUIREMENT = 'ENERGY_REQUIREMENT',
   NO_REQUIREMENTS = 'NO_REQUIREMENTS',
   OFFER_REQUIREMENT = 'OFFER_REQUIREMENT',
-  EVENT_BASED_REQUIREMENT = 'EVENT_BASED_REQUIREMENT',
+  EVENT_REQUIREMENT = 'EVENT_REQUIREMENT',
 }
 
 export type TalentTreeRequirementNode = {
@@ -28,7 +28,7 @@ export type TalentTreeRequirementNode = {
     | TalentTreeNodeType.ENERGY_REQUIREMENT
     | TalentTreeNodeType.NO_REQUIREMENTS
     | TalentTreeNodeType.OFFER_REQUIREMENT
-    | TalentTreeNodeType.EVENT_BASED_REQUIREMENT
+    | TalentTreeNodeType.EVENT_REQUIREMENT
   name: string
   children: TalentTreeTalentNode[]
 }
@@ -46,6 +46,7 @@ export type TalentTreeTalentNode = {
 
 export type TalentTree = {
   offerNode: TalentTreeRequirementNode
+  eventNode: TalentTreeRequirementNode
   noReqNode: TalentTreeRequirementNode
   classNodes: TalentTreeRequirementNode[]
   energyNodes: TalentTreeRequirementNode[]

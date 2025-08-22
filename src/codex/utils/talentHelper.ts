@@ -37,7 +37,7 @@ const colorRed = getClassColor(CharacterClass.Warrior, ClassColorVariant.Default
 const colorGreen = getClassColor(CharacterClass.Rogue, ClassColorVariant.Default)
 const colorBlue = getClassColor(CharacterClass.Arcanist, ClassColorVariant.Default)
 const colorOffers = darken(getClassColor(CharacterClass.Warrior, ClassColorVariant.Default), 10)
-const colorEvents = darken(colorBlue, 10)
+const colorEvents = darken(getClassColor(CharacterClass.Seeker, ClassColorVariant.Default), 10)
 
 export const getTalentRequirementIconProps = (
   isClassRequirement: boolean,

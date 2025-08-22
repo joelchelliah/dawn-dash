@@ -41,11 +41,13 @@ export const mapTalentsDataToTalentTree = (unparsedTalents: TalentData[]): Talen
   const isOffer = (talent: TalentData) =>
     talent.expansion === 0 && talent.name.startsWith('Offer of')
 
+  const isEvent = (talent: TalentData) => talent.events.length > 0
+
   const isRootTalent = (talent: TalentData) =>
     talent.requires_talents.length === 0 &&
     talent.requires_classes.length === 0 &&
     talent.requires_energy.length === 0 &&
-    !isOffer(talent)
+    talent.expansion !== 0
 
   const hasClass = (className: string) => (talent: TalentData) =>
     talent.requires_classes.includes(className)
@@ -57,6 +59,14 @@ export const mapTalentsDataToTalentTree = (unparsedTalents: TalentData[]): Talen
     name: 'Offers',
     children: sortNodes<TalentTreeTalentNode>(
       uniqueUnparsedTalents.filter(isOffer).map((talent) => buildTalentNode(talent))
+    ),
+  }
+
+  const rootEventNode: TalentTreeRequirementNode = {
+    type: TalentTreeNodeType.EVENT_REQUIREMENT,
+    name: 'Events',
+    children: sortNodes<TalentTreeTalentNode>(
+      uniqueUnparsedTalents.filter(isEvent).map((talent) => buildTalentNode(talent))
     ),
   }
 
@@ -88,6 +98,7 @@ export const mapTalentsDataToTalentTree = (unparsedTalents: TalentData[]): Talen
 
   return {
     offerNode: rootOfferNode,
+    eventNode: rootEventNode,
     noReqNode: rootNoRequirementsNode,
     classNodes: rootClassRequirementNodes,
     energyNodes: rootEnergyRequirementNodes,

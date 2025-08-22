@@ -182,7 +182,7 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
           const showBiggerIcons =
             isClassRequirement ||
             data.type === TalentTreeNodeType.OFFER_REQUIREMENT ||
-            data.type === TalentTreeNodeType.EVENT_BASED_REQUIREMENT
+            data.type === TalentTreeNodeType.EVENT_REQUIREMENT
 
           let circleRadius = 0
           if (showBiggerIcons) {
