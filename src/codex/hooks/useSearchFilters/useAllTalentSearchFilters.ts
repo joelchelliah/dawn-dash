@@ -19,6 +19,7 @@ import { useCardSetFilters } from './useCardSetFilters'
 import { useExtraTalentFilters } from './useExtraTalentFilters'
 import { useTierFilters } from './useTierFilters'
 import { useKeywords } from './useKeywords'
+import { useFilterTracking } from './useFilterTracking'
 
 export interface UseAllTalentSearchFilters {
   keywords: string
@@ -48,38 +49,31 @@ export const useAllTalentSearchFilters = (
   const untrackedUseExtraTalentFilters = useExtraTalentFilters(cachedFilters?.extras)
   // --------------------------------------------------
   // ------ Tracking user interaction on filters ------
-  // ------ to avoid initial cache saves on load ------
   // --------------------------------------------------
-  const hasUserChangedFilter = useRef(false)
+  const { hasUserChangedFilter, createTrackedFilter, createTrackedSetter } = useFilterTracking()
 
-  const trackedSetKeywords = (keywords: string) => {
-    hasUserChangedFilter.current = true
-    setKeywordsUntracked(keywords)
-  }
+  const TRACKED_FILTER_HANDLER = {
+    cardSet: 'handleCardSetFilterToggle' as const,
+    tier: 'handleTierFilterToggle' as const,
+    extraTalent: 'handleExtraTalentFilterToggle' as const,
+  } as const
 
-  const trackedUseCardSetFilters = {
-    ...untrackedUseCardSetFilters,
-    handleCardSetFilterToggle: (cardSet: string) => {
-      hasUserChangedFilter.current = true
-      untrackedUseCardSetFilters.handleCardSetFilterToggle(cardSet)
-    },
-  }
+  const trackedSetKeywords = createTrackedSetter(setKeywordsUntracked)
 
-  const trackedUseTierFilters = {
-    ...untrackedUseTierFilters,
-    handleTierFilterToggle: (tier: string) => {
-      hasUserChangedFilter.current = true
-      untrackedUseTierFilters.handleTierFilterToggle(tier)
-    },
-  }
+  const trackedUseCardSetFilters = createTrackedFilter(
+    untrackedUseCardSetFilters,
+    TRACKED_FILTER_HANDLER.cardSet
+  )
 
-  const trackedUseExtraTalentFilters = {
-    ...untrackedUseExtraTalentFilters,
-    handleExtraTalentFilterToggle: (extraTalent: string) => {
-      hasUserChangedFilter.current = true
-      untrackedUseExtraTalentFilters.handleExtraTalentFilterToggle(extraTalent)
-    },
-  }
+  const trackedUseTierFilters = createTrackedFilter(
+    untrackedUseTierFilters,
+    TRACKED_FILTER_HANDLER.tier
+  )
+
+  const trackedUseExtraTalentFilters = createTrackedFilter(
+    untrackedUseExtraTalentFilters,
+    TRACKED_FILTER_HANDLER.extraTalent
+  )
   // --------------------------------------------------
   // --------------------------------------------------
 
@@ -127,7 +121,7 @@ export const useAllTalentSearchFilters = (
         clearTimeout(filterDebounceTimeoutRef.current)
       }
     }
-  }, [cardSetFilters, tierFilters, keywords, extraTalentFilters])
+  }, [cardSetFilters, tierFilters, keywords, extraTalentFilters, hasUserChangedFilter])
 
   // --------------------------------------------------
   // ------------- Filtering logic --------------------

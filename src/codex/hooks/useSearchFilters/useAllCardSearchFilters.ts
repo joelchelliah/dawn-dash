@@ -25,6 +25,7 @@ import { useExtraCardFilters } from './useExtraCardFilters'
 import { useFormattingFilters } from './useFormattingFilters'
 import { useCardStrike } from './useCardStrike'
 import { useKeywords } from './useKeywords'
+import { useFilterTracking } from './useFilterTracking'
 
 export interface UseAllCardSearchFilters {
   keywords: string
@@ -67,62 +68,44 @@ export const useAllCardSearchFilters = (
 
   // --------------------------------------------------
   // ------ Tracking user interaction on filters ------
-  // ------ to avoid initial cache saves on load ------
   // --------------------------------------------------
-  const hasUserChangedFilter = useRef(false)
+  const { hasUserChangedFilter, createTrackedFilter, createTrackedSetter } = useFilterTracking()
 
-  const trackedSetKeywords = (keywords: string) => {
-    hasUserChangedFilter.current = true
-    setKeywordsUntracked(keywords)
-  }
+  const TRACKED_FILTER_HANDLER = {
+    cardSet: 'handleCardSetFilterToggle' as const,
+    rarity: 'handleRarityFilterToggle' as const,
+    banner: 'handleBannerFilterToggle' as const,
+    extraCard: 'handleExtraCardFilterToggle' as const,
+    formatting: 'handleFormattingFilterToggle' as const,
+    cardStrike: 'toggleCardStrike' as const,
+  } as const
 
-  const trackedUseCardSetFilters = {
-    ...untrackedUseCardSetFilters,
-    handleCardSetFilterToggle: (cardSet: string) => {
-      hasUserChangedFilter.current = true
-      untrackedUseCardSetFilters.handleCardSetFilterToggle(cardSet)
-    },
-  }
+  const trackedSetKeywords = createTrackedSetter(setKeywordsUntracked)
 
-  const trackedUseRarityFilters = {
-    ...untrackedUseRarityFilters,
-    handleRarityFilterToggle: (rarity: string) => {
-      hasUserChangedFilter.current = true
-      untrackedUseRarityFilters.handleRarityFilterToggle(rarity)
-    },
-  }
-
-  const trackedUseBannerFilters = {
-    ...untrackedUseBannerFilters,
-    handleBannerFilterToggle: (banner: string) => {
-      hasUserChangedFilter.current = true
-      untrackedUseBannerFilters.handleBannerFilterToggle(banner)
-    },
-  }
-
-  const trackedUseExtraCardFilters = {
-    ...untrackedUseExtraCardFilters,
-    handleExtraCardFilterToggle: (extra: string) => {
-      hasUserChangedFilter.current = true
-      untrackedUseExtraCardFilters.handleExtraCardFilterToggle(extra)
-    },
-  }
-
-  const trackedUseFormattingFilters = {
-    ...untrackedUseFormattingFilters,
-    handleFormattingFilterToggle: (formatting: string) => {
-      hasUserChangedFilter.current = true
-      untrackedUseFormattingFilters.handleFormattingFilterToggle(formatting)
-    },
-  }
-
-  const trackedUseCardStrike = {
-    ...untrackedUseCardStrike,
-    toggleCardStrike: (card: CardData) => {
-      hasUserChangedFilter.current = true
-      untrackedUseCardStrike.toggleCardStrike(card)
-    },
-  }
+  const trackedUseCardSetFilters = createTrackedFilter(
+    untrackedUseCardSetFilters,
+    TRACKED_FILTER_HANDLER.cardSet
+  )
+  const trackedUseRarityFilters = createTrackedFilter(
+    untrackedUseRarityFilters,
+    TRACKED_FILTER_HANDLER.rarity
+  )
+  const trackedUseBannerFilters = createTrackedFilter(
+    untrackedUseBannerFilters,
+    TRACKED_FILTER_HANDLER.banner
+  )
+  const trackedUseExtraCardFilters = createTrackedFilter(
+    untrackedUseExtraCardFilters,
+    TRACKED_FILTER_HANDLER.extraCard
+  )
+  const trackedUseFormattingFilters = createTrackedFilter(
+    untrackedUseFormattingFilters,
+    TRACKED_FILTER_HANDLER.formatting
+  )
+  const trackedUseCardStrike = createTrackedFilter(
+    untrackedUseCardStrike,
+    TRACKED_FILTER_HANDLER.cardStrike
+  )
   // --------------------------------------------------
   // --------------------------------------------------
 
@@ -156,8 +139,7 @@ export const useAllCardSearchFilters = (
 
   const setFiltersFromWeeklyChallengeData = () => {
     if (filterData && !isFilterDataError) {
-      hasUserChangedFilter.current = true
-      setKeywordsUntracked(
+      trackedSetKeywords(
         Array.from(
           new Set([...Array.from(filterData.keywords), ...Array.from(filterData.specialKeywords)])
         ).join(', ')
@@ -203,6 +185,7 @@ export const useAllCardSearchFilters = (
     cardSetFilters,
     extraCardFilters,
     formattingFilters,
+    hasUserChangedFilter,
     keywords,
     rarityFilters,
     struckCards,
