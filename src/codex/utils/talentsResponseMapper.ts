@@ -13,6 +13,9 @@ export const mapTalentsDataToTalentTree = (unparsedTalents: TalentData[]): Talen
   const idToUnparsedTalent = new Map(
     uniqueUnparsedTalents.map((talent) => [talent.blightbane_id, talent])
   )
+  const uniqueEvents = Array.from(
+    new Set(uniqueUnparsedTalents.flatMap((talent) => talent.events))
+  ).sort()
 
   function buildTalentNode(talent: TalentData, visited = new Set<number>()): TalentTreeTalentNode {
     if (visited.has(talent.blightbane_id)) {
@@ -41,7 +44,7 @@ export const mapTalentsDataToTalentTree = (unparsedTalents: TalentData[]): Talen
   const isOffer = (talent: TalentData) =>
     talent.expansion === 0 && talent.name.startsWith('Offer of')
 
-  const isEvent = (talent: TalentData) => talent.events.length > 0
+  const hasEvent = (eventName: string) => (talent: TalentData) => talent.events.includes(eventName)
 
   const isRootTalent = (talent: TalentData) =>
     talent.requires_talents.length === 0 &&
@@ -62,13 +65,13 @@ export const mapTalentsDataToTalentTree = (unparsedTalents: TalentData[]): Talen
     ),
   }
 
-  const rootEventNode: TalentTreeRequirementNode = {
+  const rootEventRequirementNodes: TalentTreeRequirementNode[] = uniqueEvents.map((name) => ({
     type: TalentTreeNodeType.EVENT_REQUIREMENT,
-    name: 'Events',
+    name,
     children: sortNodes<TalentTreeTalentNode>(
-      uniqueUnparsedTalents.filter(isEvent).map((talent) => buildTalentNode(talent))
+      uniqueUnparsedTalents.filter(hasEvent(name)).map((talent) => buildTalentNode(talent))
     ),
-  }
+  }))
 
   const rootNoRequirementsNode: TalentTreeRequirementNode = {
     type: TalentTreeNodeType.NO_REQUIREMENTS,
@@ -98,7 +101,7 @@ export const mapTalentsDataToTalentTree = (unparsedTalents: TalentData[]): Talen
 
   return {
     offerNode: rootOfferNode,
-    eventNode: rootEventNode,
+    eventNodes: rootEventRequirementNodes,
     noReqNode: rootNoRequirementsNode,
     classNodes: rootClassRequirementNodes,
     energyNodes: rootEnergyRequirementNodes,

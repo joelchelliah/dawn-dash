@@ -92,6 +92,10 @@
   &--collapsed {
     font-size: font-size('sm');
   }
+
+  &--collapsed-long-name {
+    font-size: font-size('xs');
+  }
 }
 
 .talent-node-description {

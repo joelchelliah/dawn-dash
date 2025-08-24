@@ -160,7 +160,7 @@ const CardSearchPanel = ({ useSearchFilters, useCardData }: CardSearchPanelProps
             title="Results formatting"
             filters={allFormattingCardFilters}
             selectedFilters={formattingFilters}
-            type="formatting"
+            type="formatting-card"
             onFilterToggle={handleFormattingFilterToggle}
             getFilterLabel={getFormattingFilterName}
           />

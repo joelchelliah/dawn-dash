@@ -158,11 +158,11 @@ export const useAllTalentSearchFilters = (
 
   const traverseTree = useCallback(
     (talentTree: TalentTree, visitTalent: (talent: TalentTreeTalentNode) => void) => {
-      traverseNode(talentTree.offerNode, visitTalent)
-      traverseNode(talentTree.eventNode, visitTalent)
       traverseNode(talentTree.noReqNode, visitTalent)
       talentTree.classNodes.forEach((node) => traverseNode(node, visitTalent))
       talentTree.energyNodes.forEach((node) => traverseNode(node, visitTalent))
+      talentTree.eventNodes.forEach((node) => traverseNode(node, visitTalent))
+      traverseNode(talentTree.offerNode, visitTalent)
     },
     [traverseNode]
   )
@@ -258,12 +258,6 @@ export const useAllTalentSearchFilters = (
 
     const matchingTalentNames = collectMatchingTalentNames(talentTree, isMatchingTalent)
 
-    const filteredOfferNodes = talentTree.offerNode.children
-      .map((node) => filterTalentTreeNode(node, matchingTalentNames))
-      .filter(isNotNullOrUndefined)
-    const filteredEventNodes = talentTree.eventNode.children
-      .map((node) => filterTalentTreeNode(node, matchingTalentNames))
-      .filter(isNotNullOrUndefined)
     const filteredTalentNodes = talentTree.noReqNode.children
       .map((node) => filterTalentTreeNode(node, matchingTalentNames))
       .filter(isNotNullOrUndefined)
@@ -273,22 +267,25 @@ export const useAllTalentSearchFilters = (
     const filteredEnergyNodes = talentTree.energyNodes
       .map((node) => filterTalentTreeNode(node, matchingTalentNames))
       .filter(isNotNullOrUndefined)
+    const filteredEventNodes = talentTree.eventNodes
+      .map((node) => filterTalentTreeNode(node, matchingTalentNames))
+      .filter(isNotNullOrUndefined)
+    const filteredOfferNodes = talentTree.offerNode.children
+      .map((node) => filterTalentTreeNode(node, matchingTalentNames))
+      .filter(isNotNullOrUndefined)
 
     const filteredTree: TalentTree = {
-      offerNode: {
-        ...talentTree.offerNode,
-        children: filteredOfferNodes,
-      },
-      eventNode: {
-        ...talentTree.eventNode,
-        children: filteredEventNodes,
-      },
       noReqNode: {
         ...talentTree.noReqNode,
         children: filteredTalentNodes,
       },
       classNodes: filteredClassNodes,
       energyNodes: filteredEnergyNodes,
+      eventNodes: filteredEventNodes,
+      offerNode: {
+        ...talentTree.offerNode,
+        children: filteredOfferNodes,
+      },
     }
 
     if (!matchingTalentTree || !isTalentTreeEqual(filteredTree, matchingTalentTree)) {

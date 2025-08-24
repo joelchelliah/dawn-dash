@@ -63,15 +63,18 @@ $checkmark-size: 0.625rem;
 
   &--extra {
     width: 100%;
-    margin-bottom: 0.5rem;
   }
 
-  &--formatting {
+  &--formatting-card {
     width: calc(50% - 1.5rem);
 
     @media (max-width: $breakpoint-mobile) {
       width: 100%;
     }
+  }
+
+  &--formatting-talent {
+    width: 100%;
   }
 
   &:hover {

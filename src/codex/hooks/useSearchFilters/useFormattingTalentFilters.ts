@@ -11,7 +11,7 @@ const defaultFilters = {
 }
 
 const valueToStringMap = {
-  [FormattingTalent.ShowDescriptionByDefault]: 'Show description by default',
+  [FormattingTalent.ShowDescriptionByDefault]: 'Show all descriptions by default',
 }
 
 export const allFormattingTalentFilters = FormattingTalent.getAll()

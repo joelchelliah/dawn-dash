@@ -1,5 +1,6 @@
 import {
   ArcanistImageUrl,
+  AcquisitionImageUrl,
   DexImageUrl,
   EventImageUrl,
   HealthImageUrl,
@@ -81,11 +82,11 @@ export const getTalentRequirementIconProps = (
     case 'Offers':
       return { count: 1, url: InfernalContractUrl, color: colorOffers, label: 'Offers' }
     case 'Events':
-      return { count: 1, url: EventImageUrl, color: colorEvents, label: 'Events' }
+      return { count: 1, url: AcquisitionImageUrl, color: colorEvents, label: 'Events' }
     case 'No Requirements':
       return { count: 1, url: NeutralImageUrl, color: colorGrey, label: 'No requirements' }
     default:
-      throw new Error(`Unknown requirement label: ${label}`)
+      return { count: 1, url: EventImageUrl, color: colorEvents, label }
   }
 }
 

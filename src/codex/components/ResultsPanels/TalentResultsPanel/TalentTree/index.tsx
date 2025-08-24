@@ -45,6 +45,7 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
     )
 
     // - - - - - Node dimensions - - - - -
+    const requirementNodeRadius = 28
     const nodeWidth = 200
     const nameHeight = 25
     const minDescriptionHeight = 20
@@ -120,12 +121,24 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
     const defs = mainSvg.append('defs')
     const svg = mainSvg.append('g').attr('transform', `translate(50, ${-minX + topPadding})`)
 
+    const getNodeHalfWidth = (node: HierarchicalTalentTreeNode) => {
+      switch (node.type) {
+        case TalentTreeNodeType.TALENT:
+          return nodeWidth / 2
+        default:
+          return requirementNodeRadius
+      }
+    }
+
     const generateLinkPath = (d: d3.HierarchyPointLink<HierarchicalTalentTreeNode>) => {
       const isRootNode = d.source.depth <= 1
       const xOffset = 10
-      const sourceX = isRootNode ? d.source.y + xOffset : d.source.y + nodeWidth / 2 - xOffset
+      const sourceHalfWidth = getNodeHalfWidth(d.source.data)
+      const targetHalfWidth = getNodeHalfWidth(d.target.data)
+
+      const sourceX = isRootNode ? d.source.y + xOffset : d.source.y + sourceHalfWidth - xOffset
       const sourceY = d.source.x
-      const targetX = d.target.y - nodeWidth / 2
+      const targetX = d.target.y - targetHalfWidth
       const targetY = d.target.x
 
       // Smooth horizontal curve
@@ -168,87 +181,89 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
 
     defs.select('#talent-glow').append('feMerge').append('feMergeNode').attr('in', 'SourceGraphic')
 
-    // Render nodes based on depth
-    nodes.each(function ({ depth, data }, _index) {
+    nodes.each(function ({ data }, _index) {
+      if (!data.type) {
+        throw new Error(`Node ${data.name} has no type!`)
+      }
+
       const nodeElement = d3.select(this)
+      const isRequirementNode = data.type !== TalentTreeNodeType.TALENT
 
-      if (depth === 1) {
-        if (data.type) {
-          const isClassRequirement = data.type === TalentTreeNodeType.CLASS_REQUIREMENT
-          const { count, url, color, label } = getTalentRequirementIconProps(
-            isClassRequirement,
-            data.name
-          )
-          const showBiggerIcons =
-            isClassRequirement ||
-            data.type === TalentTreeNodeType.OFFER_REQUIREMENT ||
-            data.type === TalentTreeNodeType.EVENT_REQUIREMENT
+      if (isRequirementNode) {
+        const isClassRequirement = data.type === TalentTreeNodeType.CLASS_REQUIREMENT
+        const { count, url, color, label } = getTalentRequirementIconProps(
+          isClassRequirement,
+          data.name
+        )
+        const showBiggerIcons =
+          isClassRequirement ||
+          data.type === TalentTreeNodeType.OFFER_REQUIREMENT ||
+          data.type === TalentTreeNodeType.EVENT_REQUIREMENT
 
-          let circleRadius = 0
-          if (showBiggerIcons) {
-            circleRadius = 28
-          } else if (count === 1) {
-            circleRadius = 13
-          } else if (count === 2) {
-            circleRadius = 17
-          } else if (count === 3) {
-            circleRadius = 26
-          }
+        let circleRadius = 0
+        if (showBiggerIcons) {
+          circleRadius = requirementNodeRadius
+        } else if (count === 1) {
+          circleRadius = requirementNodeRadius / 2
+        } else if (count === 2) {
+          circleRadius = requirementNodeRadius / 1.75
+        } else if (count === 3) {
+          circleRadius = requirementNodeRadius - 2
+        }
 
-          nodeElement
-            .append('circle')
-            .attr('r', circleRadius)
-            .attr('class', cx('tree-root-node-circle'))
-            .style('--color', color)
+        nodeElement
+          .append('circle')
+          .attr('r', circleRadius)
+          .attr('class', cx('tree-root-node-circle'))
+          .style('--color', color)
 
-          nodeElement
-            .append('text')
-            .attr('x', 0)
-            .attr('y', -circleRadius - 8)
-            .attr('text-anchor', 'middle')
-            .attr('class', cx('tree-root-node-label', `tree-root-node-label--depth-${maxDepth}`))
-            .style('fill', lighten(color, 5))
-            .text(label)
+        nodeElement
+          .append('text')
+          .attr('x', 0)
+          .attr('y', -circleRadius - 8)
+          .attr('text-anchor', 'middle')
+          .attr('class', cx('tree-root-node-label', `tree-root-node-label--depth-${maxDepth}`))
+          .style('fill', lighten(color, 5))
+          .text(label)
 
-          if (count > 0) {
-            const iconSize = showBiggerIcons ? 52 : 22
-            const spacing = 2
-            const totalWidth = count * iconSize + (count - 1) * spacing
-            const startX = -totalWidth / 2
+        if (count > 0) {
+          const iconSize = showBiggerIcons ? 52 : 22
+          const spacing = 2
+          const totalWidth = count * iconSize + (count - 1) * spacing
+          const startX = -totalWidth / 2
 
-            for (let i = 0; i < count; i++) {
-              const x = startX + i * (iconSize + spacing)
+          for (let i = 0; i < count; i++) {
+            const x = startX + i * (iconSize + spacing)
 
-              if (count === 1) {
-                // Single icon - apply circular clipping
-                const clipId = `circle-clip-${_index}-${i}`
+            if (count === 1) {
+              // Single icon - apply circular clipping
+              const clipId = `circle-clip-${_index}-${i}`
 
-                defs
-                  .append('clipPath')
-                  .attr('id', clipId)
-                  .append('circle')
-                  .attr('r', iconSize / 2)
-                  .attr('cx', x + iconSize / 2)
-                  .attr('cy', -iconSize / 2 + iconSize / 2)
+              defs
+                .append('clipPath')
+                .attr('id', clipId)
+                .append('circle')
+                .attr('r', iconSize / 2)
+                .attr('cx', x + iconSize / 2)
+                .attr('cy', -iconSize / 2 + iconSize / 2)
 
-                nodeElement
-                  .append('image')
-                  .attr('href', url)
-                  .attr('x', x)
-                  .attr('y', -iconSize / 2)
-                  .attr('width', iconSize)
-                  .attr('height', iconSize)
-                  .attr('clip-path', `url(#${clipId})`)
-              } else {
-                // Multiple icons - no clipping, place them next to each other
-                nodeElement
-                  .append('image')
-                  .attr('href', url)
-                  .attr('x', x)
-                  .attr('y', -iconSize / 2)
-                  .attr('width', iconSize)
-                  .attr('height', iconSize)
-              }
+              nodeElement
+                .append('image')
+                .attr('href', url)
+                .attr('x', x)
+                .attr('y', -iconSize / 2)
+                .attr('width', iconSize)
+                .attr('height', iconSize)
+                .attr('clip-path', `url(#${clipId})`)
+            } else {
+              // Multiple icons - no clipping, place them next to each other
+              nodeElement
+                .append('image')
+                .attr('href', url)
+                .attr('x', x)
+                .attr('y', -iconSize / 2)
+                .attr('width', iconSize)
+                .attr('height', iconSize)
             }
           }
         }
@@ -301,12 +316,21 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
           .append('g')
           .attr('transform', `translate(0, ${-dynamicNodeHeight / 2 + nameHeight / 2})`)
 
+        // For names too long to have larger fonts when collapsed
+        const isNameReallyLong = data.name.length > 24
+
         nameGroup
           .append('text')
           .attr('x', 0)
           .attr('y', isCollapsed ? 10 : 4)
           .text(data.name)
-          .attr('class', cx('talent-node-name', { 'talent-node-name--collapsed': isCollapsed }))
+          .attr(
+            'class',
+            cx('talent-node-name', {
+              'talent-node-name--collapsed': isCollapsed,
+              'talent-node-name--collapsed-long-name': isCollapsed && isNameReallyLong,
+            })
+          )
 
         if (!isCollapsed) {
           const descGroup = contentGroup

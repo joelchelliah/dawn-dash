@@ -1,4 +1,6 @@
-export type FilterType = 'card-set' | 'rarity' | 'tier' | 'banner' | 'extra' | 'formatting'
+export type FilterTypeCard = 'card-set' | 'rarity' | 'banner' | 'extra' | 'formatting-card'
+
+export type FilterTypeTalent = 'card-set' | 'tier' | 'extra' | 'formatting-talent'
 
 export enum SharedFilterOption {
   All = 'All',

@@ -103,7 +103,7 @@ const TalentSearchPanel = ({ useSearchFilters, useTalentData }: TalentSearchPane
             title="Results formatting"
             filters={allFormattingTalentFilters}
             selectedFilters={formattingFilters}
-            type="formatting"
+            type="formatting-talent"
             onFilterToggle={handleFormattingFilterToggle}
             getFilterLabel={getFormattingFilterName}
           />

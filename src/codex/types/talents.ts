@@ -15,6 +15,7 @@ export type TalentData = {
 
 export enum TalentTreeNodeType {
   TALENT = 'TALENT',
+  EVENT = 'EVENT',
   CLASS_REQUIREMENT = 'CLASS_REQUIREMENT',
   ENERGY_REQUIREMENT = 'ENERGY_REQUIREMENT',
   NO_REQUIREMENTS = 'NO_REQUIREMENTS',
@@ -34,8 +35,8 @@ export type TalentTreeRequirementNode = {
 }
 
 export type TalentTreeTalentNode = {
-  name: string
   type: TalentTreeNodeType.TALENT
+  name: string
   description: string
   flavourText: string
   tier: number
@@ -45,11 +46,11 @@ export type TalentTreeTalentNode = {
 }
 
 export type TalentTree = {
-  offerNode: TalentTreeRequirementNode
-  eventNode: TalentTreeRequirementNode
   noReqNode: TalentTreeRequirementNode
   classNodes: TalentTreeRequirementNode[]
   energyNodes: TalentTreeRequirementNode[]
+  eventNodes: TalentTreeRequirementNode[]
+  offerNode: TalentTreeRequirementNode
 }
 
 export type TalentTreeNode = TalentTreeTalentNode | TalentTreeRequirementNode
