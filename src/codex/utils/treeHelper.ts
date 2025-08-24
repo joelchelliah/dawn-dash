@@ -38,13 +38,15 @@ const isTalentTreeNodeEqual = (nodeA: TalentTreeNode, nodeB: TalentTreeNode): bo
 export const buildHierarchicalTreeFromTalentTree = (
   talentTree: TalentTree
 ): HierarchicalTalentTreeNode => {
+  const eventNodes = talentTree.eventNodes
+    .map(buildHierarchicalTreeNodeFromRequirementNode)
+    .filter(isNotNullOrUndefined)
+
   const eventNodesRoot = {
     name: 'Events',
     description: '',
     type: TalentTreeNodeType.EVENT_REQUIREMENT,
-    children: talentTree.eventNodes
-      .map(buildHierarchicalTreeNodeFromRequirementNode)
-      .filter(isNotNullOrUndefined),
+    children: eventNodes,
   }
   return {
     name: 'Root',
@@ -57,7 +59,7 @@ export const buildHierarchicalTreeFromTalentTree = (
       ...talentTree.classNodes
         .map(buildHierarchicalTreeNodeFromRequirementNode)
         .filter(isNotNullOrUndefined),
-      eventNodesRoot,
+      ...(eventNodes.length > 0 ? [eventNodesRoot] : []),
       buildHierarchicalTreeNodeFromRequirementNode(talentTree.offerNode),
     ].filter(isNotNullOrUndefined),
   }

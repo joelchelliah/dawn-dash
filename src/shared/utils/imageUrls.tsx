@@ -8,7 +8,7 @@ export const DashImageUrl = `${blightbaneImagesUrl}/icons/cardart_4_53.webp`
 export const EleganceImageUrl = `${blightbaneImagesUrl}/icons/elegance.webp`
 export const InfernalContractUrl = `${blightbaneImagesUrl}/icons/cardart_3_10.webp`
 export const RushedForgeryImageUrl = `${blightbaneImagesUrl}/icons/Forgery_eclypse-miniset.webp`
-export const AcquisitionImageUrl = `${blightbaneImagesUrl}/icons/acquisition.webp`
+export const CoinsOfPassingImageUrl = `${blightbaneImagesUrl}/icons/siegeOfshadows_abilities_2-quest_coinsOfPassing.webp`
 
 // Classes
 export const ArcanistImageUrl = `${blightbaneImagesUrl}/classes/Arcanist_I_M.webp`

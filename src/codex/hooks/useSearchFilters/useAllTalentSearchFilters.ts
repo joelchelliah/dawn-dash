@@ -13,7 +13,7 @@ import {
   cacheTalentCodexSearchFilters,
   getCachedTalentCodexSearchFilters,
 } from '@/codex/utils/codexFilterStore'
-import { isTalentEventBased, isTalentOffer } from '@/codex/utils/talentHelper'
+import { isTalentOnlyFromEvents, isTalentOffer } from '@/codex/utils/talentHelper'
 import { isTalentTreeEqual } from '@/codex/utils/treeHelper'
 
 import { useCardSetFilters } from './useCardSetFilters'
@@ -229,12 +229,12 @@ export const useAllTalentSearchFilters = (
   const isMatchingTalent = useCallback(
     (talent: TalentTreeTalentNode) => {
       const isOffer = isTalentOffer(talent)
-      const isEventBased = isTalentEventBased(talent)
+      const isEventOnlyTalent = isTalentOnlyFromEvents(talent)
 
       const passesExpansionFilter =
         (isOffer && shouldIncludeOffers) ||
-        (isEventBased && shouldIncludeEventBasedTalents) ||
-        (!isOffer && !isEventBased && isCardSetIndexSelected(talent.expansion))
+        (isEventOnlyTalent && shouldIncludeEventBasedTalents) ||
+        (!isOffer && !isEventOnlyTalent && isCardSetIndexSelected(talent.expansion))
 
       const passesTierFilter = isTierIndexSelected(talent.tier)
 
