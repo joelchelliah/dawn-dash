@@ -1,4 +1,6 @@
-export type FilterType = 'card-set' | 'rarity' | 'tier' | 'banner' | 'extra' | 'formatting'
+export type FilterTypeCard = 'card-set' | 'rarity' | 'banner' | 'extra' | 'formatting-card'
+
+export type FilterTypeTalent = 'card-set' | 'tier' | 'extra' | 'formatting-talent'
 
 export enum SharedFilterOption {
   All = 'All',
@@ -88,23 +90,37 @@ export const Banner = {
   ],
 }
 
-// -------------------- Extra --------------------
+// -------------------- Extra Card --------------------
 
-export enum ExtraFilterOption {
+export enum ExtraCardFilterOption {
   IncludeMonsterCards = 'IncludeMonsterCards',
   IncludeNonCollectibleCards = 'IncludeNonCollectibleCards',
 }
 
-export type Extra = ExtraFilterOption
+export type ExtraCard = ExtraCardFilterOption
 
-export const Extra = {
-  ...ExtraFilterOption,
-  getAll: (): Extra[] => [...Object.values(ExtraFilterOption)],
+export const ExtraCard = {
+  ...ExtraCardFilterOption,
+  getAll: (): ExtraCard[] => [...Object.values(ExtraCardFilterOption)],
 }
 
-// -------------------- Formatting --------------------
+// -------------------- Extra Talent --------------------
 
-export enum FormattingFilterOption {
+export enum ExtraTalentFilterOption {
+  IncludeOffers = 'IncludeOffers',
+  IncludeEvents = 'IncludeEvents',
+}
+
+export type ExtraTalent = ExtraTalentFilterOption
+
+export const ExtraTalent = {
+  ...ExtraTalentFilterOption,
+  getAll: (): ExtraTalent[] => [...Object.values(ExtraTalentFilterOption)],
+}
+
+// -------------------- Formatting Card --------------------
+
+export enum FormattingCardFilterOption {
   ShowRarity = 'ShowRarity',
   ShowDescription = 'ShowDescription',
   ShowKeywords = 'ShowKeywords',
@@ -113,11 +129,24 @@ export enum FormattingFilterOption {
   HideTrackedCards = 'HideTrackedCards',
 }
 
-export type Formatting = FormattingFilterOption
+export type FormattingCard = FormattingCardFilterOption
 
-export const Formatting = {
-  ...FormattingFilterOption,
-  getAll: (): Formatting[] => [...Object.values(FormattingFilterOption)],
+export const FormattingCard = {
+  ...FormattingCardFilterOption,
+  getAll: (): FormattingCard[] => [...Object.values(FormattingCardFilterOption)],
+}
+
+// -------------------- Formatting Talent --------------------
+
+export enum FormattingTalentFilterOption {
+  ShowDescriptionByDefault = 'ShowDescriptionByDefault',
+}
+
+export type FormattingTalent = FormattingTalentFilterOption
+
+export const FormattingTalent = {
+  ...FormattingTalentFilterOption,
+  getAll: (): FormattingTalent[] => [...Object.values(FormattingTalentFilterOption)],
 }
 
 // -------------------- Cache --------------------
@@ -137,6 +166,8 @@ export interface TalentCodexSearchFilterCache {
   keywords: string
   cardSets: Record<string, boolean>
   tiers: Record<string, boolean>
+  extras: Record<string, boolean>
+  formatting: Record<string, boolean>
   lastUpdated: number
 }
 

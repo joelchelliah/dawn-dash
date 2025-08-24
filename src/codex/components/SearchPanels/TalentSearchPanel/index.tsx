@@ -1,10 +1,15 @@
 import GradientButton from '@/shared/components/Buttons/GradientButton'
 import ButtonRow from '@/shared/components/Buttons/ButtonRow'
+import { createCx } from '@/shared/utils/classnames'
+import { FlameIcon, ScrollIcon } from '@/shared/utils/icons'
 
 import { allTiers } from '@/codex/hooks/useSearchFilters/useTierFilters'
-import { UseTalentSearchFilters } from '@/codex/hooks/useSearchFilters'
+import { UseAllTalentSearchFilters } from '@/codex/hooks/useSearchFilters'
 import { allCardSets } from '@/codex/hooks/useSearchFilters/useCardSetFilters'
 import { UseTalentData } from '@/codex/hooks/useTalentData'
+import { allExtraTalentFilters } from '@/codex/hooks/useSearchFilters/useExtraTalentFilters'
+import { allFormattingTalentFilters } from '@/codex/hooks/useSearchFilters/useFormattingTalentFilters'
+import { ExtraTalentFilterOption } from '@/codex/types/filters'
 
 import CodexLastUpdated from '../../CodexLastUpdated'
 import PanelHeader from '../../PanelHeader'
@@ -13,16 +18,52 @@ import SearchField from '../shared/SearchField'
 
 import styles from './index.module.scss'
 
+const cx = createCx(styles)
+
 interface TalentSearchPanelProps {
-  useSearchFilters: UseTalentSearchFilters
+  useSearchFilters: UseAllTalentSearchFilters
   useTalentData: UseTalentData
 }
 
 const TalentSearchPanel = ({ useSearchFilters, useTalentData }: TalentSearchPanelProps) => {
-  const { keywords, setKeywords, useCardSetFilters, useTierFilters, resetFilters } =
-    useSearchFilters
+  const {
+    keywords,
+    setKeywords,
+    useCardSetFilters,
+    useTierFilters,
+    useExtraTalentFilters,
+    useFormattingFilters,
+    resetFilters,
+  } = useSearchFilters
   const { cardSetFilters, handleCardSetFilterToggle } = useCardSetFilters
   const { tierFilters, handleTierFilterToggle } = useTierFilters
+  const { extraTalentFilters, handleExtraTalentFilterToggle, getExtraTalentFilterName } =
+    useExtraTalentFilters
+  const { formattingFilters, handleFormattingFilterToggle, getFormattingFilterName } =
+    useFormattingFilters
+
+  const getExtraFilterLabel = (filter: string) => {
+    const name = getExtraTalentFilterName(filter)
+
+    switch (filter) {
+      case ExtraTalentFilterOption.IncludeOffers:
+        return (
+          <span className={cx('filter-label')}>
+            <ScrollIcon className={cx('filter-icon--scroll')} />
+            {name}
+          </span>
+        )
+      case ExtraTalentFilterOption.IncludeEvents:
+        return (
+          <span className={cx('filter-label')}>
+            <FlameIcon className={cx('filter-icon--flame')} />
+            {name}
+          </span>
+        )
+      default:
+        return <span className={cx('filter-label')}>{name}</span>
+    }
+  }
 
   const preventFormSubmission = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -49,6 +90,22 @@ const TalentSearchPanel = ({ useSearchFilters, useTalentData }: TalentSearchPane
             selectedFilters={tierFilters}
             type="tier"
             onFilterToggle={handleTierFilterToggle}
+          />
+          <FilterGroup
+            title="Extras"
+            filters={allExtraTalentFilters}
+            selectedFilters={extraTalentFilters}
+            type="extra"
+            onFilterToggle={handleExtraTalentFilterToggle}
+            getFilterLabel={getExtraFilterLabel}
+          />
+          <FilterGroup
+            title="Results formatting"
+            filters={allFormattingTalentFilters}
+            selectedFilters={formattingFilters}
+            type="formatting-talent"
+            onFilterToggle={handleFormattingFilterToggle}
+            getFilterLabel={getFormattingFilterName}
           />
         </div>
 

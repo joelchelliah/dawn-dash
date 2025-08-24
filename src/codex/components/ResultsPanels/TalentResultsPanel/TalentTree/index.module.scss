@@ -19,10 +19,6 @@
   opacity: 0.75;
 }
 
-.tree-node {
-  cursor: pointer;
-}
-
 .tree-root-node-circle {
   fill: $color-component-bg;
   stroke: var(--color, $color-component-bg-hover);
@@ -30,9 +26,24 @@
 }
 
 .tree-root-node-label {
-  font-size: font-size('xs');
+  font-size: font-size('lg');
   font-weight: 600;
   text-anchor: middle;
+
+  // depth-1 should not be possible,
+  // since we hide the root node when there are no talents
+
+  &--depth-2 {
+    font-size: font-size('xxs');
+  }
+
+  &--depth-3 {
+    font-size: font-size('xs');
+  }
+
+  &--depth-4 {
+    font-size: font-size('md');
+  }
 }
 
 .tree-node-content {
@@ -55,6 +66,7 @@
 }
 
 .talent-node {
+  cursor: pointer;
   stroke-width: 2px;
   stroke-opacity: 0.75;
   rx: 8px;
@@ -73,11 +85,20 @@
   font-weight: 600;
   fill: $color-primary-base;
   text-anchor: middle;
+
+  &--collapsed {
+    font-size: font-size('sm');
+  }
+
+  &--collapsed-long-name {
+    font-size: font-size('xs');
+  }
 }
 
 .talent-node-description {
   font-size: font-size('xxxs');
-  color: $color-primary-muted;
+  color: $color-primary-base;
+  opacity: 0.8;
   text-align: center;
   line-height: 1.2;
   word-wrap: break-word;

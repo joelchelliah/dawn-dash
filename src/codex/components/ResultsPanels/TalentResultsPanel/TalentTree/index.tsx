@@ -3,30 +3,22 @@ import { useEffect, useRef } from 'react'
 import * as d3 from 'd3'
 
 import { createCx } from '@/shared/utils/classnames'
-import {
-  DexImageUrl,
-  IntImageUrl,
-  StrImageUrl,
-  NeutralImageUrl,
-  ArcanistImageUrl,
-  HunterImageUrl,
-  KnightImageUrl,
-  RogueImageUrl,
-  SeekerImageUrl,
-  WarriorImageUrl,
-  SunforgeImageUrl,
-} from '@/shared/utils/imageUrls'
-import { ClassColorVariant, darken, getClassColor, lighten } from '@/shared/utils/classColors'
-import { CharacterClass } from '@/shared/types/characterClass'
-import { isNotNullOrUndefined } from '@/shared/utils/object'
+import { lighten } from '@/shared/utils/classColors'
 
 import {
-  TalentTreeRequirementNode,
-  TalentTreeTalentNode,
   TalentTree as TalentTreeType,
   TalentTreeNodeType,
+  HierarchicalTalentTreeNode,
 } from '@/codex/types/talents'
-import { parseTalentDescriptionLine } from '@/codex/utils/talentHelper'
+import {
+  getLinkColor,
+  getTalentRequirementIconProps,
+  parseTalentDescriptionLine,
+  wrapText,
+} from '@/codex/utils/talentHelper'
+import { buildHierarchicalTreeFromTalentTree } from '@/codex/utils/treeHelper'
+import { useExpandableNodes } from '@/codex/hooks/useExpandableNodes'
+import { useFormattingTalentFilters } from '@/codex/hooks/useSearchFilters/useFormattingTalentFilters'
 
 import styles from './index.module.scss'
 
@@ -34,67 +26,13 @@ const cx = createCx(styles)
 
 interface TalentTreeProps {
   talentTree: TalentTreeType | undefined
+  useFormattingFilters: ReturnType<typeof useFormattingTalentFilters>
 }
 
-interface TreeNode {
-  name: string
-  description: string
-  nodeType?: TalentTreeNodeType
-  tier?: number
-  children?: TreeNode[]
-}
-
-const getRequirementIconProps = (
-  isClassRequirement: boolean,
-  label: string
-): { count: number; url: string; color: string; label: string } => {
-  if (isClassRequirement) {
-    const color = getClassColor(label as CharacterClass, ClassColorVariant.Dark)
-    switch (label) {
-      case CharacterClass.Arcanist:
-        return { count: 1, url: ArcanistImageUrl, color, label }
-      case CharacterClass.Hunter:
-        return { count: 1, url: HunterImageUrl, color, label }
-      case CharacterClass.Knight:
-        return { count: 1, url: KnightImageUrl, color, label }
-      case CharacterClass.Rogue:
-        return { count: 1, url: RogueImageUrl, color, label }
-      case CharacterClass.Seeker:
-        return { count: 1, url: SeekerImageUrl, color, label }
-      case CharacterClass.Warrior:
-        return { count: 1, url: WarriorImageUrl, color, label }
-      default:
-        return { count: 1, url: SunforgeImageUrl, color, label }
-    }
-  }
-
-  const colorGrey = getClassColor(CharacterClass.Neutral, ClassColorVariant.Default)
-  const colorRed = getClassColor(CharacterClass.Warrior, ClassColorVariant.Default)
-  const colorGreen = getClassColor(CharacterClass.Rogue, ClassColorVariant.Default)
-  const colorBlue = getClassColor(CharacterClass.Arcanist, ClassColorVariant.Default)
-
-  switch (label) {
-    case 'DEX':
-      return { count: 1, url: DexImageUrl, color: colorGreen, label: 'DEX' }
-    case 'DEX2':
-      return { count: 2, url: DexImageUrl, color: colorGreen, label: '2 DEX' }
-    case 'INT':
-      return { count: 1, url: IntImageUrl, color: colorBlue, label: 'INT' }
-    case 'INT2':
-      return { count: 2, url: IntImageUrl, color: colorBlue, label: '2 INT' }
-    case 'STR':
-      return { count: 1, url: StrImageUrl, color: colorRed, label: 'STR' }
-    case 'STR2':
-      return { count: 2, url: StrImageUrl, color: colorRed, label: '2 STR' }
-    case 'STR3':
-      return { count: 3, url: StrImageUrl, color: colorRed, label: '3 STR' }
-    default:
-      return { count: 1, url: NeutralImageUrl, color: colorGrey, label: 'No requirements' }
-  }
-}
-
-const TalentTree = ({ talentTree }: TalentTreeProps) => {
+const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
   const svgRef = useRef<SVGSVGElement>(null)
+  const { shouldShowDescription } = useFormattingFilters
+  const { toggleNodeVisibility, isNodeVisible } = useExpandableNodes(shouldShowDescription)
 
   useEffect(() => {
     if (!svgRef.current || !talentTree) return
@@ -102,53 +40,48 @@ const TalentTree = ({ talentTree }: TalentTreeProps) => {
     // Clear previous visualization
     d3.select(svgRef.current).selectAll('*').remove()
 
-    const buildTreeFromTalent = (node: TalentTreeTalentNode): TreeNode => {
-      const children = node.children.map(buildTreeFromTalent)
-      return {
-        name: node.name,
-        description: node.description,
-        nodeType: TalentTreeNodeType.TALENT,
-        tier: node.tier,
-        children: children.length > 0 ? children : undefined,
-      }
-    }
+    const treeNode = d3.hierarchy<HierarchicalTalentTreeNode>(
+      buildHierarchicalTreeFromTalentTree(talentTree)
+    )
 
-    const buildTreeFromOtherRequirement = (
-      node: TalentTreeRequirementNode
-    ): TreeNode | undefined => {
-      const children = node.children.map(buildTreeFromTalent)
-
-      if (children.length === 0) {
-        return undefined
-      }
-
-      return {
-        name: node.name,
-        description: `MISSING description for ${node.name}`,
-        nodeType: node.type,
-        children,
-      }
-    }
-
-    const treeNode = d3.hierarchy<TreeNode>({
-      name: 'Root',
-      description: '',
-      children: [
-        buildTreeFromOtherRequirement(talentTree.noReqNode),
-        ...talentTree.energyNodes.map(buildTreeFromOtherRequirement).filter(isNotNullOrUndefined),
-        ...talentTree.classNodes.map(buildTreeFromOtherRequirement).filter(isNotNullOrUndefined),
-      ].filter(isNotNullOrUndefined),
-    })
-
-    // Node dimensions
+    // - - - - - Node dimensions - - - - -
+    const requirementNodeRadius = 28
     const nodeWidth = 200
-    const nodeHeight = 85
     const nameHeight = 25
-    const descriptionHeight = 65
+    const minDescriptionHeight = 20
+    const collapsedDescriptionHeight = 4
+    const descriptionLineHeight = 11
+    const defaultVerticalSpacing = 100
     const horizontalSpacing = nodeWidth * 1.4
-    const verticalSpacing = nodeHeight * 1.4
+    // - - - - - - - - - - - - - - - - - -
 
-    const treeLayout = d3.tree<TreeNode>().nodeSize([verticalSpacing, horizontalSpacing])
+    const getDynamicVerticalSpacing = (node: HierarchicalTalentTreeNode) => {
+      if (node.type === TalentTreeNodeType.TALENT) {
+        if (!isNodeVisible(node.name)) {
+          return nameHeight * 2.8
+        }
+
+        const descLines = wrapText(node.description, nodeWidth + 10, 10)
+        const descriptionHeight = Math.max(
+          minDescriptionHeight,
+          descLines.length * descriptionLineHeight
+        )
+
+        return (nameHeight + descriptionHeight) * 1.7
+      }
+      return defaultVerticalSpacing
+    }
+
+    const treeLayout = d3
+      .tree<HierarchicalTalentTreeNode>()
+      .nodeSize([defaultVerticalSpacing, horizontalSpacing])
+      .separation((a, b) => {
+        const aVertical = getDynamicVerticalSpacing(a.data)
+        const bVertical = getDynamicVerticalSpacing(b.data)
+        const minSeparation = (aVertical + bVertical) / (2 * defaultVerticalSpacing)
+
+        return a.parent === b.parent ? minSeparation : minSeparation * 1.25
+      })
     const treeData = treeLayout(treeNode)
 
     // Shift all nodes left so that the root talents are at y=0
@@ -171,7 +104,9 @@ const TalentTree = ({ talentTree }: TalentTreeProps) => {
 
     const topPadding = 40
     const bottomPadding = 1500
-    const svgHeight = 0.92 * maxX - minX + topPadding + bottomPadding
+    const minFactorForEverythingToFitInContainer = 0.925
+    const svgHeight =
+      minFactorForEverythingToFitInContainer * maxX - minX + topPadding + bottomPadding
 
     // Calculate width based on max depth
     const baseWidth = 1050 // Width for depth 4
@@ -183,82 +118,46 @@ const TalentTree = ({ talentTree }: TalentTreeProps) => {
       .attr('width', svgWidth)
       .attr('height', svgHeight)
 
-    // Define icons in defs on the main SVG
     const defs = mainSvg.append('defs')
-
-    // Add icon definitions
-    const icons = [
-      { id: 'health-icon', url: 'https://blightbane.io/images/health.webp' },
-      { id: 'holy-icon', url: 'https://blightbane.io/images/holy.webp' },
-      { id: 'str-icon', url: 'https://blightbane.io/images/str.webp' },
-      { id: 'int-icon', url: 'https://blightbane.io/images/int.webp' },
-      { id: 'dex-icon', url: 'https://blightbane.io/images/dex.webp' },
-    ]
-
-    icons.forEach(({ id, url }) => {
-      defs.append('image').attr('id', id).attr('href', url).attr('width', 12).attr('height', 12)
-    })
-
     const svg = mainSvg.append('g').attr('transform', `translate(50, ${-minX + topPadding})`)
 
-    // Link generator for drawing horizontal tree edges between nodes.
-    // Expects objects with {source, target}, where each has .x (vertical) and .y (horizontal) coordinates.
-    // The .x() and .y() accessors map these coordinates for the SVG path.
-    // Used to visually connect parent and child nodes in the tree.
-    const linkGenerator = d3
-      .linkHorizontal<d3.HierarchyPointNode<TreeNode>, d3.HierarchyPointNode<TreeNode>>()
-      .x((d) => d.y)
-      .y((d) => d.x)
+    const getNodeHalfWidth = (node: HierarchicalTalentTreeNode) => {
+      switch (node.type) {
+        case TalentTreeNodeType.TALENT:
+          return nodeWidth / 2
+        default:
+          return requirementNodeRadius
+      }
+    }
 
-    // Add links between parent and child nodes
+    const generateLinkPath = (d: d3.HierarchyPointLink<HierarchicalTalentTreeNode>) => {
+      const isRootNode = d.source.depth <= 1
+      const xOffset = 10
+      const sourceHalfWidth = getNodeHalfWidth(d.source.data)
+      const targetHalfWidth = getNodeHalfWidth(d.target.data)
+
+      const sourceX = isRootNode ? d.source.y + xOffset : d.source.y + sourceHalfWidth - xOffset
+      const sourceY = d.source.x
+      const targetX = d.target.y - targetHalfWidth
+      const targetY = d.target.x
+
+      // Smooth horizontal curve
+      const midX = (sourceX + targetX) / 2
+      return `M${sourceX},${sourceY}C${midX},${sourceY} ${midX},${targetY} ${targetX},${targetY}`
+    }
+
+    // Links between parent and child nodes
     svg
       .selectAll('.link')
       .data(treeData.links().filter((link) => link.source.depth > 0)) // Skip links from virtual root
       .enter()
       .append('path')
       .attr('class', cx('tree-link'))
-      .attr('d', (d) => linkGenerator(d as unknown as d3.HierarchyPointNode<TreeNode>))
+      .attr('d', generateLinkPath)
       .style('stroke', (link) => {
-        const parentData = link.source.data
+        const { name, type } = link.source.data
 
-        const getLinkColor = (name: string, type: TalentTreeNodeType | undefined): string => {
-          const colorGrey = darken(
-            getClassColor(CharacterClass.Neutral, ClassColorVariant.Darkest),
-            15
-          )
-
-          if (type === TalentTreeNodeType.CLASS_REQUIREMENT) {
-            return getClassColor(name as CharacterClass, ClassColorVariant.Dark)
-          } else if (type === TalentTreeNodeType.ENERGY_REQUIREMENT) {
-            const colorRed = getClassColor(CharacterClass.Warrior, ClassColorVariant.Dark)
-            const colorGreen = getClassColor(CharacterClass.Rogue, ClassColorVariant.Dark)
-            const colorBlue = getClassColor(CharacterClass.Arcanist, ClassColorVariant.Dark)
-
-            switch (name) {
-              case 'DEX':
-              case 'DEX2':
-                return colorGreen
-              case 'INT':
-              case 'INT2':
-                return colorBlue
-              case 'STR':
-              case 'STR2':
-              case 'STR3':
-                return colorRed
-              default:
-                return colorGrey
-            }
-          } else if (type === TalentTreeNodeType.TALENT) {
-            let currentNode = link.source
-            while (currentNode.parent && currentNode.data.nodeType === TalentTreeNodeType.TALENT) {
-              currentNode = currentNode.parent
-            }
-            return getLinkColor(currentNode.data.name, currentNode.data.nodeType)
-          }
-          return colorGrey
-        }
-
-        return getLinkColor(parentData.name, parentData.nodeType)
+        return getLinkColor(link, name, type)
       })
 
     // Add nodes
@@ -267,7 +166,6 @@ const TalentTree = ({ talentTree }: TalentTreeProps) => {
       .data(treeData.descendants().filter(({ depth }) => depth > 0)) // Skip virtual root node
       .enter()
       .append('g')
-      .attr('class', cx('tree-node'))
       .attr('transform', ({ y, x }) => `translate(${y ?? 0},${x ?? 0})`)
 
     // Add filter for talent node glow effect
@@ -282,189 +180,194 @@ const TalentTree = ({ talentTree }: TalentTreeProps) => {
 
     defs.select('#talent-glow').append('feMerge').append('feMergeNode').attr('in', 'SourceGraphic')
 
-    // Render nodes based on depth
-    nodes.each(function ({ depth, data }, _index) {
+    nodes.each(function ({ data }, _index) {
+      if (!data.type) {
+        throw new Error(`Node ${data.name} has no type!`)
+      }
+
       const nodeElement = d3.select(this)
+      const isRequirementNode = data.type !== TalentTreeNodeType.TALENT
 
-      if (depth === 1) {
-        if (data.nodeType) {
-          const isClassRequirement = data.nodeType === TalentTreeNodeType.CLASS_REQUIREMENT
-          const { count, url, color, label } = getRequirementIconProps(
-            isClassRequirement,
-            data.name
-          )
+      if (isRequirementNode) {
+        const isClassRequirement = data.type === TalentTreeNodeType.CLASS_REQUIREMENT
+        const { count, url, color, label } = getTalentRequirementIconProps(
+          isClassRequirement,
+          data.name
+        )
+        const showBiggerIcons =
+          isClassRequirement ||
+          data.type === TalentTreeNodeType.OFFER_REQUIREMENT ||
+          data.type === TalentTreeNodeType.EVENT_REQUIREMENT
 
-          let circleRadius = 0
-          if (isClassRequirement) {
-            circleRadius = 28
-          } else if (count === 1) {
-            circleRadius = 13
-          } else if (count === 2) {
-            circleRadius = 17
-          } else if (count === 3) {
-            circleRadius = 26
-          }
+        let circleRadius = 0
+        if (showBiggerIcons) {
+          circleRadius = requirementNodeRadius
+        } else if (count === 1) {
+          circleRadius = requirementNodeRadius / 2
+        } else if (count === 2) {
+          circleRadius = requirementNodeRadius / 1.75
+        } else if (count === 3) {
+          circleRadius = requirementNodeRadius - 2
+        }
 
-          nodeElement
-            .append('circle')
-            .attr('r', circleRadius)
-            .attr('class', cx('tree-root-node-circle'))
-            .style('--color', color)
+        nodeElement
+          .append('circle')
+          .attr('r', circleRadius)
+          .attr('class', cx('tree-root-node-circle'))
+          .style('--color', color)
 
-          nodeElement
-            .append('text')
-            .attr('x', 0)
-            .attr('y', -circleRadius - 8)
-            .attr('text-anchor', 'middle')
-            .attr('class', cx('tree-root-node-label'))
-            .style('fill', lighten(color, 5))
-            .text(label)
+        nodeElement
+          .append('text')
+          .attr('x', 0)
+          .attr('y', -circleRadius - 8)
+          .attr('text-anchor', 'middle')
+          .attr('class', cx('tree-root-node-label', `tree-root-node-label--depth-${maxDepth}`))
+          .style('fill', lighten(color, 5))
+          .text(label)
 
-          if (count > 0) {
-            const iconSize = isClassRequirement ? 52 : 22
-            const spacing = 2
-            const totalWidth = count * iconSize + (count - 1) * spacing
-            const startX = -totalWidth / 2
+        if (count > 0) {
+          const iconSize = showBiggerIcons ? 52 : 22
+          const spacing = 2
+          const totalWidth = count * iconSize + (count - 1) * spacing
+          const startX = -totalWidth / 2
 
-            for (let i = 0; i < count; i++) {
-              const x = startX + i * (iconSize + spacing)
+          for (let i = 0; i < count; i++) {
+            const x = startX + i * (iconSize + spacing)
 
-              if (count === 1) {
-                // Single icon - apply circular clipping
-                const clipId = `circle-clip-${_index}-${i}`
+            if (count === 1) {
+              // Single icon - apply circular clipping
+              const clipId = `circle-clip-${_index}-${i}`
 
-                defs
-                  .append('clipPath')
-                  .attr('id', clipId)
-                  .append('circle')
-                  .attr('r', iconSize / 2)
-                  .attr('cx', x + iconSize / 2)
-                  .attr('cy', -iconSize / 2 + iconSize / 2)
+              defs
+                .append('clipPath')
+                .attr('id', clipId)
+                .append('circle')
+                .attr('r', iconSize / 2)
+                .attr('cx', x + iconSize / 2)
+                .attr('cy', -iconSize / 2 + iconSize / 2)
 
-                nodeElement
-                  .append('image')
-                  .attr('href', url)
-                  .attr('x', x)
-                  .attr('y', -iconSize / 2)
-                  .attr('width', iconSize)
-                  .attr('height', iconSize)
-                  .attr('clip-path', `url(#${clipId})`)
-              } else {
-                // Multiple icons - no clipping, place them next to each other
-                nodeElement
-                  .append('image')
-                  .attr('href', url)
-                  .attr('x', x)
-                  .attr('y', -iconSize / 2)
-                  .attr('width', iconSize)
-                  .attr('height', iconSize)
-              }
+              nodeElement
+                .append('image')
+                .attr('href', url)
+                .attr('x', x)
+                .attr('y', -iconSize / 2)
+                .attr('width', iconSize)
+                .attr('height', iconSize)
+                .attr('clip-path', `url(#${clipId})`)
+            } else {
+              // Multiple icons - no clipping, place them next to each other
+              nodeElement
+                .append('image')
+                .attr('href', url)
+                .attr('x', x)
+                .attr('y', -iconSize / 2)
+                .attr('width', iconSize)
+                .attr('height', iconSize)
             }
           }
         }
       } else {
-        // Talent nodes
+        const isCollapsed = !isNodeVisible(data.name)
+        const descLines = wrapText(data.description, nodeWidth + 10, 10)
+        const descriptionHeight = isCollapsed
+          ? collapsedDescriptionHeight
+          : Math.max(minDescriptionHeight, descLines.length * descriptionLineHeight)
+        const dynamicNodeHeight = nameHeight + descriptionHeight + 6
 
         nodeElement
           .append('rect')
           .attr('width', nodeWidth + 6)
-          .attr('height', nodeHeight + 6)
+          .attr('height', dynamicNodeHeight + 6)
           .attr('x', -(nodeWidth + 6) / 2)
-          .attr('y', -(nodeHeight + 6) / 2)
+          .attr('y', -(dynamicNodeHeight + 6) / 2)
           .attr('class', cx('talent-node-glow', `talent-node-glow--tier-${data.tier || 0}`))
 
         nodeElement
           .append('rect')
           .attr('width', nodeWidth)
-          .attr('height', nodeHeight)
+          .attr('height', dynamicNodeHeight)
           .attr('x', -nodeWidth / 2)
-          .attr('y', -nodeHeight / 2)
+          .attr('y', -dynamicNodeHeight / 2)
           .attr('class', cx('talent-node', `talent-node--tier-${data.tier || 0}`))
+          .on('click', function (event) {
+            event.stopPropagation()
+            toggleNodeVisibility(data.name)
+          })
 
-        nodeElement
-          .append('line')
-          .attr('x1', -nodeWidth / 2)
-          .attr('y1', -nodeHeight / 2 + nameHeight)
-          .attr('x2', nodeWidth / 2)
-          .attr('y2', -nodeHeight / 2 + nameHeight)
-          .attr(
-            'class',
-            cx('talent-node-separator', `talent-node-separator--tier-${data.tier || 0}`)
-          )
+        if (!isCollapsed) {
+          nodeElement
+            .append('line')
+            .attr('x1', -nodeWidth / 2)
+            .attr('y1', -dynamicNodeHeight / 2 + nameHeight)
+            .attr('x2', nodeWidth / 2)
+            .attr('y2', -dynamicNodeHeight / 2 + nameHeight)
+            .attr(
+              'class',
+              cx('talent-node-separator', `talent-node-separator--tier-${data.tier || 0}`)
+            )
+        }
 
         // Add content group
         const contentGroup = nodeElement.append('g').attr('class', cx('tree-node-content'))
 
-        // Helper function to wrap text
-        const wrapText = (text: string, width: number, fontSize: number) => {
-          const words = text.split(' ')
-          const lines: string[] = []
-          let currentLine = words[0]
-
-          for (let i = 1; i < words.length; i++) {
-            const word = words[i]
-            const testLine = currentLine + ' ' + word
-            const testWidth = testLine.length * fontSize * 0.6 // Approximate character width
-
-            if (testWidth > width) {
-              lines.push(currentLine)
-              currentLine = word
-            } else {
-              currentLine = testLine
-            }
-          }
-          lines.push(currentLine)
-          return lines
-        }
-
         const nameGroup = contentGroup
           .append('g')
-          .attr('transform', `translate(0, ${-nodeHeight / 2 + nameHeight / 2})`)
+          .attr('transform', `translate(0, ${-dynamicNodeHeight / 2 + nameHeight / 2})`)
+
+        // For names too long to have larger fonts when collapsed
+        const isNameReallyLong = data.name.length > 24
 
         nameGroup
           .append('text')
           .attr('x', 0)
-          .attr('y', 4)
+          .attr('y', isCollapsed ? 10 : 4)
           .text(data.name)
-          .attr('class', cx('talent-node-name'))
-
-        // Add description text with wrapping
-        const descGroup = contentGroup
-          .append('g')
           .attr(
-            'transform',
-            `translate(0, ${-nodeHeight / 2 + nameHeight + descriptionHeight / 2})`
+            'class',
+            cx('talent-node-name', {
+              'talent-node-name--collapsed': isCollapsed,
+              'talent-node-name--collapsed-long-name': isCollapsed && isNameReallyLong,
+            })
           )
 
-        const descLines = wrapText(data.description, nodeWidth, 10)
-        const descLineHeight = 11
+        if (!isCollapsed) {
+          const descGroup = contentGroup
+            .append('g')
+            .attr(
+              'transform',
+              `translate(0, ${-dynamicNodeHeight / 2 + nameHeight + descriptionHeight / 2})`
+            )
 
-        descLines.forEach((line, i) => {
-          const segments = parseTalentDescriptionLine(line)
-          const foreignObject = descGroup
-            .append('foreignObject')
-            .attr('x', -nodeWidth / 2)
-            .attr('y', i * descLineHeight - ((descLines.length - 1) * descLineHeight) / 2 - 9)
-            .attr('width', nodeWidth)
-            .attr('height', descLineHeight)
+          descLines.forEach((line, i) => {
+            const segments = parseTalentDescriptionLine(line)
+            const foreignObject = descGroup
+              .append('foreignObject')
+              .attr('x', -nodeWidth / 2)
+              .attr(
+                'y',
+                i * descriptionLineHeight - ((descLines.length - 1) * descriptionLineHeight) / 2 - 9
+              )
+              .attr('width', nodeWidth)
+              .attr('height', descriptionLineHeight)
 
-          let htmlContent = ''
-          segments.forEach((segment) => {
-            if (segment.type === 'text') {
-              htmlContent += segment.content
-            } else if (segment.type === 'image' && 'icon' in segment) {
-              htmlContent += `<img src="${segment.icon}" width="8" height="8" style="vertical-align: middle; margin: 0 1px 1px;" />`
-            }
+            let htmlContent = ''
+            segments.forEach((segment) => {
+              if (segment.type === 'text') {
+                htmlContent += segment.content
+              } else if (segment.type === 'image' && 'icon' in segment) {
+                htmlContent += `<img src="${segment.icon}" width="8" height="8" style="vertical-align: middle; margin: 0 1px 1px;" />`
+              }
+            })
+
+            foreignObject
+              .append('xhtml:div')
+              .attr('class', cx('talent-node-description'))
+              .html(htmlContent)
           })
-
-          foreignObject
-            .append('xhtml:div')
-            .attr('class', cx('talent-node-description'))
-            .html(htmlContent)
-        })
+        }
       }
     })
-  }, [talentTree])
+  }, [talentTree, isNodeVisible, toggleNodeVisibility])
 
   return (
     <div className={cx('talent-tree-container')}>

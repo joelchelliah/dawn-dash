@@ -10,12 +10,12 @@ import {
 import GradientButton from '@/shared/components/Buttons/GradientButton'
 import ButtonRow from '@/shared/components/Buttons/ButtonRow'
 
-import { ExtraFilterOption, RarityFilterOption } from '@/codex/types/filters'
-import { UseCardSearchFilters } from '@/codex/hooks/useSearchFilters'
-import { allFormattingFilters } from '@/codex/hooks/useSearchFilters/useFormattingFilters'
+import { ExtraCardFilterOption, RarityFilterOption } from '@/codex/types/filters'
+import { UseAllCardSearchFilters } from '@/codex/hooks/useSearchFilters'
+import { allFormattingCardFilters } from '@/codex/hooks/useSearchFilters/useFormattingCardFilters'
 import { allRarities } from '@/codex/hooks/useSearchFilters/useRarityFilters'
 import { allBanners } from '@/codex/hooks/useSearchFilters/useBannerFilters'
-import { allExtraFilters } from '@/codex/hooks/useSearchFilters/useExtraFilters'
+import { allExtraCardFilters } from '@/codex/hooks/useSearchFilters/useExtraCardFilters'
 import { allCardSets } from '@/codex/hooks/useSearchFilters/useCardSetFilters'
 import { UseCardData } from '@/codex/hooks/useCardData'
 
@@ -30,7 +30,7 @@ import styles from './index.module.scss'
 const cx = createCx(styles)
 
 interface CardSearchPanelProps {
-  useSearchFilters: UseCardSearchFilters
+  useSearchFilters: UseAllCardSearchFilters
   useCardData: UseCardData
 }
 
@@ -41,7 +41,7 @@ const CardSearchPanel = ({ useSearchFilters, useCardData }: CardSearchPanelProps
     useCardSetFilters,
     useRarityFilters,
     useBannerFilters,
-    useExtraFilters,
+    useExtraCardFilters,
     useFormattingFilters,
     resetFilters,
     resetStruckCards,
@@ -53,7 +53,8 @@ const CardSearchPanel = ({ useSearchFilters, useCardData }: CardSearchPanelProps
   const { cardSetFilters, handleCardSetFilterToggle } = useCardSetFilters
   const { rarityFilters, handleRarityFilterToggle } = useRarityFilters
   const { bannerFilters, handleBannerFilterToggle } = useBannerFilters
-  const { extraFilters, handleExtraFilterToggle, getExtraFilterName } = useExtraFilters
+  const { extraCardFilters, handleExtraCardFilterToggle, getExtraCardFilterName } =
+    useExtraCardFilters
   const { formattingFilters, handleFormattingFilterToggle, getFormattingFilterName } =
     useFormattingFilters
 
@@ -91,17 +92,17 @@ const CardSearchPanel = ({ useSearchFilters, useCardData }: CardSearchPanelProps
   }
 
   const getExtraFilterLabel = (filter: string) => {
-    const name = getExtraFilterName(filter)
+    const name = getExtraCardFilterName(filter)
 
     switch (filter) {
-      case ExtraFilterOption.IncludeMonsterCards:
+      case ExtraCardFilterOption.IncludeMonsterCards:
         return (
           <span className={cx('filter-label')}>
             <SkullIcon className={cx('filter-icon--monster')} />
             {name}
           </span>
         )
-      case ExtraFilterOption.IncludeNonCollectibleCards:
+      case ExtraCardFilterOption.IncludeNonCollectibleCards:
         return (
           <span className={cx('filter-label')}>
             <CrossIcon className={cx('filter-icon--non-collectible')} />
@@ -149,17 +150,17 @@ const CardSearchPanel = ({ useSearchFilters, useCardData }: CardSearchPanelProps
           />
           <FilterGroup
             title="Extras"
-            filters={allExtraFilters}
-            selectedFilters={extraFilters}
+            filters={allExtraCardFilters}
+            selectedFilters={extraCardFilters}
             type="extra"
-            onFilterToggle={handleExtraFilterToggle}
+            onFilterToggle={handleExtraCardFilterToggle}
             getFilterLabel={getExtraFilterLabel}
           />
           <FilterGroup
             title="Results formatting"
-            filters={allFormattingFilters}
+            filters={allFormattingCardFilters}
             selectedFilters={formattingFilters}
-            type="formatting"
+            type="formatting-card"
             onFilterToggle={handleFormattingFilterToggle}
             getFilterLabel={getFormattingFilterName}
           />

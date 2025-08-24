@@ -1,7 +1,7 @@
 import { createCx } from '@/shared/utils/classnames'
 import GradientDivider from '@/shared/components/GradientDivider'
 
-import { FilterType } from '@/codex/types/filters'
+import { FilterTypeCard, FilterTypeTalent } from '@/codex/types/filters'
 
 import Checkbox from './Checkbox'
 import styles from './index.module.scss'
@@ -12,7 +12,7 @@ interface FilterGroupProps {
   title: string
   filters: string[]
   selectedFilters: Record<string, boolean>
-  type: FilterType
+  type: FilterTypeCard | FilterTypeTalent
   onFilterToggle: (filter: string) => void
   getFilterLabel?: (filter: string) => React.ReactNode
 }

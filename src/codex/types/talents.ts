@@ -15,9 +15,12 @@ export type TalentData = {
 
 export enum TalentTreeNodeType {
   TALENT = 'TALENT',
+  EVENT = 'EVENT',
   CLASS_REQUIREMENT = 'CLASS_REQUIREMENT',
   ENERGY_REQUIREMENT = 'ENERGY_REQUIREMENT',
   NO_REQUIREMENTS = 'NO_REQUIREMENTS',
+  OFFER_REQUIREMENT = 'OFFER_REQUIREMENT',
+  EVENT_REQUIREMENT = 'EVENT_REQUIREMENT',
 }
 
 export type TalentTreeRequirementNode = {
@@ -25,13 +28,15 @@ export type TalentTreeRequirementNode = {
     | TalentTreeNodeType.CLASS_REQUIREMENT
     | TalentTreeNodeType.ENERGY_REQUIREMENT
     | TalentTreeNodeType.NO_REQUIREMENTS
+    | TalentTreeNodeType.OFFER_REQUIREMENT
+    | TalentTreeNodeType.EVENT_REQUIREMENT
   name: string
   children: TalentTreeTalentNode[]
 }
 
 export type TalentTreeTalentNode = {
-  name: string
   type: TalentTreeNodeType.TALENT
+  name: string
   description: string
   flavourText: string
   tier: number
@@ -44,6 +49,17 @@ export type TalentTree = {
   noReqNode: TalentTreeRequirementNode
   classNodes: TalentTreeRequirementNode[]
   energyNodes: TalentTreeRequirementNode[]
+  eventNodes: TalentTreeRequirementNode[]
+  offerNode: TalentTreeRequirementNode
 }
 
 export type TalentTreeNode = TalentTreeTalentNode | TalentTreeRequirementNode
+
+// Simplified recursive tree node for hierarchical rendering via d3.js
+export interface HierarchicalTalentTreeNode {
+  name: string
+  description: string
+  type?: TalentTreeNodeType
+  tier?: number
+  children?: HierarchicalTalentTreeNode[]
+}

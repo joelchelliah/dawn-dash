@@ -4,7 +4,7 @@ import GradientButton from '@/shared/components/Buttons/GradientButton'
 import { createCx } from '@/shared/utils/classnames'
 
 import { TalentTreeNode, TalentTreeNodeType } from '@/codex/types/talents'
-import { UseTalentSearchFilters } from '@/codex/hooks/useSearchFilters'
+import { UseAllTalentSearchFilters } from '@/codex/hooks/useSearchFilters'
 
 import PanelHeader from '../../PanelHeader'
 import KeywordsSummary from '../KeywordsSummary'
@@ -13,14 +13,14 @@ import TalentTree from './TalentTree'
 import styles from './index.module.scss'
 
 interface TalentResultsPanelProps {
-  useSearchFilters: UseTalentSearchFilters
+  useSearchFilters: UseAllTalentSearchFilters
 }
 
 const cx = createCx(styles)
 
 const TalentResultsPanel = ({ useSearchFilters }: TalentResultsPanelProps) => {
   const [showCardsWithoutKeywords, setShowCardsWithoutKeywords] = useState(false)
-  const { parsedKeywords, matchingTalentTree } = useSearchFilters
+  const { parsedKeywords, matchingTalentTree, useFormattingFilters } = useSearchFilters
 
   function collectTalentNames(nodes: TalentTreeNode[]): string[] {
     let names: string[] = []
@@ -36,6 +36,7 @@ const TalentResultsPanel = ({ useSearchFilters }: TalentResultsPanelProps) => {
   }
 
   const allTalentNames = collectTalentNames([
+    ...(matchingTalentTree?.offerNode.children ?? []),
     ...(matchingTalentTree?.noReqNode.children ?? []),
     ...(matchingTalentTree?.energyNodes ?? []),
     ...(matchingTalentTree?.classNodes ?? []),
@@ -59,7 +60,7 @@ const TalentResultsPanel = ({ useSearchFilters }: TalentResultsPanelProps) => {
           className={cx('results-container__info')}
         />
 
-        <TalentTree talentTree={matchingTalentTree} />
+        <TalentTree talentTree={matchingTalentTree} useFormattingFilters={useFormattingFilters} />
       </div>
     )
   }

@@ -281,3 +281,94 @@ export function SkullIcon({ className = '', onClick }: IconProps): JSX.Element {
     </svg>
   )
 }
+
+export function ScrollIcon({ className = '', onClick }: IconProps): JSX.Element {
+  return (
+    <svg
+      className={className}
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      xmlns="http://www.w3.org/2000/svg"
+      onClick={onClick}
+    >
+      <path d="M4 4h16v3H4z" />
+      <path d="M4 17h16v3H4z" />
+      <path d="M5 7h14v10H5z" />
+      <path
+        d="M2 5.5l2-.5M20 5l2 .5M2 18.5l2 .5M20 18.5l2-.5"
+        stroke="currentColor"
+        strokeWidth="1"
+      />
+      <circle cx="6.5" cy="5.5" r="1" fill="black" opacity="0.25" />
+      <circle cx="17.5" cy="5.5" r="1" fill="black" opacity="0.25" />
+      <circle cx="6.5" cy="18.5" r="1" fill="black" opacity="0.25" />
+      <circle cx="17.5" cy="18.5" r="1" fill="black" opacity="0.25" />
+      <path d="M8 10h8M8 14h6" stroke="black" strokeWidth="2.5" opacity="0.5" />
+    </svg>
+  )
+}
+
+export function FlameIcon({ className = '', onClick }: IconProps): JSX.Element {
+  return (
+    <svg
+      className={className}
+      width="24"
+      height="24"
+      viewBox="0 0 24 20"
+      fill="currentColor"
+      xmlns="http://www.w3.org/2000/svg"
+      onClick={onClick}
+    >
+      <path d="M12 3c-1.2 1.8-2.5 3.5-2.5 6.5 0 1.38 1.12 2.5 2.5 2.5s2.5-1.12 2.5-2.5c0-3-1.3-4.7-2.5-6.5z" />
+      <path d="M15 6c-0.8 1.2-1.5 2.5-1.5 4.2 0 0.83 0.67 1.5 1.5 1.5s1.5-0.67 1.5-1.5c0-1.7-0.7-2.9-1.5-4.2z" />
+      <path d="M8.5 7c-0.6 1-1 2.2-1 3.8 0 1.1 0.9 2 2 2s2-0.9 2-2c0-1.6-0.4-2.8-1-3.8-0.5 0.3-1.5 0.5-2 0z" />
+      <path d="M9 14c-1 1.2-2 2.8-2 4.5 0 2.76 2.24 5 5 5s5-2.24 5-5c0-1.7-1-3.3-2-4.5-0.3 0.8-1.2 1.5-2.5 1.5s-2.2-0.7-2.5-1.5z" />
+      <path d="M6 12c-0.5 0.8-1 2-1 3.2 0 1.66 1.34 3 3 3 0.8 0 1.5-0.3 2-0.8-0.5-0.5-1-1.2-1-2.2 0-1.2 0.5-2.4 1-3.2-1.5 0-2.5 0-4 0z" />
+      <path d="M18 11c0.5 0.6 1 1.8 1 2.8 0 1.66-1.34 3-3 3-0.7 0-1.3-0.2-1.8-0.6 0.4-0.4 0.8-1 0.8-1.8 0-0.8-0.4-1.6-0.8-2.4 1.3 0 2.4 0 3.8 0z" />
+      <path
+        d="M11.5 5c0.3 1.2 0.8 2.5 1.2 4"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
+      <path
+        d="M13.8 8.5c0.2 0.8 0.5 1.8 0.7 2.8"
+        fill="none"
+        stroke="black"
+        strokeWidth="0.5"
+        strokeLinecap="round"
+      />
+      <path
+        d="M10.2 9c-0.1 1-0.2 2.2 0 3.5"
+        fill="none"
+        stroke="black"
+        strokeWidth="0.5"
+        strokeLinecap="round"
+      />
+      <path
+        d="M11 16c0.5 1.5 1.2 3 2 4.2"
+        fill="none"
+        stroke="black"
+        strokeWidth="0.75"
+        strokeLinecap="round"
+      />
+      <path
+        d="M8.5 15.5c0.3 1 0.8 2.2 1.5 3.2"
+        fill="none"
+        stroke="black"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
+      <path
+        d="M15.2 15c-0.2 1.2-0.5 2.5-0.8 3.5"
+        fill="none"
+        stroke="black"
+        strokeWidth="0.5"
+        strokeLinecap="round"
+      />
+    </svg>
+  )
+}
