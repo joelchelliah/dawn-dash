@@ -108,7 +108,7 @@ export const ExtraCard = {
 
 export enum ExtraTalentFilterOption {
   IncludeOffers = 'IncludeOffers',
-  IncludeEventBasedTalents = 'IncludeEventBasedTalents',
+  IncludeEvents = 'IncludeEvents',
 }
 
 export type ExtraTalent = ExtraTalentFilterOption

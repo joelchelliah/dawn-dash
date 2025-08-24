@@ -19,10 +19,6 @@
   opacity: 0.75;
 }
 
-.tree-node {
-  cursor: pointer;
-}
-
 .tree-root-node-circle {
   fill: $color-component-bg;
   stroke: var(--color, $color-component-bg-hover);
@@ -70,6 +66,7 @@
 }
 
 .talent-node {
+  cursor: pointer;
   stroke-width: 2px;
   stroke-opacity: 0.75;
   rx: 8px;

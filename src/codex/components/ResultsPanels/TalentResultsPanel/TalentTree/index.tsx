@@ -166,7 +166,6 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
       .data(treeData.descendants().filter(({ depth }) => depth > 0)) // Skip virtual root node
       .enter()
       .append('g')
-      .attr('class', cx('tree-node'))
       .attr('transform', ({ y, x }) => `translate(${y ?? 0},${x ?? 0})`)
 
     // Add filter for talent node glow effect
@@ -290,7 +289,6 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
           .attr('x', -nodeWidth / 2)
           .attr('y', -dynamicNodeHeight / 2)
           .attr('class', cx('talent-node', `talent-node--tier-${data.tier || 0}`))
-          .style('cursor', 'pointer')
           .on('click', function (event) {
             event.stopPropagation()
             toggleNodeVisibility(data.name)

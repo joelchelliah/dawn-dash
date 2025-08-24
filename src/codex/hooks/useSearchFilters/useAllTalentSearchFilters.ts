@@ -86,12 +86,8 @@ export const useAllTalentSearchFilters = (
 
   const { cardSetFilters, isCardSetIndexSelected, resetCardSetFilters } = trackedUseCardSetFilters
   const { tierFilters, isTierIndexSelected, resetTierFilters } = trackedUseTierFilters
-  const {
-    extraTalentFilters,
-    shouldIncludeOffers,
-    shouldIncludeEventBasedTalents,
-    resetExtraTalentFilters,
-  } = trackedUseExtraTalentFilters
+  const { extraTalentFilters, shouldIncludeOffers, shouldIncludeEvents, resetExtraTalentFilters } =
+    trackedUseExtraTalentFilters
   const { formattingFilters, resetFormattingFilters } = trackedUseFormattingFilters
 
   const resetFilters = () => {
@@ -233,7 +229,7 @@ export const useAllTalentSearchFilters = (
 
       const passesExpansionFilter =
         (isOffer && shouldIncludeOffers) ||
-        (isEventOnlyTalent && shouldIncludeEventBasedTalents) ||
+        (isEventOnlyTalent && shouldIncludeEvents) ||
         (!isOffer && !isEventOnlyTalent && isCardSetIndexSelected(talent.expansion))
 
       const passesTierFilter = isTierIndexSelected(talent.tier)
@@ -246,7 +242,7 @@ export const useAllTalentSearchFilters = (
     },
     [
       shouldIncludeOffers,
-      shouldIncludeEventBasedTalents,
+      shouldIncludeEvents,
       isCardSetIndexSelected,
       isTierIndexSelected,
       parsedKeywords,

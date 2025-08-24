@@ -8,12 +8,12 @@ import { createFilterHook } from './useFilterFactory'
 
 const defaultFilters = {
   [ExtraTalentFilterOption.IncludeOffers]: false,
-  [ExtraTalentFilterOption.IncludeEventBasedTalents]: false,
+  [ExtraTalentFilterOption.IncludeEvents]: false,
 }
 
 const valueToStringMap = {
   [ExtraTalentFilterOption.IncludeOffers]: 'Include offers',
-  [ExtraTalentFilterOption.IncludeEventBasedTalents]: 'Include event-based talents',
+  [ExtraTalentFilterOption.IncludeEvents]: 'Include events',
 }
 
 export const allExtraTalentFilters = ExtraTalent.getAll()
@@ -28,7 +28,7 @@ export const useExtraTalentFilters = (cachedFilters?: TalentCodexSearchFilterCac
   const { filters, handleFilterToggle, getValueToString, resetFilters } =
     useBaseFilters(cachedFilters)
   const shouldIncludeOffers = filters[ExtraTalentFilterOption.IncludeOffers]
-  const shouldIncludeEventBasedTalents = filters[ExtraTalentFilterOption.IncludeEventBasedTalents]
+  const shouldIncludeEvents = filters[ExtraTalentFilterOption.IncludeEvents]
 
   return {
     extraTalentFilters: filters,
@@ -36,6 +36,6 @@ export const useExtraTalentFilters = (cachedFilters?: TalentCodexSearchFilterCac
     getExtraTalentFilterName: getValueToString,
     resetExtraTalentFilters: resetFilters,
     shouldIncludeOffers,
-    shouldIncludeEventBasedTalents,
+    shouldIncludeEvents,
   }
 }

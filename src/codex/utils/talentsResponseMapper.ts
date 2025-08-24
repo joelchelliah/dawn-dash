@@ -9,7 +9,11 @@ import {
 } from '@/codex/types/talents'
 
 export const mapTalentsDataToTalentTree = (unparsedTalents: TalentData[]): TalentTree => {
-  const uniqueUnparsedTalents = removeDuplicateTalents(unparsedTalents)
+  const correctedUnparsedTalents = unparsedTalents.map((talent) => ({
+    ...talent,
+    expansion: ACTUALLY_UNIQUE_EVENT_TALENTS.includes(talent.name) ? 0 : talent.expansion,
+  }))
+  const uniqueUnparsedTalents = removeDuplicateTalents(correctedUnparsedTalents)
   const idToUnparsedTalent = new Map(
     uniqueUnparsedTalents.map((talent) => [talent.blightbane_id, talent])
   )
@@ -18,7 +22,7 @@ export const mapTalentsDataToTalentTree = (unparsedTalents: TalentData[]): Talen
       uniqueUnparsedTalents
         .filter((talent) => talent.expansion === 0)
         .flatMap((talent) => talent.events)
-        .filter((event) => !uniqueEventsBlacklist.includes(event))
+        .filter((event) => !UNIQUE_EVENTS_BLACKLIST.includes(event))
     )
   ).sort()
 
@@ -49,7 +53,8 @@ export const mapTalentsDataToTalentTree = (unparsedTalents: TalentData[]): Talen
   const isOffer = (talent: TalentData) =>
     talent.expansion === 0 && talent.name.startsWith('Offer of')
 
-  const hasEvent = (eventName: string) => (talent: TalentData) => talent.events.includes(eventName)
+  const isUniqueToAnEvent = (eventName: string) => (talent: TalentData) =>
+    talent.expansion === 0 && talent.events.includes(eventName)
 
   const isRootTalent = (talent: TalentData) =>
     talent.requires_talents.length === 0 &&
@@ -75,7 +80,9 @@ export const mapTalentsDataToTalentTree = (unparsedTalents: TalentData[]): Talen
       type: TalentTreeNodeType.EVENT_REQUIREMENT,
       name,
       children: sortNodes<TalentTreeTalentNode>(
-        uniqueUnparsedTalents.filter(hasEvent(name)).map((talent) => buildTalentNode(talent))
+        uniqueUnparsedTalents
+          .filter(isUniqueToAnEvent(name))
+          .map((talent) => buildTalentNode(talent))
       ),
     }))
 
@@ -143,4 +150,10 @@ const requirementClasses = [
 
 const requirementEnergies = ['DEX', 'DEX2', 'INT', 'INT2', 'STR', 'STR2', 'STR3']
 
-const uniqueEventsBlacklist = ['Campfire']
+const UNIQUE_EVENTS_BLACKLIST = [
+  'Campfire', // Emporium Discount
+  'The Deep Finish', // Watched
+  'The Godscar Wastes Start', // Watched
+  'The Voice Below', // Watched
+]
+const ACTUALLY_UNIQUE_EVENT_TALENTS = ['Watched']

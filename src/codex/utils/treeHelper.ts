@@ -13,7 +13,8 @@ export const isTalentTreeEqual = (talentTreeA: TalentTree, talentTreeB: TalentTr
   isTalentTreeNodeEqual(talentTreeA.offerNode, talentTreeB.offerNode) &&
   isTalentTreeNodeEqual(talentTreeA.noReqNode, talentTreeB.noReqNode) &&
   areTalentTreeNodesEqual(talentTreeA.classNodes, talentTreeB.classNodes) &&
-  areTalentTreeNodesEqual(talentTreeA.energyNodes, talentTreeB.energyNodes)
+  areTalentTreeNodesEqual(talentTreeA.energyNodes, talentTreeB.energyNodes) &&
+  areTalentTreeNodesEqual(talentTreeA.eventNodes, talentTreeB.eventNodes)
 
 const areTalentTreeNodesEqual = (nodesA: TalentTreeNode[], nodesB: TalentTreeNode[]): boolean =>
   nodesA.length === nodesB.length &&

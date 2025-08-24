@@ -53,7 +53,7 @@ const TalentSearchPanel = ({ useSearchFilters, useTalentData }: TalentSearchPane
             {name}
           </span>
         )
-      case ExtraTalentFilterOption.IncludeEventBasedTalents:
+      case ExtraTalentFilterOption.IncludeEvents:
         return (
           <span className={cx('filter-label')}>
             <FlameIcon className={cx('filter-icon--flame')} />
