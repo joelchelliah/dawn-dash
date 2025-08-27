@@ -22,10 +22,7 @@ function Skills(): JSX.Element {
   const { talentTree, isLoading, isError, progress } = useTalentDataHook
 
   const useSearchFiltersHook = useAllTalentSearchFilters(talentTree)
-
-  const { showButton, scrollToTop } = useScrollToTop({
-    thresholdPixels: 750,
-  })
+  const { showButton, scrollToTop } = useScrollToTop()
 
   return (
     <div className={cx('container')}>

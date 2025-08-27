@@ -1,4 +1,5 @@
 import { createCx } from '@/shared/utils/classnames'
+import { ArrowIcon } from '@/shared/utils/icons'
 
 import styles from './index.module.scss'
 
@@ -20,15 +21,8 @@ const ScrollToTopButton = ({ onClick, show, className = '' }: ScrollToTopButtonP
       aria-label="Scroll to top"
       title="Scroll to top"
     >
-      <svg
-        width="20"
-        height="20"
-        viewBox="0 0 24 24"
-        fill="currentColor"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path d="M12 4l-8 8h4v8h8v-8h4l-8-8z" />
-      </svg>
+      <ArrowIcon />
+      <span>Scroll to top</span>
     </button>
   )
 }

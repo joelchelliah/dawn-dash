@@ -1,27 +1,22 @@
 import { useEffect, useState, useCallback, useRef } from 'react'
 
-interface UseScrollToTopOptions {
-  thresholdPixels?: number
-  scrollDuration?: number
-}
+const SCROLL_DURATION = 250
 
-export const useScrollToTop = ({
-  thresholdPixels = 400,
-  scrollDuration = 250,
-}: UseScrollToTopOptions = {}) => {
+export const useScrollToTop = (yOffset = 0) => {
   const [showButton, setShowButton] = useState(false)
   const scrollingRef = useRef(false)
 
-  const checkScrollPosition = useCallback(() => {
-    if (scrollingRef.current) return
+  const updateShowButtonBasedOnScrollPosition = useCallback(() => {
+    if (scrollingRef.current || typeof window === 'undefined') return
 
+    const thresholdPixels = yOffset + (window.innerWidth <= 768 ? 1200 : 750)
     const scrollY = window.scrollY
 
     setShowButton(scrollY > thresholdPixels)
-  }, [thresholdPixels])
+  }, [yOffset])
 
   const scrollToTop = useCallback(() => {
-    if (scrollingRef.current) return
+    if (scrollingRef.current || typeof window === 'undefined') return
 
     scrollingRef.current = true
 
@@ -30,9 +25,8 @@ export const useScrollToTop = ({
 
     const animateScroll = (currentTime: number) => {
       const elapsed = currentTime - startTime
-      const progress = Math.min(elapsed / scrollDuration, 1)
+      const progress = Math.min(elapsed / SCROLL_DURATION, 1)
 
-      // Easing function for smooth animation
       const easeOutCubic = 1 - Math.pow(1 - progress, 3)
 
       const currentY = startY * (1 - easeOutCubic)
@@ -42,22 +36,24 @@ export const useScrollToTop = ({
         requestAnimationFrame(animateScroll)
       } else {
         scrollingRef.current = false
+
+        updateShowButtonBasedOnScrollPosition()
       }
     }
 
     requestAnimationFrame(animateScroll)
-  }, [scrollDuration])
+  }, [updateShowButtonBasedOnScrollPosition])
 
   useEffect(() => {
-    checkScrollPosition()
-    window.addEventListener('scroll', checkScrollPosition, { passive: true })
-    window.addEventListener('resize', checkScrollPosition, { passive: true })
+    if (typeof window === 'undefined') return
+
+    updateShowButtonBasedOnScrollPosition()
+    window.addEventListener('scroll', updateShowButtonBasedOnScrollPosition, { passive: true })
 
     return () => {
-      window.removeEventListener('scroll', checkScrollPosition)
-      window.removeEventListener('resize', checkScrollPosition)
+      window.removeEventListener('scroll', updateShowButtonBasedOnScrollPosition)
     }
-  }, [checkScrollPosition])
+  }, [updateShowButtonBasedOnScrollPosition])
 
   return {
     showButton,
