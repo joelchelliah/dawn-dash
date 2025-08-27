@@ -1,8 +1,10 @@
 import { createCx } from '@/shared/utils/classnames'
 import { useNavigation } from '@/shared/hooks/useNavigation'
+import { useScrollToTop } from '@/shared/hooks/useScrollToTop'
 import { EleganceImageUrl } from '@/shared/utils/imageUrls'
 import Footer from '@/shared/components/Footer'
 import Header from '@/shared/components/Header'
+import ScrollToTopButton from '@/shared/components/ScrollToTopButton'
 
 import TalentResultsPanel from './components/ResultsPanels/TalentResultsPanel'
 import TalentSearchPanel from './components/SearchPanels/TalentSearchPanel'
@@ -20,6 +22,7 @@ function Skills(): JSX.Element {
   const { talentTree, isLoading, isError, progress } = useTalentDataHook
 
   const useSearchFiltersHook = useAllTalentSearchFilters(talentTree)
+  const { showButton, scrollToTop } = useScrollToTop()
 
   return (
     <div className={cx('container')}>
@@ -48,6 +51,8 @@ function Skills(): JSX.Element {
       </div>
 
       <Footer />
+
+      <ScrollToTopButton show={showButton && !isLoading && !isError} onClick={scrollToTop} />
     </div>
   )
 }

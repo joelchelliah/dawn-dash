@@ -1,0 +1,105 @@
+@use 'index' as *;
+
+.scroll-to-top-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+
+  position: fixed;
+  left: 12rem;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1000;
+
+  height: 3rem;
+  background-color: $color-base-bg;
+  color: $color-primary-base;
+  box-shadow: -0.5rem 1rem 1rem rgba(0, 0, 0, 0.5);
+
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: fadeInFromLeft 0.5s ease-out;
+  @include superFancyBorder(0, 0, fixed);
+
+  &:hover {
+    transform: translateY(-50%) scale(1.125);
+    background-color: $color-list-bg-hover;
+    font-weight: bold;
+  }
+
+  &:active {
+    transform: translateY(-50%) scale(0.9);
+  }
+
+  svg {
+    width: 1.25rem;
+    height: 1.25rem;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5));
+    flex-shrink: 0;
+    margin-bottom: 0.125rem;
+  }
+
+  span {
+    display: inline;
+    margin-left: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  @media (min-width: calc($breakpoint-mobile + 1px)) {
+    min-width: 12rem;
+    padding: 0 1rem;
+    border-radius: 1.5rem;
+  }
+
+  @media (max-width: $breakpoint-mobile) {
+    // Slight adjustments to top/left to hide rounded bit of the fancy-border
+    left: -4px;
+    top: -2px;
+    width: 110%;
+    height: 3.5rem;
+    transform: none;
+    z-index: 1001;
+
+    @include superFancyBorder(0, 0, fixed);
+    animation: slideDown 0.5s ease-out;
+
+    // Larger text/icon for banner style
+    font-size: 1rem;
+
+    svg {
+      margin-left: -1rem;
+    }
+
+    &:hover {
+      transform: scale(1);
+    }
+
+    &:active {
+      transform: scale(0.98);
+    }
+  }
+}
+
+@keyframes fadeInFromLeft {
+  from {
+    opacity: 0;
+    transform: translateY(-50%) translateX(-10rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-150%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

@@ -3,6 +3,8 @@ import { useNavigation } from '@/shared/hooks/useNavigation'
 import { AbracadabraImageUrl } from '@/shared/utils/imageUrls'
 import Footer from '@/shared/components/Footer'
 import Header from '@/shared/components/Header'
+import ScrollToTopButton from '@/shared/components/ScrollToTopButton'
+import { useScrollToTop } from '@/shared/hooks/useScrollToTop'
 
 import CardResultsPanel from './components/ResultsPanels/CardResultsPanel'
 import { useAllCardSearchFilters } from './hooks/useSearchFilters'
@@ -20,6 +22,7 @@ function Cards(): JSX.Element {
   const { cardData, isLoading, isError, progress } = useCardDataHook
 
   const useSearchFiltersHook = useAllCardSearchFilters(cardData)
+  const { showButton, scrollToTop } = useScrollToTop(300)
 
   return (
     <div className={cx('container')}>
@@ -46,6 +49,8 @@ function Cards(): JSX.Element {
       </div>
 
       <Footer />
+
+      <ScrollToTopButton show={showButton && !isLoading && !isError} onClick={scrollToTop} />
     </div>
   )
 }
