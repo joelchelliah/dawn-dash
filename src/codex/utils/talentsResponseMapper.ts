@@ -8,6 +8,28 @@ import {
   TalentTreeTalentNode,
 } from '@/codex/types/talents'
 
+import { RequirementFilterOption } from '../types/filters'
+
+const REQUIREMENT_CLASSES = [
+  'Arcanist',
+  'Hunter',
+  'Knight',
+  'Rogue',
+  'Seeker',
+  'Warrior',
+  'Sunforge',
+]
+
+const REQUIREMENT_ENERGIES = ['DEX', 'DEX2', 'INT', 'INT2', 'STR', 'STR2', 'STR3']
+
+const UNIQUE_EVENTS_BLACKLIST = [
+  'Campfire', // Emporium Discount
+  'The Deep Finish', // Watched
+  'The Godscar Wastes Start', // Watched
+  'The Voice Below', // Watched
+]
+const ACTUALLY_UNIQUE_EVENT_TALENTS = ['Watched']
+
 export const mapTalentsDataToTalentTree = (unparsedTalents: TalentData[]): TalentTree => {
   const correctedUnparsedTalents = unparsedTalents.map((talent) => ({
     ...talent,
@@ -32,7 +54,6 @@ export const mapTalentsDataToTalentTree = (unparsedTalents: TalentData[]): Talen
     }
 
     const newVisited = new Set(visited).add(talent.blightbane_id)
-
     const children = (talent.required_for_talents || [])
       .map((id) => idToUnparsedTalent.get(id))
       .filter(isNotNullOrUndefined)
@@ -67,13 +88,36 @@ export const mapTalentsDataToTalentTree = (unparsedTalents: TalentData[]): Talen
   const hasEnergy = (energy: string) => (talent: TalentData) =>
     talent.requires_energy.includes(energy)
 
-  const rootOfferNode: TalentTreeRequirementNode = {
-    type: TalentTreeNodeType.OFFER_REQUIREMENT,
-    name: 'Offers',
+  const rootNoRequirementsNode: TalentTreeRequirementNode = {
+    type: TalentTreeNodeType.NO_REQUIREMENTS,
+    name: 'No Requirements',
+    requirementFilterOption: RequirementFilterOption.NoRequirements,
     children: sortNodes<TalentTreeTalentNode>(
-      uniqueUnparsedTalents.filter(isOffer).map((talent) => buildTalentNode(talent))
+      uniqueUnparsedTalents.filter(isRootTalent).map((talent) => buildTalentNode(talent, new Set()))
     ),
   }
+
+  const rootClassRequirementNodes: TalentTreeRequirementNode[] = REQUIREMENT_CLASSES.map(
+    (name) => ({
+      type: TalentTreeNodeType.CLASS_REQUIREMENT,
+      name,
+      requirementFilterOption: requirementClassToFilterOption(name),
+      children: sortNodes<TalentTreeTalentNode>(
+        uniqueUnparsedTalents.filter(hasClass(name)).map((talent) => buildTalentNode(talent))
+      ),
+    })
+  )
+
+  const rootEnergyRequirementNodes: TalentTreeRequirementNode[] = REQUIREMENT_ENERGIES.map(
+    (name) => ({
+      type: TalentTreeNodeType.ENERGY_REQUIREMENT,
+      name,
+      requirementFilterOption: requirementEnergyToFilterOption(name),
+      children: sortNodes<TalentTreeTalentNode>(
+        uniqueUnparsedTalents.filter(hasEnergy(name)).map((talent) => buildTalentNode(talent))
+      ),
+    })
+  )
 
   const rootEventRequirementNodes: TalentTreeRequirementNode[] =
     uniqueEventsForEventOnlyTalents.map((name) => ({
@@ -86,38 +130,20 @@ export const mapTalentsDataToTalentTree = (unparsedTalents: TalentData[]): Talen
       ),
     }))
 
-  const rootNoRequirementsNode: TalentTreeRequirementNode = {
-    type: TalentTreeNodeType.NO_REQUIREMENTS,
-    name: 'No Requirements',
+  const rootOfferNode: TalentTreeRequirementNode = {
+    type: TalentTreeNodeType.OFFER_REQUIREMENT,
+    name: 'Offers',
     children: sortNodes<TalentTreeTalentNode>(
-      uniqueUnparsedTalents.filter(isRootTalent).map((talent) => buildTalentNode(talent))
+      uniqueUnparsedTalents.filter(isOffer).map((talent) => buildTalentNode(talent))
     ),
   }
 
-  const rootClassRequirementNodes: TalentTreeRequirementNode[] = requirementClasses.map((name) => ({
-    type: TalentTreeNodeType.CLASS_REQUIREMENT,
-    name,
-    children: sortNodes<TalentTreeTalentNode>(
-      uniqueUnparsedTalents.filter(hasClass(name)).map((talent) => buildTalentNode(talent))
-    ),
-  }))
-
-  const rootEnergyRequirementNodes: TalentTreeRequirementNode[] = requirementEnergies.map(
-    (name) => ({
-      type: TalentTreeNodeType.ENERGY_REQUIREMENT,
-      name,
-      children: sortNodes<TalentTreeTalentNode>(
-        uniqueUnparsedTalents.filter(hasEnergy(name)).map((talent) => buildTalentNode(talent))
-      ),
-    })
-  )
-
   return {
-    offerNode: rootOfferNode,
-    eventNodes: rootEventRequirementNodes,
     noReqNode: rootNoRequirementsNode,
     classNodes: rootClassRequirementNodes,
     energyNodes: rootEnergyRequirementNodes,
+    eventNodes: rootEventRequirementNodes,
+    offerNode: rootOfferNode,
   }
 }
 
@@ -138,22 +164,40 @@ const sortNodes = <T extends TalentTreeTalentNode | TalentTreeRequirementNode>(t
     return a.name.localeCompare(b.name)
   })
 
-const requirementClasses = [
-  'Arcanist',
-  'Hunter',
-  'Knight',
-  'Rogue',
-  'Seeker',
-  'Warrior',
-  'Sunforge',
-]
+const requirementClassToFilterOption = (className: string) => {
+  switch (className) {
+    case 'Arcanist':
+      return RequirementFilterOption.Arcanist
+    case 'Hunter':
+      return RequirementFilterOption.Hunter
+    case 'Knight':
+      return RequirementFilterOption.Knight
+    case 'Rogue':
+      return RequirementFilterOption.Rogue
+    case 'Seeker':
+      return RequirementFilterOption.Seeker
+    case 'Warrior':
+      return RequirementFilterOption.Warrior
+    case 'Sunforge':
+      return RequirementFilterOption.Sunforge
+    default:
+      throw new Error(`Unknown requirement class: ${className}`)
+  }
+}
 
-const requirementEnergies = ['DEX', 'DEX2', 'INT', 'INT2', 'STR', 'STR2', 'STR3']
-
-const UNIQUE_EVENTS_BLACKLIST = [
-  'Campfire', // Emporium Discount
-  'The Deep Finish', // Watched
-  'The Godscar Wastes Start', // Watched
-  'The Voice Below', // Watched
-]
-const ACTUALLY_UNIQUE_EVENT_TALENTS = ['Watched']
+const requirementEnergyToFilterOption = (energy: string) => {
+  switch (energy) {
+    case 'DEX':
+    case 'DEX2':
+      return RequirementFilterOption.Dexterity
+    case 'INT':
+    case 'INT2':
+      return RequirementFilterOption.Intelligence
+    case 'STR':
+    case 'STR2':
+    case 'STR3':
+      return RequirementFilterOption.Strength
+    default:
+      throw new Error(`Unknown requirement energy: ${energy}`)
+  }
+}

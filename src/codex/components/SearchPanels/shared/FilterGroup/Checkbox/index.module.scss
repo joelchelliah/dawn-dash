@@ -52,11 +52,15 @@ $checkmark-size: 0.625rem;
   }
 
   &--rarity {
-    display: flex;
-    align-items: center;
-    min-width: 20px;
     width: calc(50% - 0.5rem);
     margin-right: 0;
+  }
+
+  &--requirement {
+    @media (max-width: $breakpoint-mobile) {
+      width: calc(50% - 0.5rem);
+      min-width: 0;
+    }
   }
 
   &--banner {

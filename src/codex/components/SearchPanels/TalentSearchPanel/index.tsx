@@ -10,6 +10,7 @@ import { UseTalentData } from '@/codex/hooks/useTalentData'
 import { allExtraTalentFilters } from '@/codex/hooks/useSearchFilters/useExtraTalentFilters'
 import { allFormattingTalentFilters } from '@/codex/hooks/useSearchFilters/useFormattingTalentFilters'
 import { ExtraTalentFilterOption } from '@/codex/types/filters'
+import { allRequirements } from '@/codex/hooks/useSearchFilters/useRequirementFilters'
 
 import CodexLastUpdated from '../../CodexLastUpdated'
 import PanelHeader from '../../PanelHeader'
@@ -30,12 +31,14 @@ const TalentSearchPanel = ({ useSearchFilters, useTalentData }: TalentSearchPane
     keywords,
     setKeywords,
     useCardSetFilters,
+    useRequirementFilters,
     useTierFilters,
     useExtraTalentFilters,
     useFormattingFilters,
     resetFilters,
   } = useSearchFilters
   const { cardSetFilters, handleCardSetFilterToggle } = useCardSetFilters
+  const { requirementFilters, handleRequirementFilterToggle } = useRequirementFilters
   const { tierFilters, handleTierFilterToggle } = useTierFilters
   const { extraTalentFilters, handleExtraTalentFilterToggle, getExtraTalentFilterName } =
     useExtraTalentFilters
@@ -83,6 +86,13 @@ const TalentSearchPanel = ({ useSearchFilters, useTalentData }: TalentSearchPane
             selectedFilters={cardSetFilters}
             type="card-set"
             onFilterToggle={handleCardSetFilterToggle}
+          />
+          <FilterGroup
+            title="Requirements"
+            filters={allRequirements}
+            selectedFilters={requirementFilters}
+            type="requirement"
+            onFilterToggle={handleRequirementFilterToggle}
           />
           <FilterGroup
             title="Tiers"

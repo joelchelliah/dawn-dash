@@ -1,3 +1,5 @@
+import { RequirementFilterOption } from './filters'
+
 export type TalentData = {
   id: number
   name: string
@@ -31,6 +33,8 @@ export type TalentTreeRequirementNode = {
     | TalentTreeNodeType.OFFER_REQUIREMENT
     | TalentTreeNodeType.EVENT_REQUIREMENT
   name: string
+  // Optional because we don't want to bind offers and events to a requirement.
+  requirementFilterOption?: RequirementFilterOption
   children: TalentTreeTalentNode[]
 }
 

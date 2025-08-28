@@ -13,7 +13,7 @@ const defaultFilters = {
 
 const valueToStringMap = {
   [ExtraTalentFilterOption.IncludeOffers]: 'Include offers',
-  [ExtraTalentFilterOption.IncludeEvents]: 'Include events',
+  [ExtraTalentFilterOption.IncludeEvents]: 'Include event-based talents',
 }
 
 export const allExtraTalentFilters = ExtraTalent.getAll()

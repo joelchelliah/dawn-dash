@@ -35,11 +35,12 @@ const TalentResultsPanel = ({ useSearchFilters }: TalentResultsPanelProps) => {
     return names
   }
 
-  const allTalentNames = collectTalentNames([
-    ...(matchingTalentTree?.offerNode.children ?? []),
+  const matchingTalentNames = collectTalentNames([
     ...(matchingTalentTree?.noReqNode.children ?? []),
     ...(matchingTalentTree?.energyNodes ?? []),
     ...(matchingTalentTree?.classNodes ?? []),
+    ...(matchingTalentTree?.eventNodes.flatMap((node) => node.children) ?? []),
+    ...(matchingTalentTree?.offerNode.children ?? []),
   ])
 
   useEffect(() => {
@@ -54,7 +55,7 @@ const TalentResultsPanel = ({ useSearchFilters }: TalentResultsPanelProps) => {
     return (
       <div className={cx('results-container')} key={parsedKeywords.join(',')}>
         <KeywordsSummary
-          matches={allTalentNames}
+          matches={matchingTalentNames}
           parsedKeywords={parsedKeywords}
           showingResultsWithoutKeywords={showingTalentsWithoutKeywords}
           className={cx('results-container__info')}
