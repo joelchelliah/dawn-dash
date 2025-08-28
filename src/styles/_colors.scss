@@ -95,32 +95,32 @@ $banner-name-to-color-map: (
 );
 // -- -- -- -- -- -- -- //
 
-// -- Talent colors -- //
-$color-talent-0: #ffcdb2;
-$color-talent-1: #ffcdb2;
-$color-talent-2: #1eff00;
-$color-talent-3: #0070dd;
-$color-talent-4: #0070dd;
-$color-talent-5: #a335ee;
-$color-talent-6: #ff8000;
+// -- Tier colors -- //
+$color-tier-0: #ccc;
+$color-tier-1: #ffcdb2;
+$color-tier-2: #1eff00;
+$color-tier-3: #08d6dd;
+$color-tier-4: #3255ff;
+$color-tier-5: #a335ee;
+$color-tier-6: #ff8000;
 
-$talent-index-to-color-map: (
-  0: $color-talent-0,
-  1: $color-talent-1,
-  2: $color-talent-2,
-  3: $color-talent-3,
-  4: $color-talent-4,
-  5: $color-talent-5,
-  6: $color-talent-6,
+$tier-index-to-color-map: (
+  0: $color-tier-0,
+  1: $color-tier-1,
+  2: $color-tier-2,
+  3: $color-tier-3,
+  4: $color-tier-4,
+  5: $color-tier-5,
+  6: $color-tier-6,
 );
 
-$talent-name-to-color-map: (
-  'Tier 0': $color-talent-0,
-  'Tier 1': $color-talent-1,
-  'Tier 2': $color-talent-2,
-  'Tier 3': $color-talent-3,
-  'Tier 4': $color-talent-4,
-  'Tier 5': $color-talent-5,
-  'Tier 6': $color-talent-6,
+$tier-name-to-color-map: (
+  'Tier-0': $color-tier-0,
+  'Tier-1': $color-tier-1,
+  'Tier-2': $color-tier-2,
+  'Tier-3': $color-tier-3,
+  'Tier-4': $color-tier-4,
+  'Tier-5': $color-tier-5,
+  'Tier-6': $color-tier-6,
 );
 // -- -- -- -- -- -- -- //

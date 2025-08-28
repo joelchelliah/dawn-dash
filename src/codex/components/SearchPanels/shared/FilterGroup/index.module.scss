@@ -16,7 +16,8 @@
   gap: 0.5rem;
   flex-wrap: wrap;
 
-  &--banner {
+  &--banner,
+  &--tier {
     gap: 0;
     // Negative margin to offset the extra padding added to the banner-checkboxes
     // This is to expand the background color of the checkboxes without affecting the spacing between them

@@ -3,6 +3,35 @@
 @use 'sass:list';
 @use 'sass:color';
 
+// Apply rain texture and background color based on color map
+@mixin applyColorAndRainTexture($color-map, $checked-opacity: 1, $hover-opacity: 1) {
+  @each $name, $base-color in $color-map {
+    $checked-color: rgba($base-color, $checked-opacity);
+    $hover-color: rgba($base-color, $hover-opacity);
+
+    &--#{$name} {
+      // Check if the name is even or odd
+      @if list.index(map.keys($color-map), $name) % 2 == 0 {
+        // Only apply texture when checked
+        &[data-checked='true'] {
+          @include rainTexture($checked-color, true);
+        }
+        // Always apply texture on hover
+        &:hover {
+          @include rainTexture($hover-color, true);
+        }
+      } @else {
+        &[data-checked='true'] {
+          @include rainTexture($checked-color, false);
+        }
+        &:hover {
+          @include rainTexture($hover-color, false);
+        }
+      }
+    }
+  }
+}
+
 $checkbox-size: 1rem;
 $checkmark-size: 0.625rem;
 
@@ -26,39 +55,22 @@ $checkmark-size: 0.625rem;
     display: flex;
     align-items: center;
     min-width: 20px;
-    gap: 0.25rem;
     width: calc(50% - 0.5rem);
     margin-right: 0;
   }
 
   &--banner {
-    gap: 0.25rem;
     margin: 0.125rem 0;
     padding: 0.3125rem 0.25rem;
 
-    // Apply rain texture and color based on banner name
-    @each $name, $color in $banner-name-to-color-map {
-      &--#{$name} {
-        // Check if the banner name is even or odd
-        @if list.index(map.keys($banner-name-to-color-map), $name) % 2 == 0 {
-          // Only apply texture when checked
-          &[data-checked='true'] {
-            @include rainTexture(rgba($color, 0.75), true);
-          }
-          // Always apply texture on hover
-          &:hover {
-            @include rainTexture($color, true);
-          }
-        } @else {
-          &[data-checked='true'] {
-            @include rainTexture(rgba($color, 0.75), false);
-          }
-          &:hover {
-            @include rainTexture($color, false);
-          }
-        }
-      }
-    }
+    @include applyColorAndRainTexture($banner-name-to-color-map, 0.75, 1);
+  }
+
+  &--tier {
+    margin: 0.125rem 0;
+    padding: 0.3125rem 0.25rem;
+
+    @include applyColorAndRainTexture($tier-name-to-color-map, 0.2, 0.3);
   }
 
   &--extra {
