@@ -23,6 +23,22 @@ const defaultFilters = {
   [SharedFilterOption.None]: false,
 }
 
+const valueToStringMap = {
+  [RequirementFilterOption.NoRequirements]: 'No requirements',
+  [RequirementFilterOption.Dexterity]: 'Dexterity',
+  [RequirementFilterOption.Intelligence]: 'Intelligence',
+  [RequirementFilterOption.Strength]: 'Strength',
+  [RequirementFilterOption.Arcanist]: 'Arcanist',
+  [RequirementFilterOption.Hunter]: 'Hunter',
+  [RequirementFilterOption.Knight]: 'Knight',
+  [RequirementFilterOption.Rogue]: 'Rogue',
+  [RequirementFilterOption.Seeker]: 'Seeker',
+  [RequirementFilterOption.Warrior]: 'Warrior',
+  [RequirementFilterOption.Sunforge]: 'Sunforge',
+  [SharedFilterOption.All]: SharedFilterOption.All,
+  [SharedFilterOption.None]: SharedFilterOption.None,
+}
+
 const indexMap = {
   [RequirementFilterOption.NoRequirements]: 0,
   [RequirementFilterOption.Dexterity]: 1,
@@ -42,13 +58,15 @@ export const allRequirements: string[] = Requirement.getAll()
 const useBaseRequirementFilters = createFilterHook({
   defaultFilters,
   allValues: allRequirements,
+  valueToStringMap,
   indexMap,
 })
 
 export const useRequirementFilters = (
   cachedFilters?: TalentCodexSearchFilterCache['requirements']
 ) => {
-  const { filters, handleFilterToggle, resetFilters } = useBaseRequirementFilters(cachedFilters)
+  const { filters, handleFilterToggle, getValueToString, resetFilters } =
+    useBaseRequirementFilters(cachedFilters)
 
   const isRequirementSelectedOrIrrelevant = (option?: RequirementFilterOption) =>
     // Irrelevant if we are dealing with offers or events
@@ -59,5 +77,6 @@ export const useRequirementFilters = (
     isRequirementSelectedOrIrrelevant,
     handleRequirementFilterToggle: handleFilterToggle,
     resetRequirementFilters: resetFilters,
+    getRequirementFilterName: getValueToString,
   }
 }

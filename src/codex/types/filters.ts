@@ -3,8 +3,8 @@ export type FilterTypeCard = 'card-set' | 'rarity' | 'banner' | 'extra' | 'forma
 export type FilterTypeTalent = 'card-set' | 'requirement' | 'tier' | 'extra' | 'formatting-talent'
 
 export enum SharedFilterOption {
-  All = 'All',
-  None = 'None',
+  All = 'Select all',
+  None = 'Select none',
 }
 
 // -------------------- Card Set --------------------
@@ -48,7 +48,7 @@ export const Rarity = {
 // ------------------ Requirements ------------------
 
 export enum RequirementFilterOption {
-  NoRequirements = 'No requirements',
+  NoRequirements = 'NoRequirements',
   Dexterity = 'Dexterity',
   Intelligence = 'Intelligence',
   Strength = 'Strength',

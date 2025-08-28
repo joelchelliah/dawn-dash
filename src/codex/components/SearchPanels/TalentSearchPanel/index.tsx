@@ -1,7 +1,22 @@
+import Image from 'next/image'
+
 import GradientButton from '@/shared/components/Buttons/GradientButton'
 import ButtonRow from '@/shared/components/Buttons/ButtonRow'
 import { createCx } from '@/shared/utils/classnames'
 import { FlameIcon, ScrollIcon } from '@/shared/utils/icons'
+import {
+  ArcanistImageUrl,
+  DexImageUrl,
+  HunterImageUrl,
+  IntImageUrl,
+  KnightImageUrl,
+  NeutralImageUrl,
+  RogueImageUrl,
+  SeekerImageUrl,
+  StrImageUrl,
+  SunforgeImageUrl,
+  WarriorImageUrl,
+} from '@/shared/utils/imageUrls'
 
 import { allTiers } from '@/codex/hooks/useSearchFilters/useTierFilters'
 import { UseAllTalentSearchFilters } from '@/codex/hooks/useSearchFilters'
@@ -9,7 +24,7 @@ import { allCardSets } from '@/codex/hooks/useSearchFilters/useCardSetFilters'
 import { UseTalentData } from '@/codex/hooks/useTalentData'
 import { allExtraTalentFilters } from '@/codex/hooks/useSearchFilters/useExtraTalentFilters'
 import { allFormattingTalentFilters } from '@/codex/hooks/useSearchFilters/useFormattingTalentFilters'
-import { ExtraTalentFilterOption } from '@/codex/types/filters'
+import { ExtraTalentFilterOption, RequirementFilterOption } from '@/codex/types/filters'
 import { allRequirements } from '@/codex/hooks/useSearchFilters/useRequirementFilters'
 
 import CodexLastUpdated from '../../CodexLastUpdated'
@@ -38,12 +53,104 @@ const TalentSearchPanel = ({ useSearchFilters, useTalentData }: TalentSearchPane
     resetFilters,
   } = useSearchFilters
   const { cardSetFilters, handleCardSetFilterToggle } = useCardSetFilters
-  const { requirementFilters, handleRequirementFilterToggle } = useRequirementFilters
+  const { requirementFilters, handleRequirementFilterToggle, getRequirementFilterName } =
+    useRequirementFilters
   const { tierFilters, handleTierFilterToggle } = useTierFilters
   const { extraTalentFilters, handleExtraTalentFilterToggle, getExtraTalentFilterName } =
     useExtraTalentFilters
   const { formattingFilters, handleFormattingFilterToggle, getFormattingFilterName } =
     useFormattingFilters
+
+  const renderRequirementFilterLabelIcon = (icon: string, alt: string) => (
+    <Image src={icon} alt={alt} width={16} height={16} className={cx('filter-icon')} />
+  )
+
+  const getRequirementFilterLabel = (filter: string) => {
+    const name = getRequirementFilterName(filter)
+    const alt = `${name} icon`
+
+    switch (filter) {
+      case RequirementFilterOption.NoRequirements:
+        return (
+          <span className={cx('filter-label')}>
+            {renderRequirementFilterLabelIcon(NeutralImageUrl, alt)}
+            No req...
+          </span>
+        )
+      case RequirementFilterOption.Dexterity:
+        return (
+          <span className={cx('filter-label')}>
+            {renderRequirementFilterLabelIcon(DexImageUrl, alt)}
+            {name}
+          </span>
+        )
+      case RequirementFilterOption.Intelligence:
+        return (
+          <span className={cx('filter-label')}>
+            {renderRequirementFilterLabelIcon(IntImageUrl, alt)}
+            {name}
+          </span>
+        )
+      case RequirementFilterOption.Strength:
+        return (
+          <span className={cx('filter-label')}>
+            {renderRequirementFilterLabelIcon(StrImageUrl, alt)}
+            {name}
+          </span>
+        )
+      case RequirementFilterOption.Arcanist:
+        return (
+          <span className={cx('filter-label')}>
+            {renderRequirementFilterLabelIcon(ArcanistImageUrl, alt)}
+            {name}
+          </span>
+        )
+      case RequirementFilterOption.Hunter:
+        return (
+          <span className={cx('filter-label')}>
+            {renderRequirementFilterLabelIcon(HunterImageUrl, alt)}
+            {name}
+          </span>
+        )
+      case RequirementFilterOption.Knight:
+        return (
+          <span className={cx('filter-label')}>
+            {renderRequirementFilterLabelIcon(KnightImageUrl, alt)}
+            {name}
+          </span>
+        )
+      case RequirementFilterOption.Rogue:
+        return (
+          <span className={cx('filter-label')}>
+            {renderRequirementFilterLabelIcon(RogueImageUrl, alt)}
+            {name}
+          </span>
+        )
+      case RequirementFilterOption.Seeker:
+        return (
+          <span className={cx('filter-label')}>
+            {renderRequirementFilterLabelIcon(SeekerImageUrl, alt)}
+            {name}
+          </span>
+        )
+      case RequirementFilterOption.Warrior:
+        return (
+          <span className={cx('filter-label')}>
+            {renderRequirementFilterLabelIcon(WarriorImageUrl, alt)}
+            {name}
+          </span>
+        )
+      case RequirementFilterOption.Sunforge:
+        return (
+          <span className={cx('filter-label')}>
+            {renderRequirementFilterLabelIcon(SunforgeImageUrl, alt)}
+            {name}
+          </span>
+        )
+      default:
+        return <span className={cx('filter-label')}>{name}</span>
+    }
+  }
 
   const getExtraFilterLabel = (filter: string) => {
     const name = getExtraTalentFilterName(filter)
@@ -93,6 +200,7 @@ const TalentSearchPanel = ({ useSearchFilters, useTalentData }: TalentSearchPane
             selectedFilters={requirementFilters}
             type="requirement"
             onFilterToggle={handleRequirementFilterToggle}
+            getFilterLabel={getRequirementFilterLabel}
           />
           <FilterGroup
             title="Tiers"
