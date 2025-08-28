@@ -214,8 +214,7 @@ const countRelevantCharactersForLineWidth = (str: string) => {
 export const isTalentOffer = (talent: TalentTreeTalentNode) =>
   hasTalentMonsterExpansion(talent) && hasTalentOfferPrefix(talent)
 
-export const isTalentOnlyFromEvents = (talent: TalentTreeTalentNode) =>
-  talent.events.length > 0 && hasTalentMonsterExpansion(talent)
+export const isTalentInAnyEvents = (talent: TalentTreeTalentNode) => talent.events.length > 0
 
 const hasTalentMonsterExpansion = (talent: TalentTreeTalentNode) => talent.expansion === 0
 

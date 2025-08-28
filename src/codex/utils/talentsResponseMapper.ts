@@ -22,29 +22,46 @@ const REQUIREMENT_CLASSES = [
 
 const REQUIREMENT_ENERGIES = ['DEX', 'DEX2', 'INT', 'INT2', 'STR', 'STR2', 'STR3']
 
-const UNIQUE_EVENTS_BLACKLIST = [
+// These are not events that give you a talent.
+// The talents listed on them are just requirements for special dialogue options.
+// So we need to filter them out of our requirements.
+const EVENTS_BLACKLIST = [
+  'Alchemist 1', // Stormscarred
+  'ArmsDealer', // Devotion
   'Campfire', // Emporium Discount
+  'GoldenIdol', // Mobility
+  'LostSoul', // Devotion
+  'Shrine of Trickery', // Faerytales
   'The Deep Finish', // Watched
   'The Godscar Wastes Start', // Watched
   'The Voice Below', // Watched
+  'WallOfFire', // Fire Immunity
+
+  // Manually merging these into Priest
+  'Prayer',
+  'Priest 1',
 ]
-const ACTUALLY_UNIQUE_EVENT_TALENTS = ['Watched']
+
+// These are actually talents you only get from events
+const ACTUALLY_EVENT_TALENTS = ['Watched']
+
+// These are not actually talents that can be obtained from Windy Hillock.
+const NOT_REALLY_WINDY_HILLOCK_TALENTS = ['Grounding Weapon', 'Thundering Weapon', 'Devotion']
 
 export const mapTalentsDataToTalentTree = (unparsedTalents: TalentData[]): TalentTree => {
   const correctedUnparsedTalents = unparsedTalents.map((talent) => ({
     ...talent,
-    expansion: ACTUALLY_UNIQUE_EVENT_TALENTS.includes(talent.name) ? 0 : talent.expansion,
+    expansion: ACTUALLY_EVENT_TALENTS.includes(talent.name) ? 0 : talent.expansion,
   }))
   const uniqueUnparsedTalents = removeDuplicateTalents(correctedUnparsedTalents)
   const idToUnparsedTalent = new Map(
     uniqueUnparsedTalents.map((talent) => [talent.blightbane_id, talent])
   )
-  const uniqueEventsForEventOnlyTalents = Array.from(
+  const uniqueEvents = Array.from(
     new Set(
       uniqueUnparsedTalents
-        .filter((talent) => talent.expansion === 0)
         .flatMap((talent) => talent.events)
-        .filter((event) => !UNIQUE_EVENTS_BLACKLIST.includes(event))
+        .filter((event) => !EVENTS_BLACKLIST.includes(event))
     )
   ).sort()
 
@@ -74,8 +91,9 @@ export const mapTalentsDataToTalentTree = (unparsedTalents: TalentData[]): Talen
   const isOffer = (talent: TalentData) =>
     talent.expansion === 0 && talent.name.startsWith('Offer of')
 
-  const isUniqueToAnEvent = (eventName: string) => (talent: TalentData) =>
-    talent.expansion === 0 && talent.events.includes(eventName)
+  const isValidEventTalent = (eventName: string) => (talent: TalentData) =>
+    talent.events.includes(eventName) &&
+    (eventName === 'WindyHillock' ? !NOT_REALLY_WINDY_HILLOCK_TALENTS.includes(talent.name) : true)
 
   const isRootTalent = (talent: TalentData) =>
     talent.requires_talents.length === 0 &&
@@ -119,16 +137,16 @@ export const mapTalentsDataToTalentTree = (unparsedTalents: TalentData[]): Talen
     })
   )
 
-  const rootEventRequirementNodes: TalentTreeRequirementNode[] =
-    uniqueEventsForEventOnlyTalents.map((name) => ({
-      type: TalentTreeNodeType.EVENT_REQUIREMENT,
-      name,
-      children: sortNodes<TalentTreeTalentNode>(
-        uniqueUnparsedTalents
-          .filter(isUniqueToAnEvent(name))
-          .map((talent) => buildTalentNode(talent))
-      ),
-    }))
+  const rootEventRequirementNodes: TalentTreeRequirementNode[] = uniqueEvents.map((name) => ({
+    type: TalentTreeNodeType.EVENT_REQUIREMENT,
+    // Special case, since these are basically the same event
+    name: name === 'Priest' ? 'Prayer, Priest, Priest 1' : name,
+    children: sortNodes<TalentTreeTalentNode>(
+      uniqueUnparsedTalents
+        .filter(isValidEventTalent(name))
+        .map((talent) => buildTalentNode(talent))
+    ),
+  }))
 
   const rootOfferNode: TalentTreeRequirementNode = {
     type: TalentTreeNodeType.OFFER_REQUIREMENT,
