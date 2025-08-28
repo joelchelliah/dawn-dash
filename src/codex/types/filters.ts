@@ -48,7 +48,7 @@ export const Rarity = {
 // ------------------ Requirements ------------------
 
 export enum RequirementFilterOption {
-  NoRequirements = 'No Requirements',
+  NoRequirements = 'No requirements',
   Dexterity = 'Dexterity',
   Intelligence = 'Intelligence',
   Strength = 'Strength',
