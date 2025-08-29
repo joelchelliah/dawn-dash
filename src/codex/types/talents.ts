@@ -25,13 +25,15 @@ export enum TalentTreeNodeType {
   EVENT_REQUIREMENT = 'EVENT_REQUIREMENT',
 }
 
+export type TalentTreeRequirementNodeType =
+  | TalentTreeNodeType.CLASS_REQUIREMENT
+  | TalentTreeNodeType.ENERGY_REQUIREMENT
+  | TalentTreeNodeType.NO_REQUIREMENTS
+  | TalentTreeNodeType.OFFER_REQUIREMENT
+  | TalentTreeNodeType.EVENT_REQUIREMENT
+
 export type TalentTreeRequirementNode = {
-  type:
-    | TalentTreeNodeType.CLASS_REQUIREMENT
-    | TalentTreeNodeType.ENERGY_REQUIREMENT
-    | TalentTreeNodeType.NO_REQUIREMENTS
-    | TalentTreeNodeType.OFFER_REQUIREMENT
-    | TalentTreeNodeType.EVENT_REQUIREMENT
+  type: TalentTreeRequirementNodeType
   name: string
   // Optional because we don't want to bind offers and events to a requirement.
   requirementFilterOption?: RequirementFilterOption
