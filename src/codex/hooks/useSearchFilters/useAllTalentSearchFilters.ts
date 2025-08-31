@@ -178,47 +178,6 @@ export const useAllTalentSearchFilters = (
     []
   )
 
-  type NodeTraversal = (
-    talentTree: TalentTree,
-    visitTalent: (talent: TalentTreeTalentNode) => void
-  ) => void
-
-  const collectMatchingTalentNames = useCallback(
-    (nodeTraversal: NodeTraversal, matchPredicate: (talent: TalentTreeTalentNode) => boolean) =>
-      (talentTree: TalentTree): Set<string> => {
-        const directMatches = new Set<string>()
-
-        // Step 1: Find direct matches
-        nodeTraversal(talentTree, (node) => {
-          if (matchPredicate(node)) {
-            directMatches.add(node.name)
-          }
-        })
-
-        const allMatches = new Set(directMatches)
-
-        // Step 2: Add ancestors and descendants
-        nodeTraversal(talentTree, (node) => {
-          // If any descendant is a direct match, add this node (ancestor)
-          if (hasMatchInDescendants(node, directMatches)) {
-            allMatches.add(node.name)
-          }
-
-          // If this node is a direct match, add all its descendants
-          if (directMatches.has(node.name)) {
-            node.children.forEach((child) => {
-              traverseNode(child, (descendant) => {
-                allMatches.add(descendant.name)
-              })
-            })
-          }
-        })
-
-        return allMatches
-      },
-    [hasMatchInDescendants, traverseNode]
-  )
-
   const traverseRegularTalentNodes = useCallback(
     (talentTree: TalentTree, visitTalent: (talent: TalentTreeTalentNode) => void) => {
       traverseNode(talentTree.noReqNode, visitTalent)
@@ -275,19 +234,85 @@ export const useAllTalentSearchFilters = (
     [isTierIndexSelected, parsedKeywords]
   )
 
-  const collectMatchingEventTalentNames = collectMatchingTalentNames(
-    traverseEventTalentNodes,
-    eventTalentNodePredicate
-  )
+  type NodeTraversalContext = 'regular' | 'event' | 'offer'
 
-  const collectMatchingOfferNames = collectMatchingTalentNames(
-    traverseOfferNodes,
-    offerNodePredicate
-  )
+  const collectAllMatchingSets = useCallback(
+    (talentTree: TalentTree) => {
+      const regularMatches = new Set<string>()
+      const eventMatches = new Set<string>()
+      const offerMatches = new Set<string>()
 
-  const collectMatchingRegularTalentNames = collectMatchingTalentNames(
-    traverseRegularTalentNodes,
-    regularNodePredicate
+      const traverseWithContext = (node: TalentTreeNode, nodeContext: NodeTraversalContext) => {
+        if (node.type === TalentTreeNodeType.TALENT) {
+          if (nodeContext === 'regular' && regularNodePredicate(node)) {
+            regularMatches.add(node.name)
+          } else if (nodeContext === 'event' && eventTalentNodePredicate(node)) {
+            eventMatches.add(node.name)
+          } else if (nodeContext === 'offer' && offerNodePredicate(node)) {
+            offerMatches.add(node.name)
+          }
+        }
+
+        node.children.forEach((child) => traverseWithContext(child, nodeContext))
+      }
+
+      traverseWithContext(talentTree.noReqNode, 'regular')
+      talentTree.classNodes.forEach((node) => traverseWithContext(node, 'regular'))
+      talentTree.energyNodes.forEach((node) => traverseWithContext(node, 'regular'))
+
+      if (shouldIncludeEvents) {
+        talentTree.eventNodes.forEach((node) => traverseWithContext(node, 'event'))
+      }
+
+      if (shouldIncludeOffers) {
+        traverseWithContext(talentTree.offerNode, 'offer')
+      }
+
+      const addAncestorsAndDescendants = (
+        matches: Set<string>,
+        traversalFn: (
+          talentTree: TalentTree,
+          visitTalent: (talent: TalentTreeTalentNode) => void
+        ) => void
+      ) => {
+        const allMatches = new Set(matches)
+
+        traversalFn(talentTree, (node) => {
+          if (hasMatchInDescendants(node, matches)) {
+            allMatches.add(node.name)
+          }
+          if (matches.has(node.name)) {
+            node.children.forEach((child) => {
+              traverseNode(child, (descendant) => allMatches.add(descendant.name))
+            })
+          }
+        })
+
+        return allMatches
+      }
+
+      return {
+        regularMatches: addAncestorsAndDescendants(regularMatches, traverseRegularTalentNodes),
+        eventMatches: shouldIncludeEvents
+          ? addAncestorsAndDescendants(eventMatches, traverseEventTalentNodes)
+          : new Set<string>(),
+        offerMatches: shouldIncludeOffers
+          ? addAncestorsAndDescendants(offerMatches, traverseOfferNodes)
+          : new Set<string>(),
+      }
+    },
+    [
+      regularNodePredicate,
+      eventTalentNodePredicate,
+      offerNodePredicate,
+      shouldIncludeEvents,
+      shouldIncludeOffers,
+      hasMatchInDescendants,
+      traverseNode,
+      traverseRegularTalentNodes,
+      traverseEventTalentNodes,
+      traverseOfferNodes,
+    ]
   )
 
   const filterTalentTreeNode = useCallback(
@@ -312,37 +337,31 @@ export const useAllTalentSearchFilters = (
   useEffect(() => {
     if (!talentTree) return
 
-    const matchingTalentNames = collectMatchingRegularTalentNames(talentTree)
-    const matchingEventTalentNames = shouldIncludeEvents
-      ? collectMatchingEventTalentNames(talentTree)
-      : new Set<string>()
-    const matchingOfferNames = shouldIncludeOffers
-      ? collectMatchingOfferNames(talentTree)
-      : new Set<string>()
+    const { regularMatches, eventMatches, offerMatches } = collectAllMatchingSets(talentTree)
 
     const filteredTalentNodes = isRequirementSelectedOrIrrelevant(
       talentTree.noReqNode.requirementFilterOption
     )
       ? talentTree.noReqNode.children
-          .map((node) => filterTalentTreeNode(node, matchingTalentNames))
+          .map((node) => filterTalentTreeNode(node, regularMatches))
           .filter(isNotNullOrUndefined)
       : []
     const filteredClassNodes = talentTree.classNodes
       .filter((node) => isRequirementSelectedOrIrrelevant(node.requirementFilterOption))
-      .map((node) => filterTalentTreeNode(node, matchingTalentNames))
+      .map((node) => filterTalentTreeNode(node, regularMatches))
       .filter(isNotNullOrUndefined)
     const filteredEnergyNodes = talentTree.energyNodes
       .filter((node) => isRequirementSelectedOrIrrelevant(node.requirementFilterOption))
-      .map((node) => filterTalentTreeNode(node, matchingTalentNames))
+      .map((node) => filterTalentTreeNode(node, regularMatches))
       .filter(isNotNullOrUndefined)
     const filteredEventNodes = shouldIncludeEvents
       ? talentTree.eventNodes
-          .map((node) => filterTalentTreeNode(node, matchingEventTalentNames))
+          .map((node) => filterTalentTreeNode(node, eventMatches))
           .filter(isNotNullOrUndefined)
       : []
     const filteredOfferNodes = shouldIncludeOffers
       ? talentTree.offerNode.children
-          .map((node) => filterTalentTreeNode(node, matchingOfferNames))
+          .map((node) => filterTalentTreeNode(node, offerMatches))
           .filter(isNotNullOrUndefined)
       : []
 
@@ -364,9 +383,7 @@ export const useAllTalentSearchFilters = (
       setMatchingTalentTree(filteredTree)
     }
   }, [
-    collectMatchingRegularTalentNames,
-    collectMatchingEventTalentNames,
-    collectMatchingOfferNames,
+    collectAllMatchingSets,
     filterTalentTreeNode,
     isRequirementSelectedOrIrrelevant,
     matchingTalentTree,
