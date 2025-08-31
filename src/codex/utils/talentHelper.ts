@@ -46,6 +46,7 @@ export const getTalentRequirementIconProps = (
 ): { count: number; url: string; color: string; label: string } => {
   if (isClassRequirement) {
     const color = getClassColor(label as CharacterClass, ClassColorVariant.Dark)
+
     switch (label) {
       case CharacterClass.Arcanist:
         return { count: 1, url: ArcanistImageUrl, color, label }
@@ -214,8 +215,7 @@ const countRelevantCharactersForLineWidth = (str: string) => {
 export const isTalentOffer = (talent: TalentTreeTalentNode) =>
   hasTalentMonsterExpansion(talent) && hasTalentOfferPrefix(talent)
 
-export const isTalentOnlyFromEvents = (talent: TalentTreeTalentNode) =>
-  talent.events.length > 0 && hasTalentMonsterExpansion(talent)
+export const isTalentInAnyEvents = (talent: TalentTreeTalentNode) => talent.events.length > 0
 
 const hasTalentMonsterExpansion = (talent: TalentTreeTalentNode) => talent.expansion === 0
 

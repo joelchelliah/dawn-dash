@@ -1,10 +1,10 @@
 export type FilterTypeCard = 'card-set' | 'rarity' | 'banner' | 'extra' | 'formatting-card'
 
-export type FilterTypeTalent = 'card-set' | 'tier' | 'extra' | 'formatting-talent'
+export type FilterTypeTalent = 'card-set' | 'requirement' | 'tier' | 'extra' | 'formatting-talent'
 
 export enum SharedFilterOption {
-  All = 'All',
-  None = 'None',
+  All = 'Select all',
+  None = 'Select none',
 }
 
 // -------------------- Card Set --------------------
@@ -43,6 +43,33 @@ export type Rarity = RarityFilterOption
 export const Rarity = {
   ...RarityFilterOption,
   getAll: (): Rarity[] => [...Object.values(RarityFilterOption)],
+}
+
+// ------------------ Requirements ------------------
+
+export enum RequirementFilterOption {
+  NoRequirements = 'NoRequirements',
+  Dexterity = 'Dexterity',
+  Intelligence = 'Intelligence',
+  Strength = 'Strength',
+  Arcanist = 'Arcanist',
+  Hunter = 'Hunter',
+  Knight = 'Knight',
+  Rogue = 'Rogue',
+  Seeker = 'Seeker',
+  Warrior = 'Warrior',
+  Sunforge = 'Sunforge',
+}
+
+export type Requirement = RequirementFilterOption | SharedFilterOption
+
+export const Requirement = {
+  ...RequirementFilterOption,
+  ...SharedFilterOption,
+  getAll: (): Requirement[] => [
+    ...Object.values(RequirementFilterOption),
+    ...Object.values(SharedFilterOption),
+  ],
 }
 
 // -------------------- Tier --------------------
@@ -165,6 +192,7 @@ export interface CardCodexSearchFilterCache {
 export interface TalentCodexSearchFilterCache {
   keywords: string
   cardSets: Record<string, boolean>
+  requirements: Record<string, boolean>
   tiers: Record<string, boolean>
   extras: Record<string, boolean>
   formatting: Record<string, boolean>

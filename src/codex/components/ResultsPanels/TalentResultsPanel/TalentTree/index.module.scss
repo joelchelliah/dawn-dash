@@ -57,7 +57,7 @@
   rx: 10px;
   ry: 10px;
 
-  @each $tier, $color in $talent-index-to-color-map {
+  @each $tier, $color in $tier-index-to-color-map {
     &--tier-#{$tier} {
       fill: $color;
       stroke: $color;
@@ -72,7 +72,7 @@
   rx: 8px;
   ry: 8px;
 
-  @each $tier, $color in $talent-index-to-color-map {
+  @each $tier, $color in $tier-index-to-color-map {
     &--tier-#{$tier} {
       fill: mix($color-component-bg, $color, 95%);
       stroke: $color;
@@ -108,7 +108,7 @@
   stroke-width: 2px;
   stroke-opacity: 0.3;
 
-  @each $tier, $color in $talent-index-to-color-map {
+  @each $tier, $color in $tier-index-to-color-map {
     &--tier-#{$tier} {
       stroke: $color;
     }

@@ -1,3 +1,5 @@
+import { RequirementFilterOption } from './filters'
+
 export type TalentData = {
   id: number
   name: string
@@ -23,14 +25,18 @@ export enum TalentTreeNodeType {
   EVENT_REQUIREMENT = 'EVENT_REQUIREMENT',
 }
 
+export type TalentTreeRequirementNodeType =
+  | TalentTreeNodeType.CLASS_REQUIREMENT
+  | TalentTreeNodeType.ENERGY_REQUIREMENT
+  | TalentTreeNodeType.NO_REQUIREMENTS
+  | TalentTreeNodeType.OFFER_REQUIREMENT
+  | TalentTreeNodeType.EVENT_REQUIREMENT
+
 export type TalentTreeRequirementNode = {
-  type:
-    | TalentTreeNodeType.CLASS_REQUIREMENT
-    | TalentTreeNodeType.ENERGY_REQUIREMENT
-    | TalentTreeNodeType.NO_REQUIREMENTS
-    | TalentTreeNodeType.OFFER_REQUIREMENT
-    | TalentTreeNodeType.EVENT_REQUIREMENT
+  type: TalentTreeRequirementNodeType
   name: string
+  // Optional because we don't want to bind offers and events to a requirement.
+  requirementFilterOption?: RequirementFilterOption
   children: TalentTreeTalentNode[]
 }
 
@@ -43,6 +49,8 @@ export type TalentTreeTalentNode = {
   expansion: number
   events: string[]
   children: TalentTreeTalentNode[]
+  // Names of all descendants (children, grandchildren, etc.)
+  descendants: string[]
 }
 
 export type TalentTree = {

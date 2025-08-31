@@ -2,14 +2,14 @@ import { CardCodexSearchFilterCache, Rarity, RarityFilterOption } from '@/codex/
 
 import { createFilterHook } from './useFilterFactory'
 
-const defaultRarityFilters = {
+const defaultFilters = {
   [RarityFilterOption.Legendary]: true,
   [RarityFilterOption.Rare]: true,
   [RarityFilterOption.Uncommon]: false,
   [RarityFilterOption.Common]: false,
 }
 
-const rarityIndexMap = {
+const indexMap = {
   [RarityFilterOption.Legendary]: 3,
   [RarityFilterOption.Rare]: 2,
   [RarityFilterOption.Uncommon]: 1,
@@ -19,9 +19,9 @@ const rarityIndexMap = {
 export const allRarities: Rarity[] = Rarity.getAll()
 
 const useBaseRarityFilters = createFilterHook({
-  defaultFilters: defaultRarityFilters,
+  defaultFilters,
   allValues: allRarities,
-  indexMap: rarityIndexMap,
+  indexMap,
 })
 
 export const useRarityFilters = (cachedFilters?: CardCodexSearchFilterCache['rarities']) => {

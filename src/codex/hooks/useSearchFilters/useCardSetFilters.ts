@@ -18,7 +18,7 @@ const defaultCardSetFilterValueMap: Record<string, boolean> = {
   [SharedFilterOption.None]: false,
 }
 
-const cardSetIndicesMap: Record<string, number[]> = {
+const indexMap: Record<string, number[]> = {
   [CardSetFilterOption.Core]: [1, 4],
   [CardSetFilterOption.Metaprogress]: [2],
   [CardSetFilterOption.Metamorphosis]: [3],
@@ -27,7 +27,7 @@ const cardSetIndicesMap: Record<string, number[]> = {
   [CardSetFilterOption.Eclypse]: [7],
 }
 
-const indexToCardSetMap: Record<number, string> = {
+const indexToValueMap: Record<number, string> = {
   [1]: CardSetFilterOption.Core,
   [2]: CardSetFilterOption.Metaprogress,
   [3]: CardSetFilterOption.Metamorphosis,
@@ -42,8 +42,8 @@ export const allCardSets: string[] = CardSet.getAll()
 const useBaseCardSetFilters = createFilterHook({
   defaultFilters: defaultCardSetFilterValueMap,
   allValues: allCardSets,
-  indexMap: cardSetIndicesMap,
-  indexToValueMap: indexToCardSetMap,
+  indexMap,
+  indexToValueMap,
 })
 
 export const useCardSetFilters = (cachedFilters?: CardCodexSearchFilterCache['cardSets']) => {

@@ -5,38 +5,53 @@ import {
   TalentTree,
   TalentTreeNodeType,
   TalentTreeRequirementNode,
+  TalentTreeRequirementNodeType,
   TalentTreeTalentNode,
 } from '@/codex/types/talents'
+
+import { RequirementFilterOption } from '../types/filters'
+import {
+  ACTUALLY_EVENT_ONLY_TALENTS,
+  EVENTS_BLACKLIST,
+  EVENT_TALENTS_MAP_BLACKLIST,
+  REQUIREMENT_CLASS_TO_FILTER_OPTION_MAP,
+  REQUIREMENT_ENERGY_TO_FILTER_OPTION_MAP,
+} from '../constants/talentsMappingValues'
 
 export const mapTalentsDataToTalentTree = (unparsedTalents: TalentData[]): TalentTree => {
   const correctedUnparsedTalents = unparsedTalents.map((talent) => ({
     ...talent,
-    expansion: ACTUALLY_UNIQUE_EVENT_TALENTS.includes(talent.name) ? 0 : talent.expansion,
+    expansion: ACTUALLY_EVENT_ONLY_TALENTS.includes(talent.name) ? 0 : talent.expansion,
   }))
   const uniqueUnparsedTalents = removeDuplicateTalents(correctedUnparsedTalents)
   const idToUnparsedTalent = new Map(
     uniqueUnparsedTalents.map((talent) => [talent.blightbane_id, talent])
   )
-  const uniqueEventsForEventOnlyTalents = Array.from(
+  const uniqueEvents = Array.from(
     new Set(
       uniqueUnparsedTalents
-        .filter((talent) => talent.expansion === 0)
         .flatMap((talent) => talent.events)
-        .filter((event) => !UNIQUE_EVENTS_BLACKLIST.includes(event))
+        .filter((event) => !EVENTS_BLACKLIST.includes(event))
     )
   ).sort()
 
   function buildTalentNode(talent: TalentData, visited = new Set<number>()): TalentTreeTalentNode {
     if (visited.has(talent.blightbane_id)) {
-      throw new Error(`Failed to parse talent: ${talent.name} (Recursive loop detected!)`)
+      throw new Error(`💀  Failed to parse talent: ${talent.name} (Recursive loop detected!)`)
     }
 
     const newVisited = new Set(visited).add(talent.blightbane_id)
-
     const children = (talent.required_for_talents || [])
       .map((id) => idToUnparsedTalent.get(id))
       .filter(isNotNullOrUndefined)
       .map((child) => buildTalentNode(child, newVisited))
+
+    const descendants = new Set<string>()
+    const collectDescendantNames = (child: TalentTreeTalentNode) => {
+      descendants.add(child.name)
+      child.children.forEach(collectDescendantNames)
+    }
+    children.forEach(collectDescendantNames)
 
     return {
       type: TalentTreeNodeType.TALENT,
@@ -47,14 +62,18 @@ export const mapTalentsDataToTalentTree = (unparsedTalents: TalentData[]): Talen
       expansion: talent.expansion,
       events: talent.events,
       children,
+      descendants: Array.from(descendants),
     }
   }
 
   const isOffer = (talent: TalentData) =>
     talent.expansion === 0 && talent.name.startsWith('Offer of')
 
-  const isUniqueToAnEvent = (eventName: string) => (talent: TalentData) =>
-    talent.expansion === 0 && talent.events.includes(eventName)
+  const isValidEventTalent = (eventName: string) => (talent: TalentData) =>
+    talent.events.includes(eventName) &&
+    (Object.keys(EVENT_TALENTS_MAP_BLACKLIST).includes(eventName)
+      ? !EVENT_TALENTS_MAP_BLACKLIST[eventName].includes(talent.name)
+      : true)
 
   const isRootTalent = (talent: TalentData) =>
     talent.requires_talents.length === 0 &&
@@ -67,62 +86,73 @@ export const mapTalentsDataToTalentTree = (unparsedTalents: TalentData[]): Talen
   const hasEnergy = (energy: string) => (talent: TalentData) =>
     talent.requires_energy.includes(energy)
 
-  const rootOfferNode: TalentTreeRequirementNode = {
-    type: TalentTreeNodeType.OFFER_REQUIREMENT,
-    name: 'Offers',
-    children: sortNodes<TalentTreeTalentNode>(
-      uniqueUnparsedTalents.filter(isOffer).map((talent) => buildTalentNode(talent))
-    ),
-  }
+  const createTalentNodes = (predicate: (talent: TalentData) => boolean) =>
+    sortNodes<TalentTreeTalentNode>(
+      uniqueUnparsedTalents.filter(predicate).map((talent) => buildTalentNode(talent))
+    )
 
-  const rootEventRequirementNodes: TalentTreeRequirementNode[] =
-    uniqueEventsForEventOnlyTalents.map((name) => ({
-      type: TalentTreeNodeType.EVENT_REQUIREMENT,
-      name,
-      children: sortNodes<TalentTreeTalentNode>(
-        uniqueUnparsedTalents
-          .filter(isUniqueToAnEvent(name))
-          .map((talent) => buildTalentNode(talent))
-      ),
+  const createRequirementNodes = (
+    requirements: string[],
+    nodeType: TalentTreeRequirementNodeType,
+    predicateMapper: (requirement: string) => (talent: TalentData) => boolean,
+    filterMapper?: (requirement: string) => RequirementFilterOption,
+    nameMapper?: (requirement: string) => string
+  ): TalentTreeRequirementNode[] =>
+    requirements.map((requirement) => ({
+      type: nodeType,
+      name: nameMapper?.(requirement) ?? requirement,
+      requirementFilterOption: filterMapper?.(requirement),
+      children: createTalentNodes(predicateMapper(requirement)),
     }))
 
   const rootNoRequirementsNode: TalentTreeRequirementNode = {
     type: TalentTreeNodeType.NO_REQUIREMENTS,
     name: 'No Requirements',
-    children: sortNodes<TalentTreeTalentNode>(
-      uniqueUnparsedTalents.filter(isRootTalent).map((talent) => buildTalentNode(talent))
-    ),
+    requirementFilterOption: RequirementFilterOption.NoRequirements,
+    children: createTalentNodes(isRootTalent),
   }
 
-  const rootClassRequirementNodes: TalentTreeRequirementNode[] = requirementClasses.map((name) => ({
-    type: TalentTreeNodeType.CLASS_REQUIREMENT,
-    name,
-    children: sortNodes<TalentTreeTalentNode>(
-      uniqueUnparsedTalents.filter(hasClass(name)).map((talent) => buildTalentNode(talent))
-    ),
-  }))
-
-  const rootEnergyRequirementNodes: TalentTreeRequirementNode[] = requirementEnergies.map(
-    (name) => ({
-      type: TalentTreeNodeType.ENERGY_REQUIREMENT,
-      name,
-      children: sortNodes<TalentTreeTalentNode>(
-        uniqueUnparsedTalents.filter(hasEnergy(name)).map((talent) => buildTalentNode(talent))
-      ),
-    })
+  const rootClassRequirementNodes: TalentTreeRequirementNode[] = createRequirementNodes(
+    Object.keys(REQUIREMENT_CLASS_TO_FILTER_OPTION_MAP),
+    TalentTreeNodeType.CLASS_REQUIREMENT,
+    hasClass,
+    getFilterOptionForRequirement('class')
   )
 
+  const rootEnergyRequirementNodes: TalentTreeRequirementNode[] = createRequirementNodes(
+    Object.keys(REQUIREMENT_ENERGY_TO_FILTER_OPTION_MAP),
+    TalentTreeNodeType.ENERGY_REQUIREMENT,
+    hasEnergy,
+    getFilterOptionForRequirement('energy')
+  )
+
+  const rootEventRequirementNodes: TalentTreeRequirementNode[] = createRequirementNodes(
+    uniqueEvents,
+    TalentTreeNodeType.EVENT_REQUIREMENT,
+    isValidEventTalent,
+    undefined,
+    // Special case, since these are basically the same event
+    (name) => (name === 'Priest' ? 'Prayer, Priest, Priest 1' : name)
+  )
+
+  const rootOfferNode: TalentTreeRequirementNode = {
+    type: TalentTreeNodeType.OFFER_REQUIREMENT,
+    name: 'Offers',
+    children: createTalentNodes(isOffer),
+  }
+
   return {
-    offerNode: rootOfferNode,
-    eventNodes: rootEventRequirementNodes,
     noReqNode: rootNoRequirementsNode,
     classNodes: rootClassRequirementNodes,
     energyNodes: rootEnergyRequirementNodes,
+    eventNodes: rootEventRequirementNodes,
+    offerNode: rootOfferNode,
   }
 }
 
 const removeDuplicateTalents = (talents: TalentData[]): TalentData[] => {
   const seen = new Set<string>()
+
   return talents.filter((talent) => {
     if (seen.has(talent.name)) return false
     seen.add(talent.name)
@@ -138,22 +168,14 @@ const sortNodes = <T extends TalentTreeTalentNode | TalentTreeRequirementNode>(t
     return a.name.localeCompare(b.name)
   })
 
-const requirementClasses = [
-  'Arcanist',
-  'Hunter',
-  'Knight',
-  'Rogue',
-  'Seeker',
-  'Warrior',
-  'Sunforge',
-]
+const getFilterOptionForRequirement = (type: 'class' | 'energy') => (requirement: string) => {
+  const map =
+    type === 'class'
+      ? REQUIREMENT_CLASS_TO_FILTER_OPTION_MAP
+      : REQUIREMENT_ENERGY_TO_FILTER_OPTION_MAP
+  const option = map[requirement]
 
-const requirementEnergies = ['DEX', 'DEX2', 'INT', 'INT2', 'STR', 'STR2', 'STR3']
+  if (option) return option
 
-const UNIQUE_EVENTS_BLACKLIST = [
-  'Campfire', // Emporium Discount
-  'The Deep Finish', // Watched
-  'The Godscar Wastes Start', // Watched
-  'The Voice Below', // Watched
-]
-const ACTUALLY_UNIQUE_EVENT_TALENTS = ['Watched']
+  throw new Error(`💀  Unknown requirement-${type}, when mapping to filter option: ${requirement}`)
+}

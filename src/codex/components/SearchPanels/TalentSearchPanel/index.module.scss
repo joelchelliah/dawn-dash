@@ -14,7 +14,6 @@
   }
 }
 
-// Filters
 .filters {
   margin-top: 1rem;
 }
@@ -22,6 +21,10 @@
 .filter-label {
   display: flex;
   align-items: center;
+
+  &--small {
+    font-size: font-size('xxs');
+  }
 
   &:hover {
     .filter-icon--scroll {
@@ -37,7 +40,14 @@
 .filter-icon {
   width: 1rem;
   height: 1rem;
-  padding-right: 0.25rem;
+  padding-right: 0.5rem;
+
+  &--class {
+    width: 1.25rem;
+    height: 1.25rem;
+    padding-right: 0.375rem;
+    margin-left: -0.125rem;
+  }
 
   &--scroll {
     @extend .filter-icon;

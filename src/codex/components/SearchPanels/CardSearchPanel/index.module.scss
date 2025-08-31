@@ -53,7 +53,7 @@
 .filter-icon {
   width: 1rem;
   height: 1rem;
-  padding-right: 0.25rem;
+  padding-right: 0.5rem;
 
   &--legendary {
     @extend .filter-icon;
@@ -73,7 +73,7 @@
     color: $color-rarity-uncommon;
     width: 1.25rem;
     height: 1.25rem;
-    padding-right: 0.125rem;
+    padding-right: 0.375rem;
     margin-left: -0.125rem;
   }
 
