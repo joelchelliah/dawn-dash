@@ -167,13 +167,9 @@ export const useAllTalentSearchFilters = (
 
   const hasMatchInDescendants = useCallback(
     (node: TalentTreeNode, targets: Set<string>): boolean => {
-      const result = node.children.some((child) => {
-        if (child.type === TalentTreeNodeType.TALENT && targets.has(child.name)) {
-          return true
-        }
-        return hasMatchInDescendants(child, targets)
-      })
-      return result
+      if (node.type !== TalentTreeNodeType.TALENT) return false
+
+      return node.descendants.some((descendant) => targets.has(descendant))
     },
     []
   )
@@ -278,13 +274,13 @@ export const useAllTalentSearchFilters = (
         const allMatches = new Set(matches)
 
         traversalFn(talentTree, (node) => {
+          // Ancestor matching
           if (hasMatchInDescendants(node, matches)) {
             allMatches.add(node.name)
           }
+          // Descendant matching - includes all children and deeper descendants
           if (matches.has(node.name)) {
-            node.children.forEach((child) => {
-              traverseNode(child, (descendant) => allMatches.add(descendant.name))
-            })
+            node.descendants.forEach((descendant) => allMatches.add(descendant))
           }
         })
 
@@ -308,7 +304,6 @@ export const useAllTalentSearchFilters = (
       shouldIncludeEvents,
       shouldIncludeOffers,
       hasMatchInDescendants,
-      traverseNode,
       traverseRegularTalentNodes,
       traverseEventTalentNodes,
       traverseOfferNodes,

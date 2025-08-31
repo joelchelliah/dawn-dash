@@ -49,6 +49,8 @@ export type TalentTreeTalentNode = {
   expansion: number
   events: string[]
   children: TalentTreeTalentNode[]
+  // Names of all descendants (children, grandchildren, etc.)
+  descendants: string[]
 }
 
 export type TalentTree = {

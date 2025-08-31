@@ -46,6 +46,13 @@ export const mapTalentsDataToTalentTree = (unparsedTalents: TalentData[]): Talen
       .filter(isNotNullOrUndefined)
       .map((child) => buildTalentNode(child, newVisited))
 
+    const descendants = new Set<string>()
+    const collectDescendantNames = (child: TalentTreeTalentNode) => {
+      descendants.add(child.name)
+      child.children.forEach(collectDescendantNames)
+    }
+    children.forEach(collectDescendantNames)
+
     return {
       type: TalentTreeNodeType.TALENT,
       name: talent.name,
@@ -55,6 +62,7 @@ export const mapTalentsDataToTalentTree = (unparsedTalents: TalentData[]): Talen
       expansion: talent.expansion,
       events: talent.events,
       children,
+      descendants: Array.from(descendants),
     }
   }
 
