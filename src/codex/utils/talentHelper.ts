@@ -46,6 +46,7 @@ export const getTalentRequirementIconProps = (
 ): { count: number; url: string; color: string; label: string } => {
   if (isClassRequirement) {
     const color = getClassColor(label as CharacterClass, ClassColorVariant.Dark)
+
     switch (label) {
       case CharacterClass.Arcanist:
         return { count: 1, url: ArcanistImageUrl, color, label }
