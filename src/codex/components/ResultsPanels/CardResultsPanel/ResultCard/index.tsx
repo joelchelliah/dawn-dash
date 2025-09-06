@@ -1,3 +1,5 @@
+import { memo } from 'react'
+
 import GradientLink from '@/shared/components/GradientLink'
 import {
   CircleIcon,
@@ -145,4 +147,4 @@ const ResultCard = ({ card, useSearchFilters, showCardsWithoutKeywords }: Result
   )
 }
 
-export default ResultCard
+export default memo(ResultCard)

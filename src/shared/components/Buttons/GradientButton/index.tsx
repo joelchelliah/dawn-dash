@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { memo, useState } from 'react'
 
 import { createCx } from '@/shared/utils/classnames'
 import Button from '@/shared/components/Buttons/Button'
@@ -52,4 +52,4 @@ function GradientButton({
   )
 }
 
-export default GradientButton
+export default memo(GradientButton)

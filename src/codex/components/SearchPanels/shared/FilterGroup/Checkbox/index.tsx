@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { memo, useEffect, useRef, useState } from 'react'
 
 import { createCx } from '@/shared/utils/classnames'
 
@@ -55,4 +55,4 @@ const Checkbox = ({ checkboxLabel, checked, onChange, type, name }: CheckboxProp
   )
 }
 
-export default Checkbox
+export default memo(Checkbox)

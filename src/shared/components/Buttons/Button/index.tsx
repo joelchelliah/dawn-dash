@@ -1,3 +1,5 @@
+import { memo } from 'react'
+
 import { createCx } from '@/shared/utils/classnames'
 import LoadingDots from '@/shared/components/LoadingDots'
 
@@ -39,4 +41,4 @@ function Button({
   )
 }
 
-export default Button
+export default memo(Button)
