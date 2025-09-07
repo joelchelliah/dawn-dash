@@ -14,8 +14,7 @@ jobs:
       - name: Ping Supabase Function
         run: |
           # Get the Supabase function URL from environment or construct it
-          SUPABASE_URL="${SUPABASE_URL}"
-          FUNCTION_URL="$SUPABASE_URL/functions/v1/sync-talents"
+          FUNCTION_URL="${SUPABASE_URL}/functions/v1/sync-talents"
 
           echo "Pinging Supabase function: $FUNCTION_URL"
 
