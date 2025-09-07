@@ -1,4 +1,4 @@
-import { memo } from 'react'
+import { memo, useMemo } from 'react'
 
 import GradientLink from '@/shared/components/GradientLink'
 import {
@@ -50,7 +50,7 @@ const ResultCard = ({ card, useSearchFilters, showCardsWithoutKeywords }: Result
   } = useFormattingFilters
   const { isCardStruck, toggleCardStrike } = useCardStrike
 
-  const findMatchingKeywords = (card: CardData) => {
+  const matchingKeywordsText = useMemo(() => {
     const matches = parsedKeywords.filter(
       (keyword) =>
         card.name.toLowerCase().includes(keyword.toLowerCase()) ||
@@ -58,7 +58,7 @@ const ResultCard = ({ card, useSearchFilters, showCardsWithoutKeywords }: Result
     )
 
     return `{ ${matches.join(', ')} }`
-  }
+  }, [parsedKeywords, card.name, card.description])
 
   const isFullMatch = parsedKeywords.some(
     (keyword) => card.name.toLowerCase() === keyword.toLowerCase()
@@ -119,7 +119,7 @@ const ResultCard = ({ card, useSearchFilters, showCardsWithoutKeywords }: Result
         )}
         <span className={cx('result-card__name')}>{card.name}</span>
         {shouldShowKeywords && !showCardsWithoutKeywords && (
-          <span className={cx('result-card__keywords')}>{findMatchingKeywords(card)}</span>
+          <span className={cx('result-card__keywords')}>{matchingKeywordsText}</span>
         )}
         {shouldShowCardSet && (
           <span className={cx('result-card__card-set')}>

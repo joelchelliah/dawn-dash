@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 
 import GradientButton from '@/shared/components/Buttons/GradientButton'
 import { createCx } from '@/shared/utils/classnames'
@@ -22,26 +22,30 @@ const TalentResultsPanel = ({ useSearchFilters }: TalentResultsPanelProps) => {
   const [showCardsWithoutKeywords, setShowCardsWithoutKeywords] = useState(false)
   const { parsedKeywords, matchingTalentTree, useFormattingFilters } = useSearchFilters
 
-  function collectTalentNames(nodes: TalentTreeNode[]): string[] {
-    let names: string[] = []
-    for (const node of nodes) {
-      if (node.type === TalentTreeNodeType.TALENT) {
-        names.push(node.name)
-        names = names.concat(collectTalentNames(node.children))
-      } else {
-        names = names.concat(collectTalentNames(node.children))
-      }
-    }
-    return names
-  }
+  const matchingTalentNames = useMemo(() => {
+    if (!matchingTalentTree) return []
 
-  const matchingTalentNames = collectTalentNames([
-    ...(matchingTalentTree?.noReqNode.children ?? []),
-    ...(matchingTalentTree?.energyNodes ?? []),
-    ...(matchingTalentTree?.classNodes ?? []),
-    ...(matchingTalentTree?.eventNodes.flatMap((node) => node.children) ?? []),
-    ...(matchingTalentTree?.offerNode.children ?? []),
-  ])
+    function collectTalentNames(nodes: TalentTreeNode[]): string[] {
+      let names: string[] = []
+      for (const node of nodes) {
+        if (node.type === TalentTreeNodeType.TALENT) {
+          names.push(node.name)
+          names = names.concat(collectTalentNames(node.children))
+        } else {
+          names = names.concat(collectTalentNames(node.children))
+        }
+      }
+      return names
+    }
+
+    return collectTalentNames([
+      ...(matchingTalentTree.noReqNode.children ?? []),
+      ...(matchingTalentTree.energyNodes ?? []),
+      ...(matchingTalentTree.classNodes ?? []),
+      ...(matchingTalentTree.eventNodes.flatMap((node) => node.children) ?? []),
+      ...(matchingTalentTree.offerNode.children ?? []),
+    ])
+  }, [matchingTalentTree])
 
   useEffect(() => {
     if (parsedKeywords.length > 0) {

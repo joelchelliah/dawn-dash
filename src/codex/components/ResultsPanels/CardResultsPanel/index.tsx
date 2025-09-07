@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 
 import GradientButton from '@/shared/components/Buttons/GradientButton'
 import { createCx } from '@/shared/utils/classnames'
@@ -29,15 +29,18 @@ const CardResultsPanel = ({ useSearchFilters }: CardResultsPanelProps) => {
     }
   }, [parsedKeywords])
 
-  const renderMatchingCards = () => {
-    const showingCardsWithoutKeywords = parsedKeywords.length === 0 && showCardsWithoutKeywords
-    const cardsByBanner = matchingCards.reduce(
+  const cardsByBanner = useMemo(() => {
+    return matchingCards.reduce(
       (acc, card) => {
         acc[card.color] = [...(acc[card.color] || []), card]
         return acc
       },
       {} as Record<number, CardData[]>
     )
+  }, [matchingCards])
+
+  const renderMatchingCards = () => {
+    const showingCardsWithoutKeywords = parsedKeywords.length === 0 && showCardsWithoutKeywords
 
     return (
       <div className={cx('results-container')} key={parsedKeywords.join(',')}>
