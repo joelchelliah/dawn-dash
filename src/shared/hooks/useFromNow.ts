@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-import moment from 'moment'
+import { formatDistanceToNow } from 'date-fns'
 
 /**
  * Returns a string representing the time since the given timestamp.
@@ -16,9 +16,9 @@ export function useFromNow(timestamp: number | null, prefix: string) {
       return
     }
 
-    setFromNow(`${prefix} ${moment(timestamp).fromNow()}`)
+    setFromNow(`${prefix} ${formatDistanceToNow(new Date(timestamp))} ago`)
     const timer = setInterval(() => {
-      setFromNow(`${prefix} ${moment(timestamp).fromNow()}`)
+      setFromNow(`${prefix} ${formatDistanceToNow(new Date(timestamp))} ago`)
     }, 1000)
 
     return () => clearInterval(timer)

@@ -59,7 +59,7 @@ function createChartConfigOptions(
         time: {
           unit: 'day',
           displayFormats: {
-            day: 'MMM D',
+            day: 'MMM d',
           },
         },
         ticks: {

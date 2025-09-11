@@ -1,18 +1,18 @@
 import { useCallback, useEffect, useRef, useState, useTransition } from 'react'
 
-import 'chartjs-adapter-moment'
 import {
-  ScriptableContext,
   Chart as ChartJS,
-  LineController,
   CategoryScale,
+  LinearScale,
   PointElement,
   LineElement,
-  LinearScale,
+  LineController,
   TimeScale,
   Tooltip,
   Title,
+  type ScriptableContext,
 } from 'chart.js'
+import 'chartjs-adapter-date-fns'
 
 import { createCx } from '@/shared/utils/classnames'
 import { useDeviceOrientation } from '@/shared/hooks/useDeviceOrientation'
