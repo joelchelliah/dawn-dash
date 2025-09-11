@@ -1,5 +1,7 @@
 import { useState } from 'react'
 
+import dynamic from 'next/dynamic'
+
 import { createCx } from '@/shared/utils/classnames'
 import Header from '@/shared/components/Header'
 import { useNavigation } from '@/shared/hooks/useNavigation'
@@ -11,12 +13,22 @@ import { CharacterClass } from '@/shared/types/characterClass'
 import { useInitialClassAndDifficulty } from './hooks/useInitialClassAndDifficulty'
 import { useChartControlState } from './hooks/useChartControlState'
 import { useUrlParams } from './hooks/useUrlParams'
-import Chart from './components/Chart'
 import ChartControls from './components/ChartControls'
 import ClassButtons from './components/ClassButtons'
 import SubclassButtons from './components/SubclassButtons'
 import BlightbaneModal from './components/BlightbaneModal'
 import styles from './index.module.scss'
+
+const Chart = dynamic(() => import('./components/Chart'), {
+  loading: () => (
+    <div
+      style={{ height: '400px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+    >
+      Loading chart...
+    </div>
+  ),
+  ssr: false,
+})
 
 const cx = createCx(styles)
 

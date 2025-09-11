@@ -1,3 +1,5 @@
+import dynamic from 'next/dynamic'
+
 import { createCx } from '@/shared/utils/classnames'
 import { useNavigation } from '@/shared/hooks/useNavigation'
 import { useScrollToTop } from '@/shared/hooks/useScrollToTop'
@@ -6,13 +8,19 @@ import Footer from '@/shared/components/Footer'
 import Header from '@/shared/components/Header'
 import ScrollToTopButton from '@/shared/components/ScrollToTopButton'
 
-import TalentResultsPanel from './components/ResultsPanels/TalentResultsPanel'
-import TalentSearchPanel from './components/SearchPanels/TalentSearchPanel'
 import CodexErrorMessage from './components/CodexErrorMessage'
 import CodexLoadingMessage from './components/CodexLoadingMessage'
 import { useAllTalentSearchFilters } from './hooks/useSearchFilters'
 import { useTalentData } from './hooks/useTalentData'
 import styles from './skills.module.scss'
+
+const TalentResultsPanel = dynamic(() => import('./components/ResultsPanels/TalentResultsPanel'), {
+  loading: () => <div>Loading talent tree...</div>,
+})
+
+const TalentSearchPanel = dynamic(() => import('./components/SearchPanels/TalentSearchPanel'), {
+  loading: () => <div>Loading search filters...</div>,
+})
 
 const cx = createCx(styles)
 

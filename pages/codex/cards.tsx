@@ -1,6 +1,9 @@
 import Head from 'next/head'
+import dynamic from 'next/dynamic'
 
-import Cards from '../../src/codex/cards'
+const Cards = dynamic(() => import('../../src/codex/cards'), {
+  loading: () => <div>Loading cardex...</div>,
+})
 
 export default function CardexPage() {
   return (

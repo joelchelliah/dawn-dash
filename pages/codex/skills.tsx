@@ -1,6 +1,9 @@
 import Head from 'next/head'
+import dynamic from 'next/dynamic'
 
-import Skills from '../../src/codex/skills'
+const Skills = dynamic(() => import('../../src/codex/skills'), {
+  loading: () => <div>Loading skilldex...</div>,
+})
 
 export default function SkilldexPage() {
   return (
