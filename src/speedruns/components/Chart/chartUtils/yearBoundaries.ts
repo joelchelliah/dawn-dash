@@ -1,5 +1,5 @@
 import { Chart } from 'chart.js'
-import moment from 'moment'
+import { getYear, startOfYear, format } from 'date-fns'
 
 const YEAR_BOUNDARY_COLOR = '#888'
 const YEAR_LABEL_FONT = 'bold 12px Arial'
@@ -17,11 +17,11 @@ export const calculateYearBoundaries = (minDate: number, maxDate: number): void 
   // Clear existing year boundaries
   yearBoundaries.length = 0
 
-  let currentYear = moment(minDate).year()
-  const endYear = moment(maxDate).year()
+  let currentYear = getYear(new Date(minDate))
+  const endYear = getYear(new Date(maxDate))
 
   while (currentYear <= endYear) {
-    const yearStart = moment(`${currentYear}-01-01`).startOf('day').valueOf()
+    const yearStart = startOfYear(new Date(currentYear, 0, 1)).getTime()
     if (yearStart >= minDate && yearStart <= maxDate) {
       yearBoundaries.push(yearStart)
     }
@@ -66,7 +66,7 @@ const drawYearLabel = (
   x: number,
   chart: Chart
 ) => {
-  const yearLabel = moment(yearStart).format('YYYY')
+  const yearLabel = format(new Date(yearStart), 'yyyy')
 
   ctx.save()
   ctx.fillStyle = YEAR_BOUNDARY_COLOR

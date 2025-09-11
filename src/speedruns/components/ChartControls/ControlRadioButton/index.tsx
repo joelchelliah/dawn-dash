@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { memo } from 'react'
 
 import { createCx } from '@/shared/utils/classnames'
 import { ClassColorVariant, getClassColor } from '@/shared/utils/classColors'
@@ -57,4 +57,4 @@ function ControlRadioButton({
   )
 }
 
-export default ControlRadioButton
+export default memo(ControlRadioButton)

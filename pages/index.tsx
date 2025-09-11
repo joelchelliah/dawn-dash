@@ -1,6 +1,10 @@
 import Head from 'next/head'
+import dynamic from 'next/dynamic'
 
-import Speedruns from '../src/speedruns'
+const Speedruns = dynamic(() => import('../src/speedruns'), {
+  loading: () => <div>Loading speedrun charts...</div>,
+  ssr: false,
+})
 
 export default function SpeedrunsPage() {
   return (

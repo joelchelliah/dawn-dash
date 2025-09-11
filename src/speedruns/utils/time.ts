@@ -1,4 +1,4 @@
-import moment from 'moment'
+import { format } from 'date-fns'
 
 import { SpeedRunData } from '../types/speedRun'
 
@@ -17,17 +17,23 @@ export function getDurationInMinutes(run: SpeedRunData): number | undefined {
 }
 
 export function formatDateAndTime(timestamp: number) {
-  return moment(timestamp).format('MMM D, YYYY HH:mm:ss')
+  return format(new Date(timestamp), 'MMM d, yyyy HH:mm:ss')
 }
 
 export function formatDateShort(timestamp: string | number) {
-  return moment(timestamp).format('MMM D')
+  return format(new Date(Number(timestamp)), 'MMM d')
 }
 
 export function formatTime(time: number) {
-  const duration = moment.duration(time, 'minutes')
-  const format = duration.asHours() >= 1 ? 'HH:mm:ss' : 'mm:ss'
-  return moment.utc(duration.asMilliseconds()).format(format)
+  const totalMinutes = Math.floor(time)
+  const seconds = Math.floor((time - totalMinutes) * 60)
+  const hours = Math.floor(totalMinutes / 60)
+  const minutes = totalMinutes % 60
+
+  if (hours >= 1) {
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+  }
+  return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
 }
 
 export function isWithinLastXDays(timestamp: number, daysString: string) {

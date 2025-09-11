@@ -1,6 +1,8 @@
 import { useEffect, useRef } from 'react'
 
-import * as d3 from 'd3'
+import { select } from 'd3-selection'
+import { hierarchy, tree, type HierarchyPointLink } from 'd3-hierarchy'
+import { min, max } from 'd3-array'
 
 import { createCx } from '@/shared/utils/classnames'
 import { lighten } from '@/shared/utils/classColors'
@@ -38,9 +40,9 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
     if (!svgRef.current || !talentTree) return
 
     // Clear previous visualization
-    d3.select(svgRef.current).selectAll('*').remove()
+    select(svgRef.current).selectAll('*').remove()
 
-    const treeNode = d3.hierarchy<HierarchicalTalentTreeNode>(
+    const treeNode = hierarchy<HierarchicalTalentTreeNode>(
       buildHierarchicalTreeFromTalentTree(talentTree)
     )
 
@@ -72,8 +74,7 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
       return defaultVerticalSpacing
     }
 
-    const treeLayout = d3
-      .tree<HierarchicalTalentTreeNode>()
+    const treeLayout = tree<HierarchicalTalentTreeNode>()
       .nodeSize([defaultVerticalSpacing, horizontalSpacing])
       .separation((a, b) => {
         const aVertical = getDynamicVerticalSpacing(a.data)
@@ -98,9 +99,9 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
     })
 
     const allNodes = treeData.descendants()
-    const minX = d3.min(allNodes, (d) => d.x) ?? 0
-    const maxX = d3.max(allNodes, (d) => d.x) ?? 0
-    const maxDepth = d3.max(allNodes, (d) => d.depth) ?? 0
+    const minX = min(allNodes, (d) => d.x) ?? 0
+    const maxX = max(allNodes, (d) => d.x) ?? 0
+    const maxDepth = max(allNodes, (d) => d.depth) ?? 0
 
     const topPadding = 40
     const bottomPadding = 1500
@@ -112,8 +113,7 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
     const baseWidth = 1050 // Width for depth 4
     const svgWidth = Math.max(400, (maxDepth / 4) * baseWidth) // Minimum 400px, scale with depth
 
-    const mainSvg = d3
-      .select(svgRef.current)
+    const mainSvg = select(svgRef.current)
       .attr('viewBox', `0 -10 ${svgWidth} ${svgHeight}`)
       .attr('width', svgWidth)
       .attr('height', svgHeight)
@@ -130,7 +130,7 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
       }
     }
 
-    const generateLinkPath = (d: d3.HierarchyPointLink<HierarchicalTalentTreeNode>) => {
+    const generateLinkPath = (d: HierarchyPointLink<HierarchicalTalentTreeNode>) => {
       const isRootNode = d.source.depth <= 1
       const xOffset = 10
       const sourceHalfWidth = getNodeHalfWidth(d.source.data)
@@ -185,7 +185,7 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
         throw new Error(`Node ${data.name} has no type!`)
       }
 
-      const nodeElement = d3.select(this)
+      const nodeElement = select(this)
       const isRequirementNode = data.type !== TalentTreeNodeType.TALENT
 
       if (isRequirementNode) {

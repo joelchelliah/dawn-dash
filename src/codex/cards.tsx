@@ -1,3 +1,5 @@
+import dynamic from 'next/dynamic'
+
 import { createCx } from '@/shared/utils/classnames'
 import { useNavigation } from '@/shared/hooks/useNavigation'
 import { AbracadabraImageUrl } from '@/shared/utils/imageUrls'
@@ -6,13 +8,19 @@ import Header from '@/shared/components/Header'
 import ScrollToTopButton from '@/shared/components/ScrollToTopButton'
 import { useScrollToTop } from '@/shared/hooks/useScrollToTop'
 
-import CardResultsPanel from './components/ResultsPanels/CardResultsPanel'
 import { useAllCardSearchFilters } from './hooks/useSearchFilters'
-import CardSearchPanel from './components/SearchPanels/CardSearchPanel'
 import { useCardData } from './hooks/useCardData'
 import CodexErrorMessage from './components/CodexErrorMessage'
 import CodexLoadingMessage from './components/CodexLoadingMessage'
 import styles from './cards.module.scss'
+
+const CardResultsPanel = dynamic(() => import('./components/ResultsPanels/CardResultsPanel'), {
+  loading: () => <div>Loading cards...</div>,
+})
+
+const CardSearchPanel = dynamic(() => import('./components/SearchPanels/CardSearchPanel'), {
+  loading: () => <div>Loading search filters...</div>,
+})
 
 const cx = createCx(styles)
 

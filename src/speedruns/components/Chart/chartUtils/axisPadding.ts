@@ -1,4 +1,4 @@
-import moment from 'moment'
+import { differenceInDays, subDays, addDays } from 'date-fns'
 
 import { CharacterClass } from '@/shared/types/characterClass'
 
@@ -28,11 +28,11 @@ export function padMaxDuration(
 export function padMinMaxDates(dates: number[]) {
   const minDate = Math.min(...dates)
   const maxDate = Math.max(...dates)
-  const totalDays = moment(maxDate).diff(moment(minDate), 'days')
+  const totalDays = differenceInDays(new Date(maxDate), new Date(minDate))
   const paddingDays = Math.ceil(totalDays * 0.01)
 
   return {
-    paddedMinDate: moment(minDate).subtract(paddingDays, 'days').valueOf(),
-    paddedMaxDate: moment(maxDate).add(paddingDays, 'days').valueOf(),
+    paddedMinDate: subDays(new Date(minDate), paddingDays).getTime(),
+    paddedMaxDate: addDays(new Date(maxDate), paddingDays).getTime(),
   }
 }
