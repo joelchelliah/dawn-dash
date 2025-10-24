@@ -56,6 +56,8 @@ const getCardSets = (expansions: Set<string>, isBoundless: boolean) => {
           return CardSet.Catalyst
         case 'eclypse':
           return CardSet.Eclypse
+        case 'synthesis':
+          return CardSet.Synthesis
         default:
           return null
       }

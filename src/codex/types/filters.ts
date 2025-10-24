@@ -16,6 +16,7 @@ export enum CardSetFilterOption {
   Infinitum = 'Infinitum',
   Catalyst = 'Catalyst',
   Eclypse = 'Eclypse',
+  Synthesis = 'Synthesis',
 }
 
 export type CardSet = CardSetFilterOption | SharedFilterOption
