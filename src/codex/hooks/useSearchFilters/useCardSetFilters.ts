@@ -14,6 +14,7 @@ const defaultCardSetFilterValueMap: Record<string, boolean> = {
   [CardSetFilterOption.Infinitum]: true,
   [CardSetFilterOption.Catalyst]: true,
   [CardSetFilterOption.Eclypse]: true,
+  [CardSetFilterOption.Synthesis]: true,
   [SharedFilterOption.All]: true,
   [SharedFilterOption.None]: false,
 }
@@ -25,6 +26,7 @@ const indexMap: Record<string, number[]> = {
   [CardSetFilterOption.Infinitum]: [5],
   [CardSetFilterOption.Catalyst]: [6],
   [CardSetFilterOption.Eclypse]: [7],
+  [CardSetFilterOption.Synthesis]: [8],
 }
 
 const indexToValueMap: Record<number, string> = {
@@ -35,6 +37,7 @@ const indexToValueMap: Record<number, string> = {
   [5]: CardSetFilterOption.Infinitum,
   [6]: CardSetFilterOption.Catalyst,
   [7]: CardSetFilterOption.Eclypse,
+  [8]: CardSetFilterOption.Synthesis,
 }
 
 export const allCardSets: string[] = CardSet.getAll()

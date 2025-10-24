@@ -50,5 +50,9 @@ const ACTUALLY_ECLYPSE_CARDS = [
   'Battlespear H',
   'Battlespear L',
   'Battlespear U',
+  'Map of Forms',
+  'Map of Hues',
+  'Map of Power',
+  'Map of Riches',
 ]
 const ACTUALLY_MONSTER_CARDS = ["Typhon's Cunning II", "Typhon's Cunning III"]
