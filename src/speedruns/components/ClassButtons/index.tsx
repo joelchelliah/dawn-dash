@@ -14,7 +14,7 @@ interface ClassButtonsProps {
 }
 
 function ClassButtons({ onClassSelect, selectedClass }: ClassButtonsProps) {
-  const classes = Object.values(CharacterClass)
+  const classes = Object.values(CharacterClass).filter((c) => c !== CharacterClass.Neutral)
 
   return (
     <div className={cx('class-buttons')}>
