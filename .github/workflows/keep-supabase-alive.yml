@@ -11,16 +11,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Ping Supabase Function
+      - name: Ping Supabase Database
         run: |
-          # Get the Supabase function URL from environment or construct it
-          FUNCTION_URL="${SUPABASE_URL}/functions/v1/sync-talents"
+          # Query the Talents table to keep the database alive
+          API_URL="${SUPABASE_URL}/rest/v1/Talents?select=id&limit=1"
 
-          echo "Pinging Supabase function: $FUNCTION_URL"
+          echo "Pinging Supabase database: $API_URL"
 
-          curl -X GET "$FUNCTION_URL" \
-            -H "Content-Type: application/json" \
+          curl -X GET "$API_URL" \
+            -H "apikey: $SUPABASE_ANON_KEY" \
             -H "Authorization: Bearer $SUPABASE_ANON_KEY" \
+            -H "Content-Type: application/json" \
             --max-time 30 \
             --retry 3 \
             --retry-delay 5 \
