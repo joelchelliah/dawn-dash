@@ -118,6 +118,21 @@ const CardSearchPanel = ({ useSearchFilters, useCardData }: CardSearchPanelProps
     e.preventDefault()
   }
 
+  const renderWeeklyChallengeButton = () => {
+    if (isWeeklyChallengeError && !isWeelyChallengeLoading) return null
+
+    return (
+      <ButtonRow align="left" className={cx('button-row--weekly-challenge')}>
+        <WeeklyChallengeButton
+          isLoading={isWeelyChallengeLoading}
+          challengeName={weeklyChallengeData?.name}
+          challengeId={weeklyChallengeData?.id}
+          onClick={setFiltersFromWeeklyChallengeData}
+        />
+      </ButtonRow>
+    )
+  }
+
   return (
     <div className={cx('search-panel')}>
       <PanelHeader type="Search" />
@@ -185,16 +200,7 @@ const CardSearchPanel = ({ useSearchFilters, useCardData }: CardSearchPanelProps
           </GradientButton>
         </ButtonRow>
 
-        {(!isWeeklyChallengeError || isWeelyChallengeLoading) && (
-          <ButtonRow align="left" className={cx('button-row--weekly-challenge')}>
-            <WeeklyChallengeButton
-              isLoading={isWeelyChallengeLoading}
-              challengeName={weeklyChallengeData?.name}
-              challengeId={weeklyChallengeData?.id}
-              onClick={setFiltersFromWeeklyChallengeData}
-            />
-          </ButtonRow>
-        )}
+        {renderWeeklyChallengeButton()}
       </form>
 
       <CodexLastUpdated
