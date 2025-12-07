@@ -3,7 +3,7 @@ import { CardApiResponse, CardData } from '@/codex/types/cards'
 // When using cards data from Blightbane API
 export const mapAndSortCardsResponse = (cards: CardApiResponse[]): CardData[] =>
   sortAndRemoveDuplicates(
-    cards.map((card) => ({
+    removeDeprecatedCards(cards).map((card) => ({
       ...card,
       blightbane_id: card.id,
       expansion: getActualExpansion(card),
@@ -13,7 +13,7 @@ export const mapAndSortCardsResponse = (cards: CardApiResponse[]): CardData[] =>
 // When using cards data from Supabase
 export const mapAndSortCardsData = (cards: CardData[]) =>
   sortAndRemoveDuplicates(
-    cards.map((card) => ({
+    removeDeprecatedCards(cards).map((card) => ({
       ...card,
       expansion: getActualExpansion(card),
     }))
@@ -28,6 +28,9 @@ const sortAndRemoveDuplicates = (cards: CardData[]) =>
       return a.name.localeCompare(b.name)
     })
     .filter((card, index, self) => index === self.findIndex(({ name }) => name === card.name))
+
+const removeDeprecatedCards = <T extends CardApiResponse | CardData>(cards: T[]): T[] =>
+  cards.filter((card) => !DEPRECATED_CARDS.includes(card.name))
 
 /*
  * Better mapping of card expansions so that they make more sense in the search results.
@@ -56,3 +59,5 @@ const ACTUALLY_ECLYPSE_CARDS = [
   'Map of Riches',
 ]
 const ACTUALLY_MONSTER_CARDS = ["Typhon's Cunning II", "Typhon's Cunning III"]
+
+const DEPRECATED_CARDS = ['Cutlass_OLD']
