@@ -1,3 +1,5 @@
+import { useState } from 'react'
+
 import { createCx } from '@/shared/utils/classnames'
 import {
   CircleIcon,
@@ -9,6 +11,7 @@ import {
 } from '@/shared/utils/icons'
 import GradientButton from '@/shared/components/Buttons/GradientButton'
 import ButtonRow from '@/shared/components/Buttons/ButtonRow'
+import Notification from '@/shared/components/Notification'
 
 import { ExtraCardFilterOption, RarityFilterOption } from '@/codex/types/filters'
 import { UseAllCardSearchFilters } from '@/codex/hooks/useSearchFilters'
@@ -43,6 +46,7 @@ const CardSearchPanel = ({ useSearchFilters, useCardData }: CardSearchPanelProps
     useBannerFilters,
     useExtraCardFilters,
     useFormattingFilters,
+    useCardStrike,
     resetFilters,
     resetStruckCards,
     setFiltersFromWeeklyChallengeData,
@@ -57,6 +61,20 @@ const CardSearchPanel = ({ useSearchFilters, useCardData }: CardSearchPanelProps
     useExtraCardFilters
   const { formattingFilters, handleFormattingFilterToggle, getFormattingFilterName } =
     useFormattingFilters
+  const { struckCards } = useCardStrike
+
+  const [showNotification, setShowNotification] = useState(false)
+
+  const handleWeeklyChallengeClick = () => {
+    setFiltersFromWeeklyChallengeData()
+    if (struckCards.length > 0) {
+      setShowNotification(true)
+    }
+  }
+
+  const handleCloseNotification = () => {
+    setShowNotification(false)
+  }
 
   const getRarityFilterLabel = (filter: string) => {
     switch (filter) {
@@ -127,7 +145,7 @@ const CardSearchPanel = ({ useSearchFilters, useCardData }: CardSearchPanelProps
           isLoading={isWeelyChallengeLoading}
           challengeName={weeklyChallengeData?.name}
           challengeId={weeklyChallengeData?.id}
-          onClick={setFiltersFromWeeklyChallengeData}
+          onClick={handleWeeklyChallengeClick}
         />
       </ButtonRow>
     )
@@ -211,6 +229,16 @@ const CardSearchPanel = ({ useSearchFilters, useCardData }: CardSearchPanelProps
         isErrorInBackground={useCardData.isErrorInBackground}
         progress={useCardData.progress}
         refresh={useCardData.refresh}
+      />
+
+      <Notification
+        isTriggered={showNotification}
+        onClose={handleCloseNotification}
+        message={
+          <>
+            You still have some <strong>tracked cards</strong> from your previous search!
+          </>
+        }
       />
     </div>
   )
