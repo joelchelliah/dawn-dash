@@ -1,4 +1,5 @@
 @use 'index' as *;
+@use 'sass:color';
 
 .talent-tree-container {
   width: 100%;
@@ -74,7 +75,7 @@
 
   @each $tier, $color in $tier-index-to-color-map {
     &--tier-#{$tier} {
-      fill: mix($color-component-bg, $color, 95%);
+      fill: color.mix($color-component-bg, $color, 95%);
       stroke: $color;
     }
   }

@@ -61,12 +61,12 @@
     height: 3.5rem;
     transform: none;
     z-index: 1001;
-
-    @include superFancyBorder(0, 0, fixed);
-    animation: slideDown 0.5s ease-out;
-
     // Larger text/icon for banner style
     font-size: 1rem;
+
+    animation: slideDown 0.5s ease-out;
+
+    @include superFancyBorder(0, 0, fixed);
 
     svg {
       margin-left: -1rem;
