@@ -382,12 +382,13 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
               if (segment.type === 'text') {
                 htmlContent += segment.content
               } else if (segment.type === 'image' && 'icon' in segment) {
-                htmlContent += `<img src="${segment.icon}" width="8" height="8" style="vertical-align: middle; margin: 0 1px 1px;" />`
+                htmlContent += `<img src="${segment.icon}" alt="" />`
               }
             })
 
             foreignObject
               .append('xhtml:div')
+              .attr('xmlns', 'http://www.w3.org/1999/xhtml')
               .attr('class', cx('talent-node-description'))
               .html(htmlContent)
           })
