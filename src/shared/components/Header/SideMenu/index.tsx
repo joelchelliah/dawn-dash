@@ -106,7 +106,7 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
             <div className={skilldexLinkContainerClassNames}>
               <Link href="/codex/skills" className={cx('side-menu__nav-link')}>
                 {getNavLinkImage(EleganceImageUrl, 'Skilldex logo')}
-                Skilldex (W.I.P.)
+                Skilldex
               </Link>
             </div>
           )}
@@ -150,20 +150,17 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
           your run!
         </p>
 
-        {isDev && (
-          <>
-            <div className={cx('info-divider')} />
+        <div className={cx('info-divider')} />
 
-            <h3 className={cx('info-title')}>
-              {getNavLinkImage(EleganceImageUrl, 'Skilldex logo')} Skilldex
-            </h3>
+        <h3 className={cx('info-title')}>
+          {getNavLinkImage(EleganceImageUrl, 'Skilldex logo')} Skilldex
+        </h3>
 
-            <p className={cx('info-last-paragraph')}>
-              A codex and talent-tree-like vizualisation for all the skills available in{' '}
-              <b>Dawncaster</b>. Currently still in development, so only supports basic filtering.
-            </p>
-          </>
-        )}
+        <p className={cx('info-last-paragraph')}>
+          A codex and talent-tree-like vizualisation for all the talents and infernal offers
+          available in <b>Dawncaster</b>. Also has some filtering and formatting options to narrow
+          down the results!
+        </p>
       </InfoModal>
     </>
   )
