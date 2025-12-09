@@ -105,7 +105,7 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
 
     const topPadding = 40
     const bottomPadding = 1500
-    const minFactorForEverythingToFitInContainer = 0.925
+    const minFactorForEverythingToFitInContainer = 0.9375
     const svgHeight =
       minFactorForEverythingToFitInContainer * maxX - minX + topPadding + bottomPadding
 

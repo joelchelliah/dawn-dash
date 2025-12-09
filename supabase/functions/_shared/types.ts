@@ -38,6 +38,7 @@ export interface TalentData {
   required_for_talents: number[]
   blightbane_id: number
   last_updated: string
+  verified: boolean
 }
 
 export type TalentsApiResponse = {

@@ -9,10 +9,10 @@ import { TalentApiResponse, TalentData, TalentsApiResponse } from '../_shared/ty
 /*
  * Supabase function for syncing talents from Blightbane API to Supabase database
 
- * Run `supabase functions deploy sync-talents`
- * Run `supabase functions list` to get the URL of the function
- * Run `supabase functions list --remote` to get the URL of the function from the remote server
+ * To deploy, run `npx supabase functions deploy sync-talents`
+ * Then go to the Dasboard, into Edge Functions, and run it from there.
  *
+ * Can optionally also use curl
  */
 
 const BLIGHTBANE_URL = 'https://blightbane.io/api'
@@ -57,7 +57,8 @@ async function fetchTalentsFromBlightbane(): Promise<TalentData[]> {
             required_for_talents: details.ispreq.map(Number),
             blightbane_id: talent.id,
             last_updated: new Date().toISOString(),
-          }
+            verified: false,
+          } as TalentData
         })
       )
 
@@ -98,8 +99,9 @@ serve(async (req) => {
     )
 
     console.info('Fetching talents from Blightbane API...')
-    const talents = await fetchTalentsFromBlightbane()
+    const talentsFromBlightbane = await fetchTalentsFromBlightbane()
 
+    // Only clear the table if 'clear' is true
     const url = new URL(req.url)
     let clearTable = url.searchParams.get('clear') === 'true'
     if (!clearTable && req.method === 'POST') {
@@ -116,7 +118,8 @@ serve(async (req) => {
       }
     }
 
-    const { data: existingTalents, error: fetchError } = await supabaseClient
+    // Note that even when selecting only the blightbane_id, the data is still returned as an array of objects!
+    const { data: existingTalentIdData, error: fetchError } = await supabaseClient
       .from(TALENTS_TABLE)
       .select('blightbane_id')
 
@@ -125,8 +128,10 @@ serve(async (req) => {
       throw fetchError
     }
 
-    const existingIds = new Set(existingTalents.map((t) => t.blightbane_id))
-    const newTalents = talents.filter((talent) => !existingIds.has(talent.blightbane_id))
+    const existingIds = new Set(existingTalentIdData.map(({ blightbane_id }) => blightbane_id))
+    const newTalents = talentsFromBlightbane.filter(
+      ({ blightbane_id }) => !existingIds.has(blightbane_id)
+    )
 
     if (newTalents.length > 0) {
       console.info(`Inserting ${newTalents.length} new talents into database...`)

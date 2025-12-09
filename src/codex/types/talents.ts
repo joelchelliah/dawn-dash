@@ -13,6 +13,8 @@ export type TalentData = {
   requires_talents: number[]
   required_for_talents: number[]
   blightbane_id: number
+  last_updated: string
+  verified: boolean
 }
 
 export enum TalentTreeNodeType {
