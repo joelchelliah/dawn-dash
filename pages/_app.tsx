@@ -20,6 +20,10 @@ export default function App({ Component, pageProps }: AppProps) {
       </Head>
 
       {/* Google Analytics */}
+      <Script
+        src="https://www.googletagmanager.com/gtag/js?id=G-461WYVF6D8"
+        strategy="afterInteractive"
+      />
       <Script id="gtag-init" strategy="afterInteractive">
         {`
           window.dataLayer = window.dataLayer || [];
