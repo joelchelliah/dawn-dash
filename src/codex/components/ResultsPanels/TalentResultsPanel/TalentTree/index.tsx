@@ -88,10 +88,6 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
       })
     const treeData = treeLayout(treeNode)
 
-    // Shift all nodes left so that the root talents are at y=0
-    // (same as the virtual root node, which we are not rendering)
-    // NB: Y is horizontal, X is vertical!
-    // TODO: This needs some work to make it look good!
     const leftPadding = nodeWidth * 0.25
     const offset =
       treeNode.children && treeNode.children.length > 0
@@ -108,16 +104,17 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
 
     const topPadding = 40
     const bottomPadding = 1500
-    const minFactorForEverythingToFitInContainer = 0.9375
+    const minFactorForEverythingToFitInContainer = 0.955
     const svgHeight =
       minFactorForEverythingToFitInContainer * maxX - minX + topPadding + bottomPadding
 
     // Calculate width based on max depth
     const baseWidth = 1050 // Width for depth 4
     const svgWidth = Math.max(400, (maxDepth / 4) * baseWidth) // Minimum 400px, scale with depth
+    const svgVerticalPadding = 30
 
     const mainSvg = select(svgRef.current)
-      .attr('viewBox', `0 -10 ${svgWidth} ${svgHeight}`)
+      .attr('viewBox', `0 -${svgVerticalPadding} ${svgWidth} ${svgHeight}`)
       .attr('width', svgWidth)
       .attr('height', svgHeight)
 

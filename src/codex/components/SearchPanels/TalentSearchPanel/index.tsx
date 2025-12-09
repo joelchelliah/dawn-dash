@@ -201,7 +201,7 @@ const TalentSearchPanel = ({ useSearchFilters, useTalentData }: TalentSearchPane
             onFilterToggle={handleCardSetFilterToggle}
           />
           <FilterGroup
-            title="Base requirements"
+            title="Requirements"
             filters={allRequirements}
             selectedFilters={requirementFilters}
             type="requirement"
