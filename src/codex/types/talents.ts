@@ -72,4 +72,6 @@ export interface HierarchicalTalentTreeNode {
   type?: TalentTreeNodeType
   tier?: number
   children?: HierarchicalTalentTreeNode[]
+  // Currently only needed because we need a way to visualize that Goldstrike has 2 compulsory prerequisites...
+  otherParentNames?: string[]
 }

@@ -67,23 +67,36 @@ export const buildHierarchicalTreeFromTalentTree = (
 }
 
 const buildHierarchicalTreeNodeFromTalentNode = (
-  node: TalentTreeTalentNode
+  node: TalentTreeTalentNode,
+  parentName: string
 ): HierarchicalTalentTreeNode => {
-  const children = node.children.map(buildHierarchicalTreeNodeFromTalentNode)
+  const name = node.name
+  const children = node.children.map((child) =>
+    buildHierarchicalTreeNodeFromTalentNode(child, name)
+  )
+
+  // Special case, since Goldstrike has 2 compulsory prerequisites...
+  const otherParentNames =
+    name === 'Goldstrike'
+      ? ['Collector', 'Forgery'].filter((otherName) => otherName !== parentName)
+      : undefined
 
   return {
-    name: node.name,
+    name,
     description: node.description,
     type: TalentTreeNodeType.TALENT,
     tier: node.tier,
     children: children.length > 0 ? children : undefined,
+    otherParentNames: otherParentNames?.length ? otherParentNames : undefined,
   }
 }
 
 const buildHierarchicalTreeNodeFromRequirementNode = (
   node: TalentTreeRequirementNode
 ): HierarchicalTalentTreeNode | undefined => {
-  const children = node.children.map(buildHierarchicalTreeNodeFromTalentNode)
+  const children = node.children.map((child) =>
+    buildHierarchicalTreeNodeFromTalentNode(child, node.name)
+  )
 
   if (children.length === 0) {
     return undefined

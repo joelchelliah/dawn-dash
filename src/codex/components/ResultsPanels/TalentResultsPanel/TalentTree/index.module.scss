@@ -96,6 +96,17 @@
   }
 }
 
+.talent-node-requirements {
+  font-size: font-size('xxs');
+  font-weight: 600;
+  fill: $color-danger-hover;
+  text-anchor: middle;
+
+  &--collapsed {
+    font-size: font-size('xs');
+  }
+}
+
 .talent-node-description {
   font-size: font-size('xxxs');
   color: $color-primary-base;

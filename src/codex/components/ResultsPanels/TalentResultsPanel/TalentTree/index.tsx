@@ -53,6 +53,7 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
     const minDescriptionHeight = 20
     const collapsedDescriptionHeight = 4
     const descriptionLineHeight = 11
+    const requirementsHeight = 15 // Height for the Goldstrike requirements section
     const defaultVerticalSpacing = 100
     const horizontalSpacing = nodeWidth * 1.4
     // - - - - - - - - - - - - - - - - - -
@@ -69,7 +70,9 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
           descLines.length * descriptionLineHeight
         )
 
-        return (nameHeight + descriptionHeight) * 1.7
+        const extraHeight = node.otherParentNames?.length ? requirementsHeight : 0
+
+        return (nameHeight + descriptionHeight + extraHeight) * 1.7
       }
       return defaultVerticalSpacing
     }
@@ -272,7 +275,8 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
         const descriptionHeight = isCollapsed
           ? collapsedDescriptionHeight
           : Math.max(minDescriptionHeight, descLines.length * descriptionLineHeight)
-        const dynamicNodeHeight = nameHeight + descriptionHeight + 6
+        const extraHeight = data.otherParentNames?.length ? requirementsHeight : 0
+        const dynamicNodeHeight = nameHeight + descriptionHeight + extraHeight + 6
 
         nodeElement
           .append('rect')
@@ -330,12 +334,32 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
             })
           )
 
+        // Add requirements section for Goldstrike
+        if (data.otherParentNames?.length) {
+          const reqGroup = contentGroup
+            .append('g')
+            .attr(
+              'transform',
+              `translate(0, ${-dynamicNodeHeight / 2 + nameHeight + requirementsHeight / 2})`
+            )
+
+          reqGroup
+            .append('text')
+            .attr('x', 0)
+            .attr('y', 8)
+            .attr(
+              'class',
+              cx('talent-node-requirements', { 'talent-node-requirements--collapsed': isCollapsed })
+            )
+            .text(`⚠ Also requires: ${data.otherParentNames.join(', ')}`)
+        }
+
         if (!isCollapsed) {
           const descGroup = contentGroup
             .append('g')
             .attr(
               'transform',
-              `translate(0, ${-dynamicNodeHeight / 2 + nameHeight + descriptionHeight / 2})`
+              `translate(0, ${-dynamicNodeHeight / 2 + nameHeight + extraHeight + descriptionHeight / 2})`
             )
 
           descLines.forEach((line, i) => {
