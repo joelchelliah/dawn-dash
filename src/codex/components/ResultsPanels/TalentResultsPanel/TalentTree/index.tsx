@@ -49,11 +49,11 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
     // - - - - - Node dimensions - - - - -
     const requirementNodeRadius = 28
     const nodeWidth = 200
-    const nameHeight = 25
-    const minDescriptionHeight = 20
+    const nameHeight = 30
+    const minDescriptionHeight = 15
     const collapsedDescriptionHeight = 4
-    const descriptionLineHeight = 11
-    const requirementsHeight = 15 // Height for the Goldstrike requirements section
+    const descriptionLineHeight = 15
+    const requirementsHeight = 16 // Height for the Goldstrike requirements section
     const defaultVerticalSpacing = 100
     const horizontalSpacing = nodeWidth * 1.4
     // - - - - - - - - - - - - - - - - - -
@@ -271,7 +271,7 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
         }
       } else {
         const isCollapsed = !isNodeVisible(data.name)
-        const descLines = wrapText(data.description, nodeWidth + 10, 10)
+        const descLines = wrapText(data.description, nodeWidth + 8, 11)
         const descriptionHeight = isCollapsed
           ? collapsedDescriptionHeight
           : Math.max(minDescriptionHeight, descLines.length * descriptionLineHeight)
@@ -364,12 +364,15 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
 
           descLines.forEach((line, i) => {
             const segments = parseTalentDescriptionLine(line)
+            const verticalCenteringOffset = -15
             const foreignObject = descGroup
               .append('foreignObject')
               .attr('x', -nodeWidth / 2)
               .attr(
                 'y',
-                i * descriptionLineHeight - ((descLines.length - 1) * descriptionLineHeight) / 2 - 9
+                i * descriptionLineHeight -
+                  ((descLines.length - 1) * descriptionLineHeight) / 2 +
+                  verticalCenteringOffset
               )
               .attr('width', nodeWidth)
               .attr('height', descriptionLineHeight)
