@@ -190,7 +190,10 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
       const isRequirementNode = data.type !== TalentTreeNodeType.TALENT
 
       if (isRequirementNode) {
-        const { count, url, color, label } = getTalentRequirementIconProps(data.type, data.name)
+        const { count, url, url2, color, label } = getTalentRequirementIconProps(
+          data.type,
+          data.name
+        )
         const secondaryIconProps = getSecondaryTalentRequirementIconProps(data.type, data.name)
 
         const combinedLabel = secondaryIconProps ? `${label} & ${secondaryIconProps.label}` : label
@@ -241,8 +244,8 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
           for (let i = 0; i < count; i++) {
             const x = startX + i * (iconSize + spacing)
 
+            // Single icon - apply circular clipping
             if (count === 1) {
-              // Single icon - apply circular clipping
               const clipId = `circle-clip-${_index}-${i}`
 
               defs
@@ -261,11 +264,14 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
                 .attr('width', iconSize)
                 .attr('height', iconSize)
                 .attr('clip-path', `url(#${clipId})`)
-            } else {
+
               // Multiple icons - no clipping, place them next to each other
+            } else {
+              // For multi-energy requirements, like DEX&STR
+              const currentUrl = i === 1 && url2 ? url2 : url
               nodeElement
                 .append('image')
-                .attr('href', url)
+                .attr('href', currentUrl)
                 .attr('x', x)
                 .attr('y', -iconSize / 2)
                 .attr('width', iconSize)
