@@ -68,9 +68,9 @@ export const useRequirementFilters = (
   const { filters, handleFilterToggle, getValueToString, resetFilters } =
     useBaseRequirementFilters(cachedFilters)
 
-  const isRequirementSelectedOrIrrelevant = (option?: RequirementFilterOption) =>
+  const isRequirementSelectedOrIrrelevant = (options?: RequirementFilterOption[]) =>
     // Irrelevant if we are dealing with offers or events
-    !option || filters[option]
+    !options || options.some((option) => filters[option])
 
   return {
     requirementFilters: filters,

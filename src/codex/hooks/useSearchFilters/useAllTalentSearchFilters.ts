@@ -178,6 +178,7 @@ export const useAllTalentSearchFilters = (
     (talentTree: TalentTree, visitTalent: (talent: TalentTreeTalentNode) => void) => {
       traverseNode(talentTree.noReqNode, visitTalent)
       talentTree.classNodes.forEach((node) => traverseNode(node, visitTalent))
+      talentTree.classAndEnergyNodes.forEach((node) => traverseNode(node, visitTalent))
       talentTree.energyNodes.forEach((node) => traverseNode(node, visitTalent))
     },
     [traverseNode]
@@ -254,6 +255,7 @@ export const useAllTalentSearchFilters = (
 
       traverseWithContext(talentTree.noReqNode, 'regular')
       talentTree.classNodes.forEach((node) => traverseWithContext(node, 'regular'))
+      talentTree.classAndEnergyNodes.forEach((node) => traverseWithContext(node, 'regular'))
       talentTree.energyNodes.forEach((node) => traverseWithContext(node, 'regular'))
 
       if (shouldIncludeEvents) {
@@ -335,18 +337,22 @@ export const useAllTalentSearchFilters = (
     const { regularMatches, eventMatches, offerMatches } = collectAllMatchingSets(talentTree)
 
     const filteredTalentNodes = isRequirementSelectedOrIrrelevant(
-      talentTree.noReqNode.requirementFilterOption
+      talentTree.noReqNode.requirementFilterOptions
     )
       ? talentTree.noReqNode.children
           .map((node) => filterTalentTreeNode(node, regularMatches))
           .filter(isNotNullOrUndefined)
       : []
     const filteredClassNodes = talentTree.classNodes
-      .filter((node) => isRequirementSelectedOrIrrelevant(node.requirementFilterOption))
+      .filter((node) => isRequirementSelectedOrIrrelevant(node.requirementFilterOptions))
+      .map((node) => filterTalentTreeNode(node, regularMatches))
+      .filter(isNotNullOrUndefined)
+    const filteredClassAndEnergyNodes = talentTree.classAndEnergyNodes
+      .filter((node) => isRequirementSelectedOrIrrelevant(node.requirementFilterOptions))
       .map((node) => filterTalentTreeNode(node, regularMatches))
       .filter(isNotNullOrUndefined)
     const filteredEnergyNodes = talentTree.energyNodes
-      .filter((node) => isRequirementSelectedOrIrrelevant(node.requirementFilterOption))
+      .filter((node) => isRequirementSelectedOrIrrelevant(node.requirementFilterOptions))
       .map((node) => filterTalentTreeNode(node, regularMatches))
       .filter(isNotNullOrUndefined)
     const filteredEventNodes = shouldIncludeEvents
@@ -366,6 +372,7 @@ export const useAllTalentSearchFilters = (
         children: filteredTalentNodes,
       },
       classNodes: filteredClassNodes,
+      classAndEnergyNodes: filteredClassAndEnergyNodes,
       energyNodes: filteredEnergyNodes,
       eventNodes: filteredEventNodes,
       offerNode: {

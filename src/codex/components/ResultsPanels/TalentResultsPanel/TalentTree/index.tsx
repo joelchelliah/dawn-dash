@@ -14,6 +14,7 @@ import {
 } from '@/codex/types/talents'
 import {
   getLinkColor,
+  getSecondaryTalentRequirementIconProps,
   getTalentRequirementIconProps,
   parseTalentDescriptionLine,
   wrapText,
@@ -189,19 +190,24 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
       const isRequirementNode = data.type !== TalentTreeNodeType.TALENT
 
       if (isRequirementNode) {
-        const isClassRequirement = data.type === TalentTreeNodeType.CLASS_REQUIREMENT
-        const { count, url, color, label } = getTalentRequirementIconProps(
-          isClassRequirement,
-          data.name
-        )
+        const { count, url, color, label } = getTalentRequirementIconProps(data.type, data.name)
+        const secondaryIconProps = getSecondaryTalentRequirementIconProps(data.type, data.name)
+
+        const combinedLabel = secondaryIconProps ? `${label} & ${secondaryIconProps.label}` : label
+
         const showBiggerIcons =
-          isClassRequirement ||
+          data.type === TalentTreeNodeType.CLASS_REQUIREMENT ||
           data.type === TalentTreeNodeType.OFFER_REQUIREMENT ||
           data.type === TalentTreeNodeType.EVENT_REQUIREMENT
+
+        const showMultipleIcons = data.type === TalentTreeNodeType.CLASS_AND_ENERGY_REQUIREMENT
 
         let circleRadius = 0
         if (showBiggerIcons) {
           circleRadius = requirementNodeRadius
+        } else if (showMultipleIcons) {
+          // All these magic numbers are for tweaking the circle radius very slightly to fit the differnt scenarios
+          circleRadius = requirementNodeRadius - 5
         } else if (count === 1) {
           circleRadius = requirementNodeRadius / 2
         } else if (count === 2) {
@@ -223,10 +229,11 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
           .attr('text-anchor', 'middle')
           .attr('class', cx('tree-root-node-label', `tree-root-node-label--depth-${maxDepth}`))
           .style('fill', lighten(color, 5))
-          .text(label)
+          .text(combinedLabel)
 
         if (count > 0) {
-          const iconSize = showBiggerIcons ? 52 : 22
+          // Different icon sizes depending on if we are showing class, class+energy or energy node.
+          const iconSize = showBiggerIcons ? 52 : showMultipleIcons ? 42 : 22
           const spacing = 2
           const totalWidth = count * iconSize + (count - 1) * spacing
           const startX = -totalWidth / 2
@@ -263,6 +270,28 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
                 .attr('y', -iconSize / 2)
                 .attr('width', iconSize)
                 .attr('height', iconSize)
+            }
+          }
+
+          // Secondary requirement icons
+          if (secondaryIconProps) {
+            const { count: secondaryCount, url: secondaryUrl } = secondaryIconProps
+            const secondaryIconSize = iconSize / 2
+            const secondaryIconSpacing = spacing * 1.525
+            const secondaryTotalWidth =
+              secondaryCount * secondaryIconSize + (secondaryCount - 1) * secondaryIconSpacing
+            const secondaryStartX = -secondaryTotalWidth / 2
+
+            for (let i = 0; i < secondaryCount; i++) {
+              const x = secondaryStartX + i * (secondaryIconSize + secondaryIconSpacing)
+
+              nodeElement
+                .append('image')
+                .attr('href', secondaryUrl)
+                .attr('x', x)
+                .attr('y', secondaryIconSize / 2)
+                .attr('width', secondaryIconSize)
+                .attr('height', secondaryIconSize)
             }
           }
         }

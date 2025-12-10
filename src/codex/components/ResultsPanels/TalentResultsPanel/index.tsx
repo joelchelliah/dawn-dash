@@ -41,6 +41,7 @@ const TalentResultsPanel = ({ useSearchFilters }: TalentResultsPanelProps) => {
     return collectTalentNames([
       ...(matchingTalentTree.noReqNode.children ?? []),
       ...(matchingTalentTree.energyNodes ?? []),
+      ...(matchingTalentTree.classAndEnergyNodes ?? []),
       ...(matchingTalentTree.classNodes ?? []),
       ...(matchingTalentTree.eventNodes.flatMap((node) => node.children) ?? []),
       ...(matchingTalentTree.offerNode.children ?? []),

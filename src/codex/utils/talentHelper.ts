@@ -41,10 +41,10 @@ const colorOffers = darken(getClassColor(CharacterClass.Warrior, ClassColorVaria
 const colorEvents = darken(getClassColor(CharacterClass.Seeker, ClassColorVariant.Default), 10)
 
 export const getTalentRequirementIconProps = (
-  isClassRequirement: boolean,
+  type: TalentTreeNodeType,
   label: string
 ): { count: number; url: string; color: string; label: string } => {
-  if (isClassRequirement) {
+  if (type === TalentTreeNodeType.CLASS_REQUIREMENT) {
     const color = getClassColor(label as CharacterClass, ClassColorVariant.Dark)
 
     switch (label) {
@@ -63,6 +63,13 @@ export const getTalentRequirementIconProps = (
       default:
         return { count: 1, url: SunforgeImageUrl, color, label }
     }
+  } else if (type === TalentTreeNodeType.CLASS_AND_ENERGY_REQUIREMENT) {
+    const [className, energy] = label.split('_')
+    if (!className || !energy) {
+      throw new Error(`Invalid class and energy requirement label: ${label}`)
+    }
+
+    return getTalentRequirementIconProps(TalentTreeNodeType.CLASS_REQUIREMENT, className)
   }
 
   switch (label) {
@@ -89,6 +96,19 @@ export const getTalentRequirementIconProps = (
     default:
       return { count: 1, url: EventImageUrl, color: colorEvents, label }
   }
+}
+
+export const getSecondaryTalentRequirementIconProps = (
+  type: TalentTreeNodeType,
+  requirementLabel: string
+): { count: number; url: string; color: string; label: string } | undefined => {
+  if (type !== TalentTreeNodeType.CLASS_AND_ENERGY_REQUIREMENT) return undefined
+  const [, energy] = requirementLabel.split('_')
+  const { count, url, color, label } = getTalentRequirementIconProps(
+    TalentTreeNodeType.ENERGY_REQUIREMENT,
+    energy
+  )
+  return { count, url, color, label }
 }
 
 export const getLinkColor = (

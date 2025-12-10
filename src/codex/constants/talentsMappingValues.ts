@@ -1,23 +1,36 @@
 import { RequirementFilterOption } from '../types/filters'
 
-export const REQUIREMENT_CLASS_TO_FILTER_OPTION_MAP: Record<string, RequirementFilterOption> = {
-  Arcanist: RequirementFilterOption.Arcanist,
-  Hunter: RequirementFilterOption.Hunter,
-  Knight: RequirementFilterOption.Knight,
-  Rogue: RequirementFilterOption.Rogue,
-  Seeker: RequirementFilterOption.Seeker,
-  Warrior: RequirementFilterOption.Warrior,
-  Sunforge: RequirementFilterOption.Sunforge,
+export const REQUIREMENT_CLASS_TO_FILTER_OPTIONS_MAP: Record<string, RequirementFilterOption[]> = {
+  Arcanist: [RequirementFilterOption.Arcanist],
+  Hunter: [RequirementFilterOption.Hunter],
+  Knight: [RequirementFilterOption.Knight],
+  Rogue: [RequirementFilterOption.Rogue],
+  Seeker: [RequirementFilterOption.Seeker],
+  Warrior: [RequirementFilterOption.Warrior],
+  Sunforge: [RequirementFilterOption.Sunforge],
 }
 
-export const REQUIREMENT_ENERGY_TO_FILTER_OPTION_MAP: Record<string, RequirementFilterOption> = {
-  DEX: RequirementFilterOption.Dexterity,
-  DEX2: RequirementFilterOption.Dexterity,
-  INT: RequirementFilterOption.Intelligence,
-  INT2: RequirementFilterOption.Intelligence,
-  STR: RequirementFilterOption.Strength,
-  STR2: RequirementFilterOption.Strength,
-  STR3: RequirementFilterOption.Strength,
+// Based on currently existing requirement combos. Add more as needed.
+export const REQUIREMENT_CLASS_AND_ENERGY_TO_FILTER_OPTIONS_MAP: Record<
+  string,
+  RequirementFilterOption[]
+> = {
+  Hunter_STR: [RequirementFilterOption.Hunter, RequirementFilterOption.Strength], // Butcher, Haemorrager
+  Warrior_STR: [RequirementFilterOption.Warrior, RequirementFilterOption.Strength], // Demolisher, Haemorrager
+  Seeker_INT2: [RequirementFilterOption.Seeker, RequirementFilterOption.Intelligence], // Oracle,
+}
+
+export const REQUIREMENT_ENERGY_TO_FILTER_OPTIONS_MAP: Record<string, RequirementFilterOption[]> = {
+  DEX: [RequirementFilterOption.Dexterity],
+  DEX2: [RequirementFilterOption.Dexterity],
+  INT: [RequirementFilterOption.Intelligence],
+  INT2: [RequirementFilterOption.Intelligence],
+  STR: [RequirementFilterOption.Strength],
+  STR2: [RequirementFilterOption.Strength],
+  STR3: [RequirementFilterOption.Strength],
+  INTSTR: [RequirementFilterOption.Intelligence, RequirementFilterOption.Strength],
+  DEXSTR: [RequirementFilterOption.Dexterity, RequirementFilterOption.Strength],
+  DEXINT: [RequirementFilterOption.Dexterity, RequirementFilterOption.Intelligence],
 }
 
 // These are not events that give you a talent.
@@ -77,4 +90,4 @@ export const TALENTS_FROM_CARD_ACTIONS = [
 ]
 
 // TODO: How to include this separation?!
-export const REMOVED_TALENTS = ['Prodigy']
+export const REMOVED_TALENTS = ['Prodigy', 'Lucky']

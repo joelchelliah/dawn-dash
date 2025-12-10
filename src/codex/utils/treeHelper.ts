@@ -13,6 +13,7 @@ export const isTalentTreeEqual = (talentTreeA: TalentTree, talentTreeB: TalentTr
   isTalentTreeNodeEqual(talentTreeA.offerNode, talentTreeB.offerNode) &&
   isTalentTreeNodeEqual(talentTreeA.noReqNode, talentTreeB.noReqNode) &&
   areTalentTreeNodesEqual(talentTreeA.classNodes, talentTreeB.classNodes) &&
+  areTalentTreeNodesEqual(talentTreeA.classAndEnergyNodes, talentTreeB.classAndEnergyNodes) &&
   areTalentTreeNodesEqual(talentTreeA.energyNodes, talentTreeB.energyNodes) &&
   areTalentTreeNodesEqual(talentTreeA.eventNodes, talentTreeB.eventNodes)
 
@@ -55,6 +56,9 @@ export const buildHierarchicalTreeFromTalentTree = (
     children: [
       buildHierarchicalTreeNodeFromRequirementNode(talentTree.noReqNode),
       ...talentTree.energyNodes
+        .map(buildHierarchicalTreeNodeFromRequirementNode)
+        .filter(isNotNullOrUndefined),
+      ...talentTree.classAndEnergyNodes
         .map(buildHierarchicalTreeNodeFromRequirementNode)
         .filter(isNotNullOrUndefined),
       ...talentTree.classNodes
