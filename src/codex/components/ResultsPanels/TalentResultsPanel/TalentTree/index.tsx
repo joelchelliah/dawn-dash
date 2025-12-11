@@ -424,27 +424,27 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
         }
 
         if (!isCollapsed) {
-          const descGroup = contentGroup
-            .append('g')
-            .attr(
-              'transform',
-              `translate(0, ${-dynamicNodeHeight / 2 + nameHeight + extraRequirementHeight + descriptionHeight / 2})`
-            )
+          // Calculate the base Y position for description
+          const descBaseY =
+            -dynamicNodeHeight / 2 + nameHeight + extraRequirementHeight + descriptionHeight / 2
 
           descLines.forEach((line, i) => {
             const segments = parseTalentDescriptionLine(line)
             const verticalCenteringOffset = -15
-            const foreignObject = descGroup
+            const yPosition =
+              descBaseY +
+              i * descriptionLineHeight -
+              ((descLines.length - 1) * descriptionLineHeight) / 2 +
+              verticalCenteringOffset
+
+            // Append foreignObject directly to contentGroup to avoid nesting transforms
+            const foreignObject = contentGroup
               .append('foreignObject')
               .attr('x', -nodeWidth / 2)
-              .attr(
-                'y',
-                i * descriptionLineHeight -
-                  ((descLines.length - 1) * descriptionLineHeight) / 2 +
-                  verticalCenteringOffset
-              )
+              .attr('y', yPosition)
               .attr('width', nodeWidth)
               .attr('height', descriptionLineHeight)
+              .attr('style', 'overflow: visible;')
 
             let htmlContent = ''
             segments.forEach((segment) => {
@@ -464,19 +464,21 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
         }
         if (shouldShowBlightbaneLink) {
           const blightbaneLink = `https://www.blightbane.io/talent/${data.name.replaceAll(' ', '_')}`
-          const linkGroup = contentGroup
-            .append('g')
-            .attr(
-              'transform',
-              `translate(0, ${-dynamicNodeHeight / 2 + nameHeight + descriptionHeight + extraRequirementHeight + blightbaneHeight / 2})`
-            )
+          const linkYPosition =
+            -dynamicNodeHeight / 2 +
+            nameHeight +
+            descriptionHeight +
+            extraRequirementHeight +
+            blightbaneHeight / 2
 
-          const linkForeignObject = linkGroup
+          // Append foreignObject directly to contentGroup to avoid nesting transforms
+          const linkForeignObject = contentGroup
             .append('foreignObject')
             .attr('x', -nodeWidth / 2)
-            .attr('y', -blightbaneHeight / 2)
+            .attr('y', linkYPosition - blightbaneHeight / 2)
             .attr('width', nodeWidth)
             .attr('height', blightbaneHeight)
+            .attr('style', 'overflow: visible;')
 
           linkForeignObject
             .append('xhtml:div')

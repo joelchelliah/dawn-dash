@@ -120,6 +120,11 @@
   width: 100%;
   height: 100%;
 
+  // Critical for mobile: ensure the div respects foreignObject positioning
+  position: relative;
+  margin: 0;
+  padding: 0;
+
   // Ensure images render inline with text on mobile
   img {
     display: inline-block;
@@ -166,6 +171,11 @@
   width: 100%;
   height: 100%;
   pointer-events: auto;
+
+  // Critical for mobile: ensure the div respects foreignObject positioning
+  position: relative;
+  margin: 0;
+  padding: 0;
 }
 
 // Copied from GradientLink/index.module.scss
