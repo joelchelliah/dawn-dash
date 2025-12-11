@@ -41,7 +41,6 @@ export const EVENTS_BLACKLIST = [
   'ArmsDealer', // Devotion
   'Campfire', // Emporium Discount
   'GoldenIdol', // Mobility
-  'LostSoul', // Devotion
   'Shrine of Trickery', // Faerytales
   // 'The Deep Finish', // Watched
   'The Godscar Wastes Start', // Watched
@@ -51,6 +50,9 @@ export const EVENTS_BLACKLIST = [
   // Manually merging these into Priest
   'Prayer',
   'Priest 1',
+
+  // Manually merging these into The Deep Finish
+  'The Godscar Wastes Finish',
 ]
 
 // These are actually talents you ONLY get from events
@@ -78,9 +80,17 @@ const NOT_REALLY_WINDY_HILLOCK_TALENTS = [
 // These are not actually talents that can be obtained from The Deep Finish.
 const NOT_REALLY_DEEP_FINISH_TALENTS = ['Watched']
 
+// These are not actually talents that can be obtained from Entrancing Song.
+const NOT_REALLY_ENTRANCING_SONG_TALENTS = ['Diamond Mind']
+
+// These are not actually talents that can be obtained from Lost Soul.
+const NOT_REALLY_LOST_SOUL_TALENTS = ['Devotion']
+
 export const EVENT_TALENTS_MAP_BLACKLIST: Record<string, string[]> = {
   WindyHillock: NOT_REALLY_WINDY_HILLOCK_TALENTS,
   'The Deep Finish': NOT_REALLY_DEEP_FINISH_TALENTS,
+  EntrancingSong: NOT_REALLY_ENTRANCING_SONG_TALENTS,
+  LostSoul: NOT_REALLY_LOST_SOUL_TALENTS,
 }
 
 // TODO: How to include this separation?!

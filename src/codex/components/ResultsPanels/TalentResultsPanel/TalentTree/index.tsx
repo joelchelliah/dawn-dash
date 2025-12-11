@@ -113,7 +113,7 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
     // Calculate width based on max depth
     const baseWidth = 1050 // Width for depth 4
     const svgWidth = Math.max(400, (maxDepth / 4) * baseWidth) // Minimum 400px, scale with depth
-    const svgVerticalPadding = 30
+    const svgVerticalPadding = 40
 
     const mainSvg = select(svgRef.current)
       .attr('viewBox', `0 -${svgVerticalPadding} ${svgWidth} ${svgHeight}`)
@@ -225,14 +225,28 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
           .attr('class', cx('tree-root-node-circle'))
           .style('--color', color)
 
-        nodeElement
+        // Split label on comma for multi-line rendering if needed
+        const labelParts = combinedLabel.split(',').map((part) => part.trim())
+        const lineHeight = 24 // Adjust based on your font size
+        const totalHeight = labelParts.length * lineHeight
+        const startY = -circleRadius - totalHeight + lineHeight / 2
+
+        const textElement = nodeElement
           .append('text')
           .attr('x', 0)
-          .attr('y', -circleRadius - 8)
+          .attr('y', startY)
           .attr('text-anchor', 'middle')
           .attr('class', cx('tree-root-node-label', `tree-root-node-label--depth-${maxDepth}`))
           .style('fill', lighten(color, 5))
-          .text(combinedLabel)
+
+        // Add each line as a tspan
+        labelParts.forEach((part, index) => {
+          textElement
+            .append('tspan')
+            .attr('x', 0)
+            .attr('dy', index === 0 ? 0 : lineHeight)
+            .text(part)
+        })
 
         if (count > 0) {
           // Different icon sizes depending on if we are showing class, class+energy or energy node.
@@ -383,7 +397,7 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
               'class',
               cx('talent-node-requirements', { 'talent-node-requirements--collapsed': isCollapsed })
             )
-            .text(`⚠ Also requires: ${data.otherParentNames.join(', ')}`)
+            .text(`Also requires: ${data.otherParentNames.join(', ')}!`)
         }
 
         if (!isCollapsed) {
@@ -448,8 +462,6 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
       const indicatorX = link.target.y - targetHalfWidth
       const indicatorY = link.target.x
 
-      const iconSize = 22
-
       // Assume there is always only one new requirement. Will have to expand this if more such requirements are added to the game.
       const requirement = newRequirements[0]
 
@@ -461,13 +473,19 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
         ? TalentTreeNodeType.CLASS_REQUIREMENT
         : TalentTreeNodeType.ENERGY_REQUIREMENT
 
-      const { count, url, url2, color } = getTalentRequirementIconProps(nodeType, requirement)
+      const { count, url, url2, url3, color } = getTalentRequirementIconProps(nodeType, requirement)
+      const iconSize = isClassRequirement ? 33 : 22
+      let nudgeToTheLeft = 6
 
       // Tweaking of circle sizes and spacing to fit the different scenarios.
       let circleRx = 13
       let circleRy = 13
       let spacing = 0
-      if (count === 2) {
+      if (isClassRequirement) {
+        circleRx = 20
+        circleRy = 20
+        nudgeToTheLeft = 14
+      } else if (count === 2) {
         circleRx = 14
         circleRy = 18
         spacing = 4
@@ -477,6 +495,7 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
         spacing = 2
       }
       const totalHeight = count * iconSize + (count - 1) * spacing
+      const x = indicatorX - iconSize / 2 - nudgeToTheLeft
       const startY = indicatorY - totalHeight / 2
 
       const indicatorGroup = svg.append('g').attr('class', cx('requirement-indicator'))
@@ -485,7 +504,7 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
         .append('ellipse')
         .attr('rx', circleRx)
         .attr('ry', circleRy)
-        .attr('cx', indicatorX)
+        .attr('cx', x + iconSize / 2)
         .attr('cy', indicatorY)
         .attr('class', cx('requirement-indicator-circle'))
         .style('--color', color)
@@ -503,13 +522,13 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
             .attr('id', clipId)
             .append('circle')
             .attr('r', iconSize / 2)
-            .attr('cx', indicatorX)
+            .attr('cx', x + iconSize / 2)
             .attr('cy', y + iconSize / 2)
 
           indicatorGroup
             .append('image')
             .attr('href', url)
-            .attr('x', indicatorX - iconSize / 2)
+            .attr('x', x)
             .attr('y', y)
             .attr('width', iconSize)
             .attr('height', iconSize)
@@ -517,11 +536,16 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
 
           // Multiple icons - no clipping, stack them vertically
         } else {
-          const currentUrl = i === 1 && url2 ? url2 : url
+          let currentUrl = url
+          if (i === 1 && url2) {
+            currentUrl = url2
+          } else if (i === 2 && url3) {
+            currentUrl = url3
+          }
           indicatorGroup
             .append('image')
             .attr('href', currentUrl)
-            .attr('x', indicatorX - iconSize / 2)
+            .attr('x', x)
             .attr('y', y)
             .attr('width', iconSize)
             .attr('height', iconSize)

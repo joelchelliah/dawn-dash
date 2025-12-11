@@ -60,6 +60,8 @@ export enum RequirementFilterOption {
   Seeker = 'Seeker',
   Warrior = 'Warrior',
   Sunforge = 'Sunforge',
+  Offer = 'Offer',
+  Event = 'Event',
 }
 
 export type Requirement = RequirementFilterOption | SharedFilterOption
@@ -195,7 +197,6 @@ export interface TalentCodexSearchFilterCache {
   cardSets: Record<string, boolean>
   requirements: Record<string, boolean>
   tiers: Record<string, boolean>
-  extras: Record<string, boolean>
   formatting: Record<string, boolean>
   lastUpdated: number
 }

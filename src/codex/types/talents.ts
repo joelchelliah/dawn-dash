@@ -39,8 +39,7 @@ export type TalentTreeRequirementNodeType =
 export type TalentTreeRequirementNode = {
   type: TalentTreeRequirementNodeType
   name: string
-  // Optional because we don't want to bind offers and events to a requirement.
-  requirementFilterOptions?: RequirementFilterOption[]
+  requirementFilterOptions: RequirementFilterOption[]
   children: TalentTreeTalentNode[]
 }
 

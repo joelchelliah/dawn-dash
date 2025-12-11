@@ -37,6 +37,7 @@ const colorGrey = getClassColor(CharacterClass.Neutral, ClassColorVariant.Defaul
 const colorRed = getClassColor(CharacterClass.Warrior, ClassColorVariant.Default)
 const colorGreen = getClassColor(CharacterClass.Rogue, ClassColorVariant.Default)
 const colorBlue = getClassColor(CharacterClass.Arcanist, ClassColorVariant.Default)
+const colorHoly = getClassColor(CharacterClass.Sunforge, ClassColorVariant.Default)
 const colorHunter = getClassColor(CharacterClass.Hunter, ClassColorVariant.Dark)
 const colorKnight = getClassColor(CharacterClass.Knight, ClassColorVariant.Dark)
 const colorSeeker = getClassColor(CharacterClass.Seeker, ClassColorVariant.Dark)
@@ -46,7 +47,7 @@ const colorEvents = darken(getClassColor(CharacterClass.Seeker, ClassColorVarian
 export const getTalentRequirementIconProps = (
   type: TalentTreeNodeType,
   label: string
-): { count: number; url: string; url2?: string; color: string; label: string } => {
+): { count: number; url: string; url2?: string; url3?: string; color: string; label: string } => {
   if (type === TalentTreeNodeType.CLASS_REQUIREMENT) {
     const color = getClassColor(label as CharacterClass, ClassColorVariant.Dark)
 
@@ -84,6 +85,8 @@ export const getTalentRequirementIconProps = (
       return { count: 1, url: IntImageUrl, color: colorBlue, label: 'INT' }
     case 'INT2':
       return { count: 2, url: IntImageUrl, color: colorBlue, label: '2 INT' }
+    case 'INT3':
+      return { count: 3, url: IntImageUrl, color: colorBlue, label: '3 INT' }
     case 'STR':
       return { count: 1, url: StrImageUrl, color: colorRed, label: 'STR' }
     case 'STR2':
@@ -113,6 +116,32 @@ export const getTalentRequirementIconProps = (
         url2: IntImageUrl,
         color: colorSeeker,
         label: 'DEX & INT',
+      }
+    case 'HOLY':
+      return { count: 1, url: HolyImageUrl, color: colorHoly, label: 'HOLY' }
+    case 'STR2HOLY':
+      return {
+        count: 3,
+        url: StrImageUrl,
+        url3: HolyImageUrl,
+        color: colorRed,
+        label: 'STR2 & HOLY',
+      }
+    case 'DEX2HOLY':
+      return {
+        count: 3,
+        url: DexImageUrl,
+        url3: HolyImageUrl,
+        color: colorGreen,
+        label: 'DEX2 & HOLY',
+      }
+    case 'INT2HOLY':
+      return {
+        count: 3,
+        url: IntImageUrl,
+        url3: HolyImageUrl,
+        color: colorBlue,
+        label: 'INT2 & HOLY',
       }
     case 'Offers':
       return { count: 1, url: InfernalContractUrl, color: colorOffers, label: 'Offers' }

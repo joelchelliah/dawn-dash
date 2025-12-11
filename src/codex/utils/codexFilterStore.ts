@@ -2,7 +2,7 @@ import { getFromCache, saveToCache } from '@/shared/utils/storage'
 
 import { CardCodexSearchFilterCache, TalentCodexSearchFilterCache } from '@/codex/types/filters'
 
-const CARDS_CACHE_VERSION = 'v0'
+const CARDS_CACHE_VERSION = 'v1'
 const CARDS_CACHE_KEY = `codex_cards_filters_${CARDS_CACHE_VERSION}`
 
 export const cacheCardCodexSearchFilters = (filters: CardCodexSearchFilterCache) => {

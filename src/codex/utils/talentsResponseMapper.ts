@@ -114,13 +114,13 @@ export const mapTalentsDataToTalentTree = (unparsedTalents: TalentData[]): Talen
     requirements: string[],
     nodeType: TalentTreeRequirementNodeType,
     predicateMapper: (requirement: string) => (talent: TalentData) => boolean,
-    filterMapper?: (requirement: string) => RequirementFilterOption[],
+    filterMapper: (requirement: string) => RequirementFilterOption[],
     nameMapper?: (requirement: string) => string
   ): TalentTreeRequirementNode[] =>
     requirements.map((requirement) => ({
       type: nodeType,
       name: nameMapper?.(requirement) ?? requirement,
-      requirementFilterOptions: filterMapper?.(requirement),
+      requirementFilterOptions: filterMapper(requirement),
       children: createTalentNodes(predicateMapper(requirement)),
     }))
 
@@ -156,14 +156,19 @@ export const mapTalentsDataToTalentTree = (unparsedTalents: TalentData[]): Talen
     uniqueEvents,
     TalentTreeNodeType.EVENT_REQUIREMENT,
     isValidEventTalent,
-    undefined,
+    () => [RequirementFilterOption.Event],
     // Special case, since these are basically the same event
-    (name) => (name === 'Priest' ? 'Prayer, Priest, Priest 1' : name)
+    (name) => {
+      if (name === 'Priest') return 'Prayer, Priest, Priest 1'
+      if (name === 'The Deep Finish') return 'The Deep Finish, The Godscar Wastes Finish'
+      return name
+    }
   )
 
   const rootOfferNode: TalentTreeRequirementNode = {
     type: TalentTreeNodeType.OFFER_REQUIREMENT,
     name: 'Offers',
+    requirementFilterOptions: [RequirementFilterOption.Offer],
     children: createTalentNodes(isOffer),
   }
 
