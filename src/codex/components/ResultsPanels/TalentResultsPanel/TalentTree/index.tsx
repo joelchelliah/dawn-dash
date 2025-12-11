@@ -457,6 +457,11 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
               .append('xhtml:div')
               .attr('xmlns', 'http://www.w3.org/1999/xhtml')
               .attr('class', cx('talent-node-description'))
+              .style('position', 'absolute')
+              .style('top', '0')
+              .style('left', '0')
+              .style('width', '100%')
+              .style('height', '100%')
               .html(htmlContent)
           })
         }
@@ -485,6 +490,11 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
             .append('xhtml:div')
             .attr('xmlns', 'http://www.w3.org/1999/xhtml')
             .attr('class', cx('talent-node-blightbane-link-wrapper'))
+            .style('position', 'absolute')
+            .style('top', '0')
+            .style('left', '0')
+            .style('width', '100%')
+            .style('height', '100%')
             .html(
               `<a href="${blightbaneLink}" target="_blank" rel="noopener noreferrer" class="${cx('talent-node-blightbane-link')}">View in Blightbane</a>`
             )

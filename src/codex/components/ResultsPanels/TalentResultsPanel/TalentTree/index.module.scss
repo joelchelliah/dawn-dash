@@ -110,14 +110,7 @@
   text-align: center;
   line-height: 1.4;
   word-wrap: break-word;
-
-  // Explicit display for better mobile compatibility
   display: block;
-  width: 100%;
-  height: 100%;
-
-  // Critical for mobile: ensure the div respects foreignObject positioning
-  position: relative;
   margin: 0;
   padding: 0;
 
@@ -164,12 +157,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
-  height: 100%;
   pointer-events: auto;
-
-  // Critical for mobile: ensure the div respects foreignObject positioning
-  position: relative;
   margin: 0;
   padding: 0;
 }
