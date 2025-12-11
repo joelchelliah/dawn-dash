@@ -437,13 +437,13 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
               ((descLines.length - 1) * descriptionLineHeight) / 2 +
               verticalCenteringOffset
 
-            // Append foreignObject directly to contentGroup to avoid nesting transforms
+            // Append foreignObject directly to contentGroup
+            // Use transform instead of x/y for better mobile compatibility
             const foreignObject = contentGroup
               .append('foreignObject')
-              .attr('x', -nodeWidth / 2)
-              .attr('y', yPosition)
               .attr('width', nodeWidth)
               .attr('height', descriptionLineHeight)
+              .attr('transform', `translate(${-nodeWidth / 2}, ${yPosition})`)
               .attr('style', 'overflow: visible;')
 
             let htmlContent = ''
@@ -471,13 +471,16 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
             extraRequirementHeight +
             blightbaneHeight / 2
 
-          // Append foreignObject directly to contentGroup to avoid nesting transforms
+          // Append foreignObject directly to contentGroup
+          // Use transform instead of x/y for better mobile compatibility
           const linkForeignObject = contentGroup
             .append('foreignObject')
-            .attr('x', -nodeWidth / 2)
-            .attr('y', linkYPosition - blightbaneHeight / 2)
             .attr('width', nodeWidth)
             .attr('height', blightbaneHeight)
+            .attr(
+              'transform',
+              `translate(${-nodeWidth / 2}, ${linkYPosition - blightbaneHeight / 2})`
+            )
             .attr('style', 'overflow: visible;')
 
           linkForeignObject
