@@ -55,6 +55,8 @@ export type TalentTreeTalentNode = {
   children: TalentTreeTalentNode[]
   // Names of all descendants (children, grandchildren, etc.)
   descendants: string[]
+  // To be able to check if node has additional requirements, not present in parent node.
+  classOrEnergyRequirements: string[]
 }
 
 export type TalentTree = {
@@ -75,6 +77,8 @@ export interface HierarchicalTalentTreeNode {
   type?: TalentTreeNodeType
   tier?: number
   children?: HierarchicalTalentTreeNode[]
-  // Currently only needed because we need a way to visualize that Goldstrike has 2 compulsory prerequisites...
+  // Currently only needed because we need a way to visualize that Goldstrike has 2 compulsory prerequisites.
   otherParentNames?: string[]
+  // To be able to check if node has additional requirements, not present in parent node.
+  classOrEnergyRequirements: string[]
 }

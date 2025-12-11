@@ -19,6 +19,7 @@ import {
   parseTalentDescriptionLine,
   wrapText,
 } from '@/codex/utils/talentHelper'
+import { REQUIREMENT_CLASS_TO_FILTER_OPTIONS_MAP } from '@/codex/constants/talentsMappingValues'
 import { buildHierarchicalTreeFromTalentTree } from '@/codex/utils/treeHelper'
 import { useExpandableNodes } from '@/codex/hooks/useExpandableNodes'
 import { useFormattingTalentFilters } from '@/codex/hooks/useSearchFilters/useFormattingTalentFilters'
@@ -157,7 +158,6 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
       .attr('d', generateLinkPath)
       .style('stroke', (link) => {
         const { name, type } = link.source.data
-
         return getLinkColor(link, name, type)
       })
 
@@ -424,6 +424,108 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
               .attr('class', cx('talent-node-description'))
               .html(htmlContent)
           })
+        }
+      }
+    })
+
+    // Add requirement indicators on links for new requirements
+    // Rendered last to ensure they appear on top of all other elements
+    const linksWithNewRequirements = treeData
+      .links()
+      .filter((link) => link.source.depth > 0)
+      .map((link) => {
+        const newRequirements = link.target.data.classOrEnergyRequirements.filter(
+          (requirement) => !link.source.data.classOrEnergyRequirements.includes(requirement)
+        )
+        return { link, newRequirements }
+      })
+      .filter(({ newRequirements }) => newRequirements.length > 0)
+
+    linksWithNewRequirements.forEach(({ link, newRequirements }, linkIndex) => {
+      const targetHalfWidth = getNodeHalfWidth(link.target.data)
+
+      // Position near the end of the link, just before the target node
+      const indicatorX = link.target.y - targetHalfWidth
+      const indicatorY = link.target.x
+
+      const iconSize = 22
+
+      // Assume there is always only one new requirement. Will have to expand this if more such requirements are added to the game.
+      const requirement = newRequirements[0]
+
+      const isClassRequirement = Object.keys(REQUIREMENT_CLASS_TO_FILTER_OPTIONS_MAP).includes(
+        requirement
+      )
+
+      const nodeType = isClassRequirement
+        ? TalentTreeNodeType.CLASS_REQUIREMENT
+        : TalentTreeNodeType.ENERGY_REQUIREMENT
+
+      const { count, url, url2, color } = getTalentRequirementIconProps(nodeType, requirement)
+
+      // Tweaking of circle sizes and spacing to fit the different scenarios.
+      let circleRx = 13
+      let circleRy = 13
+      let spacing = 0
+      if (count === 2) {
+        circleRx = 14
+        circleRy = 18
+        spacing = 4
+      } else if (count === 3) {
+        circleRx = 16
+        circleRy = 28
+        spacing = 2
+      }
+      const totalHeight = count * iconSize + (count - 1) * spacing
+      const startY = indicatorY - totalHeight / 2
+
+      const indicatorGroup = svg.append('g').attr('class', cx('requirement-indicator'))
+
+      indicatorGroup
+        .append('ellipse')
+        .attr('rx', circleRx)
+        .attr('ry', circleRy)
+        .attr('cx', indicatorX)
+        .attr('cy', indicatorY)
+        .attr('class', cx('requirement-indicator-circle'))
+        .style('--color', color)
+
+      // Render each requirement icon vertically
+      for (let i = 0; i < count; i++) {
+        const y = startY + i * (iconSize + spacing)
+
+        // Single icon - apply circular clipping
+        if (count === 1) {
+          const clipId = `requirement-clip-${linkIndex}-${i}`
+
+          defs
+            .append('clipPath')
+            .attr('id', clipId)
+            .append('circle')
+            .attr('r', iconSize / 2)
+            .attr('cx', indicatorX)
+            .attr('cy', y + iconSize / 2)
+
+          indicatorGroup
+            .append('image')
+            .attr('href', url)
+            .attr('x', indicatorX - iconSize / 2)
+            .attr('y', y)
+            .attr('width', iconSize)
+            .attr('height', iconSize)
+            .attr('clip-path', `url(#${clipId})`)
+
+          // Multiple icons - no clipping, stack them vertically
+        } else {
+          const currentUrl = i === 1 && url2 ? url2 : url
+          indicatorGroup
+            .append('image')
+            .attr('href', currentUrl)
+            .attr('x', indicatorX - iconSize / 2)
+            .attr('y', y)
+            .attr('width', iconSize)
+            .attr('height', iconSize)
+            .style('opacity', 0.9)
         }
       }
     })

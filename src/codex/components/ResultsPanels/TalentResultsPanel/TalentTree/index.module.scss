@@ -144,3 +144,17 @@
     }
   }
 }
+
+.requirement-indicator-circle {
+  stroke: var(--color, $color-component-bg);
+  stroke-width: 2px;
+  fill: none;
+}
+
+.requirement-indicator {
+  pointer-events: none;
+
+  image {
+    pointer-events: none;
+  }
+}

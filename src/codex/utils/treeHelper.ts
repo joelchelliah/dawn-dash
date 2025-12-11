@@ -66,17 +66,22 @@ export const buildHierarchicalTreeFromTalentTree = (
         .filter(isNotNullOrUndefined),
       ...(eventNodes.length > 0 ? [eventNodesRoot] : []),
       buildHierarchicalTreeNodeFromRequirementNode(talentTree.offerNode),
-    ].filter(isNotNullOrUndefined),
+    ].filter(isNotNullOrUndefined) as HierarchicalTalentTreeNode[],
+    classOrEnergyRequirements: [],
   }
 }
 
 const buildHierarchicalTreeNodeFromTalentNode = (
   node: TalentTreeTalentNode,
-  parentName: string
+  parentName: string,
+  parentRequirements: string[]
 ): HierarchicalTalentTreeNode => {
   const name = node.name
+  const requirements = Array.from(
+    new Set([...parentRequirements, ...node.classOrEnergyRequirements])
+  )
   const children = node.children.map((child) =>
-    buildHierarchicalTreeNodeFromTalentNode(child, name)
+    buildHierarchicalTreeNodeFromTalentNode(child, name, requirements)
   )
 
   // Special case, since Goldstrike has 2 compulsory prerequisites...
@@ -92,14 +97,16 @@ const buildHierarchicalTreeNodeFromTalentNode = (
     tier: node.tier,
     children: children.length > 0 ? children : undefined,
     otherParentNames: otherParentNames?.length ? otherParentNames : undefined,
+    classOrEnergyRequirements: requirements,
   }
 }
 
 const buildHierarchicalTreeNodeFromRequirementNode = (
   node: TalentTreeRequirementNode
 ): HierarchicalTalentTreeNode | undefined => {
+  const requirements = node.name.split('_')
   const children = node.children.map((child) =>
-    buildHierarchicalTreeNodeFromTalentNode(child, node.name)
+    buildHierarchicalTreeNodeFromTalentNode(child, node.name, requirements)
   )
 
   if (children.length === 0) {
@@ -111,5 +118,6 @@ const buildHierarchicalTreeNodeFromRequirementNode = (
     description: node.name,
     type: node.type,
     children,
+    classOrEnergyRequirements: requirements,
   }
 }

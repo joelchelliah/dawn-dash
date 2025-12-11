@@ -65,6 +65,7 @@ export const mapTalentsDataToTalentTree = (unparsedTalents: TalentData[]): Talen
       events: talent.events,
       children,
       descendants: Array.from(descendants),
+      classOrEnergyRequirements: [...talent.requires_classes, ...talent.requires_energy],
     }
   }
 
