@@ -22,9 +22,6 @@ interface SideMenuProps {
 
 const cx = createCx(styles)
 
-// TODO: Remove this once Skilldex is ready
-const isDev = process.env.NODE_ENV === 'development'
-
 const SideMenu = ({ currentPage }: SideMenuProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isAboutInfoOpen, setIsAboutInfoOpen] = useState(false)
@@ -102,14 +99,12 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
             </Link>
           </div>
 
-          {isDev && (
-            <div className={skilldexLinkContainerClassNames}>
-              <Link href="/codex/skills" className={cx('side-menu__nav-link')}>
-                {getNavLinkImage(EleganceImageUrl, 'Skilldex logo')}
-                Skilldex
-              </Link>
-            </div>
-          )}
+          <div className={skilldexLinkContainerClassNames}>
+            <Link href="/codex/skills" className={cx('side-menu__nav-link')}>
+              {getNavLinkImage(EleganceImageUrl, 'Skilldex logo')}
+              Skilldex
+            </Link>
+          </div>
 
           <div className={cx('side-menu__nav-link-container')}>
             <Link
