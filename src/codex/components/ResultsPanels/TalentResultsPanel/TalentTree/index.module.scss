@@ -158,3 +158,44 @@
     pointer-events: none;
   }
 }
+
+.talent-node-blightbane-link-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  pointer-events: auto;
+}
+
+// Copied from GradientLink/index.module.scss
+// Cannot reuse component because this is being used in a foreignObject.
+.talent-node-blightbane-link {
+  font-size: font-size('xxs');
+  text-decoration: none;
+  transition: opacity 0.4s ease;
+  font-weight: 600;
+  position: relative;
+  @include yellowGreenGradient(false);
+
+  &:hover {
+    @include yellowGreenGradient(true);
+
+    &::after {
+      transform: scaleX(1);
+    }
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    transform: scaleX(0);
+    transition: transform 0.5s ease;
+    transform-origin: left;
+    @include yellowGreenGradientBackground(1);
+  }
+}

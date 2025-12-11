@@ -35,8 +35,9 @@ interface TalentTreeProps {
 
 const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
   const svgRef = useRef<SVGSVGElement>(null)
-  const { shouldShowDescription } = useFormattingFilters
-  const { toggleNodeVisibility, isNodeVisible } = useExpandableNodes(shouldShowDescription)
+  const { shouldShowDescription, shouldShowBlightbaneLink } = useFormattingFilters
+  const { toggleNodeExpansion: toggleDescriptionExpansion, isNodeExpanded: isDescriptionExpanded } =
+    useExpandableNodes(shouldShowDescription)
 
   useEffect(() => {
     if (!svgRef.current || !talentTree) return
@@ -56,14 +57,18 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
     const collapsedDescriptionHeight = 4
     const descriptionLineHeight = 15
     const requirementsHeight = 16 // Height for the Goldstrike requirements section
+    const blightbaneLinkHeight = 26 // Height for the Blightbane link
     const defaultVerticalSpacing = 100
     const horizontalSpacing = nodeWidth * 1.4
     // - - - - - - - - - - - - - - - - - -
 
     const getDynamicVerticalSpacing = (node: HierarchicalTalentTreeNode) => {
       if (node.type === TalentTreeNodeType.TALENT) {
-        if (!isNodeVisible(node.name)) {
-          return nameHeight * 2.8
+        const extraRequirementHeight = node.otherParentNames?.length ? requirementsHeight : 0
+        const blightbaneHeight = shouldShowBlightbaneLink ? blightbaneLinkHeight / 2 : 0
+
+        if (!isDescriptionExpanded(node.name)) {
+          return nameHeight * 2.8 + extraRequirementHeight + blightbaneHeight
         }
 
         const descLines = wrapText(node.description, nodeWidth + 10, 10)
@@ -72,9 +77,7 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
           descLines.length * descriptionLineHeight
         )
 
-        const extraHeight = node.otherParentNames?.length ? requirementsHeight : 0
-
-        return (nameHeight + descriptionHeight + extraHeight) * 1.7
+        return (nameHeight + descriptionHeight + extraRequirementHeight + blightbaneHeight) * 1.7
       }
       return defaultVerticalSpacing
     }
@@ -316,13 +319,15 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
           }
         }
       } else {
-        const isCollapsed = !isNodeVisible(data.name)
+        const isCollapsed = !isDescriptionExpanded(data.name)
         const descLines = wrapText(data.description, nodeWidth + 8, 11)
         const descriptionHeight = isCollapsed
           ? collapsedDescriptionHeight
           : Math.max(minDescriptionHeight, descLines.length * descriptionLineHeight)
-        const extraHeight = data.otherParentNames?.length ? requirementsHeight : 0
-        const dynamicNodeHeight = nameHeight + descriptionHeight + extraHeight + 6
+        const extraRequirementHeight = data.otherParentNames?.length ? requirementsHeight : 0
+        const blightbaneHeight = shouldShowBlightbaneLink ? blightbaneLinkHeight : 0
+        const dynamicNodeHeight =
+          nameHeight + descriptionHeight + extraRequirementHeight + blightbaneHeight + 6
 
         nodeElement
           .append('rect')
@@ -341,7 +346,7 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
           .attr('class', cx('talent-node', `talent-node--tier-${data.tier || 0}`))
           .on('click', function (event) {
             event.stopPropagation()
-            toggleNodeVisibility(data.name)
+            toggleDescriptionExpansion(data.name)
           })
 
         if (!isCollapsed) {
@@ -351,6 +356,24 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
             .attr('y1', -dynamicNodeHeight / 2 + nameHeight)
             .attr('x2', nodeWidth / 2)
             .attr('y2', -dynamicNodeHeight / 2 + nameHeight)
+            .attr(
+              'class',
+              cx('talent-node-separator', `talent-node-separator--tier-${data.tier || 0}`)
+            )
+        }
+        if (shouldShowBlightbaneLink) {
+          nodeElement
+            .append('line')
+            .attr('x1', -nodeWidth / 2)
+            .attr(
+              'y1',
+              -dynamicNodeHeight / 2 + nameHeight + descriptionHeight + extraRequirementHeight
+            )
+            .attr('x2', nodeWidth / 2)
+            .attr(
+              'y2',
+              -dynamicNodeHeight / 2 + nameHeight + descriptionHeight + extraRequirementHeight
+            )
             .attr(
               'class',
               cx('talent-node-separator', `talent-node-separator--tier-${data.tier || 0}`)
@@ -380,7 +403,7 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
             })
           )
 
-        // Add requirements section for Goldstrike
+        // Add "required" text for additional requirements
         if (data.otherParentNames?.length) {
           const reqGroup = contentGroup
             .append('g')
@@ -405,7 +428,7 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
             .append('g')
             .attr(
               'transform',
-              `translate(0, ${-dynamicNodeHeight / 2 + nameHeight + extraHeight + descriptionHeight / 2})`
+              `translate(0, ${-dynamicNodeHeight / 2 + nameHeight + extraRequirementHeight + descriptionHeight / 2})`
             )
 
           descLines.forEach((line, i) => {
@@ -439,6 +462,30 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
               .html(htmlContent)
           })
         }
+        if (shouldShowBlightbaneLink) {
+          const blightbaneLink = `https://www.blightbane.io/talent/${data.name.replaceAll(' ', '_')}`
+          const linkGroup = contentGroup
+            .append('g')
+            .attr(
+              'transform',
+              `translate(0, ${-dynamicNodeHeight / 2 + nameHeight + descriptionHeight + extraRequirementHeight + blightbaneHeight / 2})`
+            )
+
+          const linkForeignObject = linkGroup
+            .append('foreignObject')
+            .attr('x', -nodeWidth / 2)
+            .attr('y', -blightbaneHeight / 2)
+            .attr('width', nodeWidth)
+            .attr('height', blightbaneHeight)
+
+          linkForeignObject
+            .append('xhtml:div')
+            .attr('xmlns', 'http://www.w3.org/1999/xhtml')
+            .attr('class', cx('talent-node-blightbane-link-wrapper'))
+            .html(
+              `<a href="${blightbaneLink}" target="_blank" rel="noopener noreferrer" class="${cx('talent-node-blightbane-link')}">View in Blightbane</a>`
+            )
+        }
       }
     })
 
@@ -468,6 +515,12 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
       const isClassRequirement = Object.keys(REQUIREMENT_CLASS_TO_FILTER_OPTIONS_MAP).includes(
         requirement
       )
+
+      // If both this one and its ancestor node also has class a requirement then we can skip rendering the indicator.
+      const hasAncestorClassRequirement = link.source.data.classOrEnergyRequirements.some(
+        (requirement) => Object.keys(REQUIREMENT_CLASS_TO_FILTER_OPTIONS_MAP).includes(requirement)
+      )
+      if (isClassRequirement && hasAncestorClassRequirement) return
 
       const nodeType = isClassRequirement
         ? TalentTreeNodeType.CLASS_REQUIREMENT
@@ -553,7 +606,7 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
         }
       }
     })
-  }, [talentTree, isNodeVisible, toggleNodeVisibility])
+  }, [talentTree, isDescriptionExpanded, toggleDescriptionExpansion, shouldShowBlightbaneLink])
 
   return (
     <div className={cx('talent-tree-container')}>

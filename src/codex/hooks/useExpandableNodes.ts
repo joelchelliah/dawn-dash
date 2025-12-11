@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useState } from 'react'
 
 /**
- * Dual-purpose hook for managing expandable/collapsible node visibility state.
+ * Dual-purpose hook for managing expandable/collapsible nodes.
  *
- * - When `showByDefault` is true, the set contains hidden nodes.
- * - When `showByDefault` is false, the set contains visible nodes.
+ * - When `showByDefault` is true, the set contains compressed nodes.
+ * - When `showByDefault` is false, the set contains expanded nodes.
  */
 export const useExpandableNodes = (showByDefault: boolean) => {
   const [toggledNodes, setToggledNodes] = useState<Set<string>>(new Set())
@@ -13,7 +13,7 @@ export const useExpandableNodes = (showByDefault: boolean) => {
     setToggledNodes(new Set())
   }, [showByDefault])
 
-  const toggleNodeVisibility = useCallback((nodeName: string) => {
+  const toggleNodeExpansion = useCallback((nodeName: string) => {
     setToggledNodes((prev) => {
       const newSet = new Set(prev)
       if (newSet.has(nodeName)) {
@@ -25,7 +25,7 @@ export const useExpandableNodes = (showByDefault: boolean) => {
     })
   }, [])
 
-  const isNodeVisible = useCallback(
+  const isNodeExpanded = useCallback(
     (nodeName: string) => {
       if (showByDefault) {
         return !toggledNodes.has(nodeName)
@@ -35,5 +35,5 @@ export const useExpandableNodes = (showByDefault: boolean) => {
     [showByDefault, toggledNodes]
   )
 
-  return { toggleNodeVisibility, isNodeVisible }
+  return { toggleNodeExpansion, isNodeExpanded }
 }

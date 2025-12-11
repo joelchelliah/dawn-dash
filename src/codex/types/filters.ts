@@ -170,6 +170,7 @@ export const FormattingCard = {
 
 export enum FormattingTalentFilterOption {
   ShowDescriptionByDefault = 'ShowDescriptionByDefault',
+  ShowBlightbaneLink = 'ShowBlightbaneLink',
 }
 
 export type FormattingTalent = FormattingTalentFilterOption
