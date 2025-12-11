@@ -8,10 +8,12 @@ import { createFilterHook } from './useFilterFactory'
 
 const defaultFilters = {
   [FormattingTalentFilterOption.ShowDescriptionByDefault]: true,
+  [FormattingTalentFilterOption.ShowBlightbaneLink]: false,
 }
 
 const valueToStringMap = {
-  [FormattingTalent.ShowDescriptionByDefault]: 'Show all descriptions by default',
+  [FormattingTalent.ShowDescriptionByDefault]: 'Show descriptions by default',
+  [FormattingTalent.ShowBlightbaneLink]: 'Show Blightbane link',
 }
 
 export const allFormattingTalentFilters = FormattingTalent.getAll()
@@ -28,6 +30,7 @@ export const useFormattingTalentFilters = (
   const { filters, handleFilterToggle, getValueToString, resetFilters } =
     useBaseFilters(cachedFilters)
   const shouldShowDescription = filters[FormattingTalent.ShowDescriptionByDefault]
+  const shouldShowBlightbaneLink = filters[FormattingTalent.ShowBlightbaneLink]
 
   return {
     formattingFilters: filters,
@@ -35,5 +38,6 @@ export const useFormattingTalentFilters = (
     getFormattingFilterName: getValueToString,
     resetFormattingFilters: resetFilters,
     shouldShowDescription,
+    shouldShowBlightbaneLink,
   }
 }

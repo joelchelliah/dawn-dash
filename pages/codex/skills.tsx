@@ -15,26 +15,18 @@ export default function SkilldexPage() {
           content="Dawncaster talents - Browse and search through all Dawncaster talents visualized as skill trees!"
         />
 
-        {/* TODO: Remove this once the skilldex is ready for the public */}
-        <meta name="robots" content="noindex, nofollow" />
-
         <meta property="og:title" content="Dawn-Dash : Skilldex" />
         <meta
           property="og:description"
           content="Dawncaster talents - Browse and search through all Dawncaster talents visualized as skill trees!"
         />
-        {/* TODO: Replace WIP with the actual image once the skilldex is ready for the public */}
-        <meta property="og:image" content="https://www.dawn-dash.com/og-image-skilldex-WIP.png" />
+        <meta property="og:image" content="https://www.dawn-dash.com/og-image-skilldex.png" />
         <meta property="og:url" content="https://www.dawn-dash.com/codex/skills" />
 
         {/* The url shown in Discord */}
         <meta property="og:site_name" content="dawn-dash.com/codex/skills" />
 
-        {/* TODO: Replace WIP with the actual image once the skilldex is ready for the public */}
-        <meta
-          property="twitter:image"
-          content="https://www.dawn-dash.com/og-image-skilldex-WIP.png"
-        />
+        <meta property="twitter:image" content="https://www.dawn-dash.com/og-image-skilldex.png" />
       </Head>
       <Skills />
     </>

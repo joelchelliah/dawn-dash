@@ -15,9 +15,9 @@ import {
 } from '@/codex/utils/codexFilterStore'
 import { isTalentInAnyEvents, isTalentOffer } from '@/codex/utils/talentHelper'
 import { isTalentTreeEqual } from '@/codex/utils/treeHelper'
+import { RequirementFilterOption } from '@/codex/types/filters'
 
 import { useCardSetFilters } from './useCardSetFilters'
-import { useExtraTalentFilters } from './useExtraTalentFilters'
 import { useTierFilters } from './useTierFilters'
 import { useKeywords } from './useKeywords'
 import { useFilterTracking } from './useFilterTracking'
@@ -32,7 +32,6 @@ export interface UseAllTalentSearchFilters {
   useCardSetFilters: ReturnType<typeof useCardSetFilters>
   useRequirementFilters: ReturnType<typeof useRequirementFilters>
   useTierFilters: ReturnType<typeof useTierFilters>
-  useExtraTalentFilters: ReturnType<typeof useExtraTalentFilters>
   useFormattingFilters: ReturnType<typeof useFormattingTalentFilters>
   resetFilters: () => void
 }
@@ -52,7 +51,6 @@ export const useAllTalentSearchFilters = (
   const untrackedUseCardSetFilters = useCardSetFilters(cachedFilters?.cardSets)
   const untrackedUseRequirementFilters = useRequirementFilters(cachedFilters?.requirements)
   const untrackedUseTierFilters = useTierFilters(cachedFilters?.tiers)
-  const untrackedUseExtraTalentFilters = useExtraTalentFilters(cachedFilters?.extras)
   const untrackedUseFormattingFilters = useFormattingTalentFilters(cachedFilters?.formatting)
   // --------------------------------------------------
   // ------ Tracking user interaction on filters ------
@@ -63,7 +61,6 @@ export const useAllTalentSearchFilters = (
     cardSet: 'handleCardSetFilterToggle' as const,
     requirement: 'handleRequirementFilterToggle' as const,
     tier: 'handleTierFilterToggle' as const,
-    extraTalent: 'handleExtraTalentFilterToggle' as const,
     formatting: 'handleFormattingFilterToggle' as const,
   } as const
 
@@ -81,10 +78,6 @@ export const useAllTalentSearchFilters = (
     untrackedUseTierFilters,
     TRACKED_FILTER_HANDLER.tier
   )
-  const trackedUseExtraTalentFilters = createTrackedFilter(
-    untrackedUseExtraTalentFilters,
-    TRACKED_FILTER_HANDLER.extraTalent
-  )
   const trackedUseFormattingFilters = createTrackedFilter(
     untrackedUseFormattingFilters,
     TRACKED_FILTER_HANDLER.formatting
@@ -93,12 +86,13 @@ export const useAllTalentSearchFilters = (
   // --------------------------------------------------
 
   const { cardSetFilters, isCardSetIndexSelected, resetCardSetFilters } = trackedUseCardSetFilters
-  const { requirementFilters, isRequirementSelectedOrIrrelevant, resetRequirementFilters } =
+  const { requirementFilters, isRequirementSelected, resetRequirementFilters } =
     trackedUseRequirementFilters
   const { tierFilters, isTierIndexSelected, resetTierFilters } = trackedUseTierFilters
-  const { extraTalentFilters, shouldIncludeOffers, shouldIncludeEvents, resetExtraTalentFilters } =
-    trackedUseExtraTalentFilters
   const { formattingFilters, resetFormattingFilters } = trackedUseFormattingFilters
+
+  const shouldIncludeOffers = isRequirementSelected([RequirementFilterOption.Offer])
+  const shouldIncludeEvents = isRequirementSelected([RequirementFilterOption.Event])
 
   const resetFilters = () => {
     trackedSetKeywords('')
@@ -106,7 +100,6 @@ export const useAllTalentSearchFilters = (
     resetCardSetFilters()
     resetRequirementFilters()
     resetTierFilters()
-    resetExtraTalentFilters()
     resetFormattingFilters()
   }
 
@@ -128,7 +121,6 @@ export const useAllTalentSearchFilters = (
         cardSets: cardSetFilters,
         requirements: requirementFilters,
         tiers: tierFilters,
-        extras: extraTalentFilters,
         formatting: formattingFilters,
         lastUpdated: Date.now(),
       })
@@ -144,7 +136,6 @@ export const useAllTalentSearchFilters = (
     requirementFilters,
     tierFilters,
     keywords,
-    extraTalentFilters,
     formattingFilters,
     hasUserChangedFilter,
   ])
@@ -178,6 +169,7 @@ export const useAllTalentSearchFilters = (
     (talentTree: TalentTree, visitTalent: (talent: TalentTreeTalentNode) => void) => {
       traverseNode(talentTree.noReqNode, visitTalent)
       talentTree.classNodes.forEach((node) => traverseNode(node, visitTalent))
+      talentTree.classAndEnergyNodes.forEach((node) => traverseNode(node, visitTalent))
       talentTree.energyNodes.forEach((node) => traverseNode(node, visitTalent))
     },
     [traverseNode]
@@ -254,6 +246,7 @@ export const useAllTalentSearchFilters = (
 
       traverseWithContext(talentTree.noReqNode, 'regular')
       talentTree.classNodes.forEach((node) => traverseWithContext(node, 'regular'))
+      talentTree.classAndEnergyNodes.forEach((node) => traverseWithContext(node, 'regular'))
       talentTree.energyNodes.forEach((node) => traverseWithContext(node, 'regular'))
 
       if (shouldIncludeEvents) {
@@ -334,19 +327,21 @@ export const useAllTalentSearchFilters = (
 
     const { regularMatches, eventMatches, offerMatches } = collectAllMatchingSets(talentTree)
 
-    const filteredTalentNodes = isRequirementSelectedOrIrrelevant(
-      talentTree.noReqNode.requirementFilterOption
-    )
+    const filteredTalentNodes = isRequirementSelected(talentTree.noReqNode.requirementFilterOptions)
       ? talentTree.noReqNode.children
           .map((node) => filterTalentTreeNode(node, regularMatches))
           .filter(isNotNullOrUndefined)
       : []
     const filteredClassNodes = talentTree.classNodes
-      .filter((node) => isRequirementSelectedOrIrrelevant(node.requirementFilterOption))
+      .filter((node) => isRequirementSelected(node.requirementFilterOptions))
+      .map((node) => filterTalentTreeNode(node, regularMatches))
+      .filter(isNotNullOrUndefined)
+    const filteredClassAndEnergyNodes = talentTree.classAndEnergyNodes
+      .filter((node) => isRequirementSelected(node.requirementFilterOptions))
       .map((node) => filterTalentTreeNode(node, regularMatches))
       .filter(isNotNullOrUndefined)
     const filteredEnergyNodes = talentTree.energyNodes
-      .filter((node) => isRequirementSelectedOrIrrelevant(node.requirementFilterOption))
+      .filter((node) => isRequirementSelected(node.requirementFilterOptions))
       .map((node) => filterTalentTreeNode(node, regularMatches))
       .filter(isNotNullOrUndefined)
     const filteredEventNodes = shouldIncludeEvents
@@ -366,6 +361,7 @@ export const useAllTalentSearchFilters = (
         children: filteredTalentNodes,
       },
       classNodes: filteredClassNodes,
+      classAndEnergyNodes: filteredClassAndEnergyNodes,
       energyNodes: filteredEnergyNodes,
       eventNodes: filteredEventNodes,
       offerNode: {
@@ -380,7 +376,7 @@ export const useAllTalentSearchFilters = (
   }, [
     collectAllMatchingSets,
     filterTalentTreeNode,
-    isRequirementSelectedOrIrrelevant,
+    isRequirementSelected,
     matchingTalentTree,
     shouldIncludeEvents,
     shouldIncludeOffers,
@@ -397,7 +393,6 @@ export const useAllTalentSearchFilters = (
     useCardSetFilters: trackedUseCardSetFilters,
     useTierFilters: trackedUseTierFilters,
     useRequirementFilters: trackedUseRequirementFilters,
-    useExtraTalentFilters: trackedUseExtraTalentFilters,
     useFormattingFilters: trackedUseFormattingFilters,
     resetFilters,
   }

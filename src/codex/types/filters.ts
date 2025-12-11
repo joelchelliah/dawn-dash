@@ -60,6 +60,8 @@ export enum RequirementFilterOption {
   Seeker = 'Seeker',
   Warrior = 'Warrior',
   Sunforge = 'Sunforge',
+  Offer = 'Offer',
+  Event = 'Event',
 }
 
 export type Requirement = RequirementFilterOption | SharedFilterOption
@@ -168,6 +170,7 @@ export const FormattingCard = {
 
 export enum FormattingTalentFilterOption {
   ShowDescriptionByDefault = 'ShowDescriptionByDefault',
+  ShowBlightbaneLink = 'ShowBlightbaneLink',
 }
 
 export type FormattingTalent = FormattingTalentFilterOption
@@ -195,7 +198,6 @@ export interface TalentCodexSearchFilterCache {
   cardSets: Record<string, boolean>
   requirements: Record<string, boolean>
   tiers: Record<string, boolean>
-  extras: Record<string, boolean>
   formatting: Record<string, boolean>
   lastUpdated: number
 }

@@ -42,8 +42,6 @@ function Skills(): JSX.Element {
         currentPage="skilldex"
       />
 
-      <div className={cx('work-in-progress')}> WORK IN PROGRESS . . .</div>
-
       <div className={cx('content')}>
         <CodexLoadingMessage isVisible={isLoading} progress={progress} codexType="talent" />
         <CodexErrorMessage isVisible={isError && !isLoading} />

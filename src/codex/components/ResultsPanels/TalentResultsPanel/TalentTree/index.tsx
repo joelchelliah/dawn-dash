@@ -14,10 +14,12 @@ import {
 } from '@/codex/types/talents'
 import {
   getLinkColor,
+  getSecondaryTalentRequirementIconProps,
   getTalentRequirementIconProps,
   parseTalentDescriptionLine,
   wrapText,
 } from '@/codex/utils/talentHelper'
+import { REQUIREMENT_CLASS_TO_FILTER_OPTIONS_MAP } from '@/codex/constants/talentsMappingValues'
 import { buildHierarchicalTreeFromTalentTree } from '@/codex/utils/treeHelper'
 import { useExpandableNodes } from '@/codex/hooks/useExpandableNodes'
 import { useFormattingTalentFilters } from '@/codex/hooks/useSearchFilters/useFormattingTalentFilters'
@@ -33,8 +35,9 @@ interface TalentTreeProps {
 
 const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
   const svgRef = useRef<SVGSVGElement>(null)
-  const { shouldShowDescription } = useFormattingFilters
-  const { toggleNodeVisibility, isNodeVisible } = useExpandableNodes(shouldShowDescription)
+  const { shouldShowDescription, shouldShowBlightbaneLink } = useFormattingFilters
+  const { toggleNodeExpansion: toggleDescriptionExpansion, isNodeExpanded: isDescriptionExpanded } =
+    useExpandableNodes(shouldShowDescription)
 
   useEffect(() => {
     if (!svgRef.current || !talentTree) return
@@ -49,18 +52,23 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
     // - - - - - Node dimensions - - - - -
     const requirementNodeRadius = 28
     const nodeWidth = 200
-    const nameHeight = 25
-    const minDescriptionHeight = 20
+    const nameHeight = 30
+    const minDescriptionHeight = 15
     const collapsedDescriptionHeight = 4
-    const descriptionLineHeight = 11
+    const descriptionLineHeight = 15
+    const requirementsHeight = 16 // Height for the Goldstrike requirements section
+    const blightbaneLinkHeight = 26 // Height for the Blightbane link
     const defaultVerticalSpacing = 100
     const horizontalSpacing = nodeWidth * 1.4
     // - - - - - - - - - - - - - - - - - -
 
     const getDynamicVerticalSpacing = (node: HierarchicalTalentTreeNode) => {
       if (node.type === TalentTreeNodeType.TALENT) {
-        if (!isNodeVisible(node.name)) {
-          return nameHeight * 2.8
+        const extraRequirementHeight = node.otherParentNames?.length ? requirementsHeight : 0
+        const blightbaneHeight = shouldShowBlightbaneLink ? blightbaneLinkHeight / 2 : 0
+
+        if (!isDescriptionExpanded(node.name)) {
+          return nameHeight * 2.8 + extraRequirementHeight + blightbaneHeight
         }
 
         const descLines = wrapText(node.description, nodeWidth + 10, 10)
@@ -69,7 +77,7 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
           descLines.length * descriptionLineHeight
         )
 
-        return (nameHeight + descriptionHeight) * 1.7
+        return (nameHeight + descriptionHeight + extraRequirementHeight + blightbaneHeight) * 1.7
       }
       return defaultVerticalSpacing
     }
@@ -85,10 +93,6 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
       })
     const treeData = treeLayout(treeNode)
 
-    // Shift all nodes left so that the root talents are at y=0
-    // (same as the virtual root node, which we are not rendering)
-    // NB: Y is horizontal, X is vertical!
-    // TODO: This needs some work to make it look good!
     const leftPadding = nodeWidth * 0.25
     const offset =
       treeNode.children && treeNode.children.length > 0
@@ -105,16 +109,17 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
 
     const topPadding = 40
     const bottomPadding = 1500
-    const minFactorForEverythingToFitInContainer = 0.9375
+    const minFactorForEverythingToFitInContainer = 0.955
     const svgHeight =
       minFactorForEverythingToFitInContainer * maxX - minX + topPadding + bottomPadding
 
     // Calculate width based on max depth
     const baseWidth = 1050 // Width for depth 4
     const svgWidth = Math.max(400, (maxDepth / 4) * baseWidth) // Minimum 400px, scale with depth
+    const svgVerticalPadding = 40
 
     const mainSvg = select(svgRef.current)
-      .attr('viewBox', `0 -10 ${svgWidth} ${svgHeight}`)
+      .attr('viewBox', `0 -${svgVerticalPadding} ${svgWidth} ${svgHeight}`)
       .attr('width', svgWidth)
       .attr('height', svgHeight)
 
@@ -156,7 +161,6 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
       .attr('d', generateLinkPath)
       .style('stroke', (link) => {
         const { name, type } = link.source.data
-
         return getLinkColor(link, name, type)
       })
 
@@ -189,19 +193,27 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
       const isRequirementNode = data.type !== TalentTreeNodeType.TALENT
 
       if (isRequirementNode) {
-        const isClassRequirement = data.type === TalentTreeNodeType.CLASS_REQUIREMENT
-        const { count, url, color, label } = getTalentRequirementIconProps(
-          isClassRequirement,
+        const { count, url, url2, color, label } = getTalentRequirementIconProps(
+          data.type,
           data.name
         )
+        const secondaryIconProps = getSecondaryTalentRequirementIconProps(data.type, data.name)
+
+        const combinedLabel = secondaryIconProps ? `${label} & ${secondaryIconProps.label}` : label
+
         const showBiggerIcons =
-          isClassRequirement ||
+          data.type === TalentTreeNodeType.CLASS_REQUIREMENT ||
           data.type === TalentTreeNodeType.OFFER_REQUIREMENT ||
           data.type === TalentTreeNodeType.EVENT_REQUIREMENT
+
+        const showMultipleIcons = data.type === TalentTreeNodeType.CLASS_AND_ENERGY_REQUIREMENT
 
         let circleRadius = 0
         if (showBiggerIcons) {
           circleRadius = requirementNodeRadius
+        } else if (showMultipleIcons) {
+          // All these magic numbers are for tweaking the circle radius very slightly to fit the differnt scenarios
+          circleRadius = requirementNodeRadius - 5
         } else if (count === 1) {
           circleRadius = requirementNodeRadius / 2
         } else if (count === 2) {
@@ -216,17 +228,32 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
           .attr('class', cx('tree-root-node-circle'))
           .style('--color', color)
 
-        nodeElement
+        // Split label on comma for multi-line rendering if needed
+        const labelParts = combinedLabel.split(',').map((part) => part.trim())
+        const lineHeight = 24 // Adjust based on your font size
+        const totalHeight = labelParts.length * lineHeight
+        const startY = -circleRadius - totalHeight + lineHeight / 2
+
+        const textElement = nodeElement
           .append('text')
           .attr('x', 0)
-          .attr('y', -circleRadius - 8)
+          .attr('y', startY)
           .attr('text-anchor', 'middle')
           .attr('class', cx('tree-root-node-label', `tree-root-node-label--depth-${maxDepth}`))
           .style('fill', lighten(color, 5))
-          .text(label)
+
+        // Add each line as a tspan
+        labelParts.forEach((part, index) => {
+          textElement
+            .append('tspan')
+            .attr('x', 0)
+            .attr('dy', index === 0 ? 0 : lineHeight)
+            .text(part)
+        })
 
         if (count > 0) {
-          const iconSize = showBiggerIcons ? 52 : 22
+          // Different icon sizes depending on if we are showing class, class+energy or energy node.
+          const iconSize = showBiggerIcons ? 52 : showMultipleIcons ? 42 : 22
           const spacing = 2
           const totalWidth = count * iconSize + (count - 1) * spacing
           const startX = -totalWidth / 2
@@ -234,8 +261,8 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
           for (let i = 0; i < count; i++) {
             const x = startX + i * (iconSize + spacing)
 
+            // Single icon - apply circular clipping
             if (count === 1) {
-              // Single icon - apply circular clipping
               const clipId = `circle-clip-${_index}-${i}`
 
               defs
@@ -254,25 +281,53 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
                 .attr('width', iconSize)
                 .attr('height', iconSize)
                 .attr('clip-path', `url(#${clipId})`)
-            } else {
+
               // Multiple icons - no clipping, place them next to each other
+            } else {
+              // For multi-energy requirements, like DEX&STR
+              const currentUrl = i === 1 && url2 ? url2 : url
               nodeElement
                 .append('image')
-                .attr('href', url)
+                .attr('href', currentUrl)
                 .attr('x', x)
                 .attr('y', -iconSize / 2)
                 .attr('width', iconSize)
                 .attr('height', iconSize)
             }
           }
+
+          // Secondary requirement icons
+          if (secondaryIconProps) {
+            const { count: secondaryCount, url: secondaryUrl } = secondaryIconProps
+            const secondaryIconSize = iconSize / 2
+            const secondaryIconSpacing = spacing * 1.525
+            const secondaryTotalWidth =
+              secondaryCount * secondaryIconSize + (secondaryCount - 1) * secondaryIconSpacing
+            const secondaryStartX = -secondaryTotalWidth / 2
+
+            for (let i = 0; i < secondaryCount; i++) {
+              const x = secondaryStartX + i * (secondaryIconSize + secondaryIconSpacing)
+
+              nodeElement
+                .append('image')
+                .attr('href', secondaryUrl)
+                .attr('x', x)
+                .attr('y', secondaryIconSize / 2)
+                .attr('width', secondaryIconSize)
+                .attr('height', secondaryIconSize)
+            }
+          }
         }
       } else {
-        const isCollapsed = !isNodeVisible(data.name)
-        const descLines = wrapText(data.description, nodeWidth + 10, 10)
+        const isCollapsed = !isDescriptionExpanded(data.name)
+        const descLines = wrapText(data.description, nodeWidth + 8, 11)
         const descriptionHeight = isCollapsed
           ? collapsedDescriptionHeight
           : Math.max(minDescriptionHeight, descLines.length * descriptionLineHeight)
-        const dynamicNodeHeight = nameHeight + descriptionHeight + 6
+        const extraRequirementHeight = data.otherParentNames?.length ? requirementsHeight : 0
+        const blightbaneHeight = shouldShowBlightbaneLink ? blightbaneLinkHeight : 0
+        const dynamicNodeHeight =
+          nameHeight + descriptionHeight + extraRequirementHeight + blightbaneHeight + 6
 
         nodeElement
           .append('rect')
@@ -291,7 +346,7 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
           .attr('class', cx('talent-node', `talent-node--tier-${data.tier || 0}`))
           .on('click', function (event) {
             event.stopPropagation()
-            toggleNodeVisibility(data.name)
+            toggleDescriptionExpansion(data.name)
           })
 
         if (!isCollapsed) {
@@ -301,6 +356,24 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
             .attr('y1', -dynamicNodeHeight / 2 + nameHeight)
             .attr('x2', nodeWidth / 2)
             .attr('y2', -dynamicNodeHeight / 2 + nameHeight)
+            .attr(
+              'class',
+              cx('talent-node-separator', `talent-node-separator--tier-${data.tier || 0}`)
+            )
+        }
+        if (shouldShowBlightbaneLink) {
+          nodeElement
+            .append('line')
+            .attr('x1', -nodeWidth / 2)
+            .attr(
+              'y1',
+              -dynamicNodeHeight / 2 + nameHeight + descriptionHeight + extraRequirementHeight
+            )
+            .attr('x2', nodeWidth / 2)
+            .attr(
+              'y2',
+              -dynamicNodeHeight / 2 + nameHeight + descriptionHeight + extraRequirementHeight
+            )
             .attr(
               'class',
               cx('talent-node-separator', `talent-node-separator--tier-${data.tier || 0}`)
@@ -330,22 +403,45 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
             })
           )
 
+        // Add "required" text for additional requirements
+        if (data.otherParentNames?.length) {
+          const reqGroup = contentGroup
+            .append('g')
+            .attr(
+              'transform',
+              `translate(0, ${-dynamicNodeHeight / 2 + nameHeight + requirementsHeight / 2})`
+            )
+
+          reqGroup
+            .append('text')
+            .attr('x', 0)
+            .attr('y', 8)
+            .attr(
+              'class',
+              cx('talent-node-requirements', { 'talent-node-requirements--collapsed': isCollapsed })
+            )
+            .text(`Also requires: ${data.otherParentNames.join(', ')}!`)
+        }
+
         if (!isCollapsed) {
           const descGroup = contentGroup
             .append('g')
             .attr(
               'transform',
-              `translate(0, ${-dynamicNodeHeight / 2 + nameHeight + descriptionHeight / 2})`
+              `translate(0, ${-dynamicNodeHeight / 2 + nameHeight + extraRequirementHeight + descriptionHeight / 2})`
             )
 
           descLines.forEach((line, i) => {
             const segments = parseTalentDescriptionLine(line)
+            const verticalCenteringOffset = -15
             const foreignObject = descGroup
               .append('foreignObject')
               .attr('x', -nodeWidth / 2)
               .attr(
                 'y',
-                i * descriptionLineHeight - ((descLines.length - 1) * descriptionLineHeight) / 2 - 9
+                i * descriptionLineHeight -
+                  ((descLines.length - 1) * descriptionLineHeight) / 2 +
+                  verticalCenteringOffset
               )
               .attr('width', nodeWidth)
               .attr('height', descriptionLineHeight)
@@ -355,19 +451,162 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
               if (segment.type === 'text') {
                 htmlContent += segment.content
               } else if (segment.type === 'image' && 'icon' in segment) {
-                htmlContent += `<img src="${segment.icon}" width="8" height="8" style="vertical-align: middle; margin: 0 1px 1px;" />`
+                htmlContent += `<img src="${segment.icon}" alt="" />`
               }
             })
 
             foreignObject
               .append('xhtml:div')
+              .attr('xmlns', 'http://www.w3.org/1999/xhtml')
               .attr('class', cx('talent-node-description'))
               .html(htmlContent)
           })
         }
+        if (shouldShowBlightbaneLink) {
+          const blightbaneLink = `https://www.blightbane.io/talent/${data.name.replaceAll(' ', '_')}`
+          const linkGroup = contentGroup
+            .append('g')
+            .attr(
+              'transform',
+              `translate(0, ${-dynamicNodeHeight / 2 + nameHeight + descriptionHeight + extraRequirementHeight + blightbaneHeight / 2})`
+            )
+
+          const linkForeignObject = linkGroup
+            .append('foreignObject')
+            .attr('x', -nodeWidth / 2)
+            .attr('y', -blightbaneHeight / 2)
+            .attr('width', nodeWidth)
+            .attr('height', blightbaneHeight)
+
+          linkForeignObject
+            .append('xhtml:div')
+            .attr('xmlns', 'http://www.w3.org/1999/xhtml')
+            .attr('class', cx('talent-node-blightbane-link-wrapper'))
+            .html(
+              `<a href="${blightbaneLink}" target="_blank" rel="noopener noreferrer" class="${cx('talent-node-blightbane-link')}">View in Blightbane</a>`
+            )
+        }
       }
     })
-  }, [talentTree, isNodeVisible, toggleNodeVisibility])
+
+    // Add requirement indicators on links for new requirements
+    // Rendered last to ensure they appear on top of all other elements
+    const linksWithNewRequirements = treeData
+      .links()
+      .filter((link) => link.source.depth > 0)
+      .map((link) => {
+        const newRequirements = link.target.data.classOrEnergyRequirements.filter(
+          (requirement) => !link.source.data.classOrEnergyRequirements.includes(requirement)
+        )
+        return { link, newRequirements }
+      })
+      .filter(({ newRequirements }) => newRequirements.length > 0)
+
+    linksWithNewRequirements.forEach(({ link, newRequirements }, linkIndex) => {
+      const targetHalfWidth = getNodeHalfWidth(link.target.data)
+
+      // Position near the end of the link, just before the target node
+      const indicatorX = link.target.y - targetHalfWidth
+      const indicatorY = link.target.x
+
+      // Assume there is always only one new requirement. Will have to expand this if more such requirements are added to the game.
+      const requirement = newRequirements[0]
+
+      const isClassRequirement = Object.keys(REQUIREMENT_CLASS_TO_FILTER_OPTIONS_MAP).includes(
+        requirement
+      )
+
+      // If both this one and its ancestor node also has class a requirement then we can skip rendering the indicator.
+      const hasAncestorClassRequirement = link.source.data.classOrEnergyRequirements.some(
+        (requirement) => Object.keys(REQUIREMENT_CLASS_TO_FILTER_OPTIONS_MAP).includes(requirement)
+      )
+      if (isClassRequirement && hasAncestorClassRequirement) return
+
+      const nodeType = isClassRequirement
+        ? TalentTreeNodeType.CLASS_REQUIREMENT
+        : TalentTreeNodeType.ENERGY_REQUIREMENT
+
+      const { count, url, url2, url3, color } = getTalentRequirementIconProps(nodeType, requirement)
+      const iconSize = isClassRequirement ? 33 : 22
+      let nudgeToTheLeft = 6
+
+      // Tweaking of circle sizes and spacing to fit the different scenarios.
+      let circleRx = 13
+      let circleRy = 13
+      let spacing = 0
+      if (isClassRequirement) {
+        circleRx = 20
+        circleRy = 20
+        nudgeToTheLeft = 14
+      } else if (count === 2) {
+        circleRx = 14
+        circleRy = 18
+        spacing = 4
+      } else if (count === 3) {
+        circleRx = 16
+        circleRy = 28
+        spacing = 2
+      }
+      const totalHeight = count * iconSize + (count - 1) * spacing
+      const x = indicatorX - iconSize / 2 - nudgeToTheLeft
+      const startY = indicatorY - totalHeight / 2
+
+      const indicatorGroup = svg.append('g').attr('class', cx('requirement-indicator'))
+
+      indicatorGroup
+        .append('ellipse')
+        .attr('rx', circleRx)
+        .attr('ry', circleRy)
+        .attr('cx', x + iconSize / 2)
+        .attr('cy', indicatorY)
+        .attr('class', cx('requirement-indicator-circle'))
+        .style('--color', color)
+
+      // Render each requirement icon vertically
+      for (let i = 0; i < count; i++) {
+        const y = startY + i * (iconSize + spacing)
+
+        // Single icon - apply circular clipping
+        if (count === 1) {
+          const clipId = `requirement-clip-${linkIndex}-${i}`
+
+          defs
+            .append('clipPath')
+            .attr('id', clipId)
+            .append('circle')
+            .attr('r', iconSize / 2)
+            .attr('cx', x + iconSize / 2)
+            .attr('cy', y + iconSize / 2)
+
+          indicatorGroup
+            .append('image')
+            .attr('href', url)
+            .attr('x', x)
+            .attr('y', y)
+            .attr('width', iconSize)
+            .attr('height', iconSize)
+            .attr('clip-path', `url(#${clipId})`)
+
+          // Multiple icons - no clipping, stack them vertically
+        } else {
+          let currentUrl = url
+          if (i === 1 && url2) {
+            currentUrl = url2
+          } else if (i === 2 && url3) {
+            currentUrl = url3
+          }
+          indicatorGroup
+            .append('image')
+            .attr('href', currentUrl)
+            .attr('x', x)
+            .attr('y', y)
+            .attr('width', iconSize)
+            .attr('height', iconSize)
+            .style('opacity', 0.9)
+        }
+      }
+    })
+  }, [talentTree, isDescriptionExpanded, toggleDescriptionExpansion, shouldShowBlightbaneLink])
 
   return (
     <div className={cx('talent-tree-container')}>

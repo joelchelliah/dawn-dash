@@ -14,8 +14,11 @@ import {
   ACTUALLY_EVENT_ONLY_TALENTS,
   EVENTS_BLACKLIST,
   EVENT_TALENTS_MAP_BLACKLIST,
-  REQUIREMENT_CLASS_TO_FILTER_OPTION_MAP,
-  REQUIREMENT_ENERGY_TO_FILTER_OPTION_MAP,
+  REMOVED_TALENTS,
+  REQUIREMENT_CLASS_AND_ENERGY_TO_FILTER_OPTIONS_MAP,
+  REQUIREMENT_CLASS_TO_FILTER_OPTIONS_MAP,
+  REQUIREMENT_ENERGY_TO_FILTER_OPTIONS_MAP,
+  TALENTS_FROM_CARD_ACTIONS,
 } from '../constants/talentsMappingValues'
 
 export const mapTalentsDataToTalentTree = (unparsedTalents: TalentData[]): TalentTree => {
@@ -23,7 +26,7 @@ export const mapTalentsDataToTalentTree = (unparsedTalents: TalentData[]): Talen
     ...talent,
     expansion: ACTUALLY_EVENT_ONLY_TALENTS.includes(talent.name) ? 0 : talent.expansion,
   }))
-  const uniqueUnparsedTalents = removeDuplicateTalents(correctedUnparsedTalents)
+  const uniqueUnparsedTalents = removeDuplicateAndNonExistingTalents(correctedUnparsedTalents)
   const idToUnparsedTalent = new Map(
     uniqueUnparsedTalents.map((talent) => [talent.blightbane_id, talent])
   )
@@ -63,6 +66,7 @@ export const mapTalentsDataToTalentTree = (unparsedTalents: TalentData[]): Talen
       events: talent.events,
       children,
       descendants: Array.from(descendants),
+      classOrEnergyRequirements: [...talent.requires_classes, ...talent.requires_energy],
     }
   }
 
@@ -85,6 +89,22 @@ export const mapTalentsDataToTalentTree = (unparsedTalents: TalentData[]): Talen
     talent.requires_classes.includes(className)
   const hasEnergy = (energy: string) => (talent: TalentData) =>
     talent.requires_energy.includes(energy)
+  const hasOnlyClass = (className: string) => (talent: TalentData) =>
+    hasClass(className)(talent) &&
+    talent.requires_energy.length === 0 &&
+    talent.requires_talents.length === 0
+  const hasOnlyEnergy = (energy: string) => (talent: TalentData) =>
+    hasEnergy(energy)(talent) &&
+    talent.requires_classes.length === 0 &&
+    talent.requires_talents.length === 0
+  const hasClassAndEnergy = (classAndEnergy: string) => (talent: TalentData) => {
+    const [className, energy] = classAndEnergy.split('_')
+    return (
+      hasClass(className)(talent) &&
+      hasEnergy(energy)(talent) &&
+      talent.requires_talents.length === 0
+    )
+  }
 
   const createTalentNodes = (predicate: (talent: TalentData) => boolean) =>
     sortNodes<TalentTreeTalentNode>(
@@ -95,66 +115,84 @@ export const mapTalentsDataToTalentTree = (unparsedTalents: TalentData[]): Talen
     requirements: string[],
     nodeType: TalentTreeRequirementNodeType,
     predicateMapper: (requirement: string) => (talent: TalentData) => boolean,
-    filterMapper?: (requirement: string) => RequirementFilterOption,
+    filterMapper: (requirement: string) => RequirementFilterOption[],
     nameMapper?: (requirement: string) => string
   ): TalentTreeRequirementNode[] =>
     requirements.map((requirement) => ({
       type: nodeType,
       name: nameMapper?.(requirement) ?? requirement,
-      requirementFilterOption: filterMapper?.(requirement),
+      requirementFilterOptions: filterMapper(requirement),
       children: createTalentNodes(predicateMapper(requirement)),
     }))
 
   const rootNoRequirementsNode: TalentTreeRequirementNode = {
     type: TalentTreeNodeType.NO_REQUIREMENTS,
     name: 'No Requirements',
-    requirementFilterOption: RequirementFilterOption.NoRequirements,
+    requirementFilterOptions: [RequirementFilterOption.NoRequirements],
     children: createTalentNodes(isRootTalent),
   }
 
   const rootClassRequirementNodes: TalentTreeRequirementNode[] = createRequirementNodes(
-    Object.keys(REQUIREMENT_CLASS_TO_FILTER_OPTION_MAP),
+    Object.keys(REQUIREMENT_CLASS_TO_FILTER_OPTIONS_MAP),
     TalentTreeNodeType.CLASS_REQUIREMENT,
-    hasClass,
-    getFilterOptionForRequirement('class')
+    hasOnlyClass,
+    getFilterOptionsForRequirement('class')
+  )
+
+  const rootClassAndEnergyRequirementNodes: TalentTreeRequirementNode[] = createRequirementNodes(
+    Object.keys(REQUIREMENT_CLASS_AND_ENERGY_TO_FILTER_OPTIONS_MAP),
+    TalentTreeNodeType.CLASS_AND_ENERGY_REQUIREMENT,
+    hasClassAndEnergy,
+    getFilterOptionsForRequirement('classAndEnergy')
   )
 
   const rootEnergyRequirementNodes: TalentTreeRequirementNode[] = createRequirementNodes(
-    Object.keys(REQUIREMENT_ENERGY_TO_FILTER_OPTION_MAP),
+    Object.keys(REQUIREMENT_ENERGY_TO_FILTER_OPTIONS_MAP),
     TalentTreeNodeType.ENERGY_REQUIREMENT,
-    hasEnergy,
-    getFilterOptionForRequirement('energy')
+    hasOnlyEnergy,
+    getFilterOptionsForRequirement('energy')
   )
 
   const rootEventRequirementNodes: TalentTreeRequirementNode[] = createRequirementNodes(
     uniqueEvents,
     TalentTreeNodeType.EVENT_REQUIREMENT,
     isValidEventTalent,
-    undefined,
+    () => [RequirementFilterOption.Event],
     // Special case, since these are basically the same event
-    (name) => (name === 'Priest' ? 'Prayer, Priest, Priest 1' : name)
+    (name) => {
+      if (name === 'Priest') return 'Prayer, Priest, Priest 1'
+      if (name === 'The Deep Finish') return 'The Deep Finish, The Godscar Wastes Finish'
+      return name
+    }
   )
 
   const rootOfferNode: TalentTreeRequirementNode = {
     type: TalentTreeNodeType.OFFER_REQUIREMENT,
     name: 'Offers',
+    requirementFilterOptions: [RequirementFilterOption.Offer],
     children: createTalentNodes(isOffer),
   }
 
   return {
     noReqNode: rootNoRequirementsNode,
     classNodes: rootClassRequirementNodes,
+    classAndEnergyNodes: rootClassAndEnergyRequirementNodes,
     energyNodes: rootEnergyRequirementNodes,
     eventNodes: rootEventRequirementNodes,
     offerNode: rootOfferNode,
   }
 }
 
-const removeDuplicateTalents = (talents: TalentData[]): TalentData[] => {
+const removeDuplicateAndNonExistingTalents = (talents: TalentData[]): TalentData[] => {
   const seen = new Set<string>()
 
   return talents.filter((talent) => {
     if (seen.has(talent.name)) return false
+    if (REMOVED_TALENTS.includes(talent.name)) return false
+
+    // TODO: Add a filter to show these talents?
+    if (TALENTS_FROM_CARD_ACTIONS.includes(talent.name)) return false
+
     seen.add(talent.name)
     return true
   })
@@ -168,14 +206,21 @@ const sortNodes = <T extends TalentTreeTalentNode | TalentTreeRequirementNode>(t
     return a.name.localeCompare(b.name)
   })
 
-const getFilterOptionForRequirement = (type: 'class' | 'energy') => (requirement: string) => {
-  const map =
-    type === 'class'
-      ? REQUIREMENT_CLASS_TO_FILTER_OPTION_MAP
-      : REQUIREMENT_ENERGY_TO_FILTER_OPTION_MAP
-  const option = map[requirement]
+const getFilterOptionsForRequirement =
+  (type: 'class' | 'energy' | 'classAndEnergy') => (requirement: string) => {
+    let options = REQUIREMENT_CLASS_TO_FILTER_OPTIONS_MAP[requirement]
 
-  if (option) return option
+    if (type === 'energy') {
+      options = REQUIREMENT_ENERGY_TO_FILTER_OPTIONS_MAP[requirement]
+    }
 
-  throw new Error(`💀  Unknown requirement-${type}, when mapping to filter option: ${requirement}`)
-}
+    if (type === 'classAndEnergy') {
+      options = REQUIREMENT_CLASS_AND_ENERGY_TO_FILTER_OPTIONS_MAP[requirement]
+    }
+
+    if (options) return options
+
+    throw new Error(
+      `💀  Unknown requirement: ${type}, when mapping to filter option: ${requirement}`
+    )
+  }

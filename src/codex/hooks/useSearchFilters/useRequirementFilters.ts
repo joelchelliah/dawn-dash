@@ -19,6 +19,8 @@ const defaultFilters = {
   [RequirementFilterOption.Seeker]: true,
   [RequirementFilterOption.Warrior]: true,
   [RequirementFilterOption.Sunforge]: true,
+  [RequirementFilterOption.Event]: true,
+  [RequirementFilterOption.Offer]: true,
   [SharedFilterOption.All]: true,
   [SharedFilterOption.None]: false,
 }
@@ -35,6 +37,8 @@ const valueToStringMap = {
   [RequirementFilterOption.Seeker]: 'Seeker',
   [RequirementFilterOption.Warrior]: 'Warrior',
   [RequirementFilterOption.Sunforge]: 'Sunforge',
+  [RequirementFilterOption.Event]: 'Event',
+  [RequirementFilterOption.Offer]: 'Offer',
   [SharedFilterOption.All]: SharedFilterOption.All,
   [SharedFilterOption.None]: SharedFilterOption.None,
 }
@@ -51,6 +55,8 @@ const indexMap = {
   [RequirementFilterOption.Seeker]: 8,
   [RequirementFilterOption.Warrior]: 9,
   [RequirementFilterOption.Sunforge]: 10,
+  [RequirementFilterOption.Event]: 11,
+  [RequirementFilterOption.Offer]: 12,
 }
 
 export const allRequirements: string[] = Requirement.getAll()
@@ -68,13 +74,12 @@ export const useRequirementFilters = (
   const { filters, handleFilterToggle, getValueToString, resetFilters } =
     useBaseRequirementFilters(cachedFilters)
 
-  const isRequirementSelectedOrIrrelevant = (option?: RequirementFilterOption) =>
-    // Irrelevant if we are dealing with offers or events
-    !option || filters[option]
+  const isRequirementSelected = (options: RequirementFilterOption[]) =>
+    options.some((option) => filters[option])
 
   return {
     requirementFilters: filters,
-    isRequirementSelectedOrIrrelevant,
+    isRequirementSelected,
     handleRequirementFilterToggle: handleFilterToggle,
     resetRequirementFilters: resetFilters,
     getRequirementFilterName: getValueToString,

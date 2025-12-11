@@ -21,6 +21,7 @@ export enum TalentTreeNodeType {
   TALENT = 'TALENT',
   EVENT = 'EVENT',
   CLASS_REQUIREMENT = 'CLASS_REQUIREMENT',
+  CLASS_AND_ENERGY_REQUIREMENT = 'CLASS_AND_ENERGY_REQUIREMENT',
   ENERGY_REQUIREMENT = 'ENERGY_REQUIREMENT',
   NO_REQUIREMENTS = 'NO_REQUIREMENTS',
   OFFER_REQUIREMENT = 'OFFER_REQUIREMENT',
@@ -29,6 +30,7 @@ export enum TalentTreeNodeType {
 
 export type TalentTreeRequirementNodeType =
   | TalentTreeNodeType.CLASS_REQUIREMENT
+  | TalentTreeNodeType.CLASS_AND_ENERGY_REQUIREMENT
   | TalentTreeNodeType.ENERGY_REQUIREMENT
   | TalentTreeNodeType.NO_REQUIREMENTS
   | TalentTreeNodeType.OFFER_REQUIREMENT
@@ -37,8 +39,7 @@ export type TalentTreeRequirementNodeType =
 export type TalentTreeRequirementNode = {
   type: TalentTreeRequirementNodeType
   name: string
-  // Optional because we don't want to bind offers and events to a requirement.
-  requirementFilterOption?: RequirementFilterOption
+  requirementFilterOptions: RequirementFilterOption[]
   children: TalentTreeTalentNode[]
 }
 
@@ -53,11 +54,14 @@ export type TalentTreeTalentNode = {
   children: TalentTreeTalentNode[]
   // Names of all descendants (children, grandchildren, etc.)
   descendants: string[]
+  // To be able to check if node has additional requirements, not present in parent node.
+  classOrEnergyRequirements: string[]
 }
 
 export type TalentTree = {
   noReqNode: TalentTreeRequirementNode
   classNodes: TalentTreeRequirementNode[]
+  classAndEnergyNodes: TalentTreeRequirementNode[]
   energyNodes: TalentTreeRequirementNode[]
   eventNodes: TalentTreeRequirementNode[]
   offerNode: TalentTreeRequirementNode
@@ -72,4 +76,8 @@ export interface HierarchicalTalentTreeNode {
   type?: TalentTreeNodeType
   tier?: number
   children?: HierarchicalTalentTreeNode[]
+  // Currently only needed because we need a way to visualize that Goldstrike has 2 compulsory prerequisites.
+  otherParentNames?: string[]
+  // To be able to check if node has additional requirements, not present in parent node.
+  classOrEnergyRequirements: string[]
 }

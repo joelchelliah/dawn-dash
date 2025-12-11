@@ -3,11 +3,12 @@ import Image from 'next/image'
 import GradientButton from '@/shared/components/Buttons/GradientButton'
 import ButtonRow from '@/shared/components/Buttons/ButtonRow'
 import { createCx } from '@/shared/utils/classnames'
-import { FlameIcon, ScrollIcon } from '@/shared/utils/icons'
 import {
   ArcanistImageUrl,
+  CoinsOfPassingImageUrl,
   DexImageUrl,
   HunterImageUrl,
+  InfernalContractUrl,
   IntImageUrl,
   KnightImageUrl,
   NeutralImageUrl,
@@ -22,9 +23,8 @@ import { allTiers } from '@/codex/hooks/useSearchFilters/useTierFilters'
 import { UseAllTalentSearchFilters } from '@/codex/hooks/useSearchFilters'
 import { allCardSets } from '@/codex/hooks/useSearchFilters/useCardSetFilters'
 import { UseTalentData } from '@/codex/hooks/useTalentData'
-import { allExtraTalentFilters } from '@/codex/hooks/useSearchFilters/useExtraTalentFilters'
 import { allFormattingTalentFilters } from '@/codex/hooks/useSearchFilters/useFormattingTalentFilters'
-import { ExtraTalentFilterOption, RequirementFilterOption } from '@/codex/types/filters'
+import { RequirementFilterOption } from '@/codex/types/filters'
 import { allRequirements } from '@/codex/hooks/useSearchFilters/useRequirementFilters'
 
 import CodexLastUpdated from '../../CodexLastUpdated'
@@ -48,7 +48,6 @@ const TalentSearchPanel = ({ useSearchFilters, useTalentData }: TalentSearchPane
     useCardSetFilters,
     useRequirementFilters,
     useTierFilters,
-    useExtraTalentFilters,
     useFormattingFilters,
     resetFilters,
   } = useSearchFilters
@@ -56,8 +55,6 @@ const TalentSearchPanel = ({ useSearchFilters, useTalentData }: TalentSearchPane
   const { requirementFilters, handleRequirementFilterToggle, getRequirementFilterName } =
     useRequirementFilters
   const { tierFilters, handleTierFilterToggle } = useTierFilters
-  const { extraTalentFilters, handleExtraTalentFilterToggle, getExtraTalentFilterName } =
-    useExtraTalentFilters
   const { formattingFilters, handleFormattingFilterToggle, getFormattingFilterName } =
     useFormattingFilters
 
@@ -153,26 +150,17 @@ const TalentSearchPanel = ({ useSearchFilters, useTalentData }: TalentSearchPane
             {name}
           </span>
         )
-      default:
-        return <span className={cx('filter-label')}>{name}</span>
-    }
-  }
-
-  const getExtraFilterLabel = (filter: string) => {
-    const name = getExtraTalentFilterName(filter)
-
-    switch (filter) {
-      case ExtraTalentFilterOption.IncludeOffers:
+      case RequirementFilterOption.Event:
         return (
           <span className={cx('filter-label')}>
-            <ScrollIcon className={cx('filter-icon--scroll')} />
+            {renderRequirementFilterLabelIcon(CoinsOfPassingImageUrl, alt, true)}
             {name}
           </span>
         )
-      case ExtraTalentFilterOption.IncludeEvents:
+      case RequirementFilterOption.Offer:
         return (
           <span className={cx('filter-label')}>
-            <FlameIcon className={cx('filter-icon--flame')} />
+            {renderRequirementFilterLabelIcon(InfernalContractUrl, alt, true)}
             {name}
           </span>
         )
@@ -214,14 +202,6 @@ const TalentSearchPanel = ({ useSearchFilters, useTalentData }: TalentSearchPane
             selectedFilters={tierFilters}
             type="tier"
             onFilterToggle={handleTierFilterToggle}
-          />
-          <FilterGroup
-            title="Extras"
-            filters={allExtraTalentFilters}
-            selectedFilters={extraTalentFilters}
-            type="extra"
-            onFilterToggle={handleExtraTalentFilterToggle}
-            getFilterLabel={getExtraFilterLabel}
           />
           <FilterGroup
             title="Results formatting"

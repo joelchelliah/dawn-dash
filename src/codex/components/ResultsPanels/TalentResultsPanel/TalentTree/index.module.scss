@@ -96,13 +96,42 @@
   }
 }
 
+.talent-node-requirements {
+  font-size: font-size('xxs');
+  font-weight: 600;
+  fill: $color-danger-hover;
+  text-anchor: middle;
+
+  &--collapsed {
+    font-size: font-size('xs');
+  }
+}
+
 .talent-node-description {
-  font-size: font-size('xxxs');
+  font-size: font-size('xxs');
   color: $color-primary-base;
-  opacity: 0.8;
+  opacity: 0.9;
   text-align: center;
-  line-height: 1.2;
+  line-height: 1.4;
   word-wrap: break-word;
+
+  // Explicit display for better mobile compatibility
+  display: block;
+  width: 100%;
+  height: 100%;
+
+  // Ensure images render inline with text on mobile
+  img {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    vertical-align: middle;
+    margin: 0 1px 1px;
+
+    // Force hardware acceleration on mobile
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+  }
 }
 
 .talent-node-separator {
@@ -113,5 +142,60 @@
     &--tier-#{$tier} {
       stroke: $color;
     }
+  }
+}
+
+.requirement-indicator-circle {
+  stroke: var(--color, $color-component-bg);
+  stroke-width: 2px;
+  fill: $color-component-bg;
+}
+
+.requirement-indicator {
+  pointer-events: none;
+
+  image {
+    pointer-events: none;
+  }
+}
+
+.talent-node-blightbane-link-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  pointer-events: auto;
+}
+
+// Copied from GradientLink/index.module.scss
+// Cannot reuse component because this is being used in a foreignObject.
+.talent-node-blightbane-link {
+  font-size: font-size('xxs');
+  text-decoration: none;
+  transition: opacity 0.4s ease;
+  font-weight: 600;
+  position: relative;
+  @include yellowGreenGradient(false);
+
+  &:hover {
+    @include yellowGreenGradient(true);
+
+    &::after {
+      transform: scaleX(1);
+    }
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    transform: scaleX(0);
+    transition: transform 0.5s ease;
+    transform-origin: left;
+    @include yellowGreenGradientBackground(1);
   }
 }
