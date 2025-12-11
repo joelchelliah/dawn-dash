@@ -380,10 +380,7 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
             )
         }
 
-        // Add content group
-        const contentGroup = nodeElement.append('g').attr('class', cx('tree-node-content'))
-
-        const nameGroup = contentGroup
+        const nameGroup = nodeElement
           .append('g')
           .attr('transform', `translate(0, ${-dynamicNodeHeight / 2 + nameHeight / 2})`)
 
@@ -405,7 +402,7 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
 
         // Add "required" text for additional requirements
         if (data.otherParentNames?.length) {
-          const reqGroup = contentGroup
+          const reqGroup = nodeElement
             .append('g')
             .attr(
               'transform',
@@ -437,13 +434,14 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
               ((descLines.length - 1) * descriptionLineHeight) / 2 +
               verticalCenteringOffset
 
-            // Append foreignObject directly to contentGroup
+            // Append foreignObject directly to nodeElement
             // Use transform instead of x/y for better mobile compatibility
-            const foreignObject = contentGroup
+            const foreignObject = nodeElement
               .append('foreignObject')
               .attr('width', nodeWidth)
               .attr('height', descriptionLineHeight)
               .attr('transform', `translate(${-nodeWidth / 2}, ${yPosition})`)
+              .style('pointer-events', 'none')
               .attr('style', 'overflow: visible;')
 
             let htmlContent = ''
@@ -471,9 +469,9 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
             extraRequirementHeight +
             blightbaneHeight / 2
 
-          // Append foreignObject directly to contentGroup
-          // Use transform instead of x/y for better mobile compatibility
-          const linkForeignObject = contentGroup
+          // Append foreignObject directly to nodeElement
+          // Link needs pointer-events enabled for clicking
+          const linkForeignObject = nodeElement
             .append('foreignObject')
             .attr('width', nodeWidth)
             .attr('height', blightbaneHeight)
