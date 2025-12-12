@@ -434,15 +434,13 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
               ((descLines.length - 1) * descriptionLineHeight) / 2 +
               verticalCenteringOffset
 
-            // Append foreignObject directly to nodeElement
-            // Use transform instead of x/y for better mobile compatibility
             const foreignObject = nodeElement
               .append('foreignObject')
+              .attr('x', -nodeWidth / 2)
+              .attr('y', yPosition)
               .attr('width', nodeWidth)
               .attr('height', descriptionLineHeight)
-              .attr('transform', `translate(${-nodeWidth / 2}, ${yPosition})`)
               .style('pointer-events', 'none')
-              .attr('style', 'overflow: visible;')
 
             let htmlContent = ''
             segments.forEach((segment) => {
@@ -457,11 +455,6 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
               .append('xhtml:div')
               .attr('xmlns', 'http://www.w3.org/1999/xhtml')
               .attr('class', cx('talent-node-description'))
-              .style('position', 'absolute')
-              .style('top', '0')
-              .style('left', '0')
-              .style('width', '100%')
-              .style('height', '100%')
               .html(htmlContent)
           })
         }
@@ -474,27 +467,17 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
             extraRequirementHeight +
             blightbaneHeight / 2
 
-          // Append foreignObject directly to nodeElement
-          // Link needs pointer-events enabled for clicking
           const linkForeignObject = nodeElement
             .append('foreignObject')
+            .attr('x', -nodeWidth / 2)
+            .attr('y', linkYPosition - blightbaneHeight / 2)
             .attr('width', nodeWidth)
             .attr('height', blightbaneHeight)
-            .attr(
-              'transform',
-              `translate(${-nodeWidth / 2}, ${linkYPosition - blightbaneHeight / 2})`
-            )
-            .attr('style', 'overflow: visible;')
 
           linkForeignObject
             .append('xhtml:div')
             .attr('xmlns', 'http://www.w3.org/1999/xhtml')
             .attr('class', cx('talent-node-blightbane-link-wrapper'))
-            .style('position', 'absolute')
-            .style('top', '0')
-            .style('left', '0')
-            .style('width', '100%')
-            .style('height', '100%')
             .html(
               `<a href="${blightbaneLink}" target="_blank" rel="noopener noreferrer" class="${cx('talent-node-blightbane-link')}">View in Blightbane</a>`
             )
