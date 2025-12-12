@@ -16,7 +16,8 @@ import {
   getLinkColor,
   getSecondaryTalentRequirementIconProps,
   getTalentRequirementIconProps,
-  parseTalentDescriptionLine,
+  parseTalentDescriptionLineForDesktopRendering,
+  parseTalentDescriptionLineForMobileRendering,
   wrapText,
 } from '@/codex/utils/talentHelper'
 import { REQUIREMENT_CLASS_TO_FILTER_OPTIONS_MAP } from '@/codex/constants/talentsMappingValues'
@@ -35,7 +36,8 @@ interface TalentTreeProps {
 
 const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
   const svgRef = useRef<SVGSVGElement>(null)
-  const { shouldShowDescription, shouldShowBlightbaneLink } = useFormattingFilters
+  const { shouldShowDescription, shouldShowBlightbaneLink, shouldUseMobileFriendlyRendering } =
+    useFormattingFilters
   const { toggleNodeExpansion: toggleDescriptionExpansion, isNodeExpanded: isDescriptionExpanded } =
     useExpandableNodes(shouldShowDescription)
 
@@ -362,17 +364,27 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
             )
         }
         if (shouldShowBlightbaneLink) {
+          // Very tiny adjustment of divider line.
+          const offset = 2
           nodeElement
             .append('line')
             .attr('x1', -nodeWidth / 2)
             .attr(
               'y1',
-              -dynamicNodeHeight / 2 + nameHeight + descriptionHeight + extraRequirementHeight
+              -dynamicNodeHeight / 2 +
+                nameHeight +
+                descriptionHeight +
+                extraRequirementHeight +
+                offset
             )
             .attr('x2', nodeWidth / 2)
             .attr(
               'y2',
-              -dynamicNodeHeight / 2 + nameHeight + descriptionHeight + extraRequirementHeight
+              -dynamicNodeHeight / 2 +
+                nameHeight +
+                descriptionHeight +
+                extraRequirementHeight +
+                offset
             )
             .attr(
               'class',
@@ -425,45 +437,60 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
           const descBaseY =
             -dynamicNodeHeight / 2 + nameHeight + extraRequirementHeight + descriptionHeight / 2
 
-          descLines.forEach((line, i) => {
-            const segments = parseTalentDescriptionLine(line)
-            const verticalCenteringOffset = -15
-            const yPosition =
-              descBaseY +
-              i * descriptionLineHeight -
-              ((descLines.length - 1) * descriptionLineHeight) / 2 +
-              verticalCenteringOffset
+          if (shouldUseMobileFriendlyRendering) {
+            // Mobile-friendly rendering: use SVG text with emojis
+            descLines.forEach((line, i) => {
+              const segments = parseTalentDescriptionLineForMobileRendering(line)
+              const verticalCenteringOffset = -2
+              const yPosition =
+                descBaseY +
+                i * descriptionLineHeight -
+                ((descLines.length - 1) * descriptionLineHeight) / 2 +
+                verticalCenteringOffset
 
-            // Append foreignObject directly to nodeElement
-            // Use transform instead of x/y for better mobile compatibility
-            const foreignObject = nodeElement
-              .append('foreignObject')
-              .attr('width', nodeWidth)
-              .attr('height', descriptionLineHeight)
-              .attr('transform', `translate(${-nodeWidth / 2}, ${yPosition})`)
-              .style('pointer-events', 'none')
-              .attr('style', 'overflow: visible;')
-
-            let htmlContent = ''
-            segments.forEach((segment) => {
-              if (segment.type === 'text') {
-                htmlContent += segment.content
-              } else if (segment.type === 'image' && 'icon' in segment) {
-                htmlContent += `<img src="${segment.icon}" alt="" />`
-              }
+              nodeElement
+                .append('text')
+                .attr('x', 0)
+                .attr('y', yPosition)
+                .attr('class', cx('talent-node-description'))
+                .style('pointer-events', 'none')
+                .text(segments)
             })
+          } else {
+            // Desktop rendering: use foreignObject with HTML and images
+            descLines.forEach((line, i) => {
+              const segments = parseTalentDescriptionLineForDesktopRendering(line)
+              const verticalCenteringOffset = -15
+              const yPosition =
+                descBaseY +
+                i * descriptionLineHeight -
+                ((descLines.length - 1) * descriptionLineHeight) / 2 +
+                verticalCenteringOffset
 
-            foreignObject
-              .append('xhtml:div')
-              .attr('xmlns', 'http://www.w3.org/1999/xhtml')
-              .attr('class', cx('talent-node-description'))
-              .style('position', 'absolute')
-              .style('top', '0')
-              .style('left', '0')
-              .style('width', '100%')
-              .style('height', '100%')
-              .html(htmlContent)
-          })
+              const foreignObject = nodeElement
+                .append('foreignObject')
+                .attr('x', -nodeWidth / 2)
+                .attr('y', yPosition)
+                .attr('width', nodeWidth)
+                .attr('height', descriptionLineHeight)
+                .style('pointer-events', 'none')
+
+              let htmlContent = ''
+              segments.forEach((segment) => {
+                if (segment.type === 'text') {
+                  htmlContent += segment.content
+                } else if (segment.type === 'image' && 'icon' in segment) {
+                  htmlContent += `<img src="${segment.icon}" alt="" />`
+                }
+              })
+
+              foreignObject
+                .append('xhtml:div')
+                .attr('xmlns', 'http://www.w3.org/1999/xhtml')
+                .attr('class', cx('talent-node-description'))
+                .html(htmlContent)
+            })
+          }
         }
         if (shouldShowBlightbaneLink) {
           const blightbaneLink = `https://www.blightbane.io/talent/${data.name.replaceAll(' ', '_')}`
@@ -474,30 +501,35 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
             extraRequirementHeight +
             blightbaneHeight / 2
 
-          // Append foreignObject directly to nodeElement
-          // Link needs pointer-events enabled for clicking
-          const linkForeignObject = nodeElement
-            .append('foreignObject')
-            .attr('width', nodeWidth)
-            .attr('height', blightbaneHeight)
-            .attr(
-              'transform',
-              `translate(${-nodeWidth / 2}, ${linkYPosition - blightbaneHeight / 2})`
-            )
-            .attr('style', 'overflow: visible;')
+          if (shouldUseMobileFriendlyRendering) {
+            // Mobile-friendly rendering: use SVG text (clicking will be harder but functional)
+            nodeElement
+              .append('text')
+              .attr('x', 0)
+              .attr('y', linkYPosition + 7)
+              .attr('class', cx('talent-node-blightbane-link'))
+              .text('View in Blightbane')
+              .on('click', function (event) {
+                event.stopPropagation()
+                window.open(blightbaneLink, '_blank', 'noopener,noreferrer')
+              })
+          } else {
+            // Desktop rendering: use foreignObject with HTML link
+            const linkForeignObject = nodeElement
+              .append('foreignObject')
+              .attr('x', -nodeWidth / 2)
+              .attr('y', linkYPosition - 5)
+              .attr('width', nodeWidth)
+              .attr('height', blightbaneHeight)
 
-          linkForeignObject
-            .append('xhtml:div')
-            .attr('xmlns', 'http://www.w3.org/1999/xhtml')
-            .attr('class', cx('talent-node-blightbane-link-wrapper'))
-            .style('position', 'absolute')
-            .style('top', '0')
-            .style('left', '0')
-            .style('width', '100%')
-            .style('height', '100%')
-            .html(
-              `<a href="${blightbaneLink}" target="_blank" rel="noopener noreferrer" class="${cx('talent-node-blightbane-link')}">View in Blightbane</a>`
-            )
+            linkForeignObject
+              .append('xhtml:div')
+              .attr('xmlns', 'http://www.w3.org/1999/xhtml')
+              .attr('class', cx('talent-node-blightbane-link-wrapper'))
+              .html(
+                `<a href="${blightbaneLink}" target="_blank" rel="noopener noreferrer" class="${cx('talent-node-blightbane-link')}">View in Blightbane</a>`
+              )
+          }
         }
       }
     })
@@ -619,7 +651,13 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
         }
       }
     })
-  }, [talentTree, isDescriptionExpanded, toggleDescriptionExpansion, shouldShowBlightbaneLink])
+  }, [
+    talentTree,
+    isDescriptionExpanded,
+    toggleDescriptionExpansion,
+    shouldShowBlightbaneLink,
+    shouldUseMobileFriendlyRendering,
+  ])
 
   return (
     <div className={cx('talent-tree-container')}>
