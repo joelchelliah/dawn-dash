@@ -31,7 +31,18 @@ const ICON_KEYWORDS_TO_URL = [
   { keyword: 'STR', icon: StrImageUrl },
   { keyword: 'INT', icon: IntImageUrl },
   { keyword: 'DEX', icon: DexImageUrl },
+  { keyword: 'NEUTRAL', icon: NeutralImageUrl },
 ]
+
+const KEYWORD_TO_EMOJI_MAP: Record<string, string> = {
+  HEALTH: ' ❤️',
+  HOLY: ' 🟡',
+  STR: ' 🔴',
+  INT: ' 🔵',
+  DEX: ' 🟢',
+  NEUTRAL: ' ⚪',
+  '\\(BLOOD\\)': '',
+}
 
 const colorGrey = getClassColor(CharacterClass.Neutral, ClassColorVariant.Default)
 const colorRed = getClassColor(CharacterClass.Warrior, ClassColorVariant.Default)
@@ -219,7 +230,7 @@ export const getLinkColor = (
   }
 }
 
-export const parseTalentDescriptionLine = (line: string) => {
+export const parseTalentDescriptionLineForDesktopRendering = (line: string) => {
   const parsedDescription = line
     .replace(/<br\s*\/?>/g, '<br />') // Normalize <br> tags
     .replace(/\[\[/g, '[') // Replace [[ with [
@@ -268,6 +279,25 @@ export const parseTalentDescriptionLine = (line: string) => {
 
   // Return at least one text segment if no keywords were found
   return segments.length > 0 ? segments : [{ type: 'text', content: parsedDescription }]
+}
+
+export const parseTalentDescriptionLineForMobileRendering = (line: string): string => {
+  let result = line
+    .replace(/<br\s*\/?>/g, '') // Remove <br> tags
+    .replace(/<\/?[bB]>/g, '') // Remove <b> tags
+    .replace(/<\/?nobr>/g, '') // Remove <nobr> tags
+    .replace(/\[\[/g, '[') // Replace [[ with [
+    .replace(/\]\]/g, ']') // Replace ]] with ]
+    .replace(/\(\[/g, '(') // Replace ([ with (
+    .replace(/\(\{/g, '(') // Replace ({ with (
+    .replace(/\]\)/g, ')') // Replace ]) with )
+    .replace(/\}\)/g, ')') // Replace }) with )
+    .trim()
+
+  Object.entries(KEYWORD_TO_EMOJI_MAP).forEach(([keyword, emoji]) => {
+    result = result.replace(new RegExp(keyword, 'g'), emoji)
+  })
+  return result
 }
 
 export const wrapText = (text: string, width: number, fontSize: number) => {

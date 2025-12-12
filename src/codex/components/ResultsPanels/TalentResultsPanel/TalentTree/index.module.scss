@@ -82,6 +82,7 @@
   font-weight: 600;
   fill: $color-primary-base;
   text-anchor: middle;
+  pointer-events: none;
 
   &--collapsed {
     font-size: font-size('sm');
@@ -105,9 +106,11 @@
 
 .talent-node-description {
   font-size: font-size('xxs');
-  color: $color-primary-base;
+  color: $color-primary-base; // For HTML (foreignObject)
+  fill: $color-primary-base; // For SVG text
   opacity: 0.9;
   text-align: center;
+  text-anchor: middle; // SVG equivalent of text-align: center
   line-height: 1.4;
   word-wrap: break-word;
   display: block;
@@ -117,8 +120,8 @@
   // Ensure images render inline with text on mobile
   img {
     display: inline-block;
-    width: 8px;
-    height: 8px;
+    width: 10px;
+    height: 10px;
     vertical-align: middle;
     margin: 0 1px 1px;
 
@@ -168,11 +171,16 @@
   font-size: font-size('xxs');
   text-decoration: none;
   transition: opacity 0.4s ease;
+  cursor: pointer;
   font-weight: 600;
   position: relative;
+  text-anchor: middle; // For SVG text elements
+  fill: $green-hover; // For SVG text elements
   @include yellowGreenGradient(false);
 
   &:hover {
+    text-decoration: underline;
+    fill: $yellow-hover; // For SVG text elements
     @include yellowGreenGradient(true);
 
     &::after {

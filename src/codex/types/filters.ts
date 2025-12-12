@@ -169,6 +169,7 @@ export const FormattingCard = {
 // -------------------- Formatting Talent --------------------
 
 export enum FormattingTalentFilterOption {
+  MobileFriendlyRendering = 'MobileFriendlyRendering',
   ShowDescriptionByDefault = 'ShowDescriptionByDefault',
   ShowBlightbaneLink = 'ShowBlightbaneLink',
 }
