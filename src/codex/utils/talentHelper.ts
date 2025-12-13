@@ -92,6 +92,8 @@ export const getTalentRequirementIconProps = (
       return { count: 1, url: DexImageUrl, color: colorGreen, label: 'DEX' }
     case 'DEX2':
       return { count: 2, url: DexImageUrl, color: colorGreen, label: '2 DEX' }
+    case 'DEX3':
+      return { count: 3, url: DexImageUrl, color: colorGreen, label: '3 DEX' }
     case 'INT':
       return { count: 1, url: IntImageUrl, color: colorBlue, label: 'INT' }
     case 'INT2':
