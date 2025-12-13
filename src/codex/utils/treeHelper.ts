@@ -82,7 +82,8 @@ const buildHierarchicalTreeNodeFromTalentNode = (
   const requiresAccessToHoly =
     (name === 'Pious' && parentName === 'WindyHillock') ||
     (name === 'Zealous' && parentName === 'LostSoul') ||
-    (name === 'Sanctifier' && parentName === 'BrightGem')
+    (name === 'Sanctifier' && parentName === 'BrightGem') ||
+    (name === 'Divine Defiance' && parentName === 'Chasm')
 
   const requirements = Array.from(
     new Set(
@@ -127,7 +128,9 @@ const buildHierarchicalTreeNodeFromRequirementNode = (
       : node.name.split('_')
 
   const unmappedChildren: TalentTreeTalentNode[] = node.children.flatMap((child) => {
-    // Special cases for talents that have several sets of requirements:
+    const isAlsoHoly = ['Abyssal Resistance', 'Legion Insight'].includes(child.name)
+
+    // Special cases for talents that have several sets of requirements
     if (child.name === 'Frozen Heart') {
       return [
         child,
@@ -144,15 +147,7 @@ const buildHierarchicalTreeNodeFromRequirementNode = (
           classOrEnergyRequirements: ['INT2HOLY'],
         },
       ]
-    } else if (child.name === 'Abyssal Resistance') {
-      return [
-        child,
-        {
-          ...child,
-          classOrEnergyRequirements: ['HOLY'],
-        },
-      ]
-    } else if (child.name === 'Legion Insight') {
+    } else if (isAlsoHoly) {
       return [
         child,
         {
