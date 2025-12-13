@@ -14,6 +14,7 @@ import {
 } from '@/codex/types/talents'
 import {
   getLinkColor,
+  getMatchingKeywordsText,
   getSecondaryTalentRequirementIconProps,
   getTalentRequirementIconProps,
   parseTalentDescriptionLineForDesktopRendering,
@@ -23,7 +24,7 @@ import {
 import { REQUIREMENT_CLASS_TO_FILTER_OPTIONS_MAP } from '@/codex/constants/talentsMappingValues'
 import { buildHierarchicalTreeFromTalentTree } from '@/codex/utils/treeHelper'
 import { useExpandableNodes } from '@/codex/hooks/useExpandableNodes'
-import { useFormattingTalentFilters } from '@/codex/hooks/useSearchFilters/useFormattingTalentFilters'
+import { useAllTalentSearchFilters } from '@/codex/hooks/useSearchFilters'
 
 import styles from './index.module.scss'
 
@@ -31,13 +32,18 @@ const cx = createCx(styles)
 
 interface TalentTreeProps {
   talentTree: TalentTreeType | undefined
-  useFormattingFilters: ReturnType<typeof useFormattingTalentFilters>
+  useSearchFilters: ReturnType<typeof useAllTalentSearchFilters>
 }
 
-const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
+const TalentTree = ({ talentTree, useSearchFilters }: TalentTreeProps) => {
   const svgRef = useRef<SVGSVGElement>(null)
-  const { shouldShowDescription, shouldShowBlightbaneLink, shouldUseMobileFriendlyRendering } =
-    useFormattingFilters
+  const { parsedKeywords, useFormattingFilters } = useSearchFilters
+  const {
+    shouldUseMobileFriendlyRendering,
+    shouldShowDescription,
+    shouldShowKeywords,
+    shouldShowBlightbaneLink,
+  } = useFormattingFilters
   const { toggleNodeExpansion: toggleDescriptionExpansion, isNodeExpanded: isDescriptionExpanded } =
     useExpandableNodes(shouldShowDescription)
 
@@ -58,7 +64,8 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
     const minDescriptionHeight = 15
     const collapsedDescriptionHeight = 4
     const descriptionLineHeight = 15
-    const requirementsHeight = 16 // Height for the Goldstrike requirements section
+    const requirementsHeight = 16 // Height for additional requirements text
+    const keywordsHeight = 20 // Height for matching keywords text
     const blightbaneLinkHeight = 26 // Height for the Blightbane link
     const defaultVerticalSpacing = 100
     const horizontalSpacing = nodeWidth * 1.4
@@ -67,10 +74,13 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
     const getDynamicVerticalSpacing = (node: HierarchicalTalentTreeNode) => {
       if (node.type === TalentTreeNodeType.TALENT) {
         const extraRequirementHeight = node.otherParentNames?.length ? requirementsHeight : 0
+        const matchingKeywordsHeight = shouldShowKeywords ? keywordsHeight : 0
         const blightbaneHeight = shouldShowBlightbaneLink ? blightbaneLinkHeight / 2 : 0
 
+        const additionalHeight = extraRequirementHeight + matchingKeywordsHeight + blightbaneHeight
+
         if (!isDescriptionExpanded(node.name)) {
-          return nameHeight * 2.8 + extraRequirementHeight + blightbaneHeight
+          return nameHeight * 2.8 + additionalHeight
         }
 
         const descLines = wrapText(node.description, nodeWidth + 10, 10)
@@ -79,7 +89,7 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
           descLines.length * descriptionLineHeight
         )
 
-        return (nameHeight + descriptionHeight + extraRequirementHeight + blightbaneHeight) * 1.7
+        return (nameHeight + descriptionHeight + additionalHeight) * 1.7
       }
       return defaultVerticalSpacing
     }
@@ -323,13 +333,15 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
       } else {
         const isCollapsed = !isDescriptionExpanded(data.name)
         const descLines = wrapText(data.description, nodeWidth + 8, 11)
+
         const descriptionHeight = isCollapsed
           ? collapsedDescriptionHeight
           : Math.max(minDescriptionHeight, descLines.length * descriptionLineHeight)
         const extraRequirementHeight = data.otherParentNames?.length ? requirementsHeight : 0
+        const matchingKeywordsHeight = shouldShowKeywords ? keywordsHeight : 0
         const blightbaneHeight = shouldShowBlightbaneLink ? blightbaneLinkHeight : 0
-        const dynamicNodeHeight =
-          nameHeight + descriptionHeight + extraRequirementHeight + blightbaneHeight + 6
+        const additionalHeight = descriptionHeight + extraRequirementHeight + blightbaneHeight
+        const dynamicNodeHeight = nameHeight + additionalHeight + 6
 
         nodeElement
           .append('rect')
@@ -531,6 +543,25 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
               )
           }
         }
+
+        if (shouldShowKeywords) {
+          const keywordsYPosition =
+            -dynamicNodeHeight / 2 +
+            nameHeight +
+            descriptionHeight +
+            extraRequirementHeight +
+            blightbaneHeight +
+            matchingKeywordsHeight
+
+          nodeElement
+            .append('text')
+            .attr('x', 0)
+            .attr('y', keywordsYPosition + 6)
+            .attr('height', keywordsHeight)
+            .attr('width', nodeWidth)
+            .text(getMatchingKeywordsText(data, parsedKeywords))
+            .attr('class', cx('talent-node-keywords'))
+        }
       }
     })
 
@@ -654,9 +685,11 @@ const TalentTree = ({ talentTree, useFormattingFilters }: TalentTreeProps) => {
   }, [
     talentTree,
     isDescriptionExpanded,
-    toggleDescriptionExpansion,
-    shouldShowBlightbaneLink,
     shouldUseMobileFriendlyRendering,
+    toggleDescriptionExpansion,
+    shouldShowKeywords,
+    shouldShowBlightbaneLink,
+    parsedKeywords,
   ])
 
   return (

@@ -66,7 +66,7 @@ const TalentResultsPanel = ({ useSearchFilters }: TalentResultsPanelProps) => {
           className={cx('results-container__info')}
         />
 
-        <TalentTree talentTree={matchingTalentTree} useFormattingFilters={useFormattingFilters} />
+        <TalentTree talentTree={matchingTalentTree} useSearchFilters={useSearchFilters} />
       </div>
     )
   }

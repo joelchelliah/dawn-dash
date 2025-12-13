@@ -201,3 +201,12 @@
     @include yellowGreenGradientBackground(1);
   }
 }
+
+.talent-node-keywords {
+  font-size: font-size('xxs');
+  font-style: italic;
+  font-weight: 400;
+  fill: $color-primary-muted;
+  text-anchor: middle;
+  pointer-events: none;
+}

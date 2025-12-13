@@ -322,6 +322,18 @@ export const wrapText = (text: string, width: number, fontSize: number) => {
   return lines
 }
 
+export const getMatchingKeywordsText = (
+  talent: HierarchicalTalentTreeNode,
+  parsedKeywords: string[]
+) => {
+  const matches = parsedKeywords.filter(
+    (keyword) =>
+      talent.name.toLowerCase().includes(keyword.toLowerCase()) ||
+      talent.description.toLowerCase().includes(keyword.toLowerCase())
+  )
+  return matches.length > 0 ? `{ ${matches.join(', ')} }` : ''
+}
+
 const countRelevantCharactersForLineWidth = (str: string) => {
   // Strip Html tags
   let effectiveStr = str.replace(/<\/?(?:b|nobr)>/gi, '')
