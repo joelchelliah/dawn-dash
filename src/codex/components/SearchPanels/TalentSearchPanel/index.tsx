@@ -17,6 +17,7 @@ import {
   StrImageUrl,
   SunforgeImageUrl,
   WarriorImageUrl,
+  RuneOfPersistenceImageUrl,
 } from '@/shared/utils/imageUrls'
 
 import { allTiers } from '@/codex/hooks/useSearchFilters/useTierFilters'
@@ -150,11 +151,11 @@ const TalentSearchPanel = ({ useSearchFilters, useTalentData }: TalentSearchPane
             {name}
           </span>
         )
-      case RequirementFilterOption.Event:
+      case RequirementFilterOption.ObtainedFromEvents:
         return (
           <span className={cx('filter-label')}>
             {renderRequirementFilterLabelIcon(CoinsOfPassingImageUrl, alt, true)}
-            {name}
+            Event
           </span>
         )
       case RequirementFilterOption.Offer:
@@ -162,6 +163,13 @@ const TalentSearchPanel = ({ useSearchFilters, useTalentData }: TalentSearchPane
           <span className={cx('filter-label')}>
             {renderRequirementFilterLabelIcon(InfernalContractUrl, alt, true)}
             {name}
+          </span>
+        )
+      case RequirementFilterOption.ObtainedFromCards:
+        return (
+          <span className={cx('filter-label')}>
+            {renderRequirementFilterLabelIcon(RuneOfPersistenceImageUrl, alt, true)}
+            Card
           </span>
         )
       default:

@@ -216,7 +216,8 @@ const TalentTree = ({ talentTree, useSearchFilters }: TalentTreeProps) => {
         const showBiggerIcons =
           data.type === TalentTreeNodeType.CLASS_REQUIREMENT ||
           data.type === TalentTreeNodeType.OFFER_REQUIREMENT ||
-          data.type === TalentTreeNodeType.EVENT_REQUIREMENT
+          data.type === TalentTreeNodeType.EVENT_REQUIREMENT ||
+          data.type === TalentTreeNodeType.CARD_REQUIREMENT
 
         const showMultipleIcons = data.type === TalentTreeNodeType.CLASS_AND_ENERGY_REQUIREMENT
 

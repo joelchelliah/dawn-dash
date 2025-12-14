@@ -19,8 +19,9 @@ const defaultFilters = {
   [RequirementFilterOption.Seeker]: true,
   [RequirementFilterOption.Warrior]: true,
   [RequirementFilterOption.Sunforge]: true,
-  [RequirementFilterOption.Event]: true,
+  [RequirementFilterOption.ObtainedFromEvents]: true,
   [RequirementFilterOption.Offer]: true,
+  [RequirementFilterOption.ObtainedFromCards]: true,
   [SharedFilterOption.All]: true,
   [SharedFilterOption.None]: false,
 }
@@ -37,8 +38,9 @@ const valueToStringMap = {
   [RequirementFilterOption.Seeker]: 'Seeker',
   [RequirementFilterOption.Warrior]: 'Warrior',
   [RequirementFilterOption.Sunforge]: 'Sunforge',
-  [RequirementFilterOption.Event]: 'Event',
+  [RequirementFilterOption.ObtainedFromEvents]: 'Obtained from events',
   [RequirementFilterOption.Offer]: 'Offer',
+  [RequirementFilterOption.ObtainedFromCards]: 'Obtained from cards',
   [SharedFilterOption.All]: SharedFilterOption.All,
   [SharedFilterOption.None]: SharedFilterOption.None,
 }
@@ -55,8 +57,9 @@ const indexMap = {
   [RequirementFilterOption.Seeker]: 8,
   [RequirementFilterOption.Warrior]: 9,
   [RequirementFilterOption.Sunforge]: 10,
-  [RequirementFilterOption.Event]: 11,
+  [RequirementFilterOption.ObtainedFromEvents]: 11,
   [RequirementFilterOption.Offer]: 12,
+  [RequirementFilterOption.ObtainedFromCards]: 13,
 }
 
 export const allRequirements: string[] = Requirement.getAll()

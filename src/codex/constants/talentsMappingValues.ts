@@ -93,11 +93,14 @@ export const EVENT_TALENTS_MAP_BLACKLIST: Record<string, string[]> = {
   LostSoul: NOT_REALLY_LOST_SOUL_TALENTS,
 }
 
-// TODO: How to include this separation?!
-export const TALENTS_FROM_CARD_ACTIONS = [
-  'Mark of Taurus', // Taurus Rage
-  'Undead', // Dark Revenance
-]
+export const TALENTS_OBTAINED_FROM_CARDS = {
+  ONLY: [
+    'Mark of Taurus', // Taurus Rage
+    'Undead', // Dark Revenance
+  ],
+  ALSO: [
+    'Devotion', // Sacred Tome
+  ],
+}
 
-// TODO: How to include this separation?!
 export const REMOVED_TALENTS = ['Prodigy', 'Lucky']

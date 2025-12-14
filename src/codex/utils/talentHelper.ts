@@ -2,7 +2,7 @@ import {
   ArcanistImageUrl,
   CoinsOfPassingImageUrl,
   DexImageUrl,
-  EventImageUrl,
+  ChestImageUrl,
   HealthImageUrl,
   HolyImageUrl,
   HunterImageUrl,
@@ -15,6 +15,10 @@ import {
   StrImageUrl,
   SunforgeImageUrl,
   WarriorImageUrl,
+  DarkRevenanceImageUrl,
+  TaurusRageImageUrl,
+  SacredTomeImageUrl,
+  RuneOfPersistenceImageUrl,
 } from '@/shared/utils/imageUrls'
 import { CharacterClass } from '@/shared/types/characterClass'
 import { ClassColorVariant, darken, getClassColor } from '@/shared/utils/classColors'
@@ -24,6 +28,7 @@ import {
   TalentTreeNodeType,
   TalentTreeTalentNode,
 } from '../types/talents'
+import { TALENTS_OBTAINED_FROM_CARDS } from '../constants/talentsMappingValues'
 
 const ICON_KEYWORDS_TO_URL = [
   { keyword: 'HEALTH', icon: HealthImageUrl },
@@ -54,6 +59,7 @@ const colorKnight = getClassColor(CharacterClass.Knight, ClassColorVariant.Dark)
 const colorSeeker = getClassColor(CharacterClass.Seeker, ClassColorVariant.Dark)
 const colorOffers = darken(getClassColor(CharacterClass.Warrior, ClassColorVariant.Default), 10)
 const colorEvents = darken(getClassColor(CharacterClass.Seeker, ClassColorVariant.Default), 10)
+const colorCards = darken(getClassColor(CharacterClass.Sunforge, ClassColorVariant.Light), 10)
 
 export const getTalentRequirementIconProps = (
   type: TalentTreeNodeType,
@@ -159,11 +165,31 @@ export const getTalentRequirementIconProps = (
     case 'Offers':
       return { count: 1, url: InfernalContractUrl, color: colorOffers, label: 'Offers' }
     case 'Events':
-      return { count: 1, url: CoinsOfPassingImageUrl, color: colorEvents, label: 'Events' }
+    case 'Obtained from events':
+      return {
+        count: 1,
+        url: CoinsOfPassingImageUrl,
+        color: colorEvents,
+        label: 'Obtained from events',
+      }
+    case 'Cards':
+    case 'Obtained from cards':
+      return {
+        count: 1,
+        url: RuneOfPersistenceImageUrl,
+        color: colorCards,
+        label: 'Obtained from cards',
+      }
     case 'No Requirements':
       return { count: 1, url: NeutralImageUrl, color: colorGrey, label: 'No requirements' }
+    case 'Sacred Tome':
+      return { count: 1, url: SacredTomeImageUrl, color: colorCards, label }
+    case 'Taurus Rage':
+      return { count: 1, url: TaurusRageImageUrl, color: colorCards, label }
+    case 'Dark Revenance':
+      return { count: 1, url: DarkRevenanceImageUrl, color: colorCards, label }
     default:
-      return { count: 1, url: EventImageUrl, color: colorEvents, label }
+      return { count: 1, url: ChestImageUrl, color: colorEvents, label }
   }
 }
 
@@ -203,6 +229,8 @@ export const getLinkColor = (
     return getLinkColor(link, currentNode.data.name, currentNode.data.type)
   } else if (type === TalentTreeNodeType.EVENT_REQUIREMENT) {
     return colorEvents
+  } else if (type === TalentTreeNodeType.CARD_REQUIREMENT) {
+    return colorCards
   } else {
     const tinyDarken = (color: string) => darken(color, 10)
     switch (name) {
@@ -350,6 +378,10 @@ export const isTalentOffer = (talent: TalentTreeTalentNode) =>
   hasTalentMonsterExpansion(talent) && hasTalentOfferPrefix(talent)
 
 export const isTalentInAnyEvents = (talent: TalentTreeTalentNode) => talent.events.length > 0
+
+export const isTalentInAnyCards = (talent: TalentTreeTalentNode) =>
+  TALENTS_OBTAINED_FROM_CARDS.ONLY.includes(talent.name) ||
+  TALENTS_OBTAINED_FROM_CARDS.ALSO.includes(talent.name)
 
 const hasTalentMonsterExpansion = (talent: TalentTreeTalentNode) => talent.expansion === 0
 

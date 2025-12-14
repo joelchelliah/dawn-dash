@@ -3,7 +3,7 @@ import { getFromCache, saveToCache } from '@/shared/utils/storage'
 
 import { TalentTree } from '@/codex/types/talents'
 
-const CACHE_VERSION = 'v3'
+const CACHE_VERSION = 'v4'
 const CACHE_KEY = `codex_talents_${CACHE_VERSION}`
 const CACHE_DURATION = 24 * 60 * 60 * 1000 // 1 day
 

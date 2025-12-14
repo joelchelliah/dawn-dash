@@ -18,7 +18,7 @@ import {
   REQUIREMENT_CLASS_AND_ENERGY_TO_FILTER_OPTIONS_MAP,
   REQUIREMENT_CLASS_TO_FILTER_OPTIONS_MAP,
   REQUIREMENT_ENERGY_TO_FILTER_OPTIONS_MAP,
-  TALENTS_FROM_CARD_ACTIONS,
+  TALENTS_OBTAINED_FROM_CARDS,
 } from '../constants/talentsMappingValues'
 
 export const mapTalentsDataToTalentTree = (unparsedTalents: TalentData[]): TalentTree => {
@@ -83,7 +83,8 @@ export const mapTalentsDataToTalentTree = (unparsedTalents: TalentData[]): Talen
     talent.requires_talents.length === 0 &&
     talent.requires_classes.length === 0 &&
     talent.requires_energy.length === 0 &&
-    talent.expansion !== 0
+    talent.expansion !== 0 &&
+    !TALENTS_OBTAINED_FROM_CARDS.ONLY.includes(talent.name)
 
   const hasClass = (className: string) => (talent: TalentData) =>
     talent.requires_classes.includes(className)
@@ -157,7 +158,7 @@ export const mapTalentsDataToTalentTree = (unparsedTalents: TalentData[]): Talen
     uniqueEvents,
     TalentTreeNodeType.EVENT_REQUIREMENT,
     isValidEventTalent,
-    () => [RequirementFilterOption.Event],
+    () => [RequirementFilterOption.ObtainedFromEvents],
     // Special case, since these are basically the same event
     (name) => {
       if (name === 'Priest') return 'Prayer, Priest, Priest 1'
@@ -165,6 +166,27 @@ export const mapTalentsDataToTalentTree = (unparsedTalents: TalentData[]): Talen
       return name
     }
   )
+
+  const rootCardRequirementNodes: TalentTreeRequirementNode[] = [
+    {
+      type: TalentTreeNodeType.CARD_REQUIREMENT,
+      name: 'Sacred Tome',
+      requirementFilterOptions: [RequirementFilterOption.ObtainedFromCards],
+      children: createTalentNodes((talent) => talent.name === 'Devotion'),
+    },
+    {
+      type: TalentTreeNodeType.CARD_REQUIREMENT,
+      name: 'Taurus Rage',
+      requirementFilterOptions: [RequirementFilterOption.ObtainedFromCards],
+      children: createTalentNodes((talent) => talent.name === 'Mark of Taurus'),
+    },
+    {
+      type: TalentTreeNodeType.CARD_REQUIREMENT,
+      name: 'Dark Revenance',
+      requirementFilterOptions: [RequirementFilterOption.ObtainedFromCards],
+      children: createTalentNodes((talent) => talent.name === 'Undead'),
+    },
+  ]
 
   const rootOfferNode: TalentTreeRequirementNode = {
     type: TalentTreeNodeType.OFFER_REQUIREMENT,
@@ -179,6 +201,7 @@ export const mapTalentsDataToTalentTree = (unparsedTalents: TalentData[]): Talen
     classAndEnergyNodes: rootClassAndEnergyRequirementNodes,
     energyNodes: rootEnergyRequirementNodes,
     eventNodes: rootEventRequirementNodes,
+    cardNodes: rootCardRequirementNodes,
     offerNode: rootOfferNode,
   }
 }
@@ -189,9 +212,6 @@ const removeDuplicateAndNonExistingTalents = (talents: TalentData[]): TalentData
   return talents.filter((talent) => {
     if (seen.has(talent.name)) return false
     if (REMOVED_TALENTS.includes(talent.name)) return false
-
-    // TODO: Add a filter to show these talents?
-    if (TALENTS_FROM_CARD_ACTIONS.includes(talent.name)) return false
 
     seen.add(talent.name)
     return true

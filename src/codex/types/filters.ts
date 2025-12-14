@@ -61,7 +61,8 @@ export enum RequirementFilterOption {
   Warrior = 'Warrior',
   Sunforge = 'Sunforge',
   Offer = 'Offer',
-  Event = 'Event',
+  ObtainedFromEvents = 'ObtainedFromEvents',
+  ObtainedFromCards = 'ObtainedFromCards',
 }
 
 export type Requirement = RequirementFilterOption | SharedFilterOption

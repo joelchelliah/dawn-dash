@@ -16,7 +16,8 @@ export const isTalentTreeEqual = (talentTreeA: TalentTree, talentTreeB: TalentTr
   areTalentTreeNodesEqual(talentTreeA.classNodes, talentTreeB.classNodes) &&
   areTalentTreeNodesEqual(talentTreeA.classAndEnergyNodes, talentTreeB.classAndEnergyNodes) &&
   areTalentTreeNodesEqual(talentTreeA.energyNodes, talentTreeB.energyNodes) &&
-  areTalentTreeNodesEqual(talentTreeA.eventNodes, talentTreeB.eventNodes)
+  areTalentTreeNodesEqual(talentTreeA.eventNodes, talentTreeB.eventNodes) &&
+  areTalentTreeNodesEqual(talentTreeA.cardNodes, talentTreeB.cardNodes)
 
 const areTalentTreeNodesEqual = (nodesA: TalentTreeNode[], nodesB: TalentTreeNode[]): boolean =>
   nodesA.length === nodesB.length &&
@@ -46,12 +47,25 @@ export const buildHierarchicalTreeFromTalentTree = (
     .filter(isNotNullOrUndefined)
 
   const eventNodesRoot: HierarchicalTalentTreeNode = {
-    name: 'Events',
+    name: 'Obtained from events',
     description: '',
     type: TalentTreeNodeType.EVENT_REQUIREMENT,
     children: eventNodes,
-    classOrEnergyRequirements: [RequirementFilterOption.Event],
+    classOrEnergyRequirements: [RequirementFilterOption.ObtainedFromEvents],
   }
+
+  const cardNodes = talentTree.cardNodes
+    .map(buildHierarchicalTreeNodeFromRequirementNode)
+    .filter(isNotNullOrUndefined)
+
+  const cardNodesRoot: HierarchicalTalentTreeNode = {
+    name: 'Obtained from cards',
+    description: '',
+    type: TalentTreeNodeType.CARD_REQUIREMENT,
+    children: cardNodes,
+    classOrEnergyRequirements: [RequirementFilterOption.ObtainedFromCards],
+  }
+
   return {
     name: 'Root',
     description: '',
@@ -67,6 +81,7 @@ export const buildHierarchicalTreeFromTalentTree = (
         .map(buildHierarchicalTreeNodeFromRequirementNode)
         .filter(isNotNullOrUndefined),
       ...(eventNodes.length > 0 ? [eventNodesRoot] : []),
+      ...(cardNodes.length > 0 ? [cardNodesRoot] : []),
       buildHierarchicalTreeNodeFromRequirementNode(talentTree.offerNode),
     ].filter(isNotNullOrUndefined),
     classOrEnergyRequirements: [],
@@ -124,8 +139,10 @@ const buildHierarchicalTreeNodeFromRequirementNode = (
 ): HierarchicalTalentTreeNode | undefined => {
   const requirements =
     node.type === TalentTreeNodeType.EVENT_REQUIREMENT
-      ? [RequirementFilterOption.Event]
-      : node.name.split('_')
+      ? [RequirementFilterOption.ObtainedFromEvents]
+      : node.type === TalentTreeNodeType.CARD_REQUIREMENT
+        ? [RequirementFilterOption.ObtainedFromCards]
+        : node.name.split('_')
 
   const unmappedChildren: TalentTreeTalentNode[] = node.children.flatMap((child) => {
     const isAlsoHoly = ['Abyssal Resistance', 'Legion Insight'].includes(child.name)
