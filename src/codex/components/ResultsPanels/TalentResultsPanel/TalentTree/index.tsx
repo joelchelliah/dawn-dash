@@ -74,7 +74,10 @@ const TalentTree = ({ talentTree, useSearchFilters }: TalentTreeProps) => {
     const getDynamicVerticalSpacing = (node: HierarchicalTalentTreeNode) => {
       if (node.type === TalentTreeNodeType.TALENT) {
         const extraRequirementHeight = node.otherParentNames?.length ? requirementsHeight : 0
-        const matchingKeywordsHeight = shouldShowKeywords ? keywordsHeight : 0
+        const matchingKeywordsHeight =
+          shouldShowKeywords && getMatchingKeywordsText(node, parsedKeywords).length > 0
+            ? keywordsHeight
+            : 0
         const blightbaneHeight = shouldShowBlightbaneLink ? blightbaneLinkHeight / 2 : 0
 
         const additionalHeight = extraRequirementHeight + matchingKeywordsHeight + blightbaneHeight
