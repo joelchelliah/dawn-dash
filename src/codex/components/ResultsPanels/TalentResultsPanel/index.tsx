@@ -20,7 +20,7 @@ const cx = createCx(styles)
 
 const TalentResultsPanel = ({ useSearchFilters }: TalentResultsPanelProps) => {
   const [showCardsWithoutKeywords, setShowCardsWithoutKeywords] = useState(false)
-  const { parsedKeywords, matchingTalentTree, useFormattingFilters } = useSearchFilters
+  const { parsedKeywords, matchingTalentTree } = useSearchFilters
 
   const matchingTalentNames = useMemo(() => {
     if (!matchingTalentTree) return []
