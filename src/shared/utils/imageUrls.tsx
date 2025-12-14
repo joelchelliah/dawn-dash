@@ -9,6 +9,10 @@ export const EleganceImageUrl = `${blightbaneImagesUrl}/icons/elegance.webp`
 export const InfernalContractUrl = `${blightbaneImagesUrl}/icons/cardart_3_10.webp`
 export const RushedForgeryImageUrl = `${blightbaneImagesUrl}/icons/Forgery_eclypse-miniset.webp`
 export const CoinsOfPassingImageUrl = `${blightbaneImagesUrl}/icons/siegeOfshadows_abilities_2-quest_coinsOfPassing.webp`
+export const SacredTomeImageUrl = `${blightbaneImagesUrl}/icons/Masks%20of%20Misery_57.webp`
+export const TaurusRageImageUrl = `${blightbaneImagesUrl}/icons/path_taurus.webp`
+export const DarkRevenanceImageUrl = `${blightbaneImagesUrl}/icons/rise-from-the-grave.webp`
+export const RuneOfPersistenceImageUrl = `${blightbaneImagesUrl}/icons/Death_of_Divinity_29.webp`
 
 // Classes
 export const ArcanistImageUrl = `${blightbaneImagesUrl}/classes/Arcanist_I_M.webp`
@@ -32,4 +36,4 @@ export const NeutralImageUrl = `${blightbaneImagesUrl}/neutral.webp`
 // Other
 export const HealthImageUrl = `${blightbaneImagesUrl}/health.webp`
 export const BolgarImageUrl = `${blightbaneImagesUrl}/bolgar.png`
-export const EventImageUrl = `${blightbaneImagesUrl}/events/opportunity_image.webp`
+export const ChestImageUrl = `${blightbaneImagesUrl}/events/opportunity_image.webp`

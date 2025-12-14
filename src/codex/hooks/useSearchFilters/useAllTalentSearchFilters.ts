@@ -13,7 +13,7 @@ import {
   cacheTalentCodexSearchFilters,
   getCachedTalentCodexSearchFilters,
 } from '@/codex/utils/codexFilterStore'
-import { isTalentInAnyEvents, isTalentOffer } from '@/codex/utils/talentHelper'
+import { isTalentInAnyEvents, isTalentInAnyCards, isTalentOffer } from '@/codex/utils/talentHelper'
 import { isTalentTreeEqual } from '@/codex/utils/treeHelper'
 import { RequirementFilterOption } from '@/codex/types/filters'
 
@@ -92,7 +92,8 @@ export const useAllTalentSearchFilters = (
   const { formattingFilters, resetFormattingFilters } = trackedUseFormattingFilters
 
   const shouldIncludeOffers = isRequirementSelected([RequirementFilterOption.Offer])
-  const shouldIncludeEvents = isRequirementSelected([RequirementFilterOption.Event])
+  const shouldIncludeEvents = isRequirementSelected([RequirementFilterOption.ObtainedFromEvents])
+  const shouldIncludeCards = isRequirementSelected([RequirementFilterOption.ObtainedFromCards])
 
   const resetFilters = () => {
     trackedSetKeywords('')
@@ -182,6 +183,13 @@ export const useAllTalentSearchFilters = (
     [traverseNode]
   )
 
+  const traverseCardTalentNodes = useCallback(
+    (talentTree: TalentTree, visitTalent: (talent: TalentTreeTalentNode) => void) => {
+      talentTree.cardNodes.forEach((node) => traverseNode(node, visitTalent))
+    },
+    [traverseNode]
+  )
+
   const traverseOfferNodes = useCallback(
     (talentTree: TalentTree, visitTalent: (talent: TalentTreeTalentNode) => void) => {
       traverseNode(talentTree.offerNode, visitTalent)
@@ -210,6 +218,16 @@ export const useAllTalentSearchFilters = (
     },
     [isTierIndexSelected, parsedKeywords]
   )
+  const cardTalentNodePredicate = useCallback(
+    (talent: TalentTreeTalentNode) => {
+      return (
+        isTalentInAnyCards(talent) &&
+        isTierIndexSelected(talent.tier) &&
+        isNameOrDescriptionIncluded(talent, parsedKeywords)
+      )
+    },
+    [isTierIndexSelected, parsedKeywords]
+  )
 
   const offerNodePredicate = useCallback(
     (talent: TalentTreeTalentNode) => {
@@ -222,12 +240,13 @@ export const useAllTalentSearchFilters = (
     [isTierIndexSelected, parsedKeywords]
   )
 
-  type NodeTraversalContext = 'regular' | 'event' | 'offer'
+  type NodeTraversalContext = 'regular' | 'event' | 'card' | 'offer'
 
   const collectAllMatchingSets = useCallback(
     (talentTree: TalentTree) => {
       const regularMatches = new Set<string>()
       const eventMatches = new Set<string>()
+      const cardMatches = new Set<string>()
       const offerMatches = new Set<string>()
 
       const traverseWithContext = (node: TalentTreeNode, nodeContext: NodeTraversalContext) => {
@@ -236,6 +255,8 @@ export const useAllTalentSearchFilters = (
             regularMatches.add(node.name)
           } else if (nodeContext === 'event' && eventTalentNodePredicate(node)) {
             eventMatches.add(node.name)
+          } else if (nodeContext === 'card' && cardTalentNodePredicate(node)) {
+            cardMatches.add(node.name)
           } else if (nodeContext === 'offer' && offerNodePredicate(node)) {
             offerMatches.add(node.name)
           }
@@ -251,6 +272,10 @@ export const useAllTalentSearchFilters = (
 
       if (shouldIncludeEvents) {
         talentTree.eventNodes.forEach((node) => traverseWithContext(node, 'event'))
+      }
+
+      if (shouldIncludeCards) {
+        talentTree.cardNodes.forEach((node) => traverseWithContext(node, 'card'))
       }
 
       if (shouldIncludeOffers) {
@@ -285,6 +310,9 @@ export const useAllTalentSearchFilters = (
         eventMatches: shouldIncludeEvents
           ? addAncestorsAndDescendants(eventMatches, traverseEventTalentNodes)
           : new Set<string>(),
+        cardMatches: shouldIncludeCards
+          ? addAncestorsAndDescendants(cardMatches, traverseCardTalentNodes)
+          : new Set<string>(),
         offerMatches: shouldIncludeOffers
           ? addAncestorsAndDescendants(offerMatches, traverseOfferNodes)
           : new Set<string>(),
@@ -293,12 +321,15 @@ export const useAllTalentSearchFilters = (
     [
       regularNodePredicate,
       eventTalentNodePredicate,
+      cardTalentNodePredicate,
       offerNodePredicate,
       shouldIncludeEvents,
       shouldIncludeOffers,
+      shouldIncludeCards,
       hasMatchInDescendants,
       traverseRegularTalentNodes,
       traverseEventTalentNodes,
+      traverseCardTalentNodes,
       traverseOfferNodes,
     ]
   )
@@ -325,7 +356,8 @@ export const useAllTalentSearchFilters = (
   useEffect(() => {
     if (!talentTree) return
 
-    const { regularMatches, eventMatches, offerMatches } = collectAllMatchingSets(talentTree)
+    const { regularMatches, eventMatches, cardMatches, offerMatches } =
+      collectAllMatchingSets(talentTree)
 
     const filteredTalentNodes = isRequirementSelected(talentTree.noReqNode.requirementFilterOptions)
       ? talentTree.noReqNode.children
@@ -349,6 +381,11 @@ export const useAllTalentSearchFilters = (
           .map((node) => filterTalentTreeNode(node, eventMatches))
           .filter(isNotNullOrUndefined)
       : []
+    const filteredCardNodes = shouldIncludeCards
+      ? talentTree.cardNodes
+          .map((node) => filterTalentTreeNode(node, cardMatches))
+          .filter(isNotNullOrUndefined)
+      : []
     const filteredOfferNodes = shouldIncludeOffers
       ? talentTree.offerNode.children
           .map((node) => filterTalentTreeNode(node, offerMatches))
@@ -364,6 +401,7 @@ export const useAllTalentSearchFilters = (
       classAndEnergyNodes: filteredClassAndEnergyNodes,
       energyNodes: filteredEnergyNodes,
       eventNodes: filteredEventNodes,
+      cardNodes: filteredCardNodes,
       offerNode: {
         ...talentTree.offerNode,
         children: filteredOfferNodes,
@@ -379,6 +417,7 @@ export const useAllTalentSearchFilters = (
     isRequirementSelected,
     matchingTalentTree,
     shouldIncludeEvents,
+    shouldIncludeCards,
     shouldIncludeOffers,
     talentTree,
   ])
