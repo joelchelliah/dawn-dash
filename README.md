@@ -54,20 +54,9 @@ If you have any thoughts, questions, ideas, or feedback, you can either:
 
 ## 🤝 Contribution
 
-This project is open source, and contributions are **greatly** appreciated.
+This project is open source, and any contributions are **greatly** appreciated.
 
-### How to contribute
-
-1. 🍴 Fork the repository
-2. 🛠️ Add your awesome changes
-3. 🔄 Push your changes to your fork and open a Pull Request
-
-### Development Guidelines
-
-- 💅 Follow the existing code style
-- 📝 Write meaningful commit messages following [Conventional Commits](https://www.conventionalcommits.org/)
-- 📚 Update documentation as needed
-- 🧪 Test your changes thoroughly
+Please read the [📖 Contributions guide](./CONTRIBUTING.md) if you want to add some cool features!
 
 ----------
 

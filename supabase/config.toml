@@ -1,3 +1,9 @@
+[db]
+major_version = 15
+
+[analytics]
+enabled = false
+
 [auth]
 enabled = true
 site_url = "http://localhost:3000"
