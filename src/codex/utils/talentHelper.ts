@@ -84,13 +84,6 @@ export const getTalentRequirementIconProps = (
       default:
         return { count: 1, url: SunforgeImageUrl, color, label }
     }
-  } else if (type === TalentTreeNodeType.CLASS_AND_ENERGY_REQUIREMENT) {
-    const [className, energy] = label.split('_')
-    if (!className || !energy) {
-      throw new Error(`Invalid class and energy requirement label: ${label}`)
-    }
-
-    return getTalentRequirementIconProps(TalentTreeNodeType.CLASS_REQUIREMENT, className)
   }
 
   switch (label) {
@@ -193,19 +186,6 @@ export const getTalentRequirementIconProps = (
   }
 }
 
-export const getSecondaryTalentRequirementIconProps = (
-  type: TalentTreeNodeType,
-  requirementLabel: string
-): { count: number; url: string; color: string; label: string } | undefined => {
-  if (type !== TalentTreeNodeType.CLASS_AND_ENERGY_REQUIREMENT) return undefined
-  const [, energy] = requirementLabel.split('_')
-  const { count, url, color, label } = getTalentRequirementIconProps(
-    TalentTreeNodeType.ENERGY_REQUIREMENT,
-    energy
-  )
-  return { count, url, color, label }
-}
-
 export const getLinkColor = (
   link: d3.HierarchyPointLink<HierarchicalTalentTreeNode>,
   name: string,
@@ -215,12 +195,6 @@ export const getLinkColor = (
 
   if (type === TalentTreeNodeType.CLASS_REQUIREMENT) {
     return getClassColor(name as CharacterClass, ClassColorVariant.Dark)
-  } else if (type === TalentTreeNodeType.CLASS_AND_ENERGY_REQUIREMENT) {
-    const [className, energy] = name.split('_')
-    if (!className || !energy) {
-      throw new Error(`Invalid class and energy requirement label: ${name}`)
-    }
-    return getClassColor(className as CharacterClass, ClassColorVariant.Dark)
   } else if (type === TalentTreeNodeType.TALENT) {
     let currentNode = link.source
     while (currentNode.parent && currentNode.data.type === TalentTreeNodeType.TALENT) {

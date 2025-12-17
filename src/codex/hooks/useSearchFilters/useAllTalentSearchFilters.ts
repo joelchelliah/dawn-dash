@@ -170,7 +170,6 @@ export const useAllTalentSearchFilters = (
     (talentTree: TalentTree, visitTalent: (talent: TalentTreeTalentNode) => void) => {
       traverseNode(talentTree.noReqNode, visitTalent)
       talentTree.classNodes.forEach((node) => traverseNode(node, visitTalent))
-      talentTree.classAndEnergyNodes.forEach((node) => traverseNode(node, visitTalent))
       talentTree.energyNodes.forEach((node) => traverseNode(node, visitTalent))
     },
     [traverseNode]
@@ -267,7 +266,6 @@ export const useAllTalentSearchFilters = (
 
       traverseWithContext(talentTree.noReqNode, 'regular')
       talentTree.classNodes.forEach((node) => traverseWithContext(node, 'regular'))
-      talentTree.classAndEnergyNodes.forEach((node) => traverseWithContext(node, 'regular'))
       talentTree.energyNodes.forEach((node) => traverseWithContext(node, 'regular'))
 
       if (shouldIncludeEvents) {
@@ -368,10 +366,6 @@ export const useAllTalentSearchFilters = (
       .filter((node) => isRequirementSelected(node.requirementFilterOptions))
       .map((node) => filterTalentTreeNode(node, regularMatches))
       .filter(isNotNullOrUndefined)
-    const filteredClassAndEnergyNodes = talentTree.classAndEnergyNodes
-      .filter((node) => isRequirementSelected(node.requirementFilterOptions))
-      .map((node) => filterTalentTreeNode(node, regularMatches))
-      .filter(isNotNullOrUndefined)
     const filteredEnergyNodes = talentTree.energyNodes
       .filter((node) => isRequirementSelected(node.requirementFilterOptions))
       .map((node) => filterTalentTreeNode(node, regularMatches))
@@ -398,7 +392,6 @@ export const useAllTalentSearchFilters = (
         children: filteredTalentNodes,
       },
       classNodes: filteredClassNodes,
-      classAndEnergyNodes: filteredClassAndEnergyNodes,
       energyNodes: filteredEnergyNodes,
       eventNodes: filteredEventNodes,
       cardNodes: filteredCardNodes,

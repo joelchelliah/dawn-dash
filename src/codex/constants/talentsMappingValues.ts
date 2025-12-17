@@ -10,16 +10,6 @@ export const REQUIREMENT_CLASS_TO_FILTER_OPTIONS_MAP: Record<string, Requirement
   Sunforge: [RequirementFilterOption.Sunforge],
 }
 
-// Based on currently existing requirement combos. Add more as needed.
-export const REQUIREMENT_CLASS_AND_ENERGY_TO_FILTER_OPTIONS_MAP: Record<
-  string,
-  RequirementFilterOption[]
-> = {
-  Hunter_STR: [RequirementFilterOption.Hunter, RequirementFilterOption.Strength], // Butcher, Haemorrager
-  Warrior_STR: [RequirementFilterOption.Warrior, RequirementFilterOption.Strength], // Demolisher, Haemorrager
-  Seeker_INT2: [RequirementFilterOption.Seeker, RequirementFilterOption.Intelligence], // Oracle,
-}
-
 export const REQUIREMENT_ENERGY_TO_FILTER_OPTIONS_MAP: Record<string, RequirementFilterOption[]> = {
   DEX: [RequirementFilterOption.Dexterity],
   DEX2: [RequirementFilterOption.Dexterity],
@@ -103,4 +93,4 @@ export const TALENTS_OBTAINED_FROM_CARDS = {
   ],
 }
 
-export const REMOVED_TALENTS = ['Prodigy', 'Lucky']
+export const REMOVED_TALENTS = ['Prodigy', 'Lucky', "Alcars' Rage"]

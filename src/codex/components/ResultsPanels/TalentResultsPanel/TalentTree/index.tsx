@@ -15,7 +15,6 @@ import {
 import {
   getLinkColor,
   getMatchingKeywordsText,
-  getSecondaryTalentRequirementIconProps,
   getTalentRequirementIconProps,
   parseTalentDescriptionLineForDesktopRendering,
   parseTalentDescriptionLineForMobileRendering,
@@ -212,9 +211,6 @@ const TalentTree = ({ talentTree, useSearchFilters }: TalentTreeProps) => {
           data.type,
           data.name
         )
-        const secondaryIconProps = getSecondaryTalentRequirementIconProps(data.type, data.name)
-
-        const combinedLabel = secondaryIconProps ? `${label} & ${secondaryIconProps.label}` : label
 
         const showBiggerIcons =
           data.type === TalentTreeNodeType.CLASS_REQUIREMENT ||
@@ -222,14 +218,9 @@ const TalentTree = ({ talentTree, useSearchFilters }: TalentTreeProps) => {
           data.type === TalentTreeNodeType.EVENT_REQUIREMENT ||
           data.type === TalentTreeNodeType.CARD_REQUIREMENT
 
-        const showMultipleIcons = data.type === TalentTreeNodeType.CLASS_AND_ENERGY_REQUIREMENT
-
         let circleRadius = 0
         if (showBiggerIcons) {
           circleRadius = requirementNodeRadius
-        } else if (showMultipleIcons) {
-          // All these magic numbers are for tweaking the circle radius very slightly to fit the differnt scenarios
-          circleRadius = requirementNodeRadius - 5
         } else if (count === 1) {
           circleRadius = requirementNodeRadius / 2
         } else if (count === 2) {
@@ -244,8 +235,8 @@ const TalentTree = ({ talentTree, useSearchFilters }: TalentTreeProps) => {
           .attr('class', cx('tree-root-node-circle'))
           .style('--color', color)
 
-        // Split label on comma for multi-line rendering if needed
-        const labelParts = combinedLabel.split(',').map((part) => part.trim())
+        // Split label on comma for multi-line rendering
+        const labelParts = label.split(',').map((part) => part.trim())
         const lineHeight = 24 // Adjust based on your font size
         const totalHeight = labelParts.length * lineHeight
         const startY = -circleRadius - totalHeight + lineHeight / 2
@@ -268,8 +259,8 @@ const TalentTree = ({ talentTree, useSearchFilters }: TalentTreeProps) => {
         })
 
         if (count > 0) {
-          // Different icon sizes depending on if we are showing class, class+energy or energy node.
-          const iconSize = showBiggerIcons ? 52 : showMultipleIcons ? 42 : 22
+          // Different icon sizes depending on if we are showing a class or energy node.
+          const iconSize = showBiggerIcons ? 52 : 22
           const spacing = 2
           const totalWidth = count * iconSize + (count - 1) * spacing
           const startX = -totalWidth / 2
@@ -309,28 +300,6 @@ const TalentTree = ({ talentTree, useSearchFilters }: TalentTreeProps) => {
                 .attr('y', -iconSize / 2)
                 .attr('width', iconSize)
                 .attr('height', iconSize)
-            }
-          }
-
-          // Secondary requirement icons
-          if (secondaryIconProps) {
-            const { count: secondaryCount, url: secondaryUrl } = secondaryIconProps
-            const secondaryIconSize = iconSize / 2
-            const secondaryIconSpacing = spacing * 1.525
-            const secondaryTotalWidth =
-              secondaryCount * secondaryIconSize + (secondaryCount - 1) * secondaryIconSpacing
-            const secondaryStartX = -secondaryTotalWidth / 2
-
-            for (let i = 0; i < secondaryCount; i++) {
-              const x = secondaryStartX + i * (secondaryIconSize + secondaryIconSpacing)
-
-              nodeElement
-                .append('image')
-                .attr('href', secondaryUrl)
-                .attr('x', x)
-                .attr('y', secondaryIconSize / 2)
-                .attr('width', secondaryIconSize)
-                .attr('height', secondaryIconSize)
             }
           }
         }
