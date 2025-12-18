@@ -12,8 +12,6 @@ import {
 import { RequirementFilterOption } from '../types/filters'
 import {
   ACTUALLY_EVENT_ONLY_TALENTS,
-  EVENTS_BLACKLIST,
-  EVENT_TALENTS_MAP_BLACKLIST,
   REQUIREMENT_CLASS_TO_FILTER_OPTIONS_MAP,
   REQUIREMENT_ENERGY_TO_FILTER_OPTIONS_MAP,
   TALENTS_OBTAINED_FROM_CARDS,
@@ -22,6 +20,7 @@ import {
 import {
   getFilterOptionsForRequirement,
   removeDuplicateAndNonExistingTalents,
+  splitTalentsThatHaveMultipleSetsOfEventRequirements,
   splitTalentsThatHaveMultipleClassesAndOtherRequirements,
 } from './talentDataHelper'
 
@@ -31,17 +30,16 @@ export const mapTalentsDataToTalentTree = (unparsedTalents: TalentData[]): Talen
     expansion: ACTUALLY_EVENT_ONLY_TALENTS.includes(talent.name) ? 0 : talent.expansion,
   }))
   const uniqueUnparsedTalents = removeDuplicateAndNonExistingTalents(correctedUnparsedTalents)
-  const preProcessedTalents =
+  const classAndEnergySplitTalents =
     splitTalentsThatHaveMultipleClassesAndOtherRequirements(uniqueUnparsedTalents)
+  const preProcessedTalents = splitTalentsThatHaveMultipleSetsOfEventRequirements(
+    classAndEnergySplitTalents
+  )
   const idToPreProcessedTalent = new Map(
     preProcessedTalents.map((talent) => [talent.blightbane_id, talent])
   )
   const uniqueEvents = Array.from(
-    new Set(
-      preProcessedTalents
-        .flatMap((talent) => talent.events)
-        .filter((event) => !EVENTS_BLACKLIST.includes(event))
-    )
+    new Set(preProcessedTalents.flatMap((talent) => talent.events))
   ).sort()
 
   function buildTalentNode(talent: TalentData, visited = new Set<number>()): TalentTreeTalentNode {
@@ -62,6 +60,17 @@ export const mapTalentsDataToTalentTree = (unparsedTalents: TalentData[]): Talen
     }
     children.forEach(collectDescendantNames)
 
+    if (talent.event_requirement_matrix && talent.event_requirement_matrix.length > 1) {
+      console.error(
+        `💀  Multiple sets of event requirements detected for talent: ${talent.name}! This should NOT happen!`
+      )
+    }
+
+    const eventRequirements =
+      talent.event_requirement_matrix && talent.event_requirement_matrix.length > 0
+        ? talent.event_requirement_matrix[0]
+        : []
+
     return {
       type: TalentTreeNodeType.TALENT,
       name: talent.name,
@@ -73,6 +82,7 @@ export const mapTalentsDataToTalentTree = (unparsedTalents: TalentData[]): Talen
       children,
       descendants: Array.from(descendants),
       classOrEnergyRequirements: [...talent.requires_classes, ...talent.requires_energy],
+      eventRequirements,
     }
   }
 
@@ -80,10 +90,7 @@ export const mapTalentsDataToTalentTree = (unparsedTalents: TalentData[]): Talen
     talent.expansion === 0 && talent.name.startsWith('Offer of')
 
   const isValidEventTalent = (eventName: string) => (talent: TalentData) =>
-    talent.events.includes(eventName) &&
-    (Object.keys(EVENT_TALENTS_MAP_BLACKLIST).includes(eventName)
-      ? !EVENT_TALENTS_MAP_BLACKLIST[eventName].includes(talent.name)
-      : true)
+    talent.events.includes(eventName)
 
   const isRootTalent = (talent: TalentData) =>
     talent.requires_talents.length === 0 &&
@@ -106,12 +113,11 @@ export const mapTalentsDataToTalentTree = (unparsedTalents: TalentData[]): Talen
     requirements: string[],
     nodeType: TalentTreeRequirementNodeType,
     predicateMapper: (requirement: string) => (talent: TalentData) => boolean,
-    filterMapper: (requirement: string) => RequirementFilterOption[],
-    nameMapper?: (requirement: string) => string
+    filterMapper: (requirement: string) => RequirementFilterOption[]
   ): TalentTreeRequirementNode[] =>
     requirements.map((requirement) => ({
       type: nodeType,
-      name: nameMapper?.(requirement) ?? requirement,
+      name: requirement,
       requirementFilterOptions: filterMapper(requirement),
       children: createTalentNodes(predicateMapper(requirement)),
     }))
@@ -141,13 +147,7 @@ export const mapTalentsDataToTalentTree = (unparsedTalents: TalentData[]): Talen
     uniqueEvents,
     TalentTreeNodeType.EVENT_REQUIREMENT,
     isValidEventTalent,
-    () => [RequirementFilterOption.ObtainedFromEvents],
-    // Special case, since these are basically the same event
-    (name) => {
-      if (name === 'Priest') return 'Prayer, Priest, Priest 1'
-      if (name === 'The Deep Finish') return 'The Deep Finish, The Godscar Wastes Finish'
-      return name
-    }
+    () => [RequirementFilterOption.ObtainedFromEvents]
   )
 
   const rootCardRequirementNodes: TalentTreeRequirementNode[] = [

@@ -558,24 +558,29 @@ const TalentTree = ({ talentTree, useSearchFilters }: TalentTreeProps) => {
       const indicatorX = link.target.y - targetHalfWidth
       const indicatorY = link.target.x
 
-      // Assume there is always only one new requirement. Will have to expand this if more such requirements are added to the game.
-      const requirement = newRequirements[0]
-
-      const isClassRequirement = Object.keys(REQUIREMENT_CLASS_TO_FILTER_OPTIONS_MAP).includes(
-        requirement
+      const isClassRequirement = newRequirements.every((requirement) =>
+        Object.keys(REQUIREMENT_CLASS_TO_FILTER_OPTIONS_MAP).includes(requirement)
       )
-
-      // If both this one and its ancestor node also has class a requirement then we can skip rendering the indicator.
-      const hasAncestorClassRequirement = link.source.data.classOrEnergyRequirements.some(
-        (requirement) => Object.keys(REQUIREMENT_CLASS_TO_FILTER_OPTIONS_MAP).includes(requirement)
-      )
-      if (isClassRequirement && hasAncestorClassRequirement) return
 
       const nodeType = isClassRequirement
         ? TalentTreeNodeType.CLASS_REQUIREMENT
         : TalentTreeNodeType.ENERGY_REQUIREMENT
 
-      const { count, url, url2, url3, color } = getTalentRequirementIconProps(nodeType, requirement)
+      const propsPerRequirement = newRequirements.map((requirement) =>
+        getTalentRequirementIconProps(nodeType, requirement)
+      )
+
+      const color = propsPerRequirement[0].color
+      const count = propsPerRequirement.reduce((acc, curr) => acc + curr.count, 0)
+      const url = propsPerRequirement[0].url
+      const url2 =
+        propsPerRequirement[0].count > 1
+          ? propsPerRequirement[0].url2 || propsPerRequirement[0].url
+          : propsPerRequirement[1]?.url
+      const url3 =
+        propsPerRequirement[0].count > 2
+          ? propsPerRequirement[0].url3 || propsPerRequirement[0].url
+          : propsPerRequirement[1]?.url2 || propsPerRequirement[1]?.url
       const iconSize = isClassRequirement ? 33 : 22
       let nudgeToTheLeft = 6
 

@@ -23,28 +23,6 @@ export const REQUIREMENT_ENERGY_TO_FILTER_OPTIONS_MAP: Record<string, Requiremen
   DEXINT: [RequirementFilterOption.Dexterity, RequirementFilterOption.Intelligence],
 }
 
-// These are not events that give you a talent.
-// The talents listed on them are just requirements for special dialogue options.
-// So we need to filter them out of our requirements.
-export const EVENTS_BLACKLIST = [
-  'Alchemist 1', // Stormscarred
-  'ArmsDealer', // Devotion
-  'Campfire', // Emporium Discount
-  'GoldenIdol', // Mobility
-  'Shrine of Trickery', // Faerytales
-  // 'The Deep Finish', // Watched
-  'The Godscar Wastes Start', // Watched
-  'The Voice Below', // Watched
-  'WallOfFire', // Fire Immunity
-
-  // Manually merging these into Priest
-  'Prayer',
-  'Priest 1',
-
-  // Manually merging these into The Deep Finish
-  'The Godscar Wastes Finish',
-]
-
 // These are actually talents you ONLY get from events
 export const ACTUALLY_EVENT_ONLY_TALENTS = [
   'Blessing of Serem-Pek', // The Godscar Wastes Finish
@@ -58,30 +36,6 @@ export const ACTUALLY_EVENT_ONLY_TALENTS = [
   'Taste of Chaos', // Mystical Glade
   'Watched', // Shrine of Misery
 ]
-
-// These are not actually talents that can be obtained from Windy Hillock.
-const NOT_REALLY_WINDY_HILLOCK_TALENTS = [
-  'Devotion',
-  'Grounding Weapon',
-  'Stormbringer',
-  'Thundering Weapon',
-]
-
-// These are not actually talents that can be obtained from The Deep Finish.
-const NOT_REALLY_DEEP_FINISH_TALENTS = ['Watched']
-
-// These are not actually talents that can be obtained from Entrancing Song.
-const NOT_REALLY_ENTRANCING_SONG_TALENTS = ['Diamond Mind']
-
-// These are not actually talents that can be obtained from Lost Soul.
-const NOT_REALLY_LOST_SOUL_TALENTS = ['Devotion']
-
-export const EVENT_TALENTS_MAP_BLACKLIST: Record<string, string[]> = {
-  WindyHillock: NOT_REALLY_WINDY_HILLOCK_TALENTS,
-  'The Deep Finish': NOT_REALLY_DEEP_FINISH_TALENTS,
-  EntrancingSong: NOT_REALLY_ENTRANCING_SONG_TALENTS,
-  LostSoul: NOT_REALLY_LOST_SOUL_TALENTS,
-}
 
 export const TALENTS_OBTAINED_FROM_CARDS = {
   ONLY: [

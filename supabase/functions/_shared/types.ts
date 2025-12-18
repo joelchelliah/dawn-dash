@@ -36,6 +36,7 @@ export interface TalentData {
   requires_energy: string[]
   requires_talents: number[]
   required_for_talents: number[]
+  event_requirement_matrix: string[][]
   blightbane_id: number
   last_updated: string
   verified: boolean

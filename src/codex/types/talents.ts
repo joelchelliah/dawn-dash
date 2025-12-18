@@ -12,6 +12,7 @@ export type TalentData = {
   requires_energy: string[]
   requires_talents: number[]
   required_for_talents: number[]
+  event_requirement_matrix: string[][]
   blightbane_id: number
   last_updated: string
   verified: boolean
@@ -54,8 +55,12 @@ export type TalentTreeTalentNode = {
   children: TalentTreeTalentNode[]
   // Names of all descendants (children, grandchildren, etc.)
   descendants: string[]
-  // To be able to check if node has additional requirements, not present in parent node.
+  // A combined set of all of the node's class and energy requirements.
+  // NOTE: If a talent has 2 different such sets of requirements, it will be represented by 2 different nodes!
   classOrEnergyRequirements: string[]
+  // A combined set of all requirements when talent is obtained from an event.
+  // NOTE: If a talent has 2 different such sets of requirements, it will be represented by 2 different nodes!
+  eventRequirements: string[]
 }
 
 export type TalentTree = {
@@ -79,5 +84,6 @@ export interface HierarchicalTalentTreeNode {
   // Currently only needed because we need a way to visualize that Goldstrike has 2 compulsory prerequisites.
   otherParentNames?: string[]
   // To be able to check if node has additional requirements, not present in parent node.
+  // Or special requirements when talent is obtained from an event.
   classOrEnergyRequirements: string[]
 }

@@ -54,6 +54,38 @@ export const splitTalentsThatHaveMultipleClassesAndOtherRequirements = (
 }
 
 /**
+ * Splits talents that have multiple sets of event requirements
+ * into separate nodes for each set of requirements.
+ * This helps ease the complexity of the visualization by
+ * showing these as separate nodes.
+ */
+export const splitTalentsThatHaveMultipleSetsOfEventRequirements = (
+  talents: TalentData[]
+): TalentData[] => {
+  const result: TalentData[] = []
+
+  for (const talent of talents) {
+    const hasEventRequirementMatrix =
+      talent.event_requirement_matrix && talent.event_requirement_matrix.length > 0
+
+    // If talent has multiple event requirement sets, split it
+    if (hasEventRequirementMatrix && talent.event_requirement_matrix.length > 1) {
+      talent.event_requirement_matrix.forEach((eventRequirements) => {
+        result.push({
+          ...talent,
+          event_requirement_matrix: [eventRequirements],
+        })
+      })
+    } else {
+      // Otherwise, keep the talent as-is
+      result.push(talent)
+    }
+  }
+
+  return result
+}
+
+/**
  * Returns the filter options for a given class or energy requirement,
  */
 export const getFilterOptionsForRequirement = (type: 'class' | 'energy', requirement: string) => {
