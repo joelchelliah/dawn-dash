@@ -14,11 +14,16 @@ import {
   ACTUALLY_EVENT_ONLY_TALENTS,
   EVENTS_BLACKLIST,
   EVENT_TALENTS_MAP_BLACKLIST,
-  REMOVED_TALENTS,
   REQUIREMENT_CLASS_TO_FILTER_OPTIONS_MAP,
   REQUIREMENT_ENERGY_TO_FILTER_OPTIONS_MAP,
   TALENTS_OBTAINED_FROM_CARDS,
 } from '../constants/talentsMappingValues'
+
+import {
+  getFilterOptionsForRequirement,
+  removeDuplicateAndNonExistingTalents,
+  splitTalentsThatHaveMultipleClassesAndOtherRequirements,
+} from './talentDataHelper'
 
 export const mapTalentsDataToTalentTree = (unparsedTalents: TalentData[]): TalentTree => {
   const correctedUnparsedTalents = unparsedTalents.map((talent) => ({
@@ -26,7 +31,8 @@ export const mapTalentsDataToTalentTree = (unparsedTalents: TalentData[]): Talen
     expansion: ACTUALLY_EVENT_ONLY_TALENTS.includes(talent.name) ? 0 : talent.expansion,
   }))
   const uniqueUnparsedTalents = removeDuplicateAndNonExistingTalents(correctedUnparsedTalents)
-  const preProcessedTalents = splitMultiClassTalentsWithOtherRequirements(uniqueUnparsedTalents)
+  const preProcessedTalents =
+    splitTalentsThatHaveMultipleClassesAndOtherRequirements(uniqueUnparsedTalents)
   const idToPreProcessedTalent = new Map(
     preProcessedTalents.map((talent) => [talent.blightbane_id, talent])
   )
@@ -121,14 +127,14 @@ export const mapTalentsDataToTalentTree = (unparsedTalents: TalentData[]): Talen
     Object.keys(REQUIREMENT_CLASS_TO_FILTER_OPTIONS_MAP),
     TalentTreeNodeType.CLASS_REQUIREMENT,
     hasClass,
-    getFilterOptionsForRequirement('class')
+    getClassFilterOptionsForRequirement
   )
 
   const rootEnergyRequirementNodes: TalentTreeRequirementNode[] = createRequirementNodes(
     Object.keys(REQUIREMENT_ENERGY_TO_FILTER_OPTIONS_MAP),
     TalentTreeNodeType.ENERGY_REQUIREMENT,
     hasEnergy,
-    getFilterOptionsForRequirement('energy')
+    getEnergyFilterOptionsForRequirement
   )
 
   const rootEventRequirementNodes: TalentTreeRequirementNode[] = createRequirementNodes(
@@ -183,50 +189,10 @@ export const mapTalentsDataToTalentTree = (unparsedTalents: TalentData[]): Talen
 }
 
 /**
- * Removes duplicate talents and talents that are not actually in the game anymore.
+ * Sorts either talents or requirement nodes by specific criteria.
+ * * For talents, it sorts by tier and name.
+ * * For requirements, it sorts by name.
  */
-const removeDuplicateAndNonExistingTalents = (talents: TalentData[]): TalentData[] => {
-  const seen = new Set<string>()
-
-  return talents.filter((talent) => {
-    if (seen.has(talent.name)) return false
-    if (REMOVED_TALENTS.includes(talent.name)) return false
-
-    seen.add(talent.name)
-    return true
-  })
-}
-
-/**
- * Splits talents that have multiple class requirements AND other requirements (talents or energy)
- * into separate nodes for each class. This fixes some visualization issues for niche talents that have
- * several sets of `class + other requirement` combinations.
- */
-const splitMultiClassTalentsWithOtherRequirements = (talents: TalentData[]): TalentData[] => {
-  const result: TalentData[] = []
-
-  for (const talent of talents) {
-    const hasMultipleClasses = talent.requires_classes.length > 1
-    const hasOtherRequirements =
-      talent.requires_talents.length > 0 || talent.requires_energy.length > 0
-
-    // If talent has multiple classes AND other requirements, split it
-    if (hasMultipleClasses && hasOtherRequirements) {
-      talent.requires_classes.forEach((className) => {
-        result.push({
-          ...talent,
-          requires_classes: [className],
-        })
-      })
-    } else {
-      // Otherwise, keep the talent as-is
-      result.push(talent)
-    }
-  }
-
-  return result
-}
-
 const sortNodes = <T extends TalentTreeTalentNode | TalentTreeRequirementNode>(talents: T[]): T[] =>
   talents.sort((a, b) => {
     if (a.type === TalentTreeNodeType.TALENT && b.type === TalentTreeNodeType.TALENT) {
@@ -235,17 +201,8 @@ const sortNodes = <T extends TalentTreeTalentNode | TalentTreeRequirementNode>(t
     return a.name.localeCompare(b.name)
   })
 
-const getFilterOptionsForRequirement =
-  (type: 'class' | 'energy' | 'classAndEnergy') => (requirement: string) => {
-    let options = REQUIREMENT_CLASS_TO_FILTER_OPTIONS_MAP[requirement]
+const getClassFilterOptionsForRequirement = (requirement: string): RequirementFilterOption[] =>
+  getFilterOptionsForRequirement('class', requirement)
 
-    if (type === 'energy') {
-      options = REQUIREMENT_ENERGY_TO_FILTER_OPTIONS_MAP[requirement]
-    }
-
-    if (options) return options
-
-    throw new Error(
-      `💀  Unknown requirement: ${type}, when mapping to filter option: ${requirement}`
-    )
-  }
+const getEnergyFilterOptionsForRequirement = (requirement: string): RequirementFilterOption[] =>
+  getFilterOptionsForRequirement('energy', requirement)
