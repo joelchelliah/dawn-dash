@@ -2,6 +2,7 @@ import { TalentData } from '../types/talents'
 
 import {
   removeDuplicateAndNonExistingTalents,
+  splitTalentsThatHaveMultipleSetsOfEventRequirements,
   splitTalentsThatHaveMultipleClassesAndOtherRequirements,
   getFilterOptionsForRequirement,
 } from './talentDataHelper'
@@ -117,6 +118,47 @@ describe('talentDataHelper', () => {
     })
   })
 
+  describe('splitTalentsThatHaveMultipleSetsOfEventRequirements', () => {
+    it('should split talent with multiple sets of event requirements', () => {
+      const talents: TalentData[] = [
+        mockTalent({
+          id: 1,
+          name: 'Event Talent',
+          event_requirement_matrix: [
+            ['Warrior', 'STR'],
+            ['Hunter', 'DEX'],
+            ['Arcanist', 'INT'],
+          ],
+        }),
+      ]
+
+      const result = splitTalentsThatHaveMultipleSetsOfEventRequirements(talents)
+
+      expect(result).toHaveLength(3)
+      expect(result[0].name).toBe('Event Talent')
+      expect(result[0].event_requirement_matrix).toEqual([['Warrior', 'STR']])
+      expect(result[1].name).toBe('Event Talent')
+      expect(result[1].event_requirement_matrix).toEqual([['Hunter', 'DEX']])
+      expect(result[2].name).toBe('Event Talent')
+      expect(result[2].event_requirement_matrix).toEqual([['Arcanist', 'INT']])
+    })
+
+    it('should NOT split talent with single event requirement set', () => {
+      const talents: TalentData[] = [
+        mockTalent({
+          id: 1,
+          name: 'Single Event Talent',
+          event_requirement_matrix: [['Warrior', 'STR']],
+        }),
+      ]
+
+      const result = splitTalentsThatHaveMultipleSetsOfEventRequirements(talents)
+
+      expect(result).toHaveLength(1)
+      expect(result[0].event_requirement_matrix).toEqual([['Warrior', 'STR']])
+    })
+  })
+
   describe('getFilterOptionsForRequirement', () => {
     it('should return correct filter options for all class types', () => {
       const classNames = ['Arcanist', 'Hunter', 'Knight', 'Rogue', 'Seeker', 'Warrior', 'Sunforge']
@@ -169,6 +211,7 @@ function mockTalent(overrides: Partial<TalentData> = {}): TalentData {
     blightbane_id: 1,
     last_updated: '2024-01-01',
     verified: true,
+    event_requirement_matrix: [],
     ...overrides,
   }
 }

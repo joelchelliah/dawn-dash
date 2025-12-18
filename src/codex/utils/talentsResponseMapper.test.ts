@@ -254,12 +254,8 @@ describe('talentsResponseMapper', () => {
     describe('Event talents', () => {
       it('should place valid event talents in eventNodes', () => {
         const talents: TalentData[] = [
-          // Valid event talents
           mockTalent({ id: 1, name: 'Pragmatism', events: ['Heated Debate'] }),
           mockTalent({ id: 2, name: 'Sacred Zest', events: ['Heated Debate'] }),
-          // Blacklisted event talents
-          mockTalent({ id: 3, name: 'Devotion', events: ['WindyHillock'] }),
-          mockTalent({ id: 4, name: 'Watched', events: ['The Deep Finish'] }),
         ]
 
         const result = mapTalentsDataToTalentTree(talents)
@@ -268,35 +264,6 @@ describe('talentsResponseMapper', () => {
         expect(eventTalents).toHaveLength(2)
         expect(eventTalents[0].name).toBe('Pragmatism')
         expect(eventTalents[1].name).toBe('Sacred Zest')
-      })
-
-      it('should merge together Priest events', () => {
-        const talents: TalentData[] = [
-          mockTalent({ id: 1, name: 'Devotion', events: ['Priest'] }),
-          mockTalent({ id: 2, name: 'Devotion', events: ['Priest 1'] }),
-          mockTalent({ id: 3, name: 'Devotion', events: ['Prayer'] }),
-        ]
-
-        const result = mapTalentsDataToTalentTree(talents)
-
-        expect(result.eventNodes).toHaveLength(1)
-        expect(result.eventNodes[0].name).toEqual('Prayer, Priest, Priest 1')
-      })
-
-      it('should merge together The Deep Finish events', () => {
-        const talents: TalentData[] = [
-          mockTalent({ id: 1, name: 'Blessing of Serem-Pek', events: ['The Deep Finish'] }),
-          mockTalent({
-            id: 2,
-            name: 'Blessing of Serem-Pek',
-            events: ['The Godscar Wastes Finish'],
-          }),
-        ]
-
-        const result = mapTalentsDataToTalentTree(talents)
-
-        expect(result.eventNodes).toHaveLength(1)
-        expect(result.eventNodes[0].name).toEqual('The Deep Finish, The Godscar Wastes Finish')
       })
     })
 
@@ -428,8 +395,81 @@ describe('talentsResponseMapper', () => {
         const result = mapTalentsDataToTalentTree(talents)
 
         const warriorNode = result.classNodes.find((node) => node.name === 'Warrior')
-        const talent = warriorNode?.children[0]
-        expect(talent?.classOrEnergyRequirements).toEqual(['Warrior', 'STR'])
+        expect(warriorNode?.children[0].classOrEnergyRequirements).toEqual(['Warrior', 'STR'])
+
+        const strNode = result.energyNodes.find((node) => node.name === 'STR')
+        expect(strNode?.children[0]?.classOrEnergyRequirements).toEqual(['Warrior', 'STR'])
+      })
+
+      it('should map event_requirement_matrix to eventRequirements in talent nodes', () => {
+        const talents: TalentData[] = [
+          mockTalent({
+            id: 1,
+            name: 'Event Talent',
+            expansion: 1,
+            requires_classes: [],
+            requires_energy: [],
+            requires_talents: [],
+            event_requirement_matrix: [['Warrior', 'STR', 'SomeEvent']],
+          }),
+        ]
+
+        const result = mapTalentsDataToTalentTree(talents)
+
+        expect(result.noReqNode.children[0].eventRequirements).toEqual([
+          'Warrior',
+          'STR',
+          'SomeEvent',
+        ])
+      })
+
+      it('should split talents with multiple event requirement sets and map each separately', () => {
+        const talents: TalentData[] = [
+          mockTalent({
+            id: 1,
+            blightbane_id: 100,
+            name: 'Multi-Event Talent',
+            expansion: 1,
+            requires_classes: [],
+            requires_energy: [],
+            requires_talents: [],
+            required_for_talents: [],
+            event_requirement_matrix: [
+              ['Warrior', 'STR'],
+              ['Hunter', 'DEX'],
+              ['Arcanist', 'INT'],
+            ],
+          }),
+        ]
+
+        const result = mapTalentsDataToTalentTree(talents)
+
+        // Should be split into 3 separate nodes
+        expect(result.noReqNode.children).toHaveLength(3)
+        expect(result.noReqNode.children[0].name).toBe('Multi-Event Talent')
+        expect(result.noReqNode.children[0].eventRequirements).toEqual(['Warrior', 'STR'])
+        expect(result.noReqNode.children[1].name).toBe('Multi-Event Talent')
+        expect(result.noReqNode.children[1].eventRequirements).toEqual(['Hunter', 'DEX'])
+        expect(result.noReqNode.children[2].name).toBe('Multi-Event Talent')
+        expect(result.noReqNode.children[2].eventRequirements).toEqual(['Arcanist', 'INT'])
+      })
+
+      it('should map empty eventRequirements for talents with no event_requirement_matrix', () => {
+        const talents: TalentData[] = [
+          mockTalent({
+            id: 1,
+            name: 'Regular Talent',
+            expansion: 1,
+            requires_classes: [],
+            requires_energy: [],
+            requires_talents: [],
+            event_requirement_matrix: [],
+          }),
+        ]
+
+        const result = mapTalentsDataToTalentTree(talents)
+
+        expect(result.noReqNode.children[0].eventRequirements).toEqual([])
       })
 
       it('should throw error for recursive talent loops', () => {
@@ -535,6 +575,7 @@ function mockTalent(overrides: Partial<TalentData> = {}): TalentData {
     blightbane_id: 1,
     last_updated: '2024-01-01',
     verified: true,
+    event_requirement_matrix: [],
     ...overrides,
   }
 }

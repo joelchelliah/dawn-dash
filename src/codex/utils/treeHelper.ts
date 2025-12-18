@@ -90,21 +90,28 @@ const buildHierarchicalTreeNodeFromTalentNode = (
   parentRequirements: string[]
 ): HierarchicalTalentTreeNode => {
   const name = node.name
-  const requiresAccessToHoly =
-    (name === 'Pious' && parentName === 'WindyHillock') ||
-    (name === 'Zealous' && parentName === 'LostSoul') ||
-    (name === 'Sanctifier' && parentName === 'BrightGem') ||
-    (name === 'Divine Defiance' && parentName === 'Chasm')
-
-  const requirements = Array.from(
-    new Set(
-      [
-        ...parentRequirements,
-        ...node.classOrEnergyRequirements,
-        requiresAccessToHoly ? 'HOLY' : undefined,
-      ].filter(isNotNullOrUndefined)
-    )
+  const isParentAnEventNode = parentRequirements.includes(
+    RequirementFilterOption.ObtainedFromEvents
   )
+
+  let requirements = Array.from(
+    new Set([...parentRequirements, ...node.classOrEnergyRequirements].filter(isNotNullOrUndefined))
+  )
+  /* If the talent has any event requirements, and the parent node is an event node,
+   * then we only need to use the talent's event requirements here.
+   */
+  if (isParentAnEventNode && node.eventRequirements.length > 0) {
+    requirements = node.eventRequirements
+  }
+  /* ...Oh damit `Devotion`... Gah stupid special case!
+   * So for Priest -> Devotion -> Pious, we don't want to show HOLY, even though it's from an event!
+   *
+   * Too messy to handle in the dataset I think... Hence this hack.
+   */
+  if (parentName === 'Devotion') {
+    requirements = []
+  }
+
   const children = node.children.map((child) =>
     buildHierarchicalTreeNodeFromTalentNode(child, name, requirements)
   )
@@ -140,38 +147,7 @@ const buildHierarchicalTreeNodeFromRequirementNode = (
         ? [RequirementFilterOption.ObtainedFromCards]
         : node.name.split('_')
 
-  const unmappedChildren: TalentTreeTalentNode[] = node.children.flatMap((child) => {
-    const isAlsoHoly = ['Abyssal Resistance', 'Legion Insight'].includes(child.name)
-
-    // Special cases for talents that have several sets of requirements
-    if (child.name === 'Frozen Heart') {
-      return [
-        child,
-        {
-          ...child,
-          classOrEnergyRequirements: ['STR2HOLY'],
-        },
-        {
-          ...child,
-          classOrEnergyRequirements: ['DEX2HOLY'],
-        },
-        {
-          ...child,
-          classOrEnergyRequirements: ['INT2HOLY'],
-        },
-      ]
-    } else if (isAlsoHoly) {
-      return [
-        child,
-        {
-          ...child,
-          classOrEnergyRequirements: ['HOLY'],
-        },
-      ]
-    } else return [child]
-  })
-
-  const children = unmappedChildren.map((child) =>
+  const children = node.children.map((child) =>
     buildHierarchicalTreeNodeFromTalentNode(child, node.name, requirements)
   )
 
