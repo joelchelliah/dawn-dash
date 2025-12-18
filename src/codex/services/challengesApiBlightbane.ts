@@ -1,4 +1,5 @@
 import { handleError } from '@/shared/utils/apiErrorHandling'
+import { isNotNullOrUndefined } from '@/shared/utils/object'
 
 import {
   AllChallengesApiResponse,
@@ -27,9 +28,37 @@ export const fetchLatestChallengeData = async (): Promise<ChallengeData | null> 
       )
     }
 
+    const { challenge }: ChallengeApiResponse = await latestChallengeResponse.json()
     const {
-      challenge: { name, scoringParams, expansions, setups, affixes, additionalTalents },
-    }: ChallengeApiResponse = await latestChallengeResponse.json()
+      name,
+      scoringParams,
+      expansions,
+      setups,
+      affixes,
+      additionalTalents,
+      class: challengeClass,
+      weapon: challengeWeapon,
+      power: challengePower,
+      card: challengeCard,
+    } = challenge
+
+    const isSingleSetupAvailable =
+      isNotNullOrUndefined(challengeClass) &&
+      isNotNullOrUndefined(challengeWeapon) &&
+      isNotNullOrUndefined(challengePower) &&
+      isNotNullOrUndefined(challengeCard)
+
+    const allSetups = [
+      isSingleSetupAvailable
+        ? {
+            class: challengeClass,
+            weapon: challengeWeapon,
+            power: challengePower,
+            card: challengeCard,
+          }
+        : null,
+      ...setups,
+    ].filter(isNotNullOrUndefined)
 
     const isBoundless = affixes.some(
       (malignancy) => malignancy.toLowerCase() === 'boundless spoils'
@@ -44,6 +73,10 @@ export const fetchLatestChallengeData = async (): Promise<ChallengeData | null> 
         (it) => power.toLowerCase().includes(it)
       )
 
+    const hasAccessToHoly =
+      additionalTalents.some(isHolyTalent) ||
+      (allSetups.length > 0 && allSetups.every(({ power }) => isHolyWeaponPower(power)))
+
     return {
       id: latestChallengeId,
       name,
@@ -54,12 +87,10 @@ export const fetchLatestChallengeData = async (): Promise<ChallengeData | null> 
           .map((rule) => rule.keyword)
       ),
       expansions: new Set(expansions),
-      classes: new Set(setups.map((setup) => setup.class)),
+      classes: new Set(allSetups.map((setup) => setup.class)),
       isBoundless: isBoundless,
       hasAccessToAllColors: isBoundless || isDeckedOut,
-      hasAccessToHoly:
-        additionalTalents.some(isHolyTalent) ||
-        setups.every(({ power }) => isHolyWeaponPower(power)),
+      hasAccessToHoly,
     }
   } catch (error) {
     handleError(error, 'Error fetching latest challenge from Blightbane')

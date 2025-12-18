@@ -14,6 +14,11 @@ export type ChallengeApiResponse = {
   challenge: {
     scoringParams: {
       accuracyBaseValue: number
+      card: string
+      class: string
+      classes: string[]
+      power: string
+      weapon: string
       target: number
       buffer: number
       cardBaseValue: number
