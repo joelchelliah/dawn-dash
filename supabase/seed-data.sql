@@ -2,6 +2,7 @@
 -- PostgreSQL database dump
 --
 
+
 -- Dumped from database version 15.8
 -- Dumped by pg_dump version 15.15 (Homebrew)
 
@@ -25,37 +26,10 @@ ALTER TABLE IF EXISTS ONLY public."Talents" DROP CONSTRAINT IF EXISTS "Talents_p
 ALTER TABLE IF EXISTS ONLY public."Talents" DROP CONSTRAINT IF EXISTS "Talents_id_key";
 DROP TABLE IF EXISTS public.metadata;
 DROP TABLE IF EXISTS public."Talents";
-DROP SCHEMA IF EXISTS public;
---
--- Name: public; Type: SCHEMA; Schema: -; Owner: -
---
-
-CREATE SCHEMA public;
-
-
---
--- Name: SCHEMA public; Type: COMMENT; Schema: -; Owner: -
---
-
-COMMENT ON SCHEMA public IS 'standard public schema';
-
 
 SET default_tablespace = '';
 
 SET default_table_access_method = heap;
-
---
---
-
-
-
---
---
-
-
-
---
-
 
 --
 -- Name: Talents; Type: TABLE; Schema: public; Owner: -
@@ -75,7 +49,8 @@ CREATE TABLE public."Talents" (
     requires_classes text[],
     requires_energy text[],
     last_updated timestamp with time zone DEFAULT now(),
-    verified boolean DEFAULT true
+    verified boolean DEFAULT true,
+    event_requirement_matrix jsonb DEFAULT '[]'::jsonb
 );
 
 
@@ -119,391 +94,386 @@ CREATE TABLE public.metadata (
 
 
 --
---
-
-
-
---
 -- Data for Name: Talents; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY public."Talents" (id, name, description, expansion, tier, blightbane_id, flavour_text, events, requires_talents, required_for_talents, requires_classes, requires_energy, last_updated, verified) FROM stdin;
-1503	Faerytales	Replace your Weapon and Basic Attacks with the <b>Faewand</b>. At the start of your turn, gain <b>Delirious</b>.	7	2	637350	An antidote to order, stirring the cauldron of life. Mayhem and mischief leave some in disarray, while it paints grins on the faces of those willing to embrace the dance of chaos.	{"Shrine of Trickery"}	{}	{}	{Arcanist}	{}	2025-05-03 17:45:54.161651+00	t
-1476	Aggression	Whenever you gain <b>Anger</b>, gain an additional stack.	1	2	223433		{}	{}	{}	{}	{STR2}	2025-05-03 17:45:54.161651+00	t
-1440	Haemorrhager	Whenever you inflict a Deep Wound, inflict <b>3 Bleeding</b> and gain <b>2 Regenerate</b>.	3	1	568243		{}	{}	{486873}	{Warrior,Hunter}	{STR}	2025-05-03 17:45:54.161651+00	t
-1413	Amalgamist	Whenever you add a card with <b>Mergecraft</b> to your deck, add another copy.	5	1	808102	When blackpowder encroached on the arcane, the arcane started to learn for traditional smithing.	{}	{}	{}	{}	{INT}	2025-05-03 17:45:54.161651+00	t
-1639	Hemophage	Whenever your foe takes damage from <b>Bleeding</b>, heal an equal amount.	1	6	124000		{}	{}	{}	{Rogue,Hunter}	{}	2025-05-03 17:45:54.161651+00	t
-1557	Ancestral Guidance	Whenever you reach 100 Souls, spend 100 Souls and gain 50 Maximum HEALTH.	3	4	107210	"I'll be your redemption."	{}	{}	{}	{Hunter}	{}	2025-05-03 17:45:54.161651+00	t
-1511	Infuse Energy	Upgrade all cards in your deck by their energy cost. Whenever you add a card, upgrade it equal to its energy cost.	1	2	582657		{}	{}	{}	{}	{DEX}	2025-05-03 17:45:54.161651+00	t
-1594	Arcane Transfusion	Lose 50 Maximum HEALTH. Start each combat with Barrier equal to your HEALTH.	1	5	484721	Few mages even consider the prospect of infusing their very veins with the magic they wield. Fewer still survive the process.	{}	{}	{}	{}	{INT}	2025-05-03 17:45:54.161651+00	t
-1605	Innate Knowledge	Choose a card in your deck. Reduce its energy cost to free.	1	5	47578	Knowledge is the treasure of a wise mind, and the key to unlocking endless possibilities.	{}	{}	{}	{}	{INT}	2025-05-03 17:45:54.161651+00	t
-1628	Battleborn	Whenever you deal damage, gain 1 Anger.	1	6	754024	Now you've really made me mad!	{}	{}	{}	{}	{STR2}	2025-05-03 17:45:54.161651+00	t
-1453	Moves like Stagger	Whenever you spend STR, gain <nobr><b>1 Stagger</b></nobr> and <b>1 HEALTH</b>.	5	1	414302	"Sting like a Bee Gee." - Maroon 4.	{}	{}	{}	{}	{STR}	2025-05-03 17:45:54.161651+00	t
-1482	Berzerker	Your Melee actions deal 3 extra damage for every 20% of your missing HEALTH ([[myMissingHealthFaction]]). 	1	2	77411		{"Serena Hellspark"}	{}	{}	{}	{STR2}	2025-05-03 17:45:54.161651+00	t
-1520	Mystic Reflexes	Whenever you gain <b>Evasion</b>, also gain <b>1 Ward</b>.	1	2	744098	As water flows effortlessly around obstacles, so do our reflexes navigate the mystic currents.	{}	{}	{}	{Rogue,Seeker}	{}	2025-05-03 17:45:54.161651+00	t
-1485	Blighter	At the start of combat, gain <B>Potency</b> equal to your level ([[myLevel]]).	1	2	515766	Sometimes, by using one's surroundings, a battle can be won before it even begins.	{}	{}	{}	{}	{DEX}	2025-05-03 17:45:54.161651+00	t
-1536	Solid Steel	At the start of combat, gain <b>3 Armor</b> and <b>Fortified</b>.	1	2	585850	Face your enemy, steel yourself and break their will.	{}	{}	{}	{Warrior,Knight}	{}	2025-05-03 17:45:54.161651+00	t
-1424	Conjurer	Conjured cards deal 2 additional damage. This talent can be taken multiple times.	1	1	438900	Attunement to the unreal has a deadly potency within the Realms.	{}	{}	{889914,373791}	{}	{INT}	2025-05-03 17:45:54.161651+00	t
-1472	Uncanny Strength	Your Melee Actions deal additional damage equal to your Strength ([[playerSTR]]). This talent can be taken multiple times.	1	1	358750		{}	{}	{659323}	{}	{STR}	2025-05-03 17:45:54.161651+00	t
-1364	Conjurers Weapon	Use your weapon power to gain 2 HEALTH for every conjuration you play next combat.	2	0	696355		{}	{}	{}	{Arcanist}	{}	2025-05-03 17:45:54.161651+00	t
-1358	Angelic Weapon	Use your weapon power to start next combat with a <b>Halo</b> of your choice. <b>Passive:</b> You have access to Holy Cards.	2	0	323515		{}	{}	{}	{Knight}	{}	2025-05-03 17:45:54.161651+00	t
-1361	Artificer's Weapon	Use your weapon power to start next combat with an <b>Equipment</b> of your choice.	2	0	258271		{}	{}	{}	{Knight}	{}	2025-05-03 17:45:54.161651+00	t
-1362	Baneful Weapon	Use your Weapon Power to inflict <b>2 Poison</b> per level at the start of next combat. <b>Passive:</b> When your foe takes damage from <b>Poison</b>, gain <B>1 HEALTH</b>.	2	0	666100		{}	{}	{}	{Rogue}	{}	2025-05-03 17:45:54.161651+00	t
-1357	Acrobatic Weapon	Use your weapon power to start the next combat with <b>Evasion</b>. <b>Passive:</b> Whenever you add a card to your foe's deck, gain <b>1 Momentum</b>.	2	0	263193		{}	{}	{}	{Rogue}	{}	2025-05-03 17:45:54.161651+00	t
-1360	Archivists Weapon	Use your weapon power to start next combat with an Acquisition. <b>Passive:</b> Whenever you spend gold, gain <b>1 HEALTH</b>.	1	0	489270	The god of Luck is one of the few gods that is still actively worshipped besides Rae, and is known to bestow its blessing on the most undeserving.	{}	{}	{}	{Rogue}	{}	2025-05-03 17:45:54.161651+00	t
-1363	Cartographers Weapon	Activate to add a random <B>Treasure Map</b> into your deck.	2	0	477470		{}	{}	{}	{Rogue}	{}	2025-05-03 17:45:54.161651+00	t
-1565	Diamond Mind	You are immune to being <b>Jinxed</b>, <b>Dominated</b> and <b>Dazzled</b>.	1	4	574923	"Your expectation of distracting me with those parlour tricks is as pitiful as it is laughable."	{EntrancingSong}	{}	{}	{}	{INT2}	2025-05-03 17:45:54.161651+00	t
-1392	Rimestrike Weapon	Use your weapon power to Inflict <b>1 Frozen</b> at the start of next combat. Start with an imbued Aura of Rime.	2	0	537020		{}	{}	{}	{Arcanist}	{}	2025-05-03 17:45:54.161651+00	t
-1394	Rotten Weapon	Use your weapon to gain 2 HEALTH per Corruption in your deck ([[corruptionCards]]), then remove a Corruption.	2	0	648738		{}	{}	{}	{Arcanist}	{}	2025-05-03 17:45:54.161651+00	t
-1380	Holy Weapon	Gain HEALTH equal to 10% of your maximum health. You have access to Holy cards.	2	0	703479		{}	{}	{}	{Arcanist}	{}	2025-05-03 17:45:54.161651+00	t
-1368	Devout Weapon	Use your weapon power to conjure an Elite Prayer at the start of next combat. <b>Passive:</b> You have access to Holy cards.	2	0	250923		{}	{}	{}	{Arcanist}	{}	2025-05-03 17:45:54.161651+00	t
-1373	Familiar Weapon	Activate to start next combat with a Familiar of your choice.	2	0	27779		{}	{}	{}	{Arcanist}	{}	2025-05-03 17:45:54.161651+00	t
-1374	Feral Weapon	Use your weapon power to start next combat with a <b>Fury</b>.\n<b>Passive:</b> Gain <b>1 Regenerate</b> on every third hit.	1	0	18819		{}	{}	{}	{Hunter}	{}	2025-05-03 17:45:54.161651+00	t
-1396	Serrated Weapon	Use your weapon power to inflict <b>Bleeding</b> equal to your level and conjure a Lifedrinker Venom potion at the start of next combat.	2	0	677873		{}	{}	{}	{Hunter}	{}	2025-05-03 17:45:54.161651+00	t
-1381	Hungering Weapon	Use your weapon power to consume up to 5 <b>Souls</b> and convert them into Maximum Health.	2	0	133228		{}	{}	{}	{Hunter}	{}	2025-05-03 17:45:54.161651+00	t
-1367	Deathdealers Weapon	Use your weapon power to start next combat with a <b>Contract</b> of your choice.	2	0	706183		{}	{}	{}	{Hunter}	{}	2025-05-03 17:45:54.161651+00	t
-1387	Potent Weapon	Activate to start next combat with <B>Potency</b> equal to your level ([[myLevel]]). <b>Passive:</b> Gain <b>Souldance</b>.	2	0	5320		{}	{}	{}	{Hunter}	{}	2025-05-03 17:45:54.161651+00	t
-1378	Fortified Weapon	When you use your Weapon Power, start your next combat with <b>Armor</b> equal to three times your level and <B>Fortified</b>.	1	0	5		{}	{}	{}	{Knight}	{}	2025-05-03 17:45:54.161651+00	t
-1379	Grounding Weapon	<b>Activate</b>: Gain <b>10 Barrier</b> at the start of next combat. <b>Passive:</b> When you add a <b>Chain</b> card to your deck, upgrade it equal to your level ([[myLevel]]).	2	0	495673	Be the lightning. If only for a second, it turns the night into day.	{WindyHillock}	{}	{}	{Knight}	{}	2025-05-03 17:45:54.161651+00	t
-1371	Evoking Weapon	Use your weapon power to conjure an Elite Magic Action at the start of next combat.	2	0	736021		{}	{}	{}	{Knight}	{}	2025-05-03 17:45:54.161651+00	t
-1382	Infectious Weapon	Use your weapon power inflict 1 Bane at the start of next combat. <b>Passive:</b> Whenever you inflict a unique Affliction, gain 2 HEALTH.	2	0	607157		{}	{}	{}	{Knight}	{}	2025-05-03 17:45:54.161651+00	t
-1389	Pure Weapon	Use your Weapon Power to become <B>Blessed</b> at the start of next combat.	2	0	337263		{}	{}	{}	{Knight}	{}	2025-05-03 17:45:54.161651+00	t
-1366	Deadly Weapon	Activate your weapon power to start next combat with a <b>Lay in Wait</b>. <b>Passive:</b> Start next combat with <b>Sinister</b> equal to your level. 	2	0	579998		{}	{}	{}	{Rogue}	{}	2025-05-03 17:45:54.161651+00	t
-1383	Jewelled Weapon	Use your weapon power to gain gold equal to your level and delve a potion.	2	0	670277		{}	{}	{}	{Rogue}	{}	2025-05-03 17:45:54.161651+00	t
-1384	Manyshot Weapon	Use your weapon power to conjure 1 arrow per level (up to 4) at the start of next combat.	2	0	4		{}	{}	{}	{Rogue}	{}	2025-05-03 17:45:54.161651+00	t
-1376	Focused Weapon	Use your weapon power to start next combat with <b>1 Focus</b> and <b>Centered Strikes</b>.	1	0	456040		{}	{}	{}	{Seeker}	{}	2025-05-03 17:45:54.161651+00	t
-1370	Enlightened Weapon	Use your weapon power to start combat with <b>Euphoria</b> in play.	2	0	488388		{}	{}	{}	{Seeker}	{}	2025-05-03 17:45:54.161651+00	t
-1388	Prophetic Weapon	Use your weapon power to start combat with a free conjured copy of a card in your deck.	2	0	814725		{}	{}	{}	{Seeker}	{}	2025-05-03 17:45:54.161651+00	t
-1386	Mindful Weapon	Activate to start your next combat with <b>Evasion</b> and a free <b>Clarity</b>.	2	0	231250		{}	{}	{}	{Seeker}	{}	2025-05-03 17:45:54.161651+00	t
-1391	Reckless Weapon	Use your weapon power to take damage equal to your level and start next combat with an equal amount of <b>Armor</b> and <b>Anger</b> ([[myLevel]]).	2	0	298686		{}	{}	{}	{Warrior}	{}	2025-05-03 17:45:54.161651+00	t
-1390	Raging Weapon	Use your weapon power to start next combat with a Fury. <b>Passive:</b> Whenever you gain <b>Anger</b>, gain that much HEALTH.	2	0	115937		{}	{}	{}	{Warrior}	{}	2025-05-03 17:45:54.161651+00	t
-1385	Mending Weapon	When you use your Weapon Power, gain 1 HEALTH for every Melee Action in your deck ([[meleeCards]]).	1	0	6		{}	{}	{}	{Warrior}	{}	2025-05-03 17:45:54.161651+00	t
-1377	Forging Weapon	Use your weapon power to upgrade a random card in your deck. Gain 1 HEALTH whenever you upgrade a card.	2	0	550667		{}	{}	{}	{Warrior}	{}	2025-05-03 17:45:54.161651+00	t
-1372	Explosive Weapon	Use your weapon power to conjure a custom Bomb at the start of next combat.	2	0	834215		{}	{}	{}	{Warrior}	{}	2025-05-03 17:45:54.161651+00	t
-1365	Culinary Weapon	<b>Activate</b> to start combat with a random <b>Ingredient</b>. <b>Passive:</b> Your <b>Ingredients</b> are <b>Persistent</b>.	2	0	187997		{}	{}	{}	{Warrior}	{}	2025-05-03 17:45:54.161651+00	t
-1423	Compassionate	Your healing effects heal 1 additional HEALTH.	1	1	382714	Be kind, for everyone you meet is fighting a harder battle. - Ian Maclaren	{WoundedAnimal}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1412	Advanced Cloning	Your clones no longer disperse when you take damage.	6	1	591147		{}	{}	{}	{Seeker}	{}	2025-05-03 17:45:54.161651+00	t
-1416	Arcane Library	Add a <b>Grimoire</b> to your deck.	7	1	989811		{}	{}	{}	{Arcanist}	{}	2025-05-03 17:45:54.161651+00	t
-1414	Ammo Belt	At the start of combat, equip a random Ammunition.	5	1	668804	Often equally dangerous to wielder as well as target.	{}	{}	{}	{Hunter,Seeker,Warrior,Sunforge}	{}	2025-05-03 17:45:54.161651+00	t
-1415	Anger Management	Whenever you play a <b>Fury</b> card, gain 3 HEALTH. At the start of combat, add a <b>Fury</b> to your discard pile.	1	1	322097	I AM CALM!	{}	{}	{571653}	{}	{STR}	2025-05-03 17:45:54.161651+00	t
-1417	Bastion	Whenever you gain <b>Armor</b>, gain 2 additional <b>Armor</b>. This talent can be taken multiple times.	1	1	771190		{}	{}	{}	{Knight,Warrior}	{}	2025-05-03 17:45:54.161651+00	t
-1418	Battle Prowess	Upgrade all Melee actions by 1. Whenever you add a Melee Action to your deck, upgrade it by 1.	1	1	235756	Let me show you what this can do in the hands of a true warrior.	{}	{}	{}	{}	{STR}	2025-05-03 17:45:54.161651+00	t
-1419	Battle Rhythm	Whenever you <b>Perform</b> you gain <b>1 Anger</b>.	3	1	410541	Lavalian Battlebards are often the target of redicule, but never when within earshot.	{}	{}	{}	{}	{DEX2}	2025-05-03 17:45:54.161651+00	t
-1420	Bodyguard	Whenever you spend energy while performing, gain <b>2 Barrier</b>.	3	1	213807	"Get off the stage, buddy."	{}	{}	{}	{}	{DEX2}	2025-05-03 17:45:54.161651+00	t
-1421	Bombardier	At the start of combat, Conjure a <b>Bomb</b>. At level 5, conjure two <b>Bombs</b> instead.	5	1	716175	And you get a Bomb!	{}	{}	{}	{}	{STR}	2025-05-03 17:45:54.161651+00	t
-1408	Vengeful Weapon	<B>Activate</b> to remove a <b>Scar</b>. <b>Passive:</b> Gain access to Holy cards and add a <b>Test of Faith</b> to your deck.	2	0	351472		{}	{}	{}	{Warrior}	{}	2025-05-03 17:45:54.161651+00	t
-1429	Devotion	Gain access to Holy cards. Add a <b>Prayer Card</b> to your deck.	1	1	22989	Some believe the gods have left the Realms, some believe their absence is merely the calm before the storm.	{Priest,ArmsDealer,LostSoul,Prayer,WindyHillock,"Priest 1"}	{}	{984176,736248,254723,641565,924616,531590,586945,110050,462439}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1430	Duplicity	Whenever you add a card to your deck you already own, upgrade the existing copies 2 times.	1	1	242801	Shape familiarity into lethality.	{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1431	Durable	Gain +20 Maximum HEALTH.	1	1	344431	Adaption to the harsh nature of the Realms is step one to survival.	{}	{}	{732374}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1502	Epiphany	Gain a random Legendary Card.	1	2	282633	"Eureka!"	{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1405	Tracking Weapon	Use your Weapon Power to heal 10% of your maximum Health. Your next foe becomes <b>Marked</b>.	2	0	241289		{}	{}	{}	{Hunter}	{}	2025-05-03 17:45:54.161651+00	t
-1411	Zealous Weapon	Use your Weapon Power to start next combat with an Aura of Zeal. <b>Passive:</b> You have access to Holy cards.	2	0	904902		{}	{}	{}	{Knight}	{}	2025-05-03 17:45:54.161651+00	t
-1409	Voracious Weapon	Activate to destroy a card in your deck. <B>Passive:</b> Whenever you destroy a card, gain <b>5 HEALTH</b>.	2	0	627799		{}	{}	{}	{Knight}	{}	2025-05-03 17:45:54.161651+00	t
-1401	Stealthy Weapon	When you use your Weapon Power, <b>Stun</b> your next foe and steal a potion.	1	0	1		{}	{}	{}	{Rogue}	{}	2025-05-03 17:45:54.161651+00	t
-1399	Singing Weapon	Use your Weapon Power to inflict <b>3 Charmed</b> per level to your next foe. <b>Passive:</b> Whenever you <b>Slay</b> a foe, gain 10 HEALTH.	2	0	359697		{}	{}	{}	{Rogue}	{}	2025-05-03 17:45:54.161651+00	t
-1402	Surging Weapon	Use your weapon power to start next combat with a Surge of your choice. <b>Passive:</b> Whenever you gain <b>5 Momentum</b>, gain DEX.	2	0	307368		{}	{}	{}	{Seeker}	{}	2025-05-03 17:45:54.161651+00	t
-1410	Warding Weapon	Use your weapon power to start next combat with <b>Barrier</b> equal to 20% of your maximum HEALTH.	2	0	399307		{}	{}	{}	{Seeker}	{}	2025-05-03 17:45:54.161651+00	t
-1398	Shifting Weapon	Use your weapon power to start next combat in a Beastform of your choice.	2	0	401508		{}	{}	{}	{Seeker}	{}	2025-05-03 17:45:54.161651+00	t
-1406	Tranquil Weapon	Use your weapon power to return to your Maximum HEALTH.	2	0	415393		{}	{}	{}	{Seeker}	{}	2025-05-03 17:45:54.161651+00	t
-1407	Unyielding Weapon	Use your weapon power to start next combat with <b>Armor</b> equal to the cards in your deck ([[cardsInDeck]]).	2	0	185402		{}	{}	{}	{Warrior}	{}	2025-05-03 17:45:54.161651+00	t
-1403	Throwing Weapon	Use your weapon power to start next combat with Ammo. <b>Passive:</b> All melee cards you add to your deck become Ranged actions.	2	0	712921		{}	{}	{}	{Warrior}	{}	2025-05-03 17:45:54.161651+00	t
-1397	Shaking Weapon	Use your weapon power to start next combat with a free <b>Sift the Sands</b>. <b>Passive:</b> Whenever you Shuffle a card, inflict <b>1 Stagger</b>. 	2	0	844457		{}	{}	{}	{Warrior}	{}	2025-05-03 17:45:54.161651+00	t
-1422	Carapace	Whenever you return a card from your discard pile to your hand, gain <b>Armor</b> equal to twice its energy cost.	5	1	849609	May our forebears protect us.	{}	{}	{}	{}	{DEXSTR}	2025-05-03 17:45:54.161651+00	t
-1433	Eminence	At the start of combat, gain <b>HOLY</b>. If your deck contains 20 or more cards, gain an additional <b>HOLY</b> at the start of combat.	6	1	110050	The support of House Elsmyr revealed itself as mercurial as the absolutions they profess to cherish.	{}	{22989}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1434	Emporium Discount	The first card you buy at the merchant is free.	0	1	384654	Discounts will not apply in the event of the occurrence (certified by the Emporium's Centers for Disease Control or successor body) of a widespread viral infection transmitted via bites or contact with bodily fluids that causes human corpses to reanimate and seek to consume living human flesh, blood, brain or nerve tissue and is likely to result in the fall of organised civilization.	{EmporiumCrates,Campfire}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1436	Fire Resistance	At the start of your turn, reduce your <b>Burning</b> by half.	0	1	479204	A blessing granted by freeing all crusaders from the Cult of the Eternal Pyre without casualty.	{"Suspended Cage"}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1442	Headhunter	Whenever you defeat a Boss, gain 50 gold and heal to full health HEALTH.	1	1	769932	The higher the danger, the higher the reward.	{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1445	Hide Armor	At the start of combat, gain <b>1 Evasion</b>.	0	1	480987	The hunter wears suffering like a shield.	{WoundedAnimal}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1447	Lucky	Gain +20% better chance of finding rare or better cards.	1	1	81577	“You never know what worse luck your bad luck has saved you from.”	{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1450	Malice	Your Basic Attacks deal additional damage equal to your <b>Potency</b> ([[my(status)Potency]]).	1	1	230904	"There are many wonderful flavors of pain. You've only had a mere sample of the banquet I have to offer." - Hierodeacon Ardekai	{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1425	Dark Ritualist	Whenever you summon a totem, summon an additional Corrupted Totem.	4	1	274715		{"Maki Tagdahar Death"}	{914598}	{}	{Hunter}	{}	2025-05-03 17:45:54.161651+00	t
-1426	Daywalker	At the start of combat, gain <b>2 Darkness</b> per level. Losing <b>Darkness</b> inflicts <b>1 Dazed</b> per level instead of <b>Stunned</b>.	6	1	536208		{}	{}	{}	{Hunter}	{}	2025-05-03 17:45:54.161651+00	t
-1427	Deadly Accuracy	Your Ranged Actions deal additional damage equal to twice your Dexterity ([[playerDEX]]).	1	1	945246	It's not about knowing what to strike, but where to strike.	{}	{}	{}	{}	{DEX}	2025-05-03 17:45:54.161651+00	t
-1428	Demolisher	Enemies start with Vulnerable equal to your Strength ([[playerSTR]]).	1	1	305555		{}	{}	{}	{Warrior}	{STR}	2025-05-03 17:45:54.161651+00	t
-1435	Faithbound	Gain access to Holy cards. Add a <b>Test of Faith Card</b> to your deck.	1	1	491661	Some believe the gods have left the Realms, some believe their absence is merely the calm before the storm.	{}	{}	{}	{}	{STR2}	2025-05-03 17:45:54.161651+00	t
-1437	Gilded Prestige	At the start of your turn, conjure a Lucky Coin. Your Lucky Coins gain <b>Persistent</b>.	6	1	749395		{}	{}	{}	{}	{DEX2}	2025-05-03 17:45:54.161651+00	t
-1438	Good Intuitions	Gain an extra reroll on talents and upgrade all future rewards by 1. This talent can be taken multiple times.	7	1	733549		{}	{}	{}	{Seeker,Rogue}	{}	2025-05-03 17:45:54.161651+00	t
-1439	Gravecaster	Whenever you Bury a Magic Action, conjure a free copy to your hand.	3	1	562997		{}	{}	{}	{}	{INT}	2025-05-03 17:45:54.161651+00	t
-1441	Harvester	Increase your maximum number of Souls by 20. At the end of Combat, gain <b>Souls</b> equal to your level ([[myLevel]]).	3	1	221372		{}	{}	{}	{Hunter}	{}	2025-05-03 17:45:54.161651+00	t
-1443	Heavy Impact	Whenever you conjure a <b>Bomb</b>, upgrade it by your level ([[myLevel]]).	5	1	680166	Try Bomb 2.0! Harder, deadlier, louder.	{}	{}	{}	{}	{STR2}	2025-05-03 17:45:54.161651+00	t
-1446	Initiation	Add a HOLY <b>Code</b> to your deck. You gain Access to <b>Holy</b> cards.	6	1	376845	"NOT A CULT,\nNOT A CULT,\nNOT A CULT."	{}	{}	{}	{Arcanist,Knight,Rogue,Sunforge}	{}	2025-05-03 17:45:54.161651+00	t
-1448	Magical Aptitude	Upgrade all Magic actions by 1. Whenever you add a Magic Action to your deck, upgrade it by 1.	1	1	30523	As we learn, we grow.	{}	{}	{}	{}	{INT}	2025-05-03 17:45:54.161651+00	t
-1449	Magical Ornaments	Basic Attacks deal 2 additional damage. This talent can be taken multiple times.	1	1	520869	Nothing was ever made worse by a touch of the Arcane.	{}	{}	{}	{}	{INT}	2025-05-03 17:45:54.161651+00	t
-1451	Mark of Taurus	Basic Attacks deal additional damage equal to the upgrades on your card rewards ([[rewardUpgrades]]).	7	1	52028	None could still the rage that lasted centuries.	{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1456	Prodigy	Gain a +5% chance to find rare or better cards. Gain +2 rerolls on talent choices whenever you level up.	1	1	558443	Some fight against the bonds of fate, some embrace it.	{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1458	Repetition	Whenever you play a card with the same name of a card you've already played this turn, gain <b>1 Momentum</b>.	7	1	847133	Shape lethality into familiarity.	{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1598	Darksteel Plating	Whenever you gain <b>Armor</b>, gain double the amount.	1	5	570440		{}	{}	{}	{}	{STR2}	2025-05-03 17:45:54.161651+00	t
-1455	Pragmatism	During your first turn each combat, your <b>Start of Turn</b> effects trigger twice.	4	1	230852	We must act with wisdom and prudence if we hope to emerge victorious.	{"Heated Debate"}	{}	{}	{}	{INT2}	2025-05-03 17:45:54.161651+00	t
-1460	Sacred Zest	At the start of your turn, there is a 10% chance to cleanse a random affliction.	4	1	67258	We must resist hesitation, and victory shall be our reward.	{"Heated Debate"}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1465	Storm Scholar	Whenever you add a card with <b>Chain</b> to your deck, upgrade it by your level ([[myLevel]]).	1	1	754522	"Thunder is impressive, but it is lightning that does the work." - MT	{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1466	Stormscarred	Lose 5 Maximum HEALTH.	1	1	972587	A souvenir from weathering an extraordinary vicious storm.	{WindyHillock,"Alchemist 1"}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1468	Survival Instincts	Heal 5% of your maximum health at the start of combat.	1	1	634271	The anticipation of battle is the only sustenance I need.	{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1473	Watched	It feels like you are being watched...	1	1	870678		{"The Voice Below","Shrine of Misery","The Deep Finish","The Godscar Wastes Start"}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1474	Weapon Aptitude	Pick one of 9 weapons. Change your Basic Attack and all Basic Attacks in your deck into this weapon.	6	1	701148	The Rehdanian Warlords' most potent weapon lies not in steel, but in the fluidity of their arsenal.	{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1475	Weapon Training	Reduces the cooldown of your weapon by 1 combat. This effect can't reduce the cooldown below 1.	1	1	952873	The Masters of the Voltaran Acadamy teach it is the first cut that will win the battle, not the deepest.	{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1477	Alchemist	Transmute ALL your Basic Attacks into different cards.	1	2	551990	Melt it down, process, profit!	{Campfire}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1481	Benevolent	Your healing effects restore 2 additional HEALTH during combat.	1	2	493103	The White Rose's blessing reaches even the darkest of gardens.	{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1478	Arcane Mastery	Whenever you add a non-unique Magic Action to your deck, add a base copy that costs no energy.	1	2	916904	To some, learning Magic comes as easily as breathing.	{}	{}	{}	{}	{INT}	2025-05-03 17:45:54.161651+00	t
-1479	Bad Intentions	Whenever you inflict <b>Poison</b>, inflict that much <b>Doom</b>.	7	2	986242		{}	{}	{}	{Arcanist,Hunter,Rogue,Seeker}	{}	2025-05-03 17:45:54.161651+00	t
-1480	Battle Harmony	Replace your Weapon and Basic Attacks with the Harp.	6	2	242234	Let's get ready to PARTEEEEEEY-EH-EH!	{}	{}	{}	{}	{DEX2}	2025-05-03 17:45:54.161651+00	t
-1452	Momentous Strikes	Basic Attacks deal additional damage equal to your <b>Momentum</b>.	7	1	747219		{}	{}	{}	{Seeker}	{}	2025-05-03 17:45:54.161651+00	t
-1454	Mythology	Add a rare <b>Path</b> to your deck.	7	1	73981		{}	{}	{}	{Seeker}	{}	2025-05-03 17:45:54.161651+00	t
-1457	Quick Study	Choose a card in your deck. Reduce its energy cost by 1.	1	1	148560	To acquire knowledge, one must study. To acquire wisdom, one must observe.	{}	{}	{}	{}	{INT}	2025-05-03 17:45:54.161651+00	t
-1459	Ritualist	At the start of combat, conjure 3 helpful <b>Essences</b> to your discard pile.	5	1	214958	The spirits provide.	{}	{}	{}	{Hunter}	{}	2025-05-03 17:45:54.161651+00	t
-1461	Slaughter	Gain +1 maximum health whenever you defeat a foe.	1	1	497279	The thrill of the hunt gives me strength.	{}	{}	{}	{Hunter}	{}	2025-05-03 17:45:54.161651+00	t
-1462	Slow Cooking	Your <b>Ingredients</b> are <B>Persistent</B>.	7	1	110160	Just three more minutes....	{}	{}	{}	{Warrior}	{}	2025-05-03 17:45:54.161651+00	t
-1463	Smithing	Upgrade all Melee Actions and Melee Basic Attacks equal to your Strength ([[playerSTR]]).	1	1	289486		{}	{}	{}	{Warrior,Knight}	{}	2025-05-03 17:45:54.161651+00	t
-1464	Souldance	Whenever you finish a <B>Performance</b>, gain <b>1 Soul</b>.	7	1	944125		{}	{}	{}	{Hunter}	{}	2025-05-03 17:45:54.161651+00	t
-1467	Strength in Numbers	Whenever you add a non-conjured card to your deck, <nobr>gain <b>3 Maximum HEALTH</b></nobr>.	1	1	385710		{}	{}	{}	{}	{STR}	2025-05-03 17:45:54.161651+00	t
-1470	Tough as Stone	Whenever you draw or conjure a card outside of the draw phase, gain <b>1 Armor</b>.	6	1	371897		{}	{}	{}	{Warrior}	{}	2025-05-03 17:45:54.161651+00	t
-1469	Tough Bones	You are immune to being <b>Dazed</b> and <b>Stunned</b>.	1	1	990237	"Huh? Was that supposed to do something?"	{}	{}	{}	{}	{STR}	2025-05-03 17:45:54.161651+00	t
-1471	Toxic Triage	Whenever your foe takes damage from <b>Poison</b> gain <b>1 HEALTH</b>.	1	1	844574		{}	{}	{}	{}	{DEX}	2025-05-03 17:45:54.161651+00	t
-1484	Blessing of Aethos	Gain <b>5 Barrier</b> and <b>1 Anger</b> at the start of combat against <b>Demons</b> and <b>Undead</b>.	0	2	768659	Eternal is the duty for those who stand against the chaos of an uncaring universe.	{"Grove of the Dying Star  Finish"}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1493	Catharsis	At the end of combat, gain HEALTH equal to your <b>Zeal</b>.	5	2	462439	Even the most righteous fire needs to quenched sometime.	{}	{22989}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1494	Collector	Whenever you add a card to your deck, gain 5 HEALTH and 5 gold.	1	2	651185	You're not actually going to play that card, are you?	{}	{}	{259144}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1495	Concoct Card	Add <b>Cursed</b> and two random effects to a card. <b>Persistent</b>, <B>Reliable</b>, <B>Firecast</b>, <b>Memorized</b> or <b>Chain</b> or Upgrade it by 2.	7	2	960500		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1500	Endless Arsenal	<b>Start of Turn:</b> Conjure a free Basic Attack.	1	2	725030	Victory by any means and with any weapon.	{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1505	Fast Recovery	Healing from Inns, Campfires, and Priests always heals you to your full health HEALTH.	1	2	245518	Death is nothing a good night's rest won't cure.	{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1508	Forgery	Copy a card in your deck.	1	2	529128	If adventuring doesn't work out - the Emporium will have a job for you...	{}	{}	{259144}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1509	Fortitude	Gain +30 Maximum HEALTH.	1	2	732374	Broken bones, cuts, and other wounds didn't seem to slow its relentless assault a single step.	{}	{344431}	{19597}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1483	Bitter Cold	Deal +4 damage against Frozen enemies.	1	2	191673		{}	{}	{}	{Arcanist}	{}	2025-05-03 17:45:54.161651+00	t
-1486	Bloodlust	When you inflict <b>Bleeding</b>, heal <b>1</b> HEALTH.\n	1	2	685248	The soldiers of House Arkovian seem to get more feral once they smell the blood of their enemies.	{}	{}	{}	{}	{STR}	2025-05-03 17:45:54.161651+00	t
-1487	Boomerang	The first basic attack you play each turn is returned to your hand.	1	2	58890	You call that a knife?	{}	{}	{}	{}	{STR}	2025-05-03 17:45:54.161651+00	t
-1489	Brute Force	Your Melee Actions inflict Stagger equal to the damage they deal.	1	2	314145		{}	{}	{}	{}	{STR2}	2025-05-03 17:45:54.161651+00	t
-1491	Cardcrafter	Upgrade all cards that appear in card reward screens by your level ([[myLevel]]).	1	2	811678	Sharpen steel, sharpen your mind.	{}	{}	{}	{}	{DEX}	2025-05-03 17:45:54.161651+00	t
-1490	Butcher	Whenever you defeat a foe, upgrade a random Action in your deck by 1.	1	2	358006	Nothing wasted.	{}	{}	{}	{Hunter}	{STR}	2025-05-03 17:45:54.161651+00	t
-1492	Careful Chemistry	At the start of combat, conjure a random Potion. Your Potions gain <b>Persistent</b>.	1	2	589187	Chemistry is like cooking. Just don't lick the spoon.	{}	{}	{}	{}	{DEX}	2025-05-03 17:45:54.161651+00	t
-1496	Contract Killing	Whenever you bring an enemy to <nobr><b>exactly 0 HEALTH</b></nobr>, gain <b>25 Gold</b> and <nobr>refresh your Weapon Power</nobr>.	1	2	490595	Paid by the minute, and not a second over.	{}	{}	{}	{}	{DEX}	2025-05-03 17:45:54.161651+00	t
-1497	Dangerous Defiance	At the end of the turn, your foe loses <b>Maximum Health</b> equal to your <b>Stagger</b>.	5	2	368394	"The hero and the coward both feel the same thing. But the hero uses his fear, projects it onto his opponent, while the coward runs."	{}	{}	{}	{Warrior}	{}	2025-05-03 17:45:54.161651+00	t
-1498	Doctrine	At the start of combat, gain HOLY and <b>2 Zeal</b>. You have access to Holy Cards.	5	2	401698	The path of the righteous man is beset on all sides\nBy the inequities of the selfish and the tyranny of evil men...	{}	{}	{}	{Arcanist,Knight}	{}	2025-05-03 17:45:54.161651+00	t
-1499	Elemental Savant	At the start of combat, <b>Attune</b> to a random Element.	6	2	879775	Some Arcanists learn their elemental reactions before their first words.	{}	{}	{}	{}	{INT2}	2025-05-03 17:45:54.161651+00	t
-1501	Enlightenment	After you play a <b>Revelation</b>, upgrade all future card rewards by 1.	5	2	128514	"The future is not something we enter. The future is something we create." ~ Leonard I. Sweet	{}	{}	{}	{Seeker}	{}	2025-05-03 17:45:54.161651+00	t
-1504	False Life	At the start of combat, gain 20% additional Temporary Maximum HEALTH. You do not heal for the amount of HEALTH gained.	7	2	227214		{}	{}	{}	{}	{STR}	2025-05-03 17:45:54.161651+00	t
-1506	Fervour	At the start of combat, gain <b>1 Anger</b> for each 20% of your missing health.	1	2	889956	Anger seemed to directly correlate to disagreeableness.	{}	{}	{}	{}	{STR}	2025-05-03 17:45:54.161651+00	t
-1507	Firebrand	At the start of Combat, inflict <b>Burning</b> equal to your level ([[myLevel]]).	1	2	205320	I'm all fired up!	{}	{}	{707915}	{}	{INT}	2025-05-03 17:45:54.161651+00	t
-1510	Harden Mind	At the start of the turn, gain <B>2 Barrier</b> for every effect you are <b>Channelling</b>.	6	2	373014		{}	{}	{}	{}	{INT}	2025-05-03 17:45:54.161651+00	t
-1512	Inoculation	At the start of your turn, Cleanse all <b>Poison</b>.	1	2	889898		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1513	Iron Stomach	Whenever you gain <b>Sated</b>, gain <b>1 Armor</b>.	7	2	665065		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1514	Jack of All Trades	Whenever you add a card to your deck, convert its energy cost to NEUTRAL.	7	2	585625	Show me something you can't do!	{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1515	Keen Mind	Draw +1 card per round.	1	2	749206	The first advantage is the number of options one can think of.	{}	{}	{615769}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1516	Master of Anatomy	Whenever you inflict a Deep Wound, gain STRSTR  and draw a card.	3	2	486873		{}	{568243}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1517	Master of Ceremony	Whenever you play a Hymn, conjure a free copy of the fastest verse.	3	2	641565		{}	{22989}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1522	Painbringer	Whenever you deal a <b>Critical Hit</b>, gain 3 HEALTH. (Critical Hits deal double damage).	1	2	552870		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1526	Pious	Conjure a Virtue at the start of combat. Whenever you conjure or draw a Virtue it gains <b>Persistent</b>.	1	2	924616	Rae's rare interventions raise as many questions as they answer the doubts of the faithful.	{WindyHillock}	{22989}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1528	Quick Crafting	Upgrade a random card in your deck by 2. Repeat for each of your levels up to 5 times at level 4 ([[myLevel]]).	1	2	574576		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1531	Sanctifier	Your Actions inflict additional damage equal to your level to Undead and Demons ([[myLevel]]).	1	2	706272	"Now stay dead."	{BrightGem}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1541	Starcalling	Whenever you conjure a <b>Stardart</b>, upgrade it equal to the upgrades you receive on your card rewards ([[rewardUpgrades]]).	5	2	162087	The future is just one more weapon in my arsenal.	{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1518	Mobility	When you gain <b>Evasion</b>, gain <b>2 Haste</b>. You are immune to <b>Slow</b>.	1	2	699673		{GoldenIdol}	{}	{}	{}	{DEX}	2025-05-03 17:45:54.161651+00	t
-1519	Momentous Recovery	Whenever you reach <b>5 Momentum</b>, gain <B>5 HEALTH</b>.	7	2	151738		{}	{}	{}	{Seeker}	{}	2025-05-03 17:45:54.161651+00	t
-1521	Objection	Whenever you <b>Interrupt</b>, add a Fury card to your discard pile and your <b>Fury</b> cards provide 1 additional <b>Anger</b> for the remainder of combat.	1	2	414523	It probably wasn't important anyway.	{}	{}	{}	{}	{STR2}	2025-05-03 17:45:54.161651+00	t
-1523	Perception	At the start of combat, gain DEX. If your foe has 'First Strike', <b>Stun</b> them during their first round.	1	2	552273		{CloakedStranger}	{}	{}	{}	{DEX}	2025-05-03 17:45:54.161651+00	t
-1525	Perspicacity	Gain <b>1 Barrier</b> for each card that appears in a Foretelling.	5	2	95851	"Seek wisdom, not knowledge. Knowledge is of the past, Wisdom is of the future."	{}	{}	{}	{Seeker}	{}	2025-05-03 17:45:54.161651+00	t
-1527	Profane Ward	At the end of your turn, gain <b>Barrier</B> for each affliction on your foe ([[otherAfflictions]]).	7	2	289423		{}	{}	{}	{}	{INT}	2025-05-03 17:45:54.161651+00	t
-1529	Rotten to the Core	Replace all <b>Malignance</b> cards in your deck with <b>Forbidden Fruit</b>. At the start of combat, conjure a <b>Forbidden Fruit</b>.	3	2	638925	"Sweeter than the fruit itself, was the understanding that nothing is absolute."	{}	{}	{}	{Arcanist}	{}	2025-05-03 17:45:54.161651+00	t
-1532	Set the Scene	At the start of combat, shuffle <b>3 Snares</b> into the opposing deck.	5	2	936461	"Welcome to my workshop." - Braxia Noxwind	{}	{}	{346507}	{}	{DEX}	2025-05-03 17:45:54.161651+00	t
-1534	Shield Master	Remove all Block actions from your deck. Gain 2 Tower Shields.	1	2	340544		{}	{}	{427279}	{Warrior,Knight}	{}	2025-05-03 17:45:54.161651+00	t
-1535	Shredder	Replace your Weapon and Basic Attacks with Shredder Axes. You gain access to more powerful Performances.	3	2	750664	Let's get ready to PARTEEEEEEY-EH-EH!	{}	{}	{}	{}	{DEX2}	2025-05-03 17:45:54.161651+00	t
-1537	Soulguide	Whenever you return a card from your discard pile, gain HEALTH and <b>Souls</b> equal its cost.	4	2	477931	"These savages seem to think this patch of dirt holds some value." - Renault the Conqueror, moments before his death.	{}	{}	{}	{Hunter}	{}	2025-05-03 17:45:54.161651+00	t
-1538	Spellfury	Conjure a free copy of the first Magic, non-Basic Attack Action you play during combat.	1	2	120253	Can you repeat that?	{}	{}	{}	{}	{INT}	2025-05-03 17:45:54.161651+00	t
-1539	Spirit Barrier	Whenever you gain Souls, gain an equal amount of <b>Barrier</b>.	3	2	403413		{}	{}	{}	{Hunter}	{}	2025-05-03 17:45:54.161651+00	t
-1540	Stalker	Gain DEX DEX at the start of combat.	1	2	868900	You are either prey or predator. I choose to be the latter.	{}	{}	{}	{}	{DEX}	2025-05-03 17:45:54.161651+00	t
-1542	Steelmind	Start each combat with <b>Barrier</b> equal to 10% of your HEALTH.	1	2	79100	It all begins and ends in your mind. What you give power to, has power over you.	{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1543	Supernova	Add a <b>Nova</b> card of each color you can play to your deck.	7	2	483859		{}	{}	{946830}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1545	Void Resistance	<b>Start of Turn</b>: Convert a VOID energy to STR.	7	2	372189		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1548	Whimsical	Play a random Enchantment at the start of combat.	1	2	778234	It's like the hiccups, but more dangerous.	{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1549	Wild Infusion	Upgrade a random card 5 times	1	2	487273	Recklessness is equally found in the formula for success as disaster.	{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1550	Balors Blessing	You gain <b>1 Anger</b> and <b>1 Burning</b> at the start of combat.	0	3	943265	Wield your hatred like a blade forged in the hottest of fires and fear shall be thy reward. - Bert.	{SummoningCircle}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1551	Energized	Gain double your normal energy on the first round of every combat.	1	3	424560		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1553	Greater Dexterity	Gain +1 Dexterity. (You gain DEX for each point of Dexterity at the start of your turn).	1	3	727198		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1554	Greater Intellect	Gain +1 Intellect.  (You gain INT for each point of Intellect at the start of your turn).	1	3	531548		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1555	Greater Strength	Gain +1 Strength. (You gain STR for each point of Strength at the start of your turn).	1	3	857575		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1556	Zealous	Gain HOLY at the beginning of the round.	1	3	586945	Those blind to Rae's presence will be shown by sheer power.	{LostSoul}	{22989}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1524	Perfect Balance	Double your <b>Focus</b> whenever you end the turn at an EVEN lifetotal.	1	2	279043		{}	{}	{}	{}	{DEXINT}	2025-05-03 17:45:54.161651+00	t
-1530	Sacred Flame	Whenever you inflict <b>Burning</b>, gain an equal amount of <b>Zeal</b>.	5	2	832617	"Let this fire wash away your sins!"	{}	{}	{}	{}	{INTSTR}	2025-05-03 17:45:54.161651+00	t
-1533	Shattering Strikes	Melee attacks against <b>Frozen</b> <nobr>targets <b>Critical Hit</b></nobr>.	1	2	216754		{}	{}	{}	{}	{INTSTR}	2025-05-03 17:45:54.161651+00	t
-1560	Blessing of Serem-Pek	At the start of Combat, inflict a random affliction with 3 stacks.	1	4	137930	You feel a lingering sensation of being watched at all times...	{"The Deep Finish","The Godscar Wastes Start","The Godscar Wastes Finish"}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1561	Bloodbank	At the start of combat, gain <b>Bloodbank</b>.	7	4	420984	Every drop counts.	{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1562	Craftsman	Whenever you upgrade a card, upgrade it one additional time.	1	4	135895		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1563	Creativity	Imbue a random enchantment from anywhere.	1	4	732948	What's the worst that could happen, right?	{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1572	Illusionist	Your conjurations cost one less energy.	5	4	889914	Don't let reality slow you down.	{}	{438900}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1573	Inner Rage	<b>Fury</b> cards grant additional <b>Anger</b> equal to your Strength ([[playerSTR]]).	1	4	571653	The blood boils.	{}	{322097}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1558	Battle Resilience	On even rounds, gain the 'Take the Hit', converting all incoming damage to Stagger.	5	4	409741		{}	{}	{}	{Warrior}	{}	2025-05-03 17:45:54.161651+00	t
-1559	Battlerush	Upgrade the first Melee action you play each combat.	1	4	891888	The soldiers of the Illustrious Stillguard often seem to get stronger and stronger as the battle lasts.	{}	{}	{}	{}	{STR}	2025-05-03 17:45:54.161651+00	t
-1564	Deep Roast	Whenever you inflict <b>Burning</b>, gain <b>1 Potency</b>.	7	4	413015		{}	{}	{}	{Arcanist,Knight,Warrior}	{}	2025-05-03 17:45:54.161651+00	t
-1566	Elemental Conflux	When you inflict <b>Burning</b>, gain <b>1 Haste</b>. When you Inflict <b>Frozen</b>, inflict <b>1 Slow</b>.	1	4	382815		{}	{}	{}	{}	{INT}	2025-05-03 17:45:54.161651+00	t
-1567	Elemental Recovery	Whenever you trigger an <b>Attunement</b>, gain <b>1 Focus</b> and gain <b>HEALTH</b> equal to your <B>Focus</b>.	6	4	629931		{}	{}	{}	{}	{INT2}	2025-05-03 17:45:54.161651+00	t
-1568	Focused Infusion	Double the upgrades on a card in your deck, then increase its cost by NEUTRAL.	1	4	138614	A single needle can be shaped to be the deadliest of weapons.	{}	{}	{}	{}	{STR}	2025-05-03 17:45:54.161651+00	t
-1569	Great Haul	Whenever you defeat an Elite enemy, gain a <b>Booty</b>.	7	4	953947		{}	{}	{}	{Rogue}	{}	2025-05-03 17:45:54.161651+00	t
-1570	Grievous Wounds	Whenever you inflict a <b>Critical Hit</b>, inflict <b>3 Bleeding</b>. (Critical Hits deal double damage).	1	4	372191		{}	{}	{}	{}	{DEX}	2025-05-03 17:45:54.161651+00	t
-1571	Hunger for Power	Whenever you destroy a card, remove all its Upgrades and convert them to permanent Maximum HEALTH.	7	4	965103		{}	{}	{}	{Knight}	{}	2025-05-03 17:45:54.161651+00	t
-1544	Trapper	Whenever you <b>Perform</b> or inflict a <b>Critical Hit</b>, upgrade all Snares in your foe's deck by 1.	5	2	346507	"You know, it only hurts when I laugh."	{}	{936461}	{}	{}	{DEX}	2025-05-03 17:45:54.161651+00	t
-1546	Wavedancer	Whenever you change the <b>Tide</b>, draw a card.	7	2	253896		{}	{}	{}	{Seeker,Rogue}	{}	2025-05-03 17:45:54.161651+00	t
-1547	Weapon Weaving	Whenever you change <b>Stances</b>, conjure a free Basic Attack.	6	2	350733		{}	{}	{}	{}	{STR2}	2025-05-03 17:45:54.161651+00	t
-1576	Nova Savant	Make the cost of all Nova cards in your deck NEUTRAL. Whenever you play a <b>Nova</b> card, gain <b>1 Momentum</b>.	7	4	512178		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1577	Peace of Mind	If you play no Magic, Melee or Ranged actions during your turn, draw an extra card next turn.	1	4	561066	True strength lies not in battles won, but in wars averted.	{"Mystical Glade"}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1580	Sacred Shield	Gain 1 Impervious at the start of battle.	1	4	201571		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1586	Strategist	Gain +3 maximum handsize.	1	4	311688	What is now proved was once only imagined.	{"Heated Debate"}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1587	Taste of Chaos	At the start of combat, gain <b>Delirious</b>. While <B>Delirious</b>, your actions deal 2 additional damage.	1	4	157577	Amidst the roar of battle, chaos whispers the fate of empires.	{"Mystical Glade"}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1592	Vexing Alteration	Add <b>Cursed</b> and two random effects to a card. <b>Persistent</b>, <b>Firecast</b>, <B>Reliable</b>, <b>Memorized</b>, <b>+5 Upgrades</b>, <b>Chain</b>, <b>Echo</b>, or convert its <b>cost to BLOOD</b>.	7	4	272556		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1599	Deal with the Devil	Your <b>Corruption</b> is always active. Remove all Divine Actions from your deck.	0	5	666	"Condemn me for my sins against others, not my selfish indulgances."\n- Vintharai proverb	{"Serena Hellspark"}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1604	Infuse Power	Upgrade a random card 10 times.	1	5	720471		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1595	Brain Training	Whenever you draw or conjure a <B>Memorized</b> card, reduce its cost by 1.	7	5	177904		{}	{}	{}	{Seeker}	{}	2025-05-03 17:45:54.161651+00	t
-1596	Bribery	At the start of your first turn, inflict <b>Charmed</b> equal to 10% of your current Gold ([[myGold]]).	3	5	720891		{}	{}	{}	{}	{DEX2}	2025-05-03 17:45:54.161651+00	t
-1597	Brutality	Whenever you gain <b>Armor</b>, inflict an equal amount of <b>Stagger</b>.	1	5	746416	Candoran Battlemasters are trained to turn their offence into defence.	{}	{}	{}	{}	{STR}	2025-05-03 17:45:54.161651+00	t
-1602	Food Critic	Whenever you inflict a <b>Critical Hit</b>, conjure a random <b>Ingredient</b>.	7	5	864779		{}	{}	{}	{Hunter,Warrior}	{}	2025-05-03 17:45:54.161651+00	t
-1603	Grit	At the end of your turn, restore 20% of your missing health.	1	5	754909		{}	{}	{}	{}	{STR}	2025-05-03 17:45:54.161651+00	t
-1574	Lionheart	Whenever you gain HEALTH, gain an equal amount of Armor.	1	4	569658	Fear is to believe defeat is permanent. Courage is to know you will get back up and be better for it.	{}	{}	{}	{}	{STR}	2025-05-03 17:45:54.161651+00	t
-1575	Midnight Ritual	When you finish a <b>Performance</b>, gain <b>Darkness</b> equal to your level ([[myLevel]]). While Performing, you are immune to <b>Stunned</b>.	7	4	610183		{}	{}	{}	{Rogue,Hunter}	{}	2025-05-03 17:45:54.161651+00	t
-1578	Premonitions	Gain <b>1 Barrier</b> for every point of <b>Focus</b> you gain.	5	4	212862	"Let the lessons of our past be a shield for our future."	{}	{}	{}	{Seeker}	{}	2025-05-03 17:45:54.161651+00	t
-1579	Rolling Tides	Whenever you reach <b>5 Momentum</b>, change the <b>Tide</b>.	7	4	719502		{}	{}	{}	{Seeker}	{}	2025-05-03 17:45:54.161651+00	t
-1581	Sadistic Glee	Whenever your opponent plays a card that did not start in their deck, gain <b>2 HEALTH</b>.	5	4	409653	"Haven't you ever heard of the healing power of laughter?"	{}	{}	{}	{Rogue}	{}	2025-05-03 17:45:54.161651+00	t
-1582	Sharp Mind	Your Magic Actions deal additional damage equal to your Intellect ([[playerINT]]).	1	4	458081	The Mages of the Realm sharpens their mind like a soldier sharpens their blade.	{}	{}	{}	{}	{INT2}	2025-05-03 17:45:54.161651+00	t
-1583	Spiked Plating	Whenever you gain <b>Armor</b>, gain half that amount of <b>Ferocious</b>.	1	4	23124		{}	{}	{}	{}	{STR}	2025-05-03 17:45:54.161651+00	t
-1584	Starlit Dance	Whenever you spend INT, gain <nobr><b>2 Barrier</b></nobr>. While you are <b>Balanced</b>, draw a card as well.	5	4	86566		{}	{}	{}	{}	{INT}	2025-05-03 17:45:54.161651+00	t
-1585	Stormbringer	Start each combat with <b>Chain</b> equal to your level ([[myLevel]]).	1	4	207559	"Ride this lighting baby!" - Reynard the Filthy	{WindyHillock}	{}	{}	{}	{INT}	2025-05-03 17:45:54.161651+00	t
-1588	Tenacity	Start combat with Armor equal to your missing health.	1	4	950963	The roar of Battle bolsters those bred for combat.	{}	{}	{}	{}	{STR3}	2025-05-03 17:45:54.161651+00	t
-1589	Thundergod's Blessing	Whenever you gain <b>Chain</b> or <b>Anger</b>, gain an additional stack.	1	4	307014	Deliver thunder to the weak, and fury to the undeserving.	{}	{}	{}	{}	{STR}	2025-05-03 17:45:54.161651+00	t
-1590	Thundering Strikes	Your <b>Chain</b> adds 2 damage instead of 1 damage per point of Chain.	1	4	794125		{}	{}	{}	{Hunter,Arcanist,Knight,Sunforge}	{}	2025-05-03 17:45:54.161651+00	t
-1591	Unholy Arsenal	Add a <b>Hexglaive</b> weapon to your deck.	5	4	913116	The Black Armory allows access to only the most devoted, or depraved.	{}	{}	{}	{Knight}	{}	2025-05-03 17:45:54.161651+00	t
-1606	Insatiable Curiosity	Draw +2 cards per round.	1	5	25678	The second advantage is to never stop asking questions.	{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1611	Nova Mastery	Nova cards you play no longer need to be unique Nova cards to improve the effects of Nova cards.	7	5	946830		{}	{483859}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1613	Pay the Ferrymen	Whenever you die, lose 500 gold and revive with a Scar and 50% of your HEALTH.	7	5	736135		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1614	Pyromancy	At the end of your turn, double the burning on your opponent.	1	5	707915	The eldest of Firemages have managed to turn their madness into the deadliest of weapons.	{}	{205320}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1617	Skylars Kiss	Lose 5 Maximum HEALTH. Draw 1 additional card at the beginning of combat.	1	5	449843	Seren, the lover, the betrayer, the misunderstood, the Queenslayer. A tragedy of the ages told both as a warning or a gleeful tale of what happens to those who blindly follow the passions of the heart.	{"Shrine of Binding"}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1618	Strong Arms	Upgrade all Basic Attacks by 5. Whenever you Conjure or 'Make' a Basic Attack, upgrade it by 5.	1	5	153104	As we learn, we grow.	{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1620	Vile Mending	Whenever you gain HEALTH, deal that much <b>Piercing</b> damage.	1	5	531590	"I'm not sure what I like best, Constitutionar. My wellbeing, or your suffering." - Hierodeacon Ardekai	{}	{22989}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1621	Warpriest	Double all your Healing during combat.	1	5	49404	The Order of the White Rose rarely shares its secrets, but when they do be sure to listen.	{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1622	Weapon Master	Upgrade all basics after using your weapon power.	1	5	986637	In the hands of a true Master, weapons improve over time.	{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1623	Weapon Virtuoso	Reduce the cost of all Basic Attacks in your deck by NEUTRAL.	1	5	745368		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1627	Apotheosis	Convert the cost of Divine cards to HOLY, then remove all non-HOLY cards and add <B>Exalt</b>. Lose all attributes and gain HOLYHOLYHOLYHOLY energy instead.	1	6	736248	To some within the Candorian Clergy, godhood isn't just a dream but a mere stepping stone.	{}	{22989}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1625	Alcars' Rage	Whenever you foe gains <b>Anger</b>, gain an equal amount</b>.	0	6	297235		{UNKNOWN}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	f
-1629	Blasphemy	Turn all HOLY energy costs on cards in your deck to Blood (BLOOD) energy	1	6	254723	Return the faith to where it belongs - the common people of the Realms.	{}	{22989}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1630	Blessing of the White Rose	Gain 5 HEALTH whenever you visit an Opportunity.	0	6	334396	Cruelty is but a dull blade compared to the searing steel of Mercy.	{"Serena Hellspark"}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1631	Bulwark	You no longer lose your <b>Armor</b> at the start of the turn.	1	6	427279	Face your enemy, steel yourself and break their will.	{}	{340544}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1632	Dark Immortality	Whenever you start the turn with eight VOID, gain <b>Salvation</B>. While in <B>Demonform</b> you can no longer gain HEALTH.	7	6	388132		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1633	Deep Studies	At the start of combat, if you are at an EVEN amount of HEALTH, gain <b>5 Haste</b>. If it's ODD, gain 10 HEALTH.	1	6	445906		{}	{}	{}	{Seeker}	{}	2025-05-03 17:45:54.161651+00	t
-1608	Mageslayer	You can not gain Blessings or Afflictions.	1	5	861505	"Petty parlour tricks won't save you this time."	{}	{}	{}	{}	{STR}	2025-05-03 17:45:54.161651+00	t
-1609	Marksmanship	Your Ranged Actions have a 50% chance to be a <b>Critical Hit</b>. (Critical Hits deal double damage).	1	5	135267		{}	{}	{}	{}	{DEX}	2025-05-03 17:45:54.161651+00	t
-1610	Mindfield	When you gain <b>Barrier</b> gain additional <b>Barrier</b> equal to your Focus.	1	5	699101	Steel your mind, bolster the body.	{}	{}	{}	{}	{INT2}	2025-05-03 17:45:54.161651+00	t
-1615	Seductive	Whenever you spend DEX, inflict 2 <b>Charmed</b>. If you are Performing, increase your current <b>Performance</b> by 1.	3	5	387466		{}	{}	{}	{}	{DEX2}	2025-05-03 17:45:54.161651+00	t
-1612	Oracle	Add a random <b>Revelation</b> to your deck for each point of Intellect ([[playerINT]]).	5	5	744837	"Our imagination is the only limit to what we can hope to have in the future."	{}	{}	{}	{Seeker}	{INT2}	2025-05-03 17:45:54.161651+00	t
-1616	Shadowdancer	Your Ambush is always active.	1	5	795466	Opportunity is the most lethal of weapons.	{}	{}	{}	{}	{DEX}	2025-05-03 17:45:54.161651+00	t
-1619	Tribute	Delve an equipment and add it to your deck.	6	5	399243	Amongst the Houses, it was an open secret Candor's favor was up for auction, resulting in increasingly generous support for the Crusade.	{}	{}	{}	{}	{STR}	2025-05-03 17:45:54.161651+00	t
-1624	Well Equipped	At the start of combat, equip all your Equipment cards.	6	5	697626	A good soldier comes prepared.	{}	{}	{}	{}	{STR}	2025-05-03 17:45:54.161651+00	t
-1635	Fire Immunity	You are Immune to <b>Burning</b>.	1	6	240709	"They say he was raised by a pack of Fire Golems."	{WallOfFire}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1636	Fortuitous	Gain 500 Gold.	1	6	423335	Best not to ask where it comes from.	{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1638	Goldstrike	Gain the Legendary Weapon Goldstrike.	1	6	259144	A fabled blade with a dark past that has become the object of desire for many within the Emporium.	{}	{651185,529128}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1640	Infusion	Imbue all Enchantments in your deck.\nLose 30 Maximum HEALTH	1	6	957660	"Greatness, at any cost." - Zalgo the Eldritch	{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1643	Magistracy	Draw 2 less cards at the start of your turn. Your conjurations inflict <b>Critical Hits</b>.	5	6	373791	Life is the true illusion.	{}	{438900}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1644	Offer of Abundance	Draw 2 additional cards at the start of your turn. You can no longer skip card rewards.	0	6	930177		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1645	Offer of Bargains	You get a 50% discount at the merchant. Whenever you visit a new area, all of your allies are replaced by the Merchant.	0	6	408879		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1646	Offer of Chance	Add a random keyword to each offered card reward.	0	6	88736		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1647	Offer of Chaos	Set the final confrontation to a random demonic entity.	0	6	291840		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1648	Offer of Consistency	Set the cost of all cards in your deck to cost exactly 1 NEUTRAL.	0	6	935014		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1649	Offer of Corruption	Summon The Lord of Despair as your final confrontation.	0	6	365535		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1650	Offer of Doom	At the start of your turn, draw an additional card for each round that has passed. After 4 rounds you are <b>Slain</b>.	0	6	605876		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1651	Offer of Duets	Add a copy of every card in your deck to your deck. The copy gains a random keyword.	0	6	666412		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1652	Offer of Emulation	Monster cards appear in card rewards.	0	6	952766		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1653	Offer of Energy	Shuffle the cost of all cards offered in card rewards. They gain the <b>Unique</b> keyword.	0	6	53905		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1634	Demonic Justice	When defeating a boss, gain 10 GOLD and upgrade all cards in your deck by 1.	0	6	574408		{Chasm}	{}	{}	{}	{STR}	2025-05-03 17:45:54.161651+00	t
-1654	Offer of Fatalism	Heal to full HEALTH. You can no longer see your current or Maximum HEALTH	0	6	827512		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1655	Offer of Flux	You can no longer reroll talents. Card rewards offer 3 additional cards (up to 6 cards).	0	6	435480		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1656	Offer of Forging	Whenever you upgrade a card one or more times, for each upgrade it randomly adds -2 to +3 instead of +1 upgrades.	0	6	900000		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1657	Offer of Glory	Upgrade all card rewards by the <B>Overkill</b> ([[overkill]]). All cards upgraded this way gain the <b>Untempered</b> keyword.	0	6	470671		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1658	Offer of Greed	Gain double the gold you find during this run. Whenever you find gold, you take an equal amount of damage.	0	6	362462		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1659	Offer of Health	Lose 20 Maximum HEALTH.\nStart next run with 20 Additional Maximum HEALTH.	0	6	50589		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1660	Offer of Honor	Set the current run to a higher difficulty. (Not active on Story difficulty).	0	6	537516		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1661	Offer of Identity	Set your class to a random class. All cards in your deck are converted to Neutral energy costs.	0	6	178196		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1662	Offer of Insight	Start next game 1XP from level 2. (Not active in Sunforge or Weekly Challenge runs).	0	6	876068		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1663	Offer of Interest	Whenever you gain gold, upgrade a random card by an equal amount. At the end of combat, remove all upgrades from cards in your deck.	0	6	990882		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1664	Offer of Life	Double your Maximum HEALTH. Your foes start with double HEALTH.	0	6	490495		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1665	Offer of Lunacy	Change all cards in your deck unpredictably.	0	6	256316		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1666	Offer of Magic	Imbue any Enchantment you acquire through card rewards. Foes start with a random enchantment for each enchantment you have imbued ([[imbues]]).	0	6	847696		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1667	Offer of Mischief	At the start of combat, add a <b>Prank</b> for each level ([[level]]) to both your and your foe's deck.	0	6	969364		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1642	Lifesteal Venom	Whenever your foe takes damage from <b>Poison</b> heal an equal amount.	1	6	844579		{}	{}	{}	{}	{DEX}	2025-05-03 17:45:54.161651+00	t
-1668	Offer of Paranoia	Opportunities no longer vanish if not picked. Areas contain one less campfire.	0	6	371473		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1669	Offer of Petrification	From the next area forewards, your allies will be replaced by random Shrines.	0	6	331760		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1670	Offer of Power	All card rewards are upgraded by 10. At the start of combat, take damage for every upgrade on cards in your deck ([[allUpgrades]]).	0	6	805467		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1671	Offer of Pride	Add a random Malignancy to your current run.	0	6	492109		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1672	Offer of Progress	Double the amount of Fateshards earned during this run if you win. If you lose, you gain none.	0	6	603380		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1673	Offer of Revision	Exchange your current deck with a deck in your archives. They do not retain any modifications except for their Upgrades.	0	6	982223		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1674	Offer of Rot	Summon the Queen of Rot as your final Confrontation.	0	6	486480		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1675	Offer of Sanity	Summon the Outerworldly Eternity as your final confrontation.	0	6	258310		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1676	Offer of Shrouds	Your foe's HEALTH is hidden. After defeating a foe, gain HEALTH equal to 10 minus the <b>Overkill</b>.	0	6	828693		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1677	Offer of Souls	Gain 100 souls. While you have Souls, you can no longer gain HEALTH.	0	6	822335		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1678	Offer of Steel	Set the cooldown of your weaponpower to anywhere between 1 and 6 combats.	0	6	953951		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1679	Offer of Trades	Start next game with a Tradepost. (Not active in Sunforge or Weekly Challenge runs)	0	6	665841		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1680	Offer of Tricks	Shuffle the keywords of all cards in your card rewards.	0	6	178126		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1681	Offer of Trophies	Combats offer between 1 to 6 card rewards.	0	6	379620		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1682	Offer of Veils	Whenever you deal damage, draw a card. You only draw 1 card at the start of your turn.	0	6	105853		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1683	Offer of Velocity	Whenever you play a card, draw a card and lose health for each other card you played during that turn.	0	6	646674		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1684	Offer of Wisdom	All text on cards is hidden. Gain +50% experience.	0	6	324541		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1685	Omniscience	Draw +3 cards per round.	1	6	615769	The third advantage is to know anything that can be known.	{}	{749206}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1686	Picture of Health	Double your Maximum health. (You do not heal for the additional Health gained).	1	6	19597	The Guardians of the White Rose were rumored to possess godlike vitality, shrugging off even the deepest wounds without pause.	{}	{732374}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1688	Purity	Remove all Corruptions from your deck. At the start of your turn, Cleanse one of your Afflictions.	1	6	800453		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1689	Redemption	When you would die, heal 50% of your health instead, then lose this talent.	1	6	123	The Lady of Light is not done with you yet.	{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1690	Steel Vitals	Whenever you <b>Slay</b> an enemy, gain Maximum HEALTH equal to 5% of your HEALTH.	7	6	977949		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1691	Sworn to Vengeance	When you would die, heal 50% of your health instead, then lose this talent	7	6	69246	Your thirst for vengeance fuels the fire of life.	{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1692	Trovan's Blessing	Whenever you gain gold, gain an equal amount of HEALTH.	1	6	864067	The god of Luck is one of the few gods that is still actively worshipped besides Rae, and is known to bestow its blessing on the most undeserving.	{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1693	Undead	You are immune to <nobr><b>Bleeding</b> and <b>Stunned</b></nobr>.	1	6	713350	 In the Wyldwoods, the wise often set great trees upon the resting places of the departed. Not in homage, but rather to weave their roots around their fallen forms, binding them to the soil should they stir prematurely from their slumber.	{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1695	Warlord	Your Melee actions deal [[myMaxHealth]]% damage (based on your Maximum Health). 	1	6	659323		{}	{358750}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1601	Eclipse Harbinger	When you lose all <b>Darkness</b>, inflict <b>1 Stunned</b> and <b>Doom</b> equal to your total <b>Darkness</b> ([[darkness]]).	6	5	981271	"When darkness falls, so do my enemies; in my domain, fear reigns supreme."	{}	{}	{}	{Hunter}	{}	2025-05-03 17:45:54.161651+00	t
-1687	Pirate Parlour	Start each combat with access to the <B>Pirate Parlour</b>, offering unique Pirate merchandise!	7	6	121220		{}	{}	{}	{Rogue}	{}	2025-05-03 17:45:54.161651+00	t
-1359	Arcane Weapon	Use your Weapon Power to gain HEALTH for every Magic Action in your deck ([[magicCards]]).	1	0	2		{}	{}	{}	{Arcanist}	{}	2025-05-03 17:45:54.161651+00	t
-1375	Flaming Weapon	Use your Weapon Power Inflict to <b>1 Burning</b> and <b>1 Focus</b> per level at the start of next combat. <b>Passive:</b> Gain the Fire Immunity talent.	2	0	957656		{}	{}	{}	{Arcanist}	{}	2025-05-03 17:45:54.161651+00	t
-1369	Elemental Weapon	Use your weapon power to start your next combat Attuned to an Element of your choice.\n<b>Passive:</b> Whenever you trigger your Attunement, gain 1 HEALTH.	2	0	388196		{}	{}	{}	{Arcanist}	{}	2025-05-03 17:45:54.161651+00	t
-1400	Stalking Weapon	Use your weapon power to gain <b>Evasion</b> at the start of next combat. <b>Passive:</b> Start with an imbued Killer Instincts.	2	0	734994		{}	{}	{}	{Hunter}	{}	2025-05-03 17:45:54.161651+00	t
-1404	Thundering Weapon	Use your weapon power to start next combat with a Zap for each level (up to 4).	2	0	757746	The lightning makes no sound until it strikes.	{WindyHillock}	{}	{}	{Hunter}	{}	2025-05-03 17:45:54.161651+00	t
-1393	Ritual Weapon	Use your weapon power to gain a Totem at the start of next combat. <b>Passive:</b> Whenever you return a card from your discard pile, gain 1 HEALTH.	2	0	914598		{}	{}	{274715}	{Hunter}	{}	2025-05-03 17:45:54.161651+00	t
-1395	Seabound Weapon	Use your weapon power to start next combat with a free Weathercast. <b>Passive</b>: Start each combat with a <b>Clone</b>.	2	0	505593		{}	{}	{}	{Seeker}	{}	2025-05-03 17:45:54.161651+00	t
-1552	Forbidden Knowledge	Whenever you add a Magic Action to your deck, add <b>Cursed</b> and a random <b>Keyword</b>.	0	3	793943		{"Abandoned Backpack"}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1600	Divine Defiance	At the start of combat, gain HOLY if your  foe is undead or a Demon.	0	5	499116		{Chasm}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1607	Lovebite	Whenever you inflict <b>Charmed</b>, inflict an equal amount of <b>Piercing</b> damage.	0	5	372964		{"Damsel in Distress"}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t
-1641	Legion Insight	Card rewards offer 1 additional card (up to 6 cards).	0	6	434520		{"Damsel in Distress"}	{}	{}	{}	{INT3}	2025-05-03 17:45:54.161651+00	t
-1694	Unimpressed	Whenever you use your weapon power, start next combat with <b>1 Bolster</b>. While you are <b>Bolstered</b> you are immune to <b>Fear</b>.	0	6	350989	It blinked first.	{"The Dream"}	{}	{}	{}	{STR3}	2025-05-03 17:45:54.161651+00	t
-1720	Beastly Weapon	Activate to set the rewards of next combat to be all <b>Companion</b> cards.	0	0	739485		{}	{}	{216426}	{}	{}	2025-12-08 20:46:29.611+00	t
-1721	Disciplined Weapon	Activate to start next combat with a <b>Mantra</b> per level (up to 5). <b>Passive:</b> Gain the talent <b>Ki Mantras</b>.	0	0	85770		{}	{}	{}	{}	{}	2025-12-08 20:46:29.136+00	t
-1722	Junk Weapon	Activate to gain 2 HEALTH for each card in your Scrap Pile. <b>Passive:</b> You may add cards from card rewards to your Scrap Pile instead of your regular deck.	0	0	849221		{}	{}	{40976}	{}	{}	2025-12-08 20:46:28.989+00	t
-1593	Abyssal Resistance	You are immune to <b>Dominated</b>.	0	5	636964		{"Damsel in Distress"}	{}	{}	{}	{INT3}	2025-05-03 17:45:54.161651+00	t
-1488	Brush With Death	At the start of your turn, if you are at 25% HEALTH or less, gain 50 HEALTH, cleanse all Afflictions and remove this talent.	0	2	596282		{Chasm}	{}	{}	{}	{DEX3}	2025-05-03 17:45:54.161651+00	f
-1749	Feral Aggression	Whenever you add a <b>Companion</b> card to your <b>Companion's</b> deck, upgrade it by your level ([[level]]).	8	4	633570		{}	{}	{}	{Hunter}	{}	2025-12-08 20:46:37.861+00	t
-1729	Edict of Life	Whenever you gain HEALTH, gain an equal amount of <b>Temporary Maximum HEALTH</b>.	8	1	576001		{}	{}	{}	{}	{STR}	2025-12-08 20:46:31.887+00	t
-1748	Edict of Mercy	Whenever you gain HEALTH, inflict an equal amount of <b>Charmed</b>.	8	4	152483		{}	{}	{}	{}	{STR}	2025-12-08 20:46:37.731+00	t
-1731	Gather Following	Gain access to HOLY cards. Add an <b>Aeternal Summons</b> to your deck.	8	1	577477		{}	{}	{}	{}	{}	2025-12-08 20:46:30.776+00	t
-1730	Forge Apprentice	Whenever you <b>Adapt</b> a card, <b>Upgrade</b> it by 1 if it has fewer than 10 upgrades.	8	1	180873		{}	{}	{}	{}	{STR2}	2025-12-08 20:46:30.789+00	t
-1744	Perfect Coordination	<b>Start of Turn</b>: Grant the Advantage to your <b>Companion</b>.	8	2	216426		{}	{739485}	{}	{}	{}	2025-12-08 20:46:33.815+00	t
-1732	Junk Aficionado	Reduce the cost of <b>Junk</b> cards you draw, <b>Scavenge</b> or conjure by NEUTRAL. This talent can be taken multiple times.	8	1	890275		{}	{}	{}	{Rogue}	{}	2025-12-08 20:46:30.739+00	t
-1733	Ki Mantras	Basic Attacks and <b>Mantras</b> deal additional damage for each active <b>Mantra</b> ([[mantras]]).	8	1	640370		{}	{}	{}	{Seeker}	{}	2025-12-08 20:46:31.21+00	t
-1734	Makeshift Mending	Whenever you <b>Scavenge</b> a card, gain <b>1 HEALTH</b>.	8	1	238127		{}	{}	{}	{}	{DEX2}	2025-12-08 20:46:31.71+00	t
-1735	Mantra Novice	Your active Mantras start at 1, plus an additional stack for every 2 levels.	8	1	130721		{}	{}	{}	{Seeker}	{}	2025-12-08 20:46:31.165+00	t
-1743	Mantric Healing	<b>Start of Turn:</b> Gain <b>1 HEALTH</b> for each active <b>Mantra</b>	8	2	616656		{}	{}	{}	{Seeker}	{}	2025-12-08 20:46:33.659+00	t
-1723	Psychic Weapon	Activate: Add the <b>Psionic</b> keyword to a card. Start next combat with <b>Focus</b> equal to your level ([[myLevel]]). <b>Passive:</b> Gain the <b>Brainrot</b> talent.	0	0	849095		{}	{}	{}	{}	{}	2025-12-08 20:46:29.612+00	t
-1745	Retrofitter	Whenever you use your Weapon Power, upgrade all cards in your <b>Scrap Pile</b> by 2.	8	2	40976	Waste not, want not.	{}	{849221}	{}	{}	{}	2025-12-08 20:46:34.013+00	t
-1753	Reject Restrictions	Remove the <b>Unique</b> keyword from all cards in your card rewards.	8	5	560663		{}	{}	{}	{Seeker}	{}	2025-12-08 20:46:39.034+00	t
-1754	Two Selves	Remove the <b>Unique</b> keyword from a card in your deck and increase it's cost by NEUTRAL.	8	5	508868		{}	{}	{}	{}	{}	2025-12-08 20:46:39.343+00	t
-1746	Righteous Charge	Gain access to HOLY cards. Whenever you start a turn below 50% of your HEALTH, gain HOLY.	8	2	752363		{}	{}	{}	{Knight}	{}	2025-12-08 20:46:33.807+00	t
-1728	Doing My Part	You're doing your part.	2	1	775857		{}	{858919}	{}	{Knight}	{}	2025-12-08 20:46:31.122+00	t
-1724	Triage Weapon	Activate to start next combat with a <b>Medikit</b> and <b>1 Bolster</b>, and +1 for every 2 levels ([[level/2]]).	2	0	858919		{}	{}	{775857}	{Knight}	{}	2025-12-08 20:46:29.116+00	t
-1741	Forge Mastery	Whenever you <b>Adapt</b> a card, <b>Upgrade</b> it by 2 if it has fewer than 20 upgrades.	8	2	484447		{}	{}	{}	{}	{STR2}	2025-12-08 20:46:33.982+00	t
-1737	Trained Strikes	Basic Attacks and <b>Mantras</b> deal additional damage equal to the highest number of copies of a card you played that turn ([[highestCopiesPlayed]]).	8	1	6403702		{}	{}	{}	{Seeker}	{}	2025-12-08 20:46:31.886+00	t
-1739	Versatile Steel	Melee cards in the card rewards gain an <b>Adaptation Slot</b>.	8	1	126561		{}	{}	{}	{}	{STR2}	2025-12-08 20:46:31.141+00	t
-1725	Versatile Weapon	Activate to add a permanent <b>Adaptation Slot</b> to any Melee card in your deck. Cards can hold up to 5 Adaptation Slots.	0	0	628612		{}	{}	{}	{Warrior}	{}	2025-12-08 20:46:29.084+00	t
-1747	Waste Warrior	Your <B>Bombs</b> have a chance to inflict a <b>Critical Hit</b> equal to twice the number of cards in your Scrap Pile.	8	2	472167		{}	{}	{}	{}	{DEX2}	2025-12-08 20:46:33.987+00	t
-1726	Animal Attunement	Delve a Companion card and add it to your <b>Companion's</b> deck. This talent can be taken multiple times.	8	1	772333		{}	{}	{}	{Hunter}	{}	2025-12-08 20:46:31.164+00	t
-1750	Blessed Plate	Whenever you activate an <b>Equipment</b>, increase all your <b>Blessings</b> by 1.	8	5	798326		{}	{}	{}	{Knight}	{}	2025-12-08 20:46:39.421+00	t
-1751	Bond of Life	The first time you drop below <b>1 HEALTH</b> while you have a <b>Companion</b>, gain a <b>Scar</b> and return to 1 HEALTH instead.	8	5	972888		{}	{}	{}	{Hunter}	{}	2025-12-08 20:46:39.502+00	t
-1740	Edict of Wrath	Whenever you gain HEALTH, gain an equal amount of <b>Zeal</b>.	8	2	679635		{}	{}	{}	{Knight}	{}	2025-12-08 20:46:34+00	t
-1742	Hidden Gems	Start each combat with a <b>Shovel</b> in play.	8	2	56069		{}	{}	{}	{}	{DEX2}	2025-12-08 20:46:32.956+00	t
-1738	Vanguard	<b>Start of Combat:</b> Gain <b>Fortified</b>.	8	1	950753		{}	{}	{}	{Knight,Warrior}	{}	2025-12-08 20:46:30.793+00	t
-1727	Brainrot	Whenever you inflict <b>Dazed</b>, inflict an equal amount of <b>Decay</b>.	8	1	709119	Beware the Scrying Pools of Endless Reflection - many a brave soul has gazed too long into their own image and forgotten how to see the world beyond.	{}	{}	{}	{}	{INT2}	2025-12-08 20:46:31.715+00	t
-1755	Offer of Iron	Convert all upgrades on cards in your deck to Maximum HEALTH ([[allUpgrades]]).	0	6	219456		{}	{}	{}	{}	{}	2025-12-08 20:46:41.033+00	t
-1756	Offer of Pairs	Remove all Grounded and Unique keywords of cards in your deck. Then, half of the cards in your deck become copies of other cards in your deck. 	0	6	76161		{}	{}	{}	{}	{}	2025-12-08 20:46:40.622+00	t
-1752	Psychic Overpower	Magic Actions deal additional damage for each card in your hand.	8	5	914332		{}	{}	{}	{}	{INT2}	2025-12-08 20:46:39.009+00	t
-1736	Sockets	Add 2 <b>Adaptation Slots</b> to a <b>Melee</b> card. <b>Start of Combat:</b> <b>Adapt</b> a random card in your deck. Can be taken multiple times.	8	1	120998	Anything can be Adapted if you strike it hard enough.	{}	{}	{}	{}	{STR2}	2025-12-08 20:46:31.889+00	t
-1432	Earthshaker	Whenever you summon a unique <b>Totem</b>, deal damage and gain <b>HEALTH</b> equal to your level ([[myLevel]]).	6	1	522206		{}	{}	{}	{}	{DEXSTR}	2025-05-03 17:45:54.161651+00	t
-1626	Angelic Form	<b>Ascend</b> once at the start of combat.	3	6	984176	Your devotion has been noticed, and rewarded thusly.	{}	{22989}	{}	{}	{INTSTR}	2025-05-03 17:45:54.161651+00	t
-1444	Hellforged Weapons	Upgrade all your Basic Attacks.\nWhenever you upgrade a Basic Attack, upgrade it one additional time.	0	1	781951	Hatred fuels the best forges.	{AxeInStone}	{}	{}	{}	{STR2}	2025-05-03 17:45:54.161651+00	t
-1637	Frozen Heart	At the start of your turn, gain HEALTH equal to your <b>Frozen</b>, then reduce your <b>Frozen</b> by half.	4	6	38256	The rhythm of the mystical underground rivers within the Frozen Heart beats with resilience, imbuing you with its unyielding strength.	{"Frozen Heart"}	{}	{}	{}	{STR3}	2025-05-03 17:45:54.161651+00	t
+COPY public."Talents" (id, name, description, expansion, tier, blightbane_id, flavour_text, events, requires_talents, required_for_talents, requires_classes, requires_energy, last_updated, verified, event_requirement_matrix) FROM stdin;
+1476	Aggression	Whenever you gain <b>Anger</b>, gain an additional stack.	1	2	223433		{}	{}	{}	{}	{STR2}	2025-05-03 17:45:54.161651+00	t	[]
+1440	Haemorrhager	Whenever you inflict a Deep Wound, inflict <b>3 Bleeding</b> and gain <b>2 Regenerate</b>.	3	1	568243		{}	{}	{486873}	{Warrior,Hunter}	{STR}	2025-05-03 17:45:54.161651+00	t	[]
+1413	Amalgamist	Whenever you add a card with <b>Mergecraft</b> to your deck, add another copy.	5	1	808102	When blackpowder encroached on the arcane, the arcane started to learn for traditional smithing.	{}	{}	{}	{}	{INT}	2025-05-03 17:45:54.161651+00	t	[]
+1639	Hemophage	Whenever your foe takes damage from <b>Bleeding</b>, heal an equal amount.	1	6	124000		{}	{}	{}	{Rogue,Hunter}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1557	Ancestral Guidance	Whenever you reach 100 Souls, spend 100 Souls and gain 50 Maximum HEALTH.	3	4	107210	"I'll be your redemption."	{}	{}	{}	{Hunter}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1511	Infuse Energy	Upgrade all cards in your deck by their energy cost. Whenever you add a card, upgrade it equal to its energy cost.	1	2	582657		{}	{}	{}	{}	{DEX}	2025-05-03 17:45:54.161651+00	t	[]
+1594	Arcane Transfusion	Lose 50 Maximum HEALTH. Start each combat with Barrier equal to your HEALTH.	1	5	484721	Few mages even consider the prospect of infusing their very veins with the magic they wield. Fewer still survive the process.	{}	{}	{}	{}	{INT}	2025-05-03 17:45:54.161651+00	t	[]
+1605	Innate Knowledge	Choose a card in your deck. Reduce its energy cost to free.	1	5	47578	Knowledge is the treasure of a wise mind, and the key to unlocking endless possibilities.	{}	{}	{}	{}	{INT}	2025-05-03 17:45:54.161651+00	t	[]
+1628	Battleborn	Whenever you deal damage, gain 1 Anger.	1	6	754024	Now you've really made me mad!	{}	{}	{}	{}	{STR2}	2025-05-03 17:45:54.161651+00	t	[]
+1453	Moves like Stagger	Whenever you spend STR, gain <nobr><b>1 Stagger</b></nobr> and <b>1 HEALTH</b>.	5	1	414302	"Sting like a Bee Gee." - Maroon 4.	{}	{}	{}	{}	{STR}	2025-05-03 17:45:54.161651+00	t	[]
+1520	Mystic Reflexes	Whenever you gain <b>Evasion</b>, also gain <b>1 Ward</b>.	1	2	744098	As water flows effortlessly around obstacles, so do our reflexes navigate the mystic currents.	{}	{}	{}	{Rogue,Seeker}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1485	Blighter	At the start of combat, gain <B>Potency</b> equal to your level ([[myLevel]]).	1	2	515766	Sometimes, by using one's surroundings, a battle can be won before it even begins.	{}	{}	{}	{}	{DEX}	2025-05-03 17:45:54.161651+00	t	[]
+1536	Solid Steel	At the start of combat, gain <b>3 Armor</b> and <b>Fortified</b>.	1	2	585850	Face your enemy, steel yourself and break their will.	{}	{}	{}	{Warrior,Knight}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1424	Conjurer	Conjured cards deal 2 additional damage. This talent can be taken multiple times.	1	1	438900	Attunement to the unreal has a deadly potency within the Realms.	{}	{}	{889914,373791}	{}	{INT}	2025-05-03 17:45:54.161651+00	t	[]
+1472	Uncanny Strength	Your Melee Actions deal additional damage equal to your Strength ([[playerSTR]]). This talent can be taken multiple times.	1	1	358750		{}	{}	{659323}	{}	{STR}	2025-05-03 17:45:54.161651+00	t	[]
+1364	Conjurers Weapon	Use your weapon power to gain 2 HEALTH for every conjuration you play next combat.	2	0	696355		{}	{}	{}	{Arcanist}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1358	Angelic Weapon	Use your weapon power to start next combat with a <b>Halo</b> of your choice. <b>Passive:</b> You have access to Holy Cards.	2	0	323515		{}	{}	{}	{Knight}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1361	Artificer's Weapon	Use your weapon power to start next combat with an <b>Equipment</b> of your choice.	2	0	258271		{}	{}	{}	{Knight}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1362	Baneful Weapon	Use your Weapon Power to inflict <b>2 Poison</b> per level at the start of next combat. <b>Passive:</b> When your foe takes damage from <b>Poison</b>, gain <B>1 HEALTH</b>.	2	0	666100		{}	{}	{}	{Rogue}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1357	Acrobatic Weapon	Use your weapon power to start the next combat with <b>Evasion</b>. <b>Passive:</b> Whenever you add a card to your foe's deck, gain <b>1 Momentum</b>.	2	0	263193		{}	{}	{}	{Rogue}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1360	Archivists Weapon	Use your weapon power to start next combat with an Acquisition. <b>Passive:</b> Whenever you spend gold, gain <b>1 HEALTH</b>.	1	0	489270	The god of Luck is one of the few gods that is still actively worshipped besides Rae, and is known to bestow its blessing on the most undeserving.	{}	{}	{}	{Rogue}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1363	Cartographers Weapon	Activate to add a random <B>Treasure Map</b> into your deck.	2	0	477470		{}	{}	{}	{Rogue}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1503	Faerytales	Replace your Weapon and Basic Attacks with the <b>Faewand</b>. At the start of your turn, gain <b>Delirious</b>.	7	2	637350	An antidote to order, stirring the cauldron of life. Mayhem and mischief leave some in disarray, while it paints grins on the faces of those willing to embrace the dance of chaos.	{}	{}	{}	{Arcanist}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1565	Diamond Mind	You are immune to being <b>Jinxed</b>, <b>Dominated</b> and <b>Dazzled</b>.	1	4	574923	"Your expectation of distracting me with those parlour tricks is as pitiful as it is laughable."	{}	{}	{}	{}	{INT2}	2025-05-03 17:45:54.161651+00	t	[]
+1482	Berzerker	Your Melee actions deal 3 extra damage for every 20% of your missing HEALTH ([[myMissingHealthFaction]]). 	1	2	77411		{"Serena Hellspark"}	{}	{}	{}	{STR2}	2025-05-03 17:45:54.161651+00	t	[["STR"]]
+1392	Rimestrike Weapon	Use your weapon power to Inflict <b>1 Frozen</b> at the start of next combat. Start with an imbued Aura of Rime.	2	0	537020		{}	{}	{}	{Arcanist}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1394	Rotten Weapon	Use your weapon to gain 2 HEALTH per Corruption in your deck ([[corruptionCards]]), then remove a Corruption.	2	0	648738		{}	{}	{}	{Arcanist}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1380	Holy Weapon	Gain HEALTH equal to 10% of your maximum health. You have access to Holy cards.	2	0	703479		{}	{}	{}	{Arcanist}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1368	Devout Weapon	Use your weapon power to conjure an Elite Prayer at the start of next combat. <b>Passive:</b> You have access to Holy cards.	2	0	250923		{}	{}	{}	{Arcanist}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1373	Familiar Weapon	Activate to start next combat with a Familiar of your choice.	2	0	27779		{}	{}	{}	{Arcanist}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1374	Feral Weapon	Use your weapon power to start next combat with a <b>Fury</b>.\n<b>Passive:</b> Gain <b>1 Regenerate</b> on every third hit.	1	0	18819		{}	{}	{}	{Hunter}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1396	Serrated Weapon	Use your weapon power to inflict <b>Bleeding</b> equal to your level and conjure a Lifedrinker Venom potion at the start of next combat.	2	0	677873		{}	{}	{}	{Hunter}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1381	Hungering Weapon	Use your weapon power to consume up to 5 <b>Souls</b> and convert them into Maximum Health.	2	0	133228		{}	{}	{}	{Hunter}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1367	Deathdealers Weapon	Use your weapon power to start next combat with a <b>Contract</b> of your choice.	2	0	706183		{}	{}	{}	{Hunter}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1387	Potent Weapon	Activate to start next combat with <B>Potency</b> equal to your level ([[myLevel]]). <b>Passive:</b> Gain <b>Souldance</b>.	2	0	5320		{}	{}	{}	{Hunter}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1378	Fortified Weapon	When you use your Weapon Power, start your next combat with <b>Armor</b> equal to three times your level and <B>Fortified</b>.	1	0	5		{}	{}	{}	{Knight}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1371	Evoking Weapon	Use your weapon power to conjure an Elite Magic Action at the start of next combat.	2	0	736021		{}	{}	{}	{Knight}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1382	Infectious Weapon	Use your weapon power inflict 1 Bane at the start of next combat. <b>Passive:</b> Whenever you inflict a unique Affliction, gain 2 HEALTH.	2	0	607157		{}	{}	{}	{Knight}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1389	Pure Weapon	Use your Weapon Power to become <B>Blessed</b> at the start of next combat.	2	0	337263		{}	{}	{}	{Knight}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1366	Deadly Weapon	Activate your weapon power to start next combat with a <b>Lay in Wait</b>. <b>Passive:</b> Start next combat with <b>Sinister</b> equal to your level. 	2	0	579998		{}	{}	{}	{Rogue}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1383	Jewelled Weapon	Use your weapon power to gain gold equal to your level and delve a potion.	2	0	670277		{}	{}	{}	{Rogue}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1384	Manyshot Weapon	Use your weapon power to conjure 1 arrow per level (up to 4) at the start of next combat.	2	0	4		{}	{}	{}	{Rogue}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1376	Focused Weapon	Use your weapon power to start next combat with <b>1 Focus</b> and <b>Centered Strikes</b>.	1	0	456040		{}	{}	{}	{Seeker}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1370	Enlightened Weapon	Use your weapon power to start combat with <b>Euphoria</b> in play.	2	0	488388		{}	{}	{}	{Seeker}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1388	Prophetic Weapon	Use your weapon power to start combat with a free conjured copy of a card in your deck.	2	0	814725		{}	{}	{}	{Seeker}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1386	Mindful Weapon	Activate to start your next combat with <b>Evasion</b> and a free <b>Clarity</b>.	2	0	231250		{}	{}	{}	{Seeker}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1391	Reckless Weapon	Use your weapon power to take damage equal to your level and start next combat with an equal amount of <b>Armor</b> and <b>Anger</b> ([[myLevel]]).	2	0	298686		{}	{}	{}	{Warrior}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1390	Raging Weapon	Use your weapon power to start next combat with a Fury. <b>Passive:</b> Whenever you gain <b>Anger</b>, gain that much HEALTH.	2	0	115937		{}	{}	{}	{Warrior}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1385	Mending Weapon	When you use your Weapon Power, gain 1 HEALTH for every Melee Action in your deck ([[meleeCards]]).	1	0	6		{}	{}	{}	{Warrior}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1377	Forging Weapon	Use your weapon power to upgrade a random card in your deck. Gain 1 HEALTH whenever you upgrade a card.	2	0	550667		{}	{}	{}	{Warrior}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1372	Explosive Weapon	Use your weapon power to conjure a custom Bomb at the start of next combat.	2	0	834215		{}	{}	{}	{Warrior}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1365	Culinary Weapon	<b>Activate</b> to start combat with a random <b>Ingredient</b>. <b>Passive:</b> Your <b>Ingredients</b> are <b>Persistent</b>.	2	0	187997		{}	{}	{}	{Warrior}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1423	Compassionate	Your healing effects heal 1 additional HEALTH.	1	1	382714	Be kind, for everyone you meet is fighting a harder battle. - Ian Maclaren	{WoundedAnimal}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1412	Advanced Cloning	Your clones no longer disperse when you take damage.	6	1	591147		{}	{}	{}	{Seeker}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1416	Arcane Library	Add a <b>Grimoire</b> to your deck.	7	1	989811		{}	{}	{}	{Arcanist}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1414	Ammo Belt	At the start of combat, equip a random Ammunition.	5	1	668804	Often equally dangerous to wielder as well as target.	{}	{}	{}	{Hunter,Seeker,Warrior,Sunforge}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1415	Anger Management	Whenever you play a <b>Fury</b> card, gain 3 HEALTH. At the start of combat, add a <b>Fury</b> to your discard pile.	1	1	322097	I AM CALM!	{}	{}	{571653}	{}	{STR}	2025-05-03 17:45:54.161651+00	t	[]
+1417	Bastion	Whenever you gain <b>Armor</b>, gain 2 additional <b>Armor</b>. This talent can be taken multiple times.	1	1	771190		{}	{}	{}	{Knight,Warrior}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1418	Battle Prowess	Upgrade all Melee actions by 1. Whenever you add a Melee Action to your deck, upgrade it by 1.	1	1	235756	Let me show you what this can do in the hands of a true warrior.	{}	{}	{}	{}	{STR}	2025-05-03 17:45:54.161651+00	t	[]
+1419	Battle Rhythm	Whenever you <b>Perform</b> you gain <b>1 Anger</b>.	3	1	410541	Lavalian Battlebards are often the target of redicule, but never when within earshot.	{}	{}	{}	{}	{DEX2}	2025-05-03 17:45:54.161651+00	t	[]
+1420	Bodyguard	Whenever you spend energy while performing, gain <b>2 Barrier</b>.	3	1	213807	"Get off the stage, buddy."	{}	{}	{}	{}	{DEX2}	2025-05-03 17:45:54.161651+00	t	[]
+1421	Bombardier	At the start of combat, Conjure a <b>Bomb</b>. At level 5, conjure two <b>Bombs</b> instead.	5	1	716175	And you get a Bomb!	{}	{}	{}	{}	{STR}	2025-05-03 17:45:54.161651+00	t	[]
+1408	Vengeful Weapon	<B>Activate</b> to remove a <b>Scar</b>. <b>Passive:</b> Gain access to Holy cards and add a <b>Test of Faith</b> to your deck.	2	0	351472		{}	{}	{}	{Warrior}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1430	Duplicity	Whenever you add a card to your deck you already own, upgrade the existing copies 2 times.	1	1	242801	Shape familiarity into lethality.	{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1431	Durable	Gain +20 Maximum HEALTH.	1	1	344431	Adaption to the harsh nature of the Realms is step one to survival.	{}	{}	{732374}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1502	Epiphany	Gain a random Legendary Card.	1	2	282633	"Eureka!"	{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1405	Tracking Weapon	Use your Weapon Power to heal 10% of your maximum Health. Your next foe becomes <b>Marked</b>.	2	0	241289		{}	{}	{}	{Hunter}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1411	Zealous Weapon	Use your Weapon Power to start next combat with an Aura of Zeal. <b>Passive:</b> You have access to Holy cards.	2	0	904902		{}	{}	{}	{Knight}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1409	Voracious Weapon	Activate to destroy a card in your deck. <B>Passive:</b> Whenever you destroy a card, gain <b>5 HEALTH</b>.	2	0	627799		{}	{}	{}	{Knight}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1401	Stealthy Weapon	When you use your Weapon Power, <b>Stun</b> your next foe and steal a potion.	1	0	1		{}	{}	{}	{Rogue}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1399	Singing Weapon	Use your Weapon Power to inflict <b>3 Charmed</b> per level to your next foe. <b>Passive:</b> Whenever you <b>Slay</b> a foe, gain 10 HEALTH.	2	0	359697		{}	{}	{}	{Rogue}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1402	Surging Weapon	Use your weapon power to start next combat with a Surge of your choice. <b>Passive:</b> Whenever you gain <b>5 Momentum</b>, gain DEX.	2	0	307368		{}	{}	{}	{Seeker}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1410	Warding Weapon	Use your weapon power to start next combat with <b>Barrier</b> equal to 20% of your maximum HEALTH.	2	0	399307		{}	{}	{}	{Seeker}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1398	Shifting Weapon	Use your weapon power to start next combat in a Beastform of your choice.	2	0	401508		{}	{}	{}	{Seeker}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1406	Tranquil Weapon	Use your weapon power to return to your Maximum HEALTH.	2	0	415393		{}	{}	{}	{Seeker}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1407	Unyielding Weapon	Use your weapon power to start next combat with <b>Armor</b> equal to the cards in your deck ([[cardsInDeck]]).	2	0	185402		{}	{}	{}	{Warrior}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1403	Throwing Weapon	Use your weapon power to start next combat with Ammo. <b>Passive:</b> All melee cards you add to your deck become Ranged actions.	2	0	712921		{}	{}	{}	{Warrior}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1397	Shaking Weapon	Use your weapon power to start next combat with a free <b>Sift the Sands</b>. <b>Passive:</b> Whenever you Shuffle a card, inflict <b>1 Stagger</b>. 	2	0	844457		{}	{}	{}	{Warrior}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1422	Carapace	Whenever you return a card from your discard pile to your hand, gain <b>Armor</b> equal to twice its energy cost.	5	1	849609	May our forebears protect us.	{}	{}	{}	{}	{DEXSTR}	2025-05-03 17:45:54.161651+00	t	[]
+1433	Eminence	At the start of combat, gain <b>HOLY</b>. If your deck contains 20 or more cards, gain an additional <b>HOLY</b> at the start of combat.	6	1	110050	The support of House Elsmyr revealed itself as mercurial as the absolutions they profess to cherish.	{}	{22989}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1436	Fire Resistance	At the start of your turn, reduce your <b>Burning</b> by half.	0	1	479204	A blessing granted by freeing all crusaders from the Cult of the Eternal Pyre without casualty.	{"Suspended Cage"}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1442	Headhunter	Whenever you defeat a Boss, gain 50 gold and heal to full health HEALTH.	1	1	769932	The higher the danger, the higher the reward.	{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1445	Hide Armor	At the start of combat, gain <b>1 Evasion</b>.	0	1	480987	The hunter wears suffering like a shield.	{WoundedAnimal}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1447	Lucky	Gain +20% better chance of finding rare or better cards.	1	1	81577	“You never know what worse luck your bad luck has saved you from.”	{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1450	Malice	Your Basic Attacks deal additional damage equal to your <b>Potency</b> ([[my(status)Potency]]).	1	1	230904	"There are many wonderful flavors of pain. You've only had a mere sample of the banquet I have to offer." - Hierodeacon Ardekai	{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1425	Dark Ritualist	Whenever you summon a totem, summon an additional Corrupted Totem.	4	1	274715		{"Maki Tagdahar Death"}	{914598}	{}	{Hunter}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1426	Daywalker	At the start of combat, gain <b>2 Darkness</b> per level. Losing <b>Darkness</b> inflicts <b>1 Dazed</b> per level instead of <b>Stunned</b>.	6	1	536208		{}	{}	{}	{Hunter}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1427	Deadly Accuracy	Your Ranged Actions deal additional damage equal to twice your Dexterity ([[playerDEX]]).	1	1	945246	It's not about knowing what to strike, but where to strike.	{}	{}	{}	{}	{DEX}	2025-05-03 17:45:54.161651+00	t	[]
+1428	Demolisher	Enemies start with Vulnerable equal to your Strength ([[playerSTR]]).	1	1	305555		{}	{}	{}	{Warrior}	{STR}	2025-05-03 17:45:54.161651+00	t	[]
+1435	Faithbound	Gain access to Holy cards. Add a <b>Test of Faith Card</b> to your deck.	1	1	491661	Some believe the gods have left the Realms, some believe their absence is merely the calm before the storm.	{}	{}	{}	{}	{STR2}	2025-05-03 17:45:54.161651+00	t	[]
+1437	Gilded Prestige	At the start of your turn, conjure a Lucky Coin. Your Lucky Coins gain <b>Persistent</b>.	6	1	749395		{}	{}	{}	{}	{DEX2}	2025-05-03 17:45:54.161651+00	t	[]
+1438	Good Intuitions	Gain an extra reroll on talents and upgrade all future rewards by 1. This talent can be taken multiple times.	7	1	733549		{}	{}	{}	{Seeker,Rogue}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1439	Gravecaster	Whenever you Bury a Magic Action, conjure a free copy to your hand.	3	1	562997		{}	{}	{}	{}	{INT}	2025-05-03 17:45:54.161651+00	t	[]
+1441	Harvester	Increase your maximum number of Souls by 20. At the end of Combat, gain <b>Souls</b> equal to your level ([[myLevel]]).	3	1	221372		{}	{}	{}	{Hunter}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1443	Heavy Impact	Whenever you conjure a <b>Bomb</b>, upgrade it by your level ([[myLevel]]).	5	1	680166	Try Bomb 2.0! Harder, deadlier, louder.	{}	{}	{}	{}	{STR2}	2025-05-03 17:45:54.161651+00	t	[]
+1446	Initiation	Add a HOLY <b>Code</b> to your deck. You gain Access to <b>Holy</b> cards.	6	1	376845	"NOT A CULT,\nNOT A CULT,\nNOT A CULT."	{}	{}	{}	{Arcanist,Knight,Rogue,Sunforge}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1448	Magical Aptitude	Upgrade all Magic actions by 1. Whenever you add a Magic Action to your deck, upgrade it by 1.	1	1	30523	As we learn, we grow.	{}	{}	{}	{}	{INT}	2025-05-03 17:45:54.161651+00	t	[]
+1449	Magical Ornaments	Basic Attacks deal 2 additional damage. This talent can be taken multiple times.	1	1	520869	Nothing was ever made worse by a touch of the Arcane.	{}	{}	{}	{}	{INT}	2025-05-03 17:45:54.161651+00	t	[]
+1451	Mark of Taurus	Basic Attacks deal additional damage equal to the upgrades on your card rewards ([[rewardUpgrades]]).	7	1	52028	None could still the rage that lasted centuries.	{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1456	Prodigy	Gain a +5% chance to find rare or better cards. Gain +2 rerolls on talent choices whenever you level up.	1	1	558443	Some fight against the bonds of fate, some embrace it.	{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1458	Repetition	Whenever you play a card with the same name of a card you've already played this turn, gain <b>1 Momentum</b>.	7	1	847133	Shape lethality into familiarity.	{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1598	Darksteel Plating	Whenever you gain <b>Armor</b>, gain double the amount.	1	5	570440		{}	{}	{}	{}	{STR2}	2025-05-03 17:45:54.161651+00	t	[]
+1455	Pragmatism	During your first turn each combat, your <b>Start of Turn</b> effects trigger twice.	4	1	230852	We must act with wisdom and prudence if we hope to emerge victorious.	{"Heated Debate"}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[["INT2"]]
+1460	Sacred Zest	At the start of your turn, there is a 10% chance to cleanse a random affliction.	4	1	67258	We must resist hesitation, and victory shall be our reward.	{"Heated Debate"}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1465	Storm Scholar	Whenever you add a card with <b>Chain</b> to your deck, upgrade it by your level ([[myLevel]]).	1	1	754522	"Thunder is impressive, but it is lightning that does the work." - MT	{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1468	Survival Instincts	Heal 5% of your maximum health at the start of combat.	1	1	634271	The anticipation of battle is the only sustenance I need.	{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1474	Weapon Aptitude	Pick one of 9 weapons. Change your Basic Attack and all Basic Attacks in your deck into this weapon.	6	1	701148	The Rehdanian Warlords' most potent weapon lies not in steel, but in the fluidity of their arsenal.	{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1475	Weapon Training	Reduces the cooldown of your weapon by 1 combat. This effect can't reduce the cooldown below 1.	1	1	952873	The Masters of the Voltaran Acadamy teach it is the first cut that will win the battle, not the deepest.	{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1481	Benevolent	Your healing effects restore 2 additional HEALTH during combat.	1	2	493103	The White Rose's blessing reaches even the darkest of gardens.	{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1478	Arcane Mastery	Whenever you add a non-unique Magic Action to your deck, add a base copy that costs no energy.	1	2	916904	To some, learning Magic comes as easily as breathing.	{}	{}	{}	{}	{INT}	2025-05-03 17:45:54.161651+00	t	[]
+1479	Bad Intentions	Whenever you inflict <b>Poison</b>, inflict that much <b>Doom</b>.	7	2	986242		{}	{}	{}	{Arcanist,Hunter,Rogue,Seeker}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1480	Battle Harmony	Replace your Weapon and Basic Attacks with the Harp.	6	2	242234	Let's get ready to PARTEEEEEEY-EH-EH!	{}	{}	{}	{}	{DEX2}	2025-05-03 17:45:54.161651+00	t	[]
+1452	Momentous Strikes	Basic Attacks deal additional damage equal to your <b>Momentum</b>.	7	1	747219		{}	{}	{}	{Seeker}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1454	Mythology	Add a rare <b>Path</b> to your deck.	7	1	73981		{}	{}	{}	{Seeker}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1457	Quick Study	Choose a card in your deck. Reduce its energy cost by 1.	1	1	148560	To acquire knowledge, one must study. To acquire wisdom, one must observe.	{}	{}	{}	{}	{INT}	2025-05-03 17:45:54.161651+00	t	[]
+1459	Ritualist	At the start of combat, conjure 3 helpful <b>Essences</b> to your discard pile.	5	1	214958	The spirits provide.	{}	{}	{}	{Hunter}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1461	Slaughter	Gain +1 maximum health whenever you defeat a foe.	1	1	497279	The thrill of the hunt gives me strength.	{}	{}	{}	{Hunter}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1462	Slow Cooking	Your <b>Ingredients</b> are <B>Persistent</B>.	7	1	110160	Just three more minutes....	{}	{}	{}	{Warrior}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1463	Smithing	Upgrade all Melee Actions and Melee Basic Attacks equal to your Strength ([[playerSTR]]).	1	1	289486		{}	{}	{}	{Warrior,Knight}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1464	Souldance	Whenever you finish a <B>Performance</b>, gain <b>1 Soul</b>.	7	1	944125		{}	{}	{}	{Hunter}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1467	Strength in Numbers	Whenever you add a non-conjured card to your deck, <nobr>gain <b>3 Maximum HEALTH</b></nobr>.	1	1	385710		{}	{}	{}	{}	{STR}	2025-05-03 17:45:54.161651+00	t	[]
+1470	Tough as Stone	Whenever you draw or conjure a card outside of the draw phase, gain <b>1 Armor</b>.	6	1	371897		{}	{}	{}	{Warrior}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1469	Tough Bones	You are immune to being <b>Dazed</b> and <b>Stunned</b>.	1	1	990237	"Huh? Was that supposed to do something?"	{}	{}	{}	{}	{STR}	2025-05-03 17:45:54.161651+00	t	[]
+1471	Toxic Triage	Whenever your foe takes damage from <b>Poison</b> gain <b>1 HEALTH</b>.	1	1	844574		{}	{}	{}	{}	{DEX}	2025-05-03 17:45:54.161651+00	t	[]
+1484	Blessing of Aethos	Gain <b>5 Barrier</b> and <b>1 Anger</b> at the start of combat against <b>Demons</b> and <b>Undead</b>.	0	2	768659	Eternal is the duty for those who stand against the chaos of an uncaring universe.	{"Grove of the Dying Star  Finish"}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1493	Catharsis	At the end of combat, gain HEALTH equal to your <b>Zeal</b>.	5	2	462439	Even the most righteous fire needs to quenched sometime.	{}	{22989}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1494	Collector	Whenever you add a card to your deck, gain 5 HEALTH and 5 gold.	1	2	651185	You're not actually going to play that card, are you?	{}	{}	{259144}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1495	Concoct Card	Add <b>Cursed</b> and two random effects to a card. <b>Persistent</b>, <B>Reliable</b>, <B>Firecast</b>, <b>Memorized</b> or <b>Chain</b> or Upgrade it by 2.	7	2	960500		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1500	Endless Arsenal	<b>Start of Turn:</b> Conjure a free Basic Attack.	1	2	725030	Victory by any means and with any weapon.	{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1466	Stormscarred	Lose 5 Maximum HEALTH.	1	1	972587	A souvenir from weathering an extraordinary vicious storm.	{WindyHillock}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1473	Watched	It feels like you are being watched...	1	1	870678		{"Shrine of Misery"}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1477	Alchemist	Transmute ALL your Basic Attacks into different cards.	1	2	551990	Melt it down, process, profit!	{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1505	Fast Recovery	Healing from Inns, Campfires, and Priests always heals you to your full health HEALTH.	1	2	245518	Death is nothing a good night's rest won't cure.	{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1508	Forgery	Copy a card in your deck.	1	2	529128	If adventuring doesn't work out - the Emporium will have a job for you...	{}	{}	{259144}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1509	Fortitude	Gain +30 Maximum HEALTH.	1	2	732374	Broken bones, cuts, and other wounds didn't seem to slow its relentless assault a single step.	{}	{344431}	{19597}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1483	Bitter Cold	Deal +4 damage against Frozen enemies.	1	2	191673		{}	{}	{}	{Arcanist}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1486	Bloodlust	When you inflict <b>Bleeding</b>, heal <b>1</b> HEALTH.\n	1	2	685248	The soldiers of House Arkovian seem to get more feral once they smell the blood of their enemies.	{}	{}	{}	{}	{STR}	2025-05-03 17:45:54.161651+00	t	[]
+1487	Boomerang	The first basic attack you play each turn is returned to your hand.	1	2	58890	You call that a knife?	{}	{}	{}	{}	{STR}	2025-05-03 17:45:54.161651+00	t	[]
+1489	Brute Force	Your Melee Actions inflict Stagger equal to the damage they deal.	1	2	314145		{}	{}	{}	{}	{STR2}	2025-05-03 17:45:54.161651+00	t	[]
+1491	Cardcrafter	Upgrade all cards that appear in card reward screens by your level ([[myLevel]]).	1	2	811678	Sharpen steel, sharpen your mind.	{}	{}	{}	{}	{DEX}	2025-05-03 17:45:54.161651+00	t	[]
+1490	Butcher	Whenever you defeat a foe, upgrade a random Action in your deck by 1.	1	2	358006	Nothing wasted.	{}	{}	{}	{Hunter}	{STR}	2025-05-03 17:45:54.161651+00	t	[]
+1492	Careful Chemistry	At the start of combat, conjure a random Potion. Your Potions gain <b>Persistent</b>.	1	2	589187	Chemistry is like cooking. Just don't lick the spoon.	{}	{}	{}	{}	{DEX}	2025-05-03 17:45:54.161651+00	t	[]
+1496	Contract Killing	Whenever you bring an enemy to <nobr><b>exactly 0 HEALTH</b></nobr>, gain <b>25 Gold</b> and <nobr>refresh your Weapon Power</nobr>.	1	2	490595	Paid by the minute, and not a second over.	{}	{}	{}	{}	{DEX}	2025-05-03 17:45:54.161651+00	t	[]
+1497	Dangerous Defiance	At the end of the turn, your foe loses <b>Maximum Health</b> equal to your <b>Stagger</b>.	5	2	368394	"The hero and the coward both feel the same thing. But the hero uses his fear, projects it onto his opponent, while the coward runs."	{}	{}	{}	{Warrior}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1498	Doctrine	At the start of combat, gain HOLY and <b>2 Zeal</b>. You have access to Holy Cards.	5	2	401698	The path of the righteous man is beset on all sides\nBy the inequities of the selfish and the tyranny of evil men...	{}	{}	{}	{Arcanist,Knight}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1499	Elemental Savant	At the start of combat, <b>Attune</b> to a random Element.	6	2	879775	Some Arcanists learn their elemental reactions before their first words.	{}	{}	{}	{}	{INT2}	2025-05-03 17:45:54.161651+00	t	[]
+1501	Enlightenment	After you play a <b>Revelation</b>, upgrade all future card rewards by 1.	5	2	128514	"The future is not something we enter. The future is something we create." ~ Leonard I. Sweet	{}	{}	{}	{Seeker}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1504	False Life	At the start of combat, gain 20% additional Temporary Maximum HEALTH. You do not heal for the amount of HEALTH gained.	7	2	227214		{}	{}	{}	{}	{STR}	2025-05-03 17:45:54.161651+00	t	[]
+1506	Fervour	At the start of combat, gain <b>1 Anger</b> for each 20% of your missing health.	1	2	889956	Anger seemed to directly correlate to disagreeableness.	{}	{}	{}	{}	{STR}	2025-05-03 17:45:54.161651+00	t	[]
+1507	Firebrand	At the start of Combat, inflict <b>Burning</b> equal to your level ([[myLevel]]).	1	2	205320	I'm all fired up!	{}	{}	{707915}	{}	{INT}	2025-05-03 17:45:54.161651+00	t	[]
+1510	Harden Mind	At the start of the turn, gain <B>2 Barrier</b> for every effect you are <b>Channelling</b>.	6	2	373014		{}	{}	{}	{}	{INT}	2025-05-03 17:45:54.161651+00	t	[]
+1512	Inoculation	At the start of your turn, Cleanse all <b>Poison</b>.	1	2	889898		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1513	Iron Stomach	Whenever you gain <b>Sated</b>, gain <b>1 Armor</b>.	7	2	665065		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1514	Jack of All Trades	Whenever you add a card to your deck, convert its energy cost to NEUTRAL.	7	2	585625	Show me something you can't do!	{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1515	Keen Mind	Draw +1 card per round.	1	2	749206	The first advantage is the number of options one can think of.	{}	{}	{615769}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1516	Master of Anatomy	Whenever you inflict a Deep Wound, gain STRSTR  and draw a card.	3	2	486873		{}	{568243}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1517	Master of Ceremony	Whenever you play a Hymn, conjure a free copy of the fastest verse.	3	2	641565		{}	{22989}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1522	Painbringer	Whenever you deal a <b>Critical Hit</b>, gain 3 HEALTH. (Critical Hits deal double damage).	1	2	552870		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1528	Quick Crafting	Upgrade a random card in your deck by 2. Repeat for each of your levels up to 5 times at level 4 ([[myLevel]]).	1	2	574576		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1526	Pious	Conjure a Virtue at the start of combat. Whenever you conjure or draw a Virtue it gains <b>Persistent</b>.	1	2	924616	Rae's rare interventions raise as many questions as they answer the doubts of the faithful.	{WindyHillock}	{22989}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[["HOLY"]]
+1541	Starcalling	Whenever you conjure a <b>Stardart</b>, upgrade it equal to the upgrades you receive on your card rewards ([[rewardUpgrades]]).	5	2	162087	The future is just one more weapon in my arsenal.	{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1519	Momentous Recovery	Whenever you reach <b>5 Momentum</b>, gain <B>5 HEALTH</b>.	7	2	151738		{}	{}	{}	{Seeker}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1521	Objection	Whenever you <b>Interrupt</b>, add a Fury card to your discard pile and your <b>Fury</b> cards provide 1 additional <b>Anger</b> for the remainder of combat.	1	2	414523	It probably wasn't important anyway.	{}	{}	{}	{}	{STR2}	2025-05-03 17:45:54.161651+00	t	[]
+1523	Perception	At the start of combat, gain DEX. If your foe has 'First Strike', <b>Stun</b> them during their first round.	1	2	552273		{CloakedStranger}	{}	{}	{}	{DEX}	2025-05-03 17:45:54.161651+00	t	[]
+1525	Perspicacity	Gain <b>1 Barrier</b> for each card that appears in a Foretelling.	5	2	95851	"Seek wisdom, not knowledge. Knowledge is of the past, Wisdom is of the future."	{}	{}	{}	{Seeker}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1527	Profane Ward	At the end of your turn, gain <b>Barrier</B> for each affliction on your foe ([[otherAfflictions]]).	7	2	289423		{}	{}	{}	{}	{INT}	2025-05-03 17:45:54.161651+00	t	[]
+1529	Rotten to the Core	Replace all <b>Malignance</b> cards in your deck with <b>Forbidden Fruit</b>. At the start of combat, conjure a <b>Forbidden Fruit</b>.	3	2	638925	"Sweeter than the fruit itself, was the understanding that nothing is absolute."	{}	{}	{}	{Arcanist}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1532	Set the Scene	At the start of combat, shuffle <b>3 Snares</b> into the opposing deck.	5	2	936461	"Welcome to my workshop." - Braxia Noxwind	{}	{}	{346507}	{}	{DEX}	2025-05-03 17:45:54.161651+00	t	[]
+1534	Shield Master	Remove all Block actions from your deck. Gain 2 Tower Shields.	1	2	340544		{}	{}	{427279}	{Warrior,Knight}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1535	Shredder	Replace your Weapon and Basic Attacks with Shredder Axes. You gain access to more powerful Performances.	3	2	750664	Let's get ready to PARTEEEEEEY-EH-EH!	{}	{}	{}	{}	{DEX2}	2025-05-03 17:45:54.161651+00	t	[]
+1537	Soulguide	Whenever you return a card from your discard pile, gain HEALTH and <b>Souls</b> equal its cost.	4	2	477931	"These savages seem to think this patch of dirt holds some value." - Renault the Conqueror, moments before his death.	{}	{}	{}	{Hunter}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1538	Spellfury	Conjure a free copy of the first Magic, non-Basic Attack Action you play during combat.	1	2	120253	Can you repeat that?	{}	{}	{}	{}	{INT}	2025-05-03 17:45:54.161651+00	t	[]
+1539	Spirit Barrier	Whenever you gain Souls, gain an equal amount of <b>Barrier</b>.	3	2	403413		{}	{}	{}	{Hunter}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1540	Stalker	Gain DEX DEX at the start of combat.	1	2	868900	You are either prey or predator. I choose to be the latter.	{}	{}	{}	{}	{DEX}	2025-05-03 17:45:54.161651+00	t	[]
+1542	Steelmind	Start each combat with <b>Barrier</b> equal to 10% of your HEALTH.	1	2	79100	It all begins and ends in your mind. What you give power to, has power over you.	{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1543	Supernova	Add a <b>Nova</b> card of each color you can play to your deck.	7	2	483859		{}	{}	{946830}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1545	Void Resistance	<b>Start of Turn</b>: Convert a VOID energy to STR.	7	2	372189		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1548	Whimsical	Play a random Enchantment at the start of combat.	1	2	778234	It's like the hiccups, but more dangerous.	{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1549	Wild Infusion	Upgrade a random card 5 times	1	2	487273	Recklessness is equally found in the formula for success as disaster.	{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1550	Balors Blessing	You gain <b>1 Anger</b> and <b>1 Burning</b> at the start of combat.	0	3	943265	Wield your hatred like a blade forged in the hottest of fires and fear shall be thy reward. - Bert.	{SummoningCircle}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1551	Energized	Gain double your normal energy on the first round of every combat.	1	3	424560		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1553	Greater Dexterity	Gain +1 Dexterity. (You gain DEX for each point of Dexterity at the start of your turn).	1	3	727198		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1554	Greater Intellect	Gain +1 Intellect.  (You gain INT for each point of Intellect at the start of your turn).	1	3	531548		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1555	Greater Strength	Gain +1 Strength. (You gain STR for each point of Strength at the start of your turn).	1	3	857575		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1524	Perfect Balance	Double your <b>Focus</b> whenever you end the turn at an EVEN lifetotal.	1	2	279043		{}	{}	{}	{}	{DEXINT}	2025-05-03 17:45:54.161651+00	t	[]
+1530	Sacred Flame	Whenever you inflict <b>Burning</b>, gain an equal amount of <b>Zeal</b>.	5	2	832617	"Let this fire wash away your sins!"	{}	{}	{}	{}	{INTSTR}	2025-05-03 17:45:54.161651+00	t	[]
+1533	Shattering Strikes	Melee attacks against <b>Frozen</b> <nobr>targets <b>Critical Hit</b></nobr>.	1	2	216754		{}	{}	{}	{}	{INTSTR}	2025-05-03 17:45:54.161651+00	t	[]
+1518	Mobility	When you gain <b>Evasion</b>, gain <b>2 Haste</b>. You are immune to <b>Slow</b>.	1	2	699673		{}	{}	{}	{}	{DEX}	2025-05-03 17:45:54.161651+00	t	[]
+1561	Bloodbank	At the start of combat, gain <b>Bloodbank</b>.	7	4	420984	Every drop counts.	{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1562	Craftsman	Whenever you upgrade a card, upgrade it one additional time.	1	4	135895		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1563	Creativity	Imbue a random enchantment from anywhere.	1	4	732948	What's the worst that could happen, right?	{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1572	Illusionist	Your conjurations cost one less energy.	5	4	889914	Don't let reality slow you down.	{}	{438900}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1573	Inner Rage	<b>Fury</b> cards grant additional <b>Anger</b> equal to your Strength ([[playerSTR]]).	1	4	571653	The blood boils.	{}	{322097}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1558	Battle Resilience	On even rounds, gain the 'Take the Hit', converting all incoming damage to Stagger.	5	4	409741		{}	{}	{}	{Warrior}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1559	Battlerush	Upgrade the first Melee action you play each combat.	1	4	891888	The soldiers of the Illustrious Stillguard often seem to get stronger and stronger as the battle lasts.	{}	{}	{}	{}	{STR}	2025-05-03 17:45:54.161651+00	t	[]
+1564	Deep Roast	Whenever you inflict <b>Burning</b>, gain <b>1 Potency</b>.	7	4	413015		{}	{}	{}	{Arcanist,Knight,Warrior}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1566	Elemental Conflux	When you inflict <b>Burning</b>, gain <b>1 Haste</b>. When you Inflict <b>Frozen</b>, inflict <b>1 Slow</b>.	1	4	382815		{}	{}	{}	{}	{INT}	2025-05-03 17:45:54.161651+00	t	[]
+1567	Elemental Recovery	Whenever you trigger an <b>Attunement</b>, gain <b>1 Focus</b> and gain <b>HEALTH</b> equal to your <B>Focus</b>.	6	4	629931		{}	{}	{}	{}	{INT2}	2025-05-03 17:45:54.161651+00	t	[]
+1568	Focused Infusion	Double the upgrades on a card in your deck, then increase its cost by NEUTRAL.	1	4	138614	A single needle can be shaped to be the deadliest of weapons.	{}	{}	{}	{}	{STR}	2025-05-03 17:45:54.161651+00	t	[]
+1569	Great Haul	Whenever you defeat an Elite enemy, gain a <b>Booty</b>.	7	4	953947		{}	{}	{}	{Rogue}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1570	Grievous Wounds	Whenever you inflict a <b>Critical Hit</b>, inflict <b>3 Bleeding</b>. (Critical Hits deal double damage).	1	4	372191		{}	{}	{}	{}	{DEX}	2025-05-03 17:45:54.161651+00	t	[]
+1571	Hunger for Power	Whenever you destroy a card, remove all its Upgrades and convert them to permanent Maximum HEALTH.	7	4	965103		{}	{}	{}	{Knight}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1544	Trapper	Whenever you <b>Perform</b> or inflict a <b>Critical Hit</b>, upgrade all Snares in your foe's deck by 1.	5	2	346507	"You know, it only hurts when I laugh."	{}	{936461}	{}	{}	{DEX}	2025-05-03 17:45:54.161651+00	t	[]
+1546	Wavedancer	Whenever you change the <b>Tide</b>, draw a card.	7	2	253896		{}	{}	{}	{Seeker,Rogue}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1547	Weapon Weaving	Whenever you change <b>Stances</b>, conjure a free Basic Attack.	6	2	350733		{}	{}	{}	{}	{STR2}	2025-05-03 17:45:54.161651+00	t	[]
+1576	Nova Savant	Make the cost of all Nova cards in your deck NEUTRAL. Whenever you play a <b>Nova</b> card, gain <b>1 Momentum</b>.	7	4	512178		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1577	Peace of Mind	If you play no Magic, Melee or Ranged actions during your turn, draw an extra card next turn.	1	4	561066	True strength lies not in battles won, but in wars averted.	{"Mystical Glade"}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1580	Sacred Shield	Gain 1 Impervious at the start of battle.	1	4	201571		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1586	Strategist	Gain +3 maximum handsize.	1	4	311688	What is now proved was once only imagined.	{"Heated Debate"}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1587	Taste of Chaos	At the start of combat, gain <b>Delirious</b>. While <B>Delirious</b>, your actions deal 2 additional damage.	1	4	157577	Amidst the roar of battle, chaos whispers the fate of empires.	{"Mystical Glade"}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1592	Vexing Alteration	Add <b>Cursed</b> and two random effects to a card. <b>Persistent</b>, <b>Firecast</b>, <B>Reliable</b>, <b>Memorized</b>, <b>+5 Upgrades</b>, <b>Chain</b>, <b>Echo</b>, or convert its <b>cost to BLOOD</b>.	7	4	272556		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1599	Deal with the Devil	Your <b>Corruption</b> is always active. Remove all Divine Actions from your deck.	0	5	666	"Condemn me for my sins against others, not my selfish indulgances."\n- Vintharai proverb	{"Serena Hellspark"}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1604	Infuse Power	Upgrade a random card 10 times.	1	5	720471		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1595	Brain Training	Whenever you draw or conjure a <B>Memorized</b> card, reduce its cost by 1.	7	5	177904		{}	{}	{}	{Seeker}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1596	Bribery	At the start of your first turn, inflict <b>Charmed</b> equal to 10% of your current Gold ([[myGold]]).	3	5	720891		{}	{}	{}	{}	{DEX2}	2025-05-03 17:45:54.161651+00	t	[]
+1597	Brutality	Whenever you gain <b>Armor</b>, inflict an equal amount of <b>Stagger</b>.	1	5	746416	Candoran Battlemasters are trained to turn their offence into defence.	{}	{}	{}	{}	{STR}	2025-05-03 17:45:54.161651+00	t	[]
+1560	Blessing of Serem-Pek	At the start of Combat, inflict a random affliction with 3 stacks.	1	4	137930	You feel a lingering sensation of being watched at all times...	{"The Deep Finish, The Godscar Wastes Finish"}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1602	Food Critic	Whenever you inflict a <b>Critical Hit</b>, conjure a random <b>Ingredient</b>.	7	5	864779		{}	{}	{}	{Hunter,Warrior}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1603	Grit	At the end of your turn, restore 20% of your missing health.	1	5	754909		{}	{}	{}	{}	{STR}	2025-05-03 17:45:54.161651+00	t	[]
+1574	Lionheart	Whenever you gain HEALTH, gain an equal amount of Armor.	1	4	569658	Fear is to believe defeat is permanent. Courage is to know you will get back up and be better for it.	{}	{}	{}	{}	{STR}	2025-05-03 17:45:54.161651+00	t	[]
+1575	Midnight Ritual	When you finish a <b>Performance</b>, gain <b>Darkness</b> equal to your level ([[myLevel]]). While Performing, you are immune to <b>Stunned</b>.	7	4	610183		{}	{}	{}	{Rogue,Hunter}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1578	Premonitions	Gain <b>1 Barrier</b> for every point of <b>Focus</b> you gain.	5	4	212862	"Let the lessons of our past be a shield for our future."	{}	{}	{}	{Seeker}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1579	Rolling Tides	Whenever you reach <b>5 Momentum</b>, change the <b>Tide</b>.	7	4	719502		{}	{}	{}	{Seeker}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1581	Sadistic Glee	Whenever your opponent plays a card that did not start in their deck, gain <b>2 HEALTH</b>.	5	4	409653	"Haven't you ever heard of the healing power of laughter?"	{}	{}	{}	{Rogue}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1582	Sharp Mind	Your Magic Actions deal additional damage equal to your Intellect ([[playerINT]]).	1	4	458081	The Mages of the Realm sharpens their mind like a soldier sharpens their blade.	{}	{}	{}	{}	{INT2}	2025-05-03 17:45:54.161651+00	t	[]
+1583	Spiked Plating	Whenever you gain <b>Armor</b>, gain half that amount of <b>Ferocious</b>.	1	4	23124		{}	{}	{}	{}	{STR}	2025-05-03 17:45:54.161651+00	t	[]
+1584	Starlit Dance	Whenever you spend INT, gain <nobr><b>2 Barrier</b></nobr>. While you are <b>Balanced</b>, draw a card as well.	5	4	86566		{}	{}	{}	{}	{INT}	2025-05-03 17:45:54.161651+00	t	[]
+1588	Tenacity	Start combat with Armor equal to your missing health.	1	4	950963	The roar of Battle bolsters those bred for combat.	{}	{}	{}	{}	{STR3}	2025-05-03 17:45:54.161651+00	t	[]
+1589	Thundergod's Blessing	Whenever you gain <b>Chain</b> or <b>Anger</b>, gain an additional stack.	1	4	307014	Deliver thunder to the weak, and fury to the undeserving.	{}	{}	{}	{}	{STR}	2025-05-03 17:45:54.161651+00	t	[]
+1590	Thundering Strikes	Your <b>Chain</b> adds 2 damage instead of 1 damage per point of Chain.	1	4	794125		{}	{}	{}	{Hunter,Arcanist,Knight,Sunforge}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1591	Unholy Arsenal	Add a <b>Hexglaive</b> weapon to your deck.	5	4	913116	The Black Armory allows access to only the most devoted, or depraved.	{}	{}	{}	{Knight}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1606	Insatiable Curiosity	Draw +2 cards per round.	1	5	25678	The second advantage is to never stop asking questions.	{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1611	Nova Mastery	Nova cards you play no longer need to be unique Nova cards to improve the effects of Nova cards.	7	5	946830		{}	{483859}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1613	Pay the Ferrymen	Whenever you die, lose 500 gold and revive with a Scar and 50% of your HEALTH.	7	5	736135		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1614	Pyromancy	At the end of your turn, double the burning on your opponent.	1	5	707915	The eldest of Firemages have managed to turn their madness into the deadliest of weapons.	{}	{205320}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1617	Skylars Kiss	Lose 5 Maximum HEALTH. Draw 1 additional card at the beginning of combat.	1	5	449843	Seren, the lover, the betrayer, the misunderstood, the Queenslayer. A tragedy of the ages told both as a warning or a gleeful tale of what happens to those who blindly follow the passions of the heart.	{"Shrine of Binding"}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1618	Strong Arms	Upgrade all Basic Attacks by 5. Whenever you Conjure or 'Make' a Basic Attack, upgrade it by 5.	1	5	153104	As we learn, we grow.	{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1620	Vile Mending	Whenever you gain HEALTH, deal that much <b>Piercing</b> damage.	1	5	531590	"I'm not sure what I like best, Constitutionar. My wellbeing, or your suffering." - Hierodeacon Ardekai	{}	{22989}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1621	Warpriest	Double all your Healing during combat.	1	5	49404	The Order of the White Rose rarely shares its secrets, but when they do be sure to listen.	{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1622	Weapon Master	Upgrade all basics after using your weapon power.	1	5	986637	In the hands of a true Master, weapons improve over time.	{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1623	Weapon Virtuoso	Reduce the cost of all Basic Attacks in your deck by NEUTRAL.	1	5	745368		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1627	Apotheosis	Convert the cost of Divine cards to HOLY, then remove all non-HOLY cards and add <B>Exalt</b>. Lose all attributes and gain HOLYHOLYHOLYHOLY energy instead.	1	6	736248	To some within the Candorian Clergy, godhood isn't just a dream but a mere stepping stone.	{}	{22989}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1585	Stormbringer	Start each combat with <b>Chain</b> equal to your level ([[myLevel]]).	1	4	207559	"Ride this lighting baby!" - Reynard the Filthy	{}	{}	{}	{}	{INT}	2025-05-03 17:45:54.161651+00	t	[]
+1625	Alcars' Rage	Whenever you foe gains <b>Anger</b>, gain an equal amount</b>.	0	6	297235		{UNKNOWN}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	f	[]
+1629	Blasphemy	Turn all HOLY energy costs on cards in your deck to Blood (BLOOD) energy	1	6	254723	Return the faith to where it belongs - the common people of the Realms.	{}	{22989}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1630	Blessing of the White Rose	Gain 5 HEALTH whenever you visit an Opportunity.	0	6	334396	Cruelty is but a dull blade compared to the searing steel of Mercy.	{"Serena Hellspark"}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1631	Bulwark	You no longer lose your <b>Armor</b> at the start of the turn.	1	6	427279	Face your enemy, steel yourself and break their will.	{}	{340544}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1632	Dark Immortality	Whenever you start the turn with eight VOID, gain <b>Salvation</B>. While in <B>Demonform</b> you can no longer gain HEALTH.	7	6	388132		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1633	Deep Studies	At the start of combat, if you are at an EVEN amount of HEALTH, gain <b>5 Haste</b>. If it's ODD, gain 10 HEALTH.	1	6	445906		{}	{}	{}	{Seeker}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1608	Mageslayer	You can not gain Blessings or Afflictions.	1	5	861505	"Petty parlour tricks won't save you this time."	{}	{}	{}	{}	{STR}	2025-05-03 17:45:54.161651+00	t	[]
+1609	Marksmanship	Your Ranged Actions have a 50% chance to be a <b>Critical Hit</b>. (Critical Hits deal double damage).	1	5	135267		{}	{}	{}	{}	{DEX}	2025-05-03 17:45:54.161651+00	t	[]
+1610	Mindfield	When you gain <b>Barrier</b> gain additional <b>Barrier</b> equal to your Focus.	1	5	699101	Steel your mind, bolster the body.	{}	{}	{}	{}	{INT2}	2025-05-03 17:45:54.161651+00	t	[]
+1615	Seductive	Whenever you spend DEX, inflict 2 <b>Charmed</b>. If you are Performing, increase your current <b>Performance</b> by 1.	3	5	387466		{}	{}	{}	{}	{DEX2}	2025-05-03 17:45:54.161651+00	t	[]
+1612	Oracle	Add a random <b>Revelation</b> to your deck for each point of Intellect ([[playerINT]]).	5	5	744837	"Our imagination is the only limit to what we can hope to have in the future."	{}	{}	{}	{Seeker}	{INT2}	2025-05-03 17:45:54.161651+00	t	[]
+1616	Shadowdancer	Your Ambush is always active.	1	5	795466	Opportunity is the most lethal of weapons.	{}	{}	{}	{}	{DEX}	2025-05-03 17:45:54.161651+00	t	[]
+1619	Tribute	Delve an equipment and add it to your deck.	6	5	399243	Amongst the Houses, it was an open secret Candor's favor was up for auction, resulting in increasingly generous support for the Crusade.	{}	{}	{}	{}	{STR}	2025-05-03 17:45:54.161651+00	t	[]
+1624	Well Equipped	At the start of combat, equip all your Equipment cards.	6	5	697626	A good soldier comes prepared.	{}	{}	{}	{}	{STR}	2025-05-03 17:45:54.161651+00	t	[]
+1636	Fortuitous	Gain 500 Gold.	1	6	423335	Best not to ask where it comes from.	{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1638	Goldstrike	Gain the Legendary Weapon Goldstrike.	1	6	259144	A fabled blade with a dark past that has become the object of desire for many within the Emporium.	{}	{651185,529128}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1640	Infusion	Imbue all Enchantments in your deck.\nLose 30 Maximum HEALTH	1	6	957660	"Greatness, at any cost." - Zalgo the Eldritch	{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1643	Magistracy	Draw 2 less cards at the start of your turn. Your conjurations inflict <b>Critical Hits</b>.	5	6	373791	Life is the true illusion.	{}	{438900}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1644	Offer of Abundance	Draw 2 additional cards at the start of your turn. You can no longer skip card rewards.	0	6	930177		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1645	Offer of Bargains	You get a 50% discount at the merchant. Whenever you visit a new area, all of your allies are replaced by the Merchant.	0	6	408879		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1646	Offer of Chance	Add a random keyword to each offered card reward.	0	6	88736		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1647	Offer of Chaos	Set the final confrontation to a random demonic entity.	0	6	291840		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1648	Offer of Consistency	Set the cost of all cards in your deck to cost exactly 1 NEUTRAL.	0	6	935014		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1649	Offer of Corruption	Summon The Lord of Despair as your final confrontation.	0	6	365535		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1650	Offer of Doom	At the start of your turn, draw an additional card for each round that has passed. After 4 rounds you are <b>Slain</b>.	0	6	605876		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1651	Offer of Duets	Add a copy of every card in your deck to your deck. The copy gains a random keyword.	0	6	666412		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1652	Offer of Emulation	Monster cards appear in card rewards.	0	6	952766		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1653	Offer of Energy	Shuffle the cost of all cards offered in card rewards. They gain the <b>Unique</b> keyword.	0	6	53905		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1635	Fire Immunity	You are Immune to <b>Burning</b>.	1	6	240709	"They say he was raised by a pack of Fire Golems."	{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1634	Demonic Justice	When defeating a boss, gain 10 GOLD and upgrade all cards in your deck by 1.	0	6	574408		{Chasm}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[["STR"]]
+1654	Offer of Fatalism	Heal to full HEALTH. You can no longer see your current or Maximum HEALTH	0	6	827512		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1655	Offer of Flux	You can no longer reroll talents. Card rewards offer 3 additional cards (up to 6 cards).	0	6	435480		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1656	Offer of Forging	Whenever you upgrade a card one or more times, for each upgrade it randomly adds -2 to +3 instead of +1 upgrades.	0	6	900000		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1657	Offer of Glory	Upgrade all card rewards by the <B>Overkill</b> ([[overkill]]). All cards upgraded this way gain the <b>Untempered</b> keyword.	0	6	470671		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1658	Offer of Greed	Gain double the gold you find during this run. Whenever you find gold, you take an equal amount of damage.	0	6	362462		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1659	Offer of Health	Lose 20 Maximum HEALTH.\nStart next run with 20 Additional Maximum HEALTH.	0	6	50589		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1660	Offer of Honor	Set the current run to a higher difficulty. (Not active on Story difficulty).	0	6	537516		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1661	Offer of Identity	Set your class to a random class. All cards in your deck are converted to Neutral energy costs.	0	6	178196		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1662	Offer of Insight	Start next game 1XP from level 2. (Not active in Sunforge or Weekly Challenge runs).	0	6	876068		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1663	Offer of Interest	Whenever you gain gold, upgrade a random card by an equal amount. At the end of combat, remove all upgrades from cards in your deck.	0	6	990882		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1664	Offer of Life	Double your Maximum HEALTH. Your foes start with double HEALTH.	0	6	490495		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1665	Offer of Lunacy	Change all cards in your deck unpredictably.	0	6	256316		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1666	Offer of Magic	Imbue any Enchantment you acquire through card rewards. Foes start with a random enchantment for each enchantment you have imbued ([[imbues]]).	0	6	847696		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1667	Offer of Mischief	At the start of combat, add a <b>Prank</b> for each level ([[level]]) to both your and your foe's deck.	0	6	969364		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1642	Lifesteal Venom	Whenever your foe takes damage from <b>Poison</b> heal an equal amount.	1	6	844579		{}	{}	{}	{}	{DEX}	2025-05-03 17:45:54.161651+00	t	[]
+1668	Offer of Paranoia	Opportunities no longer vanish if not picked. Areas contain one less campfire.	0	6	371473		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1669	Offer of Petrification	From the next area forewards, your allies will be replaced by random Shrines.	0	6	331760		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1670	Offer of Power	All card rewards are upgraded by 10. At the start of combat, take damage for every upgrade on cards in your deck ([[allUpgrades]]).	0	6	805467		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1671	Offer of Pride	Add a random Malignancy to your current run.	0	6	492109		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1672	Offer of Progress	Double the amount of Fateshards earned during this run if you win. If you lose, you gain none.	0	6	603380		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1673	Offer of Revision	Exchange your current deck with a deck in your archives. They do not retain any modifications except for their Upgrades.	0	6	982223		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1674	Offer of Rot	Summon the Queen of Rot as your final Confrontation.	0	6	486480		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1675	Offer of Sanity	Summon the Outerworldly Eternity as your final confrontation.	0	6	258310		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1676	Offer of Shrouds	Your foe's HEALTH is hidden. After defeating a foe, gain HEALTH equal to 10 minus the <b>Overkill</b>.	0	6	828693		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1677	Offer of Souls	Gain 100 souls. While you have Souls, you can no longer gain HEALTH.	0	6	822335		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1678	Offer of Steel	Set the cooldown of your weaponpower to anywhere between 1 and 6 combats.	0	6	953951		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1679	Offer of Trades	Start next game with a Tradepost. (Not active in Sunforge or Weekly Challenge runs)	0	6	665841		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1680	Offer of Tricks	Shuffle the keywords of all cards in your card rewards.	0	6	178126		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1681	Offer of Trophies	Combats offer between 1 to 6 card rewards.	0	6	379620		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1682	Offer of Veils	Whenever you deal damage, draw a card. You only draw 1 card at the start of your turn.	0	6	105853		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1683	Offer of Velocity	Whenever you play a card, draw a card and lose health for each other card you played during that turn.	0	6	646674		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1684	Offer of Wisdom	All text on cards is hidden. Gain +50% experience.	0	6	324541		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1685	Omniscience	Draw +3 cards per round.	1	6	615769	The third advantage is to know anything that can be known.	{}	{749206}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1686	Picture of Health	Double your Maximum health. (You do not heal for the additional Health gained).	1	6	19597	The Guardians of the White Rose were rumored to possess godlike vitality, shrugging off even the deepest wounds without pause.	{}	{732374}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1688	Purity	Remove all Corruptions from your deck. At the start of your turn, Cleanse one of your Afflictions.	1	6	800453		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1689	Redemption	When you would die, heal 50% of your health instead, then lose this talent.	1	6	123	The Lady of Light is not done with you yet.	{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1690	Steel Vitals	Whenever you <b>Slay</b> an enemy, gain Maximum HEALTH equal to 5% of your HEALTH.	7	6	977949		{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1691	Sworn to Vengeance	When you would die, heal 50% of your health instead, then lose this talent	7	6	69246	Your thirst for vengeance fuels the fire of life.	{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1692	Trovan's Blessing	Whenever you gain gold, gain an equal amount of HEALTH.	1	6	864067	The god of Luck is one of the few gods that is still actively worshipped besides Rae, and is known to bestow its blessing on the most undeserving.	{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1693	Undead	You are immune to <nobr><b>Bleeding</b> and <b>Stunned</b></nobr>.	1	6	713350	 In the Wyldwoods, the wise often set great trees upon the resting places of the departed. Not in homage, but rather to weave their roots around their fallen forms, binding them to the soil should they stir prematurely from their slumber.	{}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1695	Warlord	Your Melee actions deal [[myMaxHealth]]% damage (based on your Maximum Health). 	1	6	659323		{}	{358750}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1601	Eclipse Harbinger	When you lose all <b>Darkness</b>, inflict <b>1 Stunned</b> and <b>Doom</b> equal to your total <b>Darkness</b> ([[darkness]]).	6	5	981271	"When darkness falls, so do my enemies; in my domain, fear reigns supreme."	{}	{}	{}	{Hunter}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1687	Pirate Parlour	Start each combat with access to the <B>Pirate Parlour</b>, offering unique Pirate merchandise!	7	6	121220		{}	{}	{}	{Rogue}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1359	Arcane Weapon	Use your Weapon Power to gain HEALTH for every Magic Action in your deck ([[magicCards]]).	1	0	2		{}	{}	{}	{Arcanist}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1375	Flaming Weapon	Use your Weapon Power Inflict to <b>1 Burning</b> and <b>1 Focus</b> per level at the start of next combat. <b>Passive:</b> Gain the Fire Immunity talent.	2	0	957656		{}	{}	{}	{Arcanist}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1369	Elemental Weapon	Use your weapon power to start your next combat Attuned to an Element of your choice.\n<b>Passive:</b> Whenever you trigger your Attunement, gain 1 HEALTH.	2	0	388196		{}	{}	{}	{Arcanist}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1400	Stalking Weapon	Use your weapon power to gain <b>Evasion</b> at the start of next combat. <b>Passive:</b> Start with an imbued Killer Instincts.	2	0	734994		{}	{}	{}	{Hunter}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1393	Ritual Weapon	Use your weapon power to gain a Totem at the start of next combat. <b>Passive:</b> Whenever you return a card from your discard pile, gain 1 HEALTH.	2	0	914598		{}	{}	{274715}	{Hunter}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1395	Seabound Weapon	Use your weapon power to start next combat with a free Weathercast. <b>Passive</b>: Start each combat with a <b>Clone</b>.	2	0	505593		{}	{}	{}	{Seeker}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1552	Forbidden Knowledge	Whenever you add a Magic Action to your deck, add <b>Cursed</b> and a random <b>Keyword</b>.	0	3	793943		{"Abandoned Backpack"}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1607	Lovebite	Whenever you inflict <b>Charmed</b>, inflict an equal amount of <b>Piercing</b> damage.	0	5	372964		{"Damsel in Distress"}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1641	Legion Insight	Card rewards offer 1 additional card (up to 6 cards).	0	6	434520		{"Damsel in Distress"}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[["INT3"], ["HOLY"]]
+1694	Unimpressed	Whenever you use your weapon power, start next combat with <b>1 Bolster</b>. While you are <b>Bolstered</b> you are immune to <b>Fear</b>.	0	6	350989	It blinked first.	{"The Dream"}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[["STR3"]]
+1720	Beastly Weapon	Activate to set the rewards of next combat to be all <b>Companion</b> cards.	0	0	739485		{}	{}	{216426}	{}	{}	2025-12-08 20:46:29.611+00	t	[]
+1721	Disciplined Weapon	Activate to start next combat with a <b>Mantra</b> per level (up to 5). <b>Passive:</b> Gain the talent <b>Ki Mantras</b>.	0	0	85770		{}	{}	{}	{}	{}	2025-12-08 20:46:29.136+00	t	[]
+1722	Junk Weapon	Activate to gain 2 HEALTH for each card in your Scrap Pile. <b>Passive:</b> You may add cards from card rewards to your Scrap Pile instead of your regular deck.	0	0	849221		{}	{}	{40976}	{}	{}	2025-12-08 20:46:28.989+00	t	[]
+1404	Thundering Weapon	Use your weapon power to start next combat with a Zap for each level (up to 4).	2	0	757746	The lightning makes no sound until it strikes.	{}	{}	{}	{Hunter}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1593	Abyssal Resistance	You are immune to <b>Dominated</b>.	0	5	636964		{"Damsel in Distress"}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[["INT3"], ["HOLY"]]
+1488	Brush With Death	At the start of your turn, if you are at 25% HEALTH or less, gain 50 HEALTH, cleanse all Afflictions and remove this talent.	0	2	596282		{Chasm}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	f	[["DEX3"]]
+1600	Divine Defiance	At the start of combat, gain HOLY if your  foe is undead or a Demon.	0	5	499116		{Chasm}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[["HOLY"]]
+1749	Feral Aggression	Whenever you add a <b>Companion</b> card to your <b>Companion's</b> deck, upgrade it by your level ([[level]]).	8	4	633570		{}	{}	{}	{Hunter}	{}	2025-12-08 20:46:37.861+00	t	[]
+1729	Edict of Life	Whenever you gain HEALTH, gain an equal amount of <b>Temporary Maximum HEALTH</b>.	8	1	576001		{}	{}	{}	{}	{STR}	2025-12-08 20:46:31.887+00	t	[]
+1748	Edict of Mercy	Whenever you gain HEALTH, inflict an equal amount of <b>Charmed</b>.	8	4	152483		{}	{}	{}	{}	{STR}	2025-12-08 20:46:37.731+00	t	[]
+1731	Gather Following	Gain access to HOLY cards. Add an <b>Aeternal Summons</b> to your deck.	8	1	577477		{}	{}	{}	{}	{}	2025-12-08 20:46:30.776+00	t	[]
+1730	Forge Apprentice	Whenever you <b>Adapt</b> a card, <b>Upgrade</b> it by 1 if it has fewer than 10 upgrades.	8	1	180873		{}	{}	{}	{}	{STR2}	2025-12-08 20:46:30.789+00	t	[]
+1744	Perfect Coordination	<b>Start of Turn</b>: Grant the Advantage to your <b>Companion</b>.	8	2	216426		{}	{739485}	{}	{}	{}	2025-12-08 20:46:33.815+00	t	[]
+1732	Junk Aficionado	Reduce the cost of <b>Junk</b> cards you draw, <b>Scavenge</b> or conjure by NEUTRAL. This talent can be taken multiple times.	8	1	890275		{}	{}	{}	{Rogue}	{}	2025-12-08 20:46:30.739+00	t	[]
+1733	Ki Mantras	Basic Attacks and <b>Mantras</b> deal additional damage for each active <b>Mantra</b> ([[mantras]]).	8	1	640370		{}	{}	{}	{Seeker}	{}	2025-12-08 20:46:31.21+00	t	[]
+1734	Makeshift Mending	Whenever you <b>Scavenge</b> a card, gain <b>1 HEALTH</b>.	8	1	238127		{}	{}	{}	{}	{DEX2}	2025-12-08 20:46:31.71+00	t	[]
+1735	Mantra Novice	Your active Mantras start at 1, plus an additional stack for every 2 levels.	8	1	130721		{}	{}	{}	{Seeker}	{}	2025-12-08 20:46:31.165+00	t	[]
+1743	Mantric Healing	<b>Start of Turn:</b> Gain <b>1 HEALTH</b> for each active <b>Mantra</b>	8	2	616656		{}	{}	{}	{Seeker}	{}	2025-12-08 20:46:33.659+00	t	[]
+1723	Psychic Weapon	Activate: Add the <b>Psionic</b> keyword to a card. Start next combat with <b>Focus</b> equal to your level ([[myLevel]]). <b>Passive:</b> Gain the <b>Brainrot</b> talent.	0	0	849095		{}	{}	{}	{}	{}	2025-12-08 20:46:29.612+00	t	[]
+1745	Retrofitter	Whenever you use your Weapon Power, upgrade all cards in your <b>Scrap Pile</b> by 2.	8	2	40976	Waste not, want not.	{}	{849221}	{}	{}	{}	2025-12-08 20:46:34.013+00	t	[]
+1753	Reject Restrictions	Remove the <b>Unique</b> keyword from all cards in your card rewards.	8	5	560663		{}	{}	{}	{Seeker}	{}	2025-12-08 20:46:39.034+00	t	[]
+1754	Two Selves	Remove the <b>Unique</b> keyword from a card in your deck and increase it's cost by NEUTRAL.	8	5	508868		{}	{}	{}	{}	{}	2025-12-08 20:46:39.343+00	t	[]
+1746	Righteous Charge	Gain access to HOLY cards. Whenever you start a turn below 50% of your HEALTH, gain HOLY.	8	2	752363		{}	{}	{}	{Knight}	{}	2025-12-08 20:46:33.807+00	t	[]
+1728	Doing My Part	You're doing your part.	2	1	775857		{}	{858919}	{}	{Knight}	{}	2025-12-08 20:46:31.122+00	t	[]
+1724	Triage Weapon	Activate to start next combat with a <b>Medikit</b> and <b>1 Bolster</b>, and +1 for every 2 levels ([[level/2]]).	2	0	858919		{}	{}	{775857}	{Knight}	{}	2025-12-08 20:46:29.116+00	t	[]
+1741	Forge Mastery	Whenever you <b>Adapt</b> a card, <b>Upgrade</b> it by 2 if it has fewer than 20 upgrades.	8	2	484447		{}	{}	{}	{}	{STR2}	2025-12-08 20:46:33.982+00	t	[]
+1737	Trained Strikes	Basic Attacks and <b>Mantras</b> deal additional damage equal to the highest number of copies of a card you played that turn ([[highestCopiesPlayed]]).	8	1	6403702		{}	{}	{}	{Seeker}	{}	2025-12-08 20:46:31.886+00	t	[]
+1739	Versatile Steel	Melee cards in the card rewards gain an <b>Adaptation Slot</b>.	8	1	126561		{}	{}	{}	{}	{STR2}	2025-12-08 20:46:31.141+00	t	[]
+1725	Versatile Weapon	Activate to add a permanent <b>Adaptation Slot</b> to any Melee card in your deck. Cards can hold up to 5 Adaptation Slots.	0	0	628612		{}	{}	{}	{Warrior}	{}	2025-12-08 20:46:29.084+00	t	[]
+1747	Waste Warrior	Your <B>Bombs</b> have a chance to inflict a <b>Critical Hit</b> equal to twice the number of cards in your Scrap Pile.	8	2	472167		{}	{}	{}	{}	{DEX2}	2025-12-08 20:46:33.987+00	t	[]
+1726	Animal Attunement	Delve a Companion card and add it to your <b>Companion's</b> deck. This talent can be taken multiple times.	8	1	772333		{}	{}	{}	{Hunter}	{}	2025-12-08 20:46:31.164+00	t	[]
+1750	Blessed Plate	Whenever you activate an <b>Equipment</b>, increase all your <b>Blessings</b> by 1.	8	5	798326		{}	{}	{}	{Knight}	{}	2025-12-08 20:46:39.421+00	t	[]
+1751	Bond of Life	The first time you drop below <b>1 HEALTH</b> while you have a <b>Companion</b>, gain a <b>Scar</b> and return to 1 HEALTH instead.	8	5	972888		{}	{}	{}	{Hunter}	{}	2025-12-08 20:46:39.502+00	t	[]
+1740	Edict of Wrath	Whenever you gain HEALTH, gain an equal amount of <b>Zeal</b>.	8	2	679635		{}	{}	{}	{Knight}	{}	2025-12-08 20:46:34+00	t	[]
+1742	Hidden Gems	Start each combat with a <b>Shovel</b> in play.	8	2	56069		{}	{}	{}	{}	{DEX2}	2025-12-08 20:46:32.956+00	t	[]
+1738	Vanguard	<b>Start of Combat:</b> Gain <b>Fortified</b>.	8	1	950753		{}	{}	{}	{Knight,Warrior}	{}	2025-12-08 20:46:30.793+00	t	[]
+1727	Brainrot	Whenever you inflict <b>Dazed</b>, inflict an equal amount of <b>Decay</b>.	8	1	709119	Beware the Scrying Pools of Endless Reflection - many a brave soul has gazed too long into their own image and forgotten how to see the world beyond.	{}	{}	{}	{}	{INT2}	2025-12-08 20:46:31.715+00	t	[]
+1755	Offer of Iron	Convert all upgrades on cards in your deck to Maximum HEALTH ([[allUpgrades]]).	0	6	219456		{}	{}	{}	{}	{}	2025-12-08 20:46:41.033+00	t	[]
+1756	Offer of Pairs	Remove all Grounded and Unique keywords of cards in your deck. Then, half of the cards in your deck become copies of other cards in your deck. 	0	6	76161		{}	{}	{}	{}	{}	2025-12-08 20:46:40.622+00	t	[]
+1752	Psychic Overpower	Magic Actions deal additional damage for each card in your hand.	8	5	914332		{}	{}	{}	{}	{INT2}	2025-12-08 20:46:39.009+00	t	[]
+1736	Sockets	Add 2 <b>Adaptation Slots</b> to a <b>Melee</b> card. <b>Start of Combat:</b> <b>Adapt</b> a random card in your deck. Can be taken multiple times.	8	1	120998	Anything can be Adapted if you strike it hard enough.	{}	{}	{}	{}	{STR2}	2025-12-08 20:46:31.889+00	t	[]
+1432	Earthshaker	Whenever you summon a unique <b>Totem</b>, deal damage and gain <b>HEALTH</b> equal to your level ([[myLevel]]).	6	1	522206		{}	{}	{}	{}	{DEXSTR}	2025-05-03 17:45:54.161651+00	t	[]
+1626	Angelic Form	<b>Ascend</b> once at the start of combat.	3	6	984176	Your devotion has been noticed, and rewarded thusly.	{}	{22989}	{}	{}	{INTSTR}	2025-05-03 17:45:54.161651+00	t	[]
+1379	Grounding Weapon	<b>Activate</b>: Gain <b>10 Barrier</b> at the start of next combat. <b>Passive:</b> When you add a <b>Chain</b> card to your deck, upgrade it equal to your level ([[myLevel]]).	2	0	495673	Be the lightning. If only for a second, it turns the night into day.	{}	{}	{}	{Knight}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1444	Hellforged Weapons	Upgrade all your Basic Attacks.\nWhenever you upgrade a Basic Attack, upgrade it one additional time.	0	1	781951	Hatred fuels the best forges.	{AxeInStone}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[["STR2"]]
+1531	Sanctifier	Your Actions inflict additional damage equal to your level to Undead and Demons ([[myLevel]]).	1	2	706272	"Now stay dead."	{BrightGem}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[["HOLY"]]
+1556	Zealous	Gain HOLY at the beginning of the round.	1	3	586945	Those blind to Rae's presence will be shown by sheer power.	{LostSoul}	{22989}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[["HOLY"]]
+1637	Frozen Heart	At the start of your turn, gain HEALTH equal to your <b>Frozen</b>, then reduce your <b>Frozen</b> by half.	4	6	38256	The rhythm of the mystical underground rivers within the Frozen Heart beats with resilience, imbuing you with its unyielding strength.	{"Frozen Heart"}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[["STR3"], ["STR2", "HOLY"], ["DEX2", "HOLY"], ["INT2", "HOLY"]]
+1429	Devotion	Gain access to Holy cards. Add a <b>Prayer Card</b> to your deck.	1	1	22989	Some believe the gods have left the Realms, some believe their absence is merely the calm before the storm.	{"Priest, Prayer"}	{}	{984176,736248,254723,641565,924616,531590,586945,110050,462439}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
+1434	Emporium Discount	The first card you buy at the merchant is free.	0	1	384654	Discounts will not apply in the event of the occurrence (certified by the Emporium's Centers for Disease Control or successor body) of a widespread viral infection transmitted via bites or contact with bodily fluids that causes human corpses to reanimate and seek to consume living human flesh, blood, brain or nerve tissue and is likely to result in the fall of organised civilization.	{EmporiumCrates}	{}	{}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]
 \.
 
 
@@ -516,3 +486,89 @@ COPY public.metadata (key, value, updated_at) FROM stdin;
 
 
 --
+-- Name: Talents_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('public."Talents_id_seq"', 1756, true);
+
+
+--
+-- Name: Talents Talents_id_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public."Talents"
+    ADD CONSTRAINT "Talents_id_key" UNIQUE (id);
+
+
+--
+-- Name: Talents Talents_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public."Talents"
+    ADD CONSTRAINT "Talents_pkey" PRIMARY KEY (id);
+
+
+--
+-- Name: metadata metadata_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.metadata
+    ADD CONSTRAINT metadata_pkey PRIMARY KEY (key);
+
+
+--
+-- Name: Talents_color_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX "Talents_color_idx" ON public."Talents" USING btree (tier);
+
+
+--
+-- Name: Talents_expansion_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX "Talents_expansion_idx" ON public."Talents" USING btree (expansion);
+
+
+--
+-- Name: metadata Allow all access to metadata; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Allow all access to metadata" ON public.metadata TO authenticated USING (true) WITH CHECK (true);
+
+
+--
+-- Name: Talents Enable read access for all users; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Enable read access for all users" ON public."Talents" FOR SELECT USING (true);
+
+
+--
+-- Name: Talents; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public."Talents" ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: metadata; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.metadata ENABLE ROW LEVEL SECURITY;
+
+--
+-- Grant permissions to Supabase roles
+--
+
+GRANT USAGE ON SCHEMA public TO postgres, anon, authenticated, service_role;
+GRANT ALL ON ALL TABLES IN SCHEMA public TO postgres, anon, authenticated, service_role;
+GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO postgres, anon, authenticated, service_role;
+
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO postgres, anon, authenticated, service_role;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO postgres, anon, authenticated, service_role;
+
+--
+-- PostgreSQL database dump complete
+--
+
+
