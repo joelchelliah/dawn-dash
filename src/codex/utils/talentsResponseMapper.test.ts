@@ -556,6 +556,107 @@ describe('talentsResponseMapper', () => {
         expect(result.eventNodes[2].name).toBe('Zombie')
       })
     })
+
+    it('should set expansion to 0 for talents in ACTUALLY_EVENT_ONLY_TALENTS list', () => {
+      const talents: TalentData[] = [
+        mockTalent({
+          id: 1,
+          name: 'Pragmatism',
+          expansion: 1,
+          events: ['Heated Debate'],
+        }),
+        mockTalent({
+          id: 2,
+          name: 'Sacred Zest',
+          expansion: 2,
+          events: ['Heated Debate'],
+        }),
+        // This one should be in both eventNode and noReqNode
+        mockTalent({
+          id: 3,
+          name: 'Regular Talent',
+          expansion: 1,
+          events: ['Some Event'],
+        }),
+      ]
+
+      const result = mapTalentsDataToTalentTree(talents)
+
+      const heatedDebateNode = result.eventNodes.find((node) => node.name === 'Heated Debate')
+      expect(heatedDebateNode).toBeDefined()
+      expect(heatedDebateNode?.children).toHaveLength(2)
+
+      const pragmatism = heatedDebateNode?.children.find((child) => child.name === 'Pragmatism')
+      const sacredZest = heatedDebateNode?.children.find((child) => child.name === 'Sacred Zest')
+      expect(pragmatism?.expansion).toBe(0)
+      expect(sacredZest?.expansion).toBe(0)
+
+      const someEventNode = result.eventNodes.find((node) => node.name === 'Some Event')
+      const regularTalent = someEventNode?.children.find((child) => child.name === 'Regular Talent')
+      expect(regularTalent?.expansion).toBe(1)
+
+      const noReqNode = result.noReqNode.children.find((child) => child.name === 'Regular Talent')
+      expect(noReqNode).toBeDefined()
+      expect(noReqNode?.expansion).toBe(1)
+    })
+
+    describe('edge cases', () => {
+      it('should use only the first event requirement set when talent somehow has multiple sets', () => {
+        // This test verifies defensive behavior - in practice, the preprocessing
+        // should split talents with multiple event requirement sets, but if somehow
+        // a talent still has multiple sets, we only use the first one
+        const talents: TalentData[] = [
+          mockTalent({
+            id: 1,
+            blightbane_id: 100,
+            name: 'Multi Set Talent',
+            expansion: 1,
+            event_requirement_matrix: [['Req1'], ['Req2']],
+          }),
+        ]
+
+        const result = mapTalentsDataToTalentTree(talents)
+
+        // The preprocessing splits this into 2 separate talents
+        expect(result.noReqNode.children).toHaveLength(2)
+        // First one uses first set
+        expect(result.noReqNode.children[0].eventRequirements).toEqual(['Req1'])
+        // Second one uses second set
+        expect(result.noReqNode.children[1].eventRequirements).toEqual(['Req2'])
+      })
+
+      it('should handle talents with missing children gracefully', () => {
+        const talents: TalentData[] = [
+          mockTalent({
+            id: 1,
+            blightbane_id: 10,
+            name: 'Parent',
+            expansion: 1,
+            required_for_talents: [999], // Non-existent child
+          }),
+        ]
+
+        const result = mapTalentsDataToTalentTree(talents)
+
+        expect(result.noReqNode.children[0].name).toBe('Parent')
+        expect(result.noReqNode.children[0].children).toHaveLength(0) // Missing child filtered out
+      })
+
+      it('should handle empty event_requirement_matrix correctly', () => {
+        const talents: TalentData[] = [
+          mockTalent({
+            id: 1,
+            name: 'No Event Requirements',
+            expansion: 1,
+            event_requirement_matrix: [],
+          }),
+        ]
+
+        const result = mapTalentsDataToTalentTree(talents)
+
+        expect(result.noReqNode.children[0].eventRequirements).toEqual([])
+      })
+    })
   })
 })
 

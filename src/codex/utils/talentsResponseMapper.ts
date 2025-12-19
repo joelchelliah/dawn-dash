@@ -27,7 +27,7 @@ import {
 export const mapTalentsDataToTalentTree = (unparsedTalents: TalentData[]): TalentTree => {
   const correctedUnparsedTalents = unparsedTalents.map((talent) => ({
     ...talent,
-    expansion: ACTUALLY_EVENT_ONLY_TALENTS.includes(talent.name) ? 0 : talent.expansion,
+    expansion: isEventOnlyTalent(talent) ? 0 : talent.expansion,
   }))
   const uniqueUnparsedTalents = removeDuplicateAndNonExistingTalents(correctedUnparsedTalents)
   const classAndEnergySplitTalents =
@@ -85,24 +85,6 @@ export const mapTalentsDataToTalentTree = (unparsedTalents: TalentData[]): Talen
       eventRequirements,
     }
   }
-
-  const isOffer = (talent: TalentData) =>
-    talent.expansion === 0 && talent.name.startsWith('Offer of')
-
-  const isValidEventTalent = (eventName: string) => (talent: TalentData) =>
-    talent.events.includes(eventName)
-
-  const isRootTalent = (talent: TalentData) =>
-    talent.requires_talents.length === 0 &&
-    talent.requires_classes.length === 0 &&
-    talent.requires_energy.length === 0 &&
-    talent.expansion !== 0 &&
-    !TALENTS_OBTAINED_FROM_CARDS.ONLY.includes(talent.name)
-
-  const hasClass = (className: string) => (talent: TalentData) =>
-    talent.requires_classes.includes(className) && talent.requires_talents.length === 0
-  const hasEnergy = (energy: string) => (talent: TalentData) =>
-    talent.requires_energy.includes(energy) && talent.requires_talents.length === 0
 
   const createTalentNodes = (predicate: (talent: TalentData) => boolean) =>
     sortNodes<TalentTreeTalentNode>(
@@ -187,6 +169,25 @@ export const mapTalentsDataToTalentTree = (unparsedTalents: TalentData[]): Talen
     offerNode: rootOfferNode,
   }
 }
+
+const isEventOnlyTalent = (talent: TalentData) => ACTUALLY_EVENT_ONLY_TALENTS.includes(talent.name)
+
+const isOffer = (talent: TalentData) => talent.expansion === 0 && talent.name.startsWith('Offer of')
+
+const isValidEventTalent = (eventName: string) => (talent: TalentData) =>
+  talent.events.includes(eventName)
+
+const isRootTalent = (talent: TalentData) =>
+  talent.requires_talents.length === 0 &&
+  talent.requires_classes.length === 0 &&
+  talent.requires_energy.length === 0 &&
+  talent.expansion !== 0 &&
+  !TALENTS_OBTAINED_FROM_CARDS.ONLY.includes(talent.name)
+
+const hasClass = (className: string) => (talent: TalentData) =>
+  talent.requires_classes.includes(className) && talent.requires_talents.length === 0
+const hasEnergy = (energy: string) => (talent: TalentData) =>
+  talent.requires_energy.includes(energy) && talent.requires_talents.length === 0
 
 /**
  * Sorts either talents or requirement nodes by specific criteria.
