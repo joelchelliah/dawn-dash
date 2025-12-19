@@ -13,7 +13,7 @@ import {
   cacheTalentCodexSearchFilters,
   getCachedTalentCodexSearchFilters,
 } from '@/codex/utils/codexFilterStore'
-import { isTalentInAnyEvents, isTalentInAnyCards, isTalentOffer } from '@/codex/utils/talentHelper'
+import { isTalentOffer } from '@/codex/utils/talentHelper'
 import { isTalentTreeEqual } from '@/codex/utils/treeHelper'
 import { RequirementFilterOption } from '@/codex/types/filters'
 
@@ -209,21 +209,13 @@ export const useAllTalentSearchFilters = (
 
   const eventTalentNodePredicate = useCallback(
     (talent: TalentTreeTalentNode) => {
-      return (
-        isTalentInAnyEvents(talent) &&
-        isTierIndexSelected(talent.tier) &&
-        isNameOrDescriptionIncluded(talent, parsedKeywords)
-      )
+      return isTierIndexSelected(talent.tier) && isNameOrDescriptionIncluded(talent, parsedKeywords)
     },
     [isTierIndexSelected, parsedKeywords]
   )
   const cardTalentNodePredicate = useCallback(
     (talent: TalentTreeTalentNode) => {
-      return (
-        isTalentInAnyCards(talent) &&
-        isTierIndexSelected(talent.tier) &&
-        isNameOrDescriptionIncluded(talent, parsedKeywords)
-      )
+      return isTierIndexSelected(talent.tier) && isNameOrDescriptionIncluded(talent, parsedKeywords)
     },
     [isTierIndexSelected, parsedKeywords]
   )

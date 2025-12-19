@@ -276,6 +276,46 @@ describe('talentDataHelper', () => {
 
       expect(result).toEqual(['Parent Req'])
     })
+
+    it('should return empty array when parent is a card requirement node', () => {
+      const talent = mockTalent({
+        requires_classes: ['Warrior'],
+        requires_energy: ['STR', 'HOLY'],
+      })
+
+      const result = getClassOrEnergyRequirements(talent, ['ObtainedFromCards'], null)
+
+      // When under a card node (like Sacred Tome -> Devotion), don't show any requirements
+      expect(result).toEqual([])
+    })
+
+    it('should return empty array when parent is an offer requirement node', () => {
+      const talent = mockTalent({
+        requires_classes: ['Warrior'],
+        requires_energy: ['STR'],
+      })
+
+      const result = getClassOrEnergyRequirements(talent, ['Offer'], null)
+
+      // When under an offer node, don't show any requirements
+      expect(result).toEqual([])
+    })
+
+    it('should filter out all other class requirements when parent has a class requirement', () => {
+      const talent = mockTalent({
+        requires_classes: ['Arcanist', 'Rogue', 'Knight'],
+        requires_energy: ['INT', 'STR'],
+      })
+
+      const result = getClassOrEnergyRequirements(talent, ['Arcanist'], null)
+
+      // Only Arcanist (parent) should remain, other classes filtered out
+      expect(result).toContain('Arcanist')
+      expect(result).not.toContain('Rogue')
+      expect(result).not.toContain('Knight')
+      expect(result).toContain('INT')
+      expect(result).toContain('STR')
+    })
   })
 })
 

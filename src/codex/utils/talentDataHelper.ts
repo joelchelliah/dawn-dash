@@ -131,6 +131,15 @@ export const getClassOrEnergyRequirements = (
     classOrEnergyRequirements = eventRequirements
   }
 
+  // If the parent is a card or offer requirement node,
+  // do not show any requirements
+  else if (
+    parentRequirements.includes(RequirementFilterOption.ObtainedFromCards) ||
+    parentRequirements.includes(RequirementFilterOption.Offer)
+  ) {
+    classOrEnergyRequirements = []
+  }
+
   // Special case: Direct children of Devotion should not show HOLY requirement!
   // e.g:
   //  * Priest -> Devotion -> Pious. should NOT show HOLY
@@ -142,6 +151,20 @@ export const getClassOrEnergyRequirements = (
   ) {
     classOrEnergyRequirements = defaultClassOrEnergyRequirements.filter(
       (requirement) => requirement !== 'HOLY'
+    )
+  }
+
+  // If parent requirements is a class requirement,
+  // it can have no other class requirements (no dual classes in this game!)
+  const classRequirements = Object.keys(REQUIREMENT_CLASS_TO_FILTER_OPTIONS_MAP)
+  const parentClassRequirement = parentRequirements.find((requirement) =>
+    classRequirements.includes(requirement)
+  )
+
+  if (parentClassRequirement) {
+    classOrEnergyRequirements = classOrEnergyRequirements.filter(
+      (requirement) =>
+        requirement === parentClassRequirement || !classRequirements.includes(requirement)
     )
   }
 
