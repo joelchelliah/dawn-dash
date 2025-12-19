@@ -173,18 +173,7 @@ describe('talentDataHelper', () => {
     })
 
     it('should return correct filter options for all energy types', () => {
-      const energyTypes = [
-        'DEX',
-        'DEX2',
-        'INT',
-        'INT2',
-        'STR',
-        'STR2',
-        'STR3',
-        'INTSTR',
-        'DEXSTR',
-        'DEXINT',
-      ]
+      const energyTypes = ['DEX', 'DEX2', 'INT', 'INT2', 'STR', 'STR2', 'STR3']
 
       energyTypes.forEach((energyType) => {
         const result = getFilterOptionsForRequirement('energy', energyType)

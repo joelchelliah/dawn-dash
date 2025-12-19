@@ -18,9 +18,6 @@ export const REQUIREMENT_ENERGY_TO_FILTER_OPTIONS_MAP: Record<string, Requiremen
   STR: [RequirementFilterOption.Strength],
   STR2: [RequirementFilterOption.Strength],
   STR3: [RequirementFilterOption.Strength],
-  INTSTR: [RequirementFilterOption.Intelligence, RequirementFilterOption.Strength],
-  DEXSTR: [RequirementFilterOption.Dexterity, RequirementFilterOption.Strength],
-  DEXINT: [RequirementFilterOption.Dexterity, RequirementFilterOption.Intelligence],
 }
 
 // These are actually talents you ONLY get from events

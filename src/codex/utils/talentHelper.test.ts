@@ -96,24 +96,6 @@ describe('talentHelper', () => {
           expect(result.url).toBeDefined()
         })
       })
-
-      it('should return correct props for hybrid energy types', () => {
-        const hybridTypes = [
-          { label: 'DEXSTR', expectedLabel: 'DEX & STR' },
-          { label: 'INTSTR', expectedLabel: 'INT & STR' },
-          { label: 'DEXINT', expectedLabel: 'DEX & INT' },
-        ]
-
-        hybridTypes.forEach(({ label, expectedLabel }) => {
-          const result = getTalentRequirementIconProps(TalentTreeNodeType.ENERGY_REQUIREMENT, label)
-
-          expect(result.count).toBe(2)
-          expect(result.label).toBe(expectedLabel)
-          expect(result.url).toBeDefined()
-          expect(result.url2).toBeDefined()
-          expect(result.color).toBeDefined()
-        })
-      })
     })
 
     describe('SPECIAL_REQUIREMENTS', () => {
