@@ -1,8 +1,11 @@
+import { isNotNullOrUndefined } from '@/shared/utils/object'
+
 import {
   REMOVED_TALENTS,
   REQUIREMENT_CLASS_TO_FILTER_OPTIONS_MAP,
   REQUIREMENT_ENERGY_TO_FILTER_OPTIONS_MAP,
 } from '../constants/talentsMappingValues'
+import { RequirementFilterOption } from '../types/filters'
 import { TalentData } from '../types/talents'
 
 /**
@@ -92,4 +95,52 @@ export const getFilterOptionsForRequirement = (type: 'class' | 'energy', require
   return type === 'class'
     ? REQUIREMENT_CLASS_TO_FILTER_OPTIONS_MAP[requirement]
     : REQUIREMENT_ENERGY_TO_FILTER_OPTIONS_MAP[requirement]
+}
+
+/**
+ * Determines the appropriate class or energy requirements for a talent node
+ * based on its context (parent requirements, event requirements, and special cases).
+ *
+ * Logic:
+ * 1. Combines parent requirements with the talent's own class/energy requirements
+ * 2. If parent is an event node AND talent has event requirements, use only event requirements
+ * 3. Special case for Devotion: Children of Devotion have no requirements shown
+ */
+export const getClassOrEnergyRequirements = (
+  talent: TalentData,
+  parentRequirements: string[],
+  devotionBlightbaneId: number | null
+): string[] => {
+  const eventRequirements =
+    talent.event_requirement_matrix && talent.event_requirement_matrix.length > 0
+      ? talent.event_requirement_matrix[0]
+      : []
+
+  let classOrEnergyRequirements = Array.from(
+    new Set(
+      [...parentRequirements, ...talent.requires_classes, ...talent.requires_energy].filter(
+        isNotNullOrUndefined
+      )
+    )
+  )
+
+  // If the parent is an event node,
+  // only use the talent's event requirements
+  if (parentRequirements.includes(RequirementFilterOption.ObtainedFromEvents)) {
+    classOrEnergyRequirements = eventRequirements
+  }
+
+  // Special case: Direct children of Devotion should not show any requirements!
+  // e.g:
+  //  * Priest -> Devotion -> Pious. should NOT show HOLY
+  //  * WindyHillock -> Pious. SHOULD show HOLY
+  else if (
+    talent.requires_talents.length > 0 &&
+    devotionBlightbaneId &&
+    talent.requires_talents.includes(devotionBlightbaneId)
+  ) {
+    classOrEnergyRequirements = []
+  }
+
+  return classOrEnergyRequirements
 }

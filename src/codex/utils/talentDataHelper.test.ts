@@ -1,10 +1,11 @@
 import { TalentData } from '../types/talents'
 
 import {
+  getClassOrEnergyRequirements,
+  getFilterOptionsForRequirement,
   removeDuplicateAndNonExistingTalents,
   splitTalentsThatHaveMultipleSetsOfEventRequirements,
   splitTalentsThatHaveMultipleClassesAndOtherRequirements,
-  getFilterOptionsForRequirement,
 } from './talentDataHelper'
 
 describe('talentDataHelper', () => {
@@ -191,6 +192,85 @@ describe('talentDataHelper', () => {
         expect(Array.isArray(result)).toBe(true)
         expect(result.length).toBeGreaterThan(0)
       })
+    })
+  })
+
+  describe('getClassOrEnergyRequirements', () => {
+    it('should combine parent requirements with talent requirements', () => {
+      const talent = mockTalent({
+        requires_classes: ['Warrior'],
+        requires_energy: ['STR'],
+      })
+
+      const result = getClassOrEnergyRequirements(talent, ['Parent Req'], null)
+
+      expect(result).toContain('Parent Req')
+      expect(result).toContain('Warrior')
+      expect(result).toContain('STR')
+    })
+
+    it('should use event requirements when parent is an event node', () => {
+      const talent = mockTalent({
+        requires_classes: ['Warrior'],
+        requires_energy: ['STR'],
+        event_requirement_matrix: [['Event Req 1', 'Event Req 2']],
+      })
+
+      const result = getClassOrEnergyRequirements(talent, ['ObtainedFromEvents'], null)
+
+      // When under an event node, use event requirements instead of class/energy
+      expect(result).toEqual(['Event Req 1', 'Event Req 2'])
+      expect(result).not.toContain('Warrior')
+      expect(result).not.toContain('STR')
+      expect(result).not.toContain('ObtainedFromEvents')
+    })
+
+    it('should return empty requirements for direct Devotion children', () => {
+      const devotionId = 123
+      const talent = mockTalent({
+        requires_classes: ['Warrior'],
+        requires_energy: ['STR'],
+        requires_talents: [devotionId],
+      })
+
+      const result = getClassOrEnergyRequirements(talent, ['No Requirements'], devotionId)
+
+      expect(result).toEqual([])
+    })
+
+    it('should remove duplicates from combined requirements', () => {
+      const talent = mockTalent({
+        requires_classes: ['Warrior'],
+        requires_energy: ['STR'],
+      })
+
+      const result = getClassOrEnergyRequirements(talent, ['Warrior', 'STR'], null)
+
+      expect(result.filter((r) => r === 'Warrior')).toHaveLength(1)
+      expect(result.filter((r) => r === 'STR')).toHaveLength(1)
+    })
+
+    it('should handle empty parent requirements', () => {
+      const talent = mockTalent({
+        requires_classes: ['Warrior'],
+        requires_energy: ['STR'],
+      })
+
+      const result = getClassOrEnergyRequirements(talent, [], null)
+
+      expect(result).toContain('Warrior')
+      expect(result).toContain('STR')
+    })
+
+    it('should handle talents with no requirements', () => {
+      const talent = mockTalent({
+        requires_classes: [],
+        requires_energy: [],
+      })
+
+      const result = getClassOrEnergyRequirements(talent, ['Parent Req'], null)
+
+      expect(result).toEqual(['Parent Req'])
     })
   })
 })

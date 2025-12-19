@@ -18,6 +18,7 @@ import {
 } from '../constants/talentsMappingValues'
 
 import {
+  getClassOrEnergyRequirements,
   getFilterOptionsForRequirement,
   removeDuplicateAndNonExistingTalents,
   splitTalentsThatHaveMultipleSetsOfEventRequirements,
@@ -42,16 +43,31 @@ export const mapTalentsDataToTalentTree = (unparsedTalents: TalentData[]): Talen
     new Set(preProcessedTalents.flatMap((talent) => talent.events))
   ).sort()
 
-  function buildTalentNode(talent: TalentData, visited = new Set<number>()): TalentTreeTalentNode {
+  function buildTalentNode(
+    talent: TalentData,
+    parentRequirements: string[],
+    visited = new Set<number>()
+  ): TalentTreeTalentNode {
     if (visited.has(talent.blightbane_id)) {
       throw new Error(`💀  Failed to parse talent: ${talent.name} (Recursive loop detected!)`)
     }
+    if (talent.event_requirement_matrix && talent.event_requirement_matrix.length > 1) {
+      throw new Error(
+        `💀  Multiple sets of event requirements detected for talent: ${talent.name}! This should NOT happen!`
+      )
+    }
+
+    const classOrEnergyRequirements = getClassOrEnergyRequirements(
+      talent,
+      parentRequirements,
+      preProcessedTalents.find(({ name }) => name === 'Devotion')?.blightbane_id ?? null
+    )
 
     const newVisited = new Set(visited).add(talent.blightbane_id)
     const children = (talent.required_for_talents || [])
       .map((id) => idToPreProcessedTalent.get(id))
       .filter(isNotNullOrUndefined)
-      .map((child) => buildTalentNode(child, newVisited))
+      .map((child) => buildTalentNode(child, classOrEnergyRequirements, newVisited))
 
     const descendants = new Set<string>()
     const collectDescendantNames = (child: TalentTreeTalentNode) => {
@@ -59,17 +75,6 @@ export const mapTalentsDataToTalentTree = (unparsedTalents: TalentData[]): Talen
       child.children.forEach(collectDescendantNames)
     }
     children.forEach(collectDescendantNames)
-
-    if (talent.event_requirement_matrix && talent.event_requirement_matrix.length > 1) {
-      console.error(
-        `💀  Multiple sets of event requirements detected for talent: ${talent.name}! This should NOT happen!`
-      )
-    }
-
-    const eventRequirements =
-      talent.event_requirement_matrix && talent.event_requirement_matrix.length > 0
-        ? talent.event_requirement_matrix[0]
-        : []
 
     return {
       type: TalentTreeNodeType.TALENT,
@@ -81,34 +86,42 @@ export const mapTalentsDataToTalentTree = (unparsedTalents: TalentData[]): Talen
       events: talent.events,
       children,
       descendants: Array.from(descendants),
-      classOrEnergyRequirements: [...talent.requires_classes, ...talent.requires_energy],
-      eventRequirements,
+      classOrEnergyRequirements,
     }
   }
 
-  const createTalentNodes = (predicate: (talent: TalentData) => boolean) =>
+  const createTalentNodes = (
+    predicate: (talent: TalentData) => boolean,
+    parentRequirement: string
+  ) =>
     sortNodes<TalentTreeTalentNode>(
-      preProcessedTalents.filter(predicate).map((talent) => buildTalentNode(talent))
+      preProcessedTalents
+        .filter(predicate)
+        .map((talent) => buildTalentNode(talent, [parentRequirement]))
     )
 
   const createRequirementNodes = (
     requirements: string[],
     nodeType: TalentTreeRequirementNodeType,
     predicateMapper: (requirement: string) => (talent: TalentData) => boolean,
-    filterMapper: (requirement: string) => RequirementFilterOption[]
+    filterMapper: (requirement: string) => RequirementFilterOption[],
+    overridenRequirementForChildrenMapping?: string
   ): TalentTreeRequirementNode[] =>
     requirements.map((requirement) => ({
       type: nodeType,
       name: requirement,
       requirementFilterOptions: filterMapper(requirement),
-      children: createTalentNodes(predicateMapper(requirement)),
+      children: createTalentNodes(
+        predicateMapper(requirement),
+        overridenRequirementForChildrenMapping ?? requirement
+      ),
     }))
 
   const rootNoRequirementsNode: TalentTreeRequirementNode = {
     type: TalentTreeNodeType.NO_REQUIREMENTS,
     name: 'No Requirements',
     requirementFilterOptions: [RequirementFilterOption.NoRequirements],
-    children: createTalentNodes(isRootTalent),
+    children: createTalentNodes(isRootTalent, 'No Requirements'),
   }
 
   const rootClassRequirementNodes: TalentTreeRequirementNode[] = createRequirementNodes(
@@ -129,7 +142,9 @@ export const mapTalentsDataToTalentTree = (unparsedTalents: TalentData[]): Talen
     uniqueEvents,
     TalentTreeNodeType.EVENT_REQUIREMENT,
     isValidEventTalent,
-    () => [RequirementFilterOption.ObtainedFromEvents]
+    () => [RequirementFilterOption.ObtainedFromEvents],
+    // Overriding the requirement here so that the even name is not used as a requirement for the children
+    RequirementFilterOption.ObtainedFromEvents
   )
 
   const rootCardRequirementNodes: TalentTreeRequirementNode[] = [
@@ -137,19 +152,28 @@ export const mapTalentsDataToTalentTree = (unparsedTalents: TalentData[]): Talen
       type: TalentTreeNodeType.CARD_REQUIREMENT,
       name: 'Sacred Tome',
       requirementFilterOptions: [RequirementFilterOption.ObtainedFromCards],
-      children: createTalentNodes((talent) => talent.name === 'Devotion'),
+      children: createTalentNodes(
+        (talent) => talent.name === 'Devotion',
+        RequirementFilterOption.ObtainedFromCards
+      ),
     },
     {
       type: TalentTreeNodeType.CARD_REQUIREMENT,
       name: 'Taurus Rage',
       requirementFilterOptions: [RequirementFilterOption.ObtainedFromCards],
-      children: createTalentNodes((talent) => talent.name === 'Mark of Taurus'),
+      children: createTalentNodes(
+        (talent) => talent.name === 'Mark of Taurus',
+        RequirementFilterOption.ObtainedFromCards
+      ),
     },
     {
       type: TalentTreeNodeType.CARD_REQUIREMENT,
       name: 'Dark Revenance',
       requirementFilterOptions: [RequirementFilterOption.ObtainedFromCards],
-      children: createTalentNodes((talent) => talent.name === 'Undead'),
+      children: createTalentNodes(
+        (talent) => talent.name === 'Undead',
+        RequirementFilterOption.ObtainedFromCards
+      ),
     },
   ]
 
@@ -157,7 +181,7 @@ export const mapTalentsDataToTalentTree = (unparsedTalents: TalentData[]): Talen
     type: TalentTreeNodeType.OFFER_REQUIREMENT,
     name: 'Offers',
     requirementFilterOptions: [RequirementFilterOption.Offer],
-    children: createTalentNodes(isOffer),
+    children: createTalentNodes(isOffer, RequirementFilterOption.Offer),
   }
 
   return {

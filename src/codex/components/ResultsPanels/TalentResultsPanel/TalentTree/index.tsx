@@ -547,6 +547,7 @@ const TalentTree = ({ talentTree, useSearchFilters }: TalentTreeProps) => {
         const newRequirements = link.target.data.classOrEnergyRequirements.filter(
           (requirement) => !link.source.data.classOrEnergyRequirements.includes(requirement)
         )
+
         return { link, newRequirements }
       })
       .filter(({ newRequirements }) => newRequirements.length > 0)

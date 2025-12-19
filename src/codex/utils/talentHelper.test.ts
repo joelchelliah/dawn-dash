@@ -474,7 +474,6 @@ function mockTalentNode(overrides: Partial<TalentTreeTalentNode> = {}): TalentTr
     children: [],
     descendants: [],
     classOrEnergyRequirements: [],
-    eventRequirements: [],
     ...overrides,
   }
 }
