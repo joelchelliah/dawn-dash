@@ -131,30 +131,6 @@ export const getTalentRequirementIconProps = (
       }
     case 'HOLY':
       return { count: 1, url: HolyImageUrl, color: colorHoly, label: 'HOLY' }
-    case 'STR2HOLY':
-      return {
-        count: 3,
-        url: StrImageUrl,
-        url3: HolyImageUrl,
-        color: colorRed,
-        label: 'STR2 & HOLY',
-      }
-    case 'DEX2HOLY':
-      return {
-        count: 3,
-        url: DexImageUrl,
-        url3: HolyImageUrl,
-        color: colorGreen,
-        label: 'DEX2 & HOLY',
-      }
-    case 'INT2HOLY':
-      return {
-        count: 3,
-        url: IntImageUrl,
-        url3: HolyImageUrl,
-        color: colorBlue,
-        label: 'INT2 & HOLY',
-      }
     case 'Offers':
       return { count: 1, url: InfernalContractUrl, color: colorOffers, label: 'Offers' }
     case 'Events':

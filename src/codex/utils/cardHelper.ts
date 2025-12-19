@@ -53,9 +53,6 @@ const NON_COLLECTIBLE_CARDS = [
   'Elite Fireball',
   'Elite Frostbolt',
 
-  'Soulfire Bomb',
-  'Shrapnel Bomb',
-
   'Imp Offer 1',
   'Imp Offer 2',
   'Imp Offer 3',
