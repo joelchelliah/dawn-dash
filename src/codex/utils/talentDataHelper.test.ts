@@ -225,17 +225,21 @@ describe('talentDataHelper', () => {
       expect(result).not.toContain('ObtainedFromEvents')
     })
 
-    it('should return empty requirements for direct Devotion children', () => {
+    it('should filter out HOLY requirement for direct Devotion children', () => {
       const devotionId = 123
       const talent = mockTalent({
-        requires_classes: ['Warrior'],
-        requires_energy: ['STR'],
+        requires_classes: [],
+        requires_energy: ['STR', 'INT'],
         requires_talents: [devotionId],
       })
 
-      const result = getClassOrEnergyRequirements(talent, ['No Requirements'], devotionId)
+      const result = getClassOrEnergyRequirements(talent, ['HOLY'], devotionId)
 
-      expect(result).toEqual([])
+      // Should keep Warrior and STR but remove HOLY
+      expect(result).toContain('STR')
+      expect(result).toContain('INT')
+      expect(result).not.toContain('HOLY')
+      expect(result).toHaveLength(2)
     })
 
     it('should remove duplicates from combined requirements', () => {

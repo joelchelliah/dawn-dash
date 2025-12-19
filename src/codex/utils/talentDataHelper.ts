@@ -116,13 +116,14 @@ export const getClassOrEnergyRequirements = (
       ? talent.event_requirement_matrix[0]
       : []
 
-  let classOrEnergyRequirements = Array.from(
+  const defaultClassOrEnergyRequirements = Array.from(
     new Set(
       [...parentRequirements, ...talent.requires_classes, ...talent.requires_energy].filter(
         isNotNullOrUndefined
       )
     )
   )
+  let classOrEnergyRequirements = defaultClassOrEnergyRequirements
 
   // If the parent is an event node,
   // only use the talent's event requirements
@@ -130,7 +131,7 @@ export const getClassOrEnergyRequirements = (
     classOrEnergyRequirements = eventRequirements
   }
 
-  // Special case: Direct children of Devotion should not show any requirements!
+  // Special case: Direct children of Devotion should not show HOLY requirement!
   // e.g:
   //  * Priest -> Devotion -> Pious. should NOT show HOLY
   //  * WindyHillock -> Pious. SHOULD show HOLY
@@ -139,7 +140,9 @@ export const getClassOrEnergyRequirements = (
     devotionBlightbaneId &&
     talent.requires_talents.includes(devotionBlightbaneId)
   ) {
-    classOrEnergyRequirements = []
+    classOrEnergyRequirements = defaultClassOrEnergyRequirements.filter(
+      (requirement) => requirement !== 'HOLY'
+    )
   }
 
   return classOrEnergyRequirements
