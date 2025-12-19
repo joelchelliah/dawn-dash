@@ -86,34 +86,12 @@ export const buildHierarchicalTreeFromTalentTree = (
 
 const buildHierarchicalTreeNodeFromTalentNode = (
   node: TalentTreeTalentNode,
-  parentName: string,
-  parentRequirements: string[]
+  parentName: string
 ): HierarchicalTalentTreeNode => {
   const name = node.name
-  const isParentAnEventNode = parentRequirements.includes(
-    RequirementFilterOption.ObtainedFromEvents
-  )
-
-  let requirements = Array.from(
-    new Set([...parentRequirements, ...node.classOrEnergyRequirements].filter(isNotNullOrUndefined))
-  )
-  /* If the talent has any event requirements, and the parent node is an event node,
-   * then we only need to use the talent's event requirements here.
-   */
-  if (isParentAnEventNode && node.eventRequirements.length > 0) {
-    requirements = node.eventRequirements
-  }
-  /* ...Oh damit `Devotion`... Gah stupid special case!
-   * So for Priest -> Devotion -> Pious, we don't want to show HOLY, even though it's from an event!
-   *
-   * Too messy to handle in the dataset I think... Hence this hack.
-   */
-  if (parentName === 'Devotion') {
-    requirements = []
-  }
 
   const children = node.children.map((child) =>
-    buildHierarchicalTreeNodeFromTalentNode(child, name, requirements)
+    buildHierarchicalTreeNodeFromTalentNode(child, name)
   )
 
   // Special cases, for cards that have other prerequisites.
@@ -133,33 +111,33 @@ const buildHierarchicalTreeNodeFromTalentNode = (
     tier: node.tier,
     children: children.length > 0 ? children : undefined,
     otherParentNames: otherParentNames?.length ? otherParentNames : undefined,
-    classOrEnergyRequirements: requirements,
+    classOrEnergyRequirements: node.classOrEnergyRequirements,
   }
 }
 
 const buildHierarchicalTreeNodeFromRequirementNode = (
   node: TalentTreeRequirementNode
 ): HierarchicalTalentTreeNode | undefined => {
-  const requirements =
-    node.type === TalentTreeNodeType.EVENT_REQUIREMENT
-      ? [RequirementFilterOption.ObtainedFromEvents]
-      : node.type === TalentTreeNodeType.CARD_REQUIREMENT
-        ? [RequirementFilterOption.ObtainedFromCards]
-        : node.name.split('_')
-
   const children = node.children.map((child) =>
-    buildHierarchicalTreeNodeFromTalentNode(child, node.name, requirements)
+    buildHierarchicalTreeNodeFromTalentNode(child, node.name)
   )
 
   if (children.length === 0) {
     return undefined
   }
 
+  const classOrEnergyRequirements = [
+    TalentTreeNodeType.EVENT_REQUIREMENT,
+    TalentTreeNodeType.CARD_REQUIREMENT,
+  ].includes(node.type)
+    ? []
+    : [node.name]
+
   return {
     name: node.name,
     description: node.name,
     type: node.type,
     children,
-    classOrEnergyRequirements: requirements,
+    classOrEnergyRequirements,
   }
 }

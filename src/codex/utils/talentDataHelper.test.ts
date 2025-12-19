@@ -1,10 +1,11 @@
 import { TalentData } from '../types/talents'
 
 import {
+  getClassOrEnergyRequirements,
+  getFilterOptionsForRequirement,
   removeDuplicateAndNonExistingTalents,
   splitTalentsThatHaveMultipleSetsOfEventRequirements,
   splitTalentsThatHaveMultipleClassesAndOtherRequirements,
-  getFilterOptionsForRequirement,
 } from './talentDataHelper'
 
 describe('talentDataHelper', () => {
@@ -191,6 +192,129 @@ describe('talentDataHelper', () => {
         expect(Array.isArray(result)).toBe(true)
         expect(result.length).toBeGreaterThan(0)
       })
+    })
+  })
+
+  describe('getClassOrEnergyRequirements', () => {
+    it('should combine parent requirements with talent requirements', () => {
+      const talent = mockTalent({
+        requires_classes: ['Warrior'],
+        requires_energy: ['STR'],
+      })
+
+      const result = getClassOrEnergyRequirements(talent, ['Parent Req'], null)
+
+      expect(result).toContain('Parent Req')
+      expect(result).toContain('Warrior')
+      expect(result).toContain('STR')
+    })
+
+    it('should use event requirements when parent is an event node', () => {
+      const talent = mockTalent({
+        requires_classes: ['Warrior'],
+        requires_energy: ['STR'],
+        event_requirement_matrix: [['Event Req 1', 'Event Req 2']],
+      })
+
+      const result = getClassOrEnergyRequirements(talent, ['ObtainedFromEvents'], null)
+
+      // When under an event node, use event requirements instead of class/energy
+      expect(result).toEqual(['Event Req 1', 'Event Req 2'])
+      expect(result).not.toContain('Warrior')
+      expect(result).not.toContain('STR')
+      expect(result).not.toContain('ObtainedFromEvents')
+    })
+
+    it('should filter out HOLY requirement for direct Devotion children', () => {
+      const devotionId = 123
+      const talent = mockTalent({
+        requires_classes: [],
+        requires_energy: ['STR', 'INT'],
+        requires_talents: [devotionId],
+      })
+
+      const result = getClassOrEnergyRequirements(talent, ['HOLY'], devotionId)
+
+      // Should keep Warrior and STR but remove HOLY
+      expect(result).toContain('STR')
+      expect(result).toContain('INT')
+      expect(result).not.toContain('HOLY')
+      expect(result).toHaveLength(2)
+    })
+
+    it('should remove duplicates from combined requirements', () => {
+      const talent = mockTalent({
+        requires_classes: ['Warrior'],
+        requires_energy: ['STR'],
+      })
+
+      const result = getClassOrEnergyRequirements(talent, ['Warrior', 'STR'], null)
+
+      expect(result.filter((r) => r === 'Warrior')).toHaveLength(1)
+      expect(result.filter((r) => r === 'STR')).toHaveLength(1)
+    })
+
+    it('should handle empty parent requirements', () => {
+      const talent = mockTalent({
+        requires_classes: ['Warrior'],
+        requires_energy: ['STR'],
+      })
+
+      const result = getClassOrEnergyRequirements(talent, [], null)
+
+      expect(result).toContain('Warrior')
+      expect(result).toContain('STR')
+    })
+
+    it('should handle talents with no requirements', () => {
+      const talent = mockTalent({
+        requires_classes: [],
+        requires_energy: [],
+      })
+
+      const result = getClassOrEnergyRequirements(talent, ['Parent Req'], null)
+
+      expect(result).toEqual(['Parent Req'])
+    })
+
+    it('should return empty array when parent is a card requirement node', () => {
+      const talent = mockTalent({
+        requires_classes: ['Warrior'],
+        requires_energy: ['STR', 'HOLY'],
+      })
+
+      const result = getClassOrEnergyRequirements(talent, ['ObtainedFromCards'], null)
+
+      // When under a card node (like Sacred Tome -> Devotion), don't show any requirements
+      expect(result).toEqual([])
+    })
+
+    it('should return empty array when parent is an offer requirement node', () => {
+      const talent = mockTalent({
+        requires_classes: ['Warrior'],
+        requires_energy: ['STR'],
+      })
+
+      const result = getClassOrEnergyRequirements(talent, ['Offer'], null)
+
+      // When under an offer node, don't show any requirements
+      expect(result).toEqual([])
+    })
+
+    it('should filter out all other class requirements when parent has a class requirement', () => {
+      const talent = mockTalent({
+        requires_classes: ['Arcanist', 'Rogue', 'Knight'],
+        requires_energy: ['INT', 'STR'],
+      })
+
+      const result = getClassOrEnergyRequirements(talent, ['Arcanist'], null)
+
+      // Only Arcanist (parent) should remain, other classes filtered out
+      expect(result).toContain('Arcanist')
+      expect(result).not.toContain('Rogue')
+      expect(result).not.toContain('Knight')
+      expect(result).toContain('INT')
+      expect(result).toContain('STR')
     })
   })
 })

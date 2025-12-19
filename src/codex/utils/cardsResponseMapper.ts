@@ -45,7 +45,15 @@ const getActualExpansion = (card: CardApiResponse | CardData): number => {
   return card.expansion
 }
 
-const ACTUALLY_CORE_CARDS = ['Elite Prayer', 'Monolith']
+const ACTUALLY_CORE_CARDS = [
+  'Elite Prayer',
+  'Monolith',
+  'Antimage Bomb',
+  'Big Bomb',
+  'Concussive Bomb',
+  'Soulfire Bomb',
+  'Cryo Bomb',
+]
 const ACTUALLY_ECLYPSE_CARDS = [
   'Battlespear C',
   'Battlespear D',

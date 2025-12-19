@@ -395,32 +395,14 @@ describe('talentsResponseMapper', () => {
         const result = mapTalentsDataToTalentTree(talents)
 
         const warriorNode = result.classNodes.find((node) => node.name === 'Warrior')
-        expect(warriorNode?.children[0].classOrEnergyRequirements).toEqual(['Warrior', 'STR'])
+        expect(warriorNode?.children[0].classOrEnergyRequirements).toContain('Warrior')
+        expect(warriorNode?.children[0].classOrEnergyRequirements).toContain('STR')
+        expect(warriorNode?.children[0].classOrEnergyRequirements).toHaveLength(2)
 
         const strNode = result.energyNodes.find((node) => node.name === 'STR')
-        expect(strNode?.children[0]?.classOrEnergyRequirements).toEqual(['Warrior', 'STR'])
-      })
-
-      it('should map event_requirement_matrix to eventRequirements in talent nodes', () => {
-        const talents: TalentData[] = [
-          mockTalent({
-            id: 1,
-            name: 'Event Talent',
-            expansion: 1,
-            requires_classes: [],
-            requires_energy: [],
-            requires_talents: [],
-            event_requirement_matrix: [['Warrior', 'STR', 'SomeEvent']],
-          }),
-        ]
-
-        const result = mapTalentsDataToTalentTree(talents)
-
-        expect(result.noReqNode.children[0].eventRequirements).toEqual([
-          'Warrior',
-          'STR',
-          'SomeEvent',
-        ])
+        expect(strNode?.children[0]?.classOrEnergyRequirements).toContain('Warrior')
+        expect(strNode?.children[0]?.classOrEnergyRequirements).toContain('STR')
+        expect(strNode?.children[0]?.classOrEnergyRequirements).toHaveLength(2)
       })
 
       it('should split talents with multiple event requirement sets and map each separately', () => {
@@ -444,32 +426,15 @@ describe('talentsResponseMapper', () => {
 
         const result = mapTalentsDataToTalentTree(talents)
 
-        // Should be split into 3 separate nodes
+        // Should be split into 3 separate nodes under noReqNode
+        // Event requirements are NOT shown when parent is noReqNode
         expect(result.noReqNode.children).toHaveLength(3)
         expect(result.noReqNode.children[0].name).toBe('Multi-Event Talent')
-        expect(result.noReqNode.children[0].eventRequirements).toEqual(['Warrior', 'STR'])
+        expect(result.noReqNode.children[0].classOrEnergyRequirements).toEqual(['No Requirements'])
         expect(result.noReqNode.children[1].name).toBe('Multi-Event Talent')
-        expect(result.noReqNode.children[1].eventRequirements).toEqual(['Hunter', 'DEX'])
+        expect(result.noReqNode.children[1].classOrEnergyRequirements).toEqual(['No Requirements'])
         expect(result.noReqNode.children[2].name).toBe('Multi-Event Talent')
-        expect(result.noReqNode.children[2].eventRequirements).toEqual(['Arcanist', 'INT'])
-      })
-
-      it('should map empty eventRequirements for talents with no event_requirement_matrix', () => {
-        const talents: TalentData[] = [
-          mockTalent({
-            id: 1,
-            name: 'Regular Talent',
-            expansion: 1,
-            requires_classes: [],
-            requires_energy: [],
-            requires_talents: [],
-            event_requirement_matrix: [],
-          }),
-        ]
-
-        const result = mapTalentsDataToTalentTree(talents)
-
-        expect(result.noReqNode.children[0].eventRequirements).toEqual([])
+        expect(result.noReqNode.children[2].classOrEnergyRequirements).toEqual(['No Requirements'])
       })
 
       it('should throw error for recursive talent loops', () => {
@@ -554,6 +519,68 @@ describe('talentsResponseMapper', () => {
         expect(result.eventNodes[0].name).toBe('Alpha Event')
         expect(result.eventNodes[1].name).toBe('Beta Event')
         expect(result.eventNodes[2].name).toBe('Zombie')
+      })
+    })
+
+    it('should set expansion to 0 for talents in ACTUALLY_EVENT_ONLY_TALENTS list', () => {
+      const talents: TalentData[] = [
+        mockTalent({
+          id: 1,
+          name: 'Pragmatism',
+          expansion: 1,
+          events: ['Heated Debate'],
+        }),
+        mockTalent({
+          id: 2,
+          name: 'Sacred Zest',
+          expansion: 2,
+          events: ['Heated Debate'],
+        }),
+        // This one should be in both eventNode and noReqNode
+        mockTalent({
+          id: 3,
+          name: 'Regular Talent',
+          expansion: 1,
+          events: ['Some Event'],
+        }),
+      ]
+
+      const result = mapTalentsDataToTalentTree(talents)
+
+      const heatedDebateNode = result.eventNodes.find((node) => node.name === 'Heated Debate')
+      expect(heatedDebateNode).toBeDefined()
+      expect(heatedDebateNode?.children).toHaveLength(2)
+
+      const pragmatism = heatedDebateNode?.children.find((child) => child.name === 'Pragmatism')
+      const sacredZest = heatedDebateNode?.children.find((child) => child.name === 'Sacred Zest')
+      expect(pragmatism?.expansion).toBe(0)
+      expect(sacredZest?.expansion).toBe(0)
+
+      const someEventNode = result.eventNodes.find((node) => node.name === 'Some Event')
+      const regularTalent = someEventNode?.children.find((child) => child.name === 'Regular Talent')
+      expect(regularTalent?.expansion).toBe(1)
+
+      const noReqNode = result.noReqNode.children.find((child) => child.name === 'Regular Talent')
+      expect(noReqNode).toBeDefined()
+      expect(noReqNode?.expansion).toBe(1)
+    })
+
+    describe('edge cases', () => {
+      it('should handle talents with missing children gracefully', () => {
+        const talents: TalentData[] = [
+          mockTalent({
+            id: 1,
+            blightbane_id: 10,
+            name: 'Parent',
+            expansion: 1,
+            required_for_talents: [999], // Non-existent child
+          }),
+        ]
+
+        const result = mapTalentsDataToTalentTree(talents)
+
+        expect(result.noReqNode.children[0].name).toBe('Parent')
+        expect(result.noReqNode.children[0].children).toHaveLength(0) // Missing child filtered out
       })
     })
   })
