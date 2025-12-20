@@ -33,9 +33,10 @@ const cx = createCx(styles)
 interface TalentTreeProps {
   talentTree: TalentTreeType | undefined
   useSearchFilters: ReturnType<typeof useAllTalentSearchFilters>
+  useChildrenExpansion: ReturnType<typeof useExpandableNodes>
 }
 
-const TalentTree = ({ talentTree, useSearchFilters }: TalentTreeProps) => {
+const TalentTree = ({ talentTree, useSearchFilters, useChildrenExpansion }: TalentTreeProps) => {
   const svgRef = useRef<SVGSVGElement>(null)
   const { parsedKeywords, useFormattingFilters } = useSearchFilters
   const {
@@ -47,7 +48,7 @@ const TalentTree = ({ talentTree, useSearchFilters }: TalentTreeProps) => {
   const { toggleNodeExpansion: toggleDescriptionExpansion, isNodeExpanded: isDescriptionExpanded } =
     useExpandableNodes(shouldShowDescription)
   const { toggleNodeExpansion: toggleChildrenExpansion, isNodeExpanded: areChildrenExpanded } =
-    useExpandableNodes(true)
+    useChildrenExpansion
 
   useEffect(() => {
     if (!svgRef.current || !talentTree) return
@@ -57,13 +58,34 @@ const TalentTree = ({ talentTree, useSearchFilters }: TalentTreeProps) => {
 
     const fullTree = buildHierarchicalTreeFromTalentTree(talentTree)
 
+    // Check if a node matches current search keywords
+    const doesNodeMatchKeywords = (node: HierarchicalTalentTreeNode): boolean => {
+      if (parsedKeywords.length === 0) return false
+      return parsedKeywords.some(
+        (keyword) =>
+          node.name.toLowerCase().includes(keyword.toLowerCase()) ||
+          node.description.toLowerCase().includes(keyword.toLowerCase())
+      )
+    }
+
+    // Recursively check if node or any descendant matches keywords
+    const matchesKeywordOrhasMatchingDescendant = (node: HierarchicalTalentTreeNode): boolean => {
+      if (doesNodeMatchKeywords(node)) return true
+      if (isNullOrEmpty(node.children)) return false
+      return node.children.some(matchesKeywordOrhasMatchingDescendant)
+    }
+
     const filterCollapsedChildren = (
       node: HierarchicalTalentTreeNode
     ): HierarchicalTalentTreeNode => {
       if (isNullOrEmpty(node.children)) return node
 
-      if (!areChildrenExpanded(node.name)) {
-        return { ...node, children: [] }
+      if (node.type === TalentTreeNodeType.TALENT && !areChildrenExpanded(node.name)) {
+        // Keep children that match keywords or have matching descendants
+        const matchingChildren = node.children
+          .filter(matchesKeywordOrhasMatchingDescendant)
+          .map(filterCollapsedChildren)
+        return { ...node, children: matchingChildren }
       }
 
       return {
@@ -99,7 +121,7 @@ const TalentTree = ({ talentTree, useSearchFilters }: TalentTreeProps) => {
     const keywordsHeight = 20 // Height for matching keywords text
     const blightbaneLinkHeight = 26 // Height for the Blightbane link
     const defaultVerticalSpacing = 100
-    const horizontalSpacing = nodeWidth * 1.4
+    const horizontalSpacing = nodeWidth * 1.3625
     // - - - - - - - - - - - - - - - - - -
 
     const getDynamicVerticalSpacing = (node: HierarchicalTalentTreeNode) => {
@@ -140,10 +162,8 @@ const TalentTree = ({ talentTree, useSearchFilters }: TalentTreeProps) => {
     const treeData = treeLayout(treeNode)
 
     const leftPadding = nodeWidth * 0.25
-    const offset =
-      treeNode.children && treeNode.children.length > 0
-        ? (treeNode.children[0].y ?? 0) - leftPadding
-        : -leftPadding
+    const offset = (treeNode.children?.[0]?.y ?? 0) - leftPadding
+
     treeData.each((node) => {
       node.y = node.y - offset
     })
@@ -700,6 +720,9 @@ const TalentTree = ({ talentTree, useSearchFilters }: TalentTreeProps) => {
 
       const nodeInFullTree = getNodeInTree(data.name)
       if (isNullOrEmpty(nodeInFullTree?.children)) return
+
+      // Don't show button if any descendant matches keywords (button would be useless)
+      if (nodeInFullTree.children.some(matchesKeywordOrhasMatchingDescendant)) return
 
       const nodeElement = select(this)
       const isExpanded = areChildrenExpanded(data.name)

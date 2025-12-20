@@ -174,6 +174,7 @@ export enum FormattingTalentFilterOption {
   ShowDescriptionByDefault = 'ShowDescriptionByDefault',
   ShowKeywords = 'ShowKeywords',
   ShowBlightbaneLink = 'ShowBlightbaneLink',
+  ExpandNodesByDefault = 'ExpandNodesByDefault',
 }
 
 export type FormattingTalent = FormattingTalentFilterOption
