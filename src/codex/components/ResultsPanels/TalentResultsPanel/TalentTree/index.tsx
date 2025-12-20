@@ -6,6 +6,7 @@ import { min, max } from 'd3-array'
 
 import { createCx } from '@/shared/utils/classnames'
 import { lighten } from '@/shared/utils/classColors'
+import { isNullOrEmpty } from '@/shared/utils/lists'
 
 import {
   TalentTree as TalentTreeType,
@@ -45,6 +46,8 @@ const TalentTree = ({ talentTree, useSearchFilters }: TalentTreeProps) => {
   } = useFormattingFilters
   const { toggleNodeExpansion: toggleDescriptionExpansion, isNodeExpanded: isDescriptionExpanded } =
     useExpandableNodes(shouldShowDescription)
+  const { toggleNodeExpansion: toggleChildrenExpansion, isNodeExpanded: areChildrenExpanded } =
+    useExpandableNodes(true)
 
   useEffect(() => {
     if (!svgRef.current || !talentTree) return
@@ -52,9 +55,38 @@ const TalentTree = ({ talentTree, useSearchFilters }: TalentTreeProps) => {
     // Clear previous visualization
     select(svgRef.current).selectAll('*').remove()
 
-    const treeNode = hierarchy<HierarchicalTalentTreeNode>(
-      buildHierarchicalTreeFromTalentTree(talentTree)
-    )
+    const fullTree = buildHierarchicalTreeFromTalentTree(talentTree)
+
+    const filterCollapsedChildren = (
+      node: HierarchicalTalentTreeNode
+    ): HierarchicalTalentTreeNode => {
+      if (isNullOrEmpty(node.children)) return node
+
+      if (!areChildrenExpanded(node.name)) {
+        return { ...node, children: [] }
+      }
+
+      return {
+        ...node,
+        children: node.children.map(filterCollapsedChildren),
+      }
+    }
+
+    const getNodeInTree = (
+      name: string,
+      node: HierarchicalTalentTreeNode = fullTree
+    ): HierarchicalTalentTreeNode | null => {
+      if (node.name === name) return node
+      if (!node.children) return null
+      for (const child of node.children) {
+        const found = getNodeInTree(name, child)
+        if (found) return found
+      }
+      return null
+    }
+
+    const filteredTree = filterCollapsedChildren(fullTree)
+    const treeNode = hierarchy<HierarchicalTalentTreeNode>(filteredTree)
 
     // - - - - - Node dimensions - - - - -
     const requirementNodeRadius = 28
@@ -151,11 +183,11 @@ const TalentTree = ({ talentTree, useSearchFilters }: TalentTreeProps) => {
 
     const generateLinkPath = (d: HierarchyPointLink<HierarchicalTalentTreeNode>) => {
       const isRootNode = d.source.depth <= 1
-      const xOffset = 10
+      const xOffset = 2
       const sourceHalfWidth = getNodeHalfWidth(d.source.data)
       const targetHalfWidth = getNodeHalfWidth(d.target.data)
 
-      const sourceX = isRootNode ? d.source.y + xOffset : d.source.y + sourceHalfWidth - xOffset
+      const sourceX = isRootNode ? d.source.y + 2 * xOffset : d.source.y + sourceHalfWidth - xOffset
       const sourceY = d.source.x
       const targetX = d.target.y - targetHalfWidth
       const targetY = d.target.x
@@ -539,7 +571,6 @@ const TalentTree = ({ talentTree, useSearchFilters }: TalentTreeProps) => {
     })
 
     // Add requirement indicators on links for new requirements
-    // Rendered last to ensure they appear on top of all other elements
     const linksWithNewRequirements = treeData
       .links()
       .filter((link) => link.source.depth > 0)
@@ -661,6 +692,54 @@ const TalentTree = ({ talentTree, useSearchFilters }: TalentTreeProps) => {
         }
       }
     })
+
+    // Add expansion button on nodes
+    nodes.each(function ({ data }, _index) {
+      const isTalentNode = data.type === TalentTreeNodeType.TALENT
+      if (!isTalentNode) return
+
+      const nodeInFullTree = getNodeInTree(data.name)
+      if (isNullOrEmpty(nodeInFullTree?.children)) return
+
+      const nodeElement = select(this)
+      const isExpanded = areChildrenExpanded(data.name)
+
+      const xOffset = isExpanded ? 6 : 24
+      const buttonX = nodeWidth / 2 + xOffset
+      const buttonY = 0
+      const buttonRadius = 14
+      const buttonHoverRadius = buttonRadius + 4
+
+      const buttonGroup = nodeElement
+        .append('g')
+        .attr('class', cx('expansion-button'))
+        .attr('transform', `translate(${buttonX}, ${buttonY})`)
+        .on('click', function (event) {
+          event.stopPropagation()
+          toggleChildrenExpansion(data.name)
+        })
+
+      buttonGroup
+        .append('circle')
+        .attr('r', buttonRadius)
+        .attr('class', cx('expansion-button-circle'))
+
+      buttonGroup.on('mouseenter', function () {
+        select(this).select('circle').attr('r', buttonHoverRadius)
+      })
+      buttonGroup.on('mouseleave', function () {
+        select(this).select('circle').attr('r', buttonRadius)
+      })
+
+      buttonGroup
+        .append('text')
+        .attr('x', 0)
+        .attr('y', -2)
+        .attr('text-anchor', 'middle')
+        .attr('dominant-baseline', 'central')
+        .attr('class', cx('expansion-button-text'))
+        .text(isExpanded ? '−' : '+')
+    })
   }, [
     talentTree,
     isDescriptionExpanded,
@@ -669,6 +748,8 @@ const TalentTree = ({ talentTree, useSearchFilters }: TalentTreeProps) => {
     shouldShowKeywords,
     shouldShowBlightbaneLink,
     parsedKeywords,
+    areChildrenExpanded,
+    toggleChildrenExpansion,
   ])
 
   return (

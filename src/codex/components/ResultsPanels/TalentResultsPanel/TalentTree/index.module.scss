@@ -210,3 +210,33 @@
   text-anchor: middle;
   pointer-events: none;
 }
+
+.expansion-button {
+  pointer-events: all;
+  cursor: pointer;
+}
+
+.expansion-button-circle {
+  fill: $color-component-bg;
+  stroke: $green-base;
+  stroke-width: 2px;
+  transition: all 0.2s ease;
+
+  .expansion-button:hover & {
+    fill: $color-component-bg-hover;
+    stroke: $yellow-hover;
+  }
+}
+
+.expansion-button-text {
+  font-size: font-size('md');
+  font-weight: 800;
+  fill: $green-base;
+  pointer-events: none;
+  user-select: none;
+  transition: fill 0.2s ease;
+
+  .expansion-button:hover & {
+    fill: $yellow-hover;
+  }
+}
