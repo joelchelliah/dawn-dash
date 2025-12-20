@@ -12,6 +12,8 @@ import {
   parseTalentDescriptionLineForMobileRendering,
   wrapText,
   getMatchingKeywordsText,
+  matchesKeywordOrHasMatchingDescendant,
+  getNodeInTree,
   isTalentOffer,
   isTalentInAnyEvents,
   isTalentInAnyCards,
@@ -438,6 +440,123 @@ describe('talentHelper', () => {
       })
 
       expect(isTalentInAnyCards(talent)).toBe(false)
+    })
+  })
+
+  describe('matchesKeywordOrHasMatchingDescendant', () => {
+    it('should return true when node matches keyword', () => {
+      const node = mockHierarchicalTalent({
+        name: 'Fire Blast',
+        description: 'A fire spell',
+      })
+
+      const result = matchesKeywordOrHasMatchingDescendant(node, ['fire'])
+
+      expect(result).toBe(true)
+    })
+
+    it('should return true when deep descendant matches keyword', () => {
+      const grandchild = mockHierarchicalTalent({
+        name: 'Ice Grandchild',
+        description: 'Ice damage',
+      })
+      const child = mockHierarchicalTalent({
+        name: 'Child',
+        description: 'No match',
+        children: [grandchild],
+      })
+      const parent = mockHierarchicalTalent({
+        name: 'Parent',
+        description: 'No match',
+        children: [child],
+      })
+
+      const result = matchesKeywordOrHasMatchingDescendant(parent, ['ice'])
+
+      expect(result).toBe(true)
+    })
+
+    it('should return false when no matches found', () => {
+      const child = mockHierarchicalTalent({
+        name: 'Child',
+        description: 'Other content',
+      })
+      const parent = mockHierarchicalTalent({
+        name: 'Parent',
+        description: 'No match',
+        children: [child],
+      })
+
+      const result = matchesKeywordOrHasMatchingDescendant(parent, ['fire'])
+
+      expect(result).toBe(false)
+    })
+
+    it('should return false when keywords array is empty', () => {
+      const node = mockHierarchicalTalent({
+        name: 'Fire Blast',
+        description: 'Fire damage',
+      })
+
+      const result = matchesKeywordOrHasMatchingDescendant(node, [])
+
+      expect(result).toBe(false)
+    })
+  })
+
+  describe('getNodeInTree', () => {
+    it('should find node at root level', () => {
+      const root = mockHierarchicalTalent({
+        name: 'Root',
+      })
+
+      const result = getNodeInTree('Root', root)
+
+      expect(result).toBe(root)
+    })
+
+    it('should find node in deep hierarchy', () => {
+      const grandchild = mockHierarchicalTalent({
+        name: 'Grandchild',
+      })
+      const child = mockHierarchicalTalent({
+        name: 'Child',
+        children: [grandchild],
+      })
+      const root = mockHierarchicalTalent({
+        name: 'Root',
+        children: [child],
+      })
+
+      const result = getNodeInTree('Grandchild', root)
+
+      expect(result).toBe(grandchild)
+    })
+
+    it('should find node among multiple siblings', () => {
+      const child1 = mockHierarchicalTalent({ name: 'Child1' })
+      const child2 = mockHierarchicalTalent({ name: 'Child2' })
+      const child3 = mockHierarchicalTalent({ name: 'Child3' })
+      const root = mockHierarchicalTalent({
+        name: 'Root',
+        children: [child1, child2, child3],
+      })
+
+      const result = getNodeInTree('Child2', root)
+
+      expect(result).toBe(child2)
+    })
+
+    it('should return null when node not found', () => {
+      const child = mockHierarchicalTalent({ name: 'Child' })
+      const root = mockHierarchicalTalent({
+        name: 'Root',
+        children: [child],
+      })
+
+      const result = getNodeInTree('NotFound', root)
+
+      expect(result).toBeNull()
     })
   })
 })

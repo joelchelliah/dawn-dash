@@ -16,7 +16,9 @@ import {
 import {
   getLinkColor,
   getMatchingKeywordsText,
+  getNodeInTree,
   getTalentRequirementIconProps,
+  matchesKeywordOrHasMatchingDescendant,
   parseTalentDescriptionLineForDesktopRendering,
   parseTalentDescriptionLineForMobileRendering,
   wrapText,
@@ -60,23 +62,6 @@ const TalentTree = ({
 
     const fullTree = buildHierarchicalTreeFromTalentTree(talentTree)
 
-    // Check if a node matches current search keywords
-    const doesNodeMatchKeywords = (node: HierarchicalTalentTreeNode): boolean => {
-      if (parsedKeywords.length === 0) return false
-      return parsedKeywords.some(
-        (keyword) =>
-          node.name.toLowerCase().includes(keyword.toLowerCase()) ||
-          node.description.toLowerCase().includes(keyword.toLowerCase())
-      )
-    }
-
-    // Recursively check if node or any descendant matches keywords
-    const matchesKeywordOrhasMatchingDescendant = (node: HierarchicalTalentTreeNode): boolean => {
-      if (doesNodeMatchKeywords(node)) return true
-      if (isNullOrEmpty(node.children)) return false
-      return node.children.some(matchesKeywordOrhasMatchingDescendant)
-    }
-
     const filterCollapsedChildren = (
       node: HierarchicalTalentTreeNode
     ): HierarchicalTalentTreeNode => {
@@ -85,7 +70,7 @@ const TalentTree = ({
       if (node.type === TalentTreeNodeType.TALENT && !areChildrenExpanded(node.name)) {
         // Keep children that match keywords or have matching descendants
         const matchingChildren = node.children
-          .filter(matchesKeywordOrhasMatchingDescendant)
+          .filter((child) => matchesKeywordOrHasMatchingDescendant(child, parsedKeywords))
           .map(filterCollapsedChildren)
         return { ...node, children: matchingChildren }
       }
@@ -94,19 +79,6 @@ const TalentTree = ({
         ...node,
         children: node.children.map(filterCollapsedChildren),
       }
-    }
-
-    const getNodeInTree = (
-      name: string,
-      node: HierarchicalTalentTreeNode = fullTree
-    ): HierarchicalTalentTreeNode | null => {
-      if (node.name === name) return node
-      if (!node.children) return null
-      for (const child of node.children) {
-        const found = getNodeInTree(name, child)
-        if (found) return found
-      }
-      return null
     }
 
     const filteredTree = filterCollapsedChildren(fullTree)
@@ -723,11 +695,16 @@ const TalentTree = ({
       const isTalentNode = data.type === TalentTreeNodeType.TALENT
       if (!isTalentNode) return
 
-      const nodeInFullTree = getNodeInTree(data.name)
+      const nodeInFullTree = getNodeInTree(data.name, fullTree)
       if (isNullOrEmpty(nodeInFullTree?.children)) return
 
       // Don't show button if any descendant matches keywords (button would be useless)
-      if (nodeInFullTree.children.some(matchesKeywordOrhasMatchingDescendant)) return
+      if (
+        nodeInFullTree.children.some((child) =>
+          matchesKeywordOrHasMatchingDescendant(child, parsedKeywords)
+        )
+      )
+        return
 
       const nodeElement = select(this)
       const isExpanded = areChildrenExpanded(data.name)
