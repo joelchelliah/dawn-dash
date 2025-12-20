@@ -370,12 +370,15 @@ const TalentTree = ({
         const additionalHeight = descriptionHeight + extraRequirementHeight + blightbaneHeight
         const dynamicNodeHeight = nameHeight + additionalHeight + 6
 
+        const nodeGlowWidth = nodeWidth + 6
+        const nodeGlowHeight = dynamicNodeHeight + 6
+
         nodeElement
           .append('rect')
-          .attr('width', nodeWidth + 6)
-          .attr('height', dynamicNodeHeight + 6)
-          .attr('x', -(nodeWidth + 6) / 2)
-          .attr('y', -(dynamicNodeHeight + 6) / 2)
+          .attr('width', nodeGlowWidth)
+          .attr('height', nodeGlowHeight)
+          .attr('x', -nodeGlowWidth / 2)
+          .attr('y', -nodeGlowHeight / 2)
           .attr('class', cx('talent-node-glow', `talent-node-glow--tier-${data.tier || 0}`))
 
         nodeElement
