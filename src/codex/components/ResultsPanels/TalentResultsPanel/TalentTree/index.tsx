@@ -33,20 +33,22 @@ const cx = createCx(styles)
 interface TalentTreeProps {
   talentTree: TalentTreeType | undefined
   useSearchFilters: ReturnType<typeof useAllTalentSearchFilters>
+  useDescriptionExpansion: ReturnType<typeof useExpandableNodes>
   useChildrenExpansion: ReturnType<typeof useExpandableNodes>
 }
 
-const TalentTree = ({ talentTree, useSearchFilters, useChildrenExpansion }: TalentTreeProps) => {
+const TalentTree = ({
+  talentTree,
+  useSearchFilters,
+  useDescriptionExpansion,
+  useChildrenExpansion,
+}: TalentTreeProps) => {
   const svgRef = useRef<SVGSVGElement>(null)
   const { parsedKeywords, useFormattingFilters } = useSearchFilters
-  const {
-    shouldUseMobileFriendlyRendering,
-    shouldShowDescription,
-    shouldShowKeywords,
-    shouldShowBlightbaneLink,
-  } = useFormattingFilters
+  const { shouldUseMobileFriendlyRendering, shouldShowKeywords, shouldShowBlightbaneLink } =
+    useFormattingFilters
   const { toggleNodeExpansion: toggleDescriptionExpansion, isNodeExpanded: isDescriptionExpanded } =
-    useExpandableNodes(shouldShowDescription)
+    useDescriptionExpansion
   const { toggleNodeExpansion: toggleChildrenExpansion, isNodeExpanded: areChildrenExpanded } =
     useChildrenExpansion
 
