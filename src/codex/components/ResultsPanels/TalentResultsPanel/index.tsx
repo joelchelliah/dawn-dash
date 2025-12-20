@@ -5,6 +5,7 @@ import { createCx } from '@/shared/utils/classnames'
 
 import { TalentTreeNode, TalentTreeNodeType } from '@/codex/types/talents'
 import { UseAllTalentSearchFilters } from '@/codex/hooks/useSearchFilters'
+import { useExpandableNodes } from '@/codex/hooks/useExpandableNodes'
 
 import PanelHeader from '../../PanelHeader'
 import KeywordsSummary from '../KeywordsSummary'
@@ -19,8 +20,11 @@ interface TalentResultsPanelProps {
 const cx = createCx(styles)
 
 const TalentResultsPanel = ({ useSearchFilters }: TalentResultsPanelProps) => {
-  const [showCardsWithoutKeywords, setShowCardsWithoutKeywords] = useState(false)
-  const { parsedKeywords, matchingTalentTree } = useSearchFilters
+  const [showTalentsWithoutKeywords, setShowTalentsWithoutKeywords] = useState(false)
+  const { parsedKeywords, matchingTalentTree, useFormattingFilters } = useSearchFilters
+  const { shouldExpandNodes, shouldShowDescription } = useFormattingFilters
+  const useDescriptionExpansion = useExpandableNodes(shouldShowDescription)
+  const useChildrenExpansion = useExpandableNodes(shouldExpandNodes)
 
   const matchingTalentNames = useMemo(() => {
     if (!matchingTalentTree) return []
@@ -49,12 +53,12 @@ const TalentResultsPanel = ({ useSearchFilters }: TalentResultsPanelProps) => {
 
   useEffect(() => {
     if (parsedKeywords.length > 0) {
-      setShowCardsWithoutKeywords(false)
+      setShowTalentsWithoutKeywords(false)
     }
   }, [parsedKeywords])
 
   const renderMatchingTalents = () => {
-    const showingTalentsWithoutKeywords = parsedKeywords.length === 0 && showCardsWithoutKeywords
+    const showingTalentsWithoutKeywords = parsedKeywords.length === 0 && showTalentsWithoutKeywords
 
     return (
       <div className={cx('results-container')} key={parsedKeywords.join(',')}>
@@ -65,7 +69,12 @@ const TalentResultsPanel = ({ useSearchFilters }: TalentResultsPanelProps) => {
           className={cx('results-container__info')}
         />
 
-        <TalentTree talentTree={matchingTalentTree} useSearchFilters={useSearchFilters} />
+        <TalentTree
+          talentTree={matchingTalentTree}
+          useSearchFilters={useSearchFilters}
+          useDescriptionExpansion={useDescriptionExpansion}
+          useChildrenExpansion={useChildrenExpansion}
+        />
       </div>
     )
   }
@@ -74,7 +83,7 @@ const TalentResultsPanel = ({ useSearchFilters }: TalentResultsPanelProps) => {
     <div className={cx('results-panel')}>
       <PanelHeader type="Results" />
 
-      {parsedKeywords.length > 0 || showCardsWithoutKeywords ? (
+      {parsedKeywords.length > 0 || showTalentsWithoutKeywords ? (
         renderMatchingTalents()
       ) : (
         <div className={cx('results-container')}>
@@ -86,7 +95,7 @@ const TalentResultsPanel = ({ useSearchFilters }: TalentResultsPanelProps) => {
           <GradientButton
             className={cx('results-container__no-keywords-button')}
             subtle
-            onClick={() => setShowCardsWithoutKeywords(true)}
+            onClick={() => setShowTalentsWithoutKeywords(true)}
           >
             Show <strong>all talents</strong> matching
             <br />

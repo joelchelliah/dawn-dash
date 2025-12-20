@@ -11,13 +11,15 @@ const defaultFilters = {
   [FormattingTalentFilterOption.ShowDescriptionByDefault]: true,
   [FormattingTalentFilterOption.ShowKeywords]: false,
   [FormattingTalentFilterOption.ShowBlightbaneLink]: false,
+  [FormattingTalentFilterOption.ExpandNodesByDefault]: true,
 }
 
 const valueToStringMap = {
   [FormattingTalentFilterOption.MobileFriendlyRendering]: 'Use mobile-friendly rendering',
-  [FormattingTalent.ShowDescriptionByDefault]: 'Show descriptions by default',
+  [FormattingTalent.ShowDescriptionByDefault]: 'Show all descriptions by default',
   [FormattingTalent.ShowKeywords]: 'Show matching keywords',
   [FormattingTalent.ShowBlightbaneLink]: 'Show Blightbane link',
+  [FormattingTalent.ExpandNodesByDefault]: 'Expand all nodes by default',
 }
 
 export const allFormattingTalentFilters = FormattingTalent.getAll()
@@ -37,6 +39,7 @@ export const useFormattingTalentFilters = (
   const shouldShowDescription = filters[FormattingTalent.ShowDescriptionByDefault]
   const shouldShowKeywords = filters[FormattingTalent.ShowKeywords]
   const shouldShowBlightbaneLink = filters[FormattingTalent.ShowBlightbaneLink]
+  const shouldExpandNodes = filters[FormattingTalent.ExpandNodesByDefault]
 
   return {
     formattingFilters: filters,
@@ -47,5 +50,6 @@ export const useFormattingTalentFilters = (
     shouldShowDescription,
     shouldShowKeywords,
     shouldShowBlightbaneLink,
+    shouldExpandNodes,
   }
 }

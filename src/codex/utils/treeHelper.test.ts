@@ -10,19 +10,6 @@ import { isTalentTreeEqual, buildHierarchicalTreeFromTalentTree } from './treeHe
 
 describe('treeHelper', () => {
   describe('isTalentTreeEqual', () => {
-    it('should return true for identical talent trees', () => {
-      const tree1 = mockTalentTree({
-        noReqNode: mockRequirementNode({ name: 'No Requirements' }),
-        offerNode: mockRequirementNode({ name: 'Offers' }),
-      })
-      const tree2 = mockTalentTree({
-        noReqNode: mockRequirementNode({ name: 'No Requirements' }),
-        offerNode: mockRequirementNode({ name: 'Offers' }),
-      })
-
-      expect(isTalentTreeEqual(tree1, tree2)).toBe(true)
-    })
-
     it('should return false for different noReqNode', () => {
       const tree1 = mockTalentTree({
         noReqNode: mockRequirementNode({

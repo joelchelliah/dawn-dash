@@ -58,6 +58,7 @@ const colorOffers = darken(getClassColor(CharacterClass.Warrior, ClassColorVaria
 const colorEvents = darken(getClassColor(CharacterClass.Seeker, ClassColorVariant.Default), 10)
 const colorCards = darken(getClassColor(CharacterClass.Sunforge, ClassColorVariant.Light), 10)
 
+// Returns useful props for rendering a talent requirement node
 export const getTalentRequirementIconProps = (
   type: TalentTreeNodeType,
   label: string
@@ -135,6 +136,7 @@ export const getTalentRequirementIconProps = (
   }
 }
 
+// Determines the color for a tree link between two nodes
 export const getLinkColor = (
   link: d3.HierarchyPointLink<HierarchicalTalentTreeNode>,
   name: string,
@@ -177,6 +179,7 @@ export const getLinkColor = (
   }
 }
 
+// Parses a description line and returns segments with text and image placeholders for desktop rendering
 export const parseTalentDescriptionLineForDesktopRendering = (line: string) => {
   const parsedDescription = line
     .replace(/<br\s*\/?>/g, '<br />') // Normalize <br> tags
@@ -228,6 +231,7 @@ export const parseTalentDescriptionLineForDesktopRendering = (line: string) => {
   return segments.length > 0 ? segments : [{ type: 'text', content: parsedDescription }]
 }
 
+// Parses a description line and replaces keywords with emojis for mobile rendering
 export const parseTalentDescriptionLineForMobileRendering = (line: string): string => {
   let result = line
     .replace(/<br\s*\/?>/g, '') // Remove <br> tags
@@ -247,6 +251,7 @@ export const parseTalentDescriptionLineForMobileRendering = (line: string): stri
   return result
 }
 
+// Wraps text into multiple lines based on width and font size
 export const wrapText = (text: string, width: number, fontSize: number) => {
   const approxCharacterWidth = fontSize * 0.61
   const words = text.split(' ')
@@ -269,6 +274,7 @@ export const wrapText = (text: string, width: number, fontSize: number) => {
   return lines
 }
 
+// Returns a formatted string of keywords that match the talent's name or description
 export const getMatchingKeywordsText = (
   talent: HierarchicalTalentTreeNode,
   parsedKeywords: string[]
@@ -281,14 +287,32 @@ export const getMatchingKeywordsText = (
   return matches.length > 0 ? `{ ${matches.join(', ')} }` : ''
 }
 
-const countRelevantCharactersForLineWidth = (str: string) => {
-  // Strip Html tags
-  let effectiveStr = str.replace(/<\/?(?:b|nobr)>/gi, '')
-  // Replace each icon keyword with '##' for width calculation
-  ICON_KEYWORDS_TO_URL.forEach(({ keyword }) => {
-    effectiveStr = effectiveStr.replace(new RegExp(keyword, 'g'), '##')
-  })
-  return effectiveStr.length
+/**
+ * Recursively checks if a node or any of its descendants match keywords
+ */
+export const matchesKeywordOrHasMatchingDescendant = (
+  node: HierarchicalTalentTreeNode,
+  parsedKeywords: string[]
+): boolean => {
+  if (doesNodeMatchKeywords(node, parsedKeywords)) return true
+  if (!node.children || node.children.length === 0) return false
+  return node.children.some((child) => matchesKeywordOrHasMatchingDescendant(child, parsedKeywords))
+}
+
+/**
+ * Finds a node by name in the talent tree
+ */
+export const getNodeInTree = (
+  name: string,
+  node: HierarchicalTalentTreeNode
+): HierarchicalTalentTreeNode | null => {
+  if (node.name === name) return node
+  if (!node.children) return null
+  for (const child of node.children) {
+    const found = getNodeInTree(name, child)
+    if (found) return found
+  }
+  return null
 }
 
 export const isTalentOffer = (talent: TalentTreeTalentNode) =>
@@ -300,6 +324,30 @@ export const isTalentInAnyCards = (talent: TalentTreeTalentNode) =>
   TALENTS_OBTAINED_FROM_CARDS.ONLY.includes(talent.name) ||
   TALENTS_OBTAINED_FROM_CARDS.ALSO.includes(talent.name)
 
+// Counts characters for line width calculation
+// excluding HTML tags and replacing icon keywords
+const countRelevantCharactersForLineWidth = (str: string) => {
+  // Strip Html tags
+  let effectiveStr = str.replace(/<\/?(?:b|nobr)>/gi, '')
+  // Replace each icon keyword with '##' for width calculation
+  ICON_KEYWORDS_TO_URL.forEach(({ keyword }) => {
+    effectiveStr = effectiveStr.replace(new RegExp(keyword, 'g'), '##')
+  })
+  return effectiveStr.length
+}
+
 const hasTalentMonsterExpansion = (talent: TalentTreeTalentNode) => talent.expansion === 0
 
 const hasTalentOfferPrefix = (talent: TalentTreeTalentNode) => talent.name.startsWith('Offer of')
+
+const doesNodeMatchKeywords = (
+  node: HierarchicalTalentTreeNode,
+  parsedKeywords: string[]
+): boolean => {
+  if (parsedKeywords.length === 0) return false
+  return parsedKeywords.some(
+    (keyword) =>
+      node.name.toLowerCase().includes(keyword.toLowerCase()) ||
+      node.description.toLowerCase().includes(keyword.toLowerCase())
+  )
+}

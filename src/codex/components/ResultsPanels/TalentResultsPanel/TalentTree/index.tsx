@@ -6,6 +6,7 @@ import { min, max } from 'd3-array'
 
 import { createCx } from '@/shared/utils/classnames'
 import { lighten } from '@/shared/utils/classColors'
+import { isNullOrEmpty } from '@/shared/utils/lists'
 
 import {
   TalentTree as TalentTreeType,
@@ -15,7 +16,9 @@ import {
 import {
   getLinkColor,
   getMatchingKeywordsText,
+  getNodeInTree,
   getTalentRequirementIconProps,
+  matchesKeywordOrHasMatchingDescendant,
   parseTalentDescriptionLineForDesktopRendering,
   parseTalentDescriptionLineForMobileRendering,
   wrapText,
@@ -32,19 +35,24 @@ const cx = createCx(styles)
 interface TalentTreeProps {
   talentTree: TalentTreeType | undefined
   useSearchFilters: ReturnType<typeof useAllTalentSearchFilters>
+  useDescriptionExpansion: ReturnType<typeof useExpandableNodes>
+  useChildrenExpansion: ReturnType<typeof useExpandableNodes>
 }
 
-const TalentTree = ({ talentTree, useSearchFilters }: TalentTreeProps) => {
+const TalentTree = ({
+  talentTree,
+  useSearchFilters,
+  useDescriptionExpansion,
+  useChildrenExpansion,
+}: TalentTreeProps) => {
   const svgRef = useRef<SVGSVGElement>(null)
   const { parsedKeywords, useFormattingFilters } = useSearchFilters
-  const {
-    shouldUseMobileFriendlyRendering,
-    shouldShowDescription,
-    shouldShowKeywords,
-    shouldShowBlightbaneLink,
-  } = useFormattingFilters
+  const { shouldUseMobileFriendlyRendering, shouldShowKeywords, shouldShowBlightbaneLink } =
+    useFormattingFilters
   const { toggleNodeExpansion: toggleDescriptionExpansion, isNodeExpanded: isDescriptionExpanded } =
-    useExpandableNodes(shouldShowDescription)
+    useDescriptionExpansion
+  const { toggleNodeExpansion: toggleChildrenExpansion, isNodeExpanded: areChildrenExpanded } =
+    useChildrenExpansion
 
   useEffect(() => {
     if (!svgRef.current || !talentTree) return
@@ -52,9 +60,29 @@ const TalentTree = ({ talentTree, useSearchFilters }: TalentTreeProps) => {
     // Clear previous visualization
     select(svgRef.current).selectAll('*').remove()
 
-    const treeNode = hierarchy<HierarchicalTalentTreeNode>(
-      buildHierarchicalTreeFromTalentTree(talentTree)
-    )
+    const fullTree = buildHierarchicalTreeFromTalentTree(talentTree)
+
+    const filterCollapsedChildren = (
+      node: HierarchicalTalentTreeNode
+    ): HierarchicalTalentTreeNode => {
+      if (isNullOrEmpty(node.children)) return node
+
+      if (node.type === TalentTreeNodeType.TALENT && !areChildrenExpanded(node.name)) {
+        // Keep children that match keywords or have matching descendants
+        const matchingChildren = node.children
+          .filter((child) => matchesKeywordOrHasMatchingDescendant(child, parsedKeywords))
+          .map(filterCollapsedChildren)
+        return { ...node, children: matchingChildren }
+      }
+
+      return {
+        ...node,
+        children: node.children.map(filterCollapsedChildren),
+      }
+    }
+
+    const filteredTree = filterCollapsedChildren(fullTree)
+    const treeNode = hierarchy<HierarchicalTalentTreeNode>(filteredTree)
 
     // - - - - - Node dimensions - - - - -
     const requirementNodeRadius = 28
@@ -67,7 +95,7 @@ const TalentTree = ({ talentTree, useSearchFilters }: TalentTreeProps) => {
     const keywordsHeight = 20 // Height for matching keywords text
     const blightbaneLinkHeight = 26 // Height for the Blightbane link
     const defaultVerticalSpacing = 100
-    const horizontalSpacing = nodeWidth * 1.4
+    const horizontalSpacing = nodeWidth * 1.3625
     // - - - - - - - - - - - - - - - - - -
 
     const getDynamicVerticalSpacing = (node: HierarchicalTalentTreeNode) => {
@@ -108,10 +136,8 @@ const TalentTree = ({ talentTree, useSearchFilters }: TalentTreeProps) => {
     const treeData = treeLayout(treeNode)
 
     const leftPadding = nodeWidth * 0.25
-    const offset =
-      treeNode.children && treeNode.children.length > 0
-        ? (treeNode.children[0].y ?? 0) - leftPadding
-        : -leftPadding
+    const offset = (treeNode.children?.[0]?.y ?? 0) - leftPadding
+
     treeData.each((node) => {
       node.y = node.y - offset
     })
@@ -151,11 +177,11 @@ const TalentTree = ({ talentTree, useSearchFilters }: TalentTreeProps) => {
 
     const generateLinkPath = (d: HierarchyPointLink<HierarchicalTalentTreeNode>) => {
       const isRootNode = d.source.depth <= 1
-      const xOffset = 10
+      const xOffset = 2
       const sourceHalfWidth = getNodeHalfWidth(d.source.data)
       const targetHalfWidth = getNodeHalfWidth(d.target.data)
 
-      const sourceX = isRootNode ? d.source.y + xOffset : d.source.y + sourceHalfWidth - xOffset
+      const sourceX = isRootNode ? d.source.y + 2 * xOffset : d.source.y + sourceHalfWidth - xOffset
       const sourceY = d.source.x
       const targetX = d.target.y - targetHalfWidth
       const targetY = d.target.x
@@ -316,12 +342,15 @@ const TalentTree = ({ talentTree, useSearchFilters }: TalentTreeProps) => {
         const additionalHeight = descriptionHeight + extraRequirementHeight + blightbaneHeight
         const dynamicNodeHeight = nameHeight + additionalHeight + 6
 
+        const nodeGlowWidth = nodeWidth + 6
+        const nodeGlowHeight = dynamicNodeHeight + 6
+
         nodeElement
           .append('rect')
-          .attr('width', nodeWidth + 6)
-          .attr('height', dynamicNodeHeight + 6)
-          .attr('x', -(nodeWidth + 6) / 2)
-          .attr('y', -(dynamicNodeHeight + 6) / 2)
+          .attr('width', nodeGlowWidth)
+          .attr('height', nodeGlowHeight)
+          .attr('x', -nodeGlowWidth / 2)
+          .attr('y', -nodeGlowHeight / 2)
           .attr('class', cx('talent-node-glow', `talent-node-glow--tier-${data.tier || 0}`))
 
         nodeElement
@@ -539,7 +568,6 @@ const TalentTree = ({ talentTree, useSearchFilters }: TalentTreeProps) => {
     })
 
     // Add requirement indicators on links for new requirements
-    // Rendered last to ensure they appear on top of all other elements
     const linksWithNewRequirements = treeData
       .links()
       .filter((link) => link.source.depth > 0)
@@ -661,6 +689,62 @@ const TalentTree = ({ talentTree, useSearchFilters }: TalentTreeProps) => {
         }
       }
     })
+
+    // Add expansion button on nodes
+    nodes.each(function ({ data }, _index) {
+      const isTalentNode = data.type === TalentTreeNodeType.TALENT
+      if (!isTalentNode) return
+
+      const nodeInFullTree = getNodeInTree(data.name, fullTree)
+      if (isNullOrEmpty(nodeInFullTree?.children)) return
+
+      // Don't show button if any descendant matches keywords (button would be useless)
+      if (
+        nodeInFullTree.children.some((child) =>
+          matchesKeywordOrHasMatchingDescendant(child, parsedKeywords)
+        )
+      )
+        return
+
+      const nodeElement = select(this)
+      const isExpanded = areChildrenExpanded(data.name)
+
+      const xOffset = isExpanded ? 6 : 24
+      const buttonX = nodeWidth / 2 + xOffset
+      const buttonY = 0
+      const buttonRadius = 14
+      const buttonHoverRadius = buttonRadius + 4
+
+      const buttonGroup = nodeElement
+        .append('g')
+        .attr('class', cx('expansion-button'))
+        .attr('transform', `translate(${buttonX}, ${buttonY})`)
+        .on('click', function (event) {
+          event.stopPropagation()
+          toggleChildrenExpansion(data.name)
+        })
+
+      buttonGroup
+        .append('circle')
+        .attr('r', buttonRadius)
+        .attr('class', cx('expansion-button-circle'))
+
+      buttonGroup.on('mouseenter', function () {
+        select(this).select('circle').attr('r', buttonHoverRadius)
+      })
+      buttonGroup.on('mouseleave', function () {
+        select(this).select('circle').attr('r', buttonRadius)
+      })
+
+      buttonGroup
+        .append('text')
+        .attr('x', 0)
+        .attr('y', -2)
+        .attr('text-anchor', 'middle')
+        .attr('dominant-baseline', 'central')
+        .attr('class', cx('expansion-button-text'))
+        .text(isExpanded ? '−' : '+')
+    })
   }, [
     talentTree,
     isDescriptionExpanded,
@@ -669,6 +753,8 @@ const TalentTree = ({ talentTree, useSearchFilters }: TalentTreeProps) => {
     shouldShowKeywords,
     shouldShowBlightbaneLink,
     parsedKeywords,
+    areChildrenExpanded,
+    toggleChildrenExpansion,
   ])
 
   return (
