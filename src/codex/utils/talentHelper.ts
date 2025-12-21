@@ -300,16 +300,17 @@ export const matchesKeywordOrHasMatchingDescendant = (
 }
 
 /**
- * Finds a node by name in the talent tree
+ * Finds a node by name and type in the talent tree
  */
 export const getNodeInTree = (
   name: string,
+  type: TalentTreeNodeType,
   node: HierarchicalTalentTreeNode
 ): HierarchicalTalentTreeNode | null => {
-  if (node.name === name) return node
+  if (node.name === name && node.type === type) return node
   if (!node.children) return null
   for (const child of node.children) {
-    const found = getNodeInTree(name, child)
+    const found = getNodeInTree(name, type, child)
     if (found) return found
   }
   return null

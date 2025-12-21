@@ -98,10 +98,12 @@ const buildHierarchicalTreeNodeFromTalentNode = (
   let otherParentNames: string[] | undefined = undefined
   if (name === 'Goldstrike') {
     otherParentNames = ['Collector', 'Forgery'].filter((otherName) => otherName !== parentName)
-  } else if (name === 'Blessing of Serem-Pek') {
+  } else if (name === 'Blessing of Serem-Pek' && parentName !== 'Watched') {
     otherParentNames = ['Watched']
   } else if (name === 'Compassionate' && parentName === 'WoundedAnimal') {
     otherParentNames = ['Healing potion']
+  } else if (name === 'Devotion' && parentName === 'Sacred Tome') {
+    otherParentNames = ['Sacred Tome']
   }
 
   return {

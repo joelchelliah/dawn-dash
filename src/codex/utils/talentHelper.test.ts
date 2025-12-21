@@ -508,9 +508,10 @@ describe('talentHelper', () => {
     it('should find node at root level', () => {
       const root = mockHierarchicalTalent({
         name: 'Root',
+        type: TalentTreeNodeType.TALENT,
       })
 
-      const result = getNodeInTree('Root', root)
+      const result = getNodeInTree('Root', TalentTreeNodeType.TALENT, root)
 
       expect(result).toBe(root)
     })
@@ -518,45 +519,100 @@ describe('talentHelper', () => {
     it('should find node in deep hierarchy', () => {
       const grandchild = mockHierarchicalTalent({
         name: 'Grandchild',
+        type: TalentTreeNodeType.TALENT,
       })
       const child = mockHierarchicalTalent({
         name: 'Child',
+        type: TalentTreeNodeType.CLASS_REQUIREMENT,
         children: [grandchild],
       })
       const root = mockHierarchicalTalent({
         name: 'Root',
+        type: TalentTreeNodeType.NO_REQUIREMENTS,
         children: [child],
       })
 
-      const result = getNodeInTree('Grandchild', root)
+      const result = getNodeInTree('Grandchild', TalentTreeNodeType.TALENT, root)
 
       expect(result).toBe(grandchild)
     })
 
     it('should find node among multiple siblings', () => {
-      const child1 = mockHierarchicalTalent({ name: 'Child1' })
-      const child2 = mockHierarchicalTalent({ name: 'Child2' })
-      const child3 = mockHierarchicalTalent({ name: 'Child3' })
+      const child1 = mockHierarchicalTalent({ name: 'Child1', type: TalentTreeNodeType.TALENT })
+      const child2 = mockHierarchicalTalent({ name: 'Child2', type: TalentTreeNodeType.TALENT })
+      const child3 = mockHierarchicalTalent({ name: 'Child3', type: TalentTreeNodeType.TALENT })
       const root = mockHierarchicalTalent({
         name: 'Root',
+        type: TalentTreeNodeType.NO_REQUIREMENTS,
         children: [child1, child2, child3],
       })
 
-      const result = getNodeInTree('Child2', root)
+      const result = getNodeInTree('Child2', TalentTreeNodeType.TALENT, root)
 
       expect(result).toBe(child2)
     })
 
-    it('should return null when node not found', () => {
-      const child = mockHierarchicalTalent({ name: 'Child' })
+    it('should return null when only name or only type matches', () => {
+      const child1 = mockHierarchicalTalent({
+        name: 'Child',
+        type: TalentTreeNodeType.CLASS_REQUIREMENT,
+      })
+      const child2 = mockHierarchicalTalent({
+        name: 'Other',
+        type: TalentTreeNodeType.TALENT,
+      })
       const root = mockHierarchicalTalent({
         name: 'Root',
+        type: TalentTreeNodeType.NO_REQUIREMENTS,
+        children: [child1, child2],
+      })
+
+      // Name matches but type does not
+      const resultNameMatch = getNodeInTree('Child', TalentTreeNodeType.TALENT, root)
+      expect(resultNameMatch).toBeNull()
+
+      // Type matches but name does not
+      const resultTypeMatch = getNodeInTree('NotFound', TalentTreeNodeType.TALENT, root)
+      expect(resultTypeMatch).toBeNull()
+    })
+
+    it('should return null when node not found', () => {
+      const child = mockHierarchicalTalent({ name: 'Child', type: TalentTreeNodeType.TALENT })
+      const root = mockHierarchicalTalent({
+        name: 'Root',
+        type: TalentTreeNodeType.NO_REQUIREMENTS,
         children: [child],
       })
 
-      const result = getNodeInTree('NotFound', root)
+      const result = getNodeInTree('NotFound', TalentTreeNodeType.ENERGY_REQUIREMENT, root)
 
       expect(result).toBeNull()
+    })
+
+    it('should find node with matching name and type in complex tree', () => {
+      const targetNode = mockHierarchicalTalent({
+        name: 'Target',
+        type: TalentTreeNodeType.ENERGY_REQUIREMENT,
+      })
+      const decoyNode = mockHierarchicalTalent({
+        name: 'Target',
+        type: TalentTreeNodeType.CLASS_REQUIREMENT,
+      })
+      const child = mockHierarchicalTalent({
+        name: 'Child',
+        type: TalentTreeNodeType.TALENT,
+        children: [decoyNode, targetNode],
+      })
+      const root = mockHierarchicalTalent({
+        name: 'Root',
+        type: TalentTreeNodeType.NO_REQUIREMENTS,
+        children: [child],
+      })
+
+      const result = getNodeInTree('Target', TalentTreeNodeType.ENERGY_REQUIREMENT, root)
+
+      expect(result).toBe(targetNode)
+      expect(result).not.toBe(decoyNode)
     })
   })
 })

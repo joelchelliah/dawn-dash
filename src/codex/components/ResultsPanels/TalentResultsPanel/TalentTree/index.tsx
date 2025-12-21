@@ -426,7 +426,7 @@ const TalentTree = ({
             })
           )
 
-        // Add "required" text for additional requirements
+        // Add "Requires" text for additional requirements
         if (data.otherParentNames?.length) {
           const reqGroup = nodeElement
             .append('g')
@@ -443,7 +443,7 @@ const TalentTree = ({
               'class',
               cx('talent-node-requirements', { 'talent-node-requirements--collapsed': isCollapsed })
             )
-            .text(`Also requires: ${data.otherParentNames.join(', ')}!`)
+            .text(`Requires: ${data.otherParentNames.join(', ')}!`)
         }
 
         if (!isCollapsed) {
@@ -692,15 +692,14 @@ const TalentTree = ({
 
     // Add expansion button on nodes
     nodes.each(function ({ data }, _index) {
-      const isTalentNode = data.type === TalentTreeNodeType.TALENT
-      if (!isTalentNode) return
+      if (data.type !== TalentTreeNodeType.TALENT) return
 
-      const nodeInFullTree = getNodeInTree(data.name, fullTree)
-      if (isNullOrEmpty(nodeInFullTree?.children)) return
+      const talentNodeInFullTree = getNodeInTree(data.name, TalentTreeNodeType.TALENT, fullTree)
+      if (isNullOrEmpty(talentNodeInFullTree?.children)) return
 
       // Don't show button if any descendant matches keywords (button would be useless)
       if (
-        nodeInFullTree.children.some((child) =>
+        talentNodeInFullTree.children.some((child) =>
           matchesKeywordOrHasMatchingDescendant(child, parsedKeywords)
         )
       )
