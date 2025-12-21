@@ -19,6 +19,10 @@ import {
   TaurusRageImageUrl,
   SacredTomeImageUrl,
   RuneOfPersistenceImageUrl,
+  HealingPotionImageUrl,
+  WatchedImageUrl,
+  CollectorImageUrl,
+  ForgeryImageUrl,
 } from '@/shared/utils/imageUrls'
 import { CharacterClass } from '@/shared/types/characterClass'
 import { ClassColorVariant, darken, getClassColor } from '@/shared/utils/classColors'
@@ -59,10 +63,10 @@ const colorCards = darken(getClassColor(CharacterClass.Sunforge, ClassColorVaria
 
 // Returns useful props for rendering a talent requirement node
 export const getTalentRequirementIconProps = (
-  type: TalentTreeNodeType,
+  isClassRequirement: boolean,
   label: string
 ): { count: number; url: string; url2?: string; url3?: string; color: string; label: string } => {
-  if (type === TalentTreeNodeType.CLASS_REQUIREMENT) {
+  if (isClassRequirement) {
     const color = getClassColor(label as CharacterClass, ClassColorVariant.Dark)
 
     switch (label) {
@@ -130,6 +134,14 @@ export const getTalentRequirementIconProps = (
       return { count: 1, url: TaurusRageImageUrl, color: colorCards, label }
     case 'Dark Revenance':
       return { count: 1, url: DarkRevenanceImageUrl, color: colorCards, label }
+    case 'Healing potion':
+      return { count: 1, url: HealingPotionImageUrl, color: colorCards, label }
+    case 'Watched':
+      return { count: 1, url: WatchedImageUrl, color: colorCards, label }
+    case 'Collector':
+      return { count: 1, url: CollectorImageUrl, color: colorCards, label }
+    case 'Forgery':
+      return { count: 1, url: ForgeryImageUrl, color: colorCards, label }
     default:
       return { count: 1, url: ChestImageUrl, color: colorEvents, label }
   }

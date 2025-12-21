@@ -18,6 +18,7 @@ export const REQUIREMENT_ENERGY_TO_FILTER_OPTIONS_MAP: Record<string, Requiremen
   STR: [RequirementFilterOption.Strength],
   STR2: [RequirementFilterOption.Strength],
   STR3: [RequirementFilterOption.Strength],
+  HOLY: [], // Does not need to be mapped, but the key is used for checking requirement type
 }
 
 // These are actually talents you ONLY get from events

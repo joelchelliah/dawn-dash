@@ -33,10 +33,7 @@ describe('talentHelper', () => {
         ]
 
         classes.forEach((characterClass) => {
-          const result = getTalentRequirementIconProps(
-            TalentTreeNodeType.CLASS_REQUIREMENT,
-            characterClass
-          )
+          const result = getTalentRequirementIconProps(true, characterClass)
 
           expect(result.count).toBe(1)
           expect(result.label).toBe(characterClass)
@@ -56,7 +53,7 @@ describe('talentHelper', () => {
         ]
 
         energyTypes.forEach(({ label, expectedLabel, count }) => {
-          const result = getTalentRequirementIconProps(TalentTreeNodeType.ENERGY_REQUIREMENT, label)
+          const result = getTalentRequirementIconProps(false, label)
 
           expect(result.count).toBe(count)
           expect(result.label).toBe(expectedLabel)
@@ -73,7 +70,7 @@ describe('talentHelper', () => {
         ]
 
         energyTypes.forEach(({ label, expectedLabel, count }) => {
-          const result = getTalentRequirementIconProps(TalentTreeNodeType.ENERGY_REQUIREMENT, label)
+          const result = getTalentRequirementIconProps(false, label)
 
           expect(result.count).toBe(count)
           expect(result.label).toBe(expectedLabel)
@@ -90,7 +87,7 @@ describe('talentHelper', () => {
         ]
 
         energyTypes.forEach(({ label, expectedLabel, count }) => {
-          const result = getTalentRequirementIconProps(TalentTreeNodeType.ENERGY_REQUIREMENT, label)
+          const result = getTalentRequirementIconProps(false, label)
 
           expect(result.count).toBe(count)
           expect(result.label).toBe(expectedLabel)
@@ -101,7 +98,7 @@ describe('talentHelper', () => {
 
     describe('SPECIAL_REQUIREMENTS', () => {
       it('should return correct props for Offers', () => {
-        const result = getTalentRequirementIconProps(TalentTreeNodeType.OFFER_REQUIREMENT, 'Offers')
+        const result = getTalentRequirementIconProps(false, 'Offers')
 
         expect(result.count).toBe(1)
         expect(result.label).toBe('Offers')
@@ -110,7 +107,7 @@ describe('talentHelper', () => {
       })
 
       it('should return correct props for Events', () => {
-        const result = getTalentRequirementIconProps(TalentTreeNodeType.EVENT_REQUIREMENT, 'Events')
+        const result = getTalentRequirementIconProps(false, 'Events')
 
         expect(result.count).toBe(1)
         expect(result.label).toBe('Obtained from events')
@@ -119,7 +116,7 @@ describe('talentHelper', () => {
       })
 
       it('should return correct props for Cards', () => {
-        const result = getTalentRequirementIconProps(TalentTreeNodeType.CARD_REQUIREMENT, 'Cards')
+        const result = getTalentRequirementIconProps(false, 'Cards')
 
         expect(result.count).toBe(1)
         expect(result.label).toBe('Obtained from cards')
@@ -128,10 +125,7 @@ describe('talentHelper', () => {
       })
 
       it('should return correct props for No Requirements', () => {
-        const result = getTalentRequirementIconProps(
-          TalentTreeNodeType.NO_REQUIREMENTS,
-          'No Requirements'
-        )
+        const result = getTalentRequirementIconProps(false, 'No Requirements')
 
         expect(result.count).toBe(1)
         expect(result.label).toBe('No requirements')
@@ -143,10 +137,7 @@ describe('talentHelper', () => {
         const cardTalents = ['Sacred Tome', 'Taurus Rage', 'Dark Revenance']
 
         cardTalents.forEach((cardName) => {
-          const result = getTalentRequirementIconProps(
-            TalentTreeNodeType.CARD_REQUIREMENT,
-            cardName
-          )
+          const result = getTalentRequirementIconProps(false, cardName)
 
           expect(result.count).toBe(1)
           expect(result.label).toBe(cardName)
@@ -156,10 +147,7 @@ describe('talentHelper', () => {
       })
 
       it('should return default props for unknown event', () => {
-        const result = getTalentRequirementIconProps(
-          TalentTreeNodeType.EVENT_REQUIREMENT,
-          'Some Unknown Event'
-        )
+        const result = getTalentRequirementIconProps(false, 'Some Unknown Event')
 
         expect(result.count).toBe(1)
         expect(result.label).toBe('Some Unknown Event')

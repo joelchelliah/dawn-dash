@@ -24,7 +24,10 @@ import {
   parseTalentDescriptionLineForMobileRendering,
   wrapText,
 } from '@/codex/utils/talentHelper'
-import { REQUIREMENT_CLASS_TO_FILTER_OPTIONS_MAP } from '@/codex/constants/talentsMappingValues'
+import {
+  REQUIREMENT_CLASS_TO_FILTER_OPTIONS_MAP,
+  REQUIREMENT_ENERGY_TO_FILTER_OPTIONS_MAP,
+} from '@/codex/constants/talentsMappingValues'
 import { buildHierarchicalTreeFromTalentTree } from '@/codex/utils/treeHelper'
 import { useExpandableNodes } from '@/codex/hooks/useExpandableNodes'
 import { useAllTalentSearchFilters } from '@/codex/hooks/useSearchFilters'
@@ -240,7 +243,7 @@ const TalentTree = ({
 
       if (isRequirementNode) {
         const { count, url, url2, color, label } = getTalentRequirementIconProps(
-          data.type,
+          data.type === TalentTreeNodeType.CLASS_REQUIREMENT,
           data.name
         )
 
@@ -582,9 +585,15 @@ const TalentTree = ({
       .links()
       .filter((link) => link.source.depth > 0)
       .map((link) => {
-        const newRequirements = link.target.data.classOrEnergyRequirements.filter(
-          (requirement) => !link.source.data.classOrEnergyRequirements.includes(requirement)
-        )
+        const newRequirements = [
+          ...link.target.data.classOrEnergyRequirements.filter(
+            (requirement) => !link.source.data.classOrEnergyRequirements.includes(requirement)
+          ),
+          ...link.target.data.talentRequirements.filter(
+            (requirement) => link.source.data.name !== requirement
+          ),
+          ...link.target.data.otherRequirements,
+        ]
 
         return { link, newRequirements }
       })
@@ -597,16 +606,15 @@ const TalentTree = ({
       const indicatorX = link.target.y - targetHalfWidth
       const indicatorY = link.target.x
 
-      const isClassRequirement = newRequirements.every((requirement) =>
+      const isOnlyClassRequirement = newRequirements.every((requirement) =>
         Object.keys(REQUIREMENT_CLASS_TO_FILTER_OPTIONS_MAP).includes(requirement)
       )
-
-      const nodeType = isClassRequirement
-        ? TalentTreeNodeType.CLASS_REQUIREMENT
-        : TalentTreeNodeType.ENERGY_REQUIREMENT
+      const isEnergyRequirement = newRequirements.some((requirement) =>
+        Object.keys(REQUIREMENT_ENERGY_TO_FILTER_OPTIONS_MAP).includes(requirement)
+      )
 
       const propsPerRequirement = newRequirements.map((requirement) =>
-        getTalentRequirementIconProps(nodeType, requirement)
+        getTalentRequirementIconProps(isOnlyClassRequirement, requirement)
       )
 
       const color = propsPerRequirement[0].color
@@ -620,25 +628,27 @@ const TalentTree = ({
         propsPerRequirement[0].count > 2
           ? propsPerRequirement[0].url3 || propsPerRequirement[0].url
           : propsPerRequirement[1]?.url2 || propsPerRequirement[1]?.url
-      const iconSize = isClassRequirement ? 33 : 22
-      let nudgeToTheLeft = 6
+      const iconSize = isEnergyRequirement ? 22 : 38
 
       // Tweaking of circle sizes and spacing to fit the different scenarios.
-      let circleRx = 13
-      let circleRy = 13
+      let circleRx = 21
+      let circleRy = 21
       let spacing = 0
-      if (isClassRequirement) {
-        circleRx = 20
-        circleRy = 20
-        nudgeToTheLeft = 14
-      } else if (count === 2) {
+      let nudgeToTheLeft = 12
+      if (isEnergyRequirement && count === 1) {
+        circleRx = 13
+        circleRy = 13
+        nudgeToTheLeft = 6
+      } else if (isEnergyRequirement && count === 2) {
         circleRx = 14
         circleRy = 18
         spacing = 4
-      } else if (count === 3) {
+        nudgeToTheLeft = 6
+      } else if (isEnergyRequirement && count === 3) {
         circleRx = 16
         circleRy = 28
         spacing = 2
+        nudgeToTheLeft = 6
       }
       const totalHeight = count * iconSize + (count - 1) * spacing
       const x = indicatorX - iconSize / 2 - nudgeToTheLeft
