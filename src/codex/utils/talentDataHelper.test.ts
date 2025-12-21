@@ -321,10 +321,11 @@ function mockTalent(overrides: Partial<TalentData> = {}): TalentData {
     requires_energy: [],
     requires_talents: [],
     required_for_talents: [],
+    event_requirement_matrix: [],
+    requires_cards: [],
     blightbane_id: 1,
     last_updated: '2024-01-01',
     verified: true,
-    event_requirement_matrix: [],
     ...overrides,
   }
 }

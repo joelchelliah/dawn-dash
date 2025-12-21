@@ -37,6 +37,7 @@ export interface TalentData {
   requires_talents: number[]
   required_for_talents: number[]
   event_requirement_matrix: string[][]
+  requires_cards: string[]
   blightbane_id: number
   last_updated: string
   verified: boolean
@@ -53,6 +54,8 @@ export type TalentsApiResponse = {
       | 'requires_energy'
       | 'requires_talents'
       | 'required_for_talents'
+      | 'event_requirement_matrix'
+      | 'requires_cards'
       | 'blightbane_id'
     > & {
       id: number
@@ -69,6 +72,8 @@ export type TalentApiResponse = Omit<
   | 'requires_energy'
   | 'requires_talents'
   | 'required_for_talents'
+  | 'event_requirement_matrix'
+  | 'requires_cards'
   | 'blightbane_id'
 > & {
   id: number

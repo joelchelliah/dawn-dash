@@ -19,6 +19,10 @@ import {
   TaurusRageImageUrl,
   SacredTomeImageUrl,
   RuneOfPersistenceImageUrl,
+  HealingPotionImageUrl,
+  WatchedImageUrl,
+  CollectorImageUrl,
+  ForgeryImageUrl,
 } from '@/shared/utils/imageUrls'
 import { CharacterClass } from '@/shared/types/characterClass'
 import { ClassColorVariant, darken, getClassColor } from '@/shared/utils/classColors'
@@ -28,7 +32,6 @@ import {
   TalentTreeNodeType,
   TalentTreeTalentNode,
 } from '../types/talents'
-import { TALENTS_OBTAINED_FROM_CARDS } from '../constants/talentsMappingValues'
 
 const ICON_KEYWORDS_TO_URL = [
   { keyword: 'HEALTH', icon: HealthImageUrl },
@@ -60,10 +63,10 @@ const colorCards = darken(getClassColor(CharacterClass.Sunforge, ClassColorVaria
 
 // Returns useful props for rendering a talent requirement node
 export const getTalentRequirementIconProps = (
-  type: TalentTreeNodeType,
+  isClassRequirement: boolean,
   label: string
 ): { count: number; url: string; url2?: string; url3?: string; color: string; label: string } => {
-  if (type === TalentTreeNodeType.CLASS_REQUIREMENT) {
+  if (isClassRequirement) {
     const color = getClassColor(label as CharacterClass, ClassColorVariant.Dark)
 
     switch (label) {
@@ -131,6 +134,14 @@ export const getTalentRequirementIconProps = (
       return { count: 1, url: TaurusRageImageUrl, color: colorCards, label }
     case 'Dark Revenance':
       return { count: 1, url: DarkRevenanceImageUrl, color: colorCards, label }
+    case 'Healing potion':
+      return { count: 1, url: HealingPotionImageUrl, color: colorCards, label }
+    case 'Watched':
+      return { count: 1, url: WatchedImageUrl, color: colorCards, label }
+    case 'Collector':
+      return { count: 1, url: CollectorImageUrl, color: colorCards, label }
+    case 'Forgery':
+      return { count: 1, url: ForgeryImageUrl, color: colorCards, label }
     default:
       return { count: 1, url: ChestImageUrl, color: colorEvents, label }
   }
@@ -300,16 +311,17 @@ export const matchesKeywordOrHasMatchingDescendant = (
 }
 
 /**
- * Finds a node by name in the talent tree
+ * Finds a node by name and type in the talent tree
  */
 export const getNodeInTree = (
   name: string,
+  type: TalentTreeNodeType,
   node: HierarchicalTalentTreeNode
 ): HierarchicalTalentTreeNode | null => {
-  if (node.name === name) return node
+  if (node.name === name && node.type === type) return node
   if (!node.children) return null
   for (const child of node.children) {
-    const found = getNodeInTree(name, child)
+    const found = getNodeInTree(name, type, child)
     if (found) return found
   }
   return null
@@ -319,10 +331,6 @@ export const isTalentOffer = (talent: TalentTreeTalentNode) =>
   hasTalentMonsterExpansion(talent) && hasTalentOfferPrefix(talent)
 
 export const isTalentInAnyEvents = (talent: TalentTreeTalentNode) => talent.events.length > 0
-
-export const isTalentInAnyCards = (talent: TalentTreeTalentNode) =>
-  TALENTS_OBTAINED_FROM_CARDS.ONLY.includes(talent.name) ||
-  TALENTS_OBTAINED_FROM_CARDS.ALSO.includes(talent.name)
 
 // Counts characters for line width calculation
 // excluding HTML tags and replacing icon keywords

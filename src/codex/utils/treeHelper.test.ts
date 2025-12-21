@@ -80,12 +80,12 @@ describe('treeHelper', () => {
       expect(isTalentTreeEqual(tree1, tree2)).toBe(false)
     })
 
-    it('should return false for different cardNodes', () => {
+    it('should return false for different cardNode', () => {
       const tree1 = mockTalentTree({
-        cardNodes: [mockRequirementNode({ name: 'Card A' })],
+        cardNode: mockRequirementNode({ name: 'Card A' }),
       })
       const tree2 = mockTalentTree({
-        cardNodes: [mockRequirementNode({ name: 'Card B' })],
+        cardNode: mockRequirementNode({ name: 'Card B' }),
       })
 
       expect(isTalentTreeEqual(tree1, tree2)).toBe(false)
@@ -228,37 +228,36 @@ describe('treeHelper', () => {
       expect(eventRoot).toBeUndefined()
     })
 
-    it('should create cardNodesRoot when cardNodes exist', () => {
+    it('should include cardNode when it has children', () => {
       const talentTree = mockTalentTree({
-        cardNodes: [
-          mockRequirementNode({
-            name: 'Sacred Tome',
-            type: TalentTreeNodeType.CARD_REQUIREMENT,
-            children: [mockTalentNode({ name: 'Devotion' })],
-          }),
-        ],
+        cardNode: mockRequirementNode({
+          name: 'Obtained from cards',
+          type: TalentTreeNodeType.CARD_REQUIREMENT,
+          children: [mockTalentNode({ name: 'Devotion' })],
+        }),
       })
 
       const result = buildHierarchicalTreeFromTalentTree(talentTree)
 
-      const cardRoot = result.children?.find((c) => c.name === 'Obtained from cards')
-      expect(cardRoot).toBeDefined()
-      expect(cardRoot?.type).toBe(TalentTreeNodeType.CARD_REQUIREMENT)
-      expect(cardRoot?.classOrEnergyRequirements).toEqual([
-        RequirementFilterOption.ObtainedFromCards,
-      ])
-      expect(cardRoot?.children).toHaveLength(1)
+      const cardNode = result.children?.find((c) => c.name === 'Obtained from cards')
+      expect(cardNode).toBeDefined()
+      expect(cardNode?.type).toBe(TalentTreeNodeType.CARD_REQUIREMENT)
+      expect(cardNode?.children).toHaveLength(1)
     })
 
-    it('should not include cardNodesRoot when cardNodes is empty', () => {
+    it('should not include cardNode when it has no children', () => {
       const talentTree = mockTalentTree({
-        cardNodes: [],
+        cardNode: mockRequirementNode({
+          name: 'Obtained from cards',
+          type: TalentTreeNodeType.CARD_REQUIREMENT,
+          children: [],
+        }),
       })
 
       const result = buildHierarchicalTreeFromTalentTree(talentTree)
 
-      const cardRoot = result.children?.find((c) => c.name === 'Obtained from cards')
-      expect(cardRoot).toBeUndefined()
+      const cardNode = result.children?.find((c) => c.name === 'Obtained from cards')
+      expect(cardNode).toBeUndefined()
     })
 
     it('should include offerNode in root children', () => {
@@ -362,98 +361,6 @@ describe('treeHelper', () => {
       expect(grandchild?.name).toBe('Grandchild')
     })
 
-    it('should set otherParentNames for Goldstrike with Collector parent', () => {
-      const talentTree = mockTalentTree({
-        noReqNode: mockRequirementNode({
-          name: 'Collector',
-          children: [mockTalentNode({ name: 'Goldstrike' })],
-        }),
-      })
-
-      const result = buildHierarchicalTreeFromTalentTree(talentTree)
-
-      const collectorNode = result.children?.find((c) => c.name === 'Collector')
-      const goldstrike = collectorNode?.children?.[0]
-
-      expect(goldstrike?.otherParentNames).toEqual(['Forgery'])
-    })
-
-    it('should set otherParentNames for Goldstrike with Forgery parent', () => {
-      const talentTree = mockTalentTree({
-        noReqNode: mockRequirementNode({
-          name: 'Forgery',
-          children: [mockTalentNode({ name: 'Goldstrike' })],
-        }),
-      })
-
-      const result = buildHierarchicalTreeFromTalentTree(talentTree)
-
-      const forgeryNode = result.children?.find((c) => c.name === 'Forgery')
-      const goldstrike = forgeryNode?.children?.[0]
-
-      expect(goldstrike?.otherParentNames).toEqual(['Collector'])
-    })
-
-    it('should set otherParentNames for Blessing of Serem-Pek', () => {
-      const talentTree = mockTalentTree({
-        eventNodes: [
-          mockRequirementNode({
-            name: 'The Godscar Wastes Finish',
-            type: TalentTreeNodeType.EVENT_REQUIREMENT,
-            children: [mockTalentNode({ name: 'Blessing of Serem-Pek' })],
-          }),
-        ],
-      })
-
-      const result = buildHierarchicalTreeFromTalentTree(talentTree)
-
-      const eventRoot = result.children?.find((c) => c.name === 'Obtained from events')
-      const eventNode = eventRoot?.children?.[0]
-      const blessing = eventNode?.children?.[0]
-
-      expect(blessing?.otherParentNames).toEqual(['Watched'])
-    })
-
-    it('should set otherParentNames for Compassionate from WoundedAnimal', () => {
-      const talentTree = mockTalentTree({
-        eventNodes: [
-          mockRequirementNode({
-            name: 'WoundedAnimal',
-            type: TalentTreeNodeType.EVENT_REQUIREMENT,
-            children: [mockTalentNode({ name: 'Compassionate' })],
-          }),
-        ],
-      })
-
-      const result = buildHierarchicalTreeFromTalentTree(talentTree)
-
-      const eventRoot = result.children?.find((c) => c.name === 'Obtained from events')
-      const eventNode = eventRoot?.children?.[0]
-      const compassionate = eventNode?.children?.[0]
-
-      expect(compassionate?.otherParentNames).toEqual(['Healing potion'])
-    })
-
-    it('should not set otherParentNames for Compassionate from other parents', () => {
-      const talentTree = mockTalentTree({
-        eventNodes: [
-          mockRequirementNode({
-            name: 'Other Event',
-            type: TalentTreeNodeType.EVENT_REQUIREMENT,
-            children: [mockTalentNode({ name: 'Compassionate' })],
-          }),
-        ],
-      })
-
-      const result = buildHierarchicalTreeFromTalentTree(talentTree)
-
-      const eventRoot = result.children?.find((c) => c.name === 'Obtained from events')
-      const eventNode = eventRoot?.children?.[0]
-      const compassionate = eventNode?.children?.[0]
-
-      expect(compassionate?.otherParentNames).toBeUndefined()
-    })
-
     it('should set classOrEnergyRequirements to requirement name for non-event/card nodes', () => {
       const talentTree = mockTalentTree({
         classNodes: [
@@ -490,22 +397,18 @@ describe('treeHelper', () => {
       expect(eventNode?.classOrEnergyRequirements).toEqual([])
     })
 
-    it('should set empty classOrEnergyRequirements for card requirement nodes', () => {
+    it('should set empty classOrEnergyRequirements for card requirement node', () => {
       const talentTree = mockTalentTree({
-        cardNodes: [
-          mockRequirementNode({
-            name: 'Sacred Tome',
-            type: TalentTreeNodeType.CARD_REQUIREMENT,
-            children: [mockTalentNode({ name: 'Devotion' })],
-          }),
-        ],
+        cardNode: mockRequirementNode({
+          name: 'Obtained from cards',
+          type: TalentTreeNodeType.CARD_REQUIREMENT,
+          children: [mockTalentNode({ name: 'Devotion' })],
+        }),
       })
 
       const result = buildHierarchicalTreeFromTalentTree(talentTree)
 
-      const cardRoot = result.children?.find((c) => c.name === 'Obtained from cards')
-      const cardNode = cardRoot?.children?.[0]
-
+      const cardNode = result.children?.find((c) => c.name === 'Obtained from cards')
       expect(cardNode?.classOrEnergyRequirements).toEqual([])
     })
   })
@@ -519,7 +422,7 @@ function mockTalentTree(overrides: Partial<TalentTree> = {}): TalentTree {
     classNodes: [],
     energyNodes: [],
     eventNodes: [],
-    cardNodes: [],
+    cardNode: mockRequirementNode({ name: 'Obtained from cards' }),
     offerNode: mockRequirementNode({ name: 'Offers' }),
     ...overrides,
   }
@@ -549,6 +452,8 @@ function mockTalentNode(overrides: Partial<TalentTreeTalentNode> = {}): TalentTr
     children: [],
     descendants: [],
     classOrEnergyRequirements: [],
+    talentRequirements: [],
+    otherRequirements: [],
     ...overrides,
   }
 }

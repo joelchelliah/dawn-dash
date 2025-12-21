@@ -7,6 +7,7 @@ import { min, max } from 'd3-array'
 import { createCx } from '@/shared/utils/classnames'
 import { lighten } from '@/shared/utils/classColors'
 import { isNullOrEmpty } from '@/shared/utils/lists'
+import { isNotNullOrUndefined } from '@/shared/utils/object'
 
 import {
   TalentTree as TalentTreeType,
@@ -23,7 +24,10 @@ import {
   parseTalentDescriptionLineForMobileRendering,
   wrapText,
 } from '@/codex/utils/talentHelper'
-import { REQUIREMENT_CLASS_TO_FILTER_OPTIONS_MAP } from '@/codex/constants/talentsMappingValues'
+import {
+  REQUIREMENT_CLASS_TO_FILTER_OPTIONS_MAP,
+  REQUIREMENT_ENERGY_TO_FILTER_OPTIONS_MAP,
+} from '@/codex/constants/talentsMappingValues'
 import { buildHierarchicalTreeFromTalentTree } from '@/codex/utils/treeHelper'
 import { useExpandableNodes } from '@/codex/hooks/useExpandableNodes'
 import { useAllTalentSearchFilters } from '@/codex/hooks/useSearchFilters'
@@ -100,7 +104,12 @@ const TalentTree = ({
 
     const getDynamicVerticalSpacing = (node: HierarchicalTalentTreeNode) => {
       if (node.type === TalentTreeNodeType.TALENT) {
-        const extraRequirementHeight = node.otherParentNames?.length ? requirementsHeight : 0
+        const additionalRequirements = [
+          ...node.otherRequirements,
+          ...node.talentRequirements,
+        ].filter(isNotNullOrUndefined)
+
+        const extraRequirementHeight = additionalRequirements.length ? requirementsHeight : 0
         const matchingKeywordsHeight =
           shouldShowKeywords && getMatchingKeywordsText(node, parsedKeywords).length > 0
             ? keywordsHeight
@@ -234,7 +243,7 @@ const TalentTree = ({
 
       if (isRequirementNode) {
         const { count, url, url2, color, label } = getTalentRequirementIconProps(
-          data.type,
+          data.type === TalentTreeNodeType.CLASS_REQUIREMENT,
           data.name
         )
 
@@ -332,11 +341,15 @@ const TalentTree = ({
       } else {
         const isCollapsed = !isDescriptionExpanded(data.name)
         const descLines = wrapText(data.description, nodeWidth + 8, 11)
+        const additionalRequirements = [
+          ...data.otherRequirements,
+          ...data.talentRequirements,
+        ].filter(isNotNullOrUndefined)
 
         const descriptionHeight = isCollapsed
           ? collapsedDescriptionHeight
           : Math.max(minDescriptionHeight, descLines.length * descriptionLineHeight)
-        const extraRequirementHeight = data.otherParentNames?.length ? requirementsHeight : 0
+        const extraRequirementHeight = additionalRequirements.length ? requirementsHeight : 0
         const matchingKeywordsHeight = shouldShowKeywords ? keywordsHeight : 0
         const blightbaneHeight = shouldShowBlightbaneLink ? blightbaneLinkHeight : 0
         const additionalHeight = descriptionHeight + extraRequirementHeight + blightbaneHeight
@@ -426,8 +439,8 @@ const TalentTree = ({
             })
           )
 
-        // Add "required" text for additional requirements
-        if (data.otherParentNames?.length) {
+        // Add "Requires" text for additional requirements
+        if (additionalRequirements.length > 0) {
           const reqGroup = nodeElement
             .append('g')
             .attr(
@@ -443,7 +456,7 @@ const TalentTree = ({
               'class',
               cx('talent-node-requirements', { 'talent-node-requirements--collapsed': isCollapsed })
             )
-            .text(`Also requires: ${data.otherParentNames.join(', ')}!`)
+            .text(`Requires: ${additionalRequirements.join(', ')}!`)
         }
 
         if (!isCollapsed) {
@@ -572,9 +585,15 @@ const TalentTree = ({
       .links()
       .filter((link) => link.source.depth > 0)
       .map((link) => {
-        const newRequirements = link.target.data.classOrEnergyRequirements.filter(
-          (requirement) => !link.source.data.classOrEnergyRequirements.includes(requirement)
-        )
+        const newRequirements = [
+          ...link.target.data.classOrEnergyRequirements.filter(
+            (requirement) => !link.source.data.classOrEnergyRequirements.includes(requirement)
+          ),
+          ...link.target.data.talentRequirements.filter(
+            (requirement) => link.source.data.name !== requirement
+          ),
+          ...link.target.data.otherRequirements,
+        ]
 
         return { link, newRequirements }
       })
@@ -587,16 +606,15 @@ const TalentTree = ({
       const indicatorX = link.target.y - targetHalfWidth
       const indicatorY = link.target.x
 
-      const isClassRequirement = newRequirements.every((requirement) =>
+      const isOnlyClassRequirement = newRequirements.every((requirement) =>
         Object.keys(REQUIREMENT_CLASS_TO_FILTER_OPTIONS_MAP).includes(requirement)
       )
-
-      const nodeType = isClassRequirement
-        ? TalentTreeNodeType.CLASS_REQUIREMENT
-        : TalentTreeNodeType.ENERGY_REQUIREMENT
+      const isEnergyRequirement = newRequirements.some((requirement) =>
+        Object.keys(REQUIREMENT_ENERGY_TO_FILTER_OPTIONS_MAP).includes(requirement)
+      )
 
       const propsPerRequirement = newRequirements.map((requirement) =>
-        getTalentRequirementIconProps(nodeType, requirement)
+        getTalentRequirementIconProps(isOnlyClassRequirement, requirement)
       )
 
       const color = propsPerRequirement[0].color
@@ -610,25 +628,27 @@ const TalentTree = ({
         propsPerRequirement[0].count > 2
           ? propsPerRequirement[0].url3 || propsPerRequirement[0].url
           : propsPerRequirement[1]?.url2 || propsPerRequirement[1]?.url
-      const iconSize = isClassRequirement ? 33 : 22
-      let nudgeToTheLeft = 6
+      const iconSize = isEnergyRequirement ? 22 : 38
 
       // Tweaking of circle sizes and spacing to fit the different scenarios.
-      let circleRx = 13
-      let circleRy = 13
+      let circleRx = 21
+      let circleRy = 21
       let spacing = 0
-      if (isClassRequirement) {
-        circleRx = 20
-        circleRy = 20
-        nudgeToTheLeft = 14
-      } else if (count === 2) {
+      let nudgeToTheLeft = 12
+      if (isEnergyRequirement && count === 1) {
+        circleRx = 13
+        circleRy = 13
+        nudgeToTheLeft = 6
+      } else if (isEnergyRequirement && count === 2) {
         circleRx = 14
         circleRy = 18
         spacing = 4
-      } else if (count === 3) {
+        nudgeToTheLeft = 6
+      } else if (isEnergyRequirement && count === 3) {
         circleRx = 16
         circleRy = 28
         spacing = 2
+        nudgeToTheLeft = 6
       }
       const totalHeight = count * iconSize + (count - 1) * spacing
       const x = indicatorX - iconSize / 2 - nudgeToTheLeft
@@ -692,15 +712,14 @@ const TalentTree = ({
 
     // Add expansion button on nodes
     nodes.each(function ({ data }, _index) {
-      const isTalentNode = data.type === TalentTreeNodeType.TALENT
-      if (!isTalentNode) return
+      if (data.type !== TalentTreeNodeType.TALENT) return
 
-      const nodeInFullTree = getNodeInTree(data.name, fullTree)
-      if (isNullOrEmpty(nodeInFullTree?.children)) return
+      const talentNodeInFullTree = getNodeInTree(data.name, TalentTreeNodeType.TALENT, fullTree)
+      if (isNullOrEmpty(talentNodeInFullTree?.children)) return
 
       // Don't show button if any descendant matches keywords (button would be useless)
       if (
-        nodeInFullTree.children.some((child) =>
+        talentNodeInFullTree.children.some((child) =>
           matchesKeywordOrHasMatchingDescendant(child, parsedKeywords)
         )
       )

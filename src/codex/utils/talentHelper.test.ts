@@ -16,7 +16,6 @@ import {
   getNodeInTree,
   isTalentOffer,
   isTalentInAnyEvents,
-  isTalentInAnyCards,
 } from './talentHelper'
 
 describe('talentHelper', () => {
@@ -34,10 +33,7 @@ describe('talentHelper', () => {
         ]
 
         classes.forEach((characterClass) => {
-          const result = getTalentRequirementIconProps(
-            TalentTreeNodeType.CLASS_REQUIREMENT,
-            characterClass
-          )
+          const result = getTalentRequirementIconProps(true, characterClass)
 
           expect(result.count).toBe(1)
           expect(result.label).toBe(characterClass)
@@ -57,7 +53,7 @@ describe('talentHelper', () => {
         ]
 
         energyTypes.forEach(({ label, expectedLabel, count }) => {
-          const result = getTalentRequirementIconProps(TalentTreeNodeType.ENERGY_REQUIREMENT, label)
+          const result = getTalentRequirementIconProps(false, label)
 
           expect(result.count).toBe(count)
           expect(result.label).toBe(expectedLabel)
@@ -74,7 +70,7 @@ describe('talentHelper', () => {
         ]
 
         energyTypes.forEach(({ label, expectedLabel, count }) => {
-          const result = getTalentRequirementIconProps(TalentTreeNodeType.ENERGY_REQUIREMENT, label)
+          const result = getTalentRequirementIconProps(false, label)
 
           expect(result.count).toBe(count)
           expect(result.label).toBe(expectedLabel)
@@ -91,7 +87,7 @@ describe('talentHelper', () => {
         ]
 
         energyTypes.forEach(({ label, expectedLabel, count }) => {
-          const result = getTalentRequirementIconProps(TalentTreeNodeType.ENERGY_REQUIREMENT, label)
+          const result = getTalentRequirementIconProps(false, label)
 
           expect(result.count).toBe(count)
           expect(result.label).toBe(expectedLabel)
@@ -102,7 +98,7 @@ describe('talentHelper', () => {
 
     describe('SPECIAL_REQUIREMENTS', () => {
       it('should return correct props for Offers', () => {
-        const result = getTalentRequirementIconProps(TalentTreeNodeType.OFFER_REQUIREMENT, 'Offers')
+        const result = getTalentRequirementIconProps(false, 'Offers')
 
         expect(result.count).toBe(1)
         expect(result.label).toBe('Offers')
@@ -111,7 +107,7 @@ describe('talentHelper', () => {
       })
 
       it('should return correct props for Events', () => {
-        const result = getTalentRequirementIconProps(TalentTreeNodeType.EVENT_REQUIREMENT, 'Events')
+        const result = getTalentRequirementIconProps(false, 'Events')
 
         expect(result.count).toBe(1)
         expect(result.label).toBe('Obtained from events')
@@ -120,7 +116,7 @@ describe('talentHelper', () => {
       })
 
       it('should return correct props for Cards', () => {
-        const result = getTalentRequirementIconProps(TalentTreeNodeType.CARD_REQUIREMENT, 'Cards')
+        const result = getTalentRequirementIconProps(false, 'Cards')
 
         expect(result.count).toBe(1)
         expect(result.label).toBe('Obtained from cards')
@@ -129,10 +125,7 @@ describe('talentHelper', () => {
       })
 
       it('should return correct props for No Requirements', () => {
-        const result = getTalentRequirementIconProps(
-          TalentTreeNodeType.NO_REQUIREMENTS,
-          'No Requirements'
-        )
+        const result = getTalentRequirementIconProps(false, 'No Requirements')
 
         expect(result.count).toBe(1)
         expect(result.label).toBe('No requirements')
@@ -144,10 +137,7 @@ describe('talentHelper', () => {
         const cardTalents = ['Sacred Tome', 'Taurus Rage', 'Dark Revenance']
 
         cardTalents.forEach((cardName) => {
-          const result = getTalentRequirementIconProps(
-            TalentTreeNodeType.CARD_REQUIREMENT,
-            cardName
-          )
+          const result = getTalentRequirementIconProps(false, cardName)
 
           expect(result.count).toBe(1)
           expect(result.label).toBe(cardName)
@@ -157,10 +147,7 @@ describe('talentHelper', () => {
       })
 
       it('should return default props for unknown event', () => {
-        const result = getTalentRequirementIconProps(
-          TalentTreeNodeType.EVENT_REQUIREMENT,
-          'Some Unknown Event'
-        )
+        const result = getTalentRequirementIconProps(false, 'Some Unknown Event')
 
         expect(result.count).toBe(1)
         expect(result.label).toBe('Some Unknown Event')
@@ -409,40 +396,6 @@ describe('talentHelper', () => {
     })
   })
 
-  describe('isTalentInAnyCards', () => {
-    it('should return true for talents in ONLY list', () => {
-      const talent = mockTalentNode({
-        name: 'Mark of Taurus',
-      })
-
-      expect(isTalentInAnyCards(talent)).toBe(true)
-    })
-
-    it('should return true for talents in ALSO list', () => {
-      const talent = mockTalentNode({
-        name: 'Devotion',
-      })
-
-      expect(isTalentInAnyCards(talent)).toBe(true)
-    })
-
-    it('should return true for Undead talent', () => {
-      const talent = mockTalentNode({
-        name: 'Undead',
-      })
-
-      expect(isTalentInAnyCards(talent)).toBe(true)
-    })
-
-    it('should return false for regular talents', () => {
-      const talent = mockTalentNode({
-        name: 'Regular Talent',
-      })
-
-      expect(isTalentInAnyCards(talent)).toBe(false)
-    })
-  })
-
   describe('matchesKeywordOrHasMatchingDescendant', () => {
     it('should return true when node matches keyword', () => {
       const node = mockHierarchicalTalent({
@@ -508,9 +461,10 @@ describe('talentHelper', () => {
     it('should find node at root level', () => {
       const root = mockHierarchicalTalent({
         name: 'Root',
+        type: TalentTreeNodeType.TALENT,
       })
 
-      const result = getNodeInTree('Root', root)
+      const result = getNodeInTree('Root', TalentTreeNodeType.TALENT, root)
 
       expect(result).toBe(root)
     })
@@ -518,45 +472,100 @@ describe('talentHelper', () => {
     it('should find node in deep hierarchy', () => {
       const grandchild = mockHierarchicalTalent({
         name: 'Grandchild',
+        type: TalentTreeNodeType.TALENT,
       })
       const child = mockHierarchicalTalent({
         name: 'Child',
+        type: TalentTreeNodeType.CLASS_REQUIREMENT,
         children: [grandchild],
       })
       const root = mockHierarchicalTalent({
         name: 'Root',
+        type: TalentTreeNodeType.NO_REQUIREMENTS,
         children: [child],
       })
 
-      const result = getNodeInTree('Grandchild', root)
+      const result = getNodeInTree('Grandchild', TalentTreeNodeType.TALENT, root)
 
       expect(result).toBe(grandchild)
     })
 
     it('should find node among multiple siblings', () => {
-      const child1 = mockHierarchicalTalent({ name: 'Child1' })
-      const child2 = mockHierarchicalTalent({ name: 'Child2' })
-      const child3 = mockHierarchicalTalent({ name: 'Child3' })
+      const child1 = mockHierarchicalTalent({ name: 'Child1', type: TalentTreeNodeType.TALENT })
+      const child2 = mockHierarchicalTalent({ name: 'Child2', type: TalentTreeNodeType.TALENT })
+      const child3 = mockHierarchicalTalent({ name: 'Child3', type: TalentTreeNodeType.TALENT })
       const root = mockHierarchicalTalent({
         name: 'Root',
+        type: TalentTreeNodeType.NO_REQUIREMENTS,
         children: [child1, child2, child3],
       })
 
-      const result = getNodeInTree('Child2', root)
+      const result = getNodeInTree('Child2', TalentTreeNodeType.TALENT, root)
 
       expect(result).toBe(child2)
     })
 
-    it('should return null when node not found', () => {
-      const child = mockHierarchicalTalent({ name: 'Child' })
+    it('should return null when only name or only type matches', () => {
+      const child1 = mockHierarchicalTalent({
+        name: 'Child',
+        type: TalentTreeNodeType.CLASS_REQUIREMENT,
+      })
+      const child2 = mockHierarchicalTalent({
+        name: 'Other',
+        type: TalentTreeNodeType.TALENT,
+      })
       const root = mockHierarchicalTalent({
         name: 'Root',
+        type: TalentTreeNodeType.NO_REQUIREMENTS,
+        children: [child1, child2],
+      })
+
+      // Name matches but type does not
+      const resultNameMatch = getNodeInTree('Child', TalentTreeNodeType.TALENT, root)
+      expect(resultNameMatch).toBeNull()
+
+      // Type matches but name does not
+      const resultTypeMatch = getNodeInTree('NotFound', TalentTreeNodeType.TALENT, root)
+      expect(resultTypeMatch).toBeNull()
+    })
+
+    it('should return null when node not found', () => {
+      const child = mockHierarchicalTalent({ name: 'Child', type: TalentTreeNodeType.TALENT })
+      const root = mockHierarchicalTalent({
+        name: 'Root',
+        type: TalentTreeNodeType.NO_REQUIREMENTS,
         children: [child],
       })
 
-      const result = getNodeInTree('NotFound', root)
+      const result = getNodeInTree('NotFound', TalentTreeNodeType.ENERGY_REQUIREMENT, root)
 
       expect(result).toBeNull()
+    })
+
+    it('should find node with matching name and type in complex tree', () => {
+      const targetNode = mockHierarchicalTalent({
+        name: 'Target',
+        type: TalentTreeNodeType.ENERGY_REQUIREMENT,
+      })
+      const decoyNode = mockHierarchicalTalent({
+        name: 'Target',
+        type: TalentTreeNodeType.CLASS_REQUIREMENT,
+      })
+      const child = mockHierarchicalTalent({
+        name: 'Child',
+        type: TalentTreeNodeType.TALENT,
+        children: [decoyNode, targetNode],
+      })
+      const root = mockHierarchicalTalent({
+        name: 'Root',
+        type: TalentTreeNodeType.NO_REQUIREMENTS,
+        children: [child],
+      })
+
+      const result = getNodeInTree('Target', TalentTreeNodeType.ENERGY_REQUIREMENT, root)
+
+      expect(result).toBe(targetNode)
+      expect(result).not.toBe(decoyNode)
     })
   })
 })
@@ -575,6 +584,8 @@ function mockTalentNode(overrides: Partial<TalentTreeTalentNode> = {}): TalentTr
     children: [],
     descendants: [],
     classOrEnergyRequirements: [],
+    talentRequirements: [],
+    otherRequirements: [],
     ...overrides,
   }
 }
@@ -587,6 +598,9 @@ function mockHierarchicalTalent(
     name: 'Mock Talent',
     description: 'Mock description',
     flavourText: 'Mock flavour',
+    classOrEnergyRequirements: [],
+    talentRequirements: [],
+    otherRequirements: [],
     ...overrides,
   } as HierarchicalTalentTreeNode
 }
