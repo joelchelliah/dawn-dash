@@ -15,7 +15,7 @@ describe('talentsResponseMapper', () => {
         expect(result).toHaveProperty('classNodes')
         expect(result).toHaveProperty('energyNodes')
         expect(result).toHaveProperty('eventNodes')
-        expect(result).toHaveProperty('cardNodes')
+        expect(result).toHaveProperty('cardNode')
         expect(result).toHaveProperty('offerNode')
       })
 
@@ -71,15 +71,17 @@ describe('talentsResponseMapper', () => {
         })
       })
 
-      it('should have exactly 3 card requirement nodes', () => {
+      it('should have a single card requirement node', () => {
         const talents: TalentData[] = []
 
         const result = mapTalentsDataToTalentTree(talents)
 
-        expect(result.cardNodes).toHaveLength(3)
-        expect(result.cardNodes[0].name).toBe('Sacred Tome')
-        expect(result.cardNodes[1].name).toBe('Taurus Rage')
-        expect(result.cardNodes[2].name).toBe('Dark Revenance')
+        expect(result.cardNode).toBeDefined()
+        expect(result.cardNode.name).toBe('Obtained from cards')
+        expect(result.cardNode.type).toBe(TalentTreeNodeType.CARD_REQUIREMENT)
+        expect(result.cardNode.requirementFilterOptions).toEqual([
+          RequirementFilterOption.ObtainedFromCards,
+        ])
       })
     })
 
@@ -129,11 +131,11 @@ describe('talentsResponseMapper', () => {
             requires_energy: [],
             requires_talents: [],
           }),
-          // Talent obtained from card
+          // This should not be in noReqNode because expansion is 0 (offer)
           mockTalent({
             id: 6,
-            name: 'Mark of Taurus',
-            expansion: 1,
+            name: 'Should not appear',
+            expansion: 0,
             requires_classes: [],
             requires_energy: [],
             requires_talents: [],
@@ -267,50 +269,64 @@ describe('talentsResponseMapper', () => {
       })
     })
 
-    describe('card-specific talents', () => {
-      it('should place Devotion talent in Sacred Tome cardNode', () => {
+    describe('card-obtained talents', () => {
+      it('should place talents with card requirements in cardNode', () => {
         const talents: TalentData[] = [
           mockTalent({
             id: 1,
             name: 'Devotion',
+            requires_cards: ['Sacred Tome'],
+            requires_talents: [],
           }),
-        ]
-
-        const result = mapTalentsDataToTalentTree(talents)
-
-        const sacredTomeNode = result.cardNodes.find((node) => node.name === 'Sacred Tome')
-        expect(sacredTomeNode?.children).toHaveLength(1)
-        expect(sacredTomeNode?.children[0].name).toBe('Devotion')
-      })
-
-      it('should place Mark of Taurus talent in Taurus Rage cardNode', () => {
-        const talents: TalentData[] = [
           mockTalent({
-            id: 1,
+            id: 2,
             name: 'Mark of Taurus',
+            requires_cards: ['Taurus Rage'],
+            requires_talents: [],
+          }),
+          mockTalent({
+            id: 3,
+            name: 'Undead',
+            requires_cards: ['Dark Revenance'],
+            requires_talents: [],
           }),
         ]
 
         const result = mapTalentsDataToTalentTree(talents)
 
-        const taurusNode = result.cardNodes.find((node) => node.name === 'Taurus Rage')
-        expect(taurusNode?.children).toHaveLength(1)
-        expect(taurusNode?.children[0].name).toBe('Mark of Taurus')
+        expect(result.cardNode.children).toHaveLength(3)
+        expect(result.cardNode.children.find((t) => t.name === 'Devotion')).toBeDefined()
+        expect(result.cardNode.children.find((t) => t.name === 'Mark of Taurus')).toBeDefined()
+        expect(result.cardNode.children.find((t) => t.name === 'Undead')).toBeDefined()
       })
 
-      it('should place Undead talent in Dark Revenance cardNode', () => {
+      it('should only place talents with card requirements and no talent requirements in cardNode', () => {
         const talents: TalentData[] = [
           mockTalent({
             id: 1,
-            name: 'Undead',
+            blightbane_id: 10,
+            name: 'Card Talent',
+            requires_cards: ['Some Card'],
+            requires_talents: [],
+            required_for_talents: [20],
+          }),
+          mockTalent({
+            id: 2,
+            blightbane_id: 20,
+            name: 'Child Talent',
+            requires_cards: [],
+            requires_talents: [10],
           }),
         ]
 
         const result = mapTalentsDataToTalentTree(talents)
 
-        const darkRevenanceNode = result.cardNodes.find((node) => node.name === 'Dark Revenance')
-        expect(darkRevenanceNode?.children).toHaveLength(1)
-        expect(darkRevenanceNode?.children[0].name).toBe('Undead')
+        // Only the root card talent should be in cardNode (has card requirement, no talent requirement)
+        expect(result.cardNode.children).toHaveLength(1)
+        expect(result.cardNode.children[0].name).toBe('Card Talent')
+        // The child should be nested under the parent (child has talent requirement, so not a root card talent)
+        expect(result.cardNode.children[0].children).toHaveLength(1)
+        expect(result.cardNode.children[0].children[0].name).toBe('Child Talent')
       })
     })
 
@@ -599,10 +615,11 @@ function mockTalent(overrides: Partial<TalentData> = {}): TalentData {
     requires_energy: [],
     requires_talents: [],
     required_for_talents: [],
+    event_requirement_matrix: [],
+    requires_cards: [],
     blightbane_id: 1,
     last_updated: '2024-01-01',
     verified: true,
-    event_requirement_matrix: [],
     ...overrides,
   }
 }

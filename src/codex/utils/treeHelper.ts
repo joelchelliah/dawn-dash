@@ -13,10 +13,10 @@ import { RequirementFilterOption } from '../types/filters'
 export const isTalentTreeEqual = (talentTreeA: TalentTree, talentTreeB: TalentTree): boolean =>
   isTalentTreeNodeEqual(talentTreeA.offerNode, talentTreeB.offerNode) &&
   isTalentTreeNodeEqual(talentTreeA.noReqNode, talentTreeB.noReqNode) &&
+  isTalentTreeNodeEqual(talentTreeA.cardNode, talentTreeB.cardNode) &&
   areTalentTreeNodesEqual(talentTreeA.classNodes, talentTreeB.classNodes) &&
   areTalentTreeNodesEqual(talentTreeA.energyNodes, talentTreeB.energyNodes) &&
-  areTalentTreeNodesEqual(talentTreeA.eventNodes, talentTreeB.eventNodes) &&
-  areTalentTreeNodesEqual(talentTreeA.cardNodes, talentTreeB.cardNodes)
+  areTalentTreeNodesEqual(talentTreeA.eventNodes, talentTreeB.eventNodes)
 
 const areTalentTreeNodesEqual = (nodesA: TalentTreeNode[], nodesB: TalentTreeNode[]): boolean =>
   nodesA.length === nodesB.length &&
@@ -51,18 +51,8 @@ export const buildHierarchicalTreeFromTalentTree = (
     type: TalentTreeNodeType.EVENT_REQUIREMENT,
     children: eventNodes,
     classOrEnergyRequirements: [RequirementFilterOption.ObtainedFromEvents],
-  }
-
-  const cardNodes = talentTree.cardNodes
-    .map(buildHierarchicalTreeNodeFromRequirementNode)
-    .filter(isNotNullOrUndefined)
-
-  const cardNodesRoot: HierarchicalTalentTreeNode = {
-    name: 'Obtained from cards',
-    description: '',
-    type: TalentTreeNodeType.CARD_REQUIREMENT,
-    children: cardNodes,
-    classOrEnergyRequirements: [RequirementFilterOption.ObtainedFromCards],
+    talentRequirements: [],
+    otherRequirements: [],
   }
 
   return {
@@ -77,34 +67,20 @@ export const buildHierarchicalTreeFromTalentTree = (
         .map(buildHierarchicalTreeNodeFromRequirementNode)
         .filter(isNotNullOrUndefined),
       ...(eventNodes.length > 0 ? [eventNodesRoot] : []),
-      ...(cardNodes.length > 0 ? [cardNodesRoot] : []),
+      buildHierarchicalTreeNodeFromRequirementNode(talentTree.cardNode),
       buildHierarchicalTreeNodeFromRequirementNode(talentTree.offerNode),
     ].filter(isNotNullOrUndefined),
     classOrEnergyRequirements: [],
+    talentRequirements: [],
+    otherRequirements: [],
   }
 }
 
 const buildHierarchicalTreeNodeFromTalentNode = (
-  node: TalentTreeTalentNode,
-  parentName: string
+  node: TalentTreeTalentNode
 ): HierarchicalTalentTreeNode => {
   const name = node.name
-
-  const children = node.children.map((child) =>
-    buildHierarchicalTreeNodeFromTalentNode(child, name)
-  )
-
-  // Special cases, for cards that have other prerequisites.
-  let otherParentNames: string[] | undefined = undefined
-  if (name === 'Goldstrike') {
-    otherParentNames = ['Collector', 'Forgery'].filter((otherName) => otherName !== parentName)
-  } else if (name === 'Blessing of Serem-Pek' && parentName !== 'Watched') {
-    otherParentNames = ['Watched']
-  } else if (name === 'Compassionate' && parentName === 'WoundedAnimal') {
-    otherParentNames = ['Healing potion']
-  } else if (name === 'Devotion' && parentName === 'Sacred Tome') {
-    otherParentNames = ['Sacred Tome']
-  }
+  const children = node.children.map(buildHierarchicalTreeNodeFromTalentNode)
 
   return {
     name,
@@ -112,17 +88,16 @@ const buildHierarchicalTreeNodeFromTalentNode = (
     type: TalentTreeNodeType.TALENT,
     tier: node.tier,
     children: children.length > 0 ? children : undefined,
-    otherParentNames: otherParentNames?.length ? otherParentNames : undefined,
     classOrEnergyRequirements: node.classOrEnergyRequirements,
+    talentRequirements: node.talentRequirements,
+    otherRequirements: node.otherRequirements,
   }
 }
 
 const buildHierarchicalTreeNodeFromRequirementNode = (
   node: TalentTreeRequirementNode
 ): HierarchicalTalentTreeNode | undefined => {
-  const children = node.children.map((child) =>
-    buildHierarchicalTreeNodeFromTalentNode(child, node.name)
-  )
+  const children = node.children.map(buildHierarchicalTreeNodeFromTalentNode)
 
   if (children.length === 0) {
     return undefined
@@ -141,5 +116,7 @@ const buildHierarchicalTreeNodeFromRequirementNode = (
     type: node.type,
     children,
     classOrEnergyRequirements,
+    talentRequirements: [],
+    otherRequirements: [],
   }
 }

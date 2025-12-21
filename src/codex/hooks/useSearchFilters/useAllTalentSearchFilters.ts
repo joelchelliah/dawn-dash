@@ -184,7 +184,7 @@ export const useAllTalentSearchFilters = (
 
   const traverseCardTalentNodes = useCallback(
     (talentTree: TalentTree, visitTalent: (talent: TalentTreeTalentNode) => void) => {
-      talentTree.cardNodes.forEach((node) => traverseNode(node, visitTalent))
+      traverseNode(talentTree.cardNode, visitTalent)
     },
     [traverseNode]
   )
@@ -265,7 +265,7 @@ export const useAllTalentSearchFilters = (
       }
 
       if (shouldIncludeCards) {
-        talentTree.cardNodes.forEach((node) => traverseWithContext(node, 'card'))
+        traverseWithContext(talentTree.cardNode, 'card')
       }
 
       if (shouldIncludeOffers) {
@@ -368,7 +368,7 @@ export const useAllTalentSearchFilters = (
           .filter(isNotNullOrUndefined)
       : []
     const filteredCardNodes = shouldIncludeCards
-      ? talentTree.cardNodes
+      ? talentTree.cardNode.children
           .map((node) => filterTalentTreeNode(node, cardMatches))
           .filter(isNotNullOrUndefined)
       : []
@@ -386,7 +386,10 @@ export const useAllTalentSearchFilters = (
       classNodes: filteredClassNodes,
       energyNodes: filteredEnergyNodes,
       eventNodes: filteredEventNodes,
-      cardNodes: filteredCardNodes,
+      cardNode: {
+        ...talentTree.cardNode,
+        children: filteredCardNodes,
+      },
       offerNode: {
         ...talentTree.offerNode,
         children: filteredOfferNodes,

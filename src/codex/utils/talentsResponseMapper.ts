@@ -14,7 +14,6 @@ import {
   ACTUALLY_EVENT_ONLY_TALENTS,
   REQUIREMENT_CLASS_TO_FILTER_OPTIONS_MAP,
   REQUIREMENT_ENERGY_TO_FILTER_OPTIONS_MAP,
-  TALENTS_OBTAINED_FROM_CARDS,
 } from '../constants/talentsMappingValues'
 
 import {
@@ -45,6 +44,7 @@ export const mapTalentsDataToTalentTree = (unparsedTalents: TalentData[]): Talen
 
   function buildTalentNode(
     talent: TalentData,
+    parentName: string | undefined,
     parentRequirements: string[],
     visited = new Set<number>()
   ): TalentTreeTalentNode {
@@ -63,11 +63,30 @@ export const mapTalentsDataToTalentTree = (unparsedTalents: TalentData[]): Talen
       preProcessedTalents.find(({ name }) => name === 'Devotion')?.blightbane_id ?? null
     )
 
+    // Don't include talent requirements if talent is obtained from events.
+    // Exception: Blessing of Serem-Pek.
+    const skipRequiresTalents =
+      parentName === 'ObtainedFromEvents' && talent.name !== 'Blessing of Serem-Pek'
+    const talentRequirements = skipRequiresTalents
+      ? []
+      : (talent.requires_talents
+          .map((id) => idToPreProcessedTalent.get(id)?.name)
+          .filter((name) => isNotNullOrUndefined(name) && name !== parentName) as string[])
+
+    // Don't include card requirements if talent is obtained from events or no requirements.
+    // Special rule for Compassionate.
+    const skipRequiredCards =
+      parentName === 'No Requirements' || parentName === 'ObtainedFromEvents'
+    const otherRequirements = [
+      ...(skipRequiredCards ? [] : talent.requires_cards),
+      talent.name === 'Compassionate' ? 'Healing potion' : undefined,
+    ].filter(isNotNullOrUndefined)
+
     const newVisited = new Set(visited).add(talent.blightbane_id)
     const children = (talent.required_for_talents || [])
       .map((id) => idToPreProcessedTalent.get(id))
       .filter(isNotNullOrUndefined)
-      .map((child) => buildTalentNode(child, classOrEnergyRequirements, newVisited))
+      .map((child) => buildTalentNode(child, talent.name, classOrEnergyRequirements, newVisited))
 
     const descendants = new Set<string>()
     const collectDescendantNames = (child: TalentTreeTalentNode) => {
@@ -87,6 +106,8 @@ export const mapTalentsDataToTalentTree = (unparsedTalents: TalentData[]): Talen
       children,
       descendants: Array.from(descendants),
       classOrEnergyRequirements,
+      talentRequirements,
+      otherRequirements,
     }
   }
 
@@ -97,7 +118,7 @@ export const mapTalentsDataToTalentTree = (unparsedTalents: TalentData[]): Talen
     sortNodes<TalentTreeTalentNode>(
       preProcessedTalents
         .filter(predicate)
-        .map((talent) => buildTalentNode(talent, [parentRequirement]))
+        .map((talent) => buildTalentNode(talent, parentRequirement, [parentRequirement]))
     )
 
   const createRequirementNodes = (
@@ -143,39 +164,16 @@ export const mapTalentsDataToTalentTree = (unparsedTalents: TalentData[]): Talen
     TalentTreeNodeType.EVENT_REQUIREMENT,
     isValidEventTalent,
     () => [RequirementFilterOption.ObtainedFromEvents],
-    // Overriding the requirement here so that the even name is not used as a requirement for the children
+    // Overriding the requirement here so that the event name is not used as a requirement for the children
     RequirementFilterOption.ObtainedFromEvents
   )
 
-  const rootCardRequirementNodes: TalentTreeRequirementNode[] = [
-    {
-      type: TalentTreeNodeType.CARD_REQUIREMENT,
-      name: 'Sacred Tome',
-      requirementFilterOptions: [RequirementFilterOption.ObtainedFromCards],
-      children: createTalentNodes(
-        (talent) => talent.name === 'Devotion',
-        RequirementFilterOption.ObtainedFromCards
-      ),
-    },
-    {
-      type: TalentTreeNodeType.CARD_REQUIREMENT,
-      name: 'Taurus Rage',
-      requirementFilterOptions: [RequirementFilterOption.ObtainedFromCards],
-      children: createTalentNodes(
-        (talent) => talent.name === 'Mark of Taurus',
-        RequirementFilterOption.ObtainedFromCards
-      ),
-    },
-    {
-      type: TalentTreeNodeType.CARD_REQUIREMENT,
-      name: 'Dark Revenance',
-      requirementFilterOptions: [RequirementFilterOption.ObtainedFromCards],
-      children: createTalentNodes(
-        (talent) => talent.name === 'Undead',
-        RequirementFilterOption.ObtainedFromCards
-      ),
-    },
-  ]
+  const rootCardRequirementNode: TalentTreeRequirementNode = {
+    type: TalentTreeNodeType.CARD_REQUIREMENT,
+    name: 'Obtained from cards',
+    requirementFilterOptions: [RequirementFilterOption.ObtainedFromCards],
+    children: createTalentNodes(hasCardRequirement, RequirementFilterOption.ObtainedFromCards),
+  }
 
   const rootOfferNode: TalentTreeRequirementNode = {
     type: TalentTreeNodeType.OFFER_REQUIREMENT,
@@ -189,7 +187,7 @@ export const mapTalentsDataToTalentTree = (unparsedTalents: TalentData[]): Talen
     classNodes: rootClassRequirementNodes,
     energyNodes: rootEnergyRequirementNodes,
     eventNodes: rootEventRequirementNodes,
-    cardNodes: rootCardRequirementNodes,
+    cardNode: rootCardRequirementNode,
     offerNode: rootOfferNode,
   }
 }
@@ -198,6 +196,9 @@ const isEventOnlyTalent = (talent: TalentData) => ACTUALLY_EVENT_ONLY_TALENTS.in
 
 const isOffer = (talent: TalentData) => talent.expansion === 0 && talent.name.startsWith('Offer of')
 
+const hasCardRequirement = (talent: TalentData) =>
+  talent.requires_cards.length > 0 && talent.requires_talents.length === 0
+
 const isValidEventTalent = (eventName: string) => (talent: TalentData) =>
   talent.events.includes(eventName)
 
@@ -205,8 +206,7 @@ const isRootTalent = (talent: TalentData) =>
   talent.requires_talents.length === 0 &&
   talent.requires_classes.length === 0 &&
   talent.requires_energy.length === 0 &&
-  talent.expansion !== 0 &&
-  !TALENTS_OBTAINED_FROM_CARDS.ONLY.includes(talent.name)
+  talent.expansion !== 0
 
 const hasClass = (className: string) => (talent: TalentData) =>
   talent.requires_classes.includes(className) && talent.requires_talents.length === 0

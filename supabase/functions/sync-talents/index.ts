@@ -55,6 +55,8 @@ async function fetchTalentsFromBlightbane(): Promise<TalentData[]> {
             requires_energy: [],
             requires_talents: details.prereq.map(Number),
             required_for_talents: details.ispreq.map(Number),
+            event_requirement_matrix: [],
+            requires_cards: [],
             blightbane_id: talent.id,
             last_updated: new Date().toISOString(),
             verified: false,

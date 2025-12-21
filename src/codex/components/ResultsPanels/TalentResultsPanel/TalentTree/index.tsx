@@ -7,6 +7,7 @@ import { min, max } from 'd3-array'
 import { createCx } from '@/shared/utils/classnames'
 import { lighten } from '@/shared/utils/classColors'
 import { isNullOrEmpty } from '@/shared/utils/lists'
+import { isNotNullOrUndefined } from '@/shared/utils/object'
 
 import {
   TalentTree as TalentTreeType,
@@ -100,7 +101,12 @@ const TalentTree = ({
 
     const getDynamicVerticalSpacing = (node: HierarchicalTalentTreeNode) => {
       if (node.type === TalentTreeNodeType.TALENT) {
-        const extraRequirementHeight = node.otherParentNames?.length ? requirementsHeight : 0
+        const additionalRequirements = [
+          ...node.otherRequirements,
+          ...node.talentRequirements,
+        ].filter(isNotNullOrUndefined)
+
+        const extraRequirementHeight = additionalRequirements.length ? requirementsHeight : 0
         const matchingKeywordsHeight =
           shouldShowKeywords && getMatchingKeywordsText(node, parsedKeywords).length > 0
             ? keywordsHeight
@@ -332,11 +338,15 @@ const TalentTree = ({
       } else {
         const isCollapsed = !isDescriptionExpanded(data.name)
         const descLines = wrapText(data.description, nodeWidth + 8, 11)
+        const additionalRequirements = [
+          ...data.otherRequirements,
+          ...data.talentRequirements,
+        ].filter(isNotNullOrUndefined)
 
         const descriptionHeight = isCollapsed
           ? collapsedDescriptionHeight
           : Math.max(minDescriptionHeight, descLines.length * descriptionLineHeight)
-        const extraRequirementHeight = data.otherParentNames?.length ? requirementsHeight : 0
+        const extraRequirementHeight = additionalRequirements.length ? requirementsHeight : 0
         const matchingKeywordsHeight = shouldShowKeywords ? keywordsHeight : 0
         const blightbaneHeight = shouldShowBlightbaneLink ? blightbaneLinkHeight : 0
         const additionalHeight = descriptionHeight + extraRequirementHeight + blightbaneHeight
@@ -427,7 +437,7 @@ const TalentTree = ({
           )
 
         // Add "Requires" text for additional requirements
-        if (data.otherParentNames?.length) {
+        if (additionalRequirements.length > 0) {
           const reqGroup = nodeElement
             .append('g')
             .attr(
@@ -443,7 +453,7 @@ const TalentTree = ({
               'class',
               cx('talent-node-requirements', { 'talent-node-requirements--collapsed': isCollapsed })
             )
-            .text(`Requires: ${data.otherParentNames.join(', ')}!`)
+            .text(`Requires: ${additionalRequirements.join(', ')}!`)
         }
 
         if (!isCollapsed) {

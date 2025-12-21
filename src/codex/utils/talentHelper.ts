@@ -28,7 +28,6 @@ import {
   TalentTreeNodeType,
   TalentTreeTalentNode,
 } from '../types/talents'
-import { TALENTS_OBTAINED_FROM_CARDS } from '../constants/talentsMappingValues'
 
 const ICON_KEYWORDS_TO_URL = [
   { keyword: 'HEALTH', icon: HealthImageUrl },
@@ -320,10 +319,6 @@ export const isTalentOffer = (talent: TalentTreeTalentNode) =>
   hasTalentMonsterExpansion(talent) && hasTalentOfferPrefix(talent)
 
 export const isTalentInAnyEvents = (talent: TalentTreeTalentNode) => talent.events.length > 0
-
-export const isTalentInAnyCards = (talent: TalentTreeTalentNode) =>
-  TALENTS_OBTAINED_FROM_CARDS.ONLY.includes(talent.name) ||
-  TALENTS_OBTAINED_FROM_CARDS.ALSO.includes(talent.name)
 
 // Counts characters for line width calculation
 // excluding HTML tags and replacing icon keywords

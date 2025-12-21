@@ -16,7 +16,6 @@ import {
   getNodeInTree,
   isTalentOffer,
   isTalentInAnyEvents,
-  isTalentInAnyCards,
 } from './talentHelper'
 
 describe('talentHelper', () => {
@@ -409,40 +408,6 @@ describe('talentHelper', () => {
     })
   })
 
-  describe('isTalentInAnyCards', () => {
-    it('should return true for talents in ONLY list', () => {
-      const talent = mockTalentNode({
-        name: 'Mark of Taurus',
-      })
-
-      expect(isTalentInAnyCards(talent)).toBe(true)
-    })
-
-    it('should return true for talents in ALSO list', () => {
-      const talent = mockTalentNode({
-        name: 'Devotion',
-      })
-
-      expect(isTalentInAnyCards(talent)).toBe(true)
-    })
-
-    it('should return true for Undead talent', () => {
-      const talent = mockTalentNode({
-        name: 'Undead',
-      })
-
-      expect(isTalentInAnyCards(talent)).toBe(true)
-    })
-
-    it('should return false for regular talents', () => {
-      const talent = mockTalentNode({
-        name: 'Regular Talent',
-      })
-
-      expect(isTalentInAnyCards(talent)).toBe(false)
-    })
-  })
-
   describe('matchesKeywordOrHasMatchingDescendant', () => {
     it('should return true when node matches keyword', () => {
       const node = mockHierarchicalTalent({
@@ -631,6 +596,8 @@ function mockTalentNode(overrides: Partial<TalentTreeTalentNode> = {}): TalentTr
     children: [],
     descendants: [],
     classOrEnergyRequirements: [],
+    talentRequirements: [],
+    otherRequirements: [],
     ...overrides,
   }
 }
@@ -643,6 +610,9 @@ function mockHierarchicalTalent(
     name: 'Mock Talent',
     description: 'Mock description',
     flavourText: 'Mock flavour',
+    classOrEnergyRequirements: [],
+    talentRequirements: [],
+    otherRequirements: [],
     ...overrides,
   } as HierarchicalTalentTreeNode
 }
