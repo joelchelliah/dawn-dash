@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 
 export function useDeviceOrientation() {
   const checkIsMobile = () => {
+    if (typeof navigator === 'undefined') return false
     const userAgent = navigator.userAgent.toLowerCase()
     return /mobile|android|iphone|ipad|ipod|blackberry|iemobile|opera mini/.test(userAgent)
   }

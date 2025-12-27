@@ -14,7 +14,9 @@ export default function SkilldexPage() {
           name="description"
           content="Dawncaster talents - Browse and search through all Dawncaster talents visualized as skill trees!"
         />
+        <link rel="canonical" href="https://www.dawn-dash.com/codex/skills" />
 
+        <meta property="og:type" content="website" />
         <meta property="og:title" content="Dawn-Dash : Skilldex" />
         <meta
           property="og:description"

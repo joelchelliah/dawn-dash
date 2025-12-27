@@ -3,7 +3,6 @@ import dynamic from 'next/dynamic'
 
 const Speedruns = dynamic(() => import('../src/speedruns'), {
   loading: () => <div>Loading speedrun charts...</div>,
-  ssr: false,
 })
 
 export default function SpeedrunsPage() {
@@ -12,7 +11,9 @@ export default function SpeedrunsPage() {
       <Head>
         <title>Dawn-Dash : Speedruns</title>
         <meta name="description" content="Dawncaster speedrun charts, records and more!" />
+        <link rel="canonical" href="https://www.dawn-dash.com/" />
 
+        <meta property="og:type" content="website" />
         <meta property="og:title" content="Dawn-Dash : Speedruns" />
         <meta property="og:description" content="Dawncaster speedrun charts, records and more!" />
         <meta property="og:image" content="https://www.dawn-dash.com/og-image-dawndash.png" />
