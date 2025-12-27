@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 
-import { HamburgerIcon } from '@/shared/utils/icons'
+import { HamburgerIcon, HamburgerMenuIcon } from '@/shared/utils/icons'
 import {
   AbracadabraImageUrl,
   DashImageUrl,
@@ -13,6 +13,7 @@ import {
 import { createCx } from '@/shared/utils/classnames'
 import GradientLink from '@/shared/components/GradientLink'
 import InfoModal from '@/shared/components/Modals/InfoModal'
+import { useBreakpoint } from '@/shared/hooks/useBreakpoint'
 
 import styles from './index.module.scss'
 
@@ -25,6 +26,7 @@ const cx = createCx(styles)
 const SideMenu = ({ currentPage }: SideMenuProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isAboutInfoOpen, setIsAboutInfoOpen] = useState(false)
+  const { isMobile } = useBreakpoint()
   const menuRef = useRef<HTMLDivElement>(null)
   const hamburgerRef = useRef<HTMLButtonElement>(null)
 
@@ -67,14 +69,18 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
 
   return (
     <>
-      <div className={cx('hamburger')}>
+      <div className={cx('hamburger', { 'hamburger--menu-open': isMenuOpen })}>
         <button
           ref={hamburgerRef}
           className={cx('hamburger__button')}
           onClick={toggleMenu}
           aria-label="Toggle menu"
         >
-          <HamburgerIcon className={cx('hamburger__button__icon')} />
+          {isMobile ? (
+            <HamburgerIcon className={cx('hamburger__button__icon')} />
+          ) : (
+            <HamburgerMenuIcon className={cx('hamburger__button__icon')} />
+          )}
         </button>
       </div>
 

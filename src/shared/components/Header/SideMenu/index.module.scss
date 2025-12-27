@@ -1,12 +1,30 @@
 @use 'index' as *;
 
+$button-transition: 0.5s ease;
+
 .hamburger {
-  width: 2.5rem;
+  width: auto;
   height: 2.5rem;
   background-color: $color-base-bg;
-  border: 1px solid $color-component-bg;
   border-radius: 8px;
   margin-top: 0.5rem;
+
+  @media (max-width: $breakpoint-mobile) {
+    width: 2.5rem;
+  }
+
+  &--menu-open {
+    color: $color-primary-active;
+    opacity: 0.75;
+
+    .hamburger__button__icon {
+      @include yellowGreenGradientIcon(true, 1.1);
+    }
+
+    &:hover {
+      opacity: 1;
+    }
+  }
 
   &__button {
     background: transparent;
@@ -15,19 +33,15 @@
     padding: 0;
     width: 100%;
     height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     color: $color-primary-base;
 
     &__icon {
-      width: 1.5rem;
-      height: 1.5rem;
       transition: all 0.5s ease;
       padding: 0.25rem;
       border: 2px solid transparent;
-      border-radius: 20%;
-      transform-origin: center;
+      border-radius: 0.5rem;
+      transform-origin: right;
+
       @include yellowGreenGradientIcon(false);
     }
 
@@ -35,7 +49,7 @@
       color: $color-primary-hover;
 
       .hamburger__button__icon {
-        @include yellowGreenGradientIcon(true);
+        @include yellowGreenGradientIcon(true, 1.1);
       }
     }
   }

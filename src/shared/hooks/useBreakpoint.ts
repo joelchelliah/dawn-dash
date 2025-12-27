@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react'
 
-// NB: Values should match breakpoints in _constants.scss
+// NB: Values should match breakpoints in _breakpoints.scss
+const BREAKPOINT_MOBILE = 768
 const BREAKPOINT_TABLET = 1024
 
 export function useBreakpoint() {
+  const [isMobile, setIsMobile] = useState(false)
   const [isTabletOrSmaller, setIsTabletOrSmaller] = useState(false)
   const [isDesktop, setIsDesktop] = useState(false)
 
@@ -11,6 +13,7 @@ export function useBreakpoint() {
     if (typeof window === 'undefined') return
 
     const handleResize = () => {
+      setIsMobile(window.innerWidth <= BREAKPOINT_MOBILE)
       setIsTabletOrSmaller(window.innerWidth <= BREAKPOINT_TABLET)
       setIsDesktop(window.innerWidth > BREAKPOINT_TABLET)
     }
@@ -20,5 +23,5 @@ export function useBreakpoint() {
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
-  return { isTabletOrSmaller, isDesktop }
+  return { isMobile, isTabletOrSmaller, isDesktop }
 }
