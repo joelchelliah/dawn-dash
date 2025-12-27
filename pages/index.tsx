@@ -10,12 +10,18 @@ export default function SpeedrunsPage() {
     <>
       <Head>
         <title>Dawn-Dash : Speedruns</title>
-        <meta name="description" content="Dawncaster speedrun charts, records and more!" />
+        <meta
+          name="description"
+          content="Interactive Dawncaster speedrun charts, tracking world records, fastest times, and player leaderboards across all modes, classes and difficulties!"
+        />
         <link rel="canonical" href="https://www.dawn-dash.com/" />
 
         <meta property="og:type" content="website" />
         <meta property="og:title" content="Dawn-Dash : Speedruns" />
-        <meta property="og:description" content="Dawncaster speedrun charts, records and more!" />
+        <meta
+          property="og:description"
+          content="Check out the fastest Dawncaster speedruns! Compare live records across all modes, classes and difficulties!"
+        />
         <meta property="og:image" content="https://www.dawn-dash.com/og-image-dawndash.png" />
         <meta property="og:url" content="https://www.dawn-dash.com" />
 

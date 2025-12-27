@@ -12,7 +12,7 @@ export default function SkilldexPage() {
         <title>Dawn-Dash : Skilldex</title>
         <meta
           name="description"
-          content="Dawncaster talents - Browse and search through all Dawncaster talents visualized as skill trees!"
+          content="Interactive Dawncaster talent codex, with advanced search and filtering options to find and show all in-game talents and their requirements!"
         />
         <link rel="canonical" href="https://www.dawn-dash.com/codex/skills" />
 
@@ -20,7 +20,7 @@ export default function SkilldexPage() {
         <meta property="og:title" content="Dawn-Dash : Skilldex" />
         <meta
           property="og:description"
-          content="Dawncaster talents - Browse and search through all Dawncaster talents visualized as skill trees!"
+          content="Interactive Dawncaster talent codex! Search through all in-game talents and their requirements, visualized in tiny talent trees!"
         />
         <meta property="og:image" content="https://www.dawn-dash.com/og-image-skilldex.png" />
         <meta property="og:url" content="https://www.dawn-dash.com/codex/skills" />
