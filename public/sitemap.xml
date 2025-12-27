@@ -1,10 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://dawn-dash.com/</loc>
+    <loc>https://www.dawn-dash.com/</loc>
+    <lastmod>2025-12-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://dawn-dash.com/codex/cards</loc>
+    <loc>https://www.dawn-dash.com/codex/cards</loc>
+    <lastmod>2025-12-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
-  <!-- TODO: Add URL for skilldex when it's ready -->
+  <url>
+    <loc>https://www.dawn-dash.com/codex/skills</loc>
+    <lastmod>2025-12-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
 </urlset>

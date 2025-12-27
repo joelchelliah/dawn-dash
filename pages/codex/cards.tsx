@@ -14,7 +14,9 @@ export default function CardexPage() {
           name="description"
           content="Dawncaster cards - Browse and search through all Dawncaster cards with advanced filtering options!"
         />
+        <link rel="canonical" href="https://www.dawn-dash.com/codex/cards" />
 
+        <meta property="og:type" content="website" />
         <meta property="og:title" content="Dawn-Dash : Cardex" />
         <meta
           property="og:description"
