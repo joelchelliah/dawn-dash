@@ -3,7 +3,6 @@ import dynamic from 'next/dynamic'
 
 const Speedruns = dynamic(() => import('../src/speedruns'), {
   loading: () => <div>Loading speedrun charts...</div>,
-  ssr: false,
 })
 
 export default function SpeedrunsPage() {
