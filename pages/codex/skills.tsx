@@ -6,29 +6,47 @@ const Skills = dynamic(() => import('../../src/codex/skills'), {
 })
 
 export default function SkilldexPage() {
+  const title = 'Dawn-Dash : Skilldex'
+  const description =
+    'Interactive Dawncaster talents codex, with advanced search and filtering options to find and show all in-game talents and their requirements!'
+  const ogDescription =
+    'Search and filter through all Dawncaster talents and their requirements, visualized as tiny talent trees!'
+  const image = 'https://www.dawn-dash.com/og-image-skilldex.png'
+  const url = 'https://www.dawn-dash.com/codex/skills'
+  const squareLogo = 'https://www.dawn-dash.com/logo-skilldex.png'
+
   return (
     <>
       <Head>
-        <title>Dawn-Dash : Skilldex</title>
-        <meta
-          name="description"
-          content="Interactive Dawncaster talent codex, with advanced search and filtering options to find and show all in-game talents and their requirements!"
-        />
-        <link rel="canonical" href="https://www.dawn-dash.com/codex/skills" />
+        <title>{title}</title>
+        <meta name="description" content={description} />
+        <link rel="canonical" href={url} />
 
         <meta property="og:type" content="website" />
-        <meta property="og:title" content="Dawn-Dash : Skilldex" />
-        <meta
-          property="og:description"
-          content="Interactive Dawncaster talent codex! Search through all in-game talents and their requirements, visualized in tiny talent trees!"
-        />
-        <meta property="og:image" content="https://www.dawn-dash.com/og-image-skilldex.png" />
-        <meta property="og:url" content="https://www.dawn-dash.com/codex/skills" />
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={ogDescription} />
+        <meta property="og:image" content={image} />
+        <meta property="og:url" content={url} />
 
         {/* The url shown in Discord */}
         <meta property="og:site_name" content="dawn-dash.com/codex/skills" />
 
-        <meta property="twitter:image" content="https://www.dawn-dash.com/og-image-skilldex.png" />
+        <meta property="twitter:image" content={image} />
+
+        {/* Page-Specific Structured Data */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'WebPage',
+              name: title,
+              description,
+              url,
+              image: squareLogo,
+            }),
+          }}
+        />
       </Head>
       <Skills />
     </>

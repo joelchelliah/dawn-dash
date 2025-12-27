@@ -45,6 +45,7 @@ export default function App({ Component, pageProps }: AppProps) {
                 'Dawncaster companion tools including speedrun charts, card database, and skill tree visualizer',
               url: 'https://www.dawn-dash.com',
               applicationCategory: 'GameApplication',
+              logo: 'https://www.dawn-dash.com/icon-512.png',
             }),
           }}
         />
