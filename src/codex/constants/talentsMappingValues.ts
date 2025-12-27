@@ -13,8 +13,10 @@ export const REQUIREMENT_CLASS_TO_FILTER_OPTIONS_MAP: Record<string, Requirement
 export const REQUIREMENT_ENERGY_TO_FILTER_OPTIONS_MAP: Record<string, RequirementFilterOption[]> = {
   DEX: [RequirementFilterOption.Dexterity],
   DEX2: [RequirementFilterOption.Dexterity],
+  DEX3: [RequirementFilterOption.Dexterity],
   INT: [RequirementFilterOption.Intelligence],
   INT2: [RequirementFilterOption.Intelligence],
+  INT3: [RequirementFilterOption.Intelligence],
   STR: [RequirementFilterOption.Strength],
   STR2: [RequirementFilterOption.Strength],
   STR3: [RequirementFilterOption.Strength],
