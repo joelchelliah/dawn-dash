@@ -13,13 +13,10 @@ console.warn = (...args) => {
 /**
  * Script to parse Ink JSON from events and generate hierarchical tree structures
  * using the official inkjs runtime for accurate parsing.
- *
- * Input: scripts/events.json (output from extract-events.js)
- * Output: scripts/event-trees.json (hierarchical tree data)
  */
 
 const EVENTS_FILE = path.join(__dirname, './events.json')
-const OUTPUT_FILE = path.join(__dirname, './event-trees.json')
+const OUTPUT_FILE = path.join(__dirname, '../src/codex/data/event-trees.json')
 
 let nodeIdCounter = 0
 let totalNodesInCurrentEvent = 0
@@ -35,7 +32,17 @@ function generateNodeId() {
 /**
  * Create a node with consistent field ordering
  */
-function createNode({ id, text, type, choiceLabel, requirements, effects, repeatable, numContinues, children }) {
+function createNode({
+  id,
+  text,
+  type,
+  choiceLabel,
+  requirements,
+  effects,
+  repeatable,
+  numContinues,
+  children,
+}) {
   const node = {
     id,
     text,
@@ -586,6 +593,10 @@ function processEvents() {
   // Calculate total nodes
   const totalNodes = eventTrees.reduce((sum, tree) => sum + countNodes(tree.rootNode), 0)
   console.log(`  🌳 Total nodes across all trees: ${totalNodes}`)
+
+  // Sort events alphabetically by name
+  console.log(`\n🔤 Sorting events alphabetically...`)
+  eventTrees.sort((a, b) => a.name.localeCompare(b.name))
 
   // Write output
   console.log(`\n💾 Writing to ${OUTPUT_FILE}...`)

@@ -2,7 +2,7 @@
 const fs = require('fs')
 const path = require('path')
 
-const EVENT_TREES_FILE = path.join(__dirname, './event-trees.json')
+const EVENT_TREES_FILE = path.join(__dirname, '../src/codex/data/event-trees.json')
 const EVENT_NAME = process.argv[2] || 'Alchemist' // Pass event name as argument, default to Alchemist
 
 /**
