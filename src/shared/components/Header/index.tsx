@@ -2,13 +2,14 @@ import Image from 'next/image'
 
 import SideMenu from './SideMenu'
 import styles from './index.module.scss'
+import { CurrentPageType } from './types'
 
 interface HeaderProps {
   onLogoClick: () => void
   logoSrc: string
   title: string
   subtitle: string
-  currentPage: 'speedruns' | 'cardex' | 'skilldex'
+  currentPage: CurrentPageType
 }
 
 const Header = ({ onLogoClick, logoSrc, title, subtitle, currentPage }: HeaderProps) => {

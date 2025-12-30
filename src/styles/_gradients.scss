@@ -23,12 +23,12 @@
 @mixin yellowGreenGradientIcon($hover, $hover-scale: 1.25) {
   @if $hover {
     transform: scale($hover-scale);
-    opacity: 0.8;
+    opacity: 0.9;
     background:
       linear-gradient(black, black) padding-box,
       linear-gradient(to right, colors.$yellow-hover, colors.$green-hover) border-box;
   } @else {
-    opacity: 0.6;
+    opacity: 0.75;
     background:
       linear-gradient(black, black) padding-box,
       linear-gradient(to right, colors.$yellow-base, colors.$green-base) border-box;

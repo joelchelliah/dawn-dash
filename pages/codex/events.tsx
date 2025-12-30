@@ -1,19 +1,19 @@
 import Head from 'next/head'
 import dynamic from 'next/dynamic'
 
-const Skills = dynamic(() => import('../../src/codex/skills'), {
-  loading: () => <div>Loading skilldex...</div>,
+const Events = dynamic(() => import('../../src/codex/events'), {
+  loading: () => <div>Loading events...</div>,
 })
 
-export default function SkilldexPage() {
-  const title = 'Dawn-Dash : Skilldex'
+export default function EventdexPage() {
+  const title = 'Dawn-Dash : Eventdex'
   const description =
-    'Interactive Dawncaster talents codex, with advanced search and filtering options to find and show all talents and their requirements!'
+    'Interactive Dawncaster events codex, for visualizing all opportunities in the game, along with their dialogue options, requirements and effects!'
   const ogDescription =
-    'Search and filter through all Dawncaster talents and their requirements, visualized as tiny talent trees!'
-  const image = 'https://www.dawn-dash.com/og-image-skilldex.png'
-  const url = 'https://www.dawn-dash.com/codex/skills'
-  const squareLogo = 'https://www.dawn-dash.com/logo-skilldex.png'
+    'Explore all Dawncaster events, along with their dialogue options, requirements and effects, visualized in a tree structure!'
+  const image = 'https://www.dawn-dash.com/og-image-eventdex.png'
+  const url = 'https://www.dawn-dash.com/codex/events'
+  const squareLogo = 'https://www.dawn-dash.com/logo-eventdex.png'
 
   return (
     <>
@@ -29,7 +29,7 @@ export default function SkilldexPage() {
         <meta property="og:url" content={url} />
 
         {/* The url shown in Discord */}
-        <meta property="og:site_name" content="dawn-dash.com/codex/skills" />
+        <meta property="og:site_name" content="dawn-dash.com/codex/events" />
 
         <meta property="twitter:image" content={image} />
 
@@ -48,7 +48,7 @@ export default function SkilldexPage() {
           }}
         />
       </Head>
-      <Skills />
+      <Events />
     </>
   )
 }

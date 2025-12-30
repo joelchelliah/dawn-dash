@@ -26,6 +26,7 @@ import {
 } from '@/shared/utils/imageUrls'
 import { CharacterClass } from '@/shared/types/characterClass'
 import { ClassColorVariant, darken, getClassColor } from '@/shared/utils/classColors'
+import { wrapText } from '@/shared/utils/textHelper'
 
 import {
   HierarchicalTalentTreeNode,
@@ -263,26 +264,9 @@ export const parseTalentDescriptionLineForMobileRendering = (line: string): stri
 }
 
 // Wraps text into multiple lines based on width and font size
-export const wrapText = (text: string, width: number, fontSize: number) => {
-  const approxCharacterWidth = fontSize * 0.61
-  const words = text.split(' ')
-  const lines: string[] = [''] // Start with an empty line for slight padding
-  let currentLine = words[0]
-
-  for (let i = 1; i < words.length; i++) {
-    const word = words[i]
-    const testLine = currentLine + ' ' + word
-    const testWidth = countRelevantCharactersForLineWidth(testLine) * approxCharacterWidth
-
-    if (testWidth > width) {
-      lines.push(currentLine)
-      currentLine = word
-    } else {
-      currentLine = testLine
-    }
-  }
-  lines.push(currentLine)
-  return lines
+// Uses talents-specific character counting for icon keywords
+export const wrapTextForTalents = (text: string, width: number, fontSize: number) => {
+  return wrapText(text, width, fontSize, countRelevantCharactersForLineWidth)
 }
 
 // Returns a formatted string of keywords that match the talent's name or description

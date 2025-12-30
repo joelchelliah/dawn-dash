@@ -15,10 +15,10 @@ $button-transition: 0.5s ease;
 
   &--menu-open {
     color: $color-primary-active;
-    opacity: 0.75;
+    opacity: 0.8;
 
     .hamburger__button__icon {
-      @include yellowGreenGradientIcon(true, 1.1);
+      @include yellowGreenGradientIcon(true, 1.15);
     }
 
     &:hover {
@@ -49,7 +49,7 @@ $button-transition: 0.5s ease;
       color: $color-primary-hover;
 
       .hamburger__button__icon {
-        @include yellowGreenGradientIcon(true, 1.1);
+        @include yellowGreenGradientIcon(true, 1.15);
       }
     }
   }

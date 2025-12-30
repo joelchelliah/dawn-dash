@@ -53,8 +53,10 @@ function createNode({ id, text, type, choiceLabel, requirements, effects, repeat
     node.effects = effects
   }
 
-  // Always include repeatable (default false)
-  node.repeatable = repeatable === true
+  // Only include repeatable if it's true
+  if (repeatable === true) {
+    node.repeatable = true
+  }
 
   // Add numContinues for dialogue nodes
   if (type === 'dialogue' && numContinues !== undefined) {
@@ -109,7 +111,8 @@ function buildTreeFromStory(
   visitedStates = new Set(),
   depth = 0,
   pathHash = '',
-  ancestorTexts = []
+  ancestorTexts = [],
+  ancestorChoices = []
 ) {
   // Check node limit to prevent infinite exploration
   if (totalNodesInCurrentEvent >= MAX_NODES_PER_EVENT) {
@@ -243,12 +246,36 @@ function buildTreeFromStory(
   for (let i = 0; i < choices.length; i++) {
     const choice = choices[i]
 
+    // Extract requirements and clean choice text FIRST to check for repetition
+    const { requirements, cleanedText: choiceText } = extractChoiceMetadata(choice.text)
+
+    // Check if this choice label has appeared before (repeatable choice)
+    const isRepeatableChoice = choiceText && ancestorChoices.includes(choiceText)
+
+    if (isRepeatableChoice) {
+      // This choice loops back - create a repeatable choice node without exploring further
+      const repeatableNode = createNode({
+        id: generateNodeId(),
+        text: '', // Empty text prevents separateChoicesFromEffects from splitting this node
+        type: 'choice',
+        choiceLabel: choiceText,
+        requirements: requirements.length > 0 ? requirements : undefined,
+        repeatable: true,
+      })
+      children.push(repeatableNode)
+      totalNodesInCurrentEvent++
+      continue // Skip exploring this branch
+    }
+
     // Save story state before making choice
     const savedState = story.state.toJson()
 
     try {
       // Make the choice
       story.ChooseChoiceIndex(i)
+
+      // Add this choice to the ancestor path for loop detection
+      const newAncestorChoices = choiceText ? [...ancestorChoices, choiceText] : ancestorChoices
 
       // Recursively build tree for this branch
       const childNode = buildTreeFromStory(
@@ -257,13 +284,11 @@ function buildTreeFromStory(
         newVisitedStates,
         depth + 1,
         `${currentPathHash}_c${i}`,
-        newAncestorTexts
+        newAncestorTexts,
+        newAncestorChoices
       )
 
       if (childNode) {
-        // Extract requirements and clean choice text
-        const { requirements, cleanedText: choiceText } = extractChoiceMetadata(choice.text)
-
         // Reconstruct node with proper field ordering (choiceLabel after type)
         const orderedChild = createNode({
           id: childNode.id,

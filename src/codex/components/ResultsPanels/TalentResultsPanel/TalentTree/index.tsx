@@ -22,7 +22,7 @@ import {
   matchesKeywordOrHasMatchingDescendant,
   parseTalentDescriptionLineForDesktopRendering,
   parseTalentDescriptionLineForMobileRendering,
-  wrapText,
+  wrapTextForTalents,
 } from '@/codex/utils/talentHelper'
 import {
   REQUIREMENT_CLASS_TO_FILTER_OPTIONS_MAP,
@@ -122,7 +122,7 @@ const TalentTree = ({
           return nameHeight * 2.8 + additionalHeight
         }
 
-        const descLines = wrapText(node.description, nodeWidth + 10, 10)
+        const descLines = wrapTextForTalents(node.description, nodeWidth + 10, 10)
         const descriptionHeight = Math.max(
           minDescriptionHeight,
           descLines.length * descriptionLineHeight
@@ -340,7 +340,7 @@ const TalentTree = ({
         }
       } else {
         const isCollapsed = !isDescriptionExpanded(data.name)
-        const descLines = wrapText(data.description, nodeWidth + 8, 11)
+        const descLines = wrapTextForTalents(data.description, nodeWidth + 8, 11)
         const additionalRequirements = [
           ...data.otherRequirements,
           ...data.talentRequirements,
@@ -463,12 +463,12 @@ const TalentTree = ({
           // Calculate the base Y position for description
           const descBaseY =
             -dynamicNodeHeight / 2 + nameHeight + extraRequirementHeight + descriptionHeight / 2
+          const verticalCenteringOffset = -2
 
           if (shouldUseMobileFriendlyRendering) {
             // Mobile-friendly rendering: use SVG text with emojis
             descLines.forEach((line, i) => {
               const segments = parseTalentDescriptionLineForMobileRendering(line)
-              const verticalCenteringOffset = -2
               const yPosition =
                 descBaseY +
                 i * descriptionLineHeight -

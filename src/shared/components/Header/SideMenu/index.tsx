@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { HamburgerIcon, HamburgerMenuIcon } from '@/shared/utils/icons'
 import {
   AbracadabraImageUrl,
+  CoinsOfPassingImageUrl,
   DashImageUrl,
   EleganceImageUrl,
   RushedForgeryImageUrl,
@@ -15,13 +16,16 @@ import GradientLink from '@/shared/components/GradientLink'
 import InfoModal from '@/shared/components/Modals/InfoModal'
 import { useBreakpoint } from '@/shared/hooks/useBreakpoint'
 
+import { CurrentPageType } from '../types'
+
 import styles from './index.module.scss'
 
 interface SideMenuProps {
-  currentPage: 'speedruns' | 'cardex' | 'skilldex'
+  currentPage: CurrentPageType
 }
 
 const cx = createCx(styles)
+const isDev = process.env.NODE_ENV === 'development'
 
 const SideMenu = ({ currentPage }: SideMenuProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -65,6 +69,9 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
   })
   const skilldexLinkContainerClassNames = cx('side-menu__nav-link-container', {
     'side-menu__nav-link-container--active': currentPage === 'skilldex',
+  })
+  const eventsLinkContainerClassNames = cx('side-menu__nav-link-container', {
+    'side-menu__nav-link-container--active': currentPage === 'eventdex',
   })
 
   return (
@@ -111,6 +118,15 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
               Skilldex
             </Link>
           </div>
+
+          {isDev && (
+            <div className={eventsLinkContainerClassNames}>
+              <Link href="/codex/events" className={cx('side-menu__nav-link')}>
+                {getNavLinkImage(CoinsOfPassingImageUrl, 'Eventdex logo')}
+                Eventdex
+              </Link>
+            </div>
+          )}
 
           <div className={cx('side-menu__nav-link-container')}>
             <Link

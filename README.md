@@ -33,7 +33,7 @@ Mainly tailored towards the **Weekly Challenges**, this tool lets you:
 
 There is also a **Talents Codex** tool, for visualizing all the in-game talents in tiny talent trees, with some search, filtering and formatting options as well!
 
-Tailored towards anyone trying to plan out a specific run, or just trying to collect all talents in-game, this tool lets you:
+Tailored towards anyone trying to plan out a specific run, or just looking for new fun talents to unlock, this tool lets you:
  - 🔍 Look up several talents at once based on given keywords.
  - 🌳 Visualize the talents in tiny trees, based on their prerequisites or later talents.
  - 🧮 Filter based on card sets, requirements, tiers, and more.
