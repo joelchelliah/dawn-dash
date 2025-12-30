@@ -12,9 +12,9 @@
   margin-top: 1rem;
 }
 
-.excluded-message,
-.no-event-message {
+.info-message {
   font-size: font-size('sm');
+  line-height: 1.5;
   color: $color-primary-muted;
   text-align: center;
   padding: 2rem;
