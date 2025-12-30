@@ -1,0 +1,107 @@
+@use 'index' as *;
+
+.event-tree-container {
+  width: 100%;
+  overflow: auto;
+  margin-top: 1rem;
+}
+
+.event-tree {
+  width: 100%;
+  height: 100%;
+  min-height: 500px;
+}
+
+.title {
+  font-size: font-size('lg');
+  font-weight: 700;
+  margin-bottom: 1rem;
+  text-align: center;
+  fill: $color-primary-base;
+}
+
+.svg-container {
+  width: 100%;
+  overflow: auto;
+  border: 2px solid $color-component-border;
+  border-radius: 8px;
+  background-color: $color-component-bg;
+  padding: 1rem;
+}
+
+.svg {
+  display: block;
+  margin: 0 auto;
+}
+
+.tree-link {
+  fill: none;
+  stroke: $color-primary-base;
+  stroke-width: 2px;
+  opacity: 0.75;
+}
+
+.event-node {
+  stroke-width: 2px;
+  rx: 5px;
+
+  &--dialogue {
+    fill: #4a90e2;
+    stroke: #2c3e50;
+  }
+
+  &--choice {
+    fill: #d18b01;
+    stroke: #2c3e50;
+  }
+
+  &--combat {
+    fill: #e74c3c;
+    stroke: #2c3e50;
+  }
+
+  &--end {
+    fill: #5a6268;
+    stroke: #2c3e50;
+  }
+
+  &--default {
+    fill: #bdc3c7;
+    stroke: #2c3e50;
+  }
+}
+
+.event-node-text {
+  fill: $color-primary-hover;
+  text-anchor: middle;
+  pointer-events: none;
+
+  &--main {
+    font-size: font-size('xs');
+    font-weight: 600;
+  }
+
+  &--label {
+    font-size: font-size('xxs');
+    font-weight: 700;
+  }
+
+  &--requirement {
+    font-size: font-size('xxs');
+  }
+
+  &--effect {
+    font-size: font-size('xxs');
+  }
+
+  &--end-label {
+    font-size: font-size('xxs');
+    font-style: italic;
+  }
+}
+
+.repeatable-indicator {
+  fill: #9b59b6;
+  stroke: $color-primary-hover;
+  stroke-width: 2px;
+}

@@ -1,7 +1,7 @@
 // Node types that can appear in the event tree
 export type EventNodeType = 'dialogue' | 'choice' | 'combat' | 'end'
 
-export interface EventTree {
+export interface Event {
   name: string
   type: number
   artwork: string

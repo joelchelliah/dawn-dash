@@ -6,17 +6,17 @@ import { hierarchy, tree } from 'd3-hierarchy'
 import { createCx } from '@/shared/utils/classnames'
 import { wrapText } from '@/shared/utils/textHelper'
 
-import { EventTree, EventTreeNode } from '../types/events'
+import { Event, EventTreeNode } from '@/codex/types/events'
 
-import styles from './EventTreeVisualization.module.scss'
+import styles from './index.module.scss'
 
 const cx = createCx(styles)
 
-interface EventTreeVisualizationProps {
-  event: EventTree
+interface EventTreeProps {
+  event: Event
 }
 
-function EventTreeVisualization({ event }: EventTreeVisualizationProps): JSX.Element {
+function EventTree({ event }: EventTreeProps): JSX.Element {
   const svgRef = useRef<SVGSVGElement>(null)
 
   useEffect(() => {
@@ -150,14 +150,11 @@ function EventTreeVisualization({ event }: EventTreeVisualizationProps): JSX.Ele
     const g = svg.append('g').attr('transform', `translate(${offsetX}, ${padding})`)
 
     // Draw links (lines between nodes)
-    g.selectAll('.link')
+    g.selectAll(`.${cx('tree-link')}`)
       .data(root.links())
       .enter()
       .append('path')
-      .attr('class', 'link')
-      .attr('fill', 'none')
-      .attr('stroke', '#999')
-      .attr('stroke-width', 2)
+      .attr('class', cx('tree-link'))
       .attr('d', (d) => {
         const sourceY = d.source.y || 0
         const targetY = d.target.y || 0
@@ -179,27 +176,24 @@ function EventTreeVisualization({ event }: EventTreeVisualizationProps): JSX.Ele
     // Add rectangles for nodes with dynamic heights
     nodes
       .append('rect')
+      .attr('class', (d) => {
+        switch (d.data.type) {
+          case 'dialogue':
+            return cx('event-node', 'event-node--dialogue')
+          case 'choice':
+            return cx('event-node', 'event-node--choice')
+          case 'combat':
+            return cx('event-node', 'event-node--combat')
+          case 'end':
+            return cx('event-node', 'event-node--end')
+          default:
+            return cx('event-node', 'event-node--default')
+        }
+      })
       .attr('x', -nodeWidth / 2)
       .attr('y', (d) => -getNodeHeight(d.data) / 2)
       .attr('width', nodeWidth)
       .attr('height', (d) => getNodeHeight(d.data))
-      .attr('rx', 5)
-      .attr('fill', (d) => {
-        switch (d.data.type) {
-          case 'dialogue':
-            return '#4a90e2'
-          case 'choice':
-            return '#d18b01'
-          case 'combat':
-            return '#e74c3c'
-          case 'end':
-            return '#5a6268' // Darker grey for end nodes
-          default:
-            return '#bdc3c7'
-        }
-      })
-      .attr('stroke', '#2c3e50')
-      .attr('stroke-width', 2)
 
     // Add main text content
     nodes.each(function (d) {
@@ -407,12 +401,10 @@ function EventTreeVisualization({ event }: EventTreeVisualizationProps): JSX.Ele
     nodes
       .filter((d) => d.data.repeatable === true)
       .append('circle')
+      .attr('class', cx('repeatable-indicator'))
       .attr('cx', nodeWidth / 2 - 10)
       .attr('cy', (d) => -getNodeHeight(d.data) / 2 + 10)
       .attr('r', 6)
-      .attr('fill', '#9b59b6')
-      .attr('stroke', 'white')
-      .attr('stroke-width', 2)
 
     // Add title for hover tooltip
     nodes.append('title').text((d) => {
@@ -425,13 +417,13 @@ function EventTreeVisualization({ event }: EventTreeVisualizationProps): JSX.Ele
   }, [event])
 
   return (
-    <div className={cx('container')}>
+    <div className={cx('event-tree-container')}>
       <h2 className={cx('title')}>{event.name}</h2>
       <div className={cx('svg-container')}>
-        <svg ref={svgRef} className={cx('svg')} />
+        <svg ref={svgRef} className={cx('event-tree')} />
       </div>
     </div>
   )
 }
 
-export default EventTreeVisualization
+export default EventTree

@@ -9,13 +9,14 @@ import Header from '@/shared/components/Header'
 import ScrollToTopButton from '@/shared/components/ScrollToTopButton'
 
 import eventTreesData from './data/event-trees.json'
-import { EventTree } from './types/events'
-import EventTreeVisualization from './components/EventTreeVisualization'
+import { Event } from './types/events'
+import EventSearchPanel from './components/SearchPanels/EventSearchPanel'
+import EventResultsPanel from './components/ResultsPanels/EventResultsPanel'
 import styles from './events.module.scss'
 
 const cx = createCx(styles)
 
-const eventTrees = eventTreesData as EventTree[]
+const eventTrees = eventTreesData as Event[]
 
 function Events(): JSX.Element {
   const { resetToEventCodex } = useNavigation()
@@ -35,31 +36,11 @@ function Events(): JSX.Element {
       />
 
       <div className={cx('content')}>
-        <div className={cx('event-selector')}>
-          <label htmlFor="event-select">Select Event:</label>
-          <select
-            id="event-select"
-            value={selectedEventIndex}
-            onChange={(e) => setSelectedEventIndex(Number(e.target.value))}
-            className={cx('select')}
-          >
-            {eventTrees.map((event, index) => (
-              <option key={index} value={index}>
-                {event.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {selectedEvent && !selectedEvent.excluded && (
-          <EventTreeVisualization event={selectedEvent} />
-        )}
-
-        {selectedEvent && selectedEvent.excluded && (
-          <div className={cx('excluded-message')}>
-            This event has been excluded from visualization.
-          </div>
-        )}
+        <EventSearchPanel
+          selectedEventIndex={selectedEventIndex}
+          onEventChange={setSelectedEventIndex}
+        />
+        <EventResultsPanel selectedEvent={selectedEvent} />
       </div>
 
       <Footer />

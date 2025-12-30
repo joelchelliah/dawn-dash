@@ -1,0 +1,21 @@
+@use 'index' as *;
+
+.results-panel {
+  background-color: $color-component-bg;
+  padding: 1rem;
+  border-radius: 4px;
+}
+
+.results-container {
+  display: flex;
+  flex-direction: column;
+  margin-top: 1rem;
+}
+
+.excluded-message,
+.no-event-message {
+  font-size: font-size('sm');
+  color: $color-primary-muted;
+  text-align: center;
+  padding: 2rem;
+}
