@@ -7,6 +7,7 @@ import { createCx } from '@/shared/utils/classnames'
 import { wrapText } from '@/shared/utils/textHelper'
 
 import { Event, EventTreeNode } from '@/codex/types/events'
+import { calculateNodeHeight, calculateSvgWidth } from '@/codex/utils/eventTreeHelper'
 
 import styles from './index.module.scss'
 
@@ -25,62 +26,16 @@ function EventTree({ event }: EventTreeProps): JSX.Element {
     // Clear previous visualization
     select(svgRef.current).selectAll('*').remove()
 
-    // Get available width from container (max-width is 1200px in CSS)
-    const containerWidth = svgRef.current.parentElement?.clientWidth || 1200
     const nodeWidth = 200
-    const baseNodeHeight = 60
-    const defaultHorizontalSpacing = 250
-    const defaultVerticalSpacing = 150
-    const padding = 40
+    const minNodeHeight = 60
+    const defaultHorizontalSpacing = 250 // Fixed spacing between nodes horizontally
+    const defaultVerticalSpacing = 150 // Fixed spacing between depth levels
     const lineHeight = 12
 
-    // Create tree hierarchy
     const root = hierarchy(event.rootNode, (d) => d.children)
 
-    // Calculate dynamic node height based on content
     const getNodeHeight = (node: EventTreeNode): number => {
-      // Check if this is the root node
-      const isRootNode = event.rootNode && node.id === event.rootNode.id
-
-      if (node.type === 'choice') {
-        const requirements = node.requirements || []
-        const choiceText = node.choiceLabel || node.text
-        const choiceLines = wrapText(choiceText, nodeWidth - 20, 11)
-
-        // Height = choice text lines + requirements box (if any) + padding
-        const choiceTextHeight = choiceLines.length * lineHeight
-        const reqBoxHeight = requirements.length > 0 ? requirements.length * 12 + 20 : 0
-        const padding = 14
-        const totalContentHeight = choiceTextHeight + reqBoxHeight + padding
-
-        return Math.max(baseNodeHeight, totalContentHeight)
-      } else if (node.type === 'end') {
-        if (node.effects && node.effects.length > 0) {
-          // Height = effects box (header + effects list) + padding
-          const effectsBoxHeight = node.effects.length * 12 + 20 // Header + one line per effect
-          return effectsBoxHeight + 20 // Add padding
-        }
-      } else if (node.type === 'dialogue') {
-        // Root node only shows event name + continue box (if present)
-        if (isRootNode) {
-          const eventNameHeight = 20 // Event name is short and bold
-          const continueHeight = node.numContinues ? 25 : 0
-          const padding = 10
-          return eventNameHeight + continueHeight + padding
-        }
-
-        // Non-root dialogue nodes show truncated text
-        const displayText = node.text.length > 50 ? node.text.substring(0, 50) + '...' : node.text
-        const dialogueLines = wrapText(displayText, nodeWidth - 20, 10)
-        const textHeight = dialogueLines.length * lineHeight + 20
-
-        return Math.max(baseNodeHeight, textHeight)
-      } else if (node.type === 'combat') {
-        const combatLines = wrapText(node.text, nodeWidth - 20, 11)
-        return Math.max(baseNodeHeight, combatLines.length * lineHeight + 20)
-      }
-
-      return baseNodeHeight
+      return calculateNodeHeight(node, { nodeWidth, minNodeHeight, lineHeight, event })
     }
 
     // Use tree layout with static separation (spacing is already good)
@@ -93,61 +48,39 @@ function EventTree({ event }: EventTreeProps): JSX.Element {
 
     treeLayout(root)
 
-    // Calculate initial bounds
+    const svgWidth = calculateSvgWidth(root)
+    const verticalPadding = 28
+
+    // Calculate bounds
     let minX = Infinity
     let maxX = -Infinity
-    root.descendants().forEach((d) => {
-      const x = d.x ?? 0
-      if (x < minX) minX = x
-      if (x > maxX) maxX = x
-    })
-
-    const initialTreeWidth = maxX - minX + nodeWidth
-    const maxAllowedWidth = containerWidth - padding * 2
-
-    // If tree is too wide, scale it to fit
-    if (initialTreeWidth > maxAllowedWidth) {
-      const scaleFactor = maxAllowedWidth / initialTreeWidth
-
-      // Scale all x positions
-      root.descendants().forEach((d) => {
-        d.x = (d.x ?? 0) * scaleFactor
-      })
-
-      // Recalculate bounds after scaling
-      minX = Infinity
-      maxX = -Infinity
-      root.descendants().forEach((d) => {
-        const x = d.x ?? 0
-        if (x < minX) minX = x
-        if (x > maxX) maxX = x
-      })
-    }
-
-    // Calculate final bounds
     let minY = Infinity
     let maxY = -Infinity
     root.descendants().forEach((d) => {
+      const x = d.x ?? 0
       const y = d.y ?? 0
+      if (x < minX) minX = x
+      if (x > maxX) maxX = x
       if (y < minY) minY = y
       if (y > maxY) maxY = y
     })
 
     const treeWidth = maxX - minX + nodeWidth
-    const treeHeight = maxY - minY + baseNodeHeight * 2 // Add some buffer for variable heights
+    const treeHeight = maxY - minY + minNodeHeight
 
-    const width = treeWidth + padding * 2
-    const height = treeHeight + padding * 2
+    const width = svgWidth
+    const height = treeHeight
 
-    // Center the tree horizontally, accounting for node width
-    const offsetX = -minX + nodeWidth / 2 + padding
+    // Center the tree horizontally
+    const offsetX = -minX + nodeWidth / 2 + (svgWidth - treeWidth) / 2
+    const offsetY = -minY + verticalPadding
 
     const svg = select(svgRef.current)
       .attr('width', width)
       .attr('height', height)
       .attr('viewBox', `0 0 ${width} ${height}`)
 
-    const g = svg.append('g').attr('transform', `translate(${offsetX}, ${padding})`)
+    const g = svg.append('g').attr('transform', `translate(${offsetX}, ${offsetY})`)
 
     // Draw links (lines between nodes)
     g.selectAll(`.${cx('tree-link')}`)
@@ -231,12 +164,9 @@ function EventTree({ event }: EventTreeProps): JSX.Element {
 
           labelGroup
             .append('text')
+            .attr('class', cx('event-node-text', 'event-node-text--choice-label'))
             .attr('x', 0)
             .attr('y', yPosition)
-            .attr('text-anchor', 'middle')
-            .attr('fill', 'white')
-            .attr('font-size', '11px')
-            .attr('font-weight', 'bold')
             .text(line)
         })
 
@@ -248,22 +178,18 @@ function EventTree({ event }: EventTreeProps): JSX.Element {
 
           reqGroup
             .append('rect')
+            .attr('class', cx('requirement-box'))
             .attr('x', -nodeWidth / 2 + 5)
             .attr('y', 0)
             .attr('width', nodeWidth - 10)
             .attr('height', reqBoxHeight)
-            .attr('rx', 3)
-            .attr('fill', 'rgba(0, 0, 0, 0.3)')
 
           // Add "Requires:" label inside dark box
           reqGroup
             .append('text')
+            .attr('class', cx('event-node-text', 'event-node-text--requirement-header'))
             .attr('x', -nodeWidth / 2 + 10)
             .attr('y', 12)
-            .attr('text-anchor', 'start')
-            .attr('fill', 'white')
-            .attr('font-size', '10px')
-            .attr('font-weight', 'bold')
             .text('Requires:')
 
           // Add each requirement on its own line (left-aligned)
@@ -271,11 +197,9 @@ function EventTree({ event }: EventTreeProps): JSX.Element {
           requirements.forEach((req, i) => {
             reqGroup
               .append('text')
+              .attr('class', cx('event-node-text', 'event-node-text--requirement-item'))
               .attr('x', -nodeWidth / 2 + 10)
               .attr('y', topPaddingAfterLabel + i * 12)
-              .attr('text-anchor', 'start')
-              .attr('fill', 'white')
-              .attr('font-size', '10px')
               .text(req)
           })
         }
@@ -293,12 +217,9 @@ function EventTree({ event }: EventTreeProps): JSX.Element {
           // "Outcome:" label
           effectsGroup
             .append('text')
+            .attr('class', cx('event-node-text', 'event-node-text--effect-header'))
             .attr('x', -nodeWidth / 2 + 10)
             .attr('y', 8)
-            .attr('text-anchor', 'start')
-            .attr('fill', 'white')
-            .attr('font-size', '12px')
-            .attr('font-weight', 'bold')
             .text('Outcome:')
 
           // Each effect on its own line (left-aligned)
@@ -306,78 +227,68 @@ function EventTree({ event }: EventTreeProps): JSX.Element {
           effects.forEach((effect, i) => {
             effectsGroup
               .append('text')
+              .attr('class', cx('event-node-text', 'event-node-text--effect-item'))
               .attr('x', -nodeWidth / 2 + 10)
               .attr('y', topPaddingAfterLabel + i * 12)
-              .attr('text-anchor', 'start')
-              .attr('fill', 'white')
-              .attr('font-size', '10px')
               .text(effect)
           })
         } else {
           node
             .append('text')
+            .attr('class', cx('event-node-text', 'event-node-text--end-empty'))
             .attr('dy', 0)
-            .attr('text-anchor', 'middle')
-            .attr('fill', 'white')
-            .attr('font-size', '10px')
-            .attr('font-style', 'italic')
             .text('[End]')
         }
       } else if (data.type === 'dialogue') {
         // For dialogue nodes, show event name for root node only, otherwise show truncated text
         const isRootNode = d.depth === 0
+        const hasContinue = data.numContinues && data.numContinues > 0
+        const yOffset = hasContinue ? -4 : 4
 
         if (isRootNode) {
           node
             .append('text')
-            .attr('dy', -5)
-            .attr('text-anchor', 'middle')
-            .attr('fill', 'white')
-            .attr('font-size', '12px')
-            .attr('font-weight', 'bold')
+            .attr('class', cx('event-node-text', 'event-node-text--dialogue-main'))
+            .attr('dy', yOffset)
             .text(event.name)
-
-          // Add numContinues in dark box if present
-          if (data.numContinues && data.numContinues > 0) {
-            const dialogueNodeHeight = getNodeHeight(data)
-            const continueBox = node
-              .append('g')
-              .attr('transform', `translate(0, ${dialogueNodeHeight / 2 - 22})`)
-
-            continueBox
-              .append('rect')
-              .attr('x', -nodeWidth / 2 + 5)
-              .attr('y', 0)
-              .attr('width', nodeWidth - 10)
-              .attr('height', 18)
-              .attr('rx', 3)
-              .attr('fill', 'rgba(0, 0, 0, 0.3)')
-
-            continueBox
-              .append('text')
-              .attr('dy', 12)
-              .attr('text-anchor', 'middle')
-              .attr('fill', 'white')
-              .attr('font-size', '9px')
-              .text(`Continue x ${data.numContinues}`)
-          }
         } else {
           // Non-root dialogue nodes show truncated text
           const dialogueText =
-            data.text.length > 50 ? data.text.substring(0, 50) + '...' : data.text
+            data.text.length > 44 ? data.text.substring(0, 44) + '...' : data.text
           const dialogueLines = wrapText(dialogueText, nodeWidth - 20, 10)
           const lineHeight = 12
+          const yOffset = hasContinue ? -10 : -8
 
           dialogueLines.forEach((line, i) => {
             node
               .append('text')
+              .attr('class', cx('event-node-text', 'event-node-text--dialogue-text'))
               .attr('x', 0)
-              .attr('y', i * lineHeight)
-              .attr('text-anchor', 'middle')
-              .attr('fill', 'white')
-              .attr('font-size', '10px')
+              .attr('y', i * lineHeight + yOffset)
               .text(line)
           })
+        }
+
+        // Add numContinues in dark box if present
+        if (hasContinue) {
+          const dialogueNodeHeight = getNodeHeight(data)
+          const continueBox = node
+            .append('g')
+            .attr('transform', `translate(0, ${dialogueNodeHeight / 2 - 22})`)
+
+          continueBox
+            .append('rect')
+            .attr('class', cx('continue-box'))
+            .attr('x', -nodeWidth / 2 + 5)
+            .attr('y', 0)
+            .attr('width', nodeWidth - 10)
+            .attr('height', 18)
+
+          continueBox
+            .append('text')
+            .attr('class', cx('event-node-text', 'event-node-text--continue-badge'))
+            .attr('dy', 12)
+            .text(`Continue x ${data.numContinues}`)
         }
       } else {
         // For combat nodes, show the text
@@ -387,11 +298,9 @@ function EventTree({ event }: EventTreeProps): JSX.Element {
         combatLines.forEach((line, i) => {
           node
             .append('text')
+            .attr('class', cx('event-node-text', 'event-node-text--combat-text'))
             .attr('x', 0)
             .attr('y', i * lineHeight)
-            .attr('text-anchor', 'middle')
-            .attr('fill', 'white')
-            .attr('font-size', '11px')
             .text(line)
         })
       }
@@ -418,10 +327,7 @@ function EventTree({ event }: EventTreeProps): JSX.Element {
 
   return (
     <div className={cx('event-tree-container')}>
-      <h2 className={cx('title')}>{event.name}</h2>
-      <div className={cx('svg-container')}>
-        <svg ref={svgRef} className={cx('event-tree')} />
-      </div>
+      <svg ref={svgRef} className={cx('event-tree')} />
     </div>
   )
 }

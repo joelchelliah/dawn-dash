@@ -12,23 +12,6 @@
   min-height: 500px;
 }
 
-.title {
-  font-size: font-size('lg');
-  font-weight: 700;
-  margin-bottom: 1rem;
-  text-align: center;
-  fill: $color-primary-base;
-}
-
-.svg-container {
-  width: 100%;
-  overflow: auto;
-  border: 2px solid $color-component-border;
-  border-radius: 8px;
-  background-color: $color-component-bg;
-  padding: 1rem;
-}
-
 .svg {
   display: block;
   margin: 0 auto;
@@ -43,31 +26,27 @@
 
 .event-node {
   stroke-width: 2px;
+  stroke: $color-component-border-dark;
   rx: 5px;
 
   &--dialogue {
     fill: #4a90e2;
-    stroke: #2c3e50;
   }
 
   &--choice {
     fill: #d18b01;
-    stroke: #2c3e50;
   }
 
   &--combat {
     fill: #e74c3c;
-    stroke: #2c3e50;
   }
 
   &--end {
     fill: #5a6268;
-    stroke: #2c3e50;
   }
 
   &--default {
     fill: #bdc3c7;
-    stroke: #2c3e50;
   }
 }
 
@@ -76,28 +55,64 @@
   text-anchor: middle;
   pointer-events: none;
 
-  &--main {
-    font-size: font-size('xs');
-    font-weight: 600;
-  }
-
-  &--label {
+  &--choice-label {
     font-size: font-size('xxs');
-    font-weight: 700;
+    font-weight: bold;
   }
 
-  &--requirement {
+  &--dialogue-main {
     font-size: font-size('xxs');
+    font-weight: bold;
   }
 
-  &--effect {
+  &--dialogue-text {
     font-size: font-size('xxs');
   }
 
-  &--end-label {
+  &--combat-text {
+    font-size: font-size('xxs');
+  }
+
+  &--requirement-header {
+    font-size: font-size('xxs');
+    font-weight: bold;
+    text-anchor: start;
+  }
+
+  &--requirement-item {
+    font-size: font-size('xxs');
+    text-anchor: start;
+  }
+
+  &--effect-header {
+    font-size: font-size('xxs');
+    font-weight: bold;
+    text-anchor: start;
+  }
+
+  &--effect-item {
+    font-size: font-size('xxs');
+    text-anchor: start;
+  }
+
+  &--end-empty {
     font-size: font-size('xxs');
     font-style: italic;
   }
+
+  &--continue-badge {
+    font-size: font-size('xxs');
+  }
+}
+
+.requirement-box,
+.continue-box {
+  fill: rgba(0, 0, 0, 0.3);
+  rx: 3px;
+}
+
+.effect-box {
+  rx: 3px;
 }
 
 .repeatable-indicator {

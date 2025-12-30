@@ -28,7 +28,7 @@ import {
   REQUIREMENT_CLASS_TO_FILTER_OPTIONS_MAP,
   REQUIREMENT_ENERGY_TO_FILTER_OPTIONS_MAP,
 } from '@/codex/constants/talentsMappingValues'
-import { buildHierarchicalTreeFromTalentTree } from '@/codex/utils/treeHelper'
+import { buildHierarchicalTreeFromTalentTree } from '@/codex/utils/talentTreeHelper'
 import { useExpandableNodes } from '@/codex/hooks/useExpandableNodes'
 import { useAllTalentSearchFilters } from '@/codex/hooks/useSearchFilters'
 

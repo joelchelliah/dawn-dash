@@ -14,7 +14,7 @@ import {
   getCachedTalentCodexSearchFilters,
 } from '@/codex/utils/codexFilterStore'
 import { isTalentOffer } from '@/codex/utils/talentHelper'
-import { isTalentTreeEqual } from '@/codex/utils/treeHelper'
+import { isTalentTreeEqual } from '@/codex/utils/talentTreeHelper'
 import { RequirementFilterOption } from '@/codex/types/filters'
 
 import { useCardSetFilters } from './useCardSetFilters'
