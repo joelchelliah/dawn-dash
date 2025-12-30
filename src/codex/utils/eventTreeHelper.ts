@@ -65,6 +65,9 @@ export const calculateNodeHeight = (
 /**
  * Calculate SVG width based on max nodes at any depth level
  * Scales proportionally to ensure consistent node spacing
+ *
+ * Not super accurate since different nodes have different widths.
+ * But it's a good approximation.
  */
 export const calculateSvgWidth = (root: HierarchyNode<EventTreeNode>): number => {
   const maxNodesAtAnyDepth = calculateMaxNodesAtAnyDepth(root.descendants())
@@ -72,6 +75,21 @@ export const calculateSvgWidth = (root: HierarchyNode<EventTreeNode>): number =>
   const baseNodeCount = 4
 
   return Math.max(600, (maxNodesAtAnyDepth / baseNodeCount) * baseWidth)
+}
+
+/**
+ * Calculate SVG height based on tree depth
+ * Scales proportionally to ensure consistent vertical spacing
+ *
+ * Not super accurate since different nodes have different heights.
+ * But it's a good approximation.
+ */
+export const calculateSvgHeight = (root: HierarchyNode<EventTreeNode>): number => {
+  const maxDepth = root.height + 1 // +1 because root.height is 0-indexed
+  const baseHeight = 575
+  const baseDepthCount = 4
+
+  return Math.max(200, (maxDepth / baseDepthCount) * baseHeight)
 }
 
 /**

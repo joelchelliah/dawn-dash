@@ -7,7 +7,11 @@ import { createCx } from '@/shared/utils/classnames'
 import { wrapText } from '@/shared/utils/textHelper'
 
 import { Event, EventTreeNode } from '@/codex/types/events'
-import { calculateNodeHeight, calculateSvgWidth } from '@/codex/utils/eventTreeHelper'
+import {
+  calculateNodeHeight,
+  calculateSvgWidth,
+  calculateSvgHeight,
+} from '@/codex/utils/eventTreeHelper'
 
 import styles from './index.module.scss'
 
@@ -49,7 +53,7 @@ function EventTree({ event }: EventTreeProps): JSX.Element {
     treeLayout(root)
 
     const svgWidth = calculateSvgWidth(root)
-    const verticalPadding = 28
+    const svgHeight = calculateSvgHeight(root)
 
     // Calculate bounds
     let minX = Infinity
@@ -68,17 +72,14 @@ function EventTree({ event }: EventTreeProps): JSX.Element {
     const treeWidth = maxX - minX + nodeWidth
     const treeHeight = maxY - minY + minNodeHeight
 
-    const width = svgWidth
-    const height = treeHeight
-
-    // Center the tree horizontally
+    // Center the tree horizontally and vertically
     const offsetX = -minX + nodeWidth / 2 + (svgWidth - treeWidth) / 2
-    const offsetY = -minY + verticalPadding
+    const offsetY = -minY + (svgHeight - treeHeight) / 2
 
     const svg = select(svgRef.current)
-      .attr('width', width)
-      .attr('height', height)
-      .attr('viewBox', `0 0 ${width} ${height}`)
+      .attr('width', svgWidth)
+      .attr('height', svgHeight)
+      .attr('viewBox', `0 0 ${svgWidth} ${svgHeight}`)
 
     const g = svg.append('g').attr('transform', `translate(${offsetX}, ${offsetY})`)
 
