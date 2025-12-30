@@ -7,11 +7,7 @@ import { createCx } from '@/shared/utils/classnames'
 import { wrapText } from '@/shared/utils/textHelper'
 
 import { Event, EventTreeNode } from '@/codex/types/events'
-import {
-  calculateNodeHeight,
-  calculateSvgWidth,
-  calculateSvgHeight,
-} from '@/codex/utils/eventTreeHelper'
+import { calculateNodeHeight } from '@/codex/utils/eventTreeHelper'
 
 import styles from './index.module.scss'
 
@@ -52,29 +48,32 @@ function EventTree({ event }: EventTreeProps): JSX.Element {
 
     treeLayout(root)
 
-    const svgWidth = calculateSvgWidth(root)
-    const svgHeight = calculateSvgHeight(root)
-
-    // Calculate bounds
-    let minX = Infinity
-    let maxX = -Infinity
-    let minY = Infinity
-    let maxY = -Infinity
+    // Calculate bounds based on positioned nodes
+    let minX = Infinity // Left edge of the leftmost node
+    let maxX = -Infinity // Right edge of the rightmost node
+    let minY = Infinity // Top edge of the topmost node
+    let maxY = -Infinity // Bottom edge of the bottommost node
     root.descendants().forEach((d) => {
       const x = d.x ?? 0
       const y = d.y ?? 0
-      if (x < minX) minX = x
-      if (x > maxX) maxX = x
-      if (y < minY) minY = y
-      if (y > maxY) maxY = y
+      const nodeHeight = getNodeHeight(d.data)
+      // Track edges for both X and Y
+      if (x - nodeWidth / 2 < minX) minX = x - nodeWidth / 2
+      if (x + nodeWidth / 2 > maxX) maxX = x + nodeWidth / 2
+      if (y - nodeHeight / 2 < minY) minY = y - nodeHeight / 2
+      if (y + nodeHeight / 2 > maxY) maxY = y + nodeHeight / 2
     })
 
-    const treeWidth = maxX - minX + nodeWidth
-    const treeHeight = maxY - minY + minNodeHeight
+    const treeWidth = maxX - minX
+    const treeHeight = maxY - minY
+
+    const treePadding = 20
+    const svgWidth = treeWidth + treePadding * 2
+    const svgHeight = treeHeight + treePadding * 2
 
     // Center the tree horizontally and vertically
-    const offsetX = -minX + nodeWidth / 2 + (svgWidth - treeWidth) / 2
-    const offsetY = -minY + (svgHeight - treeHeight) / 2
+    const offsetX = -minX + treePadding
+    const offsetY = -minY + treePadding
 
     const svg = select(svgRef.current)
       .attr('width', svgWidth)
