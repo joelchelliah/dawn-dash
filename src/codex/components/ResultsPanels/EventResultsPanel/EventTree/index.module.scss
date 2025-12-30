@@ -100,23 +100,19 @@
     font-style: italic;
   }
 
-  &--continue-badge {
+  &--continue-badge,
+  &--repeatable-badge {
     font-size: font-size('xxs');
   }
 }
 
 .requirement-box,
-.continue-box {
+.continue-box,
+.repeatable-box {
   fill: rgba(0, 0, 0, 0.3);
   rx: 3px;
 }
 
 .effect-box {
   rx: 3px;
-}
-
-.repeatable-indicator {
-  fill: #9b59b6;
-  stroke: $color-primary-hover;
-  stroke-width: 2px;
 }

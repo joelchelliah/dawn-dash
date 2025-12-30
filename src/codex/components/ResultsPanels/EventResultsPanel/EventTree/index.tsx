@@ -31,7 +31,7 @@ function EventTree({ event }: EventTreeProps): JSX.Element {
     select(svgRef.current).selectAll('*').remove()
 
     const nodeWidth = 200
-    const minNodeHeight = 60
+    const minNodeHeight = 30
     const defaultHorizontalSpacing = 250 // Fixed spacing between nodes horizontally
     const defaultVerticalSpacing = 150 // Fixed spacing between depth levels
     const lineHeight = 12
@@ -138,8 +138,8 @@ function EventTree({ event }: EventTreeProps): JSX.Element {
         // For choice nodes, show the choice label
         const requirements = data.requirements || []
         const hasRequirements = requirements.length > 0
-        // Add extra height for "Requires:" label
         const reqBoxHeight = hasRequirements ? requirements.length * 12 + 20 : 0
+        const repeatableBoxHeight = data.repeatable ? 22 : 0
 
         // Choice label group - centered in top portion of box
         const currentNodeHeight = getNodeHeight(data)
@@ -147,21 +147,20 @@ function EventTree({ event }: EventTreeProps): JSX.Element {
           .append('g')
           .attr(
             'transform',
-            `translate(0, ${-currentNodeHeight / 2 + (currentNodeHeight - reqBoxHeight - 10) / 2})`
+            `translate(0, ${-currentNodeHeight / 2 + (currentNodeHeight - reqBoxHeight - repeatableBoxHeight - 10) / 2})`
           )
 
         // Pre-calculate text lines
         const choiceText = data.choiceLabel || data.text
         const choiceLines = wrapText(choiceText, nodeWidth - 20, 11)
-        const choiceLabelLineHeight = 12
 
         // Calculate vertical centering offset based on total text height
-        const totalTextHeight = choiceLines.length * choiceLabelLineHeight
-        const verticalCenteringOffset = -totalTextHeight / 2 + choiceLabelLineHeight / 2
+        const totalTextHeight = choiceLines.length * lineHeight
+        const verticalCenteringOffset = -totalTextHeight / 2 + lineHeight / 2 + 3
 
         // Render each line
         choiceLines.forEach((line, i) => {
-          const yPosition = i * choiceLabelLineHeight + verticalCenteringOffset
+          const yPosition = i * lineHeight + verticalCenteringOffset
 
           labelGroup
             .append('text')
@@ -171,11 +170,14 @@ function EventTree({ event }: EventTreeProps): JSX.Element {
             .text(line)
         })
 
-        // Add requirements box if present (at bottom of node)
+        // Add requirements box if present (at bottom of node, or above repeatable box)
         if (hasRequirements) {
           const reqGroup = node
             .append('g')
-            .attr('transform', `translate(0, ${currentNodeHeight / 2 - reqBoxHeight - 5})`)
+            .attr(
+              'transform',
+              `translate(0, ${currentNodeHeight / 2 - reqBoxHeight - repeatableBoxHeight - 5})`
+            )
 
           reqGroup
             .append('rect')
@@ -244,9 +246,11 @@ function EventTree({ event }: EventTreeProps): JSX.Element {
         // For dialogue nodes, show event name for root node only, otherwise show truncated text
         const isRootNode = d.depth === 0
         const hasContinue = data.numContinues && data.numContinues > 0
-        const yOffset = hasContinue ? -4 : 4
+        const hasBottomBox = hasContinue || data.repeatable
 
         if (isRootNode) {
+          const yOffset = hasBottomBox ? -4 : 4
+
           node
             .append('text')
             .attr('class', cx('event-node-text', 'event-node-text--dialogue-main'))
@@ -258,7 +262,7 @@ function EventTree({ event }: EventTreeProps): JSX.Element {
             data.text.length > 44 ? data.text.substring(0, 44) + '...' : data.text
           const dialogueLines = wrapText(dialogueText, nodeWidth - 20, 10)
           const lineHeight = 12
-          const yOffset = hasContinue ? -10 : -8
+          const yOffset = hasBottomBox ? -20 : -14
 
           dialogueLines.forEach((line, i) => {
             node
@@ -295,13 +299,15 @@ function EventTree({ event }: EventTreeProps): JSX.Element {
         // For combat nodes, show the text
         const combatLines = wrapText(data.text, nodeWidth - 20, 11)
         const lineHeight = 12
+        const hasBottomBox = data.repeatable
+        const yOffset = hasBottomBox ? -10 : 0
 
         combatLines.forEach((line, i) => {
           node
             .append('text')
             .attr('class', cx('event-node-text', 'event-node-text--combat-text'))
             .attr('x', 0)
-            .attr('y', i * lineHeight)
+            .attr('y', i * lineHeight + yOffset)
             .text(line)
         })
       }
@@ -310,11 +316,28 @@ function EventTree({ event }: EventTreeProps): JSX.Element {
     // Add repeatable indicator
     nodes
       .filter((d) => d.data.repeatable === true)
-      .append('circle')
-      .attr('class', cx('repeatable-indicator'))
-      .attr('cx', nodeWidth / 2 - 10)
-      .attr('cy', (d) => -getNodeHeight(d.data) / 2 + 10)
-      .attr('r', 6)
+      .each(function (d) {
+        const node = select(this)
+        const nodeHeight = getNodeHeight(d.data)
+
+        const repeatableBox = node
+          .append('g')
+          .attr('transform', `translate(0, ${nodeHeight / 2 - 22})`)
+
+        repeatableBox
+          .append('rect')
+          .attr('class', cx('repeatable-box'))
+          .attr('x', -nodeWidth / 2 + 5)
+          .attr('y', 0)
+          .attr('width', nodeWidth - 10)
+          .attr('height', 18)
+
+        repeatableBox
+          .append('text')
+          .attr('class', cx('event-node-text', 'event-node-text--repeatable-badge'))
+          .attr('dy', 12)
+          .text('Repeatable')
+      })
 
     // Add title for hover tooltip
     nodes.append('title').text((d) => {
