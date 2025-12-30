@@ -1,1 +1,1 @@
-export type CurrentPageType = 'speedruns' | 'cardex' | 'skilldex' | 'eventdex'
+export type CurrentPageType = 'speedruns' | 'cardex' | 'skilldex' | 'questlog'

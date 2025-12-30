@@ -6,9 +6,9 @@ import Link from 'next/link'
 import { HamburgerIcon, HamburgerMenuIcon } from '@/shared/utils/icons'
 import {
   AbracadabraImageUrl,
-  CoinsOfPassingImageUrl,
   DashImageUrl,
   EleganceImageUrl,
+  MapOfHuesImageUrl,
   RushedForgeryImageUrl,
 } from '@/shared/utils/imageUrls'
 import { createCx } from '@/shared/utils/classnames'
@@ -25,6 +25,7 @@ interface SideMenuProps {
 }
 
 const cx = createCx(styles)
+// TODO: Remove this once the Questlog is ready
 const isDev = process.env.NODE_ENV === 'development'
 
 const SideMenu = ({ currentPage }: SideMenuProps) => {
@@ -70,8 +71,8 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
   const skilldexLinkContainerClassNames = cx('side-menu__nav-link-container', {
     'side-menu__nav-link-container--active': currentPage === 'skilldex',
   })
-  const eventsLinkContainerClassNames = cx('side-menu__nav-link-container', {
-    'side-menu__nav-link-container--active': currentPage === 'eventdex',
+  const questlogLinkContainerClassNames = cx('side-menu__nav-link-container', {
+    'side-menu__nav-link-container--active': currentPage === 'questlog',
   })
 
   return (
@@ -120,10 +121,10 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
           </div>
 
           {isDev && (
-            <div className={eventsLinkContainerClassNames}>
+            <div className={questlogLinkContainerClassNames}>
               <Link href="/codex/events" className={cx('side-menu__nav-link')}>
-                {getNavLinkImage(CoinsOfPassingImageUrl, 'Eventdex logo')}
-                Eventdex
+                {getNavLinkImage(MapOfHuesImageUrl, 'Questlog logo')}
+                Questlog
               </Link>
             </div>
           )}
@@ -174,10 +175,26 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
         </h3>
 
         <p className={cx('info-last-paragraph')}>
-          A codex and talent-tree-like vizualisation for all the talents and infernal offers
-          available in <b>Dawncaster</b>. Also has some filtering and formatting options to narrow
-          down the results!
+          A codex and talent-tree vizualisation of all the talents and infernal offers available in{' '}
+          <b>Dawncaster</b>. Includes several options to narrow down the results and track down the
+          talents you need for your run!
         </p>
+
+        {isDev && (
+          <>
+            <div className={cx('info-divider')} />
+
+            <h3 className={cx('info-title')}>
+              {getNavLinkImage(MapOfHuesImageUrl, 'Questlog logo')} Questlog
+            </h3>
+
+            <p className={cx('info-last-paragraph')}>
+              Fully mapped out dialogue trees for all events available in <b>Dawncaster</b>. See all
+              dialogue options, along with their requirements and rewards, so that you can get the
+              best outcome from each event!
+            </p>
+          </>
+        )}
       </InfoModal>
     </>
   )

@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { createCx } from '@/shared/utils/classnames'
 import { useNavigation } from '@/shared/hooks/useNavigation'
 import { useScrollToTop } from '@/shared/hooks/useScrollToTop'
-import { CoinsOfPassingImageUrl } from '@/shared/utils/imageUrls'
+import { MapOfHuesImageUrl } from '@/shared/utils/imageUrls'
 import Footer from '@/shared/components/Footer'
 import Header from '@/shared/components/Header'
 import ScrollToTopButton from '@/shared/components/ScrollToTopButton'
@@ -29,11 +29,13 @@ function Events(): JSX.Element {
     <div className={cx('container')}>
       <Header
         onLogoClick={resetToEventCodex}
-        logoSrc={CoinsOfPassingImageUrl}
-        title="Dawn-Dash : Eventdex"
+        logoSrc={MapOfHuesImageUrl}
+        title="Dawn-Dash : Questlog"
         subtitle="Dawncaster events codex"
-        currentPage="eventdex"
+        currentPage="questlog"
       />
+
+      <div className={cx('wip-message')}>🚧 Work in progress...</div>
 
       <div className={cx('content')}>
         <EventSearchPanel

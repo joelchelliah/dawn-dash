@@ -17,6 +17,7 @@ export const HealingPotionImageUrl = `${blightbaneImagesUrl}/icons/cardart_3_6.w
 export const WatchedImageUrl = `${blightbaneImagesUrl}/icons/cardart_3_24.webp`
 export const CollectorImageUrl = `${blightbaneImagesUrl}/icons/cardart_2_4.webp`
 export const ForgeryImageUrl = `${blightbaneImagesUrl}/icons/cardart_3_59.webp`
+export const MapOfHuesImageUrl = `${blightbaneImagesUrl}/icons/map%20of%20hues_eclypse.webp`
 
 // Classes
 export const ArcanistImageUrl = `${blightbaneImagesUrl}/classes/Arcanist_I_M.webp`

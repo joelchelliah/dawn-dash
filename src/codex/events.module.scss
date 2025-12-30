@@ -9,3 +9,10 @@
   @extend %codex-content;
   flex-direction: column;
 }
+
+.wip-message {
+  margin-left: 1rem;
+  font-size: font-size('md');
+  font-weight: 800;
+  color: $color-danger-error;
+}

@@ -5,21 +5,24 @@ const Events = dynamic(() => import('../../src/codex/events'), {
   loading: () => <div>Loading events...</div>,
 })
 
-export default function EventdexPage() {
-  const title = 'Dawn-Dash : Eventdex'
+export default function QuestlogPage() {
+  const title = 'Dawn-Dash : Questlog'
   const description =
-    'Interactive Dawncaster events codex, for visualizing all opportunities in the game, along with their dialogue options, requirements and effects!'
+    'Interactive Dawncaster events codex, with fully mapped out branches and options, to help you get the best outcome from each event!'
   const ogDescription =
-    'Explore all Dawncaster events, along with their dialogue options, requirements and effects, visualized in a tree structure!'
-  const image = 'https://www.dawn-dash.com/og-image-eventdex.png'
+    'Explore all Dawncaster events, as fully mapped out dialogue trees, including all dialogue options, requirements and rewards!'
+  // TODO: Update this once the Questlog is ready
+  const image = 'https://www.dawn-dash.com/og-image-questlog-WIP.png'
   const url = 'https://www.dawn-dash.com/codex/events'
-  const squareLogo = 'https://www.dawn-dash.com/logo-eventdex.png'
+  const squareLogo = 'https://www.dawn-dash.com/logo-questlog.png'
 
   return (
     <>
       <Head>
         <title>{title}</title>
         <meta name="description" content={description} />
+        {/* TODO: Remove this once the Questlog is ready */}
+        <meta name="robots" content="noindex, nofollow" />
         <link rel="canonical" href={url} />
 
         <meta property="og:type" content="website" />
