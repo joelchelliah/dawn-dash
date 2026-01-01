@@ -122,7 +122,7 @@ const TalentTree = ({
           return nameHeight * 2.8 + additionalHeight
         }
 
-        const descLines = wrapTextForTalents(node.description, nodeWidth + 10, 10)
+        const descLines = wrapTextForTalents(node.description, nodeWidth + 10)
         const descriptionHeight = Math.max(
           minDescriptionHeight,
           descLines.length * descriptionLineHeight
@@ -340,15 +340,17 @@ const TalentTree = ({
         }
       } else {
         const isCollapsed = !isDescriptionExpanded(data.name)
-        const descLines = wrapTextForTalents(data.description, nodeWidth + 8, 11)
+        const descLines = wrapTextForTalents(data.description, nodeWidth + 8)
         const additionalRequirements = [
           ...data.otherRequirements,
           ...data.talentRequirements,
         ].filter(isNotNullOrUndefined)
 
+        const descriptionLinesPadding = 12
         const descriptionHeight = isCollapsed
           ? collapsedDescriptionHeight
-          : Math.max(minDescriptionHeight, descLines.length * descriptionLineHeight)
+          : Math.max(minDescriptionHeight, descLines.length * descriptionLineHeight) +
+            descriptionLinesPadding
         const extraRequirementHeight = additionalRequirements.length ? requirementsHeight : 0
         const matchingKeywordsHeight = shouldShowKeywords ? keywordsHeight : 0
         const blightbaneHeight = shouldShowBlightbaneLink ? blightbaneLinkHeight : 0
@@ -463,7 +465,7 @@ const TalentTree = ({
           // Calculate the base Y position for description
           const descBaseY =
             -dynamicNodeHeight / 2 + nameHeight + extraRequirementHeight + descriptionHeight / 2
-          const verticalCenteringOffset = -2
+          const verticalCenteringOffset = descriptionLinesPadding / 2 - 1
 
           if (shouldUseMobileFriendlyRendering) {
             // Mobile-friendly rendering: use SVG text with emojis

@@ -1,13 +1,14 @@
-// Wraps text into multiple lines based on width and font size
+// Wraps text into multiple lines based on available width
 export const wrapText = (
   text: string,
   width: number,
-  fontSize: number,
   customCharCounter?: (str: string) => number
 ): string[] => {
+  const fontSize = 12 // Corresponds to font-size('xxs')
   const approxCharacterWidth = fontSize * 0.61
+
   const words = text.split(' ')
-  const lines: string[] = [''] // Start with an empty line for slight padding
+  const lines: string[] = []
   let currentLine = words[0]
 
   const charCounter = customCharCounter || countRelevantCharactersForLineWidth

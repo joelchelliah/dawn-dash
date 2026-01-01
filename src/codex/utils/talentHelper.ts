@@ -263,10 +263,10 @@ export const parseTalentDescriptionLineForMobileRendering = (line: string): stri
   return result
 }
 
-// Wraps text into multiple lines based on width and font size
+// Wraps text into multiple lines based on available width
 // Uses talents-specific character counting for icon keywords
-export const wrapTextForTalents = (text: string, width: number, fontSize: number) => {
-  return wrapText(text, width, fontSize, countRelevantCharactersForLineWidth)
+export const wrapTextForTalents = (text: string, width: number) => {
+  return wrapText(text, width, countRelevantCharactersForLineWidth)
 }
 
 // Returns a formatted string of keywords that match the talent's name or description

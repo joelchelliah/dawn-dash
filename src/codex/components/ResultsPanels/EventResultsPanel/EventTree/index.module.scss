@@ -54,21 +54,27 @@
   text-anchor: middle;
   pointer-events: none;
 
-  &--choice-label {
-    font-size: font-size('xxs');
+  &--choice {
+    font-size: font-size('xs');
     font-weight: bold;
   }
 
-  &--dialogue-root {
+  &--root {
     font-size: font-size('sm');
     font-weight: bold;
   }
 
-  &--dialogue-text {
+  &--dialogue {
     font-size: font-size('xxs');
   }
 
-  &--combat-text {
+  &--combat {
+    font-size: font-size('xs');
+    font-weight: bold;
+    font-style: italic;
+  }
+
+  &--end {
     font-size: font-size('xxs');
   }
 
@@ -92,11 +98,6 @@
   &--effect-item {
     font-size: font-size('xxs');
     text-anchor: start;
-  }
-
-  &--end-empty {
-    font-size: font-size('xxs');
-    font-style: italic;
   }
 
   &--continue-badge,

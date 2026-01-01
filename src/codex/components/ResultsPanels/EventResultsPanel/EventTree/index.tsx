@@ -7,7 +7,8 @@ import { createCx } from '@/shared/utils/classnames'
 import { wrapText } from '@/shared/utils/textHelper'
 
 import { Event, EventTreeNode } from '@/codex/types/events'
-import { calculateNodeHeight } from '@/codex/utils/eventTreeHelper'
+import { getNodeHeight, calculateTreeBounds } from '@/codex/utils/eventTreeHelper'
+import { NODE, TREE, TEXT, INNER_BOX, NODE_BOX } from '@/codex/constants/eventTreeValues'
 
 import styles from './index.module.scss'
 
@@ -26,21 +27,10 @@ function EventTree({ event }: EventTreeProps): JSX.Element {
     // Clear previous visualization
     select(svgRef.current).selectAll('*').remove()
 
-    const nodeWidth = 200
-    const minNodeHeight = 30
-    const defaultHorizontalSpacing = 250 // Fixed spacing between nodes horizontally
-    const defaultVerticalSpacing = 150 // Fixed spacing between depth levels
-    const lineHeight = 12
-
     const root = hierarchy(event.rootNode, (d) => d.children)
 
-    const getNodeHeight = (node: EventTreeNode): number => {
-      return calculateNodeHeight(node, { nodeWidth, minNodeHeight, lineHeight, event })
-    }
-
-    // Use tree layout with static separation (spacing is already good)
     const treeLayout = tree<EventTreeNode>()
-      .nodeSize([defaultHorizontalSpacing, defaultVerticalSpacing])
+      .nodeSize(NODE.DEFAULT_SIZE)
       .separation((a, b) => {
         // More spacing between non-siblings, less between siblings
         return a.parent === b.parent ? 1 : 1.25
@@ -49,31 +39,14 @@ function EventTree({ event }: EventTreeProps): JSX.Element {
     treeLayout(root)
 
     // Calculate bounds based on positioned nodes
-    let minX = Infinity // Left edge of the leftmost node
-    let maxX = -Infinity // Right edge of the rightmost node
-    let minY = Infinity // Top edge of the topmost node
-    let maxY = -Infinity // Bottom edge of the bottommost node
-    root.descendants().forEach((d) => {
-      const x = d.x ?? 0
-      const y = d.y ?? 0
-      const nodeHeight = getNodeHeight(d.data)
-      // Track edges for both X and Y
-      if (x - nodeWidth / 2 < minX) minX = x - nodeWidth / 2
-      if (x + nodeWidth / 2 > maxX) maxX = x + nodeWidth / 2
-      if (y - nodeHeight / 2 < minY) minY = y - nodeHeight / 2
-      if (y + nodeHeight / 2 > maxY) maxY = y + nodeHeight / 2
-    })
+    const bounds = calculateTreeBounds(root, event)
 
-    const treeWidth = maxX - minX
-    const treeHeight = maxY - minY
-
-    const treePadding = 20
-    const svgWidth = treeWidth + treePadding * 2
-    const svgHeight = treeHeight + treePadding * 2
+    const svgWidth = bounds.width + TREE.HORIZONTAL_PADDING * 2
+    const svgHeight = bounds.height + TREE.VERTICAL_PADDING * 2
 
     // Center the tree horizontally and vertically
-    const offsetX = -minX + treePadding
-    const offsetY = -minY + treePadding
+    const offsetX = -bounds.minX + TREE.HORIZONTAL_PADDING
+    const offsetY = -bounds.minY + TREE.VERTICAL_PADDING
 
     const svg = select(svgRef.current)
       .attr('width', svgWidth)
@@ -123,10 +96,10 @@ function EventTree({ event }: EventTreeProps): JSX.Element {
             return cx('event-node', 'event-node--default')
         }
       })
-      .attr('x', -nodeWidth / 2)
-      .attr('y', (d) => -getNodeHeight(d.data) / 2)
-      .attr('width', nodeWidth)
-      .attr('height', (d) => getNodeHeight(d.data))
+      .attr('x', -NODE.MIN_WIDTH / 2)
+      .attr('y', (d) => -getNodeHeight(d.data, event) / 2)
+      .attr('width', NODE.MIN_WIDTH)
+      .attr('height', (d) => getNodeHeight(d.data, event))
 
     // Add main text content
     nodes.each(function (d) {
@@ -137,204 +110,399 @@ function EventTree({ event }: EventTreeProps): JSX.Element {
         // For choice nodes, show the choice label
         const requirements = data.requirements || []
         const hasRequirements = requirements.length > 0
-        const reqBoxHeight = hasRequirements ? requirements.length * 12 + 20 : 0
-        const repeatableBoxHeight = data.repeatable ? 22 : 0
+        const reqBoxHeight = hasRequirements
+          ? TEXT.LINE_HEIGHT +
+            INNER_BOX.LISTINGS_HEADER_GAP +
+            requirements.length * TEXT.LINE_HEIGHT +
+            INNER_BOX.LISTINGS_VERTICAL_PADDING
+          : 0
+        const hasContinue = data.numContinues && data.numContinues > 0
+        const continueBoxHeight = hasContinue ? INNER_BOX.INDICATOR_HEIGHT : 0
+        const repeatableBoxHeight = data.repeatable ? INNER_BOX.INDICATOR_HEIGHT : 0
 
-        // Choice label group - centered in top portion of box
-        const currentNodeHeight = getNodeHeight(data)
-        const labelGroup = node
-          .append('g')
-          .attr(
-            'transform',
-            `translate(0, ${-currentNodeHeight / 2 + (currentNodeHeight - reqBoxHeight - repeatableBoxHeight - 10) / 2})`
-          )
+        const currentNodeHeight = getNodeHeight(data, event)
+        const reqBoxMargin = reqBoxHeight > 0 ? INNER_BOX.LISTINGS_TOP_MARGIN : 0
+        // The text area is: total height minus vertical padding, bottom boxes and their margin
+        const textAreaHeight =
+          currentNodeHeight -
+          NODE_BOX.VERTICAL_PADDING * 2 -
+          reqBoxMargin -
+          reqBoxHeight -
+          continueBoxHeight -
+          repeatableBoxHeight
+        // Center the text within this area, offset by top padding
+        const textAreaCenter =
+          -currentNodeHeight / 2 + NODE_BOX.VERTICAL_PADDING + textAreaHeight / 2
+
+        const labelGroup = node.append('g').attr('transform', `translate(0, ${textAreaCenter})`)
 
         // Pre-calculate text lines
         const choiceText = data.choiceLabel || data.text
-        const choiceLines = wrapText(choiceText, nodeWidth - 20, 11)
+        const choiceLines = wrapText(choiceText, NODE.MIN_WIDTH - TEXT.HORIZONTAL_PADDING)
 
-        // Calculate vertical centering offset based on total text height
-        const totalTextHeight = choiceLines.length * lineHeight
-        const verticalCenteringOffset = -totalTextHeight / 2 + lineHeight / 2 + 3
+        // Center the text lines vertically within the label group
+        const totalTextHeight = choiceLines.length * TEXT.CHOICE_TEXT_HEIGHT
+        const verticalCenteringOffset = -totalTextHeight / 2 + TEXT.CHOICE_BASELINE_OFFSET
 
-        // Render each line
         choiceLines.forEach((line, i) => {
-          const yPosition = i * lineHeight + verticalCenteringOffset
+          const yPosition = i * TEXT.CHOICE_TEXT_HEIGHT + verticalCenteringOffset
 
           labelGroup
             .append('text')
-            .attr('class', cx('event-node-text', 'event-node-text--choice-label'))
+            .attr('class', cx('event-node-text', 'event-node-text--choice'))
             .attr('x', 0)
             .attr('y', yPosition)
             .text(line)
         })
 
-        // Add requirements box if present (at bottom of node, or above repeatable box)
+        // Add requirements box if present (above continue box and repeatable box)
         if (hasRequirements) {
           const reqGroup = node
             .append('g')
             .attr(
               'transform',
-              `translate(0, ${currentNodeHeight / 2 - reqBoxHeight - repeatableBoxHeight - 5})`
+              `translate(0, ${currentNodeHeight / 2 - NODE_BOX.VERTICAL_PADDING - reqBoxHeight - continueBoxHeight - repeatableBoxHeight})`
             )
 
           reqGroup
             .append('rect')
             .attr('class', cx('requirement-box'))
-            .attr('x', -nodeWidth / 2 + 5)
+            .attr('x', -NODE.MIN_WIDTH / 2 + INNER_BOX.HORIZONTAL_MARGIN)
             .attr('y', 0)
-            .attr('width', nodeWidth - 10)
+            .attr('width', NODE.MIN_WIDTH - INNER_BOX.HORIZONTAL_MARGIN * 2)
             .attr('height', reqBoxHeight)
 
           // Add "Requires:" label inside dark box
+          // Calculate top padding: (box height - content height) / 2
+          const contentHeight =
+            TEXT.LINE_HEIGHT +
+            INNER_BOX.LISTINGS_HEADER_GAP +
+            requirements.length * TEXT.LINE_HEIGHT
+          const listingTopPadding = (reqBoxHeight - contentHeight) / 2
           reqGroup
             .append('text')
             .attr('class', cx('event-node-text', 'event-node-text--requirement-header'))
-            .attr('x', -nodeWidth / 2 + 10)
-            .attr('y', 12)
+            .attr('x', -NODE.MIN_WIDTH / 2 + INNER_BOX.HORIZONTAL_MARGIN * 2)
+            .attr('y', listingTopPadding + TEXT.LINE_HEIGHT)
             .text('Requires:')
 
           // Add each requirement on its own line (left-aligned)
-          const topPaddingAfterLabel = 26
           requirements.forEach((req, i) => {
             reqGroup
               .append('text')
               .attr('class', cx('event-node-text', 'event-node-text--requirement-item'))
-              .attr('x', -nodeWidth / 2 + 10)
-              .attr('y', topPaddingAfterLabel + i * 12)
+              .attr('x', -NODE.MIN_WIDTH / 2 + INNER_BOX.HORIZONTAL_MARGIN * 2)
+              .attr(
+                'y',
+                listingTopPadding +
+                  TEXT.LINE_HEIGHT +
+                  INNER_BOX.LISTINGS_HEADER_GAP +
+                  (i + 1) * TEXT.LINE_HEIGHT
+              )
               .text(req)
           })
         }
       } else if (data.type === 'end') {
-        // For end nodes, show effects
-        if (data.effects && data.effects.length > 0) {
-          const effects = data.effects
-          const endNodeHeight = getNodeHeight(data)
+        // For end nodes, show first 2 lines of text and effects box (if present)
+        const effects = data.effects || []
+        const hasEffects = effects.length > 0
+        const effectsBoxHeight = hasEffects
+          ? TEXT.LINE_HEIGHT +
+            INNER_BOX.LISTINGS_HEADER_GAP +
+            effects.length * TEXT.LINE_HEIGHT +
+            INNER_BOX.LISTINGS_VERTICAL_PADDING
+          : 0
 
-          // Position effects text at top of node
+        const currentNodeHeight = getNodeHeight(data, event)
+        const effectsBoxMargin = effectsBoxHeight > 0 ? INNER_BOX.LISTINGS_TOP_MARGIN : 0
+        const textAreaHeight =
+          currentNodeHeight - NODE_BOX.VERTICAL_PADDING * 2 - effectsBoxMargin - effectsBoxHeight
+        const textAreaCenter =
+          -currentNodeHeight / 2 + NODE_BOX.VERTICAL_PADDING + textAreaHeight / 2
+
+        const hasText = data.text && data.text.trim().length > 0
+
+        // Special cases for empty text:
+        // - If has outcomes but no text: only show outcomes box (no text)
+        // - If no outcomes and no text: show "END" in italic
+        if (!hasText && hasEffects) {
+          // Empty text with outcomes: skip text rendering, only show outcomes box below
+        } else if (!hasText && !hasEffects) {
+          // Empty text and no outcomes: show "END" in italic (like combat)
+          node
+            .append('text')
+            .attr('class', cx('event-node-text', 'event-node-text--combat'))
+            .attr('x', 0)
+            .attr('y', textAreaCenter + TEXT.COMBAT_BASELINE_OFFSET - TEXT.COMBAT_TEXT_HEIGHT / 2)
+            .text('END')
+        } else {
+          // Has text: show first 2 lines
+          const endLines = wrapText(data.text, NODE.MIN_WIDTH - TEXT.HORIZONTAL_PADDING)
+          const displayLines = endLines.slice(0, 2)
+
+          // If there are more than 2 lines, truncate the second line
+          if (endLines.length > 2 && displayLines[1]) {
+            const secondLine = displayLines[1]
+            displayLines[1] = secondLine.slice(0, -3) + '...'
+          }
+
+          // Center the lines vertically based on actual number of lines
+          const totalTextHeight = displayLines.length * TEXT.LINE_HEIGHT
+          const verticalCenteringOffset = -totalTextHeight / 2 + TEXT.BASELINE_OFFSET
+
+          displayLines.forEach((line, i) => {
+            node
+              .append('text')
+              .attr('class', cx('event-node-text', 'event-node-text--end'))
+              .attr('x', 0)
+              .attr('y', textAreaCenter + i * TEXT.LINE_HEIGHT + verticalCenteringOffset)
+              .text(line)
+          })
+        }
+
+        // Add effects box if present (at bottom of node, styled like requirements box)
+        if (hasEffects) {
           const effectsGroup = node
             .append('g')
-            .attr('transform', `translate(0, ${-endNodeHeight / 2 + 10})`)
+            .attr(
+              'transform',
+              `translate(0, ${currentNodeHeight / 2 - NODE_BOX.VERTICAL_PADDING - effectsBoxHeight})`
+            )
 
-          // "Outcome:" label
+          effectsGroup
+            .append('rect')
+            .attr('class', cx('requirement-box'))
+            .attr('x', -NODE.MIN_WIDTH / 2 + INNER_BOX.HORIZONTAL_MARGIN)
+            .attr('y', 0)
+            .attr('width', NODE.MIN_WIDTH - INNER_BOX.HORIZONTAL_MARGIN * 2)
+            .attr('height', effectsBoxHeight)
+
+          // Add "Outcome:" label inside dark box
+          // Calculate top padding: (box height - content height) / 2
+          const contentHeight =
+            TEXT.LINE_HEIGHT + INNER_BOX.LISTINGS_HEADER_GAP + effects.length * TEXT.LINE_HEIGHT
+          const listingTopPadding = (effectsBoxHeight - contentHeight) / 2
           effectsGroup
             .append('text')
             .attr('class', cx('event-node-text', 'event-node-text--effect-header'))
-            .attr('x', -nodeWidth / 2 + 10)
-            .attr('y', 8)
+            .attr('x', -NODE.MIN_WIDTH / 2 + INNER_BOX.HORIZONTAL_MARGIN * 2)
+            .attr('y', listingTopPadding + TEXT.LINE_HEIGHT)
             .text('Outcome:')
 
-          // Each effect on its own line (left-aligned)
-          const topPaddingAfterLabel = 26
+          // Add each effect on its own line (left-aligned)
           effects.forEach((effect, i) => {
             effectsGroup
               .append('text')
               .attr('class', cx('event-node-text', 'event-node-text--effect-item'))
-              .attr('x', -nodeWidth / 2 + 10)
-              .attr('y', topPaddingAfterLabel + i * 12)
+              .attr('x', -NODE.MIN_WIDTH / 2 + INNER_BOX.HORIZONTAL_MARGIN * 2)
+              .attr(
+                'y',
+                listingTopPadding +
+                  TEXT.LINE_HEIGHT +
+                  INNER_BOX.LISTINGS_HEADER_GAP +
+                  (i + 1) * TEXT.LINE_HEIGHT
+              )
               .text(effect)
           })
-        } else {
-          node
-            .append('text')
-            .attr('class', cx('event-node-text', 'event-node-text--end-empty'))
-            .attr('dy', 0)
-            .text('[End]')
         }
       } else if (data.type === 'dialogue') {
         // For dialogue nodes, show event name for root node only, otherwise show truncated text
         const isRootNode = d.depth === 0
         const hasContinue = data.numContinues && data.numContinues > 0
-        const hasBottomBox = hasContinue || data.repeatable
+        const continueBoxHeight = hasContinue ? INNER_BOX.INDICATOR_HEIGHT : 0
+        const repeatableBoxHeight = data.repeatable ? INNER_BOX.INDICATOR_HEIGHT : 0
 
         if (isRootNode) {
-          const yOffset = hasBottomBox ? -4 : 4
+          // Root node shows event name, centered in available space
+          const currentNodeHeight = getNodeHeight(data, event)
+          const textAreaHeight =
+            currentNodeHeight -
+            NODE_BOX.VERTICAL_PADDING * 2 -
+            continueBoxHeight -
+            repeatableBoxHeight
+          const textAreaCenter =
+            -currentNodeHeight / 2 + NODE_BOX.VERTICAL_PADDING + textAreaHeight / 2
+          const y = textAreaCenter + TEXT.EVENT_NAME_BASELINE_OFFSET - TEXT.LINE_HEIGHT / 2
 
           node
             .append('text')
-            .attr('class', cx('event-node-text', 'event-node-text--dialogue-root'))
-            .attr('dy', yOffset)
+            .attr('class', cx('event-node-text', 'event-node-text--root'))
+            .attr('y', y)
             .text(event.name)
         } else {
-          // Non-root dialogue nodes show truncated text
-          const dialogueText =
-            data.text.length > 44 ? data.text.substring(0, 44) + '...' : data.text
-          const dialogueLines = wrapText(dialogueText, nodeWidth - 20, 10)
-          const lineHeight = 12
-          const yOffset = hasBottomBox ? -20 : -14
+          // Non-root dialogue nodes show max 2 lines
+          const currentNodeHeight = getNodeHeight(data, event)
+          const textAreaHeight =
+            currentNodeHeight -
+            NODE_BOX.VERTICAL_PADDING * 2 -
+            continueBoxHeight -
+            repeatableBoxHeight
+          const textAreaCenter =
+            -currentNodeHeight / 2 + NODE_BOX.VERTICAL_PADDING + textAreaHeight / 2
 
-          dialogueLines.forEach((line, i) => {
+          const dialogueLines = wrapText(data.text, NODE.MIN_WIDTH - TEXT.HORIZONTAL_PADDING)
+          const displayLines = dialogueLines.slice(0, 2)
+
+          // If there are more than 2 lines, truncate the second line
+          if (dialogueLines.length > 2 && displayLines[1]) {
+            const secondLine = displayLines[1]
+            displayLines[1] = secondLine.slice(0, -3) + '...'
+          }
+
+          // Center the lines vertically based on actual number of lines
+          const totalTextHeight = displayLines.length * TEXT.LINE_HEIGHT
+          const verticalCenteringOffset = -totalTextHeight / 2 + TEXT.BASELINE_OFFSET
+
+          displayLines.forEach((line, i) => {
+            const y = textAreaCenter + i * TEXT.LINE_HEIGHT + verticalCenteringOffset
+
             node
               .append('text')
-              .attr('class', cx('event-node-text', 'event-node-text--dialogue-text'))
+              .attr('class', cx('event-node-text', 'event-node-text--dialogue'))
               .attr('x', 0)
-              .attr('y', i * lineHeight + yOffset)
+              .attr('y', y)
               .text(line)
           })
         }
-
-        // Add numContinues in dark box if present
-        if (hasContinue) {
-          const dialogueNodeHeight = getNodeHeight(data)
-          const continueBoxY = dialogueNodeHeight / 2 - 25
-          const continueBoxHeight = 20
-          const continueLabelY = 15
-          const continueBox = node.append('g').attr('transform', `translate(0, ${continueBoxY})`)
-
-          continueBox
-            .append('rect')
-            .attr('class', cx('continue-box'))
-            .attr('x', -nodeWidth / 2 + 5)
-            .attr('width', nodeWidth - 10)
-            .attr('height', continueBoxHeight)
-
-          continueBox
-            .append('text')
-            .attr('class', cx('event-node-text', 'event-node-text--continue-badge'))
-            .attr('dy', continueLabelY)
-            .text(`Continue × ${data.numContinues}`)
-        }
       } else {
-        // For combat nodes, show the text
-        const combatLines = wrapText(data.text, nodeWidth - 20, 11)
-        const lineHeight = 12
-        const hasBottomBox = data.repeatable
-        const yOffset = hasBottomBox ? -10 : 0
+        // For combat nodes, show "COMBAT!" text and effects box (if present)
+        const effects = data.effects || []
+        const hasEffects = effects.length > 0
+        const effectsBoxHeight = hasEffects
+          ? TEXT.LINE_HEIGHT +
+            INNER_BOX.LISTINGS_HEADER_GAP +
+            effects.length * TEXT.LINE_HEIGHT +
+            INNER_BOX.LISTINGS_VERTICAL_PADDING
+          : 0
+        const repeatableBoxHeight = data.repeatable ? INNER_BOX.INDICATOR_HEIGHT : 0
 
-        combatLines.forEach((line, i) => {
-          node
+        const currentNodeHeight = getNodeHeight(data, event)
+        const effectsBoxMargin = effectsBoxHeight > 0 ? INNER_BOX.LISTINGS_TOP_MARGIN : 0
+        // The text area is: total height minus vertical padding, effects box, its margin, and repeatable box
+        const textAreaHeight =
+          currentNodeHeight -
+          NODE_BOX.VERTICAL_PADDING * 2 -
+          effectsBoxMargin -
+          effectsBoxHeight -
+          repeatableBoxHeight
+        // Center the text within this area, offset by top padding
+        const textAreaCenter =
+          -currentNodeHeight / 2 + NODE_BOX.VERTICAL_PADDING + textAreaHeight / 2
+
+        // Add "COMBAT!" text, centered in available space
+        node
+          .append('text')
+          .attr('class', cx('event-node-text', 'event-node-text--combat'))
+          .attr('x', 0)
+          .attr('y', textAreaCenter + TEXT.COMBAT_BASELINE_OFFSET - TEXT.COMBAT_TEXT_HEIGHT / 2)
+          .text('COMBAT!')
+
+        // Add effects box if present (above repeatable box, styled like requirements box)
+        if (hasEffects) {
+          const effectsGroup = node
+            .append('g')
+            .attr(
+              'transform',
+              `translate(0, ${currentNodeHeight / 2 - NODE_BOX.VERTICAL_PADDING - effectsBoxHeight - repeatableBoxHeight})`
+            )
+
+          effectsGroup
+            .append('rect')
+            .attr('class', cx('requirement-box'))
+            .attr('x', -NODE.MIN_WIDTH / 2 + INNER_BOX.HORIZONTAL_MARGIN)
+            .attr('y', 0)
+            .attr('width', NODE.MIN_WIDTH - INNER_BOX.HORIZONTAL_MARGIN * 2)
+            .attr('height', effectsBoxHeight)
+
+          // Add "Effects:" label inside dark box
+          // Calculate top padding: (box height - content height) / 2
+          const contentHeight =
+            TEXT.LINE_HEIGHT + INNER_BOX.LISTINGS_HEADER_GAP + effects.length * TEXT.LINE_HEIGHT
+          const listingTopPadding = (effectsBoxHeight - contentHeight) / 2
+          effectsGroup
             .append('text')
-            .attr('class', cx('event-node-text', 'event-node-text--combat-text'))
-            .attr('x', 0)
-            .attr('y', i * lineHeight + yOffset)
-            .text(line)
-        })
+            .attr('class', cx('event-node-text', 'event-node-text--effect-header'))
+            .attr('x', -NODE.MIN_WIDTH / 2 + INNER_BOX.HORIZONTAL_MARGIN * 2)
+            .attr('y', listingTopPadding + TEXT.LINE_HEIGHT)
+            .text('Effects:')
+
+          // Add each effect on its own line (left-aligned)
+          effects.forEach((effect, i) => {
+            effectsGroup
+              .append('text')
+              .attr('class', cx('event-node-text', 'event-node-text--effect-item'))
+              .attr('x', -NODE.MIN_WIDTH / 2 + INNER_BOX.HORIZONTAL_MARGIN * 2)
+              .attr(
+                'y',
+                listingTopPadding +
+                  TEXT.LINE_HEIGHT +
+                  INNER_BOX.LISTINGS_HEADER_GAP +
+                  (i + 1) * TEXT.LINE_HEIGHT
+              )
+              .text(effect)
+          })
+        }
       }
     })
 
-    // Add repeatable indicator
+    // Add `Continue` indicators
+    nodes
+      .filter((d) => Boolean(d.data.numContinues && d.data.numContinues > 0))
+      .each(function (d) {
+        const node = select(this)
+        const nodeHeight = getNodeHeight(d.data, event)
+        const hasRepeatable = d.data.repeatable === true
+        const repeatableHeight = hasRepeatable ? INNER_BOX.INDICATOR_HEIGHT : 0
+        const repeatableMargin = hasRepeatable ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
+
+        // Position from bottom: margin is already in nodeHeight, just position the box
+        const continueBoxY =
+          nodeHeight / 2 -
+          NODE_BOX.VERTICAL_PADDING -
+          INNER_BOX.INDICATOR_HEIGHT -
+          repeatableMargin -
+          repeatableHeight
+
+        const continueBox = node.append('g').attr('transform', `translate(0, ${continueBoxY})`)
+
+        continueBox
+          .append('rect')
+          .attr('class', cx('continue-box'))
+          .attr('x', -NODE.MIN_WIDTH / 2 + INNER_BOX.HORIZONTAL_MARGIN)
+          .attr('width', NODE.MIN_WIDTH - INNER_BOX.HORIZONTAL_MARGIN * 2)
+          .attr('height', INNER_BOX.INDICATOR_HEIGHT)
+
+        continueBox
+          .append('text')
+          .attr('class', cx('event-node-text', 'event-node-text--continue-badge'))
+          .attr('y', INNER_BOX.INDICATOR_HEIGHT / 2 + TEXT.BASELINE_OFFSET / 2)
+          .text(`Continue × ${d.data.numContinues}`)
+      })
+
+    // Add `Repeatable` indicators
     nodes
       .filter((d) => d.data.repeatable === true)
       .each(function (d) {
         const node = select(this)
-        const nodeHeight = getNodeHeight(d.data)
+        const nodeHeight = getNodeHeight(d.data, event)
 
-        const repeatableBox = node
-          .append('g')
-          .attr('transform', `translate(0, ${nodeHeight / 2 - 22})`)
+        // Position from bottom: margin is already in nodeHeight, just position the box
+        const repeatableBoxY =
+          nodeHeight / 2 - NODE_BOX.VERTICAL_PADDING - INNER_BOX.INDICATOR_HEIGHT
+
+        const repeatableBox = node.append('g').attr('transform', `translate(0, ${repeatableBoxY})`)
 
         repeatableBox
           .append('rect')
           .attr('class', cx('repeatable-box'))
-          .attr('x', -nodeWidth / 2 + 5)
-          .attr('y', 0)
-          .attr('width', nodeWidth - 10)
-          .attr('height', 18)
+          .attr('x', -NODE.MIN_WIDTH / 2 + INNER_BOX.HORIZONTAL_MARGIN)
+          .attr('width', NODE.MIN_WIDTH - INNER_BOX.HORIZONTAL_MARGIN * 2)
+          .attr('height', INNER_BOX.INDICATOR_HEIGHT)
 
         repeatableBox
           .append('text')
           .attr('class', cx('event-node-text', 'event-node-text--repeatable-badge'))
-          .attr('dy', 12)
+          .attr('y', INNER_BOX.INDICATOR_HEIGHT / 2 + TEXT.BASELINE_OFFSET / 2)
           .text('Repeatable')
       })
 
