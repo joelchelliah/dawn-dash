@@ -158,7 +158,7 @@ const CARD_ID_TO_NAME = {
 // TODO: Make 4 separate blacklists for:
 // - Events that have no effects
 // - Events that have no branches (always single or zero children)
-// - Events that only have QUESTFLAG effects
+// - Events that only have effects: [QUESTFLAG, AREASPECIAL]
 // - Events that are currently too complex to render
 //
 // We should find the first 3 programmatically, and the last one manually.

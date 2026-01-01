@@ -77,8 +77,8 @@ function EventTree({ event }: EventTreeProps): JSX.Element {
 
     const svg = select(svgRef.current)
       .attr('width', svgWidth)
-      .attr('height', svgHeight)
       .attr('viewBox', `0 0 ${svgWidth} ${svgHeight}`)
+      .attr('preserveAspectRatio', 'xMidYMin meet')
 
     const g = svg.append('g').attr('transform', `translate(${offsetX}, ${offsetY})`)
 
@@ -252,7 +252,7 @@ function EventTree({ event }: EventTreeProps): JSX.Element {
 
           node
             .append('text')
-            .attr('class', cx('event-node-text', 'event-node-text--dialogue-main'))
+            .attr('class', cx('event-node-text', 'event-node-text--dialogue-root'))
             .attr('dy', yOffset)
             .text(event.name)
         } else {
@@ -276,23 +276,23 @@ function EventTree({ event }: EventTreeProps): JSX.Element {
         // Add numContinues in dark box if present
         if (hasContinue) {
           const dialogueNodeHeight = getNodeHeight(data)
-          const continueBox = node
-            .append('g')
-            .attr('transform', `translate(0, ${dialogueNodeHeight / 2 - 22})`)
+          const continueBoxY = dialogueNodeHeight / 2 - 25
+          const continueBoxHeight = 20
+          const continueLabelY = 15
+          const continueBox = node.append('g').attr('transform', `translate(0, ${continueBoxY})`)
 
           continueBox
             .append('rect')
             .attr('class', cx('continue-box'))
             .attr('x', -nodeWidth / 2 + 5)
-            .attr('y', 0)
             .attr('width', nodeWidth - 10)
-            .attr('height', 18)
+            .attr('height', continueBoxHeight)
 
           continueBox
             .append('text')
             .attr('class', cx('event-node-text', 'event-node-text--continue-badge'))
-            .attr('dy', 12)
-            .text(`Continue x ${data.numContinues}`)
+            .attr('dy', continueLabelY)
+            .text(`Continue × ${data.numContinues}`)
         }
       } else {
         // For combat nodes, show the text

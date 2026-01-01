@@ -1,5 +1,6 @@
 import { createCx } from '@/shared/utils/classnames'
 import GradientLink from '@/shared/components/GradientLink'
+import GradientDivider from '@/shared/components/GradientDivider'
 
 import { Event } from '@/codex/types/events'
 
@@ -25,7 +26,9 @@ const EventResultsPanel = ({ selectedEvent }: EventResultsPanelProps) => {
         {selectedEvent && !selectedEvent.excluded && (
           <>
             <EventTree event={selectedEvent} />
-
+            <br />
+            <br />
+            <GradientDivider widthPercentage={85} spacingBottom="xs" />
             <div className={cx('info-message')}>
               Visit <strong>Blightbane</strong> to walk through this event step-by-step:{` `}
               <GradientLink text={eventName} url={blightbaneLink} />

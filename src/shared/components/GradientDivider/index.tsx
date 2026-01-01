@@ -1,13 +1,15 @@
 import styles from './index.module.scss'
 
-type Spacing = 'sm' | 'md' | 'lg'
+type Spacing = 'xs' | 'sm' | 'md' | 'lg'
 
 interface GradientDividerProps {
-  spacingBottom?: Spacing
+  spacingBottom: Spacing
+  widthPercentage?: number
 }
 
-const GradientDivider = ({ spacingBottom = 'sm' }: GradientDividerProps) => {
+const GradientDivider = ({ spacingBottom = 'sm', widthPercentage = 100 }: GradientDividerProps) => {
   const spacingBottomMap = {
+    xs: '-0.5rem',
     sm: '0.75rem',
     md: '1rem',
     lg: '1.5rem',
@@ -16,7 +18,11 @@ const GradientDivider = ({ spacingBottom = 'sm' }: GradientDividerProps) => {
   return (
     <div
       className={styles['gradient-divider']}
-      style={{ marginBottom: spacingBottomMap[spacingBottom] }}
+      style={{
+        margin: 'auto',
+        marginBottom: spacingBottomMap[spacingBottom],
+        width: `${widthPercentage}%`,
+      }}
     />
   )
 }
