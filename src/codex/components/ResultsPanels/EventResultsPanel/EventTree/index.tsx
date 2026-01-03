@@ -314,7 +314,7 @@ function EventTree({ event }: EventTreeProps): JSX.Element {
         const repeatableBoxHeight = data.repeatable ? INNER_BOX.INDICATOR_HEIGHT : 0
 
         if (isRootNode) {
-          // Root node shows event name, centered in available space
+          // Root node shows event name + up to 2 lines of dialogue text (if present)
           const currentNodeHeight = getNodeHeight(data, event)
           const textAreaHeight =
             currentNodeHeight -
@@ -323,13 +323,60 @@ function EventTree({ event }: EventTreeProps): JSX.Element {
             repeatableBoxHeight
           const textAreaCenter =
             -currentNodeHeight / 2 + NODE_BOX.VERTICAL_PADDING + textAreaHeight / 2
-          const y = textAreaCenter + TEXT.EVENT_NAME_BASELINE_OFFSET - TEXT.LINE_HEIGHT / 2
+
+          const hasText = data.text && data.text.trim().length > 0
+          const dialogueLines = hasText
+            ? wrapText(data.text, NODE.MIN_WIDTH - TEXT.HORIZONTAL_PADDING)
+            : []
+          const displayLines = dialogueLines.slice(0, TEXT.MAX_DISPLAY_LINES)
+
+          // If there are more lines than we can display, truncate the last line
+          if (
+            dialogueLines.length > TEXT.MAX_DISPLAY_LINES &&
+            displayLines[displayLines.length - 1]
+          ) {
+            const lastLineIndex = displayLines.length - 1
+            displayLines[lastLineIndex] = truncateLine(displayLines[lastLineIndex])
+          }
+
+          const dialogueTextHeight = displayLines.length * TEXT.LINE_HEIGHT
+          const dialogueTextMargin = dialogueTextHeight > 0 ? NODE_BOX.ROOT_DIALOGUE_TOP_MARGIN : 0
+
+          // Calculate total content height and vertical centering offset
+          const totalContentHeight =
+            TEXT.EVENT_NAME_HEIGHT + dialogueTextMargin + dialogueTextHeight
+          const verticalCenteringOffset = -totalContentHeight / 2
+
+          // Event name
+          const eventNameY =
+            textAreaCenter + verticalCenteringOffset + TEXT.EVENT_NAME_BASELINE_OFFSET
 
           node
             .append('text')
             .attr('class', cx('event-node-text', 'event-node-text--root'))
-            .attr('y', y)
+            .attr('y', eventNameY)
             .text(event.name)
+
+          // Dialogue text lines (if present)
+          if (displayLines.length > 0) {
+            const dialogueVerticalOffset =
+              verticalCenteringOffset + TEXT.EVENT_NAME_HEIGHT + dialogueTextMargin
+
+            displayLines.forEach((line, i) => {
+              const y =
+                textAreaCenter +
+                dialogueVerticalOffset +
+                i * TEXT.LINE_HEIGHT +
+                TEXT.BASELINE_OFFSET
+
+              node
+                .append('text')
+                .attr('class', cx('event-node-text', 'event-node-text--dialogue'))
+                .attr('x', 0)
+                .attr('y', y)
+                .text(line)
+            })
+          }
         } else {
           // Non-root dialogue nodes show max MAX_DISPLAY_LINES
           const currentNodeHeight = getNodeHeight(data, event)

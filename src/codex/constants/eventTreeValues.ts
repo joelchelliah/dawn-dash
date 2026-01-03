@@ -33,12 +33,15 @@ export const TEXT = {
   BASELINE_OFFSET: 0.8 * TEXT_LINE_HEIGHT,
   CHOICE_BASELINE_OFFSET: 0.8 * CHOICE_TEXT_HEIGHT,
   COMBAT_BASELINE_OFFSET: 0.8 * COMBAT_TEXT_HEIGHT,
-  EVENT_NAME_BASELINE_OFFSET: 0.6 * EVENT_NAME_HEIGHT,
+  EVENT_NAME_BASELINE_OFFSET: 0.8 * EVENT_NAME_HEIGHT,
 }
 
 export const NODE_BOX = {
   // Padding for entire node content
   VERTICAL_PADDING: 6,
+
+  // Gap between event name and dialogue text in root nodes
+  ROOT_DIALOGUE_TOP_MARGIN: 6,
 }
 
 export const INNER_BOX = {
@@ -46,7 +49,7 @@ export const INNER_BOX = {
   INDICATOR_HEIGHT: 22,
 
   // Gap between main node text and indicator boxes (Repeatable, Continue)
-  INDICATOR_TOP_MARGIN: 6,
+  INDICATOR_TOP_MARGIN: 8,
 
   // Vertical padding for listings ('Requirements' and 'Effects')
   LISTINGS_VERTICAL_PADDING: 12,
