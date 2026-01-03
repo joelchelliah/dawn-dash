@@ -48,8 +48,14 @@ function EventTree({ event }: EventTreeProps): JSX.Element {
     const svgWidth = bounds.width + TREE.HORIZONTAL_PADDING * 2
     const svgHeight = bounds.height + TREE.VERTICAL_PADDING * 2
 
-    // Center the tree horizontally and vertically
+    // Set root.x so that it appears "visually centered" after offset is applied!
+    // After translate(offsetX), root will be at: root.x + offsetX
+    // We want: root.x + offsetX = svgWidth / 2
+    // Therefore: root.x = svgWidth / 2 - offsetX
     const offsetX = -bounds.minX + TREE.HORIZONTAL_PADDING
+    root.x = svgWidth / 2 - offsetX
+
+    // Center the tree vertically
     const offsetY = -bounds.minY + TREE.VERTICAL_PADDING
 
     const svg = select(svgRef.current)
