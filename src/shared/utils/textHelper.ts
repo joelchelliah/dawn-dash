@@ -36,3 +36,11 @@ const countRelevantCharactersForLineWidth = (str: string): number => {
   const effectiveStr = str.replace(/<\/?(?:b|nobr)>/gi, '')
   return effectiveStr.length
 }
+
+// Truncates a line of text by replacing the last N characters with an ellipsis
+export const truncateLine = (line: string, numCharsToReplace = 3): string => {
+  if (line.length <= numCharsToReplace) {
+    return '...'
+  }
+  return line.slice(0, -numCharsToReplace) + '...'
+}

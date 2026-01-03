@@ -111,9 +111,8 @@ export const getNodeHeight = (node: EventTreeNode, event: Event): number => {
       textHeight = TEXT.COMBAT_TEXT_HEIGHT
       effectsBoxMargin = 0
     } else {
-      // Has text: calculate actual number of lines (max 2)
       const endLines = wrapText(node.text, NODE.MIN_WIDTH - TEXT.HORIZONTAL_PADDING)
-      const numLines = Math.min(endLines.length, 2)
+      const numLines = Math.min(endLines.length, TEXT.MAX_DISPLAY_LINES)
       textHeight = numLines * TEXT.LINE_HEIGHT
       // Only add margin if we have both text and effects box
       effectsBoxMargin = effectsBoxHeight > 0 ? INNER_BOX.LISTINGS_TOP_MARGIN : 0
@@ -140,15 +139,13 @@ export const getNodeHeight = (node: EventTreeNode, event: Event): number => {
       return contentHeight + NODE_BOX.VERTICAL_PADDING * 2
     }
 
-    // Non-root dialogue nodes show up to 2 lines
     const continueHeight = node.numContinues ? INNER_BOX.INDICATOR_HEIGHT : 0
     const continueMargin = continueHeight > 0 ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
     const repeatableHeight = node.repeatable ? INNER_BOX.INDICATOR_HEIGHT : 0
     const repeatableMargin = repeatableHeight > 0 ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
 
-    // Calculate actual number of lines (max 2)
     const dialogueLines = wrapText(node.text, NODE.MIN_WIDTH - TEXT.HORIZONTAL_PADDING)
-    const numLines = Math.min(dialogueLines.length, 2)
+    const numLines = Math.min(dialogueLines.length, TEXT.MAX_DISPLAY_LINES)
     const textHeight = numLines * TEXT.LINE_HEIGHT
 
     const contentHeight =

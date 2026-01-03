@@ -25,6 +25,9 @@ export const TEXT = {
   EVENT_NAME_HEIGHT: EVENT_NAME_HEIGHT,
   HORIZONTAL_PADDING: 20,
 
+  // Max number of text lines to display for dialogue and end nodes
+  MAX_DISPLAY_LINES: 2,
+
   // SVG text is positioned by baseline, not top of text!
   // We offset to position the first line's baseline for better visual centering
   BASELINE_OFFSET: 0.8 * TEXT_LINE_HEIGHT,

@@ -4,7 +4,7 @@ import { select } from 'd3-selection'
 import { hierarchy, tree } from 'd3-hierarchy'
 
 import { createCx } from '@/shared/utils/classnames'
-import { wrapText } from '@/shared/utils/textHelper'
+import { wrapText, truncateLine } from '@/shared/utils/textHelper'
 
 import { Event, EventTreeNode } from '@/codex/types/events'
 import { getNodeHeight, calculateTreeBounds } from '@/codex/utils/eventTreeHelper'
@@ -31,9 +31,11 @@ function EventTree({ event }: EventTreeProps): JSX.Element {
 
     const treeLayout = tree<EventTreeNode>()
       .nodeSize(NODE.DEFAULT_SIZE)
-      .separation((a, b) => {
-        // More spacing between non-siblings, less between siblings
-        return a.parent === b.parent ? 1 : 1.25
+      .separation(() => {
+        // Same separation for all nodes since leaf nodes rarely have siblings,
+        // meaning visually adjacent leaf nodes are always non-siblings!
+        return 1
+        // return a.parent === b.parent ? 1 : 1
       })
 
     treeLayout(root)
@@ -236,14 +238,13 @@ function EventTree({ event }: EventTreeProps): JSX.Element {
             .attr('y', textAreaCenter + TEXT.COMBAT_BASELINE_OFFSET - TEXT.COMBAT_TEXT_HEIGHT / 2)
             .text('END')
         } else {
-          // Has text: show first 2 lines
           const endLines = wrapText(data.text, NODE.MIN_WIDTH - TEXT.HORIZONTAL_PADDING)
-          const displayLines = endLines.slice(0, 2)
+          const displayLines = endLines.slice(0, TEXT.MAX_DISPLAY_LINES)
 
-          // If there are more than 2 lines, truncate the second line
-          if (endLines.length > 2 && displayLines[1]) {
-            const secondLine = displayLines[1]
-            displayLines[1] = secondLine.slice(0, -3) + '...'
+          // If there are more lines than we can display, truncate the last line
+          if (endLines.length > TEXT.MAX_DISPLAY_LINES && displayLines[displayLines.length - 1]) {
+            const lastLineIndex = displayLines.length - 1
+            displayLines[lastLineIndex] = truncateLine(displayLines[lastLineIndex])
           }
 
           // Center the lines vertically based on actual number of lines
@@ -330,7 +331,7 @@ function EventTree({ event }: EventTreeProps): JSX.Element {
             .attr('y', y)
             .text(event.name)
         } else {
-          // Non-root dialogue nodes show max 2 lines
+          // Non-root dialogue nodes show max MAX_DISPLAY_LINES
           const currentNodeHeight = getNodeHeight(data, event)
           const textAreaHeight =
             currentNodeHeight -
@@ -341,12 +342,15 @@ function EventTree({ event }: EventTreeProps): JSX.Element {
             -currentNodeHeight / 2 + NODE_BOX.VERTICAL_PADDING + textAreaHeight / 2
 
           const dialogueLines = wrapText(data.text, NODE.MIN_WIDTH - TEXT.HORIZONTAL_PADDING)
-          const displayLines = dialogueLines.slice(0, 2)
+          const displayLines = dialogueLines.slice(0, TEXT.MAX_DISPLAY_LINES)
 
-          // If there are more than 2 lines, truncate the second line
-          if (dialogueLines.length > 2 && displayLines[1]) {
-            const secondLine = displayLines[1]
-            displayLines[1] = secondLine.slice(0, -3) + '...'
+          // If there are more lines than we can display, truncate the last line
+          if (
+            dialogueLines.length > TEXT.MAX_DISPLAY_LINES &&
+            displayLines[displayLines.length - 1]
+          ) {
+            const lastLineIndex = displayLines.length - 1
+            displayLines[lastLineIndex] = truncateLine(displayLines[lastLineIndex])
           }
 
           // Center the lines vertically based on actual number of lines
@@ -414,7 +418,7 @@ function EventTree({ event }: EventTreeProps): JSX.Element {
             .attr('width', NODE.MIN_WIDTH - INNER_BOX.HORIZONTAL_MARGIN * 2)
             .attr('height', effectsBoxHeight)
 
-          // Add "Effects:" label inside dark box
+          // Add "Outcome:" label inside dark box
           // Calculate top padding: (box height - content height) / 2
           const contentHeight =
             TEXT.LINE_HEIGHT + INNER_BOX.LISTINGS_HEADER_GAP + effects.length * TEXT.LINE_HEIGHT
@@ -424,7 +428,7 @@ function EventTree({ event }: EventTreeProps): JSX.Element {
             .attr('class', cx('event-node-text', 'event-node-text--effect-header'))
             .attr('x', -NODE.MIN_WIDTH / 2 + INNER_BOX.HORIZONTAL_MARGIN * 2)
             .attr('y', listingTopPadding + TEXT.LINE_HEIGHT)
-            .text('Effects:')
+            .text('Outcome:')
 
           // Add each effect on its own line (left-aligned)
           effects.forEach((effect, i) => {
@@ -510,8 +514,8 @@ function EventTree({ event }: EventTreeProps): JSX.Element {
     nodes.append('title').text((d) => {
       let tooltip = `${d.data.type}: ${d.data.text}`
       if (d.data.repeatable) tooltip += '\n[REPEATABLE]'
-      if (d.data.requirements) tooltip += `\nRequirements: ${d.data.requirements.join(', ')}`
-      if (d.data.effects) tooltip += `\nEffects: ${d.data.effects.join(', ')}`
+      if (d.data.requirements) tooltip += `\nRequires: ${d.data.requirements.join(', ')}`
+      if (d.data.effects) tooltip += `\nOutcome: ${d.data.effects.join(', ')}`
       return tooltip
     })
   }, [event])
