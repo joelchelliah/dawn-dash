@@ -77,19 +77,32 @@ function EventTree({ event }: EventTreeProps): JSX.Element {
 
     const g = svg.append('g').attr('transform', `translate(${offsetX}, ${offsetY})`)
 
-    // Draw links (lines between nodes)
+    // Draw links
     g.selectAll(`.${cx('tree-link')}`)
       .data(root.links())
       .enter()
       .append('path')
       .attr('class', cx('tree-link'))
       .attr('d', (d) => {
+        const sourceX = d.source.x || 0
         const sourceY = d.source.y || 0
+        const targetX = d.target.x || 0
         const targetY = d.target.y || 0
-        return `M${d.source.x},${sourceY}
-                L${d.source.x},${(sourceY + targetY) / 2}
-                L${d.target.x},${(sourceY + targetY) / 2}
-                L${d.target.x},${targetY}`
+
+        const sourceNodeMid = getNodeHeight(d.source.data, event) / 2
+        const targetNodeMid = getNodeHeight(d.target.data, event) / 2
+
+        const startY = sourceY + sourceNodeMid / 4
+        const endY = targetY - targetNodeMid
+
+        // Control points: For curviness!
+        const controlOffsetSource = (endY - startY) * 0.5
+        const controlOffsetTarget = (endY - startY) * 0.3
+
+        return `M${sourceX},${startY}
+                C${sourceX},${startY + controlOffsetSource}
+                 ${targetX},${endY - controlOffsetTarget}
+                 ${targetX},${endY}`
       })
 
     // Draw nodes
