@@ -5,6 +5,7 @@
 export const TREE = {
   HORIZONTAL_PADDING: 20,
   VERTICAL_PADDING: 5,
+  MIN_SVG_WIDTH: 500, // Minimum SVG width to prevent nodes from appearing too large
 }
 
 export const NODE = {

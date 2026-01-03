@@ -45,15 +45,27 @@ function EventTree({ event }: EventTreeProps): JSX.Element {
     // Calculate bounds based on positioned nodes
     const bounds = calculateTreeBounds(root, event)
 
-    const svgWidth = bounds.width + TREE.HORIZONTAL_PADDING * 2
+    const calculatedWidth = bounds.width + TREE.HORIZONTAL_PADDING * 2
+    const svgWidth = Math.max(calculatedWidth, TREE.MIN_SVG_WIDTH)
     const svgHeight = bounds.height + TREE.VERTICAL_PADDING * 2
 
-    // Set root.x so that it appears "visually centered" after offset is applied!
+    // Set root.x so that it appears "visually centered" after offset is applied.
+    // Looks nicer, as the root node will then be directly under the event name!
     // After translate(offsetX), root will be at: root.x + offsetX
     // We want: root.x + offsetX = svgWidth / 2
     // Therefore: root.x = svgWidth / 2 - offsetX
     const offsetX = -bounds.minX + TREE.HORIZONTAL_PADDING
     root.x = svgWidth / 2 - offsetX
+
+    // Center single children directly below their parent
+    // When the `TREE.MIN_SVG_WIDTH` kicks in, single child nodes are not centered
+    // under their parent. This fixes that! This only applies to very simple trees
+    // e.g: Ambush, Bandit Den, etc.
+    root.descendants().forEach((node) => {
+      if (node.children && node.children.length === 1) {
+        node.children[0].x = node.x ?? 0
+      }
+    })
 
     // Center the tree vertically
     const offsetY = -bounds.minY + TREE.VERTICAL_PADDING
