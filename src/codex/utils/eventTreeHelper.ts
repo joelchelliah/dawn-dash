@@ -16,7 +16,6 @@ interface TreeBounds {
 
 /**
  * Calculate bounding box for the entire tree based on positioned nodes
- * Includes space for the event name displayed above the root node
  */
 export const calculateTreeBounds = (
   root: HierarchyNode<EventTreeNode>,
@@ -37,10 +36,6 @@ export const calculateTreeBounds = (
     if (y - nodeHeight / 2 < minY) minY = y - nodeHeight / 2
     if (y + nodeHeight / 2 > maxY) maxY = y + nodeHeight / 2
   })
-
-  // Add space above the tree for the event name
-  const eventNameHeight = TEXT.EVENT_NAME_HEIGHT + TEXT.EVENT_NAME_BOTTOM_MARGIN
-  minY -= eventNameHeight
 
   return {
     minX,

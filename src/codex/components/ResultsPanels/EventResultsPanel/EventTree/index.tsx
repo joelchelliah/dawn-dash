@@ -2,9 +2,11 @@ import { useEffect, useRef } from 'react'
 
 import { select } from 'd3-selection'
 import { hierarchy, tree } from 'd3-hierarchy'
+import Image from 'next/image'
 
 import { createCx } from '@/shared/utils/classnames'
 import { wrapText, truncateLine } from '@/shared/utils/textHelper'
+import { EventArtworkImageUrl } from '@/shared/utils/imageUrls'
 
 import { Event, EventTreeNode } from '@/codex/types/events'
 import { getNodeHeight, calculateTreeBounds } from '@/codex/utils/eventTreeHelper'
@@ -56,18 +58,6 @@ function EventTree({ event }: EventTreeProps): JSX.Element {
       .attr('preserveAspectRatio', 'xMidYMin meet')
 
     const g = svg.append('g').attr('transform', `translate(${offsetX}, ${offsetY})`)
-
-    // Draw event name above the root node
-    const rootNodeX = root.x ?? 0
-    const rootNodeY = root.y ?? 0
-    const rootNodeHeight = getNodeHeight(root.data, event)
-    const eventNameY = rootNodeY - rootNodeHeight / 2 - TEXT.EVENT_NAME_BOTTOM_MARGIN
-
-    g.append('text')
-      .attr('class', cx('event-name'))
-      .attr('x', rootNodeX)
-      .attr('y', eventNameY)
-      .text(event.name)
 
     // Draw links (lines between nodes)
     g.selectAll(`.${cx('tree-link')}`)
@@ -559,6 +549,17 @@ function EventTree({ event }: EventTreeProps): JSX.Element {
 
   return (
     <div className={cx('event-tree-container')}>
+      <div className={cx('event-header')}>
+        <Image
+          src={EventArtworkImageUrl(event.artwork)}
+          alt={event.name}
+          width={40}
+          height={40}
+          className={cx('event-header__artwork')}
+        />
+        <h3 className={cx('event-header__name')}>{event.name}</h3>
+      </div>
+
       <svg ref={svgRef} className={cx('event-tree')} />
     </div>
   )
