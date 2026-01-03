@@ -34,14 +34,14 @@ export const TEXT = {
   CHOICE_BASELINE_OFFSET: 0.8 * CHOICE_TEXT_HEIGHT,
   COMBAT_BASELINE_OFFSET: 0.8 * COMBAT_TEXT_HEIGHT,
   EVENT_NAME_BASELINE_OFFSET: 0.8 * EVENT_NAME_HEIGHT,
+
+  // Gap between event name (displayed above tree) and the root node
+  EVENT_NAME_BOTTOM_MARGIN: 10,
 }
 
 export const NODE_BOX = {
   // Padding for entire node content
   VERTICAL_PADDING: 6,
-
-  // Gap between event name and dialogue text in root nodes
-  ROOT_DIALOGUE_TOP_MARGIN: 6,
 }
 
 export const INNER_BOX = {

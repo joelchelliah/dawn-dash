@@ -16,6 +16,7 @@ interface TreeBounds {
 
 /**
  * Calculate bounding box for the entire tree based on positioned nodes
+ * Includes space for the event name displayed above the root node
  */
 export const calculateTreeBounds = (
   root: HierarchyNode<EventTreeNode>,
@@ -36,6 +37,10 @@ export const calculateTreeBounds = (
     if (y - nodeHeight / 2 < minY) minY = y - nodeHeight / 2
     if (y + nodeHeight / 2 > maxY) maxY = y + nodeHeight / 2
   })
+
+  // Add space above the tree for the event name
+  const eventNameHeight = TEXT.EVENT_NAME_HEIGHT + TEXT.EVENT_NAME_BOTTOM_MARGIN
+  minY -= eventNameHeight
 
   return {
     minX,
@@ -122,7 +127,8 @@ export const getNodeHeight = (node: EventTreeNode, event: Event): number => {
 
     return Math.max(NODE.MIN_HEIGHT, contentHeight + NODE_BOX.VERTICAL_PADDING * 2)
   } else if (node.type === 'dialogue') {
-    // Root node shows event name + up to 2 lines of dialogue text + continue box (if present) + repeatable box (if present)
+    // Root node shows up to 2 lines of dialogue text + continue box (if present) + repeatable box (if present)
+    // Event name is now displayed ABOVE the root node, not inside it
     if (isRootNode) {
       const continueHeight = node.numContinues ? INNER_BOX.INDICATOR_HEIGHT : 0
       const continueMargin = continueHeight > 0 ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
@@ -132,25 +138,17 @@ export const getNodeHeight = (node: EventTreeNode, event: Event): number => {
       // Add dialogue text if present (up to 2 lines)
       const hasText = node.text && node.text.trim().length > 0
       let dialogueTextHeight = 0
-      let dialogueTextMargin = 0
 
       if (hasText) {
         const dialogueLines = wrapText(node.text, NODE.MIN_WIDTH - TEXT.HORIZONTAL_PADDING)
         const numLines = Math.min(dialogueLines.length, TEXT.MAX_DISPLAY_LINES)
         dialogueTextHeight = numLines * TEXT.LINE_HEIGHT
-        dialogueTextMargin = NODE_BOX.ROOT_DIALOGUE_TOP_MARGIN
       }
 
       const contentHeight =
-        TEXT.EVENT_NAME_HEIGHT +
-        dialogueTextMargin +
-        dialogueTextHeight +
-        continueMargin +
-        continueHeight +
-        repeatableMargin +
-        repeatableHeight
+        dialogueTextHeight + continueMargin + continueHeight + repeatableMargin + repeatableHeight
 
-      return contentHeight + NODE_BOX.VERTICAL_PADDING * 2
+      return Math.max(NODE.MIN_HEIGHT, contentHeight + NODE_BOX.VERTICAL_PADDING * 2)
     }
 
     const continueHeight = node.numContinues ? INNER_BOX.INDICATOR_HEIGHT : 0

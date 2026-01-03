@@ -23,6 +23,14 @@
   opacity: 0.75;
 }
 
+.event-name {
+  fill: $color-primary-base;
+  text-anchor: middle;
+  font-size: font-size('sm');
+  font-weight: bold;
+  pointer-events: none;
+}
+
 .event-node {
   stroke-width: 2px;
   stroke: $color-component-border-dark;
@@ -56,11 +64,6 @@
 
   &--choice {
     font-size: font-size('xs');
-    font-weight: bold;
-  }
-
-  &--root {
-    font-size: font-size('md');
     font-weight: bold;
   }
 

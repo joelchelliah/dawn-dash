@@ -57,6 +57,18 @@ function EventTree({ event }: EventTreeProps): JSX.Element {
 
     const g = svg.append('g').attr('transform', `translate(${offsetX}, ${offsetY})`)
 
+    // Draw event name above the root node
+    const rootNodeX = root.x ?? 0
+    const rootNodeY = root.y ?? 0
+    const rootNodeHeight = getNodeHeight(root.data, event)
+    const eventNameY = rootNodeY - rootNodeHeight / 2 - TEXT.EVENT_NAME_BOTTOM_MARGIN
+
+    g.append('text')
+      .attr('class', cx('event-name'))
+      .attr('x', rootNodeX)
+      .attr('y', eventNameY)
+      .text(event.name)
+
     // Draw links (lines between nodes)
     g.selectAll(`.${cx('tree-link')}`)
       .data(root.links())
@@ -314,7 +326,8 @@ function EventTree({ event }: EventTreeProps): JSX.Element {
         const repeatableBoxHeight = data.repeatable ? INNER_BOX.INDICATOR_HEIGHT : 0
 
         if (isRootNode) {
-          // Root node shows event name + up to 2 lines of dialogue text (if present)
+          // Root node shows up to 2 lines of dialogue text (if present)
+          // Event name is now displayed ABOVE the root node
           const currentNodeHeight = getNodeHeight(data, event)
           const textAreaHeight =
             currentNodeHeight -
@@ -325,49 +338,26 @@ function EventTree({ event }: EventTreeProps): JSX.Element {
             -currentNodeHeight / 2 + NODE_BOX.VERTICAL_PADDING + textAreaHeight / 2
 
           const hasText = data.text && data.text.trim().length > 0
-          const dialogueLines = hasText
-            ? wrapText(data.text, NODE.MIN_WIDTH - TEXT.HORIZONTAL_PADDING)
-            : []
-          const displayLines = dialogueLines.slice(0, TEXT.MAX_DISPLAY_LINES)
 
-          // If there are more lines than we can display, truncate the last line
-          if (
-            dialogueLines.length > TEXT.MAX_DISPLAY_LINES &&
-            displayLines[displayLines.length - 1]
-          ) {
-            const lastLineIndex = displayLines.length - 1
-            displayLines[lastLineIndex] = truncateLine(displayLines[lastLineIndex])
-          }
+          if (hasText) {
+            const dialogueLines = wrapText(data.text, NODE.MIN_WIDTH - TEXT.HORIZONTAL_PADDING)
+            const displayLines = dialogueLines.slice(0, TEXT.MAX_DISPLAY_LINES)
 
-          const dialogueTextHeight = displayLines.length * TEXT.LINE_HEIGHT
-          const dialogueTextMargin = dialogueTextHeight > 0 ? NODE_BOX.ROOT_DIALOGUE_TOP_MARGIN : 0
+            // If there are more lines than we can display, truncate the last line
+            if (
+              dialogueLines.length > TEXT.MAX_DISPLAY_LINES &&
+              displayLines[displayLines.length - 1]
+            ) {
+              const lastLineIndex = displayLines.length - 1
+              displayLines[lastLineIndex] = truncateLine(displayLines[lastLineIndex])
+            }
 
-          // Calculate total content height and vertical centering offset
-          const totalContentHeight =
-            TEXT.EVENT_NAME_HEIGHT + dialogueTextMargin + dialogueTextHeight
-          const verticalCenteringOffset = -totalContentHeight / 2
-
-          // Event name
-          const eventNameY =
-            textAreaCenter + verticalCenteringOffset + TEXT.EVENT_NAME_BASELINE_OFFSET
-
-          node
-            .append('text')
-            .attr('class', cx('event-node-text', 'event-node-text--root'))
-            .attr('y', eventNameY)
-            .text(event.name)
-
-          // Dialogue text lines (if present)
-          if (displayLines.length > 0) {
-            const dialogueVerticalOffset =
-              verticalCenteringOffset + TEXT.EVENT_NAME_HEIGHT + dialogueTextMargin
+            // Center the lines vertically based on actual number of lines
+            const totalTextHeight = displayLines.length * TEXT.LINE_HEIGHT
+            const verticalCenteringOffset = -totalTextHeight / 2 + TEXT.BASELINE_OFFSET
 
             displayLines.forEach((line, i) => {
-              const y =
-                textAreaCenter +
-                dialogueVerticalOffset +
-                i * TEXT.LINE_HEIGHT +
-                TEXT.BASELINE_OFFSET
+              const y = textAreaCenter + i * TEXT.LINE_HEIGHT + verticalCenteringOffset
 
               node
                 .append('text')
