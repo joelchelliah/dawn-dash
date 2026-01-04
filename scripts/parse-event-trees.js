@@ -486,6 +486,13 @@ function cleanText(text) {
   // Remove speaker tags like {#:"speaker"}
   cleaned = cleaned.replace(/\{#[^}]+\}/g, '')
 
+  // Remove conditional text markers (these are if/else checks for what text to display)
+  // Examples: [?questflag:stormscarredintro], [?talent:stormscarred;!questflag:stormscarredintro], [?!questflag:quit]
+  cleaned = cleaned.replace(/\[\?[^\]]+\]/g, '')
+
+  // Remove [continue] markers (these are part of the conditional text system)
+  cleaned = cleaned.replace(/\[continue\]/gi, '')
+
   // Remove leftover command brackets (these should have been extracted as effects)
   // Examples: [DAMAGE: 10], [GOLD: -20], [Health: 50]
   cleaned = cleaned.replace(/\[(DAMAGE|GOLD|HEALTH|Health|Gold):[^\]]+\];?\s*/gi, '')
