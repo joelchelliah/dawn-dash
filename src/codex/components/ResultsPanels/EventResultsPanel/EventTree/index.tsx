@@ -32,7 +32,7 @@ function EventTree({ event }: EventTreeProps): JSX.Element {
     const root = hierarchy(event.rootNode, (d) => d.children)
 
     const treeLayout = tree<EventTreeNode>()
-      .nodeSize(NODE.DEFAULT_SIZE)
+      .nodeSize(NODE.DEFAULT_SIZE_WITH_SPACING)
       .separation(() => {
         // Same separation for all nodes since leaf nodes rarely have siblings,
         // meaning visually adjacent leaf nodes are always non-siblings!

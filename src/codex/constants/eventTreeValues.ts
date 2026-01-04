@@ -8,10 +8,23 @@ export const TREE = {
   MIN_SVG_WIDTH: 500, // Minimum SVG width to prevent nodes from appearing too large
 }
 
+const MIN_NODE_WIDTH = 200
+const MIN_NODE_HEIGHT = 30
+const DEFAULT_NODE_HORIZONTAL_SPACING = 25
+const DEFAULT_NODE_VERTICAL_SPACING = 100
+
 export const NODE = {
-  MIN_WIDTH: 200,
-  MIN_HEIGHT: 30,
-  DEFAULT_SIZE: [225, 150] as [number, number],
+  MIN_WIDTH: MIN_NODE_WIDTH,
+  MIN_HEIGHT: MIN_NODE_HEIGHT,
+
+  // [Horizontal spacing, Vertical spacing]
+  // Distance between node A start and node B start,
+  // - At [0,0] the nodes will be completely overlapped.
+  // - At [width, height] the nodes will be touching.
+  DEFAULT_SIZE_WITH_SPACING: [
+    MIN_NODE_WIDTH + DEFAULT_NODE_HORIZONTAL_SPACING,
+    MIN_NODE_HEIGHT + DEFAULT_NODE_VERTICAL_SPACING,
+  ] as [number, number],
 }
 
 const TEXT_LINE_HEIGHT = 12
