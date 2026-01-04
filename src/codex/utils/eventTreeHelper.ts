@@ -110,7 +110,7 @@ export const getNodeHeight = (node: EventTreeNode, event: Event): number => {
       textHeight = TEXT.COMBAT_TEXT_HEIGHT
       effectsBoxMargin = 0
     } else {
-      const endLines = wrapText(node.text, NODE.MIN_WIDTH - TEXT.HORIZONTAL_PADDING)
+      const endLines = wrapText(node.text ?? '', NODE.MIN_WIDTH - TEXT.HORIZONTAL_PADDING)
       const numLines = Math.min(endLines.length, TEXT.MAX_DISPLAY_LINES)
       textHeight = numLines * TEXT.LINE_HEIGHT
       // Only add margin if we have both text and effects box
@@ -175,8 +175,19 @@ export const getNodeHeight = (node: EventTreeNode, event: Event): number => {
 
     return Math.max(NODE.MIN_HEIGHT, contentHeight + NODE_BOX.VERTICAL_PADDING * 2)
   } else if (node.type === 'combat') {
-    // Combat nodes show "COMBAT!" text + effects box (if any) + repeatable box (if present)
-    const textHeight = TEXT.COMBAT_TEXT_HEIGHT
+    // Combat nodes show text (up to 2 lines) or "COMBAT!" fallback + effects box (if any) + repeatable box (if present)
+    const hasText = node.text && node.text.trim().length > 0
+    let textHeight: number
+
+    if (hasText && node.text) {
+      const combatLines = wrapText(node.text, NODE.MIN_WIDTH - TEXT.HORIZONTAL_PADDING)
+      const numLines = Math.min(combatLines.length, TEXT.MAX_DISPLAY_LINES)
+      textHeight = numLines * TEXT.LINE_HEIGHT
+    } else {
+      // Fallback to "COMBAT!" text
+      textHeight = TEXT.COMBAT_TEXT_HEIGHT
+    }
+
     const effectsBoxHeight =
       node.effects && node.effects.length > 0
         ? TEXT.LINE_HEIGHT +

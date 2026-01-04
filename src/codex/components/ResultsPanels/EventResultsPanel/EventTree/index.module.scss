@@ -98,18 +98,16 @@
     font-weight: bold;
   }
 
-  &--dialogue {
+  &--dialogue,
+  &--combat,
+  &--end {
     font-size: font-size('xxs');
   }
 
-  &--combat {
+  &--combat-fallback {
     font-size: font-size('xs');
     font-weight: bold;
     font-style: italic;
-  }
-
-  &--end {
-    font-size: font-size('xxs');
   }
 
   &--requirement-header {

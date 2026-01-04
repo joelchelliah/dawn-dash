@@ -25,13 +25,13 @@ export interface ChoiceNode extends BaseNode {
 
 export interface EndNode extends BaseNode {
   type: 'end'
-  text: string
+  text?: string
   effects?: string[]
 }
 
 export interface CombatNode extends BaseNode {
   type: 'combat'
-  text: string
+  text?: string
   effects: string[]
 }
 

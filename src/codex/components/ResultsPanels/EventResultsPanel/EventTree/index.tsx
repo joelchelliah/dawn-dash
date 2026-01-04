@@ -270,7 +270,7 @@ function EventTree({ event }: EventTreeProps): JSX.Element {
             .attr('y', textAreaCenter + TEXT.COMBAT_BASELINE_OFFSET - TEXT.COMBAT_TEXT_HEIGHT / 2)
             .text('END')
         } else {
-          const endLines = wrapText(data.text, NODE.MIN_WIDTH - TEXT.HORIZONTAL_PADDING)
+          const endLines = wrapText(data.text ?? '', NODE.MIN_WIDTH - TEXT.HORIZONTAL_PADDING)
           const displayLines = endLines.slice(0, TEXT.MAX_DISPLAY_LINES)
 
           // If there are more lines than we can display, truncate the last line
@@ -394,7 +394,7 @@ function EventTree({ event }: EventTreeProps): JSX.Element {
           })
         }
       } else {
-        // For combat nodes, show "COMBAT!" text (effects box is handled centrally below)
+        // For combat nodes, show text (up to 2 lines) or "FIGHT!" fallback (effects box is handled centrally below)
         const effects = data.effects || []
         const hasEffects = effects.length > 0
         const effectsBoxHeight = hasEffects
@@ -407,24 +407,57 @@ function EventTree({ event }: EventTreeProps): JSX.Element {
 
         const currentNodeHeight = getNodeHeight(data, event)
         const effectsBoxMargin = effectsBoxHeight > 0 ? INNER_BOX.LISTINGS_TOP_MARGIN : 0
+        const repeatableBoxMargin = repeatableBoxHeight > 0 ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
         // The text area is: total height minus vertical padding, effects box, its margin, and repeatable box
         const textAreaHeight =
           currentNodeHeight -
           NODE_BOX.VERTICAL_PADDING * 2 -
           effectsBoxMargin -
           effectsBoxHeight -
+          repeatableBoxMargin -
           repeatableBoxHeight
         // Center the text within this area, offset by top padding
         const textAreaCenter =
           -currentNodeHeight / 2 + NODE_BOX.VERTICAL_PADDING + textAreaHeight / 2
 
-        // Add "COMBAT!" text, centered in available space
-        node
-          .append('text')
-          .attr('class', cx('event-node-text', 'event-node-text--combat'))
-          .attr('x', 0)
-          .attr('y', textAreaCenter + TEXT.COMBAT_BASELINE_OFFSET - TEXT.COMBAT_TEXT_HEIGHT / 2)
-          .text('COMBAT!')
+        const hasText = data.text && data.text.trim().length > 0
+
+        if (hasText && data.text) {
+          const combatLines = wrapText(data.text, NODE.MIN_WIDTH - TEXT.HORIZONTAL_PADDING)
+          const displayLines = combatLines.slice(0, TEXT.MAX_DISPLAY_LINES)
+
+          // If there are more lines than we can display, truncate the last line
+          if (
+            combatLines.length > TEXT.MAX_DISPLAY_LINES &&
+            displayLines[displayLines.length - 1]
+          ) {
+            const lastLineIndex = displayLines.length - 1
+            displayLines[lastLineIndex] = truncateLine(displayLines[lastLineIndex])
+          }
+
+          // Center the lines vertically based on actual number of lines
+          const totalTextHeight = displayLines.length * TEXT.LINE_HEIGHT
+          const verticalCenteringOffset = -totalTextHeight / 2 + TEXT.BASELINE_OFFSET
+
+          displayLines.forEach((line, i) => {
+            const y = textAreaCenter + i * TEXT.LINE_HEIGHT + verticalCenteringOffset
+
+            node
+              .append('text')
+              .attr('class', cx('event-node-text', 'event-node-text--combat'))
+              .attr('x', 0)
+              .attr('y', y)
+              .text(line)
+          })
+        } else {
+          // Fallback: Add "FIGHT!" text, centered in available space
+          node
+            .append('text')
+            .attr('class', cx('event-node-text', 'event-node-text--combat-fallback'))
+            .attr('x', 0)
+            .attr('y', textAreaCenter + TEXT.COMBAT_BASELINE_OFFSET - TEXT.COMBAT_TEXT_HEIGHT / 2)
+            .text('FIGHT!')
+        }
       }
     })
 

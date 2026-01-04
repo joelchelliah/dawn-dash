@@ -190,7 +190,7 @@ function buildTreeFromStory(
       totalNodesInCurrentEvent++
       return createNode({
         id: generateNodeId(),
-        text: '[Combat]',
+        text: undefined,
         type: 'combat',
       })
     }
@@ -200,7 +200,7 @@ function buildTreeFromStory(
       totalNodesInCurrentEvent++
       return createNode({
         id: generateNodeId(),
-        text: '', // Empty text, effects tell the story
+        text: undefined,
         type: 'end',
         effects,
         repeatable: false,
