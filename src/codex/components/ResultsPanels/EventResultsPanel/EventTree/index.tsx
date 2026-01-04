@@ -238,7 +238,7 @@ function EventTree({ event }: EventTreeProps): JSX.Element {
           })
         }
       } else if (data.type === 'end') {
-        // For end nodes, show first 2 lines of text and effects box (if present)
+        // For end nodes, show first 2 lines of text (effects box is handled centrally below)
         const effects = data.effects || []
         const hasEffects = effects.length > 0
         const effectsBoxHeight = hasEffects
@@ -258,12 +258,12 @@ function EventTree({ event }: EventTreeProps): JSX.Element {
         const hasText = data.text && data.text.trim().length > 0
 
         // Special cases for empty text:
-        // - If has outcomes but no text: only show outcomes box (no text)
-        // - If no outcomes and no text: show "END" in italic
+        // - If has effects but no text: only show effects box (no text)
+        // - If no effects and no text: show "END" in italic
         if (!hasText && hasEffects) {
-          // Empty text with outcomes: skip text rendering, only show outcomes box below
+          // Empty text with effects: skip text rendering, only show effects box below
         } else if (!hasText && !hasEffects) {
-          // Empty text and no outcomes: show "END" in italic (like combat)
+          // Empty text and no effects: show "END" in italic (like combat)
           node
             .append('text')
             .attr('class', cx('event-node-text', 'event-node-text--combat'))
@@ -294,54 +294,17 @@ function EventTree({ event }: EventTreeProps): JSX.Element {
           })
         }
 
-        // Add effects box if present (at bottom of node, styled like requirements box)
-        if (hasEffects) {
-          const effectsGroup = node
-            .append('g')
-            .attr(
-              'transform',
-              `translate(0, ${currentNodeHeight / 2 - NODE_BOX.VERTICAL_PADDING - effectsBoxHeight})`
-            )
-
-          effectsGroup
-            .append('rect')
-            .attr('class', cx('requirement-box'))
-            .attr('x', -NODE.MIN_WIDTH / 2 + INNER_BOX.HORIZONTAL_MARGIN)
-            .attr('y', 0)
-            .attr('width', NODE.MIN_WIDTH - INNER_BOX.HORIZONTAL_MARGIN * 2)
-            .attr('height', effectsBoxHeight)
-
-          // Add "Outcome:" label inside dark box
-          // Calculate top padding: (box height - content height) / 2
-          const contentHeight =
-            TEXT.LINE_HEIGHT + INNER_BOX.LISTINGS_HEADER_GAP + effects.length * TEXT.LINE_HEIGHT
-          const listingTopPadding = (effectsBoxHeight - contentHeight) / 2
-          effectsGroup
-            .append('text')
-            .attr('class', cx('event-node-text', 'event-node-text--effect-header'))
-            .attr('x', -NODE.MIN_WIDTH / 2 + INNER_BOX.HORIZONTAL_MARGIN * 2)
-            .attr('y', listingTopPadding + TEXT.LINE_HEIGHT)
-            .text('Outcome:')
-
-          // Add each effect on its own line (left-aligned)
-          effects.forEach((effect, i) => {
-            effectsGroup
-              .append('text')
-              .attr('class', cx('event-node-text', 'event-node-text--effect-item'))
-              .attr('x', -NODE.MIN_WIDTH / 2 + INNER_BOX.HORIZONTAL_MARGIN * 2)
-              .attr(
-                'y',
-                listingTopPadding +
-                  TEXT.LINE_HEIGHT +
-                  INNER_BOX.LISTINGS_HEADER_GAP +
-                  (i + 1) * TEXT.LINE_HEIGHT
-              )
-              .text(effect)
-          })
-        }
       } else if (data.type === 'dialogue') {
-        // For dialogue nodes, show event name for root node only, otherwise show truncated text
+        // For dialogue nodes, show dialogue text (effects box is handled centrally below)
         const isRootNode = d.depth === 0
+        const effects = data.effects || []
+        const hasEffects = effects.length > 0
+        const effectsBoxHeight = hasEffects
+          ? TEXT.LINE_HEIGHT +
+            INNER_BOX.LISTINGS_HEADER_GAP +
+            effects.length * TEXT.LINE_HEIGHT +
+            INNER_BOX.LISTINGS_VERTICAL_PADDING
+          : 0
         const hasContinue = data.numContinues && data.numContinues > 0
         const continueBoxHeight = hasContinue ? INNER_BOX.INDICATOR_HEIGHT : 0
         const repeatableBoxHeight = data.repeatable ? INNER_BOX.INDICATOR_HEIGHT : 0
@@ -350,9 +313,12 @@ function EventTree({ event }: EventTreeProps): JSX.Element {
           // Root node shows up to 2 lines of dialogue text (if present)
           // Event name is now displayed ABOVE the root node
           const currentNodeHeight = getNodeHeight(data, event)
+          const effectsBoxMargin = effectsBoxHeight > 0 ? INNER_BOX.LISTINGS_TOP_MARGIN : 0
           const textAreaHeight =
             currentNodeHeight -
             NODE_BOX.VERTICAL_PADDING * 2 -
+            effectsBoxMargin -
+            effectsBoxHeight -
             continueBoxHeight -
             repeatableBoxHeight
           const textAreaCenter =
@@ -391,9 +357,12 @@ function EventTree({ event }: EventTreeProps): JSX.Element {
         } else {
           // Non-root dialogue nodes show max MAX_DISPLAY_LINES
           const currentNodeHeight = getNodeHeight(data, event)
+          const effectsBoxMargin = effectsBoxHeight > 0 ? INNER_BOX.LISTINGS_TOP_MARGIN : 0
           const textAreaHeight =
             currentNodeHeight -
             NODE_BOX.VERTICAL_PADDING * 2 -
+            effectsBoxMargin -
+            effectsBoxHeight -
             continueBoxHeight -
             repeatableBoxHeight
           const textAreaCenter =
@@ -426,8 +395,9 @@ function EventTree({ event }: EventTreeProps): JSX.Element {
               .text(line)
           })
         }
+
       } else {
-        // For combat nodes, show "COMBAT!" text and effects box (if present)
+        // For combat nodes, show "COMBAT!" text (effects box is handled centrally below)
         const effects = data.effects || []
         const hasEffects = effects.length > 0
         const effectsBoxHeight = hasEffects
@@ -459,53 +429,81 @@ function EventTree({ event }: EventTreeProps): JSX.Element {
           .attr('y', textAreaCenter + TEXT.COMBAT_BASELINE_OFFSET - TEXT.COMBAT_TEXT_HEIGHT / 2)
           .text('COMBAT!')
 
-        // Add effects box if present (above repeatable box, styled like requirements box)
-        if (hasEffects) {
-          const effectsGroup = node
-            .append('g')
-            .attr(
-              'transform',
-              `translate(0, ${currentNodeHeight / 2 - NODE_BOX.VERTICAL_PADDING - effectsBoxHeight - repeatableBoxHeight})`
-            )
-
-          effectsGroup
-            .append('rect')
-            .attr('class', cx('requirement-box'))
-            .attr('x', -NODE.MIN_WIDTH / 2 + INNER_BOX.HORIZONTAL_MARGIN)
-            .attr('y', 0)
-            .attr('width', NODE.MIN_WIDTH - INNER_BOX.HORIZONTAL_MARGIN * 2)
-            .attr('height', effectsBoxHeight)
-
-          // Add "Outcome:" label inside dark box
-          // Calculate top padding: (box height - content height) / 2
-          const contentHeight =
-            TEXT.LINE_HEIGHT + INNER_BOX.LISTINGS_HEADER_GAP + effects.length * TEXT.LINE_HEIGHT
-          const listingTopPadding = (effectsBoxHeight - contentHeight) / 2
-          effectsGroup
-            .append('text')
-            .attr('class', cx('event-node-text', 'event-node-text--effect-header'))
-            .attr('x', -NODE.MIN_WIDTH / 2 + INNER_BOX.HORIZONTAL_MARGIN * 2)
-            .attr('y', listingTopPadding + TEXT.LINE_HEIGHT)
-            .text('Outcome:')
-
-          // Add each effect on its own line (left-aligned)
-          effects.forEach((effect, i) => {
-            effectsGroup
-              .append('text')
-              .attr('class', cx('event-node-text', 'event-node-text--effect-item'))
-              .attr('x', -NODE.MIN_WIDTH / 2 + INNER_BOX.HORIZONTAL_MARGIN * 2)
-              .attr(
-                'y',
-                listingTopPadding +
-                  TEXT.LINE_HEIGHT +
-                  INNER_BOX.LISTINGS_HEADER_GAP +
-                  (i + 1) * TEXT.LINE_HEIGHT
-              )
-              .text(effect)
-          })
-        }
       }
     })
+
+    // Add `Effect` boxes (for end, dialogue, and combat nodes that have effects)
+    nodes
+      .filter((d) => {
+        const effects = d.data.effects || []
+        return effects.length > 0 && ['end', 'dialogue', 'combat'].includes(d.data.type)
+      })
+      .each(function (d) {
+        const node = select(this)
+        const effects = d.data.effects || []
+        const nodeHeight = getNodeHeight(d.data, event)
+
+        const effectsBoxHeight =
+          TEXT.LINE_HEIGHT +
+          INNER_BOX.LISTINGS_HEADER_GAP +
+          effects.length * TEXT.LINE_HEIGHT +
+          INNER_BOX.LISTINGS_VERTICAL_PADDING
+
+        // Calculate bottom position based on node type
+        // For dialogue and combat: above continue and repeatable boxes
+        // For end: above repeatable box (end nodes don't have continue)
+        const hasContinue =
+          (d.data.type === 'dialogue' || d.data.type === 'choice') &&
+          d.data.numContinues &&
+          d.data.numContinues > 0
+        const continueHeight = hasContinue ? INNER_BOX.INDICATOR_HEIGHT : 0
+        const hasRepeatable = d.data.repeatable === true
+        const repeatableHeight = hasRepeatable ? INNER_BOX.INDICATOR_HEIGHT : 0
+
+        const effectsBoxY =
+          nodeHeight / 2 -
+          NODE_BOX.VERTICAL_PADDING -
+          effectsBoxHeight -
+          continueHeight -
+          repeatableHeight
+
+        const effectsGroup = node.append('g').attr('transform', `translate(0, ${effectsBoxY})`)
+
+        effectsGroup
+          .append('rect')
+          .attr('class', cx('requirement-box'))
+          .attr('x', -NODE.MIN_WIDTH / 2 + INNER_BOX.HORIZONTAL_MARGIN)
+          .attr('y', 0)
+          .attr('width', NODE.MIN_WIDTH - INNER_BOX.HORIZONTAL_MARGIN * 2)
+          .attr('height', effectsBoxHeight)
+
+        // Add "Effect:" label inside dark box
+        const contentHeight =
+          TEXT.LINE_HEIGHT + INNER_BOX.LISTINGS_HEADER_GAP + effects.length * TEXT.LINE_HEIGHT
+        const listingTopPadding = (effectsBoxHeight - contentHeight) / 2
+        effectsGroup
+          .append('text')
+          .attr('class', cx('event-node-text', 'event-node-text--effect-header'))
+          .attr('x', -NODE.MIN_WIDTH / 2 + INNER_BOX.HORIZONTAL_MARGIN * 2)
+          .attr('y', listingTopPadding + TEXT.LINE_HEIGHT)
+          .text('Effect:')
+
+        // Add each effect on its own line (left-aligned)
+        effects.forEach((effect, i) => {
+          effectsGroup
+            .append('text')
+            .attr('class', cx('event-node-text', 'event-node-text--effect-item'))
+            .attr('x', -NODE.MIN_WIDTH / 2 + INNER_BOX.HORIZONTAL_MARGIN * 2)
+            .attr(
+              'y',
+              listingTopPadding +
+                TEXT.LINE_HEIGHT +
+                INNER_BOX.LISTINGS_HEADER_GAP +
+                (i + 1) * TEXT.LINE_HEIGHT
+            )
+            .text(effect)
+        })
+      })
 
     // Add `Continue` indicators
     nodes
@@ -573,7 +571,7 @@ function EventTree({ event }: EventTreeProps): JSX.Element {
       let tooltip = `${d.data.type}: ${d.data.text}`
       if (d.data.repeatable) tooltip += '\n[REPEATABLE]'
       if (d.data.requirements) tooltip += `\nRequires: ${d.data.requirements.join(', ')}`
-      if (d.data.effects) tooltip += `\nOutcome: ${d.data.effects.join(', ')}`
+      if (d.data.effects) tooltip += `\nEffect: ${d.data.effects.join(', ')}`
       return tooltip
     })
   }, [event])
