@@ -18,9 +18,10 @@ const cx = createCx(styles)
 
 interface EventTreeProps {
   event: Event
+  zoomLevel: 'auto' | number
 }
 
-function EventTree({ event }: EventTreeProps): JSX.Element {
+function EventTree({ event, zoomLevel }: EventTreeProps): JSX.Element {
   const svgRef = useRef<SVGSVGElement>(null)
 
   useEffect(() => {
@@ -591,8 +592,15 @@ function EventTree({ event }: EventTreeProps): JSX.Element {
       })
   }, [event])
 
+  const containerStyle =
+    zoomLevel === 'auto'
+      ? undefined
+      : {
+          width: `${zoomLevel}%`,
+        }
+
   return (
-    <div className={cx('event-tree-container')}>
+    <div className={cx('event-tree-container')} style={containerStyle}>
       <div className={cx('event-header')}>
         <Image
           src={EventArtworkImageUrl(event.artwork)}

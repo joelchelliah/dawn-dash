@@ -13,9 +13,10 @@ const cx = createCx(styles)
 
 interface EventResultsPanelProps {
   selectedEvent: Event | null
+  zoomLevel: 'auto' | number
 }
 
-const EventResultsPanel = ({ selectedEvent }: EventResultsPanelProps) => {
+const EventResultsPanel = ({ selectedEvent, zoomLevel }: EventResultsPanelProps) => {
   const eventName = selectedEvent?.name ?? 'UNNAMED-EVENT'
   const blightbaneLink = `https://www.blightbane.io/event/${eventName.replaceAll(' ', '_')}`
   return (
@@ -25,7 +26,7 @@ const EventResultsPanel = ({ selectedEvent }: EventResultsPanelProps) => {
       <div className={cx('results-container')}>
         {selectedEvent && !selectedEvent.excluded && (
           <>
-            <EventTree event={selectedEvent} />
+            <EventTree event={selectedEvent} zoomLevel={zoomLevel} />
             <br />
             <br />
             <GradientDivider widthPercentage={85} spacingBottom="xs" />

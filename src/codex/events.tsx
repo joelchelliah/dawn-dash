@@ -22,6 +22,7 @@ function Events(): JSX.Element {
   const { resetToEventCodex } = useNavigation()
   const { showScrollToTopButton, scrollToTop } = useScrollToTop()
   const [selectedEventIndex, setSelectedEventIndex] = useState(0)
+  const [zoomLevel, setZoomLevel] = useState<'auto' | number>('auto')
 
   const selectedEvent = eventTrees[selectedEventIndex]
 
@@ -41,8 +42,10 @@ function Events(): JSX.Element {
         <EventSearchPanel
           selectedEventIndex={selectedEventIndex}
           onEventChange={setSelectedEventIndex}
+          zoomLevel={zoomLevel}
+          onZoomChange={setZoomLevel}
         />
-        <EventResultsPanel selectedEvent={selectedEvent} />
+        <EventResultsPanel selectedEvent={selectedEvent} zoomLevel={zoomLevel} />
       </div>
 
       <Footer />
