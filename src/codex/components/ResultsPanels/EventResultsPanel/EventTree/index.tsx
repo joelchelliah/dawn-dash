@@ -8,8 +8,8 @@ import { createCx } from '@/shared/utils/classnames'
 import { wrapText, truncateLine } from '@/shared/utils/textHelper'
 import { EventArtworkImageUrl } from '@/shared/utils/imageUrls'
 
-import { Event, EventTreeNode } from '@/codex/types/events'
-import { getNodeHeight, calculateTreeBounds } from '@/codex/utils/eventTreeHelper'
+import { CombatNode, DialogueNode, EndNode, Event, EventTreeNode } from '@/codex/types/events'
+import { getNodeHeight, calculateTreeBounds, hasEffects } from '@/codex/utils/eventTreeHelper'
 import { NODE, TREE, TEXT, INNER_BOX, NODE_BOX } from '@/codex/constants/eventTreeValues'
 
 import styles from './index.module.scss'
@@ -200,7 +200,7 @@ function EventTree({ event }: EventTreeProps): JSX.Element {
 
           reqGroup
             .append('rect')
-            .attr('class', cx('requirement-box'))
+            .attr('class', cx('inner-box'))
             .attr('x', -NODE.MIN_WIDTH / 2 + INNER_BOX.HORIZONTAL_MARGIN)
             .attr('y', 0)
             .attr('width', NODE.MIN_WIDTH - INNER_BOX.HORIZONTAL_MARGIN * 2)
@@ -430,14 +430,12 @@ function EventTree({ event }: EventTreeProps): JSX.Element {
 
     // Add `Effect` boxes (for end, dialogue, and combat nodes that have effects)
     nodes
-      .filter((d) => {
-        const effects = d.data.effects || []
-        return effects.length > 0 && ['end', 'dialogue', 'combat'].includes(d.data.type)
-      })
+      .filter((d) => hasEffects(d.data))
       .each(function (d) {
         const node = select(this)
-        const effects = d.data.effects || []
-        const nodeHeight = getNodeHeight(d.data, event)
+        const eventNode = d.data as DialogueNode | EndNode | CombatNode
+        const effects = eventNode.effects ?? []
+        const nodeHeight = getNodeHeight(eventNode, event)
 
         const effectsBoxHeight =
           TEXT.LINE_HEIGHT +
@@ -445,29 +443,26 @@ function EventTree({ event }: EventTreeProps): JSX.Element {
           effects.length * TEXT.LINE_HEIGHT +
           INNER_BOX.LISTINGS_VERTICAL_PADDING
 
-        // Calculate bottom position based on node type
-        // For dialogue and combat: above continue and repeatable boxes
-        // For end: above repeatable box (end nodes don't have continue)
-        const hasContinue =
-          (d.data.type === 'dialogue' || d.data.type === 'choice') &&
-          d.data.numContinues &&
-          d.data.numContinues > 0
-        const continueHeight = hasContinue ? INNER_BOX.INDICATOR_HEIGHT : 0
-        const hasRepeatable = d.data.repeatable === true
+        const continueHeight = eventNode.numContinues ? INNER_BOX.INDICATOR_HEIGHT : 0
+        const continueMargin = continueHeight > 0 ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
+        const hasRepeatable = eventNode.repeatable === true
         const repeatableHeight = hasRepeatable ? INNER_BOX.INDICATOR_HEIGHT : 0
+        const repeatableMargin = hasRepeatable ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
 
         const effectsBoxY =
           nodeHeight / 2 -
           NODE_BOX.VERTICAL_PADDING -
           effectsBoxHeight -
+          continueMargin -
           continueHeight -
+          repeatableMargin -
           repeatableHeight
 
         const effectsGroup = node.append('g').attr('transform', `translate(0, ${effectsBoxY})`)
 
         effectsGroup
           .append('rect')
-          .attr('class', cx('requirement-box'))
+          .attr('class', cx('inner-box'))
           .attr('x', -NODE.MIN_WIDTH / 2 + INNER_BOX.HORIZONTAL_MARGIN)
           .attr('y', 0)
           .attr('width', NODE.MIN_WIDTH - INNER_BOX.HORIZONTAL_MARGIN * 2)
@@ -523,14 +518,14 @@ function EventTree({ event }: EventTreeProps): JSX.Element {
 
         continueBox
           .append('rect')
-          .attr('class', cx('continue-box'))
+          .attr('class', cx('indicator-box'))
           .attr('x', -NODE.MIN_WIDTH / 2 + INNER_BOX.HORIZONTAL_MARGIN)
           .attr('width', NODE.MIN_WIDTH - INNER_BOX.HORIZONTAL_MARGIN * 2)
           .attr('height', INNER_BOX.INDICATOR_HEIGHT)
 
         continueBox
           .append('text')
-          .attr('class', cx('event-node-text', 'event-node-text--continue-badge'))
+          .attr('class', cx('event-node-text', 'event-node-text--indicator'))
           .attr('y', INNER_BOX.INDICATOR_HEIGHT / 2 + TEXT.BASELINE_OFFSET / 2)
           .text(`Continue × ${d.data.numContinues}`)
       })
@@ -550,14 +545,14 @@ function EventTree({ event }: EventTreeProps): JSX.Element {
 
         repeatableBox
           .append('rect')
-          .attr('class', cx('repeatable-box'))
+          .attr('class', cx('indicator-box'))
           .attr('x', -NODE.MIN_WIDTH / 2 + INNER_BOX.HORIZONTAL_MARGIN)
           .attr('width', NODE.MIN_WIDTH - INNER_BOX.HORIZONTAL_MARGIN * 2)
           .attr('height', INNER_BOX.INDICATOR_HEIGHT)
 
         repeatableBox
           .append('text')
-          .attr('class', cx('event-node-text', 'event-node-text--repeatable-badge'))
+          .attr('class', cx('event-node-text', 'event-node-text--indicator'))
           .attr('y', INNER_BOX.INDICATOR_HEIGHT / 2 + TEXT.BASELINE_OFFSET / 2)
           .text('Repeatable')
       })

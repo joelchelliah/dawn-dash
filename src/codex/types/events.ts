@@ -11,22 +11,25 @@ export interface Event {
 
 export type EventTreeNode = DialogueNode | ChoiceNode | EndNode | CombatNode
 
-interface DialogueNode extends BaseNode {
+export interface DialogueNode extends BaseNode {
   type: 'dialogue'
   text: string
+  effects?: string[]
 }
 
-interface ChoiceNode extends BaseNode {
+export interface ChoiceNode extends BaseNode {
   type: 'choice'
   choiceLabel: string
+  requirements?: string[]
 }
 
-interface EndNode extends BaseNode {
+export interface EndNode extends BaseNode {
   type: 'end'
   text: string
+  effects?: string[]
 }
 
-interface CombatNode extends BaseNode {
+export interface CombatNode extends BaseNode {
   type: 'combat'
   text: string
   effects: string[]
@@ -34,10 +37,7 @@ interface CombatNode extends BaseNode {
 
 interface BaseNode {
   id: string
-  type: EventNodeType
   children?: EventTreeNode[]
-  requirements?: string[]
-  effects?: string[]
   numContinues?: number
   repeatable?: boolean
 }

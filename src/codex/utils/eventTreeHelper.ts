@@ -2,7 +2,7 @@ import { HierarchyNode } from 'd3-hierarchy'
 
 import { wrapText } from '@/shared/utils/textHelper'
 
-import { Event, EventTreeNode } from '@/codex/types/events'
+import { Event, EventTreeNode, DialogueNode, EndNode, CombatNode } from '@/codex/types/events'
 import { TEXT, INNER_BOX, NODE, NODE_BOX } from '@/codex/constants/eventTreeValues'
 
 interface TreeBounds {
@@ -195,4 +195,14 @@ export const getNodeHeight = (node: EventTreeNode, event: Event): number => {
   }
 
   return NODE.MIN_HEIGHT
+}
+
+/**
+ * Type guard that checks if a node is one of the types that can have effects
+ * and has at least one effect in its effects array.
+ */
+export const hasEffects = (node: EventTreeNode): node is DialogueNode | EndNode | CombatNode => {
+  const isEffectsNode = node.type === 'end' || node.type === 'dialogue' || node.type === 'combat'
+
+  return isEffectsNode && (node.effects ?? []).length > 0
 }

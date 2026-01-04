@@ -134,19 +134,17 @@
     text-anchor: start;
   }
 
-  &--continue-badge,
-  &--repeatable-badge {
+  &--indicator {
     font-size: font-size('xs');
   }
 }
 
-.requirement-box,
-.continue-box,
-.repeatable-box {
-  fill: rgba(0, 0, 0, 0.3);
+.inner-box {
+  fill: rgba(0, 0, 0, 0.2);
   rx: 3px;
 }
 
-.effect-box {
+.indicator-box {
+  fill: rgba(0, 0, 0, 0.35);
   rx: 3px;
 }
