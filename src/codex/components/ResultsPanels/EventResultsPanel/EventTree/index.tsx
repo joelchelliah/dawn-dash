@@ -92,7 +92,7 @@ function EventTree({ event }: EventTreeProps): JSX.Element {
         const sourceNodeMid = getNodeHeight(d.source.data, event) / 2
         const targetNodeMid = getNodeHeight(d.target.data, event) / 2
 
-        const startY = sourceY + sourceNodeMid / 4
+        const startY = sourceY + sourceNodeMid / 2
         const endY = targetY - targetNodeMid
 
         // Control points: For curviness!
