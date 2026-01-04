@@ -173,7 +173,7 @@ function buildTreeFromStory(
   // because the first Continue() call shows the initial text automatically
   const numContinues = Math.max(0, continueCount - 1)
 
-  // Get current choices
+  // Get current choices (i.e: child nodes) in the story.
   const choices = story.currentChoices || []
 
   // Determine node type BEFORE cleaning (to detect combat/commands)
@@ -305,6 +305,7 @@ function buildTreeFromStory(
           requirements: requirements.length > 0 ? requirements : childNode.requirements,
           effects: childNode.effects,
           repeatable: childNode.repeatable,
+          numContinues: childNode.numContinues,
           children: childNode.children,
         })
 
@@ -359,11 +360,6 @@ function extractEffects(text) {
 
       const command = match[1].toUpperCase()
       const value = match[2] ? match[2].trim() : null
-
-      // Skip RELOADEVENTS - not relevant for visualization
-      if (command === 'RELOADEVENTS') {
-        return
-      }
 
       let effect
       if (value) {
@@ -672,7 +668,7 @@ function separateChoicesFromEffects(node) {
         // Create a choice node (parent)
         const choiceNode = createNode({
           id: child.id,
-          text: child.choiceLabel, // The choice becomes the text
+          text: undefined, // Choice nodes don't have text
           type: 'choice',
           choiceLabel: child.choiceLabel,
           requirements: child.requirements,
@@ -680,13 +676,31 @@ function separateChoicesFromEffects(node) {
         })
 
         // Create an outcome node (child)
-        const outcomeType = child.type === 'choice' ? 'dialogue' : child.type
+        // Determine the outcome type:
+        // - The original node was 'combat' -> 'combat'
+        // - The original node had no children -> 'end'
+        // - The original node was 'choice' or 'dialogue' -> 'dialogue'
+        // - Otherwise -> keep the original type, BUT warn!
+        const hasChildren = child.children && child.children.length > 0
+        let outcomeType
+        if (child.type === 'combat') {
+          outcomeType = 'combat'
+        } else if (!hasChildren) {
+          outcomeType = 'end'
+        } else if (child.type === 'choice' || child.type === 'dialogue') {
+          outcomeType = 'dialogue'
+        } else {
+          console.warn('  ⚠️ Unexpected node split! Type: ', child.type, 'Node: ', child)
+          outcomeType = child.type
+        }
+
         const outcomeNode = createNode({
           id: generateNodeId(),
           text: child.text || '',
           type: outcomeType,
           effects: child.effects,
           repeatable: child.repeatable,
+          numContinues: child.numContinues,
           children: child.children,
         })
 

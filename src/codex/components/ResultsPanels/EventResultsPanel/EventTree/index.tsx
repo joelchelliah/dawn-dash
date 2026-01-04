@@ -172,8 +172,7 @@ function EventTree({ event }: EventTreeProps): JSX.Element {
         const labelGroup = node.append('g').attr('transform', `translate(0, ${textAreaCenter})`)
 
         // Pre-calculate text lines
-        const choiceText = data.choiceLabel || data.text
-        const choiceLines = wrapText(choiceText, NODE.MIN_WIDTH - TEXT.HORIZONTAL_PADDING)
+        const choiceLines = wrapText(data.choiceLabel, NODE.MIN_WIDTH - TEXT.HORIZONTAL_PADDING)
 
         // Center the text lines vertically within the label group
         const totalTextHeight = choiceLines.length * TEXT.CHOICE_TEXT_HEIGHT
@@ -293,7 +292,6 @@ function EventTree({ event }: EventTreeProps): JSX.Element {
               .text(line)
           })
         }
-
       } else if (data.type === 'dialogue') {
         // For dialogue nodes, show dialogue text (effects box is handled centrally below)
         const isRootNode = d.depth === 0
@@ -395,7 +393,6 @@ function EventTree({ event }: EventTreeProps): JSX.Element {
               .text(line)
           })
         }
-
       } else {
         // For combat nodes, show "COMBAT!" text (effects box is handled centrally below)
         const effects = data.effects || []
@@ -428,7 +425,6 @@ function EventTree({ event }: EventTreeProps): JSX.Element {
           .attr('x', 0)
           .attr('y', textAreaCenter + TEXT.COMBAT_BASELINE_OFFSET - TEXT.COMBAT_TEXT_HEIGHT / 2)
           .text('COMBAT!')
-
       }
     })
 
@@ -565,15 +561,6 @@ function EventTree({ event }: EventTreeProps): JSX.Element {
           .attr('y', INNER_BOX.INDICATOR_HEIGHT / 2 + TEXT.BASELINE_OFFSET / 2)
           .text('Repeatable')
       })
-
-    // Add title for hover tooltip
-    nodes.append('title').text((d) => {
-      let tooltip = `${d.data.type}: ${d.data.text}`
-      if (d.data.repeatable) tooltip += '\n[REPEATABLE]'
-      if (d.data.requirements) tooltip += `\nRequires: ${d.data.requirements.join(', ')}`
-      if (d.data.effects) tooltip += `\nEffect: ${d.data.effects.join(', ')}`
-      return tooltip
-    })
   }, [event])
 
   return (

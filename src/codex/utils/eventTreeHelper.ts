@@ -56,8 +56,7 @@ export const getNodeHeight = (node: EventTreeNode, event: Event): number => {
 
   if (node.type === 'choice') {
     const requirements = node.requirements || []
-    const choiceText = node.choiceLabel || node.text
-    const choiceLines = wrapText(choiceText, NODE.MIN_WIDTH - TEXT.HORIZONTAL_PADDING)
+    const choiceLines = wrapText(node.choiceLabel, NODE.MIN_WIDTH - TEXT.HORIZONTAL_PADDING)
 
     const choiceTextHeight = choiceLines.length * TEXT.CHOICE_TEXT_HEIGHT
     const reqBoxHeight =
@@ -103,11 +102,11 @@ export const getNodeHeight = (node: EventTreeNode, event: Event): number => {
     let effectsBoxMargin: number
 
     if (!hasText && hasEffects) {
-      // No text, only outcomes box - no margin needed
+      // No text, only effects box - no margin needed
       textHeight = 0
       effectsBoxMargin = 0
     } else if (!hasText && !hasEffects) {
-      // No text, no outcomes: show "END" (1 line)
+      // No text, no effects: show "END" (1 line)
       textHeight = TEXT.COMBAT_TEXT_HEIGHT
       effectsBoxMargin = 0
     } else {

@@ -9,14 +9,35 @@ export interface Event {
   excluded?: boolean // True if this event is excluded from visualization
 }
 
-export interface EventTreeNode {
-  id: string
+export type EventTreeNode = DialogueNode | ChoiceNode | EndNode | CombatNode
+
+interface DialogueNode extends BaseNode {
+  type: 'dialogue'
   text: string
+}
+
+interface ChoiceNode extends BaseNode {
+  type: 'choice'
+  choiceLabel: string
+}
+
+interface EndNode extends BaseNode {
+  type: 'end'
+  text: string
+}
+
+interface CombatNode extends BaseNode {
+  type: 'combat'
+  text: string
+  effects: string[]
+}
+
+interface BaseNode {
+  id: string
   type: EventNodeType
   children?: EventTreeNode[]
-  choiceLabel?: string // Only on 'choice' nodes
-  requirements?: string[] // Only on nodes with conditional requirements
-  effects?: string[] // Only on 'end' nodes and some dialogue nodes
-  repeatable?: boolean // Only included when true (nodes that loop back to earlier dialogue)
-  numContinues?: number // Only on some dialogue nodes
+  requirements?: string[]
+  effects?: string[]
+  numContinues?: number
+  repeatable?: boolean
 }

@@ -285,10 +285,6 @@ function extractEvents() {
 
       // Filter out events with no text content
       if (event.text && event.text.trim()) {
-        // Remove RELOADEVENTS command from the text (not relevant for visualization)
-        // It can appear as >>>RELOADEVENTS or just RELOADEVENTS after a semicolon
-        event.text = event.text.replace(/;?RELOADEVENTS/gi, '')
-
         // Replace card/talent IDs with names in the related.cards and related.talents arrays
         if (event.related) {
           if (event.related.cards && Array.isArray(event.related.cards)) {
