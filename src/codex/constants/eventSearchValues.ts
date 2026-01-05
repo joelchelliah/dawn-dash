@@ -1,1 +1,2 @@
-export const ZOOM_LEVELS = ['auto', 100, 200, 400, 800, 1600] as const
+export const ZOOM_LEVELS = ['auto', 'cover', 100, 200, 300] as const
+export type ZoomLevel = (typeof ZOOM_LEVELS)[number]

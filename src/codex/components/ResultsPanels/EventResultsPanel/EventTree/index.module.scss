@@ -2,8 +2,17 @@
 
 .event-tree-container {
   width: 100%;
-  overflow: auto;
   margin-top: 1rem;
+}
+
+.event-tree-scroll-wrapper {
+  width: 100%;
+  max-height: 100%;
+  overflow: auto;
+  border-radius: 0.5rem;
+
+  // Centers the svg since it's inline-block
+  text-align: center;
 }
 
 .event-header {
@@ -46,8 +55,14 @@
 }
 
 .event-tree {
-  width: 100%;
+  display: inline-block; // Allows text-align centering while preserving natural width
+  max-width: 100%;
   height: auto;
+
+  // When zoomed, remove max-width constraint to allow growth
+  &--zoomed {
+    max-width: none;
+  }
 }
 
 .svg {

@@ -12,6 +12,7 @@ import eventTreesData from './data/event-trees.json'
 import { Event } from './types/events'
 import EventSearchPanel from './components/SearchPanels/EventSearchPanel'
 import EventResultsPanel from './components/ResultsPanels/EventResultsPanel'
+import { ZoomLevel } from './constants/eventSearchValues'
 import styles from './events.module.scss'
 
 const cx = createCx(styles)
@@ -22,7 +23,7 @@ function Events(): JSX.Element {
   const { resetToEventCodex } = useNavigation()
   const { showScrollToTopButton, scrollToTop } = useScrollToTop()
   const [selectedEventIndex, setSelectedEventIndex] = useState(0)
-  const [zoomLevel, setZoomLevel] = useState<'auto' | number>('auto')
+  const [zoomLevel, setZoomLevel] = useState<ZoomLevel>('auto')
 
   const selectedEvent = eventTrees[selectedEventIndex]
 

@@ -5,6 +5,7 @@ import GradientDivider from '@/shared/components/GradientDivider'
 import { Event } from '@/codex/types/events'
 
 import PanelHeader from '../../PanelHeader'
+import { ZoomLevel } from '@/codex/constants/eventSearchValues'
 
 import EventTree from './EventTree'
 import styles from './index.module.scss'
@@ -13,7 +14,7 @@ const cx = createCx(styles)
 
 interface EventResultsPanelProps {
   selectedEvent: Event | null
-  zoomLevel: 'auto' | number
+  zoomLevel: ZoomLevel
 }
 
 const EventResultsPanel = ({ selectedEvent, zoomLevel }: EventResultsPanelProps) => {

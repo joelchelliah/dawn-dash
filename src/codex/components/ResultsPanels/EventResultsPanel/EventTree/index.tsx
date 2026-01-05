@@ -13,16 +13,27 @@ import { getNodeHeight, calculateTreeBounds, hasEffects } from '@/codex/utils/ev
 import { NODE, TREE, TEXT, INNER_BOX, NODE_BOX } from '@/codex/constants/eventTreeValues'
 
 import styles from './index.module.scss'
+import { ZoomLevel } from '@/codex/constants/eventSearchValues'
 
 const cx = createCx(styles)
 
 interface EventTreeProps {
   event: Event
-  zoomLevel: 'auto' | number
+  zoomLevel: ZoomLevel
 }
 
 function EventTree({ event, zoomLevel }: EventTreeProps): JSX.Element {
   const svgRef = useRef<SVGSVGElement>(null)
+  const scrollWrapperRef = useRef<HTMLDivElement>(null)
+
+  let zoomScale = undefined
+  if (zoomLevel === 'auto') {
+    zoomScale = undefined
+  } else if (zoomLevel === 'cover') {
+    zoomScale = undefined
+  } else {
+    zoomScale = zoomLevel / 150
+  }
 
   useEffect(() => {
     if (!svgRef.current || !event.rootNode) return
@@ -72,11 +83,29 @@ function EventTree({ event, zoomLevel }: EventTreeProps): JSX.Element {
     const offsetY = -bounds.minY + TREE.VERTICAL_PADDING
 
     const svg = select(svgRef.current)
-      .attr('width', svgWidth)
-      .attr('viewBox', `0 0 ${svgWidth} ${svgHeight}`)
-      .attr('preserveAspectRatio', 'xMidYMin meet')
 
-    const g = svg.append('g').attr('transform', `translate(${offsetX}, ${offsetY})`)
+    if (zoomScale) {
+      // When zoomed: remove viewBox, set explicit scaled dimensions
+      svg
+        .attr('width', svgWidth * zoomScale)
+        .attr('height', svgHeight * zoomScale)
+        .attr('viewBox', null)
+        .attr('preserveAspectRatio', null)
+    } else {
+      // Use viewBox to make everything fit
+      svg
+        .attr('width', svgWidth)
+        .attr('height', svgHeight)
+        .attr('viewBox', `0 0 ${svgWidth} ${svgHeight}`)
+        .attr('preserveAspectRatio', 'xMidYMin meet')
+    }
+
+    // Apply zoom scale to the content group
+    // When scaling, we need to apply scale first, then translate by the scaled offset
+    const zoomTransformScale = zoomScale ?? 1
+    const g = svg
+      .append('g')
+      .attr('transform', `scale(${zoomTransformScale}) translate(${offsetX}, ${offsetY})`)
 
     // Draw links
     g.selectAll(`.${cx('tree-link')}`)
@@ -590,17 +619,17 @@ function EventTree({ event, zoomLevel }: EventTreeProps): JSX.Element {
           .attr('y', INNER_BOX.INDICATOR_HEIGHT / 2 + TEXT.BASELINE_OFFSET / 2)
           .text('Repeatable')
       })
-  }, [event])
 
-  const containerStyle =
-    zoomLevel === 'auto'
-      ? undefined
-      : {
-          width: `${zoomLevel}%`,
-        }
+    // Center the scroll horizontally when zoomed
+    if (zoomScale && scrollWrapperRef.current) {
+      const wrapper = scrollWrapperRef.current
+      // Center horizontally: (scrollWidth - clientWidth) / 2
+      wrapper.scrollLeft = (wrapper.scrollWidth - wrapper.clientWidth) / 2
+    }
+  }, [event, zoomLevel])
 
   return (
-    <div className={cx('event-tree-container')} style={containerStyle}>
+    <div className={cx('event-tree-container')}>
       <div className={cx('event-header')}>
         <Image
           src={EventArtworkImageUrl(event.artwork)}
@@ -612,7 +641,12 @@ function EventTree({ event, zoomLevel }: EventTreeProps): JSX.Element {
         <h3 className={cx('event-header__name')}>{event.name}</h3>
       </div>
 
-      <svg ref={svgRef} className={cx('event-tree')} />
+      <div ref={scrollWrapperRef} className={cx('event-tree-scroll-wrapper')}>
+        <svg
+          ref={svgRef}
+          className={cx('event-tree', { 'event-tree--zoomed': Boolean(zoomScale) })}
+        />
+      </div>
     </div>
   )
 }

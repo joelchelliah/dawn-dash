@@ -8,7 +8,7 @@ import { Event } from '@/codex/types/events'
 import PanelHeader from '../../PanelHeader'
 
 import styles from './index.module.scss'
-import { ZOOM_LEVELS } from '@/codex/constants/eventSearchValues'
+import { ZOOM_LEVELS, ZoomLevel } from '@/codex/constants/eventSearchValues'
 
 const cx = createCx(styles)
 
@@ -16,8 +16,14 @@ const eventTrees = eventTreesData as Event[]
 interface EventSearchPanelProps {
   selectedEventIndex: number
   onEventChange: (index: number) => void
-  zoomLevel: 'auto' | number
-  onZoomChange: (zoom: 'auto' | number) => void
+  zoomLevel: ZoomLevel
+  onZoomChange: (zoom: ZoomLevel) => void
+}
+
+const getZoomLabel = (zoom: ZoomLevel): string => {
+  if (zoom === 'auto') return 'Auto'
+  if (zoom === 'cover') return 'Cover'
+  return `${zoom}%`
 }
 
 const EventSearchPanel = ({
@@ -34,7 +40,7 @@ const EventSearchPanel = ({
 
   const zoomOptions = ZOOM_LEVELS.map((zoom) => ({
     value: zoom,
-    label: zoom === 'auto' ? 'Auto' : `${zoom}%`,
+    label: getZoomLabel(zoom),
   }))
 
   return (
