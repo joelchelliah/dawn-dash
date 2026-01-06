@@ -98,6 +98,9 @@ export const getNodeHeight = (node: EventTreeNode, event: Event): number => {
         INNER_BOX.LISTINGS_VERTICAL_PADDING
       : 0
 
+    const repeatableHeight = node.repeatable ? INNER_BOX.INDICATOR_HEIGHT : 0
+    const repeatableMargin = repeatableHeight > 0 ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
+
     let textHeight: number
     let effectsBoxMargin: number
 
@@ -117,7 +120,8 @@ export const getNodeHeight = (node: EventTreeNode, event: Event): number => {
       effectsBoxMargin = effectsBoxHeight > 0 ? INNER_BOX.LISTINGS_TOP_MARGIN : 0
     }
 
-    const contentHeight = textHeight + effectsBoxMargin + effectsBoxHeight
+    const contentHeight =
+      textHeight + effectsBoxMargin + effectsBoxHeight + repeatableMargin + repeatableHeight
 
     return Math.max(NODE.MIN_HEIGHT, contentHeight + NODE_BOX.VERTICAL_PADDING * 2)
   } else if (node.type === 'dialogue') {

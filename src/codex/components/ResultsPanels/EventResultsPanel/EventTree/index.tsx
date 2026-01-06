@@ -11,9 +11,9 @@ import { EventArtworkImageUrl } from '@/shared/utils/imageUrls'
 import { CombatNode, DialogueNode, EndNode, Event, EventTreeNode } from '@/codex/types/events'
 import { getNodeHeight, calculateTreeBounds, hasEffects } from '@/codex/utils/eventTreeHelper'
 import { NODE, TREE, TEXT, INNER_BOX, NODE_BOX } from '@/codex/constants/eventTreeValues'
+import { ZoomLevel } from '@/codex/constants/eventSearchValues'
 
 import styles from './index.module.scss'
-import { ZoomLevel } from '@/codex/constants/eventSearchValues'
 
 const cx = createCx(styles)
 
@@ -276,11 +276,16 @@ function EventTree({ event, zoomLevel }: EventTreeProps): JSX.Element {
             effects.length * TEXT.LINE_HEIGHT +
             INNER_BOX.LISTINGS_VERTICAL_PADDING
           : 0
+        const repeatableBoxHeight = data.repeatable ? INNER_BOX.INDICATOR_HEIGHT : 0
 
         const currentNodeHeight = getNodeHeight(data, event)
         const effectsBoxMargin = effectsBoxHeight > 0 ? INNER_BOX.LISTINGS_TOP_MARGIN : 0
         const textAreaHeight =
-          currentNodeHeight - NODE_BOX.VERTICAL_PADDING * 2 - effectsBoxMargin - effectsBoxHeight
+          currentNodeHeight -
+          NODE_BOX.VERTICAL_PADDING * 2 -
+          effectsBoxMargin -
+          effectsBoxHeight -
+          repeatableBoxHeight
         const textAreaCenter =
           -currentNodeHeight / 2 + NODE_BOX.VERTICAL_PADDING + textAreaHeight / 2
 
