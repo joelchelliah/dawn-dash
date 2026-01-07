@@ -23,10 +23,10 @@ let totalNodesInCurrentEvent = 0
 const MAX_NODES_PER_EVENT = 500 // Limit nodes per event to prevent runaway exploration
 
 /**
- * Generate a unique node ID
+ * Generate a unique node ID (integer, unique per event)
  */
 function generateNodeId() {
-  return `node_${nodeIdCounter++}`
+  return nodeIdCounter++
 }
 
 /**

@@ -36,8 +36,9 @@ export interface CombatNode extends BaseNode {
 }
 
 interface BaseNode {
-  id: string
+  id: number
   children?: EventTreeNode[]
   numContinues?: number
   repeatable?: boolean
+  repeatFrom?: number
 }
