@@ -40,6 +40,7 @@ function createNode({
   requirements,
   effects,
   repeatable,
+  repeatFrom,
   numContinues,
   children,
 }) {
@@ -63,6 +64,11 @@ function createNode({
   // Only include repeatable if it's true
   if (repeatable === true) {
     node.repeatable = true
+  }
+
+  // Add repeatFrom to reference the ancestor node being repeated
+  if (repeatFrom !== undefined) {
+    node.repeatFrom = repeatFrom
   }
 
   // Add numContinues for dialogue nodes
@@ -102,6 +108,9 @@ function parseInkStory(inkJsonString, eventName) {
       )
     }
 
+    // Fix repeatFrom for choice nodes (post-processing)
+    fixChoiceRepeatFrom(rootNode)
+
     return rootNode
   } catch (error) {
     console.error(`  ❌ Error parsing event "${eventName}":`, error.message)
@@ -119,7 +128,8 @@ function buildTreeFromStory(
   depth = 0,
   pathHash = '',
   ancestorTexts = [],
-  ancestorChoices = []
+  ancestorChoices = [],
+  ancestorNodes = []
 ) {
   // Check node limit to prevent infinite exploration
   if (totalNodesInCurrentEvent >= MAX_NODES_PER_EVENT) {
@@ -221,6 +231,9 @@ function buildTreeFromStory(
 
   // Check if this node's text matches an ancestor (repeatable dialogue)
   const isRepeatable = cleanedText && ancestorTexts.includes(cleanedText)
+  const repeatFromNodeId = isRepeatable
+    ? ancestorNodes[ancestorTexts.indexOf(cleanedText)]?.id
+    : undefined
 
   // If there are no choices, this is a leaf node
   if (choices.length === 0) {
@@ -230,6 +243,7 @@ function buildTreeFromStory(
       type: type === 'dialogue' ? 'end' : type,
       effects,
       repeatable: isRepeatable,
+      repeatFrom: repeatFromNodeId,
       numContinues,
     })
   }
@@ -242,13 +256,16 @@ function buildTreeFromStory(
       type,
       effects,
       repeatable: true,
+      repeatFrom: repeatFromNodeId,
       numContinues,
     })
   }
 
   // Build children by exploring each choice
   const children = []
+  const currentNodeInfo = { id: nodeId, text: cleanedText }
   const newAncestorTexts = cleanedText ? [...ancestorTexts, cleanedText] : ancestorTexts
+  const newAncestorNodes = cleanedText ? [...ancestorNodes, currentNodeInfo] : ancestorNodes
 
   for (let i = 0; i < choices.length; i++) {
     const choice = choices[i]
@@ -261,6 +278,7 @@ function buildTreeFromStory(
 
     if (isRepeatableChoice) {
       // This choice loops back - create a repeatable choice node without exploring further
+      // Note: repeatFrom will be filled in by fixChoiceRepeatFrom() post-processing
       const repeatableNode = createNode({
         id: generateNodeId(),
         text: '', // Empty text prevents separateChoicesFromEffects from splitting this node
@@ -292,7 +310,8 @@ function buildTreeFromStory(
         depth + 1,
         `${currentPathHash}_c${i}`,
         newAncestorTexts,
-        newAncestorChoices
+        newAncestorChoices,
+        newAncestorNodes
       )
 
       if (childNode) {
@@ -305,6 +324,7 @@ function buildTreeFromStory(
           requirements: requirements.length > 0 ? requirements : childNode.requirements,
           effects: childNode.effects,
           repeatable: childNode.repeatable,
+          repeatFrom: childNode.repeatFrom,
           numContinues: childNode.numContinues,
           children: childNode.children,
         })
@@ -616,6 +636,12 @@ function processEvents() {
   })
   console.log(`  Separated ${totalSeparated} choice-effect pairs`)
 
+  // Move repeatFrom from children to parents for cleaner visualization
+  console.log('\n📤 Moving repeatFrom to parent nodes...')
+  eventTrees.forEach((tree) => {
+    moveRepeatFromToParent(tree.rootNode)
+  })
+
   // Calculate final stats
   const finalTotalNodes = eventTrees.reduce((sum, tree) => sum + countNodes(tree.rootNode), 0)
   console.log(`  Final node count: ${finalTotalNodes}`)
@@ -636,6 +662,53 @@ function processEvents() {
         `  - "${tree.name}" (type ${tree.type}): ${nodeCount} nodes, max depth ${maxDepth}`
       )
     })
+  }
+}
+
+/**
+ * Fix repeatFrom references for choice nodes by searching ancestors
+ * This is a post-processing step after the tree is built
+ */
+function fixChoiceRepeatFrom(node, choiceAncestors = []) {
+  if (!node) return
+
+  // If this is a repeatable choice node without repeatFrom, find the ancestor
+  if (node.repeatable && node.choiceLabel && !node.repeatFrom) {
+    // Find the first ancestor with the same choice label
+    const matchingAncestor = choiceAncestors.find((a) => a.choiceLabel === node.choiceLabel)
+    if (matchingAncestor) {
+      node.repeatFrom = matchingAncestor.id
+    }
+  }
+
+  // Add this node to ancestors if it has a choice label
+  const newAncestors = node.choiceLabel
+    ? [...choiceAncestors, { id: node.id, choiceLabel: node.choiceLabel }]
+    : choiceAncestors
+
+  // Recursively process children
+  if (node.children) {
+    node.children.forEach((child) => fixChoiceRepeatFrom(child, newAncestors))
+  }
+}
+
+/**
+ * Move repeatFrom from children to their parent nodes
+ * Rule: If a child has both repeatable and repeatFrom, move repeatFrom to parent
+ */
+function moveRepeatFromToParent(node) {
+  if (!node || !node.children) return
+
+  // Check each child
+  for (const child of node.children) {
+    // If child has repeatFrom, move it to parent (this node)
+    if (child.repeatFrom) {
+      node.repeatFrom = child.repeatFrom
+      delete child.repeatFrom
+    }
+
+    // Recursively process child's descendants
+    moveRepeatFromToParent(child)
   }
 }
 
@@ -707,6 +780,7 @@ function separateChoicesFromEffects(node) {
           type: outcomeType,
           effects: child.effects,
           repeatable: child.repeatable,
+          repeatFrom: child.repeatFrom,
           numContinues: child.numContinues,
           children: child.children,
         })
