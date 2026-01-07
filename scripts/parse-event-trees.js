@@ -30,6 +30,54 @@ function generateNodeId() {
 }
 
 /**
+ * Detect random value assignments in Ink JSON
+ * Returns a map of variable names to their random ranges: { varName: { min, max } }
+ */
+function detectRandomVariables(inkJsonString) {
+  const randomVars = new Map()
+
+  try {
+    const inkJson = JSON.parse(inkJsonString)
+
+    // Recursive function to traverse the Ink JSON structure
+    function traverse(node) {
+      if (Array.isArray(node)) {
+        // Look for pattern: ["ev", minValue, maxValue, "rnd", "/ev", {"VAR=": "varName", ...}]
+        // This represents: VAR = random(min, max)
+        for (let i = 0; i < node.length - 3; i++) {
+          if (
+            node[i] === 'ev' &&
+            typeof node[i + 1] === 'number' &&
+            typeof node[i + 2] === 'number' &&
+            node[i + 3] === 'rnd' &&
+            node[i + 4] === '/ev' &&
+            typeof node[i + 5] === 'object' &&
+            node[i + 5] !== null &&
+            'VAR=' in node[i + 5]
+          ) {
+            const varName = node[i + 5]['VAR=']
+            const min = node[i + 1]
+            const max = node[i + 2]
+            randomVars.set(varName, { min, max })
+          }
+        }
+
+        // Continue traversing
+        node.forEach(traverse)
+      } else if (typeof node === 'object' && node !== null) {
+        Object.values(node).forEach(traverse)
+      }
+    }
+
+    traverse(inkJson)
+  } catch (error) {
+    // Silently fail if JSON parsing fails
+  }
+
+  return randomVars
+}
+
+/**
  * Create a node with consistent field ordering
  */
 function createNode({
@@ -92,10 +140,21 @@ function parseInkStory(inkJsonString, eventName) {
     nodeIdCounter = 0
     totalNodesInCurrentEvent = 0
 
+    // Detect random variables before executing the story
+    const randomVars = detectRandomVariables(inkJsonString)
+
+    // Log detected random variables for debugging
+    if (randomVars.size > 0) {
+      const varList = Array.from(randomVars.entries())
+        .map(([name, range]) => `${name}(${range.min}-${range.max})`)
+        .join(', ')
+      console.log(`  📊 Random variables: ${varList}`)
+    }
+
     const story = new Story(inkJsonString)
 
     // Build tree by exploring all possible paths
-    const rootNode = buildTreeFromStory(story, eventName)
+    const rootNode = buildTreeFromStory(story, eventName, new Set(), 0, '', [], [], [], randomVars)
 
     if (!rootNode) {
       console.warn(`  ⚠️  Event "${eventName}" produced empty tree`)
@@ -129,7 +188,8 @@ function buildTreeFromStory(
   pathHash = '',
   ancestorTexts = [],
   ancestorChoices = [],
-  ancestorNodes = []
+  ancestorNodes = [],
+  randomVars = new Map()
 ) {
   // Check node limit to prevent infinite exploration
   if (totalNodesInCurrentEvent >= MAX_NODES_PER_EVENT) {
@@ -171,6 +231,48 @@ function buildTreeFromStory(
       const line = story.Continue()
       continueCount++
       if (line && line.trim()) {
+        // Check if this line contains any random variable references
+        // Look for common effect commands that might have random values
+        if (randomVars.size > 0 && />>>>(GOLD|DAMAGE|HEALTH|MAXHEALTH):\d+/.test(line)) {
+          let modifiedLine = line
+          let foundRandom = false
+
+          // Match any command with a numeric value
+          const commandMatches = line.match(/>>>>(GOLD|DAMAGE|HEALTH|MAXHEALTH):(\d+)/g)
+          if (commandMatches) {
+            for (const match of commandMatches) {
+              const [, command, valueStr] = match.match(/>>>>(GOLD|DAMAGE|HEALTH|MAXHEALTH):(\d+)/)
+              const value = parseInt(valueStr)
+
+              // Map command names to likely variable names in Ink
+              // e.g., GOLD command likely uses 'gold' variable, DAMAGE uses 'damage', etc.
+              const likelyVarName = command.toLowerCase()
+
+              // Check if this specific variable name has a random range
+              if (randomVars.has(likelyVarName)) {
+                const range = randomVars.get(likelyVarName)
+                // Verify the value falls within the range
+                if (value >= range.min && value <= range.max) {
+                  // Replace ALL occurrences of this specific command:value with the random notation
+                  const randomNotation = `random [${range.min} - ${range.max}]`
+                  modifiedLine = modifiedLine.replace(
+                    new RegExp(`>>>>${command}:${value}`, 'g'),
+                    `>>>>${command}:${randomNotation}`
+                  )
+                  foundRandom = true
+                  console.log(
+                    `  🎲 Event "${eventName}": Detected random ${command} value ${value} (range: ${range.min}-${range.max})`
+                  )
+                }
+              }
+            }
+
+            if (foundRandom) {
+              text += (text ? '\n' : '') + modifiedLine.trim()
+              continue // Skip the normal text concatenation
+            }
+          }
+        }
         text += (text ? '\n' : '') + line.trim()
       }
     }
@@ -311,7 +413,8 @@ function buildTreeFromStory(
         `${currentPathHash}_c${i}`,
         newAncestorTexts,
         newAncestorChoices,
-        newAncestorNodes
+        newAncestorNodes,
+        randomVars
       )
 
       if (childNode) {
