@@ -1,4 +1,4 @@
-import { HierarchyNode } from 'd3-hierarchy'
+import { HierarchyNode, HierarchyPointNode } from 'd3-hierarchy'
 
 import { wrapText } from '@/shared/utils/textHelper'
 
@@ -220,4 +220,63 @@ export const hasEffects = (node: EventTreeNode): node is DialogueNode | EndNode 
   const isEffectsNode = node.type === 'end' || node.type === 'dialogue' || node.type === 'combat'
 
   return isEffectsNode && (node.effects ?? []).length > 0
+}
+
+/**
+ * Recursively shift a node and all its descendants by the given vertical offset
+ */
+const adjustSubtree = (node: HierarchyPointNode<EventTreeNode>, offset: number) => {
+  node.y += offset
+  if (node.children) {
+    node.children.forEach((child) => adjustSubtree(child, offset))
+  }
+}
+
+/**
+ * Adjust vertical spacing to maintain consistent gaps between parent and child nodes
+ * while keeping siblings at the same depth aligned horizontally.
+ *
+ * This function processes the tree level by level, finding the minimum gap between
+ * parent and child nodes at each depth, and adjusting all nodes at that depth to
+ * ensure a consistent minimum gap throughout the tree.
+ */
+export const adjustTreeSpacing = (
+  root: HierarchyPointNode<EventTreeNode>,
+  event: Event,
+  desiredGap = 100
+) => {
+  // Group nodes by depth
+  const nodesByDepth: HierarchyPointNode<EventTreeNode>[][] = []
+  root.descendants().forEach((node) => {
+    if (!nodesByDepth[node.depth]) {
+      nodesByDepth[node.depth] = []
+    }
+    nodesByDepth[node.depth].push(node)
+  })
+
+  // Process each depth level (skip root at depth 0)
+  for (let depth = 1; depth < nodesByDepth.length; depth++) {
+    const nodesAtDepth = nodesByDepth[depth]
+
+    // Find the minimum gap among all nodes at this depth
+    let minGap = Infinity
+    nodesAtDepth.forEach((node) => {
+      if (node.parent) {
+        const parentHeight = getNodeHeight(node.parent.data, event)
+        const nodeHeight = getNodeHeight(node.data, event)
+
+        // Calculate current gap between bottom of parent and top of child
+        const currentGap = node.y - node.parent.y - (parentHeight / 2 + nodeHeight / 2)
+        minGap = Math.min(minGap, currentGap)
+      }
+    })
+
+    // If the minimum gap is less than desired, shift all nodes at this depth (and deeper)
+    if (minGap < desiredGap) {
+      const offset = desiredGap - minGap
+      nodesAtDepth.forEach((node) => {
+        adjustSubtree(node, offset)
+      })
+    }
+  }
 }

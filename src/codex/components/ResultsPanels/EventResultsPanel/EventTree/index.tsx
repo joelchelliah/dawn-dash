@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 
 import { select } from 'd3-selection'
-import { hierarchy, tree } from 'd3-hierarchy'
+import { hierarchy, tree, HierarchyPointNode } from 'd3-hierarchy'
 import Image from 'next/image'
 
 import { createCx } from '@/shared/utils/classnames'
@@ -9,7 +9,12 @@ import { wrapText, truncateLine } from '@/shared/utils/textHelper'
 import { EventArtworkImageUrl } from '@/shared/utils/imageUrls'
 
 import { CombatNode, DialogueNode, EndNode, Event, EventTreeNode } from '@/codex/types/events'
-import { getNodeHeight, calculateTreeBounds, hasEffects } from '@/codex/utils/eventTreeHelper'
+import {
+  getNodeHeight,
+  calculateTreeBounds,
+  hasEffects,
+  adjustTreeSpacing,
+} from '@/codex/utils/eventTreeHelper'
 import { NODE, TREE, TEXT, INNER_BOX, NODE_BOX } from '@/codex/constants/eventTreeValues'
 import { ZoomLevel } from '@/codex/constants/eventSearchValues'
 
@@ -114,29 +119,6 @@ function EventTree({ event, zoomLevel }: EventTreeProps): JSX.Element {
     zoomScale = zoomLevel / 150
   }
 
-  // Helper: Check if all nodes in the tree have at most maxChildren
-  const allNodesHaveAtMostChildren = (node: EventTreeNode, maxChildren: number): boolean => {
-    if (node.children && node.children.length > maxChildren) {
-      return false
-    }
-    if (node.children) {
-      return node.children.every((child) => allNodesHaveAtMostChildren(child, maxChildren))
-    }
-    return true
-  }
-
-  // Calculate node size with spacing based on tree properties
-  const getNodeSizeWithSpacing = (rootNode: EventTreeNode): [number, number] => {
-    // If all nodes have at most 1 child, use half vertical spacing
-    if (allNodesHaveAtMostChildren(rootNode, 1)) {
-      const [width, height] = NODE.DEFAULT_SIZE_WITH_SPACING
-      return [width, height / 1.6]
-    }
-
-    // Default: return the standard size
-    return NODE.DEFAULT_SIZE_WITH_SPACING
-  }
-
   useEffect(() => {
     if (!svgRef.current || !event.rootNode) return
 
@@ -146,7 +128,7 @@ function EventTree({ event, zoomLevel }: EventTreeProps): JSX.Element {
     const root = hierarchy(event.rootNode, (d) => d.children)
 
     const treeLayout = tree<EventTreeNode>()
-      .nodeSize(getNodeSizeWithSpacing(event.rootNode))
+      .nodeSize(NODE.DEFAULT_SIZE_WITH_SPACING)
       .separation(() => {
         // Same separation for all nodes since leaf nodes rarely have siblings,
         // meaning visually adjacent leaf nodes are always non-siblings!
@@ -155,6 +137,9 @@ function EventTree({ event, zoomLevel }: EventTreeProps): JSX.Element {
       })
 
     treeLayout(root)
+
+    // Adjust vertical spacing to maintain consistent gaps
+    adjustTreeSpacing(root as HierarchyPointNode<EventTreeNode>, event)
 
     // Calculate bounds based on positioned nodes
     const bounds = calculateTreeBounds(root, event)
@@ -710,6 +695,7 @@ function EventTree({ event, zoomLevel }: EventTreeProps): JSX.Element {
       // Center horizontally: (scrollWidth - clientWidth) / 2
       wrapper.scrollLeft = (wrapper.scrollWidth - wrapper.clientWidth) / 2
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [event, zoomLevel])
 
   return (

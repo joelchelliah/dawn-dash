@@ -3,9 +3,9 @@ import GradientLink from '@/shared/components/GradientLink'
 import GradientDivider from '@/shared/components/GradientDivider'
 
 import { Event } from '@/codex/types/events'
+import { ZoomLevel } from '@/codex/constants/eventSearchValues'
 
 import PanelHeader from '../../PanelHeader'
-import { ZoomLevel } from '@/codex/constants/eventSearchValues'
 
 import EventTree from './EventTree'
 import styles from './index.module.scss'

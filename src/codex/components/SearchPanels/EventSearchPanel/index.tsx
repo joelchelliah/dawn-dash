@@ -4,11 +4,11 @@ import { CharacterClass } from '@/shared/types/characterClass'
 
 import eventTreesData from '@/codex/data/event-trees.json'
 import { Event } from '@/codex/types/events'
+import { ZOOM_LEVELS, ZoomLevel } from '@/codex/constants/eventSearchValues'
 
 import PanelHeader from '../../PanelHeader'
 
 import styles from './index.module.scss'
-import { ZOOM_LEVELS, ZoomLevel } from '@/codex/constants/eventSearchValues'
 
 const cx = createCx(styles)
 
