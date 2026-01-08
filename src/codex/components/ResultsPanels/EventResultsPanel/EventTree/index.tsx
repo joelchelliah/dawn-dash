@@ -22,6 +22,85 @@ interface EventTreeProps {
   zoomLevel: ZoomLevel
 }
 
+/**
+ * Draws links between nodes with directional arrowheads
+ * The arrowheads are tilted based on the horizontal displacement between parent and child
+ */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+function drawLinks(g: any, defs: any, root: any, event: Event) {
+  g.selectAll(`.${cx('tree-link')}`)
+    .data(root.links())
+    .enter()
+    .append('path')
+    .attr('class', cx('tree-link'))
+    .attr('marker-end', (d: any, i: number) => {
+      const sourceX = d.source.x || 0
+      const targetX = d.target.x || 0
+
+      // Calculate angle based on horizontal displacement
+      // Since the curve is vertical at the endpoint, we base the angle on
+      // the overall direction from source to target
+      const dx = targetX - sourceX
+
+      // Create a unique marker for this link
+      const markerId = `arrowhead-${i}`
+
+      // Calculate angle: if target is to the right, tilt right; if left, tilt left
+      // Use a subtle angle based on horizontal displacement
+      let angle = 90 // Default: pointing straight down
+
+      if (dx !== 0) {
+        // Calculate a subtle tilt angle based on horizontal distance
+        // The further horizontally, the more tilt (max ~30 degrees)
+        const maxTilt = 75
+        const tiltFactor = Math.min(Math.abs(dx) / 2000, 1)
+        const tilt = tiltFactor * maxTilt
+        angle = dx > 0 ? 90 - tilt : 90 + tilt
+      }
+
+      const markerRefX = 8
+      const markerSize = 5
+
+      defs
+        .append('marker')
+        .attr('id', markerId)
+        .attr('viewBox', '0 -5 10 10')
+        .attr('refX', markerRefX) // Where the arrowhead is anchored
+        .attr('refY', 0)
+        .attr('markerWidth', markerSize) // Controls the size but max is constrained by viewBox
+        .attr('markerHeight', markerSize) // Controls the size but max is constrained by viewBox
+        .attr('orient', angle)
+        .append('path')
+        .attr('d', 'M0,-5L10,0L0,5')
+        .attr('class', cx('arrowhead'))
+
+      return `url(#${markerId})`
+    })
+
+    .attr('d', (d: any) => {
+      const sourceX = d.source.x || 0
+      const sourceY = d.source.y || 0
+      const targetX = d.target.x || 0
+      const targetY = d.target.y || 0
+
+      const sourceNodeMid = getNodeHeight(d.source.data, event) / 2
+      const targetNodeMid = getNodeHeight(d.target.data, event) / 2
+
+      const startY = sourceY + sourceNodeMid / 1.125
+      const endY = targetY - targetNodeMid - 2 // -2 because of arrowhead offset
+
+      // Control points: For curviness!
+      const controlOffsetSource = (endY - startY) * 0.6
+      const controlOffsetTarget = (endY - startY) * 0.8
+
+      return `M${sourceX},${startY}
+              C${sourceX},${startY + controlOffsetSource}
+               ${targetX},${endY - controlOffsetTarget}
+               ${targetX},${endY}`
+    })
+}
+/* eslint-enable @typescript-eslint/no-explicit-any */
+
 function EventTree({ event, zoomLevel }: EventTreeProps): JSX.Element {
   const svgRef = useRef<SVGSVGElement>(null)
   const scrollWrapperRef = useRef<HTMLDivElement>(null)
@@ -133,73 +212,7 @@ function EventTree({ event, zoomLevel }: EventTreeProps): JSX.Element {
       .append('g')
       .attr('transform', `scale(${zoomTransformScale}) translate(${offsetX}, ${offsetY})`)
 
-    // Draw links
-    g.selectAll(`.${cx('tree-link')}`)
-      .data(root.links())
-      .enter()
-      .append('path')
-      .attr('class', cx('tree-link'))
-      .attr('marker-end', (d, i) => {
-        const sourceX = d.source.x || 0
-        const targetX = d.target.x || 0
-
-        // Calculate angle based on horizontal displacement
-        // Since the curve is vertical at the endpoint, we base the angle on
-        // the overall direction from source to target
-        const dx = targetX - sourceX
-
-        // Create a unique marker for this link
-        const markerId = `arrowhead-${i}`
-
-        // Calculate angle: if target is to the right, tilt right; if left, tilt left
-        // Use a subtle angle based on horizontal displacement
-        let angle = 90 // Default: pointing straight down
-
-        if (dx !== 0) {
-          // Calculate a subtle tilt angle based on horizontal distance
-          // The further horizontally, the more tilt (max ~30 degrees)
-          const maxTilt = 30
-          const tiltFactor = Math.min(Math.abs(dx) / 2000, 1)
-          const tilt = tiltFactor * maxTilt
-          angle = dx > 0 ? 90 - tilt : 90 + tilt
-        }
-
-        defs
-          .append('marker')
-          .attr('id', markerId)
-          .attr('viewBox', '0 -5 10 10')
-          .attr('refX', 9)
-          .attr('refY', 0)
-          .attr('markerWidth', 6) // Controls the size but max is constrained by viewBox
-          .attr('markerHeight', 6) // Controls the size but max is constrained by viewBox
-          .attr('orient', angle)
-          .append('path')
-          .attr('d', 'M0,-5L10,0L0,5')
-          .attr('class', cx('arrowhead'))
-
-        return `url(#${markerId})`
-      })
-      .attr('d', (d) => {
-        const sourceX = d.source.x || 0
-        const sourceY = d.source.y || 0
-        const targetX = d.target.x || 0
-        const targetY = d.target.y || 0
-
-        const sourceNodeMid = getNodeHeight(d.source.data, event) / 2
-        const targetNodeMid = getNodeHeight(d.target.data, event) / 2
-
-        const startY = sourceY + sourceNodeMid / 2
-        const endY = targetY - targetNodeMid
-
-        // Control points: For curviness!
-        const controlOffsetSource = (endY - startY) * 1
-        const controlOffsetTarget = (endY - startY) * 1.2
-
-        return `M${sourceX},${startY}
-                C${sourceX},${startY + controlOffsetSource}
-                 ${targetX},${endY - controlOffsetTarget}
-                 ${targetX},${endY}`
-      })
+    drawLinks(g, defs, root, event)
 
     // Draw nodes
     const nodes = g
