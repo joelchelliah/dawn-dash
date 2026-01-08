@@ -100,6 +100,9 @@ function EventTree({ event, zoomLevel }: EventTreeProps): JSX.Element {
         .attr('preserveAspectRatio', 'xMidYMin meet')
     }
 
+    // Define arrow marker - we'll create individual markers for each link
+    const defs = svg.append('defs')
+
     // Apply zoom scale to the content group
     // When scaling, we need to apply scale first, then translate by the scaled offset
     const zoomTransformScale = zoomScale ?? 1
@@ -113,6 +116,46 @@ function EventTree({ event, zoomLevel }: EventTreeProps): JSX.Element {
       .enter()
       .append('path')
       .attr('class', cx('tree-link'))
+      .attr('marker-end', (d, i) => {
+        const sourceX = d.source.x || 0
+        const targetX = d.target.x || 0
+
+        // Calculate angle based on horizontal displacement
+        // Since the curve is vertical at the endpoint, we base the angle on
+        // the overall direction from source to target
+        const dx = targetX - sourceX
+
+        // Create a unique marker for this link
+        const markerId = `arrowhead-${i}`
+
+        // Calculate angle: if target is to the right, tilt right; if left, tilt left
+        // Use a subtle angle based on horizontal displacement
+        let angle = 90 // Default: pointing straight down
+
+        if (dx !== 0) {
+          // Calculate a subtle tilt angle based on horizontal distance
+          // The further horizontally, the more tilt (max ~30 degrees)
+          const maxTilt = 30
+          const tiltFactor = Math.min(Math.abs(dx) / 2000, 1)
+          const tilt = tiltFactor * maxTilt
+          angle = dx > 0 ? 90 - tilt : 90 + tilt
+        }
+
+        defs
+          .append('marker')
+          .attr('id', markerId)
+          .attr('viewBox', '0 -5 10 10')
+          .attr('refX', 9)
+          .attr('refY', 0)
+          .attr('markerWidth', 6) // Controls the size but max is constrained by viewBox
+          .attr('markerHeight', 6) // Controls the size but max is constrained by viewBox
+          .attr('orient', angle)
+          .append('path')
+          .attr('d', 'M0,-5L10,0L0,5')
+          .attr('class', cx('arrowhead'))
+
+        return `url(#${markerId})`
+      })
       .attr('d', (d) => {
         const sourceX = d.source.x || 0
         const sourceY = d.source.y || 0
@@ -126,8 +169,8 @@ function EventTree({ event, zoomLevel }: EventTreeProps): JSX.Element {
         const endY = targetY - targetNodeMid
 
         // Control points: For curviness!
-        const controlOffsetSource = (endY - startY) * 0.5
-        const controlOffsetTarget = (endY - startY) * 0.3
+        const controlOffsetSource = (endY - startY) * 1
+        const controlOffsetTarget = (endY - startY) * 1.2
 
         return `M${sourceX},${startY}
                 C${sourceX},${startY + controlOffsetSource}
