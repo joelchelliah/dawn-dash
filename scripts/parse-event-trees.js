@@ -319,13 +319,23 @@ function buildTreeFromStory(
       })
     }
 
-    // Show more debugging info for dead ends
-    const pathInfo = ancestorTexts.length > 0 ? ancestorTexts[ancestorTexts.length - 1] : 'root'
-    const preview = pathInfo.length > 60 ? pathInfo.substring(0, 60) + '...' : pathInfo
-    // console.warn(
-    //   `⚠️  Event "${eventName}" hit a dead end at depth ${depth} - no text or choices\n     Last node: "${preview}"\n     Raw text: "${text.substring(0, 100)}"`
+    // If we're at a leaf node with no text and no effects (e.g., "Leave" choice with just "end"),
+    // create an empty end node instead of returning null
+    // This ensures choices that lead to immediate endings are still represented in the tree
+
+    // Uncomment for debugging empty end nodes:
+    // const pathInfo = ancestorTexts.length > 0 ? ancestorTexts[ancestorTexts.length - 1] : 'root'
+    // const preview = pathInfo.length > 60 ? pathInfo.substring(0, 60) + '...' : pathInfo
+    // console.log(
+    //   `ℹ️  Event "${eventName}" - empty end node at depth ${depth}\n     Last node: "${preview}"`
     // )
-    return null
+
+    totalNodesInCurrentEvent++
+    return createNode({
+      id: generateNodeId(),
+      text: undefined,
+      type: 'end',
+    })
   }
 
   const nodeId = generateNodeId()
@@ -839,13 +849,15 @@ function separateChoicesFromEffects(node) {
       separatedCount += separateChoicesFromEffects(child)
 
       // Check if this child needs to be split
-      // Split if: has choiceLabel AND (has effects OR has text that's not just [End])
+      // Split if: has choiceLabel AND (has effects OR has text OR children OR is an end node)
+      // This ensures all choices are consistently represented as choice nodes
       const hasChoiceLabel = child.choiceLabel && child.choiceLabel.trim()
       const hasEffects = child.effects && child.effects.length > 0
       const hasSubstantialText = child.text && child.text.trim() && child.text !== '[End]'
+      const isEndNode = child.type === 'end'
       const shouldSplit =
         hasChoiceLabel &&
-        (hasEffects || hasSubstantialText || (child.children && child.children.length > 0))
+        (hasEffects || hasSubstantialText || (child.children && child.children.length > 0) || isEndNode)
 
       if (shouldSplit) {
         // Create a choice node (parent)

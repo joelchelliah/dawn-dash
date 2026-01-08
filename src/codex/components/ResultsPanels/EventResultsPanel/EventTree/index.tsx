@@ -35,6 +35,29 @@ function EventTree({ event, zoomLevel }: EventTreeProps): JSX.Element {
     zoomScale = zoomLevel / 150
   }
 
+  // Helper: Check if all nodes in the tree have at most maxChildren
+  const allNodesHaveAtMostChildren = (node: EventTreeNode, maxChildren: number): boolean => {
+    if (node.children && node.children.length > maxChildren) {
+      return false
+    }
+    if (node.children) {
+      return node.children.every((child) => allNodesHaveAtMostChildren(child, maxChildren))
+    }
+    return true
+  }
+
+  // Calculate node size with spacing based on tree properties
+  const getNodeSizeWithSpacing = (rootNode: EventTreeNode): [number, number] => {
+    // If all nodes have at most 1 child, use half vertical spacing
+    if (allNodesHaveAtMostChildren(rootNode, 1)) {
+      const [width, height] = NODE.DEFAULT_SIZE_WITH_SPACING
+      return [width, height / 1.6]
+    }
+
+    // Default: return the standard size
+    return NODE.DEFAULT_SIZE_WITH_SPACING
+  }
+
   useEffect(() => {
     if (!svgRef.current || !event.rootNode) return
 
@@ -44,7 +67,7 @@ function EventTree({ event, zoomLevel }: EventTreeProps): JSX.Element {
     const root = hierarchy(event.rootNode, (d) => d.children)
 
     const treeLayout = tree<EventTreeNode>()
-      .nodeSize(NODE.DEFAULT_SIZE_WITH_SPACING)
+      .nodeSize(getNodeSizeWithSpacing(event.rootNode))
       .separation(() => {
         // Same separation for all nodes since leaf nodes rarely have siblings,
         // meaning visually adjacent leaf nodes are always non-siblings!
@@ -343,7 +366,7 @@ function EventTree({ event, zoomLevel }: EventTreeProps): JSX.Element {
           // Empty text and no effects: show "END" in italic (like combat)
           node
             .append('text')
-            .attr('class', cx('event-node-text', 'event-node-text--combat'))
+            .attr('class', cx('event-node-text', 'event-node-text--no-text-fallback'))
             .attr('x', 0)
             .attr('y', textAreaCenter + TEXT.COMBAT_BASELINE_OFFSET - TEXT.COMBAT_TEXT_HEIGHT / 2)
             .text('END')
@@ -531,7 +554,7 @@ function EventTree({ event, zoomLevel }: EventTreeProps): JSX.Element {
           // Fallback: Add "FIGHT!" text, centered in available space
           node
             .append('text')
-            .attr('class', cx('event-node-text', 'event-node-text--combat-fallback'))
+            .attr('class', cx('event-node-text', 'event-node-text--no-text-fallback'))
             .attr('x', 0)
             .attr('y', textAreaCenter + TEXT.COMBAT_BASELINE_OFFSET - TEXT.COMBAT_TEXT_HEIGHT / 2)
             .text('FIGHT!')
