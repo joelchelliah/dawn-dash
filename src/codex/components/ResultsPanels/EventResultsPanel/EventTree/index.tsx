@@ -95,6 +95,98 @@ function drawLinks(g: any, defs: any, root: any, event: Event) {
                ${targetX},${endY}`
     })
 }
+
+/**
+ * Draws dotted links for repeatFrom relationships with directional arrowheads
+ * Uses circular arcs from the side of nodes
+ */
+function drawRepeatFromLinks(g: any, defs: any, root: any, _event: Event) {
+  // Build a map of node id -> node for quick lookup
+  const nodeMap = new Map<number, any>()
+  root.descendants().forEach((node: any) => {
+    if (node.data.id !== undefined) {
+      nodeMap.set(node.data.id, node)
+    }
+  })
+
+  // Find all nodes with repeatFrom and create link data
+  const repeatFromLinks: Array<{ source: any; target: any }> = []
+  root.descendants().forEach((node: any) => {
+    if (node.data.repeatFrom !== undefined) {
+      const targetNode = nodeMap.get(node.data.repeatFrom)
+      if (targetNode) {
+        repeatFromLinks.push({
+          source: node,
+          target: targetNode,
+        })
+      }
+    }
+  })
+
+  // Draw the repeatFrom links
+  const linkGroup = g
+    .selectAll(`.${cx('repeat-from-link-group')}`)
+    .data(repeatFromLinks)
+    .enter()
+    .append('g')
+    .attr('class', cx('repeat-from-link-group'))
+
+  linkGroup.each(function (this: SVGGElement, d: any, linkIndex: number) {
+    const group = select(this)
+    const sourceX = d.source.x || 0
+    const sourceY = d.source.y || 0
+    const targetX = d.target.x || 0
+    const targetY = d.target.y || 0
+
+    // Calculate angle and distance
+    const dx = targetX - sourceX
+    const dy = targetY - sourceY
+    const angle = (Math.atan2(dy, dx) * 180) / Math.PI
+    const distance = Math.sqrt(dx * dx + dy * dy)
+
+    // Calculate number of arrowheads based on distance
+    const arrowSpacing = 200
+    const numArrows = Math.floor(distance / arrowSpacing)
+
+    // Create markers for each arrowhead position
+    for (let i = 1; i <= numArrows; i++) {
+      const markerId = `arrowhead-repeat-${linkIndex}-${i}`
+      const markerRefX = 50
+      const markerSize = 8
+
+      defs
+        .append('marker')
+        .attr('id', markerId)
+        .attr('viewBox', '0 -5 20 10')
+        .attr('refX', markerRefX)
+        .attr('refY', 0)
+        .attr('markerWidth', markerSize)
+        .attr('markerHeight', markerSize)
+        .attr('orient', angle)
+        .append('path')
+        .attr('d', 'M0,-5L20,0L0,5')
+        .attr('class', cx('repeat-from-arrowhead'))
+
+      // Calculate position along the line for this arrowhead
+      const t = (i * arrowSpacing) / distance
+      const x = sourceX + dx * t
+      const y = sourceY + dy * t
+
+      // Draw a small segment with the marker
+      group
+        .append('path')
+        .attr('class', cx('repeat-from-link'))
+        .attr('d', `M${x - 0.5},${y} L${x + 0.5},${y}`)
+        .attr('marker-end', `url(#${markerId})`)
+    }
+
+    // Draw the main line
+    group
+      .append('path')
+      .attr('class', cx('repeat-from-link'))
+      .attr('d', `M${sourceX},${sourceY} L${targetX},${targetY}`)
+  })
+}
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
 // Fetches the event image src and provides a fallback if the image fails to load
@@ -206,6 +298,7 @@ function EventTree({ event, zoomLevel }: EventTreeProps): JSX.Element {
       .attr('transform', `scale(${zoomTransformScale}) translate(${offsetX}, ${offsetY})`)
 
     drawLinks(g, defs, root, event)
+    drawRepeatFromLinks(g, defs, root, event)
 
     // Draw nodes
     const nodes = g

@@ -81,6 +81,18 @@
   fill: $color-primary-base;
 }
 
+.repeat-from-link {
+  fill: none;
+  stroke: $color-primary-base;
+  stroke-width: 2px;
+  stroke-dasharray: 10, 40;
+  opacity: 0.5;
+}
+
+.repeat-from-arrowhead {
+  fill: $color-primary-base;
+}
+
 .event-node {
   stroke-width: 2px;
   stroke: $color-component-border-dark;
