@@ -3,7 +3,7 @@ import GradientLink from '@/shared/components/GradientLink'
 import GradientDivider from '@/shared/components/GradientDivider'
 
 import { Event } from '@/codex/types/events'
-import { ZoomLevel } from '@/codex/constants/eventSearchValues'
+import { ZoomLevel, LoopingPathMode } from '@/codex/constants/eventSearchValues'
 
 import PanelHeader from '../../PanelHeader'
 
@@ -15,9 +15,14 @@ const cx = createCx(styles)
 interface EventResultsPanelProps {
   selectedEvent: Event | null
   zoomLevel: ZoomLevel
+  loopingPathMode: LoopingPathMode
 }
 
-const EventResultsPanel = ({ selectedEvent, zoomLevel }: EventResultsPanelProps) => {
+const EventResultsPanel = ({
+  selectedEvent,
+  zoomLevel,
+  loopingPathMode,
+}: EventResultsPanelProps) => {
   const eventName = selectedEvent?.name ?? 'UNNAMED-EVENT'
   const blightbaneLink = `https://www.blightbane.io/event/${eventName.replaceAll(' ', '_')}`
   return (
@@ -27,7 +32,11 @@ const EventResultsPanel = ({ selectedEvent, zoomLevel }: EventResultsPanelProps)
       <div className={cx('results-container')}>
         {selectedEvent && !selectedEvent.excluded && (
           <>
-            <EventTree event={selectedEvent} zoomLevel={zoomLevel} />
+            <EventTree
+              event={selectedEvent}
+              zoomLevel={zoomLevel}
+              loopingPathMode={loopingPathMode}
+            />
             <br />
             <br />
             <GradientDivider widthPercentage={85} spacingBottom="xs" />

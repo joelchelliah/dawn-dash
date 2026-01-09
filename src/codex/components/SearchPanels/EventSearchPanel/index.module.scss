@@ -14,13 +14,19 @@
 }
 
 .control-wrapper {
-  min-width: 4rem; // Min width before wrapping
+  min-width: 16rem; // Min width before wrapping
 
   &--event {
     flex: 2;
   }
 
   &--zoom {
+    min-width: 6rem;
+    flex: 1;
+  }
+
+  &--looping-path {
+    min-width: 18rem;
     flex: 1;
   }
 }

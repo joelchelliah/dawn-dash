@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 
 import { select } from 'd3-selection'
 import { hierarchy, tree, HierarchyPointNode } from 'd3-hierarchy'
@@ -6,7 +6,6 @@ import Image from 'next/image'
 
 import { createCx } from '@/shared/utils/classnames'
 import { wrapText, truncateLine } from '@/shared/utils/textHelper'
-import { ChestImageUrl, EventArtworkImageUrl } from '@/shared/utils/imageUrls'
 
 import { CombatNode, DialogueNode, EndNode, Event, EventTreeNode } from '@/codex/types/events'
 import {
@@ -17,7 +16,8 @@ import {
   getArrowheadAngle,
 } from '@/codex/utils/eventTreeHelper'
 import { NODE, TREE, TEXT, INNER_BOX, NODE_BOX } from '@/codex/constants/eventTreeValues'
-import { ZoomLevel } from '@/codex/constants/eventSearchValues'
+import { ZoomLevel, LoopingPathMode } from '@/codex/constants/eventSearchValues'
+import { useEventImageSrc } from '@/codex/hooks/useEventImageSrc'
 
 import styles from './index.module.scss'
 
@@ -26,6 +26,7 @@ const cx = createCx(styles)
 interface EventTreeProps {
   event: Event
   zoomLevel: ZoomLevel
+  loopingPathMode: LoopingPathMode
 }
 
 /**
@@ -63,8 +64,8 @@ function drawLinks(g: any, defs: any, root: any, event: Event) {
         .attr('viewBox', '0 -5 10 10')
         .attr('refX', markerRefX) // Where the arrowhead is anchored
         .attr('refY', 0)
-        .attr('markerWidth', markerSize) // Controls the size but max is constrained by viewBox
-        .attr('markerHeight', markerSize) // Controls the size but max is constrained by viewBox
+        .attr('markerWidth', markerSize)
+        .attr('markerHeight', markerSize)
         .attr('orient', angle)
         .append('path')
         .attr('d', 'M0,-5L10,0L0,5')
@@ -97,8 +98,8 @@ function drawLinks(g: any, defs: any, root: any, event: Event) {
 }
 
 /**
- * Draws dotted links for repeatFrom relationships with directional arrowheads
- * Uses circular arcs from the side of nodes
+ * Draws straight, dotted links for repeatFrom relationships,
+ * mixed in with directional arrowheads at regular intervals.
  */
 function drawRepeatFromLinks(g: any, defs: any, root: any, _event: Event) {
   // Build a map of node id -> node for quick lookup
@@ -190,26 +191,11 @@ function drawRepeatFromLinks(g: any, defs: any, root: any, _event: Event) {
 }
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
-// Fetches the event image src and provides a fallback if the image fails to load
-function useEventImageSrc(event: Event): { eventImageSrc: string; onImageSrcError: () => void } {
-  const [eventImageSrc, setEventImageSrc] = useState(EventArtworkImageUrl(event.artwork))
-
-  const onImageSrcError = () => {
-    setEventImageSrc(ChestImageUrl)
-  }
-
-  useEffect(() => {
-    setEventImageSrc(EventArtworkImageUrl(event.artwork))
-  }, [event.artwork])
-
-  return { eventImageSrc, onImageSrcError }
-}
-
-function EventTree({ event, zoomLevel }: EventTreeProps): JSX.Element {
+function EventTree({ event, zoomLevel, loopingPathMode }: EventTreeProps): JSX.Element {
   const svgRef = useRef<SVGSVGElement>(null)
   const scrollWrapperRef = useRef<HTMLDivElement>(null)
 
-  const { eventImageSrc, onImageSrcError } = useEventImageSrc(event)
+  const { eventImageSrc, onImageSrcError } = useEventImageSrc(event.artwork)
 
   let zoomScale = undefined
   if (zoomLevel === 'auto') {
@@ -226,16 +212,30 @@ function EventTree({ event, zoomLevel }: EventTreeProps): JSX.Element {
     // Clear previous visualization
     select(svgRef.current).selectAll('*').remove()
 
-    const root = hierarchy(event.rootNode, (d) => d.children)
+    // Filter out nodes with repeatable: true when in link mode
+    const filterTreeData = (node: EventTreeNode): EventTreeNode | null => {
+      if (loopingPathMode === LoopingPathMode.LINK && node.repeatable === true) {
+        return null
+      }
+
+      const filteredChildren = node.children
+        ?.map(filterTreeData)
+        .filter((child): child is EventTreeNode => child !== null)
+
+      return {
+        ...node,
+        children: filteredChildren && filteredChildren.length > 0 ? filteredChildren : undefined,
+      }
+    }
+
+    const filteredRootNode = filterTreeData(event.rootNode)
+    if (!filteredRootNode) return
+
+    const root = hierarchy(filteredRootNode, (d) => d.children)
 
     const treeLayout = tree<EventTreeNode>()
       .nodeSize([NODE.DEFAULT_WIDTH_AND_SPACING, NODE.VERTICAL_SPACING_DEFAULT])
-      .separation(() => {
-        // Same separation for all nodes since leaf nodes rarely have siblings,
-        // meaning visually adjacent leaf nodes are always non-siblings!
-        return 1
-        // return a.parent === b.parent ? 1 : 1
-      })
+      .separation(() => 1)
 
     treeLayout(root)
 
@@ -299,7 +299,11 @@ function EventTree({ event, zoomLevel }: EventTreeProps): JSX.Element {
       .attr('transform', `scale(${zoomTransformScale}) translate(${offsetX}, ${offsetY})`)
 
     drawLinks(g, defs, root, event)
-    drawRepeatFromLinks(g, defs, root, event)
+
+    // Draw repeat from links only when in 'link' mode
+    if (loopingPathMode === LoopingPathMode.LINK) {
+      drawRepeatFromLinks(g, defs, root, event)
+    }
 
     // Draw nodes
     const nodes = g
@@ -798,7 +802,7 @@ function EventTree({ event, zoomLevel }: EventTreeProps): JSX.Element {
       wrapper.scrollLeft = (wrapper.scrollWidth - wrapper.clientWidth) / 2
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [event, zoomLevel])
+  }, [event, zoomLevel, loopingPathMode])
 
   return (
     <div className={cx('event-tree-container')}>

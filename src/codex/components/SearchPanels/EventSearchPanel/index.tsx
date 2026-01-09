@@ -4,7 +4,12 @@ import { CharacterClass } from '@/shared/types/characterClass'
 
 import eventTreesData from '@/codex/data/event-trees.json'
 import { Event } from '@/codex/types/events'
-import { ZOOM_LEVELS, ZoomLevel } from '@/codex/constants/eventSearchValues'
+import {
+  ZOOM_LEVELS,
+  ZoomLevel,
+  LoopingPathMode,
+  LOOPING_PATH_MODES,
+} from '@/codex/constants/eventSearchValues'
 
 import PanelHeader from '../../PanelHeader'
 
@@ -18,6 +23,8 @@ interface EventSearchPanelProps {
   onEventChange: (index: number) => void
   zoomLevel: ZoomLevel
   onZoomChange: (zoom: ZoomLevel) => void
+  loopingPathMode: LoopingPathMode
+  onLoopingPathModeChange: (mode: LoopingPathMode) => void
 }
 
 const getZoomLabel = (zoom: ZoomLevel): string => {
@@ -26,11 +33,18 @@ const getZoomLabel = (zoom: ZoomLevel): string => {
   return `${zoom}%`
 }
 
+const getLoopingPathModeLabel = (mode: LoopingPathMode): string => {
+  if (mode === LoopingPathMode.INDICATOR) return 'With «Repeatable» indicators'
+  return 'With links back to repeating nodes'
+}
+
 const EventSearchPanel = ({
   selectedEventIndex,
   onEventChange,
   zoomLevel,
   onZoomChange,
+  loopingPathMode,
+  onLoopingPathModeChange,
 }: EventSearchPanelProps) => {
   const selectedClass = CharacterClass.Sunforge
   const eventOptions = eventTrees.map((event, index) => ({
@@ -41,6 +55,11 @@ const EventSearchPanel = ({
   const zoomOptions = ZOOM_LEVELS.map((zoom) => ({
     value: zoom,
     label: getZoomLabel(zoom),
+  }))
+
+  const loopingPathModeOptions = LOOPING_PATH_MODES.map((mode) => ({
+    value: mode,
+    label: getLoopingPathModeLabel(mode),
   }))
 
   return (
@@ -67,6 +86,17 @@ const EventSearchPanel = ({
             options={zoomOptions}
             value={zoomLevel}
             onChange={onZoomChange}
+          />
+        </div>
+
+        <div className={cx('control-wrapper', 'control-wrapper--looping-path')}>
+          <Select
+            id="looping-path-mode-select"
+            selectedClass={selectedClass}
+            label="Display looping paths"
+            options={loopingPathModeOptions}
+            value={loopingPathMode}
+            onChange={onLoopingPathModeChange}
           />
         </div>
       </div>

@@ -12,7 +12,7 @@ import eventTreesData from './data/event-trees.json'
 import { Event } from './types/events'
 import EventSearchPanel from './components/SearchPanels/EventSearchPanel'
 import EventResultsPanel from './components/ResultsPanels/EventResultsPanel'
-import { ZoomLevel } from './constants/eventSearchValues'
+import { ZoomLevel, LoopingPathMode } from './constants/eventSearchValues'
 import styles from './events.module.scss'
 
 const cx = createCx(styles)
@@ -24,6 +24,7 @@ function Events(): JSX.Element {
   const { showScrollToTopButton, scrollToTop } = useScrollToTop()
   const [selectedEventIndex, setSelectedEventIndex] = useState(0)
   const [zoomLevel, setZoomLevel] = useState<ZoomLevel>('auto')
+  const [loopingPathMode, setLoopingPathMode] = useState<LoopingPathMode>(LoopingPathMode.INDICATOR)
 
   const selectedEvent = eventTrees[selectedEventIndex]
 
@@ -45,8 +46,14 @@ function Events(): JSX.Element {
           onEventChange={setSelectedEventIndex}
           zoomLevel={zoomLevel}
           onZoomChange={setZoomLevel}
+          loopingPathMode={loopingPathMode}
+          onLoopingPathModeChange={setLoopingPathMode}
         />
-        <EventResultsPanel selectedEvent={selectedEvent} zoomLevel={zoomLevel} />
+        <EventResultsPanel
+          selectedEvent={selectedEvent}
+          zoomLevel={zoomLevel}
+          loopingPathMode={loopingPathMode}
+        />
       </div>
 
       <Footer />
