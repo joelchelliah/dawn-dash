@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import { select } from 'd3-selection'
 import { hierarchy, tree, HierarchyPointNode } from 'd3-hierarchy'
@@ -6,7 +6,7 @@ import Image from 'next/image'
 
 import { createCx } from '@/shared/utils/classnames'
 import { wrapText, truncateLine } from '@/shared/utils/textHelper'
-import { EventArtworkImageUrl } from '@/shared/utils/imageUrls'
+import { ChestImageUrl, EventArtworkImageUrl } from '@/shared/utils/imageUrls'
 
 import { CombatNode, DialogueNode, EndNode, Event, EventTreeNode } from '@/codex/types/events'
 import {
@@ -97,9 +97,26 @@ function drawLinks(g: any, defs: any, root: any, event: Event) {
 }
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
+// Fetches the event image src and provides a fallback if the image fails to load
+function useEventImageSrc(event: Event): { eventImageSrc: string; onImageSrcError: () => void } {
+  const [eventImageSrc, setEventImageSrc] = useState(EventArtworkImageUrl(event.artwork))
+
+  const onImageSrcError = () => {
+    setEventImageSrc(ChestImageUrl)
+  }
+
+  useEffect(() => {
+    setEventImageSrc(EventArtworkImageUrl(event.artwork))
+  }, [event.artwork])
+
+  return { eventImageSrc, onImageSrcError }
+}
+
 function EventTree({ event, zoomLevel }: EventTreeProps): JSX.Element {
   const svgRef = useRef<SVGSVGElement>(null)
   const scrollWrapperRef = useRef<HTMLDivElement>(null)
+
+  const { eventImageSrc, onImageSrcError } = useEventImageSrc(event)
 
   let zoomScale = undefined
   if (zoomLevel === 'auto') {
@@ -693,11 +710,12 @@ function EventTree({ event, zoomLevel }: EventTreeProps): JSX.Element {
     <div className={cx('event-tree-container')}>
       <div className={cx('event-header')}>
         <Image
-          src={EventArtworkImageUrl(event.artwork)}
+          src={eventImageSrc}
           alt={event.name}
           width={40}
           height={40}
           className={cx('event-header__artwork')}
+          onError={onImageSrcError}
         />
         <h3 className={cx('event-header__name')}>{event.name}</h3>
       </div>
