@@ -223,6 +223,29 @@ export const hasEffects = (node: EventTreeNode): node is DialogueNode | EndNode 
 }
 
 /**
+ * Calculate the arrowhead angle based on horizontal displacement between nodes.
+ *
+ * Uses a self-limiting rational function: tiltFactor = |dx| / (750 + |dx|)
+ * This creates smooth, organic angle adjustments where the tilt asymptotically
+ * approaches maxTilt but never quite reaches it, providing natural diminishing
+ * returns as distance increases.
+ */
+export const getArrowheadAngle = (dx: number): number => {
+  if (dx === 0) {
+    return 90 // Straight down
+  }
+
+  const maxTilt = 45
+  const baseDivisor = 750
+  const adjustedDivisor = baseDivisor + Math.abs(dx)
+  const tiltFactor = Math.abs(dx) / adjustedDivisor
+  const tilt = tiltFactor * maxTilt
+
+  // If target is to the right, tilt right (angle < 90); if left, tilt left (angle > 90)
+  return dx > 0 ? 90 - tilt : 90 + tilt
+}
+
+/**
  * Recursively shift a node and all its descendants by the given vertical offset
  */
 const adjustSubtree = (node: HierarchyPointNode<EventTreeNode>, offset: number) => {
@@ -241,8 +264,6 @@ const adjustSubtree = (node: HierarchyPointNode<EventTreeNode>, offset: number) 
  * ensure a consistent minimum gap throughout the tree.
  */
 export const adjustTreeSpacing = (root: HierarchyPointNode<EventTreeNode>, event: Event) => {
-  const desiredGap = NODE.VERTICAL_SPACING_DEFAULT
-
   // Group nodes by depth
   const nodesByDepth: HierarchyPointNode<EventTreeNode>[][] = []
   root.descendants().forEach((node) => {
@@ -255,6 +276,63 @@ export const adjustTreeSpacing = (root: HierarchyPointNode<EventTreeNode>, event
   // Process each depth level (skip root at depth 0)
   for (let depth = 1; depth < nodesByDepth.length; depth++) {
     const nodesAtDepth = nodesByDepth[depth]
+
+    // Group nodes by their parent and calculate horizontal spreads
+    const parentGroups = new Map<
+      HierarchyPointNode<EventTreeNode>,
+      HierarchyPointNode<EventTreeNode>[]
+    >()
+    nodesAtDepth.forEach((node) => {
+      if (node.parent) {
+        if (!parentGroups.has(node.parent)) {
+          parentGroups.set(node.parent, [])
+        }
+        const group = parentGroups.get(node.parent)
+        if (group) {
+          group.push(node)
+        }
+      }
+    })
+
+    // Calculate max horizontal distance and log metrics for each parent group
+    let maxHorizontalDistance = 0
+    // eslint-disable-next-line no-console
+    console.log(`\n=== Depth ${depth} ===`)
+    parentGroups.forEach((children, parent) => {
+      if (children.length > 1) {
+        const xPositions = children.map((child) => child.x ?? 0).sort((a, b) => a - b)
+        const leftmost = xPositions[0]
+        const rightmost = xPositions[xPositions.length - 1]
+        const horizontalDistance = rightmost - leftmost
+        maxHorizontalDistance = Math.max(maxHorizontalDistance, horizontalDistance)
+        // eslint-disable-next-line no-console
+        console.log(
+          `Parent "${parent.data.id}" has ${children.length} children with horizontal distance: ${horizontalDistance.toFixed(1)}px`
+        )
+      } else {
+        // eslint-disable-next-line no-console
+        console.log(`Parent "${parent.data.id}" has 1 child (no horizontal spread)`)
+      }
+    })
+
+    // Check if all nodes at this depth are single children of their parents
+    const allNodesAreSingleChildren = nodesAtDepth.every((node) => {
+      return node.parent && node.parent.children && node.parent.children.length === 1
+    })
+
+    // Calculate base desired gap
+    const baseGap = allNodesAreSingleChildren
+      ? NODE.VERTICAL_SPACING_SHORT
+      : NODE.VERTICAL_SPACING_DEFAULT
+
+    // Add incremental spacing based on horizontal spread (10px per 1000px of horizontal distance)
+    const horizontalSpreadFactor = Math.floor(maxHorizontalDistance / 1000)
+    const desiredGap = baseGap + horizontalSpreadFactor * NODE.VERTICAL_SPACING_INCREMENT
+
+    // eslint-disable-next-line no-console
+    console.log(
+      `Max horizontal distance: ${maxHorizontalDistance.toFixed(1)}px, Desired gap: ${desiredGap}px (base: ${baseGap}px + ${horizontalSpreadFactor * NODE.VERTICAL_SPACING_INCREMENT}px)`
+    )
 
     // Find the minimum gap among all nodes at this depth
     let minGap = Infinity

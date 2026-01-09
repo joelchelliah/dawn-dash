@@ -14,6 +14,7 @@ import {
   calculateTreeBounds,
   hasEffects,
   adjustTreeSpacing,
+  getArrowheadAngle,
 } from '@/codex/utils/eventTreeHelper'
 import { NODE, TREE, TEXT, INNER_BOX, NODE_BOX } from '@/codex/constants/eventTreeValues'
 import { ZoomLevel } from '@/codex/constants/eventSearchValues'
@@ -50,18 +51,8 @@ function drawLinks(g: any, defs: any, root: any, event: Event) {
       // Create a unique marker for this link
       const markerId = `arrowhead-${i}`
 
-      // Calculate angle: if target is to the right, tilt right; if left, tilt left
-      // Use a subtle angle based on horizontal displacement
-      let angle = 90 // Default: pointing straight down
-
-      if (dx !== 0) {
-        // Calculate a subtle tilt angle based on horizontal distance
-        // The further horizontally, the more tilt (max ~30 degrees)
-        const maxTilt = 60
-        const tiltFactor = Math.min(Math.abs(dx) / 750, 1)
-        const tilt = tiltFactor * maxTilt
-        angle = dx > 0 ? 90 - tilt : 90 + tilt
-      }
+      // Calculate arrowhead angle based on horizontal displacement
+      const angle = getArrowheadAngle(dx)
 
       const markerRefX = 7
       const markerSize = 5
@@ -96,7 +87,7 @@ function drawLinks(g: any, defs: any, root: any, event: Event) {
 
       // Control points: For curviness!
       const controlOffsetSource = (endY - startY) * 0.2
-      const controlOffsetTarget = (endY - startY) * 0.4
+      const controlOffsetTarget = (endY - startY) * 0.5
 
       return `M${sourceX},${startY}
               C${sourceX},${startY + controlOffsetSource}
