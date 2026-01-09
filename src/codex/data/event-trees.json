@@ -16,7 +16,7 @@
           "children": [
             {
               "id": 124,
-              "text": "You find a purse filled with some gold. You find 48 gold! After pocketing the gold, you are surprised by a sudden noise. \"THIEF!\" you hear as the raven swoops down and scratches you with its claws before flying away.<br><br>You are Bleeding",
+              "text": "You find a purse filled with some gold. You find 42 gold! After pocketing the gold, you are surprised by a sudden noise. \"THIEF!\" you hear as the raven swoops down and scratches you with its claws before flying away.<br><br>You are Bleeding",
               "type": "end",
               "effects": [
                 "GOLD: random [20 - 50]",
@@ -6068,7 +6068,7 @@
           "children": [
             {
               "id": 482,
-              "text": "\"Very well. I shall grant you this.\" You get 46 gold! You drop the gemstone as it becomes too hot to touch.",
+              "text": "\"Very well. I shall grant you this.\" You get 40 gold! You drop the gemstone as it becomes too hot to touch.",
               "type": "end",
               "effects": [
                 "GOLD: random [30 - 60]",
@@ -6502,13 +6502,13 @@
                           "id": 4,
                           "type": "choice",
                           "choiceLabel": "Return",
+                          "repeatFrom": 0,
                           "children": [
                             {
                               "id": 505,
                               "text": "A warm fire in relative safety offers only a brief respite from the perils of adventure.",
                               "type": "end",
-                              "repeatable": true,
-                              "repeatFrom": 0
+                              "repeatable": true
                             }
                           ]
                         }
@@ -6520,13 +6520,13 @@
                   "id": 5,
                   "type": "choice",
                   "choiceLabel": "No",
+                  "repeatFrom": 0,
                   "children": [
                     {
                       "id": 507,
                       "text": "A warm fire in relative safety offers only a brief respite from the perils of adventure.",
                       "type": "end",
-                      "repeatable": true,
-                      "repeatFrom": 0
+                      "repeatable": true
                     }
                   ]
                 }
@@ -8344,13 +8344,13 @@
                                   "id": 11,
                                   "type": "choice",
                                   "choiceLabel": "Step back and ponder.",
+                                  "repeatFrom": 0,
                                   "children": [
                                     {
                                       "id": 616,
                                       "text": "Before you stands the statue of Dawnbringer Ystel, carved in the image of strength and divine fury. She holds a large, stone sword, poised as if ready to strike down the demons once more.",
                                       "type": "end",
-                                      "repeatable": true,
-                                      "repeatFrom": 0
+                                      "repeatable": true
                                     }
                                   ]
                                 },
@@ -8532,13 +8532,13 @@
                                   "id": 25,
                                   "type": "choice",
                                   "choiceLabel": "Step back and ponder.",
+                                  "repeatFrom": 0,
                                   "children": [
                                     {
                                       "id": 627,
                                       "text": "Before you stands the statue of Dawnbringer Ystel, carved in the image of strength and divine fury. She holds a large, stone sword, poised as if ready to strike down the demons once more.",
                                       "type": "end",
-                                      "repeatable": true,
-                                      "repeatFrom": 0
+                                      "repeatable": true
                                     }
                                   ]
                                 },
@@ -8614,13 +8614,13 @@
                   "id": 30,
                   "type": "choice",
                   "choiceLabel": "Step back and ponder.",
+                  "repeatFrom": 0,
                   "children": [
                     {
                       "id": 634,
                       "text": "Before you stands the statue of Dawnbringer Ystel, carved in the image of strength and divine fury. She holds a large, stone sword, poised as if ready to strike down the demons once more.",
                       "type": "end",
-                      "repeatable": true,
-                      "repeatFrom": 0
+                      "repeatable": true
                     }
                   ]
                 },
@@ -8831,13 +8831,13 @@
                                   "id": 47,
                                   "type": "choice",
                                   "choiceLabel": "Step back and ponder.",
+                                  "repeatFrom": 0,
                                   "children": [
                                     {
                                       "id": 645,
                                       "text": "Before you stands the statue of Dawnbringer Ystel, carved in the image of strength and divine fury. She holds a large, stone sword, poised as if ready to strike down the demons once more.",
                                       "type": "end",
-                                      "repeatable": true,
-                                      "repeatFrom": 0
+                                      "repeatable": true
                                     }
                                   ]
                                 },
@@ -8920,13 +8920,13 @@
                   "id": 53,
                   "type": "choice",
                   "choiceLabel": "Step back and ponder.",
+                  "repeatFrom": 0,
                   "children": [
                     {
                       "id": 652,
                       "text": "Before you stands the statue of Dawnbringer Ystel, carved in the image of strength and divine fury. She holds a large, stone sword, poised as if ready to strike down the demons once more.",
                       "type": "end",
-                      "repeatable": true,
-                      "repeatFrom": 0
+                      "repeatable": true
                     }
                   ]
                 },
@@ -11634,10 +11634,10 @@
                                   "children": [
                                     {
                                       "id": 810,
-                                      "text": "You find 42 gold!",
+                                      "text": "You find 58 gold!",
                                       "type": "dialogue",
                                       "effects": [
-                                        "GOLD: 42"
+                                        "GOLD: 58"
                                       ],
                                       "numContinues": 1,
                                       "children": [
@@ -11760,13 +11760,13 @@
                                                           "id": 13,
                                                           "type": "choice",
                                                           "choiceLabel": "Go back",
+                                                          "repeatFrom": 0,
                                                           "children": [
                                                             {
                                                               "id": 815,
                                                               "text": "Two tunnels split before you. Each leads further into the complex network of caverns and corridors. What will you do?",
                                                               "type": "end",
-                                                              "repeatable": true,
-                                                              "repeatFrom": 0
+                                                              "repeatable": true
                                                             }
                                                           ]
                                                         },
@@ -11785,13 +11785,13 @@
                                                                   "id": 15,
                                                                   "type": "choice",
                                                                   "choiceLabel": "Go back",
+                                                                  "repeatFrom": 0,
                                                                   "children": [
                                                                     {
                                                                       "id": 816,
                                                                       "text": "Two tunnels split before you. Each leads further into the complex network of caverns and corridors. What will you do?",
                                                                       "type": "end",
-                                                                      "repeatable": true,
-                                                                      "repeatFrom": 0
+                                                                      "repeatable": true
                                                                     }
                                                                   ]
                                                                 },
@@ -11819,10 +11819,10 @@
                                                                           "children": [
                                                                             {
                                                                               "id": 817,
-                                                                              "text": "You find 49 gold!",
+                                                                              "text": "You find 45 gold!",
                                                                               "type": "dialogue",
                                                                               "effects": [
-                                                                                "GOLD: 49"
+                                                                                "GOLD: 45"
                                                                               ],
                                                                               "numContinues": 1,
                                                                               "children": [
@@ -11848,10 +11848,10 @@
                                                                           "children": [
                                                                             {
                                                                               "id": 818,
-                                                                              "text": "You find 74 gold!",
+                                                                              "text": "You find 70 gold!",
                                                                               "type": "dialogue",
                                                                               "effects": [
-                                                                                "GOLD: 74"
+                                                                                "GOLD: 70"
                                                                               ],
                                                                               "numContinues": 1,
                                                                               "children": [
@@ -11877,7 +11877,7 @@
                                                                           "children": [
                                                                             {
                                                                               "id": 819,
-                                                                              "text": "You find 120 gold!",
+                                                                              "text": "You find 82 gold!",
                                                                               "type": "dialogue",
                                                                               "effects": [
                                                                                 "GOLD: random [75 - 125]"
@@ -11932,10 +11932,10 @@
                                                                           "children": [
                                                                             {
                                                                               "id": 821,
-                                                                              "text": "You find 49 gold!",
+                                                                              "text": "You find 45 gold!",
                                                                               "type": "dialogue",
                                                                               "effects": [
-                                                                                "GOLD: 49"
+                                                                                "GOLD: 45"
                                                                               ],
                                                                               "numContinues": 1,
                                                                               "children": [
@@ -11961,10 +11961,10 @@
                                                                           "children": [
                                                                             {
                                                                               "id": 822,
-                                                                              "text": "You find 74 gold!",
+                                                                              "text": "You find 70 gold!",
                                                                               "type": "dialogue",
                                                                               "effects": [
-                                                                                "GOLD: 74"
+                                                                                "GOLD: 70"
                                                                               ],
                                                                               "numContinues": 1,
                                                                               "children": [
@@ -11990,7 +11990,7 @@
                                                                           "children": [
                                                                             {
                                                                               "id": 823,
-                                                                              "text": "You find 120 gold!",
+                                                                              "text": "You find 82 gold!",
                                                                               "type": "dialogue",
                                                                               "effects": [
                                                                                 "GOLD: random [75 - 125]"
@@ -12056,10 +12056,10 @@
                                                                                   "children": [
                                                                                     {
                                                                                       "id": 825,
-                                                                                      "text": "You find 49 gold!",
+                                                                                      "text": "You find 45 gold!",
                                                                                       "type": "dialogue",
                                                                                       "effects": [
-                                                                                        "GOLD: 49"
+                                                                                        "GOLD: 45"
                                                                                       ],
                                                                                       "numContinues": 1,
                                                                                       "children": [
@@ -12085,10 +12085,10 @@
                                                                                   "children": [
                                                                                     {
                                                                                       "id": 826,
-                                                                                      "text": "You find 74 gold!",
+                                                                                      "text": "You find 70 gold!",
                                                                                       "type": "dialogue",
                                                                                       "effects": [
-                                                                                        "GOLD: 74"
+                                                                                        "GOLD: 70"
                                                                                       ],
                                                                                       "numContinues": 1,
                                                                                       "children": [
@@ -12114,7 +12114,7 @@
                                                                                   "children": [
                                                                                     {
                                                                                       "id": 827,
-                                                                                      "text": "You find 120 gold!",
+                                                                                      "text": "You find 82 gold!",
                                                                                       "type": "dialogue",
                                                                                       "effects": [
                                                                                         "GOLD: random [75 - 125]"
@@ -12175,13 +12175,13 @@
                                                           "id": 42,
                                                           "type": "choice",
                                                           "choiceLabel": "Go back",
+                                                          "repeatFrom": 0,
                                                           "children": [
                                                             {
                                                               "id": 832,
                                                               "text": "Two tunnels split before you. Each leads further into the complex network of caverns and corridors. What will you do?",
                                                               "type": "end",
-                                                              "repeatable": true,
-                                                              "repeatFrom": 0
+                                                              "repeatable": true
                                                             }
                                                           ]
                                                         },
@@ -12200,13 +12200,13 @@
                                                                   "id": 44,
                                                                   "type": "choice",
                                                                   "choiceLabel": "Go back",
+                                                                  "repeatFrom": 0,
                                                                   "children": [
                                                                     {
                                                                       "id": 833,
                                                                       "text": "Two tunnels split before you. Each leads further into the complex network of caverns and corridors. What will you do?",
                                                                       "type": "end",
-                                                                      "repeatable": true,
-                                                                      "repeatFrom": 0
+                                                                      "repeatable": true
                                                                     }
                                                                   ]
                                                                 },
@@ -12234,10 +12234,10 @@
                                                                           "children": [
                                                                             {
                                                                               "id": 834,
-                                                                              "text": "You find 49 gold!",
+                                                                              "text": "You find 45 gold!",
                                                                               "type": "dialogue",
                                                                               "effects": [
-                                                                                "GOLD: 49"
+                                                                                "GOLD: 45"
                                                                               ],
                                                                               "numContinues": 1,
                                                                               "children": [
@@ -12263,10 +12263,10 @@
                                                                           "children": [
                                                                             {
                                                                               "id": 835,
-                                                                              "text": "You find 74 gold!",
+                                                                              "text": "You find 70 gold!",
                                                                               "type": "dialogue",
                                                                               "effects": [
-                                                                                "GOLD: 74"
+                                                                                "GOLD: 70"
                                                                               ],
                                                                               "numContinues": 1,
                                                                               "children": [
@@ -12292,7 +12292,7 @@
                                                                           "children": [
                                                                             {
                                                                               "id": 836,
-                                                                              "text": "You find 120 gold!",
+                                                                              "text": "You find 82 gold!",
                                                                               "type": "dialogue",
                                                                               "effects": [
                                                                                 "GOLD: random [75 - 125]"
@@ -12347,10 +12347,10 @@
                                                                           "children": [
                                                                             {
                                                                               "id": 838,
-                                                                              "text": "You find 49 gold!",
+                                                                              "text": "You find 45 gold!",
                                                                               "type": "dialogue",
                                                                               "effects": [
-                                                                                "GOLD: 49"
+                                                                                "GOLD: 45"
                                                                               ],
                                                                               "numContinues": 1,
                                                                               "children": [
@@ -12376,10 +12376,10 @@
                                                                           "children": [
                                                                             {
                                                                               "id": 839,
-                                                                              "text": "You find 74 gold!",
+                                                                              "text": "You find 70 gold!",
                                                                               "type": "dialogue",
                                                                               "effects": [
-                                                                                "GOLD: 74"
+                                                                                "GOLD: 70"
                                                                               ],
                                                                               "numContinues": 1,
                                                                               "children": [
@@ -12405,7 +12405,7 @@
                                                                           "children": [
                                                                             {
                                                                               "id": 840,
-                                                                              "text": "You find 120 gold!",
+                                                                              "text": "You find 82 gold!",
                                                                               "type": "dialogue",
                                                                               "effects": [
                                                                                 "GOLD: random [75 - 125]"
@@ -12471,10 +12471,10 @@
                                                                                   "children": [
                                                                                     {
                                                                                       "id": 842,
-                                                                                      "text": "You find 49 gold!",
+                                                                                      "text": "You find 45 gold!",
                                                                                       "type": "dialogue",
                                                                                       "effects": [
-                                                                                        "GOLD: 49"
+                                                                                        "GOLD: 45"
                                                                                       ],
                                                                                       "numContinues": 1,
                                                                                       "children": [
@@ -12500,10 +12500,10 @@
                                                                                   "children": [
                                                                                     {
                                                                                       "id": 843,
-                                                                                      "text": "You find 74 gold!",
+                                                                                      "text": "You find 70 gold!",
                                                                                       "type": "dialogue",
                                                                                       "effects": [
-                                                                                        "GOLD: 74"
+                                                                                        "GOLD: 70"
                                                                                       ],
                                                                                       "numContinues": 1,
                                                                                       "children": [
@@ -12529,7 +12529,7 @@
                                                                                   "children": [
                                                                                     {
                                                                                       "id": 844,
-                                                                                      "text": "You find 120 gold!",
+                                                                                      "text": "You find 82 gold!",
                                                                                       "type": "dialogue",
                                                                                       "effects": [
                                                                                         "GOLD: random [75 - 125]"
@@ -12580,13 +12580,13 @@
                                           "id": 70,
                                           "type": "choice",
                                           "choiceLabel": "Go back",
+                                          "repeatFrom": 0,
                                           "children": [
                                             {
                                               "id": 850,
                                               "text": "Two tunnels split before you. Each leads further into the complex network of caverns and corridors. What will you do?",
                                               "type": "end",
-                                              "repeatable": true,
-                                              "repeatFrom": 0
+                                              "repeatable": true
                                             }
                                           ]
                                         },
@@ -12605,13 +12605,13 @@
                                                   "id": 72,
                                                   "type": "choice",
                                                   "choiceLabel": "Go back",
+                                                  "repeatFrom": 0,
                                                   "children": [
                                                     {
                                                       "id": 851,
                                                       "text": "Two tunnels split before you. Each leads further into the complex network of caverns and corridors. What will you do?",
                                                       "type": "end",
-                                                      "repeatable": true,
-                                                      "repeatFrom": 0
+                                                      "repeatable": true
                                                     }
                                                   ]
                                                 },
@@ -12639,10 +12639,10 @@
                                                           "children": [
                                                             {
                                                               "id": 852,
-                                                              "text": "You find 49 gold!",
+                                                              "text": "You find 45 gold!",
                                                               "type": "dialogue",
                                                               "effects": [
-                                                                "GOLD: 49"
+                                                                "GOLD: 45"
                                                               ],
                                                               "numContinues": 1,
                                                               "children": [
@@ -12668,10 +12668,10 @@
                                                           "children": [
                                                             {
                                                               "id": 853,
-                                                              "text": "You find 74 gold!",
+                                                              "text": "You find 70 gold!",
                                                               "type": "dialogue",
                                                               "effects": [
-                                                                "GOLD: 74"
+                                                                "GOLD: 70"
                                                               ],
                                                               "numContinues": 1,
                                                               "children": [
@@ -12697,7 +12697,7 @@
                                                           "children": [
                                                             {
                                                               "id": 854,
-                                                              "text": "You find 120 gold!",
+                                                              "text": "You find 82 gold!",
                                                               "type": "dialogue",
                                                               "effects": [
                                                                 "GOLD: random [75 - 125]"
@@ -12752,10 +12752,10 @@
                                                           "children": [
                                                             {
                                                               "id": 856,
-                                                              "text": "You find 49 gold!",
+                                                              "text": "You find 45 gold!",
                                                               "type": "dialogue",
                                                               "effects": [
-                                                                "GOLD: 49"
+                                                                "GOLD: 45"
                                                               ],
                                                               "numContinues": 1,
                                                               "children": [
@@ -12781,10 +12781,10 @@
                                                           "children": [
                                                             {
                                                               "id": 857,
-                                                              "text": "You find 74 gold!",
+                                                              "text": "You find 70 gold!",
                                                               "type": "dialogue",
                                                               "effects": [
-                                                                "GOLD: 74"
+                                                                "GOLD: 70"
                                                               ],
                                                               "numContinues": 1,
                                                               "children": [
@@ -12810,7 +12810,7 @@
                                                           "children": [
                                                             {
                                                               "id": 858,
-                                                              "text": "You find 120 gold!",
+                                                              "text": "You find 82 gold!",
                                                               "type": "dialogue",
                                                               "effects": [
                                                                 "GOLD: random [75 - 125]"
@@ -12876,10 +12876,10 @@
                                                                   "children": [
                                                                     {
                                                                       "id": 860,
-                                                                      "text": "You find 49 gold!",
+                                                                      "text": "You find 45 gold!",
                                                                       "type": "dialogue",
                                                                       "effects": [
-                                                                        "GOLD: 49"
+                                                                        "GOLD: 45"
                                                                       ],
                                                                       "numContinues": 1,
                                                                       "children": [
@@ -12905,10 +12905,10 @@
                                                                   "children": [
                                                                     {
                                                                       "id": 861,
-                                                                      "text": "You find 74 gold!",
+                                                                      "text": "You find 70 gold!",
                                                                       "type": "dialogue",
                                                                       "effects": [
-                                                                        "GOLD: 74"
+                                                                        "GOLD: 70"
                                                                       ],
                                                                       "numContinues": 1,
                                                                       "children": [
@@ -12934,7 +12934,7 @@
                                                                   "children": [
                                                                     {
                                                                       "id": 862,
-                                                                      "text": "You find 120 gold!",
+                                                                      "text": "You find 82 gold!",
                                                                       "type": "dialogue",
                                                                       "effects": [
                                                                         "GOLD: random [75 - 125]"
@@ -13004,13 +13004,13 @@
                   "id": 99,
                   "type": "choice",
                   "choiceLabel": "Go back",
+                  "repeatFrom": 0,
                   "children": [
                     {
                       "id": 870,
                       "text": "Two tunnels split before you. Each leads further into the complex network of caverns and corridors. What will you do?",
                       "type": "end",
-                      "repeatable": true,
-                      "repeatFrom": 0
+                      "repeatable": true
                     }
                   ]
                 },
@@ -13070,13 +13070,13 @@
                                   "id": 104,
                                   "type": "choice",
                                   "choiceLabel": "Go back",
+                                  "repeatFrom": 0,
                                   "children": [
                                     {
                                       "id": 873,
                                       "text": "Two tunnels split before you. Each leads further into the complex network of caverns and corridors. What will you do?",
                                       "type": "end",
-                                      "repeatable": true,
-                                      "repeatFrom": 0
+                                      "repeatable": true
                                     }
                                   ]
                                 },
@@ -13095,13 +13095,13 @@
                                           "id": 106,
                                           "type": "choice",
                                           "choiceLabel": "Go back",
+                                          "repeatFrom": 0,
                                           "children": [
                                             {
                                               "id": 874,
                                               "text": "Two tunnels split before you. Each leads further into the complex network of caverns and corridors. What will you do?",
                                               "type": "end",
-                                              "repeatable": true,
-                                              "repeatFrom": 0
+                                              "repeatable": true
                                             }
                                           ]
                                         },
@@ -13129,10 +13129,10 @@
                                                   "children": [
                                                     {
                                                       "id": 875,
-                                                      "text": "You find 49 gold!",
+                                                      "text": "You find 45 gold!",
                                                       "type": "dialogue",
                                                       "effects": [
-                                                        "GOLD: 49"
+                                                        "GOLD: 45"
                                                       ],
                                                       "numContinues": 1,
                                                       "children": [
@@ -13158,10 +13158,10 @@
                                                   "children": [
                                                     {
                                                       "id": 876,
-                                                      "text": "You find 74 gold!",
+                                                      "text": "You find 70 gold!",
                                                       "type": "dialogue",
                                                       "effects": [
-                                                        "GOLD: 74"
+                                                        "GOLD: 70"
                                                       ],
                                                       "numContinues": 1,
                                                       "children": [
@@ -13187,7 +13187,7 @@
                                                   "children": [
                                                     {
                                                       "id": 877,
-                                                      "text": "You find 120 gold!",
+                                                      "text": "You find 82 gold!",
                                                       "type": "dialogue",
                                                       "effects": [
                                                         "GOLD: random [75 - 125]"
@@ -13242,10 +13242,10 @@
                                                   "children": [
                                                     {
                                                       "id": 879,
-                                                      "text": "You find 49 gold!",
+                                                      "text": "You find 45 gold!",
                                                       "type": "dialogue",
                                                       "effects": [
-                                                        "GOLD: 49"
+                                                        "GOLD: 45"
                                                       ],
                                                       "numContinues": 1,
                                                       "children": [
@@ -13271,10 +13271,10 @@
                                                   "children": [
                                                     {
                                                       "id": 880,
-                                                      "text": "You find 74 gold!",
+                                                      "text": "You find 70 gold!",
                                                       "type": "dialogue",
                                                       "effects": [
-                                                        "GOLD: 74"
+                                                        "GOLD: 70"
                                                       ],
                                                       "numContinues": 1,
                                                       "children": [
@@ -13300,7 +13300,7 @@
                                                   "children": [
                                                     {
                                                       "id": 881,
-                                                      "text": "You find 120 gold!",
+                                                      "text": "You find 82 gold!",
                                                       "type": "dialogue",
                                                       "effects": [
                                                         "GOLD: random [75 - 125]"
@@ -13366,10 +13366,10 @@
                                                           "children": [
                                                             {
                                                               "id": 883,
-                                                              "text": "You find 49 gold!",
+                                                              "text": "You find 45 gold!",
                                                               "type": "dialogue",
                                                               "effects": [
-                                                                "GOLD: 49"
+                                                                "GOLD: 45"
                                                               ],
                                                               "numContinues": 1,
                                                               "children": [
@@ -13395,10 +13395,10 @@
                                                           "children": [
                                                             {
                                                               "id": 884,
-                                                              "text": "You find 74 gold!",
+                                                              "text": "You find 70 gold!",
                                                               "type": "dialogue",
                                                               "effects": [
-                                                                "GOLD: 74"
+                                                                "GOLD: 70"
                                                               ],
                                                               "numContinues": 1,
                                                               "children": [
@@ -13424,7 +13424,7 @@
                                                           "children": [
                                                             {
                                                               "id": 885,
-                                                              "text": "You find 120 gold!",
+                                                              "text": "You find 82 gold!",
                                                               "type": "dialogue",
                                                               "effects": [
                                                                 "GOLD: random [75 - 125]"
@@ -13485,13 +13485,13 @@
                                   "id": 133,
                                   "type": "choice",
                                   "choiceLabel": "Go back",
+                                  "repeatFrom": 0,
                                   "children": [
                                     {
                                       "id": 890,
                                       "text": "Two tunnels split before you. Each leads further into the complex network of caverns and corridors. What will you do?",
                                       "type": "end",
-                                      "repeatable": true,
-                                      "repeatFrom": 0
+                                      "repeatable": true
                                     }
                                   ]
                                 },
@@ -13510,13 +13510,13 @@
                                           "id": 135,
                                           "type": "choice",
                                           "choiceLabel": "Go back",
+                                          "repeatFrom": 0,
                                           "children": [
                                             {
                                               "id": 891,
                                               "text": "Two tunnels split before you. Each leads further into the complex network of caverns and corridors. What will you do?",
                                               "type": "end",
-                                              "repeatable": true,
-                                              "repeatFrom": 0
+                                              "repeatable": true
                                             }
                                           ]
                                         },
@@ -13544,10 +13544,10 @@
                                                   "children": [
                                                     {
                                                       "id": 892,
-                                                      "text": "You find 49 gold!",
+                                                      "text": "You find 45 gold!",
                                                       "type": "dialogue",
                                                       "effects": [
-                                                        "GOLD: 49"
+                                                        "GOLD: 45"
                                                       ],
                                                       "numContinues": 1,
                                                       "children": [
@@ -13573,10 +13573,10 @@
                                                   "children": [
                                                     {
                                                       "id": 893,
-                                                      "text": "You find 74 gold!",
+                                                      "text": "You find 70 gold!",
                                                       "type": "dialogue",
                                                       "effects": [
-                                                        "GOLD: 74"
+                                                        "GOLD: 70"
                                                       ],
                                                       "numContinues": 1,
                                                       "children": [
@@ -13602,7 +13602,7 @@
                                                   "children": [
                                                     {
                                                       "id": 894,
-                                                      "text": "You find 120 gold!",
+                                                      "text": "You find 82 gold!",
                                                       "type": "dialogue",
                                                       "effects": [
                                                         "GOLD: random [75 - 125]"
@@ -13657,10 +13657,10 @@
                                                   "children": [
                                                     {
                                                       "id": 896,
-                                                      "text": "You find 49 gold!",
+                                                      "text": "You find 45 gold!",
                                                       "type": "dialogue",
                                                       "effects": [
-                                                        "GOLD: 49"
+                                                        "GOLD: 45"
                                                       ],
                                                       "numContinues": 1,
                                                       "children": [
@@ -13686,10 +13686,10 @@
                                                   "children": [
                                                     {
                                                       "id": 897,
-                                                      "text": "You find 74 gold!",
+                                                      "text": "You find 70 gold!",
                                                       "type": "dialogue",
                                                       "effects": [
-                                                        "GOLD: 74"
+                                                        "GOLD: 70"
                                                       ],
                                                       "numContinues": 1,
                                                       "children": [
@@ -13715,7 +13715,7 @@
                                                   "children": [
                                                     {
                                                       "id": 898,
-                                                      "text": "You find 120 gold!",
+                                                      "text": "You find 82 gold!",
                                                       "type": "dialogue",
                                                       "effects": [
                                                         "GOLD: random [75 - 125]"
@@ -13781,10 +13781,10 @@
                                                           "children": [
                                                             {
                                                               "id": 900,
-                                                              "text": "You find 49 gold!",
+                                                              "text": "You find 45 gold!",
                                                               "type": "dialogue",
                                                               "effects": [
-                                                                "GOLD: 49"
+                                                                "GOLD: 45"
                                                               ],
                                                               "numContinues": 1,
                                                               "children": [
@@ -13810,10 +13810,10 @@
                                                           "children": [
                                                             {
                                                               "id": 901,
-                                                              "text": "You find 74 gold!",
+                                                              "text": "You find 70 gold!",
                                                               "type": "dialogue",
                                                               "effects": [
-                                                                "GOLD: 74"
+                                                                "GOLD: 70"
                                                               ],
                                                               "numContinues": 1,
                                                               "children": [
@@ -13839,7 +13839,7 @@
                                                           "children": [
                                                             {
                                                               "id": 902,
-                                                              "text": "You find 120 gold!",
+                                                              "text": "You find 82 gold!",
                                                               "type": "dialogue",
                                                               "effects": [
                                                                 "GOLD: random [75 - 125]"
@@ -13890,13 +13890,13 @@
                   "id": 161,
                   "type": "choice",
                   "choiceLabel": "Go back",
+                  "repeatFrom": 0,
                   "children": [
                     {
                       "id": 908,
                       "text": "Two tunnels split before you. Each leads further into the complex network of caverns and corridors. What will you do?",
                       "type": "end",
-                      "repeatable": true,
-                      "repeatFrom": 0
+                      "repeatable": true
                     }
                   ]
                 },
@@ -13915,13 +13915,13 @@
                           "id": 163,
                           "type": "choice",
                           "choiceLabel": "Go back",
+                          "repeatFrom": 0,
                           "children": [
                             {
                               "id": 909,
                               "text": "Two tunnels split before you. Each leads further into the complex network of caverns and corridors. What will you do?",
                               "type": "end",
-                              "repeatable": true,
-                              "repeatFrom": 0
+                              "repeatable": true
                             }
                           ]
                         },
@@ -13949,10 +13949,10 @@
                                   "children": [
                                     {
                                       "id": 910,
-                                      "text": "You find 49 gold!",
+                                      "text": "You find 45 gold!",
                                       "type": "dialogue",
                                       "effects": [
-                                        "GOLD: 49"
+                                        "GOLD: 45"
                                       ],
                                       "numContinues": 1,
                                       "children": [
@@ -13978,10 +13978,10 @@
                                   "children": [
                                     {
                                       "id": 911,
-                                      "text": "You find 74 gold!",
+                                      "text": "You find 70 gold!",
                                       "type": "dialogue",
                                       "effects": [
-                                        "GOLD: 74"
+                                        "GOLD: 70"
                                       ],
                                       "numContinues": 1,
                                       "children": [
@@ -14007,7 +14007,7 @@
                                   "children": [
                                     {
                                       "id": 912,
-                                      "text": "You find 120 gold!",
+                                      "text": "You find 82 gold!",
                                       "type": "dialogue",
                                       "effects": [
                                         "GOLD: random [75 - 125]"
@@ -14062,10 +14062,10 @@
                                   "children": [
                                     {
                                       "id": 914,
-                                      "text": "You find 49 gold!",
+                                      "text": "You find 45 gold!",
                                       "type": "dialogue",
                                       "effects": [
-                                        "GOLD: 49"
+                                        "GOLD: 45"
                                       ],
                                       "numContinues": 1,
                                       "children": [
@@ -14091,10 +14091,10 @@
                                   "children": [
                                     {
                                       "id": 915,
-                                      "text": "You find 74 gold!",
+                                      "text": "You find 70 gold!",
                                       "type": "dialogue",
                                       "effects": [
-                                        "GOLD: 74"
+                                        "GOLD: 70"
                                       ],
                                       "numContinues": 1,
                                       "children": [
@@ -14120,7 +14120,7 @@
                                   "children": [
                                     {
                                       "id": 916,
-                                      "text": "You find 120 gold!",
+                                      "text": "You find 82 gold!",
                                       "type": "dialogue",
                                       "effects": [
                                         "GOLD: random [75 - 125]"
@@ -14186,10 +14186,10 @@
                                           "children": [
                                             {
                                               "id": 918,
-                                              "text": "You find 49 gold!",
+                                              "text": "You find 45 gold!",
                                               "type": "dialogue",
                                               "effects": [
-                                                "GOLD: 49"
+                                                "GOLD: 45"
                                               ],
                                               "numContinues": 1,
                                               "children": [
@@ -14215,10 +14215,10 @@
                                           "children": [
                                             {
                                               "id": 919,
-                                              "text": "You find 74 gold!",
+                                              "text": "You find 70 gold!",
                                               "type": "dialogue",
                                               "effects": [
-                                                "GOLD: 74"
+                                                "GOLD: 70"
                                               ],
                                               "numContinues": 1,
                                               "children": [
@@ -14244,7 +14244,7 @@
                                           "children": [
                                             {
                                               "id": 920,
-                                              "text": "You find 120 gold!",
+                                              "text": "You find 82 gold!",
                                               "type": "dialogue",
                                               "effects": [
                                                 "GOLD: random [75 - 125]"
@@ -15847,7 +15847,7 @@
           "children": [
             {
               "id": 1023,
-              "text": "While the two nobles continue to argue fervently, you skillfully move closer while scanning the room for any potential witnesses. You deftly slip their hand into the pocket of one of the nobles and withdraw a small, leather pouch. You find 15 gold!",
+              "text": "While the two nobles continue to argue fervently, you skillfully move closer while scanning the room for any potential witnesses. You deftly slip their hand into the pocket of one of the nobles and withdraw a small, leather pouch. You find 25 gold!",
               "type": "end",
               "effects": [
                 "GOLD: random [15 - 25]"
@@ -16344,7 +16344,7 @@
           "children": [
             {
               "id": 1046,
-              "text": "You find 28 gold! As you prepare to leave you suddenly hear a loud squawking from above as a large, black-feathered bird descends on you!",
+              "text": "You find 10 gold! As you prepare to leave you suddenly hear a loud squawking from above as a large, black-feathered bird descends on you!",
               "type": "combat",
               "effects": [
                 "GOLD: random [10 - 30]",
@@ -16451,13 +16451,13 @@
                           "id": 6,
                           "type": "choice",
                           "choiceLabel": "Return",
+                          "repeatFrom": 0,
                           "children": [
                             {
                               "id": 1050,
                               "text": "Welcome back, [[class]]. Here to witness the impossible become possible? Or would you like me to hold onto a card for you?",
                               "type": "end",
-                              "repeatable": true,
-                              "repeatFrom": 0
+                              "repeatable": true
                             }
                           ]
                         }
@@ -16520,13 +16520,13 @@
                           "id": 10,
                           "type": "choice",
                           "choiceLabel": "Return",
+                          "repeatFrom": 0,
                           "children": [
                             {
                               "id": 1054,
                               "text": "Welcome back, [[class]]. Here to witness the impossible become possible? Or would you like me to hold onto a card for you?",
                               "type": "end",
-                              "repeatable": true,
-                              "repeatFrom": 0
+                              "repeatable": true
                             }
                           ]
                         }
@@ -16625,13 +16625,13 @@
                   "id": 16,
                   "type": "choice",
                   "choiceLabel": "Return",
+                  "repeatFrom": 0,
                   "children": [
                     {
                       "id": 1061,
                       "text": "Welcome back, [[class]]. Here to witness the impossible become possible? Or would you like me to hold onto a card for you?",
                       "type": "end",
-                      "repeatable": true,
-                      "repeatFrom": 0
+                      "repeatable": true
                     }
                   ]
                 }
@@ -16694,13 +16694,13 @@
                   "id": 20,
                   "type": "choice",
                   "choiceLabel": "Return",
+                  "repeatFrom": 0,
                   "children": [
                     {
                       "id": 1065,
                       "text": "Welcome back, [[class]]. Here to witness the impossible become possible? Or would you like me to hold onto a card for you?",
                       "type": "end",
-                      "repeatable": true,
-                      "repeatFrom": 0
+                      "repeatable": true
                     }
                   ]
                 }
@@ -17249,7 +17249,7 @@
           "children": [
             {
               "id": 1099,
-              "text": "You gain 10 gold! As you turn to leave, you feel the presence of the Goddess of light condemn you...",
+              "text": "You gain 13 gold! As you turn to leave, you feel the presence of the Goddess of light condemn you...",
               "type": "end",
               "effects": [
                 "GOLD: random [10 - 30]",
@@ -17462,7 +17462,7 @@
                   "children": [
                     {
                       "id": 1112,
-                      "text": "You gain 10 gold! As you turn to leave, you feel the presence of the Goddess of light condemn you...",
+                      "text": "You gain 13 gold! As you turn to leave, you feel the presence of the Goddess of light condemn you...",
                       "type": "end",
                       "effects": [
                         "GOLD: random [10 - 30]",
@@ -17575,13 +17575,13 @@
                                   "id": 6,
                                   "type": "choice",
                                   "choiceLabel": "Back away.",
+                                  "repeatFrom": 0,
                                   "children": [
                                     {
                                       "id": 1117,
                                       "text": "The statue of Lightmarshal Lucius stands tall and imposing, his gaze fixed eternally forward, a testament to his unwavering commitment to the Vigil. The air around it feels charged, as if the statue itself is still guarding the hallowed halls.",
                                       "type": "end",
-                                      "repeatable": true,
-                                      "repeatFrom": 0
+                                      "repeatable": true
                                     }
                                   ]
                                 },
@@ -17657,13 +17657,13 @@
                   "id": 11,
                   "type": "choice",
                   "choiceLabel": "Back away.",
+                  "repeatFrom": 0,
                   "children": [
                     {
                       "id": 1124,
                       "text": "The statue of Lightmarshal Lucius stands tall and imposing, his gaze fixed eternally forward, a testament to his unwavering commitment to the Vigil. The air around it feels charged, as if the statue itself is still guarding the hallowed halls.",
                       "type": "end",
-                      "repeatable": true,
-                      "repeatFrom": 0
+                      "repeatable": true
                     }
                   ]
                 },
@@ -17710,13 +17710,13 @@
                   "id": 15,
                   "type": "choice",
                   "choiceLabel": "Back away.",
+                  "repeatFrom": 0,
                   "children": [
                     {
                       "id": 1128,
                       "text": "The statue of Lightmarshal Lucius stands tall and imposing, his gaze fixed eternally forward, a testament to his unwavering commitment to the Vigil. The air around it feels charged, as if the statue itself is still guarding the hallowed halls.",
                       "type": "end",
-                      "repeatable": true,
-                      "repeatFrom": 0
+                      "repeatable": true
                     }
                   ]
                 },
@@ -18564,10 +18564,10 @@
                                       "type": "end",
                                       "repeatable": true
                                     }
-                                  ],
-                                  "repeatFrom": 26
+                                  ]
                                 }
-                              ]
+                              ],
+                              "repeatFrom": 26
                             }
                           ]
                         },
@@ -18593,8 +18593,7 @@
                                       "type": "end",
                                       "repeatable": true
                                     }
-                                  ],
-                                  "repeatFrom": 26
+                                  ]
                                 },
                                 {
                                   "id": 31,
@@ -18659,7 +18658,8 @@
                                     }
                                   ]
                                 }
-                              ]
+                              ],
+                              "repeatFrom": 26
                             }
                           ]
                         },
@@ -28811,10 +28811,10 @@
                               "type": "end",
                               "repeatable": true
                             }
-                          ],
-                          "repeatFrom": 1
+                          ]
                         }
-                      ]
+                      ],
+                      "repeatFrom": 1
                     }
                   ]
                 },
@@ -28857,10 +28857,10 @@
                               "type": "end",
                               "repeatable": true
                             }
-                          ],
-                          "repeatFrom": 1
+                          ]
                         }
-                      ]
+                      ],
+                      "repeatFrom": 1
                     }
                   ]
                 },
@@ -28903,10 +28903,10 @@
                               "type": "end",
                               "repeatable": true
                             }
-                          ],
-                          "repeatFrom": 1
+                          ]
                         }
-                      ]
+                      ],
+                      "repeatFrom": 1
                     }
                   ]
                 },
@@ -28914,13 +28914,13 @@
                   "id": 11,
                   "type": "choice",
                   "choiceLabel": "Return",
+                  "repeatFrom": 0,
                   "children": [
                     {
                       "id": 1840,
                       "text": "The buffet is a feast for the senses. Golden trays overflow with succulent roasted meats, jewel-toned fruits, and fragrant spices. Aromas of exotic dishes fill the air, and colourful cocktails bubble in crystal goblets.",
                       "type": "end",
-                      "repeatable": true,
-                      "repeatFrom": 0
+                      "repeatable": true
                     }
                   ]
                 }
@@ -32014,13 +32014,13 @@
                                   "id": 20,
                                   "type": "choice",
                                   "choiceLabel": "Return",
+                                  "repeatFrom": 0,
                                   "children": [
                                     {
                                       "id": 2028,
                                       "text": "The angelic features of the stone statue tower out from its pristine pedestal. Above its brilliantly carved head, both hands reach for the darkened skies, its fingers forming a perfect triangle while colorful lights dance over its marbled features.",
                                       "type": "end",
-                                      "repeatable": true,
-                                      "repeatFrom": 0
+                                      "repeatable": true
                                     }
                                   ]
                                 }
@@ -32032,13 +32032,13 @@
                           "id": 21,
                           "type": "choice",
                           "choiceLabel": "Return",
+                          "repeatFrom": 0,
                           "children": [
                             {
                               "id": 2030,
                               "text": "The angelic features of the stone statue tower out from its pristine pedestal. Above its brilliantly carved head, both hands reach for the darkened skies, its fingers forming a perfect triangle while colorful lights dance over its marbled features.",
                               "type": "end",
-                              "repeatable": true,
-                              "repeatFrom": 0
+                              "repeatable": true
                             }
                           ]
                         }
@@ -32050,13 +32050,13 @@
                   "id": 22,
                   "type": "choice",
                   "choiceLabel": "Return",
+                  "repeatFrom": 0,
                   "children": [
                     {
                       "id": 2032,
                       "text": "The angelic features of the stone statue tower out from its pristine pedestal. Above its brilliantly carved head, both hands reach for the darkened skies, its fingers forming a perfect triangle while colorful lights dance over its marbled features.",
                       "type": "end",
-                      "repeatable": true,
-                      "repeatFrom": 0
+                      "repeatable": true
                     }
                   ]
                 }
@@ -33115,7 +33115,7 @@
                         {
                           "id": 4,
                           "type": "choice",
-                          "choiceLabel": "Add Chain",
+                          "choiceLabel": "Add Recall",
                           "requirements": [
                             "intellect:1"
                           ],
@@ -33125,7 +33125,7 @@
                               "text": "",
                               "type": "end",
                               "effects": [
-                                "ADDKEYWORD: Chain"
+                                "ADDKEYWORD: Recall"
                               ]
                             }
                           ]
@@ -33270,7 +33270,7 @@
                 {
                   "id": 13,
                   "type": "choice",
-                  "choiceLabel": "Add Chain",
+                  "choiceLabel": "Add Recall",
                   "requirements": [
                     "intellect:1"
                   ],
@@ -33280,7 +33280,7 @@
                       "text": "",
                       "type": "end",
                       "effects": [
-                        "ADDKEYWORD: Chain"
+                        "ADDKEYWORD: Recall"
                       ]
                     }
                   ]
@@ -33530,7 +33530,7 @@
     "artwork": "opportunity_image",
     "rootNode": {
       "id": 0,
-      "text": "You spot something glittering in the shadows. You find 17 gold!",
+      "text": "You spot something glittering in the shadows. You find 20 gold!",
       "type": "end",
       "effects": [
         "GOLD: random [10 - 30]"
@@ -33543,7 +33543,7 @@
     "artwork": "opportunity_image",
     "rootNode": {
       "id": 0,
-      "text": "You spot something glittering in the shadows. You find 19 gold!",
+      "text": "You spot something glittering in the shadows. You find 23 gold!",
       "type": "end",
       "effects": [
         "GOLD: random [10 - 30]"
@@ -33837,13 +33837,13 @@
           "id": 1,
           "type": "choice",
           "choiceLabel": "I might have some puppets",
+          "repeatFrom": 0,
           "children": [
             {
               "id": 2128,
               "text": "The demon smiles warmly as you approach, running a sharp-nailed finger along her chin. Found any more puppets for me, Champion?",
               "type": "end",
-              "repeatable": true,
-              "repeatFrom": 0
+              "repeatable": true
             }
           ]
         },
@@ -33913,13 +33913,13 @@
           "id": 1,
           "type": "choice",
           "choiceLabel": "I might have some puppets",
+          "repeatFrom": 0,
           "children": [
             {
               "id": 2132,
               "text": "The demon smiles warmly as you approach, running a sharp-nailed finger along her chin. Found any more puppets for me, Champion?",
               "type": "end",
-              "repeatable": true,
-              "repeatFrom": 0
+              "repeatable": true
             }
           ]
         },
@@ -34248,13 +34248,13 @@
                                   "id": 11,
                                   "type": "choice",
                                   "choiceLabel": "Step back and ponder.",
+                                  "repeatFrom": 0,
                                   "children": [
                                     {
                                       "id": 2144,
                                       "text": "The statue of Sungod Rae towers before you, its features sculpted with divine grace. The angel's wings are spread wide, and its face is set in a serene, yet distant expression. Despite the reverence surrounding its form, the stone from which it is carved feels unnaturally cold and distant.",
                                       "type": "end",
-                                      "repeatable": true,
-                                      "repeatFrom": 0
+                                      "repeatable": true
                                     }
                                   ]
                                 },
@@ -34330,13 +34330,13 @@
                   "id": 16,
                   "type": "choice",
                   "choiceLabel": "Step back and reflect.",
+                  "repeatFrom": 0,
                   "children": [
                     {
                       "id": 2151,
                       "text": "The statue of Sungod Rae towers before you, its features sculpted with divine grace. The angel's wings are spread wide, and its face is set in a serene, yet distant expression. Despite the reverence surrounding its form, the stone from which it is carved feels unnaturally cold and distant.",
                       "type": "end",
-                      "repeatable": true,
-                      "repeatFrom": 0
+                      "repeatable": true
                     }
                   ]
                 },
@@ -34470,13 +34470,13 @@
                                   "id": 27,
                                   "type": "choice",
                                   "choiceLabel": "Step back and reflect.",
+                                  "repeatFrom": 0,
                                   "children": [
                                     {
                                       "id": 2158,
                                       "text": "The statue of Sungod Rae towers before you, its features sculpted with divine grace. The angel's wings are spread wide, and its face is set in a serene, yet distant expression. Despite the reverence surrounding its form, the stone from which it is carved feels unnaturally cold and distant.",
                                       "type": "end",
-                                      "repeatable": true,
-                                      "repeatFrom": 0
+                                      "repeatable": true
                                     }
                                   ]
                                 },
@@ -34559,13 +34559,13 @@
                   "id": 33,
                   "type": "choice",
                   "choiceLabel": "Step back and ponder.",
+                  "repeatFrom": 0,
                   "children": [
                     {
                       "id": 2165,
                       "text": "The statue of Sungod Rae towers before you, its features sculpted with divine grace. The angel's wings are spread wide, and its face is set in a serene, yet distant expression. Despite the reverence surrounding its form, the stone from which it is carved feels unnaturally cold and distant.",
                       "type": "end",
-                      "repeatable": true,
-                      "repeatFrom": 0
+                      "repeatable": true
                     }
                   ]
                 },
@@ -37851,14 +37851,14 @@
                         {
                           "id": 4,
                           "type": "choice",
-                          "choiceLabel": "[cardid=114840]",
+                          "choiceLabel": "[cardid=652518]",
                           "children": [
                             {
                               "id": 2358,
-                              "text": "The skeleton grins gleefully, then looks up at the sky. \"Brave choice, wanderer. Let’s see what the skies have in store for you.\"",
+                              "text": "The skeleton nods as it reveals the card, then smiles. \"Action begets action - Fortune sees you are ready, stranger.\"",
                               "type": "end",
                               "effects": [
-                                "AREAEFFECT: 114840"
+                                "AREAEFFECT: 652518"
                               ]
                             }
                           ]
@@ -37866,14 +37866,14 @@
                         {
                           "id": 5,
                           "type": "choice",
-                          "choiceLabel": "[cardid=682305]",
+                          "choiceLabel": "[cardid=595491]",
                           "children": [
                             {
                               "id": 2359,
-                              "text": "The skeleton tilts its head, looking up at its two companions, then back at you, with a satisfied grin. \"So be it; may the Pale Master find you soon, stranger.\"",
+                              "text": "The skeleton solemnly turns over the card. \"The Final Star, an omen of health, prosperity and fertility. Fortune smiles on you this day, stranger.\"",
                               "type": "end",
                               "effects": [
-                                "AREAEFFECT: 682305"
+                                "AREAEFFECT: 595491"
                               ]
                             }
                           ]
@@ -37911,14 +37911,14 @@
                         {
                           "id": 8,
                           "type": "choice",
-                          "choiceLabel": "[cardid=114840]",
+                          "choiceLabel": "[cardid=652518]",
                           "children": [
                             {
                               "id": 2362,
-                              "text": "The skeleton grins gleefully, then looks up at the sky. \"Brave choice, wanderer. Let’s see what the skies have in store for you.\"",
+                              "text": "The skeleton nods as it reveals the card, then smiles. \"Action begets action - Fortune sees you are ready, stranger.\"",
                               "type": "end",
                               "effects": [
-                                "AREAEFFECT: 114840"
+                                "AREAEFFECT: 652518"
                               ]
                             }
                           ]
@@ -37926,14 +37926,14 @@
                         {
                           "id": 9,
                           "type": "choice",
-                          "choiceLabel": "[cardid=682305]",
+                          "choiceLabel": "[cardid=595491]",
                           "children": [
                             {
                               "id": 2363,
-                              "text": "The skeleton tilts its head, looking up at its two companions, then back at you, with a satisfied grin. \"So be it; may the Pale Master find you soon, stranger.\"",
+                              "text": "The skeleton solemnly turns over the card. \"The Final Star, an omen of health, prosperity and fertility. Fortune smiles on you this day, stranger.\"",
                               "type": "end",
                               "effects": [
-                                "AREAEFFECT: 682305"
+                                "AREAEFFECT: 595491"
                               ]
                             }
                           ]
@@ -37975,14 +37975,14 @@
                 {
                   "id": 12,
                   "type": "choice",
-                  "choiceLabel": "[cardid=114840]",
+                  "choiceLabel": "[cardid=652518]",
                   "children": [
                     {
                       "id": 2367,
-                      "text": "The skeleton grins gleefully, then looks up at the sky. \"Brave choice, wanderer. Let’s see what the skies have in store for you.\"",
+                      "text": "The skeleton nods as it reveals the card, then smiles. \"Action begets action - Fortune sees you are ready, stranger.\"",
                       "type": "end",
                       "effects": [
-                        "AREAEFFECT: 114840"
+                        "AREAEFFECT: 652518"
                       ]
                     }
                   ]
@@ -37990,14 +37990,14 @@
                 {
                   "id": 13,
                   "type": "choice",
-                  "choiceLabel": "[cardid=682305]",
+                  "choiceLabel": "[cardid=595491]",
                   "children": [
                     {
                       "id": 2368,
-                      "text": "The skeleton tilts its head, looking up at its two companions, then back at you, with a satisfied grin. \"So be it; may the Pale Master find you soon, stranger.\"",
+                      "text": "The skeleton solemnly turns over the card. \"The Final Star, an omen of health, prosperity and fertility. Fortune smiles on you this day, stranger.\"",
                       "type": "end",
                       "effects": [
-                        "AREAEFFECT: 682305"
+                        "AREAEFFECT: 595491"
                       ]
                     }
                   ]
@@ -39116,13 +39116,13 @@
                                                                   "id": 15,
                                                                   "type": "choice",
                                                                   "choiceLabel": "Back to other questions.",
+                                                                  "repeatFrom": 0,
                                                                   "children": [
                                                                     {
                                                                       "id": 2427,
                                                                       "text": "The air chills as you approach the silent figure, shrouded in tattered robes, a hood obscuring its face. A lantern swings gently from its bony grasp, casting eerie shadows. \"Welcome, traveler. What do you seek in these solemn halls?\"",
                                                                       "type": "end",
-                                                                      "repeatable": true,
-                                                                      "repeatFrom": 0
+                                                                      "repeatable": true
                                                                     }
                                                                   ]
                                                                 }
@@ -39134,13 +39134,13 @@
                                                           "id": 16,
                                                           "type": "choice",
                                                           "choiceLabel": "Back to other questions.",
+                                                          "repeatFrom": 0,
                                                           "children": [
                                                             {
                                                               "id": 2429,
                                                               "text": "The air chills as you approach the silent figure, shrouded in tattered robes, a hood obscuring its face. A lantern swings gently from its bony grasp, casting eerie shadows. \"Welcome, traveler. What do you seek in these solemn halls?\"",
                                                               "type": "end",
-                                                              "repeatable": true,
-                                                              "repeatFrom": 0
+                                                              "repeatable": true
                                                             }
                                                           ]
                                                         }
@@ -39268,13 +39268,13 @@
                                                           "id": 25,
                                                           "type": "choice",
                                                           "choiceLabel": "Back to other questions.",
+                                                          "repeatFrom": 0,
                                                           "children": [
                                                             {
                                                               "id": 2438,
                                                               "text": "The air chills as you approach the silent figure, shrouded in tattered robes, a hood obscuring its face. A lantern swings gently from its bony grasp, casting eerie shadows. \"Welcome, traveler. What do you seek in these solemn halls?\"",
                                                               "type": "end",
-                                                              "repeatable": true,
-                                                              "repeatFrom": 0
+                                                              "repeatable": true
                                                             }
                                                           ]
                                                         }
@@ -39286,13 +39286,13 @@
                                                   "id": 26,
                                                   "type": "choice",
                                                   "choiceLabel": "Back to other questions.",
+                                                  "repeatFrom": 0,
                                                   "children": [
                                                     {
                                                       "id": 2440,
                                                       "text": "The air chills as you approach the silent figure, shrouded in tattered robes, a hood obscuring its face. A lantern swings gently from its bony grasp, casting eerie shadows. \"Welcome, traveler. What do you seek in these solemn halls?\"",
                                                       "type": "end",
-                                                      "repeatable": true,
-                                                      "repeatFrom": 0
+                                                      "repeatable": true
                                                     }
                                                   ]
                                                 }
@@ -39442,13 +39442,13 @@
                                                                   "id": 37,
                                                                   "type": "choice",
                                                                   "choiceLabel": "Back to other questions.",
+                                                                  "repeatFrom": 0,
                                                                   "children": [
                                                                     {
                                                                       "id": 2449,
                                                                       "text": "The air chills as you approach the silent figure, shrouded in tattered robes, a hood obscuring its face. A lantern swings gently from its bony grasp, casting eerie shadows. \"Welcome, traveler. What do you seek in these solemn halls?\"",
                                                                       "type": "end",
-                                                                      "repeatable": true,
-                                                                      "repeatFrom": 0
+                                                                      "repeatable": true
                                                                     }
                                                                   ]
                                                                 }
@@ -39460,13 +39460,13 @@
                                                           "id": 38,
                                                           "type": "choice",
                                                           "choiceLabel": "Back to other questions.",
+                                                          "repeatFrom": 0,
                                                           "children": [
                                                             {
                                                               "id": 2451,
                                                               "text": "The air chills as you approach the silent figure, shrouded in tattered robes, a hood obscuring its face. A lantern swings gently from its bony grasp, casting eerie shadows. \"Welcome, traveler. What do you seek in these solemn halls?\"",
                                                               "type": "end",
-                                                              "repeatable": true,
-                                                              "repeatFrom": 0
+                                                              "repeatable": true
                                                             }
                                                           ]
                                                         }
@@ -39594,13 +39594,13 @@
                                                           "id": 47,
                                                           "type": "choice",
                                                           "choiceLabel": "Back to other questions.",
+                                                          "repeatFrom": 0,
                                                           "children": [
                                                             {
                                                               "id": 2460,
                                                               "text": "The air chills as you approach the silent figure, shrouded in tattered robes, a hood obscuring its face. A lantern swings gently from its bony grasp, casting eerie shadows. \"Welcome, traveler. What do you seek in these solemn halls?\"",
                                                               "type": "end",
-                                                              "repeatable": true,
-                                                              "repeatFrom": 0
+                                                              "repeatable": true
                                                             }
                                                           ]
                                                         }
@@ -39612,13 +39612,13 @@
                                                   "id": 48,
                                                   "type": "choice",
                                                   "choiceLabel": "Back to other questions.",
+                                                  "repeatFrom": 0,
                                                   "children": [
                                                     {
                                                       "id": 2462,
                                                       "text": "The air chills as you approach the silent figure, shrouded in tattered robes, a hood obscuring its face. A lantern swings gently from its bony grasp, casting eerie shadows. \"Welcome, traveler. What do you seek in these solemn halls?\"",
                                                       "type": "end",
-                                                      "repeatable": true,
-                                                      "repeatFrom": 0
+                                                      "repeatable": true
                                                     }
                                                   ]
                                                 }
@@ -39746,13 +39746,13 @@
                                                   "id": 57,
                                                   "type": "choice",
                                                   "choiceLabel": "Back to other questions.",
+                                                  "repeatFrom": 0,
                                                   "children": [
                                                     {
                                                       "id": 2471,
                                                       "text": "The air chills as you approach the silent figure, shrouded in tattered robes, a hood obscuring its face. A lantern swings gently from its bony grasp, casting eerie shadows. \"Welcome, traveler. What do you seek in these solemn halls?\"",
                                                       "type": "end",
-                                                      "repeatable": true,
-                                                      "repeatFrom": 0
+                                                      "repeatable": true
                                                     }
                                                   ]
                                                 }
@@ -39764,13 +39764,13 @@
                                           "id": 58,
                                           "type": "choice",
                                           "choiceLabel": "Back to other questions.",
+                                          "repeatFrom": 0,
                                           "children": [
                                             {
                                               "id": 2473,
                                               "text": "The air chills as you approach the silent figure, shrouded in tattered robes, a hood obscuring its face. A lantern swings gently from its bony grasp, casting eerie shadows. \"Welcome, traveler. What do you seek in these solemn halls?\"",
                                               "type": "end",
-                                              "repeatable": true,
-                                              "repeatFrom": 0
+                                              "repeatable": true
                                             }
                                           ]
                                         }
@@ -39782,13 +39782,13 @@
                                   "id": 59,
                                   "type": "choice",
                                   "choiceLabel": "Back to other questions.",
+                                  "repeatFrom": 0,
                                   "children": [
                                     {
                                       "id": 2475,
                                       "text": "The air chills as you approach the silent figure, shrouded in tattered robes, a hood obscuring its face. A lantern swings gently from its bony grasp, casting eerie shadows. \"Welcome, traveler. What do you seek in these solemn halls?\"",
                                       "type": "end",
-                                      "repeatable": true,
-                                      "repeatFrom": 0
+                                      "repeatable": true
                                     }
                                   ]
                                 }
@@ -39949,13 +39949,13 @@
                                                           "id": 71,
                                                           "type": "choice",
                                                           "choiceLabel": "Back to other questions.",
+                                                          "repeatFrom": 0,
                                                           "children": [
                                                             {
                                                               "id": 2484,
                                                               "text": "The air chills as you approach the silent figure, shrouded in tattered robes, a hood obscuring its face. A lantern swings gently from its bony grasp, casting eerie shadows. \"Welcome, traveler. What do you seek in these solemn halls?\"",
                                                               "type": "end",
-                                                              "repeatable": true,
-                                                              "repeatFrom": 0
+                                                              "repeatable": true
                                                             }
                                                           ]
                                                         }
@@ -39967,13 +39967,13 @@
                                                   "id": 72,
                                                   "type": "choice",
                                                   "choiceLabel": "Back to other questions.",
+                                                  "repeatFrom": 0,
                                                   "children": [
                                                     {
                                                       "id": 2486,
                                                       "text": "The air chills as you approach the silent figure, shrouded in tattered robes, a hood obscuring its face. A lantern swings gently from its bony grasp, casting eerie shadows. \"Welcome, traveler. What do you seek in these solemn halls?\"",
                                                       "type": "end",
-                                                      "repeatable": true,
-                                                      "repeatFrom": 0
+                                                      "repeatable": true
                                                     }
                                                   ]
                                                 }
@@ -40101,13 +40101,13 @@
                                                   "id": 81,
                                                   "type": "choice",
                                                   "choiceLabel": "Back to other questions.",
+                                                  "repeatFrom": 0,
                                                   "children": [
                                                     {
                                                       "id": 2495,
                                                       "text": "The air chills as you approach the silent figure, shrouded in tattered robes, a hood obscuring its face. A lantern swings gently from its bony grasp, casting eerie shadows. \"Welcome, traveler. What do you seek in these solemn halls?\"",
                                                       "type": "end",
-                                                      "repeatable": true,
-                                                      "repeatFrom": 0
+                                                      "repeatable": true
                                                     }
                                                   ]
                                                 }
@@ -40119,13 +40119,13 @@
                                           "id": 82,
                                           "type": "choice",
                                           "choiceLabel": "Back to other questions.",
+                                          "repeatFrom": 0,
                                           "children": [
                                             {
                                               "id": 2497,
                                               "text": "The air chills as you approach the silent figure, shrouded in tattered robes, a hood obscuring its face. A lantern swings gently from its bony grasp, casting eerie shadows. \"Welcome, traveler. What do you seek in these solemn halls?\"",
                                               "type": "end",
-                                              "repeatable": true,
-                                              "repeatFrom": 0
+                                              "repeatable": true
                                             }
                                           ]
                                         }
@@ -40275,13 +40275,13 @@
                                                           "id": 93,
                                                           "type": "choice",
                                                           "choiceLabel": "Back to other questions.",
+                                                          "repeatFrom": 0,
                                                           "children": [
                                                             {
                                                               "id": 2506,
                                                               "text": "The air chills as you approach the silent figure, shrouded in tattered robes, a hood obscuring its face. A lantern swings gently from its bony grasp, casting eerie shadows. \"Welcome, traveler. What do you seek in these solemn halls?\"",
                                                               "type": "end",
-                                                              "repeatable": true,
-                                                              "repeatFrom": 0
+                                                              "repeatable": true
                                                             }
                                                           ]
                                                         }
@@ -40293,13 +40293,13 @@
                                                   "id": 94,
                                                   "type": "choice",
                                                   "choiceLabel": "Back to other questions.",
+                                                  "repeatFrom": 0,
                                                   "children": [
                                                     {
                                                       "id": 2508,
                                                       "text": "The air chills as you approach the silent figure, shrouded in tattered robes, a hood obscuring its face. A lantern swings gently from its bony grasp, casting eerie shadows. \"Welcome, traveler. What do you seek in these solemn halls?\"",
                                                       "type": "end",
-                                                      "repeatable": true,
-                                                      "repeatFrom": 0
+                                                      "repeatable": true
                                                     }
                                                   ]
                                                 }
@@ -40427,13 +40427,13 @@
                                                   "id": 103,
                                                   "type": "choice",
                                                   "choiceLabel": "Back to other questions.",
+                                                  "repeatFrom": 0,
                                                   "children": [
                                                     {
                                                       "id": 2517,
                                                       "text": "The air chills as you approach the silent figure, shrouded in tattered robes, a hood obscuring its face. A lantern swings gently from its bony grasp, casting eerie shadows. \"Welcome, traveler. What do you seek in these solemn halls?\"",
                                                       "type": "end",
-                                                      "repeatable": true,
-                                                      "repeatFrom": 0
+                                                      "repeatable": true
                                                     }
                                                   ]
                                                 }
@@ -40445,13 +40445,13 @@
                                           "id": 104,
                                           "type": "choice",
                                           "choiceLabel": "Back to other questions.",
+                                          "repeatFrom": 0,
                                           "children": [
                                             {
                                               "id": 2519,
                                               "text": "The air chills as you approach the silent figure, shrouded in tattered robes, a hood obscuring its face. A lantern swings gently from its bony grasp, casting eerie shadows. \"Welcome, traveler. What do you seek in these solemn halls?\"",
                                               "type": "end",
-                                              "repeatable": true,
-                                              "repeatFrom": 0
+                                              "repeatable": true
                                             }
                                           ]
                                         }
@@ -40579,13 +40579,13 @@
                                           "id": 113,
                                           "type": "choice",
                                           "choiceLabel": "Back to other questions.",
+                                          "repeatFrom": 0,
                                           "children": [
                                             {
                                               "id": 2528,
                                               "text": "The air chills as you approach the silent figure, shrouded in tattered robes, a hood obscuring its face. A lantern swings gently from its bony grasp, casting eerie shadows. \"Welcome, traveler. What do you seek in these solemn halls?\"",
                                               "type": "end",
-                                              "repeatable": true,
-                                              "repeatFrom": 0
+                                              "repeatable": true
                                             }
                                           ]
                                         }
@@ -40597,13 +40597,13 @@
                                   "id": 114,
                                   "type": "choice",
                                   "choiceLabel": "Back to other questions.",
+                                  "repeatFrom": 0,
                                   "children": [
                                     {
                                       "id": 2530,
                                       "text": "The air chills as you approach the silent figure, shrouded in tattered robes, a hood obscuring its face. A lantern swings gently from its bony grasp, casting eerie shadows. \"Welcome, traveler. What do you seek in these solemn halls?\"",
                                       "type": "end",
-                                      "repeatable": true,
-                                      "repeatFrom": 0
+                                      "repeatable": true
                                     }
                                   ]
                                 }
@@ -40615,13 +40615,13 @@
                           "id": 115,
                           "type": "choice",
                           "choiceLabel": "Back to other questions.",
+                          "repeatFrom": 0,
                           "children": [
                             {
                               "id": 2532,
                               "text": "The air chills as you approach the silent figure, shrouded in tattered robes, a hood obscuring its face. A lantern swings gently from its bony grasp, casting eerie shadows. \"Welcome, traveler. What do you seek in these solemn halls?\"",
                               "type": "end",
-                              "repeatable": true,
-                              "repeatFrom": 0
+                              "repeatable": true
                             }
                           ]
                         }
@@ -40804,13 +40804,13 @@
                                                                   "id": 129,
                                                                   "type": "choice",
                                                                   "choiceLabel": "Back to other questions.",
+                                                                  "repeatFrom": 0,
                                                                   "children": [
                                                                     {
                                                                       "id": 2541,
                                                                       "text": "The air chills as you approach the silent figure, shrouded in tattered robes, a hood obscuring its face. A lantern swings gently from its bony grasp, casting eerie shadows. \"Welcome, traveler. What do you seek in these solemn halls?\"",
                                                                       "type": "end",
-                                                                      "repeatable": true,
-                                                                      "repeatFrom": 0
+                                                                      "repeatable": true
                                                                     }
                                                                   ]
                                                                 }
@@ -40822,13 +40822,13 @@
                                                           "id": 130,
                                                           "type": "choice",
                                                           "choiceLabel": "Back to other questions.",
+                                                          "repeatFrom": 0,
                                                           "children": [
                                                             {
                                                               "id": 2543,
                                                               "text": "The air chills as you approach the silent figure, shrouded in tattered robes, a hood obscuring its face. A lantern swings gently from its bony grasp, casting eerie shadows. \"Welcome, traveler. What do you seek in these solemn halls?\"",
                                                               "type": "end",
-                                                              "repeatable": true,
-                                                              "repeatFrom": 0
+                                                              "repeatable": true
                                                             }
                                                           ]
                                                         }
@@ -40956,13 +40956,13 @@
                                                           "id": 139,
                                                           "type": "choice",
                                                           "choiceLabel": "Back to other questions.",
+                                                          "repeatFrom": 0,
                                                           "children": [
                                                             {
                                                               "id": 2552,
                                                               "text": "The air chills as you approach the silent figure, shrouded in tattered robes, a hood obscuring its face. A lantern swings gently from its bony grasp, casting eerie shadows. \"Welcome, traveler. What do you seek in these solemn halls?\"",
                                                               "type": "end",
-                                                              "repeatable": true,
-                                                              "repeatFrom": 0
+                                                              "repeatable": true
                                                             }
                                                           ]
                                                         }
@@ -40974,13 +40974,13 @@
                                                   "id": 140,
                                                   "type": "choice",
                                                   "choiceLabel": "Back to other questions.",
+                                                  "repeatFrom": 0,
                                                   "children": [
                                                     {
                                                       "id": 2554,
                                                       "text": "The air chills as you approach the silent figure, shrouded in tattered robes, a hood obscuring its face. A lantern swings gently from its bony grasp, casting eerie shadows. \"Welcome, traveler. What do you seek in these solemn halls?\"",
                                                       "type": "end",
-                                                      "repeatable": true,
-                                                      "repeatFrom": 0
+                                                      "repeatable": true
                                                     }
                                                   ]
                                                 }
@@ -41130,13 +41130,13 @@
                                                                   "id": 151,
                                                                   "type": "choice",
                                                                   "choiceLabel": "Back to other questions.",
+                                                                  "repeatFrom": 0,
                                                                   "children": [
                                                                     {
                                                                       "id": 2563,
                                                                       "text": "The air chills as you approach the silent figure, shrouded in tattered robes, a hood obscuring its face. A lantern swings gently from its bony grasp, casting eerie shadows. \"Welcome, traveler. What do you seek in these solemn halls?\"",
                                                                       "type": "end",
-                                                                      "repeatable": true,
-                                                                      "repeatFrom": 0
+                                                                      "repeatable": true
                                                                     }
                                                                   ]
                                                                 }
@@ -41148,13 +41148,13 @@
                                                           "id": 152,
                                                           "type": "choice",
                                                           "choiceLabel": "Back to other questions.",
+                                                          "repeatFrom": 0,
                                                           "children": [
                                                             {
                                                               "id": 2565,
                                                               "text": "The air chills as you approach the silent figure, shrouded in tattered robes, a hood obscuring its face. A lantern swings gently from its bony grasp, casting eerie shadows. \"Welcome, traveler. What do you seek in these solemn halls?\"",
                                                               "type": "end",
-                                                              "repeatable": true,
-                                                              "repeatFrom": 0
+                                                              "repeatable": true
                                                             }
                                                           ]
                                                         }
@@ -41282,13 +41282,13 @@
                                                           "id": 161,
                                                           "type": "choice",
                                                           "choiceLabel": "Back to other questions.",
+                                                          "repeatFrom": 0,
                                                           "children": [
                                                             {
                                                               "id": 2574,
                                                               "text": "The air chills as you approach the silent figure, shrouded in tattered robes, a hood obscuring its face. A lantern swings gently from its bony grasp, casting eerie shadows. \"Welcome, traveler. What do you seek in these solemn halls?\"",
                                                               "type": "end",
-                                                              "repeatable": true,
-                                                              "repeatFrom": 0
+                                                              "repeatable": true
                                                             }
                                                           ]
                                                         }
@@ -41300,13 +41300,13 @@
                                                   "id": 162,
                                                   "type": "choice",
                                                   "choiceLabel": "Back to other questions.",
+                                                  "repeatFrom": 0,
                                                   "children": [
                                                     {
                                                       "id": 2576,
                                                       "text": "The air chills as you approach the silent figure, shrouded in tattered robes, a hood obscuring its face. A lantern swings gently from its bony grasp, casting eerie shadows. \"Welcome, traveler. What do you seek in these solemn halls?\"",
                                                       "type": "end",
-                                                      "repeatable": true,
-                                                      "repeatFrom": 0
+                                                      "repeatable": true
                                                     }
                                                   ]
                                                 }
@@ -41434,13 +41434,13 @@
                                                   "id": 171,
                                                   "type": "choice",
                                                   "choiceLabel": "Back to other questions.",
+                                                  "repeatFrom": 0,
                                                   "children": [
                                                     {
                                                       "id": 2585,
                                                       "text": "The air chills as you approach the silent figure, shrouded in tattered robes, a hood obscuring its face. A lantern swings gently from its bony grasp, casting eerie shadows. \"Welcome, traveler. What do you seek in these solemn halls?\"",
                                                       "type": "end",
-                                                      "repeatable": true,
-                                                      "repeatFrom": 0
+                                                      "repeatable": true
                                                     }
                                                   ]
                                                 }
@@ -41452,13 +41452,13 @@
                                           "id": 172,
                                           "type": "choice",
                                           "choiceLabel": "Back to other questions.",
+                                          "repeatFrom": 0,
                                           "children": [
                                             {
                                               "id": 2587,
                                               "text": "The air chills as you approach the silent figure, shrouded in tattered robes, a hood obscuring its face. A lantern swings gently from its bony grasp, casting eerie shadows. \"Welcome, traveler. What do you seek in these solemn halls?\"",
                                               "type": "end",
-                                              "repeatable": true,
-                                              "repeatFrom": 0
+                                              "repeatable": true
                                             }
                                           ]
                                         }
@@ -41470,13 +41470,13 @@
                                   "id": 173,
                                   "type": "choice",
                                   "choiceLabel": "Back to other questions.",
+                                  "repeatFrom": 0,
                                   "children": [
                                     {
                                       "id": 2589,
                                       "text": "The air chills as you approach the silent figure, shrouded in tattered robes, a hood obscuring its face. A lantern swings gently from its bony grasp, casting eerie shadows. \"Welcome, traveler. What do you seek in these solemn halls?\"",
                                       "type": "end",
-                                      "repeatable": true,
-                                      "repeatFrom": 0
+                                      "repeatable": true
                                     }
                                   ]
                                 }
@@ -41637,13 +41637,13 @@
                                                           "id": 185,
                                                           "type": "choice",
                                                           "choiceLabel": "Back to other questions.",
+                                                          "repeatFrom": 0,
                                                           "children": [
                                                             {
                                                               "id": 2598,
                                                               "text": "The air chills as you approach the silent figure, shrouded in tattered robes, a hood obscuring its face. A lantern swings gently from its bony grasp, casting eerie shadows. \"Welcome, traveler. What do you seek in these solemn halls?\"",
                                                               "type": "end",
-                                                              "repeatable": true,
-                                                              "repeatFrom": 0
+                                                              "repeatable": true
                                                             }
                                                           ]
                                                         }
@@ -41655,13 +41655,13 @@
                                                   "id": 186,
                                                   "type": "choice",
                                                   "choiceLabel": "Back to other questions.",
+                                                  "repeatFrom": 0,
                                                   "children": [
                                                     {
                                                       "id": 2600,
                                                       "text": "The air chills as you approach the silent figure, shrouded in tattered robes, a hood obscuring its face. A lantern swings gently from its bony grasp, casting eerie shadows. \"Welcome, traveler. What do you seek in these solemn halls?\"",
                                                       "type": "end",
-                                                      "repeatable": true,
-                                                      "repeatFrom": 0
+                                                      "repeatable": true
                                                     }
                                                   ]
                                                 }
@@ -41789,13 +41789,13 @@
                                                   "id": 195,
                                                   "type": "choice",
                                                   "choiceLabel": "Back to other questions.",
+                                                  "repeatFrom": 0,
                                                   "children": [
                                                     {
                                                       "id": 2609,
                                                       "text": "The air chills as you approach the silent figure, shrouded in tattered robes, a hood obscuring its face. A lantern swings gently from its bony grasp, casting eerie shadows. \"Welcome, traveler. What do you seek in these solemn halls?\"",
                                                       "type": "end",
-                                                      "repeatable": true,
-                                                      "repeatFrom": 0
+                                                      "repeatable": true
                                                     }
                                                   ]
                                                 }
@@ -41807,13 +41807,13 @@
                                           "id": 196,
                                           "type": "choice",
                                           "choiceLabel": "Back to other questions.",
+                                          "repeatFrom": 0,
                                           "children": [
                                             {
                                               "id": 2611,
                                               "text": "The air chills as you approach the silent figure, shrouded in tattered robes, a hood obscuring its face. A lantern swings gently from its bony grasp, casting eerie shadows. \"Welcome, traveler. What do you seek in these solemn halls?\"",
                                               "type": "end",
-                                              "repeatable": true,
-                                              "repeatFrom": 0
+                                              "repeatable": true
                                             }
                                           ]
                                         }
@@ -41963,13 +41963,13 @@
                                                           "id": 207,
                                                           "type": "choice",
                                                           "choiceLabel": "Back to other questions.",
+                                                          "repeatFrom": 0,
                                                           "children": [
                                                             {
                                                               "id": 2620,
                                                               "text": "The air chills as you approach the silent figure, shrouded in tattered robes, a hood obscuring its face. A lantern swings gently from its bony grasp, casting eerie shadows. \"Welcome, traveler. What do you seek in these solemn halls?\"",
                                                               "type": "end",
-                                                              "repeatable": true,
-                                                              "repeatFrom": 0
+                                                              "repeatable": true
                                                             }
                                                           ]
                                                         }
@@ -41981,13 +41981,13 @@
                                                   "id": 208,
                                                   "type": "choice",
                                                   "choiceLabel": "Back to other questions.",
+                                                  "repeatFrom": 0,
                                                   "children": [
                                                     {
                                                       "id": 2622,
                                                       "text": "The air chills as you approach the silent figure, shrouded in tattered robes, a hood obscuring its face. A lantern swings gently from its bony grasp, casting eerie shadows. \"Welcome, traveler. What do you seek in these solemn halls?\"",
                                                       "type": "end",
-                                                      "repeatable": true,
-                                                      "repeatFrom": 0
+                                                      "repeatable": true
                                                     }
                                                   ]
                                                 }
@@ -42115,13 +42115,13 @@
                                                   "id": 217,
                                                   "type": "choice",
                                                   "choiceLabel": "Back to other questions.",
+                                                  "repeatFrom": 0,
                                                   "children": [
                                                     {
                                                       "id": 2631,
                                                       "text": "The air chills as you approach the silent figure, shrouded in tattered robes, a hood obscuring its face. A lantern swings gently from its bony grasp, casting eerie shadows. \"Welcome, traveler. What do you seek in these solemn halls?\"",
                                                       "type": "end",
-                                                      "repeatable": true,
-                                                      "repeatFrom": 0
+                                                      "repeatable": true
                                                     }
                                                   ]
                                                 }
@@ -42133,13 +42133,13 @@
                                           "id": 218,
                                           "type": "choice",
                                           "choiceLabel": "Back to other questions.",
+                                          "repeatFrom": 0,
                                           "children": [
                                             {
                                               "id": 2633,
                                               "text": "The air chills as you approach the silent figure, shrouded in tattered robes, a hood obscuring its face. A lantern swings gently from its bony grasp, casting eerie shadows. \"Welcome, traveler. What do you seek in these solemn halls?\"",
                                               "type": "end",
-                                              "repeatable": true,
-                                              "repeatFrom": 0
+                                              "repeatable": true
                                             }
                                           ]
                                         }
@@ -42267,13 +42267,13 @@
                                           "id": 227,
                                           "type": "choice",
                                           "choiceLabel": "Back to other questions.",
+                                          "repeatFrom": 0,
                                           "children": [
                                             {
                                               "id": 2642,
                                               "text": "The air chills as you approach the silent figure, shrouded in tattered robes, a hood obscuring its face. A lantern swings gently from its bony grasp, casting eerie shadows. \"Welcome, traveler. What do you seek in these solemn halls?\"",
                                               "type": "end",
-                                              "repeatable": true,
-                                              "repeatFrom": 0
+                                              "repeatable": true
                                             }
                                           ]
                                         }
@@ -42285,13 +42285,13 @@
                                   "id": 228,
                                   "type": "choice",
                                   "choiceLabel": "Back to other questions.",
+                                  "repeatFrom": 0,
                                   "children": [
                                     {
                                       "id": 2644,
                                       "text": "The air chills as you approach the silent figure, shrouded in tattered robes, a hood obscuring its face. A lantern swings gently from its bony grasp, casting eerie shadows. \"Welcome, traveler. What do you seek in these solemn halls?\"",
                                       "type": "end",
-                                      "repeatable": true,
-                                      "repeatFrom": 0
+                                      "repeatable": true
                                     }
                                   ]
                                 }
@@ -42303,13 +42303,13 @@
                           "id": 229,
                           "type": "choice",
                           "choiceLabel": "Back to other questions.",
+                          "repeatFrom": 0,
                           "children": [
                             {
                               "id": 2646,
                               "text": "The air chills as you approach the silent figure, shrouded in tattered robes, a hood obscuring its face. A lantern swings gently from its bony grasp, casting eerie shadows. \"Welcome, traveler. What do you seek in these solemn halls?\"",
                               "type": "end",
-                              "repeatable": true,
-                              "repeatFrom": 0
+                              "repeatable": true
                             }
                           ]
                         }
@@ -42470,13 +42470,13 @@
                                                   "id": 241,
                                                   "type": "choice",
                                                   "choiceLabel": "Back to other questions.",
+                                                  "repeatFrom": 0,
                                                   "children": [
                                                     {
                                                       "id": 2655,
                                                       "text": "The air chills as you approach the silent figure, shrouded in tattered robes, a hood obscuring its face. A lantern swings gently from its bony grasp, casting eerie shadows. \"Welcome, traveler. What do you seek in these solemn halls?\"",
                                                       "type": "end",
-                                                      "repeatable": true,
-                                                      "repeatFrom": 0
+                                                      "repeatable": true
                                                     }
                                                   ]
                                                 }
@@ -42488,13 +42488,13 @@
                                           "id": 242,
                                           "type": "choice",
                                           "choiceLabel": "Back to other questions.",
+                                          "repeatFrom": 0,
                                           "children": [
                                             {
                                               "id": 2657,
                                               "text": "The air chills as you approach the silent figure, shrouded in tattered robes, a hood obscuring its face. A lantern swings gently from its bony grasp, casting eerie shadows. \"Welcome, traveler. What do you seek in these solemn halls?\"",
                                               "type": "end",
-                                              "repeatable": true,
-                                              "repeatFrom": 0
+                                              "repeatable": true
                                             }
                                           ]
                                         }
@@ -42622,13 +42622,13 @@
                                           "id": 251,
                                           "type": "choice",
                                           "choiceLabel": "Back to other questions.",
+                                          "repeatFrom": 0,
                                           "children": [
                                             {
                                               "id": 2666,
                                               "text": "The air chills as you approach the silent figure, shrouded in tattered robes, a hood obscuring its face. A lantern swings gently from its bony grasp, casting eerie shadows. \"Welcome, traveler. What do you seek in these solemn halls?\"",
                                               "type": "end",
-                                              "repeatable": true,
-                                              "repeatFrom": 0
+                                              "repeatable": true
                                             }
                                           ]
                                         }
@@ -42640,13 +42640,13 @@
                                   "id": 252,
                                   "type": "choice",
                                   "choiceLabel": "Back to other questions.",
+                                  "repeatFrom": 0,
                                   "children": [
                                     {
                                       "id": 2668,
                                       "text": "The air chills as you approach the silent figure, shrouded in tattered robes, a hood obscuring its face. A lantern swings gently from its bony grasp, casting eerie shadows. \"Welcome, traveler. What do you seek in these solemn halls?\"",
                                       "type": "end",
-                                      "repeatable": true,
-                                      "repeatFrom": 0
+                                      "repeatable": true
                                     }
                                   ]
                                 }
@@ -42796,13 +42796,13 @@
                                                   "id": 263,
                                                   "type": "choice",
                                                   "choiceLabel": "Back to other questions.",
+                                                  "repeatFrom": 0,
                                                   "children": [
                                                     {
                                                       "id": 2677,
                                                       "text": "The air chills as you approach the silent figure, shrouded in tattered robes, a hood obscuring its face. A lantern swings gently from its bony grasp, casting eerie shadows. \"Welcome, traveler. What do you seek in these solemn halls?\"",
                                                       "type": "end",
-                                                      "repeatable": true,
-                                                      "repeatFrom": 0
+                                                      "repeatable": true
                                                     }
                                                   ]
                                                 }
@@ -42814,13 +42814,13 @@
                                           "id": 264,
                                           "type": "choice",
                                           "choiceLabel": "Back to other questions.",
+                                          "repeatFrom": 0,
                                           "children": [
                                             {
                                               "id": 2679,
                                               "text": "The air chills as you approach the silent figure, shrouded in tattered robes, a hood obscuring its face. A lantern swings gently from its bony grasp, casting eerie shadows. \"Welcome, traveler. What do you seek in these solemn halls?\"",
                                               "type": "end",
-                                              "repeatable": true,
-                                              "repeatFrom": 0
+                                              "repeatable": true
                                             }
                                           ]
                                         }
@@ -42948,13 +42948,13 @@
                                           "id": 273,
                                           "type": "choice",
                                           "choiceLabel": "Back to other questions.",
+                                          "repeatFrom": 0,
                                           "children": [
                                             {
                                               "id": 2688,
                                               "text": "The air chills as you approach the silent figure, shrouded in tattered robes, a hood obscuring its face. A lantern swings gently from its bony grasp, casting eerie shadows. \"Welcome, traveler. What do you seek in these solemn halls?\"",
                                               "type": "end",
-                                              "repeatable": true,
-                                              "repeatFrom": 0
+                                              "repeatable": true
                                             }
                                           ]
                                         }
@@ -42966,13 +42966,13 @@
                                   "id": 274,
                                   "type": "choice",
                                   "choiceLabel": "Back to other questions.",
+                                  "repeatFrom": 0,
                                   "children": [
                                     {
                                       "id": 2690,
                                       "text": "The air chills as you approach the silent figure, shrouded in tattered robes, a hood obscuring its face. A lantern swings gently from its bony grasp, casting eerie shadows. \"Welcome, traveler. What do you seek in these solemn halls?\"",
                                       "type": "end",
-                                      "repeatable": true,
-                                      "repeatFrom": 0
+                                      "repeatable": true
                                     }
                                   ]
                                 }
@@ -43100,13 +43100,13 @@
                                   "id": 283,
                                   "type": "choice",
                                   "choiceLabel": "Back to other questions.",
+                                  "repeatFrom": 0,
                                   "children": [
                                     {
                                       "id": 2699,
                                       "text": "The air chills as you approach the silent figure, shrouded in tattered robes, a hood obscuring its face. A lantern swings gently from its bony grasp, casting eerie shadows. \"Welcome, traveler. What do you seek in these solemn halls?\"",
                                       "type": "end",
-                                      "repeatable": true,
-                                      "repeatFrom": 0
+                                      "repeatable": true
                                     }
                                   ]
                                 }
@@ -43118,13 +43118,13 @@
                           "id": 284,
                           "type": "choice",
                           "choiceLabel": "Back to other questions.",
+                          "repeatFrom": 0,
                           "children": [
                             {
                               "id": 2701,
                               "text": "The air chills as you approach the silent figure, shrouded in tattered robes, a hood obscuring its face. A lantern swings gently from its bony grasp, casting eerie shadows. \"Welcome, traveler. What do you seek in these solemn halls?\"",
                               "type": "end",
-                              "repeatable": true,
-                              "repeatFrom": 0
+                              "repeatable": true
                             }
                           ]
                         }
@@ -43136,13 +43136,13 @@
                   "id": 285,
                   "type": "choice",
                   "choiceLabel": "Back to other questions.",
+                  "repeatFrom": 0,
                   "children": [
                     {
                       "id": 2703,
                       "text": "The air chills as you approach the silent figure, shrouded in tattered robes, a hood obscuring its face. A lantern swings gently from its bony grasp, casting eerie shadows. \"Welcome, traveler. What do you seek in these solemn halls?\"",
                       "type": "end",
-                      "repeatable": true,
-                      "repeatFrom": 0
+                      "repeatable": true
                     }
                   ]
                 }
@@ -43303,13 +43303,13 @@
                                           "id": 297,
                                           "type": "choice",
                                           "choiceLabel": "Back to other questions.",
+                                          "repeatFrom": 0,
                                           "children": [
                                             {
                                               "id": 2712,
                                               "text": "The air chills as you approach the silent figure, shrouded in tattered robes, a hood obscuring its face. A lantern swings gently from its bony grasp, casting eerie shadows. \"Welcome, traveler. What do you seek in these solemn halls?\"",
                                               "type": "end",
-                                              "repeatable": true,
-                                              "repeatFrom": 0
+                                              "repeatable": true
                                             }
                                           ]
                                         }
@@ -43426,13 +43426,13 @@
                                   "id": 305,
                                   "type": "choice",
                                   "choiceLabel": "Back to other questions.",
+                                  "repeatFrom": 0,
                                   "children": [
                                     {
                                       "id": 2721,
                                       "text": "The air chills as you approach the silent figure, shrouded in tattered robes, a hood obscuring its face. A lantern swings gently from its bony grasp, casting eerie shadows. \"Welcome, traveler. What do you seek in these solemn halls?\"",
                                       "type": "end",
-                                      "repeatable": true,
-                                      "repeatFrom": 0
+                                      "repeatable": true
                                     }
                                   ]
                                 }
@@ -43444,13 +43444,13 @@
                           "id": 306,
                           "type": "choice",
                           "choiceLabel": "Back to other questions.",
+                          "repeatFrom": 0,
                           "children": [
                             {
                               "id": 2723,
                               "text": "The air chills as you approach the silent figure, shrouded in tattered robes, a hood obscuring its face. A lantern swings gently from its bony grasp, casting eerie shadows. \"Welcome, traveler. What do you seek in these solemn halls?\"",
                               "type": "end",
-                              "repeatable": true,
-                              "repeatFrom": 0
+                              "repeatable": true
                             }
                           ]
                         }
@@ -43462,13 +43462,13 @@
                   "id": 307,
                   "type": "choice",
                   "choiceLabel": "Back to other questions.",
+                  "repeatFrom": 0,
                   "children": [
                     {
                       "id": 2725,
                       "text": "The air chills as you approach the silent figure, shrouded in tattered robes, a hood obscuring its face. A lantern swings gently from its bony grasp, casting eerie shadows. \"Welcome, traveler. What do you seek in these solemn halls?\"",
                       "type": "end",
-                      "repeatable": true,
-                      "repeatFrom": 0
+                      "repeatable": true
                     }
                   ]
                 }
@@ -45610,13 +45610,13 @@
                   "id": 3,
                   "type": "choice",
                   "choiceLabel": "I want to consider other options",
+                  "repeatFrom": 0,
                   "children": [
                     {
                       "id": 2845,
                       "text": "You stand in a barren wasteland, where massive bones protrude from the rocky terrain like ancient tombstones. The sky above glows a sickly green, casting an ominous pall over the eerie silence.",
                       "type": "end",
-                      "repeatable": true,
-                      "repeatFrom": 0
+                      "repeatable": true
                     }
                   ]
                 }
@@ -45658,13 +45658,13 @@
                   "id": 6,
                   "type": "choice",
                   "choiceLabel": "I want to consider other options",
+                  "repeatFrom": 0,
                   "children": [
                     {
                       "id": 2848,
                       "text": "You stand in a barren wasteland, where massive bones protrude from the rocky terrain like ancient tombstones. The sky above glows a sickly green, casting an ominous pall over the eerie silence.",
                       "type": "end",
-                      "repeatable": true,
-                      "repeatFrom": 0
+                      "repeatable": true
                     }
                   ]
                 }
@@ -45709,13 +45709,13 @@
                   "id": 9,
                   "type": "choice",
                   "choiceLabel": "I want to consider other options",
+                  "repeatFrom": 0,
                   "children": [
                     {
                       "id": 2851,
                       "text": "You stand in a barren wasteland, where massive bones protrude from the rocky terrain like ancient tombstones. The sky above glows a sickly green, casting an ominous pall over the eerie silence.",
                       "type": "end",
-                      "repeatable": true,
-                      "repeatFrom": 0
+                      "repeatable": true
                     }
                   ]
                 }
@@ -45826,13 +45826,13 @@
                                                                   "id": 18,
                                                                   "type": "choice",
                                                                   "choiceLabel": "I want to consider other options",
+                                                                  "repeatFrom": 0,
                                                                   "children": [
                                                                     {
                                                                       "id": 2854,
                                                                       "text": "You stand in a barren wasteland, where massive bones protrude from the rocky terrain like ancient tombstones. The sky above glows a sickly green, casting an ominous pall over the eerie silence.",
                                                                       "type": "end",
-                                                                      "repeatable": true,
-                                                                      "repeatFrom": 0
+                                                                      "repeatable": true
                                                                     }
                                                                   ]
                                                                 }
@@ -45874,13 +45874,13 @@
                                                                   "id": 21,
                                                                   "type": "choice",
                                                                   "choiceLabel": "I want to consider other options",
+                                                                  "repeatFrom": 0,
                                                                   "children": [
                                                                     {
                                                                       "id": 2857,
                                                                       "text": "You stand in a barren wasteland, where massive bones protrude from the rocky terrain like ancient tombstones. The sky above glows a sickly green, casting an ominous pall over the eerie silence.",
                                                                       "type": "end",
-                                                                      "repeatable": true,
-                                                                      "repeatFrom": 0
+                                                                      "repeatable": true
                                                                     }
                                                                   ]
                                                                 }
@@ -45925,13 +45925,13 @@
                                                                   "id": 24,
                                                                   "type": "choice",
                                                                   "choiceLabel": "I want to consider other options",
+                                                                  "repeatFrom": 0,
                                                                   "children": [
                                                                     {
                                                                       "id": 2860,
                                                                       "text": "You stand in a barren wasteland, where massive bones protrude from the rocky terrain like ancient tombstones. The sky above glows a sickly green, casting an ominous pall over the eerie silence.",
                                                                       "type": "end",
-                                                                      "repeatable": true,
-                                                                      "repeatFrom": 0
+                                                                      "repeatable": true
                                                                     }
                                                                   ]
                                                                 }
@@ -46064,13 +46064,13 @@
                                                           "id": 33,
                                                           "type": "choice",
                                                           "choiceLabel": "I want to consider other options",
+                                                          "repeatFrom": 0,
                                                           "children": [
                                                             {
                                                               "id": 2869,
                                                               "text": "You stand in a barren wasteland, where massive bones protrude from the rocky terrain like ancient tombstones. The sky above glows a sickly green, casting an ominous pall over the eerie silence.",
                                                               "type": "end",
-                                                              "repeatable": true,
-                                                              "repeatFrom": 0
+                                                              "repeatable": true
                                                             }
                                                           ]
                                                         }
@@ -46112,13 +46112,13 @@
                                                           "id": 36,
                                                           "type": "choice",
                                                           "choiceLabel": "I want to consider other options",
+                                                          "repeatFrom": 0,
                                                           "children": [
                                                             {
                                                               "id": 2872,
                                                               "text": "You stand in a barren wasteland, where massive bones protrude from the rocky terrain like ancient tombstones. The sky above glows a sickly green, casting an ominous pall over the eerie silence.",
                                                               "type": "end",
-                                                              "repeatable": true,
-                                                              "repeatFrom": 0
+                                                              "repeatable": true
                                                             }
                                                           ]
                                                         }
@@ -46163,13 +46163,13 @@
                                                           "id": 39,
                                                           "type": "choice",
                                                           "choiceLabel": "I want to consider other options",
+                                                          "repeatFrom": 0,
                                                           "children": [
                                                             {
                                                               "id": 2875,
                                                               "text": "You stand in a barren wasteland, where massive bones protrude from the rocky terrain like ancient tombstones. The sky above glows a sickly green, casting an ominous pall over the eerie silence.",
                                                               "type": "end",
-                                                              "repeatable": true,
-                                                              "repeatFrom": 0
+                                                              "repeatable": true
                                                             }
                                                           ]
                                                         }
@@ -46291,13 +46291,13 @@
                                           "id": 47,
                                           "type": "choice",
                                           "choiceLabel": "I want to consider other options",
+                                          "repeatFrom": 0,
                                           "children": [
                                             {
                                               "id": 2884,
                                               "text": "You stand in a barren wasteland, where massive bones protrude from the rocky terrain like ancient tombstones. The sky above glows a sickly green, casting an ominous pall over the eerie silence.",
                                               "type": "end",
-                                              "repeatable": true,
-                                              "repeatFrom": 0
+                                              "repeatable": true
                                             }
                                           ]
                                         }
@@ -46339,13 +46339,13 @@
                                           "id": 50,
                                           "type": "choice",
                                           "choiceLabel": "I want to consider other options",
+                                          "repeatFrom": 0,
                                           "children": [
                                             {
                                               "id": 2887,
                                               "text": "You stand in a barren wasteland, where massive bones protrude from the rocky terrain like ancient tombstones. The sky above glows a sickly green, casting an ominous pall over the eerie silence.",
                                               "type": "end",
-                                              "repeatable": true,
-                                              "repeatFrom": 0
+                                              "repeatable": true
                                             }
                                           ]
                                         }
@@ -46390,13 +46390,13 @@
                                           "id": 53,
                                           "type": "choice",
                                           "choiceLabel": "I want to consider other options",
+                                          "repeatFrom": 0,
                                           "children": [
                                             {
                                               "id": 2890,
                                               "text": "You stand in a barren wasteland, where massive bones protrude from the rocky terrain like ancient tombstones. The sky above glows a sickly green, casting an ominous pall over the eerie silence.",
                                               "type": "end",
-                                              "repeatable": true,
-                                              "repeatFrom": 0
+                                              "repeatable": true
                                             }
                                           ]
                                         }
@@ -46672,13 +46672,13 @@
                                                           "id": 73,
                                                           "type": "choice",
                                                           "choiceLabel": "I want to consider other options",
+                                                          "repeatFrom": 0,
                                                           "children": [
                                                             {
                                                               "id": 2905,
                                                               "text": "You stand in a barren wasteland, where massive bones protrude from the rocky terrain like ancient tombstones. The sky above glows a sickly green, casting an ominous pall over the eerie silence.",
                                                               "type": "end",
-                                                              "repeatable": true,
-                                                              "repeatFrom": 0
+                                                              "repeatable": true
                                                             }
                                                           ]
                                                         }
@@ -46720,13 +46720,13 @@
                                                           "id": 76,
                                                           "type": "choice",
                                                           "choiceLabel": "I want to consider other options",
+                                                          "repeatFrom": 0,
                                                           "children": [
                                                             {
                                                               "id": 2908,
                                                               "text": "You stand in a barren wasteland, where massive bones protrude from the rocky terrain like ancient tombstones. The sky above glows a sickly green, casting an ominous pall over the eerie silence.",
                                                               "type": "end",
-                                                              "repeatable": true,
-                                                              "repeatFrom": 0
+                                                              "repeatable": true
                                                             }
                                                           ]
                                                         }
@@ -46771,13 +46771,13 @@
                                                           "id": 79,
                                                           "type": "choice",
                                                           "choiceLabel": "I want to consider other options",
+                                                          "repeatFrom": 0,
                                                           "children": [
                                                             {
                                                               "id": 2911,
                                                               "text": "You stand in a barren wasteland, where massive bones protrude from the rocky terrain like ancient tombstones. The sky above glows a sickly green, casting an ominous pall over the eerie silence.",
                                                               "type": "end",
-                                                              "repeatable": true,
-                                                              "repeatFrom": 0
+                                                              "repeatable": true
                                                             }
                                                           ]
                                                         }
@@ -46928,13 +46928,13 @@
                                                   "id": 89,
                                                   "type": "choice",
                                                   "choiceLabel": "I want to consider other options",
+                                                  "repeatFrom": 0,
                                                   "children": [
                                                     {
                                                       "id": 2921,
                                                       "text": "You stand in a barren wasteland, where massive bones protrude from the rocky terrain like ancient tombstones. The sky above glows a sickly green, casting an ominous pall over the eerie silence.",
                                                       "type": "end",
-                                                      "repeatable": true,
-                                                      "repeatFrom": 0
+                                                      "repeatable": true
                                                     }
                                                   ]
                                                 }
@@ -46976,13 +46976,13 @@
                                                   "id": 92,
                                                   "type": "choice",
                                                   "choiceLabel": "I want to consider other options",
+                                                  "repeatFrom": 0,
                                                   "children": [
                                                     {
                                                       "id": 2924,
                                                       "text": "You stand in a barren wasteland, where massive bones protrude from the rocky terrain like ancient tombstones. The sky above glows a sickly green, casting an ominous pall over the eerie silence.",
                                                       "type": "end",
-                                                      "repeatable": true,
-                                                      "repeatFrom": 0
+                                                      "repeatable": true
                                                     }
                                                   ]
                                                 }
@@ -47027,13 +47027,13 @@
                                                   "id": 95,
                                                   "type": "choice",
                                                   "choiceLabel": "I want to consider other options",
+                                                  "repeatFrom": 0,
                                                   "children": [
                                                     {
                                                       "id": 2927,
                                                       "text": "You stand in a barren wasteland, where massive bones protrude from the rocky terrain like ancient tombstones. The sky above glows a sickly green, casting an ominous pall over the eerie silence.",
                                                       "type": "end",
-                                                      "repeatable": true,
-                                                      "repeatFrom": 0
+                                                      "repeatable": true
                                                     }
                                                   ]
                                                 }
@@ -47173,13 +47173,13 @@
                                   "id": 104,
                                   "type": "choice",
                                   "choiceLabel": "I want to consider other options",
+                                  "repeatFrom": 0,
                                   "children": [
                                     {
                                       "id": 2937,
                                       "text": "You stand in a barren wasteland, where massive bones protrude from the rocky terrain like ancient tombstones. The sky above glows a sickly green, casting an ominous pall over the eerie silence.",
                                       "type": "end",
-                                      "repeatable": true,
-                                      "repeatFrom": 0
+                                      "repeatable": true
                                     }
                                   ]
                                 }
@@ -47221,13 +47221,13 @@
                                   "id": 107,
                                   "type": "choice",
                                   "choiceLabel": "I want to consider other options",
+                                  "repeatFrom": 0,
                                   "children": [
                                     {
                                       "id": 2940,
                                       "text": "You stand in a barren wasteland, where massive bones protrude from the rocky terrain like ancient tombstones. The sky above glows a sickly green, casting an ominous pall over the eerie silence.",
                                       "type": "end",
-                                      "repeatable": true,
-                                      "repeatFrom": 0
+                                      "repeatable": true
                                     }
                                   ]
                                 }
@@ -47272,13 +47272,13 @@
                                   "id": 110,
                                   "type": "choice",
                                   "choiceLabel": "I want to consider other options",
+                                  "repeatFrom": 0,
                                   "children": [
                                     {
                                       "id": 2943,
                                       "text": "You stand in a barren wasteland, where massive bones protrude from the rocky terrain like ancient tombstones. The sky above glows a sickly green, casting an ominous pall over the eerie silence.",
                                       "type": "end",
-                                      "repeatable": true,
-                                      "repeatFrom": 0
+                                      "repeatable": true
                                     }
                                   ]
                                 }

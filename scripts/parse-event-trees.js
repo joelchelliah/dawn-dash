@@ -867,7 +867,7 @@ function separateChoicesFromEffects(node) {
           type: 'choice',
           choiceLabel: child.choiceLabel,
           requirements: child.requirements,
-          repeatable: false,
+          repeatFrom: child.repeatFrom, // Move repeatFrom to parent
         })
 
         // Create an outcome node (child)
@@ -895,7 +895,6 @@ function separateChoicesFromEffects(node) {
           type: outcomeType,
           effects: child.effects,
           repeatable: child.repeatable,
-          repeatFrom: child.repeatFrom,
           numContinues: child.numContinues,
           children: child.children,
         })

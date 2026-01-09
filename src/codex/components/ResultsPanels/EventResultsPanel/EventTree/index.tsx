@@ -141,7 +141,8 @@ function drawRepeatFromLinks(g: any, defs: any, root: any, _event: Event) {
     // Calculate angle and distance
     const dx = targetX - sourceX
     const dy = targetY - sourceY
-    const angle = (Math.atan2(dy, dx) * 180) / Math.PI
+    // No idea why 179 looks better than 180, lol.
+    const angle = (Math.atan2(dy, dx) * 179) / Math.PI
     const distance = Math.sqrt(dx * dx + dy * dy)
 
     // Calculate number of arrowheads based on distance
@@ -151,7 +152,7 @@ function drawRepeatFromLinks(g: any, defs: any, root: any, _event: Event) {
     // Create markers for each arrowhead position
     for (let i = 1; i <= numArrows; i++) {
       const markerId = `arrowhead-repeat-${linkIndex}-${i}`
-      const markerRefX = 50
+      const markerRefX = 38
       const markerSize = 8
 
       defs
