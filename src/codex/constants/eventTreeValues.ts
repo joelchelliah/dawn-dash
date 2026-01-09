@@ -9,22 +9,17 @@ export const TREE = {
 }
 
 const MIN_NODE_WIDTH = 200
-const MIN_NODE_HEIGHT = 30
 const DEFAULT_NODE_HORIZONTAL_SPACING = 25
-const DEFAULT_NODE_VERTICAL_SPACING = 100
 
 export const NODE = {
   MIN_WIDTH: MIN_NODE_WIDTH,
-  MIN_HEIGHT: MIN_NODE_HEIGHT,
 
-  // [Horizontal spacing, Vertical spacing]
-  // Distance between node A start and node B start,
-  // - At [0,0] the nodes will be completely overlapped.
-  // - At [width, height] the nodes will be touching.
-  DEFAULT_SIZE_WITH_SPACING: [
-    MIN_NODE_WIDTH + DEFAULT_NODE_HORIZONTAL_SPACING,
-    MIN_NODE_HEIGHT + DEFAULT_NODE_VERTICAL_SPACING,
-  ] as [number, number],
+  // Horizontal distance between node A start and node B start,
+  // - At 0 the nodes will completely overlap horizontally.
+  // - At `MIN_NODE_WIDTH` the nodes will be touching horizontally.
+  DEFAULT_WIDTH_AND_SPACING: MIN_NODE_WIDTH + DEFAULT_NODE_HORIZONTAL_SPACING,
+
+  VERTICAL_SPACING_DEFAULT: 80,
 }
 
 const TEXT_LINE_HEIGHT = 12

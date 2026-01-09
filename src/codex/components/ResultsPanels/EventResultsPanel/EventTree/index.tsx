@@ -57,13 +57,13 @@ function drawLinks(g: any, defs: any, root: any, event: Event) {
       if (dx !== 0) {
         // Calculate a subtle tilt angle based on horizontal distance
         // The further horizontally, the more tilt (max ~30 degrees)
-        const maxTilt = 75
-        const tiltFactor = Math.min(Math.abs(dx) / 2000, 1)
+        const maxTilt = 60
+        const tiltFactor = Math.min(Math.abs(dx) / 750, 1)
         const tilt = tiltFactor * maxTilt
         angle = dx > 0 ? 90 - tilt : 90 + tilt
       }
 
-      const markerRefX = 8
+      const markerRefX = 7
       const markerSize = 5
 
       defs
@@ -92,11 +92,11 @@ function drawLinks(g: any, defs: any, root: any, event: Event) {
       const targetNodeMid = getNodeHeight(d.target.data, event) / 2
 
       const startY = sourceY + sourceNodeMid / 1.125
-      const endY = targetY - targetNodeMid - 2 // -2 because of arrowhead offset
+      const endY = targetY - targetNodeMid - 3 // -3 because of arrowhead offset
 
       // Control points: For curviness!
-      const controlOffsetSource = (endY - startY) * 0.6
-      const controlOffsetTarget = (endY - startY) * 0.8
+      const controlOffsetSource = (endY - startY) * 0.2
+      const controlOffsetTarget = (endY - startY) * 0.4
 
       return `M${sourceX},${startY}
               C${sourceX},${startY + controlOffsetSource}
@@ -128,7 +128,7 @@ function EventTree({ event, zoomLevel }: EventTreeProps): JSX.Element {
     const root = hierarchy(event.rootNode, (d) => d.children)
 
     const treeLayout = tree<EventTreeNode>()
-      .nodeSize(NODE.DEFAULT_SIZE_WITH_SPACING)
+      .nodeSize([NODE.DEFAULT_WIDTH_AND_SPACING, NODE.VERTICAL_SPACING_DEFAULT])
       .separation(() => {
         // Same separation for all nodes since leaf nodes rarely have siblings,
         // meaning visually adjacent leaf nodes are always non-siblings!

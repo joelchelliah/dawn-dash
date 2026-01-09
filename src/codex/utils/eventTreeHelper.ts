@@ -123,7 +123,7 @@ export const getNodeHeight = (node: EventTreeNode, event: Event): number => {
     const contentHeight =
       textHeight + effectsBoxMargin + effectsBoxHeight + repeatableMargin + repeatableHeight
 
-    return Math.max(NODE.MIN_HEIGHT, contentHeight + NODE_BOX.VERTICAL_PADDING * 2)
+    return contentHeight + NODE_BOX.VERTICAL_PADDING * 2
   } else if (node.type === 'dialogue') {
     // Dialogue nodes show up to 2 lines of dialogue text + effects box (if present) + continue box (if present) + repeatable box (if present)
     // Event name is now displayed ABOVE the root node, not inside it
@@ -161,7 +161,7 @@ export const getNodeHeight = (node: EventTreeNode, event: Event): number => {
         repeatableMargin +
         repeatableHeight
 
-      return Math.max(NODE.MIN_HEIGHT, contentHeight + NODE_BOX.VERTICAL_PADDING * 2)
+      return contentHeight + NODE_BOX.VERTICAL_PADDING * 2
     }
 
     const dialogueLines = wrapText(node.text, NODE.MIN_WIDTH - TEXT.HORIZONTAL_PADDING)
@@ -177,7 +177,7 @@ export const getNodeHeight = (node: EventTreeNode, event: Event): number => {
       repeatableMargin +
       repeatableHeight
 
-    return Math.max(NODE.MIN_HEIGHT, contentHeight + NODE_BOX.VERTICAL_PADDING * 2)
+    return contentHeight + NODE_BOX.VERTICAL_PADDING * 2
   } else if (node.type === 'combat') {
     // Combat nodes show text (up to 2 lines) or "COMBAT!" fallback + effects box (if any) + repeatable box (if present)
     const hasText = node.text && node.text.trim().length > 0
@@ -206,10 +206,10 @@ export const getNodeHeight = (node: EventTreeNode, event: Event): number => {
     const contentHeight =
       textHeight + effectsBoxMargin + effectsBoxHeight + repeatableMargin + repeatableHeight
 
-    return Math.max(NODE.MIN_HEIGHT, contentHeight + NODE_BOX.VERTICAL_PADDING * 2)
+    return contentHeight + NODE_BOX.VERTICAL_PADDING * 2
   }
 
-  return NODE.MIN_HEIGHT
+  throw new Error(`Unknown type on node: ${node}`)
 }
 
 /**
@@ -240,11 +240,9 @@ const adjustSubtree = (node: HierarchyPointNode<EventTreeNode>, offset: number) 
  * parent and child nodes at each depth, and adjusting all nodes at that depth to
  * ensure a consistent minimum gap throughout the tree.
  */
-export const adjustTreeSpacing = (
-  root: HierarchyPointNode<EventTreeNode>,
-  event: Event,
-  desiredGap = 100
-) => {
+export const adjustTreeSpacing = (root: HierarchyPointNode<EventTreeNode>, event: Event) => {
+  const desiredGap = NODE.VERTICAL_SPACING_DEFAULT
+
   // Group nodes by depth
   const nodesByDepth: HierarchyPointNode<EventTreeNode>[][] = []
   root.descendants().forEach((node) => {

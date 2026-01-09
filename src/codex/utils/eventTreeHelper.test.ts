@@ -25,7 +25,7 @@ describe('eventTreeHelper', () => {
       const root = createTreeLayout(event.rootNode)
       const originalRootY = root.y
 
-      adjustTreeSpacing(root as any, event, 100)
+      adjustTreeSpacing(root as any, event)
 
       expect(root.y).toBe(originalRootY)
     })
@@ -44,7 +44,7 @@ describe('eventTreeHelper', () => {
       const child = root.children![0]
       const originalGap = calculateGap(root, child, event)
 
-      adjustTreeSpacing(root as any, event, 100)
+      adjustTreeSpacing(root as any, event)
 
       const newGap = calculateGap(root, child, event)
       expect(newGap).toBeGreaterThanOrEqual(100)
@@ -64,7 +64,7 @@ describe('eventTreeHelper', () => {
       const child = root.children![0]
       const originalY = child.y
 
-      adjustTreeSpacing(root as any, event, 100)
+      adjustTreeSpacing(root as any, event)
 
       expect(child.y).toBe(originalY)
     })
@@ -91,7 +91,7 @@ describe('eventTreeHelper', () => {
       })
 
       const root = createTreeLayout(event.rootNode)
-      adjustTreeSpacing(root as any, event, 100)
+      adjustTreeSpacing(root as any, event)
 
       const child1 = root.children![0]
       const child2 = root.children![1]
@@ -120,7 +120,7 @@ describe('eventTreeHelper', () => {
       })
 
       const root = createTreeLayout(event.rootNode)
-      adjustTreeSpacing(root as any, event, 100)
+      adjustTreeSpacing(root as any, event)
 
       const child = root.children![0]
       const grandchild = child.children![0]
@@ -154,7 +154,7 @@ describe('eventTreeHelper', () => {
       })
 
       const root = createTreeLayout(event.rootNode)
-      adjustTreeSpacing(root as any, event, 100)
+      adjustTreeSpacing(root as any, event)
 
       const grandchild1 = root.children![0].children![0]
       const grandchild2 = root.children![1].children![0]
@@ -187,7 +187,7 @@ describe('eventTreeHelper', () => {
       })
 
       const root = createTreeLayout(event.rootNode)
-      adjustTreeSpacing(root as any, event, 100)
+      adjustTreeSpacing(root as any, event)
 
       const choice = root.children![0]
       const end = choice.children![0]
@@ -213,31 +213,13 @@ describe('eventTreeHelper', () => {
       })
 
       const root = createTreeLayout(event.rootNode)
-      adjustTreeSpacing(root as any, event, 100)
+      adjustTreeSpacing(root as any, event)
 
       const combat = root.children![0]
       const end = combat.children![0]
 
       const gap = calculateGap(combat, end, event)
       expect(gap).toBeGreaterThanOrEqual(100)
-    })
-
-    it('should respect custom desiredGap parameter', () => {
-      const event = mockEvent({
-        rootNode: mockDialogueNode({
-          id: 'root',
-          text: 'Root',
-          children: [mockEndNode({ id: 'child', text: 'Child' })],
-        }),
-      })
-
-      const root = createTreeLayout(event.rootNode)
-      adjustTreeSpacing(root as any, event, 200)
-
-      const child = root.children![0]
-      const gap = calculateGap(root, child, event)
-
-      expect(gap).toBeGreaterThanOrEqual(200)
     })
 
     it('should cascade adjustments to deeper levels', () => {
@@ -268,7 +250,7 @@ describe('eventTreeHelper', () => {
 
       const originalGreatGrandchildY = greatgrandchild.y
 
-      adjustTreeSpacing(root as any, event, 100)
+      adjustTreeSpacing(root as any, event)
 
       // Great-grandchild should move if child moves
       expect(greatgrandchild.y).toBeGreaterThanOrEqual(originalGreatGrandchildY)
