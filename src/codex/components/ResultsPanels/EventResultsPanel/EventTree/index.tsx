@@ -13,12 +13,12 @@ import {
   calculateTreeBounds,
   hasEffects,
   adjustTreeSpacing,
-  getArrowheadAngle,
 } from '@/codex/utils/eventTreeHelper'
 import { NODE, TREE, TEXT, INNER_BOX, NODE_BOX } from '@/codex/constants/eventTreeValues'
 import { ZoomLevel, LoopingPathMode } from '@/codex/constants/eventSearchValues'
 import { useEventImageSrc } from '@/codex/hooks/useEventImageSrc'
 
+import { drawLinks, drawRepeatFromLinks } from './links'
 import styles from './index.module.scss'
 
 const cx = createCx(styles)
@@ -28,168 +28,6 @@ interface EventTreeProps {
   zoomLevel: ZoomLevel
   loopingPathMode: LoopingPathMode
 }
-
-/**
- * Draws links between nodes with directional arrowheads
- * The arrowheads are tilted based on the horizontal displacement between parent and child
- */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-function drawLinks(g: any, defs: any, root: any, event: Event) {
-  g.selectAll(`.${cx('tree-link')}`)
-    .data(root.links())
-    .enter()
-    .append('path')
-    .attr('class', cx('tree-link'))
-    .attr('marker-end', (d: any, i: number) => {
-      const sourceX = d.source.x || 0
-      const targetX = d.target.x || 0
-
-      // Calculate angle based on horizontal displacement
-      // Since the curve is vertical at the endpoint, we base the angle on
-      // the overall direction from source to target
-      const dx = targetX - sourceX
-
-      // Create a unique marker for this link
-      const markerId = `arrowhead-${i}`
-
-      // Calculate arrowhead angle based on horizontal displacement
-      const angle = getArrowheadAngle(dx)
-
-      const markerRefX = 7
-      const markerSize = 5
-
-      defs
-        .append('marker')
-        .attr('id', markerId)
-        .attr('viewBox', '0 -5 10 10')
-        .attr('refX', markerRefX) // Where the arrowhead is anchored
-        .attr('refY', 0)
-        .attr('markerWidth', markerSize)
-        .attr('markerHeight', markerSize)
-        .attr('orient', angle)
-        .append('path')
-        .attr('d', 'M0,-5L10,0L0,5')
-        .attr('class', cx('arrowhead'))
-
-      return `url(#${markerId})`
-    })
-
-    .attr('d', (d: any) => {
-      const sourceX = d.source.x || 0
-      const sourceY = d.source.y || 0
-      const targetX = d.target.x || 0
-      const targetY = d.target.y || 0
-
-      const sourceNodeMid = getNodeHeight(d.source.data, event) / 2
-      const targetNodeMid = getNodeHeight(d.target.data, event) / 2
-
-      const startY = sourceY + sourceNodeMid / 1.125
-      const endY = targetY - targetNodeMid - 3 // -3 because of arrowhead offset
-
-      // Control points: For curviness!
-      const controlOffsetSource = (endY - startY) * 0.2
-      const controlOffsetTarget = (endY - startY) * 0.5
-
-      return `M${sourceX},${startY}
-              C${sourceX},${startY + controlOffsetSource}
-               ${targetX},${endY - controlOffsetTarget}
-               ${targetX},${endY}`
-    })
-}
-
-/**
- * Draws straight, dotted links for repeatFrom relationships,
- * mixed in with directional arrowheads at regular intervals.
- */
-function drawRepeatFromLinks(g: any, defs: any, root: any, _event: Event) {
-  // Build a map of node id -> node for quick lookup
-  const nodeMap = new Map<number, any>()
-  root.descendants().forEach((node: any) => {
-    if (node.data.id !== undefined) {
-      nodeMap.set(node.data.id, node)
-    }
-  })
-
-  // Find all nodes with repeatFrom and create link data
-  const repeatFromLinks: Array<{ source: any; target: any }> = []
-  root.descendants().forEach((node: any) => {
-    if (node.data.repeatFrom !== undefined) {
-      const targetNode = nodeMap.get(node.data.repeatFrom)
-      if (targetNode) {
-        repeatFromLinks.push({
-          source: node,
-          target: targetNode,
-        })
-      }
-    }
-  })
-
-  // Draw the repeatFrom links
-  const linkGroup = g
-    .selectAll(`.${cx('repeat-from-link-group')}`)
-    .data(repeatFromLinks)
-    .enter()
-    .append('g')
-    .attr('class', cx('repeat-from-link-group'))
-
-  linkGroup.each(function (this: SVGGElement, d: any, linkIndex: number) {
-    const group = select(this)
-    const sourceX = d.source.x || 0
-    const sourceY = d.source.y || 0
-    const targetX = d.target.x || 0
-    const targetY = d.target.y || 0
-
-    // Calculate angle and distance
-    const dx = targetX - sourceX
-    const dy = targetY - sourceY
-    // No idea why 179 looks better than 180, lol.
-    const angle = (Math.atan2(dy, dx) * 179) / Math.PI
-    const distance = Math.sqrt(dx * dx + dy * dy)
-
-    // Calculate number of arrowheads based on distance
-    const arrowSpacing = 200
-    const numArrows = Math.floor(distance / arrowSpacing)
-
-    // Create markers for each arrowhead position
-    for (let i = 1; i <= numArrows; i++) {
-      const markerId = `arrowhead-repeat-${linkIndex}-${i}`
-      const markerRefX = 38
-      const markerSize = 8
-
-      defs
-        .append('marker')
-        .attr('id', markerId)
-        .attr('viewBox', '0 -5 20 10')
-        .attr('refX', markerRefX)
-        .attr('refY', 0)
-        .attr('markerWidth', markerSize)
-        .attr('markerHeight', markerSize)
-        .attr('orient', angle)
-        .append('path')
-        .attr('d', 'M0,-5L20,0L0,5')
-        .attr('class', cx('repeat-from-arrowhead'))
-
-      // Calculate position along the line for this arrowhead
-      const t = (i * arrowSpacing) / distance
-      const x = sourceX + dx * t
-      const y = sourceY + dy * t
-
-      // Draw a small segment with the marker
-      group
-        .append('path')
-        .attr('class', cx('repeat-from-link'))
-        .attr('d', `M${x - 0.5},${y} L${x + 0.5},${y}`)
-        .attr('marker-end', `url(#${markerId})`)
-    }
-
-    // Draw the main line
-    group
-      .append('path')
-      .attr('class', cx('repeat-from-link'))
-      .attr('d', `M${sourceX},${sourceY} L${targetX},${targetY}`)
-  })
-}
-/* eslint-enable @typescript-eslint/no-explicit-any */
 
 function EventTree({ event, zoomLevel, loopingPathMode }: EventTreeProps): JSX.Element {
   const svgRef = useRef<SVGSVGElement>(null)

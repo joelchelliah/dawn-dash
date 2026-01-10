@@ -13,6 +13,30 @@ console.warn = (...args) => {
 /**
  * Script to parse Ink JSON from events and generate hierarchical tree structures
  * using the official inkjs runtime for accurate parsing.
+ *
+ * REPEATABLE NODE LOGIC:
+ * ----------------------
+ * When a choice or dialogue appears multiple times in a tree (creating a loop),
+ * we mark it as "repeatable" and use "repeatFrom" to track where it loops back to.
+ *
+ * The pattern after processing is:
+ * - CHILD nodes get: repeatable: true (no repeatFrom)
+ * - PARENT node gets: repeatFrom: <ancestor_node_id>
+ *
+ * Example structure:
+ *   Node 3: { choiceLabel: "Continue" }
+ *     └─ Node 2139: { repeatFrom: 3 }  ← Parent has repeatFrom pointing to ancestor
+ *         ├─ Node 4: { choiceLabel: "Continue", repeatable: true }  ← Child has repeatable
+ *         ├─ Node 5: { choiceLabel: "Continue", repeatable: true }
+ *         └─ Node 6: { choiceLabel: "Continue", repeatable: true }
+ *
+ * This allows the UI to:
+ * - Identify repeatable choices by the "repeatable: true" flag on children
+ * - Draw links from parent's "repeatFrom" back to the ancestor node
+ *
+ * INCORRECT patterns to watch for:
+ * - Child with BOTH repeatable AND repeatFrom (should never happen after moveRepeatFromToParent)
+ * - Parent missing repeatFrom when children have repeatable: true (indicates bug in logic)
  */
 
 const EVENTS_FILE = path.join(__dirname, './events.json')
