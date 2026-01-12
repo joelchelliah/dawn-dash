@@ -9,16 +9,11 @@ export const TREE = {
 }
 
 const MIN_NODE_WIDTH = 200
-const DEFAULT_NODE_HORIZONTAL_SPACING = 25
 
 export const NODE = {
   MIN_WIDTH: MIN_NODE_WIDTH,
 
-  // Horizontal distance between node A start and node B start,
-  // - At 0 the nodes will completely overlap horizontally.
-  // - At `MIN_NODE_WIDTH` the nodes will be touching horizontally.
-  DEFAULT_WIDTH_AND_SPACING: MIN_NODE_WIDTH + DEFAULT_NODE_HORIZONTAL_SPACING,
-
+  HORIZONTAL_SPACING_DEFAULT: 50,
   VERTICAL_SPACING_DEFAULT: 80,
   VERTICAL_SPACING_SHORT: 40,
   VERTICAL_SPACING_INCREMENT: 20,
@@ -68,6 +63,8 @@ export const INNER_BOX = {
   // Gap between listing header ('Requires:', 'Effects:') and first item
   LISTINGS_HEADER_GAP: 4,
 
-  // Horizontal margin for the boxes containing the listings ('Requirements' and 'Effects')
+  // Used for both:
+  // - Horizontal margin for the boxes containing the listings ('Requirements' and 'Effects')
+  // - Horizontal padding for the text inside the boxes
   HORIZONTAL_MARGIN: 5,
 }

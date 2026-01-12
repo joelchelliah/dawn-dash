@@ -1,4 +1,4 @@
-import { HierarchyNode, HierarchyPointNode } from 'd3-hierarchy'
+import { HierarchyNode } from 'd3-hierarchy'
 
 import { wrapText } from '@/shared/utils/textHelper'
 
@@ -30,9 +30,10 @@ export const calculateTreeBounds = (
     const x = d.x ?? 0
     const y = d.y ?? 0
     const nodeHeight = getNodeHeight(d.data, event)
+    const nodeWidth = getNodeWidth(d.data, event)
     // Track edges for both X and Y
-    if (x - NODE.MIN_WIDTH / 2 < minX) minX = x - NODE.MIN_WIDTH / 2
-    if (x + NODE.MIN_WIDTH / 2 > maxX) maxX = x + NODE.MIN_WIDTH / 2
+    if (x - nodeWidth / 2 < minX) minX = x - nodeWidth / 2
+    if (x + nodeWidth / 2 > maxX) maxX = x + nodeWidth / 2
     if (y - nodeHeight / 2 < minY) minY = y - nodeHeight / 2
     if (y + nodeHeight / 2 > maxY) maxY = y + nodeHeight / 2
   })
@@ -45,6 +46,39 @@ export const calculateTreeBounds = (
     width: maxX - minX,
     height: maxY - minY,
   }
+}
+
+/**
+ * Calculate dynamic node width based on event node content
+ */
+export const getNodeWidth = (node: EventTreeNode, _event: Event): number => {
+  // Rough estimate of character width for font-size('xxs')
+  const pixelsPerCharacterXxs = 8
+
+  let width = NODE.MIN_WIDTH
+
+  const getLongestRequiredInnerBoxWidth = (strings: string[]) => {
+    const longestString = Math.max(...strings.map((string) => string.length))
+
+    return longestString * pixelsPerCharacterXxs + INNER_BOX.HORIZONTAL_MARGIN * 2
+  }
+
+  const requirements = node.type === 'choice' ? node.requirements || [] : []
+
+  if (requirements.length > 0) {
+    width = Math.max(width, getLongestRequiredInnerBoxWidth(requirements))
+  }
+
+  const effects =
+    node.type === 'dialogue' || node.type === 'combat' || node.type === 'end'
+      ? node.effects || []
+      : []
+
+  if (effects.length > 0) {
+    width = Math.max(width, getLongestRequiredInnerBoxWidth(effects))
+  }
+
+  return width
 }
 
 /**
@@ -243,116 +277,4 @@ export const getArrowheadAngle = (dx: number): number => {
 
   // If target is to the right, tilt right (angle < 90); if left, tilt left (angle > 90)
   return dx > 0 ? 90 - tilt : 90 + tilt
-}
-
-/**
- * Recursively shift a node and all its descendants by the given vertical offset
- */
-const adjustSubtree = (node: HierarchyPointNode<EventTreeNode>, offset: number) => {
-  node.y += offset
-  if (node.children) {
-    node.children.forEach((child) => adjustSubtree(child, offset))
-  }
-}
-
-/**
- * Adjust vertical spacing to maintain consistent gaps between parent and child nodes
- * while keeping siblings at the same depth aligned horizontally.
- *
- * This function processes the tree level by level, finding the minimum gap between
- * parent and child nodes at each depth, and adjusting all nodes at that depth to
- * ensure a consistent minimum gap throughout the tree.
- */
-export const adjustTreeSpacing = (root: HierarchyPointNode<EventTreeNode>, event: Event) => {
-  // Group nodes by depth
-  const nodesByDepth: HierarchyPointNode<EventTreeNode>[][] = []
-  root.descendants().forEach((node) => {
-    if (!nodesByDepth[node.depth]) {
-      nodesByDepth[node.depth] = []
-    }
-    nodesByDepth[node.depth].push(node)
-  })
-
-  // Process each depth level (skip root at depth 0)
-  for (let depth = 1; depth < nodesByDepth.length; depth++) {
-    const nodesAtDepth = nodesByDepth[depth]
-
-    // Group nodes by their parent and calculate horizontal spreads
-    const parentGroups = new Map<
-      HierarchyPointNode<EventTreeNode>,
-      HierarchyPointNode<EventTreeNode>[]
-    >()
-    nodesAtDepth.forEach((node) => {
-      if (node.parent) {
-        if (!parentGroups.has(node.parent)) {
-          parentGroups.set(node.parent, [])
-        }
-        const group = parentGroups.get(node.parent)
-        if (group) {
-          group.push(node)
-        }
-      }
-    })
-
-    // Calculate max horizontal distance and log metrics for each parent group
-    let maxHorizontalDistance = 0
-    // eslint-disable-next-line no-console
-    console.log(`\n=== Depth ${depth} ===`)
-    parentGroups.forEach((children, parent) => {
-      if (children.length > 1) {
-        const xPositions = children.map((child) => child.x ?? 0).sort((a, b) => a - b)
-        const leftmost = xPositions[0]
-        const rightmost = xPositions[xPositions.length - 1]
-        const horizontalDistance = rightmost - leftmost
-        maxHorizontalDistance = Math.max(maxHorizontalDistance, horizontalDistance)
-        // eslint-disable-next-line no-console
-        console.log(
-          `Parent "${parent.data.id}" has ${children.length} children with horizontal distance: ${horizontalDistance.toFixed(1)}px`
-        )
-      } else {
-        // eslint-disable-next-line no-console
-        console.log(`Parent "${parent.data.id}" has 1 child (no horizontal spread)`)
-      }
-    })
-
-    // Check if all nodes at this depth are single children of their parents
-    const allNodesAreSingleChildren = nodesAtDepth.every((node) => {
-      return node.parent && node.parent.children && node.parent.children.length === 1
-    })
-
-    // Calculate base desired gap
-    const baseGap = allNodesAreSingleChildren
-      ? NODE.VERTICAL_SPACING_SHORT
-      : NODE.VERTICAL_SPACING_DEFAULT
-
-    // Add incremental spacing based on horizontal spread (10px per 1000px of horizontal distance)
-    const horizontalSpreadFactor = Math.floor(maxHorizontalDistance / 1000)
-    const desiredGap = baseGap + horizontalSpreadFactor * NODE.VERTICAL_SPACING_INCREMENT
-
-    // eslint-disable-next-line no-console
-    console.log(
-      `Max horizontal distance: ${maxHorizontalDistance.toFixed(1)}px, Desired gap: ${desiredGap}px (base: ${baseGap}px + ${horizontalSpreadFactor * NODE.VERTICAL_SPACING_INCREMENT}px)`
-    )
-
-    // Find the minimum gap among all nodes at this depth
-    let minGap = Infinity
-    nodesAtDepth.forEach((node) => {
-      if (node.parent) {
-        const parentHeight = getNodeHeight(node.parent.data, event)
-        const nodeHeight = getNodeHeight(node.data, event)
-
-        // Calculate current gap between bottom of parent and top of child
-        const currentGap = node.y - node.parent.y - (parentHeight / 2 + nodeHeight / 2)
-        minGap = Math.min(minGap, currentGap)
-      }
-    })
-
-    // If the minimum gap is less than desired, shift all nodes at this depth (and deeper)
-    if (minGap < desiredGap) {
-      const offset = desiredGap - minGap
-      nodesAtDepth.forEach((node) => {
-        adjustSubtree(node, offset)
-      })
-    }
-  }
 }

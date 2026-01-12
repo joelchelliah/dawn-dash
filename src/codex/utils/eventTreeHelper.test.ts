@@ -2,7 +2,8 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { Event, EventTreeNode } from '../types/events'
 
-import { adjustTreeSpacing, getNodeHeight } from './eventTreeHelper'
+import { getNodeHeight } from './eventTreeHelper'
+import { adjustVerticalNodeSpacing } from './eventTreeSpacing'
 
 // Helper type to match D3's HierarchyPointNode structure
 interface TestHierarchyNode {
@@ -25,7 +26,7 @@ describe('eventTreeHelper', () => {
       const root = createTreeLayout(event.rootNode)
       const originalRootY = root.y
 
-      adjustTreeSpacing(root as any, event)
+      adjustVerticalNodeSpacing(root as any, event)
 
       expect(root.y).toBe(originalRootY)
     })
@@ -44,7 +45,7 @@ describe('eventTreeHelper', () => {
       const child = root.children![0]
       const originalGap = calculateGap(root, child, event)
 
-      adjustTreeSpacing(root as any, event)
+      adjustVerticalNodeSpacing(root as any, event)
 
       const newGap = calculateGap(root, child, event)
       expect(newGap).toBeGreaterThanOrEqual(100)
@@ -64,7 +65,7 @@ describe('eventTreeHelper', () => {
       const child = root.children![0]
       const originalY = child.y
 
-      adjustTreeSpacing(root as any, event)
+      adjustVerticalNodeSpacing(root as any, event)
 
       expect(child.y).toBe(originalY)
     })
@@ -91,7 +92,7 @@ describe('eventTreeHelper', () => {
       })
 
       const root = createTreeLayout(event.rootNode)
-      adjustTreeSpacing(root as any, event)
+      adjustVerticalNodeSpacing(root as any, event)
 
       const child1 = root.children![0]
       const child2 = root.children![1]
@@ -120,7 +121,7 @@ describe('eventTreeHelper', () => {
       })
 
       const root = createTreeLayout(event.rootNode)
-      adjustTreeSpacing(root as any, event)
+      adjustVerticalNodeSpacing(root as any, event)
 
       const child = root.children![0]
       const grandchild = child.children![0]
@@ -154,7 +155,7 @@ describe('eventTreeHelper', () => {
       })
 
       const root = createTreeLayout(event.rootNode)
-      adjustTreeSpacing(root as any, event)
+      adjustVerticalNodeSpacing(root as any, event)
 
       const grandchild1 = root.children![0].children![0]
       const grandchild2 = root.children![1].children![0]
@@ -187,7 +188,7 @@ describe('eventTreeHelper', () => {
       })
 
       const root = createTreeLayout(event.rootNode)
-      adjustTreeSpacing(root as any, event)
+      adjustVerticalNodeSpacing(root as any, event)
 
       const choice = root.children![0]
       const end = choice.children![0]
@@ -213,7 +214,7 @@ describe('eventTreeHelper', () => {
       })
 
       const root = createTreeLayout(event.rootNode)
-      adjustTreeSpacing(root as any, event)
+      adjustVerticalNodeSpacing(root as any, event)
 
       const combat = root.children![0]
       const end = combat.children![0]
@@ -250,7 +251,7 @@ describe('eventTreeHelper', () => {
 
       const originalGreatGrandchildY = greatgrandchild.y
 
-      adjustTreeSpacing(root as any, event)
+      adjustVerticalNodeSpacing(root as any, event)
 
       // Great-grandchild should move if child moves
       expect(greatgrandchild.y).toBeGreaterThanOrEqual(originalGreatGrandchildY)
