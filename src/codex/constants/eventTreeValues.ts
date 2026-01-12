@@ -4,7 +4,7 @@
 
 export const TREE = {
   HORIZONTAL_PADDING: 20,
-  VERTICAL_PADDING: 5,
+  VERTICAL_PADDING_WHEN_ZOOMED_IN: 15,
   MIN_SVG_WIDTH: 500, // Minimum SVG width to prevent nodes from appearing too large
 }
 
