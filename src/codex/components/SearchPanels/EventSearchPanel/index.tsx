@@ -1,6 +1,9 @@
+import { useState } from 'react'
+
 import { createCx } from '@/shared/utils/classnames'
 import Select from '@/shared/components/Select'
 import { CharacterClass } from '@/shared/types/characterClass'
+import GradientLink from '@/shared/components/GradientLink'
 
 import eventTreesData from '@/codex/data/event-trees.json'
 import { Event } from '@/codex/types/events'
@@ -34,8 +37,8 @@ const getZoomLabel = (zoom: ZoomLevel): string => {
 }
 
 const getLoopingPathModeLabel = (mode: LoopingPathMode): string => {
-  if (mode === LoopingPathMode.INDICATOR) return 'With «Repeatable» indicators'
-  return 'With links back to repeating nodes'
+  if (mode === LoopingPathMode.INDICATOR) return 'With «Repeatable» badges on nodes'
+  return 'With lines back to the repeating nodes'
 }
 
 const EventSearchPanel = ({
@@ -61,6 +64,9 @@ const EventSearchPanel = ({
     value: mode,
     label: getLoopingPathModeLabel(mode),
   }))
+
+  const [showAdvancedOptions, setShowAdvancedOptions] = useState(false)
+  const advancedOptionsArrow = showAdvancedOptions ? '▴' : '▾'
 
   return (
     <div className={cx('search-panel')}>
@@ -88,17 +94,28 @@ const EventSearchPanel = ({
             onChange={onZoomChange}
           />
         </div>
-
-        <div className={cx('control-wrapper', 'control-wrapper--looping-path')}>
-          <Select
-            id="looping-path-mode-select"
-            selectedClass={selectedClass}
-            label="Display looping paths"
-            options={loopingPathModeOptions}
-            value={loopingPathMode}
-            onChange={onLoopingPathModeChange}
-          />
-        </div>
+      </div>
+      <div className={cx('advanced-options')}>
+        <GradientLink
+          text={`Advanced options`}
+          className={cx('advanced-options__link')}
+          onClick={() => setShowAdvancedOptions(!showAdvancedOptions)}
+        />{' '}
+        <span className={cx('advanced-options__arrow')}>{advancedOptionsArrow}</span>
+        {showAdvancedOptions && (
+          <div className={cx('advanced-options__content')}>
+            <div className={cx('control-wrapper', 'control-wrapper--looping-path')}>
+              <Select
+                id="looping-path-mode-select"
+                selectedClass={selectedClass}
+                label="🔄 &nbsp;Show looping paths"
+                options={loopingPathModeOptions}
+                value={loopingPathMode}
+                onChange={onLoopingPathModeChange}
+              />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )

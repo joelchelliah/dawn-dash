@@ -22,7 +22,7 @@ function GradientLink({ text, url, onClick, className }: GradientLinkProps): JSX
 
   if (onClick) {
     return (
-      <button onClick={onClick} className={cx('button-link')}>
+      <button onClick={onClick} className={cx('button-link', className)}>
         {text}
       </button>
     )

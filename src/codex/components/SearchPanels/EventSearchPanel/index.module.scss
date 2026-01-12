@@ -14,19 +14,40 @@
 }
 
 .control-wrapper {
-  min-width: 16rem; // Min width before wrapping
+  min-width: 15rem; // Min width before wrapping
 
   &--event {
     flex: 2;
   }
 
   &--zoom {
-    min-width: 6rem;
+    min-width: 5rem;
     flex: 1;
   }
 
   &--looping-path {
     min-width: 18rem;
-    flex: 1;
+  }
+}
+
+.advanced-options {
+  margin-top: 0.5rem;
+  text-align: left;
+
+  &__link {
+    margin-left: 0.25rem;
+    font-size: font-size('xs');
+  }
+  &__arrow {
+    color: $green-base;
+    font-size: font-size('md');
+    position: relative;
+    top: 1px;
+    left: -1px;
+  }
+
+  &__content {
+    padding: 1rem 0.5rem 0.5rem;
+    @include superFancyBorder(0.75rem, 0.5rem);
   }
 }
