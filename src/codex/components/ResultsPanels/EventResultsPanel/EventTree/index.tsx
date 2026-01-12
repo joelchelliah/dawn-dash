@@ -85,20 +85,19 @@ function EventTree({ event, zoomLevel, loopingPathMode }: EventTreeProps): JSX.E
     adjustVerticalNodeSpacing(root as HierarchyPointNode<EventTreeNode>, event)
 
     // We only need vertical padding to avoid scrollbar overlapping with the tree
-    const verticalTreePadding = zoomLevel === 'cover' ? 0 : TREE.VERTICAL_PADDING_WHEN_ZOOMED_IN
+    const actualVerticalPadding = zoomLevel === 'cover' ? 0 : TREE.VERTICAL_PADDING_WHEN_ZOOMED_IN
 
     const bounds = calculateTreeBounds(root, event)
     const calculatedWidth = bounds.width + TREE.HORIZONTAL_PADDING * 2
     const svgWidth = Math.max(calculatedWidth, TREE.MIN_SVG_WIDTH)
-    const svgHeight = bounds.height + verticalTreePadding * 2
+    const svgHeight = bounds.height + actualVerticalPadding * 2
 
-    // Set root.x so that it appears "visually centered" after offset is applied.
-    // Looks nicer, as the root node will then be directly under the event name!
-    // After translate(offsetX), root will be at: root.x + offsetX
-    // We want: root.x + offsetX = svgWidth / 2
-    // Therefore: root.x = svgWidth / 2 - offsetX
     const offsetX = -bounds.minX + TREE.HORIZONTAL_PADDING
-    root.x = svgWidth / 2 - offsetX
+
+    // Center root node horizontally under the event name for simple trees.
+    if (root.descendants().every((node) => !node.children || node.children.length < 3)) {
+      root.x = svgWidth / 2 - offsetX
+    }
 
     // Center single children directly below their parent
     // When the `TREE.MIN_SVG_WIDTH` kicks in, single child nodes are not centered
@@ -111,7 +110,7 @@ function EventTree({ event, zoomLevel, loopingPathMode }: EventTreeProps): JSX.E
     })
 
     // Center the tree vertically
-    const offsetY = -bounds.minY + verticalTreePadding
+    const offsetY = -bounds.minY + actualVerticalPadding
 
     const svg = select(svgRef.current)
 

@@ -6,7 +6,7 @@ import { NODE } from '@/codex/constants/eventTreeValues'
 import { getNodeHeight, getNodeWidth } from './eventTreeHelper'
 
 const HORIZONTAL_SPACING_PASS_2_MAX_ITERATIONS = 10
-const HORIZONTAL_SPACING_ACCEPTABLE_ERROR_MARGIN = 1
+const HORIZONTAL_SPACING_MIN_SHIFT_THRESHOLD = 1
 
 /**
  * Adjust horizontal spacing to prevent node overlaps when nodes have different widths.
@@ -160,7 +160,7 @@ export const adjustHorizontalNodeSpacing = (
         const averageX = childrenXSum / node.children.length
 
         // Only update if significantly different
-        if (Math.abs(averageX - (node.x ?? 0)) > HORIZONTAL_SPACING_ACCEPTABLE_ERROR_MARGIN) {
+        if (Math.abs(averageX - (node.x ?? 0)) > HORIZONTAL_SPACING_MIN_SHIFT_THRESHOLD) {
           node.x = averageX
           madeAdjustment = true
 
@@ -243,7 +243,7 @@ export const adjustHorizontalNodeSpacing = (
         // Shift right by x (or x/2 for even-count middle-left node)
         // Even-count [A,B,C,D]: B shifts by x/2 to move symmetrically toward center
         // Odd-count [A,B,C,D,E]: B shifts by full x (center C will not shift)
-        if (x > HORIZONTAL_SPACING_ACCEPTABLE_ERROR_MARGIN) {
+        if (x > HORIZONTAL_SPACING_MIN_SHIFT_THRESHOLD) {
           const isEvenCount = sortedSiblings.length % 2 === 0
           const shiftAmount = isMiddleLeft && isEvenCount ? x / 2 : x
           node.x = (node.x ?? 0) + shiftAmount
@@ -308,7 +308,7 @@ export const adjustHorizontalNodeSpacing = (
         // Even-count siblings [A,B,C,D]: B shifts right x/2, then C shifts left FULL x
         //   (not x/2, because the gap is already smaller after B shifted)
         // Odd-count siblings [A,B,C,D,E]: B shifts right x, C doesn't shift, D shifts left x
-        if (x > HORIZONTAL_SPACING_ACCEPTABLE_ERROR_MARGIN) {
+        if (x > HORIZONTAL_SPACING_MIN_SHIFT_THRESHOLD) {
           // For odd-count siblings, skip the center node entirely
           if (isMiddleRight && !isEvenCount) {
             continue
@@ -347,7 +347,7 @@ export const adjustVerticalNodeSpacing = (
 
     // Calculate max horizontal distance and log metrics for each parent group
     let maxHorizontalDistance = 0
-    // eslint-disable-next-line no-console
+
     parentGroups.forEach((children) => {
       if (children.length > 1) {
         const xPositions = children.map((child) => child.x ?? 0).sort((a, b) => a - b)
