@@ -5,6 +5,7 @@ export interface Event {
   name: string
   type: number
   artwork: string
+  // TODO: Make non-optional (and remove `excluded` property) once all events have rootNode populated!
   rootNode?: EventTreeNode
   excluded?: boolean // True if this event is excluded from visualization
 }

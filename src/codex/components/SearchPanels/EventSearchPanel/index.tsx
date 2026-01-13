@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 import { createCx } from '@/shared/utils/classnames'
 import Select from '@/shared/components/Select'
@@ -17,6 +17,7 @@ import {
   LoopingPathMode,
   LOOPING_PATH_MODES,
 } from '@/codex/constants/eventSearchValues'
+import { searchEventTree } from '@/codex/utils/eventTreeSearch'
 
 import PanelHeader from '../../PanelHeader'
 import SearchField from '../shared/SearchField'
@@ -56,8 +57,14 @@ const EventSearchPanel = ({
 }: EventSearchPanelProps) => {
   const selectedClass = CharacterClass.Sunforge
   const { isMobile } = useBreakpoint()
-  const eventOptions = eventTrees.map((event, index) => ({
-    value: index,
+  const [filterText, setFilterText] = useState('')
+
+  // Filter events based on search text
+  const filteredEvents = eventTrees.filter((event) => searchEventTree(event, filterText))
+
+  // Map filtered events to options with their original indices
+  const eventOptions = filteredEvents.map((event) => ({
+    value: eventTrees.indexOf(event),
     label: event.name,
   }))
 
@@ -73,7 +80,19 @@ const EventSearchPanel = ({
 
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false)
   const advancedOptionsArrow = showAdvancedOptions ? '▴' : '▾'
-  const [filterText, setFilterText] = useState('')
+
+  // Handle case where currently selected event is filtered out
+  useEffect(() => {
+    // Check if the selected event is in the filtered list
+    const isSelectedEventInFilteredList = filteredEvents.some(
+      (event) => eventTrees.indexOf(event) === selectedEventIndex
+    )
+
+    // If not found and we have filtered events, select the first one
+    if (!isSelectedEventInFilteredList && filteredEvents.length > 0) {
+      onEventChange(eventTrees.indexOf(filteredEvents[0]))
+    }
+  }, [filterText, selectedEventIndex, filteredEvents, onEventChange])
 
   const handleResetClick = () => {
     onEventChange(0)
@@ -131,18 +150,32 @@ const EventSearchPanel = ({
           </div>
         )}
       </div>
-      <div className={cx('advanced-options')}>
-        {isMobile && (
+      {isMobile && (
+        <div className={cx('advanced-options-link__wrapper')}>
           <>
             <GradientLink
               text="Advanced options"
-              className={cx('advanced-options__link')}
+              className={cx('advanced-options-link')}
               onClick={() => setShowAdvancedOptions(!showAdvancedOptions)}
             />{' '}
-            <span className={cx('advanced-options__arrow')}>{advancedOptionsArrow}</span>
+            <span className={cx('advanced-options-link__arrow')}>{advancedOptionsArrow}</span>
           </>
-        )}
-        {showAdvancedOptions && (
+        </div>
+      )}
+
+      {!showAdvancedOptions && filterText.trim() && (
+        <div className={cx('filter-indicator')}>
+          Found {filteredEvents.length} event{filteredEvents.length === 1 ? '' : 's'} containing:
+          &quot;
+          <span className={cx('filter-indicator__text')}>
+            {filterText}
+            &quot;.
+          </span>
+        </div>
+      )}
+
+      {showAdvancedOptions && (
+        <div className={cx('advanced-options')}>
           <div className={cx('advanced-options__content')}>
             <div className={cx('control-wrapper', 'control-wrapper--search-field')}>
               <SearchField
@@ -163,8 +196,8 @@ const EventSearchPanel = ({
               />
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   )
 }
