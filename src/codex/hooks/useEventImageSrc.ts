@@ -7,14 +7,16 @@ export function useEventImageSrc(artwork: string): {
   eventImageSrc: string
   onImageSrcError: () => void
 } {
-  const [eventImageSrc, setEventImageSrc] = useState(EventArtworkImageUrl(artwork))
+  const [eventImageSrc, setEventImageSrc] = useState(
+    artwork && artwork.trim() ? EventArtworkImageUrl(artwork) : ChestImageUrl
+  )
 
   const onImageSrcError = () => {
     setEventImageSrc(ChestImageUrl)
   }
 
   useEffect(() => {
-    setEventImageSrc(EventArtworkImageUrl(artwork))
+    setEventImageSrc(artwork && artwork.trim() ? EventArtworkImageUrl(artwork) : ChestImageUrl)
   }, [artwork])
 
   return { eventImageSrc, onImageSrcError }
