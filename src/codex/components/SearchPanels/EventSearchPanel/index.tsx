@@ -3,7 +3,11 @@ import { useState } from 'react'
 import { createCx } from '@/shared/utils/classnames'
 import Select from '@/shared/components/Select'
 import { CharacterClass } from '@/shared/types/characterClass'
+import Button from '@/shared/components/Buttons/Button'
+import GradientButton from '@/shared/components/Buttons/GradientButton'
 import GradientLink from '@/shared/components/GradientLink'
+import { useBreakpoint } from '@/shared/hooks/useBreakpoint'
+import { ClassColorVariant, getClassColor } from '@/shared/utils/classColors'
 
 import eventTreesData from '@/codex/data/event-trees.json'
 import { Event } from '@/codex/types/events'
@@ -15,6 +19,7 @@ import {
 } from '@/codex/constants/eventSearchValues'
 
 import PanelHeader from '../../PanelHeader'
+import SearchField from '../shared/SearchField'
 
 import styles from './index.module.scss'
 
@@ -50,6 +55,7 @@ const EventSearchPanel = ({
   onLoopingPathModeChange,
 }: EventSearchPanelProps) => {
   const selectedClass = CharacterClass.Sunforge
+  const { isMobile } = useBreakpoint()
   const eventOptions = eventTrees.map((event, index) => ({
     value: index,
     label: event.name,
@@ -67,6 +73,14 @@ const EventSearchPanel = ({
 
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false)
   const advancedOptionsArrow = showAdvancedOptions ? '▴' : '▾'
+  const [filterText, setFilterText] = useState('')
+
+  const handleResetClick = () => {
+    onEventChange(0)
+    onZoomChange('auto')
+    setFilterText('')
+    onLoopingPathModeChange(LoopingPathMode.INDICATOR)
+  }
 
   return (
     <div className={cx('search-panel')}>
@@ -94,16 +108,50 @@ const EventSearchPanel = ({
             onChange={onZoomChange}
           />
         </div>
+        <div className={cx('control-wrapper', 'control-wrapper--button-wrapper')}>
+          <Button
+            className={cx('control-wrapper--reset-search-button')}
+            style={{
+              color: getClassColor(selectedClass, ClassColorVariant.Light),
+              borderColor: getClassColor(selectedClass, ClassColorVariant.Dark),
+            }}
+            onClick={handleResetClick}
+          >
+            Reset search
+          </Button>
+        </div>
+        {!isMobile && (
+          <div className={cx('control-wrapper', 'control-wrapper--button-wrapper')}>
+            <GradientButton
+              className={cx('control-wrapper--advanced-options-button')}
+              onClick={() => setShowAdvancedOptions(!showAdvancedOptions)}
+            >
+              Advanced options {advancedOptionsArrow}
+            </GradientButton>
+          </div>
+        )}
       </div>
       <div className={cx('advanced-options')}>
-        <GradientLink
-          text={`Advanced options`}
-          className={cx('advanced-options__link')}
-          onClick={() => setShowAdvancedOptions(!showAdvancedOptions)}
-        />{' '}
-        <span className={cx('advanced-options__arrow')}>{advancedOptionsArrow}</span>
+        {isMobile && (
+          <>
+            <GradientLink
+              text="Advanced options"
+              className={cx('advanced-options__link')}
+              onClick={() => setShowAdvancedOptions(!showAdvancedOptions)}
+            />{' '}
+            <span className={cx('advanced-options__arrow')}>{advancedOptionsArrow}</span>
+          </>
+        )}
         {showAdvancedOptions && (
           <div className={cx('advanced-options__content')}>
+            <div className={cx('control-wrapper', 'control-wrapper--search-field')}>
+              <SearchField
+                keywords={filterText}
+                setKeywords={setFilterText}
+                mode="text"
+                selectedClass={selectedClass}
+              />
+            </div>
             <div className={cx('control-wrapper', 'control-wrapper--looping-path')}>
               <Select
                 id="looping-path-mode-select"

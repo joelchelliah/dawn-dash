@@ -14,30 +14,54 @@
 }
 
 .control-wrapper {
-  min-width: 15rem; // Min width before wrapping
-
   &--event {
+    min-width: 6rem;
     flex: 2;
   }
 
   &--zoom {
-    min-width: 5rem;
+    max-width: 12rem;
+    min-width: 4rem;
     flex: 1;
   }
 
+  &--button-wrapper {
+    display: flex;
+    align-items: flex-end;
+    min-width: auto;
+  }
+
+  &--reset-search-button {
+    border-radius: 0.5rem !important;
+  }
+
+  &--advanced-options-button {
+    border-radius: 0.5rem !important;
+
+    &:hover {
+      padding: 0.5625rem 1.0625rem !important;
+    }
+  }
+
+  &--search-field {
+    flex: 2;
+    min-width: 16rem;
+  }
+
   &--looping-path {
-    min-width: 18rem;
+    flex: 1;
+    min-width: 14rem;
   }
 }
 
 .advanced-options {
   margin-top: 0.5rem;
-  text-align: left;
 
   &__link {
     margin-left: 0.25rem;
     font-size: font-size('xs');
   }
+
   &__arrow {
     color: $green-base;
     font-size: font-size('md');
@@ -46,8 +70,20 @@
     left: -1px;
   }
 
+  &__button {
+    font-size: font-size('xs');
+    padding: 0.5rem 1rem;
+  }
+
   &__content {
-    padding: 1rem 0.5rem 0.5rem;
-    @include superFancyBorder(0.75rem, 0.5rem);
+    margin-top: 1.5rem;
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    @include superFancyBorder(0.75rem, 1rem);
+
+    @media (max-width: $breakpoint-mobile) {
+      margin-top: 0.25rem;
+    }
   }
 }
