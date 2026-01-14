@@ -176,8 +176,10 @@ export const adjustHorizontalNodeSpacing = (
   // Pass 2's ancestor recentering. It works by:
   // 1. Processing siblings from the middle outward (e.g., C→B→A then D→E→F for [A,B,C,D,E,F])
   // 2. For each sibling, checking how much it can shift inward without causing overlaps
-  // 3. Checking against ALL nodes in the tree at each depth level, not just adjacent siblings
-  // 4. Using middle-out processing to maintain tree balance while maximizing compactness
+  // 3. For each subtree being shifted, checking ALL descendants at every depth level to find
+  //    the actual boundary (rightmost/leftmost node), not just following a single path
+  // 4. Checking the boundary at each depth against ALL nodes in the tree at that depth
+  // 5. Using middle-out processing to maintain tree balance while maximizing compactness
   for (let depth = 0; depth < nodesByDepth.length; depth++) {
     const nodesAtDepth = nodesByDepth[depth] || []
     const nodesByParent = groupNodesByParent(nodesAtDepth)
@@ -198,54 +200,27 @@ export const adjustHorizontalNodeSpacing = (
         const isMiddleLeft = i === middleIndex - 1
 
         // Calculate initial gap between this node and its right sibling
-        let x = calculateGapBetweenNodes(node, rightSibling, event) - minHorizontalGap
+        const initialGap = calculateGapBetweenNodes(node, rightSibling, event) - minHorizontalGap
 
-        if (x <= 0) continue // Already at minimum gap, no tightening possible
+        if (initialGap <= 0) continue // Already at minimum gap, no tightening possible
 
-        // Traverse down the rightmost path of this node's subtree
-        // At each depth, check against ALL nodes in the tree to find constraints
-        let currentNode: HierarchyPointNode<EventTreeNode> | null = node
-        let currentDepth = depth
+        // Check all descendants to find maximum safe shift amount
+        const maxShift = calculateMaxShiftForNode(
+          node,
+          initialGap,
+          'right',
+          depth,
+          nodesByDepth,
+          event,
+          minHorizontalGap
+        )
 
-        while (currentNode) {
-          const children = currentNode.children as HierarchyPointNode<EventTreeNode>[] | undefined
-          if (!children || children.length === 0) break
-
-          // Follow the rightmost path (the boundary that will move closest to other nodes)
-          const sortedChildren = sortNodesByX(children)
-          const rightmostChild = sortedChildren[sortedChildren.length - 1]
-
-          currentDepth++
-          const childRightEdge = getNodeRightEdgeX(rightmostChild, event)
-
-          // Check against ALL nodes at this depth to find the closest one on the right
-          const closestRightLeftEdge = findClosestRightNodeEdgeX(
-            childRightEdge,
-            currentDepth,
-            nodesByDepth,
-            event
-          )
-
-          if (closestRightLeftEdge !== null) {
-            const gap = closestRightLeftEdge - childRightEdge - minHorizontalGap
-            if (gap < 0) {
-              // Would cause overlap, can't shift at all
-              x = 0
-              break
-            }
-            // x is the minimum safe shift across all depths checked
-            x = Math.min(x, gap)
-          }
-
-          currentNode = rightmostChild
-        }
-
-        // Shift right by x (or x/2 for even-count middle-left node)
-        // Even-count [A,B,C,D]: B shifts by x/2 to move symmetrically toward center
-        // Odd-count [A,B,C,D,E]: B shifts by full x (center C will not shift)
-        if (x > HORIZONTAL_SPACING_MIN_SHIFT_THRESHOLD) {
+        // Shift right by maxShift (or maxShift/2 for even-count middle-left node)
+        // Even-count [A,B,C,D]: B shifts by maxShift/2 to move symmetrically toward center
+        // Odd-count [A,B,C,D,E]: B shifts by full maxShift (center C will not shift)
+        if (maxShift > HORIZONTAL_SPACING_MIN_SHIFT_THRESHOLD) {
           const isEvenCount = sortedSiblings.length % 2 === 0
-          const shiftAmount = isMiddleLeft && isEvenCount ? x / 2 : x
+          const shiftAmount = isMiddleLeft && isEvenCount ? maxShift / 2 : maxShift
           node.x = (node.x ?? 0) + shiftAmount
           shiftSubtreeHorizontally(node, shiftAmount)
         }
@@ -262,61 +237,33 @@ export const adjustHorizontalNodeSpacing = (
         if (!leftSibling) continue
 
         // Calculate initial gap between this node and its left sibling
-        let x = calculateGapBetweenNodes(leftSibling, node, event) - minHorizontalGap
+        const initialGap = calculateGapBetweenNodes(leftSibling, node, event) - minHorizontalGap
 
-        if (x <= 0) continue // Already at minimum gap, no tightening possible
+        if (initialGap <= 0) continue // Already at minimum gap, no tightening possible
 
-        // Traverse down the leftmost path of this node's subtree
-        // At each depth, check against ALL nodes in the tree to find constraints
-        let currentNode: HierarchyPointNode<EventTreeNode> | null = node
-        let currentDepth = depth
+        // Check all descendants to find maximum safe shift amount
+        const maxShift = calculateMaxShiftForNode(
+          node,
+          initialGap,
+          'left',
+          depth,
+          nodesByDepth,
+          event,
+          minHorizontalGap
+        )
 
-        while (currentNode) {
-          const children = currentNode.children as HierarchyPointNode<EventTreeNode>[] | undefined
-          if (!children || children.length === 0) break
-
-          // Follow the leftmost path (the boundary that will move closest to other nodes)
-          const sortedChildren = sortNodesByX(children)
-          const leftmostChild = sortedChildren[0]
-
-          currentDepth++
-          const childLeftEdge = getNodeLeftEdgeX(leftmostChild, event)
-
-          // Check against ALL nodes at this depth to find the closest one on the left
-          const closestLeftRightEdge = findClosestLeftNodeEdgeX(
-            childLeftEdge,
-            currentDepth,
-            nodesByDepth,
-            event
-          )
-
-          if (closestLeftRightEdge !== null) {
-            const gap = childLeftEdge - closestLeftRightEdge - minHorizontalGap
-            if (gap < 0) {
-              // Would cause overlap, can't shift at all
-              x = 0
-              break
-            }
-            // x is the minimum safe shift across all depths checked
-            x = Math.min(x, gap)
-          }
-
-          currentNode = leftmostChild
-        }
-
-        // Shift left by x, with special handling for middle nodes
-        // Even-count siblings [A,B,C,D]: B shifts right x/2, then C shifts left FULL x
-        //   (not x/2, because the gap is already smaller after B shifted)
-        // Odd-count siblings [A,B,C,D,E]: B shifts right x, C doesn't shift, D shifts left x
-        if (x > HORIZONTAL_SPACING_MIN_SHIFT_THRESHOLD) {
+        // Shift left by maxShift, with special handling for middle nodes
+        // Even-count siblings [A,B,C,D]: B shifts right maxShift/2, then C shifts left FULL maxShift
+        //   (not maxShift/2, because the gap is already smaller after B shifted)
+        // Odd-count siblings [A,B,C,D,E]: B shifts right maxShift, C doesn't shift, D shifts left maxShift
+        if (maxShift > HORIZONTAL_SPACING_MIN_SHIFT_THRESHOLD) {
           // For odd-count siblings, skip the center node entirely
           if (isMiddleRight && !isEvenCount) {
             continue
           }
 
-          const shiftAmount = x
-          node.x = (node.x ?? 0) - shiftAmount
-          shiftSubtreeHorizontally(node, -shiftAmount)
+          node.x = (node.x ?? 0) - maxShift
+          shiftSubtreeHorizontally(node, -maxShift)
         }
       }
     })
@@ -433,6 +380,70 @@ const calculateGapBetweenNodes = (
   const leftRightEdge = getNodeRightEdgeX(leftNode, event)
   const rightLeftEdge = getNodeLeftEdgeX(rightNode, event)
   return rightLeftEdge - leftRightEdge
+}
+
+/**
+ * Calculate the maximum safe shift amount for a node by checking all descendants.
+ * Returns the minimum gap found across all depth levels, ensuring no overlaps occur.
+ */
+const calculateMaxShiftForNode = (
+  node: HierarchyPointNode<EventTreeNode>,
+  initialMaxShift: number,
+  shiftDirection: 'left' | 'right',
+  depth: number,
+  nodesByDepth: HierarchyPointNode<EventTreeNode>[][],
+  event: Event,
+  minHorizontalGap: number
+): number => {
+  let maxShift = initialMaxShift
+
+  // Group all descendants by depth to find boundaries at each level
+  const descendants = node.descendants()
+  const descendantsByDepth: HierarchyPointNode<EventTreeNode>[][] = []
+
+  descendants.forEach((descendant) => {
+    if (!descendantsByDepth[descendant.depth]) {
+      descendantsByDepth[descendant.depth] = []
+    }
+    descendantsByDepth[descendant.depth].push(descendant)
+  })
+
+  // Check each depth level where this subtree has nodes
+  for (let checkDepth = depth + 1; checkDepth < descendantsByDepth.length; checkDepth++) {
+    const nodesAtThisDepth = descendantsByDepth[checkDepth]
+    if (!nodesAtThisDepth || nodesAtThisDepth.length === 0) continue
+
+    // Find the boundary node at this depth (leftmost or rightmost depending on shift direction)
+    const sortedNodes = sortNodesByX(nodesAtThisDepth)
+    const boundaryNode =
+      shiftDirection === 'right' ? sortedNodes[sortedNodes.length - 1] : sortedNodes[0]
+    const boundaryEdge =
+      shiftDirection === 'right'
+        ? getNodeRightEdgeX(boundaryNode, event)
+        : getNodeLeftEdgeX(boundaryNode, event)
+
+    // Check against ALL nodes at this depth to find the closest obstacle
+    const closestObstacleEdge =
+      shiftDirection === 'right'
+        ? findClosestRightNodeEdgeX(boundaryEdge, checkDepth, nodesByDepth, event)
+        : findClosestLeftNodeEdgeX(boundaryEdge, checkDepth, nodesByDepth, event)
+
+    if (closestObstacleEdge !== null) {
+      const gap =
+        shiftDirection === 'right'
+          ? closestObstacleEdge - boundaryEdge - minHorizontalGap
+          : boundaryEdge - closestObstacleEdge - minHorizontalGap
+
+      if (gap < 0) {
+        // Would cause overlap, can't shift at all
+        return 0
+      }
+      // Reduce maxShift if this depth has a tighter constraint
+      maxShift = Math.min(maxShift, gap)
+    }
+  }
+
+  return maxShift
 }
 
 /**
