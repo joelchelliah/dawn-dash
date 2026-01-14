@@ -7,6 +7,11 @@ import { getNodeHeight, getNodeWidth } from './eventTreeHelper'
 
 const HORIZONTAL_SPACING_PASS_2_MAX_ITERATIONS = 10
 const HORIZONTAL_SPACING_MIN_SHIFT_THRESHOLD = 1
+const HORIZONTAL_SPACING_CONFIG = {
+  pass1Enabled: true,
+  pass2Enabled: true,
+  pass3Enabled: true,
+}
 
 /**
  * Adjust horizontal spacing to prevent node overlaps when nodes have different widths.
@@ -23,151 +28,165 @@ export const adjustHorizontalNodeSpacing = (
   const nodesByDepth = groupNodesByDepth(root)
 
   // PASS 1: Position children, centered, under parents (ignore overlaps)
-  for (let depth = 0; depth < nodesByDepth.length; depth++) {
-    const parentsAtDepth = nodesByDepth[depth] || []
+  if (HORIZONTAL_SPACING_CONFIG.pass1Enabled) {
+    for (let depth = 0; depth < nodesByDepth.length; depth++) {
+      const parentsAtDepth = nodesByDepth[depth] || []
 
-    parentsAtDepth.forEach((parent) => {
-      if (!parent.children || parent.children.length === 0) return
+      parentsAtDepth.forEach((parent) => {
+        if (!parent.children || parent.children.length === 0) return
 
-      // Calculate total width needed for all children with gaps
-      let totalWidth = 0
-      const childWidths = parent.children.map((child) => getNodeWidth(child.data, event))
+        // Calculate total width needed for all children with gaps
+        let totalWidth = 0
+        const childWidths = parent.children.map((child) => getNodeWidth(child.data, event))
 
-      childWidths.forEach((width, i) => {
-        totalWidth += width
-        if (i < childWidths.length - 1) {
-          totalWidth += minHorizontalGap
-        }
+        childWidths.forEach((width, i) => {
+          totalWidth += width
+          if (i < childWidths.length - 1) {
+            totalWidth += minHorizontalGap
+          }
+        })
+
+        // Position children centered under parent
+        const parentX = parent.x ?? 0
+        let currentX = parentX - totalWidth / 2
+
+        parent.children.forEach((child, i) => {
+          const childWidth = childWidths[i]
+          child.x = currentX + childWidth / 2
+          currentX += childWidth + minHorizontalGap
+        })
       })
-
-      // Position children centered under parent
-      const parentX = parent.x ?? 0
-      let currentX = parentX - totalWidth / 2
-
-      parent.children.forEach((child, i) => {
-        const childWidth = childWidths[i]
-        child.x = currentX + childWidth / 2
-        currentX += childWidth + minHorizontalGap
-      })
-    })
+    }
   }
 
   // PASS 2: Iteratively fix overlaps and recenter ancestors
   // Run multiple iterations until no adjustments are made
-  let iteration = 0
-  let madeAdjustment = true
+  if (HORIZONTAL_SPACING_CONFIG.pass2Enabled) {
+    let iteration = 0
+    let madeAdjustment = true
 
-  while (madeAdjustment && iteration < HORIZONTAL_SPACING_PASS_2_MAX_ITERATIONS) {
-    madeAdjustment = false
-    iteration++
+    while (madeAdjustment && iteration < HORIZONTAL_SPACING_PASS_2_MAX_ITERATIONS) {
+      madeAdjustment = false
+      iteration++
 
-    // eslint-disable-next-line no-console
-    if (iteration === HORIZONTAL_SPACING_PASS_2_MAX_ITERATIONS) {
-      console.error(
-        `adjustHorizontalNodeSpacing: Reached maximum iterations (${HORIZONTAL_SPACING_PASS_2_MAX_ITERATIONS}). Tree may still have overlaps.`
-      )
-    }
+      // eslint-disable-next-line no-console
+      if (iteration === HORIZONTAL_SPACING_PASS_2_MAX_ITERATIONS) {
+        console.error(
+          `adjustHorizontalNodeSpacing: Reached maximum iterations (${HORIZONTAL_SPACING_PASS_2_MAX_ITERATIONS}). Tree may still have overlaps.`
+        )
+      }
 
-    // Fix overlaps at each depth
-    for (let depth = 1; depth < nodesByDepth.length; depth++) {
-      // 1 -- Check for overlaps between siblings at the current depth
-      const nodesAtDepth = nodesByDepth[depth] || []
-      const nodesByParent = groupNodesByParent(nodesAtDepth)
+      // Fix overlaps at each depth
+      for (let depth = 1; depth < nodesByDepth.length; depth++) {
+        // 1 -- Check for overlaps between siblings at the current depth
+        const nodesAtDepth = nodesByDepth[depth] || []
+        const nodesByParent = groupNodesByParent(nodesAtDepth)
 
-      // Check each group of siblings
-      nodesByParent.forEach((siblings) => {
-        if (siblings.length < 2) return
+        // Check each group of siblings
+        nodesByParent.forEach((siblings) => {
+          if (siblings.length < 2) return
 
-        const sortedSiblings = sortNodesByX(siblings)
+          const sortedSiblings = sortNodesByX(siblings)
 
-        // Check each adjacent pair
-        for (let i = 0; i < sortedSiblings.length - 1; i++) {
-          const leftSibling = sortedSiblings[i]
-          const rightSibling = sortedSiblings[i + 1]
+          // Check each adjacent pair
+          for (let i = 0; i < sortedSiblings.length - 1; i++) {
+            const leftSibling = sortedSiblings[i]
+            const rightSibling = sortedSiblings[i + 1]
 
-          const currentGap = calculateGapBetweenNodes(leftSibling, rightSibling, event)
+            const currentGap = calculateGapBetweenNodes(leftSibling, rightSibling, event)
 
+            if (currentGap < minHorizontalGap) {
+              madeAdjustment = true
+              const overlap = minHorizontalGap - currentGap
+              const halfShift = overlap / 2
+
+              // Move left sibling and its subtree LEFT
+              leftSibling.x = (leftSibling.x ?? 0) - halfShift
+              shiftSubtreeHorizontally(leftSibling, -halfShift)
+
+              // Move right sibling and its subtree RIGHT
+              rightSibling.x = (rightSibling.x ?? 0) + halfShift
+              shiftSubtreeHorizontally(rightSibling, halfShift)
+            }
+          }
+        })
+
+        // 2 -- Check for overlaps between cousins (different parents)
+        const parentsAtPrevDepth = nodesByDepth[depth - 1] || []
+        const sortedParents = sortNodesByX(parentsAtPrevDepth)
+
+        // Filter to only parents that have children at this depth
+        // This prevents "blind spots" where a parent with no children at this depth
+        // sits between two parents that do have children, preventing their children from being checked
+        const parentsWithChildrenAtDepth = sortedParents.filter((parent) => {
+          const children = parent.children || []
+          return children.length > 0
+        })
+
+        // Check each adjacent pair of parents (that have children)
+        for (let i = 0; i < parentsWithChildrenAtDepth.length - 1; i++) {
+          const leftParent = parentsWithChildrenAtDepth[i]
+          const rightParent = parentsWithChildrenAtDepth[i + 1]
+
+          // Get the rightmost child of left parent and leftmost child of right parent
+          const leftChildren = leftParent.children || []
+          const rightChildren = rightParent.children || []
+
+          // Sort children by x to find the boundary children
+          const leftChildrenSorted = sortNodesByX(leftChildren)
+          const rightChildrenSorted = sortNodesByX(rightChildren)
+
+          const rightmostLeftChild = leftChildrenSorted[leftChildrenSorted.length - 1]
+          const leftmostRightChild = rightChildrenSorted[0]
+          const currentGap = calculateGapBetweenNodes(rightmostLeftChild, leftmostRightChild, event)
+
+          // If overlap exists, move parents apart symmetrically
           if (currentGap < minHorizontalGap) {
             madeAdjustment = true
             const overlap = minHorizontalGap - currentGap
             const halfShift = overlap / 2
 
-            // Move left sibling and its subtree LEFT
-            leftSibling.x = (leftSibling.x ?? 0) - halfShift
-            shiftSubtreeHorizontally(leftSibling, -halfShift)
+            // Find indices of these parents in the original sortedParents array
+            const leftParentIndex = sortedParents.indexOf(leftParent)
+            const rightParentIndex = sortedParents.indexOf(rightParent)
 
-            // Move right sibling and its subtree RIGHT
-            rightSibling.x = (rightSibling.x ?? 0) + halfShift
-            shiftSubtreeHorizontally(rightSibling, halfShift)
-          }
-        }
-      })
+            // Move left parent group (0 to leftParentIndex) LEFT by halfShift
+            for (let j = 0; j <= leftParentIndex; j++) {
+              sortedParents[j].x = (sortedParents[j].x ?? 0) - halfShift
+              shiftSubtreeHorizontally(sortedParents[j], -halfShift)
+            }
 
-      // 2 -- Check for overlaps between cousins (different parents)
-      const parentsAtPrevDepth = nodesByDepth[depth - 1] || []
-      const sortedParents = sortNodesByX(parentsAtPrevDepth)
-
-      // Check each adjacent pair of parents
-      for (let i = 0; i < sortedParents.length - 1; i++) {
-        const leftParent = sortedParents[i]
-        const rightParent = sortedParents[i + 1]
-
-        // Get the rightmost child of left parent and leftmost child of right parent
-        const leftChildren = leftParent.children || []
-        const rightChildren = rightParent.children || []
-
-        if (leftChildren.length === 0 || rightChildren.length === 0) continue
-
-        // Sort children by x to find the boundary children
-        const leftChildrenSorted = sortNodesByX(leftChildren)
-        const rightChildrenSorted = sortNodesByX(rightChildren)
-
-        const rightmostLeftChild = leftChildrenSorted[leftChildrenSorted.length - 1]
-        const leftmostRightChild = rightChildrenSorted[0]
-        const currentGap = calculateGapBetweenNodes(rightmostLeftChild, leftmostRightChild, event)
-
-        // If overlap exists, move parents apart symmetrically
-        if (currentGap < minHorizontalGap) {
-          madeAdjustment = true
-          const overlap = minHorizontalGap - currentGap
-          const halfShift = overlap / 2
-
-          // Move left parent group (0 to i) LEFT by halfShift
-          for (let j = 0; j <= i; j++) {
-            sortedParents[j].x = (sortedParents[j].x ?? 0) - halfShift
-            shiftSubtreeHorizontally(sortedParents[j], -halfShift)
-          }
-
-          // Move right parent group (i+1 to end) RIGHT by halfShift
-          for (let j = i + 1; j < sortedParents.length; j++) {
-            sortedParents[j].x = (sortedParents[j].x ?? 0) + halfShift
-            shiftSubtreeHorizontally(sortedParents[j], halfShift)
+            // Move right parent group (rightParentIndex to end) RIGHT by halfShift
+            for (let j = rightParentIndex; j < sortedParents.length; j++) {
+              sortedParents[j].x = (sortedParents[j].x ?? 0) + halfShift
+              shiftSubtreeHorizontally(sortedParents[j], halfShift)
+            }
           }
         }
       }
-    }
 
-    // 3 -- Recenter all ancestors over their children
-    // Work from bottom to top (deepest to shallowest)
-    for (let depth = nodesByDepth.length - 2; depth >= 0; depth--) {
-      const nodesAtDepth = nodesByDepth[depth] || []
+      // 3 -- Recenter all ancestors over their children
+      // Work from bottom to top (deepest to shallowest)
+      for (let depth = nodesByDepth.length - 2; depth >= 0; depth--) {
+        const nodesAtDepth = nodesByDepth[depth] || []
 
-      nodesAtDepth.forEach((node) => {
-        if (!node.children || node.children.length === 0) return
+        nodesAtDepth.forEach((node) => {
+          if (!node.children || node.children.length === 0) return
 
-        // Calculate the average x position of children
-        const childrenXSum = node.children.reduce((sum, child) => sum + (child.x ?? 0), 0)
-        const averageX = childrenXSum / node.children.length
+          // Calculate the average x position of children
+          const childrenXSum = node.children.reduce((sum, child) => sum + (child.x ?? 0), 0)
+          const averageX = childrenXSum / node.children.length
 
-        // Only update if significantly different
-        if (Math.abs(averageX - (node.x ?? 0)) > HORIZONTAL_SPACING_MIN_SHIFT_THRESHOLD) {
-          node.x = averageX
-          madeAdjustment = true
+          // Only update if significantly different
+          if (Math.abs(averageX - (node.x ?? 0)) > HORIZONTAL_SPACING_MIN_SHIFT_THRESHOLD) {
+            node.x = averageX
+            madeAdjustment = true
 
-          // Don't shift subtree here - children are already positioned correctly
-          // Only the parent node itself moves to recenter
-        }
-      })
+            // Don't shift subtree here - children are already positioned correctly
+            // Only the parent node itself moves to recenter
+          }
+        })
+      }
     }
   }
 
@@ -180,93 +199,95 @@ export const adjustHorizontalNodeSpacing = (
   //    the actual boundary (rightmost/leftmost node), not just following a single path
   // 4. Checking the boundary at each depth against ALL nodes in the tree at that depth
   // 5. Using middle-out processing to maintain tree balance while maximizing compactness
-  for (let depth = 0; depth < nodesByDepth.length; depth++) {
-    const nodesAtDepth = nodesByDepth[depth] || []
-    const nodesByParent = groupNodesByParent(nodesAtDepth)
+  if (HORIZONTAL_SPACING_CONFIG.pass3Enabled) {
+    for (let depth = 0; depth < nodesByDepth.length; depth++) {
+      const nodesAtDepth = nodesByDepth[depth] || []
+      const nodesByParent = groupNodesByParent(nodesAtDepth)
 
-    // Process each group of siblings from the middle outward
-    // For [A, B, C, D, E, F], we process: C, B, A (left side), then D, E, F (right side)
-    nodesByParent.forEach((siblings) => {
-      if (siblings.length < 2) return
+      // Process each group of siblings from the middle outward
+      // For [A, B, C, D, E, F], we process: C, B, A (left side), then D, E, F (right side)
+      nodesByParent.forEach((siblings) => {
+        if (siblings.length < 2) return
 
-      const sortedSiblings = sortNodesByX(siblings)
-      const middleIndex = Math.floor(sortedSiblings.length / 2)
+        const sortedSiblings = sortNodesByX(siblings)
+        const middleIndex = Math.floor(sortedSiblings.length / 2)
 
-      // Process left side: from middle-1 going down to 0
-      // These nodes shift RIGHT (toward center)
-      for (let i = middleIndex - 1; i >= 0; i--) {
-        const node = sortedSiblings[i]
-        const rightSibling = sortedSiblings[i + 1]
-        const isMiddleLeft = i === middleIndex - 1
+        // Process left side: from middle-1 going down to 0
+        // These nodes shift RIGHT (toward center)
+        for (let i = middleIndex - 1; i >= 0; i--) {
+          const node = sortedSiblings[i]
+          const rightSibling = sortedSiblings[i + 1]
+          const isMiddleLeft = i === middleIndex - 1
 
-        // Calculate initial gap between this node and its right sibling
-        const initialGap = calculateGapBetweenNodes(node, rightSibling, event) - minHorizontalGap
+          // Calculate initial gap between this node and its right sibling
+          const initialGap = calculateGapBetweenNodes(node, rightSibling, event) - minHorizontalGap
 
-        if (initialGap <= 0) continue // Already at minimum gap, no tightening possible
+          if (initialGap <= 0) continue // Already at minimum gap, no tightening possible
 
-        // Check all descendants to find maximum safe shift amount
-        const maxShift = calculateMaxShiftForNode(
-          node,
-          initialGap,
-          'right',
-          depth,
-          nodesByDepth,
-          event,
-          minHorizontalGap
-        )
+          // Check all descendants to find maximum safe shift amount
+          const maxShift = calculateMaxShiftForNode(
+            node,
+            initialGap,
+            'right',
+            depth,
+            nodesByDepth,
+            event,
+            minHorizontalGap
+          )
 
-        // Shift right by maxShift (or maxShift/2 for even-count middle-left node)
-        // Even-count [A,B,C,D]: B shifts by maxShift/2 to move symmetrically toward center
-        // Odd-count [A,B,C,D,E]: B shifts by full maxShift (center C will not shift)
-        if (maxShift > HORIZONTAL_SPACING_MIN_SHIFT_THRESHOLD) {
-          const isEvenCount = sortedSiblings.length % 2 === 0
-          const shiftAmount = isMiddleLeft && isEvenCount ? maxShift / 2 : maxShift
-          node.x = (node.x ?? 0) + shiftAmount
-          shiftSubtreeHorizontally(node, shiftAmount)
-        }
-      }
-
-      // Process right side: from middle going up to end
-      // These nodes shift LEFT (toward center)
-      for (let i = middleIndex; i < sortedSiblings.length; i++) {
-        const node = sortedSiblings[i]
-        const leftSibling = i > 0 ? sortedSiblings[i - 1] : null
-        const isMiddleRight = i === middleIndex
-        const isEvenCount = sortedSiblings.length % 2 === 0
-
-        if (!leftSibling) continue
-
-        // Calculate initial gap between this node and its left sibling
-        const initialGap = calculateGapBetweenNodes(leftSibling, node, event) - minHorizontalGap
-
-        if (initialGap <= 0) continue // Already at minimum gap, no tightening possible
-
-        // Check all descendants to find maximum safe shift amount
-        const maxShift = calculateMaxShiftForNode(
-          node,
-          initialGap,
-          'left',
-          depth,
-          nodesByDepth,
-          event,
-          minHorizontalGap
-        )
-
-        // Shift left by maxShift, with special handling for middle nodes
-        // Even-count siblings [A,B,C,D]: B shifts right maxShift/2, then C shifts left FULL maxShift
-        //   (not maxShift/2, because the gap is already smaller after B shifted)
-        // Odd-count siblings [A,B,C,D,E]: B shifts right maxShift, C doesn't shift, D shifts left maxShift
-        if (maxShift > HORIZONTAL_SPACING_MIN_SHIFT_THRESHOLD) {
-          // For odd-count siblings, skip the center node entirely
-          if (isMiddleRight && !isEvenCount) {
-            continue
+          // Shift right by maxShift (or maxShift/2 for even-count middle-left node)
+          // Even-count [A,B,C,D]: B shifts by maxShift/2 to move symmetrically toward center
+          // Odd-count [A,B,C,D,E]: B shifts by full maxShift (center C will not shift)
+          if (maxShift > HORIZONTAL_SPACING_MIN_SHIFT_THRESHOLD) {
+            const isEvenCount = sortedSiblings.length % 2 === 0
+            const shiftAmount = isMiddleLeft && isEvenCount ? maxShift / 2 : maxShift
+            node.x = (node.x ?? 0) + shiftAmount
+            shiftSubtreeHorizontally(node, shiftAmount)
           }
-
-          node.x = (node.x ?? 0) - maxShift
-          shiftSubtreeHorizontally(node, -maxShift)
         }
-      }
-    })
+
+        // Process right side: from middle going up to end
+        // These nodes shift LEFT (toward center)
+        for (let i = middleIndex; i < sortedSiblings.length; i++) {
+          const node = sortedSiblings[i]
+          const leftSibling = i > 0 ? sortedSiblings[i - 1] : null
+          const isMiddleRight = i === middleIndex
+          const isEvenCount = sortedSiblings.length % 2 === 0
+
+          if (!leftSibling) continue
+
+          // Calculate initial gap between this node and its left sibling
+          const initialGap = calculateGapBetweenNodes(leftSibling, node, event) - minHorizontalGap
+
+          if (initialGap <= 0) continue // Already at minimum gap, no tightening possible
+
+          // Check all descendants to find maximum safe shift amount
+          const maxShift = calculateMaxShiftForNode(
+            node,
+            initialGap,
+            'left',
+            depth,
+            nodesByDepth,
+            event,
+            minHorizontalGap
+          )
+
+          // Shift left by maxShift, with special handling for middle nodes
+          // Even-count siblings [A,B,C,D]: B shifts right maxShift/2, then C shifts left FULL maxShift
+          //   (not maxShift/2, because the gap is already smaller after B shifted)
+          // Odd-count siblings [A,B,C,D,E]: B shifts right maxShift, C doesn't shift, D shifts left maxShift
+          if (maxShift > HORIZONTAL_SPACING_MIN_SHIFT_THRESHOLD) {
+            // For odd-count siblings, skip the center node entirely
+            if (isMiddleRight && !isEvenCount) {
+              continue
+            }
+
+            node.x = (node.x ?? 0) - maxShift
+            shiftSubtreeHorizontally(node, -maxShift)
+          }
+        }
+      })
+    }
   }
 }
 
