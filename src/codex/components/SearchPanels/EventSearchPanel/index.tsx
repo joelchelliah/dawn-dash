@@ -36,16 +36,12 @@ interface EventSearchPanelProps {
   onLoopingPathModeChange: (mode: LoopingPathMode) => void
 }
 
-const getZoomLabel = (zoom: ZoomLevel): string => {
-  if (zoom === 'auto') return 'Auto'
-  if (zoom === 'cover') return 'Cover'
-  return `${zoom}%`
-}
+const getZoomLabel = (zoom: ZoomLevel): string => (zoom === ZoomLevel.COVER ? 'Cover' : `${zoom}%`)
 
-const getLoopingPathModeLabel = (mode: LoopingPathMode): string => {
-  if (mode === LoopingPathMode.INDICATOR) return 'With «Repeatable» badges on nodes'
-  return 'With lines back to the repeating nodes'
-}
+const getLoopingPathModeLabel = (mode: LoopingPathMode): string =>
+  mode === LoopingPathMode.INDICATOR
+    ? 'With «Repeatable» badges on nodes'
+    : 'With lines back to the repeating nodes'
 
 const EventSearchPanel = ({
   selectedEventIndex,

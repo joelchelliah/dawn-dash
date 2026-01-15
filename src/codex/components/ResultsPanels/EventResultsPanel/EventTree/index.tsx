@@ -81,16 +81,10 @@ function EventTree({ event, zoomLevel, loopingPathMode }: EventTreeProps): JSX.E
     const hasMaxChildrenOf = (maxChildren: number) =>
       root.descendants().every((node) => !node.children || node.children.length <= maxChildren)
 
-    // We only need vertical padding to avoid scrollbar overlapping with the tree
-    const actualVerticalPadding =
-      zoomLevel === ZoomLevel.COVER || hasMaxChildrenOf(1)
-        ? 0
-        : TREE.VERTICAL_PADDING_WHEN_ZOOMED_IN
-
     const bounds = calculateTreeBounds(root, event)
     const calculatedWidth = bounds.width + TREE.HORIZONTAL_PADDING * 2
     const svgWidth = Math.max(calculatedWidth, TREE.MIN_SVG_WIDTH)
-    const svgHeight = bounds.height + actualVerticalPadding * 2
+    const svgHeight = bounds.height + TREE.VERTICAL_BOTTOM_PADDING
 
     // Calculate zoom scale
     const zoomScale = zoomCalculator.calculate({
@@ -120,7 +114,7 @@ function EventTree({ event, zoomLevel, loopingPathMode }: EventTreeProps): JSX.E
     })
 
     // Center the tree vertically
-    const offsetY = -bounds.minY + actualVerticalPadding
+    const offsetY = -bounds.minY + TREE.VERTICAL_BOTTOM_PADDING / 4
 
     const svg = select(svgRef.current)
 
@@ -683,7 +677,7 @@ function EventTree({ event, zoomLevel, loopingPathMode }: EventTreeProps): JSX.E
         <svg
           ref={svgRef}
           className={cx('event-tree', {
-            'event-tree--zoomed': zoomLevel !== ZoomLevel.AUTO && zoomLevel !== ZoomLevel.COVER,
+            'event-tree--zoomed': zoomLevel !== ZoomLevel.COVER,
           })}
         />
       </div>

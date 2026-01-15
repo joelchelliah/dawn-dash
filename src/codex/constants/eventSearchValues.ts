@@ -1,5 +1,4 @@
 export enum ZoomLevel {
-  AUTO = 'auto',
   COVER = 'cover',
   x100 = 100,
   x150 = 150,
@@ -7,7 +6,6 @@ export enum ZoomLevel {
 }
 
 export const ZOOM_LEVELS = [
-  ZoomLevel.AUTO,
   ZoomLevel.COVER,
   ZoomLevel.x100,
   ZoomLevel.x150,

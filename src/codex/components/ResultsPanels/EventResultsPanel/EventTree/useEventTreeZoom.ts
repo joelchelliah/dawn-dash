@@ -37,8 +37,8 @@ class ZoomCalculator {
     // Use viewBox scaling if container dimensions aren't available
     if (containerWidth === 0 || containerHeight === 0) return undefined
 
-    // When in Cover/Auto mode, calculate and cache coverScale, then use viewBox scaling
-    if (zoomLevel === ZoomLevel.AUTO || zoomLevel === ZoomLevel.COVER) {
+    // When in Cover mode, calculate and cache coverScale
+    if (zoomLevel === ZoomLevel.COVER) {
       this.cache = {
         eventId: eventName,
         coverScale: Math.min(containerWidth / svgWidth, containerHeight / svgHeight),
