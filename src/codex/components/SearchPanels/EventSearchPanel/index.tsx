@@ -5,8 +5,6 @@ import Select from '@/shared/components/Select'
 import { CharacterClass } from '@/shared/types/characterClass'
 import Button from '@/shared/components/Buttons/Button'
 import GradientButton from '@/shared/components/Buttons/GradientButton'
-import GradientLink from '@/shared/components/GradientLink'
-import { useBreakpoint } from '@/shared/hooks/useBreakpoint'
 import { ClassColorVariant, getClassColor } from '@/shared/utils/classColors'
 
 import eventTreesData from '@/codex/data/event-trees.json'
@@ -52,7 +50,6 @@ const EventSearchPanel = ({
   onLoopingPathModeChange,
 }: EventSearchPanelProps) => {
   const selectedClass = CharacterClass.Sunforge
-  const { isMobile } = useBreakpoint()
   const [filterText, setFilterText] = useState('')
 
   // Filter events based on search text
@@ -140,29 +137,15 @@ const EventSearchPanel = ({
             Reset search
           </Button>
         </div>
-        {!isMobile && (
-          <div className={cx('control-wrapper', 'control-wrapper--button-wrapper')}>
-            <GradientButton
-              className={cx('control-wrapper--advanced-options-button')}
-              onClick={() => setShowAdvancedOptions(!showAdvancedOptions)}
-            >
-              Advanced options {advancedOptionsArrow}
-            </GradientButton>
-          </div>
-        )}
-      </div>
-      {isMobile && (
-        <div className={cx('advanced-options-link__wrapper')}>
-          <>
-            <GradientLink
-              text="Advanced options"
-              className={cx('advanced-options-link')}
-              onClick={() => setShowAdvancedOptions(!showAdvancedOptions)}
-            />{' '}
-            <span className={cx('advanced-options-link__arrow')}>{advancedOptionsArrow}</span>
-          </>
+        <div className={cx('control-wrapper', 'control-wrapper--button-wrapper')}>
+          <GradientButton
+            className={cx('control-wrapper--advanced-options-button')}
+            onClick={() => setShowAdvancedOptions(!showAdvancedOptions)}
+          >
+            Advanced options {advancedOptionsArrow}
+          </GradientButton>
         </div>
-      )}
+      </div>
 
       {!showAdvancedOptions && filterText.trim() && (
         <div className={cx('filter-indicator')}>
