@@ -1,5 +1,20 @@
-export const ZOOM_LEVELS = ['auto', 'cover', 100, 200, 300] as const
-export type ZoomLevel = (typeof ZOOM_LEVELS)[number]
+export enum ZoomLevel {
+  AUTO = 'auto',
+  COVER = 'cover',
+  x100 = 100,
+  x150 = 150,
+  x200 = 200,
+}
+
+export const ZOOM_LEVELS = [
+  ZoomLevel.AUTO,
+  ZoomLevel.COVER,
+  ZoomLevel.x100,
+  ZoomLevel.x150,
+  ZoomLevel.x200,
+] as const
+
+export const MAX_ZOOM_LEVEL = ZoomLevel.x200
 
 export enum LoopingPathMode {
   INDICATOR = 'indicator',

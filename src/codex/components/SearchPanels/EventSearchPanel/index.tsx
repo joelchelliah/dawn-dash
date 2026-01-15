@@ -94,9 +94,14 @@ const EventSearchPanel = ({
     }
   }, [filterText, selectedEventIndex, filteredEvents, onEventChange])
 
+  // Force Cover mode when switching events to ensure clean coverScale calculation
+  useEffect(() => {
+    onZoomChange(ZoomLevel.COVER)
+  }, [selectedEventIndex, onZoomChange])
+
   const handleResetClick = () => {
     onEventChange(0)
-    onZoomChange('auto')
+    onZoomChange(ZoomLevel.COVER)
     setFilterText('')
     onLoopingPathModeChange(LoopingPathMode.INDICATOR)
   }

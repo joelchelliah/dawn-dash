@@ -23,7 +23,7 @@ function Events(): JSX.Element {
   const { resetToEventCodex } = useNavigation()
   const { showScrollToTopButton, scrollToTop } = useScrollToTop()
   const [selectedEventIndex, setSelectedEventIndex] = useState(0)
-  const [zoomLevel, setZoomLevel] = useState<ZoomLevel>('auto')
+  const [zoomLevel, setZoomLevel] = useState<ZoomLevel>(ZoomLevel.AUTO)
   const [loopingPathMode, setLoopingPathMode] = useState<LoopingPathMode>(LoopingPathMode.INDICATOR)
 
   const selectedEvent = eventTrees[selectedEventIndex]

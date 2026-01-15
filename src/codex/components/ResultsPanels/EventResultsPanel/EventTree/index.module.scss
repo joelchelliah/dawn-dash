@@ -59,9 +59,11 @@
   max-width: 100%;
   height: auto;
 
-  // When zoomed, remove max-width constraint to allow growth
+  // When zoomed, remove constraints and let explicit SVG dimensions control size
   &--zoomed {
     max-width: none;
+    width: auto;
+    height: initial; // Don't override SVG's explicit dimensions
   }
 }
 
