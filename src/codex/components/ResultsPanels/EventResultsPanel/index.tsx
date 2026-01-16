@@ -22,6 +22,7 @@ interface EventResultsPanelProps {
   loopingPathMode: LoopingPathMode
   filterText: string
   onEventChange: (index: number) => void
+  onEditFilter?: () => void
 }
 
 const EventResultsPanel = ({
@@ -32,14 +33,12 @@ const EventResultsPanel = ({
   loopingPathMode,
   filterText,
   onEventChange,
+  onEditFilter,
 }: EventResultsPanelProps) => {
   const eventName = selectedEvent?.name ?? 'UNNAMED-EVENT'
   const blightbaneLink = `https://www.blightbane.io/event/${eventName.replaceAll(' ', '_')}`
 
-  // Filter events based on search text
   const filteredEvents = allEvents.filter((event) => searchEventTree(event, filterText))
-
-  // Show EventList when ALL_EVENTS_INDEX is selected OR when there are no matching events
   const showEventList = selectedEventIndex === ALL_EVENTS_INDEX || filteredEvents.length === 0
 
   return (
@@ -53,6 +52,7 @@ const EventResultsPanel = ({
             allEvents={allEvents}
             filterText={filterText}
             onEventSelect={onEventChange}
+            onEditFilter={onEditFilter}
           />
         )}
 

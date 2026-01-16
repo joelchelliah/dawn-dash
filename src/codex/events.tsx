@@ -13,6 +13,7 @@ import { Event } from './types/events'
 import EventSearchPanel from './components/SearchPanels/EventSearchPanel'
 import EventResultsPanel from './components/ResultsPanels/EventResultsPanel'
 import { ZoomLevel, LoopingPathMode, ALL_EVENTS_INDEX } from './constants/eventSearchValues'
+import { useEventFilterInputFocus } from './hooks/useEventFilterInputFocus'
 import styles from './events.module.scss'
 
 const cx = createCx(styles)
@@ -24,8 +25,14 @@ function Events(): JSX.Element {
   const { showScrollToTopButton, scrollToTop } = useScrollToTop()
   const [selectedEventIndex, setSelectedEventIndex] = useState(ALL_EVENTS_INDEX)
   const [zoomLevel, setZoomLevel] = useState<ZoomLevel>(ZoomLevel.COVER)
+  const [showAdvancedOptions, setShowAdvancedOptions] = useState(false)
   const [loopingPathMode, setLoopingPathMode] = useState<LoopingPathMode>(LoopingPathMode.INDICATOR)
   const [filterText, setFilterText] = useState('')
+  const { searchPanelRef, onEditFilter } = useEventFilterInputFocus(
+    showAdvancedOptions,
+    setShowAdvancedOptions,
+    filterText
+  )
 
   const selectedEvent =
     selectedEventIndex === ALL_EVENTS_INDEX ? null : eventTrees[selectedEventIndex]
@@ -44,6 +51,7 @@ function Events(): JSX.Element {
 
       <div className={cx('content')}>
         <EventSearchPanel
+          ref={searchPanelRef}
           selectedEventIndex={selectedEventIndex}
           onEventChange={setSelectedEventIndex}
           zoomLevel={zoomLevel}
@@ -52,6 +60,8 @@ function Events(): JSX.Element {
           onLoopingPathModeChange={setLoopingPathMode}
           filterText={filterText}
           onFilterTextChange={setFilterText}
+          showAdvancedOptions={showAdvancedOptions}
+          setShowAdvancedOptions={setShowAdvancedOptions}
         />
         <EventResultsPanel
           selectedEvent={selectedEvent}
@@ -61,6 +71,7 @@ function Events(): JSX.Element {
           loopingPathMode={loopingPathMode}
           filterText={filterText}
           onEventChange={setSelectedEventIndex}
+          onEditFilter={onEditFilter}
         />
       </div>
 

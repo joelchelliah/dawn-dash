@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef, useImperativeHandle, forwardRef } from 'react'
 
 import { CharacterClass } from '@/shared/types/characterClass'
 import { ClassColorVariant, getClassColor } from '@/shared/utils/classColors'
@@ -13,6 +13,10 @@ interface SearchFieldProps {
   setKeywords: (keywords: string) => void
   mode?: 'keywords' | 'text'
   selectedClass?: CharacterClass
+}
+
+export interface SearchFieldRef {
+  focus: () => void
 }
 
 function getStylesByMode(mode: 'keywords' | 'text', selectedClass?: CharacterClass) {
@@ -31,50 +35,62 @@ function getStylesByMode(mode: 'keywords' | 'text', selectedClass?: CharacterCla
   }
 }
 
-const SearchField = ({
-  keywords,
-  setKeywords,
-  mode = 'keywords',
-  selectedClass,
-}: SearchFieldProps) => {
-  const [isClient, setIsClient] = useState(false)
+const SearchField = forwardRef<SearchFieldRef, SearchFieldProps>(
+  ({ keywords, setKeywords, mode = 'keywords', selectedClass }, ref) => {
+    const [isClient, setIsClient] = useState(false)
+    const inputRef = useRef<HTMLInputElement>(null)
 
-  useEffect(() => setIsClient(true), [])
+    useEffect(() => setIsClient(true), [])
 
-  if (!isClient) return <></>
+    // Expose focus method via ref (always available, even when not rendered)
+    useImperativeHandle(
+      ref,
+      () => ({
+        focus: () => {
+          inputRef.current?.focus()
+        },
+      }),
+      []
+    )
 
-  const { labelStyle, inputStyle, clearButtonStyle } = getStylesByMode(mode, selectedClass)
-  const placeholder =
-    mode === 'keywords' ? 'Keywords, separated, by, comma' : 'Text occurring in the event'
+    if (!isClient) return <></>
 
-  return (
-    <>
-      {mode === 'text' && (
-        <label className={cx('input-label')} htmlFor="search-field" style={labelStyle}>
-          Filter event selection by text
-        </label>
-      )}
-      <div className={cx('input-container')}>
-        <input
-          id="search-field"
-          type="text"
-          placeholder={placeholder}
-          value={keywords}
-          onChange={(e) => setKeywords(e.target.value)}
-          aria-label="Search keywords"
-          style={inputStyle}
-        />
-        {keywords && (
-          <button
-            className={styles['clear-button']}
-            onClick={() => setKeywords('')}
-            aria-label="Clear search"
-            style={clearButtonStyle}
-          />
+    const { labelStyle, inputStyle, clearButtonStyle } = getStylesByMode(mode, selectedClass)
+    const placeholder =
+      mode === 'keywords' ? 'Keywords, separated, by, comma' : 'Text occurring in the event'
+
+    return (
+      <>
+        {mode === 'text' && (
+          <label className={cx('input-label')} htmlFor="search-field" style={labelStyle}>
+            Filter event selection by text
+          </label>
         )}
-      </div>
-    </>
-  )
-}
+        <div className={cx('input-container')}>
+          <input
+            ref={inputRef}
+            id="search-field"
+            type="text"
+            placeholder={placeholder}
+            value={keywords}
+            onChange={(e) => setKeywords(e.target.value)}
+            aria-label="Search keywords"
+            style={inputStyle}
+          />
+          {keywords && (
+            <button
+              className={styles['clear-button']}
+              onClick={() => setKeywords('')}
+              aria-label="Clear search"
+              style={clearButtonStyle}
+            />
+          )}
+        </div>
+      </>
+    )
+  }
+)
+
+SearchField.displayName = 'SearchField'
 
 export default SearchField
