@@ -1,3 +1,5 @@
+export const ALL_EVENTS_INDEX = -1
+
 export enum ZoomLevel {
   COVER = 'cover',
   x100 = 100,

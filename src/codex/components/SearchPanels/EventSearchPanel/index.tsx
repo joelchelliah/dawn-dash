@@ -14,6 +14,7 @@ import {
   ZoomLevel,
   LoopingPathMode,
   LOOPING_PATH_MODES,
+  ALL_EVENTS_INDEX,
 } from '@/codex/constants/eventSearchValues'
 import { searchEventTree } from '@/codex/utils/eventTreeSearch'
 
@@ -55,11 +56,26 @@ const EventSearchPanel = ({
   // Filter events based on search text
   const filteredEvents = eventTrees.filter((event) => searchEventTree(event, filterText))
 
-  // Map filtered events to options with their original indices
-  const eventOptions = filteredEvents.map((event) => ({
-    value: eventTrees.indexOf(event),
-    label: event.name,
-  }))
+  const getAllEventsLabel = () => {
+    if (filteredEvents.length === 0) {
+      return 'No matching events'
+    }
+    if (filterText.trim()) {
+      return `Filtered events (${filteredEvents.length})`
+    }
+    return `All events (${filteredEvents.length})`
+  }
+
+  const eventOptions = [
+    {
+      value: ALL_EVENTS_INDEX,
+      label: getAllEventsLabel(),
+    },
+    ...filteredEvents.map((event) => ({
+      value: eventTrees.indexOf(event),
+      label: event.name,
+    })),
+  ]
 
   const zoomOptions = ZOOM_LEVELS.map((zoom) => ({
     value: zoom,
@@ -74,16 +90,27 @@ const EventSearchPanel = ({
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false)
   const advancedOptionsArrow = showAdvancedOptions ? '▴' : '▾'
 
+  const renderFilterIndicatorText = () => {
+    switch (filteredEvents.length) {
+      case 0:
+        return 'Found no events containing: '
+      case 1:
+        return 'Found 1 event containing: '
+      default:
+        return `Found ${filteredEvents.length} events containing: `
+    }
+  }
+
   // Handle case where currently selected event is filtered out
   useEffect(() => {
-    // Check if the selected event is in the filtered list
+    if (selectedEventIndex === ALL_EVENTS_INDEX) return
+
     const isSelectedEventInFilteredList = filteredEvents.some(
       (event) => eventTrees.indexOf(event) === selectedEventIndex
     )
 
-    // If not found and we have filtered events, select the first one
     if (!isSelectedEventInFilteredList && filteredEvents.length > 0) {
-      onEventChange(eventTrees.indexOf(filteredEvents[0]))
+      onEventChange(ALL_EVENTS_INDEX)
     }
   }, [filterText, selectedEventIndex, filteredEvents, onEventChange])
 
@@ -93,7 +120,7 @@ const EventSearchPanel = ({
   }, [selectedEventIndex, onZoomChange])
 
   const handleResetClick = () => {
-    onEventChange(0)
+    onEventChange(-1)
     onZoomChange(ZoomLevel.COVER)
     setFilterText('')
     onLoopingPathModeChange(LoopingPathMode.INDICATOR)
@@ -112,6 +139,7 @@ const EventSearchPanel = ({
             options={eventOptions}
             value={selectedEventIndex}
             onChange={onEventChange}
+            disabled={filteredEvents.length === 0}
           />
         </div>
 
@@ -149,7 +177,7 @@ const EventSearchPanel = ({
 
       {!showAdvancedOptions && filterText.trim() && (
         <div className={cx('filter-indicator')}>
-          Found {filteredEvents.length} event{filteredEvents.length === 1 ? '' : 's'} containing:
+          {renderFilterIndicatorText()}
           &quot;
           <span className={cx('filter-indicator__text')}>
             {filterText}

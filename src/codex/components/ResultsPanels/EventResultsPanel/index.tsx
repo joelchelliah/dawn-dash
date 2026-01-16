@@ -27,7 +27,7 @@ const EventResultsPanel = ({
   const blightbaneLink = `https://www.blightbane.io/event/${eventName.replaceAll(' ', '_')}`
   return (
     <div className={cx('results-panel')}>
-      <PanelHeader type="Results" />
+      <PanelHeader type="EventResults" />
 
       <div className={cx('results-container')}>
         {selectedEvent && !selectedEvent.excluded && (

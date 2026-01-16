@@ -12,7 +12,7 @@ import eventTreesData from './data/event-trees.json'
 import { Event } from './types/events'
 import EventSearchPanel from './components/SearchPanels/EventSearchPanel'
 import EventResultsPanel from './components/ResultsPanels/EventResultsPanel'
-import { ZoomLevel, LoopingPathMode } from './constants/eventSearchValues'
+import { ZoomLevel, LoopingPathMode, ALL_EVENTS_INDEX } from './constants/eventSearchValues'
 import styles from './events.module.scss'
 
 const cx = createCx(styles)
@@ -22,11 +22,12 @@ const eventTrees = eventTreesData as Event[]
 function Events(): JSX.Element {
   const { resetToEventCodex } = useNavigation()
   const { showScrollToTopButton, scrollToTop } = useScrollToTop()
-  const [selectedEventIndex, setSelectedEventIndex] = useState(0)
+  const [selectedEventIndex, setSelectedEventIndex] = useState(ALL_EVENTS_INDEX)
   const [zoomLevel, setZoomLevel] = useState<ZoomLevel>(ZoomLevel.COVER)
   const [loopingPathMode, setLoopingPathMode] = useState<LoopingPathMode>(LoopingPathMode.INDICATOR)
 
-  const selectedEvent = eventTrees[selectedEventIndex]
+  const selectedEvent =
+    selectedEventIndex === ALL_EVENTS_INDEX ? null : eventTrees[selectedEventIndex]
 
   return (
     <div className={cx('container')}>

@@ -73,7 +73,7 @@ const CardResultsPanel = ({ useSearchFilters }: CardResultsPanelProps) => {
 
   return (
     <div className={cx('results-panel')}>
-      <PanelHeader type="Results" />
+      <PanelHeader type="CardResults" />
 
       {parsedKeywords.length > 0 || showCardsWithoutKeywords ? (
         renderMatchingCards()
