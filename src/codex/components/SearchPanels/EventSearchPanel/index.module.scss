@@ -87,19 +87,6 @@
   }
 }
 
-.filter-indicator {
-  margin-top: 1rem;
-  font-size: font-size('xs');
-  color: color.adjust($yellow-base, $alpha: -0.2);
-  padding-left: 0.25rem;
-
-  &__text {
-    font-size: font-size('xs');
-    font-style: italic;
-    @include yellowGreenGradient(false);
-  }
-}
-
 .advanced-options {
   margin-top: 1rem;
 

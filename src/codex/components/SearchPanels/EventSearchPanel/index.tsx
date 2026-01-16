@@ -33,6 +33,8 @@ interface EventSearchPanelProps {
   onZoomChange: (zoom: ZoomLevel) => void
   loopingPathMode: LoopingPathMode
   onLoopingPathModeChange: (mode: LoopingPathMode) => void
+  filterText: string
+  onFilterTextChange: (text: string) => void
 }
 
 const getZoomLabel = (zoom: ZoomLevel): string => (zoom === ZoomLevel.COVER ? 'Cover' : `${zoom}%`)
@@ -49,9 +51,10 @@ const EventSearchPanel = ({
   onZoomChange,
   loopingPathMode,
   onLoopingPathModeChange,
+  filterText,
+  onFilterTextChange,
 }: EventSearchPanelProps) => {
   const selectedClass = CharacterClass.Sunforge
-  const [filterText, setFilterText] = useState('')
 
   // Filter events based on search text
   const filteredEvents = eventTrees.filter((event) => searchEventTree(event, filterText))
@@ -61,7 +64,7 @@ const EventSearchPanel = ({
       return 'No matching events'
     }
     if (filterText.trim()) {
-      return `Filtered events (${filteredEvents.length})`
+      return `All matching events (${filteredEvents.length})`
     }
     return `All events (${filteredEvents.length})`
   }
@@ -90,17 +93,6 @@ const EventSearchPanel = ({
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false)
   const advancedOptionsArrow = showAdvancedOptions ? '▴' : '▾'
 
-  const renderFilterIndicatorText = () => {
-    switch (filteredEvents.length) {
-      case 0:
-        return 'Found no events containing: '
-      case 1:
-        return 'Found 1 event containing: '
-      default:
-        return `Found ${filteredEvents.length} events containing: `
-    }
-  }
-
   // Handle case where currently selected event is filtered out
   useEffect(() => {
     if (selectedEventIndex === ALL_EVENTS_INDEX) return
@@ -122,7 +114,7 @@ const EventSearchPanel = ({
   const handleResetClick = () => {
     onEventChange(-1)
     onZoomChange(ZoomLevel.COVER)
-    setFilterText('')
+    onFilterTextChange('')
     onLoopingPathModeChange(LoopingPathMode.INDICATOR)
   }
 
@@ -175,24 +167,13 @@ const EventSearchPanel = ({
         </div>
       </div>
 
-      {!showAdvancedOptions && filterText.trim() && (
-        <div className={cx('filter-indicator')}>
-          {renderFilterIndicatorText()}
-          &quot;
-          <span className={cx('filter-indicator__text')}>
-            {filterText}
-            &quot;.
-          </span>
-        </div>
-      )}
-
       {showAdvancedOptions && (
         <div className={cx('advanced-options')}>
           <div className={cx('advanced-options__content')}>
             <div className={cx('control-wrapper', 'control-wrapper--search-field')}>
               <SearchField
                 keywords={filterText}
-                setKeywords={setFilterText}
+                setKeywords={onFilterTextChange}
                 mode="text"
                 selectedClass={selectedClass}
               />

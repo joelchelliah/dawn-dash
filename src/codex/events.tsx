@@ -25,6 +25,7 @@ function Events(): JSX.Element {
   const [selectedEventIndex, setSelectedEventIndex] = useState(ALL_EVENTS_INDEX)
   const [zoomLevel, setZoomLevel] = useState<ZoomLevel>(ZoomLevel.COVER)
   const [loopingPathMode, setLoopingPathMode] = useState<LoopingPathMode>(LoopingPathMode.INDICATOR)
+  const [filterText, setFilterText] = useState('')
 
   const selectedEvent =
     selectedEventIndex === ALL_EVENTS_INDEX ? null : eventTrees[selectedEventIndex]
@@ -49,11 +50,17 @@ function Events(): JSX.Element {
           onZoomChange={setZoomLevel}
           loopingPathMode={loopingPathMode}
           onLoopingPathModeChange={setLoopingPathMode}
+          filterText={filterText}
+          onFilterTextChange={setFilterText}
         />
         <EventResultsPanel
           selectedEvent={selectedEvent}
+          selectedEventIndex={selectedEventIndex}
+          allEvents={eventTrees}
           zoomLevel={zoomLevel}
           loopingPathMode={loopingPathMode}
+          filterText={filterText}
+          onEventChange={setSelectedEventIndex}
         />
       </div>
 
