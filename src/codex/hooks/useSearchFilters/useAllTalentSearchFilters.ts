@@ -277,18 +277,31 @@ export const useAllTalentSearchFilters = (
         traversalFn: (
           talentTree: TalentTree,
           visitTalent: (talent: TalentTreeTalentNode) => void
-        ) => void
+        ) => void,
+        predicate: (talent: TalentTreeTalentNode) => boolean
       ) => {
         const allMatches = new Set(matches)
+        const nodesByName = new Map<string, TalentTreeTalentNode>()
 
+        // First pass: build a map of all nodes by name
         traversalFn(talentTree, (node) => {
-          // Ancestor matching
+          nodesByName.set(node.name, node)
+        })
+
+        // Second pass: add ancestors and filtered descendants
+        traversalFn(talentTree, (node) => {
+          // Ancestor matching: if any descendant matches, include this ancestor
           if (hasMatchInDescendants(node, matches)) {
             allMatches.add(node.name)
           }
-          // Descendant matching - includes all children and deeper descendants
+          // Descendant matching: only include descendants that also match the predicate
           if (matches.has(node.name)) {
-            node.descendants.forEach((descendant) => allMatches.add(descendant))
+            node.descendants.forEach((descendantName) => {
+              const descendantNode = nodesByName.get(descendantName)
+              if (descendantNode && predicate(descendantNode)) {
+                allMatches.add(descendantName)
+              }
+            })
           }
         })
 
@@ -296,15 +309,27 @@ export const useAllTalentSearchFilters = (
       }
 
       return {
-        regularMatches: addAncestorsAndDescendants(regularMatches, traverseRegularTalentNodes),
+        regularMatches: addAncestorsAndDescendants(
+          regularMatches,
+          traverseRegularTalentNodes,
+          regularNodePredicate
+        ),
         eventMatches: shouldIncludeEvents
-          ? addAncestorsAndDescendants(eventMatches, traverseEventTalentNodes)
+          ? addAncestorsAndDescendants(
+              eventMatches,
+              traverseEventTalentNodes,
+              eventTalentNodePredicate
+            )
           : new Set<string>(),
         cardMatches: shouldIncludeCards
-          ? addAncestorsAndDescendants(cardMatches, traverseCardTalentNodes)
+          ? addAncestorsAndDescendants(
+              cardMatches,
+              traverseCardTalentNodes,
+              cardTalentNodePredicate
+            )
           : new Set<string>(),
         offerMatches: shouldIncludeOffers
-          ? addAncestorsAndDescendants(offerMatches, traverseOfferNodes)
+          ? addAncestorsAndDescendants(offerMatches, traverseOfferNodes, offerNodePredicate)
           : new Set<string>(),
       }
     },
