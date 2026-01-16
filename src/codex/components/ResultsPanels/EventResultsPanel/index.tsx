@@ -3,8 +3,8 @@ import GradientLink from '@/shared/components/GradientLink'
 import GradientDivider from '@/shared/components/GradientDivider'
 
 import { Event } from '@/codex/types/events'
-import { ZoomLevel, LoopingPathMode, ALL_EVENTS_INDEX } from '@/codex/constants/eventSearchValues'
-import { searchEventTree } from '@/codex/utils/eventTreeSearch'
+import { ALL_EVENTS_INDEX } from '@/codex/constants/eventSearchValues'
+import { UseAllEventSearchFilters } from '@/codex/hooks/useSearchFilters/useAllEventSearchFilters'
 
 import PanelHeader from '../../PanelHeader'
 
@@ -18,9 +18,8 @@ interface EventResultsPanelProps {
   selectedEvent: Event | null
   selectedEventIndex: number
   allEvents: Event[]
-  zoomLevel: ZoomLevel
-  loopingPathMode: LoopingPathMode
-  filterText: string
+  filteredEvents: Event[]
+  useSearchFilters: UseAllEventSearchFilters
   onEventChange: (index: number) => void
   onEditFilter?: () => void
 }
@@ -29,16 +28,15 @@ const EventResultsPanel = ({
   selectedEvent,
   selectedEventIndex,
   allEvents,
-  zoomLevel,
-  loopingPathMode,
-  filterText,
+  filteredEvents,
+  useSearchFilters,
   onEventChange,
   onEditFilter,
 }: EventResultsPanelProps) => {
   const eventName = selectedEvent?.name ?? 'UNNAMED-EVENT'
   const blightbaneLink = `https://www.blightbane.io/event/${eventName.replaceAll(' ', '_')}`
 
-  const filteredEvents = allEvents.filter((event) => searchEventTree(event, filterText))
+  const { filterText, zoomLevel, loopingPathMode } = useSearchFilters
   const showEventList = selectedEventIndex === ALL_EVENTS_INDEX || filteredEvents.length === 0
 
   return (

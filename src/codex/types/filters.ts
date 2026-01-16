@@ -206,6 +206,11 @@ export interface TalentCodexSearchFilterCache {
   lastUpdated: number
 }
 
+export interface EventCodexSearchFilterCache {
+  loopingPathMode: string
+  lastUpdated: number
+}
+
 // ------------ Weekly Challenge ------------
 
 export type WeeklyChallengeFilterData = {

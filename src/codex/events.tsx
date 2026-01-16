@@ -12,8 +12,10 @@ import eventTreesData from './data/event-trees.json'
 import { Event } from './types/events'
 import EventSearchPanel from './components/SearchPanels/EventSearchPanel'
 import EventResultsPanel from './components/ResultsPanels/EventResultsPanel'
-import { ZoomLevel, LoopingPathMode, ALL_EVENTS_INDEX } from './constants/eventSearchValues'
+import { ALL_EVENTS_INDEX } from './constants/eventSearchValues'
 import { useEventFilterInputFocus } from './hooks/useEventFilterInputFocus'
+import { useAllEventSearchFilters } from './hooks/useSearchFilters/useAllEventSearchFilters'
+import { searchEventTree } from './utils/eventTreeSearch'
 import styles from './events.module.scss'
 
 const cx = createCx(styles)
@@ -24,14 +26,18 @@ function Events(): JSX.Element {
   const { resetToEventCodex } = useNavigation()
   const { showScrollToTopButton, scrollToTop } = useScrollToTop()
   const [selectedEventIndex, setSelectedEventIndex] = useState(ALL_EVENTS_INDEX)
-  const [zoomLevel, setZoomLevel] = useState<ZoomLevel>(ZoomLevel.COVER)
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false)
-  const [loopingPathMode, setLoopingPathMode] = useState<LoopingPathMode>(LoopingPathMode.INDICATOR)
-  const [filterText, setFilterText] = useState('')
+
+  const useSearchFiltersHook = useAllEventSearchFilters()
   const { searchPanelRef, onEditFilter } = useEventFilterInputFocus(
     showAdvancedOptions,
     setShowAdvancedOptions,
-    filterText
+    useSearchFiltersHook.filterText
+  )
+
+  // Filter events based on search text (debounced)
+  const filteredEvents = eventTrees.filter((event) =>
+    searchEventTree(event, useSearchFiltersHook.deferredFilterText)
   )
 
   const selectedEvent =
@@ -54,12 +60,8 @@ function Events(): JSX.Element {
           ref={searchPanelRef}
           selectedEventIndex={selectedEventIndex}
           onEventChange={setSelectedEventIndex}
-          zoomLevel={zoomLevel}
-          onZoomChange={setZoomLevel}
-          loopingPathMode={loopingPathMode}
-          onLoopingPathModeChange={setLoopingPathMode}
-          filterText={filterText}
-          onFilterTextChange={setFilterText}
+          filteredEvents={filteredEvents}
+          useSearchFilters={useSearchFiltersHook}
           showAdvancedOptions={showAdvancedOptions}
           setShowAdvancedOptions={setShowAdvancedOptions}
         />
@@ -67,9 +69,8 @@ function Events(): JSX.Element {
           selectedEvent={selectedEvent}
           selectedEventIndex={selectedEventIndex}
           allEvents={eventTrees}
-          zoomLevel={zoomLevel}
-          loopingPathMode={loopingPathMode}
-          filterText={filterText}
+          filteredEvents={filteredEvents}
+          useSearchFilters={useSearchFiltersHook}
           onEventChange={setSelectedEventIndex}
           onEditFilter={onEditFilter}
         />

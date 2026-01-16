@@ -16,7 +16,7 @@ import {
   LOOPING_PATH_MODES,
   ALL_EVENTS_INDEX,
 } from '@/codex/constants/eventSearchValues'
-import { searchEventTree } from '@/codex/utils/eventTreeSearch'
+import { UseAllEventSearchFilters } from '@/codex/hooks/useSearchFilters/useAllEventSearchFilters'
 
 import PanelHeader from '../../PanelHeader'
 import SearchField, { SearchFieldRef } from '../shared/SearchField'
@@ -34,12 +34,8 @@ export interface EventSearchPanelRef {
 interface EventSearchPanelProps {
   selectedEventIndex: number
   onEventChange: (index: number) => void
-  zoomLevel: ZoomLevel
-  onZoomChange: (zoom: ZoomLevel) => void
-  loopingPathMode: LoopingPathMode
-  onLoopingPathModeChange: (mode: LoopingPathMode) => void
-  filterText: string
-  onFilterTextChange: (text: string) => void
+  filteredEvents: Event[]
+  useSearchFilters: UseAllEventSearchFilters
   showAdvancedOptions: boolean
   setShowAdvancedOptions: (show: boolean) => void
 }
@@ -56,12 +52,8 @@ const EventSearchPanel = forwardRef<EventSearchPanelRef, EventSearchPanelProps>(
     {
       selectedEventIndex,
       onEventChange,
-      zoomLevel,
-      onZoomChange,
-      loopingPathMode,
-      onLoopingPathModeChange,
-      filterText,
-      onFilterTextChange,
+      filteredEvents,
+      useSearchFilters,
       showAdvancedOptions,
       setShowAdvancedOptions,
     },
@@ -69,14 +61,21 @@ const EventSearchPanel = forwardRef<EventSearchPanelRef, EventSearchPanelProps>(
   ) => {
     const selectedClass = CharacterClass.Sunforge
     const searchFieldRef = useRef<SearchFieldRef>(null)
+    const {
+      filterText,
+      setFilterText,
+      zoomLevel,
+      setZoomLevel,
+      loopingPathMode,
+      setLoopingPathMode,
+      resetFilters,
+    } = useSearchFilters
 
     useImperativeHandle(ref, () => ({
       focusFilterInput: () => {
         searchFieldRef.current?.focus()
       },
     }))
-
-    const filteredEvents = eventTrees.filter((event) => searchEventTree(event, filterText))
 
     const getAllEventsLabel = () => {
       if (filteredEvents.length === 0) {
@@ -120,14 +119,12 @@ const EventSearchPanel = forwardRef<EventSearchPanelRef, EventSearchPanelProps>(
 
     // Force Cover mode when switching events to ensure clean coverScale calculation
     useEffect(() => {
-      onZoomChange(ZoomLevel.COVER)
-    }, [selectedEventIndex, onZoomChange])
+      setZoomLevel(ZoomLevel.COVER)
+    }, [selectedEventIndex, setZoomLevel])
 
     const handleResetClick = () => {
       onEventChange(-1)
-      onZoomChange(ZoomLevel.COVER)
-      onFilterTextChange('')
-      onLoopingPathModeChange(LoopingPathMode.INDICATOR)
+      resetFilters()
     }
 
     return (
@@ -154,7 +151,8 @@ const EventSearchPanel = forwardRef<EventSearchPanelRef, EventSearchPanelProps>(
               label="Zoom"
               options={zoomOptions}
               value={zoomLevel}
-              onChange={onZoomChange}
+              onChange={setZoomLevel}
+              disabled={filteredEvents.length === 0 || selectedEventIndex === ALL_EVENTS_INDEX}
             />
           </div>
           <div className={cx('control-wrapper', 'control-wrapper--button-wrapper')}>
@@ -186,7 +184,7 @@ const EventSearchPanel = forwardRef<EventSearchPanelRef, EventSearchPanelProps>(
                 <SearchField
                   ref={searchFieldRef}
                   keywords={filterText}
-                  setKeywords={onFilterTextChange}
+                  setKeywords={setFilterText}
                   mode="text"
                   selectedClass={selectedClass}
                 />
@@ -198,7 +196,7 @@ const EventSearchPanel = forwardRef<EventSearchPanelRef, EventSearchPanelProps>(
                   label="🔄 &nbsp;Show looping paths"
                   options={loopingPathModeOptions}
                   value={loopingPathMode}
-                  onChange={onLoopingPathModeChange}
+                  onChange={setLoopingPathMode}
                 />
               </div>
             </div>
