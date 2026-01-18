@@ -47,26 +47,7 @@ function EventTree({ event, zoomLevel, loopingPathMode }: EventTreeProps): JSX.E
     // Clear previous visualization
     select(svgRef.current).selectAll('*').remove()
 
-    // Filter out nodes with repeatable: true when in link mode
-    const filterTreeData = (node: EventTreeNode): EventTreeNode | null => {
-      if (loopingPathMode === LoopingPathMode.LINK && node.repeatable === true) {
-        return null
-      }
-
-      const filteredChildren = node.children
-        ?.map(filterTreeData)
-        .filter((child): child is EventTreeNode => child !== null)
-
-      return {
-        ...node,
-        children: filteredChildren && filteredChildren.length > 0 ? filteredChildren : undefined,
-      }
-    }
-
-    const filteredRootNode = filterTreeData(event.rootNode)
-    if (!filteredRootNode) return
-
-    const root = hierarchy(filteredRootNode, (d) => d.children)
+    const root = hierarchy(event.rootNode, (d) => d.children)
 
     const treeLayout = tree<EventTreeNode>()
       .nodeSize([NODE.HORIZONTAL_SPACING_DEFAULT, NODE.VERTICAL_SPACING_DEFAULT])
@@ -199,7 +180,7 @@ function EventTree({ event, zoomLevel, loopingPathMode }: EventTreeProps): JSX.E
           : 0
         const hasContinue = data.numContinues && data.numContinues > 0
         const continueBoxHeight = hasContinue ? INNER_BOX.INDICATOR_HEIGHT : 0
-        const repeatableBoxHeight = data.repeatable ? INNER_BOX.INDICATOR_HEIGHT : 0
+        const repeatableBoxHeight = data.ref ? INNER_BOX.INDICATOR_HEIGHT : 0
 
         const currentNodeHeight = getNodeHeight(data, event)
         const currentNodeWidth = getNodeWidth(data, event)
@@ -294,7 +275,7 @@ function EventTree({ event, zoomLevel, loopingPathMode }: EventTreeProps): JSX.E
             effects.length * TEXT.LINE_HEIGHT +
             INNER_BOX.LISTINGS_VERTICAL_PADDING
           : 0
-        const repeatableBoxHeight = data.repeatable ? INNER_BOX.INDICATOR_HEIGHT : 0
+        const repeatableBoxHeight = data.ref ? INNER_BOX.INDICATOR_HEIGHT : 0
 
         const currentNodeHeight = getNodeHeight(data, event)
         const currentNodeWidth = getNodeWidth(data, event)
@@ -359,7 +340,7 @@ function EventTree({ event, zoomLevel, loopingPathMode }: EventTreeProps): JSX.E
           : 0
         const hasContinue = data.numContinues && data.numContinues > 0
         const continueBoxHeight = hasContinue ? INNER_BOX.INDICATOR_HEIGHT : 0
-        const repeatableBoxHeight = data.repeatable ? INNER_BOX.INDICATOR_HEIGHT : 0
+        const repeatableBoxHeight = data.ref ? INNER_BOX.INDICATOR_HEIGHT : 0
 
         if (isRootNode) {
           // Root node shows up to 2 lines of dialogue text (if present)
@@ -459,7 +440,7 @@ function EventTree({ event, zoomLevel, loopingPathMode }: EventTreeProps): JSX.E
             effects.length * TEXT.LINE_HEIGHT +
             INNER_BOX.LISTINGS_VERTICAL_PADDING
           : 0
-        const repeatableBoxHeight = data.repeatable ? INNER_BOX.INDICATOR_HEIGHT : 0
+        const repeatableBoxHeight = data.ref ? INNER_BOX.INDICATOR_HEIGHT : 0
 
         const currentNodeHeight = getNodeHeight(data, event)
         const currentNodeWidth = getNodeWidth(data, event)
@@ -536,7 +517,7 @@ function EventTree({ event, zoomLevel, loopingPathMode }: EventTreeProps): JSX.E
 
         const continueHeight = eventNode.numContinues ? INNER_BOX.INDICATOR_HEIGHT : 0
         const continueMargin = continueHeight > 0 ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
-        const hasRepeatable = eventNode.repeatable === true
+        const hasRepeatable = eventNode.ref
         const repeatableHeight = hasRepeatable ? INNER_BOX.INDICATOR_HEIGHT : 0
         const repeatableMargin = hasRepeatable ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
 
@@ -594,7 +575,7 @@ function EventTree({ event, zoomLevel, loopingPathMode }: EventTreeProps): JSX.E
         const node = select(this)
         const nodeHeight = getNodeHeight(d.data, event)
         const nodeWidth = getNodeWidth(d.data, event)
-        const hasRepeatable = d.data.repeatable === true
+        const hasRepeatable = d.data.ref
         const repeatableHeight = hasRepeatable ? INNER_BOX.INDICATOR_HEIGHT : 0
         const repeatableMargin = hasRepeatable ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
 
@@ -624,7 +605,7 @@ function EventTree({ event, zoomLevel, loopingPathMode }: EventTreeProps): JSX.E
 
     // Add `Repeatable` indicators
     nodes
-      .filter((d) => d.data.repeatable === true)
+      .filter((d) => Boolean(d.data.ref))
       .each(function (d) {
         const node = select(this)
         const nodeHeight = getNodeHeight(d.data, event)

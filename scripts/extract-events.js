@@ -3,18 +3,7 @@ const fs = require('fs')
 const path = require('path')
 
 /**
- * Script to extract all event objects from the minified Blightbane bundle.
- *
- * Event types found in the game:
- * - Type 0: NPCs (Alchemist, Blacksmith, Priest, etc.)
- * - Type 1: Unique encounters?
- * - Type 2: Regular events/encounters
- * - Type 3: Area/location events (Bandit Camp, Strange Carvings, etc.)
- * - Type 4: Boss/special encounters (Serena Hellspark, Chieftain Tagdahar)
- * - Type 5: Gates/transitions
- * - Type 8: Special locations (Inns, Glades, etc.)
- * - Type 10: Shrines
- * - Type 99: Death/completion events
+ * Script to extract all event objects from the minified Blightbane bundle dump.
  */
 
 /**
@@ -27,7 +16,6 @@ const CARD_ID_TO_NAME = {
   15614: 'Broken Amulet', // Cards
   22989: 'Devotion', // Talents
   38256: 'Frozen Heart', // Talents
-  53453: '- MISSING NAME -',
   53894: 'Prayer', // Cards
   57436: '- MISSING NAME -',
   66969: '- MISSING NAME -',
@@ -155,72 +143,63 @@ const CARD_ID_TO_NAME = {
   990096: '- MISSING NAME -',
 }
 
-// TODO: Make 4 separate blacklists for:
-// - Events that have no effects
-// - Events that have no branches (always single or zero children)
-// - Events that only have effects: [QUESTFLAG, AREASPECIAL]
-// - Events that are currently too complex to render
-//
-// We should find the first 3 programmatically, and the last one manually.
-//
-
 const EVENTS_BLACKLIST = [
-  // Mostly story events:
-  'Burned Missive',
-  'Consul GiveBanditQuest', // Consul Briefing
-  'Consul GiveGroveQuest', // Consul Briefing
-  'Enchanter', // Isle of Talos
-  'Consul BanditQuestReward',
-  'Count Vesparin',
-  'Emberwyld Heights Finish',
-  'Empowered Hydra Death',
-  'Glowing Runes',
-  'Gorn Tagdahar Death',
-  'Grove of the Dying Star Finish',
-  'Heart of the Temple',
-  "Heroes' Rest Cemetery Start",
-  'Hidden Library',
-  'High Priest of Agony Death',
-  'High Priest of Chaos Death',
-  'High Priest of Hatred Death',
-  'Kaius Tagdahar Death',
-  'Lord of Despair Death',
-  'Lost Journal', // Discarded Journal
-  'Noxlight Swamp Finish',
-  'Obsidian Garden Finish',
-  'Outerworldly Entity Death',
-  'Overgrown Stone',
-  'Queen of Decay Death',
-  'Rathael the Slain Death',
-  'Sanctum of Wrath Finish',
-  'Shard of Mirrors',
-  'Shard of Strife',
-  'Semira Death',
-  'Spine of Night Finish',
-  'Starlit Druid', // Druid of the Grove
-  'Statue of Ilthar II Death',
-  'Strange Carvings', // Bandit Markings
-  'Sunfall Meadows Start',
-  'Survivor',
-  'The Ambermines Finish',
-  'The Decayed Sanctum Start',
-  'The Defiled Sanctum',
-  'The Defiled Sanctum Start',
-  'The Countess',
-  'The Eldritch Sanctum Start',
-  'The Isle of Talos Finish',
-  'The Pale Warden Death',
-  'The Silent Reliquary Start',
-  'The Traveler', // Stranger on horseback
-  'The Voice Below', // The Voice
-  'Torn Cloth',
-  'Weeping Woods Finish',
-  'Weeping Woods Start',
-  // Too complex. Ignored for now:
-  'Brightcandle Inn',
-  'Frozen Heart',
-  'Rotting Residence',
-  'Suspended Cage',
+  // // Mostly story events:
+  // 'Burned Missive',
+  // 'Consul GiveBanditQuest', // Consul Briefing
+  // 'Consul GiveGroveQuest', // Consul Briefing
+  // 'Enchanter', // Isle of Talos
+  // 'Consul BanditQuestReward',
+  // 'Count Vesparin',
+  // 'Emberwyld Heights Finish',
+  // 'Empowered Hydra Death',
+  // 'Glowing Runes',
+  // 'Gorn Tagdahar Death',
+  // 'Grove of the Dying Star Finish',
+  // 'Heart of the Temple',
+  // "Heroes' Rest Cemetery Start",
+  // 'Hidden Library',
+  // 'High Priest of Agony Death',
+  // 'High Priest of Chaos Death',
+  // 'High Priest of Hatred Death',
+  // 'Kaius Tagdahar Death',
+  // 'Lord of Despair Death',
+  // 'Lost Journal', // Discarded Journal
+  // 'Noxlight Swamp Finish',
+  // 'Obsidian Garden Finish',
+  // 'Outerworldly Entity Death',
+  // 'Overgrown Stone',
+  // 'Queen of Decay Death',
+  // 'Rathael the Slain Death',
+  // 'Sanctum of Wrath Finish',
+  // 'Shard of Mirrors',
+  // 'Shard of Strife',
+  // 'Semira Death',
+  // 'Spine of Night Finish',
+  // 'Starlit Druid', // Druid of the Grove
+  // 'Statue of Ilthar II Death',
+  // 'Strange Carvings', // Bandit Markings
+  // 'Sunfall Meadows Start',
+  // 'Survivor',
+  // 'The Ambermines Finish',
+  // 'The Decayed Sanctum Start',
+  // 'The Defiled Sanctum',
+  // 'The Defiled Sanctum Start',
+  // 'The Countess',
+  // 'The Eldritch Sanctum Start',
+  // 'The Isle of Talos Finish',
+  // 'The Pale Warden Death',
+  // 'The Silent Reliquary Start',
+  // 'The Traveler', // Stranger on horseback
+  // 'The Voice Below', // The Voice
+  // 'Torn Cloth',
+  // 'Weeping Woods Finish',
+  // 'Weeping Woods Start',
+  // // Too complex. Ignored for now:
+  // 'Brightcandle Inn',
+  // 'Frozen Heart',
+  // 'Rotting Residence',
+  // 'Suspended Cage',
 ]
 
 const DUMP_FILE = path.join(__dirname, './dump.txt')

@@ -95,8 +95,8 @@ export function drawRepeatFromLinks(g: any, defs: any, root: any, event: Event) 
   // Find all nodes with repeatFrom and create link data
   const repeatFromLinks: Array<{ source: any; target: any }> = []
   root.descendants().forEach((node: any) => {
-    if (node.data.repeatFrom !== undefined) {
-      const targetNode = nodeMap.get(node.data.repeatFrom)
+    if (node.data.ref) {
+      const targetNode = nodeMap.get(node.data.ref)
       if (targetNode) {
         repeatFromLinks.push({
           source: node,

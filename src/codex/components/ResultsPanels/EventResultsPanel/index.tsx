@@ -54,7 +54,7 @@ const EventResultsPanel = ({
           />
         )}
 
-        {!showEventList && selectedEvent && !selectedEvent.excluded && (
+        {!showEventList && selectedEvent && (
           <>
             <EventTree
               event={selectedEvent}
@@ -69,19 +69,6 @@ const EventResultsPanel = ({
               <GradientLink text={eventName} url={blightbaneLink} />
             </div>
           </>
-        )}
-
-        {!showEventList && selectedEvent && selectedEvent.excluded && (
-          <div className={cx('info-message')}>
-            This event hasn&apos;t been fully mapped out. It&apos;s most likely a pure story event
-            with no special rewards, or choices that effect your run.
-            <br />
-            <br />
-            You can still explore the event on <strong>Blightbane</strong>:
-            <br />
-            <br />
-            <GradientLink text={eventName} url={blightbaneLink} />
-          </div>
         )}
 
         {!showEventList && !selectedEvent && (

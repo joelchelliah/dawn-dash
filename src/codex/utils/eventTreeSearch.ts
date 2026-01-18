@@ -24,10 +24,6 @@ export const searchEventTree = (event: Event, searchText: string): boolean => {
     return true
   }
 
-  // TODO: Remove this check once all events have rootNode populated!
-  // We can then also make the rootNode non-optional in the Event type.
-  if (!event.rootNode) return false
-
   // Recursive function to search through tree nodes
   const searchNode = (node: EventTreeNode): boolean => {
     // Search text

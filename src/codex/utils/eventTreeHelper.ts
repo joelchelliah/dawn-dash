@@ -103,7 +103,7 @@ export const getNodeHeight = (node: EventTreeNode, event: Event): number => {
     const reqBoxMargin = reqBoxHeight > 0 ? INNER_BOX.LISTINGS_TOP_MARGIN : 0
     const continueBoxHeight = node.numContinues ? INNER_BOX.INDICATOR_HEIGHT : 0
     const continueBoxMargin = continueBoxHeight > 0 ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
-    const repeatableBoxHeight = node.repeatable ? INNER_BOX.INDICATOR_HEIGHT : 0
+    const repeatableBoxHeight = node.ref ? INNER_BOX.INDICATOR_HEIGHT : 0
     const repeatableBoxMargin = repeatableBoxHeight > 0 ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
 
     const contentHeight =
@@ -132,7 +132,7 @@ export const getNodeHeight = (node: EventTreeNode, event: Event): number => {
         INNER_BOX.LISTINGS_VERTICAL_PADDING
       : 0
 
-    const repeatableHeight = node.repeatable ? INNER_BOX.INDICATOR_HEIGHT : 0
+    const repeatableHeight = node.ref ? INNER_BOX.INDICATOR_HEIGHT : 0
     const repeatableMargin = repeatableHeight > 0 ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
 
     let textHeight: number
@@ -172,7 +172,7 @@ export const getNodeHeight = (node: EventTreeNode, event: Event): number => {
     const effectsBoxMargin = effectsBoxHeight > 0 ? INNER_BOX.LISTINGS_TOP_MARGIN : 0
     const continueHeight = node.numContinues ? INNER_BOX.INDICATOR_HEIGHT : 0
     const continueMargin = continueHeight > 0 ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
-    const repeatableHeight = node.repeatable ? INNER_BOX.INDICATOR_HEIGHT : 0
+    const repeatableHeight = node.ref ? INNER_BOX.INDICATOR_HEIGHT : 0
     const repeatableMargin = repeatableHeight > 0 ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
 
     if (isRootNode) {
@@ -234,7 +234,7 @@ export const getNodeHeight = (node: EventTreeNode, event: Event): number => {
           INNER_BOX.LISTINGS_VERTICAL_PADDING
         : 0
     const effectsBoxMargin = effectsBoxHeight > 0 ? INNER_BOX.LISTINGS_TOP_MARGIN : 0
-    const repeatableHeight = node.repeatable ? INNER_BOX.INDICATOR_HEIGHT : 0
+    const repeatableHeight = node.ref ? INNER_BOX.INDICATOR_HEIGHT : 0
     const repeatableMargin = repeatableHeight > 0 ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
 
     const contentHeight =

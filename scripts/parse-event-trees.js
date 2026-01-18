@@ -14,37 +14,57 @@ console.warn = (...args) => {
  * Script to parse Ink JSON from events and generate hierarchical tree structures
  * using the official inkjs runtime for accurate parsing.
  *
- * REPEATABLE NODE LOGIC:
- * ----------------------
- * When a choice or dialogue appears multiple times in a tree (creating a loop),
- * we mark it as "repeatable" and use "repeatFrom" to track where it loops back to.
+ * LOOP DETECTION AND DEDUPLICATION:
+ * ----------------------------------
+ * Uses a three-stage approach to detect and eliminate duplicate content:
  *
- * The pattern after processing is:
- * - CHILD nodes get: repeatable: true (no repeatFrom)
- * - PARENT node gets: repeatFrom: <ancestor_node_id>
+ * 1. TEXT-BASED LOOP DETECTION (during tree building):
+ *    Detects when the same dialogue text appears in the ancestor chain.
+ *    Creates ref nodes immediately to prevent dialogue loops.
  *
- * Example structure:
- *   Node 3: { choiceLabel: "Continue" }
- *     └─ Node 2139: { repeatFrom: 3 }  ← Parent has repeatFrom pointing to ancestor
- *         ├─ Node 4: { choiceLabel: "Continue", repeatable: true }  ← Child has repeatable
- *         ├─ Node 5: { choiceLabel: "Continue", repeatable: true }
- *         └─ Node 6: { choiceLabel: "Continue", repeatable: true }
+ * 2. CHOICE+PATH-BASED LOOP DETECTION (during tree building):
+ *    Detects when the same choice structure appears at the same Ink story path.
+ *    Creates ref nodes to prevent merchant/shop loops where choices repeat.
  *
- * This allows the UI to:
- * - Identify repeatable choices by the "repeatable: true" flag on children
- * - Draw links from parent's "repeatFrom" back to the ancestor node
+ * 3. STRUCTURAL DEDUPLICATION (post-processing):
+ *    Uses breadth-first traversal to find structurally identical subtrees.
+ *    Replaces duplicates with references, ensuring shallow nodes are originals.
  *
- * INCORRECT patterns to watch for:
- * - Child with BOTH repeatable AND repeatFrom (should never happen after moveRepeatFromToParent)
- * - Parent missing repeatFrom when children have repeatable: true (indicates bug in logic)
+ * All duplicate nodes have a "ref" field pointing to the original node ID.
+ * The D3 renderer should use the ref field to loop back to the original node.
  */
 
 const EVENTS_FILE = path.join(__dirname, './events.json')
 const OUTPUT_FILE = path.join(__dirname, '../src/codex/data/event-trees.json')
 
+// For the events in this list, we should not include nodes that have the
+// choiceLabel === 'default' OR text === 'default'
+// Skip those nodes along with their entire subtree.
+const DEFAULT_NODE_BLACKLIST = [
+  'A Familiar Face',
+]
+
+const CONFIG = {
+  MAX_DEPTH: 100, // Limit depth for performance
+
+  // SIBLING-FIRST EXPLORATION:
+  // At shallow depths, we explore all siblings at each level before going deeper.
+  // This ensures all major branches are explored even if one branch is very complex.
+  // How it works: At each shallow level, we save story states for all choices,
+  // then recursively explore each one. This allows all siblings to START their
+  // exploration before the node limit kicks in.
+  SIBLING_FIRST_DEPTH: 8, // Explore each sibling all the way until we reach this depth
+  SIBLING_FIRST_NODE_BUDGET: 20000, // Max nodes to create during sibling-first phase
+
+  // DEPTH-FIRST EXPLORATION:
+  // After sibling-first phase, we switch to standard depth-first exploration.
+  // Node counter is RESET when first entering depth-first phase for this event.
+  DEPTH_FIRST_NODE_BUDGET: 5000, // Max nodes to create during depth-first phase
+}
+
 let nodeIdCounter = 0
 let totalNodesInCurrentEvent = 0
-const MAX_NODES_PER_EVENT = 500 // Limit nodes per event to prevent runaway exploration
+let hasResetForDepthFirst = false // Track if we've reset the counter for this event
 
 /**
  * Generate a unique node ID (integer, unique per event)
@@ -103,19 +123,11 @@ function detectRandomVariables(inkJsonString) {
 
 /**
  * Create a node with consistent field ordering
+ *
+ * Field order: id, text, type, choiceLabel, requirements, effects, numContinues, ref, children
+ * Optional fields are only included if they have values.
  */
-function createNode({
-  id,
-  text,
-  type,
-  choiceLabel,
-  requirements,
-  effects,
-  repeatable,
-  repeatFrom,
-  numContinues,
-  children,
-}) {
+function createNode({ id, text, type, choiceLabel, requirements, effects, numContinues, ref, children }) {
   const node = {
     id,
     text,
@@ -133,19 +145,14 @@ function createNode({
     node.effects = effects
   }
 
-  // Only include repeatable if it's true
-  if (repeatable === true) {
-    node.repeatable = true
-  }
-
-  // Add repeatFrom to reference the ancestor node being repeated
-  if (repeatFrom !== undefined) {
-    node.repeatFrom = repeatFrom
-  }
-
   // Add numContinues for dialogue nodes
   if (type === 'dialogue' && numContinues !== undefined) {
     node.numContinues = numContinues
+  }
+
+  // Add ref field if this is a reference node
+  if (ref !== undefined) {
+    node.ref = ref
   }
 
   if (children !== undefined && children.length > 0) {
@@ -163,6 +170,7 @@ function parseInkStory(inkJsonString, eventName) {
     // Reset counters for each event
     nodeIdCounter = 0
     totalNodesInCurrentEvent = 0
+    hasResetForDepthFirst = false
 
     // Detect random variables before executing the story
     const randomVars = detectRandomVariables(inkJsonString)
@@ -178,21 +186,21 @@ function parseInkStory(inkJsonString, eventName) {
     const story = new Story(inkJsonString)
 
     // Build tree by exploring all possible paths
-    const rootNode = buildTreeFromStory(story, eventName, new Set(), 0, '', [], [], [], randomVars)
+    const rootNode = buildTreeFromStory(story, eventName, new Set(), new Map(), 0, '', [], new Map(), randomVars)
 
     if (!rootNode) {
       console.warn(`  ⚠️  Event "${eventName}" produced empty tree`)
       return null
     }
 
-    if (totalNodesInCurrentEvent >= MAX_NODES_PER_EVENT) {
+    // Check if we hit the depth-first node limit
+    // Note: This check happens after the tree is built, so it only detects if we hit
+    // the limit during depth-first phase (counter was reset at transition)
+    if (totalNodesInCurrentEvent >= CONFIG.DEPTH_FIRST_NODE_BUDGET) {
       console.warn(
-        `  ⚠️  Event "${eventName}" hit node limit (${MAX_NODES_PER_EVENT} nodes) - tree may be incomplete`
+        `  ⚠️  Event "${eventName}" hit depth-first node limit - tree may be incomplete`
       )
     }
-
-    // Fix repeatFrom for choice nodes (post-processing)
-    fixChoiceRepeatFrom(rootNode)
 
     return rootNode
   } catch (error) {
@@ -203,30 +211,61 @@ function parseInkStory(inkJsonString, eventName) {
 
 /**
  * Build a hierarchical tree by recursively exploring all story paths
+ *
+ * EXPLORATION STRATEGY:
+ * - Sibling-first (depths < SIBLING_FIRST_DEPTH): All siblings explored before going deep
+ * - Depth-first (depths >= SIBLING_FIRST_DEPTH): Standard recursive exploration
+ *
+ * LOOP DETECTION (during tree building):
+ * 1. Text-based: Detects when the same dialogue text appears before
+ * 2. Choice+path-based: Detects when the same choice structure appears at the same Ink path
+ * When a loop is detected, creates a ref node pointing to the original occurrence.
+ *
+ * Post-processing deduplication will find additional structural duplicates that aren't loops.
  */
 function buildTreeFromStory(
   story,
   eventName,
   visitedStates = new Set(),
+  stateToNodeId = new Map(),
   depth = 0,
   pathHash = '',
   ancestorTexts = [],
-  ancestorChoices = [],
-  ancestorNodes = [],
+  textToNodeId = new Map(),
   randomVars = new Map()
 ) {
   // Check node limit to prevent infinite exploration
-  if (totalNodesInCurrentEvent >= MAX_NODES_PER_EVENT) {
-    console.warn(
-      `  ⚠️  Event "${eventName}" reached node limit (${MAX_NODES_PER_EVENT}) - truncating branch`
-    )
-    return null
+  const inSiblingFirstMode = depth < CONFIG.SIBLING_FIRST_DEPTH
+  const inDepthFirstMode = depth >= CONFIG.SIBLING_FIRST_DEPTH
+
+  // RESET node counter when transitioning from sibling-first to depth-first
+  // This happens exactly ONCE when we first reach SIBLING_FIRST_DEPTH
+  if (depth === CONFIG.SIBLING_FIRST_DEPTH && !hasResetForDepthFirst) {
+    hasResetForDepthFirst = true
+    totalNodesInCurrentEvent = 0
+  }
+
+  if (inSiblingFirstMode) {
+    // During sibling-first phase: use separate budget
+    if (totalNodesInCurrentEvent >= CONFIG.SIBLING_FIRST_NODE_BUDGET) {
+      console.warn(
+        `  ⚠️  Event "${eventName}" reached sibling-first budget (${CONFIG.SIBLING_FIRST_NODE_BUDGET}) at depth ${depth} - truncating branch`
+      )
+      return null
+    }
+  } else if (inDepthFirstMode) {
+    // During depth-first phase: use depth-first limit
+    if (totalNodesInCurrentEvent >= CONFIG.DEPTH_FIRST_NODE_BUDGET) {
+      console.warn(
+        `  ⚠️  Event "${eventName}" reached depth-first node limit (${CONFIG.DEPTH_FIRST_NODE_BUDGET}) - truncating branch`
+      )
+      return null
+    }
   }
 
   // Prevent infinite loops and excessive depth
-  const MAX_DEPTH = 15 // Limit depth for performance
-  if (depth > MAX_DEPTH) {
-    console.warn(`  ⚠️  Event "${eventName}" reached max depth (${MAX_DEPTH}) - truncating branch`)
+  if (depth > CONFIG.MAX_DEPTH) {
+    console.warn(`  ⚠️  Event "${eventName}" reached max depth (${CONFIG.MAX_DEPTH}) - truncating branch`)
     totalNodesInCurrentEvent++
     return createNode({
       id: generateNodeId(),
@@ -235,16 +274,8 @@ function buildTreeFromStory(
     })
   }
 
-  // Create a simpler state hash based on path instead of full JSON (much faster)
-  const currentPathHash = `${pathHash}_${story.state.currentPathString || ''}`
-  if (visitedStates.has(currentPathHash)) {
-    return null // Already visited this state
-  }
-
-  const newVisitedStates = new Set(visitedStates)
-  newVisitedStates.add(currentPathHash)
-
-  // Collect all text from the current segment
+  // Collect all text from the current segment FIRST
+  // We need this before loop detection so we can check for text-based loops
   let text = ''
   let continueCount = 0
 
@@ -318,6 +349,56 @@ function buildTreeFromStory(
   // Extract effects from the beginning of text, then clean the rest
   const { effects, cleanedText } = extractEffects(text)
 
+  // DUAL LOOP DETECTION STRATEGY:
+  // Detects loops during tree building to prevent infinite exploration
+  // and create ref nodes immediately when patterns repeat
+
+  // 1. TEXT-BASED LOOP DETECTION (catches dialogue loops like The Ferryman)
+  // Check if we've seen this exact text before in our exploration
+  if (cleanedText && textToNodeId.has(cleanedText)) {
+    const originalNodeId = textToNodeId.get(cleanedText)
+    totalNodesInCurrentEvent++
+    // Create ref node pointing to the first occurrence of this text
+    return createNode({
+      id: generateNodeId(),
+      text: cleanedText,
+      type: type,
+      effects: effects,
+      numContinues: numContinues,
+      ref: originalNodeId,
+    })
+  }
+
+  // 2. CHOICE+PATH-BASED LOOP DETECTION (catches merchant/shop loops)
+  // For merchant/shop events, the same choices repeat even though game state differs
+  // Hash combines choice structure + Ink story path to detect loops
+  const choiceLabels = choices.map((c) => extractChoiceMetadata(c.text).cleanedText).join('|')
+  const currentStateHash = `${pathHash}_${choiceLabels}_${story.state.currentPathString || ''}`
+
+  // Check if we've visited this exact state before (same choices + location)
+  if (visitedStates.has(currentStateHash)) {
+    const originalNodeId = stateToNodeId.get(currentStateHash)
+    totalNodesInCurrentEvent++
+    // Create ref node with all details preserved except children
+    return createNode({
+      id: generateNodeId(),
+      text: cleanedText,
+      type: type,
+      effects: effects,
+      numContinues: numContinues,
+      ref: originalNodeId,
+    })
+  }
+
+  // Clone tracking maps for this branch to maintain separate state per path
+  const newVisitedStates = new Set(visitedStates)
+  newVisitedStates.add(currentStateHash)
+  const newStateToNodeId = new Map(stateToNodeId)
+  const newTextToNodeId = new Map(textToNodeId)
+
+  // Track ancestor texts (unused but kept for potential future use)
+  const newAncestorTexts = cleanedText ? [...ancestorTexts, cleanedText] : ancestorTexts
+
   // If we have no cleaned text and no choices, check if it's a special node type
   if (!cleanedText && choices.length === 0) {
     // If it's a combat or special command node, keep it
@@ -339,7 +420,6 @@ function buildTreeFromStory(
         text: undefined,
         type: 'end',
         effects,
-        repeatable: false,
       })
     }
 
@@ -347,12 +427,8 @@ function buildTreeFromStory(
     // create an empty end node instead of returning null
     // This ensures choices that lead to immediate endings are still represented in the tree
 
-    // Uncomment for debugging empty end nodes:
-    // const pathInfo = ancestorTexts.length > 0 ? ancestorTexts[ancestorTexts.length - 1] : 'root'
-    // const preview = pathInfo.length > 60 ? pathInfo.substring(0, 60) + '...' : pathInfo
-    // console.log(
-    //   `ℹ️  Event "${eventName}" - empty end node at depth ${depth}\n     Last node: "${preview}"`
-    // )
+    // Debug logging for empty end nodes (disabled)
+    // Uncomment to see where empty end nodes are created
 
     totalNodesInCurrentEvent++
     return createNode({
@@ -365,11 +441,13 @@ function buildTreeFromStory(
   const nodeId = generateNodeId()
   totalNodesInCurrentEvent++
 
-  // Check if this node's text matches an ancestor (repeatable dialogue)
-  const isRepeatable = cleanedText && ancestorTexts.includes(cleanedText)
-  const repeatFromNodeId = isRepeatable
-    ? ancestorNodes[ancestorTexts.indexOf(cleanedText)]?.id
-    : undefined
+  // Store this node ID for choice+path-based loop detection
+  newStateToNodeId.set(currentStateHash, nodeId)
+
+  // Store text-to-node mapping for text-based loop detection
+  if (cleanedText) {
+    newTextToNodeId.set(cleanedText, nodeId)
+  }
 
   // If there are no choices, this is a leaf node
   if (choices.length === 0) {
@@ -378,102 +456,129 @@ function buildTreeFromStory(
       text: cleanedText || '[End]',
       type: type === 'dialogue' ? 'end' : type,
       effects,
-      repeatable: isRepeatable,
-      repeatFrom: repeatFromNodeId,
-      numContinues,
-    })
-  }
-
-  // If this node is repeatable, don't explore children (avoid infinite loop)
-  if (isRepeatable) {
-    return createNode({
-      id: nodeId,
-      text: cleanedText,
-      type,
-      effects,
-      repeatable: true,
-      repeatFrom: repeatFromNodeId,
       numContinues,
     })
   }
 
   // Build children by exploring each choice
   const children = []
-  const currentNodeInfo = { id: nodeId, text: cleanedText }
-  const newAncestorTexts = cleanedText ? [...ancestorTexts, cleanedText] : ancestorTexts
-  const newAncestorNodes = cleanedText ? [...ancestorNodes, currentNodeInfo] : ancestorNodes
 
-  for (let i = 0; i < choices.length; i++) {
-    const choice = choices[i]
+  // HYBRID SIBLING-FIRST/DEPTH-FIRST EXPLORATION
+  // For shallow depths (< SIBLING_FIRST_DEPTH), we use sibling-first exploration:
+  // all siblings at this level are explored before going deeper into any single branch.
+  // This ensures all major branches get explored even if one branch is very complex.
+  const useSiblingFirst = depth < CONFIG.SIBLING_FIRST_DEPTH
 
-    // Extract requirements and clean choice text FIRST to check for repetition
-    const { requirements, cleanedText: choiceText } = extractChoiceMetadata(choice.text)
+  if (useSiblingFirst) {
+    // SIBLING-FIRST: Two-pass approach
+    // Pass 1: Save story states for all choices at this level (doesn't recurse yet)
+    const childData = []
 
-    // Check if this choice label has appeared before (repeatable choice)
-    const isRepeatableChoice = choiceText && ancestorChoices.includes(choiceText)
+    for (let i = 0; i < choices.length; i++) {
+      const choice = choices[i]
+      const { requirements, cleanedText: choiceText } = extractChoiceMetadata(choice.text)
+      const savedState = story.state.toJson()
 
-    if (isRepeatableChoice) {
-      // This choice loops back - create a repeatable choice node without exploring further
-      // Note: repeatFrom will be filled in by fixChoiceRepeatFrom() post-processing
-      const repeatableNode = createNode({
-        id: generateNodeId(),
-        text: '', // Empty text prevents separateChoicesFromEffects from splitting this node
-        type: 'choice',
-        choiceLabel: choiceText,
-        requirements: requirements.length > 0 ? requirements : undefined,
-        repeatable: true,
-      })
-      children.push(repeatableNode)
-      totalNodesInCurrentEvent++
-      continue // Skip exploring this branch
-    }
+      try {
+        story.ChooseChoiceIndex(i)
 
-    // Save story state before making choice
-    const savedState = story.state.toJson()
+        // Save the story state after making this choice
+        const childState = story.state.toJson()
 
-    try {
-      // Make the choice
-      story.ChooseChoiceIndex(i)
-
-      // Add this choice to the ancestor path for loop detection
-      const newAncestorChoices = choiceText ? [...ancestorChoices, choiceText] : ancestorChoices
-
-      // Recursively build tree for this branch
-      const childNode = buildTreeFromStory(
-        story,
-        eventName,
-        newVisitedStates,
-        depth + 1,
-        `${currentPathHash}_c${i}`,
-        newAncestorTexts,
-        newAncestorChoices,
-        newAncestorNodes,
-        randomVars
-      )
-
-      if (childNode) {
-        // Reconstruct node with proper field ordering (choiceLabel after type)
-        const orderedChild = createNode({
-          id: childNode.id,
-          text: childNode.text,
-          type: childNode.type,
-          choiceLabel: choiceText,
-          requirements: requirements.length > 0 ? requirements : childNode.requirements,
-          effects: childNode.effects,
-          repeatable: childNode.repeatable,
-          repeatFrom: childNode.repeatFrom,
-          numContinues: childNode.numContinues,
-          children: childNode.children,
+        childData.push({
+          choiceIndex: i,
+          choiceText,
+          requirements,
+          storyState: childState,
+          pathHash: `${currentStateHash}_c${i}`,
         })
-
-        children.push(orderedChild)
+      } catch (error) {
+        console.warn(`    ⚠️  Error exploring choice in "${eventName}": ${error.message}`)
       }
-    } catch (error) {
-      console.warn(`    ⚠️  Error exploring choice in "${eventName}": ${error.message}`)
+
+      story.state.LoadJson(savedState)
     }
 
-    // Restore story state for next choice
-    story.state.LoadJson(savedState)
+    // Pass 2: Now recursively explore each child (they explore deep, but all get a chance to start)
+    for (const { choiceText, requirements, storyState, pathHash } of childData) {
+      try {
+        story.state.LoadJson(storyState)
+
+        const childNode = buildTreeFromStory(
+          story,
+          eventName,
+          newVisitedStates,
+          newStateToNodeId,
+          depth + 1,
+          pathHash,
+          newAncestorTexts,
+          newTextToNodeId,
+          randomVars
+        )
+
+        if (childNode) {
+          const orderedChild = createNode({
+            id: childNode.id,
+            text: childNode.text,
+            type: childNode.type,
+            choiceLabel: choiceText,
+            requirements: requirements.length > 0 ? requirements : childNode.requirements,
+            effects: childNode.effects,
+            numContinues: childNode.numContinues,
+            ref: childNode.ref,
+            children: childNode.children,
+          })
+
+          children.push(orderedChild)
+        }
+      } catch (error) {
+        console.warn(`    ⚠️  Error in sibling-first child exploration: ${error.message}`)
+      }
+    }
+  } else {
+    // DEPTH-FIRST: Standard recursive exploration (current behavior)
+    for (let i = 0; i < choices.length; i++) {
+      const choice = choices[i]
+      const { requirements, cleanedText: choiceText } = extractChoiceMetadata(choice.text)
+      const savedState = story.state.toJson()
+
+      try {
+        story.ChooseChoiceIndex(i)
+
+        // Recursively build tree for this branch
+        const childNode = buildTreeFromStory(
+          story,
+          eventName,
+          newVisitedStates,
+          newStateToNodeId,
+          depth + 1,
+          `${currentStateHash}_c${i}`,
+          newAncestorTexts,
+          newTextToNodeId,
+          randomVars
+        )
+
+        if (childNode) {
+          const orderedChild = createNode({
+            id: childNode.id,
+            text: childNode.text,
+            type: childNode.type,
+            choiceLabel: choiceText,
+            requirements: requirements.length > 0 ? requirements : childNode.requirements,
+            effects: childNode.effects,
+            numContinues: childNode.numContinues,
+            ref: childNode.ref,
+            children: childNode.children,
+          })
+
+          children.push(orderedChild)
+        }
+      } catch (error) {
+        console.warn(`    ⚠️  Error exploring choice in "${eventName}": ${error.message}`)
+      }
+
+      story.state.LoadJson(savedState)
+    }
   }
 
   // Build the node
@@ -690,6 +795,8 @@ function determineNodeType(text, isLeaf) {
  * Main processing function
  */
 function processEvents() {
+  const startTime = Date.now()
+
   console.log('📖 Reading events file...')
   const events = JSON.parse(fs.readFileSync(EVENTS_FILE, 'utf-8'))
 
@@ -764,6 +871,27 @@ function processEvents() {
 
   console.log('\n✨ Done!')
 
+  // Filter out default nodes for specific events
+  console.log('\n🗑️  Filtering default nodes for blacklisted events...')
+  let totalFiltered = 0
+  eventTrees.forEach((tree) => {
+    if (DEFAULT_NODE_BLACKLIST.includes(tree.name)) {
+      const nodesBefore = countNodes(tree.rootNode)
+      filterDefaultNodes(tree.rootNode)
+      const nodesAfter = countNodes(tree.rootNode)
+      const filtered = nodesBefore - nodesAfter
+      if (filtered > 0) {
+        console.log(`  - "${tree.name}": removed ${filtered} default nodes`)
+        totalFiltered += filtered
+      }
+    }
+  })
+  if (totalFiltered > 0) {
+    console.log(`  Total default nodes filtered: ${totalFiltered}`)
+  } else {
+    console.log(`  No default nodes found`)
+  }
+
   // Separate choices from their effects for clearer visualization
   console.log('\n🔀 Separating choices from effects...')
   let totalSeparated = 0
@@ -773,21 +901,36 @@ function processEvents() {
   })
   console.log(`  Separated ${totalSeparated} choice-effect pairs`)
 
-  // Move repeatFrom from children to parents for cleaner visualization
-  console.log('\n📤 Moving repeatFrom to parent nodes...')
-  eventTrees.forEach((tree) => {
-    moveRepeatFromToParent(tree.rootNode)
-  })
+  // Calculate stats before deduplication
+  const nodesBeforeDedupe = eventTrees.reduce((sum, tree) => sum + countNodes(tree.rootNode), 0)
+
+  // Deduplicate subtrees
+  console.log('\n🔄 Deduplicating subtrees...')
+  const { totalDuplicates, totalNodesRemoved, eventsWithDedupe } = deduplicateAllTrees(eventTrees)
+  console.log(`  Replaced ${totalDuplicates} duplicate subtrees`)
+  console.log(`  Reduced node count by ${totalNodesRemoved}`)
+
+  if (eventsWithDedupe.length > 0) {
+    console.log(`\n  Events with deduplication:`)
+    eventsWithDedupe.forEach(({ name, duplicates, nodesRemoved }) => {
+      console.log(`    - "${name}": ${duplicates} duplicates, ${nodesRemoved} nodes removed`)
+    })
+  }
 
   // Calculate final stats
   const finalTotalNodes = eventTrees.reduce((sum, tree) => sum + countNodes(tree.rootNode), 0)
-  console.log(`  Final node count: ${finalTotalNodes}`)
+  console.log(`\n  Final node count: ${finalTotalNodes} (was ${nodesBeforeDedupe})`)
 
-  // Re-write output with separated nodes
+  // Re-write output with deduplicated nodes
   console.log(`\n💾 Re-writing to ${OUTPUT_FILE}...`)
   fs.writeFileSync(OUTPUT_FILE, JSON.stringify(eventTrees, null, 2), 'utf-8')
 
   console.log('\n✨ Done!')
+
+  // Show elapsed time
+  const endTime = Date.now()
+  const elapsedSeconds = ((endTime - startTime) / 1000).toFixed(2)
+  console.log(`⏱️  Total parsing time: ${elapsedSeconds}s`)
 
   // Show sample output
   if (eventTrees.length > 0) {
@@ -803,50 +946,32 @@ function processEvents() {
 }
 
 /**
- * Fix repeatFrom references for choice nodes by searching ancestors
- * This is a post-processing step after the tree is built
+ * Filter out nodes with 'default' text or choiceLabel for specific events
+ * Removes the node and its entire subtree
  */
-function fixChoiceRepeatFrom(node, choiceAncestors = []) {
-  if (!node) return
-
-  // If this is a repeatable choice node without repeatFrom, find the ancestor
-  if (node.repeatable && node.choiceLabel && !node.repeatFrom) {
-    // Find the first ancestor with the same choice label
-    const matchingAncestor = choiceAncestors.find((a) => a.choiceLabel === node.choiceLabel)
-    if (matchingAncestor) {
-      node.repeatFrom = matchingAncestor.id
-    }
-  }
-
-  // Add this node to ancestors if it has a choice label
-  const newAncestors = node.choiceLabel
-    ? [...choiceAncestors, { id: node.id, choiceLabel: node.choiceLabel }]
-    : choiceAncestors
-
-  // Recursively process children
-  if (node.children) {
-    node.children.forEach((child) => fixChoiceRepeatFrom(child, newAncestors))
-  }
-}
-
-/**
- * Move repeatFrom from children to their parent nodes
- * Rule: If a child has both repeatable and repeatFrom, move repeatFrom to parent
- */
-function moveRepeatFromToParent(node) {
+function filterDefaultNodes(node) {
   if (!node || !node.children) return
 
-  // Check each child
+  const filteredChildren = []
+
   for (const child of node.children) {
-    // If child has repeatFrom, move it to parent (this node)
-    if (child.repeatFrom) {
-      node.repeatFrom = child.repeatFrom
-      delete child.repeatFrom
+    // Check if this child should be filtered
+    const hasDefaultChoice = child.choiceLabel === 'default'
+    const hasDefaultText = child.text === 'default'
+
+    if (hasDefaultChoice || hasDefaultText) {
+      // Skip this child and its entire subtree
+      continue
     }
 
-    // Recursively process child's descendants
-    moveRepeatFromToParent(child)
+    // Recursively filter this child's children
+    filterDefaultNodes(child)
+
+    // Keep this child
+    filteredChildren.push(child)
   }
+
+  node.children = filteredChildren
 }
 
 /**
@@ -891,7 +1016,6 @@ function separateChoicesFromEffects(node) {
           type: 'choice',
           choiceLabel: child.choiceLabel,
           requirements: child.requirements,
-          repeatFrom: child.repeatFrom, // Move repeatFrom to parent
         })
 
         // Create an outcome node (child)
@@ -918,7 +1042,6 @@ function separateChoicesFromEffects(node) {
           text: child.text || '',
           type: outcomeType,
           effects: child.effects,
-          repeatable: child.repeatable,
           numContinues: child.numContinues,
           children: child.children,
         })
@@ -960,6 +1083,157 @@ function getMaxDepth(node, currentDepth = 0) {
     return currentDepth + 1
   }
   return Math.max(...node.children.map((child) => getMaxDepth(child, currentDepth + 1)))
+}
+
+/**
+ * Check if two subtrees are structurally identical at depth 1 (immediate children only)
+ *
+ * Compares:
+ * - Number of children
+ * - For each child: text, choiceLabel, type, requirements, effects
+ *
+ * Does NOT recursively compare deeper levels (only depth 1).
+ */
+function areSubtreesIdentical(nodeA, nodeB) {
+  // Must have same number of children
+  const childrenA = nodeA.children || []
+  const childrenB = nodeB.children || []
+
+  if (childrenA.length !== childrenB.length) return false
+
+  // If both have no children, they're identical (both leaf nodes)
+  if (childrenA.length === 0) return true
+
+  // Check each child at depth 1 only
+  for (let i = 0; i < childrenA.length; i++) {
+    const childA = childrenA[i]
+    const childB = childrenB[i]
+
+    // Compare text
+    if (childA.text !== childB.text) return false
+
+    // Compare choiceLabel
+    if (childA.choiceLabel !== childB.choiceLabel) return false
+
+    // Compare requirements (exact match)
+    const reqA = JSON.stringify(childA.requirements || null)
+    const reqB = JSON.stringify(childB.requirements || null)
+    if (reqA !== reqB) return false
+
+    // Compare effects (exact match)
+    const effA = JSON.stringify(childA.effects || null)
+    const effB = JSON.stringify(childB.effects || null)
+    if (effA !== effB) return false
+  }
+
+  return true
+}
+
+/**
+ * Deduplicate structurally identical subtrees within a single event tree
+ *
+ * Uses breadth-first traversal to process nodes from shallowest to deepest.
+ * This ensures the shallowest occurrence becomes the original (better for visualization).
+ *
+ * Only deduplicates subtrees with at least 3 nodes to avoid unnecessary overhead.
+ * Creates a structural signature based on children's text, type, requirements, and effects.
+ * Replaces duplicate subtrees with ref nodes pointing to the first occurrence.
+ */
+function deduplicateEventTree(rootNode) {
+  const MIN_SUBTREE_SIZE = 3 // Only dedupe if subtree has at least 3 nodes
+  const subtreeMap = new Map() // signature -> first occurrence node id
+  let duplicatesFound = 0
+  let nodesRemoved = 0
+
+  // Breadth-first traversal to process nodes from shallowest to deepest
+  const queue = [rootNode]
+  const allNodes = []
+
+  while (queue.length > 0) {
+    const node = queue.shift()
+    if (!node) continue
+
+    allNodes.push(node)
+
+    if (node.children) {
+      queue.push(...node.children)
+    }
+  }
+
+  // Process nodes in breadth-first order (shallowest first)
+  for (const node of allNodes) {
+    if (!node.children || node.children.length === 0) continue
+    if (node.ref) continue // Skip nodes that are already references
+
+    // Check if this subtree is large enough to deduplicate
+    const subtreeSize = countNodes(node)
+    if (subtreeSize >= MIN_SUBTREE_SIZE) {
+      // Create a simple signature based on node structure
+      const signature = JSON.stringify({
+        numChildren: node.children.length,
+        childrenData: node.children.map((child) => ({
+          text: child.text,
+          choiceLabel: child.choiceLabel,
+          type: child.type,
+          requirements: child.requirements,
+          effects: child.effects,
+        })),
+      })
+
+      // Check if we've seen this signature before
+      if (subtreeMap.has(signature)) {
+        const originalNodeId = subtreeMap.get(signature)
+        const originalNode = allNodes.find((n) => n.id === originalNodeId)
+
+        // Deep check: are the subtrees truly identical?
+        if (originalNode && areSubtreesIdentical(node, originalNode)) {
+          // Mark this node as a reference to the original
+          node.ref = originalNodeId
+          const removedNodes = subtreeSize - 1 // -1 because we keep the reference node
+          nodesRemoved += removedNodes
+          duplicatesFound++
+
+          // Remove children (they're in the referenced node)
+          delete node.children
+        }
+      } else {
+        // First occurrence of this subtree - store it
+        subtreeMap.set(signature, node.id)
+      }
+    }
+  }
+
+  return { duplicatesFound, nodesRemoved }
+}
+
+/**
+ * Deduplicate subtrees across all event trees
+ */
+function deduplicateAllTrees(eventTrees) {
+  let totalDuplicates = 0
+  let totalNodesRemoved = 0
+  const eventsWithDedupe = []
+
+  eventTrees.forEach((tree) => {
+    if (tree.excluded || !tree.rootNode) {
+      return
+    }
+
+    const { duplicatesFound, nodesRemoved } = deduplicateEventTree(tree.rootNode)
+
+    if (duplicatesFound > 0) {
+      eventsWithDedupe.push({
+        name: tree.name,
+        duplicates: duplicatesFound,
+        nodesRemoved,
+      })
+    }
+
+    totalDuplicates += duplicatesFound
+    totalNodesRemoved += nodesRemoved
+  })
+
+  return { totalDuplicates, totalNodesRemoved, eventsWithDedupe }
 }
 
 // Run the script
