@@ -153,7 +153,8 @@ export function drawRepeatFromLinks(g: any, defs: any, root: any, event: Event) 
       // Route to target's bottom-right corner
       targetX = targetRightEdge
       // Source comes from whichever side makes sense
-      if (sourceCenterX > targetCenterX) {
+      const safetyMargin = 20
+      if (sourceCenterX > targetCenterX + safetyMargin) {
         sourceX = sourceLeftEdge // From top-left of source
       } else {
         sourceX = sourceRightEdge // From top-right of source

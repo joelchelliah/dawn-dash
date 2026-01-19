@@ -60,9 +60,16 @@ const DEFAULT_NODE_BLACKLIST = [
 
 // Special-case events with dialogue menu patterns (ask questions in any order)
 // For these events, we detect when we're back at a menu with the same set of questions
-// and create a ref immediately to prevent factorial explosion
-// This is more specialized than early dedup - it matches on just the question choices,
-// ignoring other choices like "Fight" that may vary
+// and create a ref immediately to prevent hitting the node limit DURING tree building.
+//
+// WHY WE NEED THIS:
+// Without this early detection, Rathael's factorial explosion (9! = 362,880 orderings)
+// would cause us to hit the 25k node budget during tree generation and create an
+// incomplete tree. This early ref creation keeps the tree small enough to finish building.
+//
+// The post-processing collapseDialogueMenus() then further simplifies the already-built
+// tree by combining all question choices into a single node for better visualization.
+// Both are needed: this prevents generation failure, collapsing improves the final output.
 const DIALOGUE_MENU_EVENTS = ['Rathael the Slain Death']
 
 // Events that require path convergence detection (early deduplication during tree building)
@@ -513,10 +520,11 @@ function buildTreeFromStory(
     })
   }
 
-  // SPECIAL-CASE: DIALOGUE MENU DETECTION
+  // EARLY DEDUPLICATION: DIALOGUE MENU DETECTION
   // For events with dialogue menu patterns (like Rathael), detect when we're back
   // at a menu with the same set of questions available and create a ref to prevent
-  // factorial explosion from exploring all question orderings
+  // hitting the node limit during tree building. Without this, factorial explosion
+  // causes incomplete trees. Post-processing collapseDialogueMenus() further simplifies.
   const isDialogueMenuEvent = DIALOGUE_MENU_EVENTS.includes(eventName)
   if (isDialogueMenuEvent && isDialogueMenuPattern(choices)) {
     const menuSignature = createDialogueMenuSignature(choices)
@@ -1073,6 +1081,18 @@ function processEvents() {
     })
   }
 
+  // Collapse dialogue menu question orderings
+  console.log('\n🗂️  Collapsing dialogue menu question orderings...')
+  const { totalCollapsed, eventsWithCollapsed } = collapseDialogueMenus(eventTrees)
+  console.log(`  Collapsed ${totalCollapsed} dialogue menu patterns`)
+
+  if (eventsWithCollapsed.length > 0) {
+    console.log(`  Events with collapsed menus:`)
+    eventsWithCollapsed.forEach(({ name, nodesBefore, nodesAfter, reduction }) => {
+      console.log(`    - "${name}": ${nodesBefore} → ${nodesAfter} nodes (${reduction}% reduction)`)
+    })
+  }
+
   // Check for invalid refs
   console.log('\n🔍 Checking for invalid refs...')
   let totalInvalidRefs = 0
@@ -1456,6 +1476,102 @@ function deduplicateEventTree(rootNode) {
   }
 
   return { duplicatesFound, nodesRemoved }
+}
+
+/**
+ * Collapse dialogue menus
+ *
+ * For nodes that have multiple question choices (ending with "?"), this function:
+ * 1. Detects when all/most children are question choices
+ * 2. Keeps the question choices separate (preserves original choice labels)
+ * 3. For questions with only one child, replaces that child's subtree with a ref back to the menu
+ *
+ * This eliminates the factorial explosion that occurs when users can ask
+ * questions in any order (e.g., 9 questions = 9! = 362,880 orderings)
+ */
+function collapseDialogueMenusInTree(rootNode) {
+  let collapsedCount = 0
+
+  function traverse(node) {
+    if (!node || !node.children) return
+
+    // Check if this node is a dialogue menu (4+ children where 75%+ are questions)
+    const children = node.children
+    if (children.length < 4) {
+      // Not enough choices to be a menu - recurse to children
+      children.forEach(child => traverse(child))
+      return
+    }
+
+    const questionChildren = children.filter(child => {
+      const label = child.choiceLabel || ''
+      return label.trim().endsWith('?')
+    })
+
+    const questionPercentage = questionChildren.length / children.length
+    if (questionPercentage < 0.75) {
+      // Not enough questions to be a dialogue menu - recurse to children
+      children.forEach(child => traverse(child))
+      return
+    }
+
+    // This is a dialogue menu! Collapse it.
+    questionChildren.forEach(questionChild => {
+      // If this question choice has exactly one child, replace its subtree with a ref
+      if (questionChild.children && questionChild.children.length === 1) {
+        const originalChild = questionChild.children[0]
+
+        questionChild.children = [createNode({
+          id: originalChild.id,
+          text: originalChild.text,
+          type: originalChild.type,
+          effects: originalChild.effects,
+          numContinues: originalChild.numContinues,
+          ref: node.id, // Ref back to the menu node
+        })]
+      }
+    })
+
+    collapsedCount++
+
+    const nonQuestionChildren = children.filter(child => !questionChildren.includes(child))
+
+    nonQuestionChildren.forEach(child => traverse(child))
+  }
+
+  traverse(rootNode)
+  return collapsedCount
+}
+
+/**
+ * Collapse dialogue menus across all event trees
+ */
+function collapseDialogueMenus(eventTrees) {
+  let totalCollapsed = 0
+  const eventsWithCollapsed = []
+
+  eventTrees.forEach((tree) => {
+    if (tree.excluded || !tree.rootNode) {
+      return
+    }
+
+    const nodesBefore = countNodes(tree.rootNode)
+    const collapsed = collapseDialogueMenusInTree(tree.rootNode)
+    const nodesAfter = countNodes(tree.rootNode)
+
+    if (collapsed > 0) {
+      const reduction = Math.round(((nodesBefore - nodesAfter) / nodesBefore) * 100)
+      eventsWithCollapsed.push({
+        name: tree.name,
+        nodesBefore,
+        nodesAfter,
+        reduction,
+      })
+      totalCollapsed += collapsed
+    }
+  })
+
+  return { totalCollapsed, eventsWithCollapsed }
 }
 
 /**
