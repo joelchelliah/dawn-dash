@@ -1082,7 +1082,7 @@ function processEvents() {
   }
 
   // Collapse dialogue menu question orderings
-  console.log('\n🗂️  Collapsing dialogue menu question orderings...')
+  console.log('\n🗂️  Collapsing dialogue menus...')
   const { totalCollapsed, eventsWithCollapsed } = collapseDialogueMenus(eventTrees)
   console.log(`  Collapsed ${totalCollapsed} dialogue menu patterns`)
 
@@ -1090,6 +1090,18 @@ function processEvents() {
     console.log(`  Events with collapsed menus:`)
     eventsWithCollapsed.forEach(({ name, nodesBefore, nodesAfter, reduction }) => {
       console.log(`    - "${name}": ${nodesBefore} → ${nodesAfter} nodes (${reduction}% reduction)`)
+    })
+  }
+
+  // Convert sibling refs to refChildren
+  console.log('\n🔗 Converting sibling refs to refChildren...')
+  const { totalConversions, eventsWithConversions } = convertSiblingRefsToRefChildren(eventTrees)
+  console.log(`  Converted ${totalConversions} sibling refs`)
+
+  if (CONFIG.VERBOSE_LOGGING && eventsWithConversions.length > 0) {
+    console.log(`\n  Events with conversions:`)
+    eventsWithConversions.forEach(({ name, conversions }) => {
+      console.log(`    - "${name}": ${conversions} sibling refs converted`)
     })
   }
 
@@ -1572,6 +1584,114 @@ function collapseDialogueMenus(eventTrees) {
   })
 
   return { totalCollapsed, eventsWithCollapsed }
+}
+
+/**
+ * Convert sibling refs to refChildren structure
+ *
+ * When a node has a ref pointing to a sibling, this function:
+ * 1. Moves the node to be immediately after its ref target
+ * 2. Replaces the `ref` field with `refChildren` containing the target's children IDs
+ *
+ * Example transformation:
+ * Before: [A(id:1, children:[10,11]), B(id:2), C(id:3, ref:1)]
+ * After:  [A(id:1, children:[10,11]), C(id:3, refChildren:[10,11]), B(id:2)]
+ */
+function convertSiblingRefsToRefChildrenInTree(rootNode) {
+  let conversionsCount = 0
+
+  function traverse(node) {
+    if (!node || !node.children || node.children.length === 0) return
+
+    // Build a map of child ID to child node for this parent
+    const childMap = new Map()
+    node.children.forEach((child) => {
+      childMap.set(child.id, child)
+    })
+
+    // Find children with refs pointing to siblings
+    const reorderedChildren = []
+    const processed = new Set()
+
+    for (let i = 0; i < node.children.length; i++) {
+      const child = node.children[i]
+
+      if (processed.has(child.id)) continue
+
+      // Add this child to the reordered list
+      reorderedChildren.push(child)
+      processed.add(child.id)
+
+      // Check if any unprocessed siblings have refs pointing to this child
+      for (let j = 0; j < node.children.length; j++) {
+        if (processed.has(node.children[j].id)) continue
+
+        const potentialRefNode = node.children[j]
+
+        // Check if this node has a ref pointing to the current child (sibling)
+        if (potentialRefNode.ref !== undefined && potentialRefNode.ref === child.id) {
+          // This is a sibling ref! Convert it.
+
+          // Get the target's children IDs
+          const refChildrenIds = child.children ? child.children.map(c => c.id) : []
+
+          // Create new node with refChildren instead of ref
+          const convertedNode = {
+            ...potentialRefNode,
+            refChildren: refChildrenIds,
+          }
+
+          // Remove the ref field
+          delete convertedNode.ref
+
+          // Verify that this node doesn't have children (as per requirement)
+          if (potentialRefNode.children && potentialRefNode.children.length > 0) {
+            console.warn(`  ⚠️  Node ${potentialRefNode.id} has both ref and children - this shouldn't happen!`)
+          }
+
+          // Add the converted node immediately after its target
+          reorderedChildren.push(convertedNode)
+          processed.add(potentialRefNode.id)
+          conversionsCount++
+        }
+      }
+
+      // Recursively process this child's subtree
+      traverse(child)
+    }
+
+    // Update the parent's children with the reordered list
+    node.children = reorderedChildren
+  }
+
+  traverse(rootNode)
+  return conversionsCount
+}
+
+/**
+ * Convert sibling refs to refChildren across all event trees
+ */
+function convertSiblingRefsToRefChildren(eventTrees) {
+  let totalConversions = 0
+  const eventsWithConversions = []
+
+  eventTrees.forEach((tree) => {
+    if (tree.excluded || !tree.rootNode) {
+      return
+    }
+
+    const conversions = convertSiblingRefsToRefChildrenInTree(tree.rootNode)
+
+    if (conversions > 0) {
+      eventsWithConversions.push({
+        name: tree.name,
+        conversions,
+      })
+      totalConversions += conversions
+    }
+  })
+
+  return { totalConversions, eventsWithConversions }
 }
 
 /**

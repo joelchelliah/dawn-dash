@@ -24,58 +24,89 @@ export function drawLinks(g: any, defs: any, root: any, event: Event) {
     .attr('marker-end', (d: any, i: number) => {
       const sourceX = d.source.x || 0
       const targetX = d.target.x || 0
-
-      // Calculate angle based on horizontal displacement
-      // Since the curve is vertical at the endpoint, we base the angle on
-      // the overall direction from source to target
-      const dx = targetX - sourceX
-
-      // Create a unique marker for this link
       const markerId = `arrowhead-${i}`
 
-      // Calculate arrowhead angle based on horizontal displacement
-      const angle = getArrowheadAngle(dx)
-
-      const markerRefX = 7
-      const markerSize = 5
-
-      defs
-        .append('marker')
-        .attr('id', markerId)
-        .attr('viewBox', '0 -5 10 10')
-        .attr('refX', markerRefX) // Where the arrowhead is anchored
-        .attr('refY', 0)
-        .attr('markerWidth', markerSize)
-        .attr('markerHeight', markerSize)
-        .attr('orient', angle)
-        .append('path')
-        .attr('d', 'M0,-5L10,0L0,5')
-        .attr('class', cx('arrowhead'))
-
-      return `url(#${markerId})`
+      return arrowheadMarkerForStandardLinks(defs, markerId, sourceX, targetX, 'arrowhead')
     })
-
     .attr('d', (d: any) => {
       const sourceX = d.source.x || 0
       const sourceY = d.source.y || 0
       const targetX = d.target.x || 0
       const targetY = d.target.y || 0
 
-      const sourceNodeMid = getNodeHeight(d.source.data, event) / 2
-      const targetNodeMid = getNodeHeight(d.target.data, event) / 2
+      const sourceNodeHeight = getNodeHeight(d.source.data, event)
+      const targetNodeHeight = getNodeHeight(d.target.data, event)
 
-      const startY = sourceY + sourceNodeMid / 1.125
-      const endY = targetY - targetNodeMid - 3 // -3 because of arrowhead offset
-
-      // Control points: For curviness!
-      const controlOffsetSource = (endY - startY) * 0.2
-      const controlOffsetTarget = (endY - startY) * 0.5
-
-      return `M${sourceX},${startY}
-              C${sourceX},${startY + controlOffsetSource}
-               ${targetX},${endY - controlOffsetTarget}
-               ${targetX},${endY}`
+      return calculateCurvedPathForStandardLinks(
+        sourceX,
+        sourceY,
+        targetX,
+        targetY,
+        sourceNodeHeight,
+        targetNodeHeight
+      )
     })
+}
+
+/**
+ * Draws links for refChildren relationships
+ * These links connect a parent node to nodes referenced in its refChildren array
+ * The visual style is identical to regular parent-child links
+ */
+export function drawRefChildrenLinks(g: any, defs: any, root: any, event: Event) {
+  // Build a map of node id -> node for quick lookup
+  const nodeMap = new Map<number, any>()
+  root.descendants().forEach((node: any) => {
+    if (node.data.id !== undefined) {
+      nodeMap.set(node.data.id, node)
+    }
+  })
+
+  // Find all nodes with refChildren and create link data
+  const refChildrenLinks: Array<{ source: any; target: any }> = []
+  let linkCounter = 0
+
+  root.descendants().forEach((node: any) => {
+    if (node.data.refChildren && Array.isArray(node.data.refChildren)) {
+      // For each child ID in refChildren array, create a link
+      node.data.refChildren.forEach((childId: number) => {
+        const targetNode = nodeMap.get(childId)
+        if (targetNode) {
+          refChildrenLinks.push({
+            source: node,
+            target: targetNode,
+          })
+        }
+      })
+    }
+  })
+
+  // Draw the refChildren links with the same style as regular links
+  refChildrenLinks.forEach((d: any) => {
+    const sourceX = d.source.x || 0
+    const sourceY = d.source.y || 0
+    const targetX = d.target.x || 0
+    const targetY = d.target.y || 0
+
+    const markerId = `arrowhead-refchildren-${linkCounter++}`
+    const markerUrl = arrowheadMarkerForStandardLinks(defs, markerId, sourceX, targetX, 'arrowhead')
+
+    const sourceNodeHeight = getNodeHeight(d.source.data, event)
+    const targetNodeHeight = getNodeHeight(d.target.data, event)
+    const pathData = calculateCurvedPathForStandardLinks(
+      sourceX,
+      sourceY,
+      targetX,
+      targetY,
+      sourceNodeHeight,
+      targetNodeHeight
+    )
+
+    g.append('path')
+      .attr('class', cx('tree-link'))
+      .attr('marker-end', markerUrl)
+      .attr('d', pathData)
+  })
 }
 
 /**
@@ -193,3 +224,62 @@ export function drawRepeatFromLinks(g: any, defs: any, root: any, event: Event) 
   })
 }
 /* eslint-enable @typescript-eslint/no-explicit-any */
+
+/**
+ * Creates an arrowhead marker for standard links
+ */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+function arrowheadMarkerForStandardLinks(
+  defs: any,
+  markerId: string,
+  sourceX: number,
+  targetX: number,
+  arrowheadClass: string
+): string {
+  const dx = targetX - sourceX
+  const angle = getArrowheadAngle(dx)
+  const markerRefX = 7
+  const markerSize = 5
+
+  defs
+    .append('marker')
+    .attr('id', markerId)
+    .attr('viewBox', '0 -5 10 10')
+    .attr('refX', markerRefX)
+    .attr('refY', 0)
+    .attr('markerWidth', markerSize)
+    .attr('markerHeight', markerSize)
+    .attr('orient', angle)
+    .append('path')
+    .attr('d', 'M0,-5L10,0L0,5')
+    .attr('class', cx(arrowheadClass))
+
+  return `url(#${markerId})`
+}
+
+/**
+ * Calculates the curved path between two nodes in standard links
+ */
+function calculateCurvedPathForStandardLinks(
+  sourceX: number,
+  sourceY: number,
+  targetX: number,
+  targetY: number,
+  sourceNodeHeight: number,
+  targetNodeHeight: number
+): string {
+  const sourceNodeMid = sourceNodeHeight / 2
+  const targetNodeMid = targetNodeHeight / 2
+
+  const startY = sourceY + sourceNodeMid / 1.125
+  const endY = targetY - targetNodeMid - 3 // -3 because of arrowhead offset
+
+  // Control points: For curviness!
+  const controlOffsetSource = (endY - startY) * 0.2
+  const controlOffsetTarget = (endY - startY) * 0.5
+
+  return `M${sourceX},${startY}
+          C${sourceX},${startY + controlOffsetSource}
+           ${targetX},${endY - controlOffsetTarget}
+           ${targetX},${endY}`
+}
