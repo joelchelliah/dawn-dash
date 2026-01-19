@@ -359,18 +359,42 @@ export const adjustVerticalNodeSpacing = (
       return node.parent && node.parent.children && node.parent.children.length === 1
     })
 
-    // Calculate base desired gap
-    const baseGap = allNodesAreSingleChildren
-      ? NODE.VERTICAL_SPACING_SHORT
-      : NODE.VERTICAL_SPACING_DEFAULT
+    // Check if any nodes at previous depth has refChildren
+    const nodesAtPrevDepth = depth > 0 ? nodesByDepth[depth - 1] || [] : []
+    const anyParentHasRefChildren = nodesAtPrevDepth.some(
+      ({ data }) => data.refChildren && data.refChildren.length > 0
+    )
+
+    const baseGap =
+      allNodesAreSingleChildren && !anyParentHasRefChildren
+        ? NODE.VERTICAL_SPACING_SHORT
+        : NODE.VERTICAL_SPACING_DEFAULT
 
     // Add incremental spacing based on horizontal spread (10px per 1000px of horizontal distance)
     const horizontalSpreadFactor = Math.floor(maxHorizontalDistance / 1000)
     const desiredGap = baseGap + horizontalSpreadFactor * NODE.VERTICAL_SPACING_INCREMENT
 
+    // Build a reverse map: nodeId -> nodes at previous depth that have this node in refChildren
+    const refChildrenParentMap = new Map<number, HierarchyPointNode<EventTreeNode>[]>()
+    nodesAtPrevDepth.forEach((parent) => {
+      if (parent.data.refChildren && parent.data.refChildren.length > 0) {
+        parent.data.refChildren.forEach((childId) => {
+          if (!refChildrenParentMap.has(childId)) {
+            refChildrenParentMap.set(childId, [])
+          }
+          const refParents = refChildrenParentMap.get(childId)
+          if (refParents) {
+            refParents.push(parent)
+          }
+        })
+      }
+    })
+
     // Find the minimum gap among all nodes at this depth
+    // Check BOTH direct parent links AND refChildren links
     let minGap = Infinity
     nodesAtDepth.forEach((node) => {
+      // 1. Check direct parent link
       if (node.parent) {
         const parentHeight = getNodeHeight(node.parent.data, event)
         const nodeHeight = getNodeHeight(node.data, event)
@@ -378,6 +402,19 @@ export const adjustVerticalNodeSpacing = (
         // Calculate current gap between bottom of parent and top of child
         const currentGap = node.y - node.parent.y - (parentHeight / 2 + nodeHeight / 2)
         minGap = Math.min(minGap, currentGap)
+      }
+
+      // 2. Check refChildren links (nodes at previous depth that reference this node)
+      const refParents = refChildrenParentMap.get(node.data.id)
+      if (refParents) {
+        refParents.forEach((refParent) => {
+          const refParentHeight = getNodeHeight(refParent.data, event)
+          const nodeHeight = getNodeHeight(node.data, event)
+
+          // Calculate gap between bottom of refParent and top of this node
+          const currentGap = node.y - refParent.y - (refParentHeight / 2 + nodeHeight / 2)
+          minGap = Math.min(minGap, currentGap)
+        })
       }
     })
 

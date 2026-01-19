@@ -39,4 +39,5 @@ interface BaseNode {
   children?: EventTreeNode[]
   numContinues?: number
   ref?: number
+  refChildren?: number[]
 }
