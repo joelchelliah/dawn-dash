@@ -13,7 +13,6 @@ import { Event } from './types/events'
 import EventSearchPanel from './components/SearchPanels/EventSearchPanel'
 import EventResultsPanel from './components/ResultsPanels/EventResultsPanel'
 import { ALL_EVENTS_INDEX } from './constants/eventSearchValues'
-import { useEventFilterInputFocus } from './hooks/useEventFilterInputFocus'
 import { useAllEventSearchFilters } from './hooks/useSearchFilters/useAllEventSearchFilters'
 import { searchEventTree } from './utils/eventTreeSearch'
 import styles from './events.module.scss'
@@ -29,11 +28,6 @@ function Events(): JSX.Element {
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false)
 
   const useSearchFiltersHook = useAllEventSearchFilters()
-  const { searchPanelRef, onEditFilter } = useEventFilterInputFocus(
-    showAdvancedOptions,
-    setShowAdvancedOptions,
-    useSearchFiltersHook.filterText
-  )
 
   // Filter events based on search text (debounced)
   const filteredEvents = eventTrees.filter((event) =>
@@ -57,7 +51,6 @@ function Events(): JSX.Element {
 
       <div className={cx('content')}>
         <EventSearchPanel
-          ref={searchPanelRef}
           selectedEventIndex={selectedEventIndex}
           onEventChange={setSelectedEventIndex}
           filteredEvents={filteredEvents}
@@ -72,7 +65,6 @@ function Events(): JSX.Element {
           filteredEvents={filteredEvents}
           useSearchFilters={useSearchFiltersHook}
           onEventChange={setSelectedEventIndex}
-          onEditFilter={onEditFilter}
         />
       </div>
 

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useImperativeHandle, forwardRef } from 'react'
+import { useEffect } from 'react'
 
 import { createCx } from '@/shared/utils/classnames'
 import Select from '@/shared/components/Select'
@@ -19,17 +19,13 @@ import {
 import { UseAllEventSearchFilters } from '@/codex/hooks/useSearchFilters/useAllEventSearchFilters'
 
 import PanelHeader from '../../PanelHeader'
-import SearchField, { SearchFieldRef } from '../shared/SearchField'
+import SearchField from '../shared/SearchField'
 
 import styles from './index.module.scss'
 
 const cx = createCx(styles)
 
 const eventTrees = eventTreesData as Event[]
-
-export interface EventSearchPanelRef {
-  focusFilterInput: () => void
-}
 
 interface EventSearchPanelProps {
   selectedEventIndex: number
@@ -47,166 +43,164 @@ const getLoopingPathModeLabel = (mode: LoopingPathMode): string =>
     ? 'With «Repeatable» badges on nodes'
     : 'With lines back to the repeating nodes'
 
-const EventSearchPanel = forwardRef<EventSearchPanelRef, EventSearchPanelProps>(
-  (
+const EventSearchPanel = ({
+  selectedEventIndex,
+  onEventChange,
+  filteredEvents,
+  useSearchFilters,
+  showAdvancedOptions,
+  setShowAdvancedOptions,
+}: EventSearchPanelProps) => {
+  const selectedClass = CharacterClass.Sunforge
+  const {
+    filterText,
+    setFilterText,
+    zoomLevel,
+    setZoomLevel,
+    loopingPathMode,
+    setLoopingPathMode,
+    resetFilters,
+  } = useSearchFilters
+
+  const getAllEventsLabel = () => {
+    if (filteredEvents.length === 0) {
+      return 'No matching events'
+    }
+    if (filterText.trim()) {
+      return `All matching events (${filteredEvents.length})`
+    }
+    return `All events (${filteredEvents.length})`
+  }
+
+  const eventOptions = [
     {
-      selectedEventIndex,
-      onEventChange,
-      filteredEvents,
-      useSearchFilters,
-      showAdvancedOptions,
-      setShowAdvancedOptions,
+      value: ALL_EVENTS_INDEX,
+      label: getAllEventsLabel(),
     },
-    ref
-  ) => {
-    const selectedClass = CharacterClass.Sunforge
-    const searchFieldRef = useRef<SearchFieldRef>(null)
-    const {
-      filterText,
-      setFilterText,
-      zoomLevel,
-      setZoomLevel,
-      loopingPathMode,
-      setLoopingPathMode,
-      resetFilters,
-    } = useSearchFilters
+    ...filteredEvents.map((event) => ({
+      value: eventTrees.indexOf(event),
+      label: event.name,
+    })),
+  ]
 
-    useImperativeHandle(ref, () => ({
-      focusFilterInput: () => {
-        searchFieldRef.current?.focus()
-      },
-    }))
+  const zoomOptions = ZOOM_LEVELS.map((zoom) => ({
+    value: zoom,
+    label: getZoomLabel(zoom),
+  }))
 
-    const getAllEventsLabel = () => {
-      if (filteredEvents.length === 0) {
-        return 'No matching events'
-      }
-      if (filterText.trim()) {
-        return `All matching events (${filteredEvents.length})`
-      }
-      return `All events (${filteredEvents.length})`
+  const loopingPathModeOptions = LOOPING_PATH_MODES.map((mode) => ({
+    value: mode,
+    label: getLoopingPathModeLabel(mode),
+  }))
+
+  const advancedOptionsArrow = showAdvancedOptions ? '▴' : '▾'
+
+  // Auto-select "All Events" when filter text changes, and is non-empty
+  useEffect(() => {
+    if (filterText.trim().length > 0) {
+      onEventChange(ALL_EVENTS_INDEX)
     }
+  }, [filterText, onEventChange])
 
-    const eventOptions = [
-      {
-        value: ALL_EVENTS_INDEX,
-        label: getAllEventsLabel(),
-      },
-      ...filteredEvents.map((event) => ({
-        value: eventTrees.indexOf(event),
-        label: event.name,
-      })),
-    ]
+  // Force Cover mode when switching events to ensure clean coverScale calculation
+  useEffect(() => {
+    setZoomLevel(ZoomLevel.COVER)
+  }, [selectedEventIndex, setZoomLevel])
 
-    const zoomOptions = ZOOM_LEVELS.map((zoom) => ({
-      value: zoom,
-      label: getZoomLabel(zoom),
-    }))
+  const handleResetClick = () => {
+    onEventChange(-1)
+    resetFilters()
+  }
 
-    const loopingPathModeOptions = LOOPING_PATH_MODES.map((mode) => ({
-      value: mode,
-      label: getLoopingPathModeLabel(mode),
-    }))
+  return (
+    <div className={cx('search-panel')}>
+      <PanelHeader type="Search" />
 
-    const advancedOptionsArrow = showAdvancedOptions ? '▴' : '▾'
-
-    // Auto-select "All Events" when filter text changes, and is non-empty
-    useEffect(() => {
-      if (filterText.trim().length > 0) {
-        onEventChange(ALL_EVENTS_INDEX)
-      }
-    }, [filterText, onEventChange])
-
-    // Force Cover mode when switching events to ensure clean coverScale calculation
-    useEffect(() => {
-      setZoomLevel(ZoomLevel.COVER)
-    }, [selectedEventIndex, setZoomLevel])
-
-    const handleResetClick = () => {
-      onEventChange(-1)
-      resetFilters()
-    }
-
-    return (
-      <div className={cx('search-panel')}>
-        <PanelHeader type="Search" />
-
-        <div className={cx('controls')}>
-          <div className={cx('control-wrapper', 'control-wrapper--event')}>
-            <Select
-              id="event-select"
-              selectedClass={selectedClass}
-              label="Select Event"
-              options={eventOptions}
-              value={selectedEventIndex}
-              onChange={onEventChange}
-              disabled={filteredEvents.length === 0}
-            />
-          </div>
-
-          <div className={cx('control-wrapper', 'control-wrapper--zoom')}>
-            <Select
-              id="zoom-select"
-              selectedClass={selectedClass}
-              label="Zoom"
-              options={zoomOptions}
-              value={zoomLevel}
-              onChange={setZoomLevel}
-              disabled={filteredEvents.length === 0 || selectedEventIndex === ALL_EVENTS_INDEX}
-            />
-          </div>
-          <div className={cx('control-wrapper', 'control-wrapper--button-wrapper')}>
-            <Button
-              className={cx('control-wrapper--reset-search-button')}
-              style={{
-                color: getClassColor(selectedClass, ClassColorVariant.Light),
-                borderColor: getClassColor(selectedClass, ClassColorVariant.Dark),
-              }}
-              onClick={handleResetClick}
-            >
-              Reset search
-            </Button>
-          </div>
-          <div className={cx('control-wrapper', 'control-wrapper--button-wrapper')}>
-            <GradientButton
-              className={cx('control-wrapper--advanced-options-button')}
-              onClick={() => setShowAdvancedOptions(!showAdvancedOptions)}
-            >
-              Advanced options {advancedOptionsArrow}
-            </GradientButton>
-          </div>
+      <div className={cx('controls')}>
+        <div className={cx('control-wrapper', 'control-wrapper--event')}>
+          <Select
+            id="event-select"
+            selectedClass={selectedClass}
+            label="Select Event"
+            options={eventOptions}
+            value={selectedEventIndex}
+            onChange={onEventChange}
+            disabled={filteredEvents.length === 0}
+          />
         </div>
 
-        {showAdvancedOptions && (
-          <div className={cx('advanced-options')}>
-            <div className={cx('advanced-options__content')}>
-              <div className={cx('control-wrapper', 'control-wrapper--search-field')}>
-                <SearchField
-                  ref={searchFieldRef}
-                  keywords={filterText}
-                  setKeywords={setFilterText}
-                  mode="text"
-                  selectedClass={selectedClass}
-                />
-              </div>
-              <div className={cx('control-wrapper', 'control-wrapper--looping-path')}>
-                <Select
-                  id="looping-path-mode-select"
-                  selectedClass={selectedClass}
-                  label="🔄 &nbsp;Show looping paths"
-                  options={loopingPathModeOptions}
-                  value={loopingPathMode}
-                  onChange={setLoopingPathMode}
-                />
-              </div>
-            </div>
+        <div className={cx('control-wrapper', 'control-wrapper--zoom')}>
+          <Select
+            id="zoom-select"
+            selectedClass={selectedClass}
+            label="Zoom"
+            options={zoomOptions}
+            value={zoomLevel}
+            onChange={setZoomLevel}
+            disabled={filteredEvents.length === 0 || selectedEventIndex === ALL_EVENTS_INDEX}
+          />
+        </div>
+        <div className={cx('control-wrapper', 'control-wrapper--button-wrapper')}>
+          <Button
+            className={cx('control-wrapper--reset-search-button')}
+            style={{
+              color: getClassColor(selectedClass, ClassColorVariant.Light),
+              borderColor: getClassColor(selectedClass, ClassColorVariant.Dark),
+            }}
+            onClick={handleResetClick}
+          >
+            Reset search
+          </Button>
+        </div>
+        <div className={cx('control-wrapper', 'control-wrapper--button-wrapper')}>
+          <GradientButton
+            className={cx('control-wrapper--advanced-options-button')}
+            onClick={() => setShowAdvancedOptions(!showAdvancedOptions)}
+          >
+            Advanced options {advancedOptionsArrow}
+          </GradientButton>
+        </div>
+        {!showAdvancedOptions && (
+          <div className={cx('control-wrapper', 'control-wrapper--search-field')}>
+            <SearchField
+              keywords={filterText}
+              setKeywords={setFilterText}
+              placeholder="Filter by any text occurring in the event"
+              mode="text"
+              selectedClass={selectedClass}
+            />
           </div>
         )}
       </div>
-    )
-  }
-)
 
-EventSearchPanel.displayName = 'EventSearchPanel'
+      {showAdvancedOptions && (
+        <div className={cx('advanced-options')}>
+          <div className={cx('advanced-options__content')}>
+            <div className={cx('control-wrapper', 'control-wrapper--search-field')}>
+              <SearchField
+                keywords={filterText}
+                setKeywords={setFilterText}
+                label="Filter event selection by text"
+                placeholder="Any text occurring in the event"
+                mode="text"
+                selectedClass={selectedClass}
+              />
+            </div>
+            <div className={cx('control-wrapper', 'control-wrapper--looping-path')}>
+              <Select
+                id="looping-path-mode-select"
+                selectedClass={selectedClass}
+                label="🔄 &nbsp;Show looping paths"
+                options={loopingPathModeOptions}
+                value={loopingPathMode}
+                onChange={setLoopingPathMode}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
 
 export default EventSearchPanel

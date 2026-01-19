@@ -1,7 +1,6 @@
 import Image from 'next/image'
 
 import { createCx } from '@/shared/utils/classnames'
-import GradientLink from '@/shared/components/GradientLink'
 
 import { Event } from '@/codex/types/events'
 import { useEventImageSrc } from '@/codex/hooks/useEventImageSrc'
@@ -16,16 +15,9 @@ interface EventListProps {
   allEvents: Event[]
   filterText: string
   onEventSelect: (eventIndex: number) => void
-  onEditFilter?: () => void
 }
 
-function EventList({
-  events,
-  allEvents,
-  filterText,
-  onEventSelect,
-  onEditFilter,
-}: EventListProps): JSX.Element {
+function EventList({ events, allEvents, filterText, onEventSelect }: EventListProps): JSX.Element {
   const renderHeader = () => {
     if (filterText.trim().length > 0) {
       const eventsStr = events.length === 1 ? 'event' : 'events'
@@ -67,13 +59,6 @@ function EventList({
         <>
           <div className={cx('event-list-header')}>
             <h3 className={cx('event-list-header__title')}>{renderHeader()}</h3>
-            {onEditFilter && (
-              <GradientLink
-                text="Update filter?"
-                onClick={onEditFilter}
-                className={cx('event-list-header__edit-link')}
-              />
-            )}
           </div>
           {sortedTypes.map(({ index, events }) => (
             <div key={index} className={cx('event-type-group')}>

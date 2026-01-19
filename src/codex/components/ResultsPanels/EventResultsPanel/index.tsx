@@ -21,7 +21,6 @@ interface EventResultsPanelProps {
   filteredEvents: Event[]
   useSearchFilters: UseAllEventSearchFilters
   onEventChange: (index: number) => void
-  onEditFilter?: () => void
 }
 
 const EventResultsPanel = ({
@@ -31,7 +30,6 @@ const EventResultsPanel = ({
   filteredEvents,
   useSearchFilters,
   onEventChange,
-  onEditFilter,
 }: EventResultsPanelProps) => {
   const eventName = selectedEvent?.name ?? 'UNNAMED-EVENT'
   const blightbaneLink = `https://www.blightbane.io/event/${eventName.replaceAll(' ', '_')}`
@@ -50,7 +48,6 @@ const EventResultsPanel = ({
             allEvents={allEvents}
             filterText={filterText}
             onEventSelect={onEventChange}
-            onEditFilter={onEditFilter}
           />
         )}
 
