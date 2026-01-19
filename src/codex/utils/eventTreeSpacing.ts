@@ -411,7 +411,8 @@ export const adjustHorizontalNodeSpacing = (
  */
 export const adjustVerticalNodeSpacing = (
   root: HierarchyPointNode<EventTreeNode>,
-  event: Event
+  event: Event,
+  showLoopingIndicator: boolean
 ) => {
   // Group nodes by depth
   const nodesByDepth = groupNodesByDepth(root)
@@ -479,8 +480,8 @@ export const adjustVerticalNodeSpacing = (
     nodesAtDepth.forEach((node) => {
       // 1. Check direct parent link
       if (node.parent) {
-        const parentHeight = getNodeHeight(node.parent.data, event)
-        const nodeHeight = getNodeHeight(node.data, event)
+        const parentHeight = getNodeHeight(node.parent.data, event, showLoopingIndicator)
+        const nodeHeight = getNodeHeight(node.data, event, showLoopingIndicator)
 
         // Calculate current gap between bottom of parent and top of child
         const currentGap = node.y - node.parent.y - (parentHeight / 2 + nodeHeight / 2)
@@ -491,8 +492,8 @@ export const adjustVerticalNodeSpacing = (
       const refParents = refChildrenParentMap.get(node.data.id)
       if (refParents) {
         refParents.forEach((refParent) => {
-          const refParentHeight = getNodeHeight(refParent.data, event)
-          const nodeHeight = getNodeHeight(node.data, event)
+          const refParentHeight = getNodeHeight(refParent.data, event, showLoopingIndicator)
+          const nodeHeight = getNodeHeight(node.data, event, showLoopingIndicator)
 
           // Calculate gap between bottom of refParent and top of this node
           const currentGap = node.y - refParent.y - (refParentHeight / 2 + nodeHeight / 2)

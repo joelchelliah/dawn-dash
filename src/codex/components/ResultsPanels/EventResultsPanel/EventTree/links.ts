@@ -15,7 +15,13 @@ const cx = createCx(styles)
  * The arrowheads are tilted based on the horizontal displacement between parent and child
  */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export function drawLinks(g: any, defs: any, root: any, event: Event) {
+export function drawLinks(
+  g: any,
+  defs: any,
+  root: any,
+  event: Event,
+  showLoopingIndicator: boolean
+) {
   g.selectAll(`.${cx('tree-link')}`)
     .data(root.links())
     .enter()
@@ -34,8 +40,8 @@ export function drawLinks(g: any, defs: any, root: any, event: Event) {
       const targetX = d.target.x || 0
       const targetY = d.target.y || 0
 
-      const sourceNodeHeight = getNodeHeight(d.source.data, event)
-      const targetNodeHeight = getNodeHeight(d.target.data, event)
+      const sourceNodeHeight = getNodeHeight(d.source.data, event, showLoopingIndicator)
+      const targetNodeHeight = getNodeHeight(d.target.data, event, showLoopingIndicator)
 
       return calculateCurvedPathForStandardLinks(
         sourceX,
@@ -53,7 +59,13 @@ export function drawLinks(g: any, defs: any, root: any, event: Event) {
  * These links connect a parent node to nodes referenced in its refChildren array
  * The visual style is identical to regular parent-child links
  */
-export function drawRefChildrenLinks(g: any, defs: any, root: any, event: Event) {
+export function drawRefChildrenLinks(
+  g: any,
+  defs: any,
+  root: any,
+  event: Event,
+  showLoopingIndicator: boolean
+) {
   // Build a map of node id -> node for quick lookup
   const nodeMap = new Map<number, any>()
   root.descendants().forEach((node: any) => {
@@ -91,8 +103,8 @@ export function drawRefChildrenLinks(g: any, defs: any, root: any, event: Event)
     const markerId = `arrowhead-refchildren-${linkCounter++}`
     const markerUrl = arrowheadMarkerForStandardLinks(defs, markerId, sourceX, targetX, 'arrowhead')
 
-    const sourceNodeHeight = getNodeHeight(d.source.data, event)
-    const targetNodeHeight = getNodeHeight(d.target.data, event)
+    const sourceNodeHeight = getNodeHeight(d.source.data, event, showLoopingIndicator)
+    const targetNodeHeight = getNodeHeight(d.target.data, event, showLoopingIndicator)
     const pathData = calculateCurvedPathForStandardLinks(
       sourceX,
       sourceY,
@@ -114,7 +126,13 @@ export function drawRefChildrenLinks(g: any, defs: any, root: any, event: Event)
  * Links go from the top corner of the source node to the bottom corner of the target node,
  * with an arrowhead at the target end.
  */
-export function drawRepeatFromLinks(g: any, defs: any, root: any, event: Event) {
+export function drawRepeatFromLinks(
+  g: any,
+  defs: any,
+  root: any,
+  event: Event,
+  showLoopingIndicator: boolean
+) {
   // Build a map of node id -> node for quick lookup
   const nodeMap = new Map<number, any>()
   root.descendants().forEach((node: any) => {
@@ -154,8 +172,8 @@ export function drawRepeatFromLinks(g: any, defs: any, root: any, event: Event) 
     const targetCenterY = d.target.y || 0
 
     // Calculate node heights
-    const sourceHeight = getNodeHeight(d.source.data, event)
-    const targetHeight = getNodeHeight(d.target.data, event)
+    const sourceHeight = getNodeHeight(d.source.data, event, showLoopingIndicator)
+    const targetHeight = getNodeHeight(d.target.data, event, showLoopingIndicator)
 
     // Calculate box boundaries
     const sourceBoxHalfWidth = NODE.MIN_WIDTH / 2

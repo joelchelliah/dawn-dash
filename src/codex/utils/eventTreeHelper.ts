@@ -19,7 +19,8 @@ interface TreeBounds {
  */
 export const calculateTreeBounds = (
   root: HierarchyNode<EventTreeNode>,
-  event: Event
+  event: Event,
+  showLoopingIndicator: boolean
 ): TreeBounds => {
   let minX = Infinity // Left edge of the leftmost node
   let maxX = -Infinity // Right edge of the rightmost node
@@ -29,7 +30,7 @@ export const calculateTreeBounds = (
   root.descendants().forEach((d) => {
     const x = d.x ?? 0
     const y = d.y ?? 0
-    const nodeHeight = getNodeHeight(d.data, event)
+    const nodeHeight = getNodeHeight(d.data, event, showLoopingIndicator)
     const nodeWidth = getNodeWidth(d.data, event)
     // Track edges for both X and Y
     if (x - nodeWidth / 2 < minX) minX = x - nodeWidth / 2
@@ -84,9 +85,17 @@ export const getNodeWidth = (node: EventTreeNode, _event: Event): number => {
 /**
  * Calculate dynamic node height based on event node content
  */
-export const getNodeHeight = (node: EventTreeNode, event: Event): number => {
-  // Check if this is the root node
+export const getNodeHeight = (
+  node: EventTreeNode,
+  event: Event,
+  showLoopingIndicator: boolean
+): number => {
   const isRootNode = event.rootNode && node.id === event.rootNode.id
+
+  const continueIndicatorHeight = node.numContinues ? INNER_BOX.INDICATOR_HEIGHT : 0
+  const continueIndicatorMargin = continueIndicatorHeight > 0 ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
+  const loopIndicatorHeight = showLoopingIndicator && node.ref ? INNER_BOX.INDICATOR_HEIGHT : 0
+  const loopIndicatorMargin = loopIndicatorHeight > 0 ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
 
   if (node.type === 'choice') {
     const requirements = node.requirements || []
@@ -101,19 +110,15 @@ export const getNodeHeight = (node: EventTreeNode, event: Event): number => {
           INNER_BOX.LISTINGS_VERTICAL_PADDING
         : 0
     const reqBoxMargin = reqBoxHeight > 0 ? INNER_BOX.LISTINGS_TOP_MARGIN : 0
-    const continueBoxHeight = node.numContinues ? INNER_BOX.INDICATOR_HEIGHT : 0
-    const continueBoxMargin = continueBoxHeight > 0 ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
-    const repeatableBoxHeight = node.ref ? INNER_BOX.INDICATOR_HEIGHT : 0
-    const repeatableBoxMargin = repeatableBoxHeight > 0 ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
 
     const contentHeight =
       choiceTextHeight +
       reqBoxMargin +
       reqBoxHeight +
-      continueBoxMargin +
-      continueBoxHeight +
-      repeatableBoxMargin +
-      repeatableBoxHeight
+      continueIndicatorMargin +
+      continueIndicatorHeight +
+      loopIndicatorMargin +
+      loopIndicatorHeight
 
     return contentHeight + NODE_BOX.VERTICAL_PADDING * 2
   } else if (node.type === 'end') {
@@ -131,9 +136,6 @@ export const getNodeHeight = (node: EventTreeNode, event: Event): number => {
         effects.length * TEXT.LINE_HEIGHT +
         INNER_BOX.LISTINGS_VERTICAL_PADDING
       : 0
-
-    const repeatableHeight = node.ref ? INNER_BOX.INDICATOR_HEIGHT : 0
-    const repeatableMargin = repeatableHeight > 0 ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
 
     let textHeight: number
     let effectsBoxMargin: number
@@ -155,7 +157,7 @@ export const getNodeHeight = (node: EventTreeNode, event: Event): number => {
     }
 
     const contentHeight =
-      textHeight + effectsBoxMargin + effectsBoxHeight + repeatableMargin + repeatableHeight
+      textHeight + effectsBoxMargin + effectsBoxHeight + loopIndicatorMargin + loopIndicatorHeight
 
     return contentHeight + NODE_BOX.VERTICAL_PADDING * 2
   } else if (node.type === 'dialogue') {
@@ -170,10 +172,6 @@ export const getNodeHeight = (node: EventTreeNode, event: Event): number => {
         INNER_BOX.LISTINGS_VERTICAL_PADDING
       : 0
     const effectsBoxMargin = effectsBoxHeight > 0 ? INNER_BOX.LISTINGS_TOP_MARGIN : 0
-    const continueHeight = node.numContinues ? INNER_BOX.INDICATOR_HEIGHT : 0
-    const continueMargin = continueHeight > 0 ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
-    const repeatableHeight = node.ref ? INNER_BOX.INDICATOR_HEIGHT : 0
-    const repeatableMargin = repeatableHeight > 0 ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
 
     if (isRootNode) {
       // Add dialogue text if present (up to 2 lines)
@@ -190,10 +188,10 @@ export const getNodeHeight = (node: EventTreeNode, event: Event): number => {
         dialogueTextHeight +
         effectsBoxMargin +
         effectsBoxHeight +
-        continueMargin +
-        continueHeight +
-        repeatableMargin +
-        repeatableHeight
+        continueIndicatorMargin +
+        continueIndicatorHeight +
+        loopIndicatorMargin +
+        loopIndicatorHeight
 
       return contentHeight + NODE_BOX.VERTICAL_PADDING * 2
     }
@@ -206,10 +204,10 @@ export const getNodeHeight = (node: EventTreeNode, event: Event): number => {
       textHeight +
       effectsBoxMargin +
       effectsBoxHeight +
-      continueMargin +
-      continueHeight +
-      repeatableMargin +
-      repeatableHeight
+      continueIndicatorMargin +
+      continueIndicatorHeight +
+      loopIndicatorMargin +
+      loopIndicatorHeight
 
     return contentHeight + NODE_BOX.VERTICAL_PADDING * 2
   } else if (node.type === 'combat') {
@@ -234,11 +232,9 @@ export const getNodeHeight = (node: EventTreeNode, event: Event): number => {
           INNER_BOX.LISTINGS_VERTICAL_PADDING
         : 0
     const effectsBoxMargin = effectsBoxHeight > 0 ? INNER_BOX.LISTINGS_TOP_MARGIN : 0
-    const repeatableHeight = node.ref ? INNER_BOX.INDICATOR_HEIGHT : 0
-    const repeatableMargin = repeatableHeight > 0 ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
 
     const contentHeight =
-      textHeight + effectsBoxMargin + effectsBoxHeight + repeatableMargin + repeatableHeight
+      textHeight + effectsBoxMargin + effectsBoxHeight + loopIndicatorMargin + loopIndicatorHeight
 
     return contentHeight + NODE_BOX.VERTICAL_PADDING * 2
   }
