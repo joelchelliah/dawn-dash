@@ -17,6 +17,7 @@ import {
 import {
   adjustHorizontalNodeSpacing,
   adjustVerticalNodeSpacing,
+  centerRootNodeHorizontally,
 } from '@/codex/utils/eventTreeSpacing'
 import { NODE, TREE, TEXT, INNER_BOX, NODE_BOX } from '@/codex/constants/eventTreeValues'
 import { ZoomLevel, LoopingPathMode } from '@/codex/constants/eventSearchValues'
@@ -58,10 +59,6 @@ function EventTree({ event, zoomLevel, loopingPathMode }: EventTreeProps): JSX.E
     adjustHorizontalNodeSpacing(root as HierarchyPointNode<EventTreeNode>, event)
     adjustVerticalNodeSpacing(root as HierarchyPointNode<EventTreeNode>, event)
 
-    // Has given max number of children for every node in the tree
-    const hasMaxChildrenOf = (maxChildren: number) =>
-      root.descendants().every((node) => !node.children || node.children.length <= maxChildren)
-
     const bounds = calculateTreeBounds(root, event)
     const calculatedWidth = bounds.width + TREE.HORIZONTAL_PADDING * 2
     const svgWidth = Math.max(calculatedWidth, TREE.MIN_SVG_WIDTH)
@@ -79,20 +76,7 @@ function EventTree({ event, zoomLevel, loopingPathMode }: EventTreeProps): JSX.E
 
     const offsetX = -bounds.minX + TREE.HORIZONTAL_PADDING
 
-    // Center root node horizontally under the event name for simple trees.
-    if (hasMaxChildrenOf(2)) {
-      root.x = svgWidth / 2 - offsetX
-    }
-
-    // Center single children directly below their parent
-    // When the `TREE.MIN_SVG_WIDTH` kicks in, single child nodes are not centered
-    // under their parent. This fixes that! This only applies to very simple trees
-    // e.g: Ambush, Bandit Den, etc.
-    root.descendants().forEach((node) => {
-      if (node.children && node.children.length === 1) {
-        node.children[0].x = node.x ?? 0
-      }
-    })
+    centerRootNodeHorizontally(root as HierarchyPointNode<EventTreeNode>, svgWidth, offsetX)
 
     // Center the tree vertically
     const offsetY = -bounds.minY + TREE.VERTICAL_BOTTOM_PADDING / 4

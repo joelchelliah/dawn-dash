@@ -7,12 +7,14 @@ import { getNodeHeight, getNodeWidth } from './eventTreeHelper'
 
 const HORIZONTAL_SPACING_CONFIG = {
   pass1Enabled: true,
+  pass1_5Enabled: true,
   pass2Enabled: true,
   pass3Enabled: true,
 
   pass2MaxIterations: 10,
   pass3MaxIterations: 10,
 
+  pass2MinShiftThreshold: 1,
   pass3MinShiftThreshold: 1,
 }
 
@@ -20,6 +22,7 @@ const HORIZONTAL_SPACING_CONFIG = {
  * Adjust horizontal spacing to prevent node overlaps when nodes have different widths.
  *
  * - Pass 1: Position children centered under each parent (ignoring overlaps)
+ * - Pass 1.5: Adjust children with multiple parents (direct + refChildren) to center under average of all parents
  * - Pass 2: Fix overlaps by moving parent subtrees apart and recentering ancestors
  * - Pass 3: Tighten gaps by looking for large gaps between sibling subtrees and moving them closer
  */
@@ -58,6 +61,37 @@ export const adjustHorizontalNodeSpacing = (
           child.x = currentX + childWidth / 2
           currentX += childWidth + minHorizontalGap
         })
+      })
+    }
+  }
+
+  // PASS 1.5: Adjust children with multiple parents to be centered under all parents
+  // This handles cases where a child has both a direct parent and refChildren parents
+  if (HORIZONTAL_SPACING_CONFIG.pass1_5Enabled) {
+    for (let depth = 1; depth < nodesByDepth.length; depth++) {
+      const nodesAtDepth = nodesByDepth[depth] || []
+      const parentsAtPrevDepth = nodesByDepth[depth - 1] || []
+
+      const childToAllParentsMap = buildChildToAllParentsMap(parentsAtPrevDepth)
+
+      nodesAtDepth.forEach((child) => {
+        const allParents = childToAllParentsMap.get(child.data.id)
+
+        // If this child has multiple parents (direct + ref), center it under all of them
+        if (allParents && allParents.length > 1) {
+          // Calculate average X position of all parents
+          const avgParentX = allParents.reduce((sum, p) => sum + (p.x ?? 0), 0) / allParents.length
+
+          // Calculate offset to move this child to center under average
+          const currentChildX = child.x ?? 0
+          const offset = avgParentX - currentChildX
+
+          // Only apply if significant
+          if (Math.abs(offset) > minHorizontalGap / 10) {
+            child.x = avgParentX
+            shiftSubtreeHorizontally(child, offset)
+          }
+        }
       })
     }
   }
@@ -116,25 +150,31 @@ export const adjustHorizontalNodeSpacing = (
         })
 
         // 2 -- Check for overlaps between cousins (different parents)
+        // We only need to consider direct children here. Including refChildren
+        // does not make sense for spacing calculations, as they don't take up any extra space.
         const parentsAtPrevDepth = nodesByDepth[depth - 1] || []
         const sortedParents = sortNodesByX(parentsAtPrevDepth)
 
         // Filter to only parents that have children at this depth
         // This prevents "blind spots" where a parent with no children at this depth
         // sits between two parents that do have children, preventing their children from being checked
-        const parentsWithChildrenAtDepth = sortedParents.filter((parent) => {
-          const children = parent.children || []
-          return children.length > 0
-        })
+        // Include ONLY direct children!
+        const parentsWithChildrenAtDepth = sortedParents.filter(
+          (parent) => (parent.children || []).length > 0
+        )
 
         // Check each adjacent pair of parents (that have children)
         for (let i = 0; i < parentsWithChildrenAtDepth.length - 1; i++) {
           const leftParent = parentsWithChildrenAtDepth[i]
           const rightParent = parentsWithChildrenAtDepth[i + 1]
 
-          // Get the rightmost child of left parent and leftmost child of right parent
-          const leftChildren = leftParent.children || []
-          const rightChildren = rightParent.children || []
+          // Get all children (direct only) for both parents
+          const leftChildren: HierarchyPointNode<EventTreeNode>[] = [...(leftParent.children || [])]
+          const rightChildren: HierarchyPointNode<EventTreeNode>[] = [
+            ...(rightParent.children || []),
+          ]
+
+          if (leftChildren.length === 0 || rightChildren.length === 0) continue
 
           // Sort children by x to find the boundary children
           const leftChildrenSorted = sortNodesByX(leftChildren)
@@ -169,27 +209,70 @@ export const adjustHorizontalNodeSpacing = (
         }
       }
 
-      // 3 -- Recenter all ancestors over their children
+      // 3 -- Recenter parent groups over their shared children
+      // Parents that share children (via direct or refChildren) are centered as a group
+      // to maintain their relative spacing while positioning them over their children
       // Work from bottom to top (deepest to shallowest)
       for (let depth = nodesByDepth.length - 2; depth >= 0; depth--) {
         const nodesAtDepth = nodesByDepth[depth] || []
 
-        nodesAtDepth.forEach((node) => {
-          if (!node.children || node.children.length === 0) return
+        const childToParentsMap = new Map<number, HierarchyPointNode<EventTreeNode>[]>()
 
-          // Calculate the average x position of children
-          const childrenXSum = node.children.reduce((sum, child) => sum + (child.x ?? 0), 0)
-          const averageX = childrenXSum / node.children.length
+        nodesAtDepth.forEach((parent) => {
+          if (parent.children) {
+            parent.children.forEach((child) => {
+              if (!childToParentsMap.has(child.data.id)) {
+                childToParentsMap.set(child.data.id, [])
+              }
+              const parents = childToParentsMap.get(child.data.id)
+              if (parents) {
+                parents.push(parent)
+              }
+            })
+          }
 
-          // Only update if significantly different
-          if (
-            Math.abs(averageX - (node.x ?? 0)) > HORIZONTAL_SPACING_CONFIG.pass3MinShiftThreshold
-          ) {
-            node.x = averageX
+          // Track refChildren
+          if (parent.data.refChildren) {
+            parent.data.refChildren.forEach((childId) => {
+              if (!childToParentsMap.has(childId)) {
+                childToParentsMap.set(childId, [])
+              }
+              const parents = childToParentsMap.get(childId)
+              if (parents) {
+                parents.push(parent)
+              }
+            })
+          }
+        })
+
+        // Group parents that share ANY children
+        const parentGroups = buildParentGroups(nodesAtDepth, childToParentsMap)
+
+        // Recenter each group
+        parentGroups.forEach((group) => {
+          // Get all children for this group
+          const allChildren = getAllChildrenForParentGroup(group, nodesByDepth[depth + 1])
+
+          if (allChildren.length === 0) return
+
+          // Calculate average X positions
+          const parentGroupAvgX = group.reduce((sum, p) => sum + (p.x ?? 0), 0) / group.length
+          const childrenAvgX =
+            allChildren.reduce((sum, c) => sum + (c.x ?? 0), 0) / allChildren.length
+
+          // Calculate offset to center the group
+          const offset = childrenAvgX - parentGroupAvgX
+
+          // Only apply if significant
+          if (Math.abs(offset) > HORIZONTAL_SPACING_CONFIG.pass2MinShiftThreshold) {
+            // Shift ALL parents in the group by the same offset
+            group.forEach((parent) => {
+              parent.x = (parent.x ?? 0) + offset
+            })
             madeAdjustment = true
 
-            // Don't shift subtree here - children are already positioned correctly
-            // Only the parent node itself moves to recenter
+            // Don't shift subtrees here - children are already positioned correctly
+            // Only the parent nodes themselves move to recenter
           }
         })
       }
@@ -656,5 +739,192 @@ const shiftSubtreeVertically = (node: HierarchyPointNode<EventTreeNode>, offset:
   node.y += offset
   if (node.children) {
     node.children.forEach((child) => shiftSubtreeVertically(child, offset))
+  }
+}
+
+/**
+ * Find a node by ID within an array of nodes
+ */
+const findNodeById = (
+  nodes: HierarchyPointNode<EventTreeNode>[] | undefined,
+  id: number
+): HierarchyPointNode<EventTreeNode> | undefined => {
+  if (!nodes) return undefined
+  return nodes.find((node) => node.data.id === id)
+}
+
+/**
+ * Build a map of child ID to all parents (direct + refChildren) that reference it
+ */
+const buildChildToAllParentsMap = (
+  parentsAtDepth: HierarchyPointNode<EventTreeNode>[]
+): Map<number, HierarchyPointNode<EventTreeNode>[]> => {
+  const childToParentsMap = new Map<number, HierarchyPointNode<EventTreeNode>[]>()
+
+  parentsAtDepth.forEach((parent) => {
+    // Track direct children
+    if (parent.children) {
+      parent.children.forEach((child) => {
+        if (!childToParentsMap.has(child.data.id)) {
+          childToParentsMap.set(child.data.id, [])
+        }
+        const parents = childToParentsMap.get(child.data.id)
+        if (parents) {
+          parents.push(parent)
+        }
+      })
+    }
+
+    // Track refChildren
+    if (parent.data.refChildren) {
+      parent.data.refChildren.forEach((childId) => {
+        if (!childToParentsMap.has(childId)) {
+          childToParentsMap.set(childId, [])
+        }
+        const parents = childToParentsMap.get(childId)
+        if (parents) {
+          parents.push(parent)
+        }
+      })
+    }
+  })
+
+  return childToParentsMap
+}
+
+/**
+ * Groups parents that share any children (direct or refChildren).
+ * Parents that reference the same child node should be grouped together
+ * so they can be centered as a unit while maintaining their relative spacing.
+ */
+const buildParentGroups = (
+  parents: HierarchyPointNode<EventTreeNode>[],
+  childToParentsMap: Map<number, HierarchyPointNode<EventTreeNode>[]>
+): HierarchyPointNode<EventTreeNode>[][] => {
+  const groups: HierarchyPointNode<EventTreeNode>[][] = []
+  const parentToGroupIndex = new Map<HierarchyPointNode<EventTreeNode>, number>()
+
+  // For each child that has multiple parents, group those parents together
+  childToParentsMap.forEach((parentsOfChild) => {
+    if (parentsOfChild.length > 1) {
+      // Multiple parents share this child - they should be in the same group
+      const existingGroupIndices = parentsOfChild
+        .map((p) => parentToGroupIndex.get(p))
+        .filter((idx): idx is number => idx !== undefined)
+
+      if (existingGroupIndices.length === 0) {
+        // No parent is in a group yet - create new group
+        const newGroupIndex = groups.length
+        groups.push([...parentsOfChild])
+        parentsOfChild.forEach((p) => parentToGroupIndex.set(p, newGroupIndex))
+      } else {
+        // Merge all parents into the first existing group
+        const targetGroupIndex = existingGroupIndices[0]
+        parentsOfChild.forEach((p) => {
+          if (!parentToGroupIndex.has(p)) {
+            groups[targetGroupIndex].push(p)
+            parentToGroupIndex.set(p, targetGroupIndex)
+          }
+        })
+
+        // If multiple groups exist, merge them all into the target group
+        const uniqueGroupIndices = Array.from(new Set(existingGroupIndices))
+        if (uniqueGroupIndices.length > 1) {
+          uniqueGroupIndices.slice(1).forEach((idx) => {
+            groups[idx].forEach((p) => {
+              if (!groups[targetGroupIndex].includes(p)) {
+                groups[targetGroupIndex].push(p)
+              }
+              parentToGroupIndex.set(p, targetGroupIndex)
+            })
+            groups[idx] = [] // Mark for removal
+          })
+        }
+      }
+    }
+  })
+
+  // Add single-parent nodes as individual groups (parents that don't share children)
+  parents.forEach((parent) => {
+    if (
+      !parentToGroupIndex.has(parent) &&
+      (parent.children?.length || parent.data.refChildren?.length)
+    ) {
+      groups.push([parent])
+    }
+  })
+
+  // Filter out empty groups (from merging)
+  return groups.filter((g) => g.length > 0)
+}
+
+/**
+ * Collects all children (direct + refChildren) for a group of parents
+ */
+const getAllChildrenForParentGroup = (
+  parentGroup: HierarchyPointNode<EventTreeNode>[],
+  nodesAtNextDepth: HierarchyPointNode<EventTreeNode>[] | undefined
+): HierarchyPointNode<EventTreeNode>[] => {
+  const childrenSet = new Set<HierarchyPointNode<EventTreeNode>>()
+
+  parentGroup.forEach((parent) => {
+    // Add direct children
+    if (parent.children) {
+      parent.children.forEach((child) => childrenSet.add(child))
+    }
+
+    // Add refChildren
+    if (parent.data.refChildren && nodesAtNextDepth) {
+      parent.data.refChildren.forEach((childId) => {
+        const refChild = findNodeById(nodesAtNextDepth, childId)
+        if (refChild) {
+          childrenSet.add(refChild)
+        }
+      })
+    }
+  })
+
+  return Array.from(childrenSet)
+}
+
+/*
+ * For very simple trees, centers the root node horizontally under the event name,
+ * and also child nodes directly below their parents.
+ *
+ * Small trees may appear very far to the left of the event name. Which looks super weird
+ * especially after we've moved the root! This fixes that by centering them as well!
+ *
+ * We don't do this for more complex trees... Runs into out of bounds issues with the viewbox.
+ */
+export const centerRootNodeHorizontally = (
+  root: HierarchyPointNode<EventTreeNode>,
+  svgWidth: number,
+  offsetX: number
+) => {
+  // Every node in the tree has at most 2 children
+  const isSimpleTree = root
+    .descendants()
+    .every((node) => !node.children || node.children.length <= 2)
+
+  if (!isSimpleTree) return
+
+  root.x = svgWidth / 2 - offsetX
+
+  // Center children directly below their parent
+  // NOTE: Although our `adjustHorizontalNodeSpacing` is already doing this kind of centering,
+  // we are moving the root node here AFTER that... so we have to center again!
+  const nodesByDepth = groupNodesByDepth(root)
+  for (let depth = 0; depth < nodesByDepth.length; depth++) {
+    const nodesAtDepth = nodesByDepth[depth] || []
+    const parentsAtPrevDepth = nodesByDepth[depth - 1] || []
+    const childToAllParentsMap = buildChildToAllParentsMap(parentsAtPrevDepth)
+
+    nodesAtDepth.forEach((node) => {
+      const allParents = childToAllParentsMap.get(node.data.id)
+      if (allParents) {
+        const avgParentX = allParents.reduce((sum, p) => sum + (p.x ?? 0), 0) / allParents.length
+        node.x = avgParentX
+      }
+    })
   }
 }
