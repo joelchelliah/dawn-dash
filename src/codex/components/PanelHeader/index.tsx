@@ -19,7 +19,7 @@ const PanelHeader = ({ type }: PanelHeaderProps) => {
     } else if (type === 'TalentResults') {
       return 'Talents'
     } else if (type === 'EventResults') {
-      return 'Events'
+      return 'Event'
     }
 
     return 'Results'

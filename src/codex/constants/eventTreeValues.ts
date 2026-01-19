@@ -52,7 +52,7 @@ export const INNER_BOX = {
   INDICATOR_HEIGHT: 24,
 
   // Gap between main node text and indicator boxes (Repeatable, Continue)
-  INDICATOR_TOP_MARGIN: 6,
+  INDICATOR_TOP_MARGIN: 5,
 
   // Vertical padding for listings ('Requirements' and 'Effects')
   LISTINGS_VERTICAL_PADDING: 12,

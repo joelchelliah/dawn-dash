@@ -14,24 +14,38 @@ console.warn = (...args) => {
  * Script to parse Ink JSON from events and generate hierarchical tree structures
  * using the official inkjs runtime for accurate parsing.
  *
- * LOOP DETECTION AND DEDUPLICATION:
- * ----------------------------------
- * Uses a three-stage approach to detect and eliminate duplicate content:
+ * LOOP DETECTION AND DEDUPLICATION STRATEGY:
+ * ------------------------------------------
+ * Uses a multi-stage approach to detect and eliminate duplicate content:
  *
- * 1. TEXT-BASED LOOP DETECTION (during tree building):
+ * DURING TREE BUILDING (depth-first exploration):
+ * 1. TEXT-BASED LOOP DETECTION:
  *    Detects when the same dialogue text appears in the ancestor chain.
- *    Creates ref nodes immediately to prevent dialogue loops.
+ *    Creates ref nodes immediately to prevent infinite dialogue loops.
  *
- * 2. CHOICE+PATH-BASED LOOP DETECTION (during tree building):
+ * 2. CHOICE+PATH-BASED LOOP DETECTION:
  *    Detects when the same choice structure appears at the same Ink story path.
  *    Creates ref nodes to prevent merchant/shop loops where choices repeat.
  *
- * 3. STRUCTURAL DEDUPLICATION (post-processing):
- *    Uses breadth-first traversal to find structurally identical subtrees.
- *    Replaces duplicates with references, ensuring shallow nodes are originals.
+ * 3. DIALOGUE MENU DETECTION (Rathael only):
+ *    Detects question-asking patterns where you return to a menu with same questions.
+ *    Matches on question choices only, preventing factorial explosion from question orderings.
+ *
+ * 4. PATH CONVERGENCE DETECTION (Frozen Heart only):
+ *    Detects when reaching the same node (text + choices) via different paths.
+ *    Creates ref nodes immediately, preventing re-exploration of identical branches.
+ *    Only enabled for events in PATH_CONVERGENCE_EVENTS whitelist.
+ *    WARNING: This is depth-first dedup that can conflict with breadth-first post-processing.
+ *    Only use for events that truly need it (hit node limits without it).
+ *
+ * POST-PROCESSING (breadth-first deduplication):
+ * 5. STRUCTURAL DEDUPLICATION:
+ *    Uses breadth-first traversal to find remaining structurally identical subtrees.
+ *    Replaces duplicates with references, ensuring shallow nodes become originals.
+ *    Processes shallowest nodes first to maintain good tree structure for visualization.
  *
  * All duplicate nodes have a "ref" field pointing to the original node ID.
- * The D3 renderer should use the ref field to loop back to the original node.
+ * The D3 renderer uses the ref field to loop back to the original node.
  */
 
 const EVENTS_FILE = path.join(__dirname, './events.json')
@@ -44,7 +58,24 @@ const DEFAULT_NODE_BLACKLIST = [
   'A Familiar Face',
 ]
 
+// Special-case events with dialogue menu patterns (ask questions in any order)
+// For these events, we detect when we're back at a menu with the same set of questions
+// and create a ref immediately to prevent factorial explosion
+// This is more specialized than early dedup - it matches on just the question choices,
+// ignoring other choices like "Fight" that may vary
+const DIALOGUE_MENU_EVENTS = ['Rathael the Slain Death']
+
+// Events that require path convergence detection (early deduplication during tree building)
+// Most events don't need this - post-processing structural dedup is sufficient.
+// However, "Frozen Heart" has such complex branching that it hits node limits without early dedup.
+// Early dedup is depth-first (happens during recursive building), while post-processing dedup
+// is breadth-first. Mixing them can cause issues where early dedup creates refs to nodes
+// that post-processing dedup later removes. So we only enable it for events that truly need it.
+const PATH_CONVERGENCE_EVENTS = ['Frozen Heart']
+
 const CONFIG = {
+  PATH_CONVERGENCE_DEDUP_MIN_CHOICES: 3, // Only apply to nodes with 3+ choices (avoid single-path nodes)
+  VERBOSE_LOGGING: false,
   MAX_DEPTH: 100, // Limit depth for performance
 
   // SIBLING-FIRST EXPLORATION:
@@ -54,17 +85,19 @@ const CONFIG = {
   // then recursively explore each one. This allows all siblings to START their
   // exploration before the node limit kicks in.
   SIBLING_FIRST_DEPTH: 8, // Explore each sibling all the way until we reach this depth
-  SIBLING_FIRST_NODE_BUDGET: 20000, // Max nodes to create during sibling-first phase
+  SIBLING_FIRST_NODE_BUDGET: 50000, // Max nodes to create during sibling-first phase
 
   // DEPTH-FIRST EXPLORATION:
   // After sibling-first phase, we switch to standard depth-first exploration.
   // Node counter is RESET when first entering depth-first phase for this event.
-  DEPTH_FIRST_NODE_BUDGET: 5000, // Max nodes to create during depth-first phase
+  DEPTH_FIRST_NODE_BUDGET: 25000, // Max nodes to create during depth-first phase
 }
 
 let nodeIdCounter = 0
 let totalNodesInCurrentEvent = 0
 let hasResetForDepthFirst = false // Track if we've reset the counter for this event
+let dialogueMenuStates = new Map() // Track dialogue menu states (for special events)
+let pathConvergenceStates = new Map() // Track path convergence for early dedup (text + choices)
 
 /**
  * Generate a unique node ID (integer, unique per event)
@@ -171,6 +204,8 @@ function parseInkStory(inkJsonString, eventName) {
     nodeIdCounter = 0
     totalNodesInCurrentEvent = 0
     hasResetForDepthFirst = false
+    dialogueMenuStates = new Map()
+    pathConvergenceStates = new Map()
 
     // Detect random variables before executing the story
     const randomVars = detectRandomVariables(inkJsonString)
@@ -180,7 +215,9 @@ function parseInkStory(inkJsonString, eventName) {
       const varList = Array.from(randomVars.entries())
         .map(([name, range]) => `${name}(${range.min}-${range.max})`)
         .join(', ')
-      console.log(`  📊 Random variables: ${varList}`)
+      if (CONFIG.VERBOSE_LOGGING) {
+        console.log(`  📊 Random variables: ${varList}`)
+      }
     }
 
     const story = new Story(inkJsonString)
@@ -216,12 +253,14 @@ function parseInkStory(inkJsonString, eventName) {
  * - Sibling-first (depths < SIBLING_FIRST_DEPTH): All siblings explored before going deep
  * - Depth-first (depths >= SIBLING_FIRST_DEPTH): Standard recursive exploration
  *
- * LOOP DETECTION (during tree building):
- * 1. Text-based: Detects when the same dialogue text appears before
- * 2. Choice+path-based: Detects when the same choice structure appears at the same Ink path
- * When a loop is detected, creates a ref node pointing to the original occurrence.
+ * DEDUPLICATION DURING BUILDING:
+ * 1. Text-based loop detection: Same dialogue text in ancestor chain
+ * 2. Choice+path-based loop detection: Same choices at same Ink path
+ * 3. Dialogue menu detection: Question menus (special events like Rathael)
+ * 4. Early deduplication: Path convergence (same text + choices via different routes)
+ * When detected, creates a ref node pointing to the original occurrence.
  *
- * Post-processing deduplication will find additional structural duplicates that aren't loops.
+ * Post-processing structural deduplication will find remaining identical subtrees.
  */
 function buildTreeFromStory(
   story,
@@ -234,10 +273,6 @@ function buildTreeFromStory(
   textToNodeId = new Map(),
   randomVars = new Map()
 ) {
-  // Check node limit to prevent infinite exploration
-  const inSiblingFirstMode = depth < CONFIG.SIBLING_FIRST_DEPTH
-  const inDepthFirstMode = depth >= CONFIG.SIBLING_FIRST_DEPTH
-
   // RESET node counter when transitioning from sibling-first to depth-first
   // This happens exactly ONCE when we first reach SIBLING_FIRST_DEPTH
   if (depth === CONFIG.SIBLING_FIRST_DEPTH && !hasResetForDepthFirst) {
@@ -245,25 +280,7 @@ function buildTreeFromStory(
     totalNodesInCurrentEvent = 0
   }
 
-  if (inSiblingFirstMode) {
-    // During sibling-first phase: use separate budget
-    if (totalNodesInCurrentEvent >= CONFIG.SIBLING_FIRST_NODE_BUDGET) {
-      console.warn(
-        `  ⚠️  Event "${eventName}" reached sibling-first budget (${CONFIG.SIBLING_FIRST_NODE_BUDGET}) at depth ${depth} - truncating branch`
-      )
-      return null
-    }
-  } else if (inDepthFirstMode) {
-    // During depth-first phase: use depth-first limit
-    if (totalNodesInCurrentEvent >= CONFIG.DEPTH_FIRST_NODE_BUDGET) {
-      console.warn(
-        `  ⚠️  Event "${eventName}" reached depth-first node limit (${CONFIG.DEPTH_FIRST_NODE_BUDGET}) - truncating branch`
-      )
-      return null
-    }
-  }
-
-  // Prevent infinite loops and excessive depth
+  // Prevent infinite loops and excessive depth (check this early before collecting text)
   if (depth > CONFIG.MAX_DEPTH) {
     console.warn(`  ⚠️  Event "${eventName}" reached max depth (${CONFIG.MAX_DEPTH}) - truncating branch`)
     totalNodesInCurrentEvent++
@@ -315,9 +332,11 @@ function buildTreeFromStory(
                     `>>>>${command}:${randomNotation}`
                   )
                   foundRandom = true
-                  console.log(
-                    `  🎲 Event "${eventName}": Detected random ${command} value ${value} (range: ${range.min}-${range.max})`
-                  )
+                  if (CONFIG.VERBOSE_LOGGING) {
+                      console.log(
+                      `  🎲 Event "${eventName}": Detected random ${command} value ${value} (range: ${range.min}-${range.max})`
+                    )
+                  }
                 }
               }
             }
@@ -349,9 +368,10 @@ function buildTreeFromStory(
   // Extract effects from the beginning of text, then clean the rest
   const { effects, cleanedText } = extractEffects(text)
 
-  // DUAL LOOP DETECTION STRATEGY:
-  // Detects loops during tree building to prevent infinite exploration
-  // and create ref nodes immediately when patterns repeat
+
+  // LOOP DETECTION & EARLY DEDUPLICATION:
+  // Multiple strategies detect patterns during tree building and create ref nodes
+  // to prevent infinite exploration and reduce redundant path exploration
 
   // 1. TEXT-BASED LOOP DETECTION (catches dialogue loops like The Ferryman)
   // Check if we've seen this exact text before in our exploration
@@ -388,6 +408,39 @@ function buildTreeFromStory(
       numContinues: numContinues,
       ref: originalNodeId,
     })
+  }
+
+  // Check node limit to prevent infinite exploration
+  // We check this AFTER collecting text/choices so we can log useful info
+  const inSiblingFirstMode = depth < CONFIG.SIBLING_FIRST_DEPTH
+  const inDepthFirstMode = depth >= CONFIG.SIBLING_FIRST_DEPTH
+
+  if (inSiblingFirstMode) {
+    // During sibling-first phase: use separate budget
+    if (totalNodesInCurrentEvent >= CONFIG.SIBLING_FIRST_NODE_BUDGET) {
+      const preview = cleanedText ? cleanedText.substring(0, 50) : '(no text)'
+      const choiceCount = choices.length
+      console.warn(
+        `  ⚠️  Event "${eventName}" reached sibling-first budget (${CONFIG.SIBLING_FIRST_NODE_BUDGET}) at depth ${depth}`
+      )
+      if (CONFIG.VERBOSE_LOGGING) {
+        console.warn(`      Text: "${preview}${cleanedText && cleanedText.length > 50 ? '...' : ''}"`)
+        console.warn(`      Choices: ${choiceCount}`)
+      }
+      return null
+    }
+  } else if (inDepthFirstMode) {
+    // During depth-first phase: use depth-first limit
+    if (totalNodesInCurrentEvent >= CONFIG.DEPTH_FIRST_NODE_BUDGET) {
+      const preview = cleanedText ? cleanedText.substring(0, 50) : '(no text)'
+      const choiceCount = choices.length
+      console.warn(
+        `  ⚠️  Event "${eventName}" reached depth-first node limit (${CONFIG.DEPTH_FIRST_NODE_BUDGET}) at depth ${depth}`
+      )
+      console.warn(`      Text: "${preview}${cleanedText && cleanedText.length > 50 ? '...' : ''}"`)
+      console.warn(`      Choices: ${choiceCount}`)
+      return null
+    }
   }
 
   // Clone tracking maps for this branch to maintain separate state per path
@@ -458,6 +511,70 @@ function buildTreeFromStory(
       effects,
       numContinues,
     })
+  }
+
+  // SPECIAL-CASE: DIALOGUE MENU DETECTION
+  // For events with dialogue menu patterns (like Rathael), detect when we're back
+  // at a menu with the same set of questions available and create a ref to prevent
+  // factorial explosion from exploring all question orderings
+  const isDialogueMenuEvent = DIALOGUE_MENU_EVENTS.includes(eventName)
+  if (isDialogueMenuEvent && isDialogueMenuPattern(choices)) {
+    const menuSignature = createDialogueMenuSignature(choices)
+
+    // Check if we've seen this exact menu state before
+    if (dialogueMenuStates.has(menuSignature)) {
+      const originalNodeId = dialogueMenuStates.get(menuSignature)
+      totalNodesInCurrentEvent++
+
+      // Create ref node pointing to the first occurrence of this menu
+      return createNode({
+        id: generateNodeId(),
+        text: cleanedText,
+        type: type,
+        effects: effects,
+        numContinues: numContinues,
+        ref: originalNodeId,
+      })
+    }
+
+    // First time seeing this menu state - store it
+    dialogueMenuStates.set(menuSignature, nodeId)
+  }
+
+  // EARLY DEDUPLICATION: PATH CONVERGENCE DETECTION
+  // Detects when we reach the same node (same text + choices) via different paths
+  // This is like mini-dedup during tree building - prevents re-exploring identical branches
+  // ONLY enabled for events in PATH_CONVERGENCE_EVENTS whitelist (events that need it to parse successfully)
+  let convergenceSignature = null
+  const enableEarlyDedupForThisEvent =
+    PATH_CONVERGENCE_EVENTS.includes(eventName)
+  if (enableEarlyDedupForThisEvent && cleanedText && choices.length >= CONFIG.PATH_CONVERGENCE_DEDUP_MIN_CHOICES) {
+    // Create signature based on text + sorted choice labels
+    const choiceLabels = choices
+      .map((c) => extractChoiceMetadata(c.text).cleanedText)
+      .sort()
+      .join('|')
+    convergenceSignature = `${cleanedText}::${choiceLabels}`
+
+    // Check if we've seen this exact node state before (same text + same choices available)
+    if (pathConvergenceStates.has(convergenceSignature)) {
+      const originalNodeId = pathConvergenceStates.get(convergenceSignature)
+      totalNodesInCurrentEvent++
+
+      // Create ref node pointing to the first occurrence of this node state
+      return createNode({
+        id: generateNodeId(),
+        text: cleanedText,
+        type: type,
+        effects: effects,
+        numContinues: numContinues,
+        ref: originalNodeId,
+      })
+    }
+
+    // NOTE: We store the signature AFTER building children (see end of function)
+    // This prevents race conditions where another path reaches the same node
+    // before we've finished building this one's children
   }
 
   // Build children by exploring each choice
@@ -581,6 +698,13 @@ function buildTreeFromStory(
     }
   }
 
+  // Store early dedup signature AFTER building children
+  // This ensures other paths won't create refs to incomplete nodes
+  // Only store if we actually have children (to avoid matching incomplete nodes)
+  if (convergenceSignature && children.length > 0) {
+    pathConvergenceStates.set(convergenceSignature, nodeId)
+  }
+
   // Build the node
   return createNode({
     id: nodeId,
@@ -683,6 +807,36 @@ function extractChoiceMetadata(choiceText) {
   cleanedText = cleanText(cleanedText)
 
   return { requirements, cleanedText }
+}
+
+/**
+ * Detect if choices form a "dialogue menu" pattern (multiple questions you can ask in any order)
+ * Returns true if we have 5+ choices where most end with '?'
+ */
+function isDialogueMenuPattern(choices) {
+  if (choices.length < 5) return false
+
+  const questionChoices = choices.filter((choice) => {
+    const { cleanedText } = extractChoiceMetadata(choice.text)
+    return cleanedText && cleanedText.trim().endsWith('?')
+  })
+
+  // If 70% or more of choices are questions, it's a dialogue menu
+  return questionChoices.length >= Math.ceil(choices.length * 0.7)
+}
+
+/**
+ * Create a signature for a dialogue menu based on the sorted set of question choices
+ * This allows us to detect when we're back at the "same menu" with the same questions available
+ */
+function createDialogueMenuSignature(choices) {
+  const questionLabels = choices
+    .map((choice) => extractChoiceMetadata(choice.text).cleanedText)
+    .filter((text) => text && text.trim().endsWith('?'))
+    .sort()
+    .join('|')
+
+  return `MENU:${questionLabels}`
 }
 
 /**
@@ -815,14 +969,18 @@ function processEvents() {
     const displayName = caption || name
 
     if (!text) {
-      console.log(`  ⊘  [${i + 1}/${events.length}] Skipping "${displayName}" (no text content)`)
+      if (CONFIG.VERBOSE_LOGGING) {
+        console.log(`  ⊘  [${i + 1}/${events.length}] Skipping "${displayName}" (no text content)`)
+      }
       emptyCount++
       continue
     }
 
     // Handle excluded events - keep them but don't parse the tree
     if (excluded) {
-      console.log(`  ✂️  [${i + 1}/${events.length}] Excluding "${displayName}" (blacklisted)`)
+      if (CONFIG.VERBOSE_LOGGING) {
+        console.log(`  ✂️  [${i + 1}/${events.length}] Excluding "${displayName}" (blacklisted)`)
+      }
       eventTrees.push({
         name: displayName,
         type,
@@ -833,7 +991,9 @@ function processEvents() {
       continue
     }
 
-    console.log(`  → [${i + 1}/${events.length}] Parsing "${displayName}" (type ${type})...`)
+    if (CONFIG.VERBOSE_LOGGING) {
+      console.log(`  → [${i + 1}/${events.length}] Parsing "${displayName}" (type ${type})...`)
+    }
 
     const rootNode = parseInkStory(text, displayName)
 
@@ -845,7 +1005,9 @@ function processEvents() {
         rootNode,
       })
       successCount++
-      console.log(`    ✓ Success (${countNodes(rootNode)} nodes)`)
+      if (CONFIG.VERBOSE_LOGGING) {
+        console.log(`    ✓ Success (${countNodes(rootNode)} nodes)`)
+      }
     } else {
       errorCount++
     }
@@ -864,12 +1026,6 @@ function processEvents() {
   // Sort events alphabetically by name
   console.log(`\n🔤 Sorting events alphabetically...`)
   eventTrees.sort((a, b) => a.name.localeCompare(b.name))
-
-  // Write output
-  console.log(`\n💾 Writing to ${OUTPUT_FILE}...`)
-  fs.writeFileSync(OUTPUT_FILE, JSON.stringify(eventTrees, null, 2), 'utf-8')
-
-  console.log('\n✨ Done!')
 
   // Filter out default nodes for specific events
   console.log('\n🗑️  Filtering default nodes for blacklisted events...')
@@ -910,11 +1066,68 @@ function processEvents() {
   console.log(`  Replaced ${totalDuplicates} duplicate subtrees`)
   console.log(`  Reduced node count by ${totalNodesRemoved}`)
 
-  if (eventsWithDedupe.length > 0) {
+  if (CONFIG.VERBOSE_LOGGING && eventsWithDedupe.length > 0) {
     console.log(`\n  Events with deduplication:`)
     eventsWithDedupe.forEach(({ name, duplicates, nodesRemoved }) => {
       console.log(`    - "${name}": ${duplicates} duplicates, ${nodesRemoved} nodes removed`)
     })
+  }
+
+  // Check for invalid refs
+  console.log('\n🔍 Checking for invalid refs...')
+  let totalInvalidRefs = 0
+  const eventsWithInvalidRefs = []
+
+  eventTrees.forEach((tree) => {
+    if (tree.excluded || !tree.rootNode) return
+
+    // Build node map for this tree
+    const nodeMap = new Map()
+    function buildNodeMap(node) {
+      if (!node) return
+      nodeMap.set(node.id, node)
+      if (node.children) {
+        node.children.forEach((child) => buildNodeMap(child))
+      }
+    }
+    buildNodeMap(tree.rootNode)
+
+    // Check all refs
+    const invalidRefs = []
+    function checkRefs(node) {
+      if (!node) return
+      if (node.ref !== undefined && !nodeMap.has(node.ref)) {
+        invalidRefs.push({ nodeId: node.id, refTarget: node.ref })
+      }
+      if (node.children) {
+        node.children.forEach((child) => checkRefs(child))
+      }
+    }
+    checkRefs(tree.rootNode)
+
+    if (invalidRefs.length > 0) {
+      totalInvalidRefs += invalidRefs.length
+      eventsWithInvalidRefs.push({
+        name: tree.name,
+        invalidRefs: invalidRefs.length,
+        examples: invalidRefs.slice(0, 3), // Show first 3 examples
+      })
+    }
+  })
+
+  if (totalInvalidRefs > 0) {
+    console.log(`  ⚠️  Found ${totalInvalidRefs} invalid refs across ${eventsWithInvalidRefs.length} events`)
+    if (CONFIG.VERBOSE_LOGGING) {
+      console.log('\n  Events with invalid refs:')
+      eventsWithInvalidRefs.forEach(({ name, invalidRefs, examples }) => {
+        console.log(`    - "${name}": ${invalidRefs} invalid refs`)
+        examples.forEach(({ nodeId, refTarget }) => {
+          console.log(`        Node ${nodeId} -> ${refTarget} (target not found)`)
+        })
+      })
+    }
+  } else {
+    console.log(`  ✅ No invalid refs found`)
   }
 
   // Calculate final stats
@@ -933,15 +1146,17 @@ function processEvents() {
   console.log(`⏱️  Total parsing time: ${elapsedSeconds}s`)
 
   // Show sample output
-  if (eventTrees.length > 0) {
-    console.log('\n📋 Sample event trees:')
-    eventTrees.slice(0, 3).forEach((tree) => {
-      const nodeCount = countNodes(tree.rootNode)
-      const maxDepth = getMaxDepth(tree.rootNode)
-      console.log(
-        `  - "${tree.name}" (type ${tree.type}): ${nodeCount} nodes, max depth ${maxDepth}`
-      )
-    })
+  if (CONFIG.VERBOSE_LOGGING) {
+    if (eventTrees.length > 0) {
+      console.log('\n📋 Sample event trees:')
+      eventTrees.slice(0, 3).forEach((tree) => {
+        const nodeCount = countNodes(tree.rootNode)
+        const maxDepth = getMaxDepth(tree.rootNode)
+        console.log(
+          `  - "${tree.name}" (type ${tree.type}): ${nodeCount} nodes, max depth ${maxDepth}`
+        )
+      })
+    }
   }
 }
 
@@ -1021,13 +1236,18 @@ function separateChoicesFromEffects(node) {
         // Create an outcome node (child)
         // Determine the outcome type:
         // - The original node was 'combat' -> 'combat'
+        // - The original node has a ref -> keep the original type (it's a ref node)
         // - The original node had no children -> 'end'
         // - The original node was 'choice' or 'dialogue' -> 'dialogue'
         // - Otherwise -> keep the original type, BUT warn!
         const hasChildren = child.children && child.children.length > 0
+        const hasRef = child.ref !== undefined
         let outcomeType
         if (child.type === 'combat') {
           outcomeType = 'combat'
+        } else if (hasRef) {
+          // Preserve the type for ref nodes (they don't have children, but they're not end nodes)
+          outcomeType = child.type
         } else if (!hasChildren) {
           outcomeType = 'end'
         } else if (child.type === 'choice' || child.type === 'dialogue') {
@@ -1043,6 +1263,7 @@ function separateChoicesFromEffects(node) {
           type: outcomeType,
           effects: child.effects,
           numContinues: child.numContinues,
+          ref: child.ref, // Preserve ref field!
           children: child.children,
         })
 
@@ -1160,10 +1381,40 @@ function deduplicateEventTree(rootNode) {
     }
   }
 
+  // Build a set of all node IDs that are referenced by other nodes
+  // AND their descendants - these should not be deduplicated because other nodes depend on them
+  // Note: This protection is primarily for refs created by path convergence detection
+  // (early dedup), which only applies to events in PATH_CONVERGENCE_EVENTS whitelist.
+  const refTargets = new Set()
+  const protectedNodes = new Set()
+
+  // First, collect all direct ref targets
+  for (const node of allNodes) {
+    if (node.ref !== undefined) {
+      refTargets.add(node.ref)
+    }
+  }
+
+  // Then, mark all ref targets and their descendants as protected
+  function markDescendantsAsProtected(node) {
+    protectedNodes.add(node.id)
+    if (node.children) {
+      node.children.forEach((child) => markDescendantsAsProtected(child))
+    }
+  }
+
+  refTargets.forEach((targetId) => {
+    const targetNode = allNodes.find((n) => n.id === targetId)
+    if (targetNode) {
+      markDescendantsAsProtected(targetNode)
+    }
+  })
+
   // Process nodes in breadth-first order (shallowest first)
   for (const node of allNodes) {
     if (!node.children || node.children.length === 0) continue
     if (node.ref) continue // Skip nodes that are already references
+    if (protectedNodes.has(node.id)) continue // Skip nodes that are ref targets or their descendants
 
     // Check if this subtree is large enough to deduplicate
     const subtreeSize = countNodes(node)
@@ -1177,6 +1428,7 @@ function deduplicateEventTree(rootNode) {
           type: child.type,
           requirements: child.requirements,
           effects: child.effects,
+          ref: child.ref, // Include ref in signature to avoid merging nodes with different refs
         })),
       })
 
@@ -1207,7 +1459,8 @@ function deduplicateEventTree(rootNode) {
 }
 
 /**
- * Deduplicate subtrees across all event trees
+ * Post-processing: Deduplicate structurally identical subtrees across all event trees
+ * This catches remaining duplicates that weren't detected during tree building
  */
 function deduplicateAllTrees(eventTrees) {
   let totalDuplicates = 0

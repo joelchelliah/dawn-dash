@@ -341,6 +341,8 @@ function EventTree({ event, zoomLevel, loopingPathMode }: EventTreeProps): JSX.E
         const hasContinue = data.numContinues && data.numContinues > 0
         const continueBoxHeight = hasContinue ? INNER_BOX.INDICATOR_HEIGHT : 0
         const repeatableBoxHeight = data.ref ? INNER_BOX.INDICATOR_HEIGHT : 0
+        const continueBoxMargin = continueBoxHeight > 0 ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
+        const repeatableBoxMargin = repeatableBoxHeight > 0 ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
 
         if (isRootNode) {
           // Root node shows up to 2 lines of dialogue text (if present)
@@ -353,7 +355,9 @@ function EventTree({ event, zoomLevel, loopingPathMode }: EventTreeProps): JSX.E
             NODE_BOX.VERTICAL_PADDING * 2 -
             effectsBoxMargin -
             effectsBoxHeight -
+            continueBoxMargin -
             continueBoxHeight -
+            repeatableBoxMargin -
             repeatableBoxHeight
           const textAreaCenter =
             -currentNodeHeight / 2 + NODE_BOX.VERTICAL_PADDING + textAreaHeight / 2
@@ -398,7 +402,9 @@ function EventTree({ event, zoomLevel, loopingPathMode }: EventTreeProps): JSX.E
             NODE_BOX.VERTICAL_PADDING * 2 -
             effectsBoxMargin -
             effectsBoxHeight -
+            continueBoxMargin -
             continueBoxHeight -
+            repeatableBoxMargin -
             repeatableBoxHeight
           const textAreaCenter =
             -currentNodeHeight / 2 + NODE_BOX.VERTICAL_PADDING + textAreaHeight / 2
