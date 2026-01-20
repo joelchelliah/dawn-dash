@@ -32,8 +32,6 @@ interface EventSearchPanelProps {
   onEventChange: (index: number) => void
   filteredEvents: Event[]
   useSearchFilters: UseAllEventSearchFilters
-  showAdvancedOptions: boolean
-  setShowAdvancedOptions: (show: boolean) => void
 }
 
 const getZoomLabel = (zoom: ZoomLevel): string => (zoom === ZoomLevel.COVER ? 'Cover' : `${zoom}%`)
@@ -48,8 +46,6 @@ const EventSearchPanel = ({
   onEventChange,
   filteredEvents,
   useSearchFilters,
-  showAdvancedOptions,
-  setShowAdvancedOptions,
 }: EventSearchPanelProps) => {
   const selectedClass = CharacterClass.Sunforge
   const {
@@ -57,6 +53,8 @@ const EventSearchPanel = ({
     setFilterText,
     zoomLevel,
     setZoomLevel,
+    showAdvancedOptions,
+    setShowAdvancedOptions,
     loopingPathMode,
     setLoopingPathMode,
     resetFilters,
@@ -161,7 +159,13 @@ const EventSearchPanel = ({
           </GradientButton>
         </div>
         {!showAdvancedOptions && (
-          <div className={cx('control-wrapper', 'control-wrapper--search-field')}>
+          <div
+            className={cx(
+              'control-wrapper',
+              'control-wrapper--search-field',
+              'control-wrapper--search-field--wide'
+            )}
+          >
             <SearchField
               keywords={filterText}
               setKeywords={setFilterText}

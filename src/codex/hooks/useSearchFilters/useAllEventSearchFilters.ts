@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
+import { isNotNullOrUndefined } from '@/shared/utils/object'
+
 import {
   cacheEventCodexSearchFilters,
   getCachedEventCodexSearchFilters,
@@ -15,35 +17,49 @@ export interface UseAllEventSearchFilters {
   filterText: string
   setFilterText: (text: string) => void
   deferredFilterText: string
+  showAdvancedOptions: boolean
+  setShowAdvancedOptions: (show: boolean) => void
   loopingPathMode: LoopingPathMode
   setLoopingPathMode: (mode: LoopingPathMode) => void
   resetFilters: () => void
 }
 
 export const useAllEventSearchFilters = (): UseAllEventSearchFilters => {
-  const cachedFilters = getCachedEventCodexSearchFilters()
-
-  const { filterText, setFilterText, deferredFilterText } = useEventFilterText()
   const [zoomLevel, setZoomLevel] = useState<ZoomLevel>(ZoomLevel.COVER)
+  const { filterText, setFilterText, deferredFilterText } = useEventFilterText()
+  const [showAdvancedOptions, setShowAdvancedOptionsUntracked] = useState<boolean>(false)
   const [loopingPathMode, setLoopingPathModeUntracked] = useState<LoopingPathMode>(
-    (cachedFilters?.loopingPathMode as LoopingPathMode) ?? LoopingPathMode.INDICATOR
+    LoopingPathMode.INDICATOR
   )
+
+  // Load from localStorage after hydration to avoid SSR mismatch
+  useEffect(() => {
+    const cachedFilters = getCachedEventCodexSearchFilters()
+    if (isNotNullOrUndefined(cachedFilters?.showAdvancedOptions)) {
+      setShowAdvancedOptionsUntracked(cachedFilters.showAdvancedOptions)
+    }
+    if (isNotNullOrUndefined(cachedFilters?.loopingPathMode)) {
+      setLoopingPathModeUntracked(cachedFilters.loopingPathMode as LoopingPathMode)
+    }
+  }, [])
 
   // --------------------------------------------------
   // ------ Tracking user interaction on filters ------
   // --------------------------------------------------
   const { hasUserChangedFilter, createTrackedSetter } = useFilterTracking()
 
+  const trackedSetShowAdvancedOptions = createTrackedSetter(setShowAdvancedOptionsUntracked)
   const trackedSetLoopingPathMode = createTrackedSetter(setLoopingPathModeUntracked)
 
   // --------------------------------------------------
   // ------------- Reset functionality ----------------
   // --------------------------------------------------
   const resetFilters = useCallback(() => {
-    setFilterText('')
     setZoomLevel(ZoomLevel.COVER)
+    setFilterText('')
+    trackedSetShowAdvancedOptions(false)
     trackedSetLoopingPathMode(LoopingPathMode.INDICATOR)
-  }, [setFilterText, trackedSetLoopingPathMode])
+  }, [setFilterText, trackedSetShowAdvancedOptions, trackedSetLoopingPathMode])
 
   // --------------------------------------------------
   // -------- Debounced caching of filters ------------
@@ -59,6 +75,7 @@ export const useAllEventSearchFilters = (): UseAllEventSearchFilters => {
 
     filterDebounceTimeoutRef.current = setTimeout(() => {
       cacheEventCodexSearchFilters({
+        showAdvancedOptions,
         loopingPathMode,
         lastUpdated: Date.now(),
       })
@@ -69,7 +86,7 @@ export const useAllEventSearchFilters = (): UseAllEventSearchFilters => {
         clearTimeout(filterDebounceTimeoutRef.current)
       }
     }
-  }, [loopingPathMode, hasUserChangedFilter])
+  }, [loopingPathMode, showAdvancedOptions, hasUserChangedFilter])
 
   // --------------------------------------------------
   // --------------------------------------------------
@@ -80,6 +97,8 @@ export const useAllEventSearchFilters = (): UseAllEventSearchFilters => {
     deferredFilterText,
     zoomLevel,
     setZoomLevel,
+    showAdvancedOptions,
+    setShowAdvancedOptions: trackedSetShowAdvancedOptions,
     loopingPathMode,
     setLoopingPathMode: trackedSetLoopingPathMode,
     resetFilters,

@@ -25,7 +25,6 @@ function Events(): JSX.Element {
   const { resetToEventCodex } = useNavigation()
   const { showScrollToTopButton, scrollToTop } = useScrollToTop()
   const [selectedEventIndex, setSelectedEventIndex] = useState(ALL_EVENTS_INDEX)
-  const [showAdvancedOptions, setShowAdvancedOptions] = useState(false)
 
   const useSearchFiltersHook = useAllEventSearchFilters()
 
@@ -55,8 +54,6 @@ function Events(): JSX.Element {
           onEventChange={setSelectedEventIndex}
           filteredEvents={filteredEvents}
           useSearchFilters={useSearchFiltersHook}
-          showAdvancedOptions={showAdvancedOptions}
-          setShowAdvancedOptions={setShowAdvancedOptions}
         />
         <EventResultsPanel
           selectedEvent={selectedEvent}

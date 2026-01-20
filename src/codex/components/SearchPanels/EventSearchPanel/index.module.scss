@@ -74,6 +74,10 @@
   &--search-field {
     flex: 2;
     min-width: 16rem;
+
+    &--wide {
+      min-width: 100%;
+    }
   }
 
   &--looping-path {
