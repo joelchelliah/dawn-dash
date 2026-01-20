@@ -57,6 +57,7 @@ const EventResultsPanel = ({
               event={selectedEvent}
               zoomLevel={zoomLevel}
               loopingPathMode={loopingPathMode}
+              onAllEventsClick={() => onEventChange(ALL_EVENTS_INDEX)}
             />
             <br />
             <br />

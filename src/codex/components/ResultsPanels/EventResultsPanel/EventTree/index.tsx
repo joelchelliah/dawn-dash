@@ -35,9 +35,15 @@ interface EventTreeProps {
   event: Event
   zoomLevel: ZoomLevel
   loopingPathMode: LoopingPathMode
+  onAllEventsClick: () => void
 }
 
-function EventTree({ event, zoomLevel, loopingPathMode }: EventTreeProps): JSX.Element {
+function EventTree({
+  event,
+  zoomLevel,
+  loopingPathMode,
+  onAllEventsClick,
+}: EventTreeProps): JSX.Element {
   const svgRef = useRef<SVGSVGElement>(null)
   const scrollWrapperRef = useRef<HTMLDivElement>(null)
 
@@ -670,7 +676,7 @@ function EventTree({ event, zoomLevel, loopingPathMode }: EventTreeProps): JSX.E
   return (
     <div className={cx('container')}>
       <div className={cx('container__breadcrumbs')}>
-        <GradientLink text="← All events" url="/codex/events" internal />
+        <GradientLink text="← All events" onClick={onAllEventsClick} />
       </div>
       <div className={cx('event-header')}>
         <Image

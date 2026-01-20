@@ -6,12 +6,11 @@
   &__breadcrumbs {
     display: flex;
     align-items: center;
-    margin: -0.75rem 0 1rem 0.125rem;
-    font-size: font-size('xs');
+    margin: -0.75rem 0 0 0.125rem;
     color: $color-primary-muted;
 
     @media (max-width: $breakpoint-mobile) {
-      font-size: font-size('xxs');
+      margin: -1rem 0 0 0.125rem;
     }
   }
 }
