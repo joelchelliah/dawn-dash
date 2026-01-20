@@ -181,7 +181,9 @@ function EventTree({
         const continueIndicatorHeight = hasContinue ? INNER_BOX.INDICATOR_HEIGHT : 0
         const continueIndicatorMargin = hasContinue ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
         const hasLoopingIndicator = showLoopingIndicator && data.ref
-        const loopIndicatorHeight = hasLoopingIndicator ? INNER_BOX.INDICATOR_HEIGHT : 0
+        const loopIndicatorHeight = hasLoopingIndicator
+          ? INNER_BOX.INDICATOR_HEIGHT + TEXT.LINE_HEIGHT + INNER_BOX.INDICATOR_HEADER_GAP
+          : 0
         const loopIndicatorMargin = hasLoopingIndicator ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
 
         const currentNodeHeight = getNodeHeight(data, event, showLoopingIndicator)
@@ -294,7 +296,9 @@ function EventTree({
             INNER_BOX.LISTINGS_VERTICAL_PADDING
           : 0
         const loopIndicatorHeight =
-          showLoopingIndicator && data.ref ? INNER_BOX.INDICATOR_HEIGHT : 0
+          showLoopingIndicator && data.ref
+            ? INNER_BOX.INDICATOR_HEIGHT + TEXT.LINE_HEIGHT + INNER_BOX.INDICATOR_HEADER_GAP
+            : 0
 
         const currentNodeHeight = getNodeHeight(data, event, showLoopingIndicator)
         const currentNodeWidth = getNodeWidth(data, event)
@@ -360,7 +364,9 @@ function EventTree({
         const hasContinue = data.numContinues && data.numContinues > 0
         const continueIndicatorHeight = hasContinue ? INNER_BOX.INDICATOR_HEIGHT : 0
         const loopIndicatorHeight =
-          showLoopingIndicator && data.ref ? INNER_BOX.INDICATOR_HEIGHT : 0
+          showLoopingIndicator && data.ref
+            ? INNER_BOX.INDICATOR_HEIGHT + TEXT.LINE_HEIGHT + INNER_BOX.INDICATOR_HEADER_GAP
+            : 0
         const continueIndicatorMargin =
           continueIndicatorHeight > 0 ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
         const loopIndicatorMargin = loopIndicatorHeight > 0 ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
@@ -468,7 +474,9 @@ function EventTree({
             INNER_BOX.LISTINGS_VERTICAL_PADDING
           : 0
         const loopIndicatorHeight =
-          showLoopingIndicator && data.ref ? INNER_BOX.INDICATOR_HEIGHT : 0
+          showLoopingIndicator && data.ref
+            ? INNER_BOX.INDICATOR_HEIGHT + TEXT.LINE_HEIGHT + INNER_BOX.INDICATOR_HEADER_GAP
+            : 0
 
         const currentNodeHeight = getNodeHeight(data, event, showLoopingIndicator)
         const currentNodeWidth = getNodeWidth(data, event)
@@ -546,8 +554,10 @@ function EventTree({
         const continueHeight = eventNode.numContinues ? INNER_BOX.INDICATOR_HEIGHT : 0
         const continueMargin = continueHeight > 0 ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
         const showLoopsBackTo = showLoopingIndicator && eventNode.ref
-        const loopingIndicatorHeight = showLoopsBackTo ? INNER_BOX.INDICATOR_HEIGHT : 0
-        const loopingIndicatorMargin = showLoopsBackTo ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
+        const loopIndicatorHeight = showLoopsBackTo
+          ? INNER_BOX.INDICATOR_HEIGHT + TEXT.LINE_HEIGHT + INNER_BOX.INDICATOR_HEADER_GAP
+          : 0
+        const loopIndicatorMargin = showLoopsBackTo ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
 
         const effectsBoxY =
           nodeHeight / 2 -
@@ -555,8 +565,8 @@ function EventTree({
           effectsBoxHeight -
           continueMargin -
           continueHeight -
-          loopingIndicatorMargin -
-          loopingIndicatorHeight
+          loopIndicatorMargin -
+          loopIndicatorHeight
 
         const effectsGroup = node.append('g').attr('transform', `translate(0, ${effectsBoxY})`)
 
@@ -604,7 +614,9 @@ function EventTree({
         const nodeHeight = getNodeHeight(d.data, event, showLoopingIndicator)
         const nodeWidth = getNodeWidth(d.data, event)
         const showLoopsBackTo = d.data.ref && showLoopingIndicator
-        const loopIndicatorHeight = showLoopsBackTo ? INNER_BOX.INDICATOR_HEIGHT : 0
+        const loopIndicatorHeight = showLoopsBackTo
+          ? INNER_BOX.INDICATOR_HEIGHT + TEXT.LINE_HEIGHT + INNER_BOX.INDICATOR_HEADER_GAP
+          : 0
         const loopIndicatorMargin = showLoopsBackTo ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
         const numContinues = d.data.numContinues ?? 0
 
@@ -630,7 +642,7 @@ function EventTree({
         continueIndicator
           .append('text')
           .attr('class', cx('event-node-text', 'event-node-text--indicator'))
-          .attr('y', INNER_BOX.INDICATOR_HEIGHT / 2 + TEXT.BASELINE_OFFSET / 2)
+          .attr('y', INNER_BOX.INDICATOR_HEIGHT / 2 + TEXT.BASELINE_OFFSET / 1.75)
           .text(`⏭️ Continues: ${numContinues}`)
       })
 
@@ -646,9 +658,20 @@ function EventTree({
           const refNode = findNodeById(root as HierarchyPointNode<EventTreeNode>, d.data.ref)
           const refNodeLabel = refNode?.type === 'choice' ? refNode.choiceLabel : refNode?.text
 
+          // Calculate label text (wrap and take first line)
+          const labelText = refNodeLabel || ''
+          const refNodeLines = wrapText(
+            labelText,
+            nodeWidth - INNER_BOX.HORIZONTAL_MARGIN - TEXT.HORIZONTAL_PADDING
+          )
+          const displayLine = refNodeLines[0] || ''
+          const truncatedLine = displayLine === labelText ? displayLine : `${displayLine}...`
+
+          const loopIndicatorHeight =
+            INNER_BOX.INDICATOR_HEIGHT + TEXT.LINE_HEIGHT + INNER_BOX.INDICATOR_HEADER_GAP
+
           // Position from bottom: margin is already in nodeHeight, just position the box
-          const loopIndicatorY =
-            nodeHeight / 2 - NODE_BOX.VERTICAL_PADDING - INNER_BOX.INDICATOR_HEIGHT
+          const loopIndicatorY = nodeHeight / 2 - NODE_BOX.VERTICAL_PADDING - loopIndicatorHeight
 
           const loopIndicator = node
             .append('g')
@@ -659,18 +682,28 @@ function EventTree({
             .attr('class', cx('indicator-box'))
             .attr('x', -nodeWidth / 2 + INNER_BOX.HORIZONTAL_MARGIN)
             .attr('width', nodeWidth - INNER_BOX.HORIZONTAL_MARGIN * 2)
-            .attr('height', INNER_BOX.INDICATOR_HEIGHT)
+            .attr('height', loopIndicatorHeight)
 
           loopIndicator
             .append('text')
             .attr('class', cx('event-node-text', 'event-node-text--indicator'))
-            .attr('y', INNER_BOX.INDICATOR_HEIGHT / 2 + TEXT.BASELINE_OFFSET / 2)
+            .attr(
+              'y',
+              TEXT.LINE_HEIGHT / 2 + TEXT.BASELINE_OFFSET + INNER_BOX.INDICATOR_HEADER_GAP / 3
+            )
             .text(`🔄 Loops back to:`)
 
-          // TODO: Add a new text element here that displays 1 line of the parentLabel
-          // We also need to update:
-          // - rendering of the indicator box with correct height
-          // - getNodeHeight
+          loopIndicator
+            .append('text')
+            .attr('class', cx('event-node-text', 'event-node-text--indicator-label'))
+            .attr(
+              'y',
+              TEXT.LINE_HEIGHT +
+                INNER_BOX.INDICATOR_HEADER_GAP +
+                TEXT.LINE_HEIGHT / 2 +
+                TEXT.BASELINE_OFFSET
+            )
+            .text(truncatedLine)
         })
     }
 

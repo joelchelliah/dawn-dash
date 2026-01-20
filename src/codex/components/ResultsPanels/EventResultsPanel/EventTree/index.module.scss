@@ -181,6 +181,11 @@
 
   &--indicator {
     font-size: font-size('xs');
+    font-weight: 600;
+  }
+
+  &--indicator-label {
+    font-size: font-size('xxs');
   }
 }
 

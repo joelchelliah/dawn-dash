@@ -106,8 +106,13 @@ export const getNodeHeight = (
 
   const continueIndicatorHeight = node.numContinues ? INNER_BOX.INDICATOR_HEIGHT : 0
   const continueIndicatorMargin = continueIndicatorHeight > 0 ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
-  const loopIndicatorHeight = showLoopingIndicator && node.ref ? INNER_BOX.INDICATOR_HEIGHT : 0
-  const loopIndicatorMargin = loopIndicatorHeight > 0 ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
+  const loopIndicatorHeight =
+    showLoopingIndicator && node.ref
+      ? INNER_BOX.INDICATOR_HEIGHT +
+        INNER_BOX.INDICATOR_TOP_MARGIN +
+        INNER_BOX.INDICATOR_HEADER_GAP +
+        TEXT.LINE_HEIGHT
+      : 0
 
   if (node.type === 'choice') {
     const requirements = node.requirements || []
@@ -129,7 +134,6 @@ export const getNodeHeight = (
       reqBoxHeight +
       continueIndicatorMargin +
       continueIndicatorHeight +
-      loopIndicatorMargin +
       loopIndicatorHeight
 
     return contentHeight + NODE_BOX.VERTICAL_PADDING * 2
@@ -168,8 +172,7 @@ export const getNodeHeight = (
       effectsBoxMargin = effectsBoxHeight > 0 ? INNER_BOX.LISTINGS_TOP_MARGIN : 0
     }
 
-    const contentHeight =
-      textHeight + effectsBoxMargin + effectsBoxHeight + loopIndicatorMargin + loopIndicatorHeight
+    const contentHeight = textHeight + effectsBoxMargin + effectsBoxHeight + loopIndicatorHeight
 
     return contentHeight + NODE_BOX.VERTICAL_PADDING * 2
   } else if (node.type === 'dialogue') {
@@ -202,7 +205,6 @@ export const getNodeHeight = (
         effectsBoxHeight +
         continueIndicatorMargin +
         continueIndicatorHeight +
-        loopIndicatorMargin +
         loopIndicatorHeight
 
       return contentHeight + NODE_BOX.VERTICAL_PADDING * 2
@@ -218,7 +220,6 @@ export const getNodeHeight = (
       effectsBoxHeight +
       continueIndicatorMargin +
       continueIndicatorHeight +
-      loopIndicatorMargin +
       loopIndicatorHeight
 
     return contentHeight + NODE_BOX.VERTICAL_PADDING * 2
@@ -245,8 +246,7 @@ export const getNodeHeight = (
         : 0
     const effectsBoxMargin = effectsBoxHeight > 0 ? INNER_BOX.LISTINGS_TOP_MARGIN : 0
 
-    const contentHeight =
-      textHeight + effectsBoxMargin + effectsBoxHeight + loopIndicatorMargin + loopIndicatorHeight
+    const contentHeight = textHeight + effectsBoxMargin + effectsBoxHeight + loopIndicatorHeight
 
     return contentHeight + NODE_BOX.VERTICAL_PADDING * 2
   }

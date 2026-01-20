@@ -86,7 +86,7 @@ const COUSIN_REF_BLACKLIST = ['Vesparin Vault']
 
 const CONFIG = {
   PATH_CONVERGENCE_DEDUP_MIN_CHOICES: 3, // Only apply to nodes with at least this many choices
-  FINAL_DEDUP_MIN_SUBTREE_SIZE: 2, // Only dedupe if subtree has at least this many nodes
+  FINAL_DEDUP_MIN_SUBTREE_SIZE: 3, // Only dedupe if subtree has at least this many nodes
   VERBOSE_LOGGING: false,
   MAX_DEPTH: 100, // Limit depth for performance
 

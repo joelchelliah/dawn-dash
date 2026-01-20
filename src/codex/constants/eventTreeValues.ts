@@ -54,6 +54,9 @@ export const INNER_BOX = {
   // Gap between main node text and indicator boxes (Loops back to, Continue)
   INDICATOR_TOP_MARGIN: 5,
 
+  // Gap between indicator header ('Loops back to:') and label text
+  INDICATOR_HEADER_GAP: 8,
+
   // Vertical padding for listings ('Requirements' and 'Effects')
   LISTINGS_VERTICAL_PADDING: 12,
 
