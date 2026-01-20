@@ -143,64 +143,6 @@ const CARD_ID_TO_NAME = {
   990096: '- MISSING NAME -',
 }
 
-const EVENTS_BLACKLIST = [
-  // // Mostly story events:
-  // 'Burned Missive',
-  // 'Consul GiveBanditQuest', // Consul Briefing
-  // 'Consul GiveGroveQuest', // Consul Briefing
-  // 'Enchanter', // Isle of Talos
-  // 'Consul BanditQuestReward',
-  // 'Count Vesparin',
-  // 'Emberwyld Heights Finish',
-  // 'Empowered Hydra Death',
-  // 'Glowing Runes',
-  // 'Gorn Tagdahar Death',
-  // 'Grove of the Dying Star Finish',
-  // 'Heart of the Temple',
-  // "Heroes' Rest Cemetery Start",
-  // 'Hidden Library',
-  // 'High Priest of Agony Death',
-  // 'High Priest of Chaos Death',
-  // 'High Priest of Hatred Death',
-  // 'Kaius Tagdahar Death',
-  // 'Lord of Despair Death',
-  // 'Lost Journal', // Discarded Journal
-  // 'Noxlight Swamp Finish',
-  // 'Obsidian Garden Finish',
-  // 'Outerworldly Entity Death',
-  // 'Overgrown Stone',
-  // 'Queen of Decay Death',
-  // 'Rathael the Slain Death',
-  // 'Sanctum of Wrath Finish',
-  // 'Shard of Mirrors',
-  // 'Shard of Strife',
-  // 'Semira Death',
-  // 'Spine of Night Finish',
-  // 'Starlit Druid', // Druid of the Grove
-  // 'Statue of Ilthar II Death',
-  // 'Strange Carvings', // Bandit Markings
-  // 'Sunfall Meadows Start',
-  // 'Survivor',
-  // 'The Ambermines Finish',
-  // 'The Decayed Sanctum Start',
-  // 'The Defiled Sanctum',
-  // 'The Defiled Sanctum Start',
-  // 'The Countess',
-  // 'The Eldritch Sanctum Start',
-  // 'The Isle of Talos Finish',
-  // 'The Pale Warden Death',
-  // 'The Silent Reliquary Start',
-  // 'The Traveler', // Stranger on horseback
-  // 'The Voice Below', // The Voice
-  // 'Torn Cloth',
-  // 'Weeping Woods Finish',
-  // 'Weeping Woods Start',
-  // // Too complex. Ignored for now:
-  // 'Brightcandle Inn',
-  // 'Frozen Heart',
-  // 'Rotting Residence',
-  // 'Suspended Cage',
-]
 
 const DUMP_FILE = path.join(__dirname, './dump.txt')
 const OUTPUT_FILE = path.join(__dirname, './events.json')
@@ -287,11 +229,6 @@ function extractEvents() {
             return name ? `${command}:${name}` : match
           }
         )
-
-        // Mark blacklisted events as excluded
-        if (EVENTS_BLACKLIST.includes(event.name)) {
-          event.excluded = true
-        }
 
         uniqueEvents.push(event)
       } else {

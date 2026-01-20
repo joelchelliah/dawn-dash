@@ -975,7 +975,7 @@ function processEvents() {
 
   for (let i = 0; i < events.length; i++) {
     const event = events[i]
-    const { name, type, artwork, text, excluded, caption } = event
+    const { name, type, artwork, text, caption } = event
 
     // Use caption as name if it exists, otherwise use name
     const displayName = caption || name
@@ -985,21 +985,6 @@ function processEvents() {
         console.log(`  ⊘  [${i + 1}/${events.length}] Skipping "${displayName}" (no text content)`)
       }
       emptyCount++
-      continue
-    }
-
-    // Handle excluded events - keep them but don't parse the tree
-    if (excluded) {
-      if (CONFIG.VERBOSE_LOGGING) {
-        console.log(`  ✂️  [${i + 1}/${events.length}] Excluding "${displayName}" (blacklisted)`)
-      }
-      eventTrees.push({
-        name: displayName,
-        type,
-        artwork,
-        excluded: true,
-      })
-      successCount++
       continue
     }
 
@@ -1115,7 +1100,7 @@ function processEvents() {
   const eventsWithInvalidRefs = []
 
   eventTrees.forEach((tree) => {
-    if (tree.excluded || !tree.rootNode) return
+    if (!tree.rootNode) return
 
     // Build node map for this tree
     const nodeMap = new Map()
@@ -1567,7 +1552,7 @@ function collapseDialogueMenus(eventTrees) {
   const eventsWithCollapsed = []
 
   eventTrees.forEach((tree) => {
-    if (tree.excluded || !tree.rootNode) {
+    if (!tree.rootNode) {
       return
     }
 
@@ -1680,7 +1665,7 @@ function convertSiblingRefsToRefChildren(eventTrees) {
   const eventsWithConversions = []
 
   eventTrees.forEach((tree) => {
-    if (tree.excluded || !tree.rootNode) {
+    if (!tree.rootNode) {
       return
     }
 
@@ -1708,7 +1693,7 @@ function deduplicateAllTrees(eventTrees) {
   const eventsWithDedupe = []
 
   eventTrees.forEach((tree) => {
-    if (tree.excluded || !tree.rootNode) {
+    if (!tree.rootNode) {
       return
     }
 
