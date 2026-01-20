@@ -212,13 +212,13 @@ function EventTree({
 
         // Center the text lines vertically within the label group
         const totalTextHeight = choiceLines.length * TEXT.CHOICE_TEXT_HEIGHT
-        const defaultChoiceOffset = isDefault ? 0.25 * TEXT.CHOICE_TEXT_HEIGHT : 0
+        const defaultChoiceOffset = isDefault ? 0.125 * TEXT.CHOICE_TEXT_HEIGHT : 0
         const verticalCenteringOffset =
           -totalTextHeight / 2 + TEXT.CHOICE_BASELINE_OFFSET + defaultChoiceOffset
 
         choiceLines.forEach((line, i) => {
           const yPosition = i * TEXT.CHOICE_TEXT_HEIGHT + verticalCenteringOffset
-          const text = isDefault ? '🔽' : line
+          const text = isDefault ? '—' : line
 
           labelGroup
             .append('text')

@@ -80,7 +80,7 @@ export const adjustHorizontalNodeSpacing = (
         // If this child has multiple parents (direct + ref), center it under all of them
         if (allParents && allParents.length > 1) {
           // Calculate average X position of all parents
-          const avgParentX = allParents.reduce((sum, p) => sum + (p.x ?? 0), 0) / allParents.length
+          const avgParentX = calculateAverageX(allParents)
 
           // Calculate offset to move this child to center under average
           const currentChildX = child.x ?? 0
@@ -625,6 +625,61 @@ const calculateMaxShiftForNode = (
   return maxShift
 }
 
+/*
+ * For very simple trees, centers the root node horizontally under the event name,
+ * and also child nodes directly below their parents.
+ *
+ * Small trees may appear very far to the left of the event name. Which looks super weird
+ * especially after we've moved the root! This fixes that by centering them as well!
+ *
+ * We don't do this for more complex trees... Runs into out of bounds issues with the viewbox.
+ */
+export const centerRootNodeHorizontally = (
+  root: HierarchyPointNode<EventTreeNode>,
+  svgWidth: number,
+  offsetX: number
+) => {
+  // Every node in the tree has at most 2 children
+  const isSimpleTree = root
+    .descendants()
+    .every((node) => !node.children || node.children.length <= 2)
+
+  if (!isSimpleTree) return
+
+  root.x = svgWidth / 2 - offsetX
+
+  // Center children directly below their parent
+  // NOTE: Although our `adjustHorizontalNodeSpacing` is already doing this kind of centering,
+  // we are moving the root node here AFTER that... so we have to center again!
+  const nodesByDepth = groupNodesByDepth(root)
+  for (let depth = 0; depth < nodesByDepth.length; depth++) {
+    const nodesAtDepth = nodesByDepth[depth] || []
+    const parentsAtPrevDepth = nodesByDepth[depth - 1] || []
+
+    const childToAllParentsMap = buildChildToAllParentsMap(parentsAtPrevDepth)
+    const siblingsByParentSet = groupSiblingsByParentSet(nodesAtDepth, childToAllParentsMap)
+
+    // Move each sibling group so their average x equals avgParentX
+    siblingsByParentSet.forEach((siblings) => {
+      if (siblings.length === 0) return
+
+      const allParents = childToAllParentsMap.get(siblings[0].data.id)
+      if (!allParents) return
+
+      const avgParentX = calculateAverageX(allParents)
+
+      // Calculate current average x of the sibling group
+      const currentAvgX = siblings.reduce((sum, s) => sum + (s.x ?? 0), 0) / siblings.length
+      // Calculate offset needed to center the group
+      const offset = avgParentX - currentAvgX
+
+      siblings.forEach((node) => {
+        node.x = (node.x ?? 0) + offset
+      })
+    })
+  }
+}
+
 /**
  * Find the left edge of the closest node to the right of given position at given depth
  */
@@ -794,6 +849,47 @@ const buildChildToAllParentsMap = (
 }
 
 /**
+ * Calculate the average X position of a set of nodes
+ */
+const calculateAverageX = (nodes: HierarchyPointNode<EventTreeNode>[]): number => {
+  return nodes.reduce((sum, n) => sum + (n.x ?? 0), 0) / nodes.length
+}
+
+/**
+ * Create a unique key from a set of nodes (sorted by ID)
+ */
+const createNodeSetKey = (nodes: HierarchyPointNode<EventTreeNode>[]): string => {
+  return nodes
+    .map((n) => n.data.id)
+    .sort()
+    .join(',')
+}
+
+/**
+ * Group nodes by their parent sets (siblings share the same parents)
+ * Returns a map from parent set key to array of sibling nodes
+ */
+const groupSiblingsByParentSet = (
+  nodes: HierarchyPointNode<EventTreeNode>[],
+  childToAllParentsMap: Map<number, HierarchyPointNode<EventTreeNode>[]>
+): Map<string, HierarchyPointNode<EventTreeNode>[]> => {
+  const siblingsByParentSet = new Map<string, HierarchyPointNode<EventTreeNode>[]>()
+
+  nodes.forEach((node) => {
+    const allParents = childToAllParentsMap.get(node.data.id)
+    if (allParents) {
+      const parentKey = createNodeSetKey(allParents)
+      if (!siblingsByParentSet.has(parentKey)) {
+        siblingsByParentSet.set(parentKey, [])
+      }
+      siblingsByParentSet.get(parentKey)?.push(node)
+    }
+  })
+
+  return siblingsByParentSet
+}
+
+/**
  * Groups parents that share any children (direct or refChildren).
  * Parents that reference the same child node should be grouped together
  * so they can be centered as a unit while maintaining their relative spacing.
@@ -886,46 +982,4 @@ const getAllChildrenForParentGroup = (
   })
 
   return Array.from(childrenSet)
-}
-
-/*
- * For very simple trees, centers the root node horizontally under the event name,
- * and also child nodes directly below their parents.
- *
- * Small trees may appear very far to the left of the event name. Which looks super weird
- * especially after we've moved the root! This fixes that by centering them as well!
- *
- * We don't do this for more complex trees... Runs into out of bounds issues with the viewbox.
- */
-export const centerRootNodeHorizontally = (
-  root: HierarchyPointNode<EventTreeNode>,
-  svgWidth: number,
-  offsetX: number
-) => {
-  // Every node in the tree has at most 2 children
-  const isSimpleTree = root
-    .descendants()
-    .every((node) => !node.children || node.children.length <= 2)
-
-  if (!isSimpleTree) return
-
-  root.x = svgWidth / 2 - offsetX
-
-  // Center children directly below their parent
-  // NOTE: Although our `adjustHorizontalNodeSpacing` is already doing this kind of centering,
-  // we are moving the root node here AFTER that... so we have to center again!
-  const nodesByDepth = groupNodesByDepth(root)
-  for (let depth = 0; depth < nodesByDepth.length; depth++) {
-    const nodesAtDepth = nodesByDepth[depth] || []
-    const parentsAtPrevDepth = nodesByDepth[depth - 1] || []
-    const childToAllParentsMap = buildChildToAllParentsMap(parentsAtPrevDepth)
-
-    nodesAtDepth.forEach((node) => {
-      const allParents = childToAllParentsMap.get(node.data.id)
-      if (allParents) {
-        const avgParentX = allParents.reduce((sum, p) => sum + (p.x ?? 0), 0) / allParents.length
-        node.x = avgParentX
-      }
-    })
-  }
 }

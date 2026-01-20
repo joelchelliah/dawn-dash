@@ -958,6 +958,80 @@ function determineNodeType(text, isLeaf) {
 }
 
 /**
+ * Build a map of node ID to node for a tree
+ */
+function buildNodeMapForTree(rootNode) {
+  const nodeMap = new Map()
+  function buildNodeMap(node) {
+    if (!node) return
+    nodeMap.set(node.id, node)
+    if (node.children) {
+      node.children.forEach((child) => buildNodeMap(child))
+    }
+  }
+  buildNodeMap(rootNode)
+  return nodeMap
+}
+
+/**
+ * Find all invalid refs in a tree (refs pointing to non-existent nodes)
+ */
+function findInvalidRefsInTree(rootNode, nodeMap) {
+  const invalidRefs = []
+  function checkRefs(node) {
+    if (!node) return
+    if (node.ref !== undefined && !nodeMap.has(node.ref)) {
+      invalidRefs.push({ nodeId: node.id, refTarget: node.ref })
+    }
+    if (node.children) {
+      node.children.forEach((child) => checkRefs(child))
+    }
+  }
+  checkRefs(rootNode)
+  return invalidRefs
+}
+
+/**
+ * Check for invalid refs across all event trees and log results
+ */
+function checkInvalidRefs(eventTrees) {
+  console.log('\n🔍 Checking for invalid refs...')
+  let totalInvalidRefs = 0
+  const eventsWithInvalidRefs = []
+
+  eventTrees.forEach((tree) => {
+    if (!tree.rootNode) return
+
+    const nodeMap = buildNodeMapForTree(tree.rootNode)
+    const invalidRefs = findInvalidRefsInTree(tree.rootNode, nodeMap)
+
+    if (invalidRefs.length > 0) {
+      totalInvalidRefs += invalidRefs.length
+      eventsWithInvalidRefs.push({
+        name: tree.name,
+        invalidRefs: invalidRefs.length,
+        examples: invalidRefs.slice(0, 3), // Show first 3 examples
+      })
+    }
+  })
+
+  if (totalInvalidRefs > 0) {
+    console.log(`  ⚠️  Found ${totalInvalidRefs} invalid refs across ${eventsWithInvalidRefs.length} events`)
+    if (CONFIG.VERBOSE_LOGGING) {
+      console.log('\n  Events with invalid refs:')
+      eventsWithInvalidRefs.forEach(({ name, invalidRefs, examples }) => {
+        console.log(`    - "${name}": ${invalidRefs} invalid refs`)
+        examples.forEach(({ nodeId, refTarget }) => {
+          console.log(`        Node ${nodeId} -> ${refTarget} (target not found)`)
+        })
+      })
+    }
+  } else {
+    console.log(`  ✅ No invalid refs found`)
+  }
+}
+
+/**
  * Main processing function
  */
 function processEvents() {
@@ -1082,9 +1156,8 @@ function processEvents() {
     })
   }
 
-  // Convert sibling refs to refChildren
-  console.log('\n🔗 Converting sibling refs to refChildren...')
-  const { totalConversions, eventsWithConversions } = convertSiblingRefsToRefChildren(eventTrees)
+  console.log('\n🔗 Converting sibling and SIMPLE cousin refs to refChildren...')
+  const { totalConversions, eventsWithConversions } = convertSiblingAndCousinRefsToRefChildren(eventTrees)
   console.log(`  Converted ${totalConversions} sibling refs`)
 
   if (CONFIG.VERBOSE_LOGGING && eventsWithConversions.length > 0) {
@@ -1094,62 +1167,7 @@ function processEvents() {
     })
   }
 
-  // Check for invalid refs
-  console.log('\n🔍 Checking for invalid refs...')
-  let totalInvalidRefs = 0
-  const eventsWithInvalidRefs = []
-
-  eventTrees.forEach((tree) => {
-    if (!tree.rootNode) return
-
-    // Build node map for this tree
-    const nodeMap = new Map()
-    function buildNodeMap(node) {
-      if (!node) return
-      nodeMap.set(node.id, node)
-      if (node.children) {
-        node.children.forEach((child) => buildNodeMap(child))
-      }
-    }
-    buildNodeMap(tree.rootNode)
-
-    // Check all refs
-    const invalidRefs = []
-    function checkRefs(node) {
-      if (!node) return
-      if (node.ref !== undefined && !nodeMap.has(node.ref)) {
-        invalidRefs.push({ nodeId: node.id, refTarget: node.ref })
-      }
-      if (node.children) {
-        node.children.forEach((child) => checkRefs(child))
-      }
-    }
-    checkRefs(tree.rootNode)
-
-    if (invalidRefs.length > 0) {
-      totalInvalidRefs += invalidRefs.length
-      eventsWithInvalidRefs.push({
-        name: tree.name,
-        invalidRefs: invalidRefs.length,
-        examples: invalidRefs.slice(0, 3), // Show first 3 examples
-      })
-    }
-  })
-
-  if (totalInvalidRefs > 0) {
-    console.log(`  ⚠️  Found ${totalInvalidRefs} invalid refs across ${eventsWithInvalidRefs.length} events`)
-    if (CONFIG.VERBOSE_LOGGING) {
-      console.log('\n  Events with invalid refs:')
-      eventsWithInvalidRefs.forEach(({ name, invalidRefs, examples }) => {
-        console.log(`    - "${name}": ${invalidRefs} invalid refs`)
-        examples.forEach(({ nodeId, refTarget }) => {
-          console.log(`        Node ${nodeId} -> ${refTarget} (target not found)`)
-        })
-      })
-    }
-  } else {
-    console.log(`  ✅ No invalid refs found`)
-  }
+  checkInvalidRefs(eventTrees)
 
   // Calculate final stats
   const finalTotalNodes = eventTrees.reduce((sum, tree) => sum + countNodes(tree.rootNode), 0)
@@ -1586,19 +1604,13 @@ function collapseDialogueMenus(eventTrees) {
  * Before: [A(id:1, children:[10,11]), B(id:2), C(id:3, ref:1)]
  * After:  [A(id:1, children:[10,11]), C(id:3, refChildren:[10,11]), B(id:2)]
  */
-function convertSiblingRefsToRefChildrenInTree(rootNode) {
+function convertSiblingRefsInTree(rootNode) {
   let conversionsCount = 0
 
   function traverse(node) {
     if (!node || !node.children || node.children.length === 0) return
 
-    // Build a map of child ID to child node for this parent
-    const childMap = new Map()
-    node.children.forEach((child) => {
-      childMap.set(child.id, child)
-    })
-
-    // Find children with refs pointing to siblings
+    // Handle sibling refs
     const reorderedChildren = []
     const processed = new Set()
 
@@ -1611,7 +1623,7 @@ function convertSiblingRefsToRefChildrenInTree(rootNode) {
       reorderedChildren.push(child)
       processed.add(child.id)
 
-      // Check if any unprocessed siblings have refs pointing to this child
+      // Check if any unprocessed siblings have refs pointing to this child (sibling ref)
       for (let j = 0; j < node.children.length; j++) {
         if (processed.has(node.children[j].id)) continue
 
@@ -1644,13 +1656,15 @@ function convertSiblingRefsToRefChildrenInTree(rootNode) {
           conversionsCount++
         }
       }
-
-      // Recursively process this child's subtree
-      traverse(child)
     }
 
     // Update the parent's children with the reordered list
     node.children = reorderedChildren
+
+    // Recursively process this child's subtree
+    for (const child of node.children) {
+      traverse(child)
+    }
   }
 
   traverse(rootNode)
@@ -1658,9 +1672,241 @@ function convertSiblingRefsToRefChildrenInTree(rootNode) {
 }
 
 /**
+ * Convert SIMPLE cousin refs to refChildren structure
+ *
+ * When a node has a ref pointing to a cousin (and both are single children):
+ * 1. Finds the common ancestor where the parents of the ref node and target node are siblings
+ * 2. Ensures those parent nodes are adjacent at that ancestor level
+ * 3. Replaces the `ref` field with `refChildren` containing the target's children IDs
+ *
+ * This handles cousin refs at ANY depth by walking up the tree to find where the parents
+ * become siblings. For example, if A->B->C and D->E->F(ref:C), it finds that B and E's
+ * parents (A and D) are siblings at the root level, and reorders A and D to be adjacent.
+ *
+ * Example transformations:
+ * Direct cousin ref:
+ * Before: [A(id:1, children:[C]), B(id:2, children:[D]), C(id:3, children:[E,F]), D(id:4, ref:3)]
+ * After:  [A(id:1, children:[C]), B(id:2, children:[D]), C(id:3, children:[E,F]), D(id:4, refChildren:[E,F])]
+ *
+ * Deeper cousin ref:
+ * Before: [A(id:1, children:[B]), B(id:2, children:[C]), C(id:3, children:[G]), D(id:4, children:[E]), E(id:5, children:[F]), F(id:6, ref:3)]
+ * After:  [A(id:1, children:[B]), D(id:4, children:[E]), B(id:2, children:[C]), E(id:5, children:[F]), C(id:3, children:[G]), F(id:6, refChildren:[G])]
+ *        (A and D are reordered so B and E are adjacent, making C and F cousins)
+ */
+function convertCousinRefsInTree(rootNode) {
+  let conversionsCount = 0
+
+  // Build parent map and node map
+  const parentMap = new Map() // nodeId -> parent node
+  const nodeMap = new Map()   // nodeId -> node
+
+  function buildMaps(node, parent = null) {
+    if (!node) return
+    nodeMap.set(node.id, node)
+    if (parent) {
+      parentMap.set(node.id, parent)
+    }
+    if (node.children) {
+      node.children.forEach(child => buildMaps(child, node))
+    }
+  }
+
+  buildMaps(rootNode)
+
+  // Find all cousin refs in the tree and process them
+  function findAllCousinRefs() {
+    const allCousinRefs = []
+
+    // Find all nodes that have refs
+    for (const [nodeId, refNode] of nodeMap.entries()) {
+      if (refNode.ref === undefined) continue
+
+      const refNodeParent = parentMap.get(nodeId)
+      if (!refNodeParent) continue
+
+      // Find the target node being referenced
+      const targetNode = nodeMap.get(refNode.ref)
+      if (!targetNode) continue
+
+      const targetNodeParent = parentMap.get(targetNode.id)
+      if (!targetNodeParent) continue
+
+      // Skip if same parent (sibling ref, already handled)
+      if (refNodeParent.id === targetNodeParent.id) continue
+
+      // Find the common ancestor where the parents of refNode and targetNode are siblings
+      // We need to check if refNodeParent and targetNodeParent are siblings (direct children of same node)
+      let commonAncestor = null
+
+      // Get the grandparents (parents of the parents)
+      const refParentParent = parentMap.get(refNodeParent.id)
+      const targetParentParent = parentMap.get(targetNodeParent.id)
+
+      if (refParentParent && targetParentParent) {
+        if (refParentParent.id === targetParentParent.id) {
+          // The parents themselves are siblings (direct children case)
+          // Check if they are direct children
+          if (refParentParent.children) {
+            const refParentIsChild = refParentParent.children.some(c => c.id === refNodeParent.id)
+            const targetParentIsChild = refParentParent.children.some(c => c.id === targetNodeParent.id)
+            if (refParentIsChild && targetParentIsChild) {
+              commonAncestor = refParentParent
+            }
+          }
+        } else {
+          // The parents are cousins - check if their parents (grandparents) are siblings
+          // Walk up the tree to find where the grandparents become siblings
+          let refGrandparentCurrent = refParentParent
+          let targetGrandparentCurrent = targetParentParent
+
+          // Check all ancestors until we find where they're siblings
+          while (refGrandparentCurrent && targetGrandparentCurrent) {
+            const refGrandparentParent = parentMap.get(refGrandparentCurrent.id)
+            const targetGrandparentParent = parentMap.get(targetGrandparentCurrent.id)
+
+            if (refGrandparentParent && targetGrandparentParent &&
+                refGrandparentParent.id === targetGrandparentParent.id) {
+              // Found common ancestor - verify grandparents are direct children
+              if (refGrandparentParent.children) {
+                const refGrandparentIsChild = refGrandparentParent.children.some(c => c.id === refGrandparentCurrent.id)
+                const targetGrandparentIsChild = refGrandparentParent.children.some(c => c.id === targetGrandparentCurrent.id)
+                if (refGrandparentIsChild && targetGrandparentIsChild) {
+                  commonAncestor = refGrandparentParent
+                  break
+                }
+              }
+            }
+
+            refGrandparentCurrent = refGrandparentParent
+            targetGrandparentCurrent = targetGrandparentParent
+          }
+        }
+      }
+
+      if (commonAncestor) {
+        // Check if both nodes are single children
+        const refNodeIsSingleChild = refNodeParent.children && refNodeParent.children.length === 1
+        const targetNodeIsSingleChild = targetNodeParent.children && targetNodeParent.children.length === 1
+
+        if (refNodeIsSingleChild && targetNodeIsSingleChild) {
+          allCousinRefs.push({
+            refNode,
+            refNodeParent,
+            targetNode,
+            targetNodeParent,
+            commonAncestor,
+          })
+        }
+      }
+    }
+
+    return allCousinRefs
+  }
+
+  // Group cousin refs by their common ancestor
+  const allCousinRefs = findAllCousinRefs()
+  const cousinRefsByAncestor = new Map()
+
+  for (const cousinRef of allCousinRefs) {
+    const ancestorId = cousinRef.commonAncestor.id
+    if (!cousinRefsByAncestor.has(ancestorId)) {
+      cousinRefsByAncestor.set(ancestorId, [])
+    }
+    cousinRefsByAncestor.get(ancestorId).push(cousinRef)
+  }
+
+  // Process each ancestor level
+  function handleCousinRefsAtAllDepths(node) {
+    if (!node || !node.children || node.children.length === 0) return
+
+    const cousinRefs = cousinRefsByAncestor.get(node.id) || []
+
+    // Reorder grandparents so that cousin refs have adjacent parents
+    if (cousinRefs.length > 0) {
+      const grandparentAdjacency = new Map() // targetGrandparent -> refGrandparent (should be adjacent)
+
+      for (const cousinRef of cousinRefs) {
+        // Get the grandparents (parents of the parents)
+        const targetGrandparent = parentMap.get(cousinRef.targetNodeParent.id)
+        const refGrandparent = parentMap.get(cousinRef.refNodeParent.id)
+
+        if (targetGrandparent && refGrandparent && targetGrandparent.id !== refGrandparent.id) {
+          // Ensure refGrandparent comes right after targetGrandparent
+          const existing = grandparentAdjacency.get(targetGrandparent.id)
+          if (!existing || existing.id !== refGrandparent.id) {
+            grandparentAdjacency.set(targetGrandparent.id, refGrandparent)
+          }
+        }
+      }
+
+      if (grandparentAdjacency.size > 0) {
+        const reordered = []
+        const processedGrandparents = new Set()
+
+        for (const grandparent of node.children) {
+          if (processedGrandparents.has(grandparent.id)) continue
+
+          reordered.push(grandparent)
+          processedGrandparents.add(grandparent.id)
+
+          // Check if this grandparent needs its ref grandparent adjacent
+          const refGrandparent = grandparentAdjacency.get(grandparent.id)
+          if (refGrandparent && !processedGrandparents.has(refGrandparent.id)) {
+            // Find refGrandparent in the original array and add it next
+            const refGrandparentIndex = node.children.findIndex(p => p.id === refGrandparent.id)
+            if (refGrandparentIndex !== -1) {
+              reordered.push(node.children[refGrandparentIndex])
+              processedGrandparents.add(refGrandparent.id)
+            }
+          }
+        }
+
+        // Add any remaining unprocessed grandparents
+        for (const grandparent of node.children) {
+          if (!processedGrandparents.has(grandparent.id)) {
+            reordered.push(grandparent)
+          }
+        }
+
+        node.children = reordered
+      }
+
+      // Now convert cousin refs to refChildren
+      for (const cousinRef of cousinRefs) {
+        const refChildrenIds = cousinRef.targetNode.children ? cousinRef.targetNode.children.map(c => c.id) : []
+        cousinRef.refNode.refChildren = refChildrenIds
+        delete cousinRef.refNode.ref
+        conversionsCount++
+      }
+    }
+
+    // Recursively process children to handle cousin refs at deeper levels
+    for (const child of node.children) {
+      handleCousinRefsAtAllDepths(child)
+    }
+  }
+
+  handleCousinRefsAtAllDepths(rootNode)
+
+  return conversionsCount
+}
+
+/**
+ * Convert sibling and SIMPLE cousin refs to refChildren structure
+ *
+ * This is a wrapper function that calls both convertSiblingRefsInTree and convertCousinRefsInTree
+ * in separate passes, as they handle different types of refs and need to be processed separately.
+ */
+function convertSiblingAndCousinRefsToRefChildrenInTree(rootNode) {
+  const siblingConversions = convertSiblingRefsInTree(rootNode)
+  const cousinConversions = convertCousinRefsInTree(rootNode)
+  return siblingConversions + cousinConversions
+}
+
+/**
  * Convert sibling refs to refChildren across all event trees
  */
-function convertSiblingRefsToRefChildren(eventTrees) {
+function convertSiblingAndCousinRefsToRefChildren(eventTrees) {
   let totalConversions = 0
   const eventsWithConversions = []
 
@@ -1669,7 +1915,7 @@ function convertSiblingRefsToRefChildren(eventTrees) {
       return
     }
 
-    const conversions = convertSiblingRefsToRefChildrenInTree(tree.rootNode)
+    const conversions = convertSiblingAndCousinRefsToRefChildrenInTree(tree.rootNode)
 
     if (conversions > 0) {
       eventsWithConversions.push({

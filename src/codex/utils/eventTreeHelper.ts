@@ -54,8 +54,8 @@ export const calculateTreeBounds = (
  */
 export const getNodeWidth = (node: EventTreeNode, _event: Event): number => {
   // Rough estimate of character width for font-size('xxs')
-  const pixelsPerCharacterXxs = 6
-  const pixelsPerCharacterUppercase = 7.5
+  const pixelsPerCharacterXxs = 7.25
+  const pixelsPerCharacterUppercase = 8.25
 
   let width = NODE.MIN_WIDTH
 
