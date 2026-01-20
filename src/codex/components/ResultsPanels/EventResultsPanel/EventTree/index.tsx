@@ -6,6 +6,7 @@ import Image from 'next/image'
 
 import { createCx } from '@/shared/utils/classnames'
 import { wrapText, truncateLine } from '@/shared/utils/textHelper'
+import GradientLink from '@/shared/components/GradientLink'
 
 import { CombatNode, DialogueNode, EndNode, Event, EventTreeNode } from '@/codex/types/events'
 import {
@@ -667,7 +668,10 @@ function EventTree({ event, zoomLevel, loopingPathMode }: EventTreeProps): JSX.E
   }, [event, zoomLevel, loopingPathMode])
 
   return (
-    <div className={cx('event-tree-container')}>
+    <div className={cx('container')}>
+      <div className={cx('container__breadcrumbs')}>
+        <GradientLink text="← All events" url="/codex/events" internal />
+      </div>
       <div className={cx('event-header')}>
         <Image
           src={eventImageSrc}
