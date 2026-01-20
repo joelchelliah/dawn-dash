@@ -205,22 +205,32 @@ function EventTree({
 
         const labelGroup = node.append('g').attr('transform', `translate(0, ${textAreaCenter})`)
 
-        // Pre-calculate text lines
-        const choiceLines = wrapText(data.choiceLabel, currentNodeWidth - TEXT.HORIZONTAL_PADDING)
+        const isDefault = data.choiceLabel === 'default'
+        const choiceLines = isDefault
+          ? [data.choiceLabel]
+          : wrapText(data.choiceLabel, currentNodeWidth - TEXT.HORIZONTAL_PADDING)
 
         // Center the text lines vertically within the label group
         const totalTextHeight = choiceLines.length * TEXT.CHOICE_TEXT_HEIGHT
-        const verticalCenteringOffset = -totalTextHeight / 2 + TEXT.CHOICE_BASELINE_OFFSET
+        const defaultChoiceOffset = isDefault ? 0.25 * TEXT.CHOICE_TEXT_HEIGHT : 0
+        const verticalCenteringOffset =
+          -totalTextHeight / 2 + TEXT.CHOICE_BASELINE_OFFSET + defaultChoiceOffset
 
         choiceLines.forEach((line, i) => {
           const yPosition = i * TEXT.CHOICE_TEXT_HEIGHT + verticalCenteringOffset
+          const text = isDefault ? '🔽' : line
 
           labelGroup
             .append('text')
-            .attr('class', cx('event-node-text', 'event-node-text--choice'))
+            .attr(
+              'class',
+              cx('event-node-text', 'event-node-text--choice', {
+                'event-node-text--choice--default': isDefault,
+              })
+            )
             .attr('x', 0)
             .attr('y', yPosition)
-            .text(line)
+            .text(text)
         })
 
         const requirementsBoxY =

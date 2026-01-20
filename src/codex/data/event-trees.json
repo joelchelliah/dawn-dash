@@ -16,7 +16,7 @@
           "children": [
             {
               "id": 284,
-              "text": "You find a purse filled with some gold. You find 28 gold! After pocketing the gold, you are surprised by a sudden noise. \"THIEF!\" you hear as the raven swoops down and scratches you with its claws before flying away.<br><br>You are Bleeding",
+              "text": "You find a purse filled with some gold. You find 29 gold! After pocketing the gold, you are surprised by a sudden noise. \"THIEF!\" you hear as the raven swoops down and scratches you with its claws before flying away.<br><br>You are Bleeding",
               "type": "end",
               "effects": [
                 "GOLD: random [20 - 50]",
@@ -2217,7 +2217,7 @@
           "children": [
             {
               "id": 633,
-              "text": "\"Very well. I shall grant you this.\" You get 34 gold! You drop the gemstone as it becomes too hot to touch.",
+              "text": "\"Very well. I shall grant you this.\" You get 32 gold! You drop the gemstone as it becomes too hot to touch.",
               "type": "end",
               "effects": [
                 "GOLD: random [30 - 60]",
@@ -4564,11 +4564,11 @@
                                   "children": [
                                     {
                                       "id": 14133,
-                                      "text": "\"Well, well, you certainly know how to impress,\" the assassin purrs, a touch of flirtation in her voice. \"It's a rare thing these days, a connoisseur of chance and opportunity, even in the heat of battle.\" With a sly smile, the assassin's finger traces your shoulder as she steps out of the shadows. Coins clink as she turns ever so briefly, \"For a job well done.\" then slips away gracefully, leaving a lavish pouch marked with a golden raven on the counter. You find 33 gold!",
+                                      "text": "\"Well, well, you certainly know how to impress,\" the assassin purrs, a touch of flirtation in her voice. \"It's a rare thing these days, a connoisseur of chance and opportunity, even in the heat of battle.\" With a sly smile, the assassin's finger traces your shoulder as she steps out of the shadows. Coins clink as she turns ever so briefly, \"For a job well done.\" then slips away gracefully, leaving a lavish pouch marked with a golden raven on the counter. You find 51 gold!",
                                       "type": "dialogue",
                                       "effects": [
                                         "QUESTFLAG: metassassin",
-                                        "GOLD: 33"
+                                        "GOLD: 51"
                                       ],
                                       "numContinues": 3,
                                       "children": [
@@ -5094,11 +5094,11 @@
           "children": [
             {
               "id": 14379,
-              "text": "\"Well, well, you certainly know how to impress,\" the assassin purrs, a touch of flirtation in her voice. \"It's a rare thing these days, a connoisseur of chance and opportunity, even in the heat of battle.\" With a sly smile, the assassin's finger traces your shoulder as she steps out of the shadows. Coins clink as she turns ever so briefly, \"For a job well done.\" then slips away gracefully, leaving a lavish pouch marked with a golden raven on the counter. You find 33 gold!",
+              "text": "\"Well, well, you certainly know how to impress,\" the assassin purrs, a touch of flirtation in her voice. \"It's a rare thing these days, a connoisseur of chance and opportunity, even in the heat of battle.\" With a sly smile, the assassin's finger traces your shoulder as she steps out of the shadows. Coins clink as she turns ever so briefly, \"For a job well done.\" then slips away gracefully, leaving a lavish pouch marked with a golden raven on the counter. You find 51 gold!",
               "type": "dialogue",
               "effects": [
                 "QUESTFLAG: metassassin",
-                "GOLD: 33"
+                "GOLD: 51"
               ],
               "numContinues": 3,
               "children": [
@@ -8638,11 +8638,11 @@
                                   "children": [
                                     {
                                       "id": 14507,
-                                      "text": "\"Well, well, you certainly know how to impress,\" the assassin purrs, a touch of flirtation in her voice. \"It's a rare thing these days, a connoisseur of chance and opportunity, even in the heat of battle.\" With a sly smile, the assassin's finger traces your shoulder as she steps out of the shadows. Coins clink as she turns ever so briefly, \"For a job well done.\" then slips away gracefully, leaving a lavish pouch marked with a golden raven on the counter. You find 33 gold!",
+                                      "text": "\"Well, well, you certainly know how to impress,\" the assassin purrs, a touch of flirtation in her voice. \"It's a rare thing these days, a connoisseur of chance and opportunity, even in the heat of battle.\" With a sly smile, the assassin's finger traces your shoulder as she steps out of the shadows. Coins clink as she turns ever so briefly, \"For a job well done.\" then slips away gracefully, leaving a lavish pouch marked with a golden raven on the counter. You find 51 gold!",
                                       "type": "dialogue",
                                       "effects": [
                                         "QUESTFLAG: metassassin",
-                                        "GOLD: 33"
+                                        "GOLD: 51"
                                       ],
                                       "numContinues": 3,
                                       "children": [
@@ -9152,11 +9152,11 @@
                   "children": [
                     {
                       "id": 14618,
-                      "text": "\"Well, well, you certainly know how to impress,\" the assassin purrs, a touch of flirtation in her voice. \"It's a rare thing these days, a connoisseur of chance and opportunity, even in the heat of battle.\" With a sly smile, the assassin's finger traces your shoulder as she steps out of the shadows. Coins clink as she turns ever so briefly, \"For a job well done.\" then slips away gracefully, leaving a lavish pouch marked with a golden raven on the counter. You find 33 gold!",
+                      "text": "\"Well, well, you certainly know how to impress,\" the assassin purrs, a touch of flirtation in her voice. \"It's a rare thing these days, a connoisseur of chance and opportunity, even in the heat of battle.\" With a sly smile, the assassin's finger traces your shoulder as she steps out of the shadows. Coins clink as she turns ever so briefly, \"For a job well done.\" then slips away gracefully, leaving a lavish pouch marked with a golden raven on the counter. You find 51 gold!",
                       "type": "dialogue",
                       "effects": [
                         "QUESTFLAG: metassassin",
-                        "GOLD: 33"
+                        "GOLD: 51"
                       ],
                       "numContinues": 3,
                       "children": [
@@ -11022,6 +11022,9 @@
           "id": 3,
           "type": "choice",
           "choiceLabel": "default",
+          "requirements": [
+            "All other paths are unreachable!"
+          ],
           "children": [
             {
               "id": 14626,
@@ -15932,7 +15935,7 @@
     "artwork": "opportunity_image",
     "rootNode": {
       "id": 0,
-      "text": "A skeleton in highly oxidised yet impressive armor sits against a nearby stone. As you walk past, an ivory hand suddenly grasps at your weapon. \"Pleeeeeeease\" a hollow howl escapes from the undead's broken jaw...",
+      "text": "A skeleton in highly oxidised yet impressive armor sits against a nearby wall. As you walk past, an ivory hand suddenly grasps at your weapon. \"Pleeeeeeease\" a hollow howl escapes from the undead's broken jaw...",
       "type": "dialogue",
       "numContinues": 0,
       "children": [
@@ -16280,11 +16283,11 @@
           "children": [
             {
               "id": 16190,
-              "text": "You dig into the shallow grave, quickly uncovering a small stash of 20 gold!.",
+              "text": "You dig into the shallow grave, quickly uncovering a small stash of 22 gold!.",
               "type": "dialogue",
               "effects": [
                 "AREASPECIAL: 1",
-                "GOLD: 20"
+                "GOLD: 22"
               ],
               "numContinues": 1,
               "children": [
@@ -16573,10 +16576,10 @@
                                   "children": [
                                     {
                                       "id": 16206,
-                                      "text": "You find 50 gold!",
+                                      "text": "You find 31 gold!",
                                       "type": "dialogue",
                                       "effects": [
-                                        "GOLD: 50"
+                                        "GOLD: 31"
                                       ],
                                       "numContinues": 1,
                                       "children": [
@@ -16758,10 +16761,10 @@
                                                                           "children": [
                                                                             {
                                                                               "id": 16214,
-                                                                              "text": "You find 31 gold!",
+                                                                              "text": "You find 26 gold!",
                                                                               "type": "dialogue",
                                                                               "effects": [
-                                                                                "GOLD: 31"
+                                                                                "GOLD: 26"
                                                                               ],
                                                                               "numContinues": 1,
                                                                               "children": [
@@ -16794,10 +16797,10 @@
                                                                           "children": [
                                                                             {
                                                                               "id": 16216,
-                                                                              "text": "You find 56 gold!",
+                                                                              "text": "You find 51 gold!",
                                                                               "type": "dialogue",
                                                                               "effects": [
-                                                                                "GOLD: 56"
+                                                                                "GOLD: 51"
                                                                               ],
                                                                               "numContinues": 1,
                                                                               "children": [
@@ -16830,7 +16833,7 @@
                                                                           "children": [
                                                                             {
                                                                               "id": 16218,
-                                                                              "text": "You find 92 gold!",
+                                                                              "text": "You find 97 gold!",
                                                                               "type": "dialogue",
                                                                               "effects": [
                                                                                 "GOLD: random [75 - 125]"
@@ -16899,10 +16902,10 @@
                                                                           "children": [
                                                                             {
                                                                               "id": 16222,
-                                                                              "text": "You find 31 gold!",
+                                                                              "text": "You find 26 gold!",
                                                                               "type": "dialogue",
                                                                               "effects": [
-                                                                                "GOLD: 31"
+                                                                                "GOLD: 26"
                                                                               ],
                                                                               "numContinues": 1,
                                                                               "children": [
@@ -16935,10 +16938,10 @@
                                                                           "children": [
                                                                             {
                                                                               "id": 16224,
-                                                                              "text": "You find 56 gold!",
+                                                                              "text": "You find 51 gold!",
                                                                               "type": "dialogue",
                                                                               "effects": [
-                                                                                "GOLD: 56"
+                                                                                "GOLD: 51"
                                                                               ],
                                                                               "numContinues": 1,
                                                                               "children": [
@@ -16971,7 +16974,7 @@
                                                                           "children": [
                                                                             {
                                                                               "id": 16226,
-                                                                              "text": "You find 92 gold!",
+                                                                              "text": "You find 97 gold!",
                                                                               "type": "dialogue",
                                                                               "effects": [
                                                                                 "GOLD: random [75 - 125]"
@@ -17051,10 +17054,10 @@
                                                                                   "children": [
                                                                                     {
                                                                                       "id": 16230,
-                                                                                      "text": "You find 31 gold!",
+                                                                                      "text": "You find 26 gold!",
                                                                                       "type": "dialogue",
                                                                                       "effects": [
-                                                                                        "GOLD: 31"
+                                                                                        "GOLD: 26"
                                                                                       ],
                                                                                       "numContinues": 1,
                                                                                       "children": [
@@ -17087,10 +17090,10 @@
                                                                                   "children": [
                                                                                     {
                                                                                       "id": 16232,
-                                                                                      "text": "You find 56 gold!",
+                                                                                      "text": "You find 51 gold!",
                                                                                       "type": "dialogue",
                                                                                       "effects": [
-                                                                                        "GOLD: 56"
+                                                                                        "GOLD: 51"
                                                                                       ],
                                                                                       "numContinues": 1,
                                                                                       "children": [
@@ -17123,7 +17126,7 @@
                                                                                   "children": [
                                                                                     {
                                                                                       "id": 16234,
-                                                                                      "text": "You find 92 gold!",
+                                                                                      "text": "You find 97 gold!",
                                                                                       "type": "dialogue",
                                                                                       "effects": [
                                                                                         "GOLD: random [75 - 125]"
@@ -17257,10 +17260,10 @@
                                                                           "children": [
                                                                             {
                                                                               "id": 16243,
-                                                                              "text": "You find 31 gold!",
+                                                                              "text": "You find 26 gold!",
                                                                               "type": "dialogue",
                                                                               "effects": [
-                                                                                "GOLD: 31"
+                                                                                "GOLD: 26"
                                                                               ],
                                                                               "numContinues": 1,
                                                                               "children": [
@@ -17293,10 +17296,10 @@
                                                                           "children": [
                                                                             {
                                                                               "id": 16245,
-                                                                              "text": "You find 56 gold!",
+                                                                              "text": "You find 51 gold!",
                                                                               "type": "dialogue",
                                                                               "effects": [
-                                                                                "GOLD: 56"
+                                                                                "GOLD: 51"
                                                                               ],
                                                                               "numContinues": 1,
                                                                               "children": [
@@ -17329,7 +17332,7 @@
                                                                           "children": [
                                                                             {
                                                                               "id": 16247,
-                                                                              "text": "You find 92 gold!",
+                                                                              "text": "You find 97 gold!",
                                                                               "type": "dialogue",
                                                                               "effects": [
                                                                                 "GOLD: random [75 - 125]"
@@ -17398,10 +17401,10 @@
                                                                           "children": [
                                                                             {
                                                                               "id": 16251,
-                                                                              "text": "You find 31 gold!",
+                                                                              "text": "You find 26 gold!",
                                                                               "type": "dialogue",
                                                                               "effects": [
-                                                                                "GOLD: 31"
+                                                                                "GOLD: 26"
                                                                               ],
                                                                               "numContinues": 1,
                                                                               "children": [
@@ -17434,10 +17437,10 @@
                                                                           "children": [
                                                                             {
                                                                               "id": 16253,
-                                                                              "text": "You find 56 gold!",
+                                                                              "text": "You find 51 gold!",
                                                                               "type": "dialogue",
                                                                               "effects": [
-                                                                                "GOLD: 56"
+                                                                                "GOLD: 51"
                                                                               ],
                                                                               "numContinues": 1,
                                                                               "children": [
@@ -17470,7 +17473,7 @@
                                                                           "children": [
                                                                             {
                                                                               "id": 16255,
-                                                                              "text": "You find 92 gold!",
+                                                                              "text": "You find 97 gold!",
                                                                               "type": "dialogue",
                                                                               "effects": [
                                                                                 "GOLD: random [75 - 125]"
@@ -17550,10 +17553,10 @@
                                                                                   "children": [
                                                                                     {
                                                                                       "id": 16259,
-                                                                                      "text": "You find 31 gold!",
+                                                                                      "text": "You find 26 gold!",
                                                                                       "type": "dialogue",
                                                                                       "effects": [
-                                                                                        "GOLD: 31"
+                                                                                        "GOLD: 26"
                                                                                       ],
                                                                                       "numContinues": 1,
                                                                                       "children": [
@@ -17586,10 +17589,10 @@
                                                                                   "children": [
                                                                                     {
                                                                                       "id": 16261,
-                                                                                      "text": "You find 56 gold!",
+                                                                                      "text": "You find 51 gold!",
                                                                                       "type": "dialogue",
                                                                                       "effects": [
-                                                                                        "GOLD: 56"
+                                                                                        "GOLD: 51"
                                                                                       ],
                                                                                       "numContinues": 1,
                                                                                       "children": [
@@ -17622,7 +17625,7 @@
                                                                                   "children": [
                                                                                     {
                                                                                       "id": 16263,
-                                                                                      "text": "You find 92 gold!",
+                                                                                      "text": "You find 97 gold!",
                                                                                       "type": "dialogue",
                                                                                       "effects": [
                                                                                         "GOLD: random [75 - 125]"
@@ -17746,10 +17749,10 @@
                                                           "children": [
                                                             {
                                                               "id": 16273,
-                                                              "text": "You find 31 gold!",
+                                                              "text": "You find 26 gold!",
                                                               "type": "dialogue",
                                                               "effects": [
-                                                                "GOLD: 31"
+                                                                "GOLD: 26"
                                                               ],
                                                               "numContinues": 1,
                                                               "children": [
@@ -17782,10 +17785,10 @@
                                                           "children": [
                                                             {
                                                               "id": 16275,
-                                                              "text": "You find 56 gold!",
+                                                              "text": "You find 51 gold!",
                                                               "type": "dialogue",
                                                               "effects": [
-                                                                "GOLD: 56"
+                                                                "GOLD: 51"
                                                               ],
                                                               "numContinues": 1,
                                                               "children": [
@@ -17818,7 +17821,7 @@
                                                           "children": [
                                                             {
                                                               "id": 16277,
-                                                              "text": "You find 92 gold!",
+                                                              "text": "You find 97 gold!",
                                                               "type": "dialogue",
                                                               "effects": [
                                                                 "GOLD: random [75 - 125]"
@@ -17887,10 +17890,10 @@
                                                           "children": [
                                                             {
                                                               "id": 16281,
-                                                              "text": "You find 31 gold!",
+                                                              "text": "You find 26 gold!",
                                                               "type": "dialogue",
                                                               "effects": [
-                                                                "GOLD: 31"
+                                                                "GOLD: 26"
                                                               ],
                                                               "numContinues": 1,
                                                               "children": [
@@ -17923,10 +17926,10 @@
                                                           "children": [
                                                             {
                                                               "id": 16283,
-                                                              "text": "You find 56 gold!",
+                                                              "text": "You find 51 gold!",
                                                               "type": "dialogue",
                                                               "effects": [
-                                                                "GOLD: 56"
+                                                                "GOLD: 51"
                                                               ],
                                                               "numContinues": 1,
                                                               "children": [
@@ -17959,7 +17962,7 @@
                                                           "children": [
                                                             {
                                                               "id": 16285,
-                                                              "text": "You find 92 gold!",
+                                                              "text": "You find 97 gold!",
                                                               "type": "dialogue",
                                                               "effects": [
                                                                 "GOLD: random [75 - 125]"
@@ -18039,10 +18042,10 @@
                                                                   "children": [
                                                                     {
                                                                       "id": 16289,
-                                                                      "text": "You find 31 gold!",
+                                                                      "text": "You find 26 gold!",
                                                                       "type": "dialogue",
                                                                       "effects": [
-                                                                        "GOLD: 31"
+                                                                        "GOLD: 26"
                                                                       ],
                                                                       "numContinues": 1,
                                                                       "children": [
@@ -18075,10 +18078,10 @@
                                                                   "children": [
                                                                     {
                                                                       "id": 16291,
-                                                                      "text": "You find 56 gold!",
+                                                                      "text": "You find 51 gold!",
                                                                       "type": "dialogue",
                                                                       "effects": [
-                                                                        "GOLD: 56"
+                                                                        "GOLD: 51"
                                                                       ],
                                                                       "numContinues": 1,
                                                                       "children": [
@@ -18111,7 +18114,7 @@
                                                                   "children": [
                                                                     {
                                                                       "id": 16293,
-                                                                      "text": "You find 92 gold!",
+                                                                      "text": "You find 97 gold!",
                                                                       "type": "dialogue",
                                                                       "effects": [
                                                                         "GOLD: random [75 - 125]"
@@ -18320,10 +18323,10 @@
                                                   "children": [
                                                     {
                                                       "id": 16308,
-                                                      "text": "You find 31 gold!",
+                                                      "text": "You find 26 gold!",
                                                       "type": "dialogue",
                                                       "effects": [
-                                                        "GOLD: 31"
+                                                        "GOLD: 26"
                                                       ],
                                                       "numContinues": 1,
                                                       "children": [
@@ -18356,10 +18359,10 @@
                                                   "children": [
                                                     {
                                                       "id": 16310,
-                                                      "text": "You find 56 gold!",
+                                                      "text": "You find 51 gold!",
                                                       "type": "dialogue",
                                                       "effects": [
-                                                        "GOLD: 56"
+                                                        "GOLD: 51"
                                                       ],
                                                       "numContinues": 1,
                                                       "children": [
@@ -18392,7 +18395,7 @@
                                                   "children": [
                                                     {
                                                       "id": 16312,
-                                                      "text": "You find 92 gold!",
+                                                      "text": "You find 97 gold!",
                                                       "type": "dialogue",
                                                       "effects": [
                                                         "GOLD: random [75 - 125]"
@@ -18461,10 +18464,10 @@
                                                   "children": [
                                                     {
                                                       "id": 16316,
-                                                      "text": "You find 31 gold!",
+                                                      "text": "You find 26 gold!",
                                                       "type": "dialogue",
                                                       "effects": [
-                                                        "GOLD: 31"
+                                                        "GOLD: 26"
                                                       ],
                                                       "numContinues": 1,
                                                       "children": [
@@ -18497,10 +18500,10 @@
                                                   "children": [
                                                     {
                                                       "id": 16318,
-                                                      "text": "You find 56 gold!",
+                                                      "text": "You find 51 gold!",
                                                       "type": "dialogue",
                                                       "effects": [
-                                                        "GOLD: 56"
+                                                        "GOLD: 51"
                                                       ],
                                                       "numContinues": 1,
                                                       "children": [
@@ -18533,7 +18536,7 @@
                                                   "children": [
                                                     {
                                                       "id": 16320,
-                                                      "text": "You find 92 gold!",
+                                                      "text": "You find 97 gold!",
                                                       "type": "dialogue",
                                                       "effects": [
                                                         "GOLD: random [75 - 125]"
@@ -18613,10 +18616,10 @@
                                                           "children": [
                                                             {
                                                               "id": 16324,
-                                                              "text": "You find 31 gold!",
+                                                              "text": "You find 26 gold!",
                                                               "type": "dialogue",
                                                               "effects": [
-                                                                "GOLD: 31"
+                                                                "GOLD: 26"
                                                               ],
                                                               "numContinues": 1,
                                                               "children": [
@@ -18649,10 +18652,10 @@
                                                           "children": [
                                                             {
                                                               "id": 16326,
-                                                              "text": "You find 56 gold!",
+                                                              "text": "You find 51 gold!",
                                                               "type": "dialogue",
                                                               "effects": [
-                                                                "GOLD: 56"
+                                                                "GOLD: 51"
                                                               ],
                                                               "numContinues": 1,
                                                               "children": [
@@ -18685,7 +18688,7 @@
                                                           "children": [
                                                             {
                                                               "id": 16328,
-                                                              "text": "You find 92 gold!",
+                                                              "text": "You find 97 gold!",
                                                               "type": "dialogue",
                                                               "effects": [
                                                                 "GOLD: random [75 - 125]"
@@ -18819,10 +18822,10 @@
                                                   "children": [
                                                     {
                                                       "id": 16337,
-                                                      "text": "You find 31 gold!",
+                                                      "text": "You find 26 gold!",
                                                       "type": "dialogue",
                                                       "effects": [
-                                                        "GOLD: 31"
+                                                        "GOLD: 26"
                                                       ],
                                                       "numContinues": 1,
                                                       "children": [
@@ -18855,10 +18858,10 @@
                                                   "children": [
                                                     {
                                                       "id": 16339,
-                                                      "text": "You find 56 gold!",
+                                                      "text": "You find 51 gold!",
                                                       "type": "dialogue",
                                                       "effects": [
-                                                        "GOLD: 56"
+                                                        "GOLD: 51"
                                                       ],
                                                       "numContinues": 1,
                                                       "children": [
@@ -18891,7 +18894,7 @@
                                                   "children": [
                                                     {
                                                       "id": 16341,
-                                                      "text": "You find 92 gold!",
+                                                      "text": "You find 97 gold!",
                                                       "type": "dialogue",
                                                       "effects": [
                                                         "GOLD: random [75 - 125]"
@@ -18960,10 +18963,10 @@
                                                   "children": [
                                                     {
                                                       "id": 16345,
-                                                      "text": "You find 31 gold!",
+                                                      "text": "You find 26 gold!",
                                                       "type": "dialogue",
                                                       "effects": [
-                                                        "GOLD: 31"
+                                                        "GOLD: 26"
                                                       ],
                                                       "numContinues": 1,
                                                       "children": [
@@ -18996,10 +18999,10 @@
                                                   "children": [
                                                     {
                                                       "id": 16347,
-                                                      "text": "You find 56 gold!",
+                                                      "text": "You find 51 gold!",
                                                       "type": "dialogue",
                                                       "effects": [
-                                                        "GOLD: 56"
+                                                        "GOLD: 51"
                                                       ],
                                                       "numContinues": 1,
                                                       "children": [
@@ -19032,7 +19035,7 @@
                                                   "children": [
                                                     {
                                                       "id": 16349,
-                                                      "text": "You find 92 gold!",
+                                                      "text": "You find 97 gold!",
                                                       "type": "dialogue",
                                                       "effects": [
                                                         "GOLD: random [75 - 125]"
@@ -19112,10 +19115,10 @@
                                                           "children": [
                                                             {
                                                               "id": 16353,
-                                                              "text": "You find 31 gold!",
+                                                              "text": "You find 26 gold!",
                                                               "type": "dialogue",
                                                               "effects": [
-                                                                "GOLD: 31"
+                                                                "GOLD: 26"
                                                               ],
                                                               "numContinues": 1,
                                                               "children": [
@@ -19148,10 +19151,10 @@
                                                           "children": [
                                                             {
                                                               "id": 16355,
-                                                              "text": "You find 56 gold!",
+                                                              "text": "You find 51 gold!",
                                                               "type": "dialogue",
                                                               "effects": [
-                                                                "GOLD: 56"
+                                                                "GOLD: 51"
                                                               ],
                                                               "numContinues": 1,
                                                               "children": [
@@ -19184,7 +19187,7 @@
                                                           "children": [
                                                             {
                                                               "id": 16357,
-                                                              "text": "You find 92 gold!",
+                                                              "text": "You find 97 gold!",
                                                               "type": "dialogue",
                                                               "effects": [
                                                                 "GOLD: random [75 - 125]"
@@ -19308,10 +19311,10 @@
                                   "children": [
                                     {
                                       "id": 16367,
-                                      "text": "You find 31 gold!",
+                                      "text": "You find 26 gold!",
                                       "type": "dialogue",
                                       "effects": [
-                                        "GOLD: 31"
+                                        "GOLD: 26"
                                       ],
                                       "numContinues": 1,
                                       "children": [
@@ -19344,10 +19347,10 @@
                                   "children": [
                                     {
                                       "id": 16369,
-                                      "text": "You find 56 gold!",
+                                      "text": "You find 51 gold!",
                                       "type": "dialogue",
                                       "effects": [
-                                        "GOLD: 56"
+                                        "GOLD: 51"
                                       ],
                                       "numContinues": 1,
                                       "children": [
@@ -19380,7 +19383,7 @@
                                   "children": [
                                     {
                                       "id": 16371,
-                                      "text": "You find 92 gold!",
+                                      "text": "You find 97 gold!",
                                       "type": "dialogue",
                                       "effects": [
                                         "GOLD: random [75 - 125]"
@@ -19449,10 +19452,10 @@
                                   "children": [
                                     {
                                       "id": 16375,
-                                      "text": "You find 31 gold!",
+                                      "text": "You find 26 gold!",
                                       "type": "dialogue",
                                       "effects": [
-                                        "GOLD: 31"
+                                        "GOLD: 26"
                                       ],
                                       "numContinues": 1,
                                       "children": [
@@ -19485,10 +19488,10 @@
                                   "children": [
                                     {
                                       "id": 16377,
-                                      "text": "You find 56 gold!",
+                                      "text": "You find 51 gold!",
                                       "type": "dialogue",
                                       "effects": [
-                                        "GOLD: 56"
+                                        "GOLD: 51"
                                       ],
                                       "numContinues": 1,
                                       "children": [
@@ -19521,7 +19524,7 @@
                                   "children": [
                                     {
                                       "id": 16379,
-                                      "text": "You find 92 gold!",
+                                      "text": "You find 97 gold!",
                                       "type": "dialogue",
                                       "effects": [
                                         "GOLD: random [75 - 125]"
@@ -19601,10 +19604,10 @@
                                           "children": [
                                             {
                                               "id": 16383,
-                                              "text": "You find 31 gold!",
+                                              "text": "You find 26 gold!",
                                               "type": "dialogue",
                                               "effects": [
-                                                "GOLD: 31"
+                                                "GOLD: 26"
                                               ],
                                               "numContinues": 1,
                                               "children": [
@@ -19637,10 +19640,10 @@
                                           "children": [
                                             {
                                               "id": 16385,
-                                              "text": "You find 56 gold!",
+                                              "text": "You find 51 gold!",
                                               "type": "dialogue",
                                               "effects": [
-                                                "GOLD: 56"
+                                                "GOLD: 51"
                                               ],
                                               "numContinues": 1,
                                               "children": [
@@ -19673,7 +19676,7 @@
                                           "children": [
                                             {
                                               "id": 16387,
-                                              "text": "You find 92 gold!",
+                                              "text": "You find 97 gold!",
                                               "type": "dialogue",
                                               "effects": [
                                                 "GOLD: random [75 - 125]"
@@ -25647,7 +25650,7 @@
           "children": [
             {
               "id": 16823,
-              "text": "While the two nobles continue to argue fervently, you skillfully move closer while scanning the room for any potential witnesses. You deftly slip their hand into the pocket of one of the nobles and withdraw a small, leather pouch. You find 25 gold!",
+              "text": "While the two nobles continue to argue fervently, you skillfully move closer while scanning the room for any potential witnesses. You deftly slip their hand into the pocket of one of the nobles and withdraw a small, leather pouch. You find 15 gold!",
               "type": "end",
               "effects": [
                 "GOLD: random [15 - 25]"
@@ -27200,7 +27203,7 @@
           "children": [
             {
               "id": 17000,
-              "text": "You find 16 gold! As you prepare to leave you suddenly hear a loud squawking from above as a large, black-feathered bird descends on you!",
+              "text": "You find 29 gold! As you prepare to leave you suddenly hear a loud squawking from above as a large, black-feathered bird descends on you!",
               "type": "combat",
               "effects": [
                 "GOLD: random [10 - 30]",
@@ -28232,7 +28235,7 @@
           "children": [
             {
               "id": 17243,
-              "text": "You gain 20 gold! As you turn to leave, you feel the presence of the Goddess of light condemn you...",
+              "text": "You gain 10 gold! As you turn to leave, you feel the presence of the Goddess of light condemn you...",
               "type": "end",
               "effects": [
                 "GOLD: random [10 - 30]",
@@ -28407,7 +28410,7 @@
                   "children": [
                     {
                       "id": 17256,
-                      "text": "You gain 20 gold! As you turn to leave, you feel the presence of the Goddess of light condemn you...",
+                      "text": "You gain 10 gold! As you turn to leave, you feel the presence of the Goddess of light condemn you...",
                       "type": "end",
                       "effects": [
                         "GOLD: random [10 - 30]",
@@ -29707,11 +29710,11 @@
         {
           "id": 1,
           "type": "choice",
-          "choiceLabel": "Focus on the Necromancer",
+          "choiceLabel": "Focus on the Blacksmith",
           "children": [
             {
               "id": 17353,
-              "text": "Focus on the Necromancer (fill in the lore for this.) final words",
+              "text": "Focus on the Blacksmith (fill in the lore for this.) final words",
               "type": "end"
             }
           ]
@@ -29719,11 +29722,11 @@
         {
           "id": 2,
           "type": "choice",
-          "choiceLabel": "Focus on the Collector",
+          "choiceLabel": "Focus on the Necromancer",
           "children": [
             {
               "id": 17354,
-              "text": "Focus on the Collector (fill in the lore for this.) final words",
+              "text": "Focus on the Necromancer (fill in the lore for this.) final words",
               "type": "end"
             }
           ]
@@ -29731,11 +29734,11 @@
         {
           "id": 3,
           "type": "choice",
-          "choiceLabel": "Focus on the Consul",
+          "choiceLabel": "Focus on the Forger",
           "children": [
             {
               "id": 17355,
-              "text": "Focus on the Consul (fill in the lore for this.) final words",
+              "text": "Focus on the Forger (fill in the lore for this.) final words",
               "type": "end"
             }
           ]
@@ -31657,6 +31660,9 @@
                           "id": 10,
                           "type": "choice",
                           "choiceLabel": "default",
+                          "requirements": [
+                            "All other paths are unreachable!"
+                          ],
                           "children": [
                             {
                               "id": 17943,
@@ -48011,7 +48017,7 @@
                 {
                   "id": 13,
                   "type": "choice",
-                  "choiceLabel": "Add Memorized",
+                  "choiceLabel": "Add Chain",
                   "requirements": [
                     "intellect:1"
                   ],
@@ -48021,7 +48027,7 @@
                       "text": "",
                       "type": "end",
                       "effects": [
-                        "ADDKEYWORD: Memorized"
+                        "ADDKEYWORD: Chain"
                       ]
                     }
                   ]
@@ -48029,7 +48035,7 @@
                 {
                   "id": 14,
                   "type": "choice",
-                  "choiceLabel": "Add Recall",
+                  "choiceLabel": "Add Figmented",
                   "requirements": [
                     "intellect:2"
                   ],
@@ -48039,7 +48045,7 @@
                       "text": "",
                       "type": "end",
                       "effects": [
-                        "ADDKEYWORD: Recall"
+                        "ADDKEYWORD: Figmented"
                       ]
                     }
                   ]
@@ -48277,7 +48283,7 @@
     "artwork": "opportunity_image",
     "rootNode": {
       "id": 0,
-      "text": "You spot something glittering in the shadows. You find 25 gold!",
+      "text": "You spot something glittering in the shadows. You find 13 gold!",
       "type": "end",
       "effects": [
         "GOLD: random [10 - 30]"
@@ -48290,7 +48296,7 @@
     "artwork": "opportunity_image",
     "rootNode": {
       "id": 0,
-      "text": "You spot something glittering in the shadows. You find 20 gold!",
+      "text": "You spot something glittering in the shadows. You find 17 gold!",
       "type": "end",
       "effects": [
         "GOLD: random [10 - 30]"
@@ -52063,14 +52069,14 @@
                 {
                   "id": 17,
                   "type": "choice",
-                  "choiceLabel": "[cardid=652518]",
+                  "choiceLabel": "[cardid=595491]",
                   "children": [
                     {
                       "id": 33846,
-                      "text": "The skeleton nods as it reveals the card, then smiles. \"Action begets action - Fortune sees you are ready, stranger.\"",
+                      "text": "The skeleton solemnly turns over the card. \"The Final Star, an omen of health, prosperity and fertility. Fortune smiles on you this day, stranger.\"",
                       "type": "end",
                       "effects": [
-                        "AREAEFFECT: 652518"
+                        "AREAEFFECT: 595491"
                       ]
                     }
                   ]
@@ -55095,6 +55101,9 @@
                                                           "id": 25,
                                                           "type": "choice",
                                                           "choiceLabel": "default",
+                                                          "requirements": [
+                                                            "All other paths are unreachable!"
+                                                          ],
                                                           "children": [
                                                             {
                                                               "id": 34752,
@@ -55339,6 +55348,9 @@
                                                   "id": 40,
                                                   "type": "choice",
                                                   "choiceLabel": "default",
+                                                  "requirements": [
+                                                    "All other paths are unreachable!"
+                                                  ],
                                                   "children": [
                                                     {
                                                       "id": 34768,
@@ -55572,6 +55584,9 @@
                                   "id": 54,
                                   "type": "choice",
                                   "choiceLabel": "default",
+                                  "requirements": [
+                                    "All other paths are unreachable!"
+                                  ],
                                   "children": [
                                     {
                                       "id": 34792,
@@ -55769,6 +55784,9 @@
           "id": 66,
           "type": "choice",
           "choiceLabel": "default",
+          "requirements": [
+            "All other paths are unreachable!"
+          ],
           "children": [
             {
               "id": 34854,

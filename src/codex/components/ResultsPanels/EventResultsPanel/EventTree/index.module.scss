@@ -138,7 +138,11 @@
 
   &--choice {
     font-size: font-size('xs');
-    font-weight: bold;
+    font-weight: 600;
+
+    &--default {
+      font-size: font-size('sm');
+    }
   }
 
   &--dialogue,

@@ -168,19 +168,23 @@ function detectRandomVariables(inkJsonString) {
  * Optional fields are only included if they have values.
  */
 function createNode({ id, text, type, choiceLabel, requirements, effects, numContinues, ref, children }) {
+  const isDefault = choiceLabel === 'default'
   const node = {
     id,
     text,
     type,
   }
 
-  // Add optional fields in order
   if (choiceLabel !== undefined) {
     node.choiceLabel = choiceLabel
   }
+
   if (requirements !== undefined && requirements.length > 0) {
     node.requirements = requirements
+  } else if (isDefault) {
+    node.requirements = ['All other paths are unreachable!']
   }
+
   if (effects !== undefined && effects.length > 0) {
     node.effects = effects
   }

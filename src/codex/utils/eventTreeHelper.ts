@@ -54,14 +54,26 @@ export const calculateTreeBounds = (
  */
 export const getNodeWidth = (node: EventTreeNode, _event: Event): number => {
   // Rough estimate of character width for font-size('xxs')
-  const pixelsPerCharacterXxs = 8
+  const pixelsPerCharacterXxs = 6
+  const pixelsPerCharacterUppercase = 7.5
 
   let width = NODE.MIN_WIDTH
 
   const getLongestRequiredInnerBoxWidth = (strings: string[]) => {
-    const longestString = Math.max(...strings.map((string) => string.length))
+    const longestString = strings.reduce(
+      (longest, str) => (str.length > longest.length ? str : longest),
+      ''
+    )
 
-    return longestString * pixelsPerCharacterXxs + INNER_BOX.HORIZONTAL_MARGIN * 2
+    const uppercaseCount = countUppercaseChars(longestString)
+    const totalChars = longestString.length
+    const uppercaseRatio = totalChars > 0 ? uppercaseCount / totalChars : 0
+
+    // Weighted average based on uppercase proportion
+    const avgPixelsPerChar =
+      pixelsPerCharacterXxs * (1 - uppercaseRatio) + pixelsPerCharacterUppercase * uppercaseRatio
+
+    return longestString.length * avgPixelsPerChar + INNER_BOX.HORIZONTAL_MARGIN * 2
   }
 
   const requirements = node.type === 'choice' ? node.requirements || [] : []
@@ -283,3 +295,5 @@ export const findNodeById = (
   id: number | undefined
 ): EventTreeNode | undefined =>
   root && id ? root.descendants().find((d) => d.data.id === id)?.data : undefined
+
+const countUppercaseChars = (str: string): number => (str.match(/[A-Z]/g) || []).length
