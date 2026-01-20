@@ -13,6 +13,7 @@ import {
   getNodeWidth,
   calculateTreeBounds,
   hasEffects,
+  findNodeById,
 } from '@/codex/utils/eventTreeHelper'
 import {
   adjustHorizontalNodeSpacing,
@@ -171,8 +172,10 @@ function EventTree({ event, zoomLevel, loopingPathMode }: EventTreeProps): JSX.E
           : 0
         const hasContinue = data.numContinues && data.numContinues > 0
         const continueIndicatorHeight = hasContinue ? INNER_BOX.INDICATOR_HEIGHT : 0
-        const loopIndicatorHeight =
-          showLoopingIndicator && data.ref ? INNER_BOX.INDICATOR_HEIGHT : 0
+        const continueIndicatorMargin = hasContinue ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
+        const hasLoopingIndicator = showLoopingIndicator && data.ref
+        const loopIndicatorHeight = hasLoopingIndicator ? INNER_BOX.INDICATOR_HEIGHT : 0
+        const loopIndicatorMargin = hasLoopingIndicator ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
 
         const currentNodeHeight = getNodeHeight(data, event, showLoopingIndicator)
         const currentNodeWidth = getNodeWidth(data, event)
@@ -185,7 +188,9 @@ function EventTree({ event, zoomLevel, loopingPathMode }: EventTreeProps): JSX.E
           reqBoxMargin -
           reqBoxHeight -
           continueIndicatorHeight -
-          loopIndicatorHeight
+          continueIndicatorMargin -
+          loopIndicatorHeight -
+          loopIndicatorMargin
 
         // Center the text within this area, offset by top padding
         const textAreaCenter =
@@ -211,14 +216,18 @@ function EventTree({ event, zoomLevel, loopingPathMode }: EventTreeProps): JSX.E
             .text(line)
         })
 
+        const requirementsBoxY =
+          currentNodeHeight / 2 -
+          NODE_BOX.VERTICAL_PADDING -
+          reqBoxHeight -
+          continueIndicatorMargin -
+          continueIndicatorHeight -
+          loopIndicatorMargin -
+          loopIndicatorHeight
+
         // Add requirements box if present (above continue indicator and loop indicator)
         if (hasRequirements) {
-          const reqGroup = node
-            .append('g')
-            .attr(
-              'transform',
-              `translate(0, ${currentNodeHeight / 2 - NODE_BOX.VERTICAL_PADDING - reqBoxHeight - continueIndicatorHeight - loopIndicatorHeight})`
-            )
+          const reqGroup = node.append('g').attr('transform', `translate(0, ${requirementsBoxY})`)
 
           reqGroup
             .append('rect')
@@ -519,9 +528,9 @@ function EventTree({ event, zoomLevel, loopingPathMode }: EventTreeProps): JSX.E
 
         const continueHeight = eventNode.numContinues ? INNER_BOX.INDICATOR_HEIGHT : 0
         const continueMargin = continueHeight > 0 ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
-        const hasRepeatable = eventNode.ref
-        const repeatableHeight = hasRepeatable ? INNER_BOX.INDICATOR_HEIGHT : 0
-        const repeatableMargin = hasRepeatable ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
+        const showLoopsBackTo = showLoopingIndicator && eventNode.ref
+        const loopingIndicatorHeight = showLoopsBackTo ? INNER_BOX.INDICATOR_HEIGHT : 0
+        const loopingIndicatorMargin = showLoopsBackTo ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
 
         const effectsBoxY =
           nodeHeight / 2 -
@@ -529,8 +538,8 @@ function EventTree({ event, zoomLevel, loopingPathMode }: EventTreeProps): JSX.E
           effectsBoxHeight -
           continueMargin -
           continueHeight -
-          repeatableMargin -
-          repeatableHeight
+          loopingIndicatorMargin -
+          loopingIndicatorHeight
 
         const effectsGroup = node.append('g').attr('transform', `translate(0, ${effectsBoxY})`)
 
@@ -580,6 +589,7 @@ function EventTree({ event, zoomLevel, loopingPathMode }: EventTreeProps): JSX.E
         const showLoopsBackTo = d.data.ref && showLoopingIndicator
         const loopIndicatorHeight = showLoopsBackTo ? INNER_BOX.INDICATOR_HEIGHT : 0
         const loopIndicatorMargin = showLoopsBackTo ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
+        const numContinues = d.data.numContinues ?? 0
 
         // Position from bottom: margin is already in nodeHeight, just position the box
         const continueIndicatorY =
@@ -604,10 +614,10 @@ function EventTree({ event, zoomLevel, loopingPathMode }: EventTreeProps): JSX.E
           .append('text')
           .attr('class', cx('event-node-text', 'event-node-text--indicator'))
           .attr('y', INNER_BOX.INDICATOR_HEIGHT / 2 + TEXT.BASELINE_OFFSET / 2)
-          .text(`Continue × ${d.data.numContinues}`)
+          .text(`⏭️ Continues: ${numContinues}`)
       })
 
-    // Add `Repeatable` indicators
+    // Add `Loops back to` indicators
     if (loopingPathMode === LoopingPathMode.INDICATOR) {
       nodes
         .filter((d) => Boolean(d.data.ref))
@@ -615,6 +625,9 @@ function EventTree({ event, zoomLevel, loopingPathMode }: EventTreeProps): JSX.E
           const node = select(this)
           const nodeHeight = getNodeHeight(d.data, event, showLoopingIndicator)
           const nodeWidth = getNodeWidth(d.data, event)
+
+          const refNode = findNodeById(root as HierarchyPointNode<EventTreeNode>, d.data.ref)
+          const refNodeLabel = refNode?.type === 'choice' ? refNode.choiceLabel : refNode?.text
 
           // Position from bottom: margin is already in nodeHeight, just position the box
           const loopIndicatorY =
@@ -635,7 +648,12 @@ function EventTree({ event, zoomLevel, loopingPathMode }: EventTreeProps): JSX.E
             .append('text')
             .attr('class', cx('event-node-text', 'event-node-text--indicator'))
             .attr('y', INNER_BOX.INDICATOR_HEIGHT / 2 + TEXT.BASELINE_OFFSET / 2)
-            .text('Loops back to: TODO!')
+            .text(`🔄 Loops back to:`)
+
+          // TODO: Add a new text element here that displays 1 line of the parentLabel
+          // We also need to update:
+          // - rendering of the indicator box with correct height
+          // - getNodeHeight
         })
     }
 

@@ -40,8 +40,8 @@ const getZoomLabel = (zoom: ZoomLevel): string => (zoom === ZoomLevel.COVER ? 'C
 
 const getLoopingPathModeLabel = (mode: LoopingPathMode): string =>
   mode === LoopingPathMode.INDICATOR
-    ? 'With «Repeatable» badges on nodes'
-    : 'With lines back to the repeating nodes'
+    ? 'With «Loops back» badges on nodes'
+    : 'With arrows back to the looping nodes'
 
 const EventSearchPanel = ({
   selectedEventIndex,

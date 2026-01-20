@@ -48,10 +48,10 @@ export const NODE_BOX = {
 }
 
 export const INNER_BOX = {
-  // 'Repeatable' and 'Continue' indicator heights
+  // 'Loops back to' and 'Continue' indicator heights
   INDICATOR_HEIGHT: 24,
 
-  // Gap between main node text and indicator boxes (Repeatable, Continue)
+  // Gap between main node text and indicator boxes (Loops back to, Continue)
   INDICATOR_TOP_MARGIN: 5,
 
   // Vertical padding for listings ('Requirements' and 'Effects')

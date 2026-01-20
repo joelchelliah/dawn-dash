@@ -1,4 +1,4 @@
-import { HierarchyNode } from 'd3-hierarchy'
+import { HierarchyNode, HierarchyPointNode } from 'd3-hierarchy'
 
 import { wrapText } from '@/shared/utils/textHelper'
 
@@ -161,7 +161,7 @@ export const getNodeHeight = (
 
     return contentHeight + NODE_BOX.VERTICAL_PADDING * 2
   } else if (node.type === 'dialogue') {
-    // Dialogue nodes show up to 2 lines of dialogue text + effects box (if present) + continue box (if present) + repeatable box (if present)
+    // Dialogue nodes show up to 2 lines of dialogue text + effects box (if present) + continue box (if present) + loops back to box (if present)
     // Event name is now displayed ABOVE the root node, not inside it
     const effects = node.effects || []
     const hasEffects = effects.length > 0
@@ -211,7 +211,7 @@ export const getNodeHeight = (
 
     return contentHeight + NODE_BOX.VERTICAL_PADDING * 2
   } else if (node.type === 'combat') {
-    // Combat nodes show text (up to 2 lines) or "COMBAT!" fallback + effects box (if any) + repeatable box (if present)
+    // Combat nodes show text (up to 2 lines) or "COMBAT!" fallback + effects box (if any) + loops back to box (if present)
     const hasText = node.text && node.text.trim().length > 0
     let textHeight: number
 
@@ -274,3 +274,12 @@ export const getArrowheadAngle = (dx: number): number => {
   // If target is to the right, tilt right (angle < 90); if left, tilt left (angle > 90)
   return dx > 0 ? 90 - tilt : 90 + tilt
 }
+
+/**
+ * Find a node by ID within the tree
+ */
+export const findNodeById = (
+  root: HierarchyPointNode<EventTreeNode> | undefined,
+  id: number | undefined
+): EventTreeNode | undefined =>
+  root && id ? root.descendants().find((d) => d.data.id === id)?.data : undefined
