@@ -17,6 +17,7 @@ interface HeaderProps {
 }
 
 const Header = ({ onLogoClick, logoSrc, title, subtitle, currentPage }: HeaderProps) => {
+  const isLandingPage = currentPage === 'landing'
   return (
     <div className={cx('header')}>
       <div className={styles['logo-and-title']} onClick={onLogoClick}>
@@ -27,7 +28,7 @@ const Header = ({ onLogoClick, logoSrc, title, subtitle, currentPage }: HeaderPr
         </div>
       </div>
 
-      <SideMenu currentPage={currentPage} />
+      {!isLandingPage && <SideMenu currentPage={currentPage} />}
     </div>
   )
 }

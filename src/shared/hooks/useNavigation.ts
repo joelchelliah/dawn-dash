@@ -3,6 +3,10 @@ import { useRouter } from 'next/router'
 export const useNavigation = () => {
   const router = useRouter()
 
+  const resetToLandingPage = () => {
+    router.replace('/')
+  }
+
   const resetToSpeedruns = (selectedClass: string, difficulty: string) => {
     router.replace(`/speedruns?class=${selectedClass}&difficulty=${difficulty}`)
   }
@@ -19,5 +23,11 @@ export const useNavigation = () => {
     router.replace('/eventmaps')
   }
 
-  return { resetToSpeedruns, resetToCardCodex, resetToTalentCodex, resetToEventCodex }
+  return {
+    resetToLandingPage,
+    resetToSpeedruns,
+    resetToCardCodex,
+    resetToTalentCodex,
+    resetToEventCodex,
+  }
 }

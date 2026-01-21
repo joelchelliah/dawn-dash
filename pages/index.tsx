@@ -1,18 +1,10 @@
 import { useEffect } from 'react'
 
 import Head from 'next/head'
-import Image from 'next/image'
 import { useRouter } from 'next/router'
 
 import { SPEEDRUNS_URL_PARAMS } from '@/speedruns/constants/chartControlValues'
-
-import { createCx } from '../src/shared/utils/classnames'
-import GradientLink from '../src/shared/components/GradientLink'
-import { DashImageUrl } from '../src/shared/utils/imageUrls'
-
-import styles from './index.module.scss'
-
-const cx = createCx(styles)
+import Landing from '@/landing'
 
 export default function LandingPage() {
   const router = useRouter()
@@ -30,8 +22,6 @@ export default function LandingPage() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router.isReady, router.query])
-
-  const isDev = process.env.NODE_ENV === 'development'
 
   const title = 'Dawn-Dash'
   const description =
@@ -74,26 +64,7 @@ export default function LandingPage() {
           }}
         />
       </Head>
-      <div className={cx('container')}>
-        <Image
-          src={DashImageUrl}
-          alt="Dawn-Dash logo"
-          className={cx('logo')}
-          width={120}
-          height={120}
-        />
-        <h1 className={cx('title')}>Dawn-Dash</h1>
-        <p className={cx('description')}>
-          A collection of Dawncaster tools and resources, including interactive codexes for cards and
-          talents, event-tree visualizer, and speedrun charts!
-        </p>
-        <nav className={cx('nav')}>
-          <GradientLink text="Speedruns" url="/speedruns" internal />
-          <GradientLink text="Cardex" url="/cardex" internal />
-          <GradientLink text="Skilldex" url="/skilldex" internal />
-          {isDev && <GradientLink text="Eventmaps" url="/eventmaps" internal />}
-        </nav>
-      </div>
+      <Landing />
     </>
   )
 }
