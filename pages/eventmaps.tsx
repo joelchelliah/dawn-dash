@@ -1,26 +1,29 @@
 import Head from 'next/head'
 import dynamic from 'next/dynamic'
 
-const Cards = dynamic(() => import('../../src/codex/cards'), {
-  loading: () => <div>Loading cardex...</div>,
+const Events = dynamic(() => import('../src/codex/events'), {
+  loading: () => <div>Loading events...</div>,
 })
 
-export default function CardexPage() {
-  const title = 'Dawn-Dash : Cardex'
+export default function EventmapPage() {
+  const title = 'Dawn-Dash : Eventmaps'
   const description =
-    'Interactive Dawncaster cards codex, with advanced search and filtering options to find and track your cards through your runs!'
+    'Interactive Dawncaster events codex, with fully mapped out branches and options, to help you get the best outcome from each event!'
   const ogDescription =
-    'Search and track all Dawncaster cards through your runs, with advanced filtering options!'
-  const image = 'https://www.dawn-dash.com/og-image-cardex.png'
-  const url = 'https://www.dawn-dash.com/codex/cards'
-  const squareLogo = 'https://www.dawn-dash.com/logo-cardex.png'
+    'Explore all Dawncaster events, as fully mapped out event trees, including all dialogue options, requirements and rewards!'
+  // TODO: Update this once the Eventmaps is ready
+  const image = 'https://www.dawn-dash.com/og-image-eventmaps-WIP.png'
+  const url = 'https://www.dawn-dash.com/eventmaps'
+  const squareLogo = 'https://www.dawn-dash.com/logo-eventmaps.png'
 
   return (
     <>
       <Head>
         <title>{title}</title>
         <meta name="description" content={description} />
-        <link rel="canonical" href="https://www.dawn-dash.com/codex/cards" />
+        {/* TODO: Remove this once the Eventmaps is ready */}
+        <meta name="robots" content="noindex, nofollow" />
+        <link rel="canonical" href={url} />
 
         <meta property="og:type" content="website" />
         <meta property="og:title" content={title} />
@@ -29,7 +32,7 @@ export default function CardexPage() {
         <meta property="og:url" content={url} />
 
         {/* The url shown in Discord */}
-        <meta property="og:site_name" content="dawn-dash.com/codex/cards" />
+        <meta property="og:site_name" content="dawn-dash.com/eventmaps" />
 
         <meta property="twitter:image" content={image} />
 
@@ -48,7 +51,7 @@ export default function CardexPage() {
           }}
         />
       </Head>
-      <Cards />
+      <Events />
     </>
   )
 }

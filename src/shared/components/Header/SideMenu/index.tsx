@@ -25,7 +25,7 @@ interface SideMenuProps {
 }
 
 const cx = createCx(styles)
-// TODO: Remove this once the Questlog is ready
+// TODO: Remove this once the Eventmaps is ready
 const isDev = process.env.NODE_ENV === 'development'
 
 const SideMenu = ({ currentPage }: SideMenuProps) => {
@@ -71,8 +71,8 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
   const skilldexLinkContainerClassNames = cx('side-menu__nav-link-container', {
     'side-menu__nav-link-container--active': currentPage === 'skilldex',
   })
-  const questlogLinkContainerClassNames = cx('side-menu__nav-link-container', {
-    'side-menu__nav-link-container--active': currentPage === 'questlog',
+  const eventmapLinkContainerClassNames = cx('side-menu__nav-link-container', {
+    'side-menu__nav-link-container--active': currentPage === 'eventmaps',
   })
 
   return (
@@ -100,31 +100,31 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
       >
         <nav className={cx('side-menu__nav')}>
           <div className={speedrunsLinkContainerClassNames}>
-            <Link href="/" className={cx('side-menu__nav-link')}>
+            <Link href="/speedruns" className={cx('side-menu__nav-link')}>
               {getNavLinkImage(DashImageUrl, 'Speedruns logo')}
               Speedruns
             </Link>
           </div>
 
           <div className={cardexLinkContainerClassNames}>
-            <Link href="/codex/cards" className={cx('side-menu__nav-link')}>
+            <Link href="/cardex" className={cx('side-menu__nav-link')}>
               {getNavLinkImage(AbracadabraImageUrl, 'Cardex logo')}
               Cardex
             </Link>
           </div>
 
           <div className={skilldexLinkContainerClassNames}>
-            <Link href="/codex/skills" className={cx('side-menu__nav-link')}>
+            <Link href="/skilldex" className={cx('side-menu__nav-link')}>
               {getNavLinkImage(EleganceImageUrl, 'Skilldex logo')}
               Skilldex
             </Link>
           </div>
 
           {isDev && (
-            <div className={questlogLinkContainerClassNames}>
-              <Link href="/codex/events" className={cx('side-menu__nav-link')}>
-                {getNavLinkImage(MapOfHuesImageUrl, 'Questlog logo')}
-                Questlog
+            <div className={eventmapLinkContainerClassNames}>
+              <Link href="/eventmaps" className={cx('side-menu__nav-link')}>
+                {getNavLinkImage(MapOfHuesImageUrl, 'Eventmaps logo')}
+                Eventmaps
               </Link>
             </div>
           )}
@@ -144,7 +144,7 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
 
       <InfoModal isOpen={isAboutInfoOpen} onClose={() => setIsAboutInfoOpen(false)}>
         <h3 className={cx('info-title')}>
-          {getNavLinkImage(DashImageUrl, 'Speedruns logo')} Dawn-Dash
+          {getNavLinkImage(DashImageUrl, 'Speedruns logo')} Speedruns
         </h3>
 
         <p>
@@ -185,11 +185,11 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
             <div className={cx('info-divider')} />
 
             <h3 className={cx('info-title')}>
-              {getNavLinkImage(MapOfHuesImageUrl, 'Questlog logo')} Questlog
+              {getNavLinkImage(MapOfHuesImageUrl, 'Eventmaps logo')} Eventmaps
             </h3>
 
             <p className={cx('info-last-paragraph')}>
-              Fully mapped out dialogue trees for all events available in <b>Dawncaster</b>. See all
+              Fully mapped out event trees for all events available in <b>Dawncaster</b>. See all
               dialogue options, along with their requirements and rewards, so that you can get the
               best outcome from each event!
             </p>

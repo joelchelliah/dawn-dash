@@ -1,54 +1,67 @@
 # 🏃‍♂️ Dawn-Dash 💨
 
-An open-source **speedrun visualization** tool for the mobile RPG: [Dawncaster](https://dawncaster.wanderlost.games/).
+>An open-source collection of useful **tools and resources** for the mobile RPG: [Dawncaster](https://dawncaster.wanderlost.games/).
 
-- 📉 Speedrun charts of record-breaking runs and player progressions, for all modes and difficulties of the game.
+**Check it out:** [dawn-dash.com](https://dawn-dash.com/)
+
+## 🏃 Speedruns
+Visualization and tracking of all speedrun attempts, for all game modes!
+
+- 📉 Charts of record-breaking runs and player progressions, for all modes and difficulties of the game.
 - 🔍 Various filters and sorting options to focus on the runs you want to see.
 - 🔗 And if you submitted your run via the official [Dawncaster Discord](https://discord.gg/pfeMG9c), your **Discord name** will be linked to your run!
 
-... So, did **your** _super-speedy_ run make it on to the list? 👀
 
-**Take a look**:
+**Check it out**: [Speedruns](https://dawn-dash.com/speedruns)
 
-[![Dawn-Dash](./public/og-image-dawndash.png "Click to visit Dawn-Dash")](https://dawn-dash.com/)
+[![Dawn-Dash](./public/og-image-dawndash.png "Click to visit Dawn-Dash")](https://dawn-dash.com/speedruns)
 
 ----------
 
 ## 🎴 The Cardex
 
-There is also a **Cards Codex** tool, supporting muli-keyword-search, advanced filtering, card-tracking and more! 🃏
+A **Cards Codex** tool, supporting multi-keyword-search, advanced filtering, card-tracking and more!
 
 Mainly tailored towards the **Weekly Challenges**, this tool lets you:
  - 🔍 Look up several cards at once based on given keywords.
  - 🧮 Filter based on card sets, banners, rarities, and more.
  - 🏹 And track the cards as you progress through your run collecting them!
 
- **Check it out here**:
+**Check it out**: [Cardex](https://dawn-dash.com/cardex)
 
- [![Cardex](./public/og-image-cardex.png "Click to visit the Cardex")](https://dawn-dash.com/codex/cards)
+[![Cardex](./public/og-image-cardex.png "Click to visit the Cardex")](https://dawn-dash.com/cardex)
 
 ----------
 
 ## 🕺 The Skilldex
 
-There is also a **Talents Codex** tool, for visualizing all the in-game talents in tiny talent trees, with some search, filtering and formatting options as well!
+A **Talents Codex** tool, for visualizing all the in-game talents as tiny talent trees, with several search, filtering and formatting options!
 
 Tailored towards anyone trying to plan out a specific run, or just looking for new fun talents to unlock, this tool lets you:
  - 🔍 Look up several talents at once based on given keywords.
  - 🌳 Visualize the talents in tiny trees, based on their prerequisites or later talents.
  - 🧮 Filter based on card sets, requirements, tiers, and more.
 
-**Check it out here**:
+**Check it out**: [Skilldex](https://dawn-dash.com/skilldex)
 
- [![Skilldex](./public/og-image-skilldex.png "Click to visit the Cardex")](https://dawn-dash.com/codex/skills)
+[![Skilldex](./public/og-image-skilldex.png "Click to visit the Skilldex")](https://dawn-dash.com/skilldex)
+
+----------
+
+## 🗺️ The Eventmaps
+
+An **Events Codex** tool (work in progress), featuring fully mapped out event trees with all dialogue options, requirements, and rewards!
+
+**Check it out**: [Eventmaps](https://dawn-dash.com/eventmaps) (WIP)
+
+[![Eventmaps](./public/og-image-eventmaps.png "Click to visit the Skilldex")](https://dawn-dash.com/eventmaps)
 
 ----------
 
 If you have any thoughts, questions, ideas, or feedback, you can either:
 
 - 💬 Reach out to me in the [Dawncaster Discord](https://discord.gg/pfeMG9c) (I'm joel6801)
-- 📝 Open an issue here to discuss your ideas
-- 🐞 Open an issue here to report a bug
+- 📝 Open an issue here to discuss your ideas or report bugs
 
 ----------
 

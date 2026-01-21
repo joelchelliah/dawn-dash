@@ -1,28 +1,24 @@
 import Head from 'next/head'
 import dynamic from 'next/dynamic'
 
-const Events = dynamic(() => import('../../src/codex/events'), {
-  loading: () => <div>Loading events...</div>,
+const Speedruns = dynamic(() => import('../src/speedruns'), {
+  loading: () => <div>Loading speedrun charts...</div>,
 })
 
-export default function QuestlogPage() {
-  const title = 'Dawn-Dash : Questlog'
+export default function SpeedrunsPage() {
+  const title = 'Dawn-Dash : Speedruns'
   const description =
-    'Interactive Dawncaster events codex, with fully mapped out branches and options, to help you get the best outcome from each event!'
+    'Interactive Dawncaster speedrun charts, showing world records, fastest times, and leaderboards across all modes, classes and difficulties!'
   const ogDescription =
-    'Explore all Dawncaster events, as fully mapped out dialogue trees, including all dialogue options, requirements and rewards!'
-  // TODO: Update this once the Questlog is ready
-  const image = 'https://www.dawn-dash.com/og-image-questlog-WIP.png'
-  const url = 'https://www.dawn-dash.com/codex/events'
-  const squareLogo = 'https://www.dawn-dash.com/logo-questlog.png'
-
+    'Check out the fastest Dawncaster speedruns! Compare live records across all modes, classes and difficulties!'
+  const image = 'https://www.dawn-dash.com/og-image-dawndash.png'
+  const url = 'https://www.dawn-dash.com/speedruns'
+  const squareLogo = 'https://www.dawn-dash.com/logo-dawndash.png'
   return (
     <>
       <Head>
         <title>{title}</title>
         <meta name="description" content={description} />
-        {/* TODO: Remove this once the Questlog is ready */}
-        <meta name="robots" content="noindex, nofollow" />
         <link rel="canonical" href={url} />
 
         <meta property="og:type" content="website" />
@@ -32,7 +28,7 @@ export default function QuestlogPage() {
         <meta property="og:url" content={url} />
 
         {/* The url shown in Discord */}
-        <meta property="og:site_name" content="dawn-dash.com/codex/events" />
+        <meta property="og:site_name" content="dawn-dash.com/speedruns" />
 
         <meta property="twitter:image" content={image} />
 
@@ -51,7 +47,7 @@ export default function QuestlogPage() {
           }}
         />
       </Head>
-      <Events />
+      <Speedruns />
     </>
   )
 }

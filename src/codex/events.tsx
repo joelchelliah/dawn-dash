@@ -41,9 +41,9 @@ function Events(): JSX.Element {
       <Header
         onLogoClick={resetToEventCodex}
         logoSrc={MapOfHuesImageUrl}
-        title="Dawn-Dash : Questlog"
-        subtitle="Dawncaster events codex"
-        currentPage="questlog"
+        title="Dawn-Dash : Eventmaps"
+        subtitle="Dawncaster event-trees"
+        currentPage="eventmaps"
       />
 
       <div className={cx('wip-message')}>🚧 Work in progress...</div>

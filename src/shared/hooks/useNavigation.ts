@@ -4,19 +4,19 @@ export const useNavigation = () => {
   const router = useRouter()
 
   const resetToSpeedruns = (selectedClass: string, difficulty: string) => {
-    router.replace(`/?class=${selectedClass}&difficulty=${difficulty}`)
+    router.replace(`/speedruns?class=${selectedClass}&difficulty=${difficulty}`)
   }
 
   const resetToCardCodex = () => {
-    router.replace('/codex/cards')
+    router.replace('/cardex')
   }
 
   const resetToTalentCodex = () => {
-    router.replace('/codex/skills')
+    router.replace('/skilldex')
   }
 
   const resetToEventCodex = () => {
-    router.replace('/codex/events')
+    router.replace('/eventmaps')
   }
 
   return { resetToSpeedruns, resetToCardCodex, resetToTalentCodex, resetToEventCodex }

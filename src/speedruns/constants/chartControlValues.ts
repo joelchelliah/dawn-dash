@@ -68,3 +68,14 @@ export const SUBMISSION_WINDOW_LABEL_MAP: Record<string, string> = {
 
 export const ZOOM_LEVEL_DEFAULT = 100
 export const ZOOM_LEVEL_VALUES = [100, 200, 300, 400]
+
+export const SPEEDRUNS_URL_PARAMS = [
+  'class',
+  'subclass',
+  'difficulty',
+  'players',
+  'duration',
+  'view',
+  'zoom',
+  'window',
+]

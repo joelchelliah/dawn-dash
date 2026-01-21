@@ -2,21 +2,32 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://www.dawn-dash.com/</loc>
-    <lastmod>2025-12-27</lastmod>
+    <lastmod>2026-01-21</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://www.dawn-dash.com/codex/cards</loc>
-    <lastmod>2025-12-27</lastmod>
+    <loc>https://www.dawn-dash.com/cardex</loc>
+    <lastmod>2026-01-21</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.dawn-dash.com/codex/skills</loc>
-    <lastmod>2025-12-27</lastmod>
+    <loc>https://www.dawn-dash.com/skilldex</loc>
+    <lastmod>2026-01-21</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
-  <!-- TODO: Add the Questlog once it's ready -->
+  <url>
+    <loc>https://www.dawn-dash.com/eventmaps</loc>
+    <lastmod>2026-01-21</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.dawn-dash.com/speedruns</loc>
+    <lastmod>2026-01-21</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
 </urlset>
