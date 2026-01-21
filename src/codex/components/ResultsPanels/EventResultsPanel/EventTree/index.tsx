@@ -719,7 +719,11 @@ function EventTree({
   return (
     <div className={cx('container')}>
       <div className={cx('container__breadcrumbs')}>
-        <GradientLink text="← All events" onClick={onAllEventsClick} />
+        <GradientLink
+          text="← All events"
+          onClick={onAllEventsClick}
+          className={cx('container__breadcrumbs-link')}
+        />
       </div>
       <div className={cx('event-header')}>
         <Image

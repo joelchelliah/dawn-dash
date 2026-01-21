@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 import { createCx } from '@/shared/utils/classnames'
 import { useNavigation } from '@/shared/hooks/useNavigation'
@@ -7,6 +7,7 @@ import { MapOfHuesImageUrl } from '@/shared/utils/imageUrls'
 import Footer from '@/shared/components/Footer'
 import Header from '@/shared/components/Header'
 import ScrollToTopButton from '@/shared/components/ScrollToTopButton'
+import Notification from '@/shared/components/Notification'
 
 import eventTreesData from './data/event-trees.json'
 import { Event } from './types/events'
@@ -14,6 +15,7 @@ import EventSearchPanel from './components/SearchPanels/EventSearchPanel'
 import EventResultsPanel from './components/ResultsPanels/EventResultsPanel'
 import { ALL_EVENTS_INDEX } from './constants/eventSearchValues'
 import { useAllEventSearchFilters } from './hooks/useSearchFilters/useAllEventSearchFilters'
+import { useEventUrlParam } from './hooks/useEventUrlParam'
 import { searchEventTree } from './utils/eventTreeSearch'
 import styles from './events.module.scss'
 
@@ -25,16 +27,23 @@ function Events(): JSX.Element {
   const { resetToEventCodex } = useNavigation()
   const { showScrollToTopButton, scrollToTop } = useScrollToTop()
   const [selectedEventIndex, setSelectedEventIndex] = useState(ALL_EVENTS_INDEX)
+  const [showInvalidNotification, setShowInvalidNotification] = useState(false)
 
   const useSearchFiltersHook = useAllEventSearchFilters()
+  const { isInvalidEvent, eventNameFromParam } = useEventUrlParam(eventTrees, setSelectedEventIndex)
 
-  // Filter events based on search text (debounced)
   const filteredEvents = eventTrees.filter((event) =>
     searchEventTree(event, useSearchFiltersHook.deferredFilterText)
   )
 
   const selectedEvent =
     selectedEventIndex === ALL_EVENTS_INDEX ? null : eventTrees[selectedEventIndex]
+
+  useEffect(() => {
+    if (isInvalidEvent) {
+      setShowInvalidNotification(true)
+    }
+  }, [isInvalidEvent])
 
   return (
     <div className={cx('container')}>
@@ -68,6 +77,16 @@ function Events(): JSX.Element {
       <Footer />
 
       <ScrollToTopButton show={showScrollToTopButton} onClick={scrollToTop} alwaysOnTop />
+
+      <Notification
+        message={
+          <span>
+            Could not find event: «<strong>{eventNameFromParam}</strong>».
+          </span>
+        }
+        isTriggered={showInvalidNotification}
+        onClose={() => setShowInvalidNotification(false)}
+      />
     </div>
   )
 }

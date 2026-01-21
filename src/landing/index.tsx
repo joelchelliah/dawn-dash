@@ -62,7 +62,7 @@ export default function Landing() {
           />
           <NavItem
             url="/eventmaps"
-            imageSrc="/og-image-questlog.png"
+            imageSrc="/og-image-eventmaps.png"
             alt="Eventmaps"
             mobileDescription={LANDING_PAGE_NAV_ITEM_DESCRIPTIONS.eventmapsShort}
             onMouseEnter={() => setHoveredItem('eventmaps')}
