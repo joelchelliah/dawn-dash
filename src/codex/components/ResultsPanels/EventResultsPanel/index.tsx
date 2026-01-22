@@ -34,7 +34,7 @@ const EventResultsPanel = ({
   const eventName = selectedEvent?.name ?? 'UNNAMED-EVENT'
   const blightbaneLink = `https://www.blightbane.io/event/${eventName.replaceAll(' ', '_')}`
 
-  const { filterText, zoomLevel, loopingPathMode } = useSearchFilters
+  const { filterText, setFilterText, zoomLevel, loopingPathMode } = useSearchFilters
   const showEventList = selectedEventIndex === ALL_EVENTS_INDEX || filteredEvents.length === 0
 
   return (
@@ -47,6 +47,7 @@ const EventResultsPanel = ({
             events={filteredEvents}
             allEvents={allEvents}
             filterText={filterText}
+            setFilterText={setFilterText}
             onEventSelect={onEventChange}
           />
         )}

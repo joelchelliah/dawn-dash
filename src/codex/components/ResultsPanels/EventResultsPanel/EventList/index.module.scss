@@ -2,35 +2,36 @@
 
 .event-list-container {
   width: 100%;
+  min-height: 175px; // To prevent looking too squished when there are no events
 }
 
-.event-list-header {
-  margin: 0 0 1.5rem 0.5rem;
+.event-list-filter {
+  margin: 0 0 1rem 0.25rem;
+}
 
-  &__title {
-    margin: 0;
-    font-size: font-size('xs');
-    font-weight: 600;
-    color: $color-primary-muted;
+.event-list-count {
+  margin: 0 0 2.5rem 0.5rem;
+  font-size: font-size('xs');
+  font-weight: 600;
+  color: $color-primary-muted;
+
+  &--no-events {
+    font-weight: 400;
+  }
+  &__filter-count {
+    color: $color-primary-base;
+    font-weight: 800;
   }
 
   &__filter-text {
     font-style: italic;
-    font-weight: 400;
     color: $yellow-base;
   }
 
   @media (max-width: $breakpoint-mobile) {
+    margin-bottom: 2rem;
     font-size: font-size('xxs');
   }
-}
-
-.event-list-empty {
-  text-align: center;
-  padding: 1rem 0 2rem;
-  font-size: font-size('sm');
-  color: $color-danger-error;
-  line-height: 1.4;
 }
 
 .event-type-group {

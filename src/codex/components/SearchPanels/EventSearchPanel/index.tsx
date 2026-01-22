@@ -19,7 +19,6 @@ import {
 import { UseAllEventSearchFilters } from '@/codex/hooks/useSearchFilters/useAllEventSearchFilters'
 
 import PanelHeader from '../../PanelHeader'
-import SearchField from '../shared/SearchField'
 
 import styles from './index.module.scss'
 
@@ -50,7 +49,6 @@ const EventSearchPanel = ({
   const selectedClass = CharacterClass.Sunforge
   const {
     filterText,
-    setFilterText,
     zoomLevel,
     setZoomLevel,
     showAdvancedOptions,
@@ -92,14 +90,6 @@ const EventSearchPanel = ({
   }))
 
   const advancedOptionsArrow = showAdvancedOptions ? '▴' : '▾'
-
-  // Auto-select "All Events" when filter text changes, and is non-empty
-  // Only navigate if we're not already showing all events (prevents losing focus when already on base route)
-  useEffect(() => {
-    if (filterText.trim().length > 0 && selectedEventIndex !== ALL_EVENTS_INDEX) {
-      onEventChange(ALL_EVENTS_INDEX)
-    }
-  }, [filterText, selectedEventIndex, onEventChange])
 
   // Force Cover mode when switching events to ensure clean coverScale calculation
   useEffect(() => {
@@ -159,38 +149,11 @@ const EventSearchPanel = ({
             Advanced options {advancedOptionsArrow}
           </GradientButton>
         </div>
-        {!showAdvancedOptions && (
-          <div
-            className={cx(
-              'control-wrapper',
-              'control-wrapper--search-field',
-              'control-wrapper--search-field--wide'
-            )}
-          >
-            <SearchField
-              keywords={filterText}
-              setKeywords={setFilterText}
-              placeholder="Filter by any text occurring in the event"
-              mode="text"
-              selectedClass={selectedClass}
-            />
-          </div>
-        )}
       </div>
 
       {showAdvancedOptions && (
         <div className={cx('advanced-options')}>
           <div className={cx('advanced-options__content')}>
-            <div className={cx('control-wrapper', 'control-wrapper--search-field')}>
-              <SearchField
-                keywords={filterText}
-                setKeywords={setFilterText}
-                label="Filter event selection by text"
-                placeholder="Any text occurring in the event"
-                mode="text"
-                selectedClass={selectedClass}
-              />
-            </div>
             <div className={cx('control-wrapper', 'control-wrapper--looping-path')}>
               <Select
                 id="looping-path-mode-select"
