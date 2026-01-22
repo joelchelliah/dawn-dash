@@ -79,7 +79,6 @@ function EventTree({
     const svgWidth = Math.max(calculatedWidth, TREE.MIN_SVG_WIDTH)
     const svgHeight = bounds.height + TREE.VERTICAL_PADDING * 2
 
-    // Calculate zoom scale
     const zoomScale = zoomCalculator.calculate({
       eventName: event.name,
       zoomLevel,

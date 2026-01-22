@@ -639,10 +639,10 @@ export const centerRootNodeHorizontally = (
   svgWidth: number,
   offsetX: number
 ) => {
-  // Every node in the tree has at most 2 children
+  // Every node in the tree has at most 1 child
   const isSimpleTree = root
     .descendants()
-    .every((node) => !node.children || node.children.length <= 2)
+    .every((node) => !node.children || node.children.length <= 1)
 
   if (!isSimpleTree) return
 
