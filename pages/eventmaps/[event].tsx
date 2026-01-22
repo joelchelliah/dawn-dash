@@ -3,10 +3,8 @@ import dynamic from 'next/dynamic'
 
 import { findEventByName } from '@/codex/hooks/useEventUrlParam'
 import { Event } from '@/codex/types/events'
-
-import eventTreesData from '../../src/codex/data/event-trees.json'
-
-import { EventmapHead } from './EventmapHead'
+import eventTreesData from '@/codex/data/event-trees.json'
+import { EventmapHead } from '@/codex/components/EventMapHead'
 
 const Events = dynamic(() => import('../../src/codex/events'), {
   loading: () => <div>Loading events...</div>,
