@@ -6,7 +6,7 @@ import { Event } from '@/codex/types/events'
 import { getNodeHeight, getArrowheadAngle } from '@/codex/utils/eventTreeHelper'
 import { NODE } from '@/codex/constants/eventTreeValues'
 
-import styles from './index.module.scss'
+import styles from './links.module.scss'
 
 const cx = createCx(styles)
 
@@ -22,11 +22,11 @@ export function drawLinks(
   event: Event,
   showLoopingIndicator: boolean
 ) {
-  g.selectAll(`.${cx('tree-link')}`)
+  g.selectAll(`.${cx('link')}`)
     .data(root.links())
     .enter()
     .append('path')
-    .attr('class', cx('tree-link'))
+    .attr('class', cx('link'))
     .attr('marker-end', (d: any, i: number) => {
       const sourceX = d.source.x || 0
       const targetX = d.target.x || 0
@@ -114,111 +114,44 @@ export function drawRefChildrenLinks(
       targetNodeHeight
     )
 
-    g.append('path')
-      .attr('class', cx('tree-link'))
-      .attr('marker-end', markerUrl)
-      .attr('d', pathData)
+    g.append('path').attr('class', cx('link')).attr('marker-end', markerUrl).attr('d', pathData)
   })
 }
 
 /**
- * Draws straight, dotted links for repeatFrom relationships from corner to corner.
+ * Draws straight, dotted links for loop back relationships from corner to corner.
  * Links go from the top corner of the source node to the bottom corner of the target node,
  * with an arrowhead at the target end.
  */
-export function drawRepeatFromLinks(
-  g: any,
-  defs: any,
-  root: any,
-  event: Event,
-  showLoopingIndicator: boolean
-) {
-  // Build a map of node id -> node for quick lookup
-  const nodeMap = new Map<number, any>()
-  root.descendants().forEach((node: any) => {
-    if (node.data.id !== undefined) {
-      nodeMap.set(node.data.id, node)
-    }
-  })
+export function drawLoopBackLinks(g: any, defs: any, root: any, event: Event) {
+  const showLoopingIndicator = false
 
-  // Find all nodes with repeatFrom and create link data
-  const repeatFromLinks: Array<{ source: any; target: any }> = []
-  root.descendants().forEach((node: any) => {
-    if (node.data.ref) {
-      const targetNode = nodeMap.get(node.data.ref)
-      if (targetNode) {
-        repeatFromLinks.push({
-          source: node,
-          target: targetNode,
-        })
-      }
-    }
-  })
+  const nodeMap = buildNodeMap(root)
+  const loopBackLinks = findLoopBackLinks(root, nodeMap)
 
-  // Draw the repeatFrom links
+  // Draw the loop back links
   const linkGroup = g
-    .selectAll(`.${cx('repeat-from-link-group')}`)
-    .data(repeatFromLinks)
+    .selectAll(`.${cx('loop-back-link-group')}`)
+    .data(loopBackLinks)
     .enter()
     .append('g')
-    .attr('class', cx('repeat-from-link-group'))
+    .attr('class', cx('loop-back-link-group'))
 
   linkGroup.each(function (this: SVGGElement, d: any, linkIndex: number) {
     const group = select(this)
 
-    const sourceCenterX = d.source.x || 0
-    const sourceCenterY = d.source.y || 0
-    const targetCenterX = d.target.x || 0
-    const targetCenterY = d.target.y || 0
+    const { sourceX, sourceY, targetX, targetY } = calculateLoopBackLinkCorners(
+      d,
+      event,
+      showLoopingIndicator
+    )
 
-    // Calculate node heights
-    const sourceHeight = getNodeHeight(d.source.data, event, showLoopingIndicator)
-    const targetHeight = getNodeHeight(d.target.data, event, showLoopingIndicator)
-
-    // Calculate box boundaries
-    const sourceBoxHalfWidth = NODE.MIN_WIDTH / 2
-    const sourceBoxHalfHeight = sourceHeight / 2
-    const targetBoxHalfWidth = NODE.MIN_WIDTH / 2
-    const targetBoxHalfHeight = targetHeight / 2
-
-    // Calculate box edges
-    const sourceRightEdge = sourceCenterX + sourceBoxHalfWidth
-    const sourceLeftEdge = sourceCenterX - sourceBoxHalfWidth
-    const targetRightEdge = targetCenterX + targetBoxHalfWidth
-    const targetLeftEdge = targetCenterX - targetBoxHalfWidth
-
-    // Determine source and target corners based on relative x positions
-    let sourceX: number
-    let targetX: number
-
-    // Source is always from the top of the box
-    const sourceY = sourceCenterY - sourceBoxHalfHeight
-    // Target is always at the bottom of the box
-    const targetY = targetCenterY + targetBoxHalfHeight
-
-    // Determine which corners to connect based on horizontal positioning
-    if (sourceRightEdge > targetLeftEdge) {
-      // Source's right edge extends beyond target's left edge
-      // Route to target's bottom-right corner
-      targetX = targetRightEdge
-      // Source comes from whichever side makes sense
-      const safetyMargin = 20
-      if (sourceCenterX > targetCenterX + safetyMargin) {
-        sourceX = sourceLeftEdge // From top-left of source
-      } else {
-        sourceX = sourceRightEdge // From top-right of source
-      }
-    } else {
-      // Source is completely to the left of target
-      // Route to target's bottom-left corner
-      targetX = targetLeftEdge
-      sourceX = sourceRightEdge // From top-right of source
-    }
+    const sourceNodeType = d.source.data.type || 'default'
 
     // Create a single marker for the target end
-    const markerId = `arrowhead-repeat-${linkIndex}`
-    const markerRefX = 18
-    const markerSize = 6
+    const markerId = `arrowhead-loop-back-${linkIndex}`
+    const markerRefX = 38 // Magic number adjustment to make the arrowhead tip hit the (🔗) badge exactly
+    const markerSize = 7
 
     defs
       .append('marker')
@@ -231,15 +164,108 @@ export function drawRepeatFromLinks(
       .attr('orient', 'auto')
       .append('path')
       .attr('d', 'M0,-5L20,0L0,5')
-      .attr('class', cx('repeat-from-arrowhead'))
+      .attr('class', cx('loop-back-arrowhead', `loop-back-arrowhead--${sourceNodeType}`))
 
     // Draw the main line with arrowhead at target end
     group
       .append('path')
-      .attr('class', cx('repeat-from-link'))
+      .attr('class', cx('loop-back-link', `loop-back-link--${sourceNodeType}`))
       .attr('d', `M${sourceX},${sourceY} L${targetX},${targetY}`)
       .attr('marker-end', `url(#${markerId})`)
   })
+}
+
+/**
+ * Draws tiny circles with emojis at the start (🔄) and end (🔗) of loop back links.
+ * Avoids duplicates when multiple links share the same corner position.
+ */
+export function drawLoopBackLinkBadges(g: any, root: any, event: Event) {
+  const showLoopingIndicator = false
+
+  const nodeMap = buildNodeMap(root)
+  const loopBackLinks = findLoopBackLinks(root, nodeMap)
+
+  // Track unique positions with node types to avoid duplicates
+  const startPositions = new Map<string, string>() // position -> node type
+  const endPositions = new Map<string, string>() // position -> node type
+
+  // Calculate positions for each link
+  loopBackLinks.forEach((d: any) => {
+    const { sourceX, sourceY, targetX, targetY } = calculateLoopBackLinkCorners(
+      d,
+      event,
+      showLoopingIndicator
+    )
+
+    const startKey = `${sourceX},${sourceY}`
+    const endKey = `${targetX},${targetY}`
+    const sourceNodeType = d.source.data.type || 'default'
+    const targetNodeType = d.target.data.type || 'default'
+
+    // Only add if we haven't seen this position before
+    if (!startPositions.has(startKey)) {
+      startPositions.set(startKey, sourceNodeType)
+    }
+    if (!endPositions.has(endKey)) {
+      endPositions.set(endKey, targetNodeType)
+    }
+  })
+
+  // Draw start badges (🔄)
+  const startBadges = g
+    .selectAll(`.${cx('loop-back-start-badge')}`)
+    .data(
+      Array.from(startPositions.entries()).map(([pos, nodeType]) => {
+        const [x, y] = pos.split(',').map(Number)
+        return { x, y, nodeType }
+      })
+    )
+    .enter()
+    .append('g')
+    .attr('class', cx('loop-back-start-badge'))
+    .attr('transform', (d: any) => `translate(${d.x},${d.y})`)
+
+  startBadges
+    .append('circle')
+    .attr('class', (d: any) =>
+      cx('loop-back-badge-circle', `loop-back-badge-circle--${d.nodeType}`)
+    )
+
+  startBadges
+    .append('text')
+    .attr('class', cx('loop-back-badge-emoji'))
+    .attr('text-anchor', 'middle')
+    .attr('dominant-baseline', 'central')
+    .attr('y', 0)
+    .text('🔄')
+
+  // Draw end badges (🔗)
+  const endBadges = g
+    .selectAll(`.${cx('loop-back-end-badge')}`)
+    .data(
+      Array.from(endPositions.entries()).map(([pos, nodeType]) => {
+        const [x, y] = pos.split(',').map(Number)
+        return { x, y, nodeType }
+      })
+    )
+    .enter()
+    .append('g')
+    .attr('class', cx('loop-back-end-badge'))
+    .attr('transform', (d: any) => `translate(${d.x},${d.y})`)
+
+  endBadges
+    .append('circle')
+    .attr('class', (d: any) =>
+      cx('loop-back-badge-circle', `loop-back-badge-circle--${d.nodeType}`)
+    )
+
+  endBadges
+    .append('text')
+    .attr('class', cx('loop-back-badge-emoji'))
+    .attr('text-anchor', 'middle')
+    .attr('dominant-baseline', 'central')
+    .attr('y', 0)
+    .text('🔗')
 }
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
@@ -300,4 +326,99 @@ function calculateCurvedPathForStandardLinks(
           C${sourceX},${startY + controlOffsetSource}
            ${targetX},${endY - controlOffsetTarget}
            ${targetX},${endY}`
+}
+
+/**
+ * Builds a map of node id -> node for quick lookup
+ */
+function buildNodeMap(root: any): Map<number, any> {
+  const nodeMap = new Map<number, any>()
+  root.descendants().forEach((node: any) => {
+    if (node.data.id !== undefined) {
+      nodeMap.set(node.data.id, node)
+    }
+  })
+  return nodeMap
+}
+
+/**
+ * Finds all loop back links (nodes with ref property)
+ */
+function findLoopBackLinks(
+  root: any,
+  nodeMap: Map<number, any>
+): Array<{ source: any; target: any }> {
+  const loopBackLinks: Array<{ source: any; target: any }> = []
+  root.descendants().forEach((node: any) => {
+    if (node.data.ref) {
+      const targetNode = nodeMap.get(node.data.ref)
+      if (targetNode) {
+        loopBackLinks.push({
+          source: node,
+          target: targetNode,
+        })
+      }
+    }
+  })
+  return loopBackLinks
+}
+
+/**
+ * Calculates the corner positions for a loop back link
+ */
+function calculateLoopBackLinkCorners(
+  d: any,
+  event: Event,
+  showLoopingIndicator: boolean
+): { sourceX: number; sourceY: number; targetX: number; targetY: number } {
+  const sourceCenterX = d.source.x || 0
+  const sourceCenterY = d.source.y || 0
+  const targetCenterX = d.target.x || 0
+  const targetCenterY = d.target.y || 0
+
+  // Calculate node heights
+  const sourceHeight = getNodeHeight(d.source.data, event, showLoopingIndicator)
+  const targetHeight = getNodeHeight(d.target.data, event, showLoopingIndicator)
+
+  // Calculate box boundaries
+  const sourceBoxHalfWidth = NODE.MIN_WIDTH / 2
+  const sourceBoxHalfHeight = sourceHeight / 2
+  const targetBoxHalfWidth = NODE.MIN_WIDTH / 2
+  const targetBoxHalfHeight = targetHeight / 2
+
+  // Calculate box edges
+  const sourceRightEdge = sourceCenterX + sourceBoxHalfWidth
+  const sourceLeftEdge = sourceCenterX - sourceBoxHalfWidth
+  const targetRightEdge = targetCenterX + targetBoxHalfWidth
+  const targetLeftEdge = targetCenterX - targetBoxHalfWidth
+
+  // Determine source and target corners based on relative x positions
+  let sourceX: number
+  let targetX: number
+
+  // Source is always from the top of the box
+  const sourceY = sourceCenterY - sourceBoxHalfHeight
+  // Target is always at the bottom of the box
+  const targetY = targetCenterY + targetBoxHalfHeight
+
+  // Determine which corners to connect based on horizontal positioning
+  if (sourceRightEdge > targetLeftEdge) {
+    // Source's right edge extends beyond target's left edge
+    // Route to target's bottom-right corner
+    targetX = targetRightEdge
+    // Source comes from whichever side makes sense
+    const safetyMargin = 20
+    if (sourceCenterX > targetCenterX + safetyMargin) {
+      sourceX = sourceLeftEdge // From top-left of source
+    } else {
+      sourceX = sourceRightEdge // From top-right of source
+    }
+  } else {
+    // Source is completely to the left of target
+    // Route to target's bottom-left corner
+    targetX = targetLeftEdge
+    sourceX = sourceRightEdge // From top-right of source
+  }
+
+  return { sourceX, sourceY, targetX, targetY }
 }

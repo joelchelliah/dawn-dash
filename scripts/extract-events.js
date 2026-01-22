@@ -195,49 +195,74 @@ function extractEvents() {
     process.exit(1)
   }
 
-  // Remove duplicates by name and filter out events with no text content
-  const uniqueEvents = []
-  const seen = new Set()
+  // Remove duplicates by caption and text, and filter out events with no text content
+  // Group events by caption+text key, then select best one (prefer type 0, else first)
+  const eventsByKey = new Map()
   let emptyContentCount = 0
 
   for (const event of events) {
-    if (!seen.has(event.name)) {
-      seen.add(event.name)
+    // Filter out events with no text content
+    if (!event.text || !event.text.trim()) {
+      emptyContentCount++
+      continue
+    }
 
-      // Filter out events with no text content
-      if (event.text && event.text.trim()) {
-        // Replace card/talent IDs with names in the related.cards and related.talents arrays
-        if (event.related) {
-          if (event.related.cards && Array.isArray(event.related.cards)) {
-            event.related.cards = event.related.cards.map((id) =>
-              CARD_ID_TO_NAME[id] ? CARD_ID_TO_NAME[id] : id
-            )
-          }
-          if (event.related.talents && Array.isArray(event.related.talents)) {
-            event.related.talents = event.related.talents.map((id) =>
-              CARD_ID_TO_NAME[id] ? CARD_ID_TO_NAME[id] : id
-            )
-          }
-        }
+    // Create a key from caption and text
+    const caption = event.caption || event.name || ''
+    const text = event.text.trim()
+    const key = `${caption}|${text}`
 
-        // Replace numeric IDs in card/talent commands (ADDCARD:123, ADDTALENT:456, etc.)
-        event.text = event.text.replace(
-          /(ADDCARD|REMOVECARD|IMBUECARD|ADDTALENT|REMOVETALENT):(\d+)/g,
-          (match, command, id) => {
-            const numId = parseInt(id, 10)
-            const name = CARD_ID_TO_NAME[numId]
-            return name ? `${command}:${name}` : match
-          }
-        )
+    if (!eventsByKey.has(key)) {
+      eventsByKey.set(key, [])
+    }
+    eventsByKey.get(key).push(event)
+  }
 
-        uniqueEvents.push(event)
-      } else {
-        emptyContentCount++
+  // Process each group and select the best event
+  const uniqueEvents = []
+  let duplicateCount = 0
+
+  for (const [key, eventGroup] of eventsByKey.entries()) {
+    let selectedEvent = eventGroup[0]
+
+    // If there are duplicates, select the one with type 0, else keep first
+    if (eventGroup.length > 1) {
+      duplicateCount += eventGroup.length - 1
+      const type0Event = eventGroup.find((e) => e.type === 0)
+      if (type0Event) {
+        selectedEvent = type0Event
       }
     }
+
+    // Replace card/talent IDs with names in the related.cards and related.talents arrays
+    if (selectedEvent.related) {
+      if (selectedEvent.related.cards && Array.isArray(selectedEvent.related.cards)) {
+        selectedEvent.related.cards = selectedEvent.related.cards.map((id) =>
+          CARD_ID_TO_NAME[id] ? CARD_ID_TO_NAME[id] : id
+        )
+      }
+      if (selectedEvent.related.talents && Array.isArray(selectedEvent.related.talents)) {
+        selectedEvent.related.talents = selectedEvent.related.talents.map((id) =>
+          CARD_ID_TO_NAME[id] ? CARD_ID_TO_NAME[id] : id
+        )
+      }
+    }
+
+    // Replace numeric IDs in card/talent commands (ADDCARD:123, ADDTALENT:456, etc.)
+    selectedEvent.text = selectedEvent.text.replace(
+      /(ADDCARD|REMOVECARD|IMBUECARD|ADDTALENT|REMOVETALENT):(\d+)/g,
+      (match, command, id) => {
+        const numId = parseInt(id, 10)
+        const name = CARD_ID_TO_NAME[numId]
+        return name ? `${command}:${name}` : match
+      }
+    )
+
+    uniqueEvents.push(selectedEvent)
   }
 
   console.log(`Unique events after deduplication: ${uniqueEvents.length}`)
+  console.log(`Duplicate events removed: ${duplicateCount}`)
   console.log(`Events filtered out (no text content): ${emptyContentCount}`)
 
   // Sort by type first, then by name for better organization

@@ -91,29 +91,6 @@
   margin: 0 auto;
 }
 
-.tree-link {
-  fill: none;
-  stroke: $color-primary-base;
-  stroke-width: 2px;
-  opacity: 0.75;
-}
-
-.arrowhead {
-  fill: $color-primary-base;
-}
-
-.repeat-from-link {
-  fill: none;
-  stroke: $color-primary-base;
-  stroke-width: 2px;
-  stroke-dasharray: 5, 5;
-  opacity: 0.5;
-}
-
-.repeat-from-arrowhead {
-  fill: $color-primary-base;
-}
-
 .event-node-glow {
   stroke-width: 5px;
   stroke-opacity: 0.4;

@@ -26,7 +26,7 @@ import { NODE, TREE, TEXT, INNER_BOX, NODE_BOX } from '@/codex/constants/eventTr
 import { ZoomLevel, LoopingPathMode } from '@/codex/constants/eventSearchValues'
 import { useEventImageSrc } from '@/codex/hooks/useEventImageSrc'
 
-import { drawLinks, drawRefChildrenLinks, drawRepeatFromLinks } from './links'
+import { drawLinks, drawRefChildrenLinks, drawLoopBackLinks, drawLoopBackLinkBadges } from './links'
 import { useEventTreeZoom } from './useEventTreeZoom'
 import styles from './index.module.scss'
 
@@ -130,7 +130,7 @@ function EventTree({
 
     // Draw repeat from links only when in 'link' mode
     if (loopingPathMode === LoopingPathMode.LINK) {
-      drawRepeatFromLinks(g, defs, root, event, showLoopingIndicator)
+      drawLoopBackLinks(g, defs, root, event)
     }
 
     // Draw nodes
@@ -726,6 +726,10 @@ function EventTree({
             )
             .text(truncatedLine)
         })
+    }
+
+    if (loopingPathMode === LoopingPathMode.LINK) {
+      drawLoopBackLinkBadges(g, root, event)
     }
 
     // Center the scroll horizontally when zoomed
