@@ -34,7 +34,7 @@ function Skills(): JSX.Element {
   const { talentTree, isLoading, isError, progress } = useTalentDataHook
 
   const useSearchFiltersHook = useAllTalentSearchFilters(talentTree)
-  const { showButton, scrollToTop } = useScrollToTop()
+  const { showScrollToTopButton, scrollToTop } = useScrollToTop()
   const { isTabletOrSmaller } = useBreakpoint()
   const { shouldUseMobileFriendlyRendering } = useSearchFiltersHook.useFormattingFilters
 
@@ -84,7 +84,10 @@ function Skills(): JSX.Element {
 
       <Footer />
 
-      <ScrollToTopButton show={showButton && !isLoading && !isError} onClick={scrollToTop} />
+      <ScrollToTopButton
+        show={showScrollToTopButton && !isLoading && !isError}
+        onClick={scrollToTop}
+      />
     </div>
   )
 }

@@ -1,0 +1,131 @@
+@use 'index' as *;
+
+.container {
+  display: flex;
+  flex-direction: column;
+  padding: 0.375rem 0.625rem 0.625rem;
+  background-color: $color-base-bg;
+  color: $color-primary-base;
+  min-height: 100vh;
+  gap: 1rem;
+  @include starsTexture('upper');
+  @include starsTexture('lower');
+
+  @media (max-width: $breakpoint-mobile) {
+    gap: 0.75rem;
+  }
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 1200px;
+  height: 310px; // To also cover description text
+  width: 90%;
+  margin: 1rem auto;
+  padding: 2rem;
+  background-color: rgba(0, 0, 0, 0.3);
+  border-radius: 0.5rem;
+
+  @media (max-width: $breakpoint-tablet) {
+    height: 440px; // To also cover description text
+  }
+
+  @media (max-width: $breakpoint-mobile) {
+    margin: 0 auto;
+    padding: 1rem 0 2rem;
+    height: auto;
+  }
+}
+
+.description {
+  margin: 1.5rem 0;
+  font-size: font-size('md');
+  line-height: 1.4;
+  color: $color-primary-muted;
+  text-align: center;
+
+  @media (max-width: $breakpoint-mobile) {
+    margin: 1rem 0;
+    font-size: font-size('sm');
+  }
+}
+
+.nav {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-top: 1rem;
+  width: 100%;
+
+  @media (max-width: $breakpoint-tablet) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-top: 0.75rem;
+  }
+
+  @media (max-width: $breakpoint-mobile) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.nav-description-container {
+  max-width: 800px;
+  width: 100%;
+  margin-top: 1rem;
+  padding: 1rem 2rem;
+  opacity: 0;
+  transform: translateY(50px);
+  transition: all 0.5s ease;
+  pointer-events: none;
+  max-height: 0;
+  overflow: hidden;
+
+  &--visible {
+    opacity: 1;
+    transform: translateY(0);
+    max-height: 200px;
+  }
+
+  @media (max-width: $breakpoint-mobile) {
+    display: none;
+  }
+}
+
+.nav-description-text {
+  margin: 0;
+  font-size: font-size('sm');
+  line-height: 1.5;
+  text-align: center;
+  color: $color-primary-base;
+
+  @media (max-width: $breakpoint-tablet) {
+    font-size: font-size('xs');
+  }
+
+  @media (max-width: $breakpoint-mobile) {
+    font-size: font-size('xxs');
+  }
+}
+
+.nav-description-placeholder {
+  margin-top: 3.5rem;
+  opacity: 0.5;
+  border-radius: 50%;
+
+  .image {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+  }
+  &:hover {
+    opacity: 0.75;
+  }
+}
+
+.footer-wrapper {
+  width: 100%;
+  align-self: stretch;
+  margin-top: auto;
+}

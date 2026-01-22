@@ -1,0 +1,127 @@
+@use 'index' as *;
+
+.event-list-container {
+  width: 100%;
+  min-height: 175px; // To prevent looking too squished when there are no events
+}
+
+.event-list-filter {
+  margin: 0 0 1rem 0.25rem;
+}
+
+.event-list-count {
+  margin: 0 0 2.5rem 0.5rem;
+  font-size: font-size('xs');
+  font-weight: 600;
+  color: $color-primary-muted;
+
+  &--no-events {
+    font-weight: 400;
+  }
+  &__filter-count {
+    color: $color-primary-base;
+    font-weight: 800;
+  }
+
+  &__filter-text {
+    font-style: italic;
+    color: $yellow-base;
+  }
+
+  @media (max-width: $breakpoint-mobile) {
+    margin-bottom: 2rem;
+    font-size: font-size('xxs');
+  }
+}
+
+.event-type-group {
+  margin-bottom: 2rem;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.event-type-subheader {
+  margin: 0 0 0.75rem 0.75rem;
+  font-size: font-size('sm');
+  font-weight: 600;
+  color: $yellow-base;
+  letter-spacing: 0.025em;
+}
+
+.event-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0rem;
+  width: 100%;
+  padding: 0;
+  justify-content: flex-start;
+}
+
+.event-list-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.25rem;
+  transition: all 0.5s ease;
+  cursor: pointer;
+  min-width: 22%;
+
+  // Ensure image and name stay together when wrapping
+  flex-wrap: nowrap;
+  white-space: nowrap;
+
+  &__artwork {
+    width: 40px;
+    height: 40px;
+    border: 1px solid $color-component-border;
+    border-radius: 0.25rem;
+    background-size: cover;
+    background-position: center;
+    flex-shrink: 0;
+  }
+
+  &__name {
+    font-size: font-size('sm');
+    font-weight: 400;
+    color: $color-primary-base;
+
+    // Ellipsis for long names
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 21rem;
+  }
+
+  &:hover {
+    background-color: $color-list-bg-hover;
+
+    .event-list-item__artwork {
+      border-color: $color-component-border-hover;
+    }
+    .event-list-item__name {
+      font-weight: 600;
+      color: $color-primary-hover;
+    }
+  }
+
+  @media (max-width: $breakpoint-tablet) {
+    min-width: 30%;
+
+    &__name {
+      max-width: 11rem;
+    }
+  }
+
+  @media (max-width: $breakpoint-mobile) {
+    gap: 1.25rem;
+    min-width: 100%;
+
+    &__name {
+      font-size: font-size('sm') !important;
+      max-width: 100%;
+    }
+  }
+}

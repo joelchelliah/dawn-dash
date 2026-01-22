@@ -3,17 +3,31 @@ import { useRouter } from 'next/router'
 export const useNavigation = () => {
   const router = useRouter()
 
+  const resetToLandingPage = () => {
+    router.replace('/')
+  }
+
   const resetToSpeedruns = (selectedClass: string, difficulty: string) => {
-    router.replace(`/?class=${selectedClass}&difficulty=${difficulty}`)
+    router.replace(`/speedruns?class=${selectedClass}&difficulty=${difficulty}`)
   }
 
   const resetToCardCodex = () => {
-    router.replace('/codex/cards')
+    router.replace('/cardex')
   }
 
   const resetToTalentCodex = () => {
-    router.replace('/codex/skills')
+    router.replace('/skilldex')
   }
 
-  return { resetToSpeedruns, resetToCardCodex, resetToTalentCodex }
+  const resetToEventCodex = () => {
+    router.replace('/eventmaps')
+  }
+
+  return {
+    resetToLandingPage,
+    resetToSpeedruns,
+    resetToCardCodex,
+    resetToTalentCodex,
+    resetToEventCodex,
+  }
 }

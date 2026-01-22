@@ -10,7 +10,7 @@ import {
   getTalentRequirementIconProps,
   parseTalentDescriptionLineForDesktopRendering,
   parseTalentDescriptionLineForMobileRendering,
-  wrapText,
+  wrapTextForTalents,
   getMatchingKeywordsText,
   matchesKeywordOrHasMatchingDescendant,
   getNodeInTree,
@@ -268,18 +268,12 @@ describe('talentHelper', () => {
 
   describe('wrapText', () => {
     it('should wrap at word boundaries', () => {
-      const result = wrapText('Word1 Word2 Word3 Word4 Word5', 60, 10)
+      const result = wrapTextForTalents('Word1 Word2 Word3 Word4 Word5', 60)
 
       result.slice(1).forEach((line) => {
         expect(line.startsWith(' ')).toBe(false) // Lines shouldn't start with space
         expect(line.endsWith(' ')).toBe(false) // Lines shouldn't end with space
       })
-    })
-
-    it('should include empty first line for padding', () => {
-      const result = wrapText('Any text', 100, 10)
-
-      expect(result[0]).toBe('')
     })
   })
 

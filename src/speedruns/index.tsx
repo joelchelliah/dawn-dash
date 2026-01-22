@@ -61,7 +61,7 @@ function Speedruns(): JSX.Element {
       <Header
         onLogoClick={() => resetToSpeedruns(selectedClass, controls.difficulty)}
         logoSrc={DashImageUrl}
-        title="Dawn-Dash"
+        title="Dawn-Dash : Speedruns"
         subtitle="Dawncaster speedrun charts"
         currentPage="speedruns"
       />

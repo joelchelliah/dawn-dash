@@ -1,18 +1,18 @@
 import Head from 'next/head'
 import dynamic from 'next/dynamic'
 
-const Skills = dynamic(() => import('../../src/codex/skills'), {
+const Skills = dynamic(() => import('../src/codex/skills'), {
   loading: () => <div>Loading skilldex...</div>,
 })
 
 export default function SkilldexPage() {
   const title = 'Dawn-Dash : Skilldex'
   const description =
-    'Interactive Dawncaster talents codex, with advanced search and filtering options to find and show all in-game talents and their requirements!'
+    'Interactive Dawncaster talents codex, with advanced search and filtering options to find and show all talents and their requirements!'
   const ogDescription =
     'Search and filter through all Dawncaster talents and their requirements, visualized as tiny talent trees!'
   const image = 'https://www.dawn-dash.com/og-image-skilldex.png'
-  const url = 'https://www.dawn-dash.com/codex/skills'
+  const url = 'https://www.dawn-dash.com/skilldex'
   const squareLogo = 'https://www.dawn-dash.com/logo-skilldex.png'
 
   return (
@@ -26,11 +26,17 @@ export default function SkilldexPage() {
         <meta property="og:title" content={title} />
         <meta property="og:description" content={ogDescription} />
         <meta property="og:image" content={image} />
+        <meta property="og:image:width" content="2400" />
+        <meta property="og:image:height" content="1260" />
+        <meta property="og:image:alt" content={title} />
         <meta property="og:url" content={url} />
 
         {/* The url shown in Discord */}
-        <meta property="og:site_name" content="dawn-dash.com/codex/skills" />
+        <meta property="og:site_name" content="dawn-dash.com/skilldex" />
 
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={title} />
+        <meta name="twitter:description" content={description} />
         <meta property="twitter:image" content={image} />
 
         {/* Page-Specific Structured Data */}

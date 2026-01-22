@@ -5,6 +5,7 @@ import withPWA from 'next-pwa'
 const nextConfig = {
   reactStrictMode: true,
   images: {
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: 'https',
@@ -20,6 +21,25 @@ const nextConfig = {
   },
   sassOptions: {
     includePaths: [path.join(__dirname, 'src/styles')],
+  },
+  async redirects() {
+    return [
+      {
+        source: '/codex/cards',
+        destination: '/cardex',
+        permanent: true,
+      },
+      {
+        source: '/codex/skills',
+        destination: '/skilldex',
+        permanent: true,
+      },
+      {
+        source: '/codex/events',
+        destination: '/eventmaps',
+        permanent: true,
+      },
+    ]
   },
   webpack: (config) => {
     config.resolve.alias = {

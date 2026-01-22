@@ -30,7 +30,7 @@ function Cards(): JSX.Element {
   const { cardData, isLoading, isError, progress } = useCardDataHook
 
   const useSearchFiltersHook = useAllCardSearchFilters(cardData)
-  const { showButton, scrollToTop } = useScrollToTop(300)
+  const { showScrollToTopButton, scrollToTop } = useScrollToTop(300)
 
   return (
     <div className={cx('container')}>
@@ -58,7 +58,10 @@ function Cards(): JSX.Element {
 
       <Footer />
 
-      <ScrollToTopButton show={showButton && !isLoading && !isError} onClick={scrollToTop} />
+      <ScrollToTopButton
+        show={showScrollToTopButton && !isLoading && !isError}
+        onClick={scrollToTop}
+      />
     </div>
   )
 }

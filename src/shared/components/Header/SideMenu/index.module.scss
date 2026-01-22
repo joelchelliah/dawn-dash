@@ -1,6 +1,7 @@
 @use 'index' as *;
 
 $button-transition: 0.5s ease;
+$button-hover-scale: 1.1;
 
 .hamburger {
   width: auto;
@@ -15,10 +16,10 @@ $button-transition: 0.5s ease;
 
   &--menu-open {
     color: $color-primary-active;
-    opacity: 0.75;
+    opacity: 0.8;
 
     .hamburger__button__icon {
-      @include yellowGreenGradientIcon(true, 1.1);
+      @include yellowGreenGradientIcon(true, $button-hover-scale);
     }
 
     &:hover {
@@ -49,7 +50,7 @@ $button-transition: 0.5s ease;
       color: $color-primary-hover;
 
       .hamburger__button__icon {
-        @include yellowGreenGradientIcon(true, 1.1);
+        @include yellowGreenGradientIcon(true, $button-hover-scale);
       }
     }
   }
@@ -132,6 +133,10 @@ $button-transition: 0.5s ease;
         @include yellowGreenGradient(false);
       }
     }
+    &--home {
+      padding: 0 0 0 1rem;
+      margin-top: -0.375rem;
+    }
   }
 
   &__nav-link {
@@ -143,9 +148,24 @@ $button-transition: 0.5s ease;
     font-size: font-size('md');
     padding: 0.5rem 0.25rem 0.5rem 0.125rem;
     transition: all 0.3s ease;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    width: 100%;
+    text-align: left;
+
+    &--home {
+      gap: 1.125rem;
+      font-size: font-size('sm');
+    }
 
     @media (max-width: $breakpoint-mobile) {
       font-size: font-size('sm');
+
+      &--home {
+        font-size: font-size('xs');
+      }
     }
 
     &__icon {

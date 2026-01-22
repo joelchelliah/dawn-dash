@@ -1,6 +1,10 @@
 import { getFromCache, saveToCache } from '@/shared/utils/storage'
 
-import { CardCodexSearchFilterCache, TalentCodexSearchFilterCache } from '@/codex/types/filters'
+import {
+  CardCodexSearchFilterCache,
+  EventCodexSearchFilterCache,
+  TalentCodexSearchFilterCache,
+} from '@/codex/types/filters'
 
 const CARDS_CACHE_VERSION = 'v1'
 const CARDS_CACHE_KEY = `codex_cards_filters_${CARDS_CACHE_VERSION}`
@@ -22,4 +26,15 @@ export const cacheTalentCodexSearchFilters = (filters: TalentCodexSearchFilterCa
 
 export const getCachedTalentCodexSearchFilters = (): TalentCodexSearchFilterCache | null => {
   return getFromCache<TalentCodexSearchFilterCache>(TALENTS_CACHE_KEY, null).data
+}
+
+const EVENTS_CACHE_VERSION = 'v1'
+const EVENTS_CACHE_KEY = `codex_events_filters_${EVENTS_CACHE_VERSION}`
+
+export const cacheEventCodexSearchFilters = (filters: EventCodexSearchFilterCache) => {
+  saveToCache(EVENTS_CACHE_KEY, filters)
+}
+
+export const getCachedEventCodexSearchFilters = (): EventCodexSearchFilterCache | null => {
+  return getFromCache<EventCodexSearchFilterCache>(EVENTS_CACHE_KEY, null).data
 }

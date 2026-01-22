@@ -1,0 +1,53 @@
+@use 'index' as *;
+@use 'sass:color';
+
+.link {
+  fill: none;
+  stroke: $color-primary-base;
+  stroke-width: 2px;
+  opacity: 0.75;
+}
+
+.arrowhead {
+  fill: $color-primary-base;
+}
+
+.loop-back-link {
+  fill: none;
+  stroke-width: 2px;
+  stroke-dasharray: 5, 5;
+  opacity: 0.5;
+
+  @each $type, $color in $event-node-type-to-color-map {
+    &--#{$type} {
+      stroke: $color;
+    }
+  }
+}
+
+.loop-back-arrowhead {
+  stroke: none;
+
+  @each $type, $color in $event-node-type-to-color-map {
+    &--#{$type} {
+      fill: $color;
+    }
+  }
+}
+
+.loop-back-badge-circle {
+  stroke-width: 2px;
+  r: 13px;
+
+  @each $type, $color in $event-node-type-to-color-map {
+    &--#{$type} {
+      fill: color.mix($color-component-bg, $color, 80%);
+      stroke: color.mix($color-component-bg, $color, 30%);
+    }
+  }
+}
+
+.loop-back-badge-emoji {
+  font-size: font-size('xs');
+  pointer-events: none;
+}

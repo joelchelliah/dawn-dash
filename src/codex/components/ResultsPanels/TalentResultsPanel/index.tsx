@@ -81,7 +81,7 @@ const TalentResultsPanel = ({ useSearchFilters }: TalentResultsPanelProps) => {
 
   return (
     <div className={cx('results-panel')}>
-      <PanelHeader type="Results" />
+      <PanelHeader type="TalentResults" />
 
       {parsedKeywords.length > 0 || showTalentsWithoutKeywords ? (
         renderMatchingTalents()

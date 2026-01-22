@@ -1,6 +1,7 @@
 import React from 'react'
 
 import { useRouter } from 'next/router'
+import Image from 'next/image'
 
 import { createCx } from '../src/shared/utils/classnames'
 import GradientButton from '../src/shared/components/Buttons/GradientButton'
@@ -24,10 +25,9 @@ export default function Custom404(): JSX.Element {
   return (
     <div className={cx('container')}>
       <h1 className={cx('title')}>404 - Whoops!</h1>
-      <p>Looks like you&apos;ve wandered into the void.</p>
-      <p>This page doesn&apos;t exist in our realm.</p>
+      <p>Looks like you&apos;ve wandered into the void...</p>
 
-      <img
+      <Image
         src={DantelionImageUrl}
         alt="Dantelion image"
         className={cx('image')}

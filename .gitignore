@@ -24,6 +24,13 @@ yarn-error.log*
 
 .vscode
 
+# Generated files
+scripts/dump.txt
+scripts/dump.txt.backup
+scripts/event-trees.json
+scripts/events.json
+scripts/events.json.backup
+
 # Supabase
 supabase/.temp
 supabase/.branches

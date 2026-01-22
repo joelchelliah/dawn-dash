@@ -8,6 +8,8 @@ import {
   AbracadabraImageUrl,
   DashImageUrl,
   EleganceImageUrl,
+  InfernalContractUrl,
+  MapOfHuesImageUrl,
   RushedForgeryImageUrl,
 } from '@/shared/utils/imageUrls'
 import { createCx } from '@/shared/utils/classnames'
@@ -15,10 +17,12 @@ import GradientLink from '@/shared/components/GradientLink'
 import InfoModal from '@/shared/components/Modals/InfoModal'
 import { useBreakpoint } from '@/shared/hooks/useBreakpoint'
 
+import { CurrentPageType } from '../types'
+
 import styles from './index.module.scss'
 
 interface SideMenuProps {
-  currentPage: 'speedruns' | 'cardex' | 'skilldex'
+  currentPage: CurrentPageType
 }
 
 const cx = createCx(styles)
@@ -34,9 +38,18 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
     setIsMenuOpen(!isMenuOpen)
   }
 
-  const getNavLinkImage = (url: string, alt: string) => (
-    <Image src={url} alt={alt} className={cx('side-menu__nav-link__icon')} width={40} height={40} />
-  )
+  const getNavLinkImage = (url: string, alt: string, isHome?: boolean) => {
+    const size = isHome ? 25 : 40
+    return (
+      <Image
+        src={url}
+        alt={alt}
+        className={cx('side-menu__nav-link__icon')}
+        width={size}
+        height={size}
+      />
+    )
+  }
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -57,6 +70,13 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
     }
   }, [isMenuOpen])
 
+  const landingLinkContainerClassNames = cx(
+    'side-menu__nav-link-container',
+    'side-menu__nav-link-container--home',
+    {
+      'side-menu__nav-link-container--active': currentPage === 'landing',
+    }
+  )
   const speedrunsLinkContainerClassNames = cx('side-menu__nav-link-container', {
     'side-menu__nav-link-container--active': currentPage === 'speedruns',
   })
@@ -65,6 +85,9 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
   })
   const skilldexLinkContainerClassNames = cx('side-menu__nav-link-container', {
     'side-menu__nav-link-container--active': currentPage === 'skilldex',
+  })
+  const eventmapLinkContainerClassNames = cx('side-menu__nav-link-container', {
+    'side-menu__nav-link-container--active': currentPage === 'eventmaps',
   })
 
   return (
@@ -91,56 +114,51 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
         })}
       >
         <nav className={cx('side-menu__nav')}>
-          <div className={speedrunsLinkContainerClassNames}>
-            <Link href="/" className={cx('side-menu__nav-link')}>
-              {getNavLinkImage(DashImageUrl, 'Speedruns logo')}
-              Speedruns
+          <div className={landingLinkContainerClassNames}>
+            <Link href="/" className={cx('side-menu__nav-link', 'side-menu__nav-link--home')}>
+              {getNavLinkImage(InfernalContractUrl, 'Dawn-Dash logo', true)}
+              Home
             </Link>
           </div>
 
           <div className={cardexLinkContainerClassNames}>
-            <Link href="/codex/cards" className={cx('side-menu__nav-link')}>
+            <Link href="/cardex" className={cx('side-menu__nav-link')}>
               {getNavLinkImage(AbracadabraImageUrl, 'Cardex logo')}
               Cardex
             </Link>
           </div>
 
           <div className={skilldexLinkContainerClassNames}>
-            <Link href="/codex/skills" className={cx('side-menu__nav-link')}>
+            <Link href="/skilldex" className={cx('side-menu__nav-link')}>
               {getNavLinkImage(EleganceImageUrl, 'Skilldex logo')}
               Skilldex
             </Link>
           </div>
 
+          <div className={eventmapLinkContainerClassNames}>
+            <Link href="/eventmaps" className={cx('side-menu__nav-link')}>
+              {getNavLinkImage(MapOfHuesImageUrl, 'Eventmaps logo')}
+              Eventmaps
+            </Link>
+          </div>
+
+          <div className={speedrunsLinkContainerClassNames}>
+            <Link href="/speedruns" className={cx('side-menu__nav-link')}>
+              {getNavLinkImage(DashImageUrl, 'Speedruns logo')}
+              Speedruns
+            </Link>
+          </div>
+
           <div className={cx('side-menu__nav-link-container')}>
-            <Link
-              href=""
-              className={cx('side-menu__nav-link')}
-              onClick={() => setIsAboutInfoOpen(true)}
-            >
+            <button className={cx('side-menu__nav-link')} onClick={() => setIsAboutInfoOpen(true)}>
               {getNavLinkImage(RushedForgeryImageUrl, 'About logo')}
               About
-            </Link>
+            </button>
           </div>
         </nav>
       </div>
 
       <InfoModal isOpen={isAboutInfoOpen} onClose={() => setIsAboutInfoOpen(false)}>
-        <h3 className={cx('info-title')}>
-          {getNavLinkImage(DashImageUrl, 'Speedruns logo')} Dawn-Dash
-        </h3>
-
-        <p>
-          <b>Dawncaster</b> speedrun charts for all game modes and difficulties, based on
-          player-submitted data from{' '}
-          <GradientLink text="blightbane.io" url="https://blightbane.io/" />.
-        </p>
-        <p>
-          The player names linked to these runs are their Discord accounts from the official{' '}
-          <GradientLink text="Dawncaster Discord" url="https://discord.gg/pfeMG9c" />.
-        </p>
-        <div className={cx('info-divider')} />
-
         <h3 className={cx('info-title')}>
           {getNavLinkImage(AbracadabraImageUrl, 'Cardex logo')} Cardex
         </h3>
@@ -158,9 +176,37 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
         </h3>
 
         <p className={cx('info-last-paragraph')}>
-          A codex and talent-tree-like vizualisation for all the talents and infernal offers
-          available in <b>Dawncaster</b>. Also has some filtering and formatting options to narrow
-          down the results!
+          A codex and talent-tree vizualisation of all the talents and infernal offers available in{' '}
+          <b>Dawncaster</b>. Includes several options to narrow down the results and track down the
+          talents you need for your run!
+        </p>
+
+        <div className={cx('info-divider')} />
+
+        <h3 className={cx('info-title')}>
+          {getNavLinkImage(MapOfHuesImageUrl, 'Eventmaps logo')} Eventmaps
+        </h3>
+
+        <p className={cx('info-last-paragraph')}>
+          Fully mapped out event trees for all events available in <b>Dawncaster</b>. See all
+          dialogue options, along with their requirements and rewards, so that you can get the best
+          outcome from each event!
+        </p>
+
+        <div className={cx('info-divider')} />
+
+        <h3 className={cx('info-title')}>
+          {getNavLinkImage(DashImageUrl, 'Speedruns logo')} Speedruns
+        </h3>
+
+        <p>
+          <b>Dawncaster</b> speedrun charts for all game modes and difficulties, based on
+          player-submitted data from{' '}
+          <GradientLink text="blightbane.io" url="https://blightbane.io/" />.
+        </p>
+        <p className={cx('info-last-paragraph')}>
+          The player names linked to these runs are their Discord accounts from the official{' '}
+          <GradientLink text="Dawncaster Discord" url="https://discord.gg/pfeMG9c" />.
         </p>
       </InfoModal>
     </>

@@ -1,0 +1,190 @@
+@use 'index' as *;
+@use 'sass:color';
+
+.container {
+  width: 100%;
+
+  &__breadcrumbs {
+    display: flex;
+    align-items: center;
+    margin: -1rem 0 0 0.125rem;
+    color: $color-primary-muted;
+
+    @media (max-width: $breakpoint-mobile) {
+      margin: -1.25rem 0 0 0.125rem;
+    }
+  }
+  &__breadcrumbs-link {
+    font-size: font-size('sm');
+    font-weight: 600;
+
+    @media (max-width: $breakpoint-mobile) {
+      font-size: font-size('xs');
+    }
+  }
+}
+
+.event-tree-scroll-wrapper {
+  width: 100%;
+  max-height: 100%;
+  overflow: auto;
+  border-radius: 0.5rem;
+
+  // Centers the svg since it's inline-block
+  text-align: center;
+}
+
+.event-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+
+  &__artwork {
+    width: 40px;
+    height: 40px;
+    border: 1px solid $color-component-border;
+    border-radius: 0.25rem;
+    background-size: cover;
+    background-position: center;
+  }
+
+  &__name {
+    text-align: center;
+    margin: 0;
+    font-size: font-size('lg');
+    font-weight: 600;
+    color: $color-primary-base;
+  }
+
+  @media (max-width: $breakpoint-mobile) {
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+
+    &__artwork {
+      width: 30px;
+      height: 30px;
+    }
+
+    &__name {
+      font-size: font-size('sm');
+    }
+  }
+}
+
+.event-tree {
+  display: inline-block; // Allows text-align centering while preserving natural width
+  max-width: 100%;
+  height: auto;
+
+  // When zoomed, remove constraints and let explicit SVG dimensions control size
+  &--zoomed {
+    max-width: none;
+    width: auto;
+    height: initial; // Don't override SVG's explicit dimensions
+  }
+}
+
+.svg {
+  display: block;
+  margin: 0 auto;
+}
+
+.event-node-glow {
+  stroke-width: 5px;
+  stroke-opacity: 0.4;
+  opacity: 0.25;
+  rx: 10px;
+  ry: 10px;
+
+  @each $type, $color in $event-node-type-to-color-map {
+    &--#{$type} {
+      fill: $color;
+      stroke: $color;
+    }
+  }
+}
+
+.event-node {
+  stroke-width: 2px;
+  stroke-opacity: 0.75;
+  stroke: $color-component-border-dark;
+  rx: 7px;
+  ry: 7px;
+
+  @each $type, $color in $event-node-type-to-color-map {
+    &--#{$type} {
+      fill: color.mix($color-component-bg, $color, 40%);
+      stroke: $color;
+    }
+  }
+}
+
+.event-node-text {
+  fill: $color-primary-hover;
+  text-anchor: middle;
+  pointer-events: none;
+
+  &--choice {
+    font-size: font-size('xs');
+    font-weight: 600;
+
+    &--default {
+      font-size: font-size('sm');
+    }
+  }
+
+  &--dialogue,
+  &--combat,
+  &--end {
+    font-size: font-size('xxs');
+  }
+
+  &--no-text-fallback {
+    font-size: font-size('xs');
+    font-weight: bold;
+    font-style: italic;
+  }
+
+  &--requirement-header {
+    font-size: font-size('xxs');
+    font-weight: bold;
+    text-anchor: start;
+  }
+
+  &--requirement-item {
+    font-size: font-size('xxs');
+    text-anchor: start;
+  }
+
+  &--effect-header {
+    font-size: font-size('xxs');
+    font-weight: bold;
+    text-anchor: start;
+  }
+
+  &--effect-item {
+    font-size: font-size('xxs');
+    text-anchor: start;
+  }
+
+  &--indicator {
+    font-size: font-size('xs');
+    font-weight: 600;
+  }
+
+  &--indicator-label {
+    font-size: font-size('xxs');
+  }
+}
+
+.inner-box {
+  fill: rgba(0, 0, 0, 0.2);
+  rx: 3px;
+}
+
+.indicator-box {
+  fill: rgba(0, 0, 0, 0.35);
+  rx: 3px;
+}

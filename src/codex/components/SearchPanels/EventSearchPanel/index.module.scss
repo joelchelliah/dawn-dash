@@ -1,0 +1,108 @@
+@use 'index' as *;
+@use 'sass:color';
+
+.search-panel {
+  background-color: $color-component-bg;
+  padding: 1rem;
+  border-radius: 4px;
+}
+
+.controls {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+  flex-wrap: wrap; // Allow wrapping to new line on smaller screens
+}
+
+.control-wrapper {
+  &--event {
+    min-width: 14rem;
+    flex: 2;
+
+    @media (max-width: $breakpoint-mobile) {
+      min-width: 12rem;
+    }
+  }
+
+  &--zoom {
+    min-width: 6rem;
+    flex: 1;
+
+    @media (max-width: $breakpoint-mobile) {
+      min-width: 5rem;
+    }
+  }
+
+  &--button-wrapper {
+    display: flex;
+    align-items: flex-end;
+    min-width: auto;
+
+    @media (max-width: $breakpoint-mobile) {
+      flex: 1;
+
+      &:has([class*='reset-search-button']) {
+        min-width: 8rem;
+      }
+
+      &:has([class*='advanced-options-button']) {
+        min-width: 10rem;
+      }
+    }
+  }
+
+  &--reset-search-button {
+    border-radius: 0.5rem !important;
+
+    @media (max-width: $breakpoint-mobile) {
+      flex: 1;
+    }
+  }
+
+  &--advanced-options-button {
+    border-radius: 0.5rem !important;
+
+    @media (max-width: $breakpoint-mobile) {
+      flex: 1;
+    }
+
+    &:hover {
+      padding: 0.5625rem 1.0625rem !important;
+    }
+  }
+
+  &--search-field {
+    flex: 2;
+    min-width: 16rem;
+
+    &--wide {
+      min-width: 100%;
+    }
+  }
+
+  &--looping-path {
+    flex: 1;
+    max-width: 20rem;
+    min-width: 14rem;
+
+    @media (max-width: $breakpoint-mobile) {
+      max-width: 100%;
+    }
+  }
+}
+
+.advanced-options {
+  margin-top: 1rem;
+
+  &__button {
+    font-size: font-size('xs');
+    padding: 0.5rem 1rem;
+  }
+
+  &__content {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    @include superFancyBorder(0.75rem, 1rem);
+  }
+}

@@ -22,13 +22,13 @@ import {
   matchesKeywordOrHasMatchingDescendant,
   parseTalentDescriptionLineForDesktopRendering,
   parseTalentDescriptionLineForMobileRendering,
-  wrapText,
+  wrapTextForTalents,
 } from '@/codex/utils/talentHelper'
 import {
   REQUIREMENT_CLASS_TO_FILTER_OPTIONS_MAP,
   REQUIREMENT_ENERGY_TO_FILTER_OPTIONS_MAP,
 } from '@/codex/constants/talentsMappingValues'
-import { buildHierarchicalTreeFromTalentTree } from '@/codex/utils/treeHelper'
+import { buildHierarchicalTreeFromTalentTree } from '@/codex/utils/talentTreeHelper'
 import { useExpandableNodes } from '@/codex/hooks/useExpandableNodes'
 import { useAllTalentSearchFilters } from '@/codex/hooks/useSearchFilters'
 
@@ -122,7 +122,7 @@ const TalentTree = ({
           return nameHeight * 2.8 + additionalHeight
         }
 
-        const descLines = wrapText(node.description, nodeWidth + 10, 10)
+        const descLines = wrapTextForTalents(node.description, nodeWidth + 10)
         const descriptionHeight = Math.max(
           minDescriptionHeight,
           descLines.length * descriptionLineHeight
@@ -340,15 +340,17 @@ const TalentTree = ({
         }
       } else {
         const isCollapsed = !isDescriptionExpanded(data.name)
-        const descLines = wrapText(data.description, nodeWidth + 8, 11)
+        const descLines = wrapTextForTalents(data.description, nodeWidth + 8)
         const additionalRequirements = [
           ...data.otherRequirements,
           ...data.talentRequirements,
         ].filter(isNotNullOrUndefined)
 
+        const descriptionLinesPadding = 12
         const descriptionHeight = isCollapsed
           ? collapsedDescriptionHeight
-          : Math.max(minDescriptionHeight, descLines.length * descriptionLineHeight)
+          : Math.max(minDescriptionHeight, descLines.length * descriptionLineHeight) +
+            descriptionLinesPadding
         const extraRequirementHeight = additionalRequirements.length ? requirementsHeight : 0
         const matchingKeywordsHeight = shouldShowKeywords ? keywordsHeight : 0
         const blightbaneHeight = shouldShowBlightbaneLink ? blightbaneLinkHeight : 0
@@ -463,12 +465,12 @@ const TalentTree = ({
           // Calculate the base Y position for description
           const descBaseY =
             -dynamicNodeHeight / 2 + nameHeight + extraRequirementHeight + descriptionHeight / 2
+          const verticalCenteringOffset = descriptionLinesPadding / 2 - 1
 
           if (shouldUseMobileFriendlyRendering) {
             // Mobile-friendly rendering: use SVG text with emojis
             descLines.forEach((line, i) => {
               const segments = parseTalentDescriptionLineForMobileRendering(line)
-              const verticalCenteringOffset = -2
               const yPosition =
                 descBaseY +
                 i * descriptionLineHeight -

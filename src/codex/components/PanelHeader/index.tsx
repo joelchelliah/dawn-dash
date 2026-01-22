@@ -7,11 +7,23 @@ import styles from './index.module.scss'
 const cx = createCx(styles)
 
 interface PanelHeaderProps {
-  type: 'Search' | 'Results'
+  type: 'Search' | 'CardResults' | 'TalentResults' | 'EventResults'
 }
 
 const PanelHeader = ({ type }: PanelHeaderProps) => {
-  const title = type === 'Search' ? 'Search' : 'Results'
+  const renderTitle = () => {
+    if (type === 'Search') {
+      return 'Search'
+    } else if (type === 'CardResults') {
+      return 'Cards'
+    } else if (type === 'TalentResults') {
+      return 'Talents'
+    } else if (type === 'EventResults') {
+      return 'Event'
+    }
+
+    return 'Results'
+  }
 
   const renderIcon = () => {
     if (type === 'Search') {
@@ -25,7 +37,7 @@ const PanelHeader = ({ type }: PanelHeaderProps) => {
     <>
       <div className={cx('panel-header')}>
         {renderIcon()}
-        <span className={cx('panel-header__title')}>{title}</span>
+        <span className={cx('panel-header__title')}>{renderTitle()}</span>
       </div>
       <GradientDivider spacingBottom="lg" />
     </>

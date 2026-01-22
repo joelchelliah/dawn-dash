@@ -6,7 +6,7 @@ import {
 } from '../types/talents'
 import { RequirementFilterOption } from '../types/filters'
 
-import { isTalentTreeEqual, buildHierarchicalTreeFromTalentTree } from './treeHelper'
+import { isTalentTreeEqual, buildHierarchicalTreeFromTalentTree } from './talentTreeHelper'
 
 describe('treeHelper', () => {
   describe('isTalentTreeEqual', () => {

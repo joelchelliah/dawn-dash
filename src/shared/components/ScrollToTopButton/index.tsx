@@ -9,14 +9,22 @@ interface ScrollToTopButtonProps {
   onClick: () => void
   show: boolean
   className?: string
+  alwaysOnTop?: boolean
 }
 
-const ScrollToTopButton = ({ onClick, show, className = '' }: ScrollToTopButtonProps) => {
+const ScrollToTopButton = ({
+  onClick,
+  show,
+  className = '',
+  alwaysOnTop = false,
+}: ScrollToTopButtonProps) => {
   if (!show) return null
 
   return (
     <button
-      className={cx('scroll-to-top-button', className)}
+      className={cx('scroll-to-top-button', className, {
+        'scroll-to-top-button--always-on-top': alwaysOnTop,
+      })}
       onClick={onClick}
       aria-label="Scroll to top"
       title="Scroll to top"

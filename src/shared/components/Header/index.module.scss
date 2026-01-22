@@ -29,6 +29,10 @@
   @media (max-width: $breakpoint-mobile) {
     font-size: font-size('md');
     margin-bottom: 0.25rem;
+
+    &--long {
+      font-size: font-size('sm');
+    }
   }
 }
 

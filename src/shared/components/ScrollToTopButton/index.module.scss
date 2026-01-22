@@ -1,5 +1,28 @@
 @use 'index' as *;
 
+@mixin topBannerPosition {
+  left: -5%;
+  top: -2px;
+  width: 112%;
+  height: 4rem;
+  padding-top: 0.25rem;
+  transform: none;
+  z-index: 1001;
+  animation: slideDown 0.5s ease-out;
+
+  svg {
+    margin-left: -1rem;
+  }
+
+  &:hover {
+    transform: scale(1.1) translateY(-5%);
+  }
+
+  &:active {
+    transform: scale(1.2) translateY(-10%);
+  }
+}
+
 .scroll-to-top-button {
   display: flex;
   align-items: center;
@@ -22,13 +45,13 @@
   @include superFancyBorder(0, 0, fixed);
 
   &:hover {
-    transform: translateY(-50%) scale(1.125);
+    transform: translateY(-50%) scale(1.1);
     background-color: $color-list-bg-hover;
     font-weight: bold;
   }
 
   &:active {
-    transform: translateY(-50%) scale(0.9);
+    transform: translateY(-50%) scale(0.95);
   }
 
   svg {
@@ -42,9 +65,13 @@
   span {
     display: inline;
     margin-left: 0.5rem;
-    font-size: 0.875rem;
+    font-size: font-size('sm');
     font-weight: 600;
     white-space: nowrap;
+  }
+
+  &--always-on-top {
+    @include topBannerPosition;
   }
 
   @media (min-width: calc($breakpoint-mobile + 1px)) {
@@ -54,31 +81,7 @@
   }
 
   @media (max-width: $breakpoint-mobile) {
-    // Slight adjustments to top/left to hide rounded bit of the fancy-border
-    left: -4px;
-    top: -2px;
-    width: 110%;
-    height: 3.5rem;
-    transform: none;
-    z-index: 1001;
-    // Larger text/icon for banner style
-    font-size: 1rem;
-
-    animation: slideDown 0.5s ease-out;
-
-    @include superFancyBorder(0, 0, fixed);
-
-    svg {
-      margin-left: -1rem;
-    }
-
-    &:hover {
-      transform: scale(1);
-    }
-
-    &:active {
-      transform: scale(0.98);
-    }
+    @include topBannerPosition;
   }
 }
 

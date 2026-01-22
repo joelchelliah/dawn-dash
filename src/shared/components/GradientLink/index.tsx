@@ -9,12 +9,15 @@ interface GradientLinkProps {
   url?: string
   onClick?: () => void
   className?: string
+  internal?: boolean
 }
 
-function GradientLink({ text, url, onClick, className }: GradientLinkProps): JSX.Element {
+function GradientLink({ text, url, onClick, className, internal }: GradientLinkProps): JSX.Element {
   if (url) {
+    const target = internal ? undefined : '_blank'
+    const rel = internal ? undefined : 'noopener noreferrer'
     return (
-      <a href={url} target="_blank" rel="noopener noreferrer" className={cx('link', className)}>
+      <a href={url} target={target} rel={rel} className={cx('link', className)}>
         {text}
       </a>
     )
@@ -22,7 +25,7 @@ function GradientLink({ text, url, onClick, className }: GradientLinkProps): JSX
 
   if (onClick) {
     return (
-      <button onClick={onClick} className={cx('button-link')}>
+      <button onClick={onClick} className={cx('button-link', className)}>
         {text}
       </button>
     )
