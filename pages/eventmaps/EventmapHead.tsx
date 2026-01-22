@@ -25,7 +25,6 @@ export function EventmapHead({ event, eventUrlParam }: EventmapHeadProps = {}) {
     ? `${eventDisplayText}`
     : 'Explore all Dawncaster events, as fully mapped out event trees, including all dialogue options, requirements and rewards!'
 
-  // TODO: Update this once the Eventmaps is ready
   const ogImageWide = 'https://www.dawn-dash.com/og-image-eventmaps.png'
   const url =
     isEventPage && eventUrlParam
@@ -37,21 +36,23 @@ export function EventmapHead({ event, eventUrlParam }: EventmapHeadProps = {}) {
     <Head>
       <title>{title}</title>
       <meta name="description" content={description} />
-      {/* TODO: Remove this once the Eventmaps is ready */}
-      <meta name="robots" content="noindex, nofollow" />
       <link rel="canonical" href={url} />
 
       <meta property="og:type" content="website" />
       <meta property="og:title" content={title} />
       <meta property="og:description" content={ogDescription} />
-      {/* If event artwork exists: use small event image for og:image (Discord shows small preview) */}
-      {/* If no event artwork: use wide OG logo here and also for twitter:image (Discord shows wide format) */}
       <meta property="og:image" content={hasEventArtwork ? eventImageSrc : ogImageWide} />
+      <meta property="og:image:width" content={hasEventArtwork ? '60' : '2400'} />
+      <meta property="og:image:height" content={hasEventArtwork ? '60' : '1260'} />
+      <meta property="og:image:alt" content={title} />
       <meta property="og:url" content={url} />
 
       {/* The url shown in Discord */}
       <meta property="og:site_name" content="dawn-dash.com/eventmaps" />
 
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:title" content={title} />
+      <meta name="twitter:description" content={description} />
       {/* Only set when no event artwork to show the wide OG logo */}
       {!hasEventArtwork && <meta property="twitter:image" content={ogImageWide} />}
 

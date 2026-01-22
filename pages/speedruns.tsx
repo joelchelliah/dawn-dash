@@ -25,11 +25,17 @@ export default function SpeedrunsPage() {
         <meta property="og:title" content={title} />
         <meta property="og:description" content={ogDescription} />
         <meta property="og:image" content={image} />
+        <meta property="og:image:width" content="2400" />
+        <meta property="og:image:height" content="1260" />
+        <meta property="og:image:alt" content={title} />
         <meta property="og:url" content={url} />
 
         {/* The url shown in Discord */}
         <meta property="og:site_name" content="dawn-dash.com/speedruns" />
 
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={title} />
+        <meta name="twitter:description" content={description} />
         <meta property="twitter:image" content={image} />
 
         {/* Page-Specific Structured Data */}
