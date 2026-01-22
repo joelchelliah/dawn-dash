@@ -4,7 +4,7 @@
 
 export const TREE = {
   HORIZONTAL_PADDING: 20,
-  VERTICAL_BOTTOM_PADDING: 20, // Room for scrollbar
+  VERTICAL_PADDING: 20,
   MIN_SVG_WIDTH: 500, // Minimum SVG width to prevent nodes from appearing too large
 }
 
@@ -45,6 +45,9 @@ export const TEXT = {
 export const NODE_BOX = {
   // Padding for entire node content
   VERTICAL_PADDING: 6,
+
+  // Additional size of the glow rectangle
+  GLOW_SIZE: 6,
 }
 
 export const INNER_BOX = {

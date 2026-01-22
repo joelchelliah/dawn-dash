@@ -15,6 +15,7 @@ import {
   calculateTreeBounds,
   hasEffects,
   findNodeById,
+  createGlowFilter,
 } from '@/codex/utils/eventTreeHelper'
 import {
   adjustHorizontalNodeSpacing,
@@ -76,7 +77,7 @@ function EventTree({
     const bounds = calculateTreeBounds(root, event, showLoopingIndicator)
     const calculatedWidth = bounds.width + TREE.HORIZONTAL_PADDING * 2
     const svgWidth = Math.max(calculatedWidth, TREE.MIN_SVG_WIDTH)
-    const svgHeight = bounds.height + TREE.VERTICAL_BOTTOM_PADDING
+    const svgHeight = bounds.height + TREE.VERTICAL_PADDING * 2
 
     // Calculate zoom scale
     const zoomScale = zoomCalculator.calculate({
@@ -93,7 +94,7 @@ function EventTree({
     centerRootNodeHorizontally(root as HierarchyPointNode<EventTreeNode>, svgWidth, offsetX)
 
     // Center the tree vertically
-    const offsetY = -bounds.minY + TREE.VERTICAL_BOTTOM_PADDING / 4
+    const offsetY = -bounds.minY + TREE.VERTICAL_PADDING
 
     const svg = select(svgRef.current)
 
@@ -115,6 +116,8 @@ function EventTree({
 
     // Define arrow marker - we'll create individual markers for each link
     const defs = svg.append('defs')
+
+    createGlowFilter(defs, 'event-glow')
 
     // Apply zoom scale to the content group
     // When scaling, we need to apply scale first, then translate by the scaled offset
@@ -140,6 +143,25 @@ function EventTree({
       .attr('class', 'node')
       .attr('transform', (d) => `translate(${d.x},${d.y})`)
 
+    // Draw node glow rectangles
+    nodes.each(function (d) {
+      const nodeElement = select(this)
+      const nodeWidth = getNodeWidth(d.data, event)
+      const nodeHeight = getNodeHeight(d.data, event, showLoopingIndicator)
+      const nodeGlowWidth = nodeWidth + NODE_BOX.GLOW_SIZE
+      const nodeGlowHeight = nodeHeight + NODE_BOX.GLOW_SIZE
+
+      const nodeType = d.data.type || 'default'
+      nodeElement
+        .append('rect')
+        .attr('width', nodeGlowWidth)
+        .attr('height', nodeGlowHeight)
+        .attr('x', -nodeGlowWidth / 2)
+        .attr('y', -nodeGlowHeight / 2)
+        .attr('class', cx('event-node-glow', `event-node-glow--${nodeType}`))
+        .attr('filter', 'url(#event-glow)')
+    })
+
     // Draw node rectangles
     nodes
       .append('rect')
@@ -154,7 +176,7 @@ function EventTree({
           case 'end':
             return cx('event-node', 'event-node--end')
           default:
-            return cx('event-node', 'event-node--default')
+            return cx('event-node')
         }
       })
       .attr('x', (d) => -getNodeWidth(d.data, event) / 2)

@@ -1,4 +1,5 @@
 import { HierarchyNode, HierarchyPointNode } from 'd3-hierarchy'
+import { Selection } from 'd3-selection'
 
 import { wrapText } from '@/shared/utils/textHelper'
 
@@ -297,3 +298,20 @@ export const findNodeById = (
   root && id ? root.descendants().find((d) => d.data.id === id)?.data : undefined
 
 const countUppercaseChars = (str: string): number => (str.match(/[A-Z]/g) || []).length
+
+/**
+ * Creates an SVG glow filter for node effects
+ */
+export const createGlowFilter = (
+  defs: Selection<SVGDefsElement, unknown, null, undefined>,
+  filterId: string
+): void => {
+  const blurAmount = '4'
+  const filter = defs.append('filter').attr('id', filterId)
+
+  filter.append('feGaussianBlur').attr('stdDeviation', blurAmount).attr('result', 'coloredBlur')
+
+  const merge = filter.append('feMerge')
+  merge.append('feMergeNode').attr('in', 'coloredBlur')
+  merge.append('feMergeNode').attr('in', 'SourceGraphic')
+}

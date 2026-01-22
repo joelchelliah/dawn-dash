@@ -124,3 +124,17 @@ $tier-name-to-color-map: (
   'Tier-6': $color-tier-6,
 );
 // -- -- -- -- -- -- -- //
+
+// -- Event node colors -- //
+$color-event-node-dialogue: #1692ff;
+$color-event-node-choice: #f3a814;
+$color-event-node-combat: #ec2813;
+$color-event-node-end: #396b48;
+
+$event-node-type-to-color-map: (
+  'dialogue': $color-event-node-dialogue,
+  'choice': $color-event-node-choice,
+  'combat': $color-event-node-combat,
+  'end': $color-event-node-end,
+);
+// -- -- -- -- -- -- -- //

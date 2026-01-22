@@ -1,4 +1,5 @@
 @use 'index' as *;
+@use 'sass:color';
 
 .container {
   width: 100%;
@@ -113,29 +114,33 @@
   fill: $color-primary-base;
 }
 
+.event-node-glow {
+  stroke-width: 5px;
+  stroke-opacity: 0.4;
+  opacity: 0.25;
+  rx: 10px;
+  ry: 10px;
+
+  @each $type, $color in $event-node-type-to-color-map {
+    &--#{$type} {
+      fill: $color;
+      stroke: $color;
+    }
+  }
+}
+
 .event-node {
   stroke-width: 2px;
+  stroke-opacity: 0.75;
   stroke: $color-component-border-dark;
-  rx: 5px;
+  rx: 7px;
+  ry: 7px;
 
-  &--dialogue {
-    fill: #4a90e2;
-  }
-
-  &--choice {
-    fill: #d18b01;
-  }
-
-  &--combat {
-    fill: #e74c3c;
-  }
-
-  &--end {
-    fill: #5a6268;
-  }
-
-  &--default {
-    fill: #bdc3c7;
+  @each $type, $color in $event-node-type-to-color-map {
+    &--#{$type} {
+      fill: color.mix($color-component-bg, $color, 40%);
+      stroke: $color;
+    }
   }
 }
 
