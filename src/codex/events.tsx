@@ -30,7 +30,10 @@ function Events(): JSX.Element {
   const [showInvalidNotification, setShowInvalidNotification] = useState(false)
 
   const useSearchFiltersHook = useAllEventSearchFilters()
-  const { isInvalidEvent, eventNameFromParam } = useEventUrlParam(eventTrees, setSelectedEventIndex)
+  const { isInvalidEvent, eventNameInUrl, selectEventAndUpdateUrl } = useEventUrlParam(
+    eventTrees,
+    setSelectedEventIndex
+  )
 
   const filteredEvents = eventTrees.filter((event) =>
     searchEventTree(event, useSearchFiltersHook.deferredFilterText)
@@ -60,7 +63,7 @@ function Events(): JSX.Element {
       <div className={cx('content')}>
         <EventSearchPanel
           selectedEventIndex={selectedEventIndex}
-          onEventChange={setSelectedEventIndex}
+          onEventChange={selectEventAndUpdateUrl}
           filteredEvents={filteredEvents}
           useSearchFilters={useSearchFiltersHook}
         />
@@ -70,7 +73,7 @@ function Events(): JSX.Element {
           allEvents={eventTrees}
           filteredEvents={filteredEvents}
           useSearchFilters={useSearchFiltersHook}
-          onEventChange={setSelectedEventIndex}
+          onEventChange={selectEventAndUpdateUrl}
         />
       </div>
 
@@ -81,7 +84,7 @@ function Events(): JSX.Element {
       <Notification
         message={
           <span>
-            Could not find event: «<strong>{eventNameFromParam}</strong>».
+            ⛔️ Couldn&apos;t find event: «<strong>{eventNameInUrl}</strong>».
           </span>
         }
         isTriggered={showInvalidNotification}

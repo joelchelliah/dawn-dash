@@ -97,8 +97,18 @@ function EventListItem({ event, allEvents, onEventSelect }: EventListItemProps):
   const { eventImageSrc, onImageSrcError } = useEventImageSrc(event.artwork)
 
   const handleClick = () => {
-    const eventIndex = allEvents.indexOf(event)
-    onEventSelect(eventIndex)
+    // Try to find by reference first (fastest)
+    let eventIndex = allEvents.indexOf(event)
+
+    // Fallback: find by name if reference doesn't match (can happen with filtered/sorted events)
+    if (eventIndex === -1) {
+      eventIndex = allEvents.findIndex((e) => e.name === event.name)
+    }
+
+    // Only call handler if we found a valid index
+    if (eventIndex >= 0) {
+      onEventSelect(eventIndex)
+    }
   }
 
   return (

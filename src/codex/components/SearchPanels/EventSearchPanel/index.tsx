@@ -94,11 +94,12 @@ const EventSearchPanel = ({
   const advancedOptionsArrow = showAdvancedOptions ? '▴' : '▾'
 
   // Auto-select "All Events" when filter text changes, and is non-empty
+  // Only navigate if we're not already showing all events (prevents losing focus when already on base route)
   useEffect(() => {
-    if (filterText.trim().length > 0) {
+    if (filterText.trim().length > 0 && selectedEventIndex !== ALL_EVENTS_INDEX) {
       onEventChange(ALL_EVENTS_INDEX)
     }
-  }, [filterText, onEventChange])
+  }, [filterText, selectedEventIndex, onEventChange])
 
   // Force Cover mode when switching events to ensure clean coverScale calculation
   useEffect(() => {

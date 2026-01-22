@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef, useCallback } from 'react'
 
 import { useRouter } from 'next/router'
 
@@ -7,7 +7,8 @@ import { Event } from '../types/events'
 
 interface UseEventUrlParam {
   isInvalidEvent: boolean
-  eventNameFromParam: string | undefined
+  eventNameInUrl: string | undefined
+  selectEventAndUpdateUrl: (index: number) => void
 }
 
 export function useEventUrlParam(
@@ -17,11 +18,15 @@ export function useEventUrlParam(
   const router = useRouter()
   const eventParam = router.query.event as string | undefined
   const [isInvalidEvent, setIsInvalidEvent] = useState(false)
-  const [lastProcessedParam, setLastProcessedParam] = useState<string | undefined>()
 
+  // Track last processed param to prevent duplicate processing
+  const lastProcessedParamRef = useRef<string | undefined>()
+
+  // Update state from URL parameter (single source of truth)
   useEffect(() => {
     if (!router.isReady) return
-    if (eventParam === lastProcessedParam) return
+    // Skip if we've already processed this parameter
+    if (eventParam === lastProcessedParamRef.current) return
 
     if (eventParam) {
       const foundIndex = findEventIndexByName(events, eventParam)
@@ -34,21 +39,45 @@ export function useEventUrlParam(
         setIsInvalidEvent(false)
       }
 
-      setLastProcessedParam(eventParam)
+      lastProcessedParamRef.current = eventParam
     } else {
+      setSelectedEventIndex(ALL_EVENTS_INDEX)
       setIsInvalidEvent(false)
-      setLastProcessedParam(undefined)
+      lastProcessedParamRef.current = undefined
     }
-  }, [router.isReady, eventParam, events, setSelectedEventIndex, lastProcessedParam])
+  }, [router.isReady, eventParam, events, setSelectedEventIndex])
 
-  return { isInvalidEvent, eventNameFromParam: getEventNameFromUrlParam(eventParam) }
+  // Handle event change from UI - only update URL, let useEffect update state
+  const selectEventAndUpdateUrl = useCallback(
+    (index: number) => {
+      if (index === ALL_EVENTS_INDEX) {
+        // Only navigate if we're not already on the base route (prevents losing focus when filtering)
+        if (router.asPath !== '/eventmaps') {
+          router.replace('/eventmaps', undefined, { shallow: true })
+        }
+      } else {
+        const event = events[index]
+        if (event) {
+          const eventUrlParam = normalizeEventNameForUrl(event.name)
+          router.replace(`/eventmaps/${eventUrlParam}`, undefined, { shallow: true })
+        }
+      }
+    },
+    [events, router]
+  )
+
+  return {
+    isInvalidEvent,
+    eventNameInUrl: getEventNameInUrl(eventParam),
+    selectEventAndUpdateUrl,
+  }
 }
 
 export function normalizeEventNameForUrl(name: string): string {
   return name.toLowerCase().replace(/\s+/g, '_')
 }
 
-export function getEventNameFromUrlParam(urlParam: string | undefined): string | undefined {
+export function getEventNameInUrl(urlParam: string | undefined): string | undefined {
   return urlParam ? urlParam.replaceAll('_', ' ') : undefined
 }
 
