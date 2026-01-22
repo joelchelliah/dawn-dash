@@ -70,7 +70,7 @@ export default function Landing() {
           />
           <NavItem
             url="/speedruns"
-            imageSrc="/og-image-dawndash.png"
+            imageSrc="/og-image-speedruns.png"
             alt="Speedruns"
             mobileDescription={LANDING_PAGE_NAV_ITEM_DESCRIPTIONS.speedrunsShort}
             onMouseEnter={() => setHoveredItem('speedruns')}

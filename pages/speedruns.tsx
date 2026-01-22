@@ -11,9 +11,9 @@ export default function SpeedrunsPage() {
     'Interactive Dawncaster speedrun charts, showing world records, fastest times, and leaderboards across all modes, classes and difficulties!'
   const ogDescription =
     'Check out the fastest Dawncaster speedruns! Compare live records across all modes, classes and difficulties!'
-  const image = 'https://www.dawn-dash.com/og-image-dawndash.png'
+  const image = 'https://www.dawn-dash.com/og-image-speedruns.png'
   const url = 'https://www.dawn-dash.com/speedruns'
-  const squareLogo = 'https://www.dawn-dash.com/logo-dawndash.png'
+  const squareLogo = 'https://www.dawn-dash.com/logo-speedruns.png'
   return (
     <>
       <Head>

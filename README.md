@@ -14,7 +14,7 @@ Visualization and tracking of all speedrun attempts, for all game modes!
 
 **Check it out**: [Speedruns](https://dawn-dash.com/speedruns)
 
-[![Dawn-Dash](./public/og-image-dawndash.png "Click to visit Dawn-Dash")](https://dawn-dash.com/speedruns)
+[![Dawn-Dash](./public/og-image-speedruns.png "Click to visit Speedruns")](https://dawn-dash.com/speedruns)
 
 ----------
 
@@ -54,7 +54,7 @@ An **Events Codex** tool (work in progress), featuring fully mapped out event tr
 
 **Check it out**: [Eventmaps](https://dawn-dash.com/eventmaps) (WIP)
 
-[![Eventmaps](./public/og-image-eventmaps.png "Click to visit the Skilldex")](https://dawn-dash.com/eventmaps)
+[![Eventmaps](./public/og-image-eventmaps.png "Click to visit the Eventmaps")](https://dawn-dash.com/eventmaps)
 
 ----------
 

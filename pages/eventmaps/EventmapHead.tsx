@@ -26,7 +26,7 @@ export function EventmapHead({ event, eventUrlParam }: EventmapHeadProps = {}) {
     : 'Explore all Dawncaster events, as fully mapped out event trees, including all dialogue options, requirements and rewards!'
 
   // TODO: Update this once the Eventmaps is ready
-  const ogImageWide = 'https://www.dawn-dash.com/og-image-eventmaps-WIP.png'
+  const ogImageWide = 'https://www.dawn-dash.com/og-image-eventmaps.png'
   const url =
     isEventPage && eventUrlParam
       ? `https://www.dawn-dash.com/eventmaps/${eventUrlParam}`
