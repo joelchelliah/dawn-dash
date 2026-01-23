@@ -48,7 +48,6 @@ export default function NavItem({
           fill
           sizes={sizes}
           className={cx('nav-item__image')}
-          optimized
           priority={priority}
         />
       </div>
