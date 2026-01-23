@@ -50,7 +50,7 @@ Tailored towards anyone trying to plan out a specific run, or just looking for n
 
 ## 🗺️ The Eventmaps
 
-An **Events Codex** tool (work in progress), featuring fully mapped out event trees with all dialogue options, requirements, and rewards!
+An **Events Codex** tool, featuring fully mapped out event trees, letting you explore all dialogue options, requirements, and rewards!
 
 **Check it out**: [Eventmaps](https://dawn-dash.com/eventmaps) (WIP)
 
