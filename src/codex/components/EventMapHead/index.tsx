@@ -15,12 +15,12 @@ export function EventmapHead({ event, eventUrlParam }: EventmapHeadProps = {}) {
   const { eventImageSrc } = useEventImageSrc(event?.artwork || '')
   const hasEventArtwork = !!event?.artwork && event.artwork.trim().length > 0
 
-  const title = isEventPage ? `Dawn-Dash : Eventmap of «${eventName}»` : 'Dawn-Dash : Eventmaps'
+  const ogTitle = isEventPage ? `Eventmap of «${eventName}»` : 'Eventmaps'
+  const title = `Dawn-Dash: ${ogTitle}`
 
   const description = isEventPage
     ? `View the complete event tree for «${eventName}», with all branching paths.`
     : 'Interactive Dawncaster events codex, with fully mapped out branches and options, to help you get the best outcome from each event!'
-
   const ogDescription = isEventPage
     ? `${eventDisplayText}`
     : 'Explore all Dawncaster events, as fully mapped out event trees, including all dialogue options, requirements and rewards!'
@@ -39,7 +39,7 @@ export function EventmapHead({ event, eventUrlParam }: EventmapHeadProps = {}) {
       <link rel="canonical" href={url} />
 
       <meta property="og:type" content="website" />
-      <meta property="og:title" content={title} />
+      <meta property="og:title" content={ogTitle} />
       <meta property="og:description" content={ogDescription} />
       <meta property="og:image" content={hasEventArtwork ? eventImageSrc : ogImageWide} />
       <meta property="og:image:width" content={hasEventArtwork ? '60' : '2400'} />
@@ -76,6 +76,7 @@ export function EventmapHead({ event, eventUrlParam }: EventmapHeadProps = {}) {
 
 function getEventDisplayText(event: Event | null | undefined, eventName: string): string {
   const fallbackText = `Explore the complete event tree for «${eventName}»!`
+  const maxLength = 50
 
   if (!event) return fallbackText
 
@@ -89,5 +90,5 @@ function getEventDisplayText(event: Event | null | undefined, eventName: string)
 
   if (eventText.length === 0) return fallbackText
 
-  return eventText.length > 75 ? eventText.substring(0, 72) + '...' : eventText
+  return eventText.length > maxLength ? eventText.substring(0, maxLength - 3) + '...' : eventText
 }

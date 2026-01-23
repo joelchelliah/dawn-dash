@@ -2,8 +2,8 @@ import { useEffect, useRef } from 'react'
 
 import { select } from 'd3-selection'
 import { hierarchy, tree, HierarchyPointNode } from 'd3-hierarchy'
-import Image from 'next/image'
 
+import Image from '@/shared/components/Image'
 import { createCx } from '@/shared/utils/classnames'
 import { wrapText, truncateLine } from '@/shared/utils/textHelper'
 import GradientLink from '@/shared/components/GradientLink'

@@ -6,6 +6,7 @@ import { CharacterClass } from '@/shared/types/characterClass'
 import Button from '@/shared/components/Buttons/Button'
 import GradientButton from '@/shared/components/Buttons/GradientButton'
 import { ClassColorVariant, getClassColor } from '@/shared/utils/classColors'
+import { useBreakpoint } from '@/shared/hooks/useBreakpoint'
 
 import eventTreesData from '@/codex/data/event-trees.json'
 import { Event } from '@/codex/types/events'
@@ -15,11 +16,14 @@ import {
   LoopingPathMode,
   LOOPING_PATH_MODES,
   ALL_EVENTS_INDEX,
+  ZOOM_LABEL_MAP,
 } from '@/codex/constants/eventSearchValues'
 import { UseAllEventSearchFilters } from '@/codex/hooks/useSearchFilters/useAllEventSearchFilters'
+import { useStickyZoom } from '@/codex/hooks/useStickyZoom'
 
 import PanelHeader from '../../PanelHeader'
 
+import StickyZoomSelect from './StickyZoomSelect'
 import styles from './index.module.scss'
 
 const cx = createCx(styles)
@@ -32,8 +36,6 @@ interface EventSearchPanelProps {
   filteredEvents: Event[]
   useSearchFilters: UseAllEventSearchFilters
 }
-
-const getZoomLabel = (zoom: ZoomLevel): string => (zoom === ZoomLevel.COVER ? 'Cover' : `${zoom}%`)
 
 const getLoopingPathModeLabel = (mode: LoopingPathMode): string =>
   mode === LoopingPathMode.INDICATOR
@@ -58,6 +60,9 @@ const EventSearchPanel = ({
     resetFilters,
   } = useSearchFilters
 
+  const showStickyZoom = useStickyZoom()
+  const { isMobile } = useBreakpoint()
+
   const getAllEventsLabel = () => {
     if (filteredEvents.length === 0) {
       return 'No matching events'
@@ -81,7 +86,7 @@ const EventSearchPanel = ({
 
   const zoomOptions = ZOOM_LEVELS.map((zoom) => ({
     value: zoom,
-    label: getZoomLabel(zoom),
+    label: ZOOM_LABEL_MAP[zoom],
   }))
 
   const loopingPathModeOptions = LOOPING_PATH_MODES.map((mode) => ({
@@ -90,6 +95,9 @@ const EventSearchPanel = ({
   }))
 
   const advancedOptionsArrow = showAdvancedOptions ? '▴' : '▾'
+  const advancedOptionsText = isMobile
+    ? `Advanced ${advancedOptionsArrow}`
+    : `Advanced options ${advancedOptionsArrow}`
 
   // Force Cover mode when switching events to ensure clean coverScale calculation
   useEffect(() => {
@@ -146,7 +154,7 @@ const EventSearchPanel = ({
             className={cx('control-wrapper--advanced-options-button')}
             onClick={() => setShowAdvancedOptions(!showAdvancedOptions)}
           >
-            Advanced options {advancedOptionsArrow}
+            {advancedOptionsText}
           </GradientButton>
         </div>
       </div>
@@ -166,6 +174,15 @@ const EventSearchPanel = ({
             </div>
           </div>
         </div>
+      )}
+
+      {showStickyZoom && selectedEventIndex !== ALL_EVENTS_INDEX && (
+        <StickyZoomSelect
+          selectedClass={selectedClass}
+          zoomLevel={zoomLevel}
+          setZoomLevel={setZoomLevel}
+          disabled={filteredEvents.length === 0 || selectedEventIndex === ALL_EVENTS_INDEX}
+        />
       )}
     </div>
   )

@@ -20,7 +20,19 @@
   @include rotateY360Animation('hover', '.logo-and-title:hover');
 }
 
+.pre-title {
+  font-size: font-size('preTitle');
+  margin: 0.125rem 0.25rem 0 0;
+
+  @media (max-width: $breakpoint-mobile) {
+    font-size: font-size('md');
+    margin-top: 0;
+  }
+}
+
 .title {
+  display: flex;
+  align-items: center;
   font-size: font-size('lg');
   margin: 0;
   font-weight: bold;

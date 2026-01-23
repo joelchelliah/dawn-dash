@@ -6,11 +6,14 @@ const Speedruns = dynamic(() => import('../src/speedruns'), {
 })
 
 export default function SpeedrunsPage() {
-  const title = 'Dawn-Dash : Speedruns'
+  const ogTitle = 'Speedruns'
+  const title = `Dawn-Dash: ${ogTitle}`
+
   const description =
     'Interactive Dawncaster speedrun charts, showing world records, fastest times, and leaderboards across all modes, classes and difficulties!'
   const ogDescription =
     'Check out the fastest Dawncaster speedruns! Compare live records across all modes, classes and difficulties!'
+
   const image = 'https://www.dawn-dash.com/og-image-speedruns.png'
   const url = 'https://www.dawn-dash.com/speedruns'
   const squareLogo = 'https://www.dawn-dash.com/logo-speedruns.png'
@@ -22,7 +25,7 @@ export default function SpeedrunsPage() {
         <link rel="canonical" href={url} />
 
         <meta property="og:type" content="website" />
-        <meta property="og:title" content={title} />
+        <meta property="og:title" content={ogTitle} />
         <meta property="og:description" content={ogDescription} />
         <meta property="og:image" content={image} />
         <meta property="og:image:width" content="2400" />

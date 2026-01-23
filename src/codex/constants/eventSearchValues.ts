@@ -16,6 +16,13 @@ export const ZOOM_LEVELS = [
 
 export const MAX_ZOOM_LEVEL = ZoomLevel.x200
 
+export const ZOOM_LABEL_MAP = {
+  [ZoomLevel.COVER]: 'Cover',
+  [ZoomLevel.x100]: '100%',
+  [ZoomLevel.x150]: '150%',
+  [ZoomLevel.x200]: '200%',
+}
+
 export enum LoopingPathMode {
   INDICATOR = 'indicator',
   LINK = 'link',

@@ -1,11 +1,11 @@
 import React from 'react'
 
 import { useRouter } from 'next/router'
-import Image from 'next/image'
 
-import { createCx } from '../src/shared/utils/classnames'
-import GradientButton from '../src/shared/components/Buttons/GradientButton'
-import { DantelionImageUrl } from '../src/shared/utils/imageUrls'
+import Image from '@/shared/components/Image'
+import { createCx } from '@/shared/utils/classnames'
+import GradientButton from '@/shared/components/Buttons/GradientButton'
+import { DantelionImageUrl } from '@/shared/utils/imageUrls'
 
 import styles from './404.module.scss'
 

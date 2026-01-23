@@ -65,7 +65,7 @@ $button-hover-scale: 1.1;
   background-color: $color-base-bg;
   box-shadow: -0.5rem 1rem 1rem rgba(0, 0, 0, 0.5);
   transition: all 0.3s ease;
-  z-index: 5;
+  z-index: $z-index-side-menu;
   height: auto;
   @include superFancyBorder(0, 0, fixed);
 

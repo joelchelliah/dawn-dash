@@ -1,19 +1,18 @@
 import { useEffect, useState, useCallback, useRef } from 'react'
 
-const SCROLL_DURATION = 250
+const SCROLL_DURATION = 300
 
-export const useScrollToTop = (yOffset = 0) => {
+export const useScrollToTop = (thresholdPixels: number) => {
   const [showScrollToTopButton, setShowScrollToTopButton] = useState(false)
   const scrollingRef = useRef(false)
 
   const updateShowButtonBasedOnScrollPosition = useCallback(() => {
     if (scrollingRef.current || typeof window === 'undefined') return
 
-    const thresholdPixels = yOffset + (window.innerWidth <= 768 ? 1200 : 750)
     const scrollY = window.scrollY
 
     setShowScrollToTopButton(scrollY > thresholdPixels)
-  }, [yOffset])
+  }, [thresholdPixels])
 
   const scrollToTop = useCallback(() => {
     if (scrollingRef.current || typeof window === 'undefined') return

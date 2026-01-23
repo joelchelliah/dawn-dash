@@ -1,7 +1,6 @@
 import { useState } from 'react'
 
-import Image from 'next/image'
-
+import Image from '@/shared/components/Image'
 import { createCx } from '@/shared/utils/classnames'
 import { DashImageUrl, HauntingNightmaresImageUrl } from '@/shared/utils/imageUrls'
 import { LANDING_PAGE_NAV_ITEM_DESCRIPTIONS } from '@/shared/constants/descriptions'
@@ -51,6 +50,7 @@ export default function Landing() {
             mobileDescription={LANDING_PAGE_NAV_ITEM_DESCRIPTIONS.cardexShort}
             onMouseEnter={() => setHoveredItem('cardex')}
             onMouseLeave={() => setHoveredItem(null)}
+            priority
           />
           <NavItem
             url="/skilldex"
@@ -80,10 +80,10 @@ export default function Landing() {
 
         {!hoveredItem && !isMobile && (
           <div className={cx('nav-description-placeholder')}>
+            <span className={cx('boo-text')}>WAAH!</span>
             <Image
               src={HauntingNightmaresImageUrl}
               alt="Placeholder image"
-              title="BOO!"
               className={cx('image')}
               width={30}
               height={30}
