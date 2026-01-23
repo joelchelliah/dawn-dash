@@ -1,7 +1,6 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react'
 
-import Image from 'next/image'
-
+import Image from '@/shared/components/Image'
 import { createCx } from '@/shared/utils/classnames'
 import { DantelionImageUrl } from '@/shared/utils/imageUrls'
 
@@ -60,6 +59,7 @@ class ErrorBoundary extends Component<Props, State> {
             className={cx('image')}
             width={80}
             height={80}
+            optimized
           />
           <GradientButton
             className={cx('retry-button')}

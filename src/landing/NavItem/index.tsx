@@ -1,6 +1,6 @@
-import Image from 'next/image'
 import Link from 'next/link'
 
+import Image from '@/shared/components/Image'
 import { createCx } from '@/shared/utils/classnames'
 
 import styles from './index.module.scss'
@@ -32,7 +32,7 @@ export default function NavItem({
       onMouseLeave={onMouseLeave}
     >
       <div className={cx('nav-item__image-wrapper')}>
-        <Image src={imageSrc} alt={alt} fill className={cx('nav-item__image')} />
+        <Image src={imageSrc} alt={alt} fill className={cx('nav-item__image')} optimized />
       </div>
       <p className={cx('nav-item__description')}>{mobileDescription}</p>
     </Link>

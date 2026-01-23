@@ -1,7 +1,6 @@
 import { useState } from 'react'
 
-import Image from 'next/image'
-
+import Image from '@/shared/components/Image'
 import { createCx } from '@/shared/utils/classnames'
 import { DashImageUrl, HauntingNightmaresImageUrl } from '@/shared/utils/imageUrls'
 import { LANDING_PAGE_NAV_ITEM_DESCRIPTIONS } from '@/shared/constants/descriptions'

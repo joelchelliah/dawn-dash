@@ -1,5 +1,4 @@
-import Image from 'next/image'
-
+import Image from '@/shared/components/Image'
 import GradientButton from '@/shared/components/Buttons/GradientButton'
 import ButtonRow from '@/shared/components/Buttons/ButtonRow'
 import { createCx } from '@/shared/utils/classnames'

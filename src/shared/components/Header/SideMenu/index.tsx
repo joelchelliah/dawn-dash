@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 
-import Image from 'next/image'
 import Link from 'next/link'
 
+import Image from '@/shared/components/Image'
 import { HamburgerIcon, HamburgerMenuIcon } from '@/shared/utils/icons'
 import {
   AbracadabraImageUrl,

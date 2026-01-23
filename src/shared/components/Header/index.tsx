@@ -1,5 +1,4 @@
-import Image from 'next/image'
-
+import Image from '@/shared/components/Image'
 import { createCx } from '@/shared/utils/classnames'
 
 import SideMenu from './SideMenu'
@@ -21,7 +20,14 @@ const Header = ({ onLogoClick, logoSrc, title, subtitle, currentPage }: HeaderPr
   return (
     <div className={cx('header')}>
       <div className={styles['logo-and-title']} onClick={onLogoClick}>
-        <Image src={logoSrc} alt="Header logo" className={cx('logo')} width={52} height={52} />
+        <Image
+          src={logoSrc}
+          alt="Header logo"
+          className={cx('logo')}
+          width={52}
+          height={52}
+          optimized
+        />
         <div>
           <h1 className={cx('title', { 'title--long': title.length > 20 })}>{title}</h1>
           <h2 className={cx('subtitle')}>{subtitle}</h2>

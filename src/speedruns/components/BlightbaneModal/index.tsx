@@ -1,5 +1,4 @@
-import Image from 'next/image'
-
+import Image from '@/shared/components/Image'
 import { createCx } from '@/shared/utils/classnames'
 import Button from '@/shared/components/Buttons/Button'
 import ButtonRow from '@/shared/components/Buttons/ButtonRow'

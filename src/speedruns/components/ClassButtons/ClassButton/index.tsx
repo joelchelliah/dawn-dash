@@ -1,7 +1,6 @@
 import { memo } from 'react'
 
-import Image from 'next/image'
-
+import Image from '@/shared/components/Image'
 import { createCx } from '@/shared/utils/classnames'
 import { ClassColorVariant, getClassColor } from '@/shared/utils/classColors'
 import { CharacterClass } from '@/shared/types/characterClass'

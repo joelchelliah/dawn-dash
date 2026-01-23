@@ -5,7 +5,6 @@ import withPWA from 'next-pwa'
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    unoptimized: true,
     remotePatterns: [
       {
         protocol: 'https',
