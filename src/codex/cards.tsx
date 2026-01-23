@@ -7,6 +7,7 @@ import Footer from '@/shared/components/Footer'
 import Header from '@/shared/components/Header'
 import ScrollToTopButton from '@/shared/components/ScrollToTopButton'
 import { useScrollToTop } from '@/shared/hooks/useScrollToTop'
+import { useBreakpoint } from '@/shared/hooks/useBreakpoint'
 
 import { useAllCardSearchFilters } from './hooks/useSearchFilters'
 import { useCardData } from './hooks/useCardData'
@@ -24,13 +25,18 @@ const CardSearchPanel = dynamic(() => import('./components/SearchPanels/CardSear
 
 const cx = createCx(styles)
 
+function useCardsScrollToTop() {
+  const { isTabletOrSmaller } = useBreakpoint()
+  return useScrollToTop(isTabletOrSmaller ? 1750 : 1250)
+}
+
 function Cards(): JSX.Element {
   const { resetToCardCodex } = useNavigation()
   const useCardDataHook = useCardData()
   const { cardData, isLoading, isError, progress } = useCardDataHook
 
   const useSearchFiltersHook = useAllCardSearchFilters(cardData)
-  const { showScrollToTopButton, scrollToTop } = useScrollToTop(300)
+  const { showScrollToTopButton, scrollToTop } = useCardsScrollToTop()
 
   return (
     <div className={cx('container')}>

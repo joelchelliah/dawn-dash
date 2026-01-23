@@ -8,6 +8,7 @@ import Footer from '@/shared/components/Footer'
 import Header from '@/shared/components/Header'
 import ScrollToTopButton from '@/shared/components/ScrollToTopButton'
 import Notification from '@/shared/components/Notification'
+import { useBreakpoint } from '@/shared/hooks/useBreakpoint'
 
 import eventTreesData from './data/event-trees.json'
 import { Event } from './types/events'
@@ -23,9 +24,14 @@ const cx = createCx(styles)
 
 const eventTrees = eventTreesData as Event[]
 
+function useEventsScrollToTop() {
+  const { isTabletOrSmaller } = useBreakpoint()
+  return useScrollToTop(isTabletOrSmaller ? 500 : 750)
+}
+
 function Events(): JSX.Element {
   const { resetToEventCodex } = useNavigation()
-  const { showScrollToTopButton, scrollToTop } = useScrollToTop()
+  const { showScrollToTopButton, scrollToTop } = useEventsScrollToTop()
   const [selectedEventIndex, setSelectedEventIndex] = useState(ALL_EVENTS_INDEX)
   const [showInvalidNotification, setShowInvalidNotification] = useState(false)
 

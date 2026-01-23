@@ -28,13 +28,18 @@ const TalentSearchPanel = dynamic(() => import('./components/SearchPanels/Talent
 
 const cx = createCx(styles)
 
+function useSkillsScrollToTop() {
+  const { isTabletOrSmaller } = useBreakpoint()
+  return useScrollToTop(isTabletOrSmaller ? 1500 : 1000)
+}
+
 function Skills(): JSX.Element {
   const { resetToTalentCodex } = useNavigation()
   const useTalentDataHook = useTalentData()
   const { talentTree, isLoading, isError, progress } = useTalentDataHook
 
   const useSearchFiltersHook = useAllTalentSearchFilters(talentTree)
-  const { showScrollToTopButton, scrollToTop } = useScrollToTop()
+  const { showScrollToTopButton, scrollToTop } = useSkillsScrollToTop()
   const { isTabletOrSmaller } = useBreakpoint()
   const { shouldUseMobileFriendlyRendering } = useSearchFiltersHook.useFormattingFilters
 
