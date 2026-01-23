@@ -40,3 +40,4 @@ supabase/.branches
 
 # TypeScript
 *.tsbuildinfo
+.vercel
