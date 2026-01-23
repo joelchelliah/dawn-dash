@@ -15,11 +15,14 @@ import {
   LoopingPathMode,
   LOOPING_PATH_MODES,
   ALL_EVENTS_INDEX,
+  ZOOM_LABEL_MAP,
 } from '@/codex/constants/eventSearchValues'
 import { UseAllEventSearchFilters } from '@/codex/hooks/useSearchFilters/useAllEventSearchFilters'
+import { useStickyZoom } from '@/codex/hooks/useStickyZoom'
 
 import PanelHeader from '../../PanelHeader'
 
+import StickyZoomSelect from './StickyZoomSelect'
 import styles from './index.module.scss'
 
 const cx = createCx(styles)
@@ -32,8 +35,6 @@ interface EventSearchPanelProps {
   filteredEvents: Event[]
   useSearchFilters: UseAllEventSearchFilters
 }
-
-const getZoomLabel = (zoom: ZoomLevel): string => (zoom === ZoomLevel.COVER ? 'Cover' : `${zoom}%`)
 
 const getLoopingPathModeLabel = (mode: LoopingPathMode): string =>
   mode === LoopingPathMode.INDICATOR
@@ -58,6 +59,8 @@ const EventSearchPanel = ({
     resetFilters,
   } = useSearchFilters
 
+  const showStickyZoom = useStickyZoom()
+
   const getAllEventsLabel = () => {
     if (filteredEvents.length === 0) {
       return 'No matching events'
@@ -81,7 +84,7 @@ const EventSearchPanel = ({
 
   const zoomOptions = ZOOM_LEVELS.map((zoom) => ({
     value: zoom,
-    label: getZoomLabel(zoom),
+    label: ZOOM_LABEL_MAP[zoom],
   }))
 
   const loopingPathModeOptions = LOOPING_PATH_MODES.map((mode) => ({
@@ -166,6 +169,15 @@ const EventSearchPanel = ({
             </div>
           </div>
         </div>
+      )}
+
+      {showStickyZoom && (
+        <StickyZoomSelect
+          selectedClass={selectedClass}
+          zoomLevel={zoomLevel}
+          setZoomLevel={setZoomLevel}
+          disabled={filteredEvents.length === 0 || selectedEventIndex === ALL_EVENTS_INDEX}
+        />
       )}
     </div>
   )

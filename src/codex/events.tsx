@@ -26,7 +26,7 @@ const eventTrees = eventTreesData as Event[]
 
 function useEventsScrollToTop() {
   const { isTabletOrSmaller } = useBreakpoint()
-  return useScrollToTop(isTabletOrSmaller ? 500 : 750)
+  return useScrollToTop(isTabletOrSmaller ? 750 : 1500)
 }
 
 function Events(): JSX.Element {

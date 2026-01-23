@@ -2,12 +2,11 @@
 
 @mixin topBannerPosition {
   left: -5%;
-  top: -2px;
+  top: -1px;
   width: 112%;
-  height: 4rem;
-  padding-top: 0.25rem;
+  height: 2.5rem;
   transform: none;
-  z-index: 1001;
+  z-index: $z-index-scroll-to-top;
   animation: slideDown 0.5s ease-out;
 
   svg {
@@ -33,7 +32,7 @@
   left: 12rem;
   top: 40%;
   transform: translateY(-50%);
-  z-index: 1000;
+  z-index: $z-index-scroll-to-top;
 
   height: 3rem;
   background-color: $color-base-bg;
@@ -82,6 +81,8 @@
 
   @media (max-width: $breakpoint-mobile) {
     @include topBannerPosition;
+    top: -1px;
+    height: 3rem;
   }
 }
 
