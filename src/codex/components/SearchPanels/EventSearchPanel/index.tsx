@@ -6,6 +6,7 @@ import { CharacterClass } from '@/shared/types/characterClass'
 import Button from '@/shared/components/Buttons/Button'
 import GradientButton from '@/shared/components/Buttons/GradientButton'
 import { ClassColorVariant, getClassColor } from '@/shared/utils/classColors'
+import { useBreakpoint } from '@/shared/hooks/useBreakpoint'
 
 import eventTreesData from '@/codex/data/event-trees.json'
 import { Event } from '@/codex/types/events'
@@ -60,6 +61,7 @@ const EventSearchPanel = ({
   } = useSearchFilters
 
   const showStickyZoom = useStickyZoom()
+  const { isMobile } = useBreakpoint()
 
   const getAllEventsLabel = () => {
     if (filteredEvents.length === 0) {
@@ -93,6 +95,9 @@ const EventSearchPanel = ({
   }))
 
   const advancedOptionsArrow = showAdvancedOptions ? '▴' : '▾'
+  const advancedOptionsText = isMobile
+    ? `Advanced ${advancedOptionsArrow}`
+    : `Advanced options ${advancedOptionsArrow}`
 
   // Force Cover mode when switching events to ensure clean coverScale calculation
   useEffect(() => {
@@ -149,7 +154,7 @@ const EventSearchPanel = ({
             className={cx('control-wrapper--advanced-options-button')}
             onClick={() => setShowAdvancedOptions(!showAdvancedOptions)}
           >
-            Advanced options {advancedOptionsArrow}
+            {advancedOptionsText}
           </GradientButton>
         </div>
       </div>
