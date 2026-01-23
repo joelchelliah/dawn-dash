@@ -25,7 +25,7 @@ export function EventmapHead({ event, eventUrlParam }: EventmapHeadProps = {}) {
     ? `${eventDisplayText}`
     : 'Explore all Dawncaster events, as fully mapped out event trees, including all dialogue options, requirements and rewards!'
 
-  const ogImageWide = 'https://www.dawn-dash.com/og-image-eventmaps.png'
+  const image = hasEventArtwork ? eventImageSrc : 'https://www.dawn-dash.com/og-image-eventmaps.png'
   const url =
     isEventPage && eventUrlParam
       ? `https://www.dawn-dash.com/eventmaps/${eventUrlParam}`
@@ -41,7 +41,7 @@ export function EventmapHead({ event, eventUrlParam }: EventmapHeadProps = {}) {
       <meta property="og:type" content="website" />
       <meta property="og:title" content={ogTitle} />
       <meta property="og:description" content={ogDescription} />
-      <meta property="og:image" content={hasEventArtwork ? eventImageSrc : ogImageWide} />
+      <meta property="og:image" content={image} />
       <meta property="og:image:width" content={hasEventArtwork ? '60' : '2400'} />
       <meta property="og:image:height" content={hasEventArtwork ? '60' : '1260'} />
       <meta property="og:image:alt" content={title} />
@@ -50,11 +50,11 @@ export function EventmapHead({ event, eventUrlParam }: EventmapHeadProps = {}) {
       {/* The url shown in Discord */}
       <meta property="og:site_name" content="dawn-dash.com/eventmaps" />
 
-      <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:title" content={title} />
       <meta name="twitter:description" content={description} />
-      {/* Only set when no event artwork to show the wide OG logo */}
-      {!hasEventArtwork && <meta property="twitter:image" content={ogImageWide} />}
+
+      {!hasEventArtwork && <meta name="twitter:card" content="summary_large_image" />}
+      <meta property="twitter:image" content={image} />
 
       {/* Page-Specific Structured Data */}
       <script
@@ -76,7 +76,7 @@ export function EventmapHead({ event, eventUrlParam }: EventmapHeadProps = {}) {
 
 function getEventDisplayText(event: Event | null | undefined, eventName: string): string {
   const fallbackText = `Explore the complete event tree for «${eventName}»!`
-  const maxLength = 50
+  const maxLength = 120
 
   if (!event) return fallbackText
 
@@ -90,5 +90,5 @@ function getEventDisplayText(event: Event | null | undefined, eventName: string)
 
   if (eventText.length === 0) return fallbackText
 
-  return eventText.length > maxLength ? eventText.substring(0, maxLength - 3) + '...' : eventText
+  return eventText.length > maxLength ? eventText.substring(0, maxLength - 4) + '...' : eventText
 }
