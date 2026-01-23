@@ -171,7 +171,7 @@ const EventSearchPanel = ({
         </div>
       )}
 
-      {showStickyZoom && (
+      {showStickyZoom && selectedEventIndex !== ALL_EVENTS_INDEX && (
         <StickyZoomSelect
           selectedClass={selectedClass}
           zoomLevel={zoomLevel}
