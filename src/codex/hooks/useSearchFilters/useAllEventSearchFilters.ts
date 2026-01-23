@@ -29,7 +29,7 @@ export const useAllEventSearchFilters = (): UseAllEventSearchFilters => {
   const { filterText, setFilterText, deferredFilterText } = useEventFilterText()
   const [showAdvancedOptions, setShowAdvancedOptionsUntracked] = useState<boolean>(false)
   const [loopingPathMode, setLoopingPathModeUntracked] = useState<LoopingPathMode>(
-    LoopingPathMode.INDICATOR
+    LoopingPathMode.LINK
   )
 
   // Load from localStorage after hydration to avoid SSR mismatch
@@ -58,7 +58,7 @@ export const useAllEventSearchFilters = (): UseAllEventSearchFilters => {
     setZoomLevel(ZoomLevel.COVER)
     setFilterText('')
     trackedSetShowAdvancedOptions(false)
-    trackedSetLoopingPathMode(LoopingPathMode.INDICATOR)
+    trackedSetLoopingPathMode(LoopingPathMode.LINK)
   }, [setFilterText, trackedSetShowAdvancedOptions, trackedSetLoopingPathMode])
 
   // --------------------------------------------------

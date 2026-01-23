@@ -56,7 +56,7 @@ const EventResultsPanel = ({
       return (
         <>
           <div className={cx('info-message')}>
-            🏗️ <strong>{eventName}</strong> is not quite ready yet!
+            🏗️ <strong>{eventName}</strong> is not quite ready yet. Coming soon!
             <br />
             <GradientLink
               text="Go back to all events"

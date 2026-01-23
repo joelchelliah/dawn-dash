@@ -39,8 +39,8 @@ interface EventSearchPanelProps {
 
 const getLoopingPathModeLabel = (mode: LoopingPathMode): string =>
   mode === LoopingPathMode.INDICATOR
-    ? 'With «Loops back» badges on nodes'
-    : 'With arrows back to the looping nodes'
+    ? '🔄 With «Loops back to» tags on nodes'
+    : '🔗 With links back to the looping nodes'
 
 const EventSearchPanel = ({
   selectedEventIndex,
@@ -166,7 +166,7 @@ const EventSearchPanel = ({
               <Select
                 id="looping-path-mode-select"
                 selectedClass={selectedClass}
-                label="🔄 &nbsp;Show looping paths"
+                label="Show looping paths"
                 options={loopingPathModeOptions}
                 value={loopingPathMode}
                 onChange={setLoopingPathMode}
