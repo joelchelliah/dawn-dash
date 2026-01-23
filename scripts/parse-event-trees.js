@@ -54,13 +54,11 @@ const OUTPUT_FILE = path.join(__dirname, '../src/codex/data/event-trees.json')
 // For the events in this list, we should not include nodes that have the
 // choiceLabel === 'default' OR text === 'default'
 // Skip those nodes along with their entire subtree.
-const DEFAULT_NODE_BLACKLIST = [
-  'A Familiar Face',
-]
+const DEFAULT_NODE_BLACKLIST = ['A Familiar Face']
 
 // Special-case events with dialogue menu patterns (ask questions in any order)
-// For these events, we detect when we're back at a menu with the same set of questions
-// and create a ref immediately to prevent hitting the node limit DURING tree building.
+// For these events, we detect when we're at a dialogue menu hub node (menuHubPattern)
+// and create refs from all children back to the hub, except for the node matching menuExitPattern.
 //
 // WHY WE NEED THIS:
 // Without this early detection, Rathael's factorial explosion (9! = 362,880 orderings)
@@ -70,7 +68,37 @@ const DEFAULT_NODE_BLACKLIST = [
 // The post-processing collapseDialogueMenus() then further simplifies the already-built
 // tree by combining all question choices into a single node for better visualization.
 // Both are needed: this prevents generation failure, collapsing improves the final output.
-const DIALOGUE_MENU_EVENTS = ['Rathael the Slain Death']
+//
+// hubChoiceMatchThreshold (optional):
+// - When OMITTED: Immediate ref creation mode
+//   * Children that don't match menuExitPattern are converted to refs IMMEDIATELY,
+//     before building their subtrees. This prevents deep building and avoids hitting
+//     node limits, but requires that all meaningful content appears at the hub level.
+//   * Example: Rathael - all dialogue choices lead directly back to the hub, so
+//     immediate refs work perfectly.
+//
+// - When PROVIDED: Delayed hub detection mode
+//   * Children are built normally (full subtrees) to preserve intermediate content
+//     (e.g., room descriptions in Rotting Residence). After building, we check if a
+//     node's children match >= hubChoiceMatchThreshold% of the hub's original choices.
+//     If matched, that node becomes a ref back to the hub.
+//   * This allows preserving meaningful content (like room descriptions) that appears
+//     between the hub choice and the return to hub, while still collapsing the loop.
+//   * Example: Rotting Residence - choosing "Go to the Kitchen" shows a room description
+//     before returning to the hub, so we need to build that path fully first.
+//   * Note: This mode builds deeper trees, so may require higher node budgets.
+const DIALOGUE_MENU_EVENTS = {
+  'Rathael the Slain Death': {
+    menuHubPattern: 'A chance to tangle with one of these',
+    menuExitPattern: 'Fight: Confront the Seraph',
+    hubChoiceMatchThreshold: 85, // choices: 7/8
+  },
+  'Rotting Residence': {
+    menuHubPattern: 'You can distinguish several rooms',
+    menuExitPattern: 'Leave',
+    hubChoiceMatchThreshold: 80, // choices: 4/5
+  },
+}
 
 // Events that require path convergence detection (early deduplication during tree building)
 // Most events don't need this - post-processing structural dedup is sufficient.
@@ -97,19 +125,19 @@ const CONFIG = {
   // then recursively explore each one. This allows all siblings to START their
   // exploration before the node limit kicks in.
   SIBLING_FIRST_DEPTH: 8, // Explore each sibling all the way until we reach this depth
-  SIBLING_FIRST_NODE_BUDGET: 50000, // Max nodes to create during sibling-first phase
+  SIBLING_FIRST_NODE_BUDGET: 1000000, // Max nodes to create during sibling-first phase
 
   // DEPTH-FIRST EXPLORATION:
   // After sibling-first phase, we switch to standard depth-first exploration.
   // Node counter is RESET when first entering depth-first phase for this event.
-  DEPTH_FIRST_NODE_BUDGET: 25000, // Max nodes to create during depth-first phase
+  DEPTH_FIRST_NODE_BUDGET: 500000, // Max nodes to create during depth-first phase
 }
 
 let nodeIdCounter = 0
 let totalNodesInCurrentEvent = 0
 let hasResetForDepthFirst = false // Track if we've reset the counter for this event
-let dialogueMenuStates = new Map() // Track dialogue menu states (for special events)
 let pathConvergenceStates = new Map() // Track path convergence for early dedup (text + choices)
+let hubChoiceSnapshots = new Map() // Track hub choice snapshots: eventName -> { hubNodeId, choiceLabels: Set, threshold }
 
 /**
  * Generate a unique node ID (integer, unique per event)
@@ -172,7 +200,17 @@ function detectRandomVariables(inkJsonString) {
  * Field order: id, text, type, choiceLabel, requirements, effects, numContinues, ref, children
  * Optional fields are only included if they have values.
  */
-function createNode({ id, text, type, choiceLabel, requirements, effects, numContinues, ref, children }) {
+function createNode({
+  id,
+  text,
+  type,
+  choiceLabel,
+  requirements,
+  effects,
+  numContinues,
+  ref,
+  children,
+}) {
   const isDefault = choiceLabel === 'default'
   const node = {
     id,
@@ -220,8 +258,8 @@ function parseInkStory(inkJsonString, eventName) {
     nodeIdCounter = 0
     totalNodesInCurrentEvent = 0
     hasResetForDepthFirst = false
-    dialogueMenuStates = new Map()
     pathConvergenceStates = new Map()
+    hubChoiceSnapshots = new Map()
 
     // Detect random variables before executing the story
     const randomVars = detectRandomVariables(inkJsonString)
@@ -239,7 +277,17 @@ function parseInkStory(inkJsonString, eventName) {
     const story = new Story(inkJsonString)
 
     // Build tree by exploring all possible paths
-    const rootNode = buildTreeFromStory(story, eventName, new Set(), new Map(), 0, '', [], new Map(), randomVars)
+    const rootNode = buildTreeFromStory(
+      story,
+      eventName,
+      new Set(),
+      new Map(),
+      0,
+      '',
+      [],
+      new Map(),
+      randomVars
+    )
 
     if (!rootNode) {
       console.warn(`  ⚠️  Event "${eventName}" produced empty tree`)
@@ -250,9 +298,7 @@ function parseInkStory(inkJsonString, eventName) {
     // Note: This check happens after the tree is built, so it only detects if we hit
     // the limit during depth-first phase (counter was reset at transition)
     if (totalNodesInCurrentEvent >= CONFIG.DEPTH_FIRST_NODE_BUDGET) {
-      console.warn(
-        `  ⚠️  Event "${eventName}" hit depth-first node limit - tree may be incomplete`
-      )
+      console.warn(`  ⚠️  Event "${eventName}" hit depth-first node limit - tree may be incomplete`)
     }
 
     return rootNode
@@ -298,7 +344,9 @@ function buildTreeFromStory(
 
   // Prevent infinite loops and excessive depth (check this early before collecting text)
   if (depth > CONFIG.MAX_DEPTH) {
-    console.warn(`  ⚠️  Event "${eventName}" reached max depth (${CONFIG.MAX_DEPTH}) - truncating branch`)
+    console.warn(
+      `  ⚠️  Event "${eventName}" reached max depth (${CONFIG.MAX_DEPTH}) - truncating branch`
+    )
     totalNodesInCurrentEvent++
     return createNode({
       id: generateNodeId(),
@@ -349,7 +397,7 @@ function buildTreeFromStory(
                   )
                   foundRandom = true
                   if (CONFIG.VERBOSE_LOGGING) {
-                      console.log(
+                    console.log(
                       `  🎲 Event "${eventName}": Detected random ${command} value ${value} (range: ${range.min}-${range.max})`
                     )
                   }
@@ -383,7 +431,6 @@ function buildTreeFromStory(
 
   // Extract effects from the beginning of text, then clean the rest
   const { effects, cleanedText } = extractEffects(text)
-
 
   // LOOP DETECTION & EARLY DEDUPLICATION:
   // Multiple strategies detect patterns during tree building and create ref nodes
@@ -440,7 +487,9 @@ function buildTreeFromStory(
         `  ⚠️  Event "${eventName}" reached sibling-first budget (${CONFIG.SIBLING_FIRST_NODE_BUDGET}) at depth ${depth}`
       )
       if (CONFIG.VERBOSE_LOGGING) {
-        console.warn(`      Text: "${preview}${cleanedText && cleanedText.length > 50 ? '...' : ''}"`)
+        console.warn(
+          `      Text: "${preview}${cleanedText && cleanedText.length > 50 ? '...' : ''}"`
+        )
         console.warn(`      Choices: ${choiceCount}`)
       }
       return null
@@ -530,32 +579,49 @@ function buildTreeFromStory(
   }
 
   // EARLY DEDUPLICATION: DIALOGUE MENU DETECTION
-  // For events with dialogue menu patterns (like Rathael), detect when we're back
-  // at a menu with the same set of questions available and create a ref to prevent
-  // hitting the node limit during tree building. Without this, factorial explosion
-  // causes incomplete trees. Post-processing collapseDialogueMenus() further simplifies.
-  const isDialogueMenuEvent = DIALOGUE_MENU_EVENTS.includes(eventName)
-  if (isDialogueMenuEvent && isDialogueMenuPattern(choices)) {
-    const menuSignature = createDialogueMenuSignature(choices)
+  // For events with dialogue menu patterns (like Rathael), detect when we're at
+  // a dialogue menu hub node (menuHubPattern). All children of the hub forsake their
+  // own children and instead have a ref back to the hub, except for children matching menuExitPattern.
+  // This prevents hitting the node limit during tree building.
+  // Note: We only check text here (not choiceLabel) because a parent and its child
+  // will never both match menuHubPattern, so we only need to detect hubs via text.
+  const dialogueMenuConfig = DIALOGUE_MENU_EVENTS[eventName]
+  let isDialogueMenuHub = false
+  if (dialogueMenuConfig) {
+    // Check if this node's text matches menuHubPattern
+    if (cleanedText && cleanedText.includes(dialogueMenuConfig.menuHubPattern)) {
+      isDialogueMenuHub = true
 
-    // Check if we've seen this exact menu state before
-    if (dialogueMenuStates.has(menuSignature)) {
-      const originalNodeId = dialogueMenuStates.get(menuSignature)
-      totalNodesInCurrentEvent++
+      // For events with hubChoiceMatchThreshold, capture snapshot of hub choices
+      // Only capture from the FIRST hub node we encounter (don't overwrite existing snapshot)
+      if (
+        dialogueMenuConfig.hubChoiceMatchThreshold &&
+        choices.length > 0 &&
+        !hubChoiceSnapshots.has(eventName)
+      ) {
+        const hubChoiceLabels = new Set()
+        for (const choice of choices) {
+          const { cleanedText: choiceText } = extractChoiceMetadata(choice.text)
+          // Exclude exit pattern from snapshot
+          if (choiceText && !choiceText.includes(dialogueMenuConfig.menuExitPattern)) {
+            hubChoiceLabels.add(choiceText)
+          }
+        }
 
-      // Create ref node pointing to the first occurrence of this menu
-      return createNode({
-        id: generateNodeId(),
-        text: cleanedText,
-        type: type,
-        effects: effects,
-        numContinues: numContinues,
-        ref: originalNodeId,
-      })
+        if (hubChoiceLabels.size > 0) {
+          hubChoiceSnapshots.set(eventName, {
+            hubNodeId: nodeId,
+            choiceLabels: hubChoiceLabels,
+            threshold: dialogueMenuConfig.hubChoiceMatchThreshold,
+          })
+          if (CONFIG.VERBOSE_LOGGING && eventName === 'Rathael the Slain Death') {
+            console.log(
+              `  🔍 Captured hub snapshot at nodeId=${nodeId}: ${hubChoiceLabels.size} choices: [${Array.from(hubChoiceLabels).join(', ')}]`
+            )
+          }
+        }
+      }
     }
-
-    // First time seeing this menu state - store it
-    dialogueMenuStates.set(menuSignature, nodeId)
   }
 
   // EARLY DEDUPLICATION: PATH CONVERGENCE DETECTION
@@ -563,9 +629,12 @@ function buildTreeFromStory(
   // This is like mini-dedup during tree building - prevents re-exploring identical branches
   // ONLY enabled for events in PATH_CONVERGENCE_EVENTS whitelist (events that need it to parse successfully)
   let convergenceSignature = null
-  const enableEarlyDedupForThisEvent =
-    PATH_CONVERGENCE_EVENTS.includes(eventName)
-  if (enableEarlyDedupForThisEvent && cleanedText && choices.length >= CONFIG.PATH_CONVERGENCE_DEDUP_MIN_CHOICES) {
+  const enableEarlyDedupForThisEvent = PATH_CONVERGENCE_EVENTS.includes(eventName)
+  if (
+    enableEarlyDedupForThisEvent &&
+    cleanedText &&
+    choices.length >= CONFIG.PATH_CONVERGENCE_DEDUP_MIN_CHOICES
+  ) {
     // Create signature based on text + sorted choice labels
     const choiceLabels = choices
       .map((c) => extractChoiceMetadata(c.text).cleanedText)
@@ -603,6 +672,279 @@ function buildTreeFromStory(
   // This ensures all major branches get explored even if one branch is very complex.
   const useSiblingFirst = depth < CONFIG.SIBLING_FIRST_DEPTH
 
+  // Helper function to check if a choice should be built normally (matches menuExitPattern)
+  // or should become a ref node (doesn't match menuExitPattern)
+  function shouldBuildChildNormally(choiceText) {
+    if (!isDialogueMenuHub || !dialogueMenuConfig) return true
+    // Check if choiceLabel matches menuExitPattern
+    return choiceText && choiceText.includes(dialogueMenuConfig.menuExitPattern)
+  }
+
+  // Helper function to check if a node's children match the hub choice snapshot
+  // Returns the hub node ID if match threshold is met, null otherwise
+  function checkHubChoiceMatch(nodeChildren) {
+    const snapshot = hubChoiceSnapshots.get(eventName)
+    if (!snapshot || !nodeChildren || nodeChildren.length === 0) {
+      return null
+    }
+
+    // Extract choiceLabels from node's children
+    const nodeChoiceLabels = new Set()
+    for (const child of nodeChildren) {
+      if (child.choiceLabel) {
+        nodeChoiceLabels.add(child.choiceLabel)
+      }
+    }
+
+    if (nodeChoiceLabels.size === 0) return null
+
+    // Count how many hub choices are present in node's children
+    let matchCount = 0
+    for (const hubChoice of snapshot.choiceLabels) {
+      if (nodeChoiceLabels.has(hubChoice)) {
+        matchCount++
+      }
+    }
+
+    // Calculate match percentage (0-100)
+    // This is: (number of hub choices found in node) / (total hub choices) * 100
+    const matchPercentage = (matchCount / snapshot.choiceLabels.size) * 100
+
+    // Warn if threshold is > 100 (will never match)
+    if (snapshot.threshold > 100) {
+      console.warn(
+        `  ⚠️  Event "${eventName}": hubChoiceMatchThreshold (${snapshot.threshold}%) is > 100%, will never match`
+      )
+    }
+
+    // Only log when match threshold is met (to reduce noise)
+    if (matchPercentage >= snapshot.threshold) {
+      if (CONFIG.VERBOSE_LOGGING && eventName === 'Rathael the Slain Death') {
+        console.log(
+          `  ✅ Hub match found: ${matchCount}/${snapshot.choiceLabels.size} = ${matchPercentage.toFixed(1)}% (threshold: ${snapshot.threshold}%)`
+        )
+        console.log(`      Hub choices: ${Array.from(snapshot.choiceLabels).join(', ')}`)
+        console.log(`      Node choices: ${Array.from(nodeChoiceLabels).join(', ')}`)
+      }
+      return snapshot.hubNodeId
+    }
+
+    return null
+  }
+
+  // Helper function to get child's text by continuing the story
+  function getChildTextFromStory(story) {
+    let childText = ''
+    let childEffects = []
+    let childNumContinues = 0
+    try {
+      let continueCount = 0
+      while (story.canContinue) {
+        const line = story.Continue()
+        continueCount++
+        if (line && line.trim()) {
+          childText += (childText ? '\n' : '') + line.trim()
+        }
+      }
+      childNumContinues = Math.max(0, continueCount - 1)
+      const { effects: extractedEffects, cleanedText: cleanedChildText } = extractEffects(childText)
+      childEffects = extractedEffects
+      childText = cleanedChildText
+    } catch (error) {
+      // Handle gracefully
+    }
+    return { childText, childEffects, childNumContinues }
+  }
+
+  function buildChildNodeWhileHandlingDialogueHubDetection(
+    story,
+    storyState,
+    choiceText,
+    requirements,
+    pathHash,
+    shouldCheckEarlyRef
+  ) {
+    // Skip immediate ref logic for events with hubChoiceMatchThreshold
+    // (like Rotting Residence) - we need to build children normally to detect hub matches later
+    const shouldUseImmediateRefLogic =
+      shouldCheckEarlyRef &&
+      isDialogueMenuHub &&
+      dialogueMenuConfig &&
+      !dialogueMenuConfig.hubChoiceMatchThreshold &&
+      !shouldBuildChildNormally(choiceText)
+
+    if (shouldUseImmediateRefLogic) {
+      // Early detection: check child's text before building subtree
+      story.state.LoadJson(storyState)
+      const stateAfterChoice = story.state.toJson()
+
+      const { childText, childEffects, childNumContinues } = getChildTextFromStory(story)
+      const childMatchesExit = childText && childText.includes(dialogueMenuConfig.menuExitPattern)
+
+      if (childMatchesExit) {
+        // Child matches exit pattern - restore state and build normally
+        story.state.LoadJson(stateAfterChoice)
+        const childNode = buildTreeFromStory(
+          story,
+          eventName,
+          newVisitedStates,
+          newStateToNodeId,
+          depth + 1,
+          pathHash,
+          newAncestorTexts,
+          newTextToNodeId,
+          randomVars
+        )
+
+        if (childNode) {
+          return {
+            node: childNode,
+            isRef: false,
+          }
+        }
+      } else {
+        // Child doesn't match exit pattern - create ref node immediately
+        totalNodesInCurrentEvent++
+        return {
+          node: createNode({
+            id: generateNodeId(),
+            text: childText,
+            type: determineNodeType(childText, false),
+            choiceLabel: choiceText,
+            requirements: requirements.length > 0 ? requirements : undefined,
+            effects: childEffects.length > 0 ? childEffects : undefined,
+            numContinues: childNumContinues,
+            ref: nodeId, // Ref back to hub
+          }),
+          isRef: true,
+        }
+      }
+    }
+
+    // Build normally (either not a hub, or matches exit pattern)
+    story.state.LoadJson(storyState)
+    const childNode = buildTreeFromStory(
+      story,
+      eventName,
+      newVisitedStates,
+      newStateToNodeId,
+      depth + 1,
+      pathHash,
+      newAncestorTexts,
+      newTextToNodeId,
+      randomVars
+    )
+
+    if (childNode) {
+      return {
+        node: childNode,
+        isRef: false,
+      }
+    }
+
+    return null
+  }
+
+  // Helper function to recursively process children and check for hub matches
+  // Returns processed children array with refs where hub matches are found
+  function processChildrenForHubMatch(children, hubNodeId) {
+    if (!children || children.length === 0) return children
+
+    const processedChildren = []
+    for (const child of children) {
+      // Check if this child's children match the hub snapshot
+      // Skip if this child is the hub itself (prevent checking hub against itself)
+      if (child.children && child.children.length > 0 && child.id !== hubNodeId) {
+        const matchedHubNodeId = checkHubChoiceMatch(child.children)
+        // Also ensure the matched hub is not the child itself, and that we found a valid match
+        if (matchedHubNodeId && matchedHubNodeId !== child.id && matchedHubNodeId === hubNodeId) {
+          // This child's children match the hub snapshot - replace child with ref
+          processedChildren.push(
+            createNode({
+              id: child.id,
+              text: child.text,
+              type: child.type,
+              choiceLabel: child.choiceLabel,
+              requirements: child.requirements,
+              effects: child.effects,
+              numContinues: child.numContinues,
+              ref: matchedHubNodeId, // Ref back to hub
+            })
+          )
+          continue
+        }
+      }
+
+      // Recursively process this child's children
+      const processedGrandchildren = processChildrenForHubMatch(child.children, hubNodeId)
+      processedChildren.push(
+        createNode({
+          id: child.id,
+          text: child.text,
+          type: child.type,
+          choiceLabel: child.choiceLabel,
+          requirements: child.requirements,
+          effects: child.effects,
+          numContinues: child.numContinues,
+          ref: child.ref,
+          children: processedGrandchildren,
+        })
+      )
+    }
+
+    return processedChildren
+  }
+
+  // Helper function to create an ordered child node from a built child
+  function createOrderedChild(childResult, choiceText, requirements) {
+    if (!childResult) return null
+
+    const { node: childNode, isRef } = childResult
+
+    if (isRef) {
+      // Already a ref node, return as-is
+      return childNode
+    }
+
+    // Get hub node ID from snapshot for recursive processing
+    const snapshot = hubChoiceSnapshots.get(eventName)
+    const hubNodeId = snapshot ? snapshot.hubNodeId : null
+
+    // Skip processing if this is the hub node itself (hub node should not be processed here)
+    if (hubNodeId && childNode.id === hubNodeId) {
+      // This is the hub node - don't process it, just return as-is
+      return createNode({
+        id: childNode.id,
+        text: childNode.text,
+        type: childNode.type,
+        choiceLabel: choiceText,
+        requirements: requirements.length > 0 ? requirements : childNode.requirements,
+        effects: childNode.effects,
+        numContinues: childNode.numContinues,
+        ref: childNode.ref,
+        children: childNode.children,
+      })
+    }
+
+    // Recursively process children to check for hub matches at all levels
+    const processedChildren = hubNodeId
+      ? processChildrenForHubMatch(childNode.children, hubNodeId)
+      : childNode.children
+
+    // Create ordered child from built node
+    return createNode({
+      id: childNode.id,
+      text: childNode.text,
+      type: childNode.type,
+      choiceLabel: choiceText,
+      requirements: requirements.length > 0 ? requirements : childNode.requirements,
+      effects: childNode.effects,
+      numContinues: childNode.numContinues,
+      ref: childNode.ref,
+      children: processedChildren,
+    })
+  }
+
   if (useSiblingFirst) {
     // SIBLING-FIRST: Two-pass approach
     // Pass 1: Save story states for all choices at this level (doesn't recurse yet)
@@ -636,33 +978,16 @@ function buildTreeFromStory(
     // Pass 2: Now recursively explore each child (they explore deep, but all get a chance to start)
     for (const { choiceText, requirements, storyState, pathHash } of childData) {
       try {
-        story.state.LoadJson(storyState)
-
-        const childNode = buildTreeFromStory(
+        const childResult = buildChildNodeWhileHandlingDialogueHubDetection(
           story,
-          eventName,
-          newVisitedStates,
-          newStateToNodeId,
-          depth + 1,
+          storyState,
+          choiceText,
+          requirements,
           pathHash,
-          newAncestorTexts,
-          newTextToNodeId,
-          randomVars
+          true
         )
-
-        if (childNode) {
-          const orderedChild = createNode({
-            id: childNode.id,
-            text: childNode.text,
-            type: childNode.type,
-            choiceLabel: choiceText,
-            requirements: requirements.length > 0 ? requirements : childNode.requirements,
-            effects: childNode.effects,
-            numContinues: childNode.numContinues,
-            ref: childNode.ref,
-            children: childNode.children,
-          })
-
+        const orderedChild = createOrderedChild(childResult, choiceText, requirements)
+        if (orderedChild) {
           children.push(orderedChild)
         }
       } catch (error) {
@@ -678,33 +1003,18 @@ function buildTreeFromStory(
 
       try {
         story.ChooseChoiceIndex(i)
+        const stateAfterChoice = story.state.toJson()
 
-        // Recursively build tree for this branch
-        const childNode = buildTreeFromStory(
+        const childResult = buildChildNodeWhileHandlingDialogueHubDetection(
           story,
-          eventName,
-          newVisitedStates,
-          newStateToNodeId,
-          depth + 1,
+          stateAfterChoice,
+          choiceText,
+          requirements,
           `${currentStateHash}_c${i}`,
-          newAncestorTexts,
-          newTextToNodeId,
-          randomVars
+          true
         )
-
-        if (childNode) {
-          const orderedChild = createNode({
-            id: childNode.id,
-            text: childNode.text,
-            type: childNode.type,
-            choiceLabel: choiceText,
-            requirements: requirements.length > 0 ? requirements : childNode.requirements,
-            effects: childNode.effects,
-            numContinues: childNode.numContinues,
-            ref: childNode.ref,
-            children: childNode.children,
-          })
-
+        const orderedChild = createOrderedChild(childResult, choiceText, requirements)
+        if (orderedChild) {
           children.push(orderedChild)
         }
       } catch (error) {
@@ -720,6 +1030,30 @@ function buildTreeFromStory(
   // Only store if we actually have children (to avoid matching incomplete nodes)
   if (convergenceSignature && children.length > 0) {
     pathConvergenceStates.set(convergenceSignature, nodeId)
+  }
+
+  // Check for hub choice matches (for events with hubChoiceMatchThreshold)
+  // This checks if this node's children match the hub snapshot
+  // Only check nodes built AFTER the hub (nodeId > hubNodeId) to avoid checking pre-hub nodes
+  const snapshot = hubChoiceSnapshots.get(eventName)
+  if (
+    snapshot &&
+    children.length > 0 &&
+    nodeId !== snapshot.hubNodeId &&
+    nodeId > snapshot.hubNodeId
+  ) {
+    const matchedHubNodeId = checkHubChoiceMatch(children)
+    if (matchedHubNodeId && matchedHubNodeId === snapshot.hubNodeId) {
+      // This node's children match the hub snapshot - convert this node to a ref
+      return createNode({
+        id: nodeId,
+        text: cleanedText || '[Choice point]',
+        type,
+        effects,
+        numContinues,
+        ref: matchedHubNodeId, // Ref back to hub
+      })
+    }
   }
 
   // Build the node
@@ -824,36 +1158,6 @@ function extractChoiceMetadata(choiceText) {
   cleanedText = cleanText(cleanedText)
 
   return { requirements, cleanedText }
-}
-
-/**
- * Detect if choices form a "dialogue menu" pattern (multiple questions you can ask in any order)
- * Returns true if we have 5+ choices where most end with '?'
- */
-function isDialogueMenuPattern(choices) {
-  if (choices.length < 5) return false
-
-  const questionChoices = choices.filter((choice) => {
-    const { cleanedText } = extractChoiceMetadata(choice.text)
-    return cleanedText && cleanedText.trim().endsWith('?')
-  })
-
-  // If 70% or more of choices are questions, it's a dialogue menu
-  return questionChoices.length >= Math.ceil(choices.length * 0.7)
-}
-
-/**
- * Create a signature for a dialogue menu based on the sorted set of question choices
- * This allows us to detect when we're back at the "same menu" with the same questions available
- */
-function createDialogueMenuSignature(choices) {
-  const questionLabels = choices
-    .map((choice) => extractChoiceMetadata(choice.text).cleanedText)
-    .filter((text) => text && text.trim().endsWith('?'))
-    .sort()
-    .join('|')
-
-  return `MENU:${questionLabels}`
 }
 
 /**
@@ -1021,7 +1325,9 @@ function checkInvalidRefs(eventTrees) {
   })
 
   if (totalInvalidRefs > 0) {
-    console.log(`  ⚠️  Found ${totalInvalidRefs} invalid refs across ${eventsWithInvalidRefs.length} events`)
+    console.log(
+      `  ⚠️  Found ${totalInvalidRefs} invalid refs across ${eventsWithInvalidRefs.length} events`
+    )
     if (CONFIG.VERBOSE_LOGGING) {
       console.log('\n  Events with invalid refs:')
       eventsWithInvalidRefs.forEach(({ name, invalidRefs, examples }) => {
@@ -1162,7 +1468,8 @@ function processEvents() {
   }
 
   console.log('\n🔗 Converting sibling and SIMPLE cousin refs to refChildren...')
-  const { totalConversions, eventsWithConversions } = convertSiblingAndCousinRefsToRefChildren(eventTrees)
+  const { totalConversions, eventsWithConversions } =
+    convertSiblingAndCousinRefsToRefChildren(eventTrees)
   console.log(`  Converted ${totalConversions} sibling refs`)
 
   if (CONFIG.VERBOSE_LOGGING && eventsWithConversions.length > 0) {
@@ -1265,7 +1572,10 @@ function separateChoicesFromEffects(node) {
       const isEndNode = child.type === 'end'
       const shouldSplit =
         hasChoiceLabel &&
-        (hasEffects || hasSubstantialText || (child.children && child.children.length > 0) || isEndNode)
+        (hasEffects ||
+          hasSubstantialText ||
+          (child.children && child.children.length > 0) ||
+          isEndNode)
 
       if (shouldSplit) {
         // Create a choice node (parent)
@@ -1522,11 +1832,11 @@ function collapseDialogueMenusInTree(rootNode) {
     const children = node.children
     if (children.length < 4) {
       // Not enough choices to be a menu - recurse to children
-      children.forEach(child => traverse(child))
+      children.forEach((child) => traverse(child))
       return
     }
 
-    const questionChildren = children.filter(child => {
+    const questionChildren = children.filter((child) => {
       const label = child.choiceLabel || ''
       return label.trim().endsWith('?')
     })
@@ -1534,32 +1844,34 @@ function collapseDialogueMenusInTree(rootNode) {
     const questionPercentage = questionChildren.length / children.length
     if (questionPercentage < 0.75) {
       // Not enough questions to be a dialogue menu - recurse to children
-      children.forEach(child => traverse(child))
+      children.forEach((child) => traverse(child))
       return
     }
 
     // This is a dialogue menu! Collapse it.
-    questionChildren.forEach(questionChild => {
+    questionChildren.forEach((questionChild) => {
       // If this question choice has exactly one child, replace its subtree with a ref
       if (questionChild.children && questionChild.children.length === 1) {
         const originalChild = questionChild.children[0]
 
-        questionChild.children = [createNode({
-          id: originalChild.id,
-          text: originalChild.text,
-          type: originalChild.type,
-          effects: originalChild.effects,
-          numContinues: originalChild.numContinues,
-          ref: node.id, // Ref back to the menu node
-        })]
+        questionChild.children = [
+          createNode({
+            id: originalChild.id,
+            text: originalChild.text,
+            type: originalChild.type,
+            effects: originalChild.effects,
+            numContinues: originalChild.numContinues,
+            ref: node.id,
+          }),
+        ]
       }
     })
 
     collapsedCount++
 
-    const nonQuestionChildren = children.filter(child => !questionChildren.includes(child))
+    const nonQuestionChildren = children.filter((child) => !questionChildren.includes(child))
 
-    nonQuestionChildren.forEach(child => traverse(child))
+    nonQuestionChildren.forEach((child) => traverse(child))
   }
 
   traverse(rootNode)
@@ -1638,7 +1950,7 @@ function convertSiblingRefsInTree(rootNode) {
           // This is a sibling ref! Convert it.
 
           // Get the target's children IDs
-          const refChildrenIds = child.children ? child.children.map(c => c.id) : []
+          const refChildrenIds = child.children ? child.children.map((c) => c.id) : []
 
           // Create new node with refChildren instead of ref
           const convertedNode = {
@@ -1651,7 +1963,9 @@ function convertSiblingRefsInTree(rootNode) {
 
           // Verify that this node doesn't have children (as per requirement)
           if (potentialRefNode.children && potentialRefNode.children.length > 0) {
-            console.warn(`  ⚠️  Node ${potentialRefNode.id} has both ref and children - this shouldn't happen!`)
+            console.warn(
+              `  ⚠️  Node ${potentialRefNode.id} has both ref and children - this shouldn't happen!`
+            )
           }
 
           // Add the converted node immediately after its target
@@ -1707,7 +2021,7 @@ function convertCousinRefsInTree(rootNode, eventName) {
 
   // Build parent map and node map
   const parentMap = new Map() // nodeId -> parent node
-  const nodeMap = new Map()   // nodeId -> node
+  const nodeMap = new Map() // nodeId -> node
 
   function buildMaps(node, parent = null) {
     if (!node) return
@@ -1716,7 +2030,7 @@ function convertCousinRefsInTree(rootNode, eventName) {
       parentMap.set(node.id, parent)
     }
     if (node.children) {
-      node.children.forEach(child => buildMaps(child, node))
+      node.children.forEach((child) => buildMaps(child, node))
     }
   }
 
@@ -1756,8 +2070,10 @@ function convertCousinRefsInTree(rootNode, eventName) {
           // The parents themselves are siblings (direct children case)
           // Check if they are direct children
           if (refParentParent.children) {
-            const refParentIsChild = refParentParent.children.some(c => c.id === refNodeParent.id)
-            const targetParentIsChild = refParentParent.children.some(c => c.id === targetNodeParent.id)
+            const refParentIsChild = refParentParent.children.some((c) => c.id === refNodeParent.id)
+            const targetParentIsChild = refParentParent.children.some(
+              (c) => c.id === targetNodeParent.id
+            )
             if (refParentIsChild && targetParentIsChild) {
               commonAncestor = refParentParent
             }
@@ -1773,12 +2089,19 @@ function convertCousinRefsInTree(rootNode, eventName) {
             const refGrandparentParent = parentMap.get(refGrandparentCurrent.id)
             const targetGrandparentParent = parentMap.get(targetGrandparentCurrent.id)
 
-            if (refGrandparentParent && targetGrandparentParent &&
-                refGrandparentParent.id === targetGrandparentParent.id) {
+            if (
+              refGrandparentParent &&
+              targetGrandparentParent &&
+              refGrandparentParent.id === targetGrandparentParent.id
+            ) {
               // Found common ancestor - verify grandparents are direct children
               if (refGrandparentParent.children) {
-                const refGrandparentIsChild = refGrandparentParent.children.some(c => c.id === refGrandparentCurrent.id)
-                const targetGrandparentIsChild = refGrandparentParent.children.some(c => c.id === targetGrandparentCurrent.id)
+                const refGrandparentIsChild = refGrandparentParent.children.some(
+                  (c) => c.id === refGrandparentCurrent.id
+                )
+                const targetGrandparentIsChild = refGrandparentParent.children.some(
+                  (c) => c.id === targetGrandparentCurrent.id
+                )
                 if (refGrandparentIsChild && targetGrandparentIsChild) {
                   commonAncestor = refGrandparentParent
                   break
@@ -1795,7 +2118,8 @@ function convertCousinRefsInTree(rootNode, eventName) {
       if (commonAncestor) {
         // Check if both nodes are single children
         const refNodeIsSingleChild = refNodeParent.children && refNodeParent.children.length === 1
-        const targetNodeIsSingleChild = targetNodeParent.children && targetNodeParent.children.length === 1
+        const targetNodeIsSingleChild =
+          targetNodeParent.children && targetNodeParent.children.length === 1
 
         if (refNodeIsSingleChild && targetNodeIsSingleChild) {
           allCousinRefs.push({
@@ -1862,7 +2186,7 @@ function convertCousinRefsInTree(rootNode, eventName) {
           const refGrandparent = grandparentAdjacency.get(grandparent.id)
           if (refGrandparent && !processedGrandparents.has(refGrandparent.id)) {
             // Find refGrandparent in the original array and add it next
-            const refGrandparentIndex = node.children.findIndex(p => p.id === refGrandparent.id)
+            const refGrandparentIndex = node.children.findIndex((p) => p.id === refGrandparent.id)
             if (refGrandparentIndex !== -1) {
               reordered.push(node.children[refGrandparentIndex])
               processedGrandparents.add(refGrandparent.id)
@@ -1882,7 +2206,9 @@ function convertCousinRefsInTree(rootNode, eventName) {
 
       // Now convert cousin refs to refChildren
       for (const cousinRef of cousinRefs) {
-        const refChildrenIds = cousinRef.targetNode.children ? cousinRef.targetNode.children.map(c => c.id) : []
+        const refChildrenIds = cousinRef.targetNode.children
+          ? cousinRef.targetNode.children.map((c) => c.id)
+          : []
         cousinRef.refNode.refChildren = refChildrenIds
         delete cousinRef.refNode.ref
         conversionsCount++
@@ -1920,7 +2246,7 @@ function convertNonSingleChildCousinRefsInTree(rootNode) {
 
   // Build parent map and node map
   const parentMap = new Map() // nodeId -> parent node
-  const nodeMap = new Map()   // nodeId -> node
+  const nodeMap = new Map() // nodeId -> node
 
   function buildMaps(node, parent = null) {
     if (!node) return
@@ -1929,7 +2255,7 @@ function convertNonSingleChildCousinRefsInTree(rootNode) {
       parentMap.set(node.id, parent)
     }
     if (node.children) {
-      node.children.forEach(child => buildMaps(child, node))
+      node.children.forEach((child) => buildMaps(child, node))
     }
   }
 
@@ -1971,8 +2297,10 @@ function convertNonSingleChildCousinRefsInTree(rootNode) {
           // The parents themselves are siblings (direct children case)
           // Check if they are direct children
           if (refParentParent.children) {
-            const refParentIsChild = refParentParent.children.some(c => c.id === refNodeParent.id)
-            const targetParentIsChild = refParentParent.children.some(c => c.id === targetNodeParent.id)
+            const refParentIsChild = refParentParent.children.some((c) => c.id === refNodeParent.id)
+            const targetParentIsChild = refParentParent.children.some(
+              (c) => c.id === targetNodeParent.id
+            )
             if (refParentIsChild && targetParentIsChild) {
               commonAncestor = refParentParent
             }
@@ -1988,12 +2316,19 @@ function convertNonSingleChildCousinRefsInTree(rootNode) {
             const refGrandparentParent = parentMap.get(refGrandparentCurrent.id)
             const targetGrandparentParent = parentMap.get(targetGrandparentCurrent.id)
 
-            if (refGrandparentParent && targetGrandparentParent &&
-                refGrandparentParent.id === targetGrandparentParent.id) {
+            if (
+              refGrandparentParent &&
+              targetGrandparentParent &&
+              refGrandparentParent.id === targetGrandparentParent.id
+            ) {
               // Found common ancestor - verify grandparents are direct children
               if (refGrandparentParent.children) {
-                const refGrandparentIsChild = refGrandparentParent.children.some(c => c.id === refGrandparentCurrent.id)
-                const targetGrandparentIsChild = refGrandparentParent.children.some(c => c.id === targetGrandparentCurrent.id)
+                const refGrandparentIsChild = refGrandparentParent.children.some(
+                  (c) => c.id === refGrandparentCurrent.id
+                )
+                const targetGrandparentIsChild = refGrandparentParent.children.some(
+                  (c) => c.id === targetGrandparentCurrent.id
+                )
                 if (refGrandparentIsChild && targetGrandparentIsChild) {
                   commonAncestor = refGrandparentParent
                   break
@@ -2050,7 +2385,7 @@ function convertNonSingleChildCousinRefsInTree(rootNode) {
     const parent = nodeMap.get(parentId)
     if (!parent || !parent.children) return
 
-    const targetNodes = new Set(cousinRefs.map(cr => cr.targetNode.id))
+    const targetNodes = new Set(cousinRefs.map((cr) => cr.targetNode.id))
     const targetNodeList = []
     const otherSiblings = []
 
@@ -2075,7 +2410,7 @@ function convertNonSingleChildCousinRefsInTree(rootNode) {
     const parent = nodeMap.get(parentId)
     if (!parent || !parent.children) return
 
-    const refNodes = new Set(cousinRefs.map(cr => cr.refNode.id))
+    const refNodes = new Set(cousinRefs.map((cr) => cr.refNode.id))
     const refNodeList = []
     const otherSiblings = []
 
@@ -2096,7 +2431,9 @@ function convertNonSingleChildCousinRefsInTree(rootNode) {
 
     // Convert refs to refChildren
     for (const cousinRef of cousinRefs) {
-      const refChildrenIds = cousinRef.targetNode.children ? cousinRef.targetNode.children.map(c => c.id) : []
+      const refChildrenIds = cousinRef.targetNode.children
+        ? cousinRef.targetNode.children.map((c) => c.id)
+        : []
       cousinRef.refNode.refChildren = refChildrenIds
       delete cousinRef.refNode.ref
       conversionsCount++
