@@ -22,14 +22,7 @@ const Header = ({ onLogoClick, logoSrc, preTitle, title, subtitle, currentPage }
   return (
     <div className={cx('header')}>
       <div className={styles['logo-and-title']} onClick={onLogoClick}>
-        <Image
-          src={logoSrc}
-          alt="Header logo"
-          className={cx('logo')}
-          width={52}
-          height={52}
-          optimized
-        />
+        <Image src={logoSrc} alt="Header logo" className={cx('logo')} width={52} height={52} />
         <div>
           <h1 className={cx('title', { 'title--long': title.length > 20 })}>
             {preTitleElement}

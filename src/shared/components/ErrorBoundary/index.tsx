@@ -59,7 +59,6 @@ class ErrorBoundary extends Component<Props, State> {
             className={cx('image')}
             width={80}
             height={80}
-            optimized
           />
           <GradientButton
             className={cx('retry-button')}

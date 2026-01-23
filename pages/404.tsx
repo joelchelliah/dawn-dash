@@ -33,7 +33,6 @@ export default function Custom404(): JSX.Element {
         className={cx('image')}
         width={150}
         height={150}
-        optimized
       />
 
       <GradientButton bold className={cx('back-button')} onClick={goBack}>

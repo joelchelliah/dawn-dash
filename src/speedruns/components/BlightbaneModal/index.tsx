@@ -75,7 +75,6 @@ function BlightbaneModal({
           className={cx('icon')}
           width={64}
           height={44}
-          optimized
         />
         Go to Blightbane?
       </h3>
