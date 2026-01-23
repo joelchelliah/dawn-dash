@@ -50,6 +50,7 @@ export default function Landing() {
             mobileDescription={LANDING_PAGE_NAV_ITEM_DESCRIPTIONS.cardexShort}
             onMouseEnter={() => setHoveredItem('cardex')}
             onMouseLeave={() => setHoveredItem(null)}
+            priority
           />
           <NavItem
             url="/skilldex"
