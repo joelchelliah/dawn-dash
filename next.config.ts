@@ -5,6 +5,8 @@ import withPWA from 'next-pwa'
 const nextConfig = {
   reactStrictMode: true,
   images: {
+    // Disable image optimization for preview deployments
+    unoptimized: process.env.VERCEL_ENV === 'preview',
     remotePatterns: [
       {
         protocol: 'https',
