@@ -80,10 +80,10 @@ export default function Landing() {
 
         {!hoveredItem && !isMobile && (
           <div className={cx('nav-description-placeholder')}>
+            <span className={cx('boo-text')}>WAAH!</span>
             <Image
               src={HauntingNightmaresImageUrl}
               alt="Placeholder image"
-              title="BOO!"
               className={cx('image')}
               width={30}
               height={30}
