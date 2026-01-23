@@ -81,8 +81,9 @@
 
   @media (max-width: $breakpoint-mobile) {
     @include topBannerPosition;
-    top: -1px;
-    height: 3rem;
+    top: -2px;
+    padding-top: 0.375rem;
+    height: 4rem;
   }
 }
 
