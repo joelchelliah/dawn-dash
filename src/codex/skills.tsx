@@ -51,7 +51,8 @@ function Skills(): JSX.Element {
       <Header
         onLogoClick={resetToTalentCodex}
         logoSrc={EleganceImageUrl}
-        title="Dawn-Dash : Skilldex"
+        preTitle="Dawn-Dash"
+        title="Skilldex"
         subtitle="Dawncaster talents codex"
         currentPage="skilldex"
       />

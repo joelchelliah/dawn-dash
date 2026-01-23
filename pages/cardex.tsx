@@ -6,11 +6,14 @@ const Cards = dynamic(() => import('../src/codex/cards'), {
 })
 
 export default function CardexPage() {
-  const title = 'Dawn-Dash : Cardex'
+  const ogTitle = 'Cardex'
+  const title = `Dawn-Dash: ${ogTitle}`
+
   const description =
     'Interactive Dawncaster cards codex, with advanced search and filtering options to find and track your cards through your runs!'
   const ogDescription =
     'Search and track all Dawncaster cards through your runs, with advanced filtering options!'
+
   const image = 'https://www.dawn-dash.com/og-image-cardex.png'
   const url = 'https://www.dawn-dash.com/cardex'
   const squareLogo = 'https://www.dawn-dash.com/logo-cardex.png'
@@ -23,7 +26,7 @@ export default function CardexPage() {
         <link rel="canonical" href={url} />
 
         <meta property="og:type" content="website" />
-        <meta property="og:title" content={title} />
+        <meta property="og:title" content={ogTitle} />
         <meta property="og:description" content={ogDescription} />
         <meta property="og:image" content={image} />
         <meta property="og:image:width" content="2400" />

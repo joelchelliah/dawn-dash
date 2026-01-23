@@ -53,7 +53,8 @@ function Events(): JSX.Element {
       <Header
         onLogoClick={resetToEventCodex}
         logoSrc={MapOfHuesImageUrl}
-        title="Dawn-Dash : Eventmaps"
+        preTitle="Dawn-Dash"
+        title="Eventmaps"
         subtitle="Dawncaster event-trees"
         currentPage="eventmaps"
       />

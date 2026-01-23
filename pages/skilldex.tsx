@@ -6,11 +6,14 @@ const Skills = dynamic(() => import('../src/codex/skills'), {
 })
 
 export default function SkilldexPage() {
-  const title = 'Dawn-Dash : Skilldex'
+  const ogTitle = 'Skilldex'
+  const title = `Dawn-Dash: ${ogTitle}`
+
   const description =
     'Interactive Dawncaster talents codex, with advanced search and filtering options to find and show all talents and their requirements!'
   const ogDescription =
     'Search and filter through all Dawncaster talents and their requirements, visualized as tiny talent trees!'
+
   const image = 'https://www.dawn-dash.com/og-image-skilldex.png'
   const url = 'https://www.dawn-dash.com/skilldex'
   const squareLogo = 'https://www.dawn-dash.com/logo-skilldex.png'
@@ -23,7 +26,7 @@ export default function SkilldexPage() {
         <link rel="canonical" href={url} />
 
         <meta property="og:type" content="website" />
-        <meta property="og:title" content={title} />
+        <meta property="og:title" content={ogTitle} />
         <meta property="og:description" content={ogDescription} />
         <meta property="og:image" content={image} />
         <meta property="og:image:width" content="2400" />

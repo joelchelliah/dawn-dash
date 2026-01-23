@@ -37,7 +37,8 @@ function Cards(): JSX.Element {
       <Header
         onLogoClick={resetToCardCodex}
         logoSrc={AbracadabraImageUrl}
-        title="Dawn-Dash : Cardex"
+        preTitle="Dawn-Dash"
+        title="Cardex"
         subtitle="Dawncaster cards codex"
         currentPage="cardex"
       />
