@@ -39,17 +39,21 @@ const EventResultsPanel = ({
 
   return (
     <div className={cx('results-panel')}>
-      <PanelHeader type="EventResults" />
+      <div className={cx('results-panel__header')}>
+        <PanelHeader type="EventResults" />
+      </div>
 
-      <div className={cx('results-container')}>
+      <div className={cx('results-panel__container')}>
         {showEventList && (
-          <EventList
-            events={filteredEvents}
-            allEvents={allEvents}
-            filterText={filterText}
-            setFilterText={setFilterText}
-            onEventSelect={onEventChange}
-          />
+          <div className={cx('results-panel__event-list')}>
+            <EventList
+              events={filteredEvents}
+              allEvents={allEvents}
+              filterText={filterText}
+              setFilterText={setFilterText}
+              onEventSelect={onEventChange}
+            />
+          </div>
         )}
 
         {!showEventList && selectedEvent && (

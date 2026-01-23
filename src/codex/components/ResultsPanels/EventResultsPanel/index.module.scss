@@ -2,14 +2,19 @@
 
 .results-panel {
   background-color: $color-component-bg;
-  padding: 1rem;
+  padding: 1rem 0;
   border-radius: 4px;
-}
 
-.results-container {
-  display: flex;
-  flex-direction: column;
-  margin-top: 1rem;
+  &__header,
+  &__event-list {
+    margin: 0 1rem;
+  }
+
+  &__container {
+    display: flex;
+    flex-direction: column;
+    margin-top: 1rem;
+  }
 }
 
 .info-message {
