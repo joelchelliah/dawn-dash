@@ -128,7 +128,8 @@
 
     .boo-text {
       opacity: 1;
-      animation: fadeInFromBottom 0.3s ease-out forwards,
+      animation:
+        fadeInFromBottom 0.3s ease-out forwards,
         horizontalShake 1.5s ease-in-out 0.2s infinite;
     }
   }
