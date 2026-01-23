@@ -30,9 +30,6 @@ export default function App({ Component, pageProps }: AppProps) {
         {/* Discord stripe color */}
         <meta name="theme-color" content="#249624" />
 
-        {/* Allow the large images in Discord */}
-        <meta name="twitter:card" content="summary_large_image" />
-
         {/* Structured Data */}
         <script
           type="application/ld+json"
@@ -42,7 +39,7 @@ export default function App({ Component, pageProps }: AppProps) {
               '@type': 'WebApplication',
               name: 'Dawn-Dash',
               description:
-                'Dawncaster companion tools including speedrun charts, card database, and skill tree visualizer',
+                'Dawncaster tools and resources, including speedrun charts, cards codex, talents codex, and event tree visualizer!',
               url: 'https://www.dawn-dash.com',
               applicationCategory: 'GameApplication',
               logo: 'https://www.dawn-dash.com/icon-512.png',

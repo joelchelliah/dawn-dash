@@ -54,7 +54,7 @@ export function EventmapHead({ event, eventUrlParam }: EventmapHeadProps = {}) {
       <meta name="twitter:description" content={description} />
 
       {!hasEventArtwork && <meta name="twitter:card" content="summary_large_image" />}
-      {!hasEventArtwork && <meta property="twitter:image" content={image} />}
+      <meta property="twitter:image" content={image} />
 
       {/* Page-Specific Structured Data */}
       <script
