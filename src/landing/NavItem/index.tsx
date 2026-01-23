@@ -49,7 +49,6 @@ export default function NavItem({
           sizes={sizes}
           className={cx('nav-item__image')}
           priority={priority}
-          optimized
         />
       </div>
       <p className={cx('nav-item__description')}>{mobileDescription}</p>
