@@ -23,8 +23,9 @@ const HORIZONTAL_SPACING_CONFIG = {
  *
  * - Pass 1: Position children centered under each parent (ignoring overlaps)
  * - Pass 1.5: Adjust children with multiple parents (direct + refChildren) to center under average of all parents
- * - Pass 2: Fix overlaps by moving parent subtrees apart and recentering ancestors
+ * - Pass 2: Fix overlaps by moving parent subtrees apart and recentering parent groups over shared children
  * - Pass 3: Tighten gaps by looking for large gaps between sibling subtrees and moving them closer
+ * - Final: Re-run pass 1.5 after tightening (pass 3 can drag shared nodes off-center)
  */
 export const adjustHorizontalNodeSpacing = (
   root: HierarchyPointNode<EventTreeNode>,
@@ -32,6 +33,54 @@ export const adjustHorizontalNodeSpacing = (
 ) => {
   const minHorizontalGap = NODE.HORIZONTAL_SPACING_DEFAULT
   const nodesByDepth = groupNodesByDepth(root)
+  const runMultiParentChildCentering = (): boolean => {
+    let madeAdjustment = false
+
+    for (let depth = 1; depth < nodesByDepth.length; depth++) {
+      const nodesAtDepth = nodesByDepth[depth] || []
+      const parentsAtPrevDepth = nodesByDepth[depth - 1] || []
+
+      const childToAllParentsMap = buildChildToAllParentsMap(parentsAtPrevDepth)
+
+      nodesAtDepth.forEach((child) => {
+        const allParents = childToAllParentsMap.get(child.data.id)
+
+        // If this child has multiple parents (direct + ref), center it under all of them
+        if (allParents && allParents.length > 1) {
+          // Calculate average X position of all parents
+          const avgParentX = calculateAverageX(allParents)
+
+          // Calculate offset to move this child to center under average
+          const currentChildX = child.x ?? 0
+          const desiredOffset = avgParentX - currentChildX
+
+          // Only apply if significant
+          if (Math.abs(desiredOffset) > minHorizontalGap / 10) {
+            // Clamp the shift so we don't introduce overlaps when pulling a shared subtree
+            const direction = desiredOffset < 0 ? 'left' : 'right'
+            const maxSafeShift = calculateMaxShiftForNode(
+              child,
+              Math.abs(desiredOffset),
+              direction,
+              Math.max(0, child.depth - 1),
+              nodesByDepth,
+              event,
+              minHorizontalGap
+            )
+
+            if (maxSafeShift > minHorizontalGap / 10) {
+              const appliedShift = direction === 'left' ? -maxSafeShift : maxSafeShift
+              child.x = (child.x ?? 0) + appliedShift
+              shiftSubtreeHorizontally(child, appliedShift)
+              madeAdjustment = true
+            }
+          }
+        }
+      })
+    }
+
+    return madeAdjustment
+  }
 
   // PASS 1: Position children, centered, under parents (ignore overlaps)
   if (HORIZONTAL_SPACING_CONFIG.pass1Enabled) {
@@ -68,32 +117,7 @@ export const adjustHorizontalNodeSpacing = (
   // PASS 1.5: Adjust children with multiple parents to be centered under all parents
   // This handles cases where a child has both a direct parent and refChildren parents
   if (HORIZONTAL_SPACING_CONFIG.pass1_5Enabled) {
-    for (let depth = 1; depth < nodesByDepth.length; depth++) {
-      const nodesAtDepth = nodesByDepth[depth] || []
-      const parentsAtPrevDepth = nodesByDepth[depth - 1] || []
-
-      const childToAllParentsMap = buildChildToAllParentsMap(parentsAtPrevDepth)
-
-      nodesAtDepth.forEach((child) => {
-        const allParents = childToAllParentsMap.get(child.data.id)
-
-        // If this child has multiple parents (direct + ref), center it under all of them
-        if (allParents && allParents.length > 1) {
-          // Calculate average X position of all parents
-          const avgParentX = calculateAverageX(allParents)
-
-          // Calculate offset to move this child to center under average
-          const currentChildX = child.x ?? 0
-          const offset = avgParentX - currentChildX
-
-          // Only apply if significant
-          if (Math.abs(offset) > minHorizontalGap / 10) {
-            child.x = avgParentX
-            shiftSubtreeHorizontally(child, offset)
-          }
-        }
-      })
-    }
+    runMultiParentChildCentering()
   }
 
   // PASS 2: Iteratively fix overlaps and recenter ancestors
@@ -398,6 +422,13 @@ export const adjustHorizontalNodeSpacing = (
         })
       }
     }
+  }
+
+  // FINAL: After tightening, recenter multi-parent children again.
+  // Pass 3 can shift the "real-parent" subtree and drag a shared node away from its
+  // desired average-of-parents position.
+  if (HORIZONTAL_SPACING_CONFIG.pass1_5Enabled && HORIZONTAL_SPACING_CONFIG.pass3Enabled) {
+    runMultiParentChildCentering()
   }
 }
 

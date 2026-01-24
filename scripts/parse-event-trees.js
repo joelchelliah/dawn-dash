@@ -57,6 +57,26 @@ const DEFAULT_NODE_BLACKLIST = ['A Familiar Face']
 //     before returning to the hub, so we need to build that path fully first.
 //   * Note: This mode builds deeper trees, so may require higher node budgets.
 const DIALOGUE_MENU_EVENTS = {
+  "Heroes' Rest Cemetery Start": {
+    menuHubPattern: 'The old wooden wheels creak',
+    menuExitPattern: 'I have no more questions',
+    hubChoiceMatchThreshold: 60, // choices: 2/3
+  },
+  'Isle of Talos': {
+    menuHubPattern: 'Bolgar straightens his muddied',
+    menuExitPattern: 'I have no more questions',
+    hubChoiceMatchThreshold: 60, // choices: 2/3
+  },
+  'Statue of Ilthar II Death': {
+    menuHubPattern: 'As a [[relation]]? Because you are',
+    menuExitPattern: "Skip: I've heard it all before",
+    hubChoiceMatchThreshold: 60, // choices: 2/3
+  },
+  'Sunfall Meadows Start': {
+    menuHubPattern: 'You find yourself journeying along',
+    menuExitPattern: 'What about my pay?',
+    hubChoiceMatchThreshold: 60, // choices: 2/3
+  },
   'Rathael the Slain Death': {
     menuHubPattern: 'A chance to tangle with one of these',
     menuExitPattern: 'Fight: Confront the Seraph',
@@ -68,21 +88,6 @@ const DIALOGUE_MENU_EVENTS = {
     menuHubPattern: 'You can distinguish several rooms',
     menuExitPattern: 'Leave',
     hubChoiceMatchThreshold: 80, // choices: 4/5
-  },
-  'Isle of Talos': {
-    menuHubPattern: 'Bolgar straightens his muddied',
-    menuExitPattern: 'I have no more questions',
-    hubChoiceMatchThreshold: 60, // choices: 2/3
-  },
-  "Heroes' Rest Cemetery Start": {
-    menuHubPattern: 'The old wooden wheels creak',
-    menuExitPattern: 'I have no more questions',
-    hubChoiceMatchThreshold: 60, // choices: 2/3
-  },
-  'Statue of Ilthar II Death': {
-    menuHubPattern: 'As a [[relation]]? Because you are',
-    menuExitPattern: "Skip: I've heard it all before",
-    hubChoiceMatchThreshold: 60, // choices: 2/3
   },
 }
 
