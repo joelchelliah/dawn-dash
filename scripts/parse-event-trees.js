@@ -57,15 +57,30 @@ const DEFAULT_NODE_BLACKLIST = ['A Familiar Face']
 //     before returning to the hub, so we need to build that path fully first.
 //   * Note: This mode builds deeper trees, so may require higher node budgets.
 const DIALOGUE_MENU_EVENTS = {
+  'Dawnbringer Ystel': {
+    menuHubPattern: "Ystel's figure exudes a sense",
+    menuExitPattern: 'Leave',
+    hubChoiceMatchThreshold: 100, // choices: 3/3
+  },
   "Heroes' Rest Cemetery Start": {
     menuHubPattern: 'The old wooden wheels creak',
     menuExitPattern: 'I have no more questions',
+    hubChoiceMatchThreshold: 60, // choices: 2/3
+  },
+  'Historic Shard': {
+    menuHubPattern: 'You stare into the mirror',
+    menuExitPattern: "Skip: We don't have time",
     hubChoiceMatchThreshold: 60, // choices: 2/3
   },
   'Isle of Talos': {
     menuHubPattern: 'Bolgar straightens his muddied',
     menuExitPattern: 'I have no more questions',
     hubChoiceMatchThreshold: 60, // choices: 2/3
+  },
+  'Kaius Tagdahar Death': {
+    menuHubPattern: 'A quick strike ends the young',
+    menuExitPattern: "Let's go", // There are 2 exit nodes with this pattern
+    hubChoiceMatchThreshold: 50, // choices: 1/2
   },
   'Statue of Ilthar II Death': {
     menuHubPattern: 'As a [[relation]]? Because you are',
@@ -92,7 +107,7 @@ const DIALOGUE_MENU_EVENTS = {
 }
 
 // Enables detailed logging for a specific event, when provided.
-const DEBUG_EVENT_NAME = 'Statue of Ilthar II Death'
+const DEBUG_EVENT_NAME = 'Historic Shard'
 
 // Toggle optimization/debug passes without commenting code.
 // Keep defaults as "true" to preserve current behavior.
@@ -145,6 +160,8 @@ const OPTIMIZATION_PASS_CONFIG = {
   // Depth 1 = immediate children only, 2 = children + grandchildren, 3 = + great-grandchildren, etc.
   // Higher values catch more structural differences but have minimal performance impact.
   DEDUPLICATE_SUBTREES_SIGNATURE_DEPTH: 3,
+  // Skip subtree deduplication for these events (e.g. Historic Shard: same-choice nodes differ by path).
+  DEDUPLICATE_SUBTREES_EVENT_BLACKLIST: ['Historic Shard'],
 
   // Rewrite refs so non-choice nodes never target a choice wrapper node.
   // E.g. a dialogue node's ref shouldn't point to a choice wrapper node, but rather the outcome node.
@@ -1131,11 +1148,15 @@ function buildTreeFromStory(
     const matchedHubNodeId = checkHubChoiceMatch(children)
     // NOTE: hubNodeId can be 0, so don't use truthy checks here.
     if (matchedHubNodeId != null && matchedHubNodeId === snapshot.hubNodeId) {
+      const safeText = cleanedText && cleanedText.trim() !== '' ? cleanedText : '[Choice point]'
       // This node's children match the hub snapshot - convert this node to a ref
+
+      // NOTE: Here we are not taking into account that these nodes can be choices. Maybe they should never be...
+      // Either way there are some weird occurences of [Choice point] in several events now that we need to fix at some point!
       return createNode({
         id: nodeId,
-        text: cleanedText || '[Choice point]',
-        type,
+        text: safeText,
+        type: type === 'choice' ? 'dialogue' : type,
         effects,
         numContinues,
         ref: matchedHubNodeId, // Ref back to hub
@@ -1371,13 +1392,15 @@ function buildNodeMapForTree(rootNode) {
 
 /**
  * Find all invalid refs in a tree (refs pointing to non-existent nodes)
+ * Each entry includes nodeId, refTarget, and identity (text or choiceLabel) for comparison.
  */
 function findInvalidRefsInTree(rootNode, nodeMap) {
   const invalidRefs = []
   function checkRefs(node) {
     if (!node) return
     if (node.ref !== undefined && !nodeMap.has(node.ref)) {
-      invalidRefs.push({ nodeId: node.id, refTarget: node.ref })
+      const identity = node.choiceLabel || (node.text ? node.text.slice(0, 120) : '') || '(no text)'
+      invalidRefs.push({ nodeId: node.id, refTarget: node.ref, identity })
     }
     if (node.children) {
       node.children.forEach((child) => checkRefs(child))
@@ -1406,21 +1429,29 @@ function checkInvalidRefs(eventTrees) {
       eventsWithInvalidRefs.push({
         name: tree.name,
         invalidRefs: invalidRefs.length,
-        examples: invalidRefs.slice(0, 3), // Show first 3 examples
+        examples: invalidRefs.slice(0, 5), // For identity comparison
       })
     }
   })
 
   if (totalInvalidRefs > 0) {
-    console.log(
+    console.warn(
       `  ⚠️  Found ${totalInvalidRefs} invalid refs across ${eventsWithInvalidRefs.length} events`
     )
+    console.warn('  Events:', eventsWithInvalidRefs.map((e) => e.name).join(', '))
+    console.log('\n  Invalid refs by event (identity = choiceLabel or text):')
+    eventsWithInvalidRefs.forEach(({ name, invalidRefs, examples }) => {
+      console.log(`    "${name}":`)
+      examples.forEach(({ nodeId, refTarget, identity }) => {
+        const short = identity.length > 80 ? identity.slice(0, 77) + '...' : identity
+        console.log(`      Node ${nodeId} -> ${refTarget}  "${short}"`)
+      })
+    })
     if (CONFIG.VERBOSE_LOGGING) {
-      console.log('\n  Events with invalid refs:')
+      console.log('\n  (VERBOSE) All invalid refs:')
       eventsWithInvalidRefs.forEach(({ name, invalidRefs, examples }) => {
-        console.log(`    - "${name}": ${invalidRefs} invalid refs`)
         examples.forEach(({ nodeId, refTarget }) => {
-          console.log(`        Node ${nodeId} -> ${refTarget} (target not found)`)
+          console.log(`    - "${name}" Node ${nodeId} -> ${refTarget} (target not found)`)
         })
       })
     }
@@ -3105,6 +3136,7 @@ function deduplicateAllTrees(eventTrees, maxIterations = 1) {
 
     eventTrees.forEach((tree) => {
       if (!tree.rootNode) return
+      if (OPTIMIZATION_PASS_CONFIG.DEDUPLICATE_SUBTREES_EVENT_BLACKLIST?.includes(tree.name)) return
 
       const { duplicatesFound, nodesRemoved } = deduplicateEventTree(tree.rootNode)
       if (duplicatesFound <= 0) return
