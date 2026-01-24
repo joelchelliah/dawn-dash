@@ -141,6 +141,10 @@ const OPTIMIZATION_PASS_CONFIG = {
   // - Runs several passes to ensure that we catch all false positives.
   DEDUPLICATE_SUBTREES_NUM_ITERATIONS: 2,
   DEDUPLICATE_SUBTREES_MIN_SUBTREE_SIZE: 3, // Only dedupe if subtree has at least this many nodes
+  // How many levels deep to include in the signature for deduplication comparison.
+  // Depth 1 = immediate children only, 2 = children + grandchildren, 3 = + great-grandchildren, etc.
+  // Higher values catch more structural differences but have minimal performance impact.
+  DEDUPLICATE_SUBTREES_SIGNATURE_DEPTH: 3,
 
   // Rewrite refs so non-choice nodes never target a choice wrapper node.
   // E.g. a dialogue node's ref shouldn't point to a choice wrapper node, but rather the outcome node.
@@ -2170,13 +2174,27 @@ function getMaxDepth(node, currentDepth = 0) {
 }
 
 /**
- * Check if two subtrees are structurally identical at depth 1 (immediate children only)
+ * Get descendant count at a specific depth for a node
+ * @param {Object} node - The node to check
+ * @param {number} depth - How many levels down to count (1 = children, 2 = grandchildren, etc.)
+ * @returns {number} Count of descendants at the specified depth
+ */
+function getDescendantCountAtDepth(node, depth) {
+  if (depth <= 0 || !node.children || node.children.length === 0) return 0
+  if (depth === 1) return node.children.length
+  // For depth > 1, sum up descendants at that depth from all children
+  return node.children.reduce((sum, child) => sum + getDescendantCountAtDepth(child, depth - 1), 0)
+}
+
+/**
+ * Check if two subtrees are structurally identical
  *
  * Compares:
  * - Number of children
  * - For each child: text, choiceLabel, type, requirements, effects
+ * - For each child: descendant counts at configured depth levels (to catch structural differences)
  *
- * Does NOT recursively compare deeper levels (only depth 1).
+ * The depth of comparison is controlled by DEDUPLICATE_SUBTREES_SIGNATURE_DEPTH.
  */
 function areSubtreesIdentical(nodeA, nodeB) {
   // Must have same number of children
@@ -2188,7 +2206,9 @@ function areSubtreesIdentical(nodeA, nodeB) {
   // If both have no children, they're identical (both leaf nodes)
   if (childrenA.length === 0) return true
 
-  // Check each child at depth 1 only
+  const signatureDepth = OPTIMIZATION_PASS_CONFIG.DEDUPLICATE_SUBTREES_SIGNATURE_DEPTH || 2
+
+  // Check each child
   for (let i = 0; i < childrenA.length; i++) {
     const childA = childrenA[i]
     const childB = childrenB[i]
@@ -2208,6 +2228,13 @@ function areSubtreesIdentical(nodeA, nodeB) {
     const effA = JSON.stringify(childA.effects || null)
     const effB = JSON.stringify(childB.effects || null)
     if (effA !== effB) return false
+
+    // Compare descendant counts at each depth level (1 to signatureDepth)
+    for (let depth = 1; depth <= signatureDepth; depth++) {
+      const countA = getDescendantCountAtDepth(childA, depth)
+      const countB = getDescendantCountAtDepth(childB, depth)
+      if (countA !== countB) return false
+    }
   }
 
   return true
@@ -2336,16 +2363,24 @@ function deduplicateEventTree(rootNode) {
     const subtreeSize = countNodes(node)
     if (subtreeSize >= OPTIMIZATION_PASS_CONFIG.DEDUPLICATE_SUBTREES_MIN_SUBTREE_SIZE) {
       // Create a simple signature based on node structure
+      const signatureDepth = OPTIMIZATION_PASS_CONFIG.DEDUPLICATE_SUBTREES_SIGNATURE_DEPTH || 2
       const signature = JSON.stringify({
         numChildren: node.children.length,
-        childrenData: node.children.map((child) => ({
-          text: child.text,
-          choiceLabel: child.choiceLabel,
-          type: child.type,
-          requirements: child.requirements,
-          effects: child.effects,
-          ref: child.ref, // Include ref in signature to avoid merging nodes with different refs
-        })),
+        childrenData: node.children.map((child) => {
+          const childData = {
+            text: child.text,
+            choiceLabel: child.choiceLabel,
+            type: child.type,
+            requirements: child.requirements,
+            effects: child.effects,
+            ref: child.ref, // Include ref in signature to avoid merging nodes with different refs
+          }
+          // Include descendant counts at each depth level to prevent false matches
+          for (let depth = 1; depth <= signatureDepth; depth++) {
+            childData[`descendantsAtDepth${depth}`] = getDescendantCountAtDepth(child, depth)
+          }
+          return childData
+        }),
       })
 
       // Check if we've seen this signature before
