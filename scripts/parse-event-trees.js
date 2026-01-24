@@ -12,40 +12,8 @@ console.warn = (...args) => {
 
 /**
  * Script to parse Ink JSON from events and generate hierarchical tree structures
- * using the official inkjs runtime for accurate parsing.
- *
- * LOOP DETECTION AND DEDUPLICATION STRATEGY:
- * ------------------------------------------
- * Uses a multi-stage approach to detect and eliminate duplicate content:
- *
- * DURING TREE BUILDING (depth-first exploration):
- * 1. TEXT-BASED LOOP DETECTION:
- *    Detects when the same dialogue text appears in the ancestor chain.
- *    Creates ref nodes immediately to prevent infinite dialogue loops.
- *
- * 2. CHOICE+PATH-BASED LOOP DETECTION:
- *    Detects when the same choice structure appears at the same Ink story path.
- *    Creates ref nodes to prevent merchant/shop loops where choices repeat.
- *
- * 3. DIALOGUE MENU DETECTION (Rathael only):
- *    Detects question-asking patterns where you return to a menu with same questions.
- *    Matches on question choices only, preventing factorial explosion from question orderings.
- *
- * 4. PATH CONVERGENCE DETECTION (Frozen Heart only):
- *    Detects when reaching the same node (text + choices) via different paths.
- *    Creates ref nodes immediately, preventing re-exploration of identical branches.
- *    Only enabled for events in PATH_CONVERGENCE_EVENTS whitelist.
- *    WARNING: This is depth-first dedup that can conflict with breadth-first post-processing.
- *    Only use for events that truly need it (hit node limits without it).
- *
- * POST-PROCESSING (breadth-first deduplication):
- * 5. STRUCTURAL DEDUPLICATION:
- *    Uses breadth-first traversal to find remaining structurally identical subtrees.
- *    Replaces duplicates with references, ensuring shallow nodes become originals.
- *    Processes shallowest nodes first to maintain good tree structure for visualization.
- *
- * All duplicate nodes have a "ref" field pointing to the original node ID.
- * The D3 renderer uses the ref field to loop back to the original node.
+ * using the official inkjs runtime for accurate parsing,
+ * plus several home-made optimization passes.
  */
 
 const EVENTS_FILE = path.join(__dirname, './events.json')
@@ -101,23 +69,91 @@ const DIALOGUE_MENU_EVENTS = {
     menuExitPattern: 'Leave',
     hubChoiceMatchThreshold: 80, // choices: 4/5
   },
+  'Isle of Talos': {
+    menuHubPattern: 'Bolgar straightens his muddied',
+    menuExitPattern: 'I have no more questions',
+    hubChoiceMatchThreshold: 60, // choices: 2/3
+  },
+  "Heroes' Rest Cemetery Start": {
+    menuHubPattern: 'The old wooden wheels creak',
+    menuExitPattern: 'I have no more questions',
+    hubChoiceMatchThreshold: 60, // choices: 2/3
+  },
+  'Statue of Ilthar II Death': {
+    menuHubPattern: 'As a [[relation]]? Because you are',
+    menuExitPattern: "Skip: I've heard it all before",
+    hubChoiceMatchThreshold: 60, // choices: 2/3
+  },
 }
 
-// Events that require path convergence detection (early deduplication during tree building)
-// Most events don't need this - post-processing structural dedup is sufficient.
-// However, "Frozen Heart" has such complex branching that it hits node limits without early dedup.
-// Early dedup is depth-first (happens during recursive building), while post-processing dedup
-// is breadth-first. Mixing them can cause issues where early dedup creates refs to nodes
-// that post-processing dedup later removes. So we only enable it for events that truly need it.
-const PATH_CONVERGENCE_EVENTS = ['Frozen Heart']
+// Enables detailed logging for a specific event, when provided.
+const DEBUG_EVENT_NAME = 'Statue of Ilthar II Death'
 
-// Events that should skip the simple cousin ref conversion pass
-// Some complex trees break when this pass reorders parents
-const COUSIN_REF_BLACKLIST = ['Vesparin Vault']
+// Toggle optimization/debug passes without commenting code.
+// Keep defaults as "true" to preserve current behavior.
+const OPTIMIZATION_PASS_CONFIG = {
+  // === OPTIMIZATION PASSES DURING TREE BUILDING ===
+
+  // Text-based loop detection:
+  // - If dialogue text repeats in the ancestor chain, create a ref immediately.
+  // - Prevents infinite dialogue loops.
+  TEXT_LOOP_DETECTION_ENABLED: true,
+
+  // Choice + story-path loop detection:
+  // - Hashes: (choice labels + Ink story path).
+  // - Creates refs to prevent merchant/shop loops where choices repeat.
+  CHOICE_AND_PATH_LOOP_DETECTION_ENABLED: true,
+
+  // Path convergence early dedup (whitelisted via PATH_CONVERGENCE_EVENTS):
+  // - If we reach the same node state (text + choices) via different routes, create a ref.
+  // - Depth-first early dedup
+  // - Fragile and brittle! Only enable for events that truly need it.
+  PATH_CONVERGENCE_EVENTS: ['Frozen Heart'],
+  PATH_CONVERGENCE_DEDUP_MIN_CHOICES: 3, // Only apply to nodes with at least this many choices
+
+  // Dialogue menu hub detection (whitelisted via DIALOGUE_MENU_EVENTS):
+  // - Detects "dialogue menu" hubs and collapses loops by inserting refs.
+  // - With hubChoiceMatchThreshold: delayed hub return detection (build child, then ref it).
+  // - Without hubChoiceMatchThreshold: immediate ref creation mode (faster, smaller trees).
+  DIALOGUE_MENU_EVENTS_ENABLED: true,
+
+  // === POST-PROCESSING PIPELINE ===
+  //
+  // Remove nodes with `choiceLabel === 'default'` or `text === 'default'`
+  // See DEFAULT_NODE_BLACKLIST for events that should be filtered.
+  FILTER_DEFAULT_NODES_ENABLED: true,
+
+  // Split mixed nodes into: choice wrapper -> outcome node (effects/text/children).
+  // This also normalizes rendering and helps later passes reason about refs (e.g. deduplication).
+  SEPARATE_CHOICES_FROM_EFFECTS_ENABLED: true,
+
+  // Apply manual fixes from `scripts/event-alterations.json`.
+  // For manually adding or modifying nodes that were too difficult to parse automatically.
+  APPLY_EVENT_ALTERATIONS_ENABLED: true,
+
+  // Structural subtree deduplication (breadth-first):
+  // - Replaces structurally identical subtrees with refs, preferring shallow originals.
+  // - Runs several passes to ensure that we catch all false positives.
+  DEDUPLICATE_SUBTREES_NUM_ITERATIONS: 2,
+  DEDUPLICATE_SUBTREES_MIN_SUBTREE_SIZE: 3, // Only dedupe if subtree has at least this many nodes
+
+  // Rewrite refs so non-choice nodes never target a choice wrapper node.
+  // E.g. a dialogue node's ref shouldn't point to a choice wrapper node, but rather the outcome node.
+  NORMALIZE_REFS_POINTING_TO_CHOICE_NODES_ENABLED: true,
+
+  // For threshold-based dialogue menu events, promote the shallowest hub copy to be canonical
+  // (see `promoteShallowDialogueMenuHub()` for details).
+  PROMOTE_SHALLOW_DIALOGUE_MENU_HUB_ENABLED: true,
+
+  // Convert certain refs (sibling/simple cousin) into `refChildren` for nicer visualization.
+  CONVERT_SIBLING_AND_COUSIN_REFS_TO_REF_CHILDREN_ENABLED: true,
+  COUSIN_REF_BLACKLIST: ['Vesparin Vault'], // Some complex trees break when this pass reorders parents
+
+  // Validate refs (detect refs pointing to missing nodes) and log warnings.
+  CHECK_INVALID_REFS_ENABLED: true,
+}
 
 const CONFIG = {
-  PATH_CONVERGENCE_DEDUP_MIN_CHOICES: 3, // Only apply to nodes with at least this many choices
-  FINAL_DEDUP_MIN_SUBTREE_SIZE: 3, // Only dedupe if subtree has at least this many nodes
   VERBOSE_LOGGING: false,
   MAX_DEPTH: 100, // Limit depth for performance
 
@@ -141,6 +177,7 @@ let totalNodesInCurrentEvent = 0
 let hasResetForDepthFirst = false // Track if we've reset the counter for this event
 let pathConvergenceStates = new Map() // Track path convergence for early dedup (text + choices)
 let hubChoiceSnapshots = new Map() // Track hub choice snapshots: eventName -> { hubNodeId, choiceLabels: Set, threshold }
+let dialogueMenuHubIdsByEventName = new Map() // eventName -> hubNodeId (for debugging post-processing)
 
 /**
  * Generate a unique node ID (integer, unique per event)
@@ -429,6 +466,12 @@ function buildTreeFromStory(
   // Get current choices (i.e: child nodes) in the story.
   const choices = story.currentChoices || []
 
+  // Choice+path-based hashing (used by multiple passes/debugging)
+  const choiceLabels = OPTIMIZATION_PASS_CONFIG.CHOICE_AND_PATH_LOOP_DETECTION_ENABLED
+    ? choices.map((c) => extractChoiceMetadata(c.text).cleanedText).join('|')
+    : ''
+  const currentStateHash = `${pathHash}_${choiceLabels}_${story.state.currentPathString || ''}`
+
   // Determine node type BEFORE cleaning (to detect combat/commands)
   const type = determineNodeType(text, choices.length === 0)
 
@@ -441,7 +484,16 @@ function buildTreeFromStory(
 
   // 1. TEXT-BASED LOOP DETECTION (catches dialogue loops like The Ferryman)
   // Check if we've seen this exact text before in our exploration
-  if (cleanedText && textToNodeId.has(cleanedText)) {
+  if (
+    OPTIMIZATION_PASS_CONFIG.TEXT_LOOP_DETECTION_ENABLED &&
+    cleanedText &&
+    textToNodeId.has(cleanedText)
+  ) {
+    if (eventName === DEBUG_EVENT_NAME) {
+      console.log(`- TEXT-BASED LOOP detected at state hash: ${currentStateHash}`)
+      console.log(`placing a ref marker on node: ${cleanedText}`)
+    }
+
     const originalNodeId = textToNodeId.get(cleanedText)
     totalNodesInCurrentEvent++
     // Create ref node pointing to the first occurrence of this text
@@ -458,11 +510,15 @@ function buildTreeFromStory(
   // 2. CHOICE+PATH-BASED LOOP DETECTION (catches merchant/shop loops)
   // For merchant/shop events, the same choices repeat even though game state differs
   // Hash combines choice structure + Ink story path to detect loops
-  const choiceLabels = choices.map((c) => extractChoiceMetadata(c.text).cleanedText).join('|')
-  const currentStateHash = `${pathHash}_${choiceLabels}_${story.state.currentPathString || ''}`
-
   // Check if we've visited this exact state before (same choices + location)
-  if (visitedStates.has(currentStateHash)) {
+  if (
+    OPTIMIZATION_PASS_CONFIG.CHOICE_AND_PATH_LOOP_DETECTION_ENABLED &&
+    visitedStates.has(currentStateHash)
+  ) {
+    if (eventName === DEBUG_EVENT_NAME) {
+      console.log(`- CHOICE+PATH-BASED LOOP detected at state hash: ${currentStateHash}`)
+      console.log(`placing a ref marker on node: ${cleanedText}`)
+    }
     const originalNodeId = stateToNodeId.get(currentStateHash)
     totalNodesInCurrentEvent++
     // Create ref node with all details preserved except children
@@ -563,10 +619,12 @@ function buildTreeFromStory(
   totalNodesInCurrentEvent++
 
   // Store this node ID for choice+path-based loop detection
-  newStateToNodeId.set(currentStateHash, nodeId)
+  if (OPTIMIZATION_PASS_CONFIG.CHOICE_AND_PATH_LOOP_DETECTION_ENABLED) {
+    newStateToNodeId.set(currentStateHash, nodeId)
+  }
 
   // Store text-to-node mapping for text-based loop detection
-  if (cleanedText) {
+  if (OPTIMIZATION_PASS_CONFIG.TEXT_LOOP_DETECTION_ENABLED && cleanedText) {
     newTextToNodeId.set(cleanedText, nodeId)
   }
 
@@ -588,12 +646,17 @@ function buildTreeFromStory(
   // This prevents hitting the node limit during tree building.
   // Note: We only check text here (not choiceLabel) because a parent and its child
   // will never both match menuHubPattern, so we only need to detect hubs via text.
-  const dialogueMenuConfig = DIALOGUE_MENU_EVENTS[eventName]
+  const dialogueMenuConfig = OPTIMIZATION_PASS_CONFIG.DIALOGUE_MENU_EVENTS_ENABLED
+    ? DIALOGUE_MENU_EVENTS[eventName]
+    : undefined
   let isDialogueMenuHub = false
   if (dialogueMenuConfig) {
     // Check if this node's text matches menuHubPattern
     if (cleanedText && cleanedText.includes(dialogueMenuConfig.menuHubPattern)) {
       isDialogueMenuHub = true
+      if (!dialogueMenuHubIdsByEventName.has(eventName)) {
+        dialogueMenuHubIdsByEventName.set(eventName, nodeId)
+      }
 
       // For events with hubChoiceMatchThreshold, capture snapshot of hub choices
       // Only capture from the FIRST hub node we encounter (don't overwrite existing snapshot)
@@ -617,7 +680,10 @@ function buildTreeFromStory(
             choiceLabels: hubChoiceLabels,
             threshold: dialogueMenuConfig.hubChoiceMatchThreshold,
           })
-          if (CONFIG.VERBOSE_LOGGING && eventName === 'Rathael the Slain Death') {
+          if (
+            // CONFIG.VERBOSE_LOGGING &&
+            eventName === DEBUG_EVENT_NAME
+          ) {
             console.log(
               `  🔍 Captured hub snapshot at nodeId=${nodeId}: ${hubChoiceLabels.size} choices: [${Array.from(hubChoiceLabels).join(', ')}]`
             )
@@ -632,11 +698,12 @@ function buildTreeFromStory(
   // This is like mini-dedup during tree building - prevents re-exploring identical branches
   // ONLY enabled for events in PATH_CONVERGENCE_EVENTS whitelist (events that need it to parse successfully)
   let convergenceSignature = null
-  const enableEarlyDedupForThisEvent = PATH_CONVERGENCE_EVENTS.includes(eventName)
+  const enableEarlyDedupForThisEvent =
+    OPTIMIZATION_PASS_CONFIG.PATH_CONVERGENCE_EVENTS.includes(eventName)
   if (
     enableEarlyDedupForThisEvent &&
     cleanedText &&
-    choices.length >= CONFIG.PATH_CONVERGENCE_DEDUP_MIN_CHOICES
+    choices.length >= OPTIMIZATION_PASS_CONFIG.PATH_CONVERGENCE_DEDUP_MIN_CHOICES
   ) {
     // Create signature based on text + sorted choice labels
     const choiceLabels = choices
@@ -722,7 +789,10 @@ function buildTreeFromStory(
 
     // Only log when match threshold is met (to reduce noise)
     if (matchPercentage >= snapshot.threshold) {
-      if (CONFIG.VERBOSE_LOGGING && eventName === 'Rathael the Slain Death') {
+      if (
+        // CONFIG.VERBOSE_LOGGING &&
+        eventName === DEBUG_EVENT_NAME
+      ) {
         console.log(
           `  ✅ Hub match found: ${matchCount}/${snapshot.choiceLabels.size} = ${matchPercentage.toFixed(1)}% (threshold: ${snapshot.threshold}%)`
         )
@@ -859,9 +929,13 @@ function buildTreeFromStory(
       // Skip if this child is the hub itself (prevent checking hub against itself)
       if (child.children && child.children.length > 0 && child.id !== hubNodeId) {
         const matchedHubNodeId = checkHubChoiceMatch(child.children)
-        // Also ensure the matched hub is not the child itself, and that we found a valid match
-        if (matchedHubNodeId && matchedHubNodeId !== child.id && matchedHubNodeId === hubNodeId) {
-          // This child's children match the hub snapshot - replace child with ref
+        // NOTE: hubNodeId can be 0
+        const isValidMatch =
+          matchedHubNodeId != null &&
+          matchedHubNodeId !== child.id &&
+          matchedHubNodeId === hubNodeId
+
+        if (isValidMatch) {
           processedChildren.push(
             createNode({
               id: child.id,
@@ -1046,7 +1120,8 @@ function buildTreeFromStory(
     nodeId > snapshot.hubNodeId
   ) {
     const matchedHubNodeId = checkHubChoiceMatch(children)
-    if (matchedHubNodeId && matchedHubNodeId === snapshot.hubNodeId) {
+    // NOTE: hubNodeId can be 0, so don't use truthy checks here.
+    if (matchedHubNodeId != null && matchedHubNodeId === snapshot.hubNodeId) {
       // This node's children match the hub snapshot - convert this node to a ref
       return createNode({
         id: nodeId,
@@ -1340,8 +1415,47 @@ function checkInvalidRefs(eventTrees) {
         })
       })
     }
+
+    // Always print expanded details for the debug event (even if VERBOSE_LOGGING is off).
+    if (typeof DEBUG_EVENT_NAME === 'string' && DEBUG_EVENT_NAME) {
+      const debugTree = eventTrees.find((t) => t.name === DEBUG_EVENT_NAME)
+      if (debugTree?.rootNode) {
+        const nodeMap = buildNodeMapForTree(debugTree.rootNode)
+        const invalidRefs = findInvalidRefsInTree(debugTree.rootNode, nodeMap)
+        if (invalidRefs.length > 0) {
+          console.log(`\n  Debug event "${DEBUG_EVENT_NAME}" invalid refs (showing up to 25):`)
+          invalidRefs.slice(0, 25).forEach(({ nodeId, refTarget }) => {
+            console.log(`    - Node ${nodeId} -> ${refTarget} (target not found)`)
+          })
+        }
+      }
+    }
   } else {
     console.log(`  ✅ No invalid refs found`)
+  }
+}
+
+function debugCheckEventPipelineState(eventTrees, stageLabel) {
+  if (typeof DEBUG_EVENT_NAME !== 'string' || !DEBUG_EVENT_NAME) return
+  const debugTree = eventTrees.find((t) => t.name === DEBUG_EVENT_NAME)
+  if (!debugTree?.rootNode) return
+
+  const nodeMap = buildNodeMapForTree(debugTree.rootNode)
+  const invalidRefs = findInvalidRefsInTree(debugTree.rootNode, nodeMap)
+
+  const hubId = dialogueMenuHubIdsByEventName.get(DEBUG_EVENT_NAME)
+  const hubStatus = hubId != null ? (nodeMap.has(hubId) ? 'present' : 'MISSING') : 'n/a'
+
+  console.log(
+    `  🧪 [${DEBUG_EVENT_NAME}] ${stageLabel}: nodes=${nodeMap.size}, hubId=${hubId ?? 'n/a'} (${hubStatus}), invalidRefs=${invalidRefs.length}`
+  )
+
+  if (invalidRefs.length > 0) {
+    const uniqueMissingTargets = Array.from(new Set(invalidRefs.map((r) => r.refTarget))).slice(
+      0,
+      10
+    )
+    console.log(`      Missing targets (up to 10): ${uniqueMissingTargets.join(', ')}`)
   }
 }
 
@@ -1421,6 +1535,91 @@ function normalizeRefsPointingToChoiceNodes(eventTrees) {
   return { totalRewrites, eventsWithRewrites }
 }
 
+function promoteShallowDialogueMenuHub(eventTrees) {
+  // For dialogue-menu events using threshold mode, we may end up with:
+  // - a deep "hub" node that owns the menu children
+  // - one or more shallower duplicates that are refs to that deep hub
+  //
+  // Why the deep hub "wins" pre-promotion:
+  // - We assign the hub snapshot during tree building (early).
+  // - But for many events, the shallowest hub-text copy isn't "available" as a standalone node
+  //   until after `separateChoicesFromEffects()` runs, because that pass creates additional
+  //   outcome nodes (with text) under choice wrappers.
+  // - That means the earliest *reachable* hub-with-children can be deeper, and other hub-text
+  //   copies become refs to it. This pass flips that so the shallowest copy becomes canonical.
+  // EXAMPLE: `Statue of Ilthar II Death`
+  //
+  // This pass promotes the shallowest ref-copy to become the hub (by moving children),
+  // then rewrites refs that used to target the old hub to target the new hub.
+  eventTrees.forEach((tree) => {
+    const eventName = tree.name
+    const cfg = DIALOGUE_MENU_EVENTS[eventName]
+    if (!cfg?.hubChoiceMatchThreshold) return
+    if (!tree.rootNode) return
+
+    const nodesById = new Map()
+    const metaById = new Map() // id -> { depth, parentId }
+    const queue = [{ node: tree.rootNode, depth: 0, parentId: null }]
+    while (queue.length > 0) {
+      const { node, depth, parentId } = queue.shift()
+      if (!node || node.id === undefined) continue
+      nodesById.set(node.id, node)
+      metaById.set(node.id, { depth, parentId })
+      if (node.children) {
+        node.children.forEach((child) =>
+          queue.push({ node: child, depth: depth + 1, parentId: node.id })
+        )
+      }
+    }
+
+    const hubTextNodes = []
+    nodesById.forEach((node) => {
+      if (typeof node.text === 'string' && node.text.includes(cfg.menuHubPattern)) {
+        hubTextNodes.push(node)
+      }
+    })
+    if (hubTextNodes.length === 0) return
+
+    const hubWithChildren = hubTextNodes
+      .filter((n) => n.ref === undefined && n.children && n.children.length > 0)
+      .sort((a, b) => metaById.get(a.id).depth - metaById.get(b.id).depth)[0]
+    if (!hubWithChildren) return
+
+    const shallowRefToHub = hubTextNodes
+      .filter((n) => n.ref !== undefined && n.ref === hubWithChildren.id)
+      .sort((a, b) => metaById.get(a.id).depth - metaById.get(b.id).depth)[0]
+    if (!shallowRefToHub) return
+
+    const hubDepth = metaById.get(hubWithChildren.id).depth
+    const refDepth = metaById.get(shallowRefToHub.id).depth
+    if (refDepth >= hubDepth) return
+
+    const oldHubId = hubWithChildren.id
+    const newHubId = shallowRefToHub.id
+
+    // Promote: new hub gets old hub's children and becomes non-ref
+    shallowRefToHub.children = hubWithChildren.children
+    delete shallowRefToHub.ref
+
+    // Demote: old hub becomes a ref to the new hub and drops its children
+    hubWithChildren.ref = newHubId
+    delete hubWithChildren.children
+
+    // Rewrite: anything that referenced old hub should now reference new hub
+    nodesById.forEach((node) => {
+      if (node.ref !== undefined && node.ref === oldHubId) {
+        node.ref = newHubId
+      }
+    })
+
+    if (eventName === DEBUG_EVENT_NAME) {
+      console.log(
+        `  🧭 Promoted hub for "${eventName}": ${oldHubId}@depth${hubDepth} -> ${newHubId}@depth${refDepth}`
+      )
+    }
+  })
+}
+
 /**
  * Main processing function
  */
@@ -1483,123 +1682,160 @@ function processEvents() {
   // Calculate total nodes
   const totalNodes = eventTrees.reduce((sum, tree) => sum + countNodes(tree.rootNode), 0)
   console.log(`  🌳 Total nodes across all trees: ${totalNodes}`)
+  debugCheckEventPipelineState(eventTrees, 'after parse (pre-sort)')
 
   // Sort events alphabetically by name
   console.log(`\n🔤 Sorting events alphabetically...`)
   eventTrees.sort((a, b) => a.name.localeCompare(b.name))
 
   // Filter out default nodes for specific events
-  console.log('\n🗑️  Filtering default nodes for blacklisted events...')
-  let totalFiltered = 0
-  eventTrees.forEach((tree) => {
-    if (DEFAULT_NODE_BLACKLIST.includes(tree.name)) {
-      const nodesBefore = countNodes(tree.rootNode)
-      filterDefaultNodes(tree.rootNode)
-      const nodesAfter = countNodes(tree.rootNode)
-      const filtered = nodesBefore - nodesAfter
-      if (filtered > 0) {
-        console.log(`  - "${tree.name}": removed ${filtered} default nodes`)
-        totalFiltered += filtered
+  if (OPTIMIZATION_PASS_CONFIG.FILTER_DEFAULT_NODES_ENABLED) {
+    console.log('\n🗑️  Filtering default nodes for blacklisted events...')
+    let totalFiltered = 0
+    eventTrees.forEach((tree) => {
+      if (DEFAULT_NODE_BLACKLIST.includes(tree.name)) {
+        const nodesBefore = countNodes(tree.rootNode)
+        filterDefaultNodes(tree.rootNode)
+        const nodesAfter = countNodes(tree.rootNode)
+        const filtered = nodesBefore - nodesAfter
+        if (filtered > 0) {
+          console.log(`  - "${tree.name}": removed ${filtered} default nodes`)
+          totalFiltered += filtered
+        }
       }
+    })
+    if (totalFiltered > 0) {
+      console.log(`  Total default nodes filtered: ${totalFiltered}`)
+    } else {
+      console.log(`  No default nodes found`)
     }
-  })
-  if (totalFiltered > 0) {
-    console.log(`  Total default nodes filtered: ${totalFiltered}`)
-  } else {
-    console.log(`  No default nodes found`)
+    debugCheckEventPipelineState(eventTrees, 'after filterDefaultNodes')
   }
 
   // Separate choices from their effects for clearer visualization
-  console.log('\n🔀 Separating choices from effects...')
-  let totalSeparated = 0
-  eventTrees.forEach((tree) => {
-    const separatedCount = separateChoicesFromEffects(tree.rootNode)
-    totalSeparated += separatedCount
-  })
-  console.log(`  Separated ${totalSeparated} choice-effect pairs`)
+  if (OPTIMIZATION_PASS_CONFIG.SEPARATE_CHOICES_FROM_EFFECTS_ENABLED) {
+    console.log('\n🔀 Separating choices from effects...')
+    let totalSeparated = 0
+    eventTrees.forEach((tree) => {
+      const separatedCount = separateChoicesFromEffects(tree.rootNode)
+      totalSeparated += separatedCount
+    })
+    console.log(`  Separated ${totalSeparated} choice-effect pairs`)
+    debugCheckEventPipelineState(eventTrees, 'after separateChoicesFromEffects')
+  }
 
   // Apply event alterations (manual fixes for conditional choices, etc.)
-  console.log('\n🔧 Applying event alterations...')
-  let totalAlterations = 0
-  try {
-    if (fs.existsSync(EVENT_ALTERATIONS_FILE)) {
-      const alterations = JSON.parse(fs.readFileSync(EVENT_ALTERATIONS_FILE, 'utf-8'))
-      eventTrees.forEach((tree) => {
-        const eventAlterations = alterations.find((a) => a.name === tree.name)
-        if (eventAlterations) {
-          const appliedCount = applyEventAlterations(tree.rootNode, eventAlterations.alterations)
-          if (appliedCount > 0) {
-            totalAlterations += appliedCount
-            if (CONFIG.VERBOSE_LOGGING) {
-              console.log(`  - "${tree.name}": applied ${appliedCount} alteration(s)`)
+  if (OPTIMIZATION_PASS_CONFIG.APPLY_EVENT_ALTERATIONS_ENABLED) {
+    console.log('\n🔧 Applying event alterations...')
+    let totalAlterations = 0
+    try {
+      if (fs.existsSync(EVENT_ALTERATIONS_FILE)) {
+        const alterations = JSON.parse(fs.readFileSync(EVENT_ALTERATIONS_FILE, 'utf-8'))
+        eventTrees.forEach((tree) => {
+          const eventAlterations = alterations.find((a) => a.name === tree.name)
+          if (eventAlterations) {
+            const appliedCount = applyEventAlterations(tree.rootNode, eventAlterations.alterations)
+            if (appliedCount > 0) {
+              totalAlterations += appliedCount
+              if (CONFIG.VERBOSE_LOGGING) {
+                console.log(`  - "${tree.name}": applied ${appliedCount} alteration(s)`)
+              }
             }
           }
+        })
+        if (totalAlterations > 0) {
+          console.log(`  Applied ${totalAlterations} alteration(s)`)
+        } else {
+          console.log(`  No alterations to apply`)
         }
-      })
-      if (totalAlterations > 0) {
-        console.log(`  Applied ${totalAlterations} alteration(s)`)
       } else {
-        console.log(`  No alterations to apply`)
+        console.log(`  No alterations file found (${EVENT_ALTERATIONS_FILE})`)
       }
-    } else {
-      console.log(`  No alterations file found (${EVENT_ALTERATIONS_FILE})`)
+    } catch (error) {
+      console.warn(`  ⚠️  Error applying event alterations: ${error.message}`)
     }
-  } catch (error) {
-    console.warn(`  ⚠️  Error applying event alterations: ${error.message}`)
+    debugCheckEventPipelineState(eventTrees, 'after applyEventAlterations')
   }
 
   // Calculate stats before deduplication
   const nodesBeforeDedupe = eventTrees.reduce((sum, tree) => sum + countNodes(tree.rootNode), 0)
 
   // Deduplicate subtrees
-  console.log('\n🔄 Deduplicating subtrees...')
-  const { totalDuplicates, totalNodesRemoved, eventsWithDedupe } = deduplicateAllTrees(eventTrees)
-  console.log(`  Replaced ${totalDuplicates} duplicate subtrees`)
-  console.log(`  Reduced node count by ${totalNodesRemoved}`)
+  const dedupeIterations = Math.max(0, OPTIMIZATION_PASS_CONFIG.DEDUPLICATE_SUBTREES_NUM_ITERATIONS)
+  if (dedupeIterations > 0) {
+    console.log(
+      `\n🔄 Deduplicating subtrees... (${dedupeIterations} pass${dedupeIterations === 1 ? '' : 'es'})`
+    )
+    const { totalDuplicates, totalNodesRemoved, eventsWithDedupe, iterationsRun } =
+      deduplicateAllTrees(eventTrees, dedupeIterations)
+    console.log(`  Replaced ${totalDuplicates} duplicate subtrees`)
+    console.log(`  Reduced node count by ${totalNodesRemoved}`)
+    if (iterationsRun !== dedupeIterations) {
+      console.log(
+        `  Stopped early after ${iterationsRun} pass${iterationsRun === 1 ? '' : 'es'} (no more nodes pruned)`
+      )
+    }
 
-  if (CONFIG.VERBOSE_LOGGING && eventsWithDedupe.length > 0) {
-    console.log(`\n  Events with deduplication:`)
-    eventsWithDedupe.forEach(({ name, duplicates, nodesRemoved }) => {
-      console.log(`    - "${name}": ${duplicates} duplicates, ${nodesRemoved} nodes removed`)
-    })
+    if (CONFIG.VERBOSE_LOGGING && eventsWithDedupe.length > 0) {
+      console.log(`\n  Events with deduplication:`)
+      eventsWithDedupe.forEach(({ name, duplicates, nodesRemoved }) => {
+        console.log(`    - "${name}": ${duplicates} duplicates, ${nodesRemoved} nodes removed`)
+      })
+    }
+    debugCheckEventPipelineState(eventTrees, 'after deduplicateAllTrees')
   }
 
   // Normalize refs away from choice wrapper nodes (after dedupe, before refChildren conversion)
-  console.log('\n🎯 Normalizing refs to skip choice wrappers...')
-  const { totalRewrites, eventsWithRewrites } = normalizeRefsPointingToChoiceNodes(eventTrees)
-  console.log(`  Rewrote ${totalRewrites} refs`)
-  if (CONFIG.VERBOSE_LOGGING && eventsWithRewrites.length > 0) {
-    console.log(`\n  Events with ref rewrites:`)
-    eventsWithRewrites.forEach(({ name, rewrites }) => {
-      console.log(`    - "${name}": ${rewrites} refs rewritten`)
-    })
+  if (OPTIMIZATION_PASS_CONFIG.NORMALIZE_REFS_POINTING_TO_CHOICE_NODES_ENABLED) {
+    console.log('\n🎯 Normalizing refs to skip choice wrappers...')
+    const { totalRewrites, eventsWithRewrites } = normalizeRefsPointingToChoiceNodes(eventTrees)
+    console.log(`  Rewrote ${totalRewrites} refs`)
+    if (CONFIG.VERBOSE_LOGGING && eventsWithRewrites.length > 0) {
+      console.log(`\n  Events with ref rewrites:`)
+      eventsWithRewrites.forEach(({ name, rewrites }) => {
+        console.log(`    - "${name}": ${rewrites} refs rewritten`)
+      })
+    }
+    debugCheckEventPipelineState(eventTrees, 'after normalizeRefsPointingToChoiceNodes')
   }
 
+  if (OPTIMIZATION_PASS_CONFIG.PROMOTE_SHALLOW_DIALOGUE_MENU_HUB_ENABLED) {
+    console.log('\n🧭 Promoting shallow dialogue-menu hubs...')
+    promoteShallowDialogueMenuHub(eventTrees)
+    debugCheckEventPipelineState(eventTrees, 'after promoteShallowDialogueMenuHub')
+  }
+
+  // TODO REMOVE?!
   // Collapse dialogue menu question orderings
-  console.log('\n🗂️  Collapsing dialogue menus...')
-  const { totalCollapsed, eventsWithCollapsed } = collapseDialogueMenus(eventTrees)
-  console.log(`  Collapsed ${totalCollapsed} dialogue menu patterns`)
+  // console.log('\n🗂️  Collapsing dialogue menus...')
+  // const { totalCollapsed, eventsWithCollapsed } = collapseDialogueMenus(eventTrees)
+  // console.log(`  Collapsed ${totalCollapsed} dialogue menu patterns`)
 
-  if (eventsWithCollapsed.length > 0) {
-    console.log(`  Events with collapsed menus:`)
-    eventsWithCollapsed.forEach(({ name, nodesBefore, nodesAfter, reduction }) => {
-      console.log(`    - "${name}": ${nodesBefore} → ${nodesAfter} nodes (${reduction}% reduction)`)
-    })
+  // if (eventsWithCollapsed.length > 0) {
+  //   console.log(`  Events with collapsed menus:`)
+  //   eventsWithCollapsed.forEach(({ name, nodesBefore, nodesAfter, reduction }) => {
+  //     console.log(`    - "${name}": ${nodesBefore} → ${nodesAfter} nodes (${reduction}% reduction)`)
+  //   })
+  // }
+
+  if (OPTIMIZATION_PASS_CONFIG.CONVERT_SIBLING_AND_COUSIN_REFS_TO_REF_CHILDREN_ENABLED) {
+    console.log('\n🔗 Converting sibling and SIMPLE cousin refs to refChildren...')
+    const { totalConversions, eventsWithConversions } =
+      convertSiblingAndCousinRefsToRefChildren(eventTrees)
+    console.log(`  Converted ${totalConversions} sibling refs`)
+
+    if (CONFIG.VERBOSE_LOGGING && eventsWithConversions.length > 0) {
+      console.log(`\n  Events with conversions:`)
+      eventsWithConversions.forEach(({ name, conversions }) => {
+        console.log(`    - "${name}": ${conversions} sibling refs converted`)
+      })
+    }
+    debugCheckEventPipelineState(eventTrees, 'after convertSiblingAndCousinRefsToRefChildren')
   }
 
-  console.log('\n🔗 Converting sibling and SIMPLE cousin refs to refChildren...')
-  const { totalConversions, eventsWithConversions } =
-    convertSiblingAndCousinRefsToRefChildren(eventTrees)
-  console.log(`  Converted ${totalConversions} sibling refs`)
-
-  if (CONFIG.VERBOSE_LOGGING && eventsWithConversions.length > 0) {
-    console.log(`\n  Events with conversions:`)
-    eventsWithConversions.forEach(({ name, conversions }) => {
-      console.log(`    - "${name}": ${conversions} sibling refs converted`)
-    })
+  if (OPTIMIZATION_PASS_CONFIG.CHECK_INVALID_REFS_ENABLED) {
+    checkInvalidRefs(eventTrees)
   }
-
-  checkInvalidRefs(eventTrees)
 
   // Calculate final stats
   const finalTotalNodes = eventTrees.reduce((sum, tree) => sum + countNodes(tree.rootNode), 0)
@@ -1990,56 +2226,110 @@ function deduplicateEventTree(rootNode) {
   // Breadth-first traversal to process nodes from shallowest to deepest
   const queue = [rootNode]
   const allNodes = []
+  const nodesById = new Map()
 
   while (queue.length > 0) {
     const node = queue.shift()
     if (!node) continue
 
     allNodes.push(node)
+    if (node.id !== undefined) {
+      nodesById.set(node.id, node)
+    }
 
     if (node.children) {
       queue.push(...node.children)
     }
   }
 
-  // Build a set of all node IDs that are referenced by other nodes
-  // AND their descendants - these should not be deduplicated because other nodes depend on them
-  // Note: This protection is primarily for refs created by path convergence detection
-  // (early dedup), which only applies to events in PATH_CONVERGENCE_EVENTS whitelist.
-  const refTargets = new Set()
-  const protectedNodes = new Set()
-
-  // First, collect all direct ref targets
+  // Narrow safety guard:
+  // Avoid deduping a subtree if doing so would prune away a node that is referenced by a ref
+  // from OUTSIDE that subtree. (Refs from inside the subtree would be deleted too, so they
+  // don't count as "must stay reachable" for this specific prune.)
+  //
+  // This is much less invasive than "protect all ancestors of all ref targets" and avoids
+  // broad side effects in other events.
+  const referrersByTargetId = new Map() // targetId -> Array<referrerId>
   for (const node of allNodes) {
-    if (node.ref !== undefined) {
-      refTargets.add(node.ref)
+    if (node?.id !== undefined && node.ref !== undefined) {
+      const arr = referrersByTargetId.get(node.ref) || []
+      arr.push(node.id)
+      referrersByTargetId.set(node.ref, arr)
     }
   }
 
-  // Then, mark all ref targets and their descendants as protected
-  function markDescendantsAsProtected(node) {
-    protectedNodes.add(node.id)
-    if (node.children) {
-      node.children.forEach((child) => markDescendantsAsProtected(child))
+  // Precompute subtree membership via DFS entry/exit times.
+  const tin = new Map()
+  const tout = new Map()
+  let time = 0
+  const stack = [{ node: rootNode, state: 0 }]
+  while (stack.length > 0) {
+    const top = stack.pop()
+    const node = top.node
+    if (!node || node.id === undefined) continue
+    if (top.state === 0) {
+      tin.set(node.id, time++)
+      stack.push({ node, state: 1 })
+      const children = node.children || []
+      for (let i = children.length - 1; i >= 0; i--) {
+        stack.push({ node: children[i], state: 0 })
+      }
+    } else {
+      tout.set(node.id, time - 1)
     }
   }
 
-  refTargets.forEach((targetId) => {
-    const targetNode = allNodes.find((n) => n.id === targetId)
-    if (targetNode) {
-      markDescendantsAsProtected(targetNode)
+  const refTargetsSortedByTin = Array.from(referrersByTargetId.keys())
+    .filter((id) => tin.has(id))
+    .sort((a, b) => tin.get(a) - tin.get(b))
+
+  function lowerBoundTargetsByTin(minTin) {
+    let lo = 0
+    let hi = refTargetsSortedByTin.length
+    while (lo < hi) {
+      const mid = (lo + hi) >> 1
+      const id = refTargetsSortedByTin[mid]
+      if (tin.get(id) < minTin) lo = mid + 1
+      else hi = mid
     }
-  })
+    return lo
+  }
+
+  function subtreeWouldPruneExternalRefTarget(candidateNode) {
+    const candId = candidateNode.id
+    const start = tin.get(candId)
+    const end = tout.get(candId)
+    if (start === undefined || end === undefined) return false
+
+    const startIdx = lowerBoundTargetsByTin(start)
+    for (let i = startIdx; i < refTargetsSortedByTin.length; i++) {
+      const targetId = refTargetsSortedByTin[i]
+      const tTin = tin.get(targetId)
+      if (tTin === undefined || tTin > end) break
+
+      // targetId is inside candidate subtree. If any referrer is outside, pruning breaks it.
+      const referrers = referrersByTargetId.get(targetId) || []
+      for (const referrerId of referrers) {
+        const rTin = tin.get(referrerId)
+        if (rTin === undefined) continue
+        if (rTin < start || rTin > end) {
+          return true
+        }
+      }
+    }
+
+    return false
+  }
 
   // Process nodes in breadth-first order (shallowest first)
   for (const node of allNodes) {
     if (!node.children || node.children.length === 0) continue
-    if (node.ref) continue // Skip nodes that are already references
-    if (protectedNodes.has(node.id)) continue // Skip nodes that are ref targets or their descendants
+    // NOTE: ref can be 0, so don't use truthy checks here.
+    if (node.ref !== undefined) continue // Skip nodes that are already references
 
     // Check if this subtree is large enough to deduplicate
     const subtreeSize = countNodes(node)
-    if (subtreeSize >= CONFIG.FINAL_DEDUP_MIN_SUBTREE_SIZE) {
+    if (subtreeSize >= OPTIMIZATION_PASS_CONFIG.DEDUPLICATE_SUBTREES_MIN_SUBTREE_SIZE) {
       // Create a simple signature based on node structure
       const signature = JSON.stringify({
         numChildren: node.children.length,
@@ -2056,10 +2346,15 @@ function deduplicateEventTree(rootNode) {
       // Check if we've seen this signature before
       if (subtreeMap.has(signature)) {
         const originalNodeId = subtreeMap.get(signature)
-        const originalNode = allNodes.find((n) => n.id === originalNodeId)
+        const originalNode = nodesById.get(originalNodeId)
 
         // Deep check: are the subtrees truly identical?
         if (originalNode && areSubtreesIdentical(node, originalNode)) {
+          // Don't prune away externally-referenced ref targets.
+          if (subtreeWouldPruneExternalRefTarget(node)) {
+            continue
+          }
+
           // Mark this node as a reference to the original
           node.ref = originalNodeId
           const removedNodes = subtreeSize - 1 // -1 because we keep the reference node
@@ -2281,7 +2576,7 @@ function convertSiblingRefsInTree(rootNode) {
  */
 function convertCousinRefsInTree(rootNode, eventName) {
   // Check blacklist - skip events that break with this pass
-  if (COUSIN_REF_BLACKLIST.includes(eventName)) {
+  if (OPTIMIZATION_PASS_CONFIG.COUSIN_REF_BLACKLIST.includes(eventName)) {
     return 0
   }
 
@@ -2755,31 +3050,50 @@ function convertSiblingAndCousinRefsToRefChildren(eventTrees) {
  * Post-processing: Deduplicate structurally identical subtrees across all event trees
  * This catches remaining duplicates that weren't detected during tree building
  */
-function deduplicateAllTrees(eventTrees) {
+function deduplicateAllTrees(eventTrees, maxIterations = 1) {
+  const iterations = Math.max(0, maxIterations)
   let totalDuplicates = 0
   let totalNodesRemoved = 0
-  const eventsWithDedupe = []
+  let iterationsRun = 0
 
-  eventTrees.forEach((tree) => {
-    if (!tree.rootNode) {
-      return
+  // Track (aggregate) which events were deduped across all iterations.
+  const eventStats = new Map() // name -> { duplicates, nodesRemoved }
+
+  for (let iter = 0; iter < iterations; iter++) {
+    let duplicatesThisPass = 0
+    let nodesRemovedThisPass = 0
+
+    eventTrees.forEach((tree) => {
+      if (!tree.rootNode) return
+
+      const { duplicatesFound, nodesRemoved } = deduplicateEventTree(tree.rootNode)
+      if (duplicatesFound <= 0) return
+
+      duplicatesThisPass += duplicatesFound
+      nodesRemovedThisPass += nodesRemoved
+
+      const prev = eventStats.get(tree.name) || { duplicates: 0, nodesRemoved: 0 }
+      prev.duplicates += duplicatesFound
+      prev.nodesRemoved += nodesRemoved
+      eventStats.set(tree.name, prev)
+    })
+
+    iterationsRun++
+    totalDuplicates += duplicatesThisPass
+    totalNodesRemoved += nodesRemovedThisPass
+
+    if (nodesRemovedThisPass === 0) {
+      break
     }
+  }
 
-    const { duplicatesFound, nodesRemoved } = deduplicateEventTree(tree.rootNode)
+  const eventsWithDedupe = Array.from(eventStats.entries()).map(([name, stats]) => ({
+    name,
+    duplicates: stats.duplicates,
+    nodesRemoved: stats.nodesRemoved,
+  }))
 
-    if (duplicatesFound > 0) {
-      eventsWithDedupe.push({
-        name: tree.name,
-        duplicates: duplicatesFound,
-        nodesRemoved,
-      })
-    }
-
-    totalDuplicates += duplicatesFound
-    totalNodesRemoved += nodesRemoved
-  })
-
-  return { totalDuplicates, totalNodesRemoved, eventsWithDedupe }
+  return { totalDuplicates, totalNodesRemoved, eventsWithDedupe, iterationsRun }
 }
 
 // Run the script
