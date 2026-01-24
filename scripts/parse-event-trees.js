@@ -156,7 +156,7 @@ const OPTIMIZATION_PASS_CONFIG = {
 
   // Convert certain refs (sibling/simple cousin) into `refChildren` for nicer visualization.
   CONVERT_SIBLING_AND_COUSIN_REFS_TO_REF_CHILDREN_ENABLED: true,
-  COUSIN_REF_BLACKLIST: ['Vesparin Vault'], // Some complex trees break when this pass reorders parents
+  COUSIN_REF_BLACKLIST: ['Vesparin Vault', 'TempleOffering'], // Some complex trees break when this pass reorders parents
 
   // Validate refs (detect refs pointing to missing nodes) and log warnings.
   CHECK_INVALID_REFS_ENABLED: true,

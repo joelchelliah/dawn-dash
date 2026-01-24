@@ -26,6 +26,12 @@ const HORIZONTAL_SPACING_CONFIG = {
  * - Pass 2: Fix overlaps by moving parent subtrees apart and recentering parent groups over shared children
  * - Pass 3: Tighten gaps by looking for large gaps between sibling subtrees and moving them closer
  * - Final: Re-run pass 1.5 after tightening (pass 3 can drag shared nodes off-center)
+ *
+ * NOTE: Events with nodes that are both direct children of one parent AND refChildren of multiple
+ * other parents can cause iterative drift in Pass 2 and Pass 3. The horizontal spacing logic
+ * doesn't properly handle the case where a node's position is controlled by one parent but it's
+ * also referenced by others. Such events should be blacklisted from refChildren creation in
+ * parse-event-trees.js (see REF_CHILDREN_BLACKLIST).
  */
 export const adjustHorizontalNodeSpacing = (
   root: HierarchyPointNode<EventTreeNode>,
