@@ -50,6 +50,7 @@ console.warn = (...args) => {
 
 const EVENTS_FILE = path.join(__dirname, './events.json')
 const OUTPUT_FILE = path.join(__dirname, '../src/codex/data/event-trees.json')
+const EVENT_ALTERATIONS_FILE = path.join(__dirname, './event-alterations.json')
 
 // For the events in this list, we should not include nodes that have the
 // choiceLabel === 'default' OR text === 'default'
@@ -91,7 +92,9 @@ const DIALOGUE_MENU_EVENTS = {
   'Rathael the Slain Death': {
     menuHubPattern: 'A chance to tangle with one of these',
     menuExitPattern: 'Fight: Confront the Seraph',
-    hubChoiceMatchThreshold: 85, // choices: 7/8
+    // This is not really necessary for Rathael, but just including it for completeness
+    // Slows down the tree building process a lot though...
+    // hubChoiceMatchThreshold: 85, // choices: 7/8
   },
   'Rotting Residence': {
     menuHubPattern: 'You can distinguish several rooms',
@@ -1343,6 +1346,82 @@ function checkInvalidRefs(eventTrees) {
 }
 
 /**
+ * Normalize refs so they never target a choice wrapper node.
+ *
+ * After separateChoicesFromEffects(), many "hub" refs (and potentially other refs)
+ * can end up pointing at the choice wrapper (type: 'choice') rather than the outcome
+ * node that contains the hub's text/effects.
+ *
+ * Rule:
+ * - A choice node's ref can intentionally point at another choice node. Do NOT rewrite
+ *   refs on nodes where node.type === 'choice'.
+ * - For any NON-choice node: if node.ref points to a node with type === 'choice', rewrite
+ *   it to point to that choice node's ONLY child (the outcome node).
+ * - If a choice node has 0 or >1 children, log a warning and do not rewrite.
+ */
+function normalizeRefsPointingToChoiceNodes(eventTrees) {
+  let totalRewrites = 0
+  const eventsWithRewrites = []
+
+  eventTrees.forEach((tree) => {
+    if (!tree.rootNode) return
+
+    const nodeMap = buildNodeMapForTree(tree.rootNode)
+    let rewritesForEvent = 0
+
+    function visit(node) {
+      if (!node) return
+
+      // A choice node's ref can intentionally point at another choice node.
+      // We only normalize refs for non-choice nodes.
+      if (node.ref !== undefined && node.type !== 'choice') {
+        let targetId = node.ref
+        let targetNode = nodeMap.get(targetId)
+
+        // Follow choice wrappers (should be a single hop, but keep it safe)
+        let hops = 0
+        while (targetNode && targetNode.type === 'choice') {
+          const children = targetNode.children || []
+          if (children.length !== 1) {
+            console.warn(
+              `  ⚠️  Event "${tree.name}": ref ${node.id} -> ${targetId} targets a choice node with ${children.length} children`
+            )
+            break
+          }
+
+          const outcomeId = children[0].id
+          node.ref = outcomeId
+          rewritesForEvent++
+          targetId = outcomeId
+          targetNode = nodeMap.get(targetId)
+
+          hops++
+          if (hops > 10) {
+            console.warn(
+              `  ⚠️  Event "${tree.name}": ref normalization exceeded hop limit from node ${node.id}`
+            )
+            break
+          }
+        }
+      }
+
+      if (node.children) {
+        node.children.forEach((child) => visit(child))
+      }
+    }
+
+    visit(tree.rootNode)
+
+    if (rewritesForEvent > 0) {
+      totalRewrites += rewritesForEvent
+      eventsWithRewrites.push({ name: tree.name, rewrites: rewritesForEvent })
+    }
+  })
+
+  return { totalRewrites, eventsWithRewrites }
+}
+
+/**
  * Main processing function
  */
 function processEvents() {
@@ -1439,6 +1518,36 @@ function processEvents() {
   })
   console.log(`  Separated ${totalSeparated} choice-effect pairs`)
 
+  // Apply event alterations (manual fixes for conditional choices, etc.)
+  console.log('\n🔧 Applying event alterations...')
+  let totalAlterations = 0
+  try {
+    if (fs.existsSync(EVENT_ALTERATIONS_FILE)) {
+      const alterations = JSON.parse(fs.readFileSync(EVENT_ALTERATIONS_FILE, 'utf-8'))
+      eventTrees.forEach((tree) => {
+        const eventAlterations = alterations.find((a) => a.name === tree.name)
+        if (eventAlterations) {
+          const appliedCount = applyEventAlterations(tree.rootNode, eventAlterations.alterations)
+          if (appliedCount > 0) {
+            totalAlterations += appliedCount
+            if (CONFIG.VERBOSE_LOGGING) {
+              console.log(`  - "${tree.name}": applied ${appliedCount} alteration(s)`)
+            }
+          }
+        }
+      })
+      if (totalAlterations > 0) {
+        console.log(`  Applied ${totalAlterations} alteration(s)`)
+      } else {
+        console.log(`  No alterations to apply`)
+      }
+    } else {
+      console.log(`  No alterations file found (${EVENT_ALTERATIONS_FILE})`)
+    }
+  } catch (error) {
+    console.warn(`  ⚠️  Error applying event alterations: ${error.message}`)
+  }
+
   // Calculate stats before deduplication
   const nodesBeforeDedupe = eventTrees.reduce((sum, tree) => sum + countNodes(tree.rootNode), 0)
 
@@ -1452,6 +1561,17 @@ function processEvents() {
     console.log(`\n  Events with deduplication:`)
     eventsWithDedupe.forEach(({ name, duplicates, nodesRemoved }) => {
       console.log(`    - "${name}": ${duplicates} duplicates, ${nodesRemoved} nodes removed`)
+    })
+  }
+
+  // Normalize refs away from choice wrapper nodes (after dedupe, before refChildren conversion)
+  console.log('\n🎯 Normalizing refs to skip choice wrappers...')
+  const { totalRewrites, eventsWithRewrites } = normalizeRefsPointingToChoiceNodes(eventTrees)
+  console.log(`  Rewrote ${totalRewrites} refs`)
+  if (CONFIG.VERBOSE_LOGGING && eventsWithRewrites.length > 0) {
+    console.log(`\n  Events with ref rewrites:`)
+    eventsWithRewrites.forEach(({ name, rewrites }) => {
+      console.log(`    - "${name}": ${rewrites} refs rewritten`)
     })
   }
 
@@ -1509,6 +1629,154 @@ function processEvents() {
       })
     }
   }
+}
+
+/**
+ * Apply event alterations from event-alterations.json
+ * Supports:
+ * - Finding nodes by text or choiceLabel
+ * - Updating nodes (e.g., adding requirements)
+ * - Adding new child nodes
+ */
+function applyEventAlterations(rootNode, alterations) {
+  if (!rootNode || !alterations || alterations.length === 0) return 0
+
+  let appliedCount = 0
+
+  for (const alteration of alterations) {
+    const { find, addRequirements, addChild } = alteration
+
+    if (!find) {
+      console.warn(`  ⚠️  Alteration missing "find" field: ${JSON.stringify(alteration)}`)
+      continue
+    }
+
+    // Find matching nodes recursively
+    const matchingNodes = findNodesByTextOrChoiceLabel(rootNode, find)
+
+    if (matchingNodes.length === 0) {
+      if (CONFIG.VERBOSE_LOGGING) {
+        console.warn(`  ⚠️  No nodes found matching: "${find}"`)
+      }
+      continue
+    }
+
+    if (addRequirements) {
+      // Filter out empty strings
+      const newRequirements = addRequirements.filter((req) => req && typeof req === 'string')
+
+      if (newRequirements.length > 0) {
+        for (const node of matchingNodes) {
+          // Merge with existing requirements, avoiding duplicates
+          if (node.requirements) {
+            const existingSet = new Set(node.requirements)
+            newRequirements.forEach((req) => existingSet.add(req))
+            node.requirements = Array.from(existingSet)
+          } else {
+            node.requirements = newRequirements
+          }
+          appliedCount++
+        }
+      }
+    }
+
+    // Add children
+    if (addChild) {
+      for (const node of matchingNodes) {
+        const newChild = createNodeFromAlterationSpec(addChild)
+        if (newChild) {
+          if (!node.children) {
+            node.children = []
+          }
+          node.children.push(newChild)
+          appliedCount++
+        }
+      }
+    }
+  }
+
+  return appliedCount
+}
+
+/**
+ * Recursively find nodes matching text or choiceLabel
+ */
+function findNodesByTextOrChoiceLabel(node, searchText) {
+  const matches = []
+
+  if (!node) return matches
+
+  // Check if this node matches
+  if (
+    (node.text && node.text.includes(searchText)) ||
+    (node.choiceLabel && node.choiceLabel.includes(searchText))
+  ) {
+    matches.push(node)
+  }
+
+  // Recursively search children
+  if (node.children) {
+    for (const child of node.children) {
+      matches.push(...findNodesByTextOrChoiceLabel(child, searchText))
+    }
+  }
+
+  return matches
+}
+
+/**
+ * Create a node from an alteration specification
+ * Recursively creates children and assigns IDs
+ */
+function createNodeFromAlterationSpec(spec) {
+  if (!spec || !spec.type) {
+    console.warn(`  ⚠️  Invalid node spec: missing type`)
+    return null
+  }
+
+  const node = {
+    id: generateNodeId(),
+    type: spec.type,
+  }
+
+  if (spec.text !== undefined) {
+    node.text = spec.text
+  }
+
+  if (spec.choiceLabel !== undefined) {
+    node.choiceLabel = spec.choiceLabel
+  }
+
+  // Requirements are now just strings directly
+  if (spec.requirements) {
+    const normalized = spec.requirements.filter((req) => req && typeof req === 'string')
+    if (normalized.length > 0) {
+      node.requirements = normalized
+    }
+  }
+
+  if (spec.effects) {
+    node.effects = Array.isArray(spec.effects) ? spec.effects.filter((e) => e) : [spec.effects]
+  }
+
+  if (spec.numContinues !== undefined) {
+    node.numContinues = spec.numContinues
+  }
+
+  if (spec.ref !== undefined) {
+    // NOTE: This probably breaks very easily, if our tree building decides to assign
+    // a different node id than our ref in the alteration spec is pointing to.
+    node.ref = spec.ref
+  }
+
+  // Recursively create children
+  if (spec.children && Array.isArray(spec.children)) {
+    node.children = spec.children
+      .map((childSpec) => createNodeFromAlterationSpec(childSpec))
+      .filter((child) => child !== null)
+  }
+
+  return node
 }
 
 /**
