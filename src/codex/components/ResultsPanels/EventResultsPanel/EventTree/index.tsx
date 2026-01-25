@@ -599,13 +599,14 @@ function EventTree({
 
           displayLines.forEach((line, i) => {
             const y = textAreaCenter + i * TEXT.LINE_HEIGHT + verticalCenteringOffset
+            const text = line === 'default' ? '—' : line
 
             node
               .append('text')
               .attr('class', cx('event-node-text', 'event-node-text--special'))
               .attr('x', 0)
               .attr('y', y)
-              .text(line)
+              .text(text)
           })
         }
       }
