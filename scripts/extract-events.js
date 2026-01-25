@@ -144,8 +144,8 @@ const CARD_ID_TO_NAME = {
 }
 
 
-const DUMP_FILE = path.join(__dirname, './dump.txt')
-const OUTPUT_FILE = path.join(__dirname, './events.json')
+const DUMP_FILE = path.join(__dirname, './data/dump.txt')
+const OUTPUT_FILE = path.join(__dirname, './data/events.json')
 
 // All event-related types
 const EVENT_TYPES = [0, 1, 2, 3, 4, 5, 8, 10, 99]

@@ -3,7 +3,14 @@ import { Selection } from 'd3-selection'
 
 import { wrapText } from '@/shared/utils/textHelper'
 
-import { Event, EventTreeNode, DialogueNode, EndNode, CombatNode } from '@/codex/types/events'
+import {
+  Event,
+  EventTreeNode,
+  DialogueNode,
+  EndNode,
+  CombatNode,
+  SpecialNode,
+} from '@/codex/types/events'
 import { TEXT, INNER_BOX, NODE, NODE_BOX } from '@/codex/constants/eventTreeValues'
 
 interface TreeBounds {
@@ -202,7 +209,7 @@ export const getNodeHeight = (
 
       const contentHeight =
         dialogueTextHeight +
-        effectsBoxMargin +
+        (dialogueTextHeight > 0 ? effectsBoxMargin : 0) +
         effectsBoxHeight +
         continueIndicatorMargin +
         continueIndicatorHeight +
@@ -217,7 +224,7 @@ export const getNodeHeight = (
 
     const contentHeight =
       textHeight +
-      effectsBoxMargin +
+      (textHeight > 0 ? effectsBoxMargin : 0) +
       effectsBoxHeight +
       continueIndicatorMargin +
       continueIndicatorHeight +
@@ -245,7 +252,34 @@ export const getNodeHeight = (
           node.effects.length * TEXT.LINE_HEIGHT +
           INNER_BOX.LISTINGS_VERTICAL_PADDING
         : 0
-    const effectsBoxMargin = effectsBoxHeight > 0 ? INNER_BOX.LISTINGS_TOP_MARGIN : 0
+    const effectsBoxMargin =
+      textHeight > 0 && effectsBoxHeight > 0 ? INNER_BOX.LISTINGS_TOP_MARGIN : 0
+
+    const contentHeight = textHeight + effectsBoxMargin + effectsBoxHeight + loopIndicatorHeight
+
+    return contentHeight + NODE_BOX.VERTICAL_PADDING * 2
+  } else if (node.type === 'special') {
+    // Special nodes show text (up to 2 lines) + effects box (if any) + loops back to box (if present)
+    const hasText = node.text && node.text.trim().length > 0
+    let textHeight: number
+
+    if (hasText && node.text) {
+      const specialLines = wrapText(node.text, NODE.MIN_WIDTH - TEXT.HORIZONTAL_PADDING)
+      const numLines = Math.min(specialLines.length, TEXT.MAX_DISPLAY_LINES)
+      textHeight = numLines * TEXT.LINE_HEIGHT
+    } else {
+      textHeight = 0
+    }
+
+    const effectsBoxHeight =
+      node.effects && node.effects.length > 0
+        ? TEXT.LINE_HEIGHT +
+          INNER_BOX.LISTINGS_HEADER_GAP +
+          node.effects.length * TEXT.LINE_HEIGHT +
+          INNER_BOX.LISTINGS_VERTICAL_PADDING
+        : 0
+    const effectsBoxMargin =
+      textHeight > 0 && effectsBoxHeight > 0 ? INNER_BOX.LISTINGS_TOP_MARGIN : 0
 
     const contentHeight = textHeight + effectsBoxMargin + effectsBoxHeight + loopIndicatorHeight
 
@@ -259,8 +293,14 @@ export const getNodeHeight = (
  * Type guard that checks if a node is one of the types that can have effects
  * and has at least one effect in its effects array.
  */
-export const hasEffects = (node: EventTreeNode): node is DialogueNode | EndNode | CombatNode => {
-  const isEffectsNode = node.type === 'end' || node.type === 'dialogue' || node.type === 'combat'
+export const hasEffects = (
+  node: EventTreeNode
+): node is DialogueNode | EndNode | CombatNode | SpecialNode => {
+  const isEffectsNode =
+    node.type === 'end' ||
+    node.type === 'dialogue' ||
+    node.type === 'combat' ||
+    node.type === 'special'
 
   return isEffectsNode && (node.effects ?? []).length > 0
 }

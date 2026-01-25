@@ -16,9 +16,9 @@ console.warn = (...args) => {
  * plus several home-made optimization passes.
  */
 
-const EVENTS_FILE = path.join(__dirname, './events.json')
-const OUTPUT_FILE = path.join(__dirname, '../src/codex/data/event-trees.json')
-const EVENT_ALTERATIONS_FILE = path.join(__dirname, './event-alterations.json')
+const EVENTS_FILE = path.join(__dirname, '../data/events.json')
+const OUTPUT_FILE = path.join(__dirname, '../../src/codex/data/event-trees.json')
+const EVENT_ALTERATIONS = require('./event-alterations.js')
 
 // Special-case events with dialogue menu patterns (ask questions in any order)
 // For these events, we detect when we're at a dialogue menu hub node (menuHubPattern)
@@ -56,6 +56,12 @@ const DIALOGUE_MENU_EVENTS = {
     menuHubPattern: "Ystel's figure exudes a sense",
     menuExitPatterns: ['Leave'],
     hubChoiceMatchThreshold: 100, // choices: 3/3
+  },
+  'Frozen Heart': {
+    menuHubPattern: 'A rhythmic pulse fills the cave',
+    menuExitPatterns: ['Take the left tunnel', 'Take the right tunnel'],
+    // NOTE: Should actually be 0 (0/3 choices). But unfortunately that breaks the detection logic...
+    hubChoiceMatchThreshold: 30, // choices: 1/3
   },
   "Heroes' Rest Cemetery Start": {
     menuHubPattern: 'The old wooden wheels creak',
@@ -99,11 +105,10 @@ const DIALOGUE_MENU_EVENTS = {
     menuExitPatterns: ['Leave'],
     hubChoiceMatchThreshold: 80, // choices: 4/5
   },
-  'Frozen Heart': {
-    menuHubPattern: 'At the bottom of the steps',
-    menuExitPatterns: ['Take the left tunnel', 'Take the right tunnel'],
-    // NOTE: Should actually be 0 (0/3 choices). But unfortunately that breaks the detection logic...
-    hubChoiceMatchThreshold: 30, // choices 1/3
+  'The Boneyard': {
+    menuHubPattern: '"A parasite, one of the worst',
+    menuExitPatterns: ['Continue'],
+    hubChoiceMatchThreshold: 60, // choices: 2/3
   },
 }
 
@@ -1390,6 +1395,15 @@ function cleanText(text) {
 
 /**
  * Determine node type based on content
+ *
+ * Node types:
+ * - 'dialogue': Standard dialogue node with text and/or choices
+ * - 'choice': Choice wrapper node (created by separateChoicesFromEffects)
+ * - 'combat': Combat encounter node
+ * - 'end': Terminal node (no children)
+ * - 'special': Custom node type for special game mechanics (e.g., CARDPUZZLE)
+ *              that require external handling. Only created via event alterations.
+ *              So probably won't show up in the usage of this function.
  */
 function determineNodeType(text, isLeaf) {
   if (!text) return 'choice'
@@ -1798,39 +1812,6 @@ function processEvents() {
     debugCheckEventPipelineState(eventTrees, 'after separateChoicesFromEffects')
   }
 
-  // Apply event alterations (manual fixes for conditional choices, etc.)
-  if (OPTIMIZATION_PASS_CONFIG.APPLY_EVENT_ALTERATIONS_ENABLED) {
-    console.log('\n🔧 Applying event alterations...')
-    let totalAlterations = 0
-    try {
-      if (fs.existsSync(EVENT_ALTERATIONS_FILE)) {
-        const alterations = JSON.parse(fs.readFileSync(EVENT_ALTERATIONS_FILE, 'utf-8'))
-        eventTrees.forEach((tree) => {
-          const eventAlterations = alterations.find((a) => a.name === tree.name)
-          if (eventAlterations) {
-            const appliedCount = applyEventAlterations(tree.rootNode, eventAlterations.alterations)
-            if (appliedCount > 0) {
-              totalAlterations += appliedCount
-              if (CONFIG.VERBOSE_LOGGING) {
-                console.log(`  - "${tree.name}": applied ${appliedCount} alteration(s)`)
-              }
-            }
-          }
-        })
-        if (totalAlterations > 0) {
-          console.log(`  Applied ${totalAlterations} alteration(s)`)
-        } else {
-          console.log(`  No alterations to apply`)
-        }
-      } else {
-        console.log(`  No alterations file found (${EVENT_ALTERATIONS_FILE})`)
-      }
-    } catch (error) {
-      console.warn(`  ⚠️  Error applying event alterations: ${error.message}`)
-    }
-    debugCheckEventPipelineState(eventTrees, 'after applyEventAlterations')
-  }
-
   // Calculate stats before deduplication
   const nodesBeforeDedupe = eventTrees.reduce((sum, tree) => sum + countNodes(tree.rootNode), 0)
 
@@ -1907,6 +1888,39 @@ function processEvents() {
     debugCheckEventPipelineState(eventTrees, 'after convertSiblingAndCousinRefsToRefChildren')
   }
 
+  // Apply event alterations (manual fixes for conditional choices, etc.)
+  // This runs AFTER all optimizations so that refChildren can be resolved correctly
+  if (OPTIMIZATION_PASS_CONFIG.APPLY_EVENT_ALTERATIONS_ENABLED) {
+    console.log('\n🔧 Applying event alterations...')
+    let totalAlterations = 0
+    try {
+      if (EVENT_ALTERATIONS && Array.isArray(EVENT_ALTERATIONS)) {
+        eventTrees.forEach((tree) => {
+          const eventAlterations = EVENT_ALTERATIONS.find((a) => a.name === tree.name)
+          if (eventAlterations) {
+            const appliedCount = applyEventAlterations(tree.rootNode, eventAlterations.alterations)
+            if (appliedCount > 0) {
+              totalAlterations += appliedCount
+              if (CONFIG.VERBOSE_LOGGING) {
+                console.log(`  - "${tree.name}": applied ${appliedCount} alteration(s)`)
+              }
+            }
+          }
+        })
+        if (totalAlterations > 0) {
+          console.log(`  Applied ${totalAlterations} alteration(s)`)
+        } else {
+          console.log(`  No alterations to apply`)
+        }
+      } else {
+        console.log(`  No event alterations module found`)
+      }
+    } catch (error) {
+      console.warn(`  ⚠️  Error applying event alterations: ${error.message}`)
+    }
+    debugCheckEventPipelineState(eventTrees, 'after applyEventAlterations')
+  }
+
   if (OPTIMIZATION_PASS_CONFIG.CHECK_INVALID_REFS_ENABLED) {
     checkInvalidRefs(eventTrees)
   }
@@ -1944,9 +1958,11 @@ function processEvents() {
 /**
  * Apply event alterations from event-alterations.json
  * Supports:
- * - Finding nodes by text or choiceLabel
+ * - Finding nodes by text or choiceLabel (find)
+ * - Finding nodes by effect (findByEffect)
  * - Updating nodes (e.g., adding requirements)
- * - Adding new child nodes
+ * - Adding new child nodes (addChild)
+ * - Replacing entire nodes (replaceNode)
  */
 function applyEventAlterations(rootNode, alterations) {
   if (!rootNode || !alterations || alterations.length === 0) return 0
@@ -1954,21 +1970,75 @@ function applyEventAlterations(rootNode, alterations) {
   let appliedCount = 0
 
   for (const alteration of alterations) {
-    const { find, addRequirements, addChild } = alteration
+    const { find, findByEffect, addRequirements, addChild, replaceNode } = alteration
 
-    if (!find) {
-      console.warn(`  ⚠️  Alteration missing "find" field: ${JSON.stringify(alteration)}`)
+    // Validate that we have a find method
+    if (!find && !findByEffect) {
+      console.warn(
+        `  ⚠️  Alteration missing "find" or "findByEffect" field: ${JSON.stringify(alteration)}`
+      )
       continue
     }
 
     // Find matching nodes recursively
-    const matchingNodes = findNodesByTextOrChoiceLabel(rootNode, find)
+    let matchingNodes = []
+    if (findByEffect) {
+      matchingNodes = findNodesByEffect(rootNode, findByEffect)
+    } else {
+      matchingNodes = findNodesByTextOrChoiceLabel(rootNode, find)
+    }
 
     if (matchingNodes.length === 0) {
       if (CONFIG.VERBOSE_LOGGING) {
-        console.warn(`  ⚠️  No nodes found matching: "${find}"`)
+        console.warn(`  ⚠️  No nodes found matching: "${find || findByEffect}"`)
       }
       continue
+    }
+
+    // Replace entire node
+    if (replaceNode) {
+      for (const match of matchingNodes) {
+        const refTargetMap = {}
+        const refSourceNodes = []
+        const refCreateNodes = []
+        const newNode = createNodeFromAlterationSpec(replaceNode, refTargetMap, refSourceNodes, refCreateNodes)
+        if (newNode) {
+          // Copy the old node's ID to preserve references
+          newNode.id = match.id
+
+          // Resolve refSource nodes to actual refs (within the alteration)
+          for (const { node, refSource } of refSourceNodes) {
+            const targetNodeId = refTargetMap[refSource]
+            if (targetNodeId !== undefined) {
+              node.ref = targetNodeId
+            } else {
+              console.warn(
+                `  ⚠️  refSource ${refSource} not found in refTargetMap for alteration in node ${node.id}`
+              )
+            }
+          }
+
+          // Resolve refCreate nodes to actual refs (search the entire tree)
+          for (const { node, refCreate } of refCreateNodes) {
+            const candidates = findNodesByTextOrChoiceLabel(rootNode, refCreate)
+            // Find the first candidate that doesn't have a ref (it's the original node)
+            const targetNode = candidates.find(candidate => candidate.ref === undefined)
+            if (targetNode) {
+              node.ref = targetNode.id
+            } else {
+              console.warn(
+                `  ⚠️  refCreate "${refCreate}" did not find a matching node without a ref for node ${node.id}`
+              )
+            }
+          }
+
+          // Replace all properties of the matched node with the new node
+          Object.keys(match).forEach((key) => delete match[key])
+          Object.assign(match, newNode)
+          appliedCount++
+        }
+      }
+      continue // Skip other operations if we're replacing the node
     }
 
     if (addRequirements) {
@@ -1993,8 +2063,37 @@ function applyEventAlterations(rootNode, alterations) {
     // Add children
     if (addChild) {
       for (const node of matchingNodes) {
-        const newChild = createNodeFromAlterationSpec(addChild)
+        const refTargetMap = {}
+        const refSourceNodes = []
+        const refCreateNodes = []
+        const newChild = createNodeFromAlterationSpec(addChild, refTargetMap, refSourceNodes, refCreateNodes)
         if (newChild) {
+          // Resolve refSource nodes to actual refs (within the alteration)
+          for (const { node: childNode, refSource } of refSourceNodes) {
+            const targetNodeId = refTargetMap[refSource]
+            if (targetNodeId !== undefined) {
+              childNode.ref = targetNodeId
+            } else {
+              console.warn(
+                `  ⚠️  refSource ${refSource} not found in refTargetMap for alteration in node ${childNode.id}`
+              )
+            }
+          }
+
+          // Resolve refCreate nodes to actual refs (search the entire tree)
+          for (const { node: childNode, refCreate } of refCreateNodes) {
+            const candidates = findNodesByTextOrChoiceLabel(rootNode, refCreate)
+            // Find the first candidate that doesn't have a ref (it's the original node)
+            const targetNode = candidates.find(candidate => candidate.ref === undefined)
+            if (targetNode) {
+              childNode.ref = targetNode.id
+            } else {
+              console.warn(
+                `  ⚠️  refCreate "${refCreate}" did not find a matching node without a ref for node ${childNode.id}`
+              )
+            }
+          }
+
           if (!node.children) {
             node.children = []
           }
@@ -2035,10 +2134,50 @@ function findNodesByTextOrChoiceLabel(node, searchText) {
 }
 
 /**
+ * Recursively find nodes that have a specific effect
+ */
+function findNodesByEffect(node, effectToFind) {
+  const matches = []
+
+  if (!node) return matches
+
+  // Check if this node has the effect
+  if (node.effects && Array.isArray(node.effects)) {
+    for (const effect of node.effects) {
+      if (effect.includes(effectToFind)) {
+        matches.push(node)
+        break // Only add the node once even if it has multiple matching effects
+      }
+    }
+  }
+
+  // Recursively search children
+  if (node.children) {
+    for (const child of node.children) {
+      matches.push(...findNodesByEffect(child, effectToFind))
+    }
+  }
+
+  return matches
+}
+
+/**
  * Create a node from an alteration specification
  * Recursively creates children and assigns IDs
+ *
+ * Supports refTarget/refSource/refCreate for creating refs within alterations:
+ * - refTarget: Marks a node as a ref target with a numeric ID
+ * - refSource: Will be converted to ref: <node_id> pointing to the refTarget node
+ * - refCreate: Will be converted to ref: <node_id> pointing to a node in the tree that matches
+ *              the text/choiceLabel and has no ref of its own (the original node)
+ *
+ * @param {Object} spec - The node specification
+ * @param {Object} refTargetMap - Map of refTarget numbers to actual node IDs
+ * @param {Array} refSourceNodes - Array to collect nodes that need refSource resolution
+ * @param {Array} refCreateNodes - Array to collect nodes that need refCreate resolution
+ * @returns {Object} The created node
  */
-function createNodeFromAlterationSpec(spec) {
+function createNodeFromAlterationSpec(spec, refTargetMap = {}, refSourceNodes = [], refCreateNodes = []) {
   if (!spec || !spec.type) {
     console.warn(`  ⚠️  Invalid node spec: missing type`)
     return null
@@ -2055,6 +2194,10 @@ function createNodeFromAlterationSpec(spec) {
 
   if (spec.choiceLabel !== undefined) {
     node.choiceLabel = spec.choiceLabel
+  }
+
+  if (spec.speaker !== undefined) {
+    node.speaker = spec.speaker
   }
 
   // Requirements are now just strings directly
@@ -2079,10 +2222,29 @@ function createNodeFromAlterationSpec(spec) {
     node.ref = spec.ref
   }
 
+  if (spec.refChildren !== undefined) {
+    node.refChildren = Array.isArray(spec.refChildren) ? spec.refChildren : [spec.refChildren]
+  }
+
+  // Handle refTarget: mark this node as a target for refs
+  if (spec.refTarget !== undefined) {
+    refTargetMap[spec.refTarget] = node.id
+  }
+
+  // Handle refSource: mark this node for later ref resolution
+  if (spec.refSource !== undefined) {
+    refSourceNodes.push({ node, refSource: spec.refSource })
+  }
+
+  // Handle refCreate: mark this node for later ref resolution by searching the tree
+  if (spec.refCreate !== undefined) {
+    refCreateNodes.push({ node, refCreate: spec.refCreate })
+  }
+
   // Recursively create children
   if (spec.children && Array.isArray(spec.children)) {
     node.children = spec.children
-      .map((childSpec) => createNodeFromAlterationSpec(childSpec))
+      .map((childSpec) => createNodeFromAlterationSpec(childSpec, refTargetMap, refSourceNodes, refCreateNodes))
       .filter((child) => child !== null)
   }
 

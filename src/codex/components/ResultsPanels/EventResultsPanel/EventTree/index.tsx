@@ -8,7 +8,14 @@ import { createCx } from '@/shared/utils/classnames'
 import { wrapText, truncateLine } from '@/shared/utils/textHelper'
 import GradientLink from '@/shared/components/GradientLink'
 
-import { CombatNode, DialogueNode, EndNode, Event, EventTreeNode } from '@/codex/types/events'
+import {
+  CombatNode,
+  DialogueNode,
+  EndNode,
+  Event,
+  EventTreeNode,
+  SpecialNode,
+} from '@/codex/types/events'
 import {
   getNodeHeight,
   getNodeWidth,
@@ -164,20 +171,7 @@ function EventTree({
     // Draw node rectangles
     nodes
       .append('rect')
-      .attr('class', (d) => {
-        switch (d.data.type) {
-          case 'dialogue':
-            return cx('event-node', 'event-node--dialogue')
-          case 'choice':
-            return cx('event-node', 'event-node--choice')
-          case 'combat':
-            return cx('event-node', 'event-node--combat')
-          case 'end':
-            return cx('event-node', 'event-node--end')
-          default:
-            return cx('event-node')
-        }
-      })
+      .attr('class', (d) => cx('event-node', `event-node--${d.data.type}`))
       .attr('x', (d) => -getNodeWidth(d.data, event) / 2)
       .attr('y', (d) => -getNodeHeight(d.data, event, showLoopingIndicator) / 2)
       .attr('width', (d) => getNodeWidth(d.data, event))
@@ -484,7 +478,7 @@ function EventTree({
               .text(line)
           })
         }
-      } else {
+      } else if (data.type === 'combat') {
         // For combat nodes, show text (up to 2 lines) or "FIGHT!" fallback (effects box is handled centrally below)
         const effects = data.effects || []
         const hasEffects = effects.length > 0
@@ -553,6 +547,67 @@ function EventTree({
             .attr('y', textAreaCenter + TEXT.COMBAT_BASELINE_OFFSET - TEXT.COMBAT_TEXT_HEIGHT / 2)
             .text('FIGHT!')
         }
+      } else if (data.type === 'special') {
+        // For special nodes, show text (up to 2 lines) + effects box (if any) + loops back to box (if present)
+        const effects = data.effects || []
+        const hasEffects = effects.length > 0
+        const effectsBoxHeight = hasEffects
+          ? TEXT.LINE_HEIGHT +
+            INNER_BOX.LISTINGS_HEADER_GAP +
+            effects.length * TEXT.LINE_HEIGHT +
+            INNER_BOX.LISTINGS_VERTICAL_PADDING
+          : 0
+        const loopIndicatorHeight =
+          showLoopingIndicator && data.ref
+            ? INNER_BOX.INDICATOR_HEIGHT + TEXT.LINE_HEIGHT + INNER_BOX.INDICATOR_HEADER_GAP
+            : 0
+
+        const currentNodeHeight = getNodeHeight(data, event, showLoopingIndicator)
+        const currentNodeWidth = getNodeWidth(data, event)
+        const effectsBoxMargin = effectsBoxHeight > 0 ? INNER_BOX.LISTINGS_TOP_MARGIN : 0
+        const loopIndicatorMargin = loopIndicatorHeight > 0 ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
+        // The text area is: total height minus vertical padding, effects box, its margin, and loop indicator
+        const textAreaHeight =
+          currentNodeHeight -
+          NODE_BOX.VERTICAL_PADDING * 2 -
+          effectsBoxMargin -
+          effectsBoxHeight -
+          loopIndicatorMargin -
+          loopIndicatorHeight
+        // Center the text within this area, offset by top padding
+        const textAreaCenter =
+          -currentNodeHeight / 2 + NODE_BOX.VERTICAL_PADDING + textAreaHeight / 2
+
+        const hasText = data.text && data.text.trim().length > 0
+
+        if (hasText && data.text) {
+          const specialLines = wrapText(data.text, currentNodeWidth - TEXT.HORIZONTAL_PADDING)
+          const displayLines = specialLines.slice(0, TEXT.MAX_DISPLAY_LINES)
+
+          // If there are more lines than we can display, truncate the last line
+          if (
+            specialLines.length > TEXT.MAX_DISPLAY_LINES &&
+            displayLines[displayLines.length - 1]
+          ) {
+            const lastLineIndex = displayLines.length - 1
+            displayLines[lastLineIndex] = truncateLine(displayLines[lastLineIndex])
+          }
+
+          // Center the lines vertically based on actual number of lines
+          const totalTextHeight = displayLines.length * TEXT.LINE_HEIGHT
+          const verticalCenteringOffset = -totalTextHeight / 2 + TEXT.BASELINE_OFFSET
+
+          displayLines.forEach((line, i) => {
+            const y = textAreaCenter + i * TEXT.LINE_HEIGHT + verticalCenteringOffset
+
+            node
+              .append('text')
+              .attr('class', cx('event-node-text', 'event-node-text--special'))
+              .attr('x', 0)
+              .attr('y', y)
+              .text(line)
+          })
+        }
       }
     })
 
@@ -561,7 +616,7 @@ function EventTree({
       .filter((d) => hasEffects(d.data))
       .each(function (d) {
         const node = select(this)
-        const eventNode = d.data as DialogueNode | EndNode | CombatNode
+        const eventNode = d.data as DialogueNode | EndNode | CombatNode | SpecialNode
         const effects = eventNode.effects ?? []
         const nodeHeight = getNodeHeight(eventNode, event, showLoopingIndicator)
         const nodeWidth = getNodeWidth(eventNode, event)
