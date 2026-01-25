@@ -20,14 +20,9 @@ const EVENTS_FILE = path.join(__dirname, './events.json')
 const OUTPUT_FILE = path.join(__dirname, '../src/codex/data/event-trees.json')
 const EVENT_ALTERATIONS_FILE = path.join(__dirname, './event-alterations.json')
 
-// For the events in this list, we should not include nodes that have the
-// choiceLabel === 'default' OR text === 'default'
-// Skip those nodes along with their entire subtree.
-const DEFAULT_NODE_BLACKLIST = ['A Familiar Face']
-
 // Special-case events with dialogue menu patterns (ask questions in any order)
 // For these events, we detect when we're at a dialogue menu hub node (menuHubPattern)
-// and create refs from all children back to the hub, except for the node matching menuExitPattern.
+// and create refs from all children back to the hub, except for nodes matching menuExitPatterns.
 //
 // WHY WE NEED THIS:
 // Without this early detection, Rathael's factorial explosion (9! = 362,880 orderings)
@@ -40,7 +35,7 @@ const DEFAULT_NODE_BLACKLIST = ['A Familiar Face']
 //
 // hubChoiceMatchThreshold (optional):
 // - When OMITTED: Immediate ref creation mode
-//   * Children that don't match menuExitPattern are converted to refs IMMEDIATELY,
+//   * Children that don't match menuExitPatterns are converted to refs IMMEDIATELY,
 //     before building their subtrees. This prevents deep building and avoids hitting
 //     node limits, but requires that all meaningful content appears at the hub level.
 //   * Example: Rathael - all dialogue choices lead directly back to the hub, so
@@ -59,55 +54,67 @@ const DEFAULT_NODE_BLACKLIST = ['A Familiar Face']
 const DIALOGUE_MENU_EVENTS = {
   'Dawnbringer Ystel': {
     menuHubPattern: "Ystel's figure exudes a sense",
-    menuExitPattern: 'Leave',
+    menuExitPatterns: ['Leave'],
     hubChoiceMatchThreshold: 100, // choices: 3/3
   },
   "Heroes' Rest Cemetery Start": {
     menuHubPattern: 'The old wooden wheels creak',
-    menuExitPattern: 'I have no more questions',
+    menuExitPatterns: ['I have no more questions'],
     hubChoiceMatchThreshold: 60, // choices: 2/3
   },
   'Historic Shard': {
     menuHubPattern: 'You stare into the mirror',
-    menuExitPattern: "Skip: We don't have time",
+    menuExitPatterns: ["Skip: We don't have time"],
     hubChoiceMatchThreshold: 60, // choices: 2/3
   },
   'Isle of Talos': {
     menuHubPattern: 'Bolgar straightens his muddied',
-    menuExitPattern: 'I have no more questions',
+    menuExitPatterns: ['I have no more questions'],
     hubChoiceMatchThreshold: 60, // choices: 2/3
   },
   'Kaius Tagdahar Death': {
     menuHubPattern: 'A quick strike ends the young',
-    menuExitPattern: "Let's go", // There are 2 exit nodes with this pattern
+    menuExitPatterns: ["Let's go"], // 2 exit nodes with this same pattern
     hubChoiceMatchThreshold: 50, // choices: 1/2
   },
   'Statue of Ilthar II Death': {
     menuHubPattern: 'As a [[relation]]? Because you are',
-    menuExitPattern: "Skip: I've heard it all before",
+    menuExitPatterns: ["Skip: I've heard it all before"],
     hubChoiceMatchThreshold: 60, // choices: 2/3
   },
   'Sunfall Meadows Start': {
     menuHubPattern: 'You find yourself journeying along',
-    menuExitPattern: 'What about my pay?',
+    menuExitPatterns: ['What about my pay?'],
     hubChoiceMatchThreshold: 60, // choices: 2/3
   },
   'Rathael the Slain Death': {
     menuHubPattern: 'A chance to tangle with one of these',
-    menuExitPattern: 'Fight: Confront the Seraph',
+    menuExitPatterns: ['Fight: Confront the Seraph'],
     // This is not really necessary for Rathael, but just including it for completeness
     // Slows down the tree building process a lot though...
     // hubChoiceMatchThreshold: 85, // choices: 7/8
   },
   'Rotting Residence': {
     menuHubPattern: 'You can distinguish several rooms',
-    menuExitPattern: 'Leave',
+    menuExitPatterns: ['Leave'],
     hubChoiceMatchThreshold: 80, // choices: 4/5
+  },
+  'Frozen Heart': {
+    menuHubPattern: 'At the bottom of the steps',
+    menuExitPatterns: ['Take the left tunnel', 'Take the right tunnel'],
+    // NOTE: Should actually be 0 (0/3 choices). But unfortunately that breaks the detection logic...
+    hubChoiceMatchThreshold: 30, // choices 1/3
   },
 }
 
+// For the events in this list, we should not include nodes that have the
+// choiceLabel === 'default' OR text === 'default'
+// Skip those nodes along with their entire subtree.
+const DEFAULT_NODE_BLACKLIST = ['A Familiar Face']
+
 // Enables detailed logging for a specific event, when provided.
-const DEBUG_EVENT_NAME = 'Historic Shard'
+// const DEBUG_EVENT_NAME = 'Frozen Heart'
+const DEBUG_EVENT_NAME = ''
 
 // Toggle optimization/debug passes without commenting code.
 // Keep defaults as "true" to preserve current behavior.
@@ -124,18 +131,27 @@ const OPTIMIZATION_PASS_CONFIG = {
   // - Creates refs to prevent merchant/shop loops where choices repeat.
   CHOICE_AND_PATH_LOOP_DETECTION_ENABLED: true,
 
-  // Path convergence early dedup (whitelisted via PATH_CONVERGENCE_EVENTS):
-  // - If we reach the same node state (text + choices) via different routes, create a ref.
-  // - Depth-first early dedup
-  // - Fragile and brittle! Only enable for events that truly need it.
-  PATH_CONVERGENCE_EVENTS: ['Frozen Heart'],
-  PATH_CONVERGENCE_DEDUP_MIN_CHOICES: 3, // Only apply to nodes with at least this many choices
-
   // Dialogue menu hub detection (whitelisted via DIALOGUE_MENU_EVENTS):
   // - Detects "dialogue menu" hubs and collapses loops by inserting refs.
   // - With hubChoiceMatchThreshold: delayed hub return detection (build child, then ref it).
   // - Without hubChoiceMatchThreshold: immediate ref creation mode (faster, smaller trees).
   DIALOGUE_MENU_EVENTS_ENABLED: true,
+
+  // Path convergence early dedup (whitelisted via PATH_CONVERGENCE):
+  // - If we reach the same node state (text + choices) via different routes, create a ref.
+  // - Depth-first early dedup
+  // - skipPatterns: text patterns to exclude from path convergence (let post-processing handle them)
+  PATH_CONVERGENCE: {
+    'Frozen Heart': {
+      skipPatterns: [
+        'You make your way up to the peak, only to reveal a final challenge',
+        'A large chasm greets you on the other side',
+        'A masterful illusion',
+        'The simple chamber presents two obvious choices',
+      ],
+    },
+  },
+  PATH_CONVERGENCE_DEDUP_MIN_CHOICES: 3, // Only apply to nodes with at least this many choices
 
   // === POST-PROCESSING PIPELINE ===
   //
@@ -173,7 +189,7 @@ const OPTIMIZATION_PASS_CONFIG = {
 
   // Convert certain refs (sibling/simple cousin) into `refChildren` for nicer visualization.
   CONVERT_SIBLING_AND_COUSIN_REFS_TO_REF_CHILDREN_ENABLED: true,
-  COUSIN_REF_BLACKLIST: ['Vesparin Vault', 'TempleOffering'], // Some complex trees break when this pass reorders parents
+  COUSIN_REF_BLACKLIST: ['Vesparin Vault', 'TempleOffering', 'Frozen Heart'], // Some complex trees break when this pass reorders parents
 
   // Validate refs (detect refs pointing to missing nodes) and log warnings.
   CHECK_INVALID_REFS_ENABLED: true,
@@ -668,7 +684,7 @@ function buildTreeFromStory(
   // EARLY DEDUPLICATION: DIALOGUE MENU DETECTION
   // For events with dialogue menu patterns (like Rathael), detect when we're at
   // a dialogue menu hub node (menuHubPattern). All children of the hub forsake their
-  // own children and instead have a ref back to the hub, except for children matching menuExitPattern.
+  // own children and instead have a ref back to the hub, except for children matching menuExitPatterns.
   // This prevents hitting the node limit during tree building.
   // Note: We only check text here (not choiceLabel) because a parent and its child
   // will never both match menuHubPattern, so we only need to detect hubs via text.
@@ -694,8 +710,11 @@ function buildTreeFromStory(
         const hubChoiceLabels = new Set()
         for (const choice of choices) {
           const { cleanedText: choiceText } = extractChoiceMetadata(choice.text)
-          // Exclude exit pattern from snapshot
-          if (choiceText && !choiceText.includes(dialogueMenuConfig.menuExitPattern)) {
+          // Exclude exit patterns from snapshot
+          const isExitChoice = dialogueMenuConfig.menuExitPatterns.some((pattern) =>
+            choiceText?.includes(pattern)
+          )
+          if (choiceText && !isExitChoice) {
             hubChoiceLabels.add(choiceText)
           }
         }
@@ -722,12 +741,22 @@ function buildTreeFromStory(
   // EARLY DEDUPLICATION: PATH CONVERGENCE DETECTION
   // Detects when we reach the same node (same text + choices) via different paths
   // This is like mini-dedup during tree building - prevents re-exploring identical branches
-  // ONLY enabled for events in PATH_CONVERGENCE_EVENTS whitelist (events that need it to parse successfully)
+  // ONLY enabled for events in PATH_CONVERGENCE config (events that need it to parse successfully)
+  //
+  // IMPORTANT: Skip path convergence for:
+  // 1. Nodes matching the hub pattern itself (let hub menu logic handle it)
+  // 2. Nodes matching skipPatterns (let post-processing dedup handle them)
   let convergenceSignature = null
-  const enableEarlyDedupForThisEvent =
-    OPTIMIZATION_PASS_CONFIG.PATH_CONVERGENCE_EVENTS.includes(eventName)
+  const pathConvergenceConfig = OPTIMIZATION_PASS_CONFIG.PATH_CONVERGENCE[eventName]
+  const enableEarlyDedupForThisEvent = pathConvergenceConfig !== undefined
+  const skipForDialogueMenuHub = isDialogueMenuHub // Skip if THIS node is the hub
+  const skipPatterns = pathConvergenceConfig?.skipPatterns || []
+  const shouldSkipForPattern = skipPatterns.some((pattern) => cleanedText?.includes(pattern))
+
   if (
     enableEarlyDedupForThisEvent &&
+    !skipForDialogueMenuHub &&
+    !shouldSkipForPattern &&
     cleanedText &&
     choices.length >= OPTIMIZATION_PASS_CONFIG.PATH_CONVERGENCE_DEDUP_MIN_CHOICES
   ) {
@@ -768,12 +797,12 @@ function buildTreeFromStory(
   // This ensures all major branches get explored even if one branch is very complex.
   const useSiblingFirst = depth < CONFIG.SIBLING_FIRST_DEPTH
 
-  // Helper function to check if a choice should be built normally (matches menuExitPattern)
-  // or should become a ref node (doesn't match menuExitPattern)
+  // Helper function to check if a choice should be built normally (matches menuExitPatterns)
+  // or should become a ref node (doesn't match menuExitPatterns)
   function shouldBuildChildNormally(choiceText) {
     if (!isDialogueMenuHub || !dialogueMenuConfig) return true
-    // Check if choiceLabel matches menuExitPattern
-    return choiceText && choiceText.includes(dialogueMenuConfig.menuExitPattern)
+    // Check if choiceLabel matches any of menuExitPatterns
+    return dialogueMenuConfig.menuExitPatterns.some((pattern) => choiceText?.includes(pattern))
   }
 
   // Helper function to check if a node's children match the hub choice snapshot
@@ -878,7 +907,9 @@ function buildTreeFromStory(
       const stateAfterChoice = story.state.toJson()
 
       const { childText, childEffects, childNumContinues } = getChildTextFromStory(story)
-      const childMatchesExit = childText && childText.includes(dialogueMenuConfig.menuExitPattern)
+      const childMatchesExit = dialogueMenuConfig.menuExitPatterns.some((pattern) =>
+        childText?.includes(pattern)
+      )
 
       if (childMatchesExit) {
         // Child matches exit pattern - restore state and build normally
@@ -1128,16 +1159,10 @@ function buildTreeFromStory(
     }
   }
 
-  // Store early dedup signature AFTER building children
-  // This ensures other paths won't create refs to incomplete nodes
-  // Only store if we actually have children (to avoid matching incomplete nodes)
-  if (convergenceSignature && children.length > 0) {
-    pathConvergenceStates.set(convergenceSignature, nodeId)
-  }
-
   // Check for hub choice matches (for events with hubChoiceMatchThreshold)
   // This checks if this node's children match the hub snapshot
   // Only check nodes built AFTER the hub (nodeId > hubNodeId) to avoid checking pre-hub nodes
+  // IMPORTANT: Check this BEFORE storing PATH_CONVERGENCE signature to avoid storing nodes that become refs
   const snapshot = hubChoiceSnapshots.get(eventName)
   if (
     snapshot &&
@@ -1162,6 +1187,15 @@ function buildTreeFromStory(
         ref: matchedHubNodeId, // Ref back to hub
       })
     }
+  }
+
+  // Store early dedup signature AFTER checking for hub matches and AFTER building children
+  // This ensures:
+  // 1. Other paths won't create refs to incomplete nodes
+  // 2. We don't store signatures for nodes that became hub refs
+  // Only store if we actually have children (to avoid matching incomplete nodes)
+  if (convergenceSignature && children.length > 0) {
+    pathConvergenceStates.set(convergenceSignature, nodeId)
   }
 
   // Build the node
