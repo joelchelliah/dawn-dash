@@ -53,13 +53,13 @@ export function useEventUrlParam(
       if (index === ALL_EVENTS_INDEX) {
         // Only navigate if we're not already on the base route (prevents losing focus when filtering)
         if (router.asPath !== '/eventmaps') {
-          router.replace('/eventmaps', undefined, { shallow: true })
+          router.push('/eventmaps', undefined, { shallow: true })
         }
       } else {
         const event = events[index]
         if (event) {
           const eventUrlParam = normalizeEventNameForUrl(event.name)
-          router.replace(`/eventmaps/${eventUrlParam}`, undefined, { shallow: true })
+          router.push(`/eventmaps/${eventUrlParam}`, undefined, { shallow: true })
         }
       }
     },
