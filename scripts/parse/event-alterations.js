@@ -63,61 +63,9 @@ module.exports = [
               children: [
                 {
                   type: 'dialogue',
-                  text: "Using one of your abilities, the ice fades quickly! Only the sizzling steam of the broken prison of ice now stands between you and the chest's contents.",
-                  numContinues: 1,
-                  children: [
-                    {
-                      type: 'dialogue',
-                      text: 'The chest pulses with a radiant heat, but is cool to the touch. In turn, the hum within the cavern rises to a deafening level.',
-                      numContinues: 0,
-                      children: [
-                        {
-                          // Mark this node as refTarget 1
-                          // Other nodes can use refSource: 1 to create a ref back to this choice
-                          refTarget: 1,
-                          type: 'choice',
-                          choiceLabel: 'Reach into the chest',
-                          children: [
-                            {
-                              type: 'dialogue',
-                              text: 'You reach into the chest, grabbing at the vapour. It immediately wraps around you and trails up past your arm and into your chest.',
-                              effects: ['ADDTALENT: Frozen Heart'],
-                              numContinues: 1,
-                              children: [
-                                {
-                                  type: 'choice',
-                                  choiceLabel: 'Leave',
-                                  children: [
-                                    {
-                                      type: 'dialogue',
-                                      text: 'You backtrack your way back to the entrance without difficulty. At the bottom of the steps the chamber splits into two passageways.',
-                                      numContinues: 0,
-                                      // This will be converted to ref: <actual_node_id_of_matching_node>
-                                      refCreate: 'A rhythmic pulse fills the cave',
-                                    },
-                                  ],
-                                },
-                              ],
-                            },
-                          ],
-                        },
-                        {
-                          type: 'choice',
-                          choiceLabel: 'Continue',
-                          requirements: ['questflag:huntress'],
-                          children: [
-                            {
-                              type: 'dialogue',
-                              text: "\"The core of the heart! It's here where the lifeforce of the Frozen Heart lies, created from the tears of a god. I urge you to think about what you're doing [class], a god's essence will require something equally valuable in exchange.\"",
-                              numContinues: 0,
-                              // This will be converted to ref: <actual_node_id_of_refTarget_1>
-                              refSource: 1,
-                            },
-                          ],
-                        },
-                      ],
-                    },
-                  ],
+                  text: "Using one of your abilities, the ice fades quickly! Only the sizzling steam of the broken prison of ice now stands between you and the chest's contents. The chest pulses with a radiant heat, but is cool to the touch. In turn, the hum within the cavern rises to a deafening level.",
+                  numContinues: 2,
+                  refCreate: 'You smash at the ice repeatedly',
                 },
               ],
             },

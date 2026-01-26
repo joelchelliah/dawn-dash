@@ -660,6 +660,28 @@ function buildTreeFromStory(
       return snapshot.hubNodeId
     }
 
+    // If signature check failed but passWhenOnlyExitPatternsAvailable is enabled,
+    // check if ALL node choices match exit patterns
+    if (dialogueMenuConfig?.passWhenOnlyExitPatternsAvailable) {
+      const allChoicesAreExitPatterns = Array.from(nodeChoiceLabels).every((choiceLabel) =>
+        dialogueMenuConfig.menuExitPatterns.some((pattern) => choiceLabel?.includes(pattern))
+      )
+
+      if (
+        allChoicesAreExitPatterns &&
+        nodeChoiceLabels.size === dialogueMenuConfig.menuExitPatterns.length
+      ) {
+        if (eventName === DEBUG_EVENT_NAME) {
+          console.log(
+            `  ✅ Hub match found via exit patterns fallback (all ${nodeChoiceLabels.size} choices match exit patterns)`
+          )
+          console.log(`      Exit patterns: ${dialogueMenuConfig.menuExitPatterns.join(', ')}`)
+          console.log(`      Node choices: ${Array.from(nodeChoiceLabels).join(', ')}`)
+        }
+        return snapshot.hubNodeId
+      }
+    }
+
     return null
   }
 
@@ -1802,10 +1824,8 @@ function processEvents() {
   // Normalize refs away from split combat nodes (after postcombat separation)
   // This fixes refs that point to combat nodes which have been split into combat + postcombat dialogue
   console.log('\n⚔️  Normalizing refs pointing to split combat nodes...')
-  const {
-    totalRewrites: combatRefRewrites,
-    eventsWithRewrites: eventsWithCombatRefRewrites,
-  } = normalizeRefsPointingToCombatNodes(eventTrees)
+  const { totalRewrites: combatRefRewrites, eventsWithRewrites: eventsWithCombatRefRewrites } =
+    normalizeRefsPointingToCombatNodes(eventTrees)
   console.log(`  Rewrote ${combatRefRewrites} refs`)
   if (eventsWithCombatRefRewrites.length > 0) {
     console.log(`\n  Events with ref rewrites:`)

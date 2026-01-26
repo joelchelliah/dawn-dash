@@ -38,6 +38,7 @@ const DIALOGUE_MENU_EVENTS = {
     menuExitPatterns: ['Take the left tunnel', 'Take the right tunnel'],
     // NOTE: Should actually be 0 (0/3 choices). But unfortunately that breaks the detection logic...
     hubChoiceMatchThreshold: 30, // choices: 1/3
+    passWhenOnlyExitPatternsAvailable: true,
   },
   "Heroes' Rest Cemetery Start": {
     menuHubPattern: 'The old wooden wheels creak',
@@ -105,6 +106,11 @@ const DIALOGUE_MENU_EVENTS = {
     menuHubPattern: 'Amidst the carnage you notice',
     menuExitPatterns: ['Attack the Demon'],
     hubChoiceMatchThreshold: 50, // choices: 1/2
+  },
+  'Weeping Woods Start': {
+    menuHubPattern: '"A wise decision. The dark lands',
+    menuExitPatterns: ['That is all I needed to know'],
+    hubChoiceMatchThreshold: 60, // choices: 2/3
   },
 }
 
