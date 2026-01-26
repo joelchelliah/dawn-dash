@@ -37,9 +37,12 @@ const EventResultsPanel = ({
   const { filterText, setFilterText, zoomLevel, loopingPathMode } = useSearchFilters
   const showEventList = selectedEventIndex === ALL_EVENTS_INDEX || filteredEvents.length === 0
 
+  const temporarilyBlacklistedEvents = [
+    // 'Frozen Heart',
+    // 'Rotting Residence',
+  ] as string[]
   const isTemporarilyBlacklisted =
-    ['Frozen Heart', 'Rotting Residence'].includes(eventName) &&
-    process.env.NODE_ENV === 'production'
+    temporarilyBlacklistedEvents.includes(eventName) && process.env.NODE_ENV === 'production'
 
   const renderEventTree = (event: Event) => {
     const visitBlightbaneMessage = (
