@@ -70,6 +70,39 @@ export function EventmapHead({ event, eventUrlParam }: EventmapHeadProps = {}) {
           }),
         }}
       />
+
+      {/* Breadcrumb Structured Data */}
+      {isEventPage && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'BreadcrumbList',
+              itemListElement: [
+                {
+                  '@type': 'ListItem',
+                  position: 1,
+                  name: 'Dawn-Dash',
+                  item: 'https://www.dawn-dash.com',
+                },
+                {
+                  '@type': 'ListItem',
+                  position: 2,
+                  name: 'Eventmaps',
+                  item: 'https://www.dawn-dash.com/eventmaps',
+                },
+                {
+                  '@type': 'ListItem',
+                  position: 3,
+                  name: eventName,
+                  item: url,
+                },
+              ],
+            }),
+          }}
+        />
+      )}
     </Head>
   )
 }
