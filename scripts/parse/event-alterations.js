@@ -9,13 +9,20 @@
  * SUPPORTED FIELDS:
  *
  * Finding nodes:
- * - find: Search for nodes by text or choiceLabel (substring match)
- * - findByEffect: Search for nodes that have a specific effect (e.g., "CARDPUZZLE")
+ * find: {options...}
+ *   - { textOrLabel: 'text' } - Search by text or choiceLabel
+ *   - { effect: 'CARDPUZZLE' } - Search by effect (substring match)
+ *   - { textOrLabel: 'text', effect: 'GOTOAREA: 91' } - Search by both text-or-label AND effect
  *
  * Modifying nodes:
  * - addRequirements: Add requirements to matched nodes
  * - addChild: Add a new child node to matched nodes
  * - replaceNode: Replace the entire matched node with a new node structure
+ * - modifyNode: Modify properties of matched nodes:
+ *   - removeRef: true - Remove the ref field
+ *   - removeText: true - Remove the text field
+ *   - removeNumContinues: true - Remove the numContinues field
+ *   - type: 'end' - Change the node type
  *
  * Creating refs within alterations (refTarget/refSource):
  * Since alterations run after all optimizations, node IDs are unpredictable.
@@ -41,8 +48,7 @@ module.exports = [
     name: 'Frozen Heart',
     alterations: [
       {
-        // Find nodes with the CARDPUZZLE effect
-        findByEffect: 'CARDPUZZLE',
+        find: { effect: 'CARDPUZZLE' },
         // Replace with a special node that has puzzle success/failure branches
         replaceNode: {
           type: 'special',
@@ -135,14 +141,30 @@ module.exports = [
     ],
   },
   {
+    name: 'The Defiled Sanctum',
+    alterations: [
+      {
+        // Find the dialogue node that should be an end node (GOTOAREA transition)
+        find: { textOrLabel: 'The heads turn in unison before you speak', effect: 'GOTOAREA: 91' },
+        modifyNode: {
+          removeRef: true,
+          removeNumContinues: true,
+          removeText: true,
+          removeChildren: true,
+          type: 'end',
+        },
+      },
+    ],
+  },
+  {
     name: 'Rotting Residence',
     alterations: [
       {
-        find: 'Investigate the large door',
+        find: { textOrLabel: 'Investigate the large door' },
         addRequirements: ['NOT COMPLETED: Go Upstairs'],
       },
       {
-        find: 'The hallway seems to have been part of a large residence',
+        find: { textOrLabel: 'The hallway seems to have been part of a large residence' },
         addChild: {
           type: 'choice',
           choiceLabel: 'Investigate the large door',

@@ -19,205 +19,11 @@ console.warn = (...args) => {
 const EVENTS_FILE = path.join(__dirname, '../data/events.json')
 const OUTPUT_FILE = path.join(__dirname, '../../src/codex/data/event-trees.json')
 const EVENT_ALTERATIONS = require('./event-alterations.js')
-
-// Special-case events with dialogue menu patterns (ask questions in any order)
-// For these events, we detect when we're at a dialogue menu hub node (menuHubPattern)
-// and create refs from all children back to the hub, except for nodes matching menuExitPatterns.
-//
-// WHY WE NEED THIS:
-// Without this early detection, Rathael's factorial explosion (9! = 362,880 orderings)
-// would cause us to hit the 25k node budget during tree generation and create an
-// incomplete tree. This early ref creation keeps the tree small enough to finish building.
-//
-// The post-processing collapseDialogueMenus() then further simplifies the already-built
-// tree by combining all question choices into a single node for better visualization.
-// Both are needed: this prevents generation failure, collapsing improves the final output.
-//
-// hubChoiceMatchThreshold (optional):
-// - When OMITTED: Immediate ref creation mode
-//   * Children that don't match menuExitPatterns are converted to refs IMMEDIATELY,
-//     before building their subtrees. This prevents deep building and avoids hitting
-//     node limits, but requires that all meaningful content appears at the hub level.
-//   * Example: Rathael - all dialogue choices lead directly back to the hub, so
-//     immediate refs work perfectly.
-//
-// - When PROVIDED: Delayed hub detection mode
-//   * Children are built normally (full subtrees) to preserve intermediate content
-//     (e.g., room descriptions in Rotting Residence). After building, we check if a
-//     node's children match >= hubChoiceMatchThreshold% of the hub's original choices.
-//     If matched, that node becomes a ref back to the hub.
-//   * This allows preserving meaningful content (like room descriptions) that appears
-//     between the hub choice and the return to hub, while still collapsing the loop.
-//   * Example: Rotting Residence - choosing "Go to the Kitchen" shows a room description
-//     before returning to the hub, so we need to build that path fully first.
-//   * Note: This mode builds deeper trees, so may require higher node budgets.
-const DIALOGUE_MENU_EVENTS = {
-  'Dawnbringer Ystel': {
-    menuHubPattern: "Ystel's figure exudes a sense",
-    menuExitPatterns: ['Leave'],
-    hubChoiceMatchThreshold: 100, // choices: 3/3
-  },
-  'Frozen Heart': {
-    menuHubPattern: 'A rhythmic pulse fills the cave',
-    menuExitPatterns: ['Take the left tunnel', 'Take the right tunnel'],
-    // NOTE: Should actually be 0 (0/3 choices). But unfortunately that breaks the detection logic...
-    hubChoiceMatchThreshold: 30, // choices: 1/3
-  },
-  "Heroes' Rest Cemetery Start": {
-    menuHubPattern: 'The old wooden wheels creak',
-    menuExitPatterns: ['I have no more questions'],
-    hubChoiceMatchThreshold: 60, // choices: 2/3
-  },
-  'Historic Shard': {
-    menuHubPattern: 'You stare into the mirror',
-    menuExitPatterns: ["Skip: We don't have time"],
-    hubChoiceMatchThreshold: 60, // choices: 2/3
-  },
-  'Isle of Talos': {
-    menuHubPattern: 'Bolgar straightens his muddied',
-    menuExitPatterns: ['I have no more questions'],
-    hubChoiceMatchThreshold: 60, // choices: 2/3
-  },
-  'Kaius Tagdahar Death': {
-    menuHubPattern: 'A quick strike ends the young',
-    menuExitPatterns: ["Let's go"], // 2 exit nodes with this same pattern
-    hubChoiceMatchThreshold: 50, // choices: 1/2
-  },
-  'Statue of Ilthar II Death': {
-    menuHubPattern: 'As a [[relation]]? Because you are',
-    menuExitPatterns: ["Skip: I've heard it all before"],
-    hubChoiceMatchThreshold: 60, // choices: 2/3
-  },
-  'Sunfall Meadows Start': {
-    menuHubPattern: 'You find yourself journeying along',
-    menuExitPatterns: ['What about my pay?'],
-    hubChoiceMatchThreshold: 60, // choices: 2/3
-  },
-  'Rathael the Slain Death': {
-    menuHubPattern: 'A chance to tangle with one of these',
-    menuExitPatterns: ['Fight: Confront the Seraph'],
-    // This is not really necessary for Rathael, but just including it for completeness
-    // Slows down the tree building process a lot though...
-    // hubChoiceMatchThreshold: 85, // choices: 7/8
-  },
-  'Rotting Residence': {
-    menuHubPattern: 'You can distinguish several rooms',
-    menuExitPatterns: ['Leave'],
-    hubChoiceMatchThreshold: 80, // choices: 4/5
-  },
-  'The Boneyard': {
-    menuHubPattern: '"A parasite, one of the worst',
-    menuExitPatterns: ['Continue'],
-    hubChoiceMatchThreshold: 60, // choices: 2/3
-  },
-}
-
-// For the events in this list, we should not include nodes that have the
-// choiceLabel === 'default' OR text === 'default'
-// Skip those nodes along with their entire subtree.
-const DEFAULT_NODE_BLACKLIST = ['A Familiar Face']
+const { DEFAULT_NODE_BLACKLIST, OPTIMIZATION_PASS_CONFIG, CONFIG } = require('./configs.js')
 
 // Enables detailed logging for a specific event, when provided.
 // const DEBUG_EVENT_NAME = 'Frozen Heart'
 const DEBUG_EVENT_NAME = ''
-
-// Toggle optimization/debug passes without commenting code.
-// Keep defaults as "true" to preserve current behavior.
-const OPTIMIZATION_PASS_CONFIG = {
-  // === OPTIMIZATION PASSES DURING TREE BUILDING ===
-
-  // Text-based loop detection:
-  // - If dialogue text repeats in the ancestor chain, create a ref immediately.
-  // - Prevents infinite dialogue loops.
-  TEXT_LOOP_DETECTION_ENABLED: true,
-
-  // Choice + story-path loop detection:
-  // - Hashes: (choice labels + Ink story path).
-  // - Creates refs to prevent merchant/shop loops where choices repeat.
-  CHOICE_AND_PATH_LOOP_DETECTION_ENABLED: true,
-
-  // Dialogue menu hub detection (whitelisted via DIALOGUE_MENU_EVENTS):
-  // - Detects "dialogue menu" hubs and collapses loops by inserting refs.
-  // - With hubChoiceMatchThreshold: delayed hub return detection (build child, then ref it).
-  // - Without hubChoiceMatchThreshold: immediate ref creation mode (faster, smaller trees).
-  DIALOGUE_MENU_EVENTS_ENABLED: true,
-
-  // Path convergence early dedup (whitelisted via PATH_CONVERGENCE):
-  // - If we reach the same node state (text + choices) via different routes, create a ref.
-  // - Depth-first early dedup
-  // - skipPatterns: text patterns to exclude from path convergence (let post-processing handle them)
-  PATH_CONVERGENCE: {
-    'Frozen Heart': {
-      skipPatterns: [
-        'You make your way up to the peak, only to reveal a final challenge',
-        'A large chasm greets you on the other side',
-        'A masterful illusion',
-        'The simple chamber presents two obvious choices',
-      ],
-    },
-  },
-  PATH_CONVERGENCE_DEDUP_MIN_CHOICES: 3, // Only apply to nodes with at least this many choices
-
-  // === POST-PROCESSING PIPELINE ===
-  //
-  // Remove nodes with `choiceLabel === 'default'` or `text === 'default'`
-  // See DEFAULT_NODE_BLACKLIST for events that should be filtered.
-  FILTER_DEFAULT_NODES_ENABLED: true,
-
-  // Split mixed nodes into: choice wrapper -> outcome node (effects/text/children).
-  // This also normalizes rendering and helps later passes reason about refs (e.g. deduplication).
-  SEPARATE_CHOICES_FROM_EFFECTS_ENABLED: true,
-
-  // Apply manual fixes from `scripts/event-alterations.json`.
-  // For manually adding or modifying nodes that were too difficult to parse automatically.
-  APPLY_EVENT_ALTERATIONS_ENABLED: true,
-
-  // Structural subtree deduplication (breadth-first):
-  // - Replaces structurally identical subtrees with refs, preferring shallow originals.
-  // - Runs several passes to ensure that we catch all false positives.
-  DEDUPLICATE_SUBTREES_NUM_ITERATIONS: 2,
-  DEDUPLICATE_SUBTREES_MIN_SUBTREE_SIZE: 3, // Only dedupe if subtree has at least this many nodes
-  // How many levels deep to include in the signature for deduplication comparison.
-  // Depth 1 = immediate children only, 2 = children + grandchildren, 3 = + great-grandchildren, etc.
-  // Higher values catch more structural differences but have minimal performance impact.
-  DEDUPLICATE_SUBTREES_SIGNATURE_DEPTH: 3,
-  // Skip subtree deduplication for these events (e.g. Historic Shard: same-choice nodes differ by path).
-  DEDUPLICATE_SUBTREES_EVENT_BLACKLIST: ['Historic Shard'],
-
-  // Rewrite refs so non-choice nodes never target a choice wrapper node.
-  // E.g. a dialogue node's ref shouldn't point to a choice wrapper node, but rather the outcome node.
-  NORMALIZE_REFS_POINTING_TO_CHOICE_NODES_ENABLED: true,
-
-  // For threshold-based dialogue menu events, promote the shallowest hub copy to be canonical
-  // (see `promoteShallowDialogueMenuHub()` for details).
-  PROMOTE_SHALLOW_DIALOGUE_MENU_HUB_ENABLED: true,
-
-  // Convert certain refs (sibling/simple cousin) into `refChildren` for nicer visualization.
-  CONVERT_SIBLING_AND_COUSIN_REFS_TO_REF_CHILDREN_ENABLED: true,
-  COUSIN_REF_BLACKLIST: ['Vesparin Vault', 'TempleOffering', 'Frozen Heart'], // Some complex trees break when this pass reorders parents
-
-  // Validate refs (detect refs pointing to missing nodes) and log warnings.
-  CHECK_INVALID_REFS_ENABLED: true,
-}
-
-const CONFIG = {
-  VERBOSE_LOGGING: false,
-  MAX_DEPTH: 100, // Limit depth for performance
-
-  // SIBLING-FIRST EXPLORATION:
-  // At shallow depths, we explore all siblings at each level before going deeper.
-  // This ensures all major branches are explored even if one branch is very complex.
-  // How it works: At each shallow level, we save story states for all choices,
-  // then recursively explore each one. This allows all siblings to START their
-  // exploration before the node limit kicks in.
-  SIBLING_FIRST_DEPTH: 8, // Explore each sibling all the way until we reach this depth
-  SIBLING_FIRST_NODE_BUDGET: 1000000, // Max nodes to create during sibling-first phase
-
-  // DEPTH-FIRST EXPLORATION:
-  // After sibling-first phase, we switch to standard depth-first exploration.
-  // Node counter is RESET when first entering depth-first phase for this event.
-  DEPTH_FIRST_NODE_BUDGET: 500000, // Max nodes to create during depth-first phase
-}
 
 let nodeIdCounter = 0
 let totalNodesInCurrentEvent = 0
@@ -356,7 +162,7 @@ function parseInkStory(inkJsonString, eventName) {
       const varList = Array.from(randomVars.entries())
         .map(([name, range]) => `${name}(${range.min}-${range.max})`)
         .join(', ')
-      if (CONFIG.VERBOSE_LOGGING) {
+      if (eventName === DEBUG_EVENT_NAME) {
         console.log(`  📊 Random variables: ${varList}`)
       }
     }
@@ -483,7 +289,7 @@ function buildTreeFromStory(
                     `>>>>${command}:${randomNotation}`
                   )
                   foundRandom = true
-                  if (CONFIG.VERBOSE_LOGGING) {
+                  if (eventName === DEBUG_EVENT_NAME) {
                     console.log(
                       `  🎲 Event "${eventName}": Detected random ${command} value ${value} (range: ${range.min}-${range.max})`
                     )
@@ -592,7 +398,7 @@ function buildTreeFromStory(
       console.warn(
         `  ⚠️  Event "${eventName}" reached sibling-first budget (${CONFIG.SIBLING_FIRST_NODE_BUDGET}) at depth ${depth}`
       )
-      if (CONFIG.VERBOSE_LOGGING) {
+      if (eventName === DEBUG_EVENT_NAME) {
         console.warn(
           `      Text: "${preview}${cleanedText && cleanedText.length > 50 ? '...' : ''}"`
         )
@@ -693,9 +499,7 @@ function buildTreeFromStory(
   // This prevents hitting the node limit during tree building.
   // Note: We only check text here (not choiceLabel) because a parent and its child
   // will never both match menuHubPattern, so we only need to detect hubs via text.
-  const dialogueMenuConfig = OPTIMIZATION_PASS_CONFIG.DIALOGUE_MENU_EVENTS_ENABLED
-    ? DIALOGUE_MENU_EVENTS[eventName]
-    : undefined
+  const dialogueMenuConfig = OPTIMIZATION_PASS_CONFIG.DIALOGUE_MENU_EVENTS[eventName]
   let isDialogueMenuHub = false
   if (dialogueMenuConfig) {
     // Check if this node's text matches menuHubPattern
@@ -730,10 +534,7 @@ function buildTreeFromStory(
             choiceLabels: hubChoiceLabels,
             threshold: dialogueMenuConfig.hubChoiceMatchThreshold,
           })
-          if (
-            // CONFIG.VERBOSE_LOGGING &&
-            eventName === DEBUG_EVENT_NAME
-          ) {
+          if (eventName === DEBUG_EVENT_NAME) {
             console.log(
               `  🔍 Captured hub snapshot at nodeId=${nodeId}: ${hubChoiceLabels.size} choices: [${Array.from(hubChoiceLabels).join(', ')}]`
             )
@@ -849,10 +650,7 @@ function buildTreeFromStory(
 
     // Only log when match threshold is met (to reduce noise)
     if (matchPercentage >= snapshot.threshold) {
-      if (
-        // CONFIG.VERBOSE_LOGGING &&
-        eventName === DEBUG_EVENT_NAME
-      ) {
+      if (eventName === DEBUG_EVENT_NAME) {
         console.log(
           `  ✅ Hub match found: ${matchCount}/${snapshot.choiceLabels.size} = ${matchPercentage.toFixed(1)}% (threshold: ${snapshot.threshold}%)`
         )
@@ -1495,17 +1293,16 @@ function checkInvalidRefs(eventTrees) {
         console.log(`      Node ${nodeId} -> ${refTarget}  "${short}"`)
       })
     })
-    if (CONFIG.VERBOSE_LOGGING) {
-      console.log('\n  (VERBOSE) All invalid refs:')
-      eventsWithInvalidRefs.forEach(({ name, invalidRefs, examples }) => {
+    if (eventName === DEBUG_EVENT_NAME) {
+      console.log('\n 📜 All invalid refs:')
+      eventsWithInvalidRefs.forEach(({ name, examples }) => {
         examples.forEach(({ nodeId, refTarget }) => {
           console.log(`    - "${name}" Node ${nodeId} -> ${refTarget} (target not found)`)
         })
       })
     }
 
-    // Always print expanded details for the debug event (even if VERBOSE_LOGGING is off).
-    if (typeof DEBUG_EVENT_NAME === 'string' && DEBUG_EVENT_NAME) {
+    if (eventName === DEBUG_EVENT_NAME) {
       const debugTree = eventTrees.find((t) => t.name === DEBUG_EVENT_NAME)
       if (debugTree?.rootNode) {
         const nodeMap = buildNodeMapForTree(debugTree.rootNode)
@@ -1641,7 +1438,7 @@ function promoteShallowDialogueMenuHub(eventTrees) {
   // then rewrites refs that used to target the old hub to target the new hub.
   eventTrees.forEach((tree) => {
     const eventName = tree.name
-    const cfg = DIALOGUE_MENU_EVENTS[eventName]
+    const cfg = OPTIMIZATION_PASS_CONFIG.DIALOGUE_MENU_EVENTS[eventName]
     if (!cfg?.hubChoiceMatchThreshold) return
     if (!tree.rootNode) return
 
@@ -1732,14 +1529,14 @@ function processEvents() {
     const displayName = caption || name
 
     if (!text) {
-      if (CONFIG.VERBOSE_LOGGING) {
+      if (displayName === DEBUG_EVENT_NAME) {
         console.log(`  ⊘  [${i + 1}/${events.length}] Skipping "${displayName}" (no text content)`)
       }
       emptyCount++
       continue
     }
 
-    if (CONFIG.VERBOSE_LOGGING) {
+    if (displayName === DEBUG_EVENT_NAME) {
       console.log(`  → [${i + 1}/${events.length}] Parsing "${displayName}" (type ${type})...`)
     }
 
@@ -1753,7 +1550,7 @@ function processEvents() {
         rootNode,
       })
       successCount++
-      if (CONFIG.VERBOSE_LOGGING) {
+      if (displayName === DEBUG_EVENT_NAME) {
         console.log(`    ✓ Success (${countNodes(rootNode)} nodes)`)
       }
     } else {
@@ -1831,7 +1628,7 @@ function processEvents() {
       )
     }
 
-    if (CONFIG.VERBOSE_LOGGING && eventsWithDedupe.length > 0) {
+    if (eventsWithDedupe.length > 0) {
       console.log(`\n  Events with deduplication:`)
       eventsWithDedupe.forEach(({ name, duplicates, nodesRemoved }) => {
         console.log(`    - "${name}": ${duplicates} duplicates, ${nodesRemoved} nodes removed`)
@@ -1845,7 +1642,7 @@ function processEvents() {
     console.log('\n🎯 Normalizing refs to skip choice wrappers...')
     const { totalRewrites, eventsWithRewrites } = normalizeRefsPointingToChoiceNodes(eventTrees)
     console.log(`  Rewrote ${totalRewrites} refs`)
-    if (CONFIG.VERBOSE_LOGGING && eventsWithRewrites.length > 0) {
+    if (eventsWithRewrites.length > 0) {
       console.log(`\n  Events with ref rewrites:`)
       eventsWithRewrites.forEach(({ name, rewrites }) => {
         console.log(`    - "${name}": ${rewrites} refs rewritten`)
@@ -1860,26 +1657,13 @@ function processEvents() {
     debugCheckEventPipelineState(eventTrees, 'after promoteShallowDialogueMenuHub')
   }
 
-  // TODO REMOVE?!
-  // Collapse dialogue menu question orderings
-  // console.log('\n🗂️  Collapsing dialogue menus...')
-  // const { totalCollapsed, eventsWithCollapsed } = collapseDialogueMenus(eventTrees)
-  // console.log(`  Collapsed ${totalCollapsed} dialogue menu patterns`)
-
-  // if (eventsWithCollapsed.length > 0) {
-  //   console.log(`  Events with collapsed menus:`)
-  //   eventsWithCollapsed.forEach(({ name, nodesBefore, nodesAfter, reduction }) => {
-  //     console.log(`    - "${name}": ${nodesBefore} → ${nodesAfter} nodes (${reduction}% reduction)`)
-  //   })
-  // }
-
   if (OPTIMIZATION_PASS_CONFIG.CONVERT_SIBLING_AND_COUSIN_REFS_TO_REF_CHILDREN_ENABLED) {
     console.log('\n🔗 Converting sibling and SIMPLE cousin refs to refChildren...')
     const { totalConversions, eventsWithConversions } =
       convertSiblingAndCousinRefsToRefChildren(eventTrees)
     console.log(`  Converted ${totalConversions} sibling refs`)
 
-    if (CONFIG.VERBOSE_LOGGING && eventsWithConversions.length > 0) {
+    if (eventsWithConversions.length > 0) {
       console.log(`\n  Events with conversions:`)
       eventsWithConversions.forEach(({ name, conversions }) => {
         console.log(`    - "${name}": ${conversions} sibling refs converted`)
@@ -1901,7 +1685,7 @@ function processEvents() {
             const appliedCount = applyEventAlterations(tree.rootNode, eventAlterations.alterations)
             if (appliedCount > 0) {
               totalAlterations += appliedCount
-              if (CONFIG.VERBOSE_LOGGING) {
+              if (tree.name === DEBUG_EVENT_NAME) {
                 console.log(`  - "${tree.name}": applied ${appliedCount} alteration(s)`)
               }
             }
@@ -1939,20 +1723,6 @@ function processEvents() {
   const endTime = Date.now()
   const elapsedSeconds = ((endTime - startTime) / 1000).toFixed(2)
   console.log(`⏱️  Total parsing time: ${elapsedSeconds}s`)
-
-  // Show sample output
-  if (CONFIG.VERBOSE_LOGGING) {
-    if (eventTrees.length > 0) {
-      console.log('\n📋 Sample event trees:')
-      eventTrees.slice(0, 3).forEach((tree) => {
-        const nodeCount = countNodes(tree.rootNode)
-        const maxDepth = getMaxDepth(tree.rootNode)
-        console.log(
-          `  - "${tree.name}" (type ${tree.type}): ${nodeCount} nodes, max depth ${maxDepth}`
-        )
-      })
-    }
-  }
 }
 
 /**
@@ -1970,28 +1740,47 @@ function applyEventAlterations(rootNode, alterations) {
   let appliedCount = 0
 
   for (const alteration of alterations) {
-    const { find, findByEffect, addRequirements, addChild, replaceNode } = alteration
+    const { find, addRequirements, addChild, replaceNode, modifyNode } = alteration
 
     // Validate that we have a find method
-    if (!find && !findByEffect) {
-      console.warn(
-        `  ⚠️  Alteration missing "find" or "findByEffect" field: ${JSON.stringify(alteration)}`
-      )
+    if (!find) {
+      console.warn(`  ⚠️  Alteration missing "find" field: ${JSON.stringify(alteration)}`)
       continue
     }
 
     // Find matching nodes recursively
     let matchingNodes = []
-    if (findByEffect) {
-      matchingNodes = findNodesByEffect(rootNode, findByEffect)
+    let searchDescription = ''
+
+    // Validate find is an object
+    if (typeof find !== 'object' || find === null) {
+      console.warn(`  ⚠️  Alteration "find" must be an object: ${JSON.stringify(alteration)}`)
+      continue
+    }
+
+    // Find nodes based on criteria
+    if (find.textOrLabel !== undefined) {
+      const hasEffect = find.effect !== undefined
+      if (hasEffect) {
+        // Search by textOrLabel AND effect
+        matchingNodes = findNodesByTextOrLabelAndEffect(rootNode, find.textOrLabel, find.effect)
+        searchDescription = `textOrLabel: "${find.textOrLabel}" + effect: "${find.effect}"`
+      } else {
+        // Search by textOrLabel only
+        matchingNodes = findNodesByTextOrChoiceLabel(rootNode, find.textOrLabel)
+        searchDescription = `textOrLabel: "${find.textOrLabel}"`
+      }
+    } else if (find.effect !== undefined) {
+      // Search by effect only
+      matchingNodes = findNodesByEffect(rootNode, find.effect)
+      searchDescription = `effect: "${find.effect}"`
     } else {
-      matchingNodes = findNodesByTextOrChoiceLabel(rootNode, find)
+      console.warn(`  ⚠️  Alteration has invalid find record: ${JSON.stringify(find)}`)
+      continue
     }
 
     if (matchingNodes.length === 0) {
-      if (CONFIG.VERBOSE_LOGGING) {
-        console.warn(`  ⚠️  No nodes found matching: "${find || findByEffect}"`)
-      }
+      console.warn(`  ⚠️  No nodes found matching: ${searchDescription}`)
       continue
     }
 
@@ -2001,7 +1790,12 @@ function applyEventAlterations(rootNode, alterations) {
         const refTargetMap = {}
         const refSourceNodes = []
         const refCreateNodes = []
-        const newNode = createNodeFromAlterationSpec(replaceNode, refTargetMap, refSourceNodes, refCreateNodes)
+        const newNode = createNodeFromAlterationSpec(
+          replaceNode,
+          refTargetMap,
+          refSourceNodes,
+          refCreateNodes
+        )
         if (newNode) {
           // Copy the old node's ID to preserve references
           newNode.id = match.id
@@ -2022,7 +1816,7 @@ function applyEventAlterations(rootNode, alterations) {
           for (const { node, refCreate } of refCreateNodes) {
             const candidates = findNodesByTextOrChoiceLabel(rootNode, refCreate)
             // Find the first candidate that doesn't have a ref (it's the original node)
-            const targetNode = candidates.find(candidate => candidate.ref === undefined)
+            const targetNode = candidates.find((candidate) => candidate.ref === undefined)
             if (targetNode) {
               node.ref = targetNode.id
             } else {
@@ -2060,13 +1854,44 @@ function applyEventAlterations(rootNode, alterations) {
       }
     }
 
+    // Modify node properties
+    if (modifyNode) {
+      for (const node of matchingNodes) {
+        // Remove fields if specified with null
+        if (modifyNode.removeRef && node.ref !== undefined) {
+          delete node.ref
+        }
+        if (modifyNode.removeText && node.text !== undefined) {
+          delete node.text
+        }
+        if (modifyNode.removeNumContinues && node.numContinues !== undefined) {
+          delete node.numContinues
+        }
+        if (modifyNode.removeChildren && node.children !== undefined) {
+          delete node.children
+        }
+
+        // Set new values
+        if (modifyNode.type !== undefined) {
+          node.type = modifyNode.type
+        }
+
+        appliedCount++
+      }
+    }
+
     // Add children
     if (addChild) {
       for (const node of matchingNodes) {
         const refTargetMap = {}
         const refSourceNodes = []
         const refCreateNodes = []
-        const newChild = createNodeFromAlterationSpec(addChild, refTargetMap, refSourceNodes, refCreateNodes)
+        const newChild = createNodeFromAlterationSpec(
+          addChild,
+          refTargetMap,
+          refSourceNodes,
+          refCreateNodes
+        )
         if (newChild) {
           // Resolve refSource nodes to actual refs (within the alteration)
           for (const { node: childNode, refSource } of refSourceNodes) {
@@ -2084,7 +1909,7 @@ function applyEventAlterations(rootNode, alterations) {
           for (const { node: childNode, refCreate } of refCreateNodes) {
             const candidates = findNodesByTextOrChoiceLabel(rootNode, refCreate)
             // Find the first candidate that doesn't have a ref (it's the original node)
-            const targetNode = candidates.find(candidate => candidate.ref === undefined)
+            const targetNode = candidates.find((candidate) => candidate.ref === undefined)
             if (targetNode) {
               childNode.ref = targetNode.id
             } else {
@@ -2127,6 +1952,39 @@ function findNodesByTextOrChoiceLabel(node, searchText) {
   if (node.children) {
     for (const child of node.children) {
       matches.push(...findNodesByTextOrChoiceLabel(child, searchText))
+    }
+  }
+
+  return matches
+}
+
+/**
+ * Recursively find nodes matching textOrLabel AND effect
+ */
+function findNodesByTextOrLabelAndEffect(node, searchText, searchEffect) {
+  const matches = []
+
+  if (!node) return matches
+
+  // Check text or choiceLabel match
+  const textOrLabelMatches =
+    (node.text && node.text.includes(searchText)) ||
+    (node.choiceLabel && node.choiceLabel.includes(searchText))
+
+  // Check effect match
+  const effectMatches =
+    node.effects &&
+    Array.isArray(node.effects) &&
+    node.effects.some((effect) => effect.includes(searchEffect))
+
+  if (textOrLabelMatches && effectMatches) {
+    matches.push(node)
+  }
+
+  // Recursively search children
+  if (node.children) {
+    for (const child of node.children) {
+      matches.push(...findNodesByTextOrLabelAndEffect(child, searchText, searchEffect))
     }
   }
 
@@ -2177,7 +2035,12 @@ function findNodesByEffect(node, effectToFind) {
  * @param {Array} refCreateNodes - Array to collect nodes that need refCreate resolution
  * @returns {Object} The created node
  */
-function createNodeFromAlterationSpec(spec, refTargetMap = {}, refSourceNodes = [], refCreateNodes = []) {
+function createNodeFromAlterationSpec(
+  spec,
+  refTargetMap = {},
+  refSourceNodes = [],
+  refCreateNodes = []
+) {
   if (!spec || !spec.type) {
     console.warn(`  ⚠️  Invalid node spec: missing type`)
     return null
@@ -2244,7 +2107,9 @@ function createNodeFromAlterationSpec(spec, refTargetMap = {}, refSourceNodes = 
   // Recursively create children
   if (spec.children && Array.isArray(spec.children)) {
     node.children = spec.children
-      .map((childSpec) => createNodeFromAlterationSpec(childSpec, refTargetMap, refSourceNodes, refCreateNodes))
+      .map((childSpec) =>
+        createNodeFromAlterationSpec(childSpec, refTargetMap, refSourceNodes, refCreateNodes)
+      )
       .filter((child) => child !== null)
   }
 
@@ -2642,104 +2507,6 @@ function deduplicateEventTree(rootNode) {
 }
 
 /**
- * Collapse dialogue menus
- *
- * For nodes that have multiple question choices (ending with "?"), this function:
- * 1. Detects when all/most children are question choices
- * 2. Keeps the question choices separate (preserves original choice labels)
- * 3. For questions with only one child, replaces that child's subtree with a ref back to the menu
- *
- * This eliminates the factorial explosion that occurs when users can ask
- * questions in any order (e.g., 9 questions = 9! = 362,880 orderings)
- */
-function collapseDialogueMenusInTree(rootNode) {
-  let collapsedCount = 0
-
-  function traverse(node) {
-    if (!node || !node.children) return
-
-    // Check if this node is a dialogue menu (4+ children where 75%+ are questions)
-    const children = node.children
-    if (children.length < 4) {
-      // Not enough choices to be a menu - recurse to children
-      children.forEach((child) => traverse(child))
-      return
-    }
-
-    const questionChildren = children.filter((child) => {
-      const label = child.choiceLabel || ''
-      return label.trim().endsWith('?')
-    })
-
-    const questionPercentage = questionChildren.length / children.length
-    if (questionPercentage < 0.75) {
-      // Not enough questions to be a dialogue menu - recurse to children
-      children.forEach((child) => traverse(child))
-      return
-    }
-
-    // This is a dialogue menu! Collapse it.
-    questionChildren.forEach((questionChild) => {
-      // If this question choice has exactly one child, replace its subtree with a ref
-      if (questionChild.children && questionChild.children.length === 1) {
-        const originalChild = questionChild.children[0]
-
-        questionChild.children = [
-          createNode({
-            id: originalChild.id,
-            text: originalChild.text,
-            type: originalChild.type,
-            effects: originalChild.effects,
-            numContinues: originalChild.numContinues,
-            ref: node.id,
-          }),
-        ]
-      }
-    })
-
-    collapsedCount++
-
-    const nonQuestionChildren = children.filter((child) => !questionChildren.includes(child))
-
-    nonQuestionChildren.forEach((child) => traverse(child))
-  }
-
-  traverse(rootNode)
-  return collapsedCount
-}
-
-/**
- * Collapse dialogue menus across all event trees
- */
-function collapseDialogueMenus(eventTrees) {
-  let totalCollapsed = 0
-  const eventsWithCollapsed = []
-
-  eventTrees.forEach((tree) => {
-    if (!tree.rootNode) {
-      return
-    }
-
-    const nodesBefore = countNodes(tree.rootNode)
-    const collapsed = collapseDialogueMenusInTree(tree.rootNode)
-    const nodesAfter = countNodes(tree.rootNode)
-
-    if (collapsed > 0) {
-      const reduction = Math.round(((nodesBefore - nodesAfter) / nodesBefore) * 100)
-      eventsWithCollapsed.push({
-        name: tree.name,
-        nodesBefore,
-        nodesAfter,
-        reduction,
-      })
-      totalCollapsed += collapsed
-    }
-  })
-
-  return { totalCollapsed, eventsWithCollapsed }
-}
-
-/**
  * Convert sibling refs to refChildren structure
  *
  * When a node has a ref pointing to a sibling, this function:
@@ -2841,12 +2608,7 @@ function convertSiblingRefsInTree(rootNode) {
  * After:  [A(id:1, children:[B]), D(id:4, children:[E]), B(id:2, children:[C]), E(id:5, children:[F]), C(id:3, children:[G]), F(id:6, refChildren:[G])]
  *        (A and D are reordered so B and E are adjacent, making C and F cousins)
  */
-function convertCousinRefsInTree(rootNode, eventName) {
-  // Check blacklist - skip events that break with this pass
-  if (OPTIMIZATION_PASS_CONFIG.COUSIN_REF_BLACKLIST.includes(eventName)) {
-    return 0
-  }
-
+function convertCousinRefsInTree(rootNode) {
   let conversionsCount = 0
 
   // Build parent map and node map
@@ -3281,10 +3043,17 @@ function convertNonSingleChildCousinRefsInTree(rootNode) {
  * types of refs and need to be processed separately.
  */
 function convertSiblingAndCousinRefsToRefChildrenInTree(rootNode, eventName) {
+  const skipCousinConversions = OPTIMIZATION_PASS_CONFIG.COUSIN_REF_BLACKLIST.includes(eventName)
+  const skipComplexCousinConversions =
+    OPTIMIZATION_PASS_CONFIG.COMPLEX_COUSIN_REF_BLACKLIST.includes(eventName)
+
   const siblingConversions = convertSiblingRefsInTree(rootNode)
-  const cousinConversions = convertCousinRefsInTree(rootNode, eventName)
-  const nonSingleChildCousinConversions = convertNonSingleChildCousinRefsInTree(rootNode)
-  return siblingConversions + cousinConversions + nonSingleChildCousinConversions
+  const cousinConversions = skipCousinConversions ? 0 : convertCousinRefsInTree(rootNode)
+  const complexCousinConversions =
+    skipCousinConversions || skipComplexCousinConversions
+      ? 0
+      : convertNonSingleChildCousinRefsInTree(rootNode)
+  return siblingConversions + cousinConversions + complexCousinConversions
 }
 
 /**
