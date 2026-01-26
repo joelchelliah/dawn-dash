@@ -962,6 +962,63 @@ function buildTreeFromStory(
     }
   }
 
+  // POSTCOMBAT/AFTERCOMBAT SEPARATION
+  // Combat nodes may have postcombat/aftercombat dialogue that should be in a separate child node
+  // The raw text from Ink contains: [precombat text]\n>>>COMBAT:Enemy\n[postcombat text]
+  // We need to:
+  // 1. Keep precombat text in the combat node
+  // 2. Move postcombat text to a new dialogue child node
+  // 3. Move all original children to that dialogue node
+  let finalText = cleanedText
+  let finalChildren = children
+  let finalEffects = effects
+
+  if (type === 'combat' && text) {
+    // Find the COMBAT command in the original text to split pre/post combat text
+    // Match both >>>COMBAT and >>>>COMBAT (or just COMBAT if it appears without prefix)
+    const combatMatch = text.match(/(>>>+)?COMBAT:[^\n]*/i)
+
+    if (combatMatch) {
+      const combatIndex = combatMatch.index
+      const combatCommandLength = combatMatch[0].length
+
+      // Extract pre-combat and post-combat text
+      const preCombatText = text.substring(0, combatIndex).trim()
+      const postCombatText = text.substring(combatIndex + combatCommandLength).trim()
+
+      // Extract effects from postcombat text
+      const { effects: postCombatEffects, cleanedText: cleanedPostCombatText } =
+        extractEffects(postCombatText)
+
+      // Clean the pre-combat text
+      const { cleanedText: cleanedPreCombatText } = extractEffects(preCombatText)
+
+      // If there's postcombat text, create a dialogue child node
+      if (cleanedPostCombatText && cleanedPostCombatText.trim()) {
+        // Create the postcombat dialogue node
+        const postcombatNode = createNode({
+          id: generateNodeId(),
+          text: cleanedPostCombatText,
+          type: children.length > 0 ? 'dialogue' : 'end',
+          effects: postCombatEffects.length > 0 ? postCombatEffects : undefined,
+          children: children.length > 0 ? children : undefined,
+        })
+
+        totalNodesInCurrentEvent++
+
+        // Update final values: combat node gets pre-combat text, single child is postcombat node
+        finalText = cleanedPreCombatText || undefined
+        finalChildren = [postcombatNode]
+        // Keep only combat-related effects in the combat node
+        // (postcombat effects are now in the postcombat node)
+        finalEffects = effects.filter((e) => e.includes('COMBAT:'))
+      } else {
+        // No postcombat text, just use pre-combat text
+        finalText = cleanedPreCombatText || undefined
+      }
+    }
+  }
+
   // Check for hub choice matches (for events with hubChoiceMatchThreshold)
   // This checks if this node's children match the hub snapshot
   // Only check nodes built AFTER the hub (nodeId > hubNodeId) to avoid checking pre-hub nodes
@@ -969,14 +1026,14 @@ function buildTreeFromStory(
   const snapshot = hubChoiceSnapshots.get(eventName)
   if (
     snapshot &&
-    children.length > 0 &&
+    finalChildren.length > 0 &&
     nodeId !== snapshot.hubNodeId &&
     nodeId > snapshot.hubNodeId
   ) {
-    const matchedHubNodeId = checkHubChoiceMatch(children)
+    const matchedHubNodeId = checkHubChoiceMatch(finalChildren)
     // NOTE: hubNodeId can be 0, so don't use truthy checks here.
     if (matchedHubNodeId != null && matchedHubNodeId === snapshot.hubNodeId) {
-      const safeText = cleanedText && cleanedText.trim() !== '' ? cleanedText : '[Choice point]'
+      const safeText = finalText && finalText.trim() !== '' ? finalText : '[Choice point]'
       // This node's children match the hub snapshot - convert this node to a ref
 
       // NOTE: Here we are not taking into account that these nodes can be choices. Maybe they should never be...
@@ -985,7 +1042,7 @@ function buildTreeFromStory(
         id: nodeId,
         text: safeText,
         type: type === 'choice' ? 'dialogue' : type,
-        effects,
+        effects: finalEffects,
         numContinues,
         ref: matchedHubNodeId, // Ref back to hub
       })
@@ -997,18 +1054,20 @@ function buildTreeFromStory(
   // 1. Other paths won't create refs to incomplete nodes
   // 2. We don't store signatures for nodes that became hub refs
   // Only store if we actually have children (to avoid matching incomplete nodes)
-  if (convergenceSignature && children.length > 0) {
+  if (convergenceSignature && finalChildren.length > 0) {
     pathConvergenceStates.set(convergenceSignature, nodeId)
   }
+
+  const safeText = type === 'combat' && !finalText ? undefined : finalText || '[Choice point]'
 
   // Build the node
   return createNode({
     id: nodeId,
-    text: cleanedText || '[Choice point]',
+    text: safeText,
     type,
-    effects,
+    effects: finalEffects,
     numContinues,
-    children,
+    children: finalChildren,
   })
 }
 
@@ -1206,8 +1265,7 @@ function cleanText(text) {
 function determineNodeType(text, isLeaf) {
   if (!text) return 'choice'
 
-  // Check for combat
-  if (text.includes('COMBAT:') || text.includes('>>>COMBAT') || text.includes('>>>>COMBAT')) {
+  if (text.includes('COMBAT:')) {
     return 'combat'
   }
 
