@@ -1478,6 +1478,96 @@ function normalizeRefsPointingToChoiceNodes(eventTrees) {
   return { totalRewrites, eventsWithRewrites }
 }
 
+/**
+ * Normalize refs so they never target a combat node that has been split into combat + postcombat.
+ *
+ * After postcombat/aftercombat separation in buildTreeFromStory(), combat nodes may be split into:
+ * 1. Combat node (type: 'combat') - contains pre-combat text and COMBAT effect
+ * 2. Postcombat dialogue node (type: 'dialogue') - contains postcombat text, effects, and choices
+ *
+ * Problem: During tree building, menu hub detection may mark the combat node as a hub (before splitting).
+ * When the hub's children are built, they create refs back to the combat node. But after splitting,
+ * these refs should point to the postcombat dialogue child instead, since that's where the hub text
+ * and choices actually live.
+ *
+ * This function finds all refs pointing to split combat nodes and redirects them to the postcombat
+ * dialogue child.
+ *
+ * Example:
+ *   BEFORE normalization:
+ *     Combat Node (id=100)
+ *       └─ Postcombat Dialogue Node (id=101, text="hub dialogue", children=[...])
+ *     Some Other Node (ref=100)  // ❌ Points to combat node
+ *
+ *   AFTER normalization:
+ *     Combat Node (id=100)
+ *       └─ Postcombat Dialogue Node (id=101, text="hub dialogue", children=[...])
+ *     Some Other Node (ref=101)  // ✅ Points to postcombat dialogue node
+ */
+function normalizeRefsPointingToCombatNodes(eventTrees) {
+  let totalRewrites = 0
+  const eventsWithRewrites = []
+
+  eventTrees.forEach((tree) => {
+    if (!tree.rootNode) return
+
+    const eventName = tree.name
+    const nodeMap = buildNodeMapForTree(tree.rootNode)
+    let rewritesForEvent = 0
+
+    // First pass: Build a map of combat nodes that have been split
+    // combat node ID -> postcombat dialogue child ID
+    const combatNodeToPostcombatChild = new Map()
+
+    nodeMap.forEach((node) => {
+      // A split combat node has:
+      // - type: 'combat'
+      // - exactly 1 child
+      // - that child is type: 'dialogue'
+      if (
+        node.type === 'combat' &&
+        node.children &&
+        node.children.length === 1 &&
+        node.children[0].type === 'dialogue'
+      ) {
+        combatNodeToPostcombatChild.set(node.id, node.children[0].id)
+      }
+    })
+
+    // Second pass: Rewrite refs pointing to split combat nodes
+    function visit(node) {
+      if (!node) return
+
+      // If this node has a ref pointing to a split combat node, redirect it to the postcombat child
+      if (node.ref !== undefined && combatNodeToPostcombatChild.has(node.ref)) {
+        const oldRef = node.ref
+        const newRef = combatNodeToPostcombatChild.get(oldRef)
+        node.ref = newRef
+        rewritesForEvent++
+
+        if (eventName === DEBUG_EVENT_NAME) {
+          console.log(
+            `  🔧 Normalized ref: node ${node.id} (type=${node.type}) changed from combat ${oldRef} -> postcombat dialogue ${newRef}`
+          )
+        }
+      }
+
+      if (node.children) {
+        node.children.forEach((child) => visit(child))
+      }
+    }
+
+    visit(tree.rootNode)
+
+    if (rewritesForEvent > 0) {
+      totalRewrites += rewritesForEvent
+      eventsWithRewrites.push({ name: tree.name, rewrites: rewritesForEvent })
+    }
+  })
+
+  return { totalRewrites, eventsWithRewrites }
+}
+
 function promoteShallowDialogueMenuHub(eventTrees) {
   // For dialogue-menu events using threshold mode, we may end up with:
   // - a deep "hub" node that owns the menu children
@@ -1708,6 +1798,22 @@ function processEvents() {
     }
     debugCheckEventPipelineState(eventTrees, 'after normalizeRefsPointingToChoiceNodes')
   }
+
+  // Normalize refs away from split combat nodes (after postcombat separation)
+  // This fixes refs that point to combat nodes which have been split into combat + postcombat dialogue
+  console.log('\n⚔️  Normalizing refs pointing to split combat nodes...')
+  const {
+    totalRewrites: combatRefRewrites,
+    eventsWithRewrites: eventsWithCombatRefRewrites,
+  } = normalizeRefsPointingToCombatNodes(eventTrees)
+  console.log(`  Rewrote ${combatRefRewrites} refs`)
+  if (eventsWithCombatRefRewrites.length > 0) {
+    console.log(`\n  Events with ref rewrites:`)
+    eventsWithCombatRefRewrites.forEach(({ name, rewrites }) => {
+      console.log(`    - "${name}": ${rewrites} refs rewritten`)
+    })
+  }
+  debugCheckEventPipelineState(eventTrees, 'after normalizeRefsPointingToCombatNodes')
 
   if (OPTIMIZATION_PASS_CONFIG.PROMOTE_SHALLOW_DIALOGUE_MENU_HUB_ENABLED) {
     console.log('\n🧭 Promoting shallow dialogue-menu hubs...')

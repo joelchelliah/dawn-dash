@@ -102,9 +102,9 @@ const DIALOGUE_MENU_EVENTS = {
     hubChoiceMatchThreshold: 60, // choices: 2/3
   },
   'Warfront Survivor': {
-    menuHubPattern: 'The old man hits the corpse',
-    menuExitPatterns: ["Don't mention it."],
-    hubChoiceMatchThreshold: 60, // choices: 2/3
+    menuHubPattern: 'Amidst the carnage you notice',
+    menuExitPatterns: ['Attack the Demon'],
+    hubChoiceMatchThreshold: 50, // choices: 1/2
   },
 }
 
@@ -193,6 +193,7 @@ const OPTIMIZATION_PASS_CONFIG = {
     'Frozen Heart',
     'The Defiled Sanctum',
     'The Ferryman',
+    'Warfront Survivor',
   ],
   COMPLEX_COUSIN_REF_BLACKLIST: ['The Priestess'],
 

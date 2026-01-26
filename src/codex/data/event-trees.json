@@ -16,7 +16,7 @@
           "children": [
             {
               "id": 284,
-              "text": "You find a purse filled with some gold. You find 40 gold! After pocketing the gold, you are surprised by a sudden noise. \"THIEF!\" you hear as the raven swoops down and scratches you with its claws before flying away.<br><br>You are Bleeding",
+              "text": "You find a purse filled with some gold. You find 48 gold! After pocketing the gold, you are surprised by a sudden noise. \"THIEF!\" you hear as the raven swoops down and scratches you with its claws before flying away.<br><br>You are Bleeding",
               "type": "end",
               "effects": [
                 "GOLD: random [20 - 50]",
@@ -2398,7 +2398,7 @@
           "children": [
             {
               "id": 633,
-              "text": "\"Very well. I shall grant you this.\" You get 54 gold! You drop the gemstone as it becomes too hot to touch.",
+              "text": "\"Very well. I shall grant you this.\" You get 46 gold! You drop the gemstone as it becomes too hot to touch.",
               "type": "end",
               "effects": [
                 "GOLD: random [30 - 60]",
@@ -3684,11 +3684,11 @@
                           "children": [
                             {
                               "id": 14080,
-                              "text": "\"Well, well, you certainly know how to impress,\" the assassin purrs, a touch of flirtation in her voice. \"It's a rare thing these days, a connoisseur of chance and opportunity, even in the heat of battle.\" With a sly smile, the assassin's finger traces your shoulder as she steps out of the shadows. Coins clink as she turns ever so briefly, \"For a job well done.\" then slips away gracefully, leaving a lavish pouch marked with a golden raven on the counter. You find 31 gold!",
+                              "text": "\"Well, well, you certainly know how to impress,\" the assassin purrs, a touch of flirtation in her voice. \"It's a rare thing these days, a connoisseur of chance and opportunity, even in the heat of battle.\" With a sly smile, the assassin's finger traces your shoulder as she steps out of the shadows. Coins clink as she turns ever so briefly, \"For a job well done.\" then slips away gracefully, leaving a lavish pouch marked with a golden raven on the counter. You find 53 gold!",
                               "type": "dialogue",
                               "effects": [
                                 "QUESTFLAG: metassassin",
-                                "GOLD: 31"
+                                "GOLD: 53"
                               ],
                               "numContinues": 3,
                               "children": [
@@ -3823,11 +3823,11 @@
                                   "children": [
                                     {
                                       "id": 14133,
-                                      "text": "\"Well, well, you certainly know how to impress,\" the assassin purrs, a touch of flirtation in her voice. \"It's a rare thing these days, a connoisseur of chance and opportunity, even in the heat of battle.\" With a sly smile, the assassin's finger traces your shoulder as she steps out of the shadows. Coins clink as she turns ever so briefly, \"For a job well done.\" then slips away gracefully, leaving a lavish pouch marked with a golden raven on the counter. You find 31 gold!",
+                                      "text": "\"Well, well, you certainly know how to impress,\" the assassin purrs, a touch of flirtation in her voice. \"It's a rare thing these days, a connoisseur of chance and opportunity, even in the heat of battle.\" With a sly smile, the assassin's finger traces your shoulder as she steps out of the shadows. Coins clink as she turns ever so briefly, \"For a job well done.\" then slips away gracefully, leaving a lavish pouch marked with a golden raven on the counter. You find 53 gold!",
                                       "type": "dialogue",
                                       "effects": [
                                         "QUESTFLAG: metassassin",
-                                        "GOLD: 31"
+                                        "GOLD: 53"
                                       ],
                                       "numContinues": 3,
                                       "refChildren": [
@@ -3907,11 +3907,11 @@
           "children": [
             {
               "id": 14379,
-              "text": "\"Well, well, you certainly know how to impress,\" the assassin purrs, a touch of flirtation in her voice. \"It's a rare thing these days, a connoisseur of chance and opportunity, even in the heat of battle.\" With a sly smile, the assassin's finger traces your shoulder as she steps out of the shadows. Coins clink as she turns ever so briefly, \"For a job well done.\" then slips away gracefully, leaving a lavish pouch marked with a golden raven on the counter. You find 31 gold!",
+              "text": "\"Well, well, you certainly know how to impress,\" the assassin purrs, a touch of flirtation in her voice. \"It's a rare thing these days, a connoisseur of chance and opportunity, even in the heat of battle.\" With a sly smile, the assassin's finger traces your shoulder as she steps out of the shadows. Coins clink as she turns ever so briefly, \"For a job well done.\" then slips away gracefully, leaving a lavish pouch marked with a golden raven on the counter. You find 53 gold!",
               "type": "dialogue",
               "effects": [
                 "QUESTFLAG: metassassin",
-                "GOLD: 31"
+                "GOLD: 53"
               ],
               "numContinues": 3,
               "children": [
@@ -4117,11 +4117,11 @@
                   "children": [
                     {
                       "id": 14618,
-                      "text": "\"Well, well, you certainly know how to impress,\" the assassin purrs, a touch of flirtation in her voice. \"It's a rare thing these days, a connoisseur of chance and opportunity, even in the heat of battle.\" With a sly smile, the assassin's finger traces your shoulder as she steps out of the shadows. Coins clink as she turns ever so briefly, \"For a job well done.\" then slips away gracefully, leaving a lavish pouch marked with a golden raven on the counter. You find 31 gold!",
+                      "text": "\"Well, well, you certainly know how to impress,\" the assassin purrs, a touch of flirtation in her voice. \"It's a rare thing these days, a connoisseur of chance and opportunity, even in the heat of battle.\" With a sly smile, the assassin's finger traces your shoulder as she steps out of the shadows. Coins clink as she turns ever so briefly, \"For a job well done.\" then slips away gracefully, leaving a lavish pouch marked with a golden raven on the counter. You find 53 gold!",
                       "type": "dialogue",
                       "effects": [
                         "QUESTFLAG: metassassin",
-                        "GOLD: 31"
+                        "GOLD: 53"
                       ],
                       "numContinues": 3,
                       "refChildren": [
@@ -8740,7 +8740,7 @@
     "artwork": "opportunity_image",
     "rootNode": {
       "id": 0,
-      "text": "A skeleton in highly oxidised yet impressive armor sits against a nearby signpost. As you walk past, an ivory hand suddenly grasps at your weapon. \"Pleeeeeeease\" a hollow howl escapes from the undead's broken jaw...",
+      "text": "A skeleton in highly oxidised yet impressive armor sits against a nearby tree trunk. As you walk past, an ivory hand suddenly grasps at your weapon. \"Pleeeeeeease\" a hollow howl escapes from the undead's broken jaw...",
       "type": "dialogue",
       "numContinues": 0,
       "children": [
@@ -9088,11 +9088,11 @@
           "children": [
             {
               "id": 16133,
-              "text": "You dig into the shallow grave, quickly uncovering a small stash of 29 gold!.",
+              "text": "You dig into the shallow grave, quickly uncovering a small stash of 28 gold!.",
               "type": "dialogue",
               "effects": [
                 "AREASPECIAL: 1",
-                "GOLD: 29"
+                "GOLD: 28"
               ],
               "numContinues": 1,
               "children": [
@@ -9386,10 +9386,10 @@
                                       "children": [
                                         {
                                           "id": 16149,
-                                          "text": "You find 53 gold!",
+                                          "text": "You find 30 gold!",
                                           "type": "dialogue",
                                           "effects": [
-                                            "GOLD: 53"
+                                            "GOLD: 30"
                                           ],
                                           "numContinues": 1,
                                           "ref": 16310
@@ -9730,10 +9730,10 @@
                                   "children": [
                                     {
                                       "id": 16310,
-                                      "text": "You find 34 gold!",
+                                      "text": "You find 45 gold!",
                                       "type": "dialogue",
                                       "effects": [
-                                        "GOLD: 34"
+                                        "GOLD: 45"
                                       ],
                                       "numContinues": 1,
                                       "children": [
@@ -9766,10 +9766,10 @@
                                   "children": [
                                     {
                                       "id": 16312,
-                                      "text": "You find 59 gold!",
+                                      "text": "You find 70 gold!",
                                       "type": "dialogue",
                                       "effects": [
-                                        "GOLD: 59"
+                                        "GOLD: 70"
                                       ],
                                       "numContinues": 1,
                                       "refChildren": [
@@ -9788,7 +9788,7 @@
                                   "children": [
                                     {
                                       "id": 16314,
-                                      "text": "You find 107 gold!",
+                                      "text": "You find 108 gold!",
                                       "type": "dialogue",
                                       "effects": [
                                         "GOLD: random [75 - 125]"
@@ -9885,10 +9885,10 @@
                                           "children": [
                                             {
                                               "id": 16328,
-                                              "text": "You find 59 gold!",
+                                              "text": "You find 70 gold!",
                                               "type": "dialogue",
                                               "effects": [
-                                                "GOLD: 59"
+                                                "GOLD: 70"
                                               ],
                                               "numContinues": 1,
                                               "ref": 16310
@@ -9905,7 +9905,7 @@
                                           "children": [
                                             {
                                               "id": 16330,
-                                              "text": "You find 107 gold!",
+                                              "text": "You find 108 gold!",
                                               "type": "dialogue",
                                               "effects": [
                                                 "GOLD: random [75 - 125]"
@@ -11038,7 +11038,7 @@
                                       "numContinues": 0,
                                       "children": [
                                         {
-                                          "id": 22660,
+                                          "id": 22834,
                                           "type": "choice",
                                           "choiceLabel": "default",
                                           "requirements": [
@@ -11046,24 +11046,24 @@
                                           ],
                                           "children": [
                                             {
-                                              "id": 22661,
+                                              "id": 22835,
                                               "type": "dialogue",
                                               "text": "Using one of your abilities, the ice fades quickly! Only the sizzling steam of the broken prison of ice now stands between you and the chest's contents.",
                                               "numContinues": 1,
                                               "children": [
                                                 {
-                                                  "id": 22662,
+                                                  "id": 22836,
                                                   "type": "dialogue",
                                                   "text": "The chest pulses with a radiant heat, but is cool to the touch. In turn, the hum within the cavern rises to a deafening level.",
                                                   "numContinues": 0,
                                                   "children": [
                                                     {
-                                                      "id": 22663,
+                                                      "id": 22837,
                                                       "type": "choice",
                                                       "choiceLabel": "Reach into the chest",
                                                       "children": [
                                                         {
-                                                          "id": 22664,
+                                                          "id": 22838,
                                                           "type": "dialogue",
                                                           "text": "You reach into the chest, grabbing at the vapour. It immediately wraps around you and trails up past your arm and into your chest.",
                                                           "effects": [
@@ -11072,12 +11072,12 @@
                                                           "numContinues": 1,
                                                           "children": [
                                                             {
-                                                              "id": 22665,
+                                                              "id": 22839,
                                                               "type": "choice",
                                                               "choiceLabel": "Leave",
                                                               "children": [
                                                                 {
-                                                                  "id": 22666,
+                                                                  "id": 22840,
                                                                   "type": "dialogue",
                                                                   "text": "You backtrack your way back to the entrance without difficulty. At the bottom of the steps the chamber splits into two passageways.",
                                                                   "numContinues": 0,
@@ -11090,7 +11090,7 @@
                                                       ]
                                                     },
                                                     {
-                                                      "id": 22667,
+                                                      "id": 22841,
                                                       "type": "choice",
                                                       "choiceLabel": "Continue",
                                                       "requirements": [
@@ -11098,11 +11098,11 @@
                                                       ],
                                                       "children": [
                                                         {
-                                                          "id": 22668,
+                                                          "id": 22842,
                                                           "type": "dialogue",
                                                           "text": "\"The core of the heart! It's here where the lifeforce of the Frozen Heart lies, created from the tears of a god. I urge you to think about what you're doing [class], a god's essence will require something equally valuable in exchange.\"",
                                                           "numContinues": 0,
-                                                          "ref": 22663
+                                                          "ref": 22837
                                                         }
                                                       ]
                                                     }
@@ -11113,7 +11113,7 @@
                                           ]
                                         },
                                         {
-                                          "id": 22669,
+                                          "id": 22843,
                                           "type": "choice",
                                           "choiceLabel": "default",
                                           "requirements": [
@@ -11121,7 +11121,7 @@
                                           ],
                                           "children": [
                                             {
-                                              "id": 22670,
+                                              "id": 22844,
                                               "type": "dialogue",
                                               "text": "Try as you might, you find no solution to breaking the ice around the strange chest. With no other option left, you descend the icy walls back to your starting point. At the bottom of the steps the chamber splits into two passageways.",
                                               "numContinues": 1,
@@ -12426,7 +12426,7 @@
           "children": [
             {
               "id": 16793,
-              "text": "While the two nobles continue to argue fervently, you skillfully move closer while scanning the room for any potential witnesses. You deftly slip their hand into the pocket of one of the nobles and withdraw a small, leather pouch. You find 17 gold!",
+              "text": "While the two nobles continue to argue fervently, you skillfully move closer while scanning the room for any potential witnesses. You deftly slip their hand into the pocket of one of the nobles and withdraw a small, leather pouch. You find 18 gold!",
               "type": "end",
               "effects": [
                 "GOLD: random [15 - 25]"
@@ -13221,7 +13221,7 @@
           "children": [
             {
               "id": 16841,
-              "text": "You find 19 gold! As you prepare to leave you suddenly hear a loud squawking from above as a large, black-feathered bird descends on you!",
+              "text": "You find 18 gold! As you prepare to leave you suddenly hear a loud squawking from above as a large, black-feathered bird descends on you!",
               "type": "combat",
               "effects": [
                 "GOLD: random [10 - 30]",
@@ -15504,11 +15504,11 @@
         {
           "id": 1,
           "type": "choice",
-          "choiceLabel": "Focus on the Succubus",
+          "choiceLabel": "Focus on the Blacksmith",
           "children": [
             {
               "id": 17030,
-              "text": "Focus on the Succubus (fill in the lore for this.) final words",
+              "text": "Focus on the Blacksmith (fill in the lore for this.) final words",
               "type": "end"
             }
           ]
@@ -15516,11 +15516,11 @@
         {
           "id": 2,
           "type": "choice",
-          "choiceLabel": "Focus on the Consul",
+          "choiceLabel": "Focus on the Collector",
           "children": [
             {
               "id": 17031,
-              "text": "Focus on the Consul (fill in the lore for this.) final words",
+              "text": "Focus on the Collector (fill in the lore for this.) final words",
               "type": "end"
             }
           ]
@@ -15528,11 +15528,11 @@
         {
           "id": 3,
           "type": "choice",
-          "choiceLabel": "Focus on the Forger",
+          "choiceLabel": "Focus on the Consul",
           "children": [
             {
               "id": 17032,
-              "text": "Focus on the Forger (fill in the lore for this.) final words",
+              "text": "Focus on the Consul (fill in the lore for this.) final words",
               "type": "end"
             }
           ]
@@ -20188,7 +20188,7 @@
                   ]
                 },
                 {
-                  "id": 22671,
+                  "id": 22845,
                   "type": "choice",
                   "choiceLabel": "Investigate the large door",
                   "requirements": [
@@ -20196,18 +20196,18 @@
                   ],
                   "children": [
                     {
-                      "id": 22672,
+                      "id": 22846,
                       "type": "dialogue",
                       "text": "It doesn't budge. You notice a small keyhole on the door.",
                       "numContinues": 0,
                       "children": [
                         {
-                          "id": 22673,
+                          "id": 22847,
                           "type": "choice",
                           "choiceLabel": "Unlock the door",
                           "children": [
                             {
-                              "id": 22674,
+                              "id": 22848,
                               "type": "dialogue",
                               "text": "You slowly push open the door, as soon as you make a small opening, the air around you gets even worse. The Rot intensifies (+20 Rot).",
                               "effects": [
@@ -20216,12 +20216,12 @@
                               "numContinues": 1,
                               "children": [
                                 {
-                                  "id": 22675,
+                                  "id": 22849,
                                   "type": "choice",
                                   "choiceLabel": "Continue Pushing",
                                   "children": [
                                     {
-                                      "id": 22676,
+                                      "id": 22850,
                                       "type": "dialogue",
                                       "text": "You fully open the door, revealing a small chamber. Inside you find a corpse next to a scrawled dark green circle covering the floor. You find a small treasure chest in the back.",
                                       "effects": [
@@ -20232,12 +20232,12 @@
                                       "numContinues": 2,
                                       "children": [
                                         {
-                                          "id": 22677,
+                                          "id": 22851,
                                           "type": "choice",
                                           "choiceLabel": "Leave through the portal",
                                           "children": [
                                             {
-                                              "id": 22678,
+                                              "id": 22852,
                                               "type": "end",
                                               "text": "As you leave, the portal closes behind you."
                                             }
@@ -20252,12 +20252,12 @@
                           ]
                         },
                         {
-                          "id": 22679,
+                          "id": 22853,
                           "type": "choice",
                           "choiceLabel": "Leave",
                           "children": [
                             {
-                              "id": 22680,
+                              "id": 22854,
                               "type": "dialogue",
                               "text": "You can distinguish several rooms that are still accessible and a large closed door is visible in the back of the hallway.",
                               "numContinues": 0,
@@ -22699,7 +22699,7 @@
                 {
                   "id": 13,
                   "type": "choice",
-                  "choiceLabel": "Add Figmented",
+                  "choiceLabel": "Add Recall",
                   "requirements": [
                     "intellect:1"
                   ],
@@ -22709,7 +22709,7 @@
                       "text": "",
                       "type": "end",
                       "effects": [
-                        "ADDKEYWORD: Figmented"
+                        "ADDKEYWORD: Recall"
                       ]
                     }
                   ]
@@ -22735,7 +22735,7 @@
                 {
                   "id": 15,
                   "type": "choice",
-                  "choiceLabel": "Add Reliable",
+                  "choiceLabel": "Add Memorized",
                   "requirements": [
                     "intellect:3"
                   ],
@@ -22745,7 +22745,7 @@
                       "text": "",
                       "type": "end",
                       "effects": [
-                        "ADDKEYWORD: Reliable"
+                        "ADDKEYWORD: Memorized"
                       ]
                     }
                   ]
@@ -25970,7 +25970,7 @@
                                       "effects": [
                                         "COMBAT: Dawnbringer Solspear"
                                       ],
-                                      "ref": 20925
+                                      "ref": 768
                                     }
                                   ]
                                 }
@@ -26919,14 +26919,14 @@
                 {
                   "id": 14,
                   "type": "choice",
-                  "choiceLabel": "[cardid=682305]",
+                  "choiceLabel": "[cardid=652518]",
                   "children": [
                     {
                       "id": 21083,
-                      "text": "The skeleton tilts its head, looking up at its two companions, then back at you, with a satisfied grin. \"So be it; may the Pale Master find you soon, stranger.\"",
+                      "text": "The skeleton nods as it reveals the card, then smiles. \"Action begets action - Fortune sees you are ready, stranger.\"",
                       "type": "end",
                       "effects": [
-                        "AREAEFFECT: 682305"
+                        "AREAEFFECT: 652518"
                       ]
                     }
                   ]
@@ -26934,10 +26934,25 @@
                 {
                   "id": 15,
                   "type": "choice",
+                  "choiceLabel": "[cardid=114840]",
+                  "children": [
+                    {
+                      "id": 21084,
+                      "text": "The skeleton grins gleefully, then looks up at the sky. \"Brave choice, wanderer. Let’s see what the skies have in store for you.\"",
+                      "type": "end",
+                      "effects": [
+                        "AREAEFFECT: 114840"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": 16,
+                  "type": "choice",
                   "choiceLabel": "[cardid=898570]",
                   "children": [
                     {
-                      "id": 21085,
+                      "id": 21086,
                       "text": "The skeletal figure can barely contain its excitement, long yellow teeth clattering in its skull. As it lifts the card, skies darken above. \"Foolishness or bravery, it matters not, you have earned our respect, stranger.\"",
                       "type": "dialogue",
                       "effects": [
@@ -26946,12 +26961,12 @@
                       "numContinues": 1,
                       "children": [
                         {
-                          "id": 16,
+                          "id": 17,
                           "type": "choice",
                           "choiceLabel": "Leave",
                           "children": [
                             {
-                              "id": 21084,
+                              "id": 21085,
                               "text": "",
                               "type": "end",
                               "effects": [
@@ -26960,21 +26975,6 @@
                             }
                           ]
                         }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "id": 17,
-                  "type": "choice",
-                  "choiceLabel": "[cardid=73952]",
-                  "children": [
-                    {
-                      "id": 21086,
-                      "text": "The skeleton folds its hands and grins widely, its two companions mirroring the action. \"Fate seems impatient with you, stranger.",
-                      "type": "end",
-                      "effects": [
-                        "AREAEFFECT: 73952"
                       ]
                     }
                   ]
@@ -32733,7 +32733,7 @@
                       "effects": [
                         "COMBAT: Starcaller Sekatone"
                       ],
-                      "ref": 22221
+                      "ref": 22
                     }
                   ]
                 }
@@ -32848,9 +32848,7 @@
               "effects": [
                 "COMBAT: Starcaller Sekatone"
               ],
-              "refChildren": [
-                22
-              ]
+              "ref": 22
             }
           ]
         }
@@ -33703,59 +33701,11 @@
           "choiceLabel": "Not before you tell me what is happening",
           "children": [
             {
-              "id": 22331,
+              "id": 22328,
               "text": "\"Isn't it obvious? These brutes are attacking me! Now will you lend an old man a hand or will you just watch me take care of this myself!",
               "type": "dialogue",
               "numContinues": 0,
-              "children": [
-                {
-                  "id": 2,
-                  "type": "choice",
-                  "choiceLabel": "Attack one of the Skeletons",
-                  "children": [
-                    {
-                      "id": 22329,
-                      "text": "\"Not them you fool, they are with me!\"",
-                      "type": "dialogue",
-                      "numContinues": 0,
-                      "children": [
-                        {
-                          "id": 3,
-                          "type": "choice",
-                          "choiceLabel": "Attack the Demon",
-                          "children": [
-                            {
-                              "id": 22328,
-                              "text": "",
-                              "type": "combat",
-                              "effects": [
-                                "COMBAT: Riphide Reaver"
-                              ],
-                              "children": [
-                                {
-                                  "id": 184,
-                                  "text": "The old man hits the corpse of the reaver with his staff. \"So noisy. I was just minding my business picking fresh corpses when this brute interrupted me. I suppose I ought to thank you for your timely intervention, stranger.\"",
-                                  "type": "dialogue",
-                                  "effects": [
-                                    "RELOADEVENTS"
-                                  ],
-                                  "ref": 22328
-                                }
-                              ]
-                            }
-                          ]
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "id": 185,
-                  "type": "choice",
-                  "choiceLabel": "Attack the Demon",
-                  "ref": 733
-                }
-              ]
+              "ref": 0
             }
           ]
         },
@@ -33765,34 +33715,11 @@
           "choiceLabel": "Attack one of the Skeletons",
           "children": [
             {
-              "id": 22335,
+              "id": 22329,
               "text": "\"Not them you fool, they are with me!\"",
               "type": "dialogue",
               "numContinues": 0,
-              "children": [
-                {
-                  "id": 368,
-                  "type": "choice",
-                  "choiceLabel": "Not before you tell me what is happening",
-                  "children": [
-                    {
-                      "id": 22333,
-                      "text": "\"Isn't it obvious? These brutes are attacking me! Now will you lend an old man a hand or will you just watch me take care of this myself!",
-                      "type": "dialogue",
-                      "numContinues": 0,
-                      "refChildren": [
-                        3
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "id": 551,
-                  "type": "choice",
-                  "choiceLabel": "Attack the Demon",
-                  "ref": 733
-                }
-              ]
+              "ref": 0
             }
           ]
         },
@@ -33802,7 +33729,7 @@
           "choiceLabel": "Attack the Demon",
           "children": [
             {
-              "id": 22336,
+              "id": 22510,
               "text": "",
               "type": "combat",
               "effects": [
@@ -33816,7 +33743,370 @@
                   "effects": [
                     "RELOADEVENTS"
                   ],
-                  "ref": 22328
+                  "children": [
+                    {
+                      "id": 734,
+                      "type": "choice",
+                      "choiceLabel": "Who are you?",
+                      "children": [
+                        {
+                          "id": 22386,
+                          "text": "\"Just an old man, enjoying some well deserved peace in the afterdays of his life. Well, I was. Until this whole ruckus started.",
+                          "type": "dialogue",
+                          "numContinues": 0,
+                          "children": [
+                            {
+                              "id": 735,
+                              "type": "choice",
+                              "choiceLabel": "What are you doing here?",
+                              "children": [
+                                {
+                                  "id": 22352,
+                                  "text": "\"First this flame-haired idiot came trouncing through my swamp. Then these barbarians started getting so loud I could barely hear myself think.\"",
+                                  "type": "dialogue",
+                                  "numContinues": 0,
+                                  "children": [
+                                    {
+                                      "id": 736,
+                                      "type": "choice",
+                                      "choiceLabel": "Flame-haired idiot?",
+                                      "children": [
+                                        {
+                                          "id": 22351,
+                                          "text": "\"Ah yes. Wandered through my swamp just days before. Didn't seem interested in conversation and almost took my head off!\" \"Then he disappeared into the mountains just south of here. Good riddance I say! Now, unless you need more Enchanting, I suggest you start looking there and stop pestering an old man about it!\"",
+                                          "type": "dialogue",
+                                          "numContinues": 1,
+                                          "children": [
+                                            {
+                                              "id": 737,
+                                              "type": "choice",
+                                              "choiceLabel": "What about these skeletons?",
+                                              "children": [
+                                                {
+                                                  "id": 22340,
+                                                  "text": "\"Ah, my entourage. Helpful at best, nothing to concern you, [[class]]. They just tend to my swamp over yonder.\"",
+                                                  "type": "dialogue",
+                                                  "numContinues": 0,
+                                                  "children": [
+                                                    {
+                                                      "id": 738,
+                                                      "type": "choice",
+                                                      "choiceLabel": "Don't mention it",
+                                                      "ref": 904
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "id": 748,
+                                              "type": "choice",
+                                              "choiceLabel": "Don't mention it",
+                                              "ref": 904
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "id": 758,
+                              "type": "choice",
+                              "choiceLabel": "What about these skeletons?",
+                              "children": [
+                                {
+                                  "id": 22375,
+                                  "text": "\"Ah, my entourage. Helpful at best, nothing to concern you, [[class]]. They just tend to my swamp over yonder.\"",
+                                  "type": "dialogue",
+                                  "numContinues": 0,
+                                  "children": [
+                                    {
+                                      "id": 759,
+                                      "type": "choice",
+                                      "choiceLabel": "What are you doing here?",
+                                      "children": [
+                                        {
+                                          "id": 22364,
+                                          "text": "\"First this flame-haired idiot came trouncing through my swamp. Then these barbarians started getting so loud I could barely hear myself think.\"",
+                                          "type": "dialogue",
+                                          "numContinues": 0,
+                                          "children": [
+                                            {
+                                              "id": 760,
+                                              "type": "choice",
+                                              "choiceLabel": "Flame-haired idiot?",
+                                              "children": [
+                                                {
+                                                  "id": 22363,
+                                                  "text": "\"Ah yes. Wandered through my swamp just days before. Didn't seem interested in conversation and almost took my head off!\" \"Then he disappeared into the mountains just south of here. Good riddance I say! Now, unless you need more Enchanting, I suggest you start looking there and stop pestering an old man about it!\"",
+                                                  "type": "dialogue",
+                                                  "numContinues": 1,
+                                                  "ref": 22340
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "id": 771,
+                                      "type": "choice",
+                                      "choiceLabel": "Don't mention it",
+                                      "ref": 904
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "id": 781,
+                              "type": "choice",
+                              "choiceLabel": "Don't mention it",
+                              "ref": 904
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": 791,
+                      "type": "choice",
+                      "choiceLabel": "What are you doing here?",
+                      "children": [
+                        {
+                          "id": 22442,
+                          "text": "\"First this flame-haired idiot came trouncing through my swamp. Then these barbarians started getting so loud I could barely hear myself think.\"",
+                          "type": "dialogue",
+                          "numContinues": 0,
+                          "children": [
+                            {
+                              "id": 792,
+                              "type": "choice",
+                              "choiceLabel": "Flame-haired idiot?",
+                              "children": [
+                                {
+                                  "id": 22441,
+                                  "text": "\"Ah yes. Wandered through my swamp just days before. Didn't seem interested in conversation and almost took my head off!\" \"Then he disappeared into the mountains just south of here. Good riddance I say! Now, unless you need more Enchanting, I suggest you start looking there and stop pestering an old man about it!\"",
+                                  "type": "dialogue",
+                                  "numContinues": 1,
+                                  "children": [
+                                    {
+                                      "id": 793,
+                                      "type": "choice",
+                                      "choiceLabel": "Who are you?",
+                                      "children": [
+                                        {
+                                          "id": 22408,
+                                          "text": "\"Just an old man, enjoying some well deserved peace in the afterdays of his life. Well, I was. Until this whole ruckus started.",
+                                          "type": "dialogue",
+                                          "numContinues": 0,
+                                          "ref": 22351
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "id": 815,
+                                      "type": "choice",
+                                      "choiceLabel": "What about these skeletons?",
+                                      "children": [
+                                        {
+                                          "id": 22430,
+                                          "text": "\"Ah, my entourage. Helpful at best, nothing to concern you, [[class]]. They just tend to my swamp over yonder.\"",
+                                          "type": "dialogue",
+                                          "numContinues": 0,
+                                          "children": [
+                                            {
+                                              "id": 816,
+                                              "type": "choice",
+                                              "choiceLabel": "Who are you?",
+                                              "children": [
+                                                {
+                                                  "id": 22419,
+                                                  "text": "\"Just an old man, enjoying some well deserved peace in the afterdays of his life. Well, I was. Until this whole ruckus started.",
+                                                  "type": "dialogue",
+                                                  "numContinues": 0,
+                                                  "ref": 22340
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "id": 827,
+                                              "type": "choice",
+                                              "choiceLabel": "Don't mention it",
+                                              "ref": 904
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "id": 837,
+                                      "type": "choice",
+                                      "choiceLabel": "Don't mention it",
+                                      "ref": 904
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": 847,
+                      "type": "choice",
+                      "choiceLabel": "What about these skeletons?",
+                      "children": [
+                        {
+                          "id": 22499,
+                          "text": "\"Ah, my entourage. Helpful at best, nothing to concern you, [[class]]. They just tend to my swamp over yonder.\"",
+                          "type": "dialogue",
+                          "numContinues": 0,
+                          "children": [
+                            {
+                              "id": 848,
+                              "type": "choice",
+                              "choiceLabel": "Who are you?",
+                              "children": [
+                                {
+                                  "id": 22465,
+                                  "text": "\"Just an old man, enjoying some well deserved peace in the afterdays of his life. Well, I was. Until this whole ruckus started.",
+                                  "type": "dialogue",
+                                  "numContinues": 0,
+                                  "ref": 22375
+                                }
+                              ]
+                            },
+                            {
+                              "id": 871,
+                              "type": "choice",
+                              "choiceLabel": "What are you doing here?",
+                              "ref": 735
+                            },
+                            {
+                              "id": 894,
+                              "type": "choice",
+                              "choiceLabel": "Don't mention it",
+                              "ref": 904
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": 904,
+                      "type": "choice",
+                      "choiceLabel": "Don't mention it",
+                      "children": [
+                        {
+                          "id": 22509,
+                          "text": "\"Ah but I will. By the looks of it, you could be able to restore some much-needed peace around here.\" \"And old Bolgar might have just the thing to help you do so. Come talk to me when you require some Enchanting.\"",
+                          "type": "dialogue",
+                          "numContinues": 1,
+                          "children": [
+                            {
+                              "id": 905,
+                              "type": "choice",
+                              "choiceLabel": "Enchanting?",
+                              "children": [
+                                {
+                                  "id": 22504,
+                                  "text": "Imbuing an Enchantment is a powerful but expensive process that allows you to have an enchantment from your deck be active permanently. The Enchantment card must be in your deck and must last longer than a round to be imbued. The Enchantment will be removed from your deck in the process.",
+                                  "type": "dialogue",
+                                  "numContinues": 1,
+                                  "children": [
+                                    {
+                                      "id": 906,
+                                      "type": "choice",
+                                      "choiceLabel": "I'll have nothing to do with you",
+                                      "ref": 910
+                                    },
+                                    {
+                                      "id": 909,
+                                      "type": "choice",
+                                      "choiceLabel": "Sounds useful, Bolgar",
+                                      "children": [
+                                        {
+                                          "id": 22503,
+                                          "text": "\"Glad to hear it. Now be on your way. I am sure you didn't come all the way out here just to check in on an old fool.\"",
+                                          "type": "end",
+                                          "effects": [
+                                            "QUESTFLAG: enchanter"
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "id": 910,
+                              "type": "choice",
+                              "choiceLabel": "I'll have nothing to do with you",
+                              "children": [
+                                {
+                                  "id": 22507,
+                                  "text": "Leaving the Necromancer will make Imbuing enchantments impossible during this run. Are you sure you want to proceed?",
+                                  "type": "dialogue",
+                                  "numContinues": 0,
+                                  "children": [
+                                    {
+                                      "id": 911,
+                                      "type": "choice",
+                                      "choiceLabel": "Leave Bolgar",
+                                      "children": [
+                                        {
+                                          "id": 22505,
+                                          "text": "\"As you wish, 'hero'. Should you change your mind, feel free to visit ol' Bolgar. You wouldn't be the first to learn your righteousness might not overly value your life in a place like this.\"",
+                                          "type": "end"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "id": 912,
+                                      "type": "choice",
+                                      "choiceLabel": "Reconsider",
+                                      "children": [
+                                        {
+                                          "id": 22506,
+                                          "text": "\"Glad to hear it. Now be on your way. I am sure you didn't come all the way out here just to check in on an old fool.\"",
+                                          "type": "end",
+                                          "effects": [
+                                            "QUESTFLAG: enchanter"
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "id": 913,
+                              "type": "choice",
+                              "choiceLabel": "Sounds useful, Bolgar",
+                              "children": [
+                                {
+                                  "id": 22508,
+                                  "text": "\"Glad to hear it. Now be on your way. I am sure you didn't come all the way out here just to check in on an old fool.\"",
+                                  "type": "end",
+                                  "effects": [
+                                    "QUESTFLAG: enchanter"
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
                 }
               ]
             }
@@ -33841,7 +34131,7 @@
           "choiceLabel": "Explore the area more",
           "children": [
             {
-              "id": 22337,
+              "id": 22511,
               "text": "",
               "type": "end"
             }
@@ -33853,7 +34143,7 @@
           "choiceLabel": "Leave: Go to Brightcandle",
           "children": [
             {
-              "id": 22338,
+              "id": 22512,
               "text": "",
               "type": "end",
               "effects": [
@@ -33881,7 +34171,7 @@
           "choiceLabel": "I'm here to answer the Summons",
           "children": [
             {
-              "id": 22620,
+              "id": 22794,
               "text": "The paladin nods. \"I thought you might be. I pray you know what you are up against, [[class]]. The journey into Umbris is as treacherous as the demons that infest these lands.\"",
               "type": "dialogue",
               "numContinues": 0,
@@ -33892,7 +34182,7 @@
                   "choiceLabel": "Who are you?",
                   "children": [
                     {
-                      "id": 22439,
+                      "id": 22613,
                       "text": "The paladin furrows one of his graying brows. \"Too old to fight on the frontlines, too proud to sit out this war.\" he smiles and rests his free hand on the large hammer at his side. \"More to the point, I'm guarding these roads and keeping an eye out for anyone answering the Gilded Summons. These woods behind me can be treacherous and we wouldn't want to lose anyone whose greed or good intentions outweigh their ability.\"",
                       "type": "dialogue",
                       "numContinues": 1,
@@ -33903,7 +34193,7 @@
                           "choiceLabel": "I could use some information",
                           "children": [
                             {
-                              "id": 22434,
+                              "id": 22608,
                               "text": "\"A wise decision. The dark lands of Umbris have not been welcoming us kindly. But the Radiant Militia is showing these demons their time in the Shattered Realms is over, and the dawn of humankind has arrived.\"",
                               "type": "dialogue",
                               "numContinues": 0,
@@ -33914,7 +34204,7 @@
                                   "choiceLabel": "The Radiant Militia?",
                                   "children": [
                                     {
-                                      "id": 22368,
+                                      "id": 22542,
                                       "text": "\"The Radiant Militia is a temporary coalition of the Council, the Regents of the Shattered Realms and the Chantry of Light. And your future employer if you are here to answer their Gilded Summons, [[class]].\"",
                                       "type": "dialogue",
                                       "numContinues": 0,
@@ -33925,7 +34215,7 @@
                                           "choiceLabel": "Why are we invading now?",
                                           "children": [
                                             {
-                                              "id": 22350,
+                                              "id": 22524,
                                               "text": "\"Because now we have the blessing of the Sungod themselves! They sent us a clear sign and a Champion who has managed to rally the Shattered Realms under one banner once again.\"",
                                               "type": "dialogue",
                                               "numContinues": 0,
@@ -33936,7 +34226,7 @@
                                                   "choiceLabel": "What are we fighting?",
                                                   "children": [
                                                     {
-                                                      "id": 22344,
+                                                      "id": 22518,
                                                       "text": "The paladin's expression turns grim as he looks up at the dark skies in the distance. \"Demons, Awakened and Voidspawn. The vilest of corruptions that have been a blight on our Realm for too long. But the Light deems they and their unholy masters have overstayed their 'welcome'.\"",
                                                       "type": "dialogue",
                                                       "numContinues": 0,
@@ -33973,7 +34263,7 @@
                                           "choiceLabel": "What are we fighting?",
                                           "children": [
                                             {
-                                              "id": 22362,
+                                              "id": 22536,
                                               "text": "The paladin's expression turns grim as he looks up at the dark skies in the distance. \"Demons, Awakened and Voidspawn. The vilest of corruptions that have been a blight on our Realm for too long. But the Light deems they and their unholy masters have overstayed their 'welcome'.\"",
                                               "type": "dialogue",
                                               "numContinues": 0,
@@ -33984,7 +34274,7 @@
                                                   "choiceLabel": "Why are we invading now?",
                                                   "children": [
                                                     {
-                                                      "id": 22356,
+                                                      "id": 22530,
                                                       "text": "\"Because now we have the blessing of the Sungod themselves! They sent us a clear sign and a Champion who has managed to rally the Shattered Realms under one banner once again.\"",
                                                       "type": "dialogue",
                                                       "numContinues": 0,
@@ -34014,7 +34304,7 @@
                                   "choiceLabel": "Why are we invading now?",
                                   "children": [
                                     {
-                                      "id": 22398,
+                                      "id": 22572,
                                       "text": "\"Because now we have the blessing of the Sungod themselves! They sent us a clear sign and a Champion who has managed to rally the Shattered Realms under one banner once again.\"",
                                       "type": "dialogue",
                                       "numContinues": 0,
@@ -34024,7 +34314,7 @@
                                           "type": "choice",
                                           "choiceLabel": "What are we fighting?",
                                           "refChildren": [
-                                            22362
+                                            22536
                                           ]
                                         },
                                         {
@@ -34033,7 +34323,7 @@
                                           "choiceLabel": "The Radiant Militia?",
                                           "children": [
                                             {
-                                              "id": 22380,
+                                              "id": 22554,
                                               "text": "\"The Radiant Militia is a temporary coalition of the Council, the Regents of the Shattered Realms and the Chantry of Light. And your future employer if you are here to answer their Gilded Summons, [[class]].\"",
                                               "type": "dialogue",
                                               "numContinues": 0,
@@ -34066,7 +34356,7 @@
                                   "choiceLabel": "That is all I needed to know",
                                   "children": [
                                     {
-                                      "id": 22433,
+                                      "id": 22607,
                                       "text": "\"The Consul down in Brightcandle will no doubt be able to provide you with more details on the current state of affairs. Do you have any other questions for me?\"",
                                       "type": "dialogue",
                                       "numContinues": 0,
@@ -34083,7 +34373,7 @@
                                           "choiceLabel": "I'm ready",
                                           "children": [
                                             {
-                                              "id": 22432,
+                                              "id": 22606,
                                               "text": "\"Very well, [[Class]].\" The paladin hands you a small pouch. \"Consider this an advance on the Summons. Now head to Brightcandle beyond these woods. Report to Consul Evalaine, she will have the rest of your pay and your assignment. May the Light guide you.\"",
                                               "type": "end",
                                               "effects": [
@@ -34113,7 +34403,7 @@
                           "choiceLabel": "I'm ready",
                           "children": [
                             {
-                              "id": 22438,
+                              "id": 22612,
                               "text": "\"Very well, [[Class]].\" The paladin hands you a small pouch. \"Consider this an advance on the Summons. Now head to Brightcandle beyond these woods. Report to Consul Evalaine, she will have the rest of your pay and your assignment. May the Light guide you.\"",
                               "type": "end",
                               "effects": [
@@ -34133,7 +34423,7 @@
                   "choiceLabel": "I could use some information",
                   "children": [
                     {
-                      "id": 22615,
+                      "id": 22789,
                       "text": "\"A wise decision. The dark lands of Umbris have not been welcoming us kindly. But the Radiant Militia is showing these demons their time in the Shattered Realms is over, and the dawn of humankind has arrived.\"",
                       "type": "dialogue",
                       "numContinues": 0,
@@ -34144,7 +34434,7 @@
                           "choiceLabel": "The Radiant Militia?",
                           "children": [
                             {
-                              "id": 22494,
+                              "id": 22668,
                               "text": "\"The Radiant Militia is a temporary coalition of the Council, the Regents of the Shattered Realms and the Chantry of Light. And your future employer if you are here to answer their Gilded Summons, [[class]].\"",
                               "type": "dialogue",
                               "numContinues": 0,
@@ -34161,7 +34451,7 @@
                                   "choiceLabel": "Why are we invading now?",
                                   "children": [
                                     {
-                                      "id": 22461,
+                                      "id": 22635,
                                       "text": "\"Because now we have the blessing of the Sungod themselves! They sent us a clear sign and a Champion who has managed to rally the Shattered Realms under one banner once again.\"",
                                       "type": "dialogue",
                                       "numContinues": 0,
@@ -34172,7 +34462,7 @@
                                           "choiceLabel": "What are we fighting?",
                                           "children": [
                                             {
-                                              "id": 22450,
+                                              "id": 22624,
                                               "text": "The paladin's expression turns grim as he looks up at the dark skies in the distance. \"Demons, Awakened and Voidspawn. The vilest of corruptions that have been a blight on our Realm for too long. But the Light deems they and their unholy masters have overstayed their 'welcome'.\"",
                                               "type": "dialogue",
                                               "numContinues": 0,
@@ -34193,7 +34483,7 @@
                                           "choiceLabel": "That is all I needed to know",
                                           "children": [
                                             {
-                                              "id": 22460,
+                                              "id": 22634,
                                               "text": "\"The Consul down in Brightcandle will no doubt be able to provide you with more details on the current state of affairs. Do you have any other questions for me?\"",
                                               "type": "dialogue",
                                               "numContinues": 0,
@@ -34204,11 +34494,11 @@
                                                   "choiceLabel": "Who are you?",
                                                   "children": [
                                                     {
-                                                      "id": 22455,
+                                                      "id": 22629,
                                                       "text": "The paladin furrows one of his graying brows. \"Too old to fight on the frontlines, too proud to sit out this war.\" he smiles and rests his free hand on the large hammer at his side. \"More to the point, I'm guarding these roads and keeping an eye out for anyone answering the Gilded Summons. These woods behind me can be treacherous and we wouldn't want to lose anyone whose greed or good intentions outweigh their ability.\"",
                                                       "type": "dialogue",
                                                       "numContinues": 1,
-                                                      "ref": 22433
+                                                      "ref": 22607
                                                     }
                                                   ]
                                                 },
@@ -34224,7 +34514,7 @@
                                                   "choiceLabel": "I'm ready",
                                                   "children": [
                                                     {
-                                                      "id": 22459,
+                                                      "id": 22633,
                                                       "text": "\"Very well, [[Class]].\" The paladin hands you a small pouch. \"Consider this an advance on the Summons. Now head to Brightcandle beyond these woods. Report to Consul Evalaine, she will have the rest of your pay and your assignment. May the Light guide you.\"",
                                                       "type": "end",
                                                       "effects": [
@@ -34248,7 +34538,7 @@
                                   "choiceLabel": "What are we fighting?",
                                   "children": [
                                     {
-                                      "id": 22483,
+                                      "id": 22657,
                                       "text": "The paladin's expression turns grim as he looks up at the dark skies in the distance. \"Demons, Awakened and Voidspawn. The vilest of corruptions that have been a blight on our Realm for too long. But the Light deems they and their unholy masters have overstayed their 'welcome'.\"",
                                       "type": "dialogue",
                                       "numContinues": 0,
@@ -34258,7 +34548,7 @@
                                           "type": "choice",
                                           "choiceLabel": "That is all I needed to know",
                                           "refChildren": [
-                                            22460
+                                            22634
                                           ]
                                         },
                                         {
@@ -34267,7 +34557,7 @@
                                           "choiceLabel": "Why are we invading now?",
                                           "children": [
                                             {
-                                              "id": 22472,
+                                              "id": 22646,
                                               "text": "\"Because now we have the blessing of the Sungod themselves! They sent us a clear sign and a Champion who has managed to rally the Shattered Realms under one banner once again.\"",
                                               "type": "dialogue",
                                               "numContinues": 0,
@@ -34291,7 +34581,7 @@
                           "choiceLabel": "Why are we invading now?",
                           "children": [
                             {
-                              "id": 22549,
+                              "id": 22723,
                               "text": "\"Because now we have the blessing of the Sungod themselves! They sent us a clear sign and a Champion who has managed to rally the Shattered Realms under one banner once again.\"",
                               "type": "dialogue",
                               "numContinues": 0,
@@ -34301,7 +34591,7 @@
                                   "type": "choice",
                                   "choiceLabel": "What are we fighting?",
                                   "refChildren": [
-                                    22483
+                                    22657
                                   ]
                                 },
                                 {
@@ -34316,7 +34606,7 @@
                                   "choiceLabel": "The Radiant Militia?",
                                   "children": [
                                     {
-                                      "id": 22516,
+                                      "id": 22690,
                                       "text": "\"The Radiant Militia is a temporary coalition of the Council, the Regents of the Shattered Realms and the Chantry of Light. And your future employer if you are here to answer their Gilded Summons, [[class]].\"",
                                       "type": "dialogue",
                                       "numContinues": 0,
@@ -34337,7 +34627,7 @@
                           "choiceLabel": "What are we fighting?",
                           "children": [
                             {
-                              "id": 22604,
+                              "id": 22778,
                               "text": "The paladin's expression turns grim as he looks up at the dark skies in the distance. \"Demons, Awakened and Voidspawn. The vilest of corruptions that have been a blight on our Realm for too long. But the Light deems they and their unholy masters have overstayed their 'welcome'.\"",
                               "type": "dialogue",
                               "numContinues": 0,
@@ -34347,7 +34637,7 @@
                                   "type": "choice",
                                   "choiceLabel": "The Radiant Militia?",
                                   "refChildren": [
-                                    22516
+                                    22690
                                   ]
                                 },
                                 {
@@ -34355,7 +34645,7 @@
                                   "type": "choice",
                                   "choiceLabel": "Why are we invading now?",
                                   "refChildren": [
-                                    22461
+                                    22635
                                   ]
                                 },
                                 {
@@ -34374,7 +34664,7 @@
                           "choiceLabel": "That is all I needed to know",
                           "children": [
                             {
-                              "id": 22614,
+                              "id": 22788,
                               "text": "\"The Consul down in Brightcandle will no doubt be able to provide you with more details on the current state of affairs. Do you have any other questions for me?\"",
                               "type": "dialogue",
                               "numContinues": 0,
@@ -34385,7 +34675,7 @@
                                   "choiceLabel": "Who are you?",
                                   "children": [
                                     {
-                                      "id": 22609,
+                                      "id": 22783,
                                       "text": "The paladin furrows one of his graying brows. \"Too old to fight on the frontlines, too proud to sit out this war.\" he smiles and rests his free hand on the large hammer at his side. \"More to the point, I'm guarding these roads and keeping an eye out for anyone answering the Gilded Summons. These woods behind me can be treacherous and we wouldn't want to lose anyone whose greed or good intentions outweigh their ability.\"",
                                       "type": "dialogue",
                                       "numContinues": 1,
@@ -34408,7 +34698,7 @@
                                   "choiceLabel": "I'm ready",
                                   "children": [
                                     {
-                                      "id": 22613,
+                                      "id": 22787,
                                       "text": "\"Very well, [[Class]].\" The paladin hands you a small pouch. \"Consider this an advance on the Summons. Now head to Brightcandle beyond these woods. Report to Consul Evalaine, she will have the rest of your pay and your assignment. May the Light guide you.\"",
                                       "type": "end",
                                       "effects": [
@@ -34432,7 +34722,7 @@
                   "choiceLabel": "Start tutorial: I could use a lesson",
                   "children": [
                     {
-                      "id": 22618,
+                      "id": 22792,
                       "text": "Ah, a lesson. Well, that's something an old paladin like myself is capable of at least. Let me tell you about how I bested a particularly vicious boar just before you arrived.",
                       "type": "dialogue",
                       "numContinues": 0,
@@ -34443,7 +34733,7 @@
                           "choiceLabel": "Start Tutorial",
                           "children": [
                             {
-                              "id": 22617,
+                              "id": 22791,
                               "text": "And that's how I got this nasty scar. So a word of caution friend, take care of yourself out there - you only have one life to give, better make the most of it.",
                               "type": "dialogue",
                               "effects": [
@@ -34457,7 +34747,7 @@
                                   "choiceLabel": "I think I'm ready now",
                                   "children": [
                                     {
-                                      "id": 22616,
+                                      "id": 22790,
                                       "text": "\"Very well, [[Class]].\" The paladin hands you a small pouch. \"Consider this an advance on the Summons. Now head to Brightcandle beyond these woods. Report to Consul Evalaine, she will have the rest of your pay and your assignment. May the Light guide you.\"",
                                       "type": "end",
                                       "effects": [
@@ -34481,7 +34771,7 @@
                   "choiceLabel": "I can handle it",
                   "children": [
                     {
-                      "id": 22619,
+                      "id": 22793,
                       "text": "\"Very well, [[Class]].\" The paladin hands you a small pouch. \"Consider this an advance on the Summons. Now head to Brightcandle beyond these woods. Report to Consul Evalaine, she will have the rest of your pay and your assignment. May the Light guide you.\"",
                       "type": "end",
                       "effects": [
@@ -34504,7 +34794,7 @@
           ],
           "children": [
             {
-              "id": 22621,
+              "id": 22795,
               "text": "\"Very well, [[Class]].\" The paladin hands you a small pouch. \"Consider this an advance on the Summons. Now head to Brightcandle beyond these woods. Report to Consul Evalaine, she will have the rest of your pay and your assignment. May the Light guide you.\"",
               "type": "end",
               "effects": [
@@ -34536,7 +34826,7 @@
           "choiceLabel": "Read the text below.",
           "children": [
             {
-              "id": 22627,
+              "id": 22801,
               "text": "In the realm of mortal existence, I find solace in the gentle embrace of contemplation. Yet, as I dwell upon the nature of compassion, a realization takes hold—an immortal being could never truly embody its essence.",
               "type": "dialogue",
               "numContinues": 0,
@@ -34547,7 +34837,7 @@
                   "choiceLabel": "Keep reading",
                   "children": [
                     {
-                      "id": 22625,
+                      "id": 22799,
                       "text": "Compassion, a profound empathy that flows from the depths of mortal hearts, is intertwined with the awareness of a shared vulnerability. It is nurtured by the understanding of the ephemeral nature of life, the interconnectedness of all beings, and the recognition of suffering as a universal experience.",
                       "type": "dialogue",
                       "numContinues": 0,
@@ -34558,11 +34848,11 @@
                           "choiceLabel": "Keep reading",
                           "children": [
                             {
-                              "id": 22624,
+                              "id": 22798,
                               "text": "Yet, in the realm of immortality, where time knows no boundaries and wounds so easily heal, compassion faces a daunting dilemma. For how can we truly comprehend the depths of suffering, the urgency of alleviating pain, and the transformative power of empathy if we are forever removed from the very essence of mortality?",
                               "type": "dialogue",
                               "numContinues": 0,
-                              "ref": 22625
+                              "ref": 22799
                             }
                           ]
                         }
@@ -34576,7 +34866,7 @@
                   "choiceLabel": "Leave",
                   "children": [
                     {
-                      "id": 22626,
+                      "id": 22800,
                       "text": "",
                       "type": "end"
                     }
@@ -34592,7 +34882,7 @@
           "choiceLabel": "Leave",
           "children": [
             {
-              "id": 22628,
+              "id": 22802,
               "text": "",
               "type": "end"
             }
@@ -34621,7 +34911,7 @@
           "choiceLabel": "Read the text below.",
           "children": [
             {
-              "id": 22635,
+              "id": 22809,
               "text": "In the realm of mortal existence, I find solace in the gentle embrace of contemplation. Yet, as I dwell upon the nature of courage, a realization takes hold—an immortal being could never truly embody its essence.",
               "type": "dialogue",
               "numContinues": 0,
@@ -34632,7 +34922,7 @@
                   "choiceLabel": "Keep reading",
                   "children": [
                     {
-                      "id": 22633,
+                      "id": 22807,
                       "text": "Immortality, the eternal embrace of existence unbounded by the constraints of time, whispers promises of invulnerability and everlasting life. It tempts us with the illusion of perpetual safety, shielding us from the inherent risks and uncertainties that accompany mortal fragility. Yet, in this seeming sanctuary, courage languishes.",
                       "type": "dialogue",
                       "numContinues": 0,
@@ -34643,11 +34933,11 @@
                           "choiceLabel": "Keep reading",
                           "children": [
                             {
-                              "id": 22632,
+                              "id": 22806,
                               "text": "Courage, a flame burning brightly within mortal hearts, is nurtured by the awareness of life's brevity. It inspires us to rise above our fears, to confront the unknown, and to embrace the transformative power of growth and change. It is the wellspring of resilience and the catalyst for meaningful action.",
                               "type": "dialogue",
                               "numContinues": 0,
-                              "ref": 22633
+                              "ref": 22807
                             }
                           ]
                         }
@@ -34661,7 +34951,7 @@
                   "choiceLabel": "Leave",
                   "children": [
                     {
-                      "id": 22634,
+                      "id": 22808,
                       "text": "",
                       "type": "end"
                     }
@@ -34677,7 +34967,7 @@
           "choiceLabel": "Leave",
           "children": [
             {
-              "id": 22636,
+              "id": 22810,
               "text": "",
               "type": "end"
             }
@@ -34705,7 +34995,7 @@
           "choiceLabel": "Read the text below.",
           "children": [
             {
-              "id": 22642,
+              "id": 22816,
               "text": "In the realm of mortal existence, I find solace in the gentle embrace of contemplation. Yet, as I dwell upon the nature of wisdom, a realization takes hold; An immortal being could never truly embody its essence.",
               "type": "dialogue",
               "numContinues": 0,
@@ -34716,7 +35006,7 @@
                   "choiceLabel": "Keep reading",
                   "children": [
                     {
-                      "id": 22640,
+                      "id": 22814,
                       "text": "Behold the river of time, ceaselessly flowing, carrying us through the cycles of existence. In this flowing current, wisdom reveals itself, born of the interplay between our transient nature and the consequences of our actions. It is within this dance of impermanence that the true essence of wisdom takes root.",
                       "type": "dialogue",
                       "numContinues": 0,
@@ -34727,11 +35017,11 @@
                           "choiceLabel": "Keep reading",
                           "children": [
                             {
-                              "id": 22639,
+                              "id": 22813,
                               "text": "Embrace the urgency bestowed upon us by mortality, for it impels us to seek a deeper understanding of ourselves and the world we inhabit. It urges us to navigate the intricate tapestry of life, learning from the joys and sorrows that grace our path.",
                               "type": "dialogue",
                               "numContinues": 0,
-                              "ref": 22640
+                              "ref": 22814
                             }
                           ]
                         }
@@ -34745,7 +35035,7 @@
                   "choiceLabel": "Leave",
                   "children": [
                     {
-                      "id": 22641,
+                      "id": 22815,
                       "text": "",
                       "type": "end"
                     }
@@ -34761,7 +35051,7 @@
           "choiceLabel": "Leave",
           "children": [
             {
-              "id": 22643,
+              "id": 22817,
               "text": "",
               "type": "end"
             }
@@ -34786,7 +35076,7 @@
           "choiceLabel": "Find shelter",
           "children": [
             {
-              "id": 22648,
+              "id": 22822,
               "text": "Hands raised against the howling wind, you stagger towards a nearby hillock. The wind beats against whatever shelter is available, banishing any possibility of warming yourself by a fire.",
               "type": "dialogue",
               "numContinues": 0,
@@ -34800,7 +35090,7 @@
                   ],
                   "children": [
                     {
-                      "id": 22644,
+                      "id": 22818,
                       "text": "Muttering a curse, you unwrap your medical kit, and wrap your cut and bleeding hands and face, picking out the largest shards of stone and grit from the bleeding cuts. As the winds howl, eventually the worst of the pain fades and the bandages do their work.",
                       "type": "end",
                       "effects": [
@@ -34818,7 +35108,7 @@
                   ],
                   "children": [
                     {
-                      "id": 22645,
+                      "id": 22819,
                       "text": "You plant your shield firmly into the ground and take cover. It doesn't take long for the storm to pick up, dirt and grit hammering at the make-shift shelter, pummeling the iron bounds until they give in, yet allowing you to emerge unscathed.",
                       "type": "end",
                       "effects": [
@@ -34836,7 +35126,7 @@
                   ],
                   "children": [
                     {
-                      "id": 22646,
+                      "id": 22820,
                       "text": "A swift prayer sent heavenward fills you with a calm resolve as you watch the storm, whipping sand and grit through the air. Surely the hand of the gods can be seen in such displays as you reckon with the insignificance of humanity on this world.",
                       "type": "end",
                       "effects": [
@@ -34851,7 +35141,7 @@
                   "choiceLabel": "Wait out the storm.",
                   "children": [
                     {
-                      "id": 22647,
+                      "id": 22821,
                       "text": "The storm howls, whipping sand and grit through the air. From your leeward shelter, the display seems almost beautiful, unbroken, and filled with a terrible majesty before it settles several hours later.",
                       "type": "end"
                     }
@@ -34870,7 +35160,7 @@
           ],
           "children": [
             {
-              "id": 22649,
+              "id": 22823,
               "text": "The wind starts to howl, almost as if affronted by your defiance. The rapidly darkening sky stares down threateningly before thick tendrils of lightning suddenly jolt downwards. But as the thunderous crackle subsides, you are left standing, the energy fully absorbed but for the tiny coils still swirling around your fingertips.",
               "type": "end",
               "effects": [
@@ -34890,7 +35180,7 @@
           ],
           "children": [
             {
-              "id": 22650,
+              "id": 22824,
               "text": "The wind starts to howl, almost as if affronted by your defiance. The rapidly darkening sky stares down threateningly before thick tendrils of lightning suddenly jolt downwards. Almost as if in terror, new bolts of lightning recoil from your position before the storm retreats, leaving you unscathed and triumphant.",
               "type": "end",
               "effects": [
@@ -34910,7 +35200,7 @@
           ],
           "children": [
             {
-              "id": 22651,
+              "id": 22825,
               "text": "The wind starts to howl, almost as if affronted by your defiance. The rapidly darkening sky stares down threateningly before thick tendrils of lightning suddenly jolt downwards. Almost as if in terror, new bolts of lightning recoil from your position before the storm retreats, leaving you unscathed and triumphant.",
               "type": "end",
               "effects": [
@@ -34930,7 +35220,7 @@
           ],
           "children": [
             {
-              "id": 22652,
+              "id": 22826,
               "text": "The wind starts to howl, almost as if affronted by your defiance. The rapidly darkening sky stares down threateningly before thick tendrils of lightning suddenly jolt downwards. Almost as if in terror, new bolts of lightning recoil from your position before the storm retreats, leaving you unscathed and triumphant.",
               "type": "end",
               "effects": [
@@ -34947,7 +35237,7 @@
           "choiceLabel": "Continue into the storm",
           "children": [
             {
-              "id": 22653,
+              "id": 22827,
               "text": "Shards of sand and dust cut into your exposed face and hands. Grit embeds itself deep beneath your skin, leaving you bleeding from dozens of scratches and furrows. As the storm settles, you feel your face permanently marked by the unusually harsh conditions of Umbris...",
               "type": "end",
               "effects": [
@@ -34978,7 +35268,7 @@
           ],
           "children": [
             {
-              "id": 22654,
+              "id": 22828,
               "text": "You skin the animal with expert craftsmanship, fashioning yourself an extra layer of padding for your armor.",
               "type": "end",
               "effects": [
@@ -34993,7 +35283,7 @@
           "choiceLabel": "Kill the animal for food",
           "children": [
             {
-              "id": 22655,
+              "id": 22829,
               "text": "The wounded animal doesn’t resist as you strike it with a swift blow, putting it out of its misery. It’ll make for a nice roast to sustain you on your journey ahead.",
               "type": "end",
               "effects": [
@@ -35008,7 +35298,7 @@
           "choiceLabel": "Try to free the animal",
           "children": [
             {
-              "id": 22658,
+              "id": 22832,
               "text": "The animal whimpers meekly as you set it free. It awkwardly takes its first few steps as a free animal, leaving a messy trail of blood.",
               "type": "dialogue",
               "effects": [
@@ -35025,7 +35315,7 @@
                   ],
                   "children": [
                     {
-                      "id": 22656,
+                      "id": 22830,
                       "text": "You pour the healing potion into the young animal’s mouth. It resists at first, but as the healing effects take hold, it starts to skip and leap happily around at your feet.",
                       "type": "end",
                       "effects": [
@@ -35041,7 +35331,7 @@
                   "choiceLabel": "Leave",
                   "children": [
                     {
-                      "id": 22657,
+                      "id": 22831,
                       "text": "",
                       "type": "end"
                     }
