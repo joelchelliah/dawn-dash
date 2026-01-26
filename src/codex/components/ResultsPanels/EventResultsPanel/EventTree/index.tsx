@@ -7,6 +7,7 @@ import Image from '@/shared/components/Image'
 import { createCx } from '@/shared/utils/classnames'
 import { wrapText, truncateLine } from '@/shared/utils/textHelper'
 import GradientLink from '@/shared/components/GradientLink'
+import { useDraggable } from '@/shared/hooks/useDraggable'
 
 import {
   CombatNode,
@@ -57,6 +58,7 @@ function EventTree({
 
   const { eventImageSrc, onImageSrcError } = useEventImageSrc(event.artwork)
   const zoomCalculator = useEventTreeZoom()
+  const { isDragging, handlers } = useDraggable(scrollWrapperRef)
 
   const showLoopingIndicator = loopingPathMode === LoopingPathMode.INDICATOR
 
@@ -818,7 +820,13 @@ function EventTree({
         <h3 className={cx('event-header__name')}>{event.name}</h3>
       </div>
 
-      <div ref={scrollWrapperRef} className={cx('event-tree-scroll-wrapper')}>
+      <div
+        ref={scrollWrapperRef}
+        className={cx('event-tree-scroll-wrapper', {
+          'event-tree-scroll-wrapper--dragging': isDragging,
+        })}
+        {...handlers}
+      >
         <svg
           ref={svgRef}
           className={cx('event-tree', {

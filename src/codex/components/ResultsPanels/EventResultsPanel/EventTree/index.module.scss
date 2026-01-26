@@ -32,6 +32,20 @@
 
   // Centers the svg since it's inline-block
   text-align: center;
+
+  // Grabbable cursor
+  cursor: move; /* fallback if grab cursor is unsupported */
+  cursor: grab;
+  cursor: -moz-grab;
+  cursor: -webkit-grab;
+
+  // Grabbing cursor when dragging
+  &--dragging {
+    cursor: grabbing;
+    cursor: -moz-grabbing;
+    cursor: -webkit-grabbing;
+    user-select: none; // Prevent text selection while dragging
+  }
 }
 
 .event-header {
