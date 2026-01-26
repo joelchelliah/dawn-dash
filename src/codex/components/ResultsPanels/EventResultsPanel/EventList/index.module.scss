@@ -1,5 +1,13 @@
 @use 'index' as *;
 
+$alternating-row-background: rgba(0, 0, 0, 0.14);
+$alternating-row-last-item-background: linear-gradient(
+  to right,
+  $alternating-row-background,
+  transparent
+);
+$alternating-row-mobile-background: linear-gradient(to right, rgba(0, 0, 0, 0.25), transparent);
+
 .event-list-container {
   width: 100%;
   min-height: 175px; // To prevent looking too squished when there are no events
@@ -51,12 +59,19 @@
 }
 
 .event-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0rem;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
   width: 100%;
   padding: 0;
-  justify-content: flex-start;
+
+  @media (max-width: $breakpoint-tablet) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  @media (max-width: $breakpoint-mobile) {
+    grid-template-columns: 1fr;
+  }
 }
 
 .event-list-item {
@@ -67,11 +82,28 @@
   border-radius: 0.25rem;
   transition: all 0.5s ease;
   cursor: pointer;
-  min-width: 22%;
 
   // Ensure image and name stay together when wrapping
   flex-wrap: nowrap;
   white-space: nowrap;
+
+  // Alternating row backgrounds (4 items per row on desktop)
+  &:nth-child(8n + 1),
+  &:nth-child(8n + 2),
+  &:nth-child(8n + 3),
+  &:nth-child(8n + 4) {
+    background-color: $alternating-row-background;
+  }
+
+  // Gradient fade for last item in each row (every 4th item on desktop)
+  &:nth-child(8n + 4) {
+    background: $alternating-row-last-item-background;
+  }
+
+  // Handle incomplete rows: if last child is not a 4th item, still apply gradient
+  &:last-child:not(:nth-child(4n)) {
+    background: $alternating-row-last-item-background;
+  }
 
   &__artwork {
     width: 40px;
@@ -96,7 +128,7 @@
   }
 
   &:hover {
-    background-color: $color-list-bg-hover;
+    background: linear-gradient(to right, $color-list-bg-hover, transparent) !important;
 
     .event-list-item__artwork {
       border-color: $color-component-border-hover;
@@ -108,20 +140,55 @@
   }
 
   @media (max-width: $breakpoint-tablet) {
-    min-width: 30%;
-
     &__name {
       max-width: 11rem;
+    }
+
+    // Alternating row backgrounds (3 items per row on tablet)
+    &:nth-child(8n + 1),
+    &:nth-child(8n + 2),
+    &:nth-child(8n + 3),
+    &:nth-child(8n + 4),
+    &:nth-child(4n) {
+      background-color: transparent;
+      background: none;
+    }
+
+    &:nth-child(6n + 1),
+    &:nth-child(6n + 2),
+    &:nth-child(6n + 3) {
+      background-color: $alternating-row-background;
+    }
+
+    // Gradient fade for last item in each row (every 3rd item on tablet)
+    &:nth-child(6n + 3) {
+      background: $alternating-row-last-item-background;
+    }
+
+    // Handle incomplete rows: if last child is not a 3rd item, still apply gradient
+    &:last-child:not(:nth-child(3n)) {
+      background: $alternating-row-last-item-background;
     }
   }
 
   @media (max-width: $breakpoint-mobile) {
     gap: 1.25rem;
-    min-width: 100%;
 
     &__name {
       font-size: font-size('sm') !important;
       max-width: 100%;
+    }
+
+    // Alternating row backgrounds (1 item per row on mobile)
+    &:nth-child(6n + 1),
+    &:nth-child(6n + 2),
+    &:nth-child(6n + 3) {
+      background-color: transparent;
+      background: none;
+    }
+
+    &:nth-child(odd) {
+      background: $alternating-row-mobile-background;
     }
   }
 }
