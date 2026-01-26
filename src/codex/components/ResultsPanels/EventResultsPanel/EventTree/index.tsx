@@ -8,6 +8,7 @@ import { createCx } from '@/shared/utils/classnames'
 import { wrapText, truncateLine } from '@/shared/utils/textHelper'
 import GradientLink from '@/shared/components/GradientLink'
 import { useDraggable } from '@/shared/hooks/useDraggable'
+import { useBreakpoint } from '@/shared/hooks/useBreakpoint'
 
 import {
   CombatNode,
@@ -60,9 +61,11 @@ function EventTree({
 
   const { eventImageSrc, onImageSrcError } = useEventImageSrc(event.artwork)
   const zoomCalculator = useEventTreeZoom()
+  const { isMobile } = useBreakpoint()
   const { isDragging, handlers } = useDraggable(scrollWrapperRef)
 
-  const isDragMode = navigationMode === TreeNavigationMode.DRAG
+  // Force scroll mode on mobile (touch scrolling works like dragging on mobile)
+  const isDragMode = !isMobile && navigationMode === TreeNavigationMode.DRAG
   const showLoopingIndicator = loopingPathMode === LoopingPathMode.INDICATOR
 
   useEffect(() => {

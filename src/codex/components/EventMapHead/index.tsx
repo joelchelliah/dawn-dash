@@ -15,7 +15,7 @@ export function EventmapHead({ event, eventUrlParam }: EventmapHeadProps = {}) {
   const { eventImageSrc } = useEventImageSrc(event?.artwork || '')
   const hasEventArtwork = !!event?.artwork && event.artwork.trim().length > 0
 
-  const ogTitle = isEventPage ? `Eventmap of «${eventName}»` : 'Eventmaps'
+  const ogTitle = isEventPage ? `🗺 Eventmap of «${eventName}»` : '🗺 Eventmaps'
   const title = `Dawn-Dash: ${ogTitle}`
 
   const description = isEventPage
@@ -70,13 +70,46 @@ export function EventmapHead({ event, eventUrlParam }: EventmapHeadProps = {}) {
           }),
         }}
       />
+
+      {/* Breadcrumb Structured Data */}
+      {isEventPage && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'BreadcrumbList',
+              itemListElement: [
+                {
+                  '@type': 'ListItem',
+                  position: 1,
+                  name: 'Dawn-Dash',
+                  item: 'https://www.dawn-dash.com',
+                },
+                {
+                  '@type': 'ListItem',
+                  position: 2,
+                  name: 'Eventmaps',
+                  item: 'https://www.dawn-dash.com/eventmaps',
+                },
+                {
+                  '@type': 'ListItem',
+                  position: 3,
+                  name: eventName,
+                  item: url,
+                },
+              ],
+            }),
+          }}
+        />
+      )}
     </Head>
   )
 }
 
 function getEventDisplayText(event: Event | null | undefined, eventName: string): string {
   const fallbackText = `Explore the complete event tree for «${eventName}»!`
-  const maxLength = 120
+  const maxLength = 150
 
   if (!event) return fallbackText
 

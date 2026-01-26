@@ -45,7 +45,7 @@ export default function Landing() {
         <nav className={cx('nav')}>
           <NavItem
             url="/cardex"
-            imageSrc="/og-image-cardex.png"
+            imageSrc="/landing-cardex.webp"
             alt="Cardex"
             mobileDescription={LANDING_PAGE_NAV_ITEM_DESCRIPTIONS.cardexShort}
             onMouseEnter={() => setHoveredItem('cardex')}
@@ -54,7 +54,7 @@ export default function Landing() {
           />
           <NavItem
             url="/skilldex"
-            imageSrc="/og-image-skilldex.png"
+            imageSrc="/landing-skilldex.webp"
             alt="Skilldex"
             mobileDescription={LANDING_PAGE_NAV_ITEM_DESCRIPTIONS.skilldexShort}
             onMouseEnter={() => setHoveredItem('skilldex')}
@@ -62,7 +62,7 @@ export default function Landing() {
           />
           <NavItem
             url="/eventmaps"
-            imageSrc="/og-image-eventmaps.png"
+            imageSrc="/landing-eventmaps.webp"
             alt="Eventmaps"
             mobileDescription={LANDING_PAGE_NAV_ITEM_DESCRIPTIONS.eventmapsShort}
             onMouseEnter={() => setHoveredItem('eventmaps')}
@@ -70,7 +70,7 @@ export default function Landing() {
           />
           <NavItem
             url="/speedruns"
-            imageSrc="/og-image-speedruns.png"
+            imageSrc="/landing-speedruns.webp"
             alt="Speedruns"
             mobileDescription={LANDING_PAGE_NAV_ITEM_DESCRIPTIONS.speedrunsShort}
             onMouseEnter={() => setHoveredItem('speedruns')}

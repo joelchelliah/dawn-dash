@@ -186,16 +186,18 @@ const EventSearchPanel = ({
                 onChange={setLoopingPathMode}
               />
             </div>
-            <div className={cx('control-wrapper', 'control-wrapper--navigation-mode')}>
-              <Select
-                id="navigation-mode-select"
-                selectedClass={selectedClass}
-                label="Navigate the tree"
-                options={navigationModeOptions}
-                value={navigationMode}
-                onChange={setNavigationMode}
-              />
-            </div>
+            {!isMobile && (
+              <div className={cx('control-wrapper', 'control-wrapper--navigation-mode')}>
+                <Select
+                  id="navigation-mode-select"
+                  selectedClass={selectedClass}
+                  label="Navigate the tree"
+                  options={navigationModeOptions}
+                  value={navigationMode}
+                  onChange={setNavigationMode}
+                />
+              </div>
+            )}
           </div>
         </div>
       )}

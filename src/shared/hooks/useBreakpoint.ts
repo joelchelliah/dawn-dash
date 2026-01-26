@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react'
 
 // NB: Values should match breakpoints in _breakpoints.scss
-const BREAKPOINT_MOBILE = 768
-const BREAKPOINT_TABLET = 1024
+// Using matchMedia ensures JS breakpoints match CSS media queries exactly
+const MEDIA_QUERY_MOBILE = '(max-width: 48rem)' // 768px
+const MEDIA_QUERY_TABLET = '(max-width: 64rem)' // 1024px
 
 export function useBreakpoint() {
   const [isMobile, setIsMobile] = useState(false)
@@ -12,15 +13,26 @@ export function useBreakpoint() {
   useEffect(() => {
     if (typeof window === 'undefined') return
 
+    const mobileQuery = window.matchMedia(MEDIA_QUERY_MOBILE)
+    const tabletQuery = window.matchMedia(MEDIA_QUERY_TABLET)
+
     const handleResize = () => {
-      setIsMobile(window.innerWidth <= BREAKPOINT_MOBILE)
-      setIsTabletOrSmaller(window.innerWidth <= BREAKPOINT_TABLET)
-      setIsDesktop(window.innerWidth > BREAKPOINT_TABLET)
+      setIsMobile(mobileQuery.matches)
+      setIsTabletOrSmaller(tabletQuery.matches)
+      setIsDesktop(!tabletQuery.matches)
     }
 
+    // Initial check
     handleResize()
-    window.addEventListener('resize', handleResize)
-    return () => window.removeEventListener('resize', handleResize)
+
+    // Listen for changes
+    mobileQuery.addEventListener('change', handleResize)
+    tabletQuery.addEventListener('change', handleResize)
+
+    return () => {
+      mobileQuery.removeEventListener('change', handleResize)
+      tabletQuery.removeEventListener('change', handleResize)
+    }
   }, [])
 
   return { isMobile, isTabletOrSmaller, isDesktop }
