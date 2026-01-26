@@ -7,6 +7,7 @@ import Image from '@/shared/components/Image'
 import { createCx } from '@/shared/utils/classnames'
 import { wrapText, truncateLine } from '@/shared/utils/textHelper'
 import GradientLink from '@/shared/components/GradientLink'
+import { useDraggable } from '@/shared/hooks/useDraggable'
 
 import {
   CombatNode,
@@ -30,7 +31,7 @@ import {
   centerRootNodeHorizontally,
 } from '@/codex/utils/eventTreeSpacing'
 import { NODE, TREE, TEXT, INNER_BOX, NODE_BOX } from '@/codex/constants/eventTreeValues'
-import { ZoomLevel, LoopingPathMode } from '@/codex/constants/eventSearchValues'
+import { ZoomLevel, LoopingPathMode, TreeNavigationMode } from '@/codex/constants/eventSearchValues'
 import { useEventImageSrc } from '@/codex/hooks/useEventImageSrc'
 
 import { drawLinks, drawRefChildrenLinks, drawLoopBackLinks, drawLoopBackLinkBadges } from './links'
@@ -43,6 +44,7 @@ interface EventTreeProps {
   event: Event
   zoomLevel: ZoomLevel
   loopingPathMode: LoopingPathMode
+  navigationMode: TreeNavigationMode
   onAllEventsClick: () => void
 }
 
@@ -50,6 +52,7 @@ function EventTree({
   event,
   zoomLevel,
   loopingPathMode,
+  navigationMode,
   onAllEventsClick,
 }: EventTreeProps): JSX.Element {
   const svgRef = useRef<SVGSVGElement>(null)
@@ -57,7 +60,9 @@ function EventTree({
 
   const { eventImageSrc, onImageSrcError } = useEventImageSrc(event.artwork)
   const zoomCalculator = useEventTreeZoom()
+  const { isDragging, handlers } = useDraggable(scrollWrapperRef)
 
+  const isDragMode = navigationMode === TreeNavigationMode.DRAG
   const showLoopingIndicator = loopingPathMode === LoopingPathMode.INDICATOR
 
   useEffect(() => {
@@ -818,7 +823,14 @@ function EventTree({
         <h3 className={cx('event-header__name')}>{event.name}</h3>
       </div>
 
-      <div ref={scrollWrapperRef} className={cx('event-tree-scroll-wrapper')}>
+      <div
+        ref={scrollWrapperRef}
+        className={cx('event-tree-scroll-wrapper', {
+          'event-tree-scroll-wrapper--dragging': isDragMode && isDragging,
+          'event-tree-scroll-wrapper--drag-mode': isDragMode,
+        })}
+        {...(isDragMode ? handlers : {})}
+      >
         <svg
           ref={svgRef}
           className={cx('event-tree', {

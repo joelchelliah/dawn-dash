@@ -30,8 +30,41 @@
   overflow: auto;
   border-radius: 0.5rem;
 
+  // Hide scrollbars for a cleaner experience
+  scrollbar-width: none; // Firefox
+  -ms-overflow-style: none; // IE and Edge
+
+  &::-webkit-scrollbar {
+    display: none; // Chrome, Safari, Opera
+  }
+
   // Centers the svg since it's inline-block
   text-align: center;
+
+  // Drag mode specific styles
+  &--drag-mode {
+    overflow: hidden; // Disable scrollbar scrolling completely
+    height: 80vh; // Fixed height to enable vertical scrolling within the wrapper
+    max-height: 1000px; // Cap the maximum height on large screens
+
+    // Grabbable cursor
+    cursor: move; /* fallback if grab cursor is unsupported */
+    cursor: grab;
+    cursor: -moz-grab;
+    cursor: -webkit-grab;
+
+    @media (max-width: $breakpoint-mobile) {
+      max-height: 600px;
+    }
+  }
+
+  // Grabbing cursor when actively dragging
+  &--dragging {
+    cursor: grabbing;
+    cursor: -moz-grabbing;
+    cursor: -webkit-grabbing;
+    user-select: none; // Prevent text selection while dragging
+  }
 }
 
 .event-header {

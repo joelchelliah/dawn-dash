@@ -89,6 +89,16 @@
       max-width: 100%;
     }
   }
+
+  &--navigation-mode {
+    flex: 1;
+    max-width: 16rem;
+    min-width: 10rem;
+
+    @media (max-width: $breakpoint-mobile) {
+      max-width: 100%;
+    }
+  }
 }
 
 .advanced-options {

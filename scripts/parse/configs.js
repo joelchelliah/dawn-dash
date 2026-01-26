@@ -28,6 +28,11 @@
 //     before returning to the hub, so we need to build that path fully first.
 //   * Note: This mode builds deeper trees, so may require higher node budgets.
 const DIALOGUE_MENU_EVENTS = {
+  'A Strange Painting': {
+    menuHubPattern: 'Amongst the paintings near the',
+    menuExitPatterns: ['Make a note of the painting and leave'],
+    hubChoiceMatchThreshold: 60, // choices: 2/3
+  },
   'Dawnbringer Ystel': {
     menuHubPattern: "Ystel's figure exudes a sense",
     menuExitPatterns: ['Leave'],

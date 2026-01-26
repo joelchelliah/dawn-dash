@@ -28,7 +28,7 @@ export const getCachedTalentCodexSearchFilters = (): TalentCodexSearchFilterCach
   return getFromCache<TalentCodexSearchFilterCache>(TALENTS_CACHE_KEY, null).data
 }
 
-const EVENTS_CACHE_VERSION = 'v1'
+const EVENTS_CACHE_VERSION = 'v2'
 const EVENTS_CACHE_KEY = `codex_events_filters_${EVENTS_CACHE_VERSION}`
 
 export const cacheEventCodexSearchFilters = (filters: EventCodexSearchFilterCache) => {

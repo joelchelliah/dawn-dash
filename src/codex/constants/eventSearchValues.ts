@@ -29,3 +29,10 @@ export enum LoopingPathMode {
 }
 
 export const LOOPING_PATH_MODES = [LoopingPathMode.INDICATOR, LoopingPathMode.LINK] as const
+
+export enum TreeNavigationMode {
+  SCROLL = 'scroll',
+  DRAG = 'drag',
+}
+
+export const TREE_NAVIGATION_MODES = [TreeNavigationMode.SCROLL, TreeNavigationMode.DRAG] as const
