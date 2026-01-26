@@ -15,6 +15,8 @@ import {
   ZoomLevel,
   LoopingPathMode,
   LOOPING_PATH_MODES,
+  TreeNavigationMode,
+  TREE_NAVIGATION_MODES,
   ALL_EVENTS_INDEX,
   ZOOM_LABEL_MAP,
 } from '@/codex/constants/eventSearchValues'
@@ -42,6 +44,11 @@ const getLoopingPathModeLabel = (mode: LoopingPathMode): string =>
     ? '🔄 With «Loops back to» tags on nodes'
     : '🔗 With links back to the looping nodes'
 
+const getNavigationModeLabel = (mode: TreeNavigationMode): string =>
+  mode === TreeNavigationMode.DRAG
+    ? '🖐 By clicking and dragging'
+    : '↕️ By scrolling (both directions)'
+
 const EventSearchPanel = ({
   selectedEventIndex,
   onEventChange,
@@ -57,6 +64,8 @@ const EventSearchPanel = ({
     setShowAdvancedOptions,
     loopingPathMode,
     setLoopingPathMode,
+    navigationMode,
+    setNavigationMode,
     resetFilters,
   } = useSearchFilters
 
@@ -92,6 +101,11 @@ const EventSearchPanel = ({
   const loopingPathModeOptions = LOOPING_PATH_MODES.map((mode) => ({
     value: mode,
     label: getLoopingPathModeLabel(mode),
+  }))
+
+  const navigationModeOptions = TREE_NAVIGATION_MODES.map((mode) => ({
+    value: mode,
+    label: getNavigationModeLabel(mode),
   }))
 
   const advancedOptionsArrow = showAdvancedOptions ? '▴' : '▾'
@@ -170,6 +184,16 @@ const EventSearchPanel = ({
                 options={loopingPathModeOptions}
                 value={loopingPathMode}
                 onChange={setLoopingPathMode}
+              />
+            </div>
+            <div className={cx('control-wrapper', 'control-wrapper--navigation-mode')}>
+              <Select
+                id="navigation-mode-select"
+                selectedClass={selectedClass}
+                label="Navigate the tree"
+                options={navigationModeOptions}
+                value={navigationMode}
+                onChange={setNavigationMode}
               />
             </div>
           </div>

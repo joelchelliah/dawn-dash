@@ -6,7 +6,7 @@ import {
   cacheEventCodexSearchFilters,
   getCachedEventCodexSearchFilters,
 } from '@/codex/utils/codexFilterStore'
-import { LoopingPathMode, ZoomLevel } from '@/codex/constants/eventSearchValues'
+import { LoopingPathMode, TreeNavigationMode, ZoomLevel } from '@/codex/constants/eventSearchValues'
 
 import { useFilterTracking } from './useFilterTracking'
 import { useEventFilterText } from './useEventFilterText'
@@ -21,6 +21,8 @@ export interface UseAllEventSearchFilters {
   setShowAdvancedOptions: (show: boolean) => void
   loopingPathMode: LoopingPathMode
   setLoopingPathMode: (mode: LoopingPathMode) => void
+  navigationMode: TreeNavigationMode
+  setNavigationMode: (mode: TreeNavigationMode) => void
   resetFilters: () => void
 }
 
@@ -30,6 +32,9 @@ export const useAllEventSearchFilters = (): UseAllEventSearchFilters => {
   const [showAdvancedOptions, setShowAdvancedOptionsUntracked] = useState<boolean>(false)
   const [loopingPathMode, setLoopingPathModeUntracked] = useState<LoopingPathMode>(
     LoopingPathMode.LINK
+  )
+  const [navigationMode, setNavigationModeUntracked] = useState<TreeNavigationMode>(
+    TreeNavigationMode.DRAG
   )
 
   // Load from localStorage after hydration to avoid SSR mismatch
@@ -41,6 +46,9 @@ export const useAllEventSearchFilters = (): UseAllEventSearchFilters => {
     if (isNotNullOrUndefined(cachedFilters?.loopingPathMode)) {
       setLoopingPathModeUntracked(cachedFilters.loopingPathMode as LoopingPathMode)
     }
+    if (isNotNullOrUndefined(cachedFilters?.navigationMode)) {
+      setNavigationModeUntracked(cachedFilters.navigationMode as TreeNavigationMode)
+    }
   }, [])
 
   // --------------------------------------------------
@@ -50,6 +58,7 @@ export const useAllEventSearchFilters = (): UseAllEventSearchFilters => {
 
   const trackedSetShowAdvancedOptions = createTrackedSetter(setShowAdvancedOptionsUntracked)
   const trackedSetLoopingPathMode = createTrackedSetter(setLoopingPathModeUntracked)
+  const trackedSetNavigationMode = createTrackedSetter(setNavigationModeUntracked)
 
   // --------------------------------------------------
   // ------------- Reset functionality ----------------
@@ -59,7 +68,13 @@ export const useAllEventSearchFilters = (): UseAllEventSearchFilters => {
     setFilterText('')
     trackedSetShowAdvancedOptions(false)
     trackedSetLoopingPathMode(LoopingPathMode.LINK)
-  }, [setFilterText, trackedSetShowAdvancedOptions, trackedSetLoopingPathMode])
+    trackedSetNavigationMode(TreeNavigationMode.DRAG)
+  }, [
+    setFilterText,
+    trackedSetShowAdvancedOptions,
+    trackedSetLoopingPathMode,
+    trackedSetNavigationMode,
+  ])
 
   // --------------------------------------------------
   // -------- Debounced caching of filters ------------
@@ -77,6 +92,7 @@ export const useAllEventSearchFilters = (): UseAllEventSearchFilters => {
       cacheEventCodexSearchFilters({
         showAdvancedOptions,
         loopingPathMode,
+        navigationMode,
         lastUpdated: Date.now(),
       })
     }, 1000)
@@ -86,7 +102,7 @@ export const useAllEventSearchFilters = (): UseAllEventSearchFilters => {
         clearTimeout(filterDebounceTimeoutRef.current)
       }
     }
-  }, [loopingPathMode, showAdvancedOptions, hasUserChangedFilter])
+  }, [loopingPathMode, showAdvancedOptions, navigationMode, hasUserChangedFilter])
 
   // --------------------------------------------------
   // --------------------------------------------------
@@ -101,6 +117,8 @@ export const useAllEventSearchFilters = (): UseAllEventSearchFilters => {
     setShowAdvancedOptions: trackedSetShowAdvancedOptions,
     loopingPathMode,
     setLoopingPathMode: trackedSetLoopingPathMode,
+    navigationMode,
+    setNavigationMode: trackedSetNavigationMode,
     resetFilters,
   }
 }

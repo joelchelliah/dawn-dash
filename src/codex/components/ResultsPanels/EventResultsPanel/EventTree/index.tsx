@@ -31,7 +31,7 @@ import {
   centerRootNodeHorizontally,
 } from '@/codex/utils/eventTreeSpacing'
 import { NODE, TREE, TEXT, INNER_BOX, NODE_BOX } from '@/codex/constants/eventTreeValues'
-import { ZoomLevel, LoopingPathMode } from '@/codex/constants/eventSearchValues'
+import { ZoomLevel, LoopingPathMode, TreeNavigationMode } from '@/codex/constants/eventSearchValues'
 import { useEventImageSrc } from '@/codex/hooks/useEventImageSrc'
 
 import { drawLinks, drawRefChildrenLinks, drawLoopBackLinks, drawLoopBackLinkBadges } from './links'
@@ -44,6 +44,7 @@ interface EventTreeProps {
   event: Event
   zoomLevel: ZoomLevel
   loopingPathMode: LoopingPathMode
+  navigationMode: TreeNavigationMode
   onAllEventsClick: () => void
 }
 
@@ -51,6 +52,7 @@ function EventTree({
   event,
   zoomLevel,
   loopingPathMode,
+  navigationMode,
   onAllEventsClick,
 }: EventTreeProps): JSX.Element {
   const svgRef = useRef<SVGSVGElement>(null)
@@ -60,6 +62,7 @@ function EventTree({
   const zoomCalculator = useEventTreeZoom()
   const { isDragging, handlers } = useDraggable(scrollWrapperRef)
 
+  const isDragMode = navigationMode === TreeNavigationMode.DRAG
   const showLoopingIndicator = loopingPathMode === LoopingPathMode.INDICATOR
 
   useEffect(() => {
@@ -823,9 +826,10 @@ function EventTree({
       <div
         ref={scrollWrapperRef}
         className={cx('event-tree-scroll-wrapper', {
-          'event-tree-scroll-wrapper--dragging': isDragging,
+          'event-tree-scroll-wrapper--dragging': isDragMode && isDragging,
+          'event-tree-scroll-wrapper--drag-mode': isDragMode,
         })}
-        {...handlers}
+        {...(isDragMode ? handlers : {})}
       >
         <svg
           ref={svgRef}

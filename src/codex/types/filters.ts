@@ -209,6 +209,7 @@ export interface TalentCodexSearchFilterCache {
 export interface EventCodexSearchFilterCache {
   showAdvancedOptions: boolean
   loopingPathMode: string
+  navigationMode: string
   lastUpdated: number
 }
 
