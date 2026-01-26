@@ -350,7 +350,8 @@ function findLoopBackLinks(
 ): Array<{ source: any; target: any }> {
   const loopBackLinks: Array<{ source: any; target: any }> = []
   root.descendants().forEach((node: any) => {
-    if (node.data.ref) {
+    // NOTE: ref can be 0 (root id), so don't use truthy checks here.
+    if (node.data.ref != null) {
       const targetNode = nodeMap.get(node.data.ref)
       if (targetNode) {
         loopBackLinks.push({

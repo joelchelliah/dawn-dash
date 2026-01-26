@@ -5,7 +5,7 @@
  * 1. Fetches the HTML from blightbane.io
  * 2. Extracts the main JavaScript bundle URL
  * 3. Downloads and parses the bundle to extract JSON.parse() calls
- * 4. Outputs the extracted data to scripts/dump.txt
+ * 4. Outputs the extracted data to scripts/data/dump.txt
  */
 
 const https = require('https')
@@ -13,7 +13,7 @@ const fs = require('fs')
 const path = require('path')
 
 const BLIGHTBANE_URL = 'https://www.blightbane.io/'
-const OUTPUT_FILE = path.join(__dirname, 'dump.txt')
+const OUTPUT_FILE = path.join(__dirname, 'data/dump.txt')
 
 /**
  * Makes an HTTPS GET request
