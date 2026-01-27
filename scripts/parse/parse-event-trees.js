@@ -455,12 +455,13 @@ function buildTreeFromStory(
   if (!cleanedText && choices.length === 0) {
     // If it's a combat or special command node, keep it
     if (type === 'combat') {
-      // Combat-only event (like Mimic)
+      // Combat-only event (like Ambush with >>>>COMBAT:random)
       totalNodesInCurrentEvent++
       return createNode({
         id: generateNodeId(),
         text: undefined,
         type: 'combat',
+        effects: effects.length > 0 ? effects : undefined,
       })
     }
 
