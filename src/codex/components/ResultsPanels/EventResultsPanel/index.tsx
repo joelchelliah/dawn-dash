@@ -1,6 +1,8 @@
 import { createCx } from '@/shared/utils/classnames'
 import GradientLink from '@/shared/components/GradientLink'
 import GradientDivider from '@/shared/components/GradientDivider'
+import Image from '@/shared/components/Image'
+import { BolgarImageUrl } from '@/shared/utils/imageUrls'
 
 import { Event } from '@/codex/types/events'
 import { ALL_EVENTS_INDEX } from '@/codex/constants/eventSearchValues'
@@ -84,6 +86,13 @@ const EventResultsPanel = ({
         <br />
         <GradientDivider widthPercentage={85} spacingBottom="xs" />
         <div className={cx('info-message')}>
+          <Image
+            className={cx('info-message__icon')}
+            src={BolgarImageUrl}
+            alt="Bolgar Blightbane"
+            width={38}
+            height={26}
+          />
           Visit <strong>Blightbane</strong> to walk through this event step-by-step:{` `}
           <GradientLink text={eventName} url={blightbaneLink} />
         </div>

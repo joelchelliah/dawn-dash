@@ -19,24 +19,16 @@
 
 .info-message {
   font-size: font-size('sm');
-  line-height: 1.5;
+  line-height: 1.4;
   color: $color-primary-muted;
   text-align: center;
   padding: 2rem;
 
-  &--bordered {
-    border-top: 2px dotted $color-component-border;
-    margin: 1rem 10% 0rem;
+  &__icon {
+    position: relative;
+    top: 0.125rem;
+    margin-right: 0.25rem;
 
-    @include superFancyBorder(1rem, 1rem);
-
-    &::before {
-      opacity: 0.75;
-      border-radius: 0;
-      border-width: 2px;
-      border-bottom: none;
-      border-left: none;
-      border-right: none;
-    }
+    @include rotateY360Animation('hover', '.info-message:hover');
   }
 }
