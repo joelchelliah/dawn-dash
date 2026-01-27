@@ -36,6 +36,7 @@ import { NODE, TREE, TEXT, INNER_BOX, NODE_BOX } from '@/codex/constants/eventTr
 import { ZoomLevel, LoopingPathMode, TreeNavigationMode } from '@/codex/constants/eventSearchValues'
 import { useEventImageSrc } from '@/codex/hooks/useEventImageSrc'
 import { wrapEventText } from '@/codex/utils/eventTextWidthEstimation'
+import { UseAllEventSearchFilters } from '@/codex/hooks/useSearchFilters/useAllEventSearchFilters'
 
 import { drawLinks, drawRefChildrenLinks, drawLoopBackLinks, drawLoopBackLinkBadges } from './links'
 import { useEventTreeZoom } from './useEventTreeZoom'
@@ -45,19 +46,12 @@ const cx = createCx(styles)
 
 interface EventTreeProps {
   event: Event
-  zoomLevel: ZoomLevel
-  loopingPathMode: LoopingPathMode
-  navigationMode: TreeNavigationMode
+  useSearchFilters: UseAllEventSearchFilters
   onAllEventsClick: () => void
 }
 
-function EventTree({
-  event,
-  zoomLevel,
-  loopingPathMode,
-  navigationMode,
-  onAllEventsClick,
-}: EventTreeProps): JSX.Element {
+function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps): JSX.Element {
+  const { zoomLevel, levelOfDetail, loopingPathMode, navigationMode } = useSearchFilters
   const svgRef = useRef<SVGSVGElement>(null)
   const scrollWrapperRef = useRef<HTMLDivElement>(null)
 
@@ -68,12 +62,14 @@ function EventTree({
 
   // Force scroll mode on mobile (touch scrolling works like dragging on mobile)
   const isDragMode = !isMobile && navigationMode === TreeNavigationMode.DRAG
-  const showLoopingIndicator = loopingPathMode === LoopingPathMode.INDICATOR
 
   useEffect(() => {
     if (!svgRef.current || !event.rootNode || !scrollWrapperRef.current) return
 
-    cacheAllNodeDimensions(event, showLoopingIndicator)
+    const showLoopingIndicator = loopingPathMode === LoopingPathMode.INDICATOR
+    const maxDisplayLines = TEXT.MAX_DISPLAY_LINES_BY_LEVEL_OF_DETAIL[levelOfDetail]
+
+    cacheAllNodeDimensions(event, showLoopingIndicator, levelOfDetail)
 
     // Clear previous visualization
     select(svgRef.current).selectAll('*').remove()
@@ -86,14 +82,20 @@ function EventTree({
 
     treeLayout(root)
 
-    adjustHorizontalNodeSpacing(root as HierarchyPointNode<EventTreeNode>, event)
+    adjustHorizontalNodeSpacing(
+      root as HierarchyPointNode<EventTreeNode>,
+      event,
+      showLoopingIndicator,
+      levelOfDetail
+    )
     adjustVerticalNodeSpacing(
       root as HierarchyPointNode<EventTreeNode>,
       event,
-      showLoopingIndicator
+      showLoopingIndicator,
+      levelOfDetail
     )
 
-    const bounds = calculateTreeBounds(root, event, showLoopingIndicator)
+    const bounds = calculateTreeBounds(root, event, showLoopingIndicator, levelOfDetail)
     const calculatedWidth = bounds.width + TREE.HORIZONTAL_PADDING * 2
     const svgWidth = Math.max(calculatedWidth, TREE.MIN_SVG_WIDTH)
     const svgHeight = bounds.height + TREE.VERTICAL_PADDING * 2
@@ -144,12 +146,21 @@ function EventTree({
       .append('g')
       .attr('transform', `scale(${zoomTransformScale}) translate(${offsetX}, ${offsetY})`)
 
-    drawLinks(g, defs, root, event, showLoopingIndicator)
-    drawRefChildrenLinks(g, defs, root, event, showLoopingIndicator)
+    const drawLinksParam = {
+      g,
+      defs,
+      root,
+      event,
+      showLoopingIndicator,
+      levelOfDetail,
+    }
+
+    drawLinks(drawLinksParam)
+    drawRefChildrenLinks(drawLinksParam)
 
     // Draw repeat from links only when in 'link' mode
     if (loopingPathMode === LoopingPathMode.LINK) {
-      drawLoopBackLinks(g, defs, root, event)
+      drawLoopBackLinks(drawLinksParam)
     }
 
     // Draw nodes
@@ -164,7 +175,12 @@ function EventTree({
     // Draw node glow rectangles
     nodes.each(function (d) {
       const nodeElement = select(this)
-      const [nodeWidth, nodeHeight] = getNodeDimensions(d.data, event, showLoopingIndicator)
+      const [nodeWidth, nodeHeight] = getNodeDimensions(
+        d.data,
+        event,
+        showLoopingIndicator,
+        levelOfDetail
+      )
       const nodeGlowWidth = nodeWidth + NODE_BOX.GLOW_SIZE
       const nodeGlowHeight = nodeHeight + NODE_BOX.GLOW_SIZE
       const nodeType = d.data.type || 'default'
@@ -183,7 +199,12 @@ function EventTree({
 
     nodes.each(function (d) {
       const nodeElement = select(this)
-      const [nodeWidth, nodeHeight] = getNodeDimensions(d.data, event, showLoopingIndicator)
+      const [nodeWidth, nodeHeight] = getNodeDimensions(
+        d.data,
+        event,
+        showLoopingIndicator,
+        levelOfDetail
+      )
       const nodeType = d.data.type || 'default'
 
       nodeElement
@@ -222,7 +243,8 @@ function EventTree({
         const [currentNodeWidth, currentNodeHeight] = getNodeDimensions(
           data,
           event,
-          showLoopingIndicator
+          showLoopingIndicator,
+          levelOfDetail
         )
         const reqBoxMargin = reqBoxHeight > 0 ? INNER_BOX.LISTINGS_TOP_MARGIN : 0
 
@@ -340,7 +362,8 @@ function EventTree({
         const [currentNodeWidth, currentNodeHeight] = getNodeDimensions(
           data,
           event,
-          showLoopingIndicator
+          showLoopingIndicator,
+          levelOfDetail
         )
         const effectsBoxMargin = effectsBoxHeight > 0 ? INNER_BOX.LISTINGS_TOP_MARGIN : 0
         const textAreaHeight =
@@ -370,10 +393,10 @@ function EventTree({
         } else {
           const maxTextWidth = currentNodeWidth - TEXT.HORIZONTAL_PADDING * 2
           const endLines = wrapEventText(data.text ?? '', maxTextWidth)
-          const displayLines = endLines.slice(0, TEXT.MAX_DISPLAY_LINES)
+          const displayLines = endLines.slice(0, maxDisplayLines)
 
           // If there are more lines than we can display, truncate the last line
-          if (endLines.length > TEXT.MAX_DISPLAY_LINES && displayLines[displayLines.length - 1]) {
+          if (endLines.length > maxDisplayLines && displayLines[displayLines.length - 1]) {
             const lastLineIndex = displayLines.length - 1
             displayLines[lastLineIndex] = truncateLine(displayLines[lastLineIndex])
           }
@@ -416,7 +439,8 @@ function EventTree({
           const [currentNodeWidth, currentNodeHeight] = getNodeDimensions(
             data,
             event,
-            showLoopingIndicator
+            showLoopingIndicator,
+            levelOfDetail
           )
           const effectsBoxMargin = effectsBoxHeight > 0 ? INNER_BOX.LISTINGS_TOP_MARGIN : 0
           const textAreaHeight =
@@ -436,13 +460,10 @@ function EventTree({
           if (hasText) {
             const maxTextWidth = currentNodeWidth - TEXT.HORIZONTAL_PADDING * 2
             const dialogueLines = wrapEventText(data.text, maxTextWidth)
-            const displayLines = dialogueLines.slice(0, TEXT.MAX_DISPLAY_LINES)
+            const displayLines = dialogueLines.slice(0, maxDisplayLines)
 
             // If there are more lines than we can display, truncate the last line
-            if (
-              dialogueLines.length > TEXT.MAX_DISPLAY_LINES &&
-              displayLines[displayLines.length - 1]
-            ) {
+            if (dialogueLines.length > maxDisplayLines && displayLines[displayLines.length - 1]) {
               const lastLineIndex = displayLines.length - 1
               displayLines[lastLineIndex] = truncateLine(displayLines[lastLineIndex])
             }
@@ -466,7 +487,8 @@ function EventTree({
           const [currentNodeWidth, currentNodeHeight] = getNodeDimensions(
             data,
             event,
-            showLoopingIndicator
+            showLoopingIndicator,
+            levelOfDetail
           )
           const effectsBoxMargin = effectsBoxHeight > 0 ? INNER_BOX.LISTINGS_TOP_MARGIN : 0
           const textAreaHeight =
@@ -483,13 +505,10 @@ function EventTree({
 
           const maxTextWidth = currentNodeWidth - TEXT.HORIZONTAL_PADDING * 2
           const dialogueLines = wrapEventText(data.text, maxTextWidth)
-          const displayLines = dialogueLines.slice(0, TEXT.MAX_DISPLAY_LINES)
+          const displayLines = dialogueLines.slice(0, maxDisplayLines)
 
           // If there are more lines than we can display, truncate the last line
-          if (
-            dialogueLines.length > TEXT.MAX_DISPLAY_LINES &&
-            displayLines[displayLines.length - 1]
-          ) {
+          if (dialogueLines.length > maxDisplayLines && displayLines[displayLines.length - 1]) {
             const lastLineIndex = displayLines.length - 1
             displayLines[lastLineIndex] = truncateLine(displayLines[lastLineIndex])
           }
@@ -527,7 +546,8 @@ function EventTree({
         const [currentNodeWidth, currentNodeHeight] = getNodeDimensions(
           data,
           event,
-          showLoopingIndicator
+          showLoopingIndicator,
+          levelOfDetail
         )
         const effectsBoxMargin = effectsBoxHeight > 0 ? INNER_BOX.LISTINGS_TOP_MARGIN : 0
         const loopIndicatorMargin = loopIndicatorHeight > 0 ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
@@ -548,13 +568,10 @@ function EventTree({
         if (hasText && data.text) {
           const maxTextWidth = currentNodeWidth - TEXT.HORIZONTAL_PADDING * 2
           const combatLines = wrapEventText(data.text, maxTextWidth)
-          const displayLines = combatLines.slice(0, TEXT.MAX_DISPLAY_LINES)
+          const displayLines = combatLines.slice(0, maxDisplayLines)
 
           // If there are more lines than we can display, truncate the last line
-          if (
-            combatLines.length > TEXT.MAX_DISPLAY_LINES &&
-            displayLines[displayLines.length - 1]
-          ) {
+          if (combatLines.length > maxDisplayLines && displayLines[displayLines.length - 1]) {
             const lastLineIndex = displayLines.length - 1
             displayLines[lastLineIndex] = truncateLine(displayLines[lastLineIndex])
           }
@@ -600,7 +617,8 @@ function EventTree({
         const [currentNodeWidth, currentNodeHeight] = getNodeDimensions(
           data,
           event,
-          showLoopingIndicator
+          showLoopingIndicator,
+          levelOfDetail
         )
         const effectsBoxMargin = effectsBoxHeight > 0 ? INNER_BOX.LISTINGS_TOP_MARGIN : 0
         const loopIndicatorMargin = loopIndicatorHeight > 0 ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
@@ -621,13 +639,10 @@ function EventTree({
         if (hasText && data.text) {
           const maxTextWidth = currentNodeWidth - TEXT.HORIZONTAL_PADDING * 2
           const specialLines = wrapEventText(data.text, maxTextWidth)
-          const displayLines = specialLines.slice(0, TEXT.MAX_DISPLAY_LINES)
+          const displayLines = specialLines.slice(0, maxDisplayLines)
 
           // If there are more lines than we can display, truncate the last line
-          if (
-            specialLines.length > TEXT.MAX_DISPLAY_LINES &&
-            displayLines[displayLines.length - 1]
-          ) {
+          if (specialLines.length > maxDisplayLines && displayLines[displayLines.length - 1]) {
             const lastLineIndex = displayLines.length - 1
             displayLines[lastLineIndex] = truncateLine(displayLines[lastLineIndex])
           }
@@ -658,7 +673,12 @@ function EventTree({
         const node = select(this)
         const eventNode = d.data as DialogueNode | EndNode | CombatNode | SpecialNode
         const effects = eventNode.effects ?? []
-        const [nodeWidth, nodeHeight] = getNodeDimensions(d.data, event, showLoopingIndicator)
+        const [nodeWidth, nodeHeight] = getNodeDimensions(
+          d.data,
+          event,
+          showLoopingIndicator,
+          levelOfDetail
+        )
 
         const effectsBoxHeight =
           TEXT.LINE_HEIGHT +
@@ -725,7 +745,12 @@ function EventTree({
       .filter((d) => Boolean(d.data.numContinues && d.data.numContinues > 0))
       .each(function (d) {
         const node = select(this)
-        const [nodeWidth, nodeHeight] = getNodeDimensions(d.data, event, showLoopingIndicator)
+        const [nodeWidth, nodeHeight] = getNodeDimensions(
+          d.data,
+          event,
+          showLoopingIndicator,
+          levelOfDetail
+        )
         const showLoopsBackTo = d.data.ref && showLoopingIndicator
         const loopIndicatorHeight = showLoopsBackTo
           ? INNER_BOX.INDICATOR_HEIGHT + TEXT.LINE_HEIGHT + INNER_BOX.INDICATOR_HEADER_GAP
@@ -765,7 +790,12 @@ function EventTree({
         .filter((d) => Boolean(d.data.ref))
         .each(function (d) {
           const node = select(this)
-          const [nodeWidth, nodeHeight] = getNodeDimensions(d.data, event, showLoopingIndicator)
+          const [nodeWidth, nodeHeight] = getNodeDimensions(
+            d.data,
+            event,
+            showLoopingIndicator,
+            levelOfDetail
+          )
 
           const refNode = findNodeById(root as HierarchyPointNode<EventTreeNode>, d.data.ref)
           const refNodeLabel = refNode?.type === 'choice' ? refNode.choiceLabel : refNode?.text
@@ -817,7 +847,7 @@ function EventTree({
     }
 
     if (loopingPathMode === LoopingPathMode.LINK) {
-      drawLoopBackLinkBadges(g, root, event)
+      drawLoopBackLinkBadges(g, root, event, levelOfDetail)
     }
 
     // Center the scroll horizontally when zoomed
@@ -831,8 +861,9 @@ function EventTree({
     return () => {
       clearEventCache(event.name)
     }
+    // NOTE: zoomCalculator is a stable dependency, so we don't need to include it here
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [event, zoomLevel, loopingPathMode])
+  }, [event, zoomLevel, loopingPathMode, levelOfDetail])
 
   return (
     <div className={cx('container')}>

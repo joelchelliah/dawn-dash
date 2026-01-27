@@ -36,7 +36,7 @@ const EventResultsPanel = ({
   const eventName = selectedEvent?.name ?? 'UNNAMED-EVENT'
   const blightbaneLink = `https://www.blightbane.io/event/${eventName.replaceAll(' ', '_')}`
 
-  const { filterText, setFilterText, zoomLevel, loopingPathMode, navigationMode } = useSearchFilters
+  const { filterText, setFilterText } = useSearchFilters
   const showEventList = selectedEventIndex === ALL_EVENTS_INDEX || filteredEvents.length === 0
 
   const temporarilyBlacklistedEvents = [
@@ -77,9 +77,7 @@ const EventResultsPanel = ({
       <>
         <EventTree
           event={event}
-          zoomLevel={zoomLevel}
-          loopingPathMode={loopingPathMode}
-          navigationMode={navigationMode}
+          useSearchFilters={useSearchFilters}
           onAllEventsClick={() => onEventChange(ALL_EVENTS_INDEX)}
         />
         <br />

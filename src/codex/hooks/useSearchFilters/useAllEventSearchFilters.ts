@@ -6,7 +6,12 @@ import {
   cacheEventCodexSearchFilters,
   getCachedEventCodexSearchFilters,
 } from '@/codex/utils/codexFilterStore'
-import { LoopingPathMode, TreeNavigationMode, ZoomLevel } from '@/codex/constants/eventSearchValues'
+import {
+  LoopingPathMode,
+  TreeNavigationMode,
+  ZoomLevel,
+  LevelOfDetail,
+} from '@/codex/constants/eventSearchValues'
 
 import { useFilterTracking } from './useFilterTracking'
 import { useEventFilterText } from './useEventFilterText'
@@ -23,6 +28,8 @@ export interface UseAllEventSearchFilters {
   setLoopingPathMode: (mode: LoopingPathMode) => void
   navigationMode: TreeNavigationMode
   setNavigationMode: (mode: TreeNavigationMode) => void
+  levelOfDetail: LevelOfDetail
+  setLevelOfDetail: (level: LevelOfDetail) => void
   resetFilters: () => void
 }
 
@@ -36,6 +43,7 @@ export const useAllEventSearchFilters = (): UseAllEventSearchFilters => {
   const [navigationMode, setNavigationModeUntracked] = useState<TreeNavigationMode>(
     TreeNavigationMode.DRAG
   )
+  const [levelOfDetail, setLevelOfDetailUntracked] = useState<LevelOfDetail>(LevelOfDetail.BALANCED)
 
   // Load from localStorage after hydration to avoid SSR mismatch
   useEffect(() => {
@@ -49,6 +57,9 @@ export const useAllEventSearchFilters = (): UseAllEventSearchFilters => {
     if (isNotNullOrUndefined(cachedFilters?.navigationMode)) {
       setNavigationModeUntracked(cachedFilters.navigationMode as TreeNavigationMode)
     }
+    if (isNotNullOrUndefined(cachedFilters?.levelOfDetail)) {
+      setLevelOfDetailUntracked(cachedFilters.levelOfDetail as LevelOfDetail)
+    }
   }, [])
 
   // --------------------------------------------------
@@ -59,6 +70,7 @@ export const useAllEventSearchFilters = (): UseAllEventSearchFilters => {
   const trackedSetShowAdvancedOptions = createTrackedSetter(setShowAdvancedOptionsUntracked)
   const trackedSetLoopingPathMode = createTrackedSetter(setLoopingPathModeUntracked)
   const trackedSetNavigationMode = createTrackedSetter(setNavigationModeUntracked)
+  const trackedSetLevelOfDetail = createTrackedSetter(setLevelOfDetailUntracked)
 
   // --------------------------------------------------
   // ------------- Reset functionality ----------------
@@ -69,11 +81,13 @@ export const useAllEventSearchFilters = (): UseAllEventSearchFilters => {
     trackedSetShowAdvancedOptions(false)
     trackedSetLoopingPathMode(LoopingPathMode.LINK)
     trackedSetNavigationMode(TreeNavigationMode.DRAG)
+    trackedSetLevelOfDetail(LevelOfDetail.BALANCED)
   }, [
     setFilterText,
     trackedSetShowAdvancedOptions,
     trackedSetLoopingPathMode,
     trackedSetNavigationMode,
+    trackedSetLevelOfDetail,
   ])
 
   // --------------------------------------------------
@@ -93,6 +107,7 @@ export const useAllEventSearchFilters = (): UseAllEventSearchFilters => {
         showAdvancedOptions,
         loopingPathMode,
         navigationMode,
+        levelOfDetail,
         lastUpdated: Date.now(),
       })
     }, 1000)
@@ -102,7 +117,7 @@ export const useAllEventSearchFilters = (): UseAllEventSearchFilters => {
         clearTimeout(filterDebounceTimeoutRef.current)
       }
     }
-  }, [loopingPathMode, showAdvancedOptions, navigationMode, hasUserChangedFilter])
+  }, [loopingPathMode, showAdvancedOptions, navigationMode, levelOfDetail, hasUserChangedFilter])
 
   // --------------------------------------------------
   // --------------------------------------------------
@@ -119,6 +134,8 @@ export const useAllEventSearchFilters = (): UseAllEventSearchFilters => {
     setLoopingPathMode: trackedSetLoopingPathMode,
     navigationMode,
     setNavigationMode: trackedSetNavigationMode,
+    levelOfDetail,
+    setLevelOfDetail: trackedSetLevelOfDetail,
     resetFilters,
   }
 }

@@ -4,23 +4,36 @@ import { createCx } from '@/shared/utils/classnames'
 
 import { Event } from '@/codex/types/events'
 import { getArrowheadAngle, getNodeDimensions } from '@/codex/utils/eventTreeHelper'
+import { LevelOfDetail } from '@/codex/constants/eventSearchValues'
 
 import styles from './links.module.scss'
 
 const cx = createCx(styles)
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
+interface DrawLinksParam {
+  g: any
+  defs: any
+  root: any
+  event: Event
+  showLoopingIndicator: boolean
+  levelOfDetail: LevelOfDetail
+}
+/* eslint-enable @typescript-eslint/no-explicit-any */
 
 /**
  * Draws links between nodes with directional arrowheads
  * The arrowheads are tilted based on the horizontal displacement between parent and child
  */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export function drawLinks(
-  g: any,
-  defs: any,
-  root: any,
-  event: Event,
-  showLoopingIndicator: boolean
-) {
+export function drawLinks({
+  g,
+  defs,
+  root,
+  event,
+  showLoopingIndicator,
+  levelOfDetail,
+}: DrawLinksParam) {
   g.selectAll(`.${cx('link')}`)
     .data(root.links())
     .enter()
@@ -39,8 +52,18 @@ export function drawLinks(
       const targetX = d.target.x || 0
       const targetY = d.target.y || 0
 
-      const [, sourceNodeHeight] = getNodeDimensions(d.source.data, event, showLoopingIndicator)
-      const [, targetNodeHeight] = getNodeDimensions(d.target.data, event, showLoopingIndicator)
+      const [, sourceNodeHeight] = getNodeDimensions(
+        d.source.data,
+        event,
+        showLoopingIndicator,
+        levelOfDetail
+      )
+      const [, targetNodeHeight] = getNodeDimensions(
+        d.target.data,
+        event,
+        showLoopingIndicator,
+        levelOfDetail
+      )
 
       return calculateCurvedPathForStandardLinks(
         sourceX,
@@ -58,13 +81,14 @@ export function drawLinks(
  * These links connect a parent node to nodes referenced in its refChildren array
  * The visual style is identical to regular parent-child links
  */
-export function drawRefChildrenLinks(
-  g: any,
-  defs: any,
-  root: any,
-  event: Event,
-  showLoopingIndicator: boolean
-) {
+export function drawRefChildrenLinks({
+  g,
+  defs,
+  root,
+  event,
+  showLoopingIndicator,
+  levelOfDetail,
+}: DrawLinksParam) {
   // Build a map of node id -> node for quick lookup
   const nodeMap = new Map<number, any>()
   root.descendants().forEach((node: any) => {
@@ -102,8 +126,18 @@ export function drawRefChildrenLinks(
     const markerId = `arrowhead-refchildren-${linkCounter++}`
     const markerUrl = arrowheadMarkerForStandardLinks(defs, markerId, sourceX, targetX, 'arrowhead')
 
-    const [, sourceNodeHeight] = getNodeDimensions(d.source.data, event, showLoopingIndicator)
-    const [, targetNodeHeight] = getNodeDimensions(d.target.data, event, showLoopingIndicator)
+    const [, sourceNodeHeight] = getNodeDimensions(
+      d.source.data,
+      event,
+      showLoopingIndicator,
+      levelOfDetail
+    )
+    const [, targetNodeHeight] = getNodeDimensions(
+      d.target.data,
+      event,
+      showLoopingIndicator,
+      levelOfDetail
+    )
     const pathData = calculateCurvedPathForStandardLinks(
       sourceX,
       sourceY,
@@ -122,9 +156,14 @@ export function drawRefChildrenLinks(
  * Links go from the top corner of the source node to the bottom corner of the target node,
  * with an arrowhead at the target end.
  */
-export function drawLoopBackLinks(g: any, defs: any, root: any, event: Event) {
-  const showLoopingIndicator = false
-
+export function drawLoopBackLinks({
+  g,
+  defs,
+  root,
+  event,
+  showLoopingIndicator,
+  levelOfDetail,
+}: DrawLinksParam) {
   const nodeMap = buildNodeMap(root)
   const loopBackLinks = findLoopBackLinks(root, nodeMap)
 
@@ -142,7 +181,8 @@ export function drawLoopBackLinks(g: any, defs: any, root: any, event: Event) {
     const { sourceX, sourceY, targetX, targetY } = calculateLoopBackLinkCorners(
       d,
       event,
-      showLoopingIndicator
+      showLoopingIndicator,
+      levelOfDetail
     )
 
     const sourceNodeType = d.source.data.type || 'default'
@@ -178,7 +218,12 @@ export function drawLoopBackLinks(g: any, defs: any, root: any, event: Event) {
  * Draws tiny circles with emojis at the start (🔄) and end (🔗) of loop back links.
  * Avoids duplicates when multiple links share the same corner position.
  */
-export function drawLoopBackLinkBadges(g: any, root: any, event: Event) {
+export function drawLoopBackLinkBadges(
+  g: any,
+  root: any,
+  event: Event,
+  levelOfDetail: LevelOfDetail
+) {
   const showLoopingIndicator = false
 
   const nodeMap = buildNodeMap(root)
@@ -193,7 +238,8 @@ export function drawLoopBackLinkBadges(g: any, root: any, event: Event) {
     const { sourceX, sourceY, targetX, targetY } = calculateLoopBackLinkCorners(
       d,
       event,
-      showLoopingIndicator
+      showLoopingIndicator,
+      levelOfDetail
     )
 
     const startKey = `${sourceX},${sourceY}`
@@ -369,15 +415,26 @@ function findLoopBackLinks(
 function calculateLoopBackLinkCorners(
   d: any,
   event: Event,
-  showLoopingIndicator: boolean
+  showLoopingIndicator: boolean,
+  levelOfDetail: LevelOfDetail
 ): { sourceX: number; sourceY: number; targetX: number; targetY: number } {
   const sourceCenterX = d.source.x || 0
   const sourceCenterY = d.source.y || 0
   const targetCenterX = d.target.x || 0
   const targetCenterY = d.target.y || 0
 
-  const [sourceWidth, sourceHeight] = getNodeDimensions(d.source.data, event, showLoopingIndicator)
-  const [targetWidth, targetHeight] = getNodeDimensions(d.target.data, event, showLoopingIndicator)
+  const [sourceWidth, sourceHeight] = getNodeDimensions(
+    d.source.data,
+    event,
+    showLoopingIndicator,
+    levelOfDetail
+  )
+  const [targetWidth, targetHeight] = getNodeDimensions(
+    d.target.data,
+    event,
+    showLoopingIndicator,
+    levelOfDetail
+  )
 
   // Calculate box boundaries
   const sourceBoxHalfWidth = sourceWidth / 2

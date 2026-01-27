@@ -11,6 +11,8 @@ import {
 } from '@/codex/types/events'
 import { TEXT, INNER_BOX, NODE, NODE_BOX } from '@/codex/constants/eventTreeValues'
 
+import { LevelOfDetail } from '../constants/eventSearchValues'
+
 import { measureEventTextWidth, wrapEventText } from './eventTextWidthEstimation'
 import { getCachedDimensions, buildDimensionCache as buildCache } from './eventNodeDimensionCache'
 
@@ -26,29 +28,42 @@ interface TreeBounds {
 export const getNodeDimensions = (
   node: EventTreeNode,
   event: Event,
-  showLoopingIndicator: boolean
+  showLoopingIndicator: boolean,
+  levelOfDetail: LevelOfDetail
 ): [number, number] => {
-  const cached = getCachedDimensions(event.name, node.id)
+  const cached = getCachedDimensions(event.name, node.id, showLoopingIndicator, levelOfDetail)
   const nodeWidth = cached?.width ?? _getNodeWidth(node, event)
-  const nodeHeight = cached?.height ?? _getNodeHeight(node, event, nodeWidth, showLoopingIndicator)
+  const nodeHeight =
+    cached?.height ?? _getNodeHeight(node, event, nodeWidth, showLoopingIndicator, levelOfDetail)
 
   return [nodeWidth, nodeHeight]
 }
 
-export const getNodeWidth = (node: EventTreeNode, event: Event): number =>
-  getCachedDimensions(event.name, node.id)?.width ?? _getNodeWidth(node, event)
+export const getNodeWidth = (
+  node: EventTreeNode,
+  event: Event,
+  showLoopingIndicator: boolean,
+  levelOfDetail: LevelOfDetail
+): number =>
+  getCachedDimensions(event.name, node.id, showLoopingIndicator, levelOfDetail)?.width ??
+  _getNodeWidth(node, event)
 
 export const getNodeHeight = (
   node: EventTreeNode,
   event: Event,
   width: number,
-  showLoopingIndicator: boolean
+  showLoopingIndicator: boolean,
+  levelOfDetail: LevelOfDetail
 ): number =>
-  getCachedDimensions(event.name, node.id)?.height ??
-  _getNodeHeight(node, event, width, showLoopingIndicator)
+  getCachedDimensions(event.name, node.id, showLoopingIndicator, levelOfDetail)?.height ??
+  _getNodeHeight(node, event, width, showLoopingIndicator, levelOfDetail)
 
-export const cacheAllNodeDimensions = (event: Event, showLoopingIndicator: boolean): void => {
-  buildCache(event, showLoopingIndicator, _getNodeWidth, _getNodeHeight)
+export const cacheAllNodeDimensions = (
+  event: Event,
+  showLoopingIndicator: boolean,
+  levelOfDetail: LevelOfDetail
+): void => {
+  buildCache(event, showLoopingIndicator, levelOfDetail, _getNodeWidth, _getNodeHeight)
 }
 
 /**
@@ -58,7 +73,8 @@ export const cacheAllNodeDimensions = (event: Event, showLoopingIndicator: boole
 export const calculateTreeBounds = (
   root: HierarchyNode<EventTreeNode>,
   event: Event,
-  showLoopingIndicator: boolean
+  showLoopingIndicator: boolean,
+  levelOfDetail: LevelOfDetail
 ): TreeBounds => {
   let minX = Infinity // Left edge of the leftmost node
   let maxX = -Infinity // Right edge of the rightmost node
@@ -69,7 +85,12 @@ export const calculateTreeBounds = (
     const x = d.x ?? 0
     const y = d.y ?? 0
 
-    const [nodeWidth, nodeHeight] = getNodeDimensions(d.data, event, showLoopingIndicator)
+    const [nodeWidth, nodeHeight] = getNodeDimensions(
+      d.data,
+      event,
+      showLoopingIndicator,
+      levelOfDetail
+    )
 
     // Track edges for both X and Y
     if (x - nodeWidth / 2 < minX) minX = x - nodeWidth / 2
@@ -153,10 +174,12 @@ const _getNodeHeight = (
   node: EventTreeNode,
   event: Event,
   width: number,
-  showLoopingIndicator: boolean
+  showLoopingIndicator: boolean,
+  levelOfDetail: LevelOfDetail
 ): number => {
   const isRootNode = event.rootNode && node.id === event.rootNode.id
   const maxNodeTextWidth = width - TEXT.HORIZONTAL_PADDING * 2
+  const maxDisplayLines = TEXT.MAX_DISPLAY_LINES_BY_LEVEL_OF_DETAIL[levelOfDetail]
 
   const continueIndicatorHeight = node.numContinues ? INNER_BOX.INDICATOR_HEIGHT : 0
   const continueIndicatorMargin = continueIndicatorHeight > 0 ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
@@ -220,7 +243,7 @@ const _getNodeHeight = (
       effectsBoxMargin = 0
     } else {
       const endLines = wrapEventText(node.text ?? '', maxNodeTextWidth)
-      const numLines = Math.min(endLines.length, TEXT.MAX_DISPLAY_LINES)
+      const numLines = Math.min(endLines.length, maxDisplayLines)
       textHeight = numLines * TEXT.LINE_HEIGHT
       // Only add margin if we have both text and effects box
       effectsBoxMargin = effectsBoxHeight > 0 ? INNER_BOX.LISTINGS_TOP_MARGIN : 0
@@ -249,7 +272,7 @@ const _getNodeHeight = (
 
       if (hasText) {
         const dialogueLines = wrapEventText(node.text ?? '', maxNodeTextWidth)
-        const numLines = Math.min(dialogueLines.length, TEXT.MAX_DISPLAY_LINES)
+        const numLines = Math.min(dialogueLines.length, maxDisplayLines)
         dialogueTextHeight = numLines * TEXT.LINE_HEIGHT
       }
 
@@ -265,7 +288,7 @@ const _getNodeHeight = (
     }
 
     const dialogueLines = wrapEventText(node.text ?? '', maxNodeTextWidth)
-    const numLines = Math.min(dialogueLines.length, TEXT.MAX_DISPLAY_LINES)
+    const numLines = Math.min(dialogueLines.length, maxDisplayLines)
     const textHeight = numLines * TEXT.LINE_HEIGHT
 
     const contentHeight =
@@ -284,7 +307,7 @@ const _getNodeHeight = (
 
     if (hasText && node.text) {
       const combatLines = wrapEventText(node.text ?? '', maxNodeTextWidth)
-      const numLines = Math.min(combatLines.length, TEXT.MAX_DISPLAY_LINES)
+      const numLines = Math.min(combatLines.length, maxDisplayLines)
       textHeight = numLines * TEXT.LINE_HEIGHT
     } else {
       // Fallback to "COMBAT!" text
@@ -311,7 +334,7 @@ const _getNodeHeight = (
 
     if (hasText && node.text) {
       const specialLines = wrapEventText(node.text ?? '', maxNodeTextWidth)
-      const numLines = Math.min(specialLines.length, TEXT.MAX_DISPLAY_LINES)
+      const numLines = Math.min(specialLines.length, maxDisplayLines)
       textHeight = numLines * TEXT.LINE_HEIGHT
     } else {
       textHeight = 0

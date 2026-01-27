@@ -210,6 +210,7 @@ export interface EventCodexSearchFilterCache {
   showAdvancedOptions: boolean
   loopingPathMode: string
   navigationMode: string
+  levelOfDetail: string
   lastUpdated: number
 }
 

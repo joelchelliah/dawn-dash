@@ -19,6 +19,8 @@ import {
   TREE_NAVIGATION_MODES,
   ALL_EVENTS_INDEX,
   ZOOM_LABEL_MAP,
+  LevelOfDetail,
+  LEVEL_OF_DETAIL_OPTIONS,
 } from '@/codex/constants/eventSearchValues'
 import { UseAllEventSearchFilters } from '@/codex/hooks/useSearchFilters/useAllEventSearchFilters'
 import { useStickyZoom } from '@/codex/hooks/useStickyZoom'
@@ -39,15 +41,29 @@ interface EventSearchPanelProps {
   useSearchFilters: UseAllEventSearchFilters
 }
 
+// En-space character for wide spacing between emoji and text
+const wideSpace = ' '
+
+const getLevelOfDetailLabel = (level: LevelOfDetail): string => {
+  switch (level) {
+    case LevelOfDetail.COMPACT:
+      return `🔖${wideSpace}Compressed`
+    case LevelOfDetail.BALANCED:
+      return `✨${wideSpace}Balanced`
+    case LevelOfDetail.WALL_OF_TEXT:
+      return `📰${wideSpace}Wall of text!`
+  }
+}
+
 const getLoopingPathModeLabel = (mode: LoopingPathMode): string =>
   mode === LoopingPathMode.INDICATOR
-    ? '🔄 With «Loops back to» tags on nodes'
-    : '🔗 With links back to the looping nodes'
+    ? `🔄${wideSpace}With «Loops back to» tags on nodes`
+    : `🔗${wideSpace}With links back to the looping nodes`
 
 const getNavigationModeLabel = (mode: TreeNavigationMode): string =>
   mode === TreeNavigationMode.DRAG
-    ? '🖐 By clicking and dragging'
-    : '↕️ By scrolling (both directions)'
+    ? `🖐${wideSpace}By clicking and dragging`
+    : `↕️${wideSpace}By scrolling (both directions)`
 
 const EventSearchPanel = ({
   selectedEventIndex,
@@ -66,6 +82,8 @@ const EventSearchPanel = ({
     setLoopingPathMode,
     navigationMode,
     setNavigationMode,
+    levelOfDetail,
+    setLevelOfDetail,
     resetFilters,
   } = useSearchFilters
 
@@ -96,6 +114,11 @@ const EventSearchPanel = ({
   const zoomOptions = ZOOM_LEVELS.map((zoom) => ({
     value: zoom,
     label: ZOOM_LABEL_MAP[zoom],
+  }))
+
+  const levelOfDetailOptions = LEVEL_OF_DETAIL_OPTIONS.map((level) => ({
+    value: level,
+    label: getLevelOfDetailLabel(level),
   }))
 
   const loopingPathModeOptions = LOOPING_PATH_MODES.map((mode) => ({
@@ -176,6 +199,16 @@ const EventSearchPanel = ({
       {showAdvancedOptions && (
         <div className={cx('advanced-options')}>
           <div className={cx('advanced-options__content')}>
+            <div className={cx('control-wrapper', 'control-wrapper--level-of-detail')}>
+              <Select
+                id="level-of-detail-select"
+                selectedClass={selectedClass}
+                label="Level of detail"
+                options={levelOfDetailOptions}
+                value={levelOfDetail}
+                onChange={setLevelOfDetail}
+              />
+            </div>
             <div className={cx('control-wrapper', 'control-wrapper--looping-path')}>
               <Select
                 id="looping-path-mode-select"

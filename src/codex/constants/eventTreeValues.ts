@@ -2,6 +2,8 @@
  * Constants for event tree rendering and layout calculations
  */
 
+import { LevelOfDetail } from './eventSearchValues'
+
 export const TREE = {
   HORIZONTAL_PADDING: 20,
   VERTICAL_PADDING: 20,
@@ -30,7 +32,11 @@ export const TEXT = {
   HORIZONTAL_PADDING: 10,
 
   // Max number of text lines to display for dialogue and end nodes
-  MAX_DISPLAY_LINES: 2,
+  MAX_DISPLAY_LINES_BY_LEVEL_OF_DETAIL: {
+    [LevelOfDetail.COMPACT]: 0,
+    [LevelOfDetail.BALANCED]: 2,
+    [LevelOfDetail.WALL_OF_TEXT]: 999,
+  },
 
   // SVG text is positioned by baseline, not top of text!
   // We offset to position the first line's baseline for better visual centering

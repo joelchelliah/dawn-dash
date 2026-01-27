@@ -80,6 +80,16 @@
     }
   }
 
+  &--level-of-detail {
+    flex: 1;
+    max-width: 14rem;
+    min-width: 12rem;
+
+    @media (max-width: $breakpoint-mobile) {
+      max-width: 100%;
+    }
+  }
+
   &--looping-path {
     flex: 1;
     max-width: 20rem;
@@ -93,7 +103,7 @@
   &--navigation-mode {
     flex: 1;
     max-width: 16rem;
-    min-width: 10rem;
+    min-width: 12rem;
 
     @media (max-width: $breakpoint-mobile) {
       max-width: 100%;

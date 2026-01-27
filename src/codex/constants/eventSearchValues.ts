@@ -36,3 +36,15 @@ export enum TreeNavigationMode {
 }
 
 export const TREE_NAVIGATION_MODES = [TreeNavigationMode.SCROLL, TreeNavigationMode.DRAG] as const
+
+export enum LevelOfDetail {
+  COMPACT = 'compact',
+  BALANCED = 'balanced',
+  WALL_OF_TEXT = 'wall-of-text',
+}
+
+export const LEVEL_OF_DETAIL_OPTIONS = [
+  LevelOfDetail.COMPACT,
+  LevelOfDetail.BALANCED,
+  LevelOfDetail.WALL_OF_TEXT,
+] as const
