@@ -41,10 +41,14 @@
   // Centers the svg since it's inline-block
   text-align: center;
 
-  // Drag mode specific styles
+  &--cover-zoomed {
+    // We don't want to cap the height when zoomed in cover mode
+    max-height: 100% !important;
+  }
+
   &--drag-mode {
     overflow: hidden; // Disable scrollbar scrolling completely
-    max-height: 1000px; // Cap the maximum height on large screens
+    max-height: 800px; // Cap the maximum height on large screens
 
     // Grabbable cursor
     cursor: move; /* fallback if grab cursor is unsupported */

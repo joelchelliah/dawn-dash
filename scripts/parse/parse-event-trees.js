@@ -2641,6 +2641,9 @@ function deduplicateEventTree(rootNode) {
       // Create a simple signature based on node structure
       const signatureDepth = OPTIMIZATION_PASS_CONFIG.DEDUPLICATE_SUBTREES_SIGNATURE_DEPTH || 2
       const signature = JSON.stringify({
+        parentText: node.text,
+        parentChoiceLabel: node.choiceLabel,
+        parentType: node.type,
         numChildren: node.children.length,
         childrenData: node.children.map((child) => {
           const childData = {

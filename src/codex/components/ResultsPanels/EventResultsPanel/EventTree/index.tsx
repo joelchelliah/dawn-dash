@@ -891,6 +891,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
         className={cx('event-tree-scroll-wrapper', {
           'event-tree-scroll-wrapper--dragging': isDragMode && isDragging,
           'event-tree-scroll-wrapper--drag-mode': isDragMode,
+          'event-tree-scroll-wrapper--cover-zoomed': zoomLevel === ZoomLevel.COVER,
         })}
         {...(isDragMode ? handlers : {})}
       >
