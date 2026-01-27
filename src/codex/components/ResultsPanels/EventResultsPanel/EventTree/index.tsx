@@ -19,18 +19,19 @@ import {
   SpecialNode,
 } from '@/codex/types/events'
 import {
-  getNodeHeight,
-  getNodeWidth,
   calculateTreeBounds,
   hasEffects,
   findNodeById,
   createGlowFilter,
+  getNodeDimensions,
+  cacheAllNodeDimensions,
 } from '@/codex/utils/eventTreeHelper'
 import {
   adjustHorizontalNodeSpacing,
   adjustVerticalNodeSpacing,
   centerRootNodeHorizontally,
 } from '@/codex/utils/eventTreeSpacing'
+import { clearEventCache } from '@/codex/utils/eventNodeDimensionCache'
 import { NODE, TREE, TEXT, INNER_BOX, NODE_BOX } from '@/codex/constants/eventTreeValues'
 import { ZoomLevel, LoopingPathMode, TreeNavigationMode } from '@/codex/constants/eventSearchValues'
 import { useEventImageSrc } from '@/codex/hooks/useEventImageSrc'
@@ -71,6 +72,8 @@ function EventTree({
 
   useEffect(() => {
     if (!svgRef.current || !event.rootNode || !scrollWrapperRef.current) return
+
+    cacheAllNodeDimensions(event, showLoopingIndicator)
 
     // Clear previous visualization
     select(svgRef.current).selectAll('*').remove()
@@ -161,8 +164,7 @@ function EventTree({
     // Draw node glow rectangles
     nodes.each(function (d) {
       const nodeElement = select(this)
-      const nodeWidth = getNodeWidth(d.data, event)
-      const nodeHeight = getNodeHeight(d.data, event, nodeWidth, showLoopingIndicator)
+      const [nodeWidth, nodeHeight] = getNodeDimensions(d.data, event, showLoopingIndicator)
       const nodeGlowWidth = nodeWidth + NODE_BOX.GLOW_SIZE
       const nodeGlowHeight = nodeHeight + NODE_BOX.GLOW_SIZE
       const nodeType = d.data.type || 'default'
@@ -181,8 +183,7 @@ function EventTree({
 
     nodes.each(function (d) {
       const nodeElement = select(this)
-      const nodeWidth = getNodeWidth(d.data, event)
-      const nodeHeight = getNodeHeight(d.data, event, nodeWidth, showLoopingIndicator)
+      const [nodeWidth, nodeHeight] = getNodeDimensions(d.data, event, showLoopingIndicator)
       const nodeType = d.data.type || 'default'
 
       nodeElement
@@ -218,8 +219,11 @@ function EventTree({
           : 0
         const loopIndicatorMargin = hasLoopingIndicator ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
 
-        const currentNodeWidth = getNodeWidth(data, event)
-        const currentNodeHeight = getNodeHeight(data, event, currentNodeWidth, showLoopingIndicator)
+        const [currentNodeWidth, currentNodeHeight] = getNodeDimensions(
+          data,
+          event,
+          showLoopingIndicator
+        )
         const reqBoxMargin = reqBoxHeight > 0 ? INNER_BOX.LISTINGS_TOP_MARGIN : 0
 
         // The text area is: total height minus vertical padding, bottom boxes and their margin
@@ -333,8 +337,11 @@ function EventTree({
             ? INNER_BOX.INDICATOR_HEIGHT + TEXT.LINE_HEIGHT + INNER_BOX.INDICATOR_HEADER_GAP
             : 0
 
-        const currentNodeWidth = getNodeWidth(data, event)
-        const currentNodeHeight = getNodeHeight(data, event, currentNodeWidth, showLoopingIndicator)
+        const [currentNodeWidth, currentNodeHeight] = getNodeDimensions(
+          data,
+          event,
+          showLoopingIndicator
+        )
         const effectsBoxMargin = effectsBoxHeight > 0 ? INNER_BOX.LISTINGS_TOP_MARGIN : 0
         const textAreaHeight =
           currentNodeHeight -
@@ -406,11 +413,9 @@ function EventTree({
         const loopIndicatorMargin = loopIndicatorHeight > 0 ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
 
         if (isRootNode) {
-          const currentNodeWidth = getNodeWidth(data, event)
-          const currentNodeHeight = getNodeHeight(
+          const [currentNodeWidth, currentNodeHeight] = getNodeDimensions(
             data,
             event,
-            currentNodeWidth,
             showLoopingIndicator
           )
           const effectsBoxMargin = effectsBoxHeight > 0 ? INNER_BOX.LISTINGS_TOP_MARGIN : 0
@@ -458,11 +463,9 @@ function EventTree({
             })
           }
         } else {
-          const currentNodeWidth = getNodeWidth(data, event)
-          const currentNodeHeight = getNodeHeight(
+          const [currentNodeWidth, currentNodeHeight] = getNodeDimensions(
             data,
             event,
-            currentNodeWidth,
             showLoopingIndicator
           )
           const effectsBoxMargin = effectsBoxHeight > 0 ? INNER_BOX.LISTINGS_TOP_MARGIN : 0
@@ -521,8 +524,11 @@ function EventTree({
             ? INNER_BOX.INDICATOR_HEIGHT + TEXT.LINE_HEIGHT + INNER_BOX.INDICATOR_HEADER_GAP
             : 0
 
-        const currentNodeWidth = getNodeWidth(data, event)
-        const currentNodeHeight = getNodeHeight(data, event, currentNodeWidth, showLoopingIndicator)
+        const [currentNodeWidth, currentNodeHeight] = getNodeDimensions(
+          data,
+          event,
+          showLoopingIndicator
+        )
         const effectsBoxMargin = effectsBoxHeight > 0 ? INNER_BOX.LISTINGS_TOP_MARGIN : 0
         const loopIndicatorMargin = loopIndicatorHeight > 0 ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
         // The text area is: total height minus vertical padding, effects box, its margin, and loop indicator
@@ -591,8 +597,11 @@ function EventTree({
             ? INNER_BOX.INDICATOR_HEIGHT + TEXT.LINE_HEIGHT + INNER_BOX.INDICATOR_HEADER_GAP
             : 0
 
-        const currentNodeWidth = getNodeWidth(data, event)
-        const currentNodeHeight = getNodeHeight(data, event, currentNodeWidth, showLoopingIndicator)
+        const [currentNodeWidth, currentNodeHeight] = getNodeDimensions(
+          data,
+          event,
+          showLoopingIndicator
+        )
         const effectsBoxMargin = effectsBoxHeight > 0 ? INNER_BOX.LISTINGS_TOP_MARGIN : 0
         const loopIndicatorMargin = loopIndicatorHeight > 0 ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
         // The text area is: total height minus vertical padding, effects box, its margin, and loop indicator
@@ -649,8 +658,7 @@ function EventTree({
         const node = select(this)
         const eventNode = d.data as DialogueNode | EndNode | CombatNode | SpecialNode
         const effects = eventNode.effects ?? []
-        const nodeWidth = getNodeWidth(eventNode, event)
-        const nodeHeight = getNodeHeight(eventNode, event, nodeWidth, showLoopingIndicator)
+        const [nodeWidth, nodeHeight] = getNodeDimensions(d.data, event, showLoopingIndicator)
 
         const effectsBoxHeight =
           TEXT.LINE_HEIGHT +
@@ -717,8 +725,7 @@ function EventTree({
       .filter((d) => Boolean(d.data.numContinues && d.data.numContinues > 0))
       .each(function (d) {
         const node = select(this)
-        const nodeWidth = getNodeWidth(d.data, event)
-        const nodeHeight = getNodeHeight(d.data, event, nodeWidth, showLoopingIndicator)
+        const [nodeWidth, nodeHeight] = getNodeDimensions(d.data, event, showLoopingIndicator)
         const showLoopsBackTo = d.data.ref && showLoopingIndicator
         const loopIndicatorHeight = showLoopsBackTo
           ? INNER_BOX.INDICATOR_HEIGHT + TEXT.LINE_HEIGHT + INNER_BOX.INDICATOR_HEADER_GAP
@@ -758,8 +765,7 @@ function EventTree({
         .filter((d) => Boolean(d.data.ref))
         .each(function (d) {
           const node = select(this)
-          const nodeWidth = getNodeWidth(d.data, event)
-          const nodeHeight = getNodeHeight(d.data, event, nodeWidth, showLoopingIndicator)
+          const [nodeWidth, nodeHeight] = getNodeDimensions(d.data, event, showLoopingIndicator)
 
           const refNode = findNodeById(root as HierarchyPointNode<EventTreeNode>, d.data.ref)
           const refNodeLabel = refNode?.type === 'choice' ? refNode.choiceLabel : refNode?.text
@@ -819,6 +825,11 @@ function EventTree({
       const wrapper = scrollWrapperRef.current
       // Center horizontally: (scrollWidth - clientWidth) / 2
       wrapper.scrollLeft = (wrapper.scrollWidth - wrapper.clientWidth) / 2
+    }
+
+    // Cleanup: clear dimension cache when component unmounts or event changes
+    return () => {
+      clearEventCache(event.name)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [event, zoomLevel, loopingPathMode])

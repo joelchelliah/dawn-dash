@@ -3,7 +3,7 @@ import { HierarchyPointNode } from 'd3-hierarchy'
 import { Event, EventTreeNode } from '@/codex/types/events'
 import { NODE } from '@/codex/constants/eventTreeValues'
 
-import { getNodeHeight, getNodeWidth } from './eventTreeHelper'
+import { getNodeDimensions, getNodeWidth } from './eventTreeHelper'
 
 const HORIZONTAL_SPACING_CONFIG = {
   pass1Enabled: true,
@@ -517,16 +517,9 @@ export const adjustVerticalNodeSpacing = (
     nodesAtDepth.forEach((node) => {
       // 1. Check direct parent link
       if (node.parent) {
-        const parentWidth = getNodeWidth(node.parent.data, event)
-        const parentHeight = getNodeHeight(
-          node.parent.data,
-          event,
-          parentWidth,
-          showLoopingIndicator
-        )
+        const [, parentHeight] = getNodeDimensions(node.parent.data, event, showLoopingIndicator)
 
-        const nodeWidth = getNodeWidth(node.data, event)
-        const nodeHeight = getNodeHeight(node.data, event, nodeWidth, showLoopingIndicator)
+        const [, nodeHeight] = getNodeDimensions(node.data, event, showLoopingIndicator)
 
         // Calculate current gap between bottom of parent and top of child
         const currentGap = node.y - node.parent.y - (parentHeight / 2 + nodeHeight / 2)
@@ -537,15 +530,8 @@ export const adjustVerticalNodeSpacing = (
       const refParents = refChildrenParentMap.get(node.data.id)
       if (refParents) {
         refParents.forEach((refParent) => {
-          const refParentWidth = getNodeWidth(refParent.data, event)
-          const refParentHeight = getNodeHeight(
-            refParent.data,
-            event,
-            refParentWidth,
-            showLoopingIndicator
-          )
-          const nodeWidth = getNodeWidth(node.data, event)
-          const nodeHeight = getNodeHeight(node.data, event, nodeWidth, showLoopingIndicator)
+          const [, refParentHeight] = getNodeDimensions(refParent.data, event, showLoopingIndicator)
+          const [, nodeHeight] = getNodeDimensions(node.data, event, showLoopingIndicator)
 
           // Calculate gap between bottom of refParent and top of this node
           const currentGap = node.y - refParent.y - (refParentHeight / 2 + nodeHeight / 2)
@@ -579,6 +565,7 @@ const logMaxIterationsWarning = (passName: string, maxIterations: number, messag
  */
 const getNodeLeftEdgeX = (node: HierarchyPointNode<EventTreeNode>, event: Event): number => {
   const nodeWidth = getNodeWidth(node.data, event)
+
   return (node.x ?? 0) - nodeWidth / 2
 }
 
@@ -587,6 +574,7 @@ const getNodeLeftEdgeX = (node: HierarchyPointNode<EventTreeNode>, event: Event)
  */
 const getNodeRightEdgeX = (node: HierarchyPointNode<EventTreeNode>, event: Event): number => {
   const nodeWidth = getNodeWidth(node.data, event)
+
   return (node.x ?? 0) + nodeWidth / 2
 }
 

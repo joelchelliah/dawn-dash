@@ -15,7 +15,7 @@ export function EventmapHead({ event, eventUrlParam }: EventmapHeadProps = {}) {
   const { eventImageSrc } = useEventImageSrc(event?.artwork || '')
   const hasEventArtwork = !!event?.artwork && event.artwork.trim().length > 0
 
-  const ogTitle = isEventPage ? `🗺 Eventmap of «${eventName}»` : '🗺 Eventmaps'
+  const ogTitle = isEventPage ? `🗺 Eventmap - ${eventName}` : '🗺 Eventmaps'
   const title = `Dawn-Dash: ${ogTitle}`
 
   const description = isEventPage
@@ -109,7 +109,7 @@ export function EventmapHead({ event, eventUrlParam }: EventmapHeadProps = {}) {
 
 function getEventDisplayText(event: Event | null | undefined, eventName: string): string {
   const fallbackText = `Explore the complete event tree for «${eventName}»!`
-  const maxLength = 150
+  const maxLength = 120
 
   if (!event) return fallbackText
 

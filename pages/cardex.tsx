@@ -6,7 +6,7 @@ const Cards = dynamic(() => import('../src/codex/cards'), {
 })
 
 export default function CardexPage() {
-  const ogTitle = 'Cardex'
+  const ogTitle = '🃏 Cardex'
   const title = `Dawn-Dash: ${ogTitle}`
 
   const description =

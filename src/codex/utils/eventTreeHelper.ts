@@ -12,6 +12,7 @@ import {
 import { TEXT, INNER_BOX, NODE, NODE_BOX } from '@/codex/constants/eventTreeValues'
 
 import { measureEventTextWidth, wrapEventText } from './eventTextWidthEstimation'
+import { getCachedDimensions, buildDimensionCache as buildCache } from './eventNodeDimensionCache'
 
 interface TreeBounds {
   minX: number
@@ -22,8 +23,37 @@ interface TreeBounds {
   height: number
 }
 
+export const getNodeDimensions = (
+  node: EventTreeNode,
+  event: Event,
+  showLoopingIndicator: boolean
+): [number, number] => {
+  const cached = getCachedDimensions(event.name, node.id)
+  const nodeWidth = cached?.width ?? _getNodeWidth(node, event)
+  const nodeHeight = cached?.height ?? _getNodeHeight(node, event, nodeWidth, showLoopingIndicator)
+
+  return [nodeWidth, nodeHeight]
+}
+
+export const getNodeWidth = (node: EventTreeNode, event: Event): number =>
+  getCachedDimensions(event.name, node.id)?.width ?? _getNodeWidth(node, event)
+
+export const getNodeHeight = (
+  node: EventTreeNode,
+  event: Event,
+  width: number,
+  showLoopingIndicator: boolean
+): number =>
+  getCachedDimensions(event.name, node.id)?.height ??
+  _getNodeHeight(node, event, width, showLoopingIndicator)
+
+export const cacheAllNodeDimensions = (event: Event, showLoopingIndicator: boolean): void => {
+  buildCache(event, showLoopingIndicator, _getNodeWidth, _getNodeHeight)
+}
+
 /**
- * Calculate bounding box for the entire tree based on positioned nodes
+ * Calculate bounding box for the entire tree based on positioned nodes.
+ * Uses cached dimensions when available for better performance.
  */
 export const calculateTreeBounds = (
   root: HierarchyNode<EventTreeNode>,
@@ -38,8 +68,9 @@ export const calculateTreeBounds = (
   root.descendants().forEach((d) => {
     const x = d.x ?? 0
     const y = d.y ?? 0
-    const nodeWidth = getNodeWidth(d.data, event)
-    const nodeHeight = getNodeHeight(d.data, event, nodeWidth, showLoopingIndicator)
+
+    const [nodeWidth, nodeHeight] = getNodeDimensions(d.data, event, showLoopingIndicator)
+
     // Track edges for both X and Y
     if (x - nodeWidth / 2 < minX) minX = x - nodeWidth / 2
     if (x + nodeWidth / 2 > maxX) maxX = x + nodeWidth / 2
@@ -60,7 +91,7 @@ export const calculateTreeBounds = (
 /**
  * Calculate dynamic node width based on event node content
  */
-export const getNodeWidth = (node: EventTreeNode, _event: Event): number => {
+const _getNodeWidth = (node: EventTreeNode, _event: Event): number => {
   let width = NODE.WIDTH_RANGE[0]
 
   const dialogueText = hasText(node) ? node.text : ''
@@ -117,7 +148,7 @@ export const getNodeWidth = (node: EventTreeNode, _event: Event): number => {
 /**
  * Calculate dynamic node height based on event node content
  */
-export const getNodeHeight = (
+const _getNodeHeight = (
   node: EventTreeNode,
   event: Event,
   width: number,

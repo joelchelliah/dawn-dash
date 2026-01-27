@@ -6,7 +6,7 @@ const Speedruns = dynamic(() => import('../src/speedruns'), {
 })
 
 export default function SpeedrunsPage() {
-  const ogTitle = 'Speedruns'
+  const ogTitle = '🏃‍♂️ Speedruns'
   const title = `Dawn-Dash: ${ogTitle}`
 
   const description =

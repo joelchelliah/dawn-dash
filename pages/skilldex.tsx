@@ -6,7 +6,7 @@ const Skills = dynamic(() => import('../src/codex/skills'), {
 })
 
 export default function SkilldexPage() {
-  const ogTitle = 'Skilldex'
+  const ogTitle = '🎯 Skilldex'
   const title = `Dawn-Dash: ${ogTitle}`
 
   const description =
