@@ -41,7 +41,8 @@ function generateNodeId() {
 
 /**
  * Detect random value assignments in Ink JSON
- * Returns a map of variable names to their random ranges: { varName: { min, max } }
+ * Returns a map of variable names to an array of their random ranges: { varName: [{ min, max }, ...] }
+ * Multiple ranges per variable are supported (e.g., for branching paths with different random ranges)
  */
 function detectRandomVariables(inkJsonString) {
   const randomVars = new Map()
@@ -68,7 +69,18 @@ function detectRandomVariables(inkJsonString) {
             const varName = node[i + 5]['VAR=']
             const min = node[i + 1]
             const max = node[i + 2]
-            randomVars.set(varName, { min, max })
+
+            // Store all ranges for this variable (not just the last one)
+            if (!randomVars.has(varName)) {
+              randomVars.set(varName, [])
+            }
+
+            // Only add if this exact range doesn't already exist
+            const ranges = randomVars.get(varName)
+            const isDuplicate = ranges.some(r => r.min === min && r.max === max)
+            if (!isDuplicate) {
+              ranges.push({ min, max })
+            }
           }
         }
 
@@ -160,7 +172,14 @@ function parseInkStory(inkJsonString, eventName) {
     // Log detected random variables for debugging
     if (randomVars.size > 0) {
       const varList = Array.from(randomVars.entries())
-        .map(([name, range]) => `${name}(${range.min}-${range.max})`)
+        .map(([name, ranges]) => {
+          if (ranges.length === 1) {
+            return `${name}(${ranges[0].min}-${ranges[0].max})`
+          } else {
+            const rangeStr = ranges.map(r => `${r.min}-${r.max}`).join(', ')
+            return `${name}(${ranges.length} ranges: ${rangeStr})`
+          }
+        })
         .join(', ')
       if (eventName === DEBUG_EVENT_NAME) {
         console.log(`  📊 Random variables: ${varList}`)
@@ -277,13 +296,16 @@ function buildTreeFromStory(
               // e.g., GOLD command likely uses 'gold' variable, DAMAGE uses 'damage', etc.
               const likelyVarName = command.toLowerCase()
 
-              // Check if this specific variable name has a random range
+              // Check if this specific variable name has random ranges
               if (randomVars.has(likelyVarName)) {
-                const range = randomVars.get(likelyVarName)
-                // Verify the value falls within the range
-                if (value >= range.min && value <= range.max) {
+                const ranges = randomVars.get(likelyVarName)
+                // Check if the value falls within ANY of the ranges
+                // (events may have multiple random assignments to the same variable in different branches)
+                const matchingRange = ranges.find(r => value >= r.min && value <= r.max)
+
+                if (matchingRange) {
                   // Replace ALL occurrences of this specific command:value with the random notation
-                  const randomNotation = `random [${range.min} - ${range.max}]`
+                  const randomNotation = `random [${matchingRange.min} - ${matchingRange.max}]`
                   modifiedLine = modifiedLine.replace(
                     new RegExp(`>>>>${command}:${value}`, 'g'),
                     `>>>>${command}:${randomNotation}`
@@ -291,7 +313,7 @@ function buildTreeFromStory(
                   foundRandom = true
                   if (eventName === DEBUG_EVENT_NAME) {
                     console.log(
-                      `  🎲 Event "${eventName}": Detected random ${command} value ${value} (range: ${range.min}-${range.max})`
+                      `  🎲 Event "${eventName}": Detected random ${command} value ${value} (range: ${matchingRange.min}-${matchingRange.max})`
                     )
                   }
                 }
