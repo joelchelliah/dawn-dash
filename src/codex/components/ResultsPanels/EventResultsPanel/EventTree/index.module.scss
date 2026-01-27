@@ -44,7 +44,6 @@
   // Drag mode specific styles
   &--drag-mode {
     overflow: hidden; // Disable scrollbar scrolling completely
-    height: 80vh; // Fixed height to enable vertical scrolling within the wrapper
     max-height: 1000px; // Cap the maximum height on large screens
 
     // Grabbable cursor
