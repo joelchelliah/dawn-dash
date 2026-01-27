@@ -4,6 +4,8 @@ import Image from '@/shared/components/Image'
 import { createCx } from '@/shared/utils/classnames'
 import { CharacterClass } from '@/shared/types/characterClass'
 import { useBreakpoint } from '@/shared/hooks/useBreakpoint'
+import LoadingDots from '@/shared/components/LoadingDots'
+import { ClassColorVariant, getClassColor } from '@/shared/utils/classColors'
 
 import { Event } from '@/codex/types/events'
 import { useEventImageSrc } from '@/codex/hooks/useEventImageSrc'
@@ -128,6 +130,7 @@ function EventListItem({
   setLoadingEventName,
 }: EventListItemProps): JSX.Element {
   const { eventImageSrc, onImageSrcError } = useEventImageSrc(event.artwork)
+  const loadingColor = getClassColor(CharacterClass.Rogue, ClassColorVariant.Lighter)
 
   const handleClick = () => {
     // Set loading state immediately on click
@@ -162,13 +165,17 @@ function EventListItem({
         className={cx('event-list-item__artwork')}
         onError={onImageSrcError}
       />
-      <span
-        className={cx('event-list-item__name', {
-          'event-list-item__name--long': event.name.length > 20,
-        })}
-      >
-        {event.name}
-      </span>
+      {isLoading ? (
+        <LoadingDots color={loadingColor} className={cx('loading-dots')} />
+      ) : (
+        <span
+          className={cx('event-list-item__name', {
+            'event-list-item__name--long': event.name.length > 20,
+          })}
+        >
+          {event.name}
+        </span>
+      )}
     </div>
   )
 }

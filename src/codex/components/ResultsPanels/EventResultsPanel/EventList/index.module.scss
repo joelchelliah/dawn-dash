@@ -96,13 +96,14 @@ $alternating-row-mobile-background: linear-gradient(to right, rgba(0, 0, 0, 0.25
     .event-list-item__artwork {
       border-color: $green-base;
       border-width: 2px;
-      animation: pulse 0.3s ease-in-out infinite;
+      animation: pulse-artwork 0.75s ease-in-out infinite;
     }
 
-    .event-list-item__name {
-      font-weight: 600;
-
-      @include yellowGreenGradient(true);
+    .loading-dots {
+      position: relative;
+      left: 0.25rem;
+      letter-spacing: 0.25rem;
+      font-size: font-size('xxs');
     }
   }
 
@@ -212,15 +213,14 @@ $alternating-row-mobile-background: linear-gradient(to right, rgba(0, 0, 0, 0.25
   }
 }
 
-// Keyframe animations for loading state
-@keyframes pulse {
+@keyframes pulse-artwork {
   0%,
   100% {
-    opacity: 1;
+    opacity: 0.8;
     transform: scale(1);
   }
   50% {
-    opacity: 0.8;
-    transform: scale(1.2);
+    opacity: 1;
+    transform: scale(1.1);
   }
 }
