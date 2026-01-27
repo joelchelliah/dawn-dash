@@ -517,8 +517,16 @@ export const adjustVerticalNodeSpacing = (
     nodesAtDepth.forEach((node) => {
       // 1. Check direct parent link
       if (node.parent) {
-        const parentHeight = getNodeHeight(node.parent.data, event, showLoopingIndicator)
-        const nodeHeight = getNodeHeight(node.data, event, showLoopingIndicator)
+        const parentWidth = getNodeWidth(node.parent.data, event)
+        const parentHeight = getNodeHeight(
+          node.parent.data,
+          event,
+          parentWidth,
+          showLoopingIndicator
+        )
+
+        const nodeWidth = getNodeWidth(node.data, event)
+        const nodeHeight = getNodeHeight(node.data, event, nodeWidth, showLoopingIndicator)
 
         // Calculate current gap between bottom of parent and top of child
         const currentGap = node.y - node.parent.y - (parentHeight / 2 + nodeHeight / 2)
@@ -529,8 +537,15 @@ export const adjustVerticalNodeSpacing = (
       const refParents = refChildrenParentMap.get(node.data.id)
       if (refParents) {
         refParents.forEach((refParent) => {
-          const refParentHeight = getNodeHeight(refParent.data, event, showLoopingIndicator)
-          const nodeHeight = getNodeHeight(node.data, event, showLoopingIndicator)
+          const refParentWidth = getNodeWidth(refParent.data, event)
+          const refParentHeight = getNodeHeight(
+            refParent.data,
+            event,
+            refParentWidth,
+            showLoopingIndicator
+          )
+          const nodeWidth = getNodeWidth(node.data, event)
+          const nodeHeight = getNodeHeight(node.data, event, nodeWidth, showLoopingIndicator)
 
           // Calculate gap between bottom of refParent and top of this node
           const currentGap = node.y - refParent.y - (refParentHeight / 2 + nodeHeight / 2)
@@ -676,12 +691,14 @@ export const centerRootNodeHorizontally = (
   svgWidth: number,
   offsetX: number
 ) => {
+  const isSmallTree = root.descendants().length <= 4
+
   // Every node in the tree has at most 1 child
   const isSimpleTree = root
     .descendants()
     .every((node) => !node.children || node.children.length <= 1)
 
-  if (!isSimpleTree) return
+  if (!isSimpleTree && !isSmallTree) return
 
   root.x = svgWidth / 2 - offsetX
 

@@ -8,10 +8,8 @@ export const TREE = {
   MIN_SVG_WIDTH: 500, // Minimum SVG width to prevent nodes from appearing too large
 }
 
-const MIN_NODE_WIDTH = 200
-
 export const NODE = {
-  MIN_WIDTH: MIN_NODE_WIDTH,
+  WIDTH_RANGE: [95, 280],
 
   HORIZONTAL_SPACING_DEFAULT: 50,
   VERTICAL_SPACING_DEFAULT: 80,
@@ -64,7 +62,7 @@ export const INNER_BOX = {
   LISTINGS_VERTICAL_PADDING: 12,
 
   // Gap between main node text and listing boxes (Requirements, Effects)
-  LISTINGS_TOP_MARGIN: 6,
+  LISTINGS_TOP_MARGIN: 8,
 
   // Gap between listing header ('Requires:', 'Effects:') and first item
   LISTINGS_HEADER_GAP: 4,

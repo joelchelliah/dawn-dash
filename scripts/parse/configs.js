@@ -33,6 +33,11 @@ const DIALOGUE_MENU_EVENTS = {
     menuExitPatterns: ['Make a note of the painting and leave'],
     hubChoiceMatchThreshold: 60, // choices: 2/3
   },
+  'Brightcandle Consul': {
+    menuHubPattern: 'The Consul looks up and seems to think',
+    menuExitPatterns: ["Ask about the 'plan'"],
+    hubChoiceMatchThreshold: 50, // choices: 1/2
+  },
   'Dawnbringer Ystel': {
     menuHubPattern: "Ystel's figure exudes a sense",
     menuExitPatterns: ['Leave'],

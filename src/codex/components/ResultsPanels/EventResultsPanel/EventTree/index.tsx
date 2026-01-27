@@ -5,7 +5,7 @@ import { hierarchy, tree, HierarchyPointNode } from 'd3-hierarchy'
 
 import Image from '@/shared/components/Image'
 import { createCx } from '@/shared/utils/classnames'
-import { wrapText, truncateLine } from '@/shared/utils/textHelper'
+import { truncateLine, wrapTextByFontSize } from '@/shared/utils/textHelper'
 import GradientLink from '@/shared/components/GradientLink'
 import { useDraggable } from '@/shared/hooks/useDraggable'
 import { useBreakpoint } from '@/shared/hooks/useBreakpoint'
@@ -161,11 +161,11 @@ function EventTree({
     nodes.each(function (d) {
       const nodeElement = select(this)
       const nodeWidth = getNodeWidth(d.data, event)
-      const nodeHeight = getNodeHeight(d.data, event, showLoopingIndicator)
+      const nodeHeight = getNodeHeight(d.data, event, nodeWidth, showLoopingIndicator)
       const nodeGlowWidth = nodeWidth + NODE_BOX.GLOW_SIZE
       const nodeGlowHeight = nodeHeight + NODE_BOX.GLOW_SIZE
-
       const nodeType = d.data.type || 'default'
+
       nodeElement
         .append('rect')
         .attr('width', nodeGlowWidth)
@@ -177,13 +177,21 @@ function EventTree({
     })
 
     // Draw node rectangles
-    nodes
-      .append('rect')
-      .attr('class', (d) => cx('event-node', `event-node--${d.data.type}`))
-      .attr('x', (d) => -getNodeWidth(d.data, event) / 2)
-      .attr('y', (d) => -getNodeHeight(d.data, event, showLoopingIndicator) / 2)
-      .attr('width', (d) => getNodeWidth(d.data, event))
-      .attr('height', (d) => getNodeHeight(d.data, event, showLoopingIndicator))
+
+    nodes.each(function (d) {
+      const nodeElement = select(this)
+      const nodeWidth = getNodeWidth(d.data, event)
+      const nodeHeight = getNodeHeight(d.data, event, nodeWidth, showLoopingIndicator)
+      const nodeType = d.data.type || 'default'
+
+      nodeElement
+        .append('rect')
+        .attr('width', nodeWidth)
+        .attr('height', nodeHeight)
+        .attr('x', -nodeWidth / 2)
+        .attr('y', -nodeHeight / 2)
+        .attr('class', cx('event-node', `event-node--${nodeType}`))
+    })
 
     // Add main node text content
     nodes.each(function (d) {
@@ -209,8 +217,8 @@ function EventTree({
           : 0
         const loopIndicatorMargin = hasLoopingIndicator ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
 
-        const currentNodeHeight = getNodeHeight(data, event, showLoopingIndicator)
         const currentNodeWidth = getNodeWidth(data, event)
+        const currentNodeHeight = getNodeHeight(data, event, currentNodeWidth, showLoopingIndicator)
         const reqBoxMargin = reqBoxHeight > 0 ? INNER_BOX.LISTINGS_TOP_MARGIN : 0
 
         // The text area is: total height minus vertical padding, bottom boxes and their margin
@@ -231,9 +239,14 @@ function EventTree({
         const labelGroup = node.append('g').attr('transform', `translate(0, ${textAreaCenter})`)
 
         const isDefault = data.choiceLabel === 'default'
+        const slackForWrapping = 20 // A bad solution to ensure the text wraps better visually...
         const choiceLines = isDefault
           ? [data.choiceLabel]
-          : wrapText(data.choiceLabel, currentNodeWidth - TEXT.HORIZONTAL_PADDING)
+          : wrapTextByFontSize(
+              data.choiceLabel,
+              currentNodeWidth - TEXT.HORIZONTAL_PADDING * 2 + slackForWrapping,
+              'xs'
+            )
 
         // Center the text lines vertically within the label group
         const totalTextHeight = choiceLines.length * TEXT.CHOICE_TEXT_HEIGHT
@@ -323,8 +336,8 @@ function EventTree({
             ? INNER_BOX.INDICATOR_HEIGHT + TEXT.LINE_HEIGHT + INNER_BOX.INDICATOR_HEADER_GAP
             : 0
 
-        const currentNodeHeight = getNodeHeight(data, event, showLoopingIndicator)
         const currentNodeWidth = getNodeWidth(data, event)
+        const currentNodeHeight = getNodeHeight(data, event, currentNodeWidth, showLoopingIndicator)
         const effectsBoxMargin = effectsBoxHeight > 0 ? INNER_BOX.LISTINGS_TOP_MARGIN : 0
         const textAreaHeight =
           currentNodeHeight -
@@ -351,7 +364,11 @@ function EventTree({
             .attr('y', textAreaCenter + TEXT.COMBAT_BASELINE_OFFSET - TEXT.COMBAT_TEXT_HEIGHT / 2)
             .text('END')
         } else {
-          const endLines = wrapText(data.text ?? '', currentNodeWidth - TEXT.HORIZONTAL_PADDING)
+          const endLines = wrapTextByFontSize(
+            data.text ?? '',
+            currentNodeWidth - TEXT.HORIZONTAL_PADDING * 2,
+            'xxs'
+          )
           const displayLines = endLines.slice(0, TEXT.MAX_DISPLAY_LINES)
 
           // If there are more lines than we can display, truncate the last line
@@ -395,10 +412,13 @@ function EventTree({
         const loopIndicatorMargin = loopIndicatorHeight > 0 ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
 
         if (isRootNode) {
-          // Root node shows up to 2 lines of dialogue text (if present)
-          // Event name is now displayed ABOVE the root node
-          const currentNodeHeight = getNodeHeight(data, event, showLoopingIndicator)
           const currentNodeWidth = getNodeWidth(data, event)
+          const currentNodeHeight = getNodeHeight(
+            data,
+            event,
+            currentNodeWidth,
+            showLoopingIndicator
+          )
           const effectsBoxMargin = effectsBoxHeight > 0 ? INNER_BOX.LISTINGS_TOP_MARGIN : 0
           const textAreaHeight =
             currentNodeHeight -
@@ -415,7 +435,11 @@ function EventTree({
           const hasText = data.text && data.text.trim().length > 0
 
           if (hasText) {
-            const dialogueLines = wrapText(data.text, currentNodeWidth - TEXT.HORIZONTAL_PADDING)
+            const dialogueLines = wrapTextByFontSize(
+              data.text,
+              currentNodeWidth - TEXT.HORIZONTAL_PADDING * 2,
+              'xxs'
+            )
             const displayLines = dialogueLines.slice(0, TEXT.MAX_DISPLAY_LINES)
 
             // If there are more lines than we can display, truncate the last line
@@ -443,9 +467,13 @@ function EventTree({
             })
           }
         } else {
-          // Non-root dialogue nodes show max MAX_DISPLAY_LINES
-          const currentNodeHeight = getNodeHeight(data, event, showLoopingIndicator)
           const currentNodeWidth = getNodeWidth(data, event)
+          const currentNodeHeight = getNodeHeight(
+            data,
+            event,
+            currentNodeWidth,
+            showLoopingIndicator
+          )
           const effectsBoxMargin = effectsBoxHeight > 0 ? INNER_BOX.LISTINGS_TOP_MARGIN : 0
           const textAreaHeight =
             currentNodeHeight -
@@ -459,7 +487,11 @@ function EventTree({
           const textAreaCenter =
             -currentNodeHeight / 2 + NODE_BOX.VERTICAL_PADDING + textAreaHeight / 2
 
-          const dialogueLines = wrapText(data.text, currentNodeWidth - TEXT.HORIZONTAL_PADDING)
+          const dialogueLines = wrapTextByFontSize(
+            data.text,
+            currentNodeWidth - TEXT.HORIZONTAL_PADDING * 2,
+            'xxs'
+          )
           const displayLines = dialogueLines.slice(0, TEXT.MAX_DISPLAY_LINES)
 
           // If there are more lines than we can display, truncate the last line
@@ -501,8 +533,8 @@ function EventTree({
             ? INNER_BOX.INDICATOR_HEIGHT + TEXT.LINE_HEIGHT + INNER_BOX.INDICATOR_HEADER_GAP
             : 0
 
-        const currentNodeHeight = getNodeHeight(data, event, showLoopingIndicator)
         const currentNodeWidth = getNodeWidth(data, event)
+        const currentNodeHeight = getNodeHeight(data, event, currentNodeWidth, showLoopingIndicator)
         const effectsBoxMargin = effectsBoxHeight > 0 ? INNER_BOX.LISTINGS_TOP_MARGIN : 0
         const loopIndicatorMargin = loopIndicatorHeight > 0 ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
         // The text area is: total height minus vertical padding, effects box, its margin, and loop indicator
@@ -520,7 +552,11 @@ function EventTree({
         const hasText = data.text && data.text.trim().length > 0
 
         if (hasText && data.text) {
-          const combatLines = wrapText(data.text, currentNodeWidth - TEXT.HORIZONTAL_PADDING)
+          const combatLines = wrapTextByFontSize(
+            data.text,
+            currentNodeWidth - TEXT.HORIZONTAL_PADDING * 2,
+            'xxs'
+          )
           const displayLines = combatLines.slice(0, TEXT.MAX_DISPLAY_LINES)
 
           // If there are more lines than we can display, truncate the last line
@@ -570,8 +606,8 @@ function EventTree({
             ? INNER_BOX.INDICATOR_HEIGHT + TEXT.LINE_HEIGHT + INNER_BOX.INDICATOR_HEADER_GAP
             : 0
 
-        const currentNodeHeight = getNodeHeight(data, event, showLoopingIndicator)
         const currentNodeWidth = getNodeWidth(data, event)
+        const currentNodeHeight = getNodeHeight(data, event, currentNodeWidth, showLoopingIndicator)
         const effectsBoxMargin = effectsBoxHeight > 0 ? INNER_BOX.LISTINGS_TOP_MARGIN : 0
         const loopIndicatorMargin = loopIndicatorHeight > 0 ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
         // The text area is: total height minus vertical padding, effects box, its margin, and loop indicator
@@ -589,7 +625,11 @@ function EventTree({
         const hasText = data.text && data.text.trim().length > 0
 
         if (hasText && data.text) {
-          const specialLines = wrapText(data.text, currentNodeWidth - TEXT.HORIZONTAL_PADDING)
+          const specialLines = wrapTextByFontSize(
+            data.text,
+            currentNodeWidth - TEXT.HORIZONTAL_PADDING * 2,
+            'xxs'
+          )
           const displayLines = specialLines.slice(0, TEXT.MAX_DISPLAY_LINES)
 
           // If there are more lines than we can display, truncate the last line
@@ -627,8 +667,8 @@ function EventTree({
         const node = select(this)
         const eventNode = d.data as DialogueNode | EndNode | CombatNode | SpecialNode
         const effects = eventNode.effects ?? []
-        const nodeHeight = getNodeHeight(eventNode, event, showLoopingIndicator)
         const nodeWidth = getNodeWidth(eventNode, event)
+        const nodeHeight = getNodeHeight(eventNode, event, nodeWidth, showLoopingIndicator)
 
         const effectsBoxHeight =
           TEXT.LINE_HEIGHT +
@@ -696,8 +736,8 @@ function EventTree({
       .filter((d) => Boolean(d.data.numContinues && d.data.numContinues > 0))
       .each(function (d) {
         const node = select(this)
-        const nodeHeight = getNodeHeight(d.data, event, showLoopingIndicator)
         const nodeWidth = getNodeWidth(d.data, event)
+        const nodeHeight = getNodeHeight(d.data, event, nodeWidth, showLoopingIndicator)
         const showLoopsBackTo = d.data.ref && showLoopingIndicator
         const loopIndicatorHeight = showLoopsBackTo
           ? INNER_BOX.INDICATOR_HEIGHT + TEXT.LINE_HEIGHT + INNER_BOX.INDICATOR_HEADER_GAP
@@ -737,18 +777,17 @@ function EventTree({
         .filter((d) => Boolean(d.data.ref))
         .each(function (d) {
           const node = select(this)
-          const nodeHeight = getNodeHeight(d.data, event, showLoopingIndicator)
           const nodeWidth = getNodeWidth(d.data, event)
+          const nodeHeight = getNodeHeight(d.data, event, nodeWidth, showLoopingIndicator)
 
           const refNode = findNodeById(root as HierarchyPointNode<EventTreeNode>, d.data.ref)
           const refNodeLabel = refNode?.type === 'choice' ? refNode.choiceLabel : refNode?.text
 
           // Calculate label text (wrap and take first line)
+          // Subtract horizontal margins from indicator box (INNER_BOX.HORIZONTAL_MARGIN * 2)
           const labelText = refNodeLabel || ''
-          const refNodeLines = wrapText(
-            labelText,
-            nodeWidth - INNER_BOX.HORIZONTAL_MARGIN - TEXT.HORIZONTAL_PADDING
-          )
+          const availableWidth = nodeWidth - INNER_BOX.HORIZONTAL_MARGIN * 2
+          const refNodeLines = wrapTextByFontSize(labelText, availableWidth, 'xxs')
           const displayLine = refNodeLines[0] || ''
           const truncatedLine = displayLine === labelText ? displayLine : `${displayLine}...`
 

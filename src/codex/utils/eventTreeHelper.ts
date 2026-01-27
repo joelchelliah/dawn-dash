@@ -1,7 +1,7 @@
 import { HierarchyNode, HierarchyPointNode } from 'd3-hierarchy'
 import { Selection } from 'd3-selection'
 
-import { wrapText } from '@/shared/utils/textHelper'
+import { estimateNeededWidthForTextInNode, wrapTextByFontSize } from '@/shared/utils/textHelper'
 
 import {
   Event,
@@ -38,8 +38,8 @@ export const calculateTreeBounds = (
   root.descendants().forEach((d) => {
     const x = d.x ?? 0
     const y = d.y ?? 0
-    const nodeHeight = getNodeHeight(d.data, event, showLoopingIndicator)
     const nodeWidth = getNodeWidth(d.data, event)
+    const nodeHeight = getNodeHeight(d.data, event, nodeWidth, showLoopingIndicator)
     // Track edges for both X and Y
     if (x - nodeWidth / 2 < minX) minX = x - nodeWidth / 2
     if (x + nodeWidth / 2 > maxX) maxX = x + nodeWidth / 2
@@ -61,42 +61,57 @@ export const calculateTreeBounds = (
  * Calculate dynamic node width based on event node content
  */
 export const getNodeWidth = (node: EventTreeNode, _event: Event): number => {
-  // Rough estimate of character width for font-size('xxs')
-  const pixelsPerCharacterXxs = 7.25
-  const pixelsPerCharacterUppercase = 8.25
+  let width = NODE.WIDTH_RANGE[0]
 
-  let width = NODE.MIN_WIDTH
-
-  const getLongestRequiredInnerBoxWidth = (strings: string[]) => {
-    const longestString = strings.reduce(
-      (longest, str) => (str.length > longest.length ? str : longest),
-      ''
+  const dialogueText = hasText(node) ? node.text : ''
+  if (dialogueText) {
+    width = Math.max(
+      width,
+      clampNodeWidth(
+        estimateNeededWidthForTextInNode(dialogueText, 'xxs') + TEXT.HORIZONTAL_PADDING * 2
+      )
     )
-
-    const uppercaseCount = countUppercaseChars(longestString)
-    const totalChars = longestString.length
-    const uppercaseRatio = totalChars > 0 ? uppercaseCount / totalChars : 0
-
-    // Weighted average based on uppercase proportion
-    const avgPixelsPerChar =
-      pixelsPerCharacterXxs * (1 - uppercaseRatio) + pixelsPerCharacterUppercase * uppercaseRatio
-
-    return longestString.length * avgPixelsPerChar + INNER_BOX.HORIZONTAL_MARGIN * 2
   }
 
-  const requirements = node.type === 'choice' ? node.requirements || [] : []
-
-  if (requirements.length > 0) {
-    width = Math.max(width, getLongestRequiredInnerBoxWidth(requirements))
+  const choiceLabel = node.type === 'choice' ? node.choiceLabel : ''
+  if (choiceLabel) {
+    width = clampNodeWidth(
+      estimateNeededWidthForTextInNode(choiceLabel, 'xs') + TEXT.HORIZONTAL_PADDING * 2
+    )
   }
 
-  const effects =
-    node.type === 'dialogue' || node.type === 'combat' || node.type === 'end'
-      ? node.effects || []
-      : []
+  const longestRequirement =
+    node.type === 'choice'
+      ? node.requirements?.reduce(
+          (longest, requirement) => (requirement.length > longest.length ? requirement : longest),
+          ''
+        )
+      : undefined
 
-  if (effects.length > 0) {
-    width = Math.max(width, getLongestRequiredInnerBoxWidth(effects))
+  if (longestRequirement) {
+    width = Math.max(
+      width,
+      clampNodeWidth(
+        estimateNeededWidthForTextInNode(longestRequirement, 'xxs') +
+          INNER_BOX.HORIZONTAL_MARGIN * 4
+      )
+    )
+  }
+
+  const longestEffect = hasEffects(node)
+    ? node.effects?.reduce(
+        (longest, effect) => (effect.length > longest.length ? effect : longest),
+        ''
+      )
+    : undefined
+
+  if (longestEffect) {
+    width = Math.max(
+      width,
+      clampNodeWidth(
+        estimateNeededWidthForTextInNode(longestEffect, 'xxs') + INNER_BOX.HORIZONTAL_MARGIN * 4
+      )
+    )
   }
 
   return width
@@ -108,6 +123,7 @@ export const getNodeWidth = (node: EventTreeNode, _event: Event): number => {
 export const getNodeHeight = (
   node: EventTreeNode,
   event: Event,
+  width: number,
   showLoopingIndicator: boolean
 ): number => {
   const isRootNode = event.rootNode && node.id === event.rootNode.id
@@ -124,7 +140,7 @@ export const getNodeHeight = (
 
   if (node.type === 'choice') {
     const requirements = node.requirements || []
-    const choiceLines = wrapText(node.choiceLabel, NODE.MIN_WIDTH - TEXT.HORIZONTAL_PADDING)
+    const choiceLines = wrapTextByFontSize(node.choiceLabel, width, 'xs')
 
     const choiceTextHeight = choiceLines.length * TEXT.CHOICE_TEXT_HEIGHT
     const reqBoxHeight =
@@ -173,7 +189,7 @@ export const getNodeHeight = (
       textHeight = TEXT.COMBAT_TEXT_HEIGHT
       effectsBoxMargin = 0
     } else {
-      const endLines = wrapText(node.text ?? '', NODE.MIN_WIDTH - TEXT.HORIZONTAL_PADDING)
+      const endLines = wrapTextByFontSize(node.text ?? '', width, 'xxs')
       const numLines = Math.min(endLines.length, TEXT.MAX_DISPLAY_LINES)
       textHeight = numLines * TEXT.LINE_HEIGHT
       // Only add margin if we have both text and effects box
@@ -202,7 +218,7 @@ export const getNodeHeight = (
       let dialogueTextHeight = 0
 
       if (hasText) {
-        const dialogueLines = wrapText(node.text, NODE.MIN_WIDTH - TEXT.HORIZONTAL_PADDING)
+        const dialogueLines = wrapTextByFontSize(node.text, width, 'xxs')
         const numLines = Math.min(dialogueLines.length, TEXT.MAX_DISPLAY_LINES)
         dialogueTextHeight = numLines * TEXT.LINE_HEIGHT
       }
@@ -218,7 +234,7 @@ export const getNodeHeight = (
       return contentHeight + NODE_BOX.VERTICAL_PADDING * 2
     }
 
-    const dialogueLines = wrapText(node.text, NODE.MIN_WIDTH - TEXT.HORIZONTAL_PADDING)
+    const dialogueLines = wrapTextByFontSize(node.text, width, 'xxs')
     const numLines = Math.min(dialogueLines.length, TEXT.MAX_DISPLAY_LINES)
     const textHeight = numLines * TEXT.LINE_HEIGHT
 
@@ -237,7 +253,7 @@ export const getNodeHeight = (
     let textHeight: number
 
     if (hasText && node.text) {
-      const combatLines = wrapText(node.text, NODE.MIN_WIDTH - TEXT.HORIZONTAL_PADDING)
+      const combatLines = wrapTextByFontSize(node.text, width, 'xxs')
       const numLines = Math.min(combatLines.length, TEXT.MAX_DISPLAY_LINES)
       textHeight = numLines * TEXT.LINE_HEIGHT
     } else {
@@ -264,7 +280,7 @@ export const getNodeHeight = (
     let textHeight: number
 
     if (hasText && node.text) {
-      const specialLines = wrapText(node.text, NODE.MIN_WIDTH - TEXT.HORIZONTAL_PADDING)
+      const specialLines = wrapTextByFontSize(node.text, width, 'xxs')
       const numLines = Math.min(specialLines.length, TEXT.MAX_DISPLAY_LINES)
       textHeight = numLines * TEXT.LINE_HEIGHT
     } else {
@@ -287,6 +303,18 @@ export const getNodeHeight = (
   }
 
   throw new Error(`Unknown type on node: ${node}`)
+}
+
+const hasText = (
+  node: EventTreeNode
+): node is DialogueNode | EndNode | CombatNode | SpecialNode => {
+  const isTextNode =
+    node.type === 'dialogue' ||
+    node.type === 'end' ||
+    node.type === 'combat' ||
+    node.type === 'special'
+
+  return isTextNode && (node.text || '')?.trim().length > 0
 }
 
 /**
@@ -337,8 +365,6 @@ export const findNodeById = (
 ): EventTreeNode | undefined =>
   root && id ? root.descendants().find((d) => d.data.id === id)?.data : undefined
 
-const countUppercaseChars = (str: string): number => (str.match(/[A-Z]/g) || []).length
-
 /**
  * Creates an SVG glow filter for node effects
  */
@@ -354,4 +380,8 @@ export const createGlowFilter = (
   const merge = filter.append('feMerge')
   merge.append('feMergeNode').attr('in', 'coloredBlur')
   merge.append('feMergeNode').attr('in', 'SourceGraphic')
+}
+
+const clampNodeWidth = (width: number): number => {
+  return Math.max(NODE.WIDTH_RANGE[0], Math.min(width, NODE.WIDTH_RANGE[1]))
 }

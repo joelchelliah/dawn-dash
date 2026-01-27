@@ -3,8 +3,7 @@ import { select } from 'd3-selection'
 import { createCx } from '@/shared/utils/classnames'
 
 import { Event } from '@/codex/types/events'
-import { getNodeHeight, getArrowheadAngle } from '@/codex/utils/eventTreeHelper'
-import { NODE } from '@/codex/constants/eventTreeValues'
+import { getNodeHeight, getArrowheadAngle, getNodeWidth } from '@/codex/utils/eventTreeHelper'
 
 import styles from './links.module.scss'
 
@@ -40,8 +39,20 @@ export function drawLinks(
       const targetX = d.target.x || 0
       const targetY = d.target.y || 0
 
-      const sourceNodeHeight = getNodeHeight(d.source.data, event, showLoopingIndicator)
-      const targetNodeHeight = getNodeHeight(d.target.data, event, showLoopingIndicator)
+      const sourceNodeWidth = getNodeWidth(d.source.data, event)
+      const targetNodeWidth = getNodeWidth(d.target.data, event)
+      const sourceNodeHeight = getNodeHeight(
+        d.source.data,
+        event,
+        sourceNodeWidth,
+        showLoopingIndicator
+      )
+      const targetNodeHeight = getNodeHeight(
+        d.target.data,
+        event,
+        targetNodeWidth,
+        showLoopingIndicator
+      )
 
       return calculateCurvedPathForStandardLinks(
         sourceX,
@@ -103,8 +114,20 @@ export function drawRefChildrenLinks(
     const markerId = `arrowhead-refchildren-${linkCounter++}`
     const markerUrl = arrowheadMarkerForStandardLinks(defs, markerId, sourceX, targetX, 'arrowhead')
 
-    const sourceNodeHeight = getNodeHeight(d.source.data, event, showLoopingIndicator)
-    const targetNodeHeight = getNodeHeight(d.target.data, event, showLoopingIndicator)
+    const sourceNodeWidth = getNodeWidth(d.source.data, event)
+    const targetNodeWidth = getNodeWidth(d.target.data, event)
+    const sourceNodeHeight = getNodeHeight(
+      d.source.data,
+      event,
+      sourceNodeWidth,
+      showLoopingIndicator
+    )
+    const targetNodeHeight = getNodeHeight(
+      d.target.data,
+      event,
+      targetNodeWidth,
+      showLoopingIndicator
+    )
     const pathData = calculateCurvedPathForStandardLinks(
       sourceX,
       sourceY,
@@ -377,14 +400,15 @@ function calculateLoopBackLinkCorners(
   const targetCenterX = d.target.x || 0
   const targetCenterY = d.target.y || 0
 
-  // Calculate node heights
-  const sourceHeight = getNodeHeight(d.source.data, event, showLoopingIndicator)
-  const targetHeight = getNodeHeight(d.target.data, event, showLoopingIndicator)
+  const sourceWidth = getNodeWidth(d.source.data, event)
+  const targetWidth = getNodeWidth(d.target.data, event)
+  const sourceHeight = getNodeHeight(d.source.data, event, sourceWidth, showLoopingIndicator)
+  const targetHeight = getNodeHeight(d.target.data, event, targetWidth, showLoopingIndicator)
 
   // Calculate box boundaries
-  const sourceBoxHalfWidth = NODE.MIN_WIDTH / 2
+  const sourceBoxHalfWidth = sourceWidth / 2
   const sourceBoxHalfHeight = sourceHeight / 2
-  const targetBoxHalfWidth = NODE.MIN_WIDTH / 2
+  const targetBoxHalfWidth = targetWidth / 2
   const targetBoxHalfHeight = targetHeight / 2
 
   // Calculate box edges
