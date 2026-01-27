@@ -43,18 +43,38 @@ export const measureEventTextWidth = (text: string, fontType: FontConfig = 'defa
 export const wrapEventText = (
   text: string,
   maxWidth: number,
-  fontType: FontConfig = 'default'
+  fontType: FontConfig = 'default',
+  respectLineBreakTags = false
 ): string[] => {
-  // Try Canvas first
-  const canvasResult = wrapTextByCanvas(text, maxWidth, fontType)
+  // Preprocess based on respectLineBreakTags
+  const processedText = respectLineBreakTags
+    ? text
+    : text.replace(/<br\s*\/?>/gi, ' ').replace(/\s+/g, ' ') // Replace all <br> with spaces and collapse
 
-  // If Canvas returned valid result (non-empty), use it
+  if (respectLineBreakTags) {
+    const segments = processedText.split(/<br\s*\/?>/i)
+
+    return segments.flatMap((segment) => {
+      // Empty segments become empty lines (preserving blank lines from consecutive <br>s)
+      if (segment.trim() === '') {
+        return ['']
+      }
+
+      // Wrap each non-empty segment
+      const canvasResult = wrapTextByCanvas(segment, maxWidth, fontType)
+      if (canvasResult.length > 0 && canvasResult[0] !== undefined) {
+        return canvasResult
+      }
+      return estimateTextWrapping(segment, maxWidth, fontType)
+    })
+  }
+
+  // Original behavior: wrap the processed text (with <br> replaced by spaces)
+  const canvasResult = wrapTextByCanvas(processedText, maxWidth, fontType)
   if (canvasResult.length > 0 && canvasResult[0] !== undefined) {
     return canvasResult
   }
-
-  // Fallback to estimation
-  return estimateTextWrapping(text, maxWidth, fontType)
+  return estimateTextWrapping(processedText, maxWidth, fontType)
 }
 
 /**

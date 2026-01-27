@@ -42,6 +42,8 @@ export const estimateNeededWidthForTextInNode = (text: string, fontSize: 'xxs' |
  * Wraps text into multiple lines based on available width and font size.
  * Uses word-based wrapping and shares the same character width estimation logic
  * as `estimateNeededWidthForTextInNode` to ensure consistency.
+ *
+ * * @deprecated Consider using `canvasTextMeasurement` for more accurate results
  */
 export const wrapTextByFontSize = (text: string, maxWidth: number, fontSize: 'xxs' | 'xs') => {
   const words = text.split(' ')
@@ -67,7 +69,7 @@ export const wrapTextByFontSize = (text: string, maxWidth: number, fontSize: 'xx
  * Legacy text wrapping function with simpler character counting.
  * Kept for backward compatibility with existing code.
  *
- * @deprecated Consider using `wrapTextByFontSize` for more accurate results
+ * @deprecated Consider using `canvasTextMeasurement` for more accurate results
  */
 export const wrapText = (
   text: string,

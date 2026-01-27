@@ -1239,8 +1239,8 @@ function cleanText(text) {
     }
   })
 
-  // Remove color tags
-  cleaned = cleaned.replace(/<color=[^>]+>/gi, '').replace(/<\/color>/gi, '')
+  // Remove color tags (including malformed closing tags like </color=red>)
+  cleaned = cleaned.replace(/<color=[^>]+>/gi, '').replace(/<\/color[^>]*>/gi, '')
 
   // Remove HTML tags
   cleaned = cleaned.replace(/<\/?[bi]>/gi, '')

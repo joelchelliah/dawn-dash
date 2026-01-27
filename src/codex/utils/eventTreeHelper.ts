@@ -104,8 +104,9 @@ const _getNodeWidth = (node: EventTreeNode, _event: Event): number => {
 
   const choiceLabel = node.type === 'choice' ? node.choiceLabel : ''
   if (choiceLabel) {
-    width = clampNodeWidth(
-      measureEventTextWidth(choiceLabel, 'choice') + TEXT.HORIZONTAL_PADDING * 2
+    width = Math.max(
+      width,
+      clampNodeWidth(measureEventTextWidth(choiceLabel, 'choice') + TEXT.HORIZONTAL_PADDING * 2)
     )
   }
 
