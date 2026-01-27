@@ -29,6 +29,7 @@
   max-height: 100%;
   overflow: auto;
   border-radius: 0.5rem;
+  border: 2px dotted $color-component-border-dark;
 
   // Hide scrollbars for a cleaner experience
   scrollbar-width: none; // Firefox
@@ -41,9 +42,11 @@
   // Centers the svg since it's inline-block
   text-align: center;
 
-  &--cover-zoomed {
+  &--cover-zoom {
     // We don't want to cap the height when zoomed in cover mode
     max-height: 100% !important;
+    // Only show border when panning/scrolling is possible
+    border: none;
   }
 
   &--drag-mode {
