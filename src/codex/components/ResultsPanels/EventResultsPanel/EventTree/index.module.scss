@@ -177,13 +177,13 @@
 
   &--no-text-fallback {
     font-size: font-size('xs');
-    font-weight: bold;
+    font-weight: 600;
     font-style: italic;
   }
 
   &--requirement-header {
     font-size: font-size('xxs');
-    font-weight: bold;
+    font-weight: 600;
     text-anchor: start;
   }
 
@@ -194,7 +194,7 @@
 
   &--effect-header {
     font-size: font-size('xxs');
-    font-weight: bold;
+    font-weight: 600;
     text-anchor: start;
   }
 

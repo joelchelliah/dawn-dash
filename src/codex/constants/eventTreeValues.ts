@@ -67,8 +67,9 @@ export const INNER_BOX = {
   // Gap between listing header ('Requires:', 'Effects:') and first item
   LISTINGS_HEADER_GAP: 4,
 
-  // Used for both:
+  // Used:
   // - Horizontal margin for the boxes containing the listings ('Requirements' and 'Effects')
-  // - Horizontal padding for the text inside the boxes
-  HORIZONTAL_MARGIN: 5,
+  // - Horizontal margin for the indicator boxes ('Loops back to' and 'Continue')
+  // - Horizontal padding for the text inside BOTH types of boxes
+  HORIZONTAL_MARGIN_OR_PADDING: 5,
 }

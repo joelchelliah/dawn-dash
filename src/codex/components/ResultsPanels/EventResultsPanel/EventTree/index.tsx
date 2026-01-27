@@ -5,7 +5,7 @@ import { hierarchy, tree, HierarchyPointNode } from 'd3-hierarchy'
 
 import Image from '@/shared/components/Image'
 import { createCx } from '@/shared/utils/classnames'
-import { truncateLine, wrapTextByFontSize } from '@/shared/utils/textHelper'
+import { truncateLine } from '@/shared/utils/textHelper'
 import GradientLink from '@/shared/components/GradientLink'
 import { useDraggable } from '@/shared/hooks/useDraggable'
 import { useBreakpoint } from '@/shared/hooks/useBreakpoint'
@@ -34,6 +34,7 @@ import {
 import { NODE, TREE, TEXT, INNER_BOX, NODE_BOX } from '@/codex/constants/eventTreeValues'
 import { ZoomLevel, LoopingPathMode, TreeNavigationMode } from '@/codex/constants/eventSearchValues'
 import { useEventImageSrc } from '@/codex/hooks/useEventImageSrc'
+import { wrapEventText } from '@/codex/utils/eventTextWidthEstimation'
 
 import { drawLinks, drawRefChildrenLinks, drawLoopBackLinks, drawLoopBackLinkBadges } from './links'
 import { useEventTreeZoom } from './useEventTreeZoom'
@@ -239,14 +240,10 @@ function EventTree({
         const labelGroup = node.append('g').attr('transform', `translate(0, ${textAreaCenter})`)
 
         const isDefault = data.choiceLabel === 'default'
-        const slackForWrapping = 20 // A bad solution to ensure the text wraps better visually...
+        const maxTextWidth = currentNodeWidth - TEXT.HORIZONTAL_PADDING * 2
         const choiceLines = isDefault
           ? [data.choiceLabel]
-          : wrapTextByFontSize(
-              data.choiceLabel,
-              currentNodeWidth - TEXT.HORIZONTAL_PADDING * 2 + slackForWrapping,
-              'xs'
-            )
+          : wrapEventText(data.choiceLabel, maxTextWidth, 'choice')
 
         // Center the text lines vertically within the label group
         const totalTextHeight = choiceLines.length * TEXT.CHOICE_TEXT_HEIGHT
@@ -287,9 +284,9 @@ function EventTree({
           reqGroup
             .append('rect')
             .attr('class', cx('inner-box'))
-            .attr('x', -currentNodeWidth / 2 + INNER_BOX.HORIZONTAL_MARGIN)
+            .attr('x', -currentNodeWidth / 2 + INNER_BOX.HORIZONTAL_MARGIN_OR_PADDING)
             .attr('y', 0)
-            .attr('width', currentNodeWidth - INNER_BOX.HORIZONTAL_MARGIN * 2)
+            .attr('width', currentNodeWidth - INNER_BOX.HORIZONTAL_MARGIN_OR_PADDING * 2)
             .attr('height', reqBoxHeight)
 
           // Add "Requires:" label inside inner box
@@ -301,7 +298,7 @@ function EventTree({
           reqGroup
             .append('text')
             .attr('class', cx('event-node-text', 'event-node-text--requirement-header'))
-            .attr('x', -currentNodeWidth / 2 + INNER_BOX.HORIZONTAL_MARGIN * 2)
+            .attr('x', -currentNodeWidth / 2 + INNER_BOX.HORIZONTAL_MARGIN_OR_PADDING * 2)
             .attr('y', listingTopPadding + TEXT.LINE_HEIGHT)
             .text('Requires:')
 
@@ -310,7 +307,7 @@ function EventTree({
             reqGroup
               .append('text')
               .attr('class', cx('event-node-text', 'event-node-text--requirement-item'))
-              .attr('x', -currentNodeWidth / 2 + INNER_BOX.HORIZONTAL_MARGIN * 2)
+              .attr('x', -currentNodeWidth / 2 + INNER_BOX.HORIZONTAL_MARGIN_OR_PADDING * 2)
               .attr(
                 'y',
                 listingTopPadding +
@@ -364,11 +361,8 @@ function EventTree({
             .attr('y', textAreaCenter + TEXT.COMBAT_BASELINE_OFFSET - TEXT.COMBAT_TEXT_HEIGHT / 2)
             .text('END')
         } else {
-          const endLines = wrapTextByFontSize(
-            data.text ?? '',
-            currentNodeWidth - TEXT.HORIZONTAL_PADDING * 2,
-            'xxs'
-          )
+          const maxTextWidth = currentNodeWidth - TEXT.HORIZONTAL_PADDING * 2
+          const endLines = wrapEventText(data.text ?? '', maxTextWidth)
           const displayLines = endLines.slice(0, TEXT.MAX_DISPLAY_LINES)
 
           // If there are more lines than we can display, truncate the last line
@@ -435,11 +429,8 @@ function EventTree({
           const hasText = data.text && data.text.trim().length > 0
 
           if (hasText) {
-            const dialogueLines = wrapTextByFontSize(
-              data.text,
-              currentNodeWidth - TEXT.HORIZONTAL_PADDING * 2,
-              'xxs'
-            )
+            const maxTextWidth = currentNodeWidth - TEXT.HORIZONTAL_PADDING * 2
+            const dialogueLines = wrapEventText(data.text, maxTextWidth)
             const displayLines = dialogueLines.slice(0, TEXT.MAX_DISPLAY_LINES)
 
             // If there are more lines than we can display, truncate the last line
@@ -487,11 +478,8 @@ function EventTree({
           const textAreaCenter =
             -currentNodeHeight / 2 + NODE_BOX.VERTICAL_PADDING + textAreaHeight / 2
 
-          const dialogueLines = wrapTextByFontSize(
-            data.text,
-            currentNodeWidth - TEXT.HORIZONTAL_PADDING * 2,
-            'xxs'
-          )
+          const maxTextWidth = currentNodeWidth - TEXT.HORIZONTAL_PADDING * 2
+          const dialogueLines = wrapEventText(data.text, maxTextWidth)
           const displayLines = dialogueLines.slice(0, TEXT.MAX_DISPLAY_LINES)
 
           // If there are more lines than we can display, truncate the last line
@@ -552,11 +540,8 @@ function EventTree({
         const hasText = data.text && data.text.trim().length > 0
 
         if (hasText && data.text) {
-          const combatLines = wrapTextByFontSize(
-            data.text,
-            currentNodeWidth - TEXT.HORIZONTAL_PADDING * 2,
-            'xxs'
-          )
+          const maxTextWidth = currentNodeWidth - TEXT.HORIZONTAL_PADDING * 2
+          const combatLines = wrapEventText(data.text, maxTextWidth)
           const displayLines = combatLines.slice(0, TEXT.MAX_DISPLAY_LINES)
 
           // If there are more lines than we can display, truncate the last line
@@ -625,11 +610,8 @@ function EventTree({
         const hasText = data.text && data.text.trim().length > 0
 
         if (hasText && data.text) {
-          const specialLines = wrapTextByFontSize(
-            data.text,
-            currentNodeWidth - TEXT.HORIZONTAL_PADDING * 2,
-            'xxs'
-          )
+          const maxTextWidth = currentNodeWidth - TEXT.HORIZONTAL_PADDING * 2
+          const specialLines = wrapEventText(data.text, maxTextWidth)
           const displayLines = specialLines.slice(0, TEXT.MAX_DISPLAY_LINES)
 
           // If there are more lines than we can display, truncate the last line
@@ -698,9 +680,9 @@ function EventTree({
         effectsGroup
           .append('rect')
           .attr('class', cx('inner-box'))
-          .attr('x', -nodeWidth / 2 + INNER_BOX.HORIZONTAL_MARGIN)
+          .attr('x', -nodeWidth / 2 + INNER_BOX.HORIZONTAL_MARGIN_OR_PADDING)
           .attr('y', 0)
-          .attr('width', nodeWidth - INNER_BOX.HORIZONTAL_MARGIN * 2)
+          .attr('width', nodeWidth - INNER_BOX.HORIZONTAL_MARGIN_OR_PADDING * 2)
           .attr('height', effectsBoxHeight)
 
         // Add "Effect:" label inside dark box
@@ -710,16 +692,15 @@ function EventTree({
         effectsGroup
           .append('text')
           .attr('class', cx('event-node-text', 'event-node-text--effect-header'))
-          .attr('x', -nodeWidth / 2 + INNER_BOX.HORIZONTAL_MARGIN * 2)
+          .attr('x', -nodeWidth / 2 + INNER_BOX.HORIZONTAL_MARGIN_OR_PADDING * 2)
           .attr('y', listingTopPadding + TEXT.LINE_HEIGHT)
           .text('Effect:')
 
-        // Add each effect on its own line (left-aligned)
         effects.forEach((effect, i) => {
           effectsGroup
             .append('text')
             .attr('class', cx('event-node-text', 'event-node-text--effect-item'))
-            .attr('x', -nodeWidth / 2 + INNER_BOX.HORIZONTAL_MARGIN * 2)
+            .attr('x', -nodeWidth / 2 + INNER_BOX.HORIZONTAL_MARGIN_OR_PADDING * 2)
             .attr(
               'y',
               listingTopPadding +
@@ -760,8 +741,8 @@ function EventTree({
         continueIndicator
           .append('rect')
           .attr('class', cx('indicator-box'))
-          .attr('x', -nodeWidth / 2 + INNER_BOX.HORIZONTAL_MARGIN)
-          .attr('width', nodeWidth - INNER_BOX.HORIZONTAL_MARGIN * 2)
+          .attr('x', -nodeWidth / 2 + INNER_BOX.HORIZONTAL_MARGIN_OR_PADDING)
+          .attr('width', nodeWidth - INNER_BOX.HORIZONTAL_MARGIN_OR_PADDING * 2)
           .attr('height', INNER_BOX.INDICATOR_HEIGHT)
 
         continueIndicator
@@ -783,11 +764,9 @@ function EventTree({
           const refNode = findNodeById(root as HierarchyPointNode<EventTreeNode>, d.data.ref)
           const refNodeLabel = refNode?.type === 'choice' ? refNode.choiceLabel : refNode?.text
 
-          // Calculate label text (wrap and take first line)
-          // Subtract horizontal margins from indicator box (INNER_BOX.HORIZONTAL_MARGIN * 2)
           const labelText = refNodeLabel || ''
-          const availableWidth = nodeWidth - INNER_BOX.HORIZONTAL_MARGIN * 2
-          const refNodeLines = wrapTextByFontSize(labelText, availableWidth, 'xxs')
+          const maxTextWidth = nodeWidth - INNER_BOX.HORIZONTAL_MARGIN_OR_PADDING * 4
+          const refNodeLines = wrapEventText(labelText, maxTextWidth)
           const displayLine = refNodeLines[0] || ''
           const truncatedLine = displayLine === labelText ? displayLine : `${displayLine}...`
 
@@ -804,8 +783,8 @@ function EventTree({
           loopIndicator
             .append('rect')
             .attr('class', cx('indicator-box'))
-            .attr('x', -nodeWidth / 2 + INNER_BOX.HORIZONTAL_MARGIN)
-            .attr('width', nodeWidth - INNER_BOX.HORIZONTAL_MARGIN * 2)
+            .attr('x', -nodeWidth / 2 + INNER_BOX.HORIZONTAL_MARGIN_OR_PADDING)
+            .attr('width', nodeWidth - INNER_BOX.HORIZONTAL_MARGIN_OR_PADDING * 2)
             .attr('height', loopIndicatorHeight)
 
           loopIndicator

@@ -1,8 +1,6 @@
 import { HierarchyNode, HierarchyPointNode } from 'd3-hierarchy'
 import { Selection } from 'd3-selection'
 
-import { estimateNeededWidthForTextInNode, wrapTextByFontSize } from '@/shared/utils/textHelper'
-
 import {
   Event,
   EventTreeNode,
@@ -12,6 +10,8 @@ import {
   SpecialNode,
 } from '@/codex/types/events'
 import { TEXT, INNER_BOX, NODE, NODE_BOX } from '@/codex/constants/eventTreeValues'
+
+import { measureEventTextWidth, wrapEventText } from './eventTextWidthEstimation'
 
 interface TreeBounds {
   minX: number
@@ -67,16 +67,14 @@ export const getNodeWidth = (node: EventTreeNode, _event: Event): number => {
   if (dialogueText) {
     width = Math.max(
       width,
-      clampNodeWidth(
-        estimateNeededWidthForTextInNode(dialogueText, 'xxs') + TEXT.HORIZONTAL_PADDING * 2
-      )
+      clampNodeWidth(measureEventTextWidth(dialogueText) + TEXT.HORIZONTAL_PADDING * 2)
     )
   }
 
   const choiceLabel = node.type === 'choice' ? node.choiceLabel : ''
   if (choiceLabel) {
     width = clampNodeWidth(
-      estimateNeededWidthForTextInNode(choiceLabel, 'xs') + TEXT.HORIZONTAL_PADDING * 2
+      measureEventTextWidth(choiceLabel, 'choice') + TEXT.HORIZONTAL_PADDING * 2
     )
   }
 
@@ -92,8 +90,7 @@ export const getNodeWidth = (node: EventTreeNode, _event: Event): number => {
     width = Math.max(
       width,
       clampNodeWidth(
-        estimateNeededWidthForTextInNode(longestRequirement, 'xxs') +
-          INNER_BOX.HORIZONTAL_MARGIN * 4
+        measureEventTextWidth(longestRequirement) + INNER_BOX.HORIZONTAL_MARGIN_OR_PADDING * 4
       )
     )
   }
@@ -109,7 +106,7 @@ export const getNodeWidth = (node: EventTreeNode, _event: Event): number => {
     width = Math.max(
       width,
       clampNodeWidth(
-        estimateNeededWidthForTextInNode(longestEffect, 'xxs') + INNER_BOX.HORIZONTAL_MARGIN * 4
+        measureEventTextWidth(longestEffect) + INNER_BOX.HORIZONTAL_MARGIN_OR_PADDING * 4
       )
     )
   }
@@ -127,6 +124,7 @@ export const getNodeHeight = (
   showLoopingIndicator: boolean
 ): number => {
   const isRootNode = event.rootNode && node.id === event.rootNode.id
+  const maxNodeTextWidth = width - TEXT.HORIZONTAL_PADDING * 2
 
   const continueIndicatorHeight = node.numContinues ? INNER_BOX.INDICATOR_HEIGHT : 0
   const continueIndicatorMargin = continueIndicatorHeight > 0 ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
@@ -140,7 +138,7 @@ export const getNodeHeight = (
 
   if (node.type === 'choice') {
     const requirements = node.requirements || []
-    const choiceLines = wrapTextByFontSize(node.choiceLabel, width, 'xs')
+    const choiceLines = wrapEventText(node.choiceLabel, maxNodeTextWidth, 'choice')
 
     const choiceTextHeight = choiceLines.length * TEXT.CHOICE_TEXT_HEIGHT
     const reqBoxHeight =
@@ -189,7 +187,7 @@ export const getNodeHeight = (
       textHeight = TEXT.COMBAT_TEXT_HEIGHT
       effectsBoxMargin = 0
     } else {
-      const endLines = wrapTextByFontSize(node.text ?? '', width, 'xxs')
+      const endLines = wrapEventText(node.text ?? '', maxNodeTextWidth)
       const numLines = Math.min(endLines.length, TEXT.MAX_DISPLAY_LINES)
       textHeight = numLines * TEXT.LINE_HEIGHT
       // Only add margin if we have both text and effects box
@@ -218,7 +216,7 @@ export const getNodeHeight = (
       let dialogueTextHeight = 0
 
       if (hasText) {
-        const dialogueLines = wrapTextByFontSize(node.text, width, 'xxs')
+        const dialogueLines = wrapEventText(node.text ?? '', maxNodeTextWidth)
         const numLines = Math.min(dialogueLines.length, TEXT.MAX_DISPLAY_LINES)
         dialogueTextHeight = numLines * TEXT.LINE_HEIGHT
       }
@@ -234,7 +232,7 @@ export const getNodeHeight = (
       return contentHeight + NODE_BOX.VERTICAL_PADDING * 2
     }
 
-    const dialogueLines = wrapTextByFontSize(node.text, width, 'xxs')
+    const dialogueLines = wrapEventText(node.text ?? '', maxNodeTextWidth)
     const numLines = Math.min(dialogueLines.length, TEXT.MAX_DISPLAY_LINES)
     const textHeight = numLines * TEXT.LINE_HEIGHT
 
@@ -253,7 +251,7 @@ export const getNodeHeight = (
     let textHeight: number
 
     if (hasText && node.text) {
-      const combatLines = wrapTextByFontSize(node.text, width, 'xxs')
+      const combatLines = wrapEventText(node.text ?? '', maxNodeTextWidth)
       const numLines = Math.min(combatLines.length, TEXT.MAX_DISPLAY_LINES)
       textHeight = numLines * TEXT.LINE_HEIGHT
     } else {
@@ -280,7 +278,7 @@ export const getNodeHeight = (
     let textHeight: number
 
     if (hasText && node.text) {
-      const specialLines = wrapTextByFontSize(node.text, width, 'xxs')
+      const specialLines = wrapEventText(node.text ?? '', maxNodeTextWidth)
       const numLines = Math.min(specialLines.length, TEXT.MAX_DISPLAY_LINES)
       textHeight = numLines * TEXT.LINE_HEIGHT
     } else {
