@@ -828,7 +828,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
             .attr('class', cx('event-node-text', 'event-node-text--indicator'))
             .attr(
               'y',
-              TEXT.LINE_HEIGHT / 2 + TEXT.BASELINE_OFFSET + INNER_BOX.INDICATOR_HEADER_GAP / 3
+              TEXT.LINE_HEIGHT / 2 + TEXT.BASELINE_OFFSET + INNER_BOX.INDICATOR_HEADER_GAP / 2
             )
             .text(`🔄 Loops back to:`)
 

@@ -32,7 +32,7 @@ export const getNodeDimensions = (
   levelOfDetail: LevelOfDetail
 ): [number, number] => {
   const cached = getCachedDimensions(event.name, node.id, showLoopingIndicator, levelOfDetail)
-  const nodeWidth = cached?.width ?? _getNodeWidth(node, event)
+  const nodeWidth = cached?.width ?? _getNodeWidth(node, event, showLoopingIndicator)
   const nodeHeight =
     cached?.height ?? _getNodeHeight(node, event, nodeWidth, showLoopingIndicator, levelOfDetail)
 
@@ -46,7 +46,7 @@ export const getNodeWidth = (
   levelOfDetail: LevelOfDetail
 ): number =>
   getCachedDimensions(event.name, node.id, showLoopingIndicator, levelOfDetail)?.width ??
-  _getNodeWidth(node, event)
+  _getNodeWidth(node, event, showLoopingIndicator)
 
 export const getNodeHeight = (
   node: EventTreeNode,
@@ -112,8 +112,22 @@ export const calculateTreeBounds = (
 /**
  * Calculate dynamic node width based on event node content
  */
-const _getNodeWidth = (node: EventTreeNode, _event: Event): number => {
+const _getNodeWidth = (
+  node: EventTreeNode,
+  _event: Event,
+  showLoopingIndicator: boolean
+): number => {
   let width = NODE.WIDTH_RANGE[0]
+
+  if (showLoopingIndicator && node.ref) {
+    width = Math.max(
+      width,
+      clampNodeWidth(
+        measureEventTextWidth('🔄 Loops back to:', 'indicatorHeader') +
+          INNER_BOX.HORIZONTAL_MARGIN_OR_PADDING * 4
+      )
+    )
+  }
 
   const dialogueText = hasText(node) ? node.text : ''
   if (dialogueText) {

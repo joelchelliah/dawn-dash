@@ -23,6 +23,10 @@ const FONT_CONFIGS = {
     size: 14, // font-size('xs') = 0.875rem
     weight: '600',
   },
+  indicatorHeader: {
+    size: 14,
+    weight: '600',
+  },
 } as const
 
 export type FontConfig = keyof typeof FONT_CONFIGS

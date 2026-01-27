@@ -59,7 +59,7 @@ export const INNER_BOX = {
   INDICATOR_HEIGHT: 24,
 
   // Gap between main node text and indicator boxes (Loops back to, Continue)
-  INDICATOR_TOP_MARGIN: 5,
+  INDICATOR_TOP_MARGIN: 6,
 
   // Gap between indicator header ('Loops back to:') and label text
   INDICATOR_HEADER_GAP: 8,
