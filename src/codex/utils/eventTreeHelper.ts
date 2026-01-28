@@ -193,6 +193,7 @@ const _getNodeHeight = (
 ): number => {
   const isRootNode = event.rootNode && node.id === event.rootNode.id
   const maxNodeTextWidth = width - TEXT.HORIZONTAL_PADDING * 2
+  const maxNodeEffectWidth = width - INNER_BOX.HORIZONTAL_MARGIN_OR_PADDING * 4
   const maxDisplayLines = TEXT.MAX_DISPLAY_LINES_BY_LEVEL_OF_DETAIL[levelOfDetail]
 
   const continueIndicatorHeight = node.numContinues ? INNER_BOX.INDICATOR_HEIGHT : 0
@@ -234,13 +235,14 @@ const _getNodeHeight = (
     // - No text but has effects: only show effects box (no text area)
     // - No text and no effects: show "END" (1 line)
     const hasText = node.text && node.text.trim().length > 0
-    const effects = node.effects || []
-    const hasEffects = effects.length > 0
-
+    const effectLines = (node.effects || []).flatMap((effect) =>
+      wrapEventText(effect, maxNodeEffectWidth)
+    )
+    const hasEffects = effectLines.length > 0
     const effectsBoxHeight = hasEffects
       ? TEXT.LINE_HEIGHT +
         INNER_BOX.LISTINGS_HEADER_GAP +
-        effects.length * TEXT.LINE_HEIGHT +
+        effectLines.length * TEXT.LINE_HEIGHT +
         INNER_BOX.LISTINGS_VERTICAL_PADDING
       : 0
 
@@ -269,14 +271,16 @@ const _getNodeHeight = (
   } else if (node.type === 'dialogue') {
     // Dialogue nodes show up to 2 lines of dialogue text + effects box (if present) + continue box (if present) + loops back to box (if present)
     // Event name is now displayed ABOVE the root node, not inside it
-    const effects = node.effects || []
-    const hasEffects = effects.length > 0
-    const effectsBoxHeight = hasEffects
-      ? TEXT.LINE_HEIGHT +
-        INNER_BOX.LISTINGS_HEADER_GAP +
-        effects.length * TEXT.LINE_HEIGHT +
-        INNER_BOX.LISTINGS_VERTICAL_PADDING
-      : 0
+    const effectLines = (node.effects || []).flatMap((effect) =>
+      wrapEventText(effect, maxNodeEffectWidth)
+    )
+    const effectsBoxHeight =
+      effectLines.length > 0
+        ? TEXT.LINE_HEIGHT +
+          INNER_BOX.LISTINGS_HEADER_GAP +
+          effectLines.length * TEXT.LINE_HEIGHT +
+          INNER_BOX.LISTINGS_VERTICAL_PADDING
+        : 0
     const effectsBoxMargin = effectsBoxHeight > 0 ? INNER_BOX.LISTINGS_TOP_MARGIN : 0
 
     if (isRootNode) {
@@ -328,11 +332,14 @@ const _getNodeHeight = (
       textHeight = TEXT.COMBAT_TEXT_HEIGHT
     }
 
+    const effectLines = (node.effects || []).flatMap((effect) =>
+      wrapEventText(effect, maxNodeEffectWidth)
+    )
     const effectsBoxHeight =
-      node.effects && node.effects.length > 0
+      effectLines.length > 0
         ? TEXT.LINE_HEIGHT +
           INNER_BOX.LISTINGS_HEADER_GAP +
-          node.effects.length * TEXT.LINE_HEIGHT +
+          effectLines.length * TEXT.LINE_HEIGHT +
           INNER_BOX.LISTINGS_VERTICAL_PADDING
         : 0
     const effectsBoxMargin =
@@ -354,11 +361,14 @@ const _getNodeHeight = (
       textHeight = 0
     }
 
+    const effectLines = (node.effects || []).flatMap((effect) =>
+      wrapEventText(effect, maxNodeEffectWidth)
+    )
     const effectsBoxHeight =
-      node.effects && node.effects.length > 0
+      effectLines.length > 0
         ? TEXT.LINE_HEIGHT +
           INNER_BOX.LISTINGS_HEADER_GAP +
-          node.effects.length * TEXT.LINE_HEIGHT +
+          effectLines.length * TEXT.LINE_HEIGHT +
           INNER_BOX.LISTINGS_VERTICAL_PADDING
         : 0
     const effectsBoxMargin =

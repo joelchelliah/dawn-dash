@@ -679,11 +679,14 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
           showLoopingIndicator,
           levelOfDetail
         )
+        const effectLines = effects.flatMap((effect) =>
+          wrapEventText(effect, nodeWidth - INNER_BOX.HORIZONTAL_MARGIN_OR_PADDING * 4)
+        )
 
         const effectsBoxHeight =
           TEXT.LINE_HEIGHT +
           INNER_BOX.LISTINGS_HEADER_GAP +
-          effects.length * TEXT.LINE_HEIGHT +
+          effectLines.length * TEXT.LINE_HEIGHT +
           INNER_BOX.LISTINGS_VERTICAL_PADDING
 
         const continueHeight = eventNode.numContinues ? INNER_BOX.INDICATOR_HEIGHT : 0
@@ -715,7 +718,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
 
         // Add "Effect:" label inside dark box
         const contentHeight =
-          TEXT.LINE_HEIGHT + INNER_BOX.LISTINGS_HEADER_GAP + effects.length * TEXT.LINE_HEIGHT
+          TEXT.LINE_HEIGHT + INNER_BOX.LISTINGS_HEADER_GAP + effectLines.length * TEXT.LINE_HEIGHT
         const listingTopPadding = (effectsBoxHeight - contentHeight) / 2
         effectsGroup
           .append('text')
@@ -724,7 +727,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
           .attr('y', listingTopPadding + TEXT.LINE_HEIGHT)
           .text('Effect:')
 
-        effects.forEach((effect, i) => {
+        effectLines.forEach((effect, i) => {
           effectsGroup
             .append('text')
             .attr('class', cx('event-node-text', 'event-node-text--effect-item'))

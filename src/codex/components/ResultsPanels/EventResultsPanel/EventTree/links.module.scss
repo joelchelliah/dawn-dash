@@ -15,8 +15,8 @@
 .loop-back-link {
   fill: none;
   stroke-width: 2px;
-  stroke-dasharray: 5, 5;
-  opacity: 0.5;
+  stroke-dasharray: 10, 10;
+  opacity: 0.75;
 
   @each $type, $color in $event-node-type-to-color-map {
     &--#{$type} {
