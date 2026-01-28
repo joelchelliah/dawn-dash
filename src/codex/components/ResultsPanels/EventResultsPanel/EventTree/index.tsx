@@ -26,6 +26,7 @@ import {
   getNodeDimensions,
   cacheAllNodeDimensions,
   getNodeTextOrChoiceLabel,
+  hasContinues,
 } from '@/codex/utils/eventTreeHelper'
 import {
   adjustHorizontalNodeSpacing,
@@ -232,9 +233,6 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
             requirements.length * TEXT.LINE_HEIGHT +
             INNER_BOX.LISTINGS_VERTICAL_PADDING
           : 0
-        const hasContinue = data.numContinues && data.numContinues > 0
-        const continueIndicatorHeight = hasContinue ? INNER_BOX.INDICATOR_HEIGHT : 0
-        const continueIndicatorMargin = hasContinue ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
         const hasLoopingIndicator = showLoopingIndicator && data.ref
         const loopIndicatorHeight = hasLoopingIndicator
           ? INNER_BOX.INDICATOR_HEIGHT + TEXT.LINE_HEIGHT + INNER_BOX.INDICATOR_HEADER_GAP
@@ -254,8 +252,6 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
           NODE_BOX.VERTICAL_PADDING * 2 -
           reqBoxMargin -
           reqBoxHeight -
-          continueIndicatorHeight -
-          continueIndicatorMargin -
           loopIndicatorHeight -
           loopIndicatorMargin
 
@@ -297,8 +293,6 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
           currentNodeHeight / 2 -
           NODE_BOX.VERTICAL_PADDING -
           reqBoxHeight -
-          continueIndicatorMargin -
-          continueIndicatorHeight -
           loopIndicatorMargin -
           loopIndicatorHeight
 
@@ -384,7 +378,10 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
             .append('text')
             .attr('class', cx('event-node-text', 'event-node-text--no-text-fallback'))
             .attr('x', 0)
-            .attr('y', textAreaCenter + TEXT.COMBAT_BASELINE_OFFSET - TEXT.COMBAT_TEXT_HEIGHT / 2)
+            .attr(
+              'y',
+              textAreaCenter + TEXT.REPLACED_TEXT_BASELINE_OFFSET - TEXT.REPLACED_TEXT_HEIGHT / 2
+            )
             .text('END')
         } else {
           const maxTextWidth = currentNodeWidth - TEXT.HORIZONTAL_PADDING * 2
@@ -592,7 +589,10 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
             .append('text')
             .attr('class', cx('event-node-text', 'event-node-text--no-text-fallback'))
             .attr('x', 0)
-            .attr('y', textAreaCenter + TEXT.COMBAT_BASELINE_OFFSET - TEXT.COMBAT_TEXT_HEIGHT / 2)
+            .attr(
+              'y',
+              textAreaCenter + TEXT.REPLACED_TEXT_BASELINE_OFFSET - TEXT.REPLACED_TEXT_HEIGHT / 2
+            )
             .text('FIGHT!')
         }
       } else if (data.type === 'special') {
@@ -668,9 +668,6 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
             requirements.length * TEXT.LINE_HEIGHT +
             INNER_BOX.LISTINGS_VERTICAL_PADDING
           : 0
-        const hasContinue = data.numContinues && data.numContinues > 0
-        const continueIndicatorHeight = hasContinue ? INNER_BOX.INDICATOR_HEIGHT : 0
-        const continueIndicatorMargin = hasContinue ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
         const hasLoopingIndicator = showLoopingIndicator && data.ref
         const loopIndicatorHeight = hasLoopingIndicator
           ? INNER_BOX.INDICATOR_HEIGHT + TEXT.LINE_HEIGHT + INNER_BOX.INDICATOR_HEADER_GAP
@@ -690,8 +687,6 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
           NODE_BOX.VERTICAL_PADDING * 2 -
           reqBoxMargin -
           reqBoxHeight -
-          continueIndicatorHeight -
-          continueIndicatorMargin -
           loopIndicatorHeight -
           loopIndicatorMargin
 
@@ -731,8 +726,6 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
           currentNodeHeight / 2 -
           NODE_BOX.VERTICAL_PADDING -
           reqBoxHeight -
-          continueIndicatorMargin -
-          continueIndicatorHeight -
           loopIndicatorMargin -
           loopIndicatorHeight
 
@@ -800,7 +793,8 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
           effectLines.length * TEXT.LINE_HEIGHT +
           INNER_BOX.LISTINGS_VERTICAL_PADDING
 
-        const continueHeight = eventNode.numContinues ? INNER_BOX.INDICATOR_HEIGHT : 0
+        const hasContinues = eventNode.type === 'dialogue' && eventNode.numContinues
+        const continueHeight = hasContinues ? INNER_BOX.INDICATOR_HEIGHT : 0
         const continueMargin = continueHeight > 0 ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
         const showLoopsBackTo = showLoopingIndicator && eventNode.ref
         const loopIndicatorHeight = showLoopsBackTo
@@ -856,7 +850,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
 
     // Add `Continue` indicators
     nodes
-      .filter((d) => Boolean(d.data.numContinues && d.data.numContinues > 0))
+      .filter((d) => hasContinues(d.data))
       .each(function (d) {
         const node = select(this)
         const [nodeWidth, nodeHeight] = getNodeDimensions(
@@ -870,7 +864,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
           ? INNER_BOX.INDICATOR_HEIGHT + TEXT.LINE_HEIGHT + INNER_BOX.INDICATOR_HEADER_GAP
           : 0
         const loopIndicatorMargin = showLoopsBackTo ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
-        const numContinues = d.data.numContinues ?? 0
+        const numContinues = hasContinues(d.data) ? (d.data.numContinues ?? 0) : 0
 
         // Position from bottom: margin is already in nodeHeight, just position the box
         const continueIndicatorY =

@@ -32,7 +32,7 @@ export const getNodeDimensions = (
   levelOfDetail: LevelOfDetail
 ): [number, number] => {
   const cached = getCachedDimensions(event.name, node.id, showLoopingIndicator, levelOfDetail)
-  const nodeWidth = cached?.width ?? _getNodeWidth(node, event, showLoopingIndicator)
+  const nodeWidth = cached?.width ?? _getNodeWidth(node, event, showLoopingIndicator, levelOfDetail)
   const nodeHeight =
     cached?.height ?? _getNodeHeight(node, event, nodeWidth, showLoopingIndicator, levelOfDetail)
 
@@ -46,7 +46,7 @@ export const getNodeWidth = (
   levelOfDetail: LevelOfDetail
 ): number =>
   getCachedDimensions(event.name, node.id, showLoopingIndicator, levelOfDetail)?.width ??
-  _getNodeWidth(node, event, showLoopingIndicator)
+  _getNodeWidth(node, event, showLoopingIndicator, levelOfDetail)
 
 export const getNodeHeight = (
   node: EventTreeNode,
@@ -115,9 +115,13 @@ export const calculateTreeBounds = (
 const _getNodeWidth = (
   node: EventTreeNode,
   _event: Event,
-  showLoopingIndicator: boolean
+  showLoopingIndicator: boolean,
+  levelOfDetail: LevelOfDetail
 ): number => {
-  let width = NODE.WIDTH_RANGE[0]
+  const shouldShowText = levelOfDetail !== LevelOfDetail.COMPACT
+  const numContinues = node.type === 'dialogue' ? (node.numContinues ?? 0) : 0
+
+  let width = shouldShowText ? NODE.WIDTH_RANGE[0] : NODE.COMPACT_WIDTH
 
   if (showLoopingIndicator && node.ref) {
     width = Math.max(
@@ -129,8 +133,18 @@ const _getNodeWidth = (
     )
   }
 
+  if (numContinues > 0) {
+    width = Math.max(
+      width,
+      clampNodeWidth(
+        measureEventTextWidth(`⏭️ Continues: ${numContinues}`, 'indicatorHeader') +
+          INNER_BOX.HORIZONTAL_MARGIN_OR_PADDING * 4
+      )
+    )
+  }
+
   const dialogueText = hasText(node) ? node.text : ''
-  if (dialogueText) {
+  if (dialogueText && shouldShowText) {
     width = Math.max(
       width,
       clampNodeWidth(measureEventTextWidth(dialogueText) + TEXT.HORIZONTAL_PADDING * 2)
@@ -196,8 +210,6 @@ const _getNodeHeight = (
   const maxNodeEffectWidth = width - INNER_BOX.HORIZONTAL_MARGIN_OR_PADDING * 4
   const maxDisplayLines = TEXT.MAX_DISPLAY_LINES_BY_LEVEL_OF_DETAIL[levelOfDetail]
 
-  const continueIndicatorHeight = node.numContinues ? INNER_BOX.INDICATOR_HEIGHT : 0
-  const continueIndicatorMargin = continueIndicatorHeight > 0 ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
   const loopIndicatorHeight =
     showLoopingIndicator && node.ref
       ? INNER_BOX.INDICATOR_HEIGHT +
@@ -220,13 +232,7 @@ const _getNodeHeight = (
         : 0
     const reqBoxMargin = reqBoxHeight > 0 ? INNER_BOX.LISTINGS_TOP_MARGIN : 0
 
-    const contentHeight =
-      choiceTextHeight +
-      reqBoxMargin +
-      reqBoxHeight +
-      continueIndicatorMargin +
-      continueIndicatorHeight +
-      loopIndicatorHeight
+    const contentHeight = choiceTextHeight + reqBoxMargin + reqBoxHeight + loopIndicatorHeight
 
     return contentHeight + NODE_BOX.VERTICAL_PADDING * 2
   } else if (node.type === 'end') {
@@ -255,7 +261,7 @@ const _getNodeHeight = (
       effectsBoxMargin = 0
     } else if (!hasText && !hasEffects) {
       // No text, no effects: show "END" (1 line)
-      textHeight = TEXT.COMBAT_TEXT_HEIGHT
+      textHeight = TEXT.REPLACED_TEXT_HEIGHT
       effectsBoxMargin = 0
     } else {
       const endLines = wrapEventText(node.text ?? '', maxNodeTextWidth)
@@ -269,8 +275,12 @@ const _getNodeHeight = (
 
     return contentHeight + NODE_BOX.VERTICAL_PADDING * 2
   } else if (node.type === 'dialogue') {
-    // Dialogue nodes show up to 2 lines of dialogue text + effects box (if present) + continue box (if present) + loops back to box (if present)
-    // Event name is now displayed ABOVE the root node, not inside it
+    const shouldShowText = levelOfDetail !== LevelOfDetail.COMPACT
+    const hasText = shouldShowText && node.text && node.text.trim().length > 0
+
+    const continueIndicatorHeight = node.numContinues ? INNER_BOX.INDICATOR_HEIGHT : 0
+    const continueIndicatorMargin =
+      hasText && continueIndicatorHeight > 0 ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
     const effectLines = (node.effects || []).flatMap((effect) =>
       wrapEventText(effect, maxNodeEffectWidth)
     )
@@ -284,8 +294,6 @@ const _getNodeHeight = (
     const effectsBoxMargin = effectsBoxHeight > 0 ? INNER_BOX.LISTINGS_TOP_MARGIN : 0
 
     if (isRootNode) {
-      // Add dialogue text if present (up to 2 lines)
-      const hasText = node.text && node.text.trim().length > 0
       let dialogueTextHeight = 0
 
       if (hasText) {
@@ -319,17 +327,16 @@ const _getNodeHeight = (
 
     return contentHeight + NODE_BOX.VERTICAL_PADDING * 2
   } else if (node.type === 'combat') {
-    // Combat nodes show text (up to 2 lines) or "COMBAT!" fallback + effects box (if any) + loops back to box (if present)
     const hasText = node.text && node.text.trim().length > 0
     let textHeight: number
 
-    if (hasText && node.text) {
+    if (hasText) {
       const combatLines = wrapEventText(node.text ?? '', maxNodeTextWidth)
       const numLines = Math.min(combatLines.length, maxDisplayLines)
       textHeight = numLines * TEXT.LINE_HEIGHT
     } else {
-      // Fallback to "COMBAT!" text
-      textHeight = TEXT.COMBAT_TEXT_HEIGHT
+      // Fallback to "FIGHT!" text
+      textHeight = TEXT.REPLACED_TEXT_HEIGHT
     }
 
     const effectLines = (node.effects || []).flatMap((effect) =>
@@ -388,8 +395,7 @@ const _getNodeHeight = (
           INNER_BOX.LISTINGS_VERTICAL_PADDING
         : 0
 
-    const contentHeight =
-      reqBoxHeight + continueIndicatorMargin + continueIndicatorHeight + loopIndicatorHeight
+    const contentHeight = reqBoxHeight + loopIndicatorHeight
 
     return contentHeight + NODE_BOX.VERTICAL_PADDING * 2
   }
@@ -423,6 +429,10 @@ export const hasEffects = (
     node.type === 'special'
 
   return isEffectsNode && (node.effects ?? []).length > 0
+}
+
+export const hasContinues = (node: EventTreeNode): node is DialogueNode => {
+  return Boolean(node.type === 'dialogue' && node.numContinues)
 }
 
 /**

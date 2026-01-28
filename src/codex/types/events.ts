@@ -20,6 +20,7 @@ export interface DialogueNode extends BaseNode {
   type: 'dialogue'
   text: string
   effects?: string[]
+  numContinues?: number
 }
 
 export interface ChoiceNode extends BaseNode {
@@ -55,7 +56,6 @@ export interface ResultNode extends BaseNode {
 interface BaseNode {
   id: number
   children?: EventTreeNode[]
-  numContinues?: number
   ref?: number
   refChildren?: number[]
 }
