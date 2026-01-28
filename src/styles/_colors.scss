@@ -126,17 +126,19 @@ $tier-name-to-color-map: (
 // -- -- -- -- -- -- -- //
 
 // -- Event node colors -- //
-$color-event-node-dialogue: #1692ff;
-$color-event-node-choice: #f3a814;
+$color-event-node-dialogue: #1190ff;
+$color-event-node-choice: #ffb115;
 $color-event-node-combat: #ec2813;
-$color-event-node-special: #ea39fa;
-$color-event-node-end: #396b48;
+$color-event-node-special: #bd30ff;
+$color-event-node-result: #ff64b9;
+$color-event-node-end: #2b6348;
 
 $event-node-type-to-color-map: (
   'dialogue': $color-event-node-dialogue,
   'choice': $color-event-node-choice,
   'combat': $color-event-node-combat,
   'special': $color-event-node-special,
+  'result': $color-event-node-result,
   'end': $color-event-node-end,
 );
 // -- -- -- -- -- -- -- //

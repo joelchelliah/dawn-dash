@@ -146,7 +146,7 @@ const _getNodeWidth = (
   }
 
   const longestRequirement =
-    node.type === 'choice'
+    node.type === 'choice' || node.type === 'result'
       ? node.requirements?.reduce(
           (longest, requirement) => (requirement.length > longest.length ? requirement : longest),
           ''
@@ -354,9 +354,9 @@ const _getNodeHeight = (
     let textHeight: number
 
     if (hasText && node.text) {
-      const specialLines = wrapEventText(node.text ?? '', maxNodeTextWidth)
+      const specialLines = wrapEventText(node.text ?? '', maxNodeTextWidth, 'special')
       const numLines = Math.min(specialLines.length, maxDisplayLines)
-      textHeight = numLines * TEXT.LINE_HEIGHT
+      textHeight = numLines * TEXT.SPECIAL_TEXT_HEIGHT
     } else {
       textHeight = 0
     }
@@ -375,6 +375,21 @@ const _getNodeHeight = (
       textHeight > 0 && effectsBoxHeight > 0 ? INNER_BOX.LISTINGS_TOP_MARGIN : 0
 
     const contentHeight = textHeight + effectsBoxMargin + effectsBoxHeight + loopIndicatorHeight
+
+    return contentHeight + NODE_BOX.VERTICAL_PADDING * 2
+  } else if (node.type === 'result') {
+    const requirements = node.requirements || []
+
+    const reqBoxHeight =
+      requirements.length > 0
+        ? TEXT.LINE_HEIGHT +
+          INNER_BOX.LISTINGS_HEADER_GAP +
+          requirements.length * TEXT.LINE_HEIGHT +
+          INNER_BOX.LISTINGS_VERTICAL_PADDING
+        : 0
+
+    const contentHeight =
+      reqBoxHeight + continueIndicatorMargin + continueIndicatorHeight + loopIndicatorHeight
 
     return contentHeight + NODE_BOX.VERTICAL_PADDING * 2
   }
@@ -441,6 +456,13 @@ export const findNodeById = (
   id: number | undefined
 ): EventTreeNode | undefined =>
   root && id ? root.descendants().find((d) => d.data.id === id)?.data : undefined
+
+export const getNodeTextOrChoiceLabel = (node: EventTreeNode | undefined): string | undefined => {
+  if (!node) return undefined
+  if (node.type === 'choice') return node.choiceLabel
+  if (node.type === 'result') return undefined
+  return node.text
+}
 
 /**
  * Creates an SVG glow filter for node effects

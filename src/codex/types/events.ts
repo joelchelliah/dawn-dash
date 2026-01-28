@@ -1,5 +1,5 @@
 // Node types that can appear in the event tree
-export type EventNodeType = 'dialogue' | 'choice' | 'combat' | 'special' | 'end'
+export type EventNodeType = 'dialogue' | 'choice' | 'combat' | 'special' | 'result' | 'end'
 
 export interface Event {
   name: string
@@ -8,7 +8,13 @@ export interface Event {
   rootNode: EventTreeNode
 }
 
-export type EventTreeNode = DialogueNode | ChoiceNode | EndNode | CombatNode | SpecialNode
+export type EventTreeNode =
+  | DialogueNode
+  | ChoiceNode
+  | EndNode
+  | CombatNode
+  | SpecialNode
+  | ResultNode
 
 export interface DialogueNode extends BaseNode {
   type: 'dialogue'
@@ -38,6 +44,12 @@ export interface SpecialNode extends BaseNode {
   type: 'special'
   text?: string
   effects?: string[]
+}
+
+export interface ResultNode extends BaseNode {
+  type: 'result'
+  requirements?: string[]
+  children?: EventTreeNode[]
 }
 
 interface BaseNode {

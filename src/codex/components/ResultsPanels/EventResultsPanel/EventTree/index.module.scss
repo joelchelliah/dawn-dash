@@ -166,7 +166,9 @@
   text-anchor: middle;
   pointer-events: none;
 
-  &--choice {
+  &--choice,
+  &--special,
+  &--result {
     font-size: font-size('xs');
     font-weight: 600;
 
@@ -177,7 +179,6 @@
 
   &--dialogue,
   &--combat,
-  &--special,
   &--end {
     font-size: font-size('xxs');
   }

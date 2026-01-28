@@ -25,6 +25,7 @@ import {
   createGlowFilter,
   getNodeDimensions,
   cacheAllNodeDimensions,
+  getNodeTextOrChoiceLabel,
 } from '@/codex/utils/eventTreeHelper'
 import {
   adjustHorizontalNodeSpacing,
@@ -248,7 +249,6 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
         )
         const reqBoxMargin = reqBoxHeight > 0 ? INNER_BOX.LISTINGS_TOP_MARGIN : 0
 
-        // The text area is: total height minus vertical padding, bottom boxes and their margin
         const textAreaHeight =
           currentNodeHeight -
           NODE_BOX.VERTICAL_PADDING * 2 -
@@ -259,7 +259,6 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
           loopIndicatorHeight -
           loopIndicatorMargin
 
-        // Center the text within this area, offset by top padding
         const textAreaCenter =
           -currentNodeHeight / 2 + NODE_BOX.VERTICAL_PADDING + textAreaHeight / 2
 
@@ -303,7 +302,6 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
           loopIndicatorMargin -
           loopIndicatorHeight
 
-        // Add requirements box if present (above continue indicator and loop indicator)
         if (hasRequirements) {
           const reqGroup = node.append('g').attr('transform', `translate(0, ${requirementsBoxY})`)
 
@@ -315,7 +313,6 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
             .attr('width', currentNodeWidth - INNER_BOX.HORIZONTAL_MARGIN_OR_PADDING * 2)
             .attr('height', reqBoxHeight)
 
-          // Add "Requires:" label inside inner box
           const contentHeight =
             TEXT.LINE_HEIGHT +
             INNER_BOX.LISTINGS_HEADER_GAP +
@@ -328,7 +325,6 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
             .attr('y', listingTopPadding + TEXT.LINE_HEIGHT)
             .text('Requires:')
 
-          // Add each requirement on its own line
           requirements.forEach((req, i) => {
             reqGroup
               .append('text')
@@ -638,7 +634,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
 
         if (hasText && data.text) {
           const maxTextWidth = currentNodeWidth - TEXT.HORIZONTAL_PADDING * 2
-          const specialLines = wrapEventText(data.text, maxTextWidth)
+          const specialLines = wrapEventText(data.text, maxTextWidth, 'special')
           const displayLines = specialLines.slice(0, maxDisplayLines)
 
           // If there are more lines than we can display, truncate the last line
@@ -648,11 +644,11 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
           }
 
           // Center the lines vertically based on actual number of lines
-          const totalTextHeight = displayLines.length * TEXT.LINE_HEIGHT
-          const verticalCenteringOffset = -totalTextHeight / 2 + TEXT.BASELINE_OFFSET
+          const totalTextHeight = displayLines.length * TEXT.SPECIAL_TEXT_HEIGHT
+          const verticalCenteringOffset = -totalTextHeight / 2 + TEXT.SPECIAL_BASELINE_OFFSET
 
           displayLines.forEach((line, i) => {
-            const y = textAreaCenter + i * TEXT.LINE_HEIGHT + verticalCenteringOffset
+            const y = textAreaCenter + i * TEXT.SPECIAL_TEXT_HEIGHT + verticalCenteringOffset
             const text = line === 'default' ? '—' : line
 
             node
@@ -661,6 +657,121 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
               .attr('x', 0)
               .attr('y', y)
               .text(text)
+          })
+        }
+      } else if (data.type === 'result') {
+        const requirements = data.requirements || []
+        const hasRequirements = requirements.length > 0
+        const reqBoxHeight = hasRequirements
+          ? TEXT.LINE_HEIGHT +
+            INNER_BOX.LISTINGS_HEADER_GAP +
+            requirements.length * TEXT.LINE_HEIGHT +
+            INNER_BOX.LISTINGS_VERTICAL_PADDING
+          : 0
+        const hasContinue = data.numContinues && data.numContinues > 0
+        const continueIndicatorHeight = hasContinue ? INNER_BOX.INDICATOR_HEIGHT : 0
+        const continueIndicatorMargin = hasContinue ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
+        const hasLoopingIndicator = showLoopingIndicator && data.ref
+        const loopIndicatorHeight = hasLoopingIndicator
+          ? INNER_BOX.INDICATOR_HEIGHT + TEXT.LINE_HEIGHT + INNER_BOX.INDICATOR_HEADER_GAP
+          : 0
+        const loopIndicatorMargin = hasLoopingIndicator ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
+
+        const [currentNodeWidth, currentNodeHeight] = getNodeDimensions(
+          data,
+          event,
+          showLoopingIndicator,
+          levelOfDetail
+        )
+        const reqBoxMargin = reqBoxHeight > 0 ? INNER_BOX.LISTINGS_TOP_MARGIN : 0
+
+        const textAreaHeight =
+          currentNodeHeight -
+          NODE_BOX.VERTICAL_PADDING * 2 -
+          reqBoxMargin -
+          reqBoxHeight -
+          continueIndicatorHeight -
+          continueIndicatorMargin -
+          loopIndicatorHeight -
+          loopIndicatorMargin
+
+        const textAreaCenter =
+          -currentNodeHeight / 2 + NODE_BOX.VERTICAL_PADDING + textAreaHeight / 2
+
+        const labelGroup = node.append('g').attr('transform', `translate(0, ${textAreaCenter})`)
+
+        // Text not supported yet for result nodes.
+        const textLines = ['']
+        const isDefault = false
+
+        // Center the text lines vertically within the label group
+        const totalTextHeight = textLines.length * TEXT.CHOICE_TEXT_HEIGHT
+        const defaultChoiceOffset = isDefault ? 0.125 * TEXT.CHOICE_TEXT_HEIGHT : 0
+        const verticalCenteringOffset =
+          -totalTextHeight / 2 + TEXT.CHOICE_BASELINE_OFFSET + defaultChoiceOffset
+
+        textLines.forEach((line, i) => {
+          const yPosition = i * TEXT.CHOICE_TEXT_HEIGHT + verticalCenteringOffset
+          const text = isDefault ? '—' : line
+
+          labelGroup
+            .append('text')
+            .attr(
+              'class',
+              cx('event-node-text', 'event-node-text--result', {
+                'event-node-text--result--default': isDefault,
+              })
+            )
+            .attr('x', 0)
+            .attr('y', yPosition)
+            .text(text)
+        })
+
+        const requirementsBoxY =
+          currentNodeHeight / 2 -
+          NODE_BOX.VERTICAL_PADDING -
+          reqBoxHeight -
+          continueIndicatorMargin -
+          continueIndicatorHeight -
+          loopIndicatorMargin -
+          loopIndicatorHeight
+
+        if (hasRequirements) {
+          const reqGroup = node.append('g').attr('transform', `translate(0, ${requirementsBoxY})`)
+
+          reqGroup
+            .append('rect')
+            .attr('class', cx('inner-box'))
+            .attr('x', -currentNodeWidth / 2 + INNER_BOX.HORIZONTAL_MARGIN_OR_PADDING)
+            .attr('y', 0)
+            .attr('width', currentNodeWidth - INNER_BOX.HORIZONTAL_MARGIN_OR_PADDING * 2)
+            .attr('height', reqBoxHeight)
+
+          const contentHeight =
+            TEXT.LINE_HEIGHT +
+            INNER_BOX.LISTINGS_HEADER_GAP +
+            requirements.length * TEXT.LINE_HEIGHT
+          const listingTopPadding = (reqBoxHeight - contentHeight) / 2
+          reqGroup
+            .append('text')
+            .attr('class', cx('event-node-text', 'event-node-text--requirement-header'))
+            .attr('x', -currentNodeWidth / 2 + INNER_BOX.HORIZONTAL_MARGIN_OR_PADDING * 2)
+            .attr('y', listingTopPadding + TEXT.LINE_HEIGHT)
+            .text('Requires:')
+
+          requirements.forEach((req, i) => {
+            reqGroup
+              .append('text')
+              .attr('class', cx('event-node-text', 'event-node-text--requirement-item'))
+              .attr('x', -currentNodeWidth / 2 + INNER_BOX.HORIZONTAL_MARGIN_OR_PADDING * 2)
+              .attr(
+                'y',
+                listingTopPadding +
+                  TEXT.LINE_HEIGHT +
+                  INNER_BOX.LISTINGS_HEADER_GAP +
+                  (i + 1) * TEXT.LINE_HEIGHT
+              )
+              .text(req)
           })
         }
       }
@@ -801,7 +912,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
           )
 
           const refNode = findNodeById(root as HierarchyPointNode<EventTreeNode>, d.data.ref)
-          const refNodeLabel = refNode?.type === 'choice' ? refNode.choiceLabel : refNode?.text
+          const refNodeLabel = getNodeTextOrChoiceLabel(refNode)
 
           const labelText = refNodeLabel || ''
           const maxTextWidth = nodeWidth - INNER_BOX.HORIZONTAL_MARGIN_OR_PADDING * 4

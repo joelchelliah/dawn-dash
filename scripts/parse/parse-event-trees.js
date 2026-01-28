@@ -100,6 +100,93 @@ function detectRandomVariables(inkJsonString) {
 }
 
 /**
+ * Detect knot definitions in Ink JSON root[2]
+ * Knots are named sections of story that can be called dynamically by game commands
+ * Returns a map of knot names to their content arrays
+ */
+function detectKnotDefinitions(inkJson) {
+  const knots = new Map()
+
+  // Knot definitions are typically at root[2] (root[0] is main flow, root[1] is "done", root[2] is knots)
+  if (Array.isArray(inkJson.root) && inkJson.root.length > 2) {
+    const definitions = inkJson.root[2]
+
+    if (typeof definitions === 'object' && definitions !== null && !Array.isArray(definitions)) {
+      Object.entries(definitions).forEach(([knotName, knotBody]) => {
+        // Skip metadata keys that start with #
+        if (knotName.startsWith('#')) return
+
+        knots.set(knotName, knotBody)
+      })
+    }
+  }
+
+  return knots
+}
+
+/**
+ * Parse knot content directly from Ink JSON structure
+ * Returns a node representing the knot's outcome
+ */
+function parseKnotContentManually(knotBody) {
+  if (!Array.isArray(knotBody)) return null
+
+  let text = ''
+
+  // Walk through knot body elements
+  for (const element of knotBody) {
+    if (typeof element === 'string') {
+      // Remove ^ prefix if present (Ink text marker)
+      const cleaned = element.startsWith('^') ? element.substring(1) : element
+
+      // Check if this is a command after removing ^
+      if (cleaned.startsWith('>>>>') || cleaned.startsWith('>>>')) {
+        // Effect/command - add with newline separator to ensure proper extraction
+        text += '\n' + cleaned
+      } else if (cleaned === '\n' || element === '\n') {
+        // Preserve newlines from original Ink
+        text += '\n'
+      } else if (cleaned) {
+        // Regular text content
+        text += cleaned
+      }
+    }
+    // Skip other Ink control structures (objects, arrays, etc.)
+  }
+
+  // Use existing extractEffects to parse the text
+  const { effects: extractedEffects, cleanedText } = extractEffects(text)
+
+  return createNode({
+    id: generateNodeId(),
+    text: cleanedText || ``,
+    type: 'end',
+    effects: extractedEffects.length > 0 ? extractedEffects : undefined,
+  })
+}
+
+/**
+ * Check if effects contain branching commands that trigger knot exploration
+ * Returns the branching command name if found, null otherwise
+ */
+function detectBranchingCommand(effects) {
+  if (!effects || effects.length === 0) return null
+
+  // Known branching commands that trigger dynamic knot selection
+  const branchingCommands = ['COLLECTOR']
+
+  for (const effect of effects) {
+    for (const cmd of branchingCommands) {
+      if (effect.toUpperCase() === cmd) {
+        return cmd
+      }
+    }
+  }
+
+  return null
+}
+
+/**
  * Parse function/knot definitions from Ink JSON and extract their return values
  * Returns a map of function names to their possible return values
  * Example: { "random": ["Recall", "Figmented", "Reliable", "Firecast", "Chain", "Memorized"] }
@@ -300,6 +387,9 @@ function parseInkStory(inkJsonString, eventName) {
     const functionDefinitions = parseFunctionDefinitions(inkJson)
     const functionCalls = detectFunctionCalls(inkJson)
 
+    // Detect knot definitions (for events with dynamic branching like COLLECTOR)
+    const knots = detectKnotDefinitions(inkJson)
+
     // Log detected random variables for debugging
     if (randomVars.size > 0) {
       const varList = Array.from(randomVars.entries())
@@ -347,6 +437,12 @@ function parseInkStory(inkJsonString, eventName) {
       }
     }
 
+    // Log detected knots for debugging
+    if (knots.size > 0) {
+      const knotList = Array.from(knots.keys()).join(', ')
+      console.log(`  🔀 Event "${eventName}" has ${knots.size} knots: ${knotList}`)
+    }
+
     const story = new Story(inkJsonString)
 
     // Build tree by exploring all possible paths
@@ -361,7 +457,8 @@ function parseInkStory(inkJsonString, eventName) {
       new Map(),
       randomVars,
       functionDefinitions,
-      functionCalls
+      functionCalls,
+      knots
     )
 
     if (!rootNode) {
@@ -410,7 +507,8 @@ function buildTreeFromStory(
   textToNodeId = new Map(),
   randomVars = new Map(),
   functionDefinitions = new Map(),
-  functionCalls = new Map()
+  functionCalls = new Map(),
+  knots = new Map()
 ) {
   // RESET node counter when transitioning from sibling-first to depth-first
   // This happens exactly ONCE when we first reach SIBLING_FIRST_DEPTH
@@ -616,9 +714,47 @@ function buildTreeFromStory(
   // Track ancestor texts (unused but kept for potential future use)
   const newAncestorTexts = cleanedText ? [...ancestorTexts, cleanedText] : ancestorTexts
 
-  // If we have no cleaned text and no choices, check if it's a special node type
+  // SPECIAL CASE: Check for branching commands BEFORE other early returns
+  // Branching commands (like COLLECTOR) trigger exploration of knot definitions
+  if (choices.length === 0) {
+    const branchingCommand = detectBranchingCommand(effects)
+
+    if (branchingCommand && knots.size > 0) {
+      // This is a dynamic branching point - explore all knots as conditional branches
+      console.log(
+        `  🔀 [${eventName}] Found ${branchingCommand} command - exploring ${knots.size} knots`
+      )
+
+      const knotBranches = []
+      knots.forEach((knotBody, knotName) => {
+        const knotNode = parseKnotContentManually(knotBody)
+        if (knotNode) {
+          // Wrap in a result node to show it's a conditional branch of the special node
+          knotBranches.push(
+            createNode({
+              id: generateNodeId(),
+              type: 'result',
+              requirements: [`${branchingCommand}: ${knotName}`],
+              children: [knotNode],
+            })
+          )
+        }
+      })
+
+      totalNodesInCurrentEvent++
+      // Return the branching point node with all knot branches as children
+      return createNode({
+        id: generateNodeId(),
+        text: branchingCommand,
+        type: 'special',
+        effects,
+        children: knotBranches,
+      })
+    }
+  }
+
   if (!cleanedText && choices.length === 0) {
-    // If it's a combat or special command node, keep it
+    // If it's a combat or end node, keep it
     if (type === 'combat') {
       // Combat-only event (like Ambush with >>>>COMBAT:random)
       totalNodesInCurrentEvent++
@@ -644,9 +780,6 @@ function buildTreeFromStory(
     // If we're at a leaf node with no text and no effects (e.g., "Leave" choice with just "end"),
     // create an empty end node instead of returning null
     // This ensures choices that lead to immediate endings are still represented in the tree
-
-    // Debug logging for empty end nodes (disabled)
-    // Uncomment to see where empty end nodes are created
 
     totalNodesInCurrentEvent++
     return createNode({
@@ -942,7 +1075,8 @@ function buildTreeFromStory(
           newTextToNodeId,
           randomVars,
           functionDefinitions,
-          functionCalls
+          functionCalls,
+          knots
         )
 
         if (childNode) {
@@ -983,7 +1117,8 @@ function buildTreeFromStory(
       newTextToNodeId,
       randomVars,
       functionDefinitions,
-      functionCalls
+      functionCalls,
+      knots
     )
 
     if (childNode) {
@@ -1344,7 +1479,8 @@ function extractEffects(text, functionDefinitions = new Map(), functionCalls = n
   // Extract entire command sequences: >>>>COMMAND1:value1;COMMAND2:value2;COMMAND3
   // Pattern matches from >>> until we hit a newline, quote, or end
   // Includes uppercase, lowercase, numbers, and common punctuation in values
-  const commandSequencePattern = />>>>?[A-Za-z0-9_:;'\[\]\(\)\s\-\/]+(?=\n|"|$)/gi
+  // Note: Use [ \t] instead of \s to avoid matching newlines (which would break multi-line command extraction)
+  const commandSequencePattern = />>>>?[A-Za-z0-9_:;'\[\]\(\)  \t\-\/]+(?=\n|"|$)/gi
 
   cleaned = cleaned.replace(commandSequencePattern, (commandSequence) => {
     // Now split the sequence by semicolons and process each command
@@ -1521,9 +1657,9 @@ function cleanText(text) {
  * - 'choice': Choice wrapper node (created by separateChoicesFromEffects)
  * - 'combat': Combat encounter node
  * - 'end': Terminal node (no children)
- * - 'special': Custom node type for special game mechanics (e.g., CARDPUZZLE)
- *              that require external handling. Only created via event alterations.
- *              So probably won't show up in the usage of this function.
+ * - 'special': Type for special game mechanics (e.g., CARDPUZZLE)
+ *              that require external handling.
+ *  - 'result': Direct children of special nodes containing the result.
  */
 function determineNodeType(text, isLeaf) {
   if (!text) return 'choice'

@@ -16,7 +16,7 @@
   fill: none;
   stroke-width: 2px;
   stroke-dasharray: 10, 10;
-  opacity: 0.75;
+  opacity: 0.68;
 
   @each $type, $color in $event-node-type-to-color-map {
     &--#{$type} {
