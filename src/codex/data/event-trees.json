@@ -16,7 +16,7 @@
           "children": [
             {
               "id": 284,
-              "text": "You find a purse filled with some gold. You find 25 gold! After pocketing the gold, you are surprised by a sudden noise. \"THIEF!\" you hear as the raven swoops down and scratches you with its claws before flying away.<br><br>You are Bleeding",
+              "text": "You find a purse filled with some gold. You find 45 gold! After pocketing the gold, you are surprised by a sudden noise. \"THIEF!\" you hear as the raven swoops down and scratches you with its claws before flying away.<br><br>You are Bleeding",
               "type": "end",
               "effects": [
                 "GOLD: random [20 - 50]",
@@ -2756,7 +2756,7 @@
           "children": [
             {
               "id": 618,
-              "text": "\"Very well. I shall grant you this.\" You get 39 gold! You drop the gemstone as it becomes too hot to touch.",
+              "text": "\"Very well. I shall grant you this.\" You get 43 gold! You drop the gemstone as it becomes too hot to touch.",
               "type": "end",
               "effects": [
                 "GOLD: random [30 - 60]",
@@ -4064,11 +4064,11 @@
                           "children": [
                             {
                               "id": 947,
-                              "text": "\"Well, well, you certainly know how to impress,\" the assassin purrs, a touch of flirtation in her voice. \"It's a rare thing these days, a connoisseur of chance and opportunity, even in the heat of battle.\" With a sly smile, the assassin's finger traces your shoulder as she steps out of the shadows. Coins clink as she turns ever so briefly, \"For a job well done.\" then slips away gracefully, leaving a lavish pouch marked with a golden raven on the counter. You find 39 gold!",
+                              "text": "\"Well, well, you certainly know how to impress,\" the assassin purrs, a touch of flirtation in her voice. \"It's a rare thing these days, a connoisseur of chance and opportunity, even in the heat of battle.\" With a sly smile, the assassin's finger traces your shoulder as she steps out of the shadows. Coins clink as she turns ever so briefly, \"For a job well done.\" then slips away gracefully, leaving a lavish pouch marked with a golden raven on the counter. You find 31 gold!",
                               "type": "dialogue",
                               "effects": [
                                 "QUESTFLAG: metassassin",
-                                "GOLD: 39"
+                                "GOLD: 31"
                               ],
                               "numContinues": 3,
                               "children": [
@@ -4203,11 +4203,11 @@
                                   "children": [
                                     {
                                       "id": 1000,
-                                      "text": "\"Well, well, you certainly know how to impress,\" the assassin purrs, a touch of flirtation in her voice. \"It's a rare thing these days, a connoisseur of chance and opportunity, even in the heat of battle.\" With a sly smile, the assassin's finger traces your shoulder as she steps out of the shadows. Coins clink as she turns ever so briefly, \"For a job well done.\" then slips away gracefully, leaving a lavish pouch marked with a golden raven on the counter. You find 39 gold!",
+                                      "text": "\"Well, well, you certainly know how to impress,\" the assassin purrs, a touch of flirtation in her voice. \"It's a rare thing these days, a connoisseur of chance and opportunity, even in the heat of battle.\" With a sly smile, the assassin's finger traces your shoulder as she steps out of the shadows. Coins clink as she turns ever so briefly, \"For a job well done.\" then slips away gracefully, leaving a lavish pouch marked with a golden raven on the counter. You find 31 gold!",
                                       "type": "dialogue",
                                       "effects": [
                                         "QUESTFLAG: metassassin",
-                                        "GOLD: 39"
+                                        "GOLD: 31"
                                       ],
                                       "numContinues": 3,
                                       "children": [
@@ -4327,11 +4327,11 @@
           "children": [
             {
               "id": 1246,
-              "text": "\"Well, well, you certainly know how to impress,\" the assassin purrs, a touch of flirtation in her voice. \"It's a rare thing these days, a connoisseur of chance and opportunity, even in the heat of battle.\" With a sly smile, the assassin's finger traces your shoulder as she steps out of the shadows. Coins clink as she turns ever so briefly, \"For a job well done.\" then slips away gracefully, leaving a lavish pouch marked with a golden raven on the counter. You find 39 gold!",
+              "text": "\"Well, well, you certainly know how to impress,\" the assassin purrs, a touch of flirtation in her voice. \"It's a rare thing these days, a connoisseur of chance and opportunity, even in the heat of battle.\" With a sly smile, the assassin's finger traces your shoulder as she steps out of the shadows. Coins clink as she turns ever so briefly, \"For a job well done.\" then slips away gracefully, leaving a lavish pouch marked with a golden raven on the counter. You find 31 gold!",
               "type": "dialogue",
               "effects": [
                 "QUESTFLAG: metassassin",
-                "GOLD: 39"
+                "GOLD: 31"
               ],
               "numContinues": 3,
               "children": [
@@ -4742,11 +4742,11 @@
                   "children": [
                     {
                       "id": 1485,
-                      "text": "\"Well, well, you certainly know how to impress,\" the assassin purrs, a touch of flirtation in her voice. \"It's a rare thing these days, a connoisseur of chance and opportunity, even in the heat of battle.\" With a sly smile, the assassin's finger traces your shoulder as she steps out of the shadows. Coins clink as she turns ever so briefly, \"For a job well done.\" then slips away gracefully, leaving a lavish pouch marked with a golden raven on the counter. You find 39 gold!",
+                      "text": "\"Well, well, you certainly know how to impress,\" the assassin purrs, a touch of flirtation in her voice. \"It's a rare thing these days, a connoisseur of chance and opportunity, even in the heat of battle.\" With a sly smile, the assassin's finger traces your shoulder as she steps out of the shadows. Coins clink as she turns ever so briefly, \"For a job well done.\" then slips away gracefully, leaving a lavish pouch marked with a golden raven on the counter. You find 31 gold!",
                       "type": "dialogue",
                       "effects": [
                         "QUESTFLAG: metassassin",
-                        "GOLD: 39"
+                        "GOLD: 31"
                       ],
                       "numContinues": 3,
                       "children": [
@@ -9933,7 +9933,7 @@
     "artwork": "opportunity_image",
     "rootNode": {
       "id": 0,
-      "text": "A skeleton in highly oxidised yet impressive armor sits against a nearby stone. As you walk past, an ivory hand suddenly grasps at your weapon. \"Pleeeeeeease\" a hollow howl escapes from the undead's broken jaw...",
+      "text": "A skeleton in highly oxidised yet impressive armor sits against a nearby signpost. As you walk past, an ivory hand suddenly grasps at your weapon. \"Pleeeeeeease\" a hollow howl escapes from the undead's broken jaw...",
       "type": "dialogue",
       "numContinues": 0,
       "children": [
@@ -10302,11 +10302,11 @@
           "children": [
             {
               "id": 3003,
-              "text": "You dig into the shallow grave, quickly uncovering a small stash of 27 gold!.",
+              "text": "You dig into the shallow grave, quickly uncovering a small stash of 29 gold!.",
               "type": "dialogue",
               "effects": [
                 "AREASPECIAL: 1",
-                "GOLD: 27"
+                "GOLD: 29"
               ],
               "numContinues": 1,
               "children": [
@@ -10336,11 +10336,11 @@
           "children": [
             {
               "id": 3005,
-              "text": "You dig into the shallow grave, quickly uncovering a small stash of 27 gold!.",
+              "text": "You dig into the shallow grave, quickly uncovering a small stash of 29 gold!.",
               "type": "dialogue",
               "effects": [
                 "AREASPECIAL: 1",
-                "GOLD: 27"
+                "GOLD: 29"
               ],
               "numContinues": 1,
               "refChildren": [
@@ -10612,7 +10612,7 @@
                                       "children": [
                                         {
                                           "id": 3019,
-                                          "text": "You find 44 gold!",
+                                          "text": "You find 36 gold!",
                                           "type": "dialogue",
                                           "effects": [
                                             "GOLD: random [30 - 65]"
@@ -10942,10 +10942,10 @@
                                   "children": [
                                     {
                                       "id": 3180,
-                                      "text": "You find 25 gold!",
+                                      "text": "You find 37 gold!",
                                       "type": "dialogue",
                                       "effects": [
-                                        "GOLD: random [25 - 50]"
+                                        "GOLD: random [30 - 65]"
                                       ],
                                       "numContinues": 1,
                                       "children": [
@@ -10978,7 +10978,7 @@
                                   "children": [
                                     {
                                       "id": 3182,
-                                      "text": "You find 50 gold!",
+                                      "text": "You find 62 gold!",
                                       "type": "dialogue",
                                       "effects": [
                                         "GOLD: random [30 - 65]"
@@ -11014,7 +11014,7 @@
                                   "children": [
                                     {
                                       "id": 3184,
-                                      "text": "You find 113 gold!",
+                                      "text": "You find 123 gold!",
                                       "type": "dialogue",
                                       "effects": [
                                         "GOLD: random [75 - 125]"
@@ -14016,7 +14016,7 @@
           "children": [
             {
               "id": 3551,
-              "text": "While the two nobles continue to argue fervently, you skillfully move closer while scanning the room for any potential witnesses. You deftly slip their hand into the pocket of one of the nobles and withdraw a small, leather pouch. You find 18 gold!",
+              "text": "While the two nobles continue to argue fervently, you skillfully move closer while scanning the room for any potential witnesses. You deftly slip their hand into the pocket of one of the nobles and withdraw a small, leather pouch. You find 16 gold!",
               "type": "end",
               "effects": [
                 "GOLD: random [15 - 25]"
@@ -14811,7 +14811,7 @@
           "children": [
             {
               "id": 3599,
-              "text": "You find 25 gold! As you prepare to leave you suddenly hear a loud squawking from above as a large, black-feathered bird descends on you!",
+              "text": "You find 26 gold! As you prepare to leave you suddenly hear a loud squawking from above as a large, black-feathered bird descends on you!",
               "type": "combat",
               "effects": [
                 "GOLD: random [10 - 30]",
@@ -15741,7 +15741,7 @@
           "children": [
             {
               "id": 3678,
-              "text": "You gain 27 gold! As you turn to leave, you feel the presence of the Goddess of light condemn you...",
+              "text": "You gain 29 gold! As you turn to leave, you feel the presence of the Goddess of light condemn you...",
               "type": "end",
               "effects": [
                 "GOLD: random [10 - 30]",
@@ -15925,7 +15925,7 @@
                   "children": [
                     {
                       "id": 3691,
-                      "text": "You gain 27 gold! As you turn to leave, you feel the presence of the Goddess of light condemn you...",
+                      "text": "You gain 29 gold! As you turn to leave, you feel the presence of the Goddess of light condemn you...",
                       "type": "end",
                       "effects": [
                         "GOLD: random [10 - 30]",
@@ -17186,11 +17186,11 @@
         {
           "id": 1,
           "type": "choice",
-          "choiceLabel": "Focus on the Blacksmith",
+          "choiceLabel": "Focus on the Collector",
           "children": [
             {
               "id": 3788,
-              "text": "Focus on the Blacksmith (fill in the lore for this.) final words",
+              "text": "Focus on the Collector (fill in the lore for this.) final words",
               "type": "end"
             }
           ]
@@ -17198,11 +17198,11 @@
         {
           "id": 2,
           "type": "choice",
-          "choiceLabel": "Focus on the Priestess",
+          "choiceLabel": "Focus on the Blacksmith",
           "children": [
             {
               "id": 3789,
-              "text": "Focus on the Priestess (fill in the lore for this.) final words",
+              "text": "Focus on the Blacksmith (fill in the lore for this.) final words",
               "type": "end"
             }
           ]
@@ -17210,11 +17210,11 @@
         {
           "id": 3,
           "type": "choice",
-          "choiceLabel": "Focus on the Succubus",
+          "choiceLabel": "Focus on the Alchemist",
           "children": [
             {
               "id": 3790,
-              "text": "Focus on the Succubus (fill in the lore for this.) final words",
+              "text": "Focus on the Alchemist (fill in the lore for this.) final words",
               "type": "end"
             }
           ]
@@ -25041,88 +25041,7 @@
               "id": 5590,
               "text": "The shrine allows you to alter a card unpredictably. Some students of chaos might even be able to harness the conflux in interesting ways.",
               "type": "dialogue",
-              "numContinues": 0,
-              "children": [
-                {
-                  "id": 2,
-                  "type": "choice",
-                  "choiceLabel": "Transform a card",
-                  "children": [
-                    {
-                      "id": 5581,
-                      "text": "The statue swirls around the card as it too becomes consumed in its chaotic shapes Before you know it, you feel it center around a single card, sweeping it along before it returns to you, visibly marked by the experience.",
-                      "type": "end",
-                      "effects": [
-                        "ADDKEYWORD: random"
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "id": 3,
-                  "type": "choice",
-                  "choiceLabel": "Try to read the chaos",
-                  "requirements": [
-                    "intellect:1"
-                  ],
-                  "ref": 12
-                },
-                {
-                  "id": 8,
-                  "type": "choice",
-                  "choiceLabel": "Surrender to the chaos",
-                  "requirements": [
-                    "talent:Faerytales"
-                  ],
-                  "children": [
-                    {
-                      "id": 5587,
-                      "text": "You feel the chaos call out to you and you are able to answer back. Before you know it, you feel it center around a single card, sweeping it along before it returns to you, visibly marked by the experience.",
-                      "type": "end",
-                      "effects": [
-                        "ADDKEYWORD: random",
-                        "ADDKEYWORD: random",
-                        "ADDTYPE: Corruption",
-                        "SWAPCOST: blood"
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "id": 9,
-                  "type": "choice",
-                  "choiceLabel": "Give in to the chaos",
-                  "requirements": [
-                    "intellect:2",
-                    "corrupted"
-                  ],
-                  "children": [
-                    {
-                      "id": 5588,
-                      "text": "You feel the chaos call out to you, and perhaps to your own surprise, you are able to answer back. Before you know it, you feel it center around a single card, sweeping it along before it returns to you, visibly marked by the experience.",
-                      "type": "end",
-                      "effects": [
-                        "ADDKEYWORD: random",
-                        "ADDKEYWORD: random",
-                        "ADDTYPE: Corruption",
-                        "SWAPCOST: blood"
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "id": 10,
-                  "type": "choice",
-                  "choiceLabel": "Leave",
-                  "children": [
-                    {
-                      "id": 5589,
-                      "text": "",
-                      "type": "end"
-                    }
-                  ]
-                }
-              ]
+              "ref": 0
             }
           ]
         },
@@ -25176,7 +25095,7 @@
                 {
                   "id": 14,
                   "type": "choice",
-                  "choiceLabel": "Add Recall",
+                  "choiceLabel": "Add Firecast",
                   "requirements": [
                     "intellect:2"
                   ],
@@ -25194,7 +25113,7 @@
                 {
                   "id": 15,
                   "type": "choice",
-                  "choiceLabel": "Add Firecast",
+                  "choiceLabel": "Add Chain",
                   "requirements": [
                     "intellect:3"
                   ],
@@ -25430,7 +25349,7 @@
     "artwork": "opportunity_image",
     "rootNode": {
       "id": 0,
-      "text": "You spot something glittering in the shadows. You find 10 gold!",
+      "text": "You spot something glittering in the shadows. You find 12 gold!",
       "type": "end",
       "effects": [
         "GOLD: random [10 - 30]"
@@ -29796,16 +29715,25 @@
                         {
                           "id": 9,
                           "type": "choice",
-                          "choiceLabel": "[cardid=898570]",
-                          "ref": 14
+                          "choiceLabel": "[cardid=682305]",
+                          "children": [
+                            {
+                              "id": 7845,
+                              "text": "The skeleton tilts its head, looking up at its two companions, then back at you, with a satisfied grin. \"So be it; may the Pale Master find you soon, stranger.\"",
+                              "type": "end",
+                              "effects": [
+                                "AREAEFFECT: 682305"
+                              ]
+                            }
+                          ]
                         },
                         {
-                          "id": 11,
+                          "id": 10,
                           "type": "choice",
                           "choiceLabel": "[cardid=73952]",
                           "children": [
                             {
-                              "id": 7847,
+                              "id": 7846,
                               "text": "The skeleton folds its hands and grins widely, its two companions mirroring the action. \"Fate seems impatient with you, stranger.",
                               "type": "end",
                               "effects": [
@@ -29815,19 +29743,10 @@
                           ]
                         },
                         {
-                          "id": 12,
+                          "id": 11,
                           "type": "choice",
-                          "choiceLabel": "[cardid=652518]",
-                          "children": [
-                            {
-                              "id": 7848,
-                              "text": "The skeleton nods as it reveals the card, then smiles. \"Action begets action - Fortune sees you are ready, stranger.\"",
-                              "type": "end",
-                              "effects": [
-                                "AREAEFFECT: 652518"
-                              ]
-                            }
-                          ]
+                          "choiceLabel": "[cardid=898570]",
+                          "ref": 16
                         }
                       ]
                     }
@@ -29851,43 +29770,25 @@
                 {
                   "id": 14,
                   "type": "choice",
-                  "choiceLabel": "[cardid=898570]",
+                  "choiceLabel": "[cardid=682305]",
                   "children": [
                     {
-                      "id": 7852,
-                      "text": "The skeletal figure can barely contain its excitement, long yellow teeth clattering in its skull. As it lifts the card, skies darken above. \"Foolishness or bravery, it matters not, you have earned our respect, stranger.\"",
-                      "type": "dialogue",
+                      "id": 7851,
+                      "text": "The skeleton tilts its head, looking up at its two companions, then back at you, with a satisfied grin. \"So be it; may the Pale Master find you soon, stranger.\"",
+                      "type": "end",
                       "effects": [
-                        "AREAEFFECT: 898570"
-                      ],
-                      "numContinues": 1,
-                      "children": [
-                        {
-                          "id": 15,
-                          "type": "choice",
-                          "choiceLabel": "Leave",
-                          "children": [
-                            {
-                              "id": 7851,
-                              "text": "",
-                              "type": "end",
-                              "effects": [
-                                "ADDTALENT: 864067"
-                              ]
-                            }
-                          ]
-                        }
+                        "AREAEFFECT: 682305"
                       ]
                     }
                   ]
                 },
                 {
-                  "id": 16,
+                  "id": 15,
                   "type": "choice",
                   "choiceLabel": "[cardid=73952]",
                   "children": [
                     {
-                      "id": 7853,
+                      "id": 7852,
                       "text": "The skeleton folds its hands and grins widely, its two companions mirroring the action. \"Fate seems impatient with you, stranger.",
                       "type": "end",
                       "effects": [
@@ -29897,16 +29798,34 @@
                   ]
                 },
                 {
-                  "id": 17,
+                  "id": 16,
                   "type": "choice",
-                  "choiceLabel": "[cardid=652518]",
+                  "choiceLabel": "[cardid=898570]",
                   "children": [
                     {
                       "id": 7854,
-                      "text": "The skeleton nods as it reveals the card, then smiles. \"Action begets action - Fortune sees you are ready, stranger.\"",
-                      "type": "end",
+                      "text": "The skeletal figure can barely contain its excitement, long yellow teeth clattering in its skull. As it lifts the card, skies darken above. \"Foolishness or bravery, it matters not, you have earned our respect, stranger.\"",
+                      "type": "dialogue",
                       "effects": [
-                        "AREAEFFECT: 652518"
+                        "AREAEFFECT: 898570"
+                      ],
+                      "numContinues": 1,
+                      "children": [
+                        {
+                          "id": 17,
+                          "type": "choice",
+                          "choiceLabel": "Leave",
+                          "children": [
+                            {
+                              "id": 7853,
+                              "text": "",
+                              "type": "end",
+                              "effects": [
+                                "ADDTALENT: 864067"
+                              ]
+                            }
+                          ]
+                        }
                       ]
                     }
                   ]

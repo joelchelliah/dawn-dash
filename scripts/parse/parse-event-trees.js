@@ -318,7 +318,10 @@ function parseInkStory(inkJsonString, eventName) {
     }
 
     // Log function definitions and calls for all events (for review)
-    if (functionDefinitions.size > 0 || functionCalls.size > 0) {
+    if (
+      (functionDefinitions.size > 0 || functionCalls.size > 0) &&
+      eventName === DEBUG_EVENT_NAME
+    ) {
       console.log(`  → Event "${eventName}" has functions:`)
 
       if (functionDefinitions.size > 0) {
@@ -2296,6 +2299,20 @@ function applyEventAlterations(rootNode, alterations) {
         // Set new values
         if (modifyNode.type !== undefined) {
           node.type = modifyNode.type
+        }
+
+        // Handle refCreate: search the tree for a matching node and create a ref
+        if (modifyNode.refCreate !== undefined) {
+          const candidates = findNodesByTextOrChoiceLabel(rootNode, modifyNode.refCreate)
+          // Find the first candidate that doesn't have a ref (it's the original node)
+          const targetNode = candidates.find((candidate) => candidate.ref === undefined)
+          if (targetNode) {
+            node.ref = targetNode.id
+          } else {
+            console.warn(
+              `  ⚠️  refCreate "${modifyNode.refCreate}" did not find a matching node without a ref for node ${node.id}`
+            )
+          }
         }
 
         appliedCount++
