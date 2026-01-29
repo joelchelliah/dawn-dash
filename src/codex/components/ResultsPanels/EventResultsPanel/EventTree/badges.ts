@@ -1,7 +1,7 @@
 import { createCx } from '@/shared/utils/classnames'
 
-import { CombatNode, DialogueNode, EndNode, Event, EventTreeNode } from '@/codex/types/events'
-import { getNodeDimensions } from '@/codex/utils/eventTreeHelper'
+import { Event, EventTreeNode } from '@/codex/types/events'
+import { getNodeDimensions, isCompactEmojiOnlyNode } from '@/codex/utils/eventTreeHelper'
 import { LevelOfDetail } from '@/codex/constants/eventSearchValues'
 
 import styles from './badges.module.scss'
@@ -63,6 +63,7 @@ export function drawLoopBackLinkBadges({
     g,
     'start',
     isCompact,
+    showLoopingIndicator,
     startPositionToNodeMap,
     'loop-back-start-badge',
     'loop-back-badge'
@@ -73,6 +74,7 @@ export function drawLoopBackLinkBadges({
     g,
     'end',
     isCompact,
+    showLoopingIndicator,
     endPositionToNodeMap,
     'loop-back-end-badge',
     'loop-back-badge'
@@ -95,6 +97,7 @@ function drawLoopBackBadges(
   g: any,
   position: 'start' | 'end',
   isCompact: boolean,
+  showLoopingIndicator: boolean,
   positionToNodeMap: Map<string, EventTreeNode>,
   badgeClass: string,
   circleBaseClass: string
@@ -105,17 +108,18 @@ function drawLoopBackBadges(
     .data(
       Array.from(positionToNodeMap.entries()).map(([pos, node]) => {
         const [x, y] = pos.split(',').map(Number)
-        const isCompactEmojiOnlyNode =
-          isCompact &&
-          ['dialogue', 'end', 'combat'].includes(node.type) &&
-          !(node as DialogueNode | EndNode | CombatNode).effects?.length &&
-          !(node as DialogueNode).numContinues
+        const isCompactEmojiOnly = isCompactEmojiOnlyNode(node, isCompact, showLoopingIndicator)
 
-        const offsetStart = isCompactEmojiOnlyNode ? 22 : 0
-        const offsetEnd = isCompactEmojiOnlyNode ? -6 : 0
+        const offsetStart = isCompactEmojiOnly ? 20 : 0
+        const offsetEnd = isCompactEmojiOnly ? -6 : 0
         const yOffset = position === 'start' ? offsetStart : offsetEnd
 
-        return { x, y: y - yOffset, nodeType: node.type }
+        return {
+          x,
+          y: y - yOffset,
+          nodeType: node.type,
+          isCompactEmojiOnlyNode: isCompactEmojiOnly,
+        }
       })
     )
     .enter()
@@ -125,18 +129,18 @@ function drawLoopBackBadges(
 
   badges.append('circle').attr('class', (d: any) =>
     cx(`${circleBaseClass}-circle`, `${circleBaseClass}-circle--${d.nodeType}`, {
-      [`${circleBaseClass}-circle--small`]: isCompact,
+      [`${circleBaseClass}-circle--small`]: d.isCompactEmojiOnlyNode,
     })
   )
 
   badges
     .append('text')
-    .attr(
-      'class',
+    .attr('class', (d: any) =>
       cx(`${circleBaseClass}-emoji`, {
-        [`${circleBaseClass}-emoji--small`]: isCompact,
+        [`${circleBaseClass}-emoji--small`]: d.isCompactEmojiOnlyNode,
       })
     )
+
     .attr('text-anchor', 'middle')
     .attr('dominant-baseline', 'central')
     .text(emoji)

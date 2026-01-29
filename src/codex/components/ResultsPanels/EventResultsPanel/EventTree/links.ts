@@ -3,7 +3,12 @@ import { select } from 'd3-selection'
 import { createCx } from '@/shared/utils/classnames'
 
 import { Event } from '@/codex/types/events'
-import { getArrowheadAngle, getNodeDimensions } from '@/codex/utils/eventTreeHelper'
+import {
+  getArrowheadAngle,
+  getNodeDimensions,
+  isCompactEmojiBadgeNode,
+  isCompactEmojiOnlyNode,
+} from '@/codex/utils/eventTreeHelper'
 import { LevelOfDetail } from '@/codex/constants/eventSearchValues'
 
 import styles from './links.module.scss'
@@ -34,6 +39,7 @@ export function drawLinks({
   showLoopingIndicator,
   levelOfDetail,
 }: DrawLinksParam) {
+  const isCompact = levelOfDetail === LevelOfDetail.COMPACT
   g.selectAll(`.${cx('link')}`)
     .data(root.links())
     .enter()
@@ -64,12 +70,13 @@ export function drawLinks({
         showLoopingIndicator,
         levelOfDetail
       )
+      const yOffset = isCompactEmojiBadgeNode(d.target.data, isCompact) ? -22 : -2
 
       return calculateCurvedPathForStandardLinks(
         sourceX,
         sourceY,
         targetX,
-        targetY,
+        targetY + yOffset,
         sourceNodeHeight,
         targetNodeHeight
       )
@@ -89,6 +96,8 @@ export function drawRefChildrenLinks({
   showLoopingIndicator,
   levelOfDetail,
 }: DrawLinksParam) {
+  const isCompact = levelOfDetail === LevelOfDetail.COMPACT
+
   // Build a map of node id -> node for quick lookup
   const nodeMap = new Map<number, any>()
   root.descendants().forEach((node: any) => {
@@ -138,11 +147,13 @@ export function drawRefChildrenLinks({
       showLoopingIndicator,
       levelOfDetail
     )
+
+    const yOffset = isCompactEmojiBadgeNode(d.target.data, isCompact) ? -22 : -2
     const pathData = calculateCurvedPathForStandardLinks(
       sourceX,
       sourceY,
       targetX,
-      targetY,
+      targetY + yOffset,
       sourceNodeHeight,
       targetNodeHeight
     )
@@ -166,6 +177,7 @@ export function drawLoopBackLinks({
 }: DrawLinksParam) {
   const nodeMap = buildNodeMap(root)
   const loopBackLinks = findLoopBackLinks(root, nodeMap)
+  const isCompact = levelOfDetail === LevelOfDetail.COMPACT
 
   // Draw the loop back links
   const linkGroup = g
@@ -186,10 +198,10 @@ export function drawLoopBackLinks({
     )
 
     const sourceNodeType = d.source.data.type || 'default'
-
+    const isEmojiOnlyNode = isCompactEmojiOnlyNode(d.target.data, isCompact, showLoopingIndicator)
     // Create a single marker for the target end
     const markerId = `arrowhead-loop-back-${linkIndex}`
-    const markerRefX = 38 // Magic number adjustment to make the arrowhead tip hit the (🔗) badge exactly
+    const markerRefX = isEmojiOnlyNode ? 38 : 40
     const markerSize = 7
 
     defs
@@ -205,11 +217,15 @@ export function drawLoopBackLinks({
       .attr('d', 'M0,-5L20,0L0,5')
       .attr('class', cx('loop-back-arrowhead', `loop-back-arrowhead--${sourceNodeType}`))
 
+    const targetYOffset = isEmojiOnlyNode ? 2 : 0
+    const sourceYOffset = isEmojiOnlyNode ? -18 : 0
+    const adjustedTargetY = targetY + targetYOffset
+    const adjustedSourceY = sourceY + sourceYOffset
     // Draw the main line with arrowhead at target end
     group
       .append('path')
       .attr('class', cx('loop-back-link', `loop-back-link--${sourceNodeType}`))
-      .attr('d', `M${sourceX},${sourceY} L${targetX},${targetY}`)
+      .attr('d', `M${sourceX},${adjustedSourceY} L${targetX},${adjustedTargetY}`)
       .attr('marker-end', `url(#${markerId})`)
   })
 }

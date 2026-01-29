@@ -28,6 +28,8 @@ import {
   getNodeTextOrChoiceLabel,
   hasContinues,
   calculateEffectsBoxDimensions,
+  calculateIndicatorDimensions,
+  isCompactEmojiOnlyNode,
 } from '@/codex/utils/eventTreeHelper'
 import {
   adjustHorizontalNodeSpacing,
@@ -182,8 +184,13 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
       .attr('class', 'node')
       .attr('transform', (d) => `translate(${d.x},${d.y})`)
 
+    const shouldSkipDrawingNodeRectangle = (node: EventTreeNode): boolean =>
+      isCompactEmojiOnlyNode(node, isCompact, showLoopingIndicator)
+
     // Draw node glow rectangles
     nodes.each(function (d) {
+      if (shouldSkipDrawingNodeRectangle(d.data)) return
+
       const nodeElement = select(this)
       const [nodeWidth, nodeHeight] = getNodeDimensions(
         d.data,
@@ -208,6 +215,8 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
     // Draw node rectangles
 
     nodes.each(function (d) {
+      if (shouldSkipDrawingNodeRectangle(d.data)) return
+
       const nodeElement = select(this)
       const [nodeWidth, nodeHeight] = getNodeDimensions(
         d.data,
@@ -410,15 +419,6 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
       } else if (data.type === 'dialogue') {
         // For dialogue nodes, show dialogue text (effects box is handled centrally below)
         const isRootNode = d.depth === 0
-        const hasContinue = data.numContinues && data.numContinues > 0
-        const continueIndicatorHeight = hasContinue ? INNER_BOX.INDICATOR_HEIGHT : 0
-        const loopIndicatorHeight =
-          showLoopingIndicator && data.ref
-            ? INNER_BOX.INDICATOR_HEIGHT + TEXT.LINE_HEIGHT + INNER_BOX.INDICATOR_HEADER_GAP
-            : 0
-        const continueIndicatorMargin =
-          continueIndicatorHeight > 0 ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
-        const loopIndicatorMargin = loopIndicatorHeight > 0 ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
 
         if (isRootNode) {
           const [currentNodeWidth, currentNodeHeight] = getNodeDimensions(
@@ -435,6 +435,21 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
             isCompact,
             hasText
           )
+          const { height: continueIndicatorHeight, margin: continueIndicatorMargin } =
+            calculateIndicatorDimensions(
+              'continue',
+              Boolean(data.numContinues),
+              hasText,
+              effectsBoxHeight > 0
+            )
+          const { height: loopIndicatorHeight, margin: loopIndicatorMargin } =
+            calculateIndicatorDimensions(
+              'loop',
+              Boolean(showLoopingIndicator && data.ref),
+              hasText,
+              effectsBoxHeight > 0 || continueIndicatorHeight > 0
+            )
+
           const textAreaHeight =
             currentNodeHeight -
             NODE_BOX.VERTICAL_PADDING * 2 -
@@ -488,6 +503,21 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
             isCompact,
             hasText
           )
+
+          const { height: continueIndicatorHeight, margin: continueIndicatorMargin } =
+            calculateIndicatorDimensions(
+              'continue',
+              Boolean(data.numContinues),
+              hasText,
+              effectsBoxHeight > 0
+            )
+          const { height: loopIndicatorHeight, margin: loopIndicatorMargin } =
+            calculateIndicatorDimensions(
+              'loop',
+              Boolean(showLoopingIndicator && data.ref),
+              hasText,
+              effectsBoxHeight > 0 || continueIndicatorHeight > 0
+            )
 
           const textAreaHeight =
             currentNodeHeight -

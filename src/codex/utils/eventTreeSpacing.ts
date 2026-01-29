@@ -525,7 +525,7 @@ export const adjustVerticalNodeSpacing = (
 
     const baseGap =
       allNodesAreSingleChildren && !anyParentHasRefChildren
-        ? NODE.VERTICAL_SPACING_SHORT
+        ? NODE.VERTICAL_SPACING_SHORT_BY_LEVEL_OF_DETAIL[levelOfDetail]
         : NODE.VERTICAL_SPACING_DEFAULT
 
     // Add incremental spacing based on horizontal spread (10px per 1000px of horizontal distance)

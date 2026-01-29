@@ -16,11 +16,15 @@ export const TREE = {
 
 export const NODE = {
   WIDTH_RANGE: [95, 280],
-  COMPACT_WIDTH: 30,
+  COMPACT_WIDTH: 40,
 
   HORIZONTAL_SPACING_DEFAULT: 50,
   VERTICAL_SPACING_DEFAULT: 80,
-  VERTICAL_SPACING_SHORT: 40,
+  VERTICAL_SPACING_SHORT_BY_LEVEL_OF_DETAIL: {
+    [LevelOfDetail.COMPACT]: 50,
+    [LevelOfDetail.BALANCED]: 40,
+    [LevelOfDetail.WALL_OF_TEXT]: 40,
+  },
   VERTICAL_SPACING_INCREMENT: 20,
 }
 
@@ -70,7 +74,7 @@ export const INNER_BOX = {
   INDICATOR_TOP_MARGIN: 6,
 
   // Additional top margin for indicator boxes when no text is shown, to not collide with emoji badges
-  INDICATOR_TOP_MARGIN_COMPACT: 10,
+  INDICATOR_TOP_MARGIN_COMPACT: 8,
 
   // Gap between indicator header ('Loops back to:') and label text
   INDICATOR_HEADER_GAP: 8,

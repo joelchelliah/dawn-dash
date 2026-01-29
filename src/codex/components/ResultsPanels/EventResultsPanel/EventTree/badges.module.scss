@@ -3,7 +3,7 @@
 
 .loop-back-badge-circle {
   stroke-width: 2px;
-  r: 13px;
+  r: 15px;
 
   @each $type, $color in $event-node-type-to-color-map {
     &--#{$type} {
@@ -12,12 +12,12 @@
     }
   }
   &--small {
-    r: 11px;
+    r: 12px;
   }
 }
 
 .loop-back-badge-emoji {
-  font-size: font-size('xs');
+  font-size: font-size('sm');
   pointer-events: none;
 
   &--small {
