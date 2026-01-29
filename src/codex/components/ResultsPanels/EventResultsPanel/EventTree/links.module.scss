@@ -15,7 +15,7 @@
 .loop-back-link {
   fill: none;
   stroke-width: 2px;
-  stroke-dasharray: 5, 5;
+  stroke-dasharray: 10, 10;
   opacity: 0.5;
 
   @each $type, $color in $event-node-type-to-color-map {
@@ -33,21 +33,4 @@
       fill: $color;
     }
   }
-}
-
-.loop-back-badge-circle {
-  stroke-width: 2px;
-  r: 13px;
-
-  @each $type, $color in $event-node-type-to-color-map {
-    &--#{$type} {
-      fill: color.mix($color-component-bg, $color, 80%);
-      stroke: color.mix($color-component-bg, $color, 30%);
-    }
-  }
-}
-
-.loop-back-badge-emoji {
-  font-size: font-size('xs');
-  pointer-events: none;
 }

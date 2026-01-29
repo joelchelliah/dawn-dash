@@ -5,6 +5,7 @@ import Select from '@/shared/components/Select'
 import { CharacterClass } from '@/shared/types/characterClass'
 import Button from '@/shared/components/Buttons/Button'
 import GradientButton from '@/shared/components/Buttons/GradientButton'
+import GradientLink from '@/shared/components/GradientLink'
 import { ClassColorVariant, getClassColor } from '@/shared/utils/classColors'
 import { useBreakpoint } from '@/shared/hooks/useBreakpoint'
 
@@ -231,6 +232,20 @@ const EventSearchPanel = ({
                 />
               </div>
             )}
+            <div className={cx('control-wrapper', 'control-wrapper--info-message')}>
+              <div className={cx('info-message')}>
+                <span className={cx('info-message__emoji')}>ℹ️</span>
+                <span className={cx('info-message__text')}>
+                  If you notice any hiccups, try{' '}
+                  <GradientLink
+                    text="redrawing the map"
+                    onClick={() => window.location.reload()}
+                    className={cx('info-message__link')}
+                  />
+                  .
+                </span>
+              </div>
+            </div>
           </div>
         </div>
       )}

@@ -3,7 +3,12 @@ import { select } from 'd3-selection'
 import { createCx } from '@/shared/utils/classnames'
 
 import { Event } from '@/codex/types/events'
-import { getArrowheadAngle, getNodeDimensions } from '@/codex/utils/eventTreeHelper'
+import {
+  getArrowheadAngle,
+  getNodeDimensions,
+  isCompactEmojiBadgeNode,
+  isCompactEmojiOnlyNode,
+} from '@/codex/utils/eventTreeHelper'
 import { LevelOfDetail } from '@/codex/constants/eventSearchValues'
 
 import styles from './links.module.scss'
@@ -34,6 +39,7 @@ export function drawLinks({
   showLoopingIndicator,
   levelOfDetail,
 }: DrawLinksParam) {
+  const isCompact = levelOfDetail === LevelOfDetail.COMPACT
   g.selectAll(`.${cx('link')}`)
     .data(root.links())
     .enter()
@@ -64,12 +70,13 @@ export function drawLinks({
         showLoopingIndicator,
         levelOfDetail
       )
+      const yOffset = isCompactEmojiBadgeNode(d.target.data, isCompact) ? -24 : -2
 
       return calculateCurvedPathForStandardLinks(
         sourceX,
         sourceY,
         targetX,
-        targetY,
+        targetY + yOffset,
         sourceNodeHeight,
         targetNodeHeight
       )
@@ -89,6 +96,8 @@ export function drawRefChildrenLinks({
   showLoopingIndicator,
   levelOfDetail,
 }: DrawLinksParam) {
+  const isCompact = levelOfDetail === LevelOfDetail.COMPACT
+
   // Build a map of node id -> node for quick lookup
   const nodeMap = new Map<number, any>()
   root.descendants().forEach((node: any) => {
@@ -138,11 +147,13 @@ export function drawRefChildrenLinks({
       showLoopingIndicator,
       levelOfDetail
     )
+
+    const yOffset = isCompactEmojiBadgeNode(d.target.data, isCompact) ? -24 : -2
     const pathData = calculateCurvedPathForStandardLinks(
       sourceX,
       sourceY,
       targetX,
-      targetY,
+      targetY + yOffset,
       sourceNodeHeight,
       targetNodeHeight
     )
@@ -166,6 +177,7 @@ export function drawLoopBackLinks({
 }: DrawLinksParam) {
   const nodeMap = buildNodeMap(root)
   const loopBackLinks = findLoopBackLinks(root, nodeMap)
+  const isCompact = levelOfDetail === LevelOfDetail.COMPACT
 
   // Draw the loop back links
   const linkGroup = g
@@ -186,10 +198,9 @@ export function drawLoopBackLinks({
     )
 
     const sourceNodeType = d.source.data.type || 'default'
-
     // Create a single marker for the target end
     const markerId = `arrowhead-loop-back-${linkIndex}`
-    const markerRefX = 38 // Magic number adjustment to make the arrowhead tip hit the (🔗) badge exactly
+    const markerRefX = isCompact ? 36 : 40
     const markerSize = 7
 
     defs
@@ -205,113 +216,23 @@ export function drawLoopBackLinks({
       .attr('d', 'M0,-5L20,0L0,5')
       .attr('class', cx('loop-back-arrowhead', `loop-back-arrowhead--${sourceNodeType}`))
 
+    const sourceYOffset = isCompactEmojiOnlyNode(d.source.data, isCompact, showLoopingIndicator)
+      ? -12
+      : 0
+    const targetYOffset = isCompactEmojiOnlyNode(d.target.data, isCompact, showLoopingIndicator)
+      ? 6
+      : 0
+    const adjustedSourceY = sourceY + sourceYOffset
+    const adjustedTargetY = targetY + targetYOffset
     // Draw the main line with arrowhead at target end
     group
       .append('path')
       .attr('class', cx('loop-back-link', `loop-back-link--${sourceNodeType}`))
-      .attr('d', `M${sourceX},${sourceY} L${targetX},${targetY}`)
+      .attr('d', `M${sourceX},${adjustedSourceY} L${targetX},${adjustedTargetY}`)
       .attr('marker-end', `url(#${markerId})`)
   })
 }
 
-/**
- * Draws tiny circles with emojis at the start (🔄) and end (🔗) of loop back links.
- * Avoids duplicates when multiple links share the same corner position.
- */
-export function drawLoopBackLinkBadges(
-  g: any,
-  root: any,
-  event: Event,
-  levelOfDetail: LevelOfDetail
-) {
-  const showLoopingIndicator = false
-
-  const nodeMap = buildNodeMap(root)
-  const loopBackLinks = findLoopBackLinks(root, nodeMap)
-
-  // Track unique positions with node types to avoid duplicates
-  const startPositions = new Map<string, string>() // position -> node type
-  const endPositions = new Map<string, string>() // position -> node type
-
-  // Calculate positions for each link
-  loopBackLinks.forEach((d: any) => {
-    const { sourceX, sourceY, targetX, targetY } = calculateLoopBackLinkCorners(
-      d,
-      event,
-      showLoopingIndicator,
-      levelOfDetail
-    )
-
-    const startKey = `${sourceX},${sourceY}`
-    const endKey = `${targetX},${targetY}`
-    const sourceNodeType = d.source.data.type || 'default'
-    const targetNodeType = d.target.data.type || 'default'
-
-    // Only add if we haven't seen this position before
-    if (!startPositions.has(startKey)) {
-      startPositions.set(startKey, sourceNodeType)
-    }
-    if (!endPositions.has(endKey)) {
-      endPositions.set(endKey, targetNodeType)
-    }
-  })
-
-  // Draw start badges (🔄)
-  const startBadges = g
-    .selectAll(`.${cx('loop-back-start-badge')}`)
-    .data(
-      Array.from(startPositions.entries()).map(([pos, nodeType]) => {
-        const [x, y] = pos.split(',').map(Number)
-        return { x, y, nodeType }
-      })
-    )
-    .enter()
-    .append('g')
-    .attr('class', cx('loop-back-start-badge'))
-    .attr('transform', (d: any) => `translate(${d.x},${d.y})`)
-
-  startBadges
-    .append('circle')
-    .attr('class', (d: any) =>
-      cx('loop-back-badge-circle', `loop-back-badge-circle--${d.nodeType}`)
-    )
-
-  startBadges
-    .append('text')
-    .attr('class', cx('loop-back-badge-emoji'))
-    .attr('text-anchor', 'middle')
-    .attr('dominant-baseline', 'central')
-    .attr('y', 0)
-    .text('🔄')
-
-  // Draw end badges (🔗)
-  const endBadges = g
-    .selectAll(`.${cx('loop-back-end-badge')}`)
-    .data(
-      Array.from(endPositions.entries()).map(([pos, nodeType]) => {
-        const [x, y] = pos.split(',').map(Number)
-        return { x, y, nodeType }
-      })
-    )
-    .enter()
-    .append('g')
-    .attr('class', cx('loop-back-end-badge'))
-    .attr('transform', (d: any) => `translate(${d.x},${d.y})`)
-
-  endBadges
-    .append('circle')
-    .attr('class', (d: any) =>
-      cx('loop-back-badge-circle', `loop-back-badge-circle--${d.nodeType}`)
-    )
-
-  endBadges
-    .append('text')
-    .attr('class', cx('loop-back-badge-emoji'))
-    .attr('text-anchor', 'middle')
-    .attr('dominant-baseline', 'central')
-    .attr('y', 0)
-    .text('🔗')
-}
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
 /**

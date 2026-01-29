@@ -88,10 +88,13 @@ export const buildDimensionCache = (
   event: Event,
   showLoopingIndicator: boolean,
   levelOfDetail: LevelOfDetail,
-  calculateWidth: (node: EventTreeNode, event: Event) => number,
+  calculateWidth: (
+    node: EventTreeNode,
+    showLoopingIndicator: boolean,
+    levelOfDetail: LevelOfDetail
+  ) => number,
   calculateHeight: (
     node: EventTreeNode,
-    event: Event,
     width: number,
     showLoopingIndicator: boolean,
     levelOfDetail: LevelOfDetail
@@ -113,8 +116,8 @@ export const buildDimensionCache = (
   }
 
   const cacheNodeRecursive = (node: EventTreeNode) => {
-    const width = calculateWidth(node, event)
-    const height = calculateHeight(node, event, width, showLoopingIndicator, levelOfDetail)
+    const width = calculateWidth(node, showLoopingIndicator, levelOfDetail)
+    const height = calculateHeight(node, width, showLoopingIndicator, levelOfDetail)
 
     setCachedDimensions(event.name, node.id, width, height, showLoopingIndicator, levelOfDetail)
 

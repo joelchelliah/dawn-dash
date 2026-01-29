@@ -1,0 +1,43 @@
+@use 'index' as *;
+@use 'sass:color';
+
+.loop-back-badge-circle {
+  stroke-width: 2px;
+  r: 15px;
+
+  @each $type, $color in $event-node-type-to-color-map {
+    &--#{$type} {
+      fill: color.mix($color-component-bg, $color, 80%);
+      stroke: color.mix($color-component-bg, $color, 30%);
+    }
+  }
+  &--small {
+    r: 12px;
+  }
+}
+
+.loop-back-badge-emoji {
+  font-size: font-size('sm');
+  pointer-events: none;
+
+  &--small {
+    font-size: font-size('xxs');
+  }
+}
+
+.node-type-badge-circle {
+  stroke-width: 2px;
+  r: 21px;
+
+  @each $type, $color in $event-node-type-to-color-map {
+    &--#{$type} {
+      fill: color.mix($color-component-bg, $color, 80%);
+      stroke: color.mix($color-component-bg, $color, 25%);
+    }
+  }
+}
+
+.node-type-badge-emoji {
+  font-size: font-size('md-plus');
+  pointer-events: none;
+}

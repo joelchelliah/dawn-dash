@@ -22,7 +22,9 @@
  *   - removeRef: true - Remove the ref field
  *   - removeText: true - Remove the text field
  *   - removeNumContinues: true - Remove the numContinues field
+ *   - removeChildren: true - Remove the children field
  *   - type: 'end' - Change the node type
+ *   - refCreate: 'text' - Create a ref to a node matching this text/choiceLabel
  *
  * Creating refs within alterations (refTarget/refSource):
  * Since alterations run after all optimizations, node IDs are unpredictable.
@@ -177,6 +179,19 @@ module.exports = [
               ],
             },
           ],
+        },
+      },
+    ],
+  },
+  {
+    name: 'Shrine of Trickery',
+    alterations: [
+      {
+        find: { textOrLabel: 'The shrine allows you to alter a card' },
+        modifyNode: {
+          removeNumContinues: true,
+          removeChildren: true,
+          refCreate: 'A strange statue stands alone',
         },
       },
     ],

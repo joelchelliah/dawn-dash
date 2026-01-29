@@ -41,7 +41,8 @@ function generateNodeId() {
 
 /**
  * Detect random value assignments in Ink JSON
- * Returns a map of variable names to their random ranges: { varName: { min, max } }
+ * Returns a map of variable names to an array of their random ranges: { varName: [{ min, max }, ...] }
+ * Multiple ranges per variable are supported (e.g., for branching paths with different random ranges)
  */
 function detectRandomVariables(inkJsonString) {
   const randomVars = new Map()
@@ -68,7 +69,18 @@ function detectRandomVariables(inkJsonString) {
             const varName = node[i + 5]['VAR=']
             const min = node[i + 1]
             const max = node[i + 2]
-            randomVars.set(varName, { min, max })
+
+            // Store all ranges for this variable (not just the last one)
+            if (!randomVars.has(varName)) {
+              randomVars.set(varName, [])
+            }
+
+            // Only add if this exact range doesn't already exist
+            const ranges = randomVars.get(varName)
+            const isDuplicate = ranges.some((r) => r.min === min && r.max === max)
+            if (!isDuplicate) {
+              ranges.push({ min, max })
+            }
           }
         }
 
@@ -85,6 +97,217 @@ function detectRandomVariables(inkJsonString) {
   }
 
   return randomVars
+}
+
+/**
+ * Detect knot definitions in Ink JSON root[2]
+ * Knots are named sections of story that can be called dynamically by game commands
+ * Returns a map of knot names to their content arrays
+ */
+function detectKnotDefinitions(inkJson) {
+  const knots = new Map()
+
+  // Knot definitions are typically at root[2] (root[0] is main flow, root[1] is "done", root[2] is knots)
+  if (Array.isArray(inkJson.root) && inkJson.root.length > 2) {
+    const definitions = inkJson.root[2]
+
+    if (typeof definitions === 'object' && definitions !== null && !Array.isArray(definitions)) {
+      Object.entries(definitions).forEach(([knotName, knotBody]) => {
+        // Skip metadata keys that start with #
+        if (knotName.startsWith('#')) return
+
+        knots.set(knotName, knotBody)
+      })
+    }
+  }
+
+  return knots
+}
+
+/**
+ * Parse knot content directly from Ink JSON structure
+ * Returns a node representing the knot's outcome
+ */
+function parseKnotContentManually(knotBody) {
+  if (!Array.isArray(knotBody)) return null
+
+  let text = ''
+
+  // Walk through knot body elements
+  for (const element of knotBody) {
+    if (typeof element === 'string') {
+      // Remove ^ prefix if present (Ink text marker)
+      const cleaned = element.startsWith('^') ? element.substring(1) : element
+
+      // Check if this is a command after removing ^
+      if (cleaned.startsWith('>>>>') || cleaned.startsWith('>>>')) {
+        // Effect/command - add with newline separator to ensure proper extraction
+        text += '\n' + cleaned
+      } else if (cleaned === '\n' || element === '\n') {
+        // Preserve newlines from original Ink
+        text += '\n'
+      } else if (cleaned) {
+        // Regular text content
+        text += cleaned
+      }
+    }
+    // Skip other Ink control structures (objects, arrays, etc.)
+  }
+
+  // Use existing extractEffects to parse the text
+  const { effects: extractedEffects, cleanedText } = extractEffects(text)
+
+  return createNode({
+    id: generateNodeId(),
+    text: cleanedText || ``,
+    type: 'end',
+    effects: extractedEffects.length > 0 ? extractedEffects : undefined,
+  })
+}
+
+/**
+ * Check if effects contain branching commands that trigger knot exploration
+ * Returns the branching command name if found, null otherwise
+ */
+function detectBranchingCommand(effects) {
+  if (!effects || effects.length === 0) return null
+
+  // Known branching commands that trigger dynamic knot selection
+  const branchingCommands = ['COLLECTOR']
+
+  for (const effect of effects) {
+    for (const cmd of branchingCommands) {
+      if (effect.toUpperCase() === cmd) {
+        return cmd
+      }
+    }
+  }
+
+  return null
+}
+
+/**
+ * Parse function/knot definitions from Ink JSON and extract their return values
+ * Returns a map of function names to their possible return values
+ * Example: { "random": ["Recall", "Figmented", "Reliable", "Firecast", "Chain", "Memorized"] }
+ */
+function parseFunctionDefinitions(inkJson) {
+  const functions = new Map()
+
+  try {
+    // Function definitions are typically in root[2] or similar top-level objects
+    if (Array.isArray(inkJson.root) && inkJson.root.length > 2) {
+      const definitions = inkJson.root[2]
+
+      if (typeof definitions === 'object' && definitions !== null) {
+        // Iterate through each potential function definition
+        Object.entries(definitions).forEach(([functionName, functionBody]) => {
+          // Skip special keys like '#f' and 'global decl'
+          if (functionName.startsWith('#') || functionName === 'global decl') {
+            return
+          }
+
+          // Extract return values from this function (may be empty for knots/navigation functions)
+          const returnValues = extractReturnValues(functionBody)
+          // Always add the function, even if no string returns detected
+          // This allows us to track all functions for logging/debugging
+          functions.set(functionName, returnValues)
+        })
+      }
+    }
+  } catch (error) {
+    // Silently fail if parsing fails
+  }
+
+  return functions
+}
+
+/**
+ * Helper function to extract string return values from a function body
+ * Looks for pattern: ["ev", "str", "^ReturnValue", "/str", "/ev", "~ret"]
+ */
+function extractReturnValues(node, returnValues = []) {
+  if (Array.isArray(node)) {
+    // Look for return pattern: ["ev", "str", "^Value", "/str", "/ev", "~ret", ...]
+    for (let i = 0; i < node.length - 5; i++) {
+      if (
+        node[i] === 'ev' &&
+        node[i + 1] === 'str' &&
+        typeof node[i + 2] === 'string' &&
+        node[i + 2].startsWith('^') &&
+        node[i + 3] === '/str' &&
+        node[i + 4] === '/ev' &&
+        node[i + 5] === '~ret'
+      ) {
+        // Extract the string value (remove leading ^)
+        const value = node[i + 2].substring(1)
+        if (value && !returnValues.includes(value)) {
+          returnValues.push(value)
+        }
+      }
+    }
+
+    // Recursively traverse arrays
+    node.forEach((item) => extractReturnValues(item, returnValues))
+  } else if (typeof node === 'object' && node !== null) {
+    // Recursively traverse objects
+    Object.values(node).forEach((value) => extractReturnValues(value, returnValues))
+  }
+
+  return returnValues
+}
+
+/**
+ * Detect function calls that assign to variables
+ * Returns a map of variable names to their function name
+ * Example: { "cardOne": "random", "cardTwo": "random", "cardThree": "random" }
+ */
+function detectFunctionCalls(inkJson) {
+  const functionCalls = new Map()
+
+  try {
+    // Traverse the main story flow (root[0])
+    if (Array.isArray(inkJson.root) && inkJson.root.length > 0) {
+      traverseForFunctionCalls(inkJson.root[0], functionCalls)
+    }
+  } catch (error) {
+    // Silently fail if parsing fails
+  }
+
+  return functionCalls
+}
+
+/**
+ * Helper function to traverse and detect function call patterns
+ * Pattern: ["ev", {"f()": "functionName"}, "/ev", {"VAR=": "varName"}]
+ */
+function traverseForFunctionCalls(node, functionCalls) {
+  if (Array.isArray(node)) {
+    // Look for pattern: ["ev", {"f()": "functionName"}, "/ev", {"VAR=": "varName", ...}]
+    for (let i = 0; i < node.length - 3; i++) {
+      if (
+        node[i] === 'ev' &&
+        typeof node[i + 1] === 'object' &&
+        node[i + 1] !== null &&
+        'f()' in node[i + 1] &&
+        node[i + 2] === '/ev' &&
+        typeof node[i + 3] === 'object' &&
+        node[i + 3] !== null &&
+        'VAR=' in node[i + 3]
+      ) {
+        const functionName = node[i + 1]['f()']
+        const varName = node[i + 3]['VAR=']
+
+        // Store the function call mapping (varName -> functionName)
+        functionCalls.set(varName, functionName)
+      }
+    }
+
+    // Continue traversing
+    node.forEach((item) => traverseForFunctionCalls(item, functionCalls))
+  } else if (typeof node === 'object' && node !== null) {
+    Object.values(node).forEach((value) => traverseForFunctionCalls(value, functionCalls))
+  }
 }
 
 /**
@@ -154,17 +377,70 @@ function parseInkStory(inkJsonString, eventName) {
     pathConvergenceStates = new Map()
     hubChoiceSnapshots = new Map()
 
+    // Parse ink JSON once for all analysis
+    const inkJson = JSON.parse(inkJsonString)
+
     // Detect random variables before executing the story
     const randomVars = detectRandomVariables(inkJsonString)
+
+    // Parse function definitions and detect function calls
+    const functionDefinitions = parseFunctionDefinitions(inkJson)
+    const functionCalls = detectFunctionCalls(inkJson)
+
+    // Detect knot definitions (for events with dynamic branching like COLLECTOR)
+    const knots = detectKnotDefinitions(inkJson)
 
     // Log detected random variables for debugging
     if (randomVars.size > 0) {
       const varList = Array.from(randomVars.entries())
-        .map(([name, range]) => `${name}(${range.min}-${range.max})`)
+        .map(([name, ranges]) => {
+          if (ranges.length === 1) {
+            return `${name}(${ranges[0].min}-${ranges[0].max})`
+          } else {
+            const rangeStr = ranges.map((r) => `${r.min}-${r.max}`).join(', ')
+            return `${name}(${ranges.length} ranges: ${rangeStr})`
+          }
+        })
         .join(', ')
       if (eventName === DEBUG_EVENT_NAME) {
         console.log(`  📊 Random variables: ${varList}`)
       }
+    }
+
+    // Log function definitions and calls for all events (for review)
+    if (
+      (functionDefinitions.size > 0 || functionCalls.size > 0) &&
+      eventName === DEBUG_EVENT_NAME
+    ) {
+      console.log(`  → Event "${eventName}" has functions:`)
+
+      if (functionDefinitions.size > 0) {
+        const funcList = Array.from(functionDefinitions.entries())
+          .map(([name, values]) => {
+            if (values.length === 0) {
+              return `${name}(no returns detected)`
+            } else if (values.length <= 3) {
+              return `${name}(${values.join(', ')})`
+            } else {
+              return `${name}(${values.length} values: ${values.slice(0, 2).join(', ')}, ...)`
+            }
+          })
+          .join(', ')
+        console.log(`     🎲 Definitions: ${funcList}`)
+      }
+
+      if (functionCalls.size > 0) {
+        const callList = Array.from(functionCalls.entries())
+          .map(([varName, functionName]) => `${varName}=${functionName}()`)
+          .join(', ')
+        console.log(`     📞 Calls: ${callList}`)
+      }
+    }
+
+    // Log detected knots for debugging
+    if (knots.size > 0) {
+      const knotList = Array.from(knots.keys()).join(', ')
+      console.log(`  🔀 Event "${eventName}" has ${knots.size} knots: ${knotList}`)
     }
 
     const story = new Story(inkJsonString)
@@ -179,7 +455,10 @@ function parseInkStory(inkJsonString, eventName) {
       '',
       [],
       new Map(),
-      randomVars
+      randomVars,
+      functionDefinitions,
+      functionCalls,
+      knots
     )
 
     if (!rootNode) {
@@ -226,7 +505,10 @@ function buildTreeFromStory(
   pathHash = '',
   ancestorTexts = [],
   textToNodeId = new Map(),
-  randomVars = new Map()
+  randomVars = new Map(),
+  functionDefinitions = new Map(),
+  functionCalls = new Map(),
+  knots = new Map()
 ) {
   // RESET node counter when transitioning from sibling-first to depth-first
   // This happens exactly ONCE when we first reach SIBLING_FIRST_DEPTH
@@ -277,13 +559,16 @@ function buildTreeFromStory(
               // e.g., GOLD command likely uses 'gold' variable, DAMAGE uses 'damage', etc.
               const likelyVarName = command.toLowerCase()
 
-              // Check if this specific variable name has a random range
+              // Check if this specific variable name has random ranges
               if (randomVars.has(likelyVarName)) {
-                const range = randomVars.get(likelyVarName)
-                // Verify the value falls within the range
-                if (value >= range.min && value <= range.max) {
+                const ranges = randomVars.get(likelyVarName)
+                // Check if the value falls within ANY of the ranges
+                // (events may have multiple random assignments to the same variable in different branches)
+                const matchingRange = ranges.find((r) => value >= r.min && value <= r.max)
+
+                if (matchingRange) {
                   // Replace ALL occurrences of this specific command:value with the random notation
-                  const randomNotation = `random [${range.min} - ${range.max}]`
+                  const randomNotation = `random [${matchingRange.min} - ${matchingRange.max}]`
                   modifiedLine = modifiedLine.replace(
                     new RegExp(`>>>>${command}:${value}`, 'g'),
                     `>>>>${command}:${randomNotation}`
@@ -291,7 +576,7 @@ function buildTreeFromStory(
                   foundRandom = true
                   if (eventName === DEBUG_EVENT_NAME) {
                     console.log(
-                      `  🎲 Event "${eventName}": Detected random ${command} value ${value} (range: ${range.min}-${range.max})`
+                      `  🎲 Event "${eventName}": Detected random ${command} value ${value} (range: ${matchingRange.min}-${matchingRange.max})`
                     )
                   }
                 }
@@ -329,7 +614,7 @@ function buildTreeFromStory(
   const type = determineNodeType(text, choices.length === 0)
 
   // Extract effects from the beginning of text, then clean the rest
-  const { effects, cleanedText } = extractEffects(text)
+  const { effects, cleanedText } = extractEffects(text, functionDefinitions, functionCalls)
 
   // LOOP DETECTION & EARLY DEDUPLICATION:
   // Multiple strategies detect patterns during tree building and create ref nodes
@@ -429,16 +714,55 @@ function buildTreeFromStory(
   // Track ancestor texts (unused but kept for potential future use)
   const newAncestorTexts = cleanedText ? [...ancestorTexts, cleanedText] : ancestorTexts
 
-  // If we have no cleaned text and no choices, check if it's a special node type
+  // SPECIAL CASE: Check for branching commands BEFORE other early returns
+  // Branching commands (like COLLECTOR) trigger exploration of knot definitions
+  if (choices.length === 0) {
+    const branchingCommand = detectBranchingCommand(effects)
+
+    if (branchingCommand && knots.size > 0) {
+      // This is a dynamic branching point - explore all knots as conditional branches
+      console.log(
+        `  🔀 [${eventName}] Found ${branchingCommand} command - exploring ${knots.size} knots`
+      )
+
+      const knotBranches = []
+      knots.forEach((knotBody, knotName) => {
+        const knotNode = parseKnotContentManually(knotBody)
+        if (knotNode) {
+          // Wrap in a result node to show it's a conditional branch of the special node
+          knotBranches.push(
+            createNode({
+              id: generateNodeId(),
+              type: 'result',
+              requirements: [`${branchingCommand}: ${knotName}`],
+              children: [knotNode],
+            })
+          )
+        }
+      })
+
+      totalNodesInCurrentEvent++
+      // Return the branching point node with all knot branches as children
+      return createNode({
+        id: generateNodeId(),
+        text: branchingCommand,
+        type: 'special',
+        effects,
+        children: knotBranches,
+      })
+    }
+  }
+
   if (!cleanedText && choices.length === 0) {
-    // If it's a combat or special command node, keep it
+    // If it's a combat or end node, keep it
     if (type === 'combat') {
-      // Combat-only event (like Mimic)
+      // Combat-only event (like Ambush with >>>>COMBAT:random)
       totalNodesInCurrentEvent++
       return createNode({
         id: generateNodeId(),
         text: undefined,
         type: 'combat',
+        effects: effects.length > 0 ? effects : undefined,
       })
     }
 
@@ -456,9 +780,6 @@ function buildTreeFromStory(
     // If we're at a leaf node with no text and no effects (e.g., "Leave" choice with just "end"),
     // create an empty end node instead of returning null
     // This ensures choices that lead to immediate endings are still represented in the tree
-
-    // Debug logging for empty end nodes (disabled)
-    // Uncomment to see where empty end nodes are created
 
     totalNodesInCurrentEvent++
     return createNode({
@@ -700,7 +1021,11 @@ function buildTreeFromStory(
         }
       }
       childNumContinues = Math.max(0, continueCount - 1)
-      const { effects: extractedEffects, cleanedText: cleanedChildText } = extractEffects(childText)
+      const { effects: extractedEffects, cleanedText: cleanedChildText } = extractEffects(
+        childText,
+        functionDefinitions,
+        functionCalls
+      )
       childEffects = extractedEffects
       childText = cleanedChildText
     } catch (error) {
@@ -748,7 +1073,10 @@ function buildTreeFromStory(
           pathHash,
           newAncestorTexts,
           newTextToNodeId,
-          randomVars
+          randomVars,
+          functionDefinitions,
+          functionCalls,
+          knots
         )
 
         if (childNode) {
@@ -787,7 +1115,10 @@ function buildTreeFromStory(
       pathHash,
       newAncestorTexts,
       newTextToNodeId,
-      randomVars
+      randomVars,
+      functionDefinitions,
+      functionCalls,
+      knots
     )
 
     if (childNode) {
@@ -1009,11 +1340,18 @@ function buildTreeFromStory(
       const postCombatText = text.substring(combatIndex + combatCommandLength).trim()
 
       // Extract effects from postcombat text
-      const { effects: postCombatEffects, cleanedText: cleanedPostCombatText } =
-        extractEffects(postCombatText)
+      const { effects: postCombatEffects, cleanedText: cleanedPostCombatText } = extractEffects(
+        postCombatText,
+        functionDefinitions,
+        functionCalls
+      )
 
       // Clean the pre-combat text
-      const { cleanedText: cleanedPreCombatText } = extractEffects(preCombatText)
+      const { cleanedText: cleanedPreCombatText } = extractEffects(
+        preCombatText,
+        functionDefinitions,
+        functionCalls
+      )
 
       // If there's postcombat text, create a dialogue child node
       if (cleanedPostCombatText && cleanedPostCombatText.trim()) {
@@ -1094,10 +1432,45 @@ function buildTreeFromStory(
 }
 
 /**
+ * Resolve ADDKEYWORD effect value, handling variable references and placeholders
+ * Examples:
+ *   "a keyword" -> "ADDKEYWORD: random"
+ *   "chaos" -> multiple effects
+ *   Variable from function (e.g., "Recall") -> "ADDKEYWORD: random [Recall, Figmented, ...]"
+ *   Static keyword (e.g., "Defiled") -> "ADDKEYWORD: Defiled"
+ */
+function resolveSpecialKeywordEffects(value, functionDefinitions, functionCalls) {
+  // Handle "a keyword" placeholder - game engine picks from all keywords
+  if (value === 'a keyword') {
+    return ['ADDKEYWORD: random']
+  }
+
+  // Handle "chaos" keyword - special case with multiple effects
+  if (value === 'chaos') {
+    return ['ADDKEYWORD: random', 'ADDKEYWORD: random', 'ADDTYPE: Corruption', 'SWAPCOST: blood']
+  }
+
+  // Check if this value comes from a function call
+  // The inkjs runtime has already substituted variables, so we see "Recall" instead of "cardOne"
+  // We check if any function could return this value
+  for (const functionName of functionCalls.values()) {
+    const returnValues = functionDefinitions.get(functionName)
+
+    // If this function can return the value we're seeing, show all possible values
+    if (returnValues && returnValues.length > 0 && returnValues.includes(value)) {
+      return [`ADDKEYWORD: random [${returnValues.join(', ')}]`]
+    }
+  }
+
+  // Default: just a static keyword
+  return [`ADDKEYWORD: ${value}`]
+}
+
+/**
  * Extract effects (game commands) from text (beginning or middle)
  * Returns { effects: [...], cleanedText: "..." }
  */
-function extractEffects(text) {
+function extractEffects(text, functionDefinitions = new Map(), functionCalls = new Map()) {
   if (!text) return { effects: [], cleanedText: '' }
 
   const effects = []
@@ -1106,7 +1479,8 @@ function extractEffects(text) {
   // Extract entire command sequences: >>>>COMMAND1:value1;COMMAND2:value2;COMMAND3
   // Pattern matches from >>> until we hit a newline, quote, or end
   // Includes uppercase, lowercase, numbers, and common punctuation in values
-  const commandSequencePattern = />>>>?[A-Za-z0-9_:;'\[\]\(\)\s\-\/]+(?=\n|"|$)/gi
+  // Note: Use [ \t] instead of \s to avoid matching newlines (which would break multi-line command extraction)
+  const commandSequencePattern = />>>>?[A-Za-z0-9_:;'\[\]\(\)  \t\-\/]+(?=\n|"|$)/gi
 
   cleaned = cleaned.replace(commandSequencePattern, (commandSequence) => {
     // Now split the sequence by semicolons and process each command
@@ -1124,21 +1498,24 @@ function extractEffects(text) {
       const command = match[1].toUpperCase()
       const value = match[2] ? match[2].trim() : null
 
-      let effect
+      let newEffects
       if (value) {
         switch (command) {
           case 'COMBAT':
           case 'DIRECTCOMBAT':
-            effect = `COMBAT: ${value}`
+            newEffects = [`COMBAT: ${value}`]
+            break
+          case 'ADDKEYWORD':
+            newEffects = resolveSpecialKeywordEffects(value, functionDefinitions, functionCalls)
             break
           default:
-            effect = `${command}: ${value}`
+            newEffects = [`${command}: ${value}`]
         }
       } else {
-        effect = command
+        newEffects = [command]
       }
 
-      effects.push(effect)
+      effects.push(...newEffects)
     })
 
     return '' // Remove entire command sequence from text
@@ -1280,9 +1657,9 @@ function cleanText(text) {
  * - 'choice': Choice wrapper node (created by separateChoicesFromEffects)
  * - 'combat': Combat encounter node
  * - 'end': Terminal node (no children)
- * - 'special': Custom node type for special game mechanics (e.g., CARDPUZZLE)
- *              that require external handling. Only created via event alterations.
- *              So probably won't show up in the usage of this function.
+ * - 'special': Type for special game mechanics (e.g., CARDPUZZLE)
+ *              that require external handling.
+ *  - 'result': Direct children of special nodes containing the result.
  */
 function determineNodeType(text, isLeaf) {
   if (!text) return 'choice'
@@ -2058,6 +2435,20 @@ function applyEventAlterations(rootNode, alterations) {
         // Set new values
         if (modifyNode.type !== undefined) {
           node.type = modifyNode.type
+        }
+
+        // Handle refCreate: search the tree for a matching node and create a ref
+        if (modifyNode.refCreate !== undefined) {
+          const candidates = findNodesByTextOrChoiceLabel(rootNode, modifyNode.refCreate)
+          // Find the first candidate that doesn't have a ref (it's the original node)
+          const targetNode = candidates.find((candidate) => candidate.ref === undefined)
+          if (targetNode) {
+            node.ref = targetNode.id
+          } else {
+            console.warn(
+              `  ⚠️  refCreate "${modifyNode.refCreate}" did not find a matching node without a ref for node ${node.id}`
+            )
+          }
         }
 
         appliedCount++
