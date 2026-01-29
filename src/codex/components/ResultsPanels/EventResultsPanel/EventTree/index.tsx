@@ -30,6 +30,7 @@ import {
   calculateEffectsBoxDimensions,
   calculateIndicatorDimensions,
   isCompactEmojiOnlyNode,
+  tweakLoopIndicatorHeightForChoiceNode,
 } from '@/codex/utils/eventTreeHelper'
 import {
   adjustHorizontalNodeSpacing,
@@ -193,6 +194,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
 
       const nodeElement = select(this)
       const [nodeWidth, nodeHeight] = getNodeDimensions(
+        root as HierarchyPointNode<EventTreeNode>,
         d.data,
         event,
         showLoopingIndicator,
@@ -219,6 +221,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
 
       const nodeElement = select(this)
       const [nodeWidth, nodeHeight] = getNodeDimensions(
+        root as HierarchyPointNode<EventTreeNode>,
         d.data,
         event,
         showLoopingIndicator,
@@ -250,19 +253,29 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
             requirements.length * TEXT.LINE_HEIGHT +
             INNER_BOX.LISTINGS_VERTICAL_PADDING
           : 0
+        const reqBoxMargin = reqBoxHeight > 0 ? INNER_BOX.LISTINGS_TOP_MARGIN : 0
+
         const hasLoopingIndicator = showLoopingIndicator && data.ref !== undefined
-        const loopIndicatorHeight = hasLoopingIndicator
-          ? INNER_BOX.INDICATOR_HEIGHT + TEXT.LINE_HEIGHT + INNER_BOX.INDICATOR_HEADER_GAP
-          : 0
-        const loopIndicatorMargin = hasLoopingIndicator ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
+        const { height: loopIndicatorHeightBase, margin: loopIndicatorMargin } =
+          calculateIndicatorDimensions(
+            'loop',
+            hasLoopingIndicator,
+            data.choiceLabel.length > 0,
+            reqBoxHeight > 0
+          )
+
+        const loopIndicatorHeight = tweakLoopIndicatorHeightForChoiceNode(
+          loopIndicatorHeightBase,
+          isCompact
+        )
 
         const [currentNodeWidth, currentNodeHeight] = getNodeDimensions(
+          root as HierarchyPointNode<EventTreeNode>,
           data,
           event,
           showLoopingIndicator,
           levelOfDetail
         )
-        const reqBoxMargin = reqBoxHeight > 0 ? INNER_BOX.LISTINGS_TOP_MARGIN : 0
 
         const textAreaHeight =
           currentNodeHeight -
@@ -346,7 +359,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
                 listingTopPadding +
                   TEXT.LINE_HEIGHT +
                   INNER_BOX.LISTINGS_HEADER_GAP +
-                  (i + 1) * TEXT.LINE_HEIGHT
+                  (i + 1) * TEXT.BASELINE_OFFSET
               )
               .text(req)
           })
@@ -359,6 +372,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
             : 0
 
         const [currentNodeWidth, currentNodeHeight] = getNodeDimensions(
+          root as HierarchyPointNode<EventTreeNode>,
           data,
           event,
           showLoopingIndicator,
@@ -421,6 +435,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
 
         if (isRootNode) {
           const [currentNodeWidth, currentNodeHeight] = getNodeDimensions(
+            root as HierarchyPointNode<EventTreeNode>,
             data,
             event,
             showLoopingIndicator,
@@ -489,6 +504,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
           }
         } else {
           const [currentNodeWidth, currentNodeHeight] = getNodeDimensions(
+            root as HierarchyPointNode<EventTreeNode>,
             data,
             event,
             showLoopingIndicator,
@@ -562,6 +578,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
             : 0
 
         const [currentNodeWidth, currentNodeHeight] = getNodeDimensions(
+          root as HierarchyPointNode<EventTreeNode>,
           data,
           event,
           showLoopingIndicator,
@@ -632,6 +649,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
             : 0
 
         const [currentNodeWidth, currentNodeHeight] = getNodeDimensions(
+          root as HierarchyPointNode<EventTreeNode>,
           data,
           event,
           showLoopingIndicator,
@@ -701,6 +719,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
         const loopIndicatorMargin = hasLoopingIndicator ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
 
         const [currentNodeWidth, currentNodeHeight] = getNodeDimensions(
+          root as HierarchyPointNode<EventTreeNode>,
           data,
           event,
           showLoopingIndicator,
@@ -804,6 +823,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
         const eventNode = d.data as DialogueNode | EndNode | CombatNode | SpecialNode
         const effects = eventNode.effects ?? []
         const [nodeWidth, nodeHeight] = getNodeDimensions(
+          root as HierarchyPointNode<EventTreeNode>,
           d.data,
           event,
           showLoopingIndicator,
@@ -878,16 +898,16 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
       .each(function (d) {
         const node = select(this)
         const [nodeWidth, nodeHeight] = getNodeDimensions(
+          root as HierarchyPointNode<EventTreeNode>,
           d.data,
           event,
           showLoopingIndicator,
           levelOfDetail
         )
         const showLoopsBackTo = d.data.ref !== undefined && showLoopingIndicator
-        const loopIndicatorHeight = showLoopsBackTo
-          ? INNER_BOX.INDICATOR_HEIGHT + TEXT.LINE_HEIGHT + INNER_BOX.INDICATOR_HEADER_GAP
-          : 0
-        const loopIndicatorMargin = showLoopsBackTo ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
+        const { height: loopIndicatorHeight, margin: loopIndicatorMargin } =
+          calculateIndicatorDimensions('loop', showLoopsBackTo, !isCompact, true)
+
         const numContinues = hasContinues(d.data) ? (d.data.numContinues ?? 0) : 0
 
         // Position from bottom: margin is already in nodeHeight, just position the box
@@ -913,7 +933,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
         continueIndicator
           .append('text')
           .attr('class', cx('event-node-text', 'event-node-text--indicator'))
-          .attr('y', INNER_BOX.INDICATOR_HEIGHT / 2 + TEXT.BASELINE_OFFSET / 1.75)
+          .attr('y', INNER_BOX.INDICATOR_HEIGHT / 2 + TEXT.BASELINE_OFFSET / 2)
           .text(continueText)
       })
 
@@ -924,6 +944,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
         .each(function (d) {
           const node = select(this)
           const [nodeWidth, nodeHeight] = getNodeDimensions(
+            root as HierarchyPointNode<EventTreeNode>,
             d.data,
             event,
             showLoopingIndicator,
@@ -937,13 +958,25 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
           const maxTextWidth = nodeWidth - INNER_BOX.HORIZONTAL_MARGIN_OR_PADDING * 4
           const refNodeLines = wrapEventText(labelText, maxTextWidth)
           const displayLine = refNodeLines[0] || ''
-          const truncatedLine = displayLine === labelText ? displayLine : `${displayLine}...`
+          const truncatedLine =
+            displayLine === labelText ? displayLine : `${displayLine.slice(0, -3)}...`
 
-          const loopIndicatorHeight =
-            INNER_BOX.INDICATOR_HEIGHT + TEXT.LINE_HEIGHT + INNER_BOX.INDICATOR_HEADER_GAP
+          const { height: loopIndicatorHeight } = calculateIndicatorDimensions(
+            'loop',
+            true,
+            !isCompact,
+            false
+          )
 
-          // Position from bottom: margin is already in nodeHeight, just position the box
+          // Position from bottom: margin is already in nodeHeight.
           const loopIndicatorY = nodeHeight / 2 - NODE_BOX.VERTICAL_PADDING - loopIndicatorHeight
+          const loopIndicatorText = isCompact ? `🔄 ${truncatedLine}` : `🔄 Loops back to:`
+          const loopIndicatorTextClass = isCompact
+            ? 'event-node-text--indicator-label'
+            : 'event-node-text--indicator'
+          const loopIndicatorTextY = isCompact
+            ? INNER_BOX.INDICATOR_HEIGHT / 2 + TEXT.BASELINE_OFFSET / 2
+            : INNER_BOX.INDICATOR_HEIGHT / 2 + TEXT.BASELINE_OFFSET / 2
 
           const loopIndicator = node
             .append('g')
@@ -958,24 +991,23 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
 
           loopIndicator
             .append('text')
-            .attr('class', cx('event-node-text', 'event-node-text--indicator'))
-            .attr(
-              'y',
-              TEXT.LINE_HEIGHT / 2 + TEXT.BASELINE_OFFSET + INNER_BOX.INDICATOR_HEADER_GAP / 2
-            )
-            .text(`🔄 Loops back to:`)
+            .attr('class', cx('event-node-text', loopIndicatorTextClass))
+            .attr('y', loopIndicatorTextY)
+            .text(loopIndicatorText)
 
-          loopIndicator
-            .append('text')
-            .attr('class', cx('event-node-text', 'event-node-text--indicator-label'))
-            .attr(
-              'y',
-              TEXT.LINE_HEIGHT +
-                INNER_BOX.INDICATOR_HEADER_GAP +
-                TEXT.LINE_HEIGHT / 2 +
-                TEXT.BASELINE_OFFSET
-            )
-            .text(truncatedLine)
+          if (!isCompact) {
+            loopIndicator
+              .append('text')
+              .attr('class', cx('event-node-text', 'event-node-text--indicator-label'))
+              .attr(
+                'y',
+                TEXT.LINE_HEIGHT +
+                  INNER_BOX.INDICATOR_HEADER_GAP +
+                  TEXT.LINE_HEIGHT / 2 +
+                  TEXT.BASELINE_OFFSET
+              )
+              .text(truncatedLine)
+          }
         })
     }
 

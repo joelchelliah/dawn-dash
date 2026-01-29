@@ -1,4 +1,4 @@
-import { HierarchyNode, HierarchyPointNode } from 'd3-hierarchy'
+import { hierarchy, HierarchyNode, HierarchyPointNode } from 'd3-hierarchy'
 import { Selection } from 'd3-selection'
 
 import {
@@ -26,13 +26,14 @@ interface TreeBounds {
 }
 
 export const getNodeDimensions = (
+  root: HierarchyPointNode<EventTreeNode>,
   node: EventTreeNode,
   event: Event,
   showLoopingIndicator: boolean,
   levelOfDetail: LevelOfDetail
 ): [number, number] => {
   const cached = getCachedDimensions(event.name, node.id, showLoopingIndicator, levelOfDetail)
-  const nodeWidth = cached?.width ?? _getNodeWidth(node, showLoopingIndicator, levelOfDetail)
+  const nodeWidth = cached?.width ?? _getNodeWidth(root, node, showLoopingIndicator, levelOfDetail)
   const nodeHeight =
     cached?.height ?? _getNodeHeight(node, nodeWidth, showLoopingIndicator, levelOfDetail)
 
@@ -40,13 +41,14 @@ export const getNodeDimensions = (
 }
 
 export const getNodeWidth = (
+  root: HierarchyPointNode<EventTreeNode>,
   node: EventTreeNode,
   event: Event,
   showLoopingIndicator: boolean,
   levelOfDetail: LevelOfDetail
 ): number =>
   getCachedDimensions(event.name, node.id, showLoopingIndicator, levelOfDetail)?.width ??
-  _getNodeWidth(node, showLoopingIndicator, levelOfDetail)
+  _getNodeWidth(root, node, showLoopingIndicator, levelOfDetail)
 
 export const getNodeHeight = (
   node: EventTreeNode,
@@ -63,7 +65,15 @@ export const cacheAllNodeDimensions = (
   showLoopingIndicator: boolean,
   levelOfDetail: LevelOfDetail
 ): void => {
-  buildCache(event, showLoopingIndicator, levelOfDetail, _getNodeWidth, _getNodeHeight)
+  const root = hierarchy(event.rootNode, (d) => d.children)
+  buildCache(
+    root as HierarchyPointNode<EventTreeNode>,
+    event,
+    showLoopingIndicator,
+    levelOfDetail,
+    _getNodeWidth,
+    _getNodeHeight
+  )
 }
 
 /**
@@ -86,6 +96,7 @@ export const calculateTreeBounds = (
     const y = d.y ?? 0
 
     const [nodeWidth, nodeHeight] = getNodeDimensions(
+      root as HierarchyPointNode<EventTreeNode>,
       d.data,
       event,
       showLoopingIndicator,
@@ -113,6 +124,7 @@ export const calculateTreeBounds = (
  * Calculate dynamic node width based on event node content
  */
 const _getNodeWidth = (
+  root: HierarchyPointNode<EventTreeNode>,
   node: EventTreeNode,
   showLoopingIndicator: boolean,
   levelOfDetail: LevelOfDetail
@@ -123,11 +135,14 @@ const _getNodeWidth = (
   let width = isCompact ? NODE.COMPACT_WIDTH : NODE.WIDTH_RANGE[0]
 
   if (showLoopingIndicator && node.ref !== undefined) {
+    const refNode = findNodeById(root, node.ref)
+    const refNodeLabel = getNodeTextOrChoiceLabel(refNode)
+    const text = isCompact ? `🔄 ${refNodeLabel || ''}` : '🔄 Loops back to:'
+
     width = Math.max(
       width,
       clampNodeWidth(
-        measureEventTextWidth('🔄 Loops back to:', 'indicatorHeader') +
-          INNER_BOX.HORIZONTAL_MARGIN_OR_PADDING * 4,
+        measureEventTextWidth(text, 'indicatorHeader') + INNER_BOX.HORIZONTAL_MARGIN_OR_PADDING * 4,
         isCompact
       )
     )
@@ -135,6 +150,7 @@ const _getNodeWidth = (
 
   if (numContinues > 0) {
     const text = isCompact ? `⏭️ × ${numContinues}` : `⏭️ Continues: ${numContinues}`
+
     width = Math.max(
       width,
       clampNodeWidth(
@@ -223,13 +239,18 @@ const _getNodeHeight = (
         : 0
     const reqBoxMargin = reqBoxHeight > 0 ? INNER_BOX.LISTINGS_TOP_MARGIN : 0
 
-    const { height: loopIndicatorHeight, margin: loopIndicatorMargin } =
+    const { height: loopIndicatorHeightBase, margin: loopIndicatorMargin } =
       calculateIndicatorDimensions(
         'loop',
         Boolean(showLoopingIndicator && node.ref !== undefined),
         choiceTextHeight > 0,
         reqBoxHeight > 0
       )
+
+    const loopIndicatorHeight = tweakLoopIndicatorHeightForChoiceNode(
+      loopIndicatorHeightBase,
+      isCompact
+    )
 
     const contentHeight =
       choiceTextHeight + reqBoxMargin + reqBoxHeight + loopIndicatorHeight + loopIndicatorMargin
@@ -449,10 +470,14 @@ export const calculateIndicatorDimensions = (
     return { height: 0, margin: 0 }
   }
 
-  const height =
-    type === 'loop'
+  let height = 0
+  if (type === 'continue') {
+    height = INNER_BOX.INDICATOR_HEIGHT
+  } else if (type === 'loop') {
+    height = followsText
       ? INNER_BOX.INDICATOR_HEIGHT + INNER_BOX.INDICATOR_HEADER_GAP + TEXT.LINE_HEIGHT
       : INNER_BOX.INDICATOR_HEIGHT
+  }
 
   const margin =
     followsText || followsOtherBoxes
@@ -460,6 +485,20 @@ export const calculateIndicatorDimensions = (
       : INNER_BOX.INDICATOR_TOP_MARGIN_COMPACT
 
   return { height, margin }
+}
+
+// This is a bit weird for choice nodes, since they always have text,
+// even i compact mode, but we want the height here to behave like it's
+// not preceded by text... A bit hacky, might need to revisit this later.
+// So here we're removing the header gap and extra line height htat was
+// added by the `calculateIndicatorDimensions` function.
+export const tweakLoopIndicatorHeightForChoiceNode = (
+  height: number,
+  isCompact: boolean
+): number => {
+  if (!isCompact) return height
+
+  return height > 0 ? height - INNER_BOX.INDICATOR_HEADER_GAP - TEXT.LINE_HEIGHT : 0
 }
 
 const hasText = (

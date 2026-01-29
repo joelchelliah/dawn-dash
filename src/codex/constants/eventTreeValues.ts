@@ -21,9 +21,9 @@ export const NODE = {
   HORIZONTAL_SPACING_DEFAULT: 50,
   VERTICAL_SPACING_DEFAULT: 80,
   VERTICAL_SPACING_SHORT_BY_LEVEL_OF_DETAIL: {
-    [LevelOfDetail.COMPACT]: 50,
-    [LevelOfDetail.BALANCED]: 40,
-    [LevelOfDetail.WALL_OF_TEXT]: 40,
+    [LevelOfDetail.COMPACT]: 60,
+    [LevelOfDetail.BALANCED]: 50,
+    [LevelOfDetail.WALL_OF_TEXT]: 50,
   },
   VERTICAL_SPACING_INCREMENT: 20,
 }
@@ -77,7 +77,7 @@ export const INNER_BOX = {
   INDICATOR_TOP_MARGIN_COMPACT: 8,
 
   // Gap between indicator header ('Loops back to:') and label text
-  INDICATOR_HEADER_GAP: 8,
+  INDICATOR_HEADER_GAP: 6,
 
   // Vertical padding for listings ('Requirements' and 'Effects')
   LISTINGS_VERTICAL_PADDING: 6,

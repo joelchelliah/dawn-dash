@@ -1,8 +1,9 @@
 import { select } from 'd3-selection'
+import { HierarchyPointNode } from 'd3-hierarchy'
 
 import { createCx } from '@/shared/utils/classnames'
 
-import { Event } from '@/codex/types/events'
+import { Event, EventTreeNode } from '@/codex/types/events'
 import {
   getArrowheadAngle,
   getNodeDimensions,
@@ -59,12 +60,14 @@ export function drawLinks({
       const targetY = d.target.y || 0
 
       const [, sourceNodeHeight] = getNodeDimensions(
+        root as HierarchyPointNode<EventTreeNode>,
         d.source.data,
         event,
         showLoopingIndicator,
         levelOfDetail
       )
       const [, targetNodeHeight] = getNodeDimensions(
+        root as HierarchyPointNode<EventTreeNode>,
         d.target.data,
         event,
         showLoopingIndicator,
@@ -136,12 +139,14 @@ export function drawRefChildrenLinks({
     const markerUrl = arrowheadMarkerForStandardLinks(defs, markerId, sourceX, targetX, 'arrowhead')
 
     const [, sourceNodeHeight] = getNodeDimensions(
+      root as HierarchyPointNode<EventTreeNode>,
       d.source.data,
       event,
       showLoopingIndicator,
       levelOfDetail
     )
     const [, targetNodeHeight] = getNodeDimensions(
+      root as HierarchyPointNode<EventTreeNode>,
       d.target.data,
       event,
       showLoopingIndicator,
@@ -175,7 +180,7 @@ export function drawLoopBackLinks({
   showLoopingIndicator,
   levelOfDetail,
 }: DrawLinksParam) {
-  const nodeMap = buildNodeMap(root)
+  const nodeMap = buildNodeMap(root as HierarchyPointNode<EventTreeNode>)
   const loopBackLinks = findLoopBackLinks(root, nodeMap)
   const isCompact = levelOfDetail === LevelOfDetail.COMPACT
 
@@ -191,6 +196,7 @@ export function drawLoopBackLinks({
     const group = select(this)
 
     const { sourceX, sourceY, targetX, targetY } = calculateLoopBackLinkCorners(
+      root as HierarchyPointNode<EventTreeNode>,
       d,
       event,
       showLoopingIndicator,
@@ -334,6 +340,7 @@ function findLoopBackLinks(
  * Calculates the corner positions for a loop back link
  */
 function calculateLoopBackLinkCorners(
+  root: HierarchyPointNode<EventTreeNode>,
   d: any,
   event: Event,
   showLoopingIndicator: boolean,
@@ -345,12 +352,14 @@ function calculateLoopBackLinkCorners(
   const targetCenterY = d.target.y || 0
 
   const [sourceWidth, sourceHeight] = getNodeDimensions(
+    root as HierarchyPointNode<EventTreeNode>,
     d.source.data,
     event,
     showLoopingIndicator,
     levelOfDetail
   )
   const [targetWidth, targetHeight] = getNodeDimensions(
+    root as HierarchyPointNode<EventTreeNode>,
     d.target.data,
     event,
     showLoopingIndicator,

@@ -1,3 +1,5 @@
+import { HierarchyPointNode } from 'd3-hierarchy'
+
 import { createCx } from '@/shared/utils/classnames'
 
 import { Event, EventTreeNode } from '@/codex/types/events'
@@ -39,6 +41,7 @@ export function drawLoopBackLinkBadges({
   // Calculate positions for each link
   loopBackLinks.forEach((d) => {
     const { sourceX, sourceY, targetX, targetY } = calculateLoopBackLinkCorners(
+      root as HierarchyPointNode<EventTreeNode>,
       d,
       event,
       showLoopingIndicator,
@@ -158,7 +161,13 @@ function drawNodeTypeBadge({
   const nodes = root.descendants().filter((d: any) => d.data.type === nodeType)
 
   nodes.forEach((node: any) => {
-    const [, nodeHeight] = getNodeDimensions(node.data, event, showLoopingIndicator, levelOfDetail)
+    const [, nodeHeight] = getNodeDimensions(
+      root as HierarchyPointNode<EventTreeNode>,
+      node.data,
+      event,
+      showLoopingIndicator,
+      levelOfDetail
+    )
 
     const centerX = node.x
     const yOffset = 2
@@ -219,6 +228,7 @@ function findLoopBackLinks(
  * Calculates the corner positions for a loop back link
  */
 function calculateLoopBackLinkCorners(
+  root: HierarchyPointNode<EventTreeNode>,
   d: any,
   event: Event,
   showLoopingIndicator: boolean,
@@ -230,12 +240,14 @@ function calculateLoopBackLinkCorners(
   const targetCenterY = d.target.y || 0
 
   const [sourceWidth, sourceHeight] = getNodeDimensions(
+    root as HierarchyPointNode<EventTreeNode>,
     d.source.data,
     event,
     showLoopingIndicator,
     levelOfDetail
   )
   const [targetWidth, targetHeight] = getNodeDimensions(
+    root as HierarchyPointNode<EventTreeNode>,
     d.target.data,
     event,
     showLoopingIndicator,
