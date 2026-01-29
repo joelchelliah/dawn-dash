@@ -1,7 +1,11 @@
 import { createCx } from '@/shared/utils/classnames'
 
 import { Event, EventTreeNode } from '@/codex/types/events'
-import { getNodeDimensions, isCompactEmojiOnlyNode } from '@/codex/utils/eventTreeHelper'
+import {
+  getNodeDimensions,
+  isCompactEmojiOnlyNode,
+  type NodeMap,
+} from '@/codex/utils/eventTreeHelper'
 import { LevelOfDetail } from '@/codex/constants/eventSearchValues'
 
 import styles from './badges.module.scss'
@@ -12,6 +16,7 @@ const cx = createCx(styles)
 interface DrawBadgesParam {
   g: any
   root: any
+  nodeMap: NodeMap
   event: Event
   showLoopingIndicator: boolean
   levelOfDetail: LevelOfDetail
@@ -25,12 +30,12 @@ interface DrawNodeTypeBadgeParam extends DrawBadgesParam {
 export function drawLoopBackLinkBadges({
   g,
   root,
+  nodeMap,
   event,
   showLoopingIndicator,
   levelOfDetail,
 }: DrawBadgesParam) {
-  const nodeMap = buildNodeMap(root)
-  const loopBackLinks = findLoopBackLinks(root, nodeMap)
+  const loopBackLinks = findLoopBackLinks(root)
 
   // Track unique positions with nodes to avoid duplicates
   const startPositionToNodeMap = new Map<string, EventTreeNode>()
@@ -39,6 +44,7 @@ export function drawLoopBackLinkBadges({
   // Calculate positions for each link
   loopBackLinks.forEach((d) => {
     const { sourceX, sourceY, targetX, targetY } = calculateLoopBackLinkCorners(
+      nodeMap,
       d,
       event,
       showLoopingIndicator,
@@ -91,6 +97,14 @@ export function drawEndBadge(params: DrawBadgesParam) {
 
 export function drawCombatBadge(params: DrawBadgesParam) {
   drawNodeTypeBadge({ ...params, nodeType: 'combat', emoji: '⚔️' })
+}
+
+export function drawSpecialBadge(params: DrawBadgesParam) {
+  drawNodeTypeBadge({ ...params, nodeType: 'special', emoji: '🎁' })
+}
+
+export function drawResultBadge(params: DrawBadgesParam) {
+  drawNodeTypeBadge({ ...params, nodeType: 'result', emoji: '🔑' })
 }
 
 function drawLoopBackBadges(
@@ -149,6 +163,7 @@ function drawLoopBackBadges(
 function drawNodeTypeBadge({
   g,
   root,
+  nodeMap,
   event,
   showLoopingIndicator,
   levelOfDetail,
@@ -158,7 +173,13 @@ function drawNodeTypeBadge({
   const nodes = root.descendants().filter((d: any) => d.data.type === nodeType)
 
   nodes.forEach((node: any) => {
-    const [, nodeHeight] = getNodeDimensions(node.data, event, showLoopingIndicator, levelOfDetail)
+    const [, nodeHeight] = getNodeDimensions(
+      nodeMap,
+      node.data,
+      event,
+      showLoopingIndicator,
+      levelOfDetail
+    )
 
     const centerX = node.x
     const yOffset = 2
@@ -180,30 +201,22 @@ function drawNodeTypeBadge({
 }
 
 /**
- * Builds a map of node id -> node for quick lookup
+ * Finds all loop back links (nodes with ref property)
+ * nodeMap contains EventTreeNode data, but we need hierarchy nodes with x/y positions
  */
-function buildNodeMap(root: any): Map<number, any> {
-  const nodeMap = new Map<number, any>()
+function findLoopBackLinks(root: any): Array<{ source: any; target: any }> {
+  // Build hierarchy node map for finding positioned nodes
+  const hierarchyNodeMap = new Map<number, any>()
   root.descendants().forEach((node: any) => {
     if (node.data.id !== undefined) {
-      nodeMap.set(node.data.id, node)
+      hierarchyNodeMap.set(node.data.id, node)
     }
   })
-  return nodeMap
-}
 
-/**
- * Finds all loop back links (nodes with ref property)
- */
-function findLoopBackLinks(
-  root: any,
-  nodeMap: Map<number, any>
-): Array<{ source: any; target: any }> {
   const loopBackLinks: Array<{ source: any; target: any }> = []
   root.descendants().forEach((node: any) => {
-    // NOTE: ref can be 0 (root id), so don't use truthy checks here.
-    if (node.data.ref != null) {
-      const targetNode = nodeMap.get(node.data.ref)
+    if (node.data.ref !== undefined) {
+      const targetNode = hierarchyNodeMap.get(node.data.ref)
       if (targetNode) {
         loopBackLinks.push({
           source: node,
@@ -219,6 +232,7 @@ function findLoopBackLinks(
  * Calculates the corner positions for a loop back link
  */
 function calculateLoopBackLinkCorners(
+  nodeMap: NodeMap,
   d: any,
   event: Event,
   showLoopingIndicator: boolean,
@@ -230,12 +244,14 @@ function calculateLoopBackLinkCorners(
   const targetCenterY = d.target.y || 0
 
   const [sourceWidth, sourceHeight] = getNodeDimensions(
+    nodeMap,
     d.source.data,
     event,
     showLoopingIndicator,
     levelOfDetail
   )
   const [targetWidth, targetHeight] = getNodeDimensions(
+    nodeMap,
     d.target.data,
     event,
     showLoopingIndicator,

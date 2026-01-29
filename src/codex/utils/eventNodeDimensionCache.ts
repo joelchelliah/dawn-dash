@@ -17,6 +17,11 @@ import { Event, EventTreeNode } from '@/codex/types/events'
 import { LevelOfDetail } from '../constants/eventSearchValues'
 
 /**
+ * Node lookup map type for O(1) access to nodes by ID
+ */
+type NodeMap = Map<number, EventTreeNode>
+
+/**
  * Cached dimensions for a single node.
  */
 interface NodeDimensions {
@@ -85,10 +90,12 @@ export const hasCachedDimensions = (
  * This allows switching between different rendering modes without recalculation.
  */
 export const buildDimensionCache = (
+  nodeMap: NodeMap,
   event: Event,
   showLoopingIndicator: boolean,
   levelOfDetail: LevelOfDetail,
   calculateWidth: (
+    nodeMap: NodeMap,
     node: EventTreeNode,
     showLoopingIndicator: boolean,
     levelOfDetail: LevelOfDetail
@@ -116,7 +123,7 @@ export const buildDimensionCache = (
   }
 
   const cacheNodeRecursive = (node: EventTreeNode) => {
-    const width = calculateWidth(node, showLoopingIndicator, levelOfDetail)
+    const width = calculateWidth(nodeMap, node, showLoopingIndicator, levelOfDetail)
     const height = calculateHeight(node, width, showLoopingIndicator, levelOfDetail)
 
     setCachedDimensions(event.name, node.id, width, height, showLoopingIndicator, levelOfDetail)

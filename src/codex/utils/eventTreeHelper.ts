@@ -8,6 +8,8 @@ import {
   EndNode,
   CombatNode,
   SpecialNode,
+  ResultNode,
+  ChoiceNode,
 } from '@/codex/types/events'
 import { TEXT, INNER_BOX, NODE, NODE_BOX } from '@/codex/constants/eventTreeValues'
 
@@ -25,14 +27,33 @@ interface TreeBounds {
   height: number
 }
 
+/**
+ * Node lookup map type for O(1) access to nodes by ID
+ */
+export type NodeMap = Map<number, EventTreeNode>
+
+/**
+ * Builds a map of node id -> node data for quick O(1) lookup.
+ * This is more efficient than traversing the tree hierarchy for each lookup.
+ */
+export const buildNodeMap = (root: HierarchyPointNode<EventTreeNode>): NodeMap => {
+  const nodeMap = new Map<number, EventTreeNode>()
+  root.descendants().forEach((node) => {
+    nodeMap.set(node.data.id, node.data)
+  })
+  return nodeMap
+}
+
 export const getNodeDimensions = (
+  nodeMap: NodeMap,
   node: EventTreeNode,
   event: Event,
   showLoopingIndicator: boolean,
   levelOfDetail: LevelOfDetail
 ): [number, number] => {
   const cached = getCachedDimensions(event.name, node.id, showLoopingIndicator, levelOfDetail)
-  const nodeWidth = cached?.width ?? _getNodeWidth(node, showLoopingIndicator, levelOfDetail)
+  const nodeWidth =
+    cached?.width ?? _getNodeWidth(nodeMap, node, showLoopingIndicator, levelOfDetail)
   const nodeHeight =
     cached?.height ?? _getNodeHeight(node, nodeWidth, showLoopingIndicator, levelOfDetail)
 
@@ -40,13 +61,14 @@ export const getNodeDimensions = (
 }
 
 export const getNodeWidth = (
+  nodeMap: NodeMap,
   node: EventTreeNode,
   event: Event,
   showLoopingIndicator: boolean,
   levelOfDetail: LevelOfDetail
 ): number =>
   getCachedDimensions(event.name, node.id, showLoopingIndicator, levelOfDetail)?.width ??
-  _getNodeWidth(node, showLoopingIndicator, levelOfDetail)
+  _getNodeWidth(nodeMap, node, showLoopingIndicator, levelOfDetail)
 
 export const getNodeHeight = (
   node: EventTreeNode,
@@ -59,11 +81,12 @@ export const getNodeHeight = (
   _getNodeHeight(node, width, showLoopingIndicator, levelOfDetail)
 
 export const cacheAllNodeDimensions = (
+  nodeMap: NodeMap,
   event: Event,
   showLoopingIndicator: boolean,
   levelOfDetail: LevelOfDetail
 ): void => {
-  buildCache(event, showLoopingIndicator, levelOfDetail, _getNodeWidth, _getNodeHeight)
+  buildCache(nodeMap, event, showLoopingIndicator, levelOfDetail, _getNodeWidth, _getNodeHeight)
 }
 
 /**
@@ -71,6 +94,7 @@ export const cacheAllNodeDimensions = (
  * Uses cached dimensions when available for better performance.
  */
 export const calculateTreeBounds = (
+  nodeMap: NodeMap,
   root: HierarchyNode<EventTreeNode>,
   event: Event,
   showLoopingIndicator: boolean,
@@ -86,6 +110,7 @@ export const calculateTreeBounds = (
     const y = d.y ?? 0
 
     const [nodeWidth, nodeHeight] = getNodeDimensions(
+      nodeMap,
       d.data,
       event,
       showLoopingIndicator,
@@ -113,6 +138,7 @@ export const calculateTreeBounds = (
  * Calculate dynamic node width based on event node content
  */
 const _getNodeWidth = (
+  nodeMap: NodeMap,
   node: EventTreeNode,
   showLoopingIndicator: boolean,
   levelOfDetail: LevelOfDetail
@@ -122,12 +148,15 @@ const _getNodeWidth = (
 
   let width = isCompact ? NODE.COMPACT_WIDTH : NODE.WIDTH_RANGE[0]
 
-  if (showLoopingIndicator && node.ref) {
+  if (showLoopingIndicator && node.ref !== undefined) {
+    const refNode = nodeMap.get(node.ref)
+    const refNodeLabel = getNodeTextOrChoiceLabel(refNode)
+    const text = isCompact ? `🔄 ${refNodeLabel || ''}` : '🔄 Loops back to:'
+
     width = Math.max(
       width,
       clampNodeWidth(
-        measureEventTextWidth('🔄 Loops back to:', 'indicatorHeader') +
-          INNER_BOX.HORIZONTAL_MARGIN_OR_PADDING * 4,
+        measureEventTextWidth(text, 'indicatorHeader') + INNER_BOX.HORIZONTAL_MARGIN_OR_PADDING * 4,
         isCompact
       )
     )
@@ -135,6 +164,7 @@ const _getNodeWidth = (
 
   if (numContinues > 0) {
     const text = isCompact ? `⏭️ × ${numContinues}` : `⏭️ Continues: ${numContinues}`
+
     width = Math.max(
       width,
       clampNodeWidth(
@@ -210,26 +240,27 @@ const _getNodeHeight = (
   const maxDisplayLines = TEXT.MAX_DISPLAY_LINES_BY_LEVEL_OF_DETAIL[levelOfDetail]
 
   if (node.type === 'choice') {
-    const requirements = node.requirements || []
     const choiceLines = wrapEventText(node.choiceLabel, maxNodeTextWidth, 'choice')
-
     const choiceTextHeight = choiceLines.length * TEXT.CHOICE_TEXT_HEIGHT
-    const reqBoxHeight =
-      requirements.length > 0
-        ? TEXT.LINE_HEIGHT +
-          INNER_BOX.LISTINGS_HEADER_GAP +
-          requirements.length * TEXT.LINE_HEIGHT +
-          INNER_BOX.LISTINGS_VERTICAL_PADDING
-        : 0
-    const reqBoxMargin = reqBoxHeight > 0 ? INNER_BOX.LISTINGS_TOP_MARGIN : 0
 
-    const { height: loopIndicatorHeight, margin: loopIndicatorMargin } =
+    const { height: reqBoxHeight, margin: reqBoxMargin } = calculateRequirementsBoxDimensions(
+      node,
+      isCompact,
+      choiceTextHeight > 0
+    )
+
+    const { height: loopIndicatorHeightBase, margin: loopIndicatorMargin } =
       calculateIndicatorDimensions(
         'loop',
-        Boolean(showLoopingIndicator && node.ref),
+        Boolean(showLoopingIndicator && node.ref !== undefined),
         choiceTextHeight > 0,
         reqBoxHeight > 0
       )
+
+    const loopIndicatorHeight = tweakLoopIndicatorHeightForChoiceNode(
+      loopIndicatorHeightBase,
+      isCompact
+    )
 
     const contentHeight =
       choiceTextHeight + reqBoxMargin + reqBoxHeight + loopIndicatorHeight + loopIndicatorMargin
@@ -262,7 +293,7 @@ const _getNodeHeight = (
     const { height: loopIndicatorHeight, margin: loopIndicatorMargin } =
       calculateIndicatorDimensions(
         'loop',
-        Boolean(showLoopingIndicator && node.ref),
+        Boolean(showLoopingIndicator && node.ref !== undefined),
         hasText,
         effectsBoxHeight > 0
       )
@@ -292,7 +323,7 @@ const _getNodeHeight = (
     const { height: loopIndicatorHeight, margin: loopIndicatorMargin } =
       calculateIndicatorDimensions(
         'loop',
-        Boolean(showLoopingIndicator && node.ref),
+        Boolean(showLoopingIndicator && node.ref !== undefined),
         hasText,
         effectsBoxHeight > 0 || continueIndicatorHeight > 0
       )
@@ -334,7 +365,7 @@ const _getNodeHeight = (
     const { height: loopIndicatorHeight, margin: loopIndicatorMargin } =
       calculateIndicatorDimensions(
         'loop',
-        Boolean(showLoopingIndicator && node.ref),
+        Boolean(showLoopingIndicator && node.ref !== undefined),
         hasText,
         effectsBoxHeight > 0
       )
@@ -365,7 +396,7 @@ const _getNodeHeight = (
     const { height: loopIndicatorHeight, margin: loopIndicatorMargin } =
       calculateIndicatorDimensions(
         'loop',
-        Boolean(showLoopingIndicator && node.ref),
+        Boolean(showLoopingIndicator && node.ref !== undefined),
         hasText,
         effectsBoxHeight > 0
       )
@@ -375,24 +406,20 @@ const _getNodeHeight = (
 
     return contentHeight + NODE_BOX.VERTICAL_PADDING * 2
   } else if (node.type === 'result') {
-    const requirements = node.requirements || []
-
-    const reqBoxHeight =
-      requirements.length > 0
-        ? TEXT.LINE_HEIGHT +
-          INNER_BOX.LISTINGS_HEADER_GAP +
-          requirements.length * TEXT.LINE_HEIGHT +
-          INNER_BOX.LISTINGS_VERTICAL_PADDING
-        : 0
+    const { height: reqBoxHeight, margin: reqBoxMargin } = calculateRequirementsBoxDimensions(
+      node,
+      isCompact,
+      false
+    )
     const { height: loopIndicatorHeight, margin: loopIndicatorMargin } =
       calculateIndicatorDimensions(
         'loop',
-        Boolean(showLoopingIndicator && node.ref),
+        Boolean(showLoopingIndicator && node.ref !== undefined),
         false,
         reqBoxHeight > 0
       )
 
-    const contentHeight = reqBoxHeight + loopIndicatorHeight + loopIndicatorMargin
+    const contentHeight = reqBoxMargin + reqBoxHeight + loopIndicatorHeight + loopIndicatorMargin
 
     return contentHeight + NODE_BOX.VERTICAL_PADDING * 2
   }
@@ -422,6 +449,7 @@ export const calculateEffectsBoxDimensions = (
         effectLines.length * TEXT.LINE_HEIGHT +
         INNER_BOX.LISTINGS_VERTICAL_PADDING * 2
       : 0
+
   let effectsBoxMargin = 0
   if (followsText && effectsBoxHeight > 0) {
     effectsBoxMargin = INNER_BOX.LISTINGS_TOP_MARGIN
@@ -430,6 +458,34 @@ export const calculateEffectsBoxDimensions = (
   }
 
   return { effectsBoxHeight, effectsBoxMargin }
+}
+
+/**
+ * Calculates the requirements box height and margin for nodes that can have requirements.
+ * Returns both the height of the requirements box and the margin to add above it.
+ */
+export const calculateRequirementsBoxDimensions = (
+  node: ChoiceNode | ResultNode,
+  isCompact: boolean,
+  followsText: boolean // Comes after non-empty text
+): { height: number; margin: number } => {
+  const requirements = node.requirements || []
+  const height =
+    requirements.length > 0
+      ? TEXT.LINE_HEIGHT +
+        INNER_BOX.LISTINGS_HEADER_GAP +
+        requirements.length * TEXT.LINE_HEIGHT +
+        INNER_BOX.LISTINGS_VERTICAL_PADDING
+      : 0
+
+  let margin = 0
+  if (followsText && height > 0) {
+    margin = INNER_BOX.LISTINGS_TOP_MARGIN
+  } else if (!followsText && isCompact && height > 0) {
+    margin = INNER_BOX.LISTINGS_TOP_MARGIN_COMPACT
+  }
+
+  return { height, margin }
 }
 
 /**
@@ -449,10 +505,14 @@ export const calculateIndicatorDimensions = (
     return { height: 0, margin: 0 }
   }
 
-  const height =
-    type === 'loop'
+  let height = 0
+  if (type === 'continue') {
+    height = INNER_BOX.INDICATOR_HEIGHT
+  } else if (type === 'loop') {
+    height = followsText
       ? INNER_BOX.INDICATOR_HEIGHT + INNER_BOX.INDICATOR_HEADER_GAP + TEXT.LINE_HEIGHT
       : INNER_BOX.INDICATOR_HEIGHT
+  }
 
   const margin =
     followsText || followsOtherBoxes
@@ -460,6 +520,20 @@ export const calculateIndicatorDimensions = (
       : INNER_BOX.INDICATOR_TOP_MARGIN_COMPACT
 
   return { height, margin }
+}
+
+// This is a bit weird for choice nodes, since they always have text,
+// even i compact mode, but we want the height here to behave like it's
+// not preceded by text... A bit hacky, might need to revisit this later.
+// So here we're removing the header gap and extra line height htat was
+// added by the `calculateIndicatorDimensions` function.
+export const tweakLoopIndicatorHeightForChoiceNode = (
+  height: number,
+  isCompact: boolean
+): number => {
+  if (!isCompact) return height
+
+  return height > 0 ? height - INNER_BOX.INDICATOR_HEADER_GAP - TEXT.LINE_HEIGHT : 0
 }
 
 const hasText = (
@@ -493,7 +567,7 @@ export const hasEffects = (
 }
 
 export const hasLoopingRef = (node: EventTreeNode): boolean => {
-  return Boolean(node.ref)
+  return Boolean(node.ref !== undefined)
 }
 
 export const hasContinues = (node: EventTreeNode): node is DialogueNode => {
@@ -530,7 +604,7 @@ export const findNodeById = (
   root: HierarchyPointNode<EventTreeNode> | undefined,
   id: number | undefined
 ): EventTreeNode | undefined =>
-  root && id ? root.descendants().find((d) => d.data.id === id)?.data : undefined
+  root ? root.descendants().find((d) => d.data.id === id)?.data : undefined
 
 export const getNodeTextOrChoiceLabel = (node: EventTreeNode | undefined): string | undefined => {
   if (!node) return undefined

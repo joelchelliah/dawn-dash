@@ -28,8 +28,11 @@ import {
   getNodeTextOrChoiceLabel,
   hasContinues,
   calculateEffectsBoxDimensions,
+  calculateRequirementsBoxDimensions,
   calculateIndicatorDimensions,
   isCompactEmojiOnlyNode,
+  tweakLoopIndicatorHeightForChoiceNode,
+  buildNodeMap,
 } from '@/codex/utils/eventTreeHelper'
 import {
   adjustHorizontalNodeSpacing,
@@ -49,7 +52,14 @@ import { wrapEventText } from '@/codex/utils/eventTextWidthEstimation'
 import { UseAllEventSearchFilters } from '@/codex/hooks/useSearchFilters/useAllEventSearchFilters'
 
 import { drawLinks, drawRefChildrenLinks, drawLoopBackLinks } from './links'
-import { drawLoopBackLinkBadges, drawDialogueBadge, drawEndBadge, drawCombatBadge } from './badges'
+import {
+  drawLoopBackLinkBadges,
+  drawDialogueBadge,
+  drawEndBadge,
+  drawCombatBadge,
+  drawResultBadge,
+  drawSpecialBadge,
+} from './badges'
 import { useEventTreeZoom } from './useEventTreeZoom'
 import styles from './index.module.scss'
 
@@ -81,12 +91,13 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
     const isCompact = levelOfDetail === LevelOfDetail.COMPACT
     const maxDisplayLines = TEXT.MAX_DISPLAY_LINES_BY_LEVEL_OF_DETAIL[levelOfDetail]
 
-    cacheAllNodeDimensions(event, showLoopingIndicator, levelOfDetail)
-
     // Clear previous visualization
     select(svgRef.current).selectAll('*').remove()
 
     const root = hierarchy(event.rootNode, (d) => d.children)
+    const nodeMap = buildNodeMap(root as HierarchyPointNode<EventTreeNode>)
+
+    cacheAllNodeDimensions(nodeMap, event, showLoopingIndicator, levelOfDetail)
 
     const treeLayout = tree<EventTreeNode>()
       .nodeSize([NODE.HORIZONTAL_SPACING_DEFAULT, NODE.VERTICAL_SPACING_DEFAULT])
@@ -95,19 +106,21 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
     treeLayout(root)
 
     adjustHorizontalNodeSpacing(
+      nodeMap,
       root as HierarchyPointNode<EventTreeNode>,
       event,
       showLoopingIndicator,
       levelOfDetail
     )
     adjustVerticalNodeSpacing(
+      nodeMap,
       root as HierarchyPointNode<EventTreeNode>,
       event,
       showLoopingIndicator,
       levelOfDetail
     )
 
-    const bounds = calculateTreeBounds(root, event, showLoopingIndicator, levelOfDetail)
+    const bounds = calculateTreeBounds(nodeMap, root, event, showLoopingIndicator, levelOfDetail)
     const calculatedWidth = bounds.width + TREE.HORIZONTAL_PADDING * 2
     const svgWidth = Math.max(calculatedWidth, TREE.MIN_SVG_WIDTH)
     const svgHeight = bounds.height + TREE.VERTICAL_PADDING_BY_LEVEL_OF_DETAIL[levelOfDetail] * 2
@@ -162,6 +175,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
       g,
       defs,
       root,
+      nodeMap,
       event,
       showLoopingIndicator,
       levelOfDetail,
@@ -193,6 +207,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
 
       const nodeElement = select(this)
       const [nodeWidth, nodeHeight] = getNodeDimensions(
+        nodeMap,
         d.data,
         event,
         showLoopingIndicator,
@@ -219,6 +234,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
 
       const nodeElement = select(this)
       const [nodeWidth, nodeHeight] = getNodeDimensions(
+        nodeMap,
         d.data,
         event,
         showLoopingIndicator,
@@ -244,25 +260,33 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
       if (data.type === 'choice') {
         const requirements = data.requirements || []
         const hasRequirements = requirements.length > 0
-        const reqBoxHeight = hasRequirements
-          ? TEXT.LINE_HEIGHT +
-            INNER_BOX.LISTINGS_HEADER_GAP +
-            requirements.length * TEXT.LINE_HEIGHT +
-            INNER_BOX.LISTINGS_VERTICAL_PADDING
-          : 0
-        const hasLoopingIndicator = showLoopingIndicator && data.ref
-        const loopIndicatorHeight = hasLoopingIndicator
-          ? INNER_BOX.INDICATOR_HEIGHT + TEXT.LINE_HEIGHT + INNER_BOX.INDICATOR_HEADER_GAP
-          : 0
-        const loopIndicatorMargin = hasLoopingIndicator ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
+        const { height: reqBoxHeight, margin: reqBoxMargin } = calculateRequirementsBoxDimensions(
+          data,
+          isCompact,
+          data.choiceLabel.length > 0
+        )
+
+        const hasLoopingIndicator = showLoopingIndicator && data.ref !== undefined
+        const { height: loopIndicatorHeightBase, margin: loopIndicatorMargin } =
+          calculateIndicatorDimensions(
+            'loop',
+            hasLoopingIndicator,
+            data.choiceLabel.length > 0,
+            reqBoxHeight > 0
+          )
+
+        const loopIndicatorHeight = tweakLoopIndicatorHeightForChoiceNode(
+          loopIndicatorHeightBase,
+          isCompact
+        )
 
         const [currentNodeWidth, currentNodeHeight] = getNodeDimensions(
+          nodeMap,
           data,
           event,
           showLoopingIndicator,
           levelOfDetail
         )
-        const reqBoxMargin = reqBoxHeight > 0 ? INNER_BOX.LISTINGS_TOP_MARGIN : 0
 
         const textAreaHeight =
           currentNodeHeight -
@@ -346,7 +370,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
                 listingTopPadding +
                   TEXT.LINE_HEIGHT +
                   INNER_BOX.LISTINGS_HEADER_GAP +
-                  (i + 1) * TEXT.LINE_HEIGHT
+                  (i + 1) * TEXT.BASELINE_OFFSET
               )
               .text(req)
           })
@@ -354,11 +378,12 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
       } else if (data.type === 'end') {
         // For end nodes, show first 2 lines of text (effects box is handled centrally below)
         const loopIndicatorHeight =
-          showLoopingIndicator && data.ref
+          showLoopingIndicator && data.ref !== undefined
             ? INNER_BOX.INDICATOR_HEIGHT + TEXT.LINE_HEIGHT + INNER_BOX.INDICATOR_HEADER_GAP
             : 0
 
         const [currentNodeWidth, currentNodeHeight] = getNodeDimensions(
+          nodeMap,
           data,
           event,
           showLoopingIndicator,
@@ -421,6 +446,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
 
         if (isRootNode) {
           const [currentNodeWidth, currentNodeHeight] = getNodeDimensions(
+            nodeMap,
             data,
             event,
             showLoopingIndicator,
@@ -444,7 +470,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
           const { height: loopIndicatorHeight, margin: loopIndicatorMargin } =
             calculateIndicatorDimensions(
               'loop',
-              Boolean(showLoopingIndicator && data.ref),
+              Boolean(showLoopingIndicator && data.ref !== undefined),
               hasText,
               effectsBoxHeight > 0 || continueIndicatorHeight > 0
             )
@@ -489,6 +515,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
           }
         } else {
           const [currentNodeWidth, currentNodeHeight] = getNodeDimensions(
+            nodeMap,
             data,
             event,
             showLoopingIndicator,
@@ -513,7 +540,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
           const { height: loopIndicatorHeight, margin: loopIndicatorMargin } =
             calculateIndicatorDimensions(
               'loop',
-              Boolean(showLoopingIndicator && data.ref),
+              Boolean(showLoopingIndicator && data.ref !== undefined),
               hasText,
               effectsBoxHeight > 0 || continueIndicatorHeight > 0
             )
@@ -557,11 +584,12 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
         }
       } else if (data.type === 'combat') {
         const loopIndicatorHeight =
-          showLoopingIndicator && data.ref
+          showLoopingIndicator && data.ref !== undefined
             ? INNER_BOX.INDICATOR_HEIGHT + TEXT.LINE_HEIGHT + INNER_BOX.INDICATOR_HEADER_GAP
             : 0
 
         const [currentNodeWidth, currentNodeHeight] = getNodeDimensions(
+          nodeMap,
           data,
           event,
           showLoopingIndicator,
@@ -614,24 +642,25 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
               .text(line)
           })
         } else if (!isCompact) {
+          const totalTextHeight = TEXT.REPLACED_TEXT_HEIGHT
+          const verticalCenteringOffset = -totalTextHeight / 2 + TEXT.REPLACED_TEXT_BASELINE_OFFSET
+
           node
             .append('text')
             .attr('class', cx('event-node-text', 'event-node-text--no-text-fallback'))
             .attr('x', 0)
-            .attr(
-              'y',
-              textAreaCenter + TEXT.REPLACED_TEXT_BASELINE_OFFSET - TEXT.REPLACED_TEXT_HEIGHT / 2
-            )
+            .attr('y', textAreaCenter + verticalCenteringOffset / 2)
             .text('FIGHT!')
         }
       } else if (data.type === 'special') {
         // For special nodes, show text (up to 2 lines) + effects box (if any) + loops back to box (if present)
         const loopIndicatorHeight =
-          showLoopingIndicator && data.ref
+          showLoopingIndicator && data.ref !== undefined
             ? INNER_BOX.INDICATOR_HEIGHT + TEXT.LINE_HEIGHT + INNER_BOX.INDICATOR_HEADER_GAP
             : 0
 
         const [currentNodeWidth, currentNodeHeight] = getNodeDimensions(
+          nodeMap,
           data,
           event,
           showLoopingIndicator,
@@ -688,65 +717,19 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
       } else if (data.type === 'result') {
         const requirements = data.requirements || []
         const hasRequirements = requirements.length > 0
-        const reqBoxHeight = hasRequirements
-          ? TEXT.LINE_HEIGHT +
-            INNER_BOX.LISTINGS_HEADER_GAP +
-            requirements.length * TEXT.LINE_HEIGHT +
-            INNER_BOX.LISTINGS_VERTICAL_PADDING
-          : 0
-        const hasLoopingIndicator = showLoopingIndicator && data.ref
-        const loopIndicatorHeight = hasLoopingIndicator
-          ? INNER_BOX.INDICATOR_HEIGHT + TEXT.LINE_HEIGHT + INNER_BOX.INDICATOR_HEADER_GAP
-          : 0
-        const loopIndicatorMargin = hasLoopingIndicator ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
+        const { height: reqBoxHeight } = calculateRequirementsBoxDimensions(data, isCompact, false)
+
+        const hasLoopingIndicator = showLoopingIndicator && data.ref !== undefined
+        const { height: loopIndicatorHeight, margin: loopIndicatorMargin } =
+          calculateIndicatorDimensions('loop', hasLoopingIndicator, false, reqBoxHeight > 0)
 
         const [currentNodeWidth, currentNodeHeight] = getNodeDimensions(
+          nodeMap,
           data,
           event,
           showLoopingIndicator,
           levelOfDetail
         )
-        const reqBoxMargin = reqBoxHeight > 0 ? INNER_BOX.LISTINGS_TOP_MARGIN : 0
-
-        const textAreaHeight =
-          currentNodeHeight -
-          NODE_BOX.VERTICAL_PADDING * 2 -
-          reqBoxMargin -
-          reqBoxHeight -
-          loopIndicatorHeight -
-          loopIndicatorMargin
-
-        const textAreaCenter =
-          -currentNodeHeight / 2 + NODE_BOX.VERTICAL_PADDING + textAreaHeight / 2
-
-        const labelGroup = node.append('g').attr('transform', `translate(0, ${textAreaCenter})`)
-
-        // Text not supported yet for result nodes.
-        const textLines = ['']
-        const isDefault = false
-
-        // Center the text lines vertically within the label group
-        const totalTextHeight = textLines.length * TEXT.CHOICE_TEXT_HEIGHT
-        const defaultChoiceOffset = isDefault ? 0.125 * TEXT.CHOICE_TEXT_HEIGHT : 0
-        const verticalCenteringOffset =
-          -totalTextHeight / 2 + TEXT.CHOICE_BASELINE_OFFSET + defaultChoiceOffset
-
-        textLines.forEach((line, i) => {
-          const yPosition = i * TEXT.CHOICE_TEXT_HEIGHT + verticalCenteringOffset
-          const text = isDefault ? '—' : line
-
-          labelGroup
-            .append('text')
-            .attr(
-              'class',
-              cx('event-node-text', 'event-node-text--result', {
-                'event-node-text--result--default': isDefault,
-              })
-            )
-            .attr('x', 0)
-            .attr('y', yPosition)
-            .text(text)
-        })
 
         const requirementsBoxY =
           currentNodeHeight / 2 -
@@ -788,7 +771,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
                 listingTopPadding +
                   TEXT.LINE_HEIGHT +
                   INNER_BOX.LISTINGS_HEADER_GAP +
-                  (i + 1) * TEXT.LINE_HEIGHT
+                  (i + 1) * TEXT.BASELINE_OFFSET
               )
               .text(req)
           })
@@ -804,6 +787,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
         const eventNode = d.data as DialogueNode | EndNode | CombatNode | SpecialNode
         const effects = eventNode.effects ?? []
         const [nodeWidth, nodeHeight] = getNodeDimensions(
+          nodeMap,
           d.data,
           event,
           showLoopingIndicator,
@@ -823,7 +807,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
         const hasContinues = eventNode.type === 'dialogue' && eventNode.numContinues
         const continueHeight = hasContinues ? INNER_BOX.INDICATOR_HEIGHT : 0
         const continueMargin = continueHeight > 0 ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
-        const showLoopsBackTo = showLoopingIndicator && eventNode.ref
+        const showLoopsBackTo = showLoopingIndicator && eventNode.ref !== undefined
         const loopIndicatorHeight = showLoopsBackTo
           ? INNER_BOX.INDICATOR_HEIGHT + TEXT.LINE_HEIGHT + INNER_BOX.INDICATOR_HEADER_GAP
           : 0
@@ -878,16 +862,16 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
       .each(function (d) {
         const node = select(this)
         const [nodeWidth, nodeHeight] = getNodeDimensions(
+          nodeMap,
           d.data,
           event,
           showLoopingIndicator,
           levelOfDetail
         )
-        const showLoopsBackTo = d.data.ref && showLoopingIndicator
-        const loopIndicatorHeight = showLoopsBackTo
-          ? INNER_BOX.INDICATOR_HEIGHT + TEXT.LINE_HEIGHT + INNER_BOX.INDICATOR_HEADER_GAP
-          : 0
-        const loopIndicatorMargin = showLoopsBackTo ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
+        const showLoopsBackTo = d.data.ref !== undefined && showLoopingIndicator
+        const { height: loopIndicatorHeight, margin: loopIndicatorMargin } =
+          calculateIndicatorDimensions('loop', showLoopsBackTo, !isCompact, true)
+
         const numContinues = hasContinues(d.data) ? (d.data.numContinues ?? 0) : 0
 
         // Position from bottom: margin is already in nodeHeight, just position the box
@@ -913,17 +897,18 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
         continueIndicator
           .append('text')
           .attr('class', cx('event-node-text', 'event-node-text--indicator'))
-          .attr('y', INNER_BOX.INDICATOR_HEIGHT / 2 + TEXT.BASELINE_OFFSET / 1.75)
+          .attr('y', INNER_BOX.INDICATOR_HEIGHT / 2 + TEXT.BASELINE_OFFSET / 2)
           .text(continueText)
       })
 
     // Add `Loops back to` indicators
     if (loopingPathMode === LoopingPathMode.INDICATOR) {
       nodes
-        .filter((d) => Boolean(d.data.ref))
+        .filter((d) => d.data.ref !== undefined)
         .each(function (d) {
           const node = select(this)
           const [nodeWidth, nodeHeight] = getNodeDimensions(
+            nodeMap,
             d.data,
             event,
             showLoopingIndicator,
@@ -937,13 +922,25 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
           const maxTextWidth = nodeWidth - INNER_BOX.HORIZONTAL_MARGIN_OR_PADDING * 4
           const refNodeLines = wrapEventText(labelText, maxTextWidth)
           const displayLine = refNodeLines[0] || ''
-          const truncatedLine = displayLine === labelText ? displayLine : `${displayLine}...`
+          const truncatedLine =
+            displayLine === labelText ? displayLine : `${displayLine.slice(0, -3)}...`
 
-          const loopIndicatorHeight =
-            INNER_BOX.INDICATOR_HEIGHT + TEXT.LINE_HEIGHT + INNER_BOX.INDICATOR_HEADER_GAP
+          const { height: loopIndicatorHeight } = calculateIndicatorDimensions(
+            'loop',
+            true,
+            !isCompact,
+            false
+          )
 
-          // Position from bottom: margin is already in nodeHeight, just position the box
+          // Position from bottom: margin is already in nodeHeight.
           const loopIndicatorY = nodeHeight / 2 - NODE_BOX.VERTICAL_PADDING - loopIndicatorHeight
+          const loopIndicatorText = isCompact ? `🔄 ${truncatedLine}` : `🔄 Loops back to:`
+          const loopIndicatorTextClass = isCompact
+            ? 'event-node-text--indicator-label'
+            : 'event-node-text--indicator'
+          const loopIndicatorTextY = isCompact
+            ? INNER_BOX.INDICATOR_HEIGHT / 2 + TEXT.BASELINE_OFFSET / 2
+            : INNER_BOX.INDICATOR_HEIGHT / 2 + TEXT.BASELINE_OFFSET / 2
 
           const loopIndicator = node
             .append('g')
@@ -958,30 +955,30 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
 
           loopIndicator
             .append('text')
-            .attr('class', cx('event-node-text', 'event-node-text--indicator'))
-            .attr(
-              'y',
-              TEXT.LINE_HEIGHT / 2 + TEXT.BASELINE_OFFSET + INNER_BOX.INDICATOR_HEADER_GAP / 2
-            )
-            .text(`🔄 Loops back to:`)
+            .attr('class', cx('event-node-text', loopIndicatorTextClass))
+            .attr('y', loopIndicatorTextY)
+            .text(loopIndicatorText)
 
-          loopIndicator
-            .append('text')
-            .attr('class', cx('event-node-text', 'event-node-text--indicator-label'))
-            .attr(
-              'y',
-              TEXT.LINE_HEIGHT +
-                INNER_BOX.INDICATOR_HEADER_GAP +
-                TEXT.LINE_HEIGHT / 2 +
-                TEXT.BASELINE_OFFSET
-            )
-            .text(truncatedLine)
+          if (!isCompact) {
+            loopIndicator
+              .append('text')
+              .attr('class', cx('event-node-text', 'event-node-text--indicator-label'))
+              .attr(
+                'y',
+                TEXT.LINE_HEIGHT +
+                  INNER_BOX.INDICATOR_HEADER_GAP +
+                  TEXT.LINE_HEIGHT / 2 +
+                  TEXT.BASELINE_OFFSET
+              )
+              .text(truncatedLine)
+          }
         })
     }
 
     const drawBadgesParam = {
       g,
       root,
+      nodeMap,
       event,
       showLoopingIndicator,
       levelOfDetail,
@@ -991,6 +988,8 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
       drawDialogueBadge(drawBadgesParam)
       drawEndBadge(drawBadgesParam)
       drawCombatBadge(drawBadgesParam)
+      drawSpecialBadge(drawBadgesParam)
+      drawResultBadge(drawBadgesParam)
     }
 
     if (loopingPathMode === LoopingPathMode.LINK) {

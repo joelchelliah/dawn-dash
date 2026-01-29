@@ -2,12 +2,13 @@ import { select } from 'd3-selection'
 
 import { createCx } from '@/shared/utils/classnames'
 
-import { Event } from '@/codex/types/events'
+import { Event, EventTreeNode } from '@/codex/types/events'
 import {
   getArrowheadAngle,
   getNodeDimensions,
   isCompactEmojiBadgeNode,
   isCompactEmojiOnlyNode,
+  type NodeMap,
 } from '@/codex/utils/eventTreeHelper'
 import { LevelOfDetail } from '@/codex/constants/eventSearchValues'
 
@@ -20,6 +21,7 @@ interface DrawLinksParam {
   g: any
   defs: any
   root: any
+  nodeMap: NodeMap
   event: Event
   showLoopingIndicator: boolean
   levelOfDetail: LevelOfDetail
@@ -35,6 +37,7 @@ export function drawLinks({
   g,
   defs,
   root,
+  nodeMap,
   event,
   showLoopingIndicator,
   levelOfDetail,
@@ -59,12 +62,14 @@ export function drawLinks({
       const targetY = d.target.y || 0
 
       const [, sourceNodeHeight] = getNodeDimensions(
+        nodeMap,
         d.source.data,
         event,
         showLoopingIndicator,
         levelOfDetail
       )
       const [, targetNodeHeight] = getNodeDimensions(
+        nodeMap,
         d.target.data,
         event,
         showLoopingIndicator,
@@ -92,17 +97,18 @@ export function drawRefChildrenLinks({
   g,
   defs,
   root,
+  nodeMap,
   event,
   showLoopingIndicator,
   levelOfDetail,
 }: DrawLinksParam) {
   const isCompact = levelOfDetail === LevelOfDetail.COMPACT
 
-  // Build a map of node id -> node for quick lookup
-  const nodeMap = new Map<number, any>()
+  // Build a map of hierarchy nodes for finding source/target nodes
+  const hierarchyNodeMap = new Map<number, any>()
   root.descendants().forEach((node: any) => {
     if (node.data.id !== undefined) {
-      nodeMap.set(node.data.id, node)
+      hierarchyNodeMap.set(node.data.id, node)
     }
   })
 
@@ -114,7 +120,7 @@ export function drawRefChildrenLinks({
     if (node.data.refChildren && Array.isArray(node.data.refChildren)) {
       // For each child ID in refChildren array, create a link
       node.data.refChildren.forEach((childId: number) => {
-        const targetNode = nodeMap.get(childId)
+        const targetNode = hierarchyNodeMap.get(childId)
         if (targetNode) {
           refChildrenLinks.push({
             source: node,
@@ -136,12 +142,14 @@ export function drawRefChildrenLinks({
     const markerUrl = arrowheadMarkerForStandardLinks(defs, markerId, sourceX, targetX, 'arrowhead')
 
     const [, sourceNodeHeight] = getNodeDimensions(
+      nodeMap,
       d.source.data,
       event,
       showLoopingIndicator,
       levelOfDetail
     )
     const [, targetNodeHeight] = getNodeDimensions(
+      nodeMap,
       d.target.data,
       event,
       showLoopingIndicator,
@@ -171,11 +179,11 @@ export function drawLoopBackLinks({
   g,
   defs,
   root,
+  nodeMap,
   event,
   showLoopingIndicator,
   levelOfDetail,
 }: DrawLinksParam) {
-  const nodeMap = buildNodeMap(root)
   const loopBackLinks = findLoopBackLinks(root, nodeMap)
   const isCompact = levelOfDetail === LevelOfDetail.COMPACT
 
@@ -191,6 +199,7 @@ export function drawLoopBackLinks({
     const group = select(this)
 
     const { sourceX, sourceY, targetX, targetY } = calculateLoopBackLinkCorners(
+      nodeMap,
       d,
       event,
       showLoopingIndicator,
@@ -295,30 +304,25 @@ function calculateCurvedPathForStandardLinks(
 }
 
 /**
- * Builds a map of node id -> node for quick lookup
- */
-function buildNodeMap(root: any): Map<number, any> {
-  const nodeMap = new Map<number, any>()
-  root.descendants().forEach((node: any) => {
-    if (node.data.id !== undefined) {
-      nodeMap.set(node.data.id, node)
-    }
-  })
-  return nodeMap
-}
-
-/**
  * Finds all loop back links (nodes with ref property)
  */
 function findLoopBackLinks(
   root: any,
-  nodeMap: Map<number, any>
+  _nodeMap: Map<number, EventTreeNode>
 ): Array<{ source: any; target: any }> {
+  // Build hierarchy node map for finding positioned nodes
+  const hierarchyNodeMap = new Map<number, any>()
+  root.descendants().forEach((node: any) => {
+    if (node.data.id !== undefined) {
+      hierarchyNodeMap.set(node.data.id, node)
+    }
+  })
+
   const loopBackLinks: Array<{ source: any; target: any }> = []
   root.descendants().forEach((node: any) => {
     // NOTE: ref can be 0 (root id), so don't use truthy checks here.
-    if (node.data.ref != null) {
-      const targetNode = nodeMap.get(node.data.ref)
+    if (node.data.ref !== undefined) {
+      const targetNode = hierarchyNodeMap.get(node.data.ref)
       if (targetNode) {
         loopBackLinks.push({
           source: node,
@@ -334,6 +338,7 @@ function findLoopBackLinks(
  * Calculates the corner positions for a loop back link
  */
 function calculateLoopBackLinkCorners(
+  nodeMap: NodeMap,
   d: any,
   event: Event,
   showLoopingIndicator: boolean,
@@ -345,12 +350,14 @@ function calculateLoopBackLinkCorners(
   const targetCenterY = d.target.y || 0
 
   const [sourceWidth, sourceHeight] = getNodeDimensions(
+    nodeMap,
     d.source.data,
     event,
     showLoopingIndicator,
     levelOfDetail
   )
   const [targetWidth, targetHeight] = getNodeDimensions(
+    nodeMap,
     d.target.data,
     event,
     showLoopingIndicator,
