@@ -31,6 +31,7 @@ import {
   calculateIndicatorDimensions,
   isCompactEmojiOnlyNode,
   tweakLoopIndicatorHeightForChoiceNode,
+  buildNodeMap,
 } from '@/codex/utils/eventTreeHelper'
 import {
   adjustHorizontalNodeSpacing,
@@ -82,12 +83,13 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
     const isCompact = levelOfDetail === LevelOfDetail.COMPACT
     const maxDisplayLines = TEXT.MAX_DISPLAY_LINES_BY_LEVEL_OF_DETAIL[levelOfDetail]
 
-    cacheAllNodeDimensions(event, showLoopingIndicator, levelOfDetail)
-
     // Clear previous visualization
     select(svgRef.current).selectAll('*').remove()
 
     const root = hierarchy(event.rootNode, (d) => d.children)
+    const nodeMap = buildNodeMap(root as HierarchyPointNode<EventTreeNode>)
+
+    cacheAllNodeDimensions(nodeMap, event, showLoopingIndicator, levelOfDetail)
 
     const treeLayout = tree<EventTreeNode>()
       .nodeSize([NODE.HORIZONTAL_SPACING_DEFAULT, NODE.VERTICAL_SPACING_DEFAULT])
@@ -96,19 +98,21 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
     treeLayout(root)
 
     adjustHorizontalNodeSpacing(
+      nodeMap,
       root as HierarchyPointNode<EventTreeNode>,
       event,
       showLoopingIndicator,
       levelOfDetail
     )
     adjustVerticalNodeSpacing(
+      nodeMap,
       root as HierarchyPointNode<EventTreeNode>,
       event,
       showLoopingIndicator,
       levelOfDetail
     )
 
-    const bounds = calculateTreeBounds(root, event, showLoopingIndicator, levelOfDetail)
+    const bounds = calculateTreeBounds(nodeMap, root, event, showLoopingIndicator, levelOfDetail)
     const calculatedWidth = bounds.width + TREE.HORIZONTAL_PADDING * 2
     const svgWidth = Math.max(calculatedWidth, TREE.MIN_SVG_WIDTH)
     const svgHeight = bounds.height + TREE.VERTICAL_PADDING_BY_LEVEL_OF_DETAIL[levelOfDetail] * 2
@@ -163,6 +167,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
       g,
       defs,
       root,
+      nodeMap,
       event,
       showLoopingIndicator,
       levelOfDetail,
@@ -194,7 +199,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
 
       const nodeElement = select(this)
       const [nodeWidth, nodeHeight] = getNodeDimensions(
-        root as HierarchyPointNode<EventTreeNode>,
+        nodeMap,
         d.data,
         event,
         showLoopingIndicator,
@@ -221,7 +226,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
 
       const nodeElement = select(this)
       const [nodeWidth, nodeHeight] = getNodeDimensions(
-        root as HierarchyPointNode<EventTreeNode>,
+        nodeMap,
         d.data,
         event,
         showLoopingIndicator,
@@ -270,7 +275,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
         )
 
         const [currentNodeWidth, currentNodeHeight] = getNodeDimensions(
-          root as HierarchyPointNode<EventTreeNode>,
+          nodeMap,
           data,
           event,
           showLoopingIndicator,
@@ -372,7 +377,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
             : 0
 
         const [currentNodeWidth, currentNodeHeight] = getNodeDimensions(
-          root as HierarchyPointNode<EventTreeNode>,
+          nodeMap,
           data,
           event,
           showLoopingIndicator,
@@ -435,7 +440,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
 
         if (isRootNode) {
           const [currentNodeWidth, currentNodeHeight] = getNodeDimensions(
-            root as HierarchyPointNode<EventTreeNode>,
+            nodeMap,
             data,
             event,
             showLoopingIndicator,
@@ -504,7 +509,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
           }
         } else {
           const [currentNodeWidth, currentNodeHeight] = getNodeDimensions(
-            root as HierarchyPointNode<EventTreeNode>,
+            nodeMap,
             data,
             event,
             showLoopingIndicator,
@@ -578,7 +583,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
             : 0
 
         const [currentNodeWidth, currentNodeHeight] = getNodeDimensions(
-          root as HierarchyPointNode<EventTreeNode>,
+          nodeMap,
           data,
           event,
           showLoopingIndicator,
@@ -631,14 +636,14 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
               .text(line)
           })
         } else if (!isCompact) {
+          const totalTextHeight = TEXT.REPLACED_TEXT_HEIGHT
+          const verticalCenteringOffset = -totalTextHeight / 2 + TEXT.REPLACED_TEXT_BASELINE_OFFSET
+
           node
             .append('text')
             .attr('class', cx('event-node-text', 'event-node-text--no-text-fallback'))
             .attr('x', 0)
-            .attr(
-              'y',
-              textAreaCenter + TEXT.REPLACED_TEXT_BASELINE_OFFSET - TEXT.REPLACED_TEXT_HEIGHT / 2
-            )
+            .attr('y', textAreaCenter + verticalCenteringOffset / 2)
             .text('FIGHT!')
         }
       } else if (data.type === 'special') {
@@ -649,7 +654,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
             : 0
 
         const [currentNodeWidth, currentNodeHeight] = getNodeDimensions(
-          root as HierarchyPointNode<EventTreeNode>,
+          nodeMap,
           data,
           event,
           showLoopingIndicator,
@@ -719,7 +724,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
         const loopIndicatorMargin = hasLoopingIndicator ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
 
         const [currentNodeWidth, currentNodeHeight] = getNodeDimensions(
-          root as HierarchyPointNode<EventTreeNode>,
+          nodeMap,
           data,
           event,
           showLoopingIndicator,
@@ -823,7 +828,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
         const eventNode = d.data as DialogueNode | EndNode | CombatNode | SpecialNode
         const effects = eventNode.effects ?? []
         const [nodeWidth, nodeHeight] = getNodeDimensions(
-          root as HierarchyPointNode<EventTreeNode>,
+          nodeMap,
           d.data,
           event,
           showLoopingIndicator,
@@ -898,7 +903,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
       .each(function (d) {
         const node = select(this)
         const [nodeWidth, nodeHeight] = getNodeDimensions(
-          root as HierarchyPointNode<EventTreeNode>,
+          nodeMap,
           d.data,
           event,
           showLoopingIndicator,
@@ -944,7 +949,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
         .each(function (d) {
           const node = select(this)
           const [nodeWidth, nodeHeight] = getNodeDimensions(
-            root as HierarchyPointNode<EventTreeNode>,
+            nodeMap,
             d.data,
             event,
             showLoopingIndicator,
@@ -1014,6 +1019,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
     const drawBadgesParam = {
       g,
       root,
+      nodeMap,
       event,
       showLoopingIndicator,
       levelOfDetail,

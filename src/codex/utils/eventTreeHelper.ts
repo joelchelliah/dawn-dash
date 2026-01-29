@@ -1,4 +1,4 @@
-import { hierarchy, HierarchyNode, HierarchyPointNode } from 'd3-hierarchy'
+import { HierarchyNode, HierarchyPointNode } from 'd3-hierarchy'
 import { Selection } from 'd3-selection'
 
 import {
@@ -25,15 +25,33 @@ interface TreeBounds {
   height: number
 }
 
+/**
+ * Node lookup map type for O(1) access to nodes by ID
+ */
+export type NodeMap = Map<number, EventTreeNode>
+
+/**
+ * Builds a map of node id -> node data for quick O(1) lookup.
+ * This is more efficient than traversing the tree hierarchy for each lookup.
+ */
+export const buildNodeMap = (root: HierarchyPointNode<EventTreeNode>): NodeMap => {
+  const nodeMap = new Map<number, EventTreeNode>()
+  root.descendants().forEach((node) => {
+    nodeMap.set(node.data.id, node.data)
+  })
+  return nodeMap
+}
+
 export const getNodeDimensions = (
-  root: HierarchyPointNode<EventTreeNode>,
+  nodeMap: NodeMap,
   node: EventTreeNode,
   event: Event,
   showLoopingIndicator: boolean,
   levelOfDetail: LevelOfDetail
 ): [number, number] => {
   const cached = getCachedDimensions(event.name, node.id, showLoopingIndicator, levelOfDetail)
-  const nodeWidth = cached?.width ?? _getNodeWidth(root, node, showLoopingIndicator, levelOfDetail)
+  const nodeWidth =
+    cached?.width ?? _getNodeWidth(nodeMap, node, showLoopingIndicator, levelOfDetail)
   const nodeHeight =
     cached?.height ?? _getNodeHeight(node, nodeWidth, showLoopingIndicator, levelOfDetail)
 
@@ -41,14 +59,14 @@ export const getNodeDimensions = (
 }
 
 export const getNodeWidth = (
-  root: HierarchyPointNode<EventTreeNode>,
+  nodeMap: NodeMap,
   node: EventTreeNode,
   event: Event,
   showLoopingIndicator: boolean,
   levelOfDetail: LevelOfDetail
 ): number =>
   getCachedDimensions(event.name, node.id, showLoopingIndicator, levelOfDetail)?.width ??
-  _getNodeWidth(root, node, showLoopingIndicator, levelOfDetail)
+  _getNodeWidth(nodeMap, node, showLoopingIndicator, levelOfDetail)
 
 export const getNodeHeight = (
   node: EventTreeNode,
@@ -61,19 +79,12 @@ export const getNodeHeight = (
   _getNodeHeight(node, width, showLoopingIndicator, levelOfDetail)
 
 export const cacheAllNodeDimensions = (
+  nodeMap: NodeMap,
   event: Event,
   showLoopingIndicator: boolean,
   levelOfDetail: LevelOfDetail
 ): void => {
-  const root = hierarchy(event.rootNode, (d) => d.children)
-  buildCache(
-    root as HierarchyPointNode<EventTreeNode>,
-    event,
-    showLoopingIndicator,
-    levelOfDetail,
-    _getNodeWidth,
-    _getNodeHeight
-  )
+  buildCache(nodeMap, event, showLoopingIndicator, levelOfDetail, _getNodeWidth, _getNodeHeight)
 }
 
 /**
@@ -81,6 +92,7 @@ export const cacheAllNodeDimensions = (
  * Uses cached dimensions when available for better performance.
  */
 export const calculateTreeBounds = (
+  nodeMap: NodeMap,
   root: HierarchyNode<EventTreeNode>,
   event: Event,
   showLoopingIndicator: boolean,
@@ -96,7 +108,7 @@ export const calculateTreeBounds = (
     const y = d.y ?? 0
 
     const [nodeWidth, nodeHeight] = getNodeDimensions(
-      root as HierarchyPointNode<EventTreeNode>,
+      nodeMap,
       d.data,
       event,
       showLoopingIndicator,
@@ -124,7 +136,7 @@ export const calculateTreeBounds = (
  * Calculate dynamic node width based on event node content
  */
 const _getNodeWidth = (
-  root: HierarchyPointNode<EventTreeNode>,
+  nodeMap: NodeMap,
   node: EventTreeNode,
   showLoopingIndicator: boolean,
   levelOfDetail: LevelOfDetail
@@ -135,7 +147,7 @@ const _getNodeWidth = (
   let width = isCompact ? NODE.COMPACT_WIDTH : NODE.WIDTH_RANGE[0]
 
   if (showLoopingIndicator && node.ref !== undefined) {
-    const refNode = findNodeById(root, node.ref)
+    const refNode = nodeMap.get(node.ref)
     const refNodeLabel = getNodeTextOrChoiceLabel(refNode)
     const text = isCompact ? `🔄 ${refNodeLabel || ''}` : '🔄 Loops back to:'
 

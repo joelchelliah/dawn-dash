@@ -12,11 +12,14 @@
  * 4. Cache is cleared when component unmounts or event changes
  */
 
-import { HierarchyPointNode } from 'd3-hierarchy'
-
 import { Event, EventTreeNode } from '@/codex/types/events'
 
 import { LevelOfDetail } from '../constants/eventSearchValues'
+
+/**
+ * Node lookup map type for O(1) access to nodes by ID
+ */
+type NodeMap = Map<number, EventTreeNode>
 
 /**
  * Cached dimensions for a single node.
@@ -87,12 +90,12 @@ export const hasCachedDimensions = (
  * This allows switching between different rendering modes without recalculation.
  */
 export const buildDimensionCache = (
-  root: HierarchyPointNode<EventTreeNode>,
+  nodeMap: NodeMap,
   event: Event,
   showLoopingIndicator: boolean,
   levelOfDetail: LevelOfDetail,
   calculateWidth: (
-    root: HierarchyPointNode<EventTreeNode>,
+    nodeMap: NodeMap,
     node: EventTreeNode,
     showLoopingIndicator: boolean,
     levelOfDetail: LevelOfDetail
@@ -120,7 +123,7 @@ export const buildDimensionCache = (
   }
 
   const cacheNodeRecursive = (node: EventTreeNode) => {
-    const width = calculateWidth(root, node, showLoopingIndicator, levelOfDetail)
+    const width = calculateWidth(nodeMap, node, showLoopingIndicator, levelOfDetail)
     const height = calculateHeight(node, width, showLoopingIndicator, levelOfDetail)
 
     setCachedDimensions(event.name, node.id, width, height, showLoopingIndicator, levelOfDetail)
