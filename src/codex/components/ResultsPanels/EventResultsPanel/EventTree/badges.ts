@@ -118,7 +118,6 @@ function drawLoopBackBadges(
           x,
           y: y - yOffset,
           nodeType: node.type,
-          isCompactEmojiOnlyNode: isCompactEmojiOnly,
         }
       })
     )
@@ -129,15 +128,16 @@ function drawLoopBackBadges(
 
   badges.append('circle').attr('class', (d: any) =>
     cx(`${circleBaseClass}-circle`, `${circleBaseClass}-circle--${d.nodeType}`, {
-      [`${circleBaseClass}-circle--small`]: d.isCompactEmojiOnlyNode,
+      [`${circleBaseClass}-circle--small`]: isCompact,
     })
   )
 
   badges
     .append('text')
-    .attr('class', (d: any) =>
+    .attr(
+      'class',
       cx(`${circleBaseClass}-emoji`, {
-        [`${circleBaseClass}-emoji--small`]: d.isCompactEmojiOnlyNode,
+        [`${circleBaseClass}-emoji--small`]: isCompact,
       })
     )
 

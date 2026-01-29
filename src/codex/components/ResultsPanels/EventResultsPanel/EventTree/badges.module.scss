@@ -27,7 +27,7 @@
 
 .node-type-badge-circle {
   stroke-width: 2px;
-  r: 19px;
+  r: 21px;
 
   @each $type, $color in $event-node-type-to-color-map {
     &--#{$type} {
@@ -38,6 +38,6 @@
 }
 
 .node-type-badge-emoji {
-  font-size: font-size('md');
+  font-size: font-size('md-plus');
   pointer-events: none;
 }

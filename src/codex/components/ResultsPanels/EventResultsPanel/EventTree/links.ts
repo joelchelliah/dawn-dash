@@ -7,7 +7,6 @@ import {
   getArrowheadAngle,
   getNodeDimensions,
   isCompactEmojiBadgeNode,
-  isCompactEmojiOnlyNode,
 } from '@/codex/utils/eventTreeHelper'
 import { LevelOfDetail } from '@/codex/constants/eventSearchValues'
 
@@ -70,7 +69,7 @@ export function drawLinks({
         showLoopingIndicator,
         levelOfDetail
       )
-      const yOffset = isCompactEmojiBadgeNode(d.target.data, isCompact) ? -22 : -2
+      const yOffset = isCompactEmojiBadgeNode(d.target.data, isCompact) ? -24 : -2
 
       return calculateCurvedPathForStandardLinks(
         sourceX,
@@ -148,7 +147,7 @@ export function drawRefChildrenLinks({
       levelOfDetail
     )
 
-    const yOffset = isCompactEmojiBadgeNode(d.target.data, isCompact) ? -22 : -2
+    const yOffset = isCompactEmojiBadgeNode(d.target.data, isCompact) ? -24 : -2
     const pathData = calculateCurvedPathForStandardLinks(
       sourceX,
       sourceY,
@@ -198,10 +197,9 @@ export function drawLoopBackLinks({
     )
 
     const sourceNodeType = d.source.data.type || 'default'
-    const isEmojiOnlyNode = isCompactEmojiOnlyNode(d.target.data, isCompact, showLoopingIndicator)
     // Create a single marker for the target end
     const markerId = `arrowhead-loop-back-${linkIndex}`
-    const markerRefX = isEmojiOnlyNode ? 38 : 40
+    const markerRefX = isCompact ? 36 : 40
     const markerSize = 7
 
     defs
@@ -217,8 +215,8 @@ export function drawLoopBackLinks({
       .attr('d', 'M0,-5L20,0L0,5')
       .attr('class', cx('loop-back-arrowhead', `loop-back-arrowhead--${sourceNodeType}`))
 
-    const targetYOffset = isEmojiOnlyNode ? 2 : 0
-    const sourceYOffset = isEmojiOnlyNode ? -18 : 0
+    const targetYOffset = isCompact ? 2 : 0
+    const sourceYOffset = isCompact ? -18 : 0
     const adjustedTargetY = targetY + targetYOffset
     const adjustedSourceY = sourceY + sourceYOffset
     // Draw the main line with arrowhead at target end

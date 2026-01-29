@@ -21,7 +21,7 @@
 }
 
 .pre-title {
-  font-size: font-size('preTitle');
+  font-size: font-size('md-plus');
   margin: 0.125rem 0.25rem 0 0;
 
   @media (max-width: $breakpoint-mobile) {

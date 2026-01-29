@@ -127,7 +127,8 @@ const _getNodeWidth = (
       width,
       clampNodeWidth(
         measureEventTextWidth('🔄 Loops back to:', 'indicatorHeader') +
-          INNER_BOX.HORIZONTAL_MARGIN_OR_PADDING * 4
+          INNER_BOX.HORIZONTAL_MARGIN_OR_PADDING * 4,
+        isCompact
       )
     )
   }
@@ -137,7 +138,8 @@ const _getNodeWidth = (
     width = Math.max(
       width,
       clampNodeWidth(
-        measureEventTextWidth(text, 'indicatorHeader') + INNER_BOX.HORIZONTAL_MARGIN_OR_PADDING * 4
+        measureEventTextWidth(text, 'indicatorHeader') + INNER_BOX.HORIZONTAL_MARGIN_OR_PADDING * 4,
+        isCompact
       )
     )
   }
@@ -146,7 +148,7 @@ const _getNodeWidth = (
   if (dialogueText && !isCompact) {
     width = Math.max(
       width,
-      clampNodeWidth(measureEventTextWidth(dialogueText) + TEXT.HORIZONTAL_PADDING * 2)
+      clampNodeWidth(measureEventTextWidth(dialogueText) + TEXT.HORIZONTAL_PADDING * 2, isCompact)
     )
   }
 
@@ -154,40 +156,39 @@ const _getNodeWidth = (
   if (choiceLabel) {
     width = Math.max(
       width,
-      clampNodeWidth(measureEventTextWidth(choiceLabel, 'choice') + TEXT.HORIZONTAL_PADDING * 2)
+      clampNodeWidth(
+        measureEventTextWidth(choiceLabel, 'choice') + TEXT.HORIZONTAL_PADDING * 2,
+        isCompact
+      )
     )
   }
 
-  const longestRequirement =
+  const widestRequirementWidth =
     node.type === 'choice' || node.type === 'result'
-      ? node.requirements?.reduce(
-          (longest, requirement) => (requirement.length > longest.length ? requirement : longest),
-          ''
-        )
-      : undefined
+      ? (node.requirements?.reduce(
+          (maxWidth, requirement) => Math.max(maxWidth, measureEventTextWidth(requirement)),
+          0
+        ) ?? 0)
+      : 0
 
-  if (longestRequirement) {
+  if (widestRequirementWidth > 0) {
     width = Math.max(
       width,
-      clampNodeWidth(
-        measureEventTextWidth(longestRequirement) + INNER_BOX.HORIZONTAL_MARGIN_OR_PADDING * 4
-      )
+      clampNodeWidth(widestRequirementWidth + INNER_BOX.HORIZONTAL_MARGIN_OR_PADDING * 4, isCompact)
     )
   }
 
-  const longestEffect = hasEffects(node)
-    ? node.effects?.reduce(
-        (longest, effect) => (effect.length > longest.length ? effect : longest),
-        ''
-      )
-    : undefined
+  const widestEffectWidth = hasEffects(node)
+    ? (node.effects?.reduce(
+        (maxWidth, effect) => Math.max(maxWidth, measureEventTextWidth(effect)),
+        0
+      ) ?? 0)
+    : 0
 
-  if (longestEffect) {
+  if (widestEffectWidth > 0) {
     width = Math.max(
       width,
-      clampNodeWidth(
-        measureEventTextWidth(longestEffect) + INNER_BOX.HORIZONTAL_MARGIN_OR_PADDING * 4
-      )
+      clampNodeWidth(widestEffectWidth + INNER_BOX.HORIZONTAL_MARGIN_OR_PADDING * 4, isCompact)
     )
   }
 
@@ -312,13 +313,13 @@ const _getNodeHeight = (
     return contentHeight + NODE_BOX.VERTICAL_PADDING * 2
   } else if (node.type === 'combat') {
     const hasText = Boolean(!isCompact && node.text && node.text.trim().length > 0)
-    let textHeight: number
+    let textHeight = 0
 
     if (hasText) {
       const combatLines = wrapEventText(node.text ?? '', maxNodeTextWidth)
       const numLines = Math.min(combatLines.length, maxDisplayLines)
       textHeight = numLines * TEXT.LINE_HEIGHT
-    } else {
+    } else if (!isCompact) {
       // Fallback to "FIGHT!" text
       textHeight = TEXT.REPLACED_TEXT_HEIGHT
     }
@@ -555,8 +556,11 @@ export const createGlowFilter = (
   merge.append('feMergeNode').attr('in', 'SourceGraphic')
 }
 
-const clampNodeWidth = (width: number): number => {
-  return Math.max(NODE.WIDTH_RANGE[0], Math.min(width, NODE.WIDTH_RANGE[1]))
+const clampNodeWidth = (width: number, isCompact: boolean): number => {
+  return Math.max(
+    isCompact ? NODE.COMPACT_WIDTH : NODE.WIDTH_RANGE[0],
+    Math.min(width, NODE.WIDTH_RANGE[1])
+  )
 }
 
 /**

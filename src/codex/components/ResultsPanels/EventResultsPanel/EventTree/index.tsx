@@ -381,8 +381,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
         const textAreaCenter =
           -currentNodeHeight / 2 + NODE_BOX.VERTICAL_PADDING + textAreaHeight / 2
 
-        if (!hasText && effectsBoxHeight === 0) {
-          // Empty text and no effects: show "END" in italic (like combat)
+        if (!hasText && effectsBoxHeight === 0 && !isCompact) {
           node
             .append('text')
             .attr('class', cx('event-node-text', 'event-node-text--no-text-fallback'))
@@ -557,7 +556,6 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
           })
         }
       } else if (data.type === 'combat') {
-        // For combat nodes, show text (up to 2 lines) or "FIGHT!" fallback (effects box is handled centrally below)
         const loopIndicatorHeight =
           showLoopingIndicator && data.ref
             ? INNER_BOX.INDICATOR_HEIGHT + TEXT.LINE_HEIGHT + INNER_BOX.INDICATOR_HEADER_GAP
@@ -615,8 +613,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
               .attr('y', y)
               .text(line)
           })
-        } else {
-          // Fallback: Add "FIGHT!" text, centered in available space
+        } else if (!isCompact) {
           node
             .append('text')
             .attr('class', cx('event-node-text', 'event-node-text--no-text-fallback'))
