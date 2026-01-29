@@ -8,6 +8,8 @@ import {
   EndNode,
   CombatNode,
   SpecialNode,
+  ResultNode,
+  ChoiceNode,
 } from '@/codex/types/events'
 import { TEXT, INNER_BOX, NODE, NODE_BOX } from '@/codex/constants/eventTreeValues'
 
@@ -238,18 +240,14 @@ const _getNodeHeight = (
   const maxDisplayLines = TEXT.MAX_DISPLAY_LINES_BY_LEVEL_OF_DETAIL[levelOfDetail]
 
   if (node.type === 'choice') {
-    const requirements = node.requirements || []
     const choiceLines = wrapEventText(node.choiceLabel, maxNodeTextWidth, 'choice')
-
     const choiceTextHeight = choiceLines.length * TEXT.CHOICE_TEXT_HEIGHT
-    const reqBoxHeight =
-      requirements.length > 0
-        ? TEXT.LINE_HEIGHT +
-          INNER_BOX.LISTINGS_HEADER_GAP +
-          requirements.length * TEXT.LINE_HEIGHT +
-          INNER_BOX.LISTINGS_VERTICAL_PADDING
-        : 0
-    const reqBoxMargin = reqBoxHeight > 0 ? INNER_BOX.LISTINGS_TOP_MARGIN : 0
+
+    const { height: reqBoxHeight, margin: reqBoxMargin } = calculateRequirementsBoxDimensions(
+      node,
+      isCompact,
+      choiceTextHeight > 0
+    )
 
     const { height: loopIndicatorHeightBase, margin: loopIndicatorMargin } =
       calculateIndicatorDimensions(
@@ -408,15 +406,11 @@ const _getNodeHeight = (
 
     return contentHeight + NODE_BOX.VERTICAL_PADDING * 2
   } else if (node.type === 'result') {
-    const requirements = node.requirements || []
-
-    const reqBoxHeight =
-      requirements.length > 0
-        ? TEXT.LINE_HEIGHT +
-          INNER_BOX.LISTINGS_HEADER_GAP +
-          requirements.length * TEXT.LINE_HEIGHT +
-          INNER_BOX.LISTINGS_VERTICAL_PADDING
-        : 0
+    const { height: reqBoxHeight, margin: reqBoxMargin } = calculateRequirementsBoxDimensions(
+      node,
+      isCompact,
+      false
+    )
     const { height: loopIndicatorHeight, margin: loopIndicatorMargin } =
       calculateIndicatorDimensions(
         'loop',
@@ -425,7 +419,7 @@ const _getNodeHeight = (
         reqBoxHeight > 0
       )
 
-    const contentHeight = reqBoxHeight + loopIndicatorHeight + loopIndicatorMargin
+    const contentHeight = reqBoxMargin + reqBoxHeight + loopIndicatorHeight + loopIndicatorMargin
 
     return contentHeight + NODE_BOX.VERTICAL_PADDING * 2
   }
@@ -455,6 +449,7 @@ export const calculateEffectsBoxDimensions = (
         effectLines.length * TEXT.LINE_HEIGHT +
         INNER_BOX.LISTINGS_VERTICAL_PADDING * 2
       : 0
+
   let effectsBoxMargin = 0
   if (followsText && effectsBoxHeight > 0) {
     effectsBoxMargin = INNER_BOX.LISTINGS_TOP_MARGIN
@@ -463,6 +458,34 @@ export const calculateEffectsBoxDimensions = (
   }
 
   return { effectsBoxHeight, effectsBoxMargin }
+}
+
+/**
+ * Calculates the requirements box height and margin for nodes that can have requirements.
+ * Returns both the height of the requirements box and the margin to add above it.
+ */
+export const calculateRequirementsBoxDimensions = (
+  node: ChoiceNode | ResultNode,
+  isCompact: boolean,
+  followsText: boolean // Comes after non-empty text
+): { height: number; margin: number } => {
+  const requirements = node.requirements || []
+  const height =
+    requirements.length > 0
+      ? TEXT.LINE_HEIGHT +
+        INNER_BOX.LISTINGS_HEADER_GAP +
+        requirements.length * TEXT.LINE_HEIGHT +
+        INNER_BOX.LISTINGS_VERTICAL_PADDING
+      : 0
+
+  let margin = 0
+  if (followsText && height > 0) {
+    margin = INNER_BOX.LISTINGS_TOP_MARGIN
+  } else if (!followsText && isCompact && height > 0) {
+    margin = INNER_BOX.LISTINGS_TOP_MARGIN_COMPACT
+  }
+
+  return { height, margin }
 }
 
 /**

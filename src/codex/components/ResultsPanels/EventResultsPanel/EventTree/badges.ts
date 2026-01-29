@@ -99,6 +99,14 @@ export function drawCombatBadge(params: DrawBadgesParam) {
   drawNodeTypeBadge({ ...params, nodeType: 'combat', emoji: '⚔️' })
 }
 
+export function drawSpecialBadge(params: DrawBadgesParam) {
+  drawNodeTypeBadge({ ...params, nodeType: 'special', emoji: '🎁' })
+}
+
+export function drawResultBadge(params: DrawBadgesParam) {
+  drawNodeTypeBadge({ ...params, nodeType: 'result', emoji: '🔑' })
+}
+
 function drawLoopBackBadges(
   g: any,
   position: 'start' | 'end',

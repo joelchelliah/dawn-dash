@@ -59,9 +59,8 @@ module.exports = [
           effects: ['SELECTCARD', 'CARDPUZZLE'],
           children: [
             {
-              type: 'choice',
-              choiceLabel: 'default',
-              requirements: ['PUZZLE SUCCESS'],
+              type: 'result',
+              requirements: ['puzzlesuccess'],
               children: [
                 {
                   type: 'dialogue',
@@ -72,9 +71,8 @@ module.exports = [
               ],
             },
             {
-              type: 'choice',
-              choiceLabel: 'default',
-              requirements: ['PUZZLE FAILURE'],
+              type: 'result',
+              requirements: ['puzzlefail'],
               children: [
                 {
                   type: 'dialogue',

@@ -28,6 +28,7 @@ import {
   getNodeTextOrChoiceLabel,
   hasContinues,
   calculateEffectsBoxDimensions,
+  calculateRequirementsBoxDimensions,
   calculateIndicatorDimensions,
   isCompactEmojiOnlyNode,
   tweakLoopIndicatorHeightForChoiceNode,
@@ -51,7 +52,14 @@ import { wrapEventText } from '@/codex/utils/eventTextWidthEstimation'
 import { UseAllEventSearchFilters } from '@/codex/hooks/useSearchFilters/useAllEventSearchFilters'
 
 import { drawLinks, drawRefChildrenLinks, drawLoopBackLinks } from './links'
-import { drawLoopBackLinkBadges, drawDialogueBadge, drawEndBadge, drawCombatBadge } from './badges'
+import {
+  drawLoopBackLinkBadges,
+  drawDialogueBadge,
+  drawEndBadge,
+  drawCombatBadge,
+  drawResultBadge,
+  drawSpecialBadge,
+} from './badges'
 import { useEventTreeZoom } from './useEventTreeZoom'
 import styles from './index.module.scss'
 
@@ -252,13 +260,11 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
       if (data.type === 'choice') {
         const requirements = data.requirements || []
         const hasRequirements = requirements.length > 0
-        const reqBoxHeight = hasRequirements
-          ? TEXT.LINE_HEIGHT +
-            INNER_BOX.LISTINGS_HEADER_GAP +
-            requirements.length * TEXT.LINE_HEIGHT +
-            INNER_BOX.LISTINGS_VERTICAL_PADDING
-          : 0
-        const reqBoxMargin = reqBoxHeight > 0 ? INNER_BOX.LISTINGS_TOP_MARGIN : 0
+        const { height: reqBoxHeight, margin: reqBoxMargin } = calculateRequirementsBoxDimensions(
+          data,
+          isCompact,
+          data.choiceLabel.length > 0
+        )
 
         const hasLoopingIndicator = showLoopingIndicator && data.ref !== undefined
         const { height: loopIndicatorHeightBase, margin: loopIndicatorMargin } =
@@ -711,17 +717,11 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
       } else if (data.type === 'result') {
         const requirements = data.requirements || []
         const hasRequirements = requirements.length > 0
-        const reqBoxHeight = hasRequirements
-          ? TEXT.LINE_HEIGHT +
-            INNER_BOX.LISTINGS_HEADER_GAP +
-            requirements.length * TEXT.LINE_HEIGHT +
-            INNER_BOX.LISTINGS_VERTICAL_PADDING
-          : 0
+        const { height: reqBoxHeight } = calculateRequirementsBoxDimensions(data, isCompact, false)
+
         const hasLoopingIndicator = showLoopingIndicator && data.ref !== undefined
-        const loopIndicatorHeight = hasLoopingIndicator
-          ? INNER_BOX.INDICATOR_HEIGHT + TEXT.LINE_HEIGHT + INNER_BOX.INDICATOR_HEADER_GAP
-          : 0
-        const loopIndicatorMargin = hasLoopingIndicator ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
+        const { height: loopIndicatorHeight, margin: loopIndicatorMargin } =
+          calculateIndicatorDimensions('loop', hasLoopingIndicator, false, reqBoxHeight > 0)
 
         const [currentNodeWidth, currentNodeHeight] = getNodeDimensions(
           nodeMap,
@@ -730,47 +730,6 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
           showLoopingIndicator,
           levelOfDetail
         )
-        const reqBoxMargin = reqBoxHeight > 0 ? INNER_BOX.LISTINGS_TOP_MARGIN : 0
-
-        const textAreaHeight =
-          currentNodeHeight -
-          NODE_BOX.VERTICAL_PADDING * 2 -
-          reqBoxMargin -
-          reqBoxHeight -
-          loopIndicatorHeight -
-          loopIndicatorMargin
-
-        const textAreaCenter =
-          -currentNodeHeight / 2 + NODE_BOX.VERTICAL_PADDING + textAreaHeight / 2
-
-        const labelGroup = node.append('g').attr('transform', `translate(0, ${textAreaCenter})`)
-
-        // Text not supported yet for result nodes.
-        const textLines = ['']
-        const isDefault = false
-
-        // Center the text lines vertically within the label group
-        const totalTextHeight = textLines.length * TEXT.CHOICE_TEXT_HEIGHT
-        const defaultChoiceOffset = isDefault ? 0.125 * TEXT.CHOICE_TEXT_HEIGHT : 0
-        const verticalCenteringOffset =
-          -totalTextHeight / 2 + TEXT.CHOICE_BASELINE_OFFSET + defaultChoiceOffset
-
-        textLines.forEach((line, i) => {
-          const yPosition = i * TEXT.CHOICE_TEXT_HEIGHT + verticalCenteringOffset
-          const text = isDefault ? '—' : line
-
-          labelGroup
-            .append('text')
-            .attr(
-              'class',
-              cx('event-node-text', 'event-node-text--result', {
-                'event-node-text--result--default': isDefault,
-              })
-            )
-            .attr('x', 0)
-            .attr('y', yPosition)
-            .text(text)
-        })
 
         const requirementsBoxY =
           currentNodeHeight / 2 -
@@ -812,7 +771,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
                 listingTopPadding +
                   TEXT.LINE_HEIGHT +
                   INNER_BOX.LISTINGS_HEADER_GAP +
-                  (i + 1) * TEXT.LINE_HEIGHT
+                  (i + 1) * TEXT.BASELINE_OFFSET
               )
               .text(req)
           })
@@ -1029,6 +988,8 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
       drawDialogueBadge(drawBadgesParam)
       drawEndBadge(drawBadgesParam)
       drawCombatBadge(drawBadgesParam)
+      drawSpecialBadge(drawBadgesParam)
+      drawResultBadge(drawBadgesParam)
     }
 
     if (loopingPathMode === LoopingPathMode.LINK) {
