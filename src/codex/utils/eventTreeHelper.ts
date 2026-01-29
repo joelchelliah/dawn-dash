@@ -122,7 +122,7 @@ const _getNodeWidth = (
 
   let width = isCompact ? NODE.COMPACT_WIDTH : NODE.WIDTH_RANGE[0]
 
-  if (showLoopingIndicator && node.ref) {
+  if (showLoopingIndicator && node.ref !== undefined) {
     width = Math.max(
       width,
       clampNodeWidth(
@@ -226,7 +226,7 @@ const _getNodeHeight = (
     const { height: loopIndicatorHeight, margin: loopIndicatorMargin } =
       calculateIndicatorDimensions(
         'loop',
-        Boolean(showLoopingIndicator && node.ref),
+        Boolean(showLoopingIndicator && node.ref !== undefined),
         choiceTextHeight > 0,
         reqBoxHeight > 0
       )
@@ -262,7 +262,7 @@ const _getNodeHeight = (
     const { height: loopIndicatorHeight, margin: loopIndicatorMargin } =
       calculateIndicatorDimensions(
         'loop',
-        Boolean(showLoopingIndicator && node.ref),
+        Boolean(showLoopingIndicator && node.ref !== undefined),
         hasText,
         effectsBoxHeight > 0
       )
@@ -292,7 +292,7 @@ const _getNodeHeight = (
     const { height: loopIndicatorHeight, margin: loopIndicatorMargin } =
       calculateIndicatorDimensions(
         'loop',
-        Boolean(showLoopingIndicator && node.ref),
+        Boolean(showLoopingIndicator && node.ref !== undefined),
         hasText,
         effectsBoxHeight > 0 || continueIndicatorHeight > 0
       )
@@ -334,7 +334,7 @@ const _getNodeHeight = (
     const { height: loopIndicatorHeight, margin: loopIndicatorMargin } =
       calculateIndicatorDimensions(
         'loop',
-        Boolean(showLoopingIndicator && node.ref),
+        Boolean(showLoopingIndicator && node.ref !== undefined),
         hasText,
         effectsBoxHeight > 0
       )
@@ -365,7 +365,7 @@ const _getNodeHeight = (
     const { height: loopIndicatorHeight, margin: loopIndicatorMargin } =
       calculateIndicatorDimensions(
         'loop',
-        Boolean(showLoopingIndicator && node.ref),
+        Boolean(showLoopingIndicator && node.ref !== undefined),
         hasText,
         effectsBoxHeight > 0
       )
@@ -387,7 +387,7 @@ const _getNodeHeight = (
     const { height: loopIndicatorHeight, margin: loopIndicatorMargin } =
       calculateIndicatorDimensions(
         'loop',
-        Boolean(showLoopingIndicator && node.ref),
+        Boolean(showLoopingIndicator && node.ref !== undefined),
         false,
         reqBoxHeight > 0
       )
@@ -493,7 +493,7 @@ export const hasEffects = (
 }
 
 export const hasLoopingRef = (node: EventTreeNode): boolean => {
-  return Boolean(node.ref)
+  return Boolean(node.ref !== undefined)
 }
 
 export const hasContinues = (node: EventTreeNode): node is DialogueNode => {
@@ -530,7 +530,7 @@ export const findNodeById = (
   root: HierarchyPointNode<EventTreeNode> | undefined,
   id: number | undefined
 ): EventTreeNode | undefined =>
-  root && id ? root.descendants().find((d) => d.data.id === id)?.data : undefined
+  root ? root.descendants().find((d) => d.data.id === id)?.data : undefined
 
 export const getNodeTextOrChoiceLabel = (node: EventTreeNode | undefined): string | undefined => {
   if (!node) return undefined

@@ -250,7 +250,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
             requirements.length * TEXT.LINE_HEIGHT +
             INNER_BOX.LISTINGS_VERTICAL_PADDING
           : 0
-        const hasLoopingIndicator = showLoopingIndicator && data.ref
+        const hasLoopingIndicator = showLoopingIndicator && data.ref !== undefined
         const loopIndicatorHeight = hasLoopingIndicator
           ? INNER_BOX.INDICATOR_HEIGHT + TEXT.LINE_HEIGHT + INNER_BOX.INDICATOR_HEADER_GAP
           : 0
@@ -354,7 +354,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
       } else if (data.type === 'end') {
         // For end nodes, show first 2 lines of text (effects box is handled centrally below)
         const loopIndicatorHeight =
-          showLoopingIndicator && data.ref
+          showLoopingIndicator && data.ref !== undefined
             ? INNER_BOX.INDICATOR_HEIGHT + TEXT.LINE_HEIGHT + INNER_BOX.INDICATOR_HEADER_GAP
             : 0
 
@@ -444,7 +444,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
           const { height: loopIndicatorHeight, margin: loopIndicatorMargin } =
             calculateIndicatorDimensions(
               'loop',
-              Boolean(showLoopingIndicator && data.ref),
+              Boolean(showLoopingIndicator && data.ref !== undefined),
               hasText,
               effectsBoxHeight > 0 || continueIndicatorHeight > 0
             )
@@ -513,7 +513,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
           const { height: loopIndicatorHeight, margin: loopIndicatorMargin } =
             calculateIndicatorDimensions(
               'loop',
-              Boolean(showLoopingIndicator && data.ref),
+              Boolean(showLoopingIndicator && data.ref !== undefined),
               hasText,
               effectsBoxHeight > 0 || continueIndicatorHeight > 0
             )
@@ -557,7 +557,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
         }
       } else if (data.type === 'combat') {
         const loopIndicatorHeight =
-          showLoopingIndicator && data.ref
+          showLoopingIndicator && data.ref !== undefined
             ? INNER_BOX.INDICATOR_HEIGHT + TEXT.LINE_HEIGHT + INNER_BOX.INDICATOR_HEADER_GAP
             : 0
 
@@ -627,7 +627,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
       } else if (data.type === 'special') {
         // For special nodes, show text (up to 2 lines) + effects box (if any) + loops back to box (if present)
         const loopIndicatorHeight =
-          showLoopingIndicator && data.ref
+          showLoopingIndicator && data.ref !== undefined
             ? INNER_BOX.INDICATOR_HEIGHT + TEXT.LINE_HEIGHT + INNER_BOX.INDICATOR_HEADER_GAP
             : 0
 
@@ -694,7 +694,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
             requirements.length * TEXT.LINE_HEIGHT +
             INNER_BOX.LISTINGS_VERTICAL_PADDING
           : 0
-        const hasLoopingIndicator = showLoopingIndicator && data.ref
+        const hasLoopingIndicator = showLoopingIndicator && data.ref !== undefined
         const loopIndicatorHeight = hasLoopingIndicator
           ? INNER_BOX.INDICATOR_HEIGHT + TEXT.LINE_HEIGHT + INNER_BOX.INDICATOR_HEADER_GAP
           : 0
@@ -823,7 +823,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
         const hasContinues = eventNode.type === 'dialogue' && eventNode.numContinues
         const continueHeight = hasContinues ? INNER_BOX.INDICATOR_HEIGHT : 0
         const continueMargin = continueHeight > 0 ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
-        const showLoopsBackTo = showLoopingIndicator && eventNode.ref
+        const showLoopsBackTo = showLoopingIndicator && eventNode.ref !== undefined
         const loopIndicatorHeight = showLoopsBackTo
           ? INNER_BOX.INDICATOR_HEIGHT + TEXT.LINE_HEIGHT + INNER_BOX.INDICATOR_HEADER_GAP
           : 0
@@ -883,7 +883,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
           showLoopingIndicator,
           levelOfDetail
         )
-        const showLoopsBackTo = d.data.ref && showLoopingIndicator
+        const showLoopsBackTo = d.data.ref !== undefined && showLoopingIndicator
         const loopIndicatorHeight = showLoopsBackTo
           ? INNER_BOX.INDICATOR_HEIGHT + TEXT.LINE_HEIGHT + INNER_BOX.INDICATOR_HEADER_GAP
           : 0
@@ -920,7 +920,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
     // Add `Loops back to` indicators
     if (loopingPathMode === LoopingPathMode.INDICATOR) {
       nodes
-        .filter((d) => Boolean(d.data.ref))
+        .filter((d) => d.data.ref !== undefined)
         .each(function (d) {
           const node = select(this)
           const [nodeWidth, nodeHeight] = getNodeDimensions(
