@@ -407,14 +407,13 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
           -currentNodeHeight / 2 + NODE_BOX.VERTICAL_PADDING + textAreaHeight / 2
 
         if (!hasText && effectsBoxHeight === 0 && !isCompact) {
+          const totalTextHeight = TEXT.REPLACED_TEXT_HEIGHT
+          const verticalCenteringOffset = -totalTextHeight / 2 + TEXT.REPLACED_TEXT_BASELINE_OFFSET
           node
             .append('text')
             .attr('class', cx('event-node-text', 'event-node-text--no-text-fallback'))
             .attr('x', 0)
-            .attr(
-              'y',
-              textAreaCenter + TEXT.REPLACED_TEXT_BASELINE_OFFSET - TEXT.REPLACED_TEXT_HEIGHT / 2
-            )
+            .attr('y', textAreaCenter + verticalCenteringOffset / 1.5)
             .text('END')
         } else {
           const maxTextWidth = currentNodeWidth - TEXT.HORIZONTAL_PADDING * 2
