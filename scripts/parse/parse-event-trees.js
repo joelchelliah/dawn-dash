@@ -21,6 +21,8 @@ const OUTPUT_FILE = path.join(__dirname, '../../src/codex/data/event-trees.json'
 const EVENT_ALTERATIONS = require('./event-alterations.js')
 const { DEFAULT_NODE_BLACKLIST, OPTIMIZATION_PASS_CONFIG, CONFIG } = require('./configs.js')
 
+const RANDOM_KEYWORD = '«random»'
+
 // Enables detailed logging for a specific event, when provided.
 // const DEBUG_EVENT_NAME = 'Frozen Heart'
 const DEBUG_EVENT_NAME = ''
@@ -97,6 +99,17 @@ function detectRandomVariables(inkJsonString) {
   }
 
   return randomVars
+}
+
+/**
+ * Replace the display value with RANDOM_KEYWORD in the line when it appears in context for the command.
+ * Only used when we've already determined this value is from a random range (fixed effects never call this).
+ * Only GOLD appears in display text; DAMAGE/MAXHEALTH/HEALTH/HEAL are effects-only.
+ */
+function replaceDisplayValueWithRandom(line, valueStr, command) {
+  if (command.toUpperCase() !== 'GOLD') return line
+  const escaped = valueStr.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  return line.replace(new RegExp(`\\b${escaped}\\s*(gold)\\b`, 'gi'), `${RANDOM_KEYWORD} $1`)
 }
 
 /**
@@ -534,19 +547,28 @@ function buildTreeFromStory(
   // We need this before loop detection so we can check for text-based loops
   let text = ''
   let continueCount = 0
+  let pendingDisplayReplacements = [] // When command is on its own line, the number may be on the NEXT line
 
   try {
     // Continue the story until we hit choices or the end
     // Preserve newlines for proper command extraction
     while (story.canContinue) {
-      const line = story.Continue()
+      let line = story.Continue()
       continueCount++
+      // Apply pending replacements (from previous line that was command-only) to this line
+      if (pendingDisplayReplacements.length > 0 && line && line.trim()) {
+        for (const { valueStr, command } of pendingDisplayReplacements) {
+          line = replaceDisplayValueWithRandom(line, valueStr, command)
+        }
+        pendingDisplayReplacements = []
+      }
       if (line && line.trim()) {
         // Check if this line contains any random variable references
         // Look for common effect commands that might have random values
         if (randomVars.size > 0 && />>>>(GOLD|DAMAGE|HEALTH|MAXHEALTH):\d+/.test(line)) {
           let modifiedLine = line
           let foundRandom = false
+          const replacedInLine = [] // { valueStr, command } for each random we replaced (for updating display text)
 
           // Match any command with a numeric value
           const commandMatches = line.match(/>>>>(GOLD|DAMAGE|HEALTH|MAXHEALTH):(\d+)/g)
@@ -556,24 +578,22 @@ function buildTreeFromStory(
               const value = parseInt(valueStr)
 
               // Map command names to likely variable names in Ink
-              // e.g., GOLD command likely uses 'gold' variable, DAMAGE uses 'damage', etc.
               const likelyVarName = command.toLowerCase()
 
-              // Check if this specific variable name has random ranges
               if (randomVars.has(likelyVarName)) {
                 const ranges = randomVars.get(likelyVarName)
-                // Check if the value falls within ANY of the ranges
-                // (events may have multiple random assignments to the same variable in different branches)
                 const matchingRange = ranges.find((r) => value >= r.min && value <= r.max)
 
                 if (matchingRange) {
-                  // Replace ALL occurrences of this specific command:value with the random notation
                   const randomNotation = `random [${matchingRange.min} - ${matchingRange.max}]`
                   modifiedLine = modifiedLine.replace(
                     new RegExp(`>>>>${command}:${value}`, 'g'),
                     `>>>>${command}:${randomNotation}`
                   )
+                  // Replace display number on same line if present (e.g. "You find 17 gold! >>>>GOLD:17")
+                  modifiedLine = replaceDisplayValueWithRandom(modifiedLine, valueStr, command)
                   foundRandom = true
+                  replacedInLine.push({ valueStr, command })
                   if (eventName === DEBUG_EVENT_NAME) {
                     console.log(
                       `  🎲 Event "${eventName}": Detected random ${command} value ${value} (range: ${matchingRange.min}-${matchingRange.max})`
@@ -584,8 +604,35 @@ function buildTreeFromStory(
             }
 
             if (foundRandom) {
+              // When command was on its own line, the display number may be on the previous OR next line
+              const withoutCommand = line.replace(/>>>>GOLD:[^\s;]+/g, '').trim()
+              const isCommandOnlyLine = !withoutCommand
+              if (isCommandOnlyLine && replacedInLine.length > 0) {
+                // Try replacing in the previous line (number might be there)
+                if (text) {
+                  const lastNewline = text.lastIndexOf('\n')
+                  const lastLine = lastNewline >= 0 ? text.slice(lastNewline + 1) : text
+                  const prefix = lastNewline >= 0 ? text.slice(0, lastNewline + 1) : ''
+                  let updatedLastLine = lastLine
+                  for (const { valueStr, command } of replacedInLine) {
+                    updatedLastLine = replaceDisplayValueWithRandom(
+                      updatedLastLine,
+                      valueStr,
+                      command
+                    )
+                  }
+                  if (updatedLastLine !== lastLine) {
+                    text = prefix + updatedLastLine
+                  } else {
+                    // Number is likely on the next line (e.g. Small Fortune: ">>>>GOLD:27" then "You find 27 gold!")
+                    pendingDisplayReplacements = [...replacedInLine]
+                  }
+                } else {
+                  pendingDisplayReplacements = [...replacedInLine]
+                }
+              }
               text += (text ? '\n' : '') + modifiedLine.trim()
-              continue // Skip the normal text concatenation
+              continue
             }
           }
         }
@@ -621,10 +668,12 @@ function buildTreeFromStory(
   // to prevent infinite exploration and reduce redundant path exploration
 
   // 1. TEXT-BASED LOOP DETECTION (catches dialogue loops like The Ferryman)
-  // Check if we've seen this exact text before in our exploration
+  // Check if we've seen this exact text before in our exploration.
+  // Skip when text contains RANDOM_KEYWORD so we don't collapse distinct branches that only differ by the random value.
   if (
     OPTIMIZATION_PASS_CONFIG.TEXT_LOOP_DETECTION_ENABLED &&
     cleanedText &&
+    !cleanedText.includes(RANDOM_KEYWORD) &&
     textToNodeId.has(cleanedText)
   ) {
     if (eventName === DEBUG_EVENT_NAME) {
@@ -648,9 +697,10 @@ function buildTreeFromStory(
   // 2. CHOICE+PATH-BASED LOOP DETECTION (catches merchant/shop loops)
   // For merchant/shop events, the same choices repeat even though game state differs
   // Hash combines choice structure + Ink story path to detect loops
-  // Check if we've visited this exact state before (same choices + location)
+  // Skip when text contains RANDOM_KEYWORD so we don't collapse distinct branches that only differ by the random value.
   if (
     OPTIMIZATION_PASS_CONFIG.CHOICE_AND_PATH_LOOP_DETECTION_ENABLED &&
+    (!cleanedText || !cleanedText.includes(RANDOM_KEYWORD)) &&
     visitedStates.has(currentStateHash)
   ) {
     if (eventName === DEBUG_EVENT_NAME) {
@@ -797,8 +847,12 @@ function buildTreeFromStory(
     newStateToNodeId.set(currentStateHash, nodeId)
   }
 
-  // Store text-to-node mapping for text-based loop detection
-  if (OPTIMIZATION_PASS_CONFIG.TEXT_LOOP_DETECTION_ENABLED && cleanedText) {
+  // Store text-to-node mapping for text-based loop detection (skip RANDOM_KEYWORD text so we don't collapse distinct branches)
+  if (
+    OPTIMIZATION_PASS_CONFIG.TEXT_LOOP_DETECTION_ENABLED &&
+    cleanedText &&
+    !cleanedText.includes(RANDOM_KEYWORD)
+  ) {
     newTextToNodeId.set(cleanedText, nodeId)
   }
 
@@ -3060,6 +3114,10 @@ function deduplicateEventTree(rootNode) {
 
         // Deep check: are the subtrees truly identical?
         if (originalNode && areSubtreesIdentical(node, originalNode)) {
+          // Don't collapse nodes whose text contains RANDOM_KEYWORD (distinct branches that only differ by the random value)
+          if (node.text && node.text.includes(RANDOM_KEYWORD)) {
+            continue
+          }
           // Don't prune away externally-referenced ref targets.
           if (subtreeWouldPruneExternalRefTarget(node)) {
             continue
