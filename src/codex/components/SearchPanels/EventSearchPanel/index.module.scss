@@ -117,10 +117,23 @@
     flex: 1;
     min-width: 14rem;
 
-    @media (max-width: $breakpoint-mobile) {
+    @media (max-width: $breakpoint-tablet) {
       flex-basis: 100%;
       justify-content: center;
     }
+  }
+}
+
+.info-message-wrapper {
+  display: flex;
+  justify-content: flex-end;
+  flex: 1;
+  margin: 0.5rem 0 -0.5rem;
+  min-width: 100%;
+
+  @media (max-width: $breakpoint-mobile) {
+    flex-basis: 100%;
+    justify-content: center;
   }
 }
 
@@ -158,6 +171,13 @@
       font-size: font-size('xxs');
     }
   }
+}
+
+.info-message-loading {
+  display: flex;
+  font-size: font-size('xs');
+  margin-top: -0.25rem;
+  padding: 0.75rem 0.5rem;
 }
 
 .advanced-options {
