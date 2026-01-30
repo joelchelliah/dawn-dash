@@ -1,148 +1,46 @@
 /* eslint-disable */
 const fs = require('fs')
 const path = require('path')
+const https = require('https')
 
 /**
  * Script to extract all event objects from the minified Blightbane bundle dump.
  */
 
-/**
- * Manual lookup for card and talent IDs found in dump.txt
- */
-const CARD_ID_TO_NAME = {
-  666: 'Deal with the Devil', // Talents
-  1561: 'Aurora Prism', // Cards
-  5414: 'Sacred Ward', // Cards
-  15614: 'Broken Amulet', // Cards
-  22989: 'Devotion', // Talents
-  38256: 'Frozen Heart', // Talents
-  53894: 'Prayer', // Cards
-  57436: '- MISSING NAME -',
-  66969: '- MISSING NAME -',
-  67258: 'Sacred Zest', // Talents
-  68653: 'Faith Healing', // Cards
-  77411: 'Berzerker', // Talents
-  89119: '- MISSING NAME -',
-  114406: '- MISSING NAME -',
-  119978: 'Stormaxe', // Cards
-  122116: '- MISSING NAME -',
-  125942: 'Scatter Souls', // Cards
-  134055: '- MISSING NAME -',
-  137930: 'Blessing of Serem-Pek', // Talents
-  152646: '- MISSING NAME -',
-  157577: 'Taste of Chaos', // Talents
-  160739: 'Pride', // Cards
-  178462: 'Asteran', // Cards
-  180647: '- MISSING NAME -',
-  201882: 'Caravan Wagon', // Cards
-  207559: 'Stormbringer', // Talents
-  214398: '- MISSING NAME -',
-  230852: 'Pragmatism', // Talents
-  240709: 'Fire Immunity', // Talents
-  244124: '- MISSING NAME -',
-  256570: 'Lust', // Cards
-  271941: '- MISSING NAME -',
-  274715: 'Dark Ritualist', // Talents
-  281179: 'Lifedrinker Venom', // Cards
-  295680: 'Potion of Alacrity', // Cards
-  307462: 'Tradepost', // Cards
-  311688: 'Strategist', // Talents
-  318154: 'Blood Ritual', // Cards
-  322523: 'Surge of Strength', // Cards
-  326691: 'Torch', // Cards
-  326889: 'Golden Idol', // Cards
-  334396: 'Blessing of the White Rose', // Talents
-  338628: 'Ire of Serem-Pek', // Cards
-  350989: 'Unimpressed', // Talents
-  353519: 'Healing Potion', // Cards
-  372964: 'Lovebite', // Talents
-  374531: 'Bubbly Brew', // Cards
-  382714: 'Compassionate', // Talents
-  384654: 'Emporium Discount', // Talents
-  384885: 'Surge of Intellect', // Cards
-  395987: 'Divine Focus', // Cards
-  401467: 'Wrath', // Cards
-  415692: 'Drakkan', // Cards
-  422320: 'Greed', // Cards
-  434520: 'Legion Insight', // Talents
-  435255: '- MISSING NAME -',
-  436947: '- MISSING NAME -',
-  449843: 'Skylars Kiss', // Talents
-  450681: 'Hellforged Axe', // Cards
-  453300: '- MISSING NAME -',
-  456818: 'Aspect of Wisdom', // Cards
-  458928: 'Dark Inquiry', // Cards
-  472276: '- MISSING NAME -',
-  473821: '- MISSING NAME -',
-  479204: 'Fire Resistance', // Talents
-  480987: 'Hide Armor', // Talents
-  494644: '- MISSING NAME -',
-  495673: 'Grounding Weapon', // Talents
-  519176: '- MISSING NAME -',
-  538635: "Rogue's Locket", // Cards
-  551990: 'Alchemist', // Talents
-  552273: 'Perception', // Talents
-  557834: 'Panacea', // Cards
-  561066: 'Peace of Mind', // Talents
-  561258: '- MISSING NAME -',
-  561648: 'Towershield', // Cards
-  564994: 'Scythe', // Cards
-  574923: 'Diamond Mind', // Talents
-  576016: 'Raven Familiar', // Cards
-  586945: 'Zealous', // Talents
-  599544: 'Aspect of Courage', // Cards
-  604258: 'Gluttony', // Cards
-  615389: 'The Dawnbringer', // Cards
-  636964: 'Abyssal Resistance', // Talents
-  637350: 'Faerytales', // Talents
-  638016: "Hunter's Presence", // Cards
-  661888: '- MISSING NAME -',
-  662616: 'Scimitar', // Cards
-  675540: 'Steel Longsword', // Cards
-  690796: '- MISSING NAME -',
-  699673: 'Mobility', // Talents
-  701906: 'First Aid Kit', // Cards
-  706272: 'Sanctifier', // Talents
-  726166: 'Sloth', // Cards
-  728501: 'Goldstrike', // Cards
-  730258: 'Infernal Racket', // Cards
-  734590: '- MISSING NAME -',
-  757746: 'Thundering Weapon', // Talents
-  759951: '- MISSING NAME -',
-  768659: 'Blessing of Aethos', // Talents
-  780353: 'Spirit Bond', // Cards
-  781951: 'Hellforged Weapons', // Talents
-  783723: "Arcanist's Locket", // Cards
-  784765: 'Conviction', // Cards
-  793943: 'Forbidden Knowledge', // Talents
-  795845: 'Maki Tagdahar', // Cards
-  810652: 'Holy Water', // Cards
-  816971: 'Sharpening Stone', // Cards
-  821566: 'Arcane Ward', // Cards
-  823805: 'Aspect of Compassion', // Cards
-  830363: 'Envy', // Cards
-  837633: '- MISSING NAME -',
-  855931: 'Potion of Visions', // Cards
-  870678: 'Watched', // Talents
-  871945: 'Idolize', // Cards
-  872166: '- MISSING NAME -',
-  898850: 'Prismatic Shard', // Cards
-  908268: '- MISSING NAME -',
-  917541: 'Surge of Dexterity', // Cards
-  924616: 'Pious', // Talents
-  943265: 'Balors Blessing', // Talents
-  946224: 'Contained Anima', // Cards
-  954056: '- MISSING NAME -',
-  961205: 'Hallowed Ground', // Cards
-  964263: 'Vampirism', // Cards
-  972587: 'Stormscarred', // Talents
-  978149: 'Dark Mirror Vial', // Cards
-  983780: '- MISSING NAME -',
-  986478: '- MISSING NAME -',
-  988854: '- MISSING NAME -',
-  990096: '- MISSING NAME -',
+const CARDS_API = 'https://blightbane.io/api/cards-codex?search=&rarity=&category=&type=&banner=&exp='
+const TALENTS_API = 'https://blightbane.io/api/cards-codex?search=&rarity=&category=10&type=&banner=&exp='
+
+function fetchJson(url) {
+  return new Promise((resolve, reject) => {
+    https.get(url, (res) => {
+      let data = ''
+      res.on('data', (chunk) => { data += chunk })
+      res.on('end', () => {
+        try {
+          resolve(JSON.parse(data))
+        } catch (e) {
+          reject(e)
+        }
+      })
+    }).on('error', reject)
+  })
 }
 
+async function buildIdToNameMapping() {
+  const [cardsRes, talentsRes] = await Promise.all([
+    fetchJson(CARDS_API),
+    fetchJson(TALENTS_API),
+  ])
+  const mapping = {}
+  for (const item of [...(cardsRes.cards || []), ...(talentsRes.cards || [])]) {
+    if (item.id != null && item.name != null) {
+      mapping[item.id] = item.name
+    }
+  }
+  return mapping
+}
+
+const missingName = (id) => `MISSING NAME [id: ${id}]`
 
 const DUMP_FILE = path.join(__dirname, './data/dump.txt')
 const OUTPUT_FILE = path.join(__dirname, './data/events.json')
@@ -150,7 +48,13 @@ const OUTPUT_FILE = path.join(__dirname, './data/events.json')
 // All event-related types
 const EVENT_TYPES = [0, 1, 2, 3, 4, 5, 8, 10, 99]
 
-function extractEvents() {
+async function extractEvents() {
+  console.log('Fetching card and talent data from Blightbane API...')
+  const idToName = await buildIdToNameMapping()
+  console.log(`Loaded ${Object.keys(idToName).length} id->name mappings`)
+
+  const unresolvedIds = new Set()
+
   console.log('Reading dump file...')
   const content = fs.readFileSync(DUMP_FILE, 'utf-8')
 
@@ -237,14 +141,18 @@ function extractEvents() {
     // Replace card/talent IDs with names in the related.cards and related.talents arrays
     if (selectedEvent.related) {
       if (selectedEvent.related.cards && Array.isArray(selectedEvent.related.cards)) {
-        selectedEvent.related.cards = selectedEvent.related.cards.map((id) =>
-          CARD_ID_TO_NAME[id] ? CARD_ID_TO_NAME[id] : id
-        )
+        selectedEvent.related.cards = selectedEvent.related.cards.map((id) => {
+          const name = idToName[id]
+          if (!name) unresolvedIds.add(Number(id))
+          return name || missingName(id)
+        })
       }
       if (selectedEvent.related.talents && Array.isArray(selectedEvent.related.talents)) {
-        selectedEvent.related.talents = selectedEvent.related.talents.map((id) =>
-          CARD_ID_TO_NAME[id] ? CARD_ID_TO_NAME[id] : id
-        )
+        selectedEvent.related.talents = selectedEvent.related.talents.map((id) => {
+          const name = idToName[id]
+          if (!name) unresolvedIds.add(Number(id))
+          return name || missingName(id)
+        })
       }
     }
 
@@ -253,8 +161,9 @@ function extractEvents() {
       /(ADDCARD|REMOVECARD|IMBUECARD|ADDTALENT|REMOVETALENT):(\d+)/g,
       (match, command, id) => {
         const numId = parseInt(id, 10)
-        const name = CARD_ID_TO_NAME[numId]
-        return name ? `${command}:${name}` : match
+        const name = idToName[numId]
+        if (!name) unresolvedIds.add(numId)
+        return name ? `${command}:${name}` : `${command}:${missingName(numId)}`
       }
     )
 
@@ -264,6 +173,12 @@ function extractEvents() {
   console.log(`Unique events after deduplication: ${uniqueEvents.length}`)
   console.log(`Duplicate events removed: ${duplicateCount}`)
   console.log(`Events filtered out (no text content): ${emptyContentCount}`)
+
+  const unresolvedList = [...unresolvedIds].sort((a, b) => a - b)
+  console.log(`\nUnresolved card/talent IDs (not in API mapping): ${unresolvedList.length}`)
+  if (unresolvedList.length > 0) {
+    console.log(`  IDs: ${unresolvedList.join(', ')}`)
+  }
 
   // Sort by type first, then by name for better organization
   uniqueEvents.sort((a, b) => {
@@ -310,9 +225,11 @@ function extractEvents() {
 }
 
 // Run the extraction
-try {
-  extractEvents()
-} catch (error) {
-  console.error('Error:', error.message)
-  process.exit(1)
-}
+;(async () => {
+  try {
+    await extractEvents()
+  } catch (error) {
+    console.error('Error:', error.message)
+    process.exit(1)
+  }
+})()
