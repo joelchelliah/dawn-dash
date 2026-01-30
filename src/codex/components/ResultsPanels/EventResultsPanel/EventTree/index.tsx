@@ -48,6 +48,7 @@ import {
   LevelOfDetail,
 } from '@/codex/constants/eventSearchValues'
 import { useEventImageSrc } from '@/codex/hooks/useEventImageSrc'
+import { invalidateTextMeasurementCache } from '@/codex/utils/canvasTextMeasurement'
 import { wrapEventText } from '@/codex/utils/eventTextWidthEstimation'
 import { UseAllEventSearchFilters } from '@/codex/hooks/useSearchFilters/useAllEventSearchFilters'
 
@@ -90,6 +91,9 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
     const showLoopingIndicator = loopingPathMode === LoopingPathMode.INDICATOR
     const isCompact = levelOfDetail === LevelOfDetail.COMPACT
     const maxDisplayLines = TEXT.MAX_DISPLAY_LINES_BY_LEVEL_OF_DETAIL[levelOfDetail]
+
+    // In cover mode, ensure text measurement uses current document font size (mobile/accessibility)
+    if (zoomLevel === ZoomLevel.COVER) invalidateTextMeasurementCache()
 
     // Clear previous visualization
     select(svgRef.current).selectAll('*').remove()
