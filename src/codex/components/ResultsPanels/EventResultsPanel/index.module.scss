@@ -15,6 +15,19 @@
     flex-direction: column;
     margin-top: 1rem;
   }
+
+  &__loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+    margin: 0 1rem;
+
+    &-dots {
+      font-size: font-size('xs');
+      flex-shrink: 0;
+    }
+  }
 }
 
 .info-message {

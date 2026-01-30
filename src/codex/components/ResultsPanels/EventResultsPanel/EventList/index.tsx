@@ -1,11 +1,7 @@
-import { useState } from 'react'
-
 import Image from '@/shared/components/Image'
 import { createCx } from '@/shared/utils/classnames'
 import { CharacterClass } from '@/shared/types/characterClass'
 import { useBreakpoint } from '@/shared/hooks/useBreakpoint'
-import LoadingDots from '@/shared/components/LoadingDots'
-import { ClassColorVariant, getClassColor } from '@/shared/utils/classColors'
 
 import { Event } from '@/codex/types/events'
 import { useEventImageSrc } from '@/codex/hooks/useEventImageSrc'
@@ -34,7 +30,6 @@ function EventList({
   const selectedClass = CharacterClass.Sunforge
   const noEventsFound = events.length === 0
   const { isMobile } = useBreakpoint()
-  const [loadingEventName, setLoadingEventName] = useState<string | null>(null)
 
   const renderEventCountText = () => {
     if (filterText.trim().length > 0) {
@@ -103,8 +98,6 @@ function EventList({
                 event={event}
                 allEvents={allEvents}
                 onEventSelect={onEventSelect}
-                isLoading={loadingEventName === event.name}
-                setLoadingEventName={setLoadingEventName}
               />
             ))}
           </div>
@@ -118,45 +111,23 @@ interface EventListItemProps {
   event: Event
   allEvents: Event[]
   onEventSelect: (eventIndex: number) => void
-  isLoading: boolean
-  setLoadingEventName: (name: string | null) => void
 }
 
-function EventListItem({
-  event,
-  allEvents,
-  onEventSelect,
-  isLoading,
-  setLoadingEventName,
-}: EventListItemProps): JSX.Element {
+function EventListItem({ event, allEvents, onEventSelect }: EventListItemProps): JSX.Element {
   const { eventImageSrc, onImageSrcError } = useEventImageSrc(event.artwork)
-  const loadingColor = getClassColor(CharacterClass.Rogue, ClassColorVariant.Lighter)
 
   const handleClick = () => {
-    // Set loading state immediately on click
-    setLoadingEventName(event.name)
-
-    // Try to find by reference first (fastest)
     let eventIndex = allEvents.indexOf(event)
-
-    // Fallback: find by name if reference doesn't match (can happen with filtered/sorted events)
     if (eventIndex === -1) {
       eventIndex = allEvents.findIndex((e) => e.name === event.name)
     }
-
-    // Only call handler if we found a valid index
     if (eventIndex >= 0) {
       onEventSelect(eventIndex)
     }
   }
 
   return (
-    <div
-      className={cx('event-list-item', {
-        'event-list-item--loading': isLoading,
-      })}
-      onClick={handleClick}
-    >
+    <div className={cx('event-list-item')} onClick={handleClick}>
       <Image
         src={eventImageSrc}
         alt={event.name}
@@ -165,17 +136,13 @@ function EventListItem({
         className={cx('event-list-item__artwork')}
         onError={onImageSrcError}
       />
-      {isLoading ? (
-        <LoadingDots color={loadingColor} className={cx('loading-dots')} />
-      ) : (
-        <span
-          className={cx('event-list-item__name', {
-            'event-list-item__name--long': event.name.length > 20,
-          })}
-        >
-          {event.name}
-        </span>
-      )}
+      <span
+        className={cx('event-list-item__name', {
+          'event-list-item__name--long': event.name.length > 20,
+        })}
+      >
+        {event.name}
+      </span>
     </div>
   )
 }

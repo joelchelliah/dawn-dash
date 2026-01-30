@@ -2,7 +2,10 @@ import { createCx } from '@/shared/utils/classnames'
 import GradientLink from '@/shared/components/GradientLink'
 import GradientDivider from '@/shared/components/GradientDivider'
 import Image from '@/shared/components/Image'
+import LoadingDots from '@/shared/components/LoadingDots'
 import { BolgarImageUrl } from '@/shared/utils/imageUrls'
+import { CharacterClass } from '@/shared/types/characterClass'
+import { ClassColorVariant, getClassColor } from '@/shared/utils/classColors'
 
 import { Event } from '@/codex/types/events'
 import { ALL_EVENTS_INDEX } from '@/codex/constants/eventSearchValues'
@@ -19,6 +22,7 @@ const cx = createCx(styles)
 interface EventResultsPanelProps {
   selectedEvent: Event | null
   selectedEventIndex: number
+  pendingEventIndex: number | null
   allEvents: Event[]
   filteredEvents: Event[]
   useSearchFilters: UseAllEventSearchFilters
@@ -28,6 +32,7 @@ interface EventResultsPanelProps {
 const EventResultsPanel = ({
   selectedEvent,
   selectedEventIndex,
+  pendingEventIndex,
   allEvents,
   filteredEvents,
   useSearchFilters,
@@ -38,6 +43,8 @@ const EventResultsPanel = ({
 
   const { filterText, setFilterText } = useSearchFilters
   const showEventList = selectedEventIndex === ALL_EVENTS_INDEX || filteredEvents.length === 0
+  const isNavigating = pendingEventIndex !== null && pendingEventIndex !== selectedEventIndex
+  const loadingColor = getClassColor(CharacterClass.Rogue, ClassColorVariant.Dark)
 
   const temporarilyBlacklistedEvents = [
     // 'Frozen Heart',
@@ -105,7 +112,11 @@ const EventResultsPanel = ({
       </div>
 
       <div className={cx('results-panel__container')}>
-        {showEventList ? (
+        {isNavigating ? (
+          <div className={cx('results-panel__loading')}>
+            <LoadingDots color={loadingColor} className={cx('results-panel__loading-dots')} />
+          </div>
+        ) : showEventList ? (
           <div className={cx('results-panel__event-list')}>
             <EventList
               events={filteredEvents}
