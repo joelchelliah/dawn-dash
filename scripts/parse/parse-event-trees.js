@@ -57,7 +57,7 @@ function detectRandomVariables(inkJsonString) {
       if (Array.isArray(node)) {
         // Look for pattern: ["ev", minValue, maxValue, "rnd", "/ev", {"VAR=": "varName", ...}]
         // This represents: VAR = random(min, max)
-        for (let i = 0; i < node.length - 3; i++) {
+        for (let i = 0; i <= node.length - 6; i++) {
           if (
             node[i] === 'ev' &&
             typeof node[i + 1] === 'number' &&
@@ -102,17 +102,6 @@ function detectRandomVariables(inkJsonString) {
 }
 
 /**
- * Replace the display value with RANDOM_KEYWORD in the line when it appears in context for the command.
- * Only used when we've already determined this value is from a random range (fixed effects never call this).
- * Only GOLD appears in display text; DAMAGE/MAXHEALTH/HEALTH/HEAL are effects-only.
- */
-function replaceDisplayValueWithRandom(line, valueStr, command) {
-  if (command.toUpperCase() !== 'GOLD') return line
-  const escaped = valueStr.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-  return line.replace(new RegExp(`\\b${escaped}\\s*(gold)\\b`, 'gi'), `${RANDOM_KEYWORD} $1`)
-}
-
-/**
  * Detect knot definitions in Ink JSON root[2]
  * Knots are named sections of story that can be called dynamically by game commands
  * Returns a map of knot names to their content arrays
@@ -141,7 +130,7 @@ function detectKnotDefinitions(inkJson) {
  * Parse knot content directly from Ink JSON structure
  * Returns a node representing the knot's outcome
  */
-function parseKnotContentManually(knotBody) {
+function parseKnotContentManually(knotBody, randomVars = new Map()) {
   if (!Array.isArray(knotBody)) return null
 
   let text = ''
@@ -170,11 +159,24 @@ function parseKnotContentManually(knotBody) {
   // Use existing extractEffects to parse the text
   const { effects: extractedEffects, cleanedText } = extractEffects(text)
 
+  // Normalize GOLD effect to "GOLD: random [min - max]" when value is in a random range (cleanUpRandomValues post-pass will fix text)
+  let effects = extractedEffects
+  if (randomVars.size > 0 && extractedEffects.length > 0) {
+    effects = extractedEffects.map((effect) => {
+      const goldMatch = String(effect).match(/^GOLD:\s*(\d+)$/i)
+      if (!goldMatch) return effect
+      const value = parseInt(goldMatch[1], 10)
+      const ranges = randomVars.get('gold')
+      const r = ranges && ranges.find((range) => value >= range.min && value <= range.max)
+      return r ? `GOLD: random [${r.min} - ${r.max}]` : effect
+    })
+  }
+
   return createNode({
     id: generateNodeId(),
     text: cleanedText || ``,
     type: 'end',
-    effects: extractedEffects.length > 0 ? extractedEffects : undefined,
+    effects: effects.length > 0 ? effects : undefined,
   })
 }
 
@@ -547,7 +549,6 @@ function buildTreeFromStory(
   // We need this before loop detection so we can check for text-based loops
   let text = ''
   let continueCount = 0
-  let pendingDisplayReplacements = [] // When command is on its own line, the number may be on the NEXT line
 
   try {
     // Continue the story until we hit choices or the end
@@ -555,85 +556,44 @@ function buildTreeFromStory(
     while (story.canContinue) {
       let line = story.Continue()
       continueCount++
-      // Apply pending replacements (from previous line that was command-only) to this line
-      if (pendingDisplayReplacements.length > 0 && line && line.trim()) {
-        for (const { valueStr, command } of pendingDisplayReplacements) {
-          line = replaceDisplayValueWithRandom(line, valueStr, command)
-        }
-        pendingDisplayReplacements = []
-      }
       if (line && line.trim()) {
-        // Check if this line contains any random variable references
-        // Look for common effect commands that might have random values
-        if (randomVars.size > 0 && />>>>(GOLD|DAMAGE|HEALTH|MAXHEALTH):\d+/.test(line)) {
+        // Normalize random GOLD commands in the line to "GOLD: random [min - max]"
+        // so extractEffects produces the right effect; cleanUpRandomValues post-pass fixes "N gold" in text
+        if (randomVars.size > 0 && line.includes('>>>>') && /GOLD:\d+/.test(line)) {
           let modifiedLine = line
-          let foundRandom = false
-          const replacedInLine = [] // { valueStr, command } for each random we replaced (for updating display text)
-
-          // Match any command with a numeric value
-          const commandMatches = line.match(/>>>>(GOLD|DAMAGE|HEALTH|MAXHEALTH):(\d+)/g)
-          if (commandMatches) {
-            for (const match of commandMatches) {
-              const [, command, valueStr] = match.match(/>>>>(GOLD|DAMAGE|HEALTH|MAXHEALTH):(\d+)/)
-              const value = parseInt(valueStr)
-
-              // Map command names to likely variable names in Ink
-              const likelyVarName = command.toLowerCase()
-
-              if (randomVars.has(likelyVarName)) {
-                const ranges = randomVars.get(likelyVarName)
-                const matchingRange = ranges.find((r) => value >= r.min && value <= r.max)
-
-                if (matchingRange) {
-                  const randomNotation = `random [${matchingRange.min} - ${matchingRange.max}]`
-                  modifiedLine = modifiedLine.replace(
-                    new RegExp(`>>>>${command}:${value}`, 'g'),
-                    `>>>>${command}:${randomNotation}`
-                  )
-                  // Replace display number on same line if present (e.g. "You find 17 gold! >>>>GOLD:17")
-                  modifiedLine = replaceDisplayValueWithRandom(modifiedLine, valueStr, command)
-                  foundRandom = true
-                  replacedInLine.push({ valueStr, command })
-                  if (eventName === DEBUG_EVENT_NAME) {
-                    console.log(
-                      `  🎲 Event "${eventName}": Detected random ${command} value ${value} (range: ${matchingRange.min}-${matchingRange.max})`
-                    )
-                  }
-                }
+          // Match >>>>GOLD:digits (e.g. ">>>>GOLD:29" or ">>>>GOLD:29;NEXTSTATUS:...")
+          const atStartMatches = line.match(/>>>>(GOLD):(\d+)/g)
+          if (atStartMatches) {
+            for (const fullMatch of atStartMatches) {
+              const [, command, valueStr] = fullMatch.match(/>>>>(GOLD):(\d+)/)
+              const value = parseInt(valueStr, 10)
+              const ranges = randomVars.get('gold')
+              const r = ranges && ranges.find((range) => value >= range.min && value <= range.max)
+              if (r) {
+                modifiedLine = modifiedLine.replace(
+                  new RegExp(`>>>>${command}:${value}\\b`, 'g'),
+                  `>>>>${command}:random [${r.min} - ${r.max}]`
+                )
               }
             }
-
-            if (foundRandom) {
-              // When command was on its own line, the display number may be on the previous OR next line
-              const withoutCommand = line.replace(/>>>>GOLD:[^\s;]+/g, '').trim()
-              const isCommandOnlyLine = !withoutCommand
-              if (isCommandOnlyLine && replacedInLine.length > 0) {
-                // Try replacing in the previous line (number might be there)
-                if (text) {
-                  const lastNewline = text.lastIndexOf('\n')
-                  const lastLine = lastNewline >= 0 ? text.slice(lastNewline + 1) : text
-                  const prefix = lastNewline >= 0 ? text.slice(0, lastNewline + 1) : ''
-                  let updatedLastLine = lastLine
-                  for (const { valueStr, command } of replacedInLine) {
-                    updatedLastLine = replaceDisplayValueWithRandom(
-                      updatedLastLine,
-                      valueStr,
-                      command
-                    )
-                  }
-                  if (updatedLastLine !== lastLine) {
-                    text = prefix + updatedLastLine
-                  } else {
-                    // Number is likely on the next line (e.g. Small Fortune: ">>>>GOLD:27" then "You find 27 gold!")
-                    pendingDisplayReplacements = [...replacedInLine]
-                  }
-                } else {
-                  pendingDisplayReplacements = [...replacedInLine]
-                }
-              }
-              text += (text ? '\n' : '') + modifiedLine.trim()
-              continue
+          }
+          // Match GOLD:digits anywhere (e.g. ">>>>QUESTFLAG:metassassin;GOLD:47")
+          const anywhereMatches = [...line.matchAll(/GOLD:(\d+)/g)]
+          for (const match of anywhereMatches) {
+            const valueStr = match[1]
+            const value = parseInt(valueStr, 10)
+            const ranges = randomVars.get('gold')
+            const r = ranges && ranges.find((range) => value >= range.min && value <= range.max)
+            if (r) {
+              modifiedLine = modifiedLine.replace(
+                new RegExp(`GOLD:${value}\\b`, 'g'),
+                `GOLD:random [${r.min} - ${r.max}]`
+              )
             }
+          }
+          if (modifiedLine !== line) {
+            text += (text ? '\n' : '') + modifiedLine.trim()
+            continue
           }
         }
         text += (text ? '\n' : '') + line.trim()
@@ -777,7 +737,7 @@ function buildTreeFromStory(
 
       const knotBranches = []
       knots.forEach((knotBody, knotName) => {
-        const knotNode = parseKnotContentManually(knotBody)
+        const knotNode = parseKnotContentManually(knotBody, randomVars)
         if (knotNode) {
           // Wrap in a result node to show it's a conditional branch of the special node
           knotBranches.push(
@@ -1768,6 +1728,45 @@ function findInvalidRefsInTree(rootNode, nodeMap) {
 }
 
 /**
+ * Post-pass: for any node whose effects contain "GOLD: random [min - max]",
+ * replace numeric gold in node.text (e.g. "47 gold") with «random» gold.
+ * Single place for display cleanup; works regardless of line order during parse.
+ */
+function cleanUpRandomValues(eventTrees) {
+  const goldRandomEffectRe = /^GOLD:\s*random\s*\[\s*(\d+)\s*-\s*(\d+)\s*\]$/i
+  const goldInTextRe = /\b(\d+)\s*(gold)\b/gi
+  let updated = 0
+
+  function visit(node) {
+    if (!node) return
+    if (node.effects && Array.isArray(node.effects) && node.text) {
+      for (const effect of node.effects) {
+        const m = String(effect).match(goldRandomEffectRe)
+        if (m) {
+          const min = parseInt(m[1], 10)
+          const max = parseInt(m[2], 10)
+          const newText = node.text.replace(goldInTextRe, (_, numStr, gold) => {
+            const n = parseInt(numStr, 10)
+            return n >= min && n <= max ? `${RANDOM_KEYWORD} ${gold}` : `${numStr} ${gold}`
+          })
+          if (newText !== node.text) {
+            node.text = newText
+            updated++
+          }
+          break
+        }
+      }
+    }
+    if (node.children) node.children.forEach(visit)
+  }
+
+  eventTrees.forEach((tree) => tree.rootNode && visit(tree.rootNode))
+  if (updated > 0) {
+    console.log(`\n🎲 Cleaned up random gold in text: ${updated} node(s)`)
+  }
+}
+
+/**
  * Check for invalid refs across all event trees and log results
  */
 function checkInvalidRefs(eventTrees) {
@@ -2210,6 +2209,17 @@ function processEvents() {
     debugCheckEventPipelineState(eventTrees, 'after separateChoicesFromEffects')
   }
 
+  // When choice's only child has ADDKEYWORD: random [list], set choiceLabel to "Add «random»"
+  console.log('\n🏷️  Normalizing ADDKEYWORD random choice labels...')
+  let addKeywordRandomLabelsUpdated = 0
+  eventTrees.forEach((tree) => {
+    if (tree.rootNode) {
+      const stats = normalizeAddKeywordRandomChoiceLabels(tree.rootNode)
+      addKeywordRandomLabelsUpdated += stats.updated
+    }
+  })
+  console.log(`  Updated ${addKeywordRandomLabelsUpdated} choice label(s) to "Add «random»"`)
+
   // Calculate stats before deduplication
   const nodesBeforeDedupe = eventTrees.reduce((sum, tree) => sum + countNodes(tree.rootNode), 0)
 
@@ -2322,6 +2332,10 @@ function processEvents() {
 
   if (OPTIMIZATION_PASS_CONFIG.CHECK_INVALID_REFS_ENABLED) {
     checkInvalidRefs(eventTrees)
+  }
+
+  if (OPTIMIZATION_PASS_CONFIG.CLEAN_UP_RANDOM_VALUES_ENABLED) {
+    cleanUpRandomValues(eventTrees)
   }
 
   // Calculate final stats
@@ -2869,6 +2883,34 @@ function separateChoicesFromEffects(node) {
   }
 
   return separatedCount
+}
+
+const ADDKEYWORD_RANDOM_LIST_RE = /ADDKEYWORD:\s*random\s*\[/
+
+/**
+ * When a choice node's only child has effect "ADDKEYWORD: random [A, B, C, ...]",
+ * set the choice's label to "Add «random»" (the label was one specific keyword from the list).
+ * Runs after separateChoicesFromEffects so structure is choice -> outcome node with effects.
+ */
+function normalizeAddKeywordRandomChoiceLabels(node, stats = { updated: 0 }) {
+  if (!node) return stats
+  if (node.type === 'choice' && node.children?.length === 1) {
+    const child = node.children[0]
+    const effects = child.effects
+    if (
+      Array.isArray(effects) &&
+      effects.some((e) => typeof e === 'string' && ADDKEYWORD_RANDOM_LIST_RE.test(e))
+    ) {
+      node.choiceLabel = 'Add «random»'
+      stats.updated++
+    }
+  }
+  if (node.children) {
+    for (const child of node.children) {
+      normalizeAddKeywordRandomChoiceLabels(child, stats)
+    }
+  }
+  return stats
 }
 
 /**
