@@ -1,7 +1,8 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 
 import { createCx } from '@/shared/utils/classnames'
 import Select from '@/shared/components/Select'
+import LoadingDots from '@/shared/components/LoadingDots'
 import { CharacterClass } from '@/shared/types/characterClass'
 import Button from '@/shared/components/Buttons/Button'
 import GradientButton from '@/shared/components/Buttons/GradientButton'
@@ -90,6 +91,8 @@ const EventSearchPanel = ({
 
   const showStickyZoom = useStickyZoom()
   const { isMobile } = useBreakpoint()
+  const [isReloadingMap, setIsReloadingMap] = useState(false)
+  const loadingColor = getClassColor(CharacterClass.Rogue, ClassColorVariant.Dark)
 
   const getAllEventsLabel = () => {
     if (filteredEvents.length === 0) {
@@ -147,6 +150,30 @@ const EventSearchPanel = ({
     resetFilters()
   }
 
+  const handleRedrawMap = () => {
+    setIsReloadingMap(true)
+    window.location.reload()
+  }
+
+  const renderRedrawMapMessage = () => {
+    if (isReloadingMap) {
+      return <LoadingDots color={loadingColor} className={cx('info-message-loading')} />
+    }
+    return (
+      <div className={cx('info-message')}>
+        <span className={cx('info-message__emoji')}>ℹ️</span>
+        <span className={cx('info-message__text')}>
+          Did something go wrong?{' '}
+          <GradientLink
+            text="Redraw the map"
+            onClick={handleRedrawMap}
+            className={cx('info-message__link')}
+          />
+        </span>
+      </div>
+    )
+  }
+
   return (
     <div className={cx('search-panel')}>
       <PanelHeader type="Search" />
@@ -197,6 +224,10 @@ const EventSearchPanel = ({
         </div>
       </div>
 
+      {selectedEventIndex !== ALL_EVENTS_INDEX && !showAdvancedOptions && (
+        <div className={cx('info-message-wrapper')}>{renderRedrawMapMessage()}</div>
+      )}
+
       {showAdvancedOptions && (
         <div className={cx('advanced-options')}>
           <div className={cx('advanced-options__content')}>
@@ -232,20 +263,11 @@ const EventSearchPanel = ({
                 />
               </div>
             )}
-            <div className={cx('control-wrapper', 'control-wrapper--info-message')}>
-              <div className={cx('info-message')}>
-                <span className={cx('info-message__emoji')}>ℹ️</span>
-                <span className={cx('info-message__text')}>
-                  If you notice any hiccups, try{' '}
-                  <GradientLink
-                    text="redrawing the map"
-                    onClick={() => window.location.reload()}
-                    className={cx('info-message__link')}
-                  />
-                  .
-                </span>
+            {selectedEventIndex !== ALL_EVENTS_INDEX && (
+              <div className={cx('control-wrapper', 'control-wrapper--info-message')}>
+                {renderRedrawMapMessage()}
               </div>
-            </div>
+            )}
           </div>
         </div>
       )}

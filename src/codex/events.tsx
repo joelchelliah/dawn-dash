@@ -34,6 +34,7 @@ function Events(): JSX.Element {
   const { showScrollToTopButton, scrollToTop } = useEventsScrollToTop()
   const [selectedEventIndex, setSelectedEventIndex] = useState(ALL_EVENTS_INDEX)
   const [showInvalidNotification, setShowInvalidNotification] = useState(false)
+  const [pendingEventIndex, setPendingEventIndex] = useState<number | null>(null)
 
   const useSearchFiltersHook = useAllEventSearchFilters()
   const { isInvalidEvent, eventNameInUrl, selectEventAndUpdateUrl } = useEventUrlParam(
@@ -47,6 +48,17 @@ function Events(): JSX.Element {
 
   const selectedEvent =
     selectedEventIndex === ALL_EVENTS_INDEX ? null : eventTrees[selectedEventIndex]
+
+  const handleEventChange = (index: number) => {
+    setPendingEventIndex(index)
+    selectEventAndUpdateUrl(index)
+  }
+
+  useEffect(() => {
+    if (pendingEventIndex !== null && selectedEventIndex === pendingEventIndex) {
+      setPendingEventIndex(null)
+    }
+  }, [pendingEventIndex, selectedEventIndex])
 
   useEffect(() => {
     if (isInvalidEvent) {
@@ -70,17 +82,18 @@ function Events(): JSX.Element {
       <div className={cx('content')}>
         <EventSearchPanel
           selectedEventIndex={selectedEventIndex}
-          onEventChange={selectEventAndUpdateUrl}
+          onEventChange={handleEventChange}
           filteredEvents={filteredEvents}
           useSearchFilters={useSearchFiltersHook}
         />
         <EventResultsPanel
           selectedEvent={selectedEvent}
           selectedEventIndex={selectedEventIndex}
+          pendingEventIndex={pendingEventIndex}
           allEvents={eventTrees}
           filteredEvents={filteredEvents}
           useSearchFilters={useSearchFiltersHook}
-          onEventChange={selectEventAndUpdateUrl}
+          onEventChange={handleEventChange}
         />
       </div>
 

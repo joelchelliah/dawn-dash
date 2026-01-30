@@ -92,7 +92,7 @@ export function drawDialogueBadge(params: DrawBadgesParam) {
 }
 
 export function drawEndBadge(params: DrawBadgesParam) {
-  drawNodeTypeBadge({ ...params, nodeType: 'end', emoji: '🏁' })
+  drawNodeTypeBadge({ ...params, nodeType: 'end', emoji: '⛳️' })
 }
 
 export function drawCombatBadge(params: DrawBadgesParam) {

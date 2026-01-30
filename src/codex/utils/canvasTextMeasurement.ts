@@ -2,65 +2,34 @@
  * Canvas-based text measurement utilities for accurate width calculations.
  *
  * This approach uses the browser's Canvas API to get pixel-perfect text measurements
- * that match the actual rendered font metrics, eliminating the need for estimated
- * character width constants.
+ * that match the actual rendered font metrics. We sample the document's computed
+ * font size (from rem) so measurements stay correct when root font size differs
+ * (e.g. mobile "cover" zoom, iOS accessibility, or display zoom).
  */
 
 /**
  * Font configuration matching the SCSS font-size definitions.
- *
- * Usage-based naming:
- * - EVENT TREE:
- *    - default: Regular text (dialogue, effects, requirements, etc.) - xxs: 12px, normal weight
- *    - choice: Choice labels - xs: 14px, semi-bold (600 weight)
+ * Size fallbacks are used when computed sampling is unavailable (SSR or probe failure).
  */
 const FONT_CONFIGS = {
-  default: {
-    size: 12, // font-size('xxs') = 0.75rem
-    weight: 'normal',
-  },
-  choice: {
-    size: 14, // font-size('xs') = 0.875rem
-    weight: '600',
-  },
-  special: {
-    size: 14,
-    weight: '600',
-  },
-  indicatorHeader: {
-    size: 14,
-    weight: '600',
-  },
+  // xxs
+  default: { rem: '0.75rem', weight: 'normal', fallbackPx: 12 },
+  // xs
+  choice: { rem: '0.875rem', weight: '600', fallbackPx: 14 },
+  special: { rem: '0.875rem', weight: '600', fallbackPx: 14 },
+  indicatorHeader: { rem: '0.875rem', weight: '600', fallbackPx: 14 },
 } as const
 
 export type FontConfig = keyof typeof FONT_CONFIGS
 
-/**
- * Font family matching what's used in the application.
- * This should match your CSS font stack for event tree text.
- */
 const FONT_FAMILY =
   '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
 
-/**
- * Singleton canvas context for text measurements.
- * Created lazily on first use and reused for all subsequent measurements.
- */
 let canvasContext: CanvasRenderingContext2D | null = null
 
-/**
- * Gets or creates the singleton canvas context for text measurements.
- */
 const getCanvasContext = (): CanvasRenderingContext2D | null => {
-  if (canvasContext) {
-    return canvasContext
-  }
-
-  // Check if we're in a browser environment
-  if (typeof document === 'undefined') {
-    return null
-  }
-
+  if (canvasContext) return canvasContext
+  if (typeof document === 'undefined') return null
   try {
     const canvas = document.createElement('canvas')
     canvasContext = canvas.getContext('2d')
@@ -72,22 +41,75 @@ const getCanvasContext = (): CanvasRenderingContext2D | null => {
   }
 }
 
+/** Cached computed font sizes (px) per font type. Invalidated on resize. */
+let computedSizeCache: Partial<Record<FontConfig, number>> = {}
+let lastResizeKey = 0
+
+const getResizeKey = (): number =>
+  typeof window === 'undefined' ? 0 : window.innerWidth + window.innerHeight * 1e6
+
+/**
+ * Invalidates the computed font-size cache. Call when zoom level or layout changes
+ * (e.g. switching to "cover" on mobile) so the next measurement uses current document state.
+ */
+export const invalidateTextMeasurementCache = (): void => {
+  lastResizeKey = 0
+  computedSizeCache = {}
+}
+
+/**
+ * Sample the document's computed font size for a font config.
+ * SVG text uses rem (0.75rem, 0.875rem); on mobile/accessibility the root can differ,
+ * so we must measure with the same computed px the SVG actually gets.
+ */
+const getComputedFontSizePx = (fontType: FontConfig): number => {
+  const resizeKey = getResizeKey()
+  if (resizeKey !== lastResizeKey) {
+    lastResizeKey = resizeKey
+    computedSizeCache = {}
+  }
+  const cached = computedSizeCache[fontType]
+  if (cached !== undefined) return cached
+
+  if (typeof document === 'undefined' || !document.body) return FONT_CONFIGS[fontType].fallbackPx
+
+  const config = FONT_CONFIGS[fontType]
+  const probe = document.createElement('div')
+  probe.setAttribute('aria-hidden', 'true')
+  Object.assign(probe.style, {
+    position: 'absolute',
+    left: '-9999px',
+    visibility: 'hidden',
+    fontFamily: FONT_FAMILY,
+    fontSize: config.rem,
+    fontWeight: config.weight,
+  })
+  document.body.appendChild(probe)
+  try {
+    const computed = getComputedStyle(probe).fontSize
+    const px = parseFloat(computed)
+    const value = Number.isFinite(px) ? px : config.fallbackPx
+    computedSizeCache[fontType] = value
+    return value
+  } finally {
+    document.body.removeChild(probe)
+  }
+}
+
 /**
  * Measures the pixel width of text using Canvas API.
- * This provides exact measurements that match browser rendering.
+ * Uses the document's computed font size so it matches SVG text (rem-based) on all viewports.
  */
 export const measureTextWidth = (text: string, fontType: FontConfig): number | null => {
   const ctx = getCanvasContext()
-  if (!ctx) {
-    return null
-  }
+  if (!ctx) return null
 
   const config = FONT_CONFIGS[fontType]
-  ctx.font = `${config.weight} ${config.size}px ${FONT_FAMILY}`
+  const sizePx = getComputedFontSizePx(fontType)
+  ctx.font = `${config.weight} ${sizePx}px ${FONT_FAMILY}`
 
   try {
-    const metrics = ctx.measureText(text)
-    return metrics.width
+    return ctx.measureText(text).width
   } catch (error) {
     // eslint-disable-next-line no-console
     console.warn('Failed to measure text:', error)
