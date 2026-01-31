@@ -160,16 +160,26 @@ function parseKnotContentManually(knotBody, randomVars = new Map()) {
   // Use existing extractEffects to parse the text
   const { effects: extractedEffects, cleanedText } = extractEffects(text)
 
-  // Normalize GOLD effect to "GOLD: random [min - max]" when value is in a random range (cleanUpRandomValues post-pass will fix text)
+  // Normalize GOLD/DAMAGE effects to "COMMAND: random [min - max]" when value is in a random range (cleanUpRandomValues post-pass will fix text)
   let effects = extractedEffects
   if (randomVars.size > 0 && extractedEffects.length > 0) {
     effects = extractedEffects.map((effect) => {
-      const goldMatch = String(effect).match(/^GOLD:\s*(\d+)$/i)
-      if (!goldMatch) return effect
-      const value = parseInt(goldMatch[1], 10)
-      const ranges = randomVars.get('gold')
-      const r = ranges && ranges.find((range) => value >= range.min && value <= range.max)
-      return r ? `GOLD: random [${r.min} - ${r.max}]` : effect
+      const s = String(effect)
+      const goldMatch = s.match(/^GOLD:\s*(\d+)$/i)
+      if (goldMatch) {
+        const value = parseInt(goldMatch[1], 10)
+        const ranges = randomVars.get('gold')
+        const r = ranges && ranges.find((range) => value >= range.min && value <= range.max)
+        return r ? `GOLD: random [${r.min} - ${r.max}]` : effect
+      }
+      const damageMatch = s.match(/^DAMAGE:\s*(\d+)$/i)
+      if (damageMatch) {
+        const value = parseInt(damageMatch[1], 10)
+        const ranges = randomVars.get('damage') || randomVars.get('Damage')
+        const r = ranges && ranges.find((range) => value >= range.min && value <= range.max)
+        return r ? `DAMAGE: random [${r.min} - ${r.max}]` : effect
+      }
+      return effect
     })
   }
 
@@ -558,39 +568,32 @@ function buildTreeFromStory(
       let line = story.Continue()
       continueCount++
       if (line && line.trim()) {
-        // Normalize random GOLD commands in the line to "GOLD: random [min - max]"
-        // so extractEffects produces the right effect; cleanUpRandomValues post-pass fixes "N gold" in text
-        if (randomVars.size > 0 && line.includes('>>>>') && /GOLD:\d+/.test(line)) {
+        // Normalize random GOLD/DAMAGE commands to "COMMAND: random [min - max]"
+        // so extractEffects produces the right effect; cleanUpRandomValues post-pass fixes "N gold" / "N damage" in text
+        if (randomVars.size > 0 && line.includes('>>>>')) {
           let modifiedLine = line
-          // Match >>>>GOLD:digits (e.g. ">>>>GOLD:29" or ">>>>GOLD:29;NEXTSTATUS:...")
-          const atStartMatches = line.match(/>>>>(GOLD):(\d+)/g)
-          if (atStartMatches) {
-            for (const fullMatch of atStartMatches) {
-              const [, command, valueStr] = fullMatch.match(/>>>>(GOLD):(\d+)/)
-              const value = parseInt(valueStr, 10)
-              const ranges = randomVars.get('gold')
-              const r = ranges && ranges.find((range) => value >= range.min && value <= range.max)
+          const getRanges = (name) => randomVars.get(name) || randomVars.get(name.charAt(0).toUpperCase() + name.slice(1))
+          const normalizeNumericEffect = (commandKey, varName) => {
+            const re = new RegExp(`${commandKey}:(\\d+)`, 'gi')
+            const ranges = getRanges(varName)
+            if (!ranges) return
+            for (const match of line.matchAll(re)) {
+              const value = parseInt(match[1], 10)
+              const r = ranges.find((range) => value >= range.min && value <= range.max)
               if (r) {
+                const command = match[0].slice(0, match[0].indexOf(':'))
                 modifiedLine = modifiedLine.replace(
-                  new RegExp(`>>>>${command}:${value}\\b`, 'g'),
-                  `>>>>${command}:random [${r.min} - ${r.max}]`
+                  new RegExp(`${command}:${value}\\b`, 'gi'),
+                  `${command}:random [${r.min} - ${r.max}]`
                 )
               }
             }
           }
-          // Match GOLD:digits anywhere (e.g. ">>>>QUESTFLAG:metassassin;GOLD:47")
-          const anywhereMatches = [...line.matchAll(/GOLD:(\d+)/g)]
-          for (const match of anywhereMatches) {
-            const valueStr = match[1]
-            const value = parseInt(valueStr, 10)
-            const ranges = randomVars.get('gold')
-            const r = ranges && ranges.find((range) => value >= range.min && value <= range.max)
-            if (r) {
-              modifiedLine = modifiedLine.replace(
-                new RegExp(`GOLD:${value}\\b`, 'g'),
-                `GOLD:random [${r.min} - ${r.max}]`
-              )
-            }
+          if (/GOLD:\d+/.test(line)) {
+            normalizeNumericEffect('GOLD', 'gold')
+          }
+          if (/DAMAGE:\d+/.test(line)) {
+            normalizeNumericEffect('DAMAGE', 'damage')
           }
           if (modifiedLine !== line) {
             text += (text ? '\n' : '') + modifiedLine.trim()
@@ -1729,33 +1732,47 @@ function findInvalidRefsInTree(rootNode, nodeMap) {
 }
 
 /**
- * Post-pass: for any node whose effects contain "GOLD: random [min - max]",
- * replace numeric gold in node.text (e.g. "47 gold") with «random» gold.
- * Single place for display cleanup; works regardless of line order during parse.
+ * Post-pass: for nodes whose effects contain "GOLD: random [min - max]" or "DAMAGE: random [min - max]",
+ * replace numeric gold/damage in node.text (e.g. "47 gold", "5 damage") with «random» gold/damage.
  */
 function cleanUpRandomValues(eventTrees) {
   const goldRandomEffectRe = /^GOLD:\s*random\s*\[\s*(\d+)\s*-\s*(\d+)\s*\]$/i
+  const damageRandomEffectRe = /^DAMAGE:\s*random\s*\[\s*(\d+)\s*-\s*(\d+)\s*\]$/i
   const goldInTextRe = /\b(\d+)\s*(gold)\b/gi
+  const damageInTextRe = /\b(\d+)\s*(damage)\b/gi
   let updated = 0
 
   function visit(node) {
     if (!node) return
     if (node.effects && Array.isArray(node.effects) && node.text) {
+      let newText = node.text
       for (const effect of node.effects) {
-        const m = String(effect).match(goldRandomEffectRe)
-        if (m) {
-          const min = parseInt(m[1], 10)
-          const max = parseInt(m[2], 10)
-          const newText = node.text.replace(goldInTextRe, (_, numStr, gold) => {
+        const goldM = String(effect).match(goldRandomEffectRe)
+        if (goldM) {
+          const min = parseInt(goldM[1], 10)
+          const max = parseInt(goldM[2], 10)
+          newText = newText.replace(goldInTextRe, (_, numStr, word) => {
             const n = parseInt(numStr, 10)
-            return n >= min && n <= max ? `${RANDOM_KEYWORD} ${gold}` : `${numStr} ${gold}`
+            return n >= min && n <= max ? `${RANDOM_KEYWORD} ${word}` : `${numStr} ${word}`
           })
-          if (newText !== node.text) {
-            node.text = newText
-            updated++
-          }
           break
         }
+      }
+      for (const effect of node.effects) {
+        const damageM = String(effect).match(damageRandomEffectRe)
+        if (damageM) {
+          const min = parseInt(damageM[1], 10)
+          const max = parseInt(damageM[2], 10)
+          newText = newText.replace(damageInTextRe, (_, numStr, word) => {
+            const n = parseInt(numStr, 10)
+            return n >= min && n <= max ? `${RANDOM_KEYWORD} ${word}` : `${numStr} ${word}`
+          })
+          break
+        }
+      }
+      if (newText !== node.text) {
+        node.text = newText
+        updated++
       }
     }
     if (node.children) node.children.forEach(visit)
@@ -1763,7 +1780,7 @@ function cleanUpRandomValues(eventTrees) {
 
   eventTrees.forEach((tree) => tree.rootNode && visit(tree.rootNode))
   if (updated > 0) {
-    console.log(`\n🎲 Cleaned up random gold in text: ${updated} node(s)`)
+    console.log(`\n🎲 Cleaned up random gold/damage in text: ${updated} node(s)`)
   }
 }
 

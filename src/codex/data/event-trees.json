@@ -2709,7 +2709,7 @@
               "type": "end",
               "effects": [
                 "UPGRADE",
-                "DAMAGE: 10"
+                "DAMAGE: random [5 - 15]"
               ]
             }
           ]
@@ -2728,7 +2728,7 @@
               "type": "end",
               "effects": [
                 "UPGRADE",
-                "DAMAGE: 10"
+                "DAMAGE: random [5 - 15]"
               ]
             }
           ]
@@ -2744,7 +2744,7 @@
               "type": "end",
               "effects": [
                 "MAXHEALTH: 10",
-                "DAMAGE: 10"
+                "DAMAGE: random [5 - 15]"
               ]
             }
           ]
@@ -2760,7 +2760,7 @@
               "type": "end",
               "effects": [
                 "GOLD: random [30 - 60]",
-                "DAMAGE: 10"
+                "DAMAGE: random [5 - 15]"
               ]
             }
           ]
@@ -2776,7 +2776,7 @@
               "type": "end",
               "effects": [
                 "REMOVECARD",
-                "DAMAGE: 10"
+                "DAMAGE: random [5 - 15]"
               ]
             }
           ]
@@ -10098,7 +10098,7 @@
     "artwork": "opportunity_image",
     "rootNode": {
       "id": 0,
-      "text": "A skeleton in highly oxidised yet impressive armor sits against a nearby stone. As you walk past, an ivory hand suddenly grasps at your weapon. \"Pleeeeeeease\" a hollow howl escapes from the undead's broken jaw...",
+      "text": "A skeleton in highly oxidised yet impressive armor sits against a nearby signpost. As you walk past, an ivory hand suddenly grasps at your weapon. \"Pleeeeeeease\" a hollow howl escapes from the undead's broken jaw...",
       "type": "dialogue",
       "numContinues": 0,
       "children": [
@@ -11146,7 +11146,7 @@
                                       "text": "You find «random» gold!",
                                       "type": "dialogue",
                                       "effects": [
-                                        "GOLD: random [50 - 75]"
+                                        "GOLD: random [30 - 65]"
                                       ],
                                       "numContinues": 1,
                                       "children": [
@@ -17347,11 +17347,11 @@
         {
           "id": 1,
           "type": "choice",
-          "choiceLabel": "Focus on the Necromancer",
+          "choiceLabel": "Focus on the Blacksmith",
           "children": [
             {
               "id": 3788,
-              "text": "Focus on the Necromancer (fill in the lore for this.) final words",
+              "text": "Focus on the Blacksmith (fill in the lore for this.) final words",
               "type": "end"
             }
           ]
@@ -17359,11 +17359,11 @@
         {
           "id": 2,
           "type": "choice",
-          "choiceLabel": "Focus on the Alchemist",
+          "choiceLabel": "Focus on the Forger",
           "children": [
             {
               "id": 3789,
-              "text": "Focus on the Alchemist (fill in the lore for this.) final words",
+              "text": "Focus on the Forger (fill in the lore for this.) final words",
               "type": "end"
             }
           ]
@@ -17371,11 +17371,11 @@
         {
           "id": 3,
           "type": "choice",
-          "choiceLabel": "Focus on the Succubus",
+          "choiceLabel": "Focus on the Consul",
           "children": [
             {
               "id": 3790,
-              "text": "Focus on the Succubus (fill in the lore for this.) final words",
+              "text": "Focus on the Consul (fill in the lore for this.) final words",
               "type": "end"
             }
           ]
