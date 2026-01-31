@@ -70,6 +70,11 @@ const DIALOGUE_MENU_EVENTS = {
     menuExitPatterns: ["Let's go"], // 2 exit nodes with this same pattern
     hubChoiceMatchThreshold: 50, // choices: 1/2
   },
+  'Mysterious Crates': {
+    menuHubPattern: 'You open the crates with a hefty blow of your weapon.',
+    menuExitPatterns: ['Open the other crates', 'Leave'],
+    hubChoiceMatchThreshold: 60, // choices: 2/3
+  },
   'Statue of Ilthar II Death': {
     menuHubPattern: 'As a [[relation]]? Because you are',
     menuExitPatterns: ["Skip: I've heard it all before"],
@@ -91,6 +96,11 @@ const DIALOGUE_MENU_EVENTS = {
     menuHubPattern: 'You can distinguish several rooms',
     menuExitPatterns: ['Leave'],
     hubChoiceMatchThreshold: 80, // choices: 4/5
+  },
+  'Suspended Cage': {
+    menuHubPattern: 'Quickly pry open the lock',
+    menuExitPatterns: ['Leave'],
+    hubChoiceMatchThreshold: 60, // choices: 2/3
   },
   'The Boneyard': {
     menuHubPattern: '"A parasite, one of the worst',
@@ -211,7 +221,7 @@ const OPTIMIZATION_PASS_CONFIG = {
     'The Ferryman',
     'Warfront Survivor',
   ],
-  COMPLEX_COUSIN_REF_BLACKLIST: ['The Priestess'],
+  COMPLEX_COUSIN_REF_BLACKLIST: ['Suspended Cage', 'The Priestess'],
 
   // Validate refs (detect refs pointing to missing nodes) and log warnings.
   CHECK_INVALID_REFS_ENABLED: true,

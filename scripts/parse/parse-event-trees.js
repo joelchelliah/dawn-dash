@@ -463,12 +463,6 @@ function parseInkStory(inkJsonString, eventName) {
       }
     }
 
-    // Log detected knots for debugging
-    if (knots.size > 0) {
-      const knotList = Array.from(knots.keys()).join(', ')
-      console.log(`  🔀 Event "${eventName}" has ${knots.size} knots: ${knotList}`)
-    }
-
     const story = new Story(inkJsonString)
 
     // Build tree by exploring all possible paths
@@ -572,7 +566,8 @@ function buildTreeFromStory(
         // so extractEffects produces the right effect; cleanUpRandomValues post-pass fixes "N gold" / "N damage" in text
         if (randomVars.size > 0 && line.includes('>>>>')) {
           let modifiedLine = line
-          const getRanges = (name) => randomVars.get(name) || randomVars.get(name.charAt(0).toUpperCase() + name.slice(1))
+          const getRanges = (name) =>
+            randomVars.get(name) || randomVars.get(name.charAt(0).toUpperCase() + name.slice(1))
           const normalizeNumericEffect = (commandKey, varName) => {
             const re = new RegExp(`${commandKey}:(\\d+)`, 'gi')
             const ranges = getRanges(varName)
@@ -735,10 +730,6 @@ function buildTreeFromStory(
 
     if (branchingCommand && knots.size > 0) {
       // This is a dynamic branching point - explore all knots as conditional branches
-      console.log(
-        `  🔀 [${eventName}] Found ${branchingCommand} command - exploring ${knots.size} knots`
-      )
-
       const knotBranches = []
       knots.forEach((knotBody, knotName) => {
         const knotNode = parseKnotContentManually(knotBody, randomVars)
@@ -1821,7 +1812,7 @@ function checkInvalidRefs(eventTrees) {
         console.log(`      Node ${nodeId} -> ${refTarget}  "${short}"`)
       })
     })
-    if (eventName === DEBUG_EVENT_NAME) {
+    if (DEBUG_EVENT_NAME.length > 0) {
       console.log('\n 📜 All invalid refs:')
       eventsWithInvalidRefs.forEach(({ name, examples }) => {
         examples.forEach(({ nodeId, refTarget }) => {
@@ -1830,7 +1821,7 @@ function checkInvalidRefs(eventTrees) {
       })
     }
 
-    if (eventName === DEBUG_EVENT_NAME) {
+    if (DEBUG_EVENT_NAME.length > 0) {
       const debugTree = eventTrees.find((t) => t.name === DEBUG_EVENT_NAME)
       if (debugTree?.rootNode) {
         const nodeMap = buildNodeMapForTree(debugTree.rootNode)
@@ -2315,7 +2306,7 @@ async function processEvents() {
       )
     }
 
-    if (eventsWithDedupe.length > 0) {
+    if (eventsWithDedupe.length > 0 && DEBUG_EVENT_NAME.length > 0) {
       console.log(`\n  Events with deduplication:`)
       eventsWithDedupe.forEach(({ name, duplicates, nodesRemoved }) => {
         console.log(`    - "${name}": ${duplicates} duplicates, ${nodesRemoved} nodes removed`)
@@ -2329,7 +2320,7 @@ async function processEvents() {
     console.log('\n🎯 Normalizing refs to skip choice wrappers...')
     const { totalRewrites, eventsWithRewrites } = normalizeRefsPointingToChoiceNodes(eventTrees)
     console.log(`  Rewrote ${totalRewrites} refs`)
-    if (eventsWithRewrites.length > 0) {
+    if (eventsWithRewrites.length > 0 && DEBUG_EVENT_NAME.length > 0) {
       console.log(`\n  Events with ref rewrites:`)
       eventsWithRewrites.forEach(({ name, rewrites }) => {
         console.log(`    - "${name}": ${rewrites} refs rewritten`)
@@ -2344,7 +2335,7 @@ async function processEvents() {
   const { totalRewrites: combatRefRewrites, eventsWithRewrites: eventsWithCombatRefRewrites } =
     normalizeRefsPointingToCombatNodes(eventTrees)
   console.log(`  Rewrote ${combatRefRewrites} refs`)
-  if (eventsWithCombatRefRewrites.length > 0) {
+  if (eventsWithCombatRefRewrites.length > 0 && DEBUG_EVENT_NAME.length > 0) {
     console.log(`\n  Events with ref rewrites:`)
     eventsWithCombatRefRewrites.forEach(({ name, rewrites }) => {
       console.log(`    - "${name}": ${rewrites} refs rewritten`)
@@ -2364,7 +2355,7 @@ async function processEvents() {
       convertSiblingAndCousinRefsToRefChildren(eventTrees)
     console.log(`  Converted ${totalConversions} sibling refs`)
 
-    if (eventsWithConversions.length > 0) {
+    if (eventsWithConversions.length > 0 && DEBUG_EVENT_NAME.length > 0) {
       console.log(`\n  Events with conversions:`)
       eventsWithConversions.forEach(({ name, conversions }) => {
         console.log(`    - "${name}": ${conversions} sibling refs converted`)
@@ -2973,13 +2964,16 @@ function separateChoicesFromEffects(node) {
 
       // Check if this child needs to be split
       // Split if: has choiceLabel AND (has effects OR has text OR children OR is an end node)
+      // Should not split special nodes!
       // This ensures all choices are consistently represented as choice nodes
       const hasChoiceLabel = child.choiceLabel && child.choiceLabel.trim()
       const hasEffects = child.effects && child.effects.length > 0
       const hasSubstantialText = child.text && child.text.trim() && child.text !== '[End]'
       const isEndNode = child.type === 'end'
+      const isSpecialNode = child.type === 'special'
       const shouldSplit =
         hasChoiceLabel &&
+        !isSpecialNode &&
         (hasEffects ||
           hasSubstantialText ||
           (child.children && child.children.length > 0) ||

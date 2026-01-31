@@ -324,4 +324,17 @@ module.exports = [
       },
     ],
   },
+  {
+    name: 'Collector',
+    alterations: [
+      {
+        find: { textStartsWith: '"It is very simple really' },
+        modifyNode: {
+          removeNumContinues: true,
+          removeChildren: true,
+          refCreateStartsWith: '"Ah, adventurer! You',
+        },
+      },
+    ],
+  },
 ]
