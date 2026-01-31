@@ -215,6 +215,9 @@ const OPTIMIZATION_PASS_CONFIG = {
 
   // Validate refs (detect refs pointing to missing nodes) and log warnings.
   CHECK_INVALID_REFS_ENABLED: true,
+
+  // Replace numeric gold in node text with «random» when effects say "GOLD: random [min - max]".
+  CLEAN_UP_RANDOM_VALUES_ENABLED: true,
 }
 
 const CONFIG = {
