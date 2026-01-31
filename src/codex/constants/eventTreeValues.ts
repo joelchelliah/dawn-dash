@@ -6,11 +6,7 @@ import { LevelOfDetail } from './eventSearchValues'
 
 export const TREE = {
   HORIZONTAL_PADDING: 20,
-  VERTICAL_PADDING_BY_LEVEL_OF_DETAIL: {
-    [LevelOfDetail.COMPACT]: 30,
-    [LevelOfDetail.BALANCED]: 20,
-    [LevelOfDetail.WALL_OF_TEXT]: 20,
-  },
+  VERTICAL_PADDING: 30,
   MIN_SVG_WIDTH: 500, // Minimum SVG width to prevent nodes from appearing too large
 }
 
@@ -58,6 +54,12 @@ export const TEXT = {
 }
 
 export const NODE_BOX = {
+  // Not not collide with emoji badge
+  EMOJI_MARGIN_BY_LEVEL_OF_DETAIL: {
+    [LevelOfDetail.COMPACT]: 7,
+    [LevelOfDetail.BALANCED]: 4,
+    [LevelOfDetail.WALL_OF_TEXT]: 4,
+  },
   // Padding for entire node content
   VERTICAL_PADDING: 6,
 
@@ -73,9 +75,6 @@ export const INNER_BOX = {
   // Or between 2 different indicator boxes
   INDICATOR_TOP_MARGIN: 6,
 
-  // Additional top margin for indicator boxes when no text is shown, to not collide with emoji badges
-  INDICATOR_TOP_MARGIN_COMPACT: 8,
-
   // Gap between indicator header ('Loops back to:') and label text
   INDICATOR_HEADER_GAP: 6,
 
@@ -84,9 +83,6 @@ export const INNER_BOX = {
 
   // Gap between main node text and listing boxes (Requirements, Effects)
   LISTINGS_TOP_MARGIN: 8,
-
-  // Additional top margin for listing boxes when no text is shown, to not collide with emoji badges
-  LISTINGS_TOP_MARGIN_COMPACT: 8,
 
   // Gap between listing header ('Requires:', 'Effects:') and first item
   LISTINGS_HEADER_GAP: 6,

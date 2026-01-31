@@ -125,7 +125,7 @@ function drawLoopBackBadges(
         const isCompactEmojiOnly = isCompactEmojiOnlyNode(node, isCompact, showLoopingIndicator)
 
         const offsetStart = isCompactEmojiOnly ? 20 : 0
-        const offsetEnd = isCompactEmojiOnly ? -6 : 0
+        const offsetEnd = isCompactEmojiOnly ? 2 : 0
         const yOffset = position === 'start' ? offsetStart : offsetEnd
 
         return {
@@ -171,6 +171,7 @@ function drawNodeTypeBadge({
   emoji,
 }: DrawNodeTypeBadgeParam) {
   const nodes = root.descendants().filter((d: any) => d.data.type === nodeType)
+  const isCompact = levelOfDetail === LevelOfDetail.COMPACT
 
   nodes.forEach((node: any) => {
     const [, nodeHeight] = getNodeDimensions(
@@ -182,18 +183,26 @@ function drawNodeTypeBadge({
     )
 
     const centerX = node.x
-    const yOffset = 2
+    const yOffset = isCompact ? 2 : 4
     const topY = node.y - nodeHeight / 2 - yOffset
 
     const badge = g.append('g').attr('transform', `translate(${centerX},${topY})`)
 
-    badge
-      .append('circle')
-      .attr('class', cx('node-type-badge-circle', `node-type-badge-circle--${nodeType}`))
+    badge.append('circle').attr(
+      'class',
+      cx('node-type-badge-circle', `node-type-badge-circle--${nodeType}`, {
+        ['node-type-badge-circle--large']: isCompact,
+      })
+    )
 
     badge
       .append('text')
-      .attr('class', cx('node-type-badge-emoji'))
+      .attr(
+        'class',
+        cx('node-type-badge-emoji', {
+          ['node-type-badge-emoji--large']: isCompact,
+        })
+      )
       .attr('text-anchor', 'middle')
       .attr('dominant-baseline', 'central')
       .text(emoji)

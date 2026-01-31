@@ -6,7 +6,7 @@ import { Event, EventTreeNode } from '@/codex/types/events'
 import {
   getArrowheadAngle,
   getNodeDimensions,
-  isCompactEmojiBadgeNode,
+  isEmojiBadgeNode,
   isCompactEmojiOnlyNode,
   type NodeMap,
 } from '@/codex/utils/eventTreeHelper'
@@ -75,7 +75,14 @@ export function drawLinks({
         showLoopingIndicator,
         levelOfDetail
       )
-      const yOffset = isCompactEmojiBadgeNode(d.target.data, isCompact) ? -24 : -2
+
+      const isTargetEmojiBadgeNode = isEmojiBadgeNode(d.target.data)
+      let yOffset = -1
+      if (isCompact && isTargetEmojiBadgeNode) {
+        yOffset = -25
+      } else if (isTargetEmojiBadgeNode) {
+        yOffset = -23
+      }
 
       return calculateCurvedPathForStandardLinks(
         sourceX,
@@ -156,7 +163,13 @@ export function drawRefChildrenLinks({
       levelOfDetail
     )
 
-    const yOffset = isCompactEmojiBadgeNode(d.target.data, isCompact) ? -24 : -2
+    const isTargetEmojiBadgeNode = isEmojiBadgeNode(d.target.data)
+    let yOffset = -1
+    if (isCompact && isTargetEmojiBadgeNode) {
+      yOffset = -25
+    } else if (isTargetEmojiBadgeNode) {
+      yOffset = -23
+    }
     const pathData = calculateCurvedPathForStandardLinks(
       sourceX,
       sourceY,
@@ -226,10 +239,10 @@ export function drawLoopBackLinks({
       .attr('class', cx('loop-back-arrowhead', `loop-back-arrowhead--${sourceNodeType}`))
 
     const sourceYOffset = isCompactEmojiOnlyNode(d.source.data, isCompact, showLoopingIndicator)
-      ? -12
+      ? -18
       : 0
     const targetYOffset = isCompactEmojiOnlyNode(d.target.data, isCompact, showLoopingIndicator)
-      ? 6
+      ? 0
       : 0
     const adjustedSourceY = sourceY + sourceYOffset
     const adjustedTargetY = targetY + targetYOffset
