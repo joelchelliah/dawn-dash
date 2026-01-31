@@ -2709,7 +2709,7 @@
               "type": "end",
               "effects": [
                 "UPGRADE",
-                "DAMAGE: 11"
+                "DAMAGE: 10"
               ]
             }
           ]
@@ -2728,7 +2728,7 @@
               "type": "end",
               "effects": [
                 "UPGRADE",
-                "DAMAGE: 11"
+                "DAMAGE: 10"
               ]
             }
           ]
@@ -2744,7 +2744,7 @@
               "type": "end",
               "effects": [
                 "MAXHEALTH: 10",
-                "DAMAGE: 11"
+                "DAMAGE: 10"
               ]
             }
           ]
@@ -2760,7 +2760,7 @@
               "type": "end",
               "effects": [
                 "GOLD: random [30 - 60]",
-                "DAMAGE: 11"
+                "DAMAGE: 10"
               ]
             }
           ]
@@ -2776,7 +2776,7 @@
               "type": "end",
               "effects": [
                 "REMOVECARD",
-                "DAMAGE: 11"
+                "DAMAGE: 10"
               ]
             }
           ]
@@ -10098,7 +10098,7 @@
     "artwork": "opportunity_image",
     "rootNode": {
       "id": 0,
-      "text": "A skeleton in highly oxidised yet impressive armor sits against a nearby tree trunk. As you walk past, an ivory hand suddenly grasps at your weapon. \"Pleeeeeeease\" a hollow howl escapes from the undead's broken jaw...",
+      "text": "A skeleton in highly oxidised yet impressive armor sits against a nearby stone. As you walk past, an ivory hand suddenly grasps at your weapon. \"Pleeeeeeease\" a hollow howl escapes from the undead's broken jaw...",
       "type": "dialogue",
       "numContinues": 0,
       "children": [
@@ -11146,7 +11146,7 @@
                                       "text": "You find «random» gold!",
                                       "type": "dialogue",
                                       "effects": [
-                                        "GOLD: random [30 - 65]"
+                                        "GOLD: random [50 - 75]"
                                       ],
                                       "numContinues": 1,
                                       "children": [
@@ -17347,11 +17347,11 @@
         {
           "id": 1,
           "type": "choice",
-          "choiceLabel": "Focus on the Succubus",
+          "choiceLabel": "Focus on the Necromancer",
           "children": [
             {
               "id": 3788,
-              "text": "Focus on the Succubus (fill in the lore for this.) final words",
+              "text": "Focus on the Necromancer (fill in the lore for this.) final words",
               "type": "end"
             }
           ]
@@ -17359,11 +17359,11 @@
         {
           "id": 2,
           "type": "choice",
-          "choiceLabel": "Focus on the Forger",
+          "choiceLabel": "Focus on the Alchemist",
           "children": [
             {
               "id": 3789,
-              "text": "Focus on the Forger (fill in the lore for this.) final words",
+              "text": "Focus on the Alchemist (fill in the lore for this.) final words",
               "type": "end"
             }
           ]
@@ -17371,11 +17371,11 @@
         {
           "id": 3,
           "type": "choice",
-          "choiceLabel": "Focus on the Priestess",
+          "choiceLabel": "Focus on the Succubus",
           "children": [
             {
               "id": 3790,
-              "text": "Focus on the Priestess (fill in the lore for this.) final words",
+              "text": "Focus on the Succubus (fill in the lore for this.) final words",
               "type": "end"
             }
           ]
@@ -29871,54 +29871,7 @@
                       "id": 7847,
                       "text": "\"Ah, but we insist, \" the third skeletal figure croons with a cackle. A sudden force pulls you towards the fire, while the figureshuffles a glowing deck of cards.Three cards get dealt in front of you. The dealer’s dark eye-sockets light up as it extends a bony finger toward the cards. \"Pick your fate, stranger...\"",
                       "type": "dialogue",
-                      "numContinues": 0,
-                      "children": [
-                        {
-                          "id": 8,
-                          "type": "choice",
-                          "choiceLabel": "[cardid=652518]",
-                          "children": [
-                            {
-                              "id": 7844,
-                              "text": "The skeleton nods as it reveals the card, then smiles. \"Action begets action - Fortune sees you are ready, stranger.\"",
-                              "type": "end",
-                              "effects": [
-                                "AREAEFFECT: 652518"
-                              ]
-                            }
-                          ]
-                        },
-                        {
-                          "id": 9,
-                          "type": "choice",
-                          "choiceLabel": "[cardid=73952]",
-                          "children": [
-                            {
-                              "id": 7845,
-                              "text": "The skeleton folds its hands and grins widely, its two companions mirroring the action. \"Fate seems impatient with you, stranger.",
-                              "type": "end",
-                              "effects": [
-                                "AREAEFFECT: 73952"
-                              ]
-                            }
-                          ]
-                        },
-                        {
-                          "id": 10,
-                          "type": "choice",
-                          "choiceLabel": "[cardid=682305]",
-                          "children": [
-                            {
-                              "id": 7846,
-                              "text": "The skeleton tilts its head, looking up at its two companions, then back at you, with a satisfied grin. \"So be it; may the Pale Master find you soon, stranger.\"",
-                              "type": "end",
-                              "effects": [
-                                "AREAEFFECT: 682305"
-                              ]
-                            }
-                          ]
-                        }
-                      ]
+                      "ref": 7852
                     }
                   ]
                 }
@@ -29938,48 +29891,164 @@
               "numContinues": 0,
               "children": [
                 {
-                  "id": 12,
-                  "type": "choice",
-                  "choiceLabel": "[cardid=652518]",
+                  "id": 9403,
+                  "type": "special",
+                  "text": "«random»",
+                  "effects": [
+                    "random [The Blood Moon, The Final Star, The Hangman, The Hourglass, The Pale Mask, The Wheel]"
+                  ],
                   "children": [
                     {
-                      "id": 7849,
-                      "text": "The skeleton nods as it reveals the card, then smiles. \"Action begets action - Fortune sees you are ready, stranger.\"",
-                      "type": "end",
-                      "effects": [
-                        "AREAEFFECT: 652518"
+                      "id": 9404,
+                      "type": "result",
+                      "requirements": [
+                        "The Blood Moon"
+                      ],
+                      "children": [
+                        {
+                          "id": 9405,
+                          "type": "end",
+                          "text": "The skeleton nods as it reveals the card, then smiles. \"Action begets action - Fortune sees you are ready, stranger.\"",
+                          "effects": [
+                            "AREAEFFECT: The Blood Moon"
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": 9406,
+                      "type": "result",
+                      "requirements": [
+                        "The Final Star"
+                      ],
+                      "children": [
+                        {
+                          "id": 9407,
+                          "type": "end",
+                          "text": "The skeleton solemnly turns over the card. \"The Final Star, an omen of health, prosperity and fertility. Fortune smiles on you this day, stranger.\"",
+                          "effects": [
+                            "AREAEFFECT: The Final Star"
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": 9408,
+                      "type": "result",
+                      "requirements": [
+                        "The Hangman"
+                      ],
+                      "children": [
+                        {
+                          "id": 9409,
+                          "type": "dialogue",
+                          "text": "The skeletal figure can barely contain its excitement, long yellow teeth clattering in its skull. As it lifts the card, skies darken above. \"Foolishness or bravery, it matters not, you have earned our respect, stranger.\"",
+                          "effects": [
+                            "AREAEFFECT: The Hangman"
+                          ],
+                          "numContinues": 1,
+                          "children": [
+                            {
+                              "id": 9410,
+                              "type": "choice",
+                              "choiceLabel": "Leave",
+                              "children": [
+                                {
+                                  "id": 9411,
+                                  "type": "end",
+                                  "effects": [
+                                    "ADDTALENT: Trovan's Blessing"
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": 9412,
+                      "type": "result",
+                      "requirements": [
+                        "The Hourglass"
+                      ],
+                      "children": [
+                        {
+                          "id": 9413,
+                          "type": "end",
+                          "text": "The skeleton folds its hands and grins widely, its two companions mirroring the action. \"Fate seems impatient with you, stranger.\"",
+                          "effects": [
+                            "AREAEFFECT: The Hourglass"
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": 9414,
+                      "type": "result",
+                      "requirements": [
+                        "The Pale Mask"
+                      ],
+                      "children": [
+                        {
+                          "id": 9415,
+                          "type": "end",
+                          "text": "The skeleton tilts its head, looking up at its two companions, then back at you, with a satisfied grin. \"So be it; may the Pale Master find you soon, stranger.\"",
+                          "effects": [
+                            "AREAEFFECT: The Pale Mask"
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": 9416,
+                      "type": "result",
+                      "requirements": [
+                        "The Wheel"
+                      ],
+                      "children": [
+                        {
+                          "id": 9417,
+                          "type": "end",
+                          "text": "The skeleton grins gleefully, then looks up at the sky. \"Brave choice, wanderer. Let's see what the skies have in store for you.\"",
+                          "effects": [
+                            "AREAEFFECT: The Wheel"
+                          ]
+                        }
                       ]
                     }
                   ]
                 },
                 {
-                  "id": 13,
-                  "type": "choice",
-                  "choiceLabel": "[cardid=73952]",
-                  "children": [
-                    {
-                      "id": 7850,
-                      "text": "The skeleton folds its hands and grins widely, its two companions mirroring the action. \"Fate seems impatient with you, stranger.",
-                      "type": "end",
-                      "effects": [
-                        "AREAEFFECT: 73952"
-                      ]
-                    }
+                  "id": 9418,
+                  "type": "special",
+                  "text": "«random»",
+                  "effects": [
+                    "random [The Blood Moon, The Final Star, The Hangman, The Hourglass, The Pale Mask, The Wheel]"
+                  ],
+                  "refChildren": [
+                    9404,
+                    9406,
+                    9408,
+                    9412,
+                    9414,
+                    9416
                   ]
                 },
                 {
-                  "id": 14,
-                  "type": "choice",
-                  "choiceLabel": "[cardid=682305]",
-                  "children": [
-                    {
-                      "id": 7851,
-                      "text": "The skeleton tilts its head, looking up at its two companions, then back at you, with a satisfied grin. \"So be it; may the Pale Master find you soon, stranger.\"",
-                      "type": "end",
-                      "effects": [
-                        "AREAEFFECT: 682305"
-                      ]
-                    }
+                  "id": 9419,
+                  "type": "special",
+                  "text": "«random»",
+                  "effects": [
+                    "random [The Blood Moon, The Final Star, The Hangman, The Hourglass, The Pale Mask, The Wheel]"
+                  ],
+                  "refChildren": [
+                    9404,
+                    9406,
+                    9408,
+                    9412,
+                    9414,
+                    9416
                   ]
                 }
               ]

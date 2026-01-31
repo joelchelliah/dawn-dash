@@ -2,6 +2,7 @@
 const fs = require('fs')
 const path = require('path')
 const { Story } = require('inkjs')
+const { buildIdToNameMapping } = require('../shared/card-data.js')
 
 // Suppress inkjs version warnings (our events are v21, inkjs supports v20 but works fine)
 const originalWarn = console.warn
@@ -2105,10 +2106,64 @@ function promoteShallowDialogueMenuHub(eventTrees) {
   })
 }
 
+// Commands that take card/talent IDs as values (replace numeric ID with name)
+const CARD_ID_COMMANDS = [
+  'AREAEFFECT',
+  'ADDCARD',
+  'REMOVECARD',
+  'IMBUECARD',
+  'ADDTALENT',
+  'REMOVETALENT',
+]
+
+function replaceCardIdsInNode(node, idToName, stats = { replaced: 0 }) {
+  if (!node) return stats
+
+  const replaceId = (str) => {
+    if (!str || typeof str !== 'string') return str
+    return str.replace(/\[cardid=(\d+)\]/g, (_m, id) => {
+      const name = idToName[Number(id)]
+      if (name) {
+        stats.replaced++
+        return `[cardid=${name}]`
+      }
+      return _m
+    })
+  }
+
+  const replaceEffect = (effect) => {
+    if (typeof effect !== 'string') return effect
+    for (const cmd of CARD_ID_COMMANDS) {
+      const re = new RegExp(`^(${cmd}):\\s*(\\d+)$`, 'i')
+      const m = effect.match(re)
+      if (m) {
+        const name = idToName[Number(m[2])]
+        if (name) {
+          stats.replaced++
+          return `${cmd}: ${name}`
+        }
+        break
+      }
+    }
+    return effect
+  }
+
+  if (node.choiceLabel) node.choiceLabel = replaceId(node.choiceLabel)
+  if (node.text) node.text = replaceId(node.text)
+  if (node.effects && Array.isArray(node.effects)) {
+    node.effects = node.effects.map(replaceEffect)
+  }
+
+  if (node.children) {
+    node.children.forEach((child) => replaceCardIdsInNode(child, idToName, stats))
+  }
+  return stats
+}
+
 /**
  * Main processing function
  */
-function processEvents() {
+async function processEvents() {
   const startTime = Date.now()
 
   console.log('📖 Reading events file...')
@@ -2219,6 +2274,10 @@ function processEvents() {
     }
   })
   console.log(`  Updated ${addKeywordRandomLabelsUpdated} choice label(s) to "Add «random»"`)
+
+  // Fetch card/talent id->name mapping (used by Cardgame pass and by replaceCardIdsInNode later)
+  console.log('\n🃏 Fetching card/talent data for ID replacement...')
+  const idToName = await buildIdToNameMapping()
 
   // Calculate stats before deduplication
   const nodesBeforeDedupe = eventTrees.reduce((sum, tree) => sum + countNodes(tree.rootNode), 0)
@@ -2338,6 +2397,15 @@ function processEvents() {
     cleanUpRandomValues(eventTrees)
   }
 
+  // Replace card/talent IDs with names in choiceLabel, text, and effects
+  // Fixes events that use dynamic card refs (e.g. [cardid=VAR] at runtime, AREAEFFECT: id)
+  console.log('\n🃏 Replacing card/talent IDs with names...')
+  const replaceStats = { replaced: 0 }
+  eventTrees.forEach((tree) => {
+    if (tree.rootNode) replaceCardIdsInNode(tree.rootNode, idToName, replaceStats)
+  })
+  console.log(`  Replaced ${replaceStats.replaced} card/talent ID reference(s)`)
+
   // Calculate final stats
   const finalTotalNodes = eventTrees.reduce((sum, tree) => sum + countNodes(tree.rootNode), 0)
   console.log(`\n  Final node count: ${finalTotalNodes} (was ${nodesBeforeDedupe})`)
@@ -2369,7 +2437,7 @@ function applyEventAlterations(rootNode, alterations) {
   let appliedCount = 0
 
   for (const alteration of alterations) {
-    const { find, addRequirements, addChild, replaceNode, modifyNode } = alteration
+    const { find, addRequirements, addChild, replaceNode, replaceChildren, modifyNode } = alteration
 
     // Validate that we have a find method
     if (!find) {
@@ -2388,7 +2456,10 @@ function applyEventAlterations(rootNode, alterations) {
     }
 
     // Find nodes based on criteria
-    if (find.textOrLabel !== undefined) {
+    if (find.textStartsWith !== undefined) {
+      matchingNodes = findNodesByTextStartsWith(rootNode, find.textStartsWith)
+      searchDescription = `textStartsWith: "${find.textStartsWith}"`
+    } else if (find.textOrLabel !== undefined) {
       const hasEffect = find.effect !== undefined
       if (hasEffect) {
         // Search by textOrLabel AND effect
@@ -2464,6 +2535,44 @@ function applyEventAlterations(rootNode, alterations) {
       continue // Skip other operations if we're replacing the node
     }
 
+    // Replace children of matched nodes
+    if (replaceChildren && Array.isArray(replaceChildren)) {
+      for (const match of matchingNodes) {
+        const refTargetMap = {}
+        const refSourceNodes = []
+        const refCreateNodes = []
+        const newChildren = replaceChildren
+          .map((spec) =>
+            createNodeFromAlterationSpec(spec, refTargetMap, refSourceNodes, refCreateNodes)
+          )
+          .filter((c) => c !== null)
+
+        const firstWithChildren = newChildren.find((c) => c.children?.length)
+        if (firstWithChildren) {
+          const resultIds = firstWithChildren.children.map((c) => c.id)
+          replaceChildren.forEach((spec, i) => {
+            if (spec.refChildrenFromFirstSibling && newChildren[i]) {
+              newChildren[i].refChildren = resultIds
+            }
+          })
+        }
+
+        for (const { node: n, refSource } of refSourceNodes) {
+          const targetId = refTargetMap[refSource]
+          if (targetId !== undefined) n.ref = targetId
+        }
+        for (const { node: n, refCreate } of refCreateNodes) {
+          const candidates = findNodesByTextOrChoiceLabel(rootNode, refCreate)
+          const target = candidates.find((c) => c.ref === undefined)
+          if (target) n.ref = target.id
+        }
+
+        match.children = newChildren
+        appliedCount++
+      }
+      continue
+    }
+
     if (addRequirements) {
       // Filter out empty strings
       const newRequirements = addRequirements.filter((req) => req && typeof req === 'string')
@@ -2508,13 +2617,25 @@ function applyEventAlterations(rootNode, alterations) {
         // Handle refCreate: search the tree for a matching node and create a ref
         if (modifyNode.refCreate !== undefined) {
           const candidates = findNodesByTextOrChoiceLabel(rootNode, modifyNode.refCreate)
-          // Find the first candidate that doesn't have a ref (it's the original node)
           const targetNode = candidates.find((candidate) => candidate.ref === undefined)
           if (targetNode) {
             node.ref = targetNode.id
           } else {
             console.warn(
               `  ⚠️  refCreate "${modifyNode.refCreate}" did not find a matching node without a ref for node ${node.id}`
+            )
+          }
+        }
+
+        // Handle refCreateStartsWith: ref to first node whose text/choiceLabel starts with the string
+        if (modifyNode.refCreateStartsWith !== undefined) {
+          const candidates = findNodesByTextStartsWith(rootNode, modifyNode.refCreateStartsWith)
+          const targetNode = candidates.find((candidate) => candidate.ref === undefined)
+          if (targetNode) {
+            node.ref = targetNode.id
+          } else {
+            console.warn(
+              `  ⚠️  refCreateStartsWith "${modifyNode.refCreateStartsWith}" did not find a matching node for node ${node.id}`
             )
           }
         }
@@ -2595,6 +2716,28 @@ function findNodesByTextOrChoiceLabel(node, searchText) {
   if (node.children) {
     for (const child of node.children) {
       matches.push(...findNodesByTextOrChoiceLabel(child, searchText))
+    }
+  }
+
+  return matches
+}
+
+/**
+ * Recursively find nodes where text or choiceLabel starts with the given string
+ */
+function findNodesByTextStartsWith(node, searchText) {
+  const matches = []
+
+  if (!node) return matches
+
+  const textOrLabel = node.text || node.choiceLabel || ''
+  if (textOrLabel.startsWith(searchText)) {
+    matches.push(node)
+  }
+
+  if (node.children) {
+    for (const child of node.children) {
+      matches.push(...findNodesByTextStartsWith(child, searchText))
     }
   }
 
@@ -3812,10 +3955,12 @@ function deduplicateAllTrees(eventTrees, maxIterations = 1) {
 }
 
 // Run the script
-try {
-  processEvents()
-} catch (error) {
-  console.error('❌ Fatal error:', error)
-  console.error(error.stack)
-  process.exit(1)
-}
+;(async () => {
+  try {
+    await processEvents()
+  } catch (error) {
+    console.error('❌ Fatal error:', error)
+    console.error(error.stack)
+    process.exit(1)
+  }
+})()

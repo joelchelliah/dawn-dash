@@ -10,7 +10,8 @@
  *
  * Finding nodes:
  * find: {options...}
- *   - { textOrLabel: 'text' } - Search by text or choiceLabel
+ *   - { textOrLabel: 'text' } - Search by text or choiceLabel (substring match)
+ *   - { textStartsWith: 'text' } - Search where text or choiceLabel starts with
  *   - { effect: 'CARDPUZZLE' } - Search by effect (substring match)
  *   - { textOrLabel: 'text', effect: 'GOTOAREA: 91' } - Search by both text-or-label AND effect
  *
@@ -18,6 +19,8 @@
  * - addRequirements: Add requirements to matched nodes
  * - addChild: Add a new child node to matched nodes
  * - replaceNode: Replace the entire matched node with a new node structure
+ * - replaceChildren: Replace matched node's children with new nodes (array of node specs).
+ *   Use refChildrenFromFirstSibling: true on a child to set refChildren to first sibling's child ids.
  * - modifyNode: Modify properties of matched nodes:
  *   - removeRef: true - Remove the ref field
  *   - removeText: true - Remove the text field
@@ -25,6 +28,7 @@
  *   - removeChildren: true - Remove the children field
  *   - type: 'end' - Change the node type
  *   - refCreate: 'text' - Create a ref to a node matching this text/choiceLabel
+ *   - refCreateStartsWith: 'text' - Create a ref to first node whose text/choiceLabel starts with
  *
  * Creating refs within alterations (refTarget/refSource):
  * Since alterations run after all optimizations, node IDs are unpredictable.
@@ -44,6 +48,16 @@
  * - children: Array of child nodes
  * - ref: Reference to another node by ID (use refSource and refCreate instead within alterations)
  */
+
+const RANDOM_KEYWORD = '«random»'
+const CARDGAME_CHOICE_LABELS = [
+  'The Blood Moon',
+  'The Final Star',
+  'The Hangman',
+  'The Hourglass',
+  'The Pale Mask',
+  'The Wheel',
+]
 
 module.exports = [
   {
@@ -190,6 +204,122 @@ module.exports = [
           removeNumContinues: true,
           removeChildren: true,
           refCreate: 'A strange statue stands alone',
+        },
+      },
+    ],
+  },
+  {
+    name: 'The Cardgame',
+    alterations: [
+      {
+        find: { textStartsWith: 'Three cards get dealt in front of you' },
+        replaceChildren: [
+          {
+            type: 'special',
+            text: RANDOM_KEYWORD,
+            effects: [`random [${CARDGAME_CHOICE_LABELS.join(', ')}]`],
+            children: [
+              {
+                type: 'result',
+                requirements: ['The Blood Moon'],
+                children: [
+                  {
+                    type: 'end',
+                    text: 'The skeleton nods as it reveals the card, then smiles. "Action begets action - Fortune sees you are ready, stranger."',
+                    effects: ['AREAEFFECT: The Blood Moon'],
+                  },
+                ],
+              },
+              {
+                type: 'result',
+                requirements: ['The Final Star'],
+                children: [
+                  {
+                    type: 'end',
+                    text: 'The skeleton solemnly turns over the card. "The Final Star, an omen of health, prosperity and fertility. Fortune smiles on you this day, stranger."',
+                    effects: ['AREAEFFECT: The Final Star'],
+                  },
+                ],
+              },
+              {
+                type: 'result',
+                requirements: ['The Hangman'],
+                children: [
+                  {
+                    type: 'dialogue',
+                    text: 'The skeletal figure can barely contain its excitement, long yellow teeth clattering in its skull. As it lifts the card, skies darken above. "Foolishness or bravery, it matters not, you have earned our respect, stranger."',
+                    effects: ['AREAEFFECT: The Hangman'],
+                    numContinues: 1,
+                    children: [
+                      {
+                        type: 'choice',
+                        choiceLabel: 'Leave',
+                        children: [
+                          {
+                            type: 'end',
+                            effects: ["ADDTALENT: Trovan's Blessing"],
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              },
+              {
+                type: 'result',
+                requirements: ['The Hourglass'],
+                children: [
+                  {
+                    type: 'end',
+                    text: 'The skeleton folds its hands and grins widely, its two companions mirroring the action. "Fate seems impatient with you, stranger."',
+                    effects: ['AREAEFFECT: The Hourglass'],
+                  },
+                ],
+              },
+              {
+                type: 'result',
+                requirements: ['The Pale Mask'],
+                children: [
+                  {
+                    type: 'end',
+                    text: 'The skeleton tilts its head, looking up at its two companions, then back at you, with a satisfied grin. "So be it; may the Pale Master find you soon, stranger."',
+                    effects: ['AREAEFFECT: The Pale Mask'],
+                  },
+                ],
+              },
+              {
+                type: 'result',
+                requirements: ['The Wheel'],
+                children: [
+                  {
+                    type: 'end',
+                    text: 'The skeleton grins gleefully, then looks up at the sky. "Brave choice, wanderer. Let\'s see what the skies have in store for you."',
+                    effects: ['AREAEFFECT: The Wheel'],
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            type: 'special',
+            text: RANDOM_KEYWORD,
+            effects: [`random [${CARDGAME_CHOICE_LABELS.join(', ')}]`],
+            refChildrenFromFirstSibling: true,
+          },
+          {
+            type: 'special',
+            text: RANDOM_KEYWORD,
+            effects: [`random [${CARDGAME_CHOICE_LABELS.join(', ')}]`],
+            refChildrenFromFirstSibling: true,
+          },
+        ],
+      },
+      {
+        find: { textOrLabel: 'the third skeletal figure croons with a cackle' },
+        modifyNode: {
+          removeNumContinues: true,
+          removeChildren: true,
+          refCreateStartsWith: 'Three cards get dealt in front of you',
         },
       },
     ],
