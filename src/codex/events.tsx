@@ -77,8 +77,6 @@ function Events(): JSX.Element {
         currentPage="eventmaps"
       />
 
-      <div className={cx('wip-message')}>🚧 Work in progress...</div>
-
       <div className={cx('content')}>
         <EventSearchPanel
           selectedEventIndex={selectedEventIndex}
