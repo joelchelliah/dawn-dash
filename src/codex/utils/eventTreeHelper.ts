@@ -229,11 +229,13 @@ const _getNodeHeight = (
     const choiceLines = wrapEventText(node.choiceLabel, maxNodeTextWidth, 'choice')
     const choiceTextHeight = choiceLines.length * TEXT.CHOICE_TEXT_HEIGHT
 
-    const { height: reqBoxHeight, margin: reqBoxMargin } = calculateRequirementsBoxDimensions(
+    const { height: reqBoxHeight, margin: reqBoxMarginBase } = calculateRequirementsBoxDimensions(
       node,
-      isCompact,
       choiceTextHeight > 0
     )
+
+    // Since choice labels have such a large height we can use a smaller margin for the requirements box
+    const reqBoxMargin = reqBoxMarginBase / 2
 
     const { height: loopIndicatorHeightBase, margin: loopIndicatorMargin } =
       calculateIndicatorDimensions(
@@ -391,7 +393,6 @@ const _getNodeHeight = (
   } else if (node.type === 'result') {
     const { height: reqBoxHeight, margin: reqBoxMargin } = calculateRequirementsBoxDimensions(
       node,
-      isCompact,
       false
     )
     const { height: loopIndicatorHeight, margin: loopIndicatorMargin } =
@@ -444,7 +445,6 @@ export const calculateEffectsBoxDimensions = (
  */
 export const calculateRequirementsBoxDimensions = (
   node: ChoiceNode | ResultNode,
-  isCompact: boolean,
   followsText: boolean // Comes after non-empty text
 ): { height: number; margin: number } => {
   const requirements = node.requirements || []

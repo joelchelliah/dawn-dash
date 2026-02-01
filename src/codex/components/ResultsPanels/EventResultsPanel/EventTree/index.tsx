@@ -265,11 +265,10 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
       if (data.type === 'choice') {
         const requirements = data.requirements || []
         const hasRequirements = requirements.length > 0
-        const { height: reqBoxHeight, margin: reqBoxMargin } = calculateRequirementsBoxDimensions(
-          data,
-          isCompact,
-          data.choiceLabel.length > 0
-        )
+        const { height: reqBoxHeight, margin: reqBoxMarginBase } =
+          calculateRequirementsBoxDimensions(data, data.choiceLabel.length > 0)
+        // Since choice labels have such a large height we can use a smaller margin for the requirements box
+        const reqBoxMargin = reqBoxMarginBase / 2
 
         const hasLoopingIndicator = showLoopingIndicator && data.ref !== undefined
         const { height: loopIndicatorHeightBase, margin: loopIndicatorMargin } =
@@ -697,7 +696,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
       } else if (data.type === 'result') {
         const requirements = data.requirements || []
         const hasRequirements = requirements.length > 0
-        const { height: reqBoxHeight } = calculateRequirementsBoxDimensions(data, isCompact, false)
+        const { height: reqBoxHeight } = calculateRequirementsBoxDimensions(data, false)
 
         const hasLoopingIndicator = showLoopingIndicator && data.ref !== undefined
         const { height: loopIndicatorHeight, margin: loopIndicatorMargin } =
