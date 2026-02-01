@@ -337,4 +337,88 @@ module.exports = [
       },
     ],
   },
+  {
+    name: 'Succubus',
+    alterations: [
+      {
+        find: { textOrLabel: 'I might have some puppets' },
+        replaceChildren: [
+          {
+            type: 'dialogue',
+            text: 'The demon smiles warmly as you approach, running a sharp-nailed finger along her chin. Found any more puppets for me, Champion?',
+            numContinues: 0,
+            children: [
+              {
+                type: 'choice',
+                choiceLabel: '50 Souls: Imbue an Enchantment',
+                requirements: ['souls: 50', 'enchantments: 1'],
+                children: [
+                  {
+                    type: 'end',
+                    effects: ['Souls: -50', 'ENCHANTERIMBUE'],
+                  },
+                ],
+              },
+              {
+                type: 'choice',
+                choiceLabel: 'Offer the Bandits',
+                requirements: ['questflag: bandits'],
+                children: [
+                  {
+                    type: 'end',
+                    text: 'Oh yes! Where did you find this scruffy lot? You really know how to please a demon!',
+                    effects: ['REMOVEQUESTFLAG: bandits', 'ADDTALENT: random'],
+                  },
+                ],
+              },
+              {
+                type: 'choice',
+                choiceLabel: 'Offer Julius',
+                requirements: ['questflag: merchant'],
+                children: [
+                  {
+                    type: 'dialogue',
+                    text: 'We- We must protest! This is in clear violation of our Terms of Service! I-...!',
+                    numContinues: 1,
+                    children: [
+                      {
+                        type: 'end',
+                        text: 'The succubus looks Julius over a for a moment, then reluctantly sighs and rolls her eyes. "Very well, I\'ll take him."',
+                        effects: ['REMOVEQUESTFLAG: merchant', 'ADDTALENT: random'],
+                      },
+                    ],
+                  },
+                ],
+              },
+              {
+                type: 'choice',
+                choiceLabel: 'Offer the Collector',
+                requirements: ['questflag: collector'],
+                children: [
+                  {
+                    type: 'dialogue',
+                    text: 'Oh! Haha I suppose this will be a new experience. Of sorts. I uhm...',
+                    numContinues: 1,
+                    children: [
+                      {
+                        type: 'end',
+                        text: 'The succubus leans forward and pulls on the old mans mustache, giggling as he whinces. "Deal!"',
+                        effects: ['REMOVEQUESTFLAG: collector', 'ADDTALENT: random'],
+                      },
+                    ],
+                  },
+                ],
+              },
+              {
+                type: 'choice',
+                choiceLabel: 'Return',
+                refCreate: 'The demon smiles warmly as you approach',
+                children: [],
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  },
 ]

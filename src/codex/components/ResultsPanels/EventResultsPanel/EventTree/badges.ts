@@ -123,11 +123,10 @@ function drawLoopBackBadges(
     .data(
       Array.from(positionToNodeMap.entries()).map(([pos, node]) => {
         const [x, y] = pos.split(',').map(Number)
-        const isCompactEmojiOnly =
-          isCompact && isEmojiOnlyNode(node, isCompact, showLoopingIndicator)
+        const isCompactEmojiOnly = isEmojiOnlyNode(node, isCompact, showLoopingIndicator)
 
-        const offsetStart = isCompactEmojiOnly ? 20 : 0
-        const offsetEnd = isCompactEmojiOnly ? 2 : 0
+        const offsetStart = isCompactEmojiOnly ? 18 : 0
+        const offsetEnd = isCompactEmojiOnly ? 6 : 0
         const yOffset = position === 'start' ? offsetStart : offsetEnd
 
         return {

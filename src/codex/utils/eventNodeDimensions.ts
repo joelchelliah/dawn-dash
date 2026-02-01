@@ -13,6 +13,7 @@ import { LevelOfDetail } from '@/codex/constants/eventSearchValues'
 
 import { measureEventTextWidth, wrapEventText } from './eventTextWidthEstimation'
 import { getCachedDimensions, buildDimensionCache as buildCache } from './eventNodeDimensionCache'
+import { isEmojiOnlyNode } from './eventTreeHelper'
 
 /**
  * Node lookup map type for O(1) access to nodes by ID
@@ -408,6 +409,10 @@ const _getNodeWidth = (
   const totalInnerBoxMarginAndPadding = INNER_BOX.HORIZONTAL_MARGIN_OR_PADDING * 4
 
   let width = isCompact ? NODE.COMPACT_WIDTH : NODE.WIDTH_RANGE[0]
+
+  if (isEmojiOnlyNode(node, isCompact, showLoopingIndicator)) {
+    width = NODE.COMPACT_WIDTH
+  }
 
   // Loop indicator width
   if (showLoopingIndicator && node.ref !== undefined) {
