@@ -1,11 +1,12 @@
 import { createCx } from '@/shared/utils/classnames'
 
 import { Event, EventTreeNode } from '@/codex/types/events'
+import { isCompactEmojiOnlyNode } from '@/codex/utils/eventTreeHelper'
 import {
   getNodeDimensions,
-  isCompactEmojiOnlyNode,
+  hasMerchantEffects,
   type NodeMap,
-} from '@/codex/utils/eventTreeHelper'
+} from '@/codex/utils/eventNodeDimensions'
 import { LevelOfDetail } from '@/codex/constants/eventSearchValues'
 
 import styles from './badges.module.scss'
@@ -100,11 +101,11 @@ export function drawCombatBadge(params: DrawBadgesParam) {
 }
 
 export function drawSpecialBadge(params: DrawBadgesParam) {
-  drawNodeTypeBadge({ ...params, nodeType: 'special', emoji: '🎁' })
+  drawNodeTypeBadge({ ...params, nodeType: 'special', emoji: '🧸' })
 }
 
 export function drawResultBadge(params: DrawBadgesParam) {
-  drawNodeTypeBadge({ ...params, nodeType: 'result', emoji: '🔑' })
+  drawNodeTypeBadge({ ...params, nodeType: 'result', emoji: '📯' })
 }
 
 function drawLoopBackBadges(
@@ -125,7 +126,7 @@ function drawLoopBackBadges(
         const isCompactEmojiOnly = isCompactEmojiOnlyNode(node, isCompact, showLoopingIndicator)
 
         const offsetStart = isCompactEmojiOnly ? 20 : 0
-        const offsetEnd = isCompactEmojiOnly ? -6 : 0
+        const offsetEnd = isCompactEmojiOnly ? 2 : 0
         const yOffset = position === 'start' ? offsetStart : offsetEnd
 
         return {
@@ -171,6 +172,7 @@ function drawNodeTypeBadge({
   emoji,
 }: DrawNodeTypeBadgeParam) {
   const nodes = root.descendants().filter((d: any) => d.data.type === nodeType)
+  const isCompact = levelOfDetail === LevelOfDetail.COMPACT
 
   nodes.forEach((node: any) => {
     const [, nodeHeight] = getNodeDimensions(
@@ -182,21 +184,33 @@ function drawNodeTypeBadge({
     )
 
     const centerX = node.x
-    const yOffset = 2
+    const yOffset = isCompact ? 2 : 4
     const topY = node.y - nodeHeight / 2 - yOffset
 
     const badge = g.append('g').attr('transform', `translate(${centerX},${topY})`)
 
-    badge
-      .append('circle')
-      .attr('class', cx('node-type-badge-circle', `node-type-badge-circle--${nodeType}`))
+    const isMerchantNode = hasMerchantEffects(node.data)
+    const specificNodeType = isMerchantNode ? 'merchant' : nodeType
+    const specificEmoji = isMerchantNode ? '🛍️' : emoji
+
+    badge.append('circle').attr(
+      'class',
+      cx('node-type-badge-circle', `node-type-badge-circle--${specificNodeType}`, {
+        ['node-type-badge-circle--large']: isCompact,
+      })
+    )
 
     badge
       .append('text')
-      .attr('class', cx('node-type-badge-emoji'))
+      .attr(
+        'class',
+        cx('node-type-badge-emoji', {
+          ['node-type-badge-emoji--large']: isCompact,
+        })
+      )
       .attr('text-anchor', 'middle')
       .attr('dominant-baseline', 'central')
-      .text(emoji)
+      .text(specificEmoji)
   })
 }
 

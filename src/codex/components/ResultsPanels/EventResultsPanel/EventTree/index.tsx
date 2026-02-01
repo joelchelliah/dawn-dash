@@ -20,9 +20,13 @@ import {
 } from '@/codex/types/events'
 import {
   calculateTreeBounds,
-  hasEffects,
   findNodeById,
   createGlowFilter,
+  buildNodeMap,
+  isCompactEmojiOnlyNode,
+} from '@/codex/utils/eventTreeHelper'
+import {
+  hasEffects,
   getNodeDimensions,
   cacheAllNodeDimensions,
   getNodeTextOrChoiceLabel,
@@ -30,10 +34,10 @@ import {
   calculateEffectsBoxDimensions,
   calculateRequirementsBoxDimensions,
   calculateIndicatorDimensions,
-  isCompactEmojiOnlyNode,
   tweakLoopIndicatorHeightForChoiceNode,
-  buildNodeMap,
-} from '@/codex/utils/eventTreeHelper'
+  hasMerchantEffects,
+  getEmojiMargin,
+} from '@/codex/utils/eventNodeDimensions'
 import {
   adjustHorizontalNodeSpacing,
   adjustVerticalNodeSpacing,
@@ -48,7 +52,6 @@ import {
   LevelOfDetail,
 } from '@/codex/constants/eventSearchValues'
 import { useEventImageSrc } from '@/codex/hooks/useEventImageSrc'
-import { invalidateTextMeasurementCache } from '@/codex/utils/canvasTextMeasurement'
 import { wrapEventText } from '@/codex/utils/eventTextWidthEstimation'
 import { UseAllEventSearchFilters } from '@/codex/hooks/useSearchFilters/useAllEventSearchFilters'
 
@@ -91,9 +94,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
     const showLoopingIndicator = loopingPathMode === LoopingPathMode.INDICATOR
     const isCompact = levelOfDetail === LevelOfDetail.COMPACT
     const maxDisplayLines = TEXT.MAX_DISPLAY_LINES_BY_LEVEL_OF_DETAIL[levelOfDetail]
-
-    // In cover mode, ensure text measurement uses current document font size (mobile/accessibility)
-    if (zoomLevel === ZoomLevel.COVER) invalidateTextMeasurementCache()
+    const emojiMargin = getEmojiMargin(event.rootNode, levelOfDetail)
 
     // Clear previous visualization
     select(svgRef.current).selectAll('*').remove()
@@ -127,7 +128,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
     const bounds = calculateTreeBounds(nodeMap, root, event, showLoopingIndicator, levelOfDetail)
     const calculatedWidth = bounds.width + TREE.HORIZONTAL_PADDING * 2
     const svgWidth = Math.max(calculatedWidth, TREE.MIN_SVG_WIDTH)
-    const svgHeight = bounds.height + TREE.VERTICAL_PADDING_BY_LEVEL_OF_DETAIL[levelOfDetail] * 2
+    const svgHeight = bounds.height + TREE.VERTICAL_PADDING * 2
 
     const zoomScale = zoomCalculator.calculate({
       eventName: event.name,
@@ -143,7 +144,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
     centerRootNodeHorizontally(root as HierarchyPointNode<EventTreeNode>, svgWidth, offsetX)
 
     // Center the tree vertically
-    const offsetY = -bounds.minY + TREE.VERTICAL_PADDING_BY_LEVEL_OF_DETAIL[levelOfDetail]
+    const offsetY = -bounds.minY + TREE.VERTICAL_PADDING
 
     const svg = select(svgRef.current)
 
@@ -219,7 +220,8 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
       )
       const nodeGlowWidth = nodeWidth + NODE_BOX.GLOW_SIZE
       const nodeGlowHeight = nodeHeight + NODE_BOX.GLOW_SIZE
-      const nodeType = d.data.type || 'default'
+      const isMerchantNode = hasMerchantEffects(d.data)
+      const nodeType = isMerchantNode ? 'merchant' : d.data.type || 'default'
 
       nodeElement
         .append('rect')
@@ -244,7 +246,8 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
         showLoopingIndicator,
         levelOfDetail
       )
-      const nodeType = d.data.type || 'default'
+      const isMerchantNode = hasMerchantEffects(d.data)
+      const nodeType = isMerchantNode ? 'merchant' : d.data.type || 'default'
 
       nodeElement
         .append('rect')
@@ -264,11 +267,10 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
       if (data.type === 'choice') {
         const requirements = data.requirements || []
         const hasRequirements = requirements.length > 0
-        const { height: reqBoxHeight, margin: reqBoxMargin } = calculateRequirementsBoxDimensions(
-          data,
-          isCompact,
-          data.choiceLabel.length > 0
-        )
+        const { height: reqBoxHeight, margin: reqBoxMarginBase } =
+          calculateRequirementsBoxDimensions(data, data.choiceLabel.length > 0)
+        // Since choice labels have such a large height we can use a smaller margin for the requirements box
+        const reqBoxMargin = reqBoxMarginBase / 2
 
         const hasLoopingIndicator = showLoopingIndicator && data.ref !== undefined
         const { height: loopIndicatorHeightBase, margin: loopIndicatorMargin } =
@@ -395,12 +397,8 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
         )
 
         const hasText = Boolean(!isCompact && data.text && data.text.trim().length > 0)
-        const { effectsBoxHeight, effectsBoxMargin } = calculateEffectsBoxDimensions(
-          data,
-          currentNodeWidth,
-          isCompact,
-          hasText
-        )
+        const { height: effectsBoxHeight, margin: effectsBoxMargin } =
+          calculateEffectsBoxDimensions(data, currentNodeWidth, isCompact, hasText)
         const textAreaHeight =
           currentNodeHeight -
           NODE_BOX.VERTICAL_PADDING * 2 -
@@ -412,12 +410,13 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
 
         if (!hasText && effectsBoxHeight === 0 && !isCompact) {
           const totalTextHeight = TEXT.REPLACED_TEXT_HEIGHT
-          const verticalCenteringOffset = -totalTextHeight / 2 + TEXT.REPLACED_TEXT_BASELINE_OFFSET
+          const verticalCenteringOffset =
+            textAreaCenter + emojiMargin - totalTextHeight / 2 + TEXT.REPLACED_TEXT_BASELINE_OFFSET
           node
             .append('text')
             .attr('class', cx('event-node-text', 'event-node-text--no-text-fallback'))
             .attr('x', 0)
-            .attr('y', textAreaCenter + verticalCenteringOffset / 1.5)
+            .attr('y', verticalCenteringOffset / 1.5)
             .text('END')
         } else {
           const maxTextWidth = currentNodeWidth - TEXT.HORIZONTAL_PADDING * 2
@@ -432,14 +431,15 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
 
           // Center the lines vertically based on actual number of lines
           const totalTextHeight = displayLines.length * TEXT.LINE_HEIGHT
-          const verticalCenteringOffset = -totalTextHeight / 2 + TEXT.BASELINE_OFFSET
+          const verticalCenteringOffset =
+            textAreaCenter + emojiMargin - totalTextHeight / 2 + TEXT.BASELINE_OFFSET
 
           displayLines.forEach((line, i) => {
             node
               .append('text')
               .attr('class', cx('event-node-text', 'event-node-text--end'))
               .attr('x', 0)
-              .attr('y', textAreaCenter + i * TEXT.LINE_HEIGHT + verticalCenteringOffset)
+              .attr('y', i * TEXT.LINE_HEIGHT + verticalCenteringOffset)
               .text(line)
           })
         }
@@ -457,12 +457,8 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
           )
 
           const hasText = Boolean(!isCompact && data.text && data.text.trim().length > 0)
-          const { effectsBoxHeight, effectsBoxMargin } = calculateEffectsBoxDimensions(
-            data,
-            currentNodeWidth,
-            isCompact,
-            hasText
-          )
+          const { height: effectsBoxHeight, margin: effectsBoxMargin } =
+            calculateEffectsBoxDimensions(data, currentNodeWidth, isCompact, hasText)
           const { height: continueIndicatorHeight, margin: continueIndicatorMargin } =
             calculateIndicatorDimensions(
               'continue',
@@ -503,10 +499,11 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
 
             // Center the lines vertically based on actual number of lines
             const totalTextHeight = displayLines.length * TEXT.LINE_HEIGHT
-            const verticalCenteringOffset = -totalTextHeight / 2 + TEXT.BASELINE_OFFSET
+            const verticalCenteringOffset =
+              textAreaCenter + emojiMargin - totalTextHeight / 2 + TEXT.BASELINE_OFFSET
 
             displayLines.forEach((line, i) => {
-              const y = textAreaCenter + i * TEXT.LINE_HEIGHT + verticalCenteringOffset
+              const y = i * TEXT.LINE_HEIGHT + verticalCenteringOffset
 
               node
                 .append('text')
@@ -526,12 +523,8 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
           )
 
           const hasText = Boolean(!isCompact && data.text && data.text.trim().length > 0)
-          const { effectsBoxHeight, effectsBoxMargin } = calculateEffectsBoxDimensions(
-            data,
-            currentNodeWidth,
-            isCompact,
-            hasText
-          )
+          const { height: effectsBoxHeight, margin: effectsBoxMargin } =
+            calculateEffectsBoxDimensions(data, currentNodeWidth, isCompact, hasText)
 
           const { height: continueIndicatorHeight, margin: continueIndicatorMargin } =
             calculateIndicatorDimensions(
@@ -572,10 +565,11 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
 
           // Center the lines vertically based on actual number of lines
           const totalTextHeight = displayLines.length * TEXT.LINE_HEIGHT
-          const verticalCenteringOffset = -totalTextHeight / 2 + TEXT.BASELINE_OFFSET
+          const verticalCenteringOffset =
+            textAreaCenter + emojiMargin - totalTextHeight / 2 + TEXT.BASELINE_OFFSET
 
           displayLines.forEach((line, i) => {
-            const y = textAreaCenter + i * TEXT.LINE_HEIGHT + verticalCenteringOffset
+            const y = i * TEXT.LINE_HEIGHT + verticalCenteringOffset
 
             node
               .append('text')
@@ -600,12 +594,8 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
         )
 
         const hasText = Boolean(!isCompact && data.text && data.text.trim().length > 0)
-        const { effectsBoxHeight, effectsBoxMargin } = calculateEffectsBoxDimensions(
-          data,
-          currentNodeWidth,
-          isCompact,
-          hasText
-        )
+        const { height: effectsBoxHeight, margin: effectsBoxMargin } =
+          calculateEffectsBoxDimensions(data, currentNodeWidth, isCompact, hasText)
         const loopIndicatorMargin = loopIndicatorHeight > 0 ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
         // The text area is: total height minus vertical padding, effects box, its margin, and loop indicator
         const textAreaHeight =
@@ -632,10 +622,11 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
 
           // Center the lines vertically based on actual number of lines
           const totalTextHeight = displayLines.length * TEXT.LINE_HEIGHT
-          const verticalCenteringOffset = -totalTextHeight / 2 + TEXT.BASELINE_OFFSET
+          const verticalCenteringOffset =
+            textAreaCenter + emojiMargin - totalTextHeight / 2 + TEXT.BASELINE_OFFSET
 
           displayLines.forEach((line, i) => {
-            const y = textAreaCenter + i * TEXT.LINE_HEIGHT + verticalCenteringOffset
+            const y = i * TEXT.LINE_HEIGHT + verticalCenteringOffset
 
             node
               .append('text')
@@ -644,16 +635,6 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
               .attr('y', y)
               .text(line)
           })
-        } else if (!isCompact) {
-          const totalTextHeight = TEXT.REPLACED_TEXT_HEIGHT
-          const verticalCenteringOffset = -totalTextHeight / 2 + TEXT.REPLACED_TEXT_BASELINE_OFFSET
-
-          node
-            .append('text')
-            .attr('class', cx('event-node-text', 'event-node-text--no-text-fallback'))
-            .attr('x', 0)
-            .attr('y', textAreaCenter + verticalCenteringOffset / 2)
-            .text('FIGHT!')
         }
       } else if (data.type === 'special') {
         // For special nodes, show text (up to 2 lines) + effects box (if any) + loops back to box (if present)
@@ -671,12 +652,8 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
         )
 
         const hasText = Boolean(!isCompact && data.text && data.text.trim().length > 0)
-        const { effectsBoxHeight, effectsBoxMargin } = calculateEffectsBoxDimensions(
-          data,
-          currentNodeWidth,
-          isCompact,
-          hasText
-        )
+        const { height: effectsBoxHeight, margin: effectsBoxMargin } =
+          calculateEffectsBoxDimensions(data, currentNodeWidth, isCompact, hasText)
         const loopIndicatorMargin = loopIndicatorHeight > 0 ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
         // The text area is: total height minus vertical padding, effects box, its margin, and loop indicator
         const textAreaHeight =
@@ -703,10 +680,11 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
 
           // Center the lines vertically based on actual number of lines
           const totalTextHeight = displayLines.length * TEXT.SPECIAL_TEXT_HEIGHT
-          const verticalCenteringOffset = -totalTextHeight / 2 + TEXT.SPECIAL_BASELINE_OFFSET
+          const verticalCenteringOffset =
+            textAreaCenter + emojiMargin - totalTextHeight / 2 + TEXT.SPECIAL_BASELINE_OFFSET
 
           displayLines.forEach((line, i) => {
-            const y = textAreaCenter + i * TEXT.SPECIAL_TEXT_HEIGHT + verticalCenteringOffset
+            const y = i * TEXT.SPECIAL_TEXT_HEIGHT + verticalCenteringOffset
             const text = line === 'default' ? '—' : line
 
             node
@@ -720,7 +698,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
       } else if (data.type === 'result') {
         const requirements = data.requirements || []
         const hasRequirements = requirements.length > 0
-        const { height: reqBoxHeight } = calculateRequirementsBoxDimensions(data, isCompact, false)
+        const { height: reqBoxHeight } = calculateRequirementsBoxDimensions(data, false)
 
         const hasLoopingIndicator = showLoopingIndicator && data.ref !== undefined
         const { height: loopIndicatorHeight, margin: loopIndicatorMargin } =
@@ -797,7 +775,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
           levelOfDetail
         )
         const hasText = Boolean(!isCompact && eventNode.text && eventNode.text.trim().length > 0)
-        const { effectsBoxHeight } = calculateEffectsBoxDimensions(
+        const { height: effectsBoxHeight } = calculateEffectsBoxDimensions(
           eventNode,
           nodeWidth,
           isCompact,
@@ -987,13 +965,11 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
       levelOfDetail,
     }
 
-    if (levelOfDetail === LevelOfDetail.COMPACT) {
-      drawDialogueBadge(drawBadgesParam)
-      drawEndBadge(drawBadgesParam)
-      drawCombatBadge(drawBadgesParam)
-      drawSpecialBadge(drawBadgesParam)
-      drawResultBadge(drawBadgesParam)
-    }
+    drawDialogueBadge(drawBadgesParam)
+    drawEndBadge(drawBadgesParam)
+    drawCombatBadge(drawBadgesParam)
+    drawSpecialBadge(drawBadgesParam)
+    drawResultBadge(drawBadgesParam)
 
     if (loopingPathMode === LoopingPathMode.LINK) {
       drawLoopBackLinkBadges(drawBadgesParam)

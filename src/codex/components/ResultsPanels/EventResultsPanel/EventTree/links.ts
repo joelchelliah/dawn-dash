@@ -3,13 +3,8 @@ import { select } from 'd3-selection'
 import { createCx } from '@/shared/utils/classnames'
 
 import { Event, EventTreeNode } from '@/codex/types/events'
-import {
-  getArrowheadAngle,
-  getNodeDimensions,
-  isCompactEmojiBadgeNode,
-  isCompactEmojiOnlyNode,
-  type NodeMap,
-} from '@/codex/utils/eventTreeHelper'
+import { isEmojiBadgeNode, isCompactEmojiOnlyNode } from '@/codex/utils/eventTreeHelper'
+import { getNodeDimensions, type NodeMap } from '@/codex/utils/eventNodeDimensions'
 import { LevelOfDetail } from '@/codex/constants/eventSearchValues'
 
 import styles from './links.module.scss'
@@ -75,7 +70,14 @@ export function drawLinks({
         showLoopingIndicator,
         levelOfDetail
       )
-      const yOffset = isCompactEmojiBadgeNode(d.target.data, isCompact) ? -24 : -2
+
+      const isTargetEmojiBadgeNode = isEmojiBadgeNode(d.target.data)
+      let yOffset = -1
+      if (isCompact && isTargetEmojiBadgeNode) {
+        yOffset = -25
+      } else if (isTargetEmojiBadgeNode) {
+        yOffset = -23
+      }
 
       return calculateCurvedPathForStandardLinks(
         sourceX,
@@ -156,7 +158,13 @@ export function drawRefChildrenLinks({
       levelOfDetail
     )
 
-    const yOffset = isCompactEmojiBadgeNode(d.target.data, isCompact) ? -24 : -2
+    const isTargetEmojiBadgeNode = isEmojiBadgeNode(d.target.data)
+    let yOffset = -1
+    if (isCompact && isTargetEmojiBadgeNode) {
+      yOffset = -25
+    } else if (isTargetEmojiBadgeNode) {
+      yOffset = -23
+    }
     const pathData = calculateCurvedPathForStandardLinks(
       sourceX,
       sourceY,
@@ -226,10 +234,10 @@ export function drawLoopBackLinks({
       .attr('class', cx('loop-back-arrowhead', `loop-back-arrowhead--${sourceNodeType}`))
 
     const sourceYOffset = isCompactEmojiOnlyNode(d.source.data, isCompact, showLoopingIndicator)
-      ? -12
+      ? -18
       : 0
     const targetYOffset = isCompactEmojiOnlyNode(d.target.data, isCompact, showLoopingIndicator)
-      ? 6
+      ? 0
       : 0
     const adjustedSourceY = sourceY + sourceYOffset
     const adjustedTargetY = targetY + targetYOffset
@@ -405,4 +413,27 @@ function calculateLoopBackLinkCorners(
   }
 
   return { sourceX, sourceY, targetX, targetY }
+}
+
+/**
+ * Calculate the arrowhead angle based on horizontal displacement between nodes.
+ *
+ * Uses a self-limiting rational function: tiltFactor = |dx| / (750 + |dx|)
+ * This creates smooth, organic angle adjustments where the tilt asymptotically
+ * approaches maxTilt but never quite reaches it, providing natural diminishing
+ * returns as distance increases.
+ */
+const getArrowheadAngle = (dx: number): number => {
+  if (dx === 0) {
+    return 90 // Straight down
+  }
+
+  const maxTilt = 45
+  const baseDivisor = 250
+  const adjustedDivisor = baseDivisor + Math.abs(dx)
+  const tiltFactor = Math.abs(dx) / adjustedDivisor
+  const tilt = tiltFactor * maxTilt
+
+  // If target is to the right, tilt right (angle < 90); if left, tilt left (angle > 90)
+  return dx > 0 ? 90 - tilt : 90 + tilt
 }

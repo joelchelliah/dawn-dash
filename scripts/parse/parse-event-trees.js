@@ -2,6 +2,7 @@
 const fs = require('fs')
 const path = require('path')
 const { Story } = require('inkjs')
+const { buildIdToNameMapping } = require('../shared/card-data.js')
 
 // Suppress inkjs version warnings (our events are v21, inkjs supports v20 but works fine)
 const originalWarn = console.warn
@@ -102,24 +103,43 @@ function detectRandomVariables(inkJsonString) {
 }
 
 /**
- * Detect knot definitions in Ink JSON root[2]
- * Knots are named sections of story that can be called dynamically by game commands
- * Returns a map of knot names to their content arrays
+ * Detect knot definitions in Ink JSON.
+ * Knots are named sections of story that can be called dynamically by game commands.
+ * Returns a map of knot names to their content arrays.
+ *
+ * Two layouts exist:
+ * - root[2]: used by some events (e.g. Collector) for dynamic branching targets.
+ * - root[0] trailing object: many events (e.g. Golden Idol) embed knots in the last
+ *   element of the main flow array (keys like disable, take, smash, c-0, g-0).
+ * Stitches (e.g. fail, collectorend) are nested inside knot content via {"#n":"name"};
+ * the runtime follows diverts like 0.smash.fail when choices are taken, so we don't
+ * need to parse #n for tree building.
  */
 function detectKnotDefinitions(inkJson) {
   const knots = new Map()
 
-  // Knot definitions are typically at root[2] (root[0] is main flow, root[1] is "done", root[2] is knots)
+  // 1) root[2] (e.g. Collector: Drakkan, GoldenIdol, Rare, ...)
   if (Array.isArray(inkJson.root) && inkJson.root.length > 2) {
     const definitions = inkJson.root[2]
-
     if (typeof definitions === 'object' && definitions !== null && !Array.isArray(definitions)) {
       Object.entries(definitions).forEach(([knotName, knotBody]) => {
-        // Skip metadata keys that start with #
         if (knotName.startsWith('#')) return
-
         knots.set(knotName, knotBody)
       })
+    }
+  }
+
+  // 2) root[0] trailing object (e.g. Golden Idol: disable, take, smash, g-0, c-0, ...)
+  if (Array.isArray(inkJson.root) && inkJson.root.length > 0) {
+    const flow = inkJson.root[0]
+    if (Array.isArray(flow) && flow.length > 0) {
+      const last = flow[flow.length - 1]
+      if (typeof last === 'object' && last !== null && !Array.isArray(last)) {
+        Object.entries(last).forEach(([knotName, knotBody]) => {
+          if (knotName.startsWith('#')) return
+          if (!knots.has(knotName)) knots.set(knotName, knotBody)
+        })
+      }
     }
   }
 
@@ -159,16 +179,26 @@ function parseKnotContentManually(knotBody, randomVars = new Map()) {
   // Use existing extractEffects to parse the text
   const { effects: extractedEffects, cleanedText } = extractEffects(text)
 
-  // Normalize GOLD effect to "GOLD: random [min - max]" when value is in a random range (cleanUpRandomValues post-pass will fix text)
+  // Normalize GOLD/DAMAGE effects to "COMMAND: random [min - max]" when value is in a random range (cleanUpRandomValues post-pass will fix text)
   let effects = extractedEffects
   if (randomVars.size > 0 && extractedEffects.length > 0) {
     effects = extractedEffects.map((effect) => {
-      const goldMatch = String(effect).match(/^GOLD:\s*(\d+)$/i)
-      if (!goldMatch) return effect
-      const value = parseInt(goldMatch[1], 10)
-      const ranges = randomVars.get('gold')
-      const r = ranges && ranges.find((range) => value >= range.min && value <= range.max)
-      return r ? `GOLD: random [${r.min} - ${r.max}]` : effect
+      const s = String(effect)
+      const goldMatch = s.match(/^GOLD:\s*(\d+)$/i)
+      if (goldMatch) {
+        const value = parseInt(goldMatch[1], 10)
+        const ranges = randomVars.get('gold')
+        const r = ranges && ranges.find((range) => value >= range.min && value <= range.max)
+        return r ? `GOLD: random [${r.min} - ${r.max}]` : effect
+      }
+      const damageMatch = s.match(/^DAMAGE:\s*(\d+)$/i)
+      if (damageMatch) {
+        const value = parseInt(damageMatch[1], 10)
+        const ranges = randomVars.get('damage') || randomVars.get('Damage')
+        const r = ranges && ranges.find((range) => value >= range.min && value <= range.max)
+        return r ? `DAMAGE: random [${r.min} - ${r.max}]` : effect
+      }
+      return effect
     })
   }
 
@@ -452,12 +482,6 @@ function parseInkStory(inkJsonString, eventName) {
       }
     }
 
-    // Log detected knots for debugging
-    if (knots.size > 0) {
-      const knotList = Array.from(knots.keys()).join(', ')
-      console.log(`  🔀 Event "${eventName}" has ${knots.size} knots: ${knotList}`)
-    }
-
     const story = new Story(inkJsonString)
 
     // Build tree by exploring all possible paths
@@ -557,39 +581,33 @@ function buildTreeFromStory(
       let line = story.Continue()
       continueCount++
       if (line && line.trim()) {
-        // Normalize random GOLD commands in the line to "GOLD: random [min - max]"
-        // so extractEffects produces the right effect; cleanUpRandomValues post-pass fixes "N gold" in text
-        if (randomVars.size > 0 && line.includes('>>>>') && /GOLD:\d+/.test(line)) {
+        // Normalize random GOLD/DAMAGE commands to "COMMAND: random [min - max]"
+        // so extractEffects produces the right effect; cleanUpRandomValues post-pass fixes "N gold" / "N damage" in text
+        if (randomVars.size > 0 && line.includes('>>>>')) {
           let modifiedLine = line
-          // Match >>>>GOLD:digits (e.g. ">>>>GOLD:29" or ">>>>GOLD:29;NEXTSTATUS:...")
-          const atStartMatches = line.match(/>>>>(GOLD):(\d+)/g)
-          if (atStartMatches) {
-            for (const fullMatch of atStartMatches) {
-              const [, command, valueStr] = fullMatch.match(/>>>>(GOLD):(\d+)/)
-              const value = parseInt(valueStr, 10)
-              const ranges = randomVars.get('gold')
-              const r = ranges && ranges.find((range) => value >= range.min && value <= range.max)
+          const getRanges = (name) =>
+            randomVars.get(name) || randomVars.get(name.charAt(0).toUpperCase() + name.slice(1))
+          const normalizeNumericEffect = (commandKey, varName) => {
+            const re = new RegExp(`${commandKey}:(\\d+)`, 'gi')
+            const ranges = getRanges(varName)
+            if (!ranges) return
+            for (const match of line.matchAll(re)) {
+              const value = parseInt(match[1], 10)
+              const r = ranges.find((range) => value >= range.min && value <= range.max)
               if (r) {
+                const command = match[0].slice(0, match[0].indexOf(':'))
                 modifiedLine = modifiedLine.replace(
-                  new RegExp(`>>>>${command}:${value}\\b`, 'g'),
-                  `>>>>${command}:random [${r.min} - ${r.max}]`
+                  new RegExp(`${command}:${value}\\b`, 'gi'),
+                  `${command}:random [${r.min} - ${r.max}]`
                 )
               }
             }
           }
-          // Match GOLD:digits anywhere (e.g. ">>>>QUESTFLAG:metassassin;GOLD:47")
-          const anywhereMatches = [...line.matchAll(/GOLD:(\d+)/g)]
-          for (const match of anywhereMatches) {
-            const valueStr = match[1]
-            const value = parseInt(valueStr, 10)
-            const ranges = randomVars.get('gold')
-            const r = ranges && ranges.find((range) => value >= range.min && value <= range.max)
-            if (r) {
-              modifiedLine = modifiedLine.replace(
-                new RegExp(`GOLD:${value}\\b`, 'g'),
-                `GOLD:random [${r.min} - ${r.max}]`
-              )
-            }
+          if (/GOLD:\d+/.test(line)) {
+            normalizeNumericEffect('GOLD', 'gold')
+          }
+          if (/DAMAGE:\d+/.test(line)) {
+            normalizeNumericEffect('DAMAGE', 'damage')
           }
           if (modifiedLine !== line) {
             text += (text ? '\n' : '') + modifiedLine.trim()
@@ -731,10 +749,6 @@ function buildTreeFromStory(
 
     if (branchingCommand && knots.size > 0) {
       // This is a dynamic branching point - explore all knots as conditional branches
-      console.log(
-        `  🔀 [${eventName}] Found ${branchingCommand} command - exploring ${knots.size} knots`
-      )
-
       const knotBranches = []
       knots.forEach((knotBody, knotName) => {
         const knotNode = parseKnotContentManually(knotBody, randomVars)
@@ -1728,33 +1742,47 @@ function findInvalidRefsInTree(rootNode, nodeMap) {
 }
 
 /**
- * Post-pass: for any node whose effects contain "GOLD: random [min - max]",
- * replace numeric gold in node.text (e.g. "47 gold") with «random» gold.
- * Single place for display cleanup; works regardless of line order during parse.
+ * Post-pass: for nodes whose effects contain "GOLD: random [min - max]" or "DAMAGE: random [min - max]",
+ * replace numeric gold/damage in node.text (e.g. "47 gold", "5 damage") with «random» gold/damage.
  */
 function cleanUpRandomValues(eventTrees) {
   const goldRandomEffectRe = /^GOLD:\s*random\s*\[\s*(\d+)\s*-\s*(\d+)\s*\]$/i
+  const damageRandomEffectRe = /^DAMAGE:\s*random\s*\[\s*(\d+)\s*-\s*(\d+)\s*\]$/i
   const goldInTextRe = /\b(\d+)\s*(gold)\b/gi
+  const damageInTextRe = /\b(\d+)\s*(damage)\b/gi
   let updated = 0
 
   function visit(node) {
     if (!node) return
     if (node.effects && Array.isArray(node.effects) && node.text) {
+      let newText = node.text
       for (const effect of node.effects) {
-        const m = String(effect).match(goldRandomEffectRe)
-        if (m) {
-          const min = parseInt(m[1], 10)
-          const max = parseInt(m[2], 10)
-          const newText = node.text.replace(goldInTextRe, (_, numStr, gold) => {
+        const goldM = String(effect).match(goldRandomEffectRe)
+        if (goldM) {
+          const min = parseInt(goldM[1], 10)
+          const max = parseInt(goldM[2], 10)
+          newText = newText.replace(goldInTextRe, (_, numStr, word) => {
             const n = parseInt(numStr, 10)
-            return n >= min && n <= max ? `${RANDOM_KEYWORD} ${gold}` : `${numStr} ${gold}`
+            return n >= min && n <= max ? `${RANDOM_KEYWORD} ${word}` : `${numStr} ${word}`
           })
-          if (newText !== node.text) {
-            node.text = newText
-            updated++
-          }
           break
         }
+      }
+      for (const effect of node.effects) {
+        const damageM = String(effect).match(damageRandomEffectRe)
+        if (damageM) {
+          const min = parseInt(damageM[1], 10)
+          const max = parseInt(damageM[2], 10)
+          newText = newText.replace(damageInTextRe, (_, numStr, word) => {
+            const n = parseInt(numStr, 10)
+            return n >= min && n <= max ? `${RANDOM_KEYWORD} ${word}` : `${numStr} ${word}`
+          })
+          break
+        }
+      }
+      if (newText !== node.text) {
+        node.text = newText
+        updated++
       }
     }
     if (node.children) node.children.forEach(visit)
@@ -1762,7 +1790,7 @@ function cleanUpRandomValues(eventTrees) {
 
   eventTrees.forEach((tree) => tree.rootNode && visit(tree.rootNode))
   if (updated > 0) {
-    console.log(`\n🎲 Cleaned up random gold in text: ${updated} node(s)`)
+    console.log(`\n🎲 Cleaned up random gold/damage in text: ${updated} node(s)`)
   }
 }
 
@@ -1803,7 +1831,7 @@ function checkInvalidRefs(eventTrees) {
         console.log(`      Node ${nodeId} -> ${refTarget}  "${short}"`)
       })
     })
-    if (eventName === DEBUG_EVENT_NAME) {
+    if (DEBUG_EVENT_NAME.length > 0) {
       console.log('\n 📜 All invalid refs:')
       eventsWithInvalidRefs.forEach(({ name, examples }) => {
         examples.forEach(({ nodeId, refTarget }) => {
@@ -1812,7 +1840,7 @@ function checkInvalidRefs(eventTrees) {
       })
     }
 
-    if (eventName === DEBUG_EVENT_NAME) {
+    if (DEBUG_EVENT_NAME.length > 0) {
       const debugTree = eventTrees.find((t) => t.name === DEBUG_EVENT_NAME)
       if (debugTree?.rootNode) {
         const nodeMap = buildNodeMapForTree(debugTree.rootNode)
@@ -2105,10 +2133,64 @@ function promoteShallowDialogueMenuHub(eventTrees) {
   })
 }
 
+// Commands that take card/talent IDs as values (replace numeric ID with name)
+const CARD_ID_COMMANDS = [
+  'AREAEFFECT',
+  'ADDCARD',
+  'REMOVECARD',
+  'IMBUECARD',
+  'ADDTALENT',
+  'REMOVETALENT',
+]
+
+function replaceCardIdsInNode(node, idToName, stats = { replaced: 0 }) {
+  if (!node) return stats
+
+  const replaceId = (str) => {
+    if (!str || typeof str !== 'string') return str
+    return str.replace(/\[cardid=(\d+)\]/g, (_m, id) => {
+      const name = idToName[Number(id)]
+      if (name) {
+        stats.replaced++
+        return `[cardid=${name}]`
+      }
+      return _m
+    })
+  }
+
+  const replaceEffect = (effect) => {
+    if (typeof effect !== 'string') return effect
+    for (const cmd of CARD_ID_COMMANDS) {
+      const re = new RegExp(`^(${cmd}):\\s*(\\d+)$`, 'i')
+      const m = effect.match(re)
+      if (m) {
+        const name = idToName[Number(m[2])]
+        if (name) {
+          stats.replaced++
+          return `${cmd}: ${name}`
+        }
+        break
+      }
+    }
+    return effect
+  }
+
+  if (node.choiceLabel) node.choiceLabel = replaceId(node.choiceLabel)
+  if (node.text) node.text = replaceId(node.text)
+  if (node.effects && Array.isArray(node.effects)) {
+    node.effects = node.effects.map(replaceEffect)
+  }
+
+  if (node.children) {
+    node.children.forEach((child) => replaceCardIdsInNode(child, idToName, stats))
+  }
+  return stats
+}
+
 /**
  * Main processing function
  */
-function processEvents() {
+async function processEvents() {
   const startTime = Date.now()
 
   console.log('📖 Reading events file...')
@@ -2220,6 +2302,10 @@ function processEvents() {
   })
   console.log(`  Updated ${addKeywordRandomLabelsUpdated} choice label(s) to "Add «random»"`)
 
+  // Fetch card/talent id->name mapping (used by Cardgame pass and by replaceCardIdsInNode later)
+  console.log('\n🃏 Fetching card/talent data for ID replacement...')
+  const idToName = await buildIdToNameMapping()
+
   // Calculate stats before deduplication
   const nodesBeforeDedupe = eventTrees.reduce((sum, tree) => sum + countNodes(tree.rootNode), 0)
 
@@ -2239,7 +2325,7 @@ function processEvents() {
       )
     }
 
-    if (eventsWithDedupe.length > 0) {
+    if (eventsWithDedupe.length > 0 && DEBUG_EVENT_NAME.length > 0) {
       console.log(`\n  Events with deduplication:`)
       eventsWithDedupe.forEach(({ name, duplicates, nodesRemoved }) => {
         console.log(`    - "${name}": ${duplicates} duplicates, ${nodesRemoved} nodes removed`)
@@ -2253,7 +2339,7 @@ function processEvents() {
     console.log('\n🎯 Normalizing refs to skip choice wrappers...')
     const { totalRewrites, eventsWithRewrites } = normalizeRefsPointingToChoiceNodes(eventTrees)
     console.log(`  Rewrote ${totalRewrites} refs`)
-    if (eventsWithRewrites.length > 0) {
+    if (eventsWithRewrites.length > 0 && DEBUG_EVENT_NAME.length > 0) {
       console.log(`\n  Events with ref rewrites:`)
       eventsWithRewrites.forEach(({ name, rewrites }) => {
         console.log(`    - "${name}": ${rewrites} refs rewritten`)
@@ -2268,7 +2354,7 @@ function processEvents() {
   const { totalRewrites: combatRefRewrites, eventsWithRewrites: eventsWithCombatRefRewrites } =
     normalizeRefsPointingToCombatNodes(eventTrees)
   console.log(`  Rewrote ${combatRefRewrites} refs`)
-  if (eventsWithCombatRefRewrites.length > 0) {
+  if (eventsWithCombatRefRewrites.length > 0 && DEBUG_EVENT_NAME.length > 0) {
     console.log(`\n  Events with ref rewrites:`)
     eventsWithCombatRefRewrites.forEach(({ name, rewrites }) => {
       console.log(`    - "${name}": ${rewrites} refs rewritten`)
@@ -2288,7 +2374,7 @@ function processEvents() {
       convertSiblingAndCousinRefsToRefChildren(eventTrees)
     console.log(`  Converted ${totalConversions} sibling refs`)
 
-    if (eventsWithConversions.length > 0) {
+    if (eventsWithConversions.length > 0 && DEBUG_EVENT_NAME.length > 0) {
       console.log(`\n  Events with conversions:`)
       eventsWithConversions.forEach(({ name, conversions }) => {
         console.log(`    - "${name}": ${conversions} sibling refs converted`)
@@ -2338,6 +2424,15 @@ function processEvents() {
     cleanUpRandomValues(eventTrees)
   }
 
+  // Replace card/talent IDs with names in choiceLabel, text, and effects
+  // Fixes events that use dynamic card refs (e.g. [cardid=VAR] at runtime, AREAEFFECT: id)
+  console.log('\n🃏 Replacing card/talent IDs with names...')
+  const replaceStats = { replaced: 0 }
+  eventTrees.forEach((tree) => {
+    if (tree.rootNode) replaceCardIdsInNode(tree.rootNode, idToName, replaceStats)
+  })
+  console.log(`  Replaced ${replaceStats.replaced} card/talent ID reference(s)`)
+
   // Calculate final stats
   const finalTotalNodes = eventTrees.reduce((sum, tree) => sum + countNodes(tree.rootNode), 0)
   console.log(`\n  Final node count: ${finalTotalNodes} (was ${nodesBeforeDedupe})`)
@@ -2369,7 +2464,7 @@ function applyEventAlterations(rootNode, alterations) {
   let appliedCount = 0
 
   for (const alteration of alterations) {
-    const { find, addRequirements, addChild, replaceNode, modifyNode } = alteration
+    const { find, addRequirements, addChild, replaceNode, replaceChildren, modifyNode } = alteration
 
     // Validate that we have a find method
     if (!find) {
@@ -2388,7 +2483,10 @@ function applyEventAlterations(rootNode, alterations) {
     }
 
     // Find nodes based on criteria
-    if (find.textOrLabel !== undefined) {
+    if (find.textStartsWith !== undefined) {
+      matchingNodes = findNodesByTextStartsWith(rootNode, find.textStartsWith)
+      searchDescription = `textStartsWith: "${find.textStartsWith}"`
+    } else if (find.textOrLabel !== undefined) {
       const hasEffect = find.effect !== undefined
       if (hasEffect) {
         // Search by textOrLabel AND effect
@@ -2464,6 +2562,44 @@ function applyEventAlterations(rootNode, alterations) {
       continue // Skip other operations if we're replacing the node
     }
 
+    // Replace children of matched nodes
+    if (replaceChildren && Array.isArray(replaceChildren)) {
+      for (const match of matchingNodes) {
+        const refTargetMap = {}
+        const refSourceNodes = []
+        const refCreateNodes = []
+        const newChildren = replaceChildren
+          .map((spec) =>
+            createNodeFromAlterationSpec(spec, refTargetMap, refSourceNodes, refCreateNodes)
+          )
+          .filter((c) => c !== null)
+
+        const firstWithChildren = newChildren.find((c) => c.children?.length)
+        if (firstWithChildren) {
+          const resultIds = firstWithChildren.children.map((c) => c.id)
+          replaceChildren.forEach((spec, i) => {
+            if (spec.refChildrenFromFirstSibling && newChildren[i]) {
+              newChildren[i].refChildren = resultIds
+            }
+          })
+        }
+
+        for (const { node: n, refSource } of refSourceNodes) {
+          const targetId = refTargetMap[refSource]
+          if (targetId !== undefined) n.ref = targetId
+        }
+        for (const { node: n, refCreate } of refCreateNodes) {
+          const candidates = findNodesByTextOrChoiceLabel(rootNode, refCreate)
+          const target = candidates.find((c) => c.ref === undefined)
+          if (target) n.ref = target.id
+        }
+
+        match.children = newChildren
+        appliedCount++
+      }
+      continue
+    }
+
     if (addRequirements) {
       // Filter out empty strings
       const newRequirements = addRequirements.filter((req) => req && typeof req === 'string')
@@ -2508,13 +2644,25 @@ function applyEventAlterations(rootNode, alterations) {
         // Handle refCreate: search the tree for a matching node and create a ref
         if (modifyNode.refCreate !== undefined) {
           const candidates = findNodesByTextOrChoiceLabel(rootNode, modifyNode.refCreate)
-          // Find the first candidate that doesn't have a ref (it's the original node)
           const targetNode = candidates.find((candidate) => candidate.ref === undefined)
           if (targetNode) {
             node.ref = targetNode.id
           } else {
             console.warn(
               `  ⚠️  refCreate "${modifyNode.refCreate}" did not find a matching node without a ref for node ${node.id}`
+            )
+          }
+        }
+
+        // Handle refCreateStartsWith: ref to first node whose text/choiceLabel starts with the string
+        if (modifyNode.refCreateStartsWith !== undefined) {
+          const candidates = findNodesByTextStartsWith(rootNode, modifyNode.refCreateStartsWith)
+          const targetNode = candidates.find((candidate) => candidate.ref === undefined)
+          if (targetNode) {
+            node.ref = targetNode.id
+          } else {
+            console.warn(
+              `  ⚠️  refCreateStartsWith "${modifyNode.refCreateStartsWith}" did not find a matching node for node ${node.id}`
             )
           }
         }
@@ -2595,6 +2743,28 @@ function findNodesByTextOrChoiceLabel(node, searchText) {
   if (node.children) {
     for (const child of node.children) {
       matches.push(...findNodesByTextOrChoiceLabel(child, searchText))
+    }
+  }
+
+  return matches
+}
+
+/**
+ * Recursively find nodes where text or choiceLabel starts with the given string
+ */
+function findNodesByTextStartsWith(node, searchText) {
+  const matches = []
+
+  if (!node) return matches
+
+  const textOrLabel = node.text || node.choiceLabel || ''
+  if (textOrLabel.startsWith(searchText)) {
+    matches.push(node)
+  }
+
+  if (node.children) {
+    for (const child of node.children) {
+      matches.push(...findNodesByTextStartsWith(child, searchText))
     }
   }
 
@@ -2813,13 +2983,16 @@ function separateChoicesFromEffects(node) {
 
       // Check if this child needs to be split
       // Split if: has choiceLabel AND (has effects OR has text OR children OR is an end node)
+      // Should not split special nodes!
       // This ensures all choices are consistently represented as choice nodes
       const hasChoiceLabel = child.choiceLabel && child.choiceLabel.trim()
       const hasEffects = child.effects && child.effects.length > 0
       const hasSubstantialText = child.text && child.text.trim() && child.text !== '[End]'
       const isEndNode = child.type === 'end'
+      const isSpecialNode = child.type === 'special'
       const shouldSplit =
         hasChoiceLabel &&
+        !isSpecialNode &&
         (hasEffects ||
           hasSubstantialText ||
           (child.children && child.children.length > 0) ||
@@ -3812,10 +3985,12 @@ function deduplicateAllTrees(eventTrees, maxIterations = 1) {
 }
 
 // Run the script
-try {
-  processEvents()
-} catch (error) {
-  console.error('❌ Fatal error:', error)
-  console.error(error.stack)
-  process.exit(1)
-}
+;(async () => {
+  try {
+    await processEvents()
+  } catch (error) {
+    console.error('❌ Fatal error:', error)
+    console.error(error.stack)
+    process.exit(1)
+  }
+})()

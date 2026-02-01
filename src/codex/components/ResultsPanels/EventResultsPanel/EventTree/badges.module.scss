@@ -3,7 +3,7 @@
 
 .loop-back-badge-circle {
   stroke-width: 2px;
-  r: 15px;
+  r: 13px;
 
   @each $type, $color in $event-node-type-to-color-map {
     &--#{$type} {
@@ -12,12 +12,12 @@
     }
   }
   &--small {
-    r: 12px;
+    r: 11px;
   }
 }
 
 .loop-back-badge-emoji {
-  font-size: font-size('sm');
+  font-size: font-size('xs');
   pointer-events: none;
 
   &--small {
@@ -27,7 +27,8 @@
 
 .node-type-badge-circle {
   stroke-width: 2px;
-  r: 21px;
+  r: 17px;
+  opacity: 0.85;
 
   @each $type, $color in $event-node-type-to-color-map {
     &--#{$type} {
@@ -35,9 +36,17 @@
       stroke: color.mix($color-component-bg, $color, 25%);
     }
   }
+  &--large {
+    r: 21px;
+    opacity: 1;
+  }
 }
 
 .node-type-badge-emoji {
-  font-size: font-size('md-plus');
+  font-size: font-size('md');
   pointer-events: none;
+
+  &--large {
+    font-size: font-size('md-plus');
+  }
 }

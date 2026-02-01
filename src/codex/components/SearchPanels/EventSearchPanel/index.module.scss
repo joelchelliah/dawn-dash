@@ -150,6 +150,14 @@
     font-size: font-size('xxs');
   }
 
+  &:hover {
+    color: $color-primary-base;
+
+    .info-message__emoji {
+      opacity: 1;
+    }
+  }
+
   &__emoji {
     flex-shrink: 0;
     line-height: 1;
