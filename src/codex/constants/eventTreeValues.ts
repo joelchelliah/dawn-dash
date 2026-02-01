@@ -37,6 +37,8 @@ export const TEXT = {
   REPLACED_TEXT_HEIGHT: REPLACED_TEXT_HEIGHT,
   HORIZONTAL_PADDING: 10,
 
+  COMPACT_CHOICE_TEXT_MAX_WIDTH: 150,
+
   // Max number of text lines to display for dialogue and end nodes
   MAX_DISPLAY_LINES_BY_LEVEL_OF_DETAIL: {
     [LevelOfDetail.COMPACT]: 0,

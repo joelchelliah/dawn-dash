@@ -152,45 +152,34 @@ const _getNodeWidth = (
     const refNode = nodeMap.get(node.ref)
     const refNodeLabel = getNodeTextOrChoiceLabel(refNode)
     const text = isCompact ? `🔄 ${refNodeLabel || ''}` : '🔄 Loops back to:'
+    const loopIndicatorTextWidth =
+      measureEventTextWidth(text, 'indicatorHeader') + INNER_BOX.HORIZONTAL_MARGIN_OR_PADDING * 4
 
-    width = Math.max(
-      width,
-      clampNodeWidth(
-        measureEventTextWidth(text, 'indicatorHeader') + INNER_BOX.HORIZONTAL_MARGIN_OR_PADDING * 4,
-        isCompact
-      )
-    )
+    width = Math.max(width, clampNodeWidth(loopIndicatorTextWidth, isCompact))
   }
 
   if (numContinues > 0) {
     const text = isCompact ? `⏭️ × ${numContinues}` : `⏭️ Continues: ${numContinues}`
+    const continueTextWidth =
+      measureEventTextWidth(text, 'indicatorHeader') + INNER_BOX.HORIZONTAL_MARGIN_OR_PADDING * 4
 
-    width = Math.max(
-      width,
-      clampNodeWidth(
-        measureEventTextWidth(text, 'indicatorHeader') + INNER_BOX.HORIZONTAL_MARGIN_OR_PADDING * 4,
-        isCompact
-      )
-    )
+    width = Math.max(width, clampNodeWidth(continueTextWidth, isCompact))
   }
 
   const dialogueText = hasText(node) ? node.text : ''
   if (dialogueText && !isCompact) {
-    width = Math.max(
-      width,
-      clampNodeWidth(measureEventTextWidth(dialogueText) + TEXT.HORIZONTAL_PADDING * 2, isCompact)
-    )
+    const dialogueTextWidth = measureEventTextWidth(dialogueText) + TEXT.HORIZONTAL_PADDING * 2
+    width = Math.max(width, clampNodeWidth(dialogueTextWidth, isCompact))
   }
 
   const choiceLabel = node.type === 'choice' ? node.choiceLabel : ''
   if (choiceLabel) {
-    width = Math.max(
-      width,
-      clampNodeWidth(
-        measureEventTextWidth(choiceLabel, 'choice') + TEXT.HORIZONTAL_PADDING * 2,
-        isCompact
-      )
-    )
+    const choiceLabelWidth =
+      measureEventTextWidth(choiceLabel, 'choice') + TEXT.HORIZONTAL_PADDING * 2
+    const choiceLabelMaxWidth = isCompact
+      ? Math.min(TEXT.COMPACT_CHOICE_TEXT_MAX_WIDTH, choiceLabelWidth)
+      : choiceLabelWidth
+    width = Math.max(width, clampNodeWidth(choiceLabelMaxWidth, isCompact))
   }
 
   const widestRequirementWidth =
@@ -202,10 +191,8 @@ const _getNodeWidth = (
       : 0
 
   if (widestRequirementWidth > 0) {
-    width = Math.max(
-      width,
-      clampNodeWidth(widestRequirementWidth + INNER_BOX.HORIZONTAL_MARGIN_OR_PADDING * 4, isCompact)
-    )
+    const requirementWidth = widestRequirementWidth + INNER_BOX.HORIZONTAL_MARGIN_OR_PADDING * 4
+    width = Math.max(width, clampNodeWidth(requirementWidth, isCompact))
   }
 
   const widestEffectWidth = hasEffects(node)
@@ -216,10 +203,8 @@ const _getNodeWidth = (
     : 0
 
   if (widestEffectWidth > 0) {
-    width = Math.max(
-      width,
-      clampNodeWidth(widestEffectWidth + INNER_BOX.HORIZONTAL_MARGIN_OR_PADDING * 4, isCompact)
-    )
+    const effectWidth = widestEffectWidth + INNER_BOX.HORIZONTAL_MARGIN_OR_PADDING * 4
+    width = Math.max(width, clampNodeWidth(effectWidth, isCompact))
   }
 
   return width
