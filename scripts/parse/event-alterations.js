@@ -379,7 +379,7 @@ module.exports = [
                   {
                     type: 'dialogue',
                     text: 'We- We must protest! This is in clear violation of our Terms of Service! I-...!',
-                    numContinues: 1,
+                    numContinues: 0,
                     children: [
                       {
                         type: 'end',
@@ -398,7 +398,7 @@ module.exports = [
                   {
                     type: 'dialogue',
                     text: 'Oh! Haha I suppose this will be a new experience. Of sorts. I uhm...',
-                    numContinues: 1,
+                    numContinues: 0,
                     children: [
                       {
                         type: 'end',

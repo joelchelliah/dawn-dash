@@ -10064,7 +10064,7 @@
     "artwork": "opportunity_image",
     "rootNode": {
       "id": 0,
-      "text": "A skeleton in highly oxidised yet impressive armor sits against a nearby tree trunk. As you walk past, an ivory hand suddenly grasps at your weapon. \"Pleeeeeeease\" a hollow howl escapes from the undead's broken jaw...",
+      "text": "A skeleton in highly oxidised yet impressive armor sits against a nearby stone. As you walk past, an ivory hand suddenly grasps at your weapon. \"Pleeeeeeease\" a hollow howl escapes from the undead's broken jaw...",
       "type": "dialogue",
       "numContinues": 0,
       "children": [
@@ -11076,7 +11076,7 @@
                                       "text": "You find «random» gold!",
                                       "type": "dialogue",
                                       "effects": [
-                                        "GOLD: random [30 - 65]"
+                                        "GOLD: random [25 - 50]"
                                       ],
                                       "numContinues": 1,
                                       "children": [
@@ -11112,7 +11112,7 @@
                                       "text": "You find «random» gold!",
                                       "type": "dialogue",
                                       "effects": [
-                                        "GOLD: random [50 - 75]"
+                                        "GOLD: random [30 - 65]"
                                       ],
                                       "numContinues": 1,
                                       "children": [
@@ -17313,11 +17313,11 @@
         {
           "id": 1,
           "type": "choice",
-          "choiceLabel": "Focus on the Succubus",
+          "choiceLabel": "Focus on the Necromancer",
           "children": [
             {
               "id": 3786,
-              "text": "Focus on the Succubus (fill in the lore for this.) final words",
+              "text": "Focus on the Necromancer (fill in the lore for this.) final words",
               "type": "end"
             }
           ]
@@ -17325,11 +17325,11 @@
         {
           "id": 2,
           "type": "choice",
-          "choiceLabel": "Focus on the Alchemist",
+          "choiceLabel": "Focus on the Consul",
           "children": [
             {
               "id": 3787,
-              "text": "Focus on the Alchemist (fill in the lore for this.) final words",
+              "text": "Focus on the Consul (fill in the lore for this.) final words",
               "type": "end"
             }
           ]
@@ -17337,11 +17337,11 @@
         {
           "id": 3,
           "type": "choice",
-          "choiceLabel": "Focus on the Blacksmith",
+          "choiceLabel": "Focus on the Succubus",
           "children": [
             {
               "id": 3788,
-              "text": "Focus on the Blacksmith (fill in the lore for this.) final words",
+              "text": "Focus on the Succubus (fill in the lore for this.) final words",
               "type": "end"
             }
           ]
@@ -25952,7 +25952,7 @@
                       "id": 8174,
                       "type": "dialogue",
                       "text": "We- We must protest! This is in clear violation of our Terms of Service! I-...!",
-                      "numContinues": 1,
+                      "numContinues": 0,
                       "children": [
                         {
                           "id": 8175,
@@ -25979,7 +25979,7 @@
                       "id": 8177,
                       "type": "dialogue",
                       "text": "Oh! Haha I suppose this will be a new experience. Of sorts. I uhm...",
-                      "numContinues": 1,
+                      "numContinues": 0,
                       "children": [
                         {
                           "id": 8178,
