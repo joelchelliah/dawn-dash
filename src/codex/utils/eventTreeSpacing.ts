@@ -4,7 +4,7 @@ import { Event, EventTreeNode } from '@/codex/types/events'
 import { NODE } from '@/codex/constants/eventTreeValues'
 import { LevelOfDetail } from '@/codex/constants/eventSearchValues'
 
-import { getNodeDimensions, getNodeWidth, type NodeMap } from './eventTreeHelper'
+import { getNodeDimensions, getNodeWidth, type NodeMap } from './eventNodeDimensions'
 
 const HORIZONTAL_SPACING_CONFIG = {
   pass1Enabled: true,

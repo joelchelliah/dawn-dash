@@ -1,12 +1,12 @@
 import { createCx } from '@/shared/utils/classnames'
 
 import { Event, EventTreeNode } from '@/codex/types/events'
+import { isCompactEmojiOnlyNode } from '@/codex/utils/eventTreeHelper'
 import {
   getNodeDimensions,
   hasMerchantEffects,
-  isCompactEmojiOnlyNode,
   type NodeMap,
-} from '@/codex/utils/eventTreeHelper'
+} from '@/codex/utils/eventNodeDimensions'
 import { LevelOfDetail } from '@/codex/constants/eventSearchValues'
 
 import styles from './badges.module.scss'

@@ -3,12 +3,8 @@ import { select } from 'd3-selection'
 import { createCx } from '@/shared/utils/classnames'
 
 import { Event, EventTreeNode } from '@/codex/types/events'
-import {
-  getNodeDimensions,
-  isEmojiBadgeNode,
-  isCompactEmojiOnlyNode,
-  type NodeMap,
-} from '@/codex/utils/eventTreeHelper'
+import { isEmojiBadgeNode, isCompactEmojiOnlyNode } from '@/codex/utils/eventTreeHelper'
+import { getNodeDimensions, type NodeMap } from '@/codex/utils/eventNodeDimensions'
 import { LevelOfDetail } from '@/codex/constants/eventSearchValues'
 
 import styles from './links.module.scss'

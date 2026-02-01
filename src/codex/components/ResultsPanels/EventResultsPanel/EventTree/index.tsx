@@ -20,9 +20,13 @@ import {
 } from '@/codex/types/events'
 import {
   calculateTreeBounds,
-  hasEffects,
   findNodeById,
   createGlowFilter,
+  buildNodeMap,
+  isCompactEmojiOnlyNode,
+} from '@/codex/utils/eventTreeHelper'
+import {
+  hasEffects,
   getNodeDimensions,
   cacheAllNodeDimensions,
   getNodeTextOrChoiceLabel,
@@ -30,12 +34,10 @@ import {
   calculateEffectsBoxDimensions,
   calculateRequirementsBoxDimensions,
   calculateIndicatorDimensions,
-  isCompactEmojiOnlyNode,
   tweakLoopIndicatorHeightForChoiceNode,
-  buildNodeMap,
   hasMerchantEffects,
   getEmojiMargin,
-} from '@/codex/utils/eventTreeHelper'
+} from '@/codex/utils/eventNodeDimensions'
 import {
   adjustHorizontalNodeSpacing,
   adjustVerticalNodeSpacing,
