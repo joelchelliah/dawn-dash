@@ -62,7 +62,17 @@ export const isRequirementsNode = (node: EventTreeNode): node is ChoiceNode | Re
  * Check if a node has non-empty text content
  */
 export const hasText = (node: EventTreeNode): boolean => {
-  return isTextNode(node) && (node.text || '').trim().length > 0
+  if (!isTextNode(node)) return false
+
+  const text = (node.text || '').trim()
+  return text.length > 0 && text !== 'default'
+}
+
+export const hasChoiceLabel = (node: EventTreeNode): boolean => {
+  if (node.type !== 'choice') return false
+
+  const choiceLabel = (node.choiceLabel || '').trim()
+  return choiceLabel.length > 0 && choiceLabel !== 'default'
 }
 
 /**
@@ -270,6 +280,12 @@ const calculateTextDimensions = (
   const maxDisplayLines = TEXT.MAX_DISPLAY_LINES_BY_LEVEL_OF_DETAIL[levelOfDetail]
 
   if (node.type === 'choice') {
+    if (node.choiceLabel === 'default') {
+      return {
+        height: 0,
+        hasText: false,
+      }
+    }
     const choiceLines = wrapEventText(node.choiceLabel, maxWidth, 'choice')
     return {
       height: choiceLines.length * TEXT.CHOICE_TEXT_HEIGHT,
@@ -277,23 +293,9 @@ const calculateTextDimensions = (
     }
   }
 
-  if (node.type === 'result') {
-    return { height: 0, hasText: false }
-  }
+  if (node.type === 'result') return { height: 0, hasText: false }
 
-  const nodeHasText = hasText(node)
-
-  if (!nodeHasText) {
-    // Special case for end nodes with no text: show "END" replacement text
-    if (node.type === 'end') {
-      const hasEffectsBox = hasEffects(node)
-      return {
-        height: hasEffectsBox ? 0 : TEXT.REPLACED_TEXT_HEIGHT,
-        hasText: false,
-      }
-    }
-    return { height: 0, hasText: false }
-  }
+  if (!hasText(node)) return { height: 0, hasText: false }
 
   // Calculate actual text height
   const textContent = node.text ?? ''

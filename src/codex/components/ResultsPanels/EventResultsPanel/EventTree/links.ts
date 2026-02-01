@@ -3,7 +3,7 @@ import { select } from 'd3-selection'
 import { createCx } from '@/shared/utils/classnames'
 
 import { Event, EventTreeNode } from '@/codex/types/events'
-import { isEmojiBadgeNode, isCompactEmojiOnlyNode } from '@/codex/utils/eventTreeHelper'
+import { isEmojiBadgeNode, isEmojiOnlyNode } from '@/codex/utils/eventTreeHelper'
 import { getNodeDimensions, type NodeMap } from '@/codex/utils/eventNodeDimensions'
 import { LevelOfDetail } from '@/codex/constants/eventSearchValues'
 
@@ -72,8 +72,12 @@ export function drawLinks({
       )
 
       const isTargetEmojiBadgeNode = isEmojiBadgeNode(d.target.data)
+      const isTargetNonCompactEmojiNode =
+        !isCompact && isEmojiOnlyNode(d.target.data, isCompact, showLoopingIndicator)
       let yOffset = -1
-      if (isCompact && isTargetEmojiBadgeNode) {
+      if (isTargetNonCompactEmojiNode) {
+        yOffset = -32
+      } else if (isCompact && isTargetEmojiBadgeNode) {
         yOffset = -25
       } else if (isTargetEmojiBadgeNode) {
         yOffset = -23
@@ -233,12 +237,10 @@ export function drawLoopBackLinks({
       .attr('d', 'M0,-5L20,0L0,5')
       .attr('class', cx('loop-back-arrowhead', `loop-back-arrowhead--${sourceNodeType}`))
 
-    const sourceYOffset = isCompactEmojiOnlyNode(d.source.data, isCompact, showLoopingIndicator)
-      ? -18
-      : 0
-    const targetYOffset = isCompactEmojiOnlyNode(d.target.data, isCompact, showLoopingIndicator)
-      ? 0
-      : 0
+    const sourceYOffset =
+      isCompact && isEmojiOnlyNode(d.source.data, isCompact, showLoopingIndicator) ? -18 : 0
+    const targetYOffset =
+      isCompact && isEmojiOnlyNode(d.target.data, isCompact, showLoopingIndicator) ? 0 : 0
     const adjustedSourceY = sourceY + sourceYOffset
     const adjustedTargetY = targetY + targetYOffset
     // Draw the main line with arrowhead at target end

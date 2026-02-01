@@ -40,6 +40,11 @@
     r: 21px;
     opacity: 1;
   }
+
+  &--extra-large {
+    r: 26px;
+    opacity: 1;
+  }
 }
 
 .node-type-badge-emoji {
@@ -48,5 +53,8 @@
 
   &--large {
     font-size: font-size('md-plus');
+  }
+  &--extra-large {
+    font-size: font-size('lg');
   }
 }

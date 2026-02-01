@@ -1,7 +1,7 @@
 import { createCx } from '@/shared/utils/classnames'
 
 import { Event, EventTreeNode } from '@/codex/types/events'
-import { isCompactEmojiOnlyNode } from '@/codex/utils/eventTreeHelper'
+import { isEmojiOnlyNode } from '@/codex/utils/eventTreeHelper'
 import {
   getNodeDimensions,
   hasMerchantEffects,
@@ -123,7 +123,8 @@ function drawLoopBackBadges(
     .data(
       Array.from(positionToNodeMap.entries()).map(([pos, node]) => {
         const [x, y] = pos.split(',').map(Number)
-        const isCompactEmojiOnly = isCompactEmojiOnlyNode(node, isCompact, showLoopingIndicator)
+        const isCompactEmojiOnly =
+          isCompact && isEmojiOnlyNode(node, isCompact, showLoopingIndicator)
 
         const offsetStart = isCompactEmojiOnly ? 20 : 0
         const offsetEnd = isCompactEmojiOnly ? 2 : 0
@@ -183,8 +184,16 @@ function drawNodeTypeBadge({
       levelOfDetail
     )
 
+    const isNonCompactRootNode = !isCompact && node.depth === 0
     const centerX = node.x
-    const yOffset = isCompact ? 2 : 4
+
+    let yOffset = 4
+    if (isNonCompactRootNode) {
+      yOffset = 13
+    } else if (isCompact) {
+      yOffset = 2
+    }
+
     const topY = node.y - nodeHeight / 2 - yOffset
 
     const badge = g.append('g').attr('transform', `translate(${centerX},${topY})`)
@@ -192,11 +201,16 @@ function drawNodeTypeBadge({
     const isMerchantNode = hasMerchantEffects(node.data)
     const specificNodeType = isMerchantNode ? 'merchant' : nodeType
     const specificEmoji = isMerchantNode ? '🛍️' : emoji
+    const showLargeBadge = isCompact
+    const showExtraLargeBadge =
+      !isCompact &&
+      (isEmojiOnlyNode(node.data, isCompact, showLoopingIndicator) || isNonCompactRootNode)
 
     badge.append('circle').attr(
       'class',
       cx('node-type-badge-circle', `node-type-badge-circle--${specificNodeType}`, {
-        ['node-type-badge-circle--large']: isCompact,
+        ['node-type-badge-circle--large']: showLargeBadge,
+        ['node-type-badge-circle--extra-large']: showExtraLargeBadge,
       })
     )
 
@@ -205,7 +219,8 @@ function drawNodeTypeBadge({
       .attr(
         'class',
         cx('node-type-badge-emoji', {
-          ['node-type-badge-emoji--large']: isCompact,
+          ['node-type-badge-emoji--large']: showLargeBadge,
+          ['node-type-badge-emoji--extra-large']: showExtraLargeBadge,
         })
       )
       .attr('text-anchor', 'middle')

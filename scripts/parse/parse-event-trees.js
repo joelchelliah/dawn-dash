@@ -1421,11 +1421,9 @@ function buildTreeFromStory(
     const matchedHubNodeId = checkHubChoiceMatch(finalChildren)
     // NOTE: hubNodeId can be 0, so don't use truthy checks here.
     if (matchedHubNodeId != null && matchedHubNodeId === snapshot.hubNodeId) {
-      const safeText = finalText && finalText.trim() !== '' ? finalText : '[Choice point]'
+      const safeText = finalText && finalText.trim() !== '' ? finalText : 'default'
       // This node's children match the hub snapshot - convert this node to a ref
 
-      // NOTE: Here we are not taking into account that these nodes can be choices. Maybe they should never be...
-      // Either way there are some weird occurences of [Choice point] in several events now that we need to fix at some point!
       return createNode({
         id: nodeId,
         text: safeText,
@@ -1446,7 +1444,7 @@ function buildTreeFromStory(
     pathConvergenceStates.set(convergenceSignature, nodeId)
   }
 
-  const safeText = type === 'combat' && !finalText ? undefined : finalText || '[Choice point]'
+  const safeText = type === 'combat' && !finalText ? undefined : finalText || 'default'
 
   // Build the node
   return createNode({

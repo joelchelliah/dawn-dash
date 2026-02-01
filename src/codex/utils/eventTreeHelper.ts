@@ -11,6 +11,8 @@ import {
   hasEffects,
   hasRequirements,
   hasContinues,
+  hasText,
+  hasChoiceLabel,
 } from './eventNodeDimensions'
 
 interface TreeBounds {
@@ -112,16 +114,21 @@ export const isEmojiBadgeNode = (node: EventTreeNode): boolean =>
   ['dialogue', 'end', 'combat', 'special', 'result'].includes(node.type)
 
 /**
- * Checks if this node is only represented by an emoji during Compact mode.
+ * Checks if this node is only represented by an emoji.
  */
-export const isCompactEmojiOnlyNode = (
+export const isEmojiOnlyNode = (
   node: EventTreeNode,
   isCompact: boolean,
   showLoopingIndicator: boolean
-): boolean =>
-  isCompact &&
-  isEmojiBadgeNode(node) &&
-  !hasRequirements(node) &&
-  !hasEffects(node) &&
-  !hasContinues(node) &&
-  !(showLoopingIndicator && node.ref !== undefined)
+): boolean => {
+  const isEmojiOnlyCandidate =
+    isEmojiBadgeNode(node) &&
+    !hasRequirements(node) &&
+    !hasEffects(node) &&
+    !hasContinues(node) &&
+    !(showLoopingIndicator && node.ref !== undefined)
+
+  return isCompact
+    ? isEmojiOnlyCandidate
+    : isEmojiOnlyCandidate && !hasText(node) && !hasChoiceLabel(node)
+}

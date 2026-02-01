@@ -23,7 +23,7 @@ import {
   findNodeById,
   createGlowFilter,
   buildNodeMap,
-  isCompactEmojiOnlyNode,
+  isEmojiOnlyNode,
 } from '@/codex/utils/eventTreeHelper'
 import {
   hasEffects,
@@ -37,6 +37,8 @@ import {
   tweakLoopIndicatorHeightForChoiceNode,
   hasMerchantEffects,
   getEmojiMargin,
+  hasText,
+  hasChoiceLabel,
 } from '@/codex/utils/eventNodeDimensions'
 import {
   adjustHorizontalNodeSpacing,
@@ -127,8 +129,10 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
 
     const bounds = calculateTreeBounds(nodeMap, root, event, showLoopingIndicator, levelOfDetail)
     const calculatedWidth = bounds.width + TREE.HORIZONTAL_PADDING * 2
+    const verticalPadding = TREE.VERTICAL_PADDING_BY_LEVEL_OF_DETAIL[levelOfDetail]
+
     const svgWidth = Math.max(calculatedWidth, TREE.MIN_SVG_WIDTH)
-    const svgHeight = bounds.height + TREE.VERTICAL_PADDING * 2
+    const svgHeight = bounds.height + verticalPadding * 2
 
     const zoomScale = zoomCalculator.calculate({
       eventName: event.name,
@@ -144,7 +148,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
     centerRootNodeHorizontally(root as HierarchyPointNode<EventTreeNode>, svgWidth, offsetX)
 
     // Center the tree vertically
-    const offsetY = -bounds.minY + TREE.VERTICAL_PADDING
+    const offsetY = -bounds.minY + verticalPadding
 
     const svg = select(svgRef.current)
 
@@ -204,7 +208,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
       .attr('transform', (d) => `translate(${d.x},${d.y})`)
 
     const shouldSkipDrawingNodeRectangle = (node: EventTreeNode): boolean =>
-      isCompactEmojiOnlyNode(node, isCompact, showLoopingIndicator)
+      isEmojiOnlyNode(node, isCompact, showLoopingIndicator)
 
     // Draw node glow rectangles
     nodes.each(function (d) {
@@ -294,47 +298,37 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
           levelOfDetail
         )
 
-        const textAreaHeight =
-          currentNodeHeight -
-          NODE_BOX.VERTICAL_PADDING * 2 -
-          reqBoxMargin -
-          reqBoxHeight -
-          loopIndicatorHeight -
-          loopIndicatorMargin
+        if (hasChoiceLabel(data)) {
+          const textAreaHeight =
+            currentNodeHeight -
+            NODE_BOX.VERTICAL_PADDING * 2 -
+            reqBoxMargin -
+            reqBoxHeight -
+            loopIndicatorHeight -
+            loopIndicatorMargin
+          const textAreaCenter =
+            -currentNodeHeight / 2 + NODE_BOX.VERTICAL_PADDING + textAreaHeight / 2
 
-        const textAreaCenter =
-          -currentNodeHeight / 2 + NODE_BOX.VERTICAL_PADDING + textAreaHeight / 2
+          const labelGroup = node.append('g').attr('transform', `translate(0, ${textAreaCenter})`)
 
-        const labelGroup = node.append('g').attr('transform', `translate(0, ${textAreaCenter})`)
+          const maxTextWidth = currentNodeWidth - TEXT.HORIZONTAL_PADDING * 2
+          const choiceLines = wrapEventText(data.choiceLabel, maxTextWidth, 'choice')
 
-        const isDefault = data.choiceLabel === 'default'
-        const maxTextWidth = currentNodeWidth - TEXT.HORIZONTAL_PADDING * 2
-        const choiceLines = isDefault
-          ? [data.choiceLabel]
-          : wrapEventText(data.choiceLabel, maxTextWidth, 'choice')
+          // Center the text lines vertically within the label group
+          const totalTextHeight = choiceLines.length * TEXT.CHOICE_TEXT_HEIGHT
+          const verticalCenteringOffset = -totalTextHeight / 2 + TEXT.CHOICE_BASELINE_OFFSET
 
-        // Center the text lines vertically within the label group
-        const totalTextHeight = choiceLines.length * TEXT.CHOICE_TEXT_HEIGHT
-        const defaultChoiceOffset = isDefault ? 0.125 * TEXT.CHOICE_TEXT_HEIGHT : 0
-        const verticalCenteringOffset =
-          -totalTextHeight / 2 + TEXT.CHOICE_BASELINE_OFFSET + defaultChoiceOffset
+          choiceLines.forEach((line, i) => {
+            const yPosition = i * TEXT.CHOICE_TEXT_HEIGHT + verticalCenteringOffset
 
-        choiceLines.forEach((line, i) => {
-          const yPosition = i * TEXT.CHOICE_TEXT_HEIGHT + verticalCenteringOffset
-          const text = isDefault ? '—' : line
-
-          labelGroup
-            .append('text')
-            .attr(
-              'class',
-              cx('event-node-text', 'event-node-text--choice', {
-                'event-node-text--choice--default': isDefault,
-              })
-            )
-            .attr('x', 0)
-            .attr('y', yPosition)
-            .text(text)
-        })
+            labelGroup
+              .append('text')
+              .attr('class', cx('event-node-text', 'event-node-text--choice'))
+              .attr('x', 0)
+              .attr('y', yPosition)
+              .text(line)
+          })
+        }
 
         const requirementsBoxY =
           currentNodeHeight / 2 -
@@ -408,139 +402,58 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
         const textAreaCenter =
           -currentNodeHeight / 2 + NODE_BOX.VERTICAL_PADDING + textAreaHeight / 2
 
-        if (!hasText && effectsBoxHeight === 0 && !isCompact) {
-          const totalTextHeight = TEXT.REPLACED_TEXT_HEIGHT
-          const verticalCenteringOffset =
-            textAreaCenter + emojiMargin - totalTextHeight / 2 + TEXT.REPLACED_TEXT_BASELINE_OFFSET
+        const maxTextWidth = currentNodeWidth - TEXT.HORIZONTAL_PADDING * 2
+        const endLines = wrapEventText(data.text ?? '', maxTextWidth)
+        const displayLines = endLines.slice(0, maxDisplayLines)
+
+        // If there are more lines than we can display, truncate the last line
+        if (endLines.length > maxDisplayLines && displayLines[displayLines.length - 1]) {
+          const lastLineIndex = displayLines.length - 1
+          displayLines[lastLineIndex] = truncateLine(displayLines[lastLineIndex])
+        }
+
+        // Center the lines vertically based on actual number of lines
+        const totalTextHeight = displayLines.length * TEXT.LINE_HEIGHT
+        const verticalCenteringOffset =
+          textAreaCenter + emojiMargin - totalTextHeight / 2 + TEXT.BASELINE_OFFSET
+
+        displayLines.forEach((line, i) => {
           node
             .append('text')
-            .attr('class', cx('event-node-text', 'event-node-text--no-text-fallback'))
+            .attr('class', cx('event-node-text', 'event-node-text--end'))
             .attr('x', 0)
-            .attr('y', verticalCenteringOffset / 1.5)
-            .text('END')
-        } else {
-          const maxTextWidth = currentNodeWidth - TEXT.HORIZONTAL_PADDING * 2
-          const endLines = wrapEventText(data.text ?? '', maxTextWidth)
-          const displayLines = endLines.slice(0, maxDisplayLines)
-
-          // If there are more lines than we can display, truncate the last line
-          if (endLines.length > maxDisplayLines && displayLines[displayLines.length - 1]) {
-            const lastLineIndex = displayLines.length - 1
-            displayLines[lastLineIndex] = truncateLine(displayLines[lastLineIndex])
-          }
-
-          // Center the lines vertically based on actual number of lines
-          const totalTextHeight = displayLines.length * TEXT.LINE_HEIGHT
-          const verticalCenteringOffset =
-            textAreaCenter + emojiMargin - totalTextHeight / 2 + TEXT.BASELINE_OFFSET
-
-          displayLines.forEach((line, i) => {
-            node
-              .append('text')
-              .attr('class', cx('event-node-text', 'event-node-text--end'))
-              .attr('x', 0)
-              .attr('y', i * TEXT.LINE_HEIGHT + verticalCenteringOffset)
-              .text(line)
-          })
-        }
+            .attr('y', i * TEXT.LINE_HEIGHT + verticalCenteringOffset)
+            .text(line)
+        })
       } else if (data.type === 'dialogue') {
-        // For dialogue nodes, show dialogue text (effects box is handled centrally below)
-        const isRootNode = d.depth === 0
+        const [currentNodeWidth, currentNodeHeight] = getNodeDimensions(
+          nodeMap,
+          data,
+          event,
+          showLoopingIndicator,
+          levelOfDetail
+        )
 
-        if (isRootNode) {
-          const [currentNodeWidth, currentNodeHeight] = getNodeDimensions(
-            nodeMap,
-            data,
-            event,
-            showLoopingIndicator,
-            levelOfDetail
+        const nodeHasText = !isCompact && hasText(data)
+        const { height: effectsBoxHeight, margin: effectsBoxMargin } =
+          calculateEffectsBoxDimensions(data, currentNodeWidth, isCompact, nodeHasText)
+
+        const { height: continueIndicatorHeight, margin: continueIndicatorMargin } =
+          calculateIndicatorDimensions(
+            'continue',
+            Boolean(data.numContinues),
+            nodeHasText,
+            effectsBoxHeight > 0
+          )
+        const { height: loopIndicatorHeight, margin: loopIndicatorMargin } =
+          calculateIndicatorDimensions(
+            'loop',
+            Boolean(showLoopingIndicator && data.ref !== undefined),
+            nodeHasText,
+            effectsBoxHeight > 0 || continueIndicatorHeight > 0
           )
 
-          const hasText = Boolean(!isCompact && data.text && data.text.trim().length > 0)
-          const { height: effectsBoxHeight, margin: effectsBoxMargin } =
-            calculateEffectsBoxDimensions(data, currentNodeWidth, isCompact, hasText)
-          const { height: continueIndicatorHeight, margin: continueIndicatorMargin } =
-            calculateIndicatorDimensions(
-              'continue',
-              Boolean(data.numContinues),
-              hasText,
-              effectsBoxHeight > 0
-            )
-          const { height: loopIndicatorHeight, margin: loopIndicatorMargin } =
-            calculateIndicatorDimensions(
-              'loop',
-              Boolean(showLoopingIndicator && data.ref !== undefined),
-              hasText,
-              effectsBoxHeight > 0 || continueIndicatorHeight > 0
-            )
-
-          const textAreaHeight =
-            currentNodeHeight -
-            NODE_BOX.VERTICAL_PADDING * 2 -
-            effectsBoxMargin -
-            effectsBoxHeight -
-            continueIndicatorMargin -
-            continueIndicatorHeight -
-            loopIndicatorMargin -
-            loopIndicatorHeight
-          const textAreaCenter =
-            -currentNodeHeight / 2 + NODE_BOX.VERTICAL_PADDING + textAreaHeight / 2
-
-          if (hasText) {
-            const maxTextWidth = currentNodeWidth - TEXT.HORIZONTAL_PADDING * 2
-            const dialogueLines = wrapEventText(data.text, maxTextWidth)
-            const displayLines = dialogueLines.slice(0, maxDisplayLines)
-
-            // If there are more lines than we can display, truncate the last line
-            if (dialogueLines.length > maxDisplayLines && displayLines[displayLines.length - 1]) {
-              const lastLineIndex = displayLines.length - 1
-              displayLines[lastLineIndex] = truncateLine(displayLines[lastLineIndex])
-            }
-
-            // Center the lines vertically based on actual number of lines
-            const totalTextHeight = displayLines.length * TEXT.LINE_HEIGHT
-            const verticalCenteringOffset =
-              textAreaCenter + emojiMargin - totalTextHeight / 2 + TEXT.BASELINE_OFFSET
-
-            displayLines.forEach((line, i) => {
-              const y = i * TEXT.LINE_HEIGHT + verticalCenteringOffset
-
-              node
-                .append('text')
-                .attr('class', cx('event-node-text', 'event-node-text--dialogue'))
-                .attr('x', 0)
-                .attr('y', y)
-                .text(line)
-            })
-          }
-        } else {
-          const [currentNodeWidth, currentNodeHeight] = getNodeDimensions(
-            nodeMap,
-            data,
-            event,
-            showLoopingIndicator,
-            levelOfDetail
-          )
-
-          const hasText = Boolean(!isCompact && data.text && data.text.trim().length > 0)
-          const { height: effectsBoxHeight, margin: effectsBoxMargin } =
-            calculateEffectsBoxDimensions(data, currentNodeWidth, isCompact, hasText)
-
-          const { height: continueIndicatorHeight, margin: continueIndicatorMargin } =
-            calculateIndicatorDimensions(
-              'continue',
-              Boolean(data.numContinues),
-              hasText,
-              effectsBoxHeight > 0
-            )
-          const { height: loopIndicatorHeight, margin: loopIndicatorMargin } =
-            calculateIndicatorDimensions(
-              'loop',
-              Boolean(showLoopingIndicator && data.ref !== undefined),
-              hasText,
-              effectsBoxHeight > 0 || continueIndicatorHeight > 0
-            )
-
+        if (nodeHasText) {
           const textAreaHeight =
             currentNodeHeight -
             NODE_BOX.VERTICAL_PADDING * 2 -
@@ -651,9 +564,9 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
           levelOfDetail
         )
 
-        const hasText = Boolean(!isCompact && data.text && data.text.trim().length > 0)
+        const nodeHasText = hasText(data)
         const { height: effectsBoxHeight, margin: effectsBoxMargin } =
-          calculateEffectsBoxDimensions(data, currentNodeWidth, isCompact, hasText)
+          calculateEffectsBoxDimensions(data, currentNodeWidth, isCompact, nodeHasText)
         const loopIndicatorMargin = loopIndicatorHeight > 0 ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
         // The text area is: total height minus vertical padding, effects box, its margin, and loop indicator
         const textAreaHeight =
@@ -667,7 +580,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
         const textAreaCenter =
           -currentNodeHeight / 2 + NODE_BOX.VERTICAL_PADDING + textAreaHeight / 2
 
-        if (hasText && data.text) {
+        if (nodeHasText && data.text) {
           const maxTextWidth = currentNodeWidth - TEXT.HORIZONTAL_PADDING * 2
           const specialLines = wrapEventText(data.text, maxTextWidth, 'special')
           const displayLines = specialLines.slice(0, maxDisplayLines)
@@ -685,14 +598,13 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
 
           displayLines.forEach((line, i) => {
             const y = i * TEXT.SPECIAL_TEXT_HEIGHT + verticalCenteringOffset
-            const text = line === 'default' ? '—' : line
 
             node
               .append('text')
               .attr('class', cx('event-node-text', 'event-node-text--special'))
               .attr('x', 0)
               .attr('y', y)
-              .text(text)
+              .text(line)
           })
         }
       } else if (data.type === 'result') {

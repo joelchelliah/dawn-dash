@@ -6,7 +6,11 @@ import { LevelOfDetail } from './eventSearchValues'
 
 export const TREE = {
   HORIZONTAL_PADDING: 20,
-  VERTICAL_PADDING: 30,
+  VERTICAL_PADDING_BY_LEVEL_OF_DETAIL: {
+    [LevelOfDetail.COMPACT]: 25,
+    [LevelOfDetail.BALANCED]: 40,
+    [LevelOfDetail.WALL_OF_TEXT]: 40,
+  },
   MIN_SVG_WIDTH: 500, // Minimum SVG width to prevent nodes from appearing too large
 }
 
