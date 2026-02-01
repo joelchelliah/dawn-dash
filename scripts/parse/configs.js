@@ -97,6 +97,11 @@ const DIALOGUE_MENU_EVENTS = {
     menuExitPatterns: ['Leave'],
     hubChoiceMatchThreshold: 80, // choices: 4/5
   },
+  'Survey the Field': {
+    menuHubPattern: 'You take a moment to',
+    menuExitPatterns: ['Continue'],
+    hubChoiceMatchThreshold: 60, // choices: 2/3
+  },
   'Suspended Cage': {
     menuHubPattern: 'Quickly pry open the lock',
     menuExitPatterns: ['Leave'],
@@ -221,7 +226,12 @@ const OPTIMIZATION_PASS_CONFIG = {
     'The Ferryman',
     'Warfront Survivor',
   ],
-  COMPLEX_COUSIN_REF_BLACKLIST: ['Suspended Cage', 'The Priestess'],
+  COMPLEX_COUSIN_REF_BLACKLIST: [
+    'Brightcandle Inn',
+    'Damsel in Distress',
+    'Suspended Cage',
+    'The Priestess',
+  ],
 
   // Validate refs (detect refs pointing to missing nodes) and log warnings.
   CHECK_INVALID_REFS_ENABLED: true,

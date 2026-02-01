@@ -103,24 +103,43 @@ function detectRandomVariables(inkJsonString) {
 }
 
 /**
- * Detect knot definitions in Ink JSON root[2]
- * Knots are named sections of story that can be called dynamically by game commands
- * Returns a map of knot names to their content arrays
+ * Detect knot definitions in Ink JSON.
+ * Knots are named sections of story that can be called dynamically by game commands.
+ * Returns a map of knot names to their content arrays.
+ *
+ * Two layouts exist:
+ * - root[2]: used by some events (e.g. Collector) for dynamic branching targets.
+ * - root[0] trailing object: many events (e.g. Golden Idol) embed knots in the last
+ *   element of the main flow array (keys like disable, take, smash, c-0, g-0).
+ * Stitches (e.g. fail, collectorend) are nested inside knot content via {"#n":"name"};
+ * the runtime follows diverts like 0.smash.fail when choices are taken, so we don't
+ * need to parse #n for tree building.
  */
 function detectKnotDefinitions(inkJson) {
   const knots = new Map()
 
-  // Knot definitions are typically at root[2] (root[0] is main flow, root[1] is "done", root[2] is knots)
+  // 1) root[2] (e.g. Collector: Drakkan, GoldenIdol, Rare, ...)
   if (Array.isArray(inkJson.root) && inkJson.root.length > 2) {
     const definitions = inkJson.root[2]
-
     if (typeof definitions === 'object' && definitions !== null && !Array.isArray(definitions)) {
       Object.entries(definitions).forEach(([knotName, knotBody]) => {
-        // Skip metadata keys that start with #
         if (knotName.startsWith('#')) return
-
         knots.set(knotName, knotBody)
       })
+    }
+  }
+
+  // 2) root[0] trailing object (e.g. Golden Idol: disable, take, smash, g-0, c-0, ...)
+  if (Array.isArray(inkJson.root) && inkJson.root.length > 0) {
+    const flow = inkJson.root[0]
+    if (Array.isArray(flow) && flow.length > 0) {
+      const last = flow[flow.length - 1]
+      if (typeof last === 'object' && last !== null && !Array.isArray(last)) {
+        Object.entries(last).forEach(([knotName, knotBody]) => {
+          if (knotName.startsWith('#')) return
+          if (!knots.has(knotName)) knots.set(knotName, knotBody)
+        })
+      }
     }
   }
 
