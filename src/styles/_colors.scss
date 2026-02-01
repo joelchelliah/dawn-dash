@@ -132,6 +132,7 @@ $color-event-node-combat: #ec2813;
 $color-event-node-special: #bd30ff;
 $color-event-node-result: #ff64b9;
 $color-event-node-end: #2b6348;
+$color-event-node-merchant: #00b65e;
 
 $event-node-type-to-color-map: (
   'dialogue': $color-event-node-dialogue,
@@ -140,5 +141,6 @@ $event-node-type-to-color-map: (
   'special': $color-event-node-special,
   'result': $color-event-node-result,
   'end': $color-event-node-end,
+  'merchant': $color-event-node-merchant,
 );
 // -- -- -- -- -- -- -- //

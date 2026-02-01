@@ -4,7 +4,6 @@ import { createCx } from '@/shared/utils/classnames'
 
 import { Event, EventTreeNode } from '@/codex/types/events'
 import {
-  getArrowheadAngle,
   getNodeDimensions,
   isEmojiBadgeNode,
   isCompactEmojiOnlyNode,
@@ -418,4 +417,27 @@ function calculateLoopBackLinkCorners(
   }
 
   return { sourceX, sourceY, targetX, targetY }
+}
+
+/**
+ * Calculate the arrowhead angle based on horizontal displacement between nodes.
+ *
+ * Uses a self-limiting rational function: tiltFactor = |dx| / (750 + |dx|)
+ * This creates smooth, organic angle adjustments where the tilt asymptotically
+ * approaches maxTilt but never quite reaches it, providing natural diminishing
+ * returns as distance increases.
+ */
+const getArrowheadAngle = (dx: number): number => {
+  if (dx === 0) {
+    return 90 // Straight down
+  }
+
+  const maxTilt = 45
+  const baseDivisor = 250
+  const adjustedDivisor = baseDivisor + Math.abs(dx)
+  const tiltFactor = Math.abs(dx) / adjustedDivisor
+  const tilt = tiltFactor * maxTilt
+
+  // If target is to the right, tilt right (angle < 90); if left, tilt left (angle > 90)
+  return dx > 0 ? 90 - tilt : 90 + tilt
 }

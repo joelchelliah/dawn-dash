@@ -235,8 +235,7 @@ const _getNodeHeight = (
   levelOfDetail: LevelOfDetail
 ): number => {
   const isCompact = levelOfDetail === LevelOfDetail.COMPACT
-  const emojiMargin =
-    node.type === 'choice' ? 0 : NODE_BOX.EMOJI_MARGIN_BY_LEVEL_OF_DETAIL[levelOfDetail]
+  const emojiMargin = getEmojiMargin(node, levelOfDetail)
 
   const maxNodeTextWidth = width - TEXT.HORIZONTAL_PADDING * 2
   const maxDisplayLines = TEXT.MAX_DISPLAY_LINES_BY_LEVEL_OF_DETAIL[levelOfDetail]
@@ -534,6 +533,19 @@ const hasText = (
   return isTextNode && (node.text || '')?.trim().length > 0
 }
 
+export const hasMerchantEffects = (node: EventTreeNode): boolean => {
+  const isEffectsNode =
+    node.type === 'end' ||
+    node.type === 'dialogue' ||
+    node.type === 'combat' ||
+    node.type === 'special'
+  const merchantEffects = ['BUYCARDBYCATEGORY: potion', 'MERCHANT']
+
+  return (
+    isEffectsNode && (node.effects ?? []).some((effect: string) => merchantEffects.includes(effect))
+  )
+}
+
 export const hasRequirements = (node: EventTreeNode): boolean => {
   const isRequirementsNode = node.type === 'choice' || node.type === 'result'
 
@@ -561,26 +573,23 @@ export const hasContinues = (node: EventTreeNode): node is DialogueNode => {
 }
 
 /**
- * Calculate the arrowhead angle based on horizontal displacement between nodes.
- *
- * Uses a self-limiting rational function: tiltFactor = |dx| / (750 + |dx|)
- * This creates smooth, organic angle adjustments where the tilt asymptotically
- * approaches maxTilt but never quite reaches it, providing natural diminishing
- * returns as distance increases.
+ * Gets the additional margin a node requires to avoid text colliding with its emoji badge.
  */
-export const getArrowheadAngle = (dx: number): number => {
-  if (dx === 0) {
-    return 90 // Straight down
+export const getEmojiMargin = (node: EventTreeNode, levelOfDetail: LevelOfDetail): number => {
+  const isCompact = levelOfDetail === LevelOfDetail.COMPACT
+  const hasOnlyInnerBoxAndIsNotCompact =
+    (hasEffects(node) || hasRequirements(node)) && !isCompact && !hasText(node)
+
+  let emojiMargin: number
+  if (node.type === 'choice') {
+    emojiMargin = 0
+  } else if (hasOnlyInnerBoxAndIsNotCompact) {
+    emojiMargin = 0
+  } else {
+    emojiMargin = NODE_BOX.EMOJI_MARGIN_BY_LEVEL_OF_DETAIL[levelOfDetail]
   }
 
-  const maxTilt = 45
-  const baseDivisor = 250
-  const adjustedDivisor = baseDivisor + Math.abs(dx)
-  const tiltFactor = Math.abs(dx) / adjustedDivisor
-  const tilt = tiltFactor * maxTilt
-
-  // If target is to the right, tilt right (angle < 90); if left, tilt left (angle > 90)
-  return dx > 0 ? 90 - tilt : 90 + tilt
+  return emojiMargin
 }
 
 /**

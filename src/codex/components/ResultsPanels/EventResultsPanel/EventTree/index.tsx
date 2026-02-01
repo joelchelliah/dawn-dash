@@ -33,6 +33,8 @@ import {
   isCompactEmojiOnlyNode,
   tweakLoopIndicatorHeightForChoiceNode,
   buildNodeMap,
+  hasMerchantEffects,
+  getEmojiMargin,
 } from '@/codex/utils/eventTreeHelper'
 import {
   adjustHorizontalNodeSpacing,
@@ -90,7 +92,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
     const showLoopingIndicator = loopingPathMode === LoopingPathMode.INDICATOR
     const isCompact = levelOfDetail === LevelOfDetail.COMPACT
     const maxDisplayLines = TEXT.MAX_DISPLAY_LINES_BY_LEVEL_OF_DETAIL[levelOfDetail]
-    const emojiMargin = NODE_BOX.EMOJI_MARGIN_BY_LEVEL_OF_DETAIL[levelOfDetail]
+    const emojiMargin = getEmojiMargin(event.rootNode, levelOfDetail)
 
     // Clear previous visualization
     select(svgRef.current).selectAll('*').remove()
@@ -216,7 +218,8 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
       )
       const nodeGlowWidth = nodeWidth + NODE_BOX.GLOW_SIZE
       const nodeGlowHeight = nodeHeight + NODE_BOX.GLOW_SIZE
-      const nodeType = d.data.type || 'default'
+      const isMerchantNode = hasMerchantEffects(d.data)
+      const nodeType = isMerchantNode ? 'merchant' : d.data.type || 'default'
 
       nodeElement
         .append('rect')
@@ -241,7 +244,8 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
         showLoopingIndicator,
         levelOfDetail
       )
-      const nodeType = d.data.type || 'default'
+      const isMerchantNode = hasMerchantEffects(d.data)
+      const nodeType = isMerchantNode ? 'merchant' : d.data.type || 'default'
 
       nodeElement
         .append('rect')

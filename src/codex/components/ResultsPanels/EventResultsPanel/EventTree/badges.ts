@@ -3,6 +3,7 @@ import { createCx } from '@/shared/utils/classnames'
 import { Event, EventTreeNode } from '@/codex/types/events'
 import {
   getNodeDimensions,
+  hasMerchantEffects,
   isCompactEmojiOnlyNode,
   type NodeMap,
 } from '@/codex/utils/eventTreeHelper'
@@ -188,9 +189,13 @@ function drawNodeTypeBadge({
 
     const badge = g.append('g').attr('transform', `translate(${centerX},${topY})`)
 
+    const isMerchantNode = hasMerchantEffects(node.data)
+    const specificNodeType = isMerchantNode ? 'merchant' : nodeType
+    const specificEmoji = isMerchantNode ? '🛍️' : emoji
+
     badge.append('circle').attr(
       'class',
-      cx('node-type-badge-circle', `node-type-badge-circle--${nodeType}`, {
+      cx('node-type-badge-circle', `node-type-badge-circle--${specificNodeType}`, {
         ['node-type-badge-circle--large']: isCompact,
       })
     )
@@ -205,7 +210,7 @@ function drawNodeTypeBadge({
       )
       .attr('text-anchor', 'middle')
       .attr('dominant-baseline', 'central')
-      .text(emoji)
+      .text(specificEmoji)
   })
 }
 
