@@ -184,12 +184,14 @@ function drawNodeTypeBadge({
       levelOfDetail
     )
 
-    const isNonCompactRootNode = !isCompact && node.depth === 0
+    const isRootNode = node.depth === 0
     const centerX = node.x
 
     let yOffset = 4
-    if (isNonCompactRootNode) {
+    if (!isCompact && isRootNode) {
       yOffset = 13
+    } else if (isCompact && isRootNode) {
+      yOffset = 8
     } else if (isCompact) {
       yOffset = 2
     }
@@ -202,9 +204,9 @@ function drawNodeTypeBadge({
     const specificNodeType = isMerchantNode ? 'merchant' : nodeType
     const specificEmoji = isMerchantNode ? '🛍️' : emoji
     const showLargeBadge = isCompact
-    const showExtraLargeBadge =
-      !isCompact &&
-      (isEmojiOnlyNode(node.data, isCompact, showLoopingIndicator) || isNonCompactRootNode)
+    const showExtraLargeBadge = isCompact
+      ? isRootNode
+      : isEmojiOnlyNode(node.data, isCompact, showLoopingIndicator) || isRootNode
 
     badge.append('circle').attr(
       'class',

@@ -277,6 +277,7 @@ const calculateTextDimensions = (
   maxWidth: number,
   levelOfDetail: LevelOfDetail
 ): TextDimensions => {
+  const isCompact = levelOfDetail === LevelOfDetail.COMPACT
   const maxDisplayLines = TEXT.MAX_DISPLAY_LINES_BY_LEVEL_OF_DETAIL[levelOfDetail]
 
   if (node.type === 'choice') {
@@ -295,7 +296,7 @@ const calculateTextDimensions = (
 
   if (node.type === 'result') return { height: 0, hasText: false }
 
-  if (!hasText(node)) return { height: 0, hasText: false }
+  if (isCompact || !hasText(node)) return { height: 0, hasText: false }
 
   // Calculate actual text height
   const textContent = node.text ?? ''
