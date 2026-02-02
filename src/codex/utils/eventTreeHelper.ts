@@ -1,5 +1,4 @@
 import { HierarchyNode, HierarchyPointNode } from 'd3-hierarchy'
-import { Selection } from 'd3-selection'
 
 import { Event, EventTreeNode } from '@/codex/types/events'
 
@@ -13,6 +12,7 @@ import {
   hasContinues,
   hasText,
   hasChoiceLabel,
+  isEffectsNode,
 } from './eventNodeDimensions'
 
 interface TreeBounds {
@@ -91,23 +91,6 @@ export const findNodeById = (
   root ? root.descendants().find((d) => d.data.id === id)?.data : undefined
 
 /**
- * Creates an SVG glow filter for node effects
- */
-export const createGlowFilter = (
-  defs: Selection<SVGDefsElement, unknown, null, undefined>,
-  filterId: string
-): void => {
-  const blurAmount = '4'
-  const filter = defs.append('filter').attr('id', filterId)
-
-  filter.append('feGaussianBlur').attr('stdDeviation', blurAmount).attr('result', 'coloredBlur')
-
-  const merge = filter.append('feMerge')
-  merge.append('feMergeNode').attr('in', 'coloredBlur')
-  merge.append('feMergeNode').attr('in', 'SourceGraphic')
-}
-
-/**
  * Checks if this node is drawn with an emoji on top during Compact mode.
  */
 export const isEmojiBadgeNode = (node: EventTreeNode): boolean =>
@@ -131,4 +114,44 @@ export const isEmojiOnlyNode = (
   return isCompact
     ? isEmojiOnlyCandidate
     : isEmojiOnlyCandidate && !hasText(node) && !hasChoiceLabel(node)
+}
+
+/**
+ * Get specific emojis for custom nodes
+ */
+export const getCustomNodeEmoji = (node: EventTreeNode): string | undefined => {
+  if (!isEffectsNode(node)) return undefined
+
+  const effects = node.effects ?? []
+
+  if (effects.includes('MERCHANT')) return '🛍️'
+  if (effects.includes('BUYCARDBYCATEGORY: potion')) return '🍷'
+  if (effects.includes('ENCHANTERIMBUE')) return '🎗️'
+  if (effects.includes('TAKEFROMVAULT') || effects.includes('ADDTOVAULT')) return '📦'
+  // Custom emoji but keep existing node type
+  if (effects.includes('CARDPUZZLE')) return '🧩'
+  if (
+    effects.includes(
+      'random [The Blood Moon, The Final Star, The Hangman, The Hourglass, The Pale Mask, The Wheel]'
+    )
+  )
+    return '🎲'
+
+  return undefined
+}
+
+/**
+ * Should use custom node type for styling
+ */
+export const hasCustomNodeType = (node: EventTreeNode): boolean => {
+  if (!isEffectsNode(node)) return false
+  const effects = node.effects ?? []
+
+  return (
+    effects.includes('MERCHANT') ||
+    effects.includes('BUYCARDBYCATEGORY: potion') ||
+    effects.includes('ENCHANTERIMBUE') ||
+    effects.includes('TAKEFROMVAULT') ||
+    effects.includes('ADDTOVAULT')
+  )
 }

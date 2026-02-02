@@ -98,16 +98,6 @@ export const hasContinues = (node: EventTreeNode): node is DialogueNode => {
 }
 
 /**
- * Check if a node has merchant effects
- */
-export const hasMerchantEffects = (node: EventTreeNode): boolean => {
-  const merchantEffects = ['BUYCARDBYCATEGORY: potion', 'MERCHANT']
-  return (
-    isEffectsNode(node) && (node.effects ?? []).some((effect) => merchantEffects.includes(effect))
-  )
-}
-
-/**
  * Get text or choice label from a node
  */
 export const getNodeTextOrChoiceLabel = (node: EventTreeNode | undefined): string | undefined => {

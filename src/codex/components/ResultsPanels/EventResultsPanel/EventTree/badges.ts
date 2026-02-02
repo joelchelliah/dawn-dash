@@ -1,12 +1,12 @@
 import { createCx } from '@/shared/utils/classnames'
 
 import { Event, EventTreeNode } from '@/codex/types/events'
-import { isEmojiOnlyNode } from '@/codex/utils/eventTreeHelper'
 import {
-  getNodeDimensions,
-  hasMerchantEffects,
-  type NodeMap,
-} from '@/codex/utils/eventNodeDimensions'
+  getCustomNodeEmoji,
+  hasCustomNodeType,
+  isEmojiOnlyNode,
+} from '@/codex/utils/eventTreeHelper'
+import { getNodeDimensions, type NodeMap } from '@/codex/utils/eventNodeDimensions'
 import { LevelOfDetail } from '@/codex/constants/eventSearchValues'
 
 import styles from './badges.module.scss'
@@ -199,9 +199,9 @@ function drawNodeTypeBadge({
 
     const badge = g.append('g').attr('transform', `translate(${centerX},${topY})`)
 
-    const isMerchantNode = hasMerchantEffects(node.data)
-    const specificNodeType = isMerchantNode ? 'merchant' : nodeType
-    const specificEmoji = isMerchantNode ? '🛍️' : emoji
+    const specificNodeType = hasCustomNodeType(node.data) ? 'custom' : nodeType
+    const specificEmoji = getCustomNodeEmoji(node.data) ?? emoji
+
     const showLargeBadge = isCompact
     const showExtraLargeBadge = isCompact
       ? isRootNode

@@ -1,11 +1,11 @@
+import { ChoiceNode, Event, EventTreeNode } from '@/codex/types/events'
+
 import {
-  ChoiceNode,
-  CombatNode,
-  DialogueNode,
-  EndNode,
-  Event,
-  EventTreeNode,
-} from '@/codex/types/events'
+  hasChoiceLabel,
+  isEffectsNode,
+  isRequirementsNode,
+  isTextNode,
+} from './eventNodeDimensions'
 
 /**
  * Searches an event tree for text that appears anywhere in:
@@ -27,27 +27,29 @@ export const searchEventTree = (event: Event, searchText: string): boolean => {
   // Recursive function to search through tree nodes
   const searchNode = (node: EventTreeNode): boolean => {
     // Search text
-    if (hasTextProperty(node) && node.text?.toLowerCase().includes(lowerSearch)) {
+    if (isTextNode(node) && node.text?.toLowerCase().includes(lowerSearch)) {
       return true
     }
 
-    if (node.type === 'choice') {
-      const choiceNode = node as ChoiceNode
+    // Search choice label
+    if (
+      hasChoiceLabel(node) &&
+      (node as ChoiceNode).choiceLabel?.toLowerCase().includes(lowerSearch)
+    ) {
+      return true
+    }
 
-      // Search choice label
-      if (choiceNode.choiceLabel?.toLowerCase().includes(lowerSearch)) {
-        return true
-      }
-
-      // Search requirements
-      if (choiceNode.requirements?.some((req) => req.toLowerCase().includes(lowerSearch))) {
-        return true
-      }
+    // Search requirements
+    if (
+      isRequirementsNode(node) &&
+      node.requirements?.some((req) => req.toLowerCase().includes(lowerSearch))
+    ) {
+      return true
     }
 
     // Search effects
     if (
-      hasEffectsProperty(node) &&
+      isEffectsNode(node) &&
       node.effects?.some((eff) => eff.toLowerCase().includes(lowerSearch))
     ) {
       return true
@@ -62,12 +64,4 @@ export const searchEventTree = (event: Event, searchText: string): boolean => {
   }
 
   return searchNode(event.rootNode)
-}
-
-function hasTextProperty(node: EventTreeNode): node is DialogueNode | EndNode | CombatNode {
-  return ['dialogue', 'end', 'combat'].includes(node.type)
-}
-
-function hasEffectsProperty(node: EventTreeNode): node is DialogueNode | EndNode | CombatNode {
-  return ['dialogue', 'end', 'combat'].includes(node.type)
 }

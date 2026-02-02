@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 
-import { select } from 'd3-selection'
+import { select, Selection } from 'd3-selection'
 import { hierarchy, tree, HierarchyPointNode } from 'd3-hierarchy'
 
 import Image from '@/shared/components/Image'
@@ -21,9 +21,9 @@ import {
 import {
   calculateTreeBounds,
   findNodeById,
-  createGlowFilter,
   buildNodeMap,
   isEmojiOnlyNode,
+  hasCustomNodeType,
 } from '@/codex/utils/eventTreeHelper'
 import {
   hasEffects,
@@ -35,7 +35,6 @@ import {
   calculateRequirementsBoxDimensions,
   calculateIndicatorDimensions,
   tweakLoopIndicatorHeightForChoiceNode,
-  hasMerchantEffects,
   getEmojiMargin,
   hasText,
   hasChoiceLabel,
@@ -219,8 +218,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
       const [nodeWidth, nodeHeight] = getDimensions(d.data)
       const nodeGlowWidth = nodeWidth + NODE_BOX.GLOW_SIZE
       const nodeGlowHeight = nodeHeight + NODE_BOX.GLOW_SIZE
-      const isMerchantNode = hasMerchantEffects(d.data)
-      const nodeType = isMerchantNode ? 'merchant' : d.data.type || 'default'
+      const nodeType = hasCustomNodeType(d.data) ? 'custom' : d.data.type || 'default'
 
       nodeElement
         .append('rect')
@@ -239,8 +237,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
 
       const nodeElement = select(this)
       const [nodeWidth, nodeHeight] = getDimensions(d.data)
-      const isMerchantNode = hasMerchantEffects(d.data)
-      const nodeType = isMerchantNode ? 'merchant' : d.data.type || 'default'
+      const nodeType = hasCustomNodeType(d.data) ? 'custom' : d.data.type || 'default'
 
       nodeElement
         .append('rect')
@@ -891,4 +888,18 @@ function renderLoopIndicator(
       )
       .text(truncatedLine)
   }
+}
+
+const createGlowFilter = (
+  defs: Selection<SVGDefsElement, unknown, null, undefined>,
+  filterId: string
+): void => {
+  const blurAmount = '4'
+  const filter = defs.append('filter').attr('id', filterId)
+
+  filter.append('feGaussianBlur').attr('stdDeviation', blurAmount).attr('result', 'coloredBlur')
+
+  const merge = filter.append('feMerge')
+  merge.append('feMergeNode').attr('in', 'coloredBlur')
+  merge.append('feMergeNode').attr('in', 'SourceGraphic')
 }
