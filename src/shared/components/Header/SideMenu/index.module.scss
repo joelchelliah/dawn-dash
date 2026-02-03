@@ -2,6 +2,7 @@
 
 $button-transition: 0.5s ease;
 $button-hover-scale: 1.1;
+$button-active-scale: 1;
 
 .hamburger {
   width: auto;
@@ -37,7 +38,7 @@ $button-hover-scale: 1.1;
     color: $color-primary-base;
 
     &__icon {
-      transition: all 0.5s ease;
+      transition: all 0.5s ease-out;
       padding: 0.25rem;
       border: 2px solid transparent;
       border-radius: 0.5rem;
@@ -51,6 +52,14 @@ $button-hover-scale: 1.1;
 
       .hamburger__button__icon {
         @include yellowGreenGradientIcon(true, $button-hover-scale);
+      }
+    }
+
+    &:active {
+      opacity: 0.8;
+
+      .hamburger__button__icon {
+        @include yellowGreenGradientIcon(true, $button-active-scale);
       }
     }
   }

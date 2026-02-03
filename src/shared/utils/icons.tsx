@@ -225,7 +225,6 @@ export function HamburgerMenuIcon({ className = '', onClick }: IconProps): JSX.E
       strokeLinejoin="round"
       onClick={onClick}
     >
-      {/* "Menu" text */}
       <text
         x="4"
         y="16"
@@ -238,8 +237,57 @@ export function HamburgerMenuIcon({ className = '', onClick }: IconProps): JSX.E
         Menu
       </text>
 
-      {/* Hamburger lines */}
       <path d="M50 6h24M50 12h24M50 18h24" />
+    </svg>
+  )
+}
+
+export function CloseIcon({ className = '', onClick }: IconProps): JSX.Element {
+  return (
+    <svg
+      className={className}
+      width="24"
+      height="24"
+      viewBox="0 0 32 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="3"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      onClick={onClick}
+    >
+      <path d="M9 6l14 12M23 6l-14 12" />
+    </svg>
+  )
+}
+
+export function CloseMenuIcon({ className = '', onClick }: IconProps): JSX.Element {
+  return (
+    <svg
+      className={className}
+      width="80"
+      height="24"
+      viewBox="0 0 80 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      onClick={onClick}
+    >
+      <text
+        x="4"
+        y="16"
+        fontSize="14"
+        fontWeight="700"
+        fill="currentColor"
+        stroke="none"
+        fontFamily="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif"
+      >
+        Menu
+      </text>
+
+      <path d="M56 7l12 10M68 7l-12 10" />
     </svg>
   )
 }

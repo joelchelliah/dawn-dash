@@ -4,7 +4,7 @@ import Link from 'next/link'
 
 import Image from '@/shared/components/Image'
 import LoadingDots from '@/shared/components/LoadingDots'
-import { HamburgerIcon, HamburgerMenuIcon } from '@/shared/utils/icons'
+import { HamburgerIcon, HamburgerMenuIcon, CloseIcon, CloseMenuIcon } from '@/shared/utils/icons'
 import {
   AbracadabraImageUrl,
   DashImageUrl,
@@ -103,6 +103,18 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
     'side-menu__nav-link-container--active': currentPage === 'eventmaps',
   })
 
+  const menuIcon = isMobile ? (
+    isMenuOpen ? (
+      <CloseIcon className={cx('hamburger__button__icon')} />
+    ) : (
+      <HamburgerIcon className={cx('hamburger__button__icon')} />
+    )
+  ) : isMenuOpen ? (
+    <CloseMenuIcon className={cx('hamburger__button__icon')} />
+  ) : (
+    <HamburgerMenuIcon className={cx('hamburger__button__icon')} />
+  )
+
   return (
     <>
       <div className={cx('hamburger', { 'hamburger--menu-open': isMenuOpen })}>
@@ -112,11 +124,7 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
           onClick={toggleMenu}
           aria-label="Toggle menu"
         >
-          {isMobile ? (
-            <HamburgerIcon className={cx('hamburger__button__icon')} />
-          ) : (
-            <HamburgerMenuIcon className={cx('hamburger__button__icon')} />
-          )}
+          {menuIcon}
         </button>
       </div>
 
