@@ -1198,7 +1198,7 @@
                                           "id": 8148,
                                           "type": "special",
                                           "effects": [
-                                            "GOTO EVENT: Kaius Tagdahar Death"
+                                            "EVENT: Kaius Tagdahar Death"
                                           ]
                                         }
                                       ]
@@ -1243,7 +1243,7 @@
                                           "id": 8149,
                                           "type": "special",
                                           "effects": [
-                                            "GOTO EVENT: Kaius Tagdahar Death"
+                                            "EVENT: Kaius Tagdahar Death"
                                           ]
                                         }
                                       ]
@@ -1304,7 +1304,7 @@
                                   "id": 8150,
                                   "type": "special",
                                   "effects": [
-                                    "GOTO EVENT: Kaius Tagdahar Death"
+                                    "EVENT: Kaius Tagdahar Death"
                                   ]
                                 }
                               ]
@@ -1332,7 +1332,7 @@
                           "id": 8151,
                           "type": "special",
                           "effects": [
-                            "GOTO EVENT: Kaius Tagdahar Death"
+                            "EVENT: Kaius Tagdahar Death"
                           ]
                         }
                       ]
@@ -11112,7 +11112,7 @@
                                       "text": "You find «random» gold!",
                                       "type": "dialogue",
                                       "effects": [
-                                        "GOLD: random [25 - 50]"
+                                        "GOLD: random [30 - 65]"
                                       ],
                                       "numContinues": 1,
                                       "children": [
@@ -11539,7 +11539,7 @@
                                                           "id": 8163,
                                                           "type": "special",
                                                           "effects": [
-                                                            "GOTO EVENT: Battleseer Hildune Death"
+                                                            "EVENT: Battleseer Hildune Death"
                                                           ]
                                                         }
                                                       ]
@@ -11755,7 +11755,7 @@
                                                                           "id": 8164,
                                                                           "type": "special",
                                                                           "effects": [
-                                                                            "GOTO EVENT: Battleseer Hildune Death"
+                                                                            "EVENT: Battleseer Hildune Death"
                                                                           ]
                                                                         }
                                                                       ]
@@ -11789,7 +11789,7 @@
                                                                   "id": 8165,
                                                                   "type": "special",
                                                                   "effects": [
-                                                                    "GOTO EVENT: Battleseer Hildune Death"
+                                                                    "EVENT: Battleseer Hildune Death"
                                                                   ]
                                                                 }
                                                               ]
@@ -11845,7 +11845,7 @@
                                                                           "id": 8166,
                                                                           "type": "special",
                                                                           "effects": [
-                                                                            "GOTO EVENT: Battleseer Hildune Death"
+                                                                            "EVENT: Battleseer Hildune Death"
                                                                           ]
                                                                         }
                                                                       ]
@@ -11879,7 +11879,7 @@
                                                                   "id": 8167,
                                                                   "type": "special",
                                                                   "effects": [
-                                                                    "GOTO EVENT: Battleseer Hildune Death"
+                                                                    "EVENT: Battleseer Hildune Death"
                                                                   ]
                                                                 }
                                                               ]
@@ -11975,7 +11975,7 @@
                                                                                   "id": 8162,
                                                                                   "type": "special",
                                                                                   "effects": [
-                                                                                    "GOTO EVENT: Maki Tagdahar Death"
+                                                                                    "EVENT: Maki Tagdahar Death"
                                                                                   ]
                                                                                 }
                                                                               ]
@@ -12011,7 +12011,7 @@
                                                           "id": 8168,
                                                           "type": "special",
                                                           "effects": [
-                                                            "GOTO EVENT: Battleseer Hildune Death"
+                                                            "EVENT: Battleseer Hildune Death"
                                                           ]
                                                         }
                                                       ]
@@ -12087,7 +12087,7 @@
                                                           "id": 8169,
                                                           "type": "special",
                                                           "effects": [
-                                                            "GOTO EVENT: Battleseer Hildune Death"
+                                                            "EVENT: Battleseer Hildune Death"
                                                           ]
                                                         }
                                                       ]
@@ -17421,11 +17421,11 @@
         {
           "id": 1,
           "type": "choice",
-          "choiceLabel": "Focus on the Collector",
+          "choiceLabel": "Focus on the Necromancer",
           "children": [
             {
               "id": 3786,
-              "text": "Focus on the Collector (fill in the lore for this.) final words",
+              "text": "Focus on the Necromancer (fill in the lore for this.) final words",
               "type": "end"
             }
           ]
@@ -17433,11 +17433,11 @@
         {
           "id": 2,
           "type": "choice",
-          "choiceLabel": "Focus on the Priestess",
+          "choiceLabel": "Focus on the Consul",
           "children": [
             {
               "id": 3787,
-              "text": "Focus on the Priestess (fill in the lore for this.) final words",
+              "text": "Focus on the Consul (fill in the lore for this.) final words",
               "type": "end"
             }
           ]
@@ -17445,11 +17445,11 @@
         {
           "id": 3,
           "type": "choice",
-          "choiceLabel": "Focus on the Necromancer",
+          "choiceLabel": "Focus on the Blacksmith",
           "children": [
             {
               "id": 3788,
-              "text": "Focus on the Necromancer (fill in the lore for this.) final words",
+              "text": "Focus on the Blacksmith (fill in the lore for this.) final words",
               "type": "end"
             }
           ]
@@ -30238,7 +30238,7 @@
                           "id": 8209,
                           "type": "special",
                           "effects": [
-                            "GOTO EVENT: Queen of Decay Death"
+                            "EVENT: Queen of Decay Death"
                           ]
                         }
                       ]
@@ -30267,7 +30267,7 @@
                   "id": 8210,
                   "type": "special",
                   "effects": [
-                    "GOTO EVENT: Queen of Decay Death"
+                    "EVENT: Queen of Decay Death"
                   ]
                 }
               ]
@@ -31274,7 +31274,7 @@
                                                   "id": 8211,
                                                   "type": "special",
                                                   "effects": [
-                                                    "GOTO EVENT: Lord of Despair Death"
+                                                    "EVENT: Lord of Despair Death"
                                                   ]
                                                 }
                                               ]
@@ -31319,7 +31319,7 @@
                                           "id": 8212,
                                           "type": "special",
                                           "effects": [
-                                            "GOTO EVENT: Lord of Despair Death"
+                                            "EVENT: Lord of Despair Death"
                                           ]
                                         }
                                       ]
@@ -31348,7 +31348,7 @@
                                   "id": 8213,
                                   "type": "special",
                                   "effects": [
-                                    "GOTO EVENT: Lord of Despair Death"
+                                    "EVENT: Lord of Despair Death"
                                   ]
                                 }
                               ]
@@ -31501,7 +31501,7 @@
                                                           "id": 8214,
                                                           "type": "special",
                                                           "effects": [
-                                                            "GOTO EVENT: Lord of Despair Death"
+                                                            "EVENT: Lord of Despair Death"
                                                           ]
                                                         }
                                                       ]
@@ -31661,7 +31661,7 @@
                           "id": 8215,
                           "type": "special",
                           "effects": [
-                            "GOTO EVENT: Lord of Despair Death"
+                            "EVENT: Lord of Despair Death"
                           ]
                         }
                       ]
@@ -31890,7 +31890,7 @@
                           "id": 8216,
                           "type": "special",
                           "effects": [
-                            "GOTO EVENT: Outerworldly Entity Death"
+                            "EVENT: Outerworldly Entity Death"
                           ]
                         }
                       ]
@@ -31919,7 +31919,7 @@
                   "id": 8217,
                   "type": "special",
                   "effects": [
-                    "GOTO EVENT: Outerworldly Entity Death"
+                    "EVENT: Outerworldly Entity Death"
                   ]
                 }
               ]
@@ -34556,7 +34556,7 @@
                           "id": 8218,
                           "type": "special",
                           "effects": [
-                            "GOTO EVENT: Rathael the Slain Death"
+                            "EVENT: Rathael the Slain Death"
                           ]
                         }
                       ]
@@ -34597,7 +34597,7 @@
                                   "id": 8219,
                                   "type": "special",
                                   "effects": [
-                                    "GOTO EVENT: Rathael the Slain Death"
+                                    "EVENT: Rathael the Slain Death"
                                   ]
                                 }
                               ]
@@ -34655,7 +34655,7 @@
                           "id": 8220,
                           "type": "special",
                           "effects": [
-                            "GOTO EVENT: Rathael the Slain Death"
+                            "EVENT: Rathael the Slain Death"
                           ]
                         }
                       ]
@@ -34718,7 +34718,7 @@
                                   "id": 8221,
                                   "type": "special",
                                   "effects": [
-                                    "GOTO EVENT: Rathael the Slain Death"
+                                    "EVENT: Rathael the Slain Death"
                                   ]
                                 }
                               ]

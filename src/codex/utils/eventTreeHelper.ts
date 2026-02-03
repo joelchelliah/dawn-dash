@@ -139,6 +139,9 @@ export const getCustomNodeEmoji = (node: EventTreeNode): string | undefined => {
     )
   )
     return '🎲'
+  if (effects.some((effect) => effect.startsWith('EVENT:'))) {
+    return '📖'
+  }
 
   return undefined
 }
