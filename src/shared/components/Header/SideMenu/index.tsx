@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 
 import Image from '@/shared/components/Image'
+import LoadingDots from '@/shared/components/LoadingDots'
 import { HamburgerIcon, HamburgerMenuIcon } from '@/shared/utils/icons'
 import {
   AbracadabraImageUrl,
@@ -16,6 +17,8 @@ import { createCx } from '@/shared/utils/classnames'
 import GradientLink from '@/shared/components/GradientLink'
 import InfoModal from '@/shared/components/Modals/InfoModal'
 import { useBreakpoint } from '@/shared/hooks/useBreakpoint'
+import { ClassColorVariant, getClassColor } from '@/shared/utils/classColors'
+import { CharacterClass } from '@/shared/types/characterClass'
 
 import { CurrentPageType } from '../types'
 
@@ -30,6 +33,7 @@ const cx = createCx(styles)
 const SideMenu = ({ currentPage }: SideMenuProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isAboutInfoOpen, setIsAboutInfoOpen] = useState(false)
+  const [loadingPage, setLoadingPage] = useState<string | null>(null)
   const { isMobile } = useBreakpoint()
   const menuRef = useRef<HTMLDivElement>(null)
   const hamburgerRef = useRef<HTMLButtonElement>(null)
@@ -50,6 +54,15 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
       />
     )
   }
+
+  const loadingColor = getClassColor(CharacterClass.Rogue, ClassColorVariant.Dark)
+
+  const getNavLinkText = (name: string) =>
+    loadingPage === name ? (
+      <LoadingDots color={loadingColor} className={cx('side-menu__nav-link__loading-dots')} />
+    ) : (
+      name
+    )
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -115,37 +128,57 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
       >
         <nav className={cx('side-menu__nav')}>
           <div className={landingLinkContainerClassNames}>
-            <Link href="/" className={cx('side-menu__nav-link', 'side-menu__nav-link--home')}>
+            <Link
+              href="/"
+              className={cx('side-menu__nav-link', 'side-menu__nav-link--home')}
+              onClick={() => setLoadingPage('Home')}
+            >
               {getNavLinkImage(InfernalContractUrl, 'Dawn-Dash logo', true)}
-              Home
+              {getNavLinkText('Home')}
             </Link>
           </div>
 
           <div className={cardexLinkContainerClassNames}>
-            <Link href="/cardex" className={cx('side-menu__nav-link')}>
+            <Link
+              href="/cardex"
+              className={cx('side-menu__nav-link')}
+              onClick={() => setLoadingPage('Cardex')}
+            >
               {getNavLinkImage(AbracadabraImageUrl, 'Cardex logo')}
-              Cardex
+              {getNavLinkText('Cardex')}
             </Link>
           </div>
 
           <div className={skilldexLinkContainerClassNames}>
-            <Link href="/skilldex" className={cx('side-menu__nav-link')}>
+            <Link
+              href="/skilldex"
+              className={cx('side-menu__nav-link')}
+              onClick={() => setLoadingPage('Skilldex')}
+            >
               {getNavLinkImage(EleganceImageUrl, 'Skilldex logo')}
-              Skilldex
+              {getNavLinkText('Skilldex')}
             </Link>
           </div>
 
           <div className={eventmapLinkContainerClassNames}>
-            <Link href="/eventmaps" className={cx('side-menu__nav-link')}>
+            <Link
+              href="/eventmaps"
+              className={cx('side-menu__nav-link')}
+              onClick={() => setLoadingPage('Eventmaps')}
+            >
               {getNavLinkImage(MapOfHuesImageUrl, 'Eventmaps logo')}
-              Eventmaps
+              {getNavLinkText('Eventmaps')}
             </Link>
           </div>
 
           <div className={speedrunsLinkContainerClassNames}>
-            <Link href="/speedruns" className={cx('side-menu__nav-link')}>
+            <Link
+              href="/speedruns"
+              className={cx('side-menu__nav-link')}
+              onClick={() => setLoadingPage('Speedruns')}
+            >
               {getNavLinkImage(DashImageUrl, 'Speedruns logo')}
-              Speedruns
+              {getNavLinkText('Speedruns')}
             </Link>
           </div>
 

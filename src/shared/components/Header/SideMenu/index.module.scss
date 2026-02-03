@@ -171,6 +171,11 @@ $button-hover-scale: 1.1;
     &__icon {
       @include rotateY360Animation('hover', '.side-menu__nav-link:hover');
     }
+
+    &__loading-dots {
+      font-size: font-size('xs');
+      margin-left: 0.75rem;
+    }
   }
 }
 
