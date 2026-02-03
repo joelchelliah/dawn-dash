@@ -74,7 +74,7 @@
   border-radius: 0 0 0.5rem 0.5rem;
   margin: 0 -1.25rem -0.875rem -1.25rem;
   transform-origin: left;
-  animation: shrinkProgress 3.6s linear forwards;
+  animation: shrinkProgress var(--notification-duration, 3.5s) linear forwards;
 
   .notification--exiting & {
     animation: none;

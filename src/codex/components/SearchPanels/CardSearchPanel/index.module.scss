@@ -16,6 +16,10 @@
 
 .filters {
   margin-top: 2.5rem;
+
+  &__extras {
+    gap: 0.25rem;
+  }
 }
 
 .filter-label {
@@ -40,6 +44,10 @@
     }
 
     .filter-icon--monster {
+      color: $color-danger-hover;
+    }
+
+    .filter-icon--animal-companion {
       color: $color-danger-hover;
     }
 
@@ -83,6 +91,17 @@
   }
 
   &--monster {
+    @extend .filter-icon;
+    width: 1.25rem;
+    height: 1.25rem;
+    position: relative;
+    top: 0.0625rem;
+    right: 0.125rem;
+    margin-right: -0.25rem;
+    color: $color-danger-base;
+  }
+
+  &--animal-companion {
     @extend .filter-icon;
     width: 1.25rem;
     height: 1.25rem;

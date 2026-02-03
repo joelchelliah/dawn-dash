@@ -5,6 +5,7 @@ import {
   CircleIcon,
   CrossIcon,
   DoubleStarsIcon,
+  PawIcon,
   SingleStarIcon,
   SkullIcon,
   TripleStarsIcon,
@@ -40,6 +41,7 @@ interface CardSearchPanelProps {
 const CardSearchPanel = ({ useSearchFilters, useCardData }: CardSearchPanelProps) => {
   const {
     keywords,
+    parsedKeywords,
     setKeywords,
     useCardSetFilters,
     useRarityFilters,
@@ -57,22 +59,64 @@ const CardSearchPanel = ({ useSearchFilters, useCardData }: CardSearchPanelProps
   const { cardSetFilters, handleCardSetFilterToggle } = useCardSetFilters
   const { rarityFilters, handleRarityFilterToggle } = useRarityFilters
   const { bannerFilters, handleBannerFilterToggle } = useBannerFilters
-  const { extraCardFilters, handleExtraCardFilterToggle, getExtraCardFilterName } =
-    useExtraCardFilters
+  const {
+    extraCardFilters,
+    handleExtraCardFilterToggle,
+    getExtraCardFilterName,
+    shouldIncludeAnimalCompanionCards,
+  } = useExtraCardFilters
   const { formattingFilters, handleFormattingFilterToggle, getFormattingFilterName } =
     useFormattingFilters
   const { struckCards } = useCardStrike
 
   const [showNotification, setShowNotification] = useState(false)
+  const [notificationMessage, setNotificationMessage] = useState<React.ReactNode>(null)
+
+  const untrackedCardsNotificationMessage = (
+    <>
+      🔍 You still have some <strong>tracked cards</strong> from your previous search!
+      <br />
+      &nbsp; &nbsp; &nbsp;You can clear them with «<strong>Reset tracked cards</strong>».
+    </>
+  )
+  const specialKeywordRulesNotificationMessage = (
+    <>
+      📝 A <strong>rarity level</strong> is used as a keyword in this challenge.
+      <br />
+      &nbsp; &nbsp; &nbsp;All cards of this <strong>rarity</strong> will be scored!
+    </>
+  )
+  const animalCompanionNotificationMessage = (
+    <>
+      🐶 <strong>Animal companion cards</strong> don&apos;t score in Weekly Challenges!
+      <br />
+      &nbsp; &nbsp; &nbsp;You can hide them in «<strong>Extras</strong>».
+    </>
+  )
 
   const handleWeeklyChallengeClick = () => {
     setFiltersFromWeeklyChallengeData()
     if (struckCards.length > 0) {
+      setNotificationMessage(untrackedCardsNotificationMessage)
+      setShowNotification(true)
+    } else if (
+      ['Common', 'Uncommon', 'Rare', 'Legendary', 'Monster'].some((rarity) =>
+        parsedKeywords.some((keyword) => keyword.toLowerCase() === rarity.toLowerCase())
+      )
+    ) {
+      setNotificationMessage(specialKeywordRulesNotificationMessage)
+      setShowNotification(true)
+    } else if (
+      shouldIncludeAnimalCompanionCards &&
+      parsedKeywords.some((keyword) => '(companion)'.includes(keyword.toLowerCase()))
+    ) {
+      setNotificationMessage(animalCompanionNotificationMessage)
       setShowNotification(true)
     }
   }
 
   const handleCloseNotification = () => {
+    setNotificationMessage(null)
     setShowNotification(false)
   }
 
@@ -117,6 +161,13 @@ const CardSearchPanel = ({ useSearchFilters, useCardData }: CardSearchPanelProps
         return (
           <span className={cx('filter-label')}>
             <SkullIcon className={cx('filter-icon--monster')} />
+            {name}
+          </span>
+        )
+      case ExtraCardFilterOption.IncludeAnimalCompanionCards:
+        return (
+          <span className={cx('filter-label')}>
+            <PawIcon className={cx('filter-icon--animal-companion')} />
             {name}
           </span>
         )
@@ -188,6 +239,7 @@ const CardSearchPanel = ({ useSearchFilters, useCardData }: CardSearchPanelProps
             type="extra"
             onFilterToggle={handleExtraCardFilterToggle}
             getFilterLabel={getExtraFilterLabel}
+            className={cx('filters__extras')}
           />
           <FilterGroup
             title="Results formatting"
@@ -232,13 +284,10 @@ const CardSearchPanel = ({ useSearchFilters, useCardData }: CardSearchPanelProps
       />
 
       <Notification
+        duration={6000}
         isTriggered={showNotification}
         onClose={handleCloseNotification}
-        message={
-          <>
-            You still have some <strong>tracked cards</strong> from your previous search!
-          </>
-        }
+        message={notificationMessage}
       />
     </div>
   )

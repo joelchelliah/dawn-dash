@@ -127,6 +127,7 @@ export const Banner = {
 
 export enum ExtraCardFilterOption {
   IncludeMonsterCards = 'IncludeMonsterCards',
+  IncludeAnimalCompanionCards = 'IncludeAnimalCompanionCards',
   IncludeNonCollectibleCards = 'IncludeNonCollectibleCards',
 }
 

@@ -7,6 +7,7 @@ import {
   hasMonsterBanner,
   hasMonsterExpansion,
   hasMonsterRarity,
+  isAnimalCompanionCard,
   isNonCollectibleMonsterCard,
   isNonCollectibleRegularCard,
 } from '@/codex/utils/cardHelper'
@@ -117,6 +118,7 @@ export const useAllCardSearchFilters = (
   const {
     extraCardFilters,
     shouldIncludeMonsterCards,
+    shouldIncludeAnimalCompanionCards,
     shouldIncludeNonCollectibleCards,
     resetExtraCardFilters,
   } = trackedUseExtraCardFilters
@@ -207,6 +209,10 @@ export const useAllCardSearchFilters = (
         ? shouldIncludeMonsterCards
         : isBannerIndexSelected(card.color)
 
+      const passesAnimalCompanionFilter = isAnimalCompanionCard(card)
+        ? shouldIncludeAnimalCompanionCards
+        : true
+
       const passesCollectibilityFilter = (() => {
         if (isNonCollectibleRegularCard(card)) {
           return shouldIncludeNonCollectibleCards
@@ -221,6 +227,7 @@ export const useAllCardSearchFilters = (
         passesExpansionFilter &&
         passesRarityFilter &&
         passesBannerFilter &&
+        passesAnimalCompanionFilter &&
         passesCollectibilityFilter &&
         isNameOrDescriptionIncluded(card, parsedKeywords)
       )
@@ -230,6 +237,7 @@ export const useAllCardSearchFilters = (
       isCardSetIndexSelected,
       isRarityIndexSelected,
       isBannerIndexSelected,
+      shouldIncludeAnimalCompanionCards,
       shouldIncludeNonCollectibleCards,
       parsedKeywords,
     ]

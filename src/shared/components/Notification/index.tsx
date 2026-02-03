@@ -13,9 +13,15 @@ interface NotificationProps {
   message: React.ReactNode
   isTriggered: boolean
   onClose: () => void
+  duration?: number
 }
 
-function Notification({ message, isTriggered, onClose }: NotificationProps) {
+function Notification({
+  message,
+  isTriggered,
+  onClose,
+  duration = VISIBLE_DURATION,
+}: NotificationProps) {
   const [isVisible, setIsVisible] = useState(false)
   const [isExiting, setIsExiting] = useState(false)
 
@@ -33,15 +39,18 @@ function Notification({ message, isTriggered, onClose }: NotificationProps) {
     setIsVisible(true)
     setIsExiting(false)
 
-    const hideTimer = setTimeout(hideNotification, VISIBLE_DURATION)
+    const hideTimer = setTimeout(hideNotification, duration)
 
     return () => clearTimeout(hideTimer)
-  }, [isTriggered, hideNotification])
+  }, [isTriggered, hideNotification, duration])
 
   if (!isVisible) return null
 
   return (
-    <div className={cx('notification', { 'notification--exiting': isExiting })}>
+    <div
+      className={cx('notification', { 'notification--exiting': isExiting })}
+      style={{ '--notification-duration': `${duration}ms` } as React.CSSProperties}
+    >
       <div className={cx('content')}>
         <span className={cx('message')}>{message}</span>
         <button

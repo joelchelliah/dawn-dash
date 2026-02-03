@@ -15,6 +15,7 @@ interface FilterGroupProps {
   type: FilterTypeCard | FilterTypeTalent
   onFilterToggle: (filter: string) => void
   getFilterLabel?: (filter: string) => React.ReactNode
+  className?: string
 }
 function FilterGroup({
   title,
@@ -23,14 +24,15 @@ function FilterGroup({
   type,
   onFilterToggle,
   getFilterLabel,
+  className,
 }: FilterGroupProps) {
-  const className = cx('check-boxes', `check-boxes--${type}`)
+  const checkboxesClassName = cx('check-boxes', `check-boxes--${type}`, className)
 
   return (
     <div className={cx('filter-group')}>
       <h4>{title}</h4>
       <GradientDivider spacingBottom="sm" />
-      <div className={className}>
+      <div className={checkboxesClassName}>
         {filters.map((filter) => (
           <Checkbox
             key={filter}
