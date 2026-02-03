@@ -126,22 +126,20 @@ export const getCustomNodeEmoji = (node: EventTreeNode): string | undefined => {
   if (!isEffectsNode(node)) return undefined
 
   const effects = node.effects ?? []
+  const cardGameChoices =
+    'random [The Blood Moon, The Final Star, The Hangman, The Hourglass, The Pale Mask, The Wheel]'
+  const ManorMusic = ['Mazurka', 'Viennese', 'Waltz']
 
   if (effects.includes('MERCHANT')) return '🛍️'
   if (effects.includes('BUYCARDBYCATEGORY: potion')) return '🍷'
   if (effects.includes('ENCHANTERIMBUE')) return '🎗️'
   if (effects.includes('TAKEFROMVAULT') || effects.includes('ADDTOVAULT')) return '📦'
+
   // Custom emoji but keep existing node type
   if (effects.includes('CARDPUZZLE')) return '🧩'
-  if (
-    effects.includes(
-      'random [The Blood Moon, The Final Star, The Hangman, The Hourglass, The Pale Mask, The Wheel]'
-    )
-  )
-    return '🎲'
-  if (effects.some((effect) => effect.startsWith('EVENT:'))) {
-    return '📖'
-  }
+  if (effects.includes(cardGameChoices)) return '🎲'
+  if (effects.some((effect) => effect.startsWith('EVENT:'))) return '📖'
+  if (effects.some((effect) => ManorMusic.some((music) => effect.includes(music)))) return '💃'
 
   return undefined
 }
