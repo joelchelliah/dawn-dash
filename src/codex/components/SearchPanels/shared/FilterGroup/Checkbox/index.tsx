@@ -2,7 +2,7 @@ import { memo, useEffect, useRef, useState } from 'react'
 
 import { createCx } from '@/shared/utils/classnames'
 
-import { FilterTypeCard, FilterTypeTalent } from '@/codex/types/filters'
+import { FilterTypeCard, FilterTypeTalent, FilterTypeEvent } from '@/codex/types/filters'
 
 import styles from './index.module.scss'
 
@@ -13,7 +13,7 @@ interface CheckboxProps {
   checkboxLabel: React.ReactNode
   checked: boolean
   onChange: () => void
-  type: FilterTypeCard | FilterTypeTalent
+  type: FilterTypeCard | FilterTypeTalent | FilterTypeEvent
 }
 
 const Checkbox = ({ checkboxLabel, checked, onChange, type, name }: CheckboxProps) => {

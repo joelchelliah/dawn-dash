@@ -45,7 +45,8 @@ export const calculateTreeBounds = (
   root: HierarchyNode<EventTreeNode>,
   event: Event,
   showLoopingIndicator: boolean,
-  levelOfDetail: LevelOfDetail
+  levelOfDetail: LevelOfDetail,
+  showContinuesTags: boolean
 ): TreeBounds => {
   let minX = Infinity // Left edge of the leftmost node
   let maxX = -Infinity // Right edge of the rightmost node
@@ -61,7 +62,8 @@ export const calculateTreeBounds = (
       d.data,
       event,
       showLoopingIndicator,
-      levelOfDetail
+      levelOfDetail,
+      showContinuesTags
     )
 
     // Track edges for both X and Y
@@ -102,13 +104,14 @@ export const isEmojiBadgeNode = (node: EventTreeNode): boolean =>
 export const isEmojiOnlyNode = (
   node: EventTreeNode,
   isCompact: boolean,
+  showContinuesTags: boolean,
   showLoopingIndicator: boolean
 ): boolean => {
   const isEmojiOnlyCandidate =
     isEmojiBadgeNode(node) &&
     !hasRequirements(node) &&
     !hasEffects(node) &&
-    !hasContinues(node) &&
+    !(showContinuesTags && hasContinues(node)) &&
     !(showLoopingIndicator && node.ref !== undefined)
 
   return isCompact

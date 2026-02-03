@@ -20,6 +20,7 @@ interface DrawLinksParam {
   event: Event
   showLoopingIndicator: boolean
   levelOfDetail: LevelOfDetail
+  showContinuesTags: boolean
 }
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
@@ -36,6 +37,7 @@ export function drawLinks({
   event,
   showLoopingIndicator,
   levelOfDetail,
+  showContinuesTags,
 }: DrawLinksParam) {
   const isCompact = levelOfDetail === LevelOfDetail.COMPACT
   g.selectAll(`.${cx('link')}`)
@@ -61,19 +63,22 @@ export function drawLinks({
         d.source.data,
         event,
         showLoopingIndicator,
-        levelOfDetail
+        levelOfDetail,
+        showContinuesTags
       )
       const [, targetNodeHeight] = getNodeDimensions(
         nodeMap,
         d.target.data,
         event,
         showLoopingIndicator,
-        levelOfDetail
+        levelOfDetail,
+        showContinuesTags
       )
 
       const isTargetEmojiBadgeNode = isEmojiBadgeNode(d.target.data)
       const isTargetNonCompactEmojiNode =
-        !isCompact && isEmojiOnlyNode(d.target.data, isCompact, showLoopingIndicator)
+        !isCompact &&
+        isEmojiOnlyNode(d.target.data, isCompact, showContinuesTags, showLoopingIndicator)
       let yOffset = -1
       if (isTargetNonCompactEmojiNode) {
         yOffset = -32
@@ -107,6 +112,7 @@ export function drawRefChildrenLinks({
   event,
   showLoopingIndicator,
   levelOfDetail,
+  showContinuesTags,
 }: DrawLinksParam) {
   const isCompact = levelOfDetail === LevelOfDetail.COMPACT
 
@@ -152,14 +158,16 @@ export function drawRefChildrenLinks({
       d.source.data,
       event,
       showLoopingIndicator,
-      levelOfDetail
+      levelOfDetail,
+      showContinuesTags
     )
     const [, targetNodeHeight] = getNodeDimensions(
       nodeMap,
       d.target.data,
       event,
       showLoopingIndicator,
-      levelOfDetail
+      levelOfDetail,
+      showContinuesTags
     )
 
     const isTargetEmojiBadgeNode = isEmojiBadgeNode(d.target.data)
@@ -195,6 +203,7 @@ export function drawLoopBackLinks({
   event,
   showLoopingIndicator,
   levelOfDetail,
+  showContinuesTags,
 }: DrawLinksParam) {
   const loopBackLinks = findLoopBackLinks(root, nodeMap)
   const isCompact = levelOfDetail === LevelOfDetail.COMPACT
@@ -215,7 +224,8 @@ export function drawLoopBackLinks({
       d,
       event,
       showLoopingIndicator,
-      levelOfDetail
+      levelOfDetail,
+      showContinuesTags
     )
 
     const sourceNodeType = d.source.data.type || 'default'
@@ -238,9 +248,15 @@ export function drawLoopBackLinks({
       .attr('class', cx('loop-back-arrowhead', `loop-back-arrowhead--${sourceNodeType}`))
 
     const sourceYOffset =
-      isCompact && isEmojiOnlyNode(d.source.data, isCompact, showLoopingIndicator) ? -18 : 0
+      isCompact &&
+      isEmojiOnlyNode(d.source.data, isCompact, showContinuesTags, showLoopingIndicator)
+        ? -18
+        : 0
     const targetYOffset =
-      isCompact && isEmojiOnlyNode(d.target.data, isCompact, showLoopingIndicator) ? 0 : 0
+      isCompact &&
+      isEmojiOnlyNode(d.target.data, isCompact, showContinuesTags, showLoopingIndicator)
+        ? 0
+        : 0
     const adjustedSourceY = sourceY + sourceYOffset
     const adjustedTargetY = targetY + targetYOffset
     // Draw the main line with arrowhead at target end
@@ -352,7 +368,8 @@ function calculateLoopBackLinkCorners(
   d: any,
   event: Event,
   showLoopingIndicator: boolean,
-  levelOfDetail: LevelOfDetail
+  levelOfDetail: LevelOfDetail,
+  showContinuesTags: boolean
 ): { sourceX: number; sourceY: number; targetX: number; targetY: number } {
   const sourceCenterX = d.source.x || 0
   const sourceCenterY = d.source.y || 0
@@ -364,14 +381,16 @@ function calculateLoopBackLinkCorners(
     d.source.data,
     event,
     showLoopingIndicator,
-    levelOfDetail
+    levelOfDetail,
+    showContinuesTags
   )
   const [targetWidth, targetHeight] = getNodeDimensions(
     nodeMap,
     d.target.data,
     event,
     showLoopingIndicator,
-    levelOfDetail
+    levelOfDetail,
+    showContinuesTags
   )
 
   // Calculate box boundaries

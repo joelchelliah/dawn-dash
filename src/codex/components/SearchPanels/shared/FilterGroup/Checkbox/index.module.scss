@@ -93,6 +93,10 @@ $checkmark-size: 0.625rem;
     width: 100%;
   }
 
+  &--formatting-event {
+    width: 100%;
+  }
+
   &:hover {
     .checkbox-label-text {
       color: $color-primary-hover;

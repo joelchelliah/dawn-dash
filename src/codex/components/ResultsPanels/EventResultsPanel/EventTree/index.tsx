@@ -36,8 +36,8 @@ import {
   calculateIndicatorDimensions,
   tweakLoopIndicatorHeightForChoiceNode,
   getEmojiMargin,
-  hasText,
   hasChoiceLabel,
+  hasText,
 } from '@/codex/utils/eventNodeDimensions'
 import {
   adjustHorizontalNodeSpacing,
@@ -77,7 +77,8 @@ interface EventTreeProps {
 }
 
 function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps): JSX.Element {
-  const { zoomLevel, levelOfDetail, loopingPathMode, navigationMode } = useSearchFilters
+  const { zoomLevel, levelOfDetail, loopingPathMode, navigationMode, showContinuesTags } =
+    useSearchFilters
   const svgRef = useRef<SVGSVGElement>(null)
   const scrollWrapperRef = useRef<HTMLDivElement>(null)
 
@@ -101,10 +102,17 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
     const root = hierarchy(event.rootNode, (d) => d.children)
     const nodeMap = buildNodeMap(root as HierarchyPointNode<EventTreeNode>)
 
-    cacheAllNodeDimensions(nodeMap, event, showLoopingIndicator, levelOfDetail)
+    cacheAllNodeDimensions(nodeMap, event, showLoopingIndicator, levelOfDetail, showContinuesTags)
 
     const getDimensions = (node: EventTreeNode) =>
-      getNodeDimensions(nodeMap, node, event, showLoopingIndicator, levelOfDetail)
+      getNodeDimensions(
+        nodeMap,
+        node,
+        event,
+        showLoopingIndicator,
+        levelOfDetail,
+        showContinuesTags
+      )
 
     const treeLayout = tree<EventTreeNode>()
       .nodeSize([NODE.HORIZONTAL_SPACING_DEFAULT, NODE.VERTICAL_SPACING_DEFAULT])
@@ -117,17 +125,26 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
       root as HierarchyPointNode<EventTreeNode>,
       event,
       showLoopingIndicator,
-      levelOfDetail
+      levelOfDetail,
+      showContinuesTags
     )
     adjustVerticalNodeSpacing(
       nodeMap,
       root as HierarchyPointNode<EventTreeNode>,
       event,
       showLoopingIndicator,
-      levelOfDetail
+      levelOfDetail,
+      showContinuesTags
     )
 
-    const bounds = calculateTreeBounds(nodeMap, root, event, showLoopingIndicator, levelOfDetail)
+    const bounds = calculateTreeBounds(
+      nodeMap,
+      root,
+      event,
+      showLoopingIndicator,
+      levelOfDetail,
+      showContinuesTags
+    )
     const calculatedWidth = bounds.width + TREE.HORIZONTAL_PADDING * 2
     const verticalPadding = TREE.VERTICAL_PADDING_BY_LEVEL_OF_DETAIL[levelOfDetail]
 
@@ -188,6 +205,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
       event,
       showLoopingIndicator,
       levelOfDetail,
+      showContinuesTags,
     }
 
     drawLinks(drawLinksParam)
@@ -208,7 +226,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
       .attr('transform', (d) => `translate(${d.x},${d.y})`)
 
     const shouldSkipDrawingNodeRectangle = (node: EventTreeNode): boolean =>
-      isEmojiOnlyNode(node, isCompact, showLoopingIndicator)
+      isEmojiOnlyNode(node, isCompact, showContinuesTags, showLoopingIndicator)
 
     // Draw node glow rectangles
     nodes.each(function (d) {
@@ -334,7 +352,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
         const { height: continueIndicatorHeight, margin: continueIndicatorMargin } =
           calculateIndicatorDimensions(
             'continue',
-            Boolean(data.numContinues),
+            Boolean(showContinuesTags && data.numContinues),
             nodeHasText,
             effectsBoxHeight > 0
           )
@@ -440,22 +458,27 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
         const eventNode = d.data as DialogueNode | EndNode | CombatNode | SpecialNode
         const effects = eventNode.effects ?? []
         const [nodeWidth, nodeHeight] = getDimensions(d.data)
-        const hasText = Boolean(!isCompact && eventNode.text && eventNode.text.trim().length > 0)
+        const nodeHasText = !isCompact && hasText(eventNode)
         const { height: effectsBoxHeight } = calculateEffectsBoxDimensions(
           eventNode,
           nodeWidth,
           isCompact,
-          hasText
+          nodeHasText
         )
-
-        const hasContinues = eventNode.type === 'dialogue' && eventNode.numContinues
-        const continueHeight = hasContinues ? INNER_BOX.INDICATOR_HEIGHT : 0
-        const continueMargin = continueHeight > 0 ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
-        const showLoopsBackTo = showLoopingIndicator && eventNode.ref !== undefined
-        const loopIndicatorHeight = showLoopsBackTo
-          ? INNER_BOX.INDICATOR_HEIGHT + TEXT.LINE_HEIGHT + INNER_BOX.INDICATOR_HEADER_GAP
-          : 0
-        const loopIndicatorMargin = showLoopsBackTo ? INNER_BOX.INDICATOR_TOP_MARGIN : 0
+        const { height: continueIndicatorHeight, margin: continueIndicatorMargin } =
+          calculateIndicatorDimensions(
+            'continue',
+            Boolean(showContinuesTags && eventNode.type === 'dialogue' && eventNode.numContinues),
+            nodeHasText,
+            effectsBoxHeight > 0
+          )
+        const { height: loopIndicatorHeight, margin: loopIndicatorMargin } =
+          calculateIndicatorDimensions(
+            'loop',
+            Boolean(showLoopingIndicator && eventNode.ref !== undefined),
+            nodeHasText,
+            effectsBoxHeight > 0 || continueIndicatorHeight > 0
+          )
 
         renderEffectsBox(
           node,
@@ -463,8 +486,8 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
           nodeWidth,
           nodeHeight,
           effectsBoxHeight,
-          continueHeight,
-          continueMargin,
+          continueIndicatorHeight,
+          continueIndicatorMargin,
           loopIndicatorHeight,
           loopIndicatorMargin,
           isCompact
@@ -472,27 +495,29 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
       })
 
     // Add `Continue` indicators
-    nodes
-      .filter((d) => hasContinues(d.data))
-      .each(function (d) {
-        const node = select(this)
-        const [nodeWidth, nodeHeight] = getDimensions(d.data)
-        const showLoopsBackTo = d.data.ref !== undefined && showLoopingIndicator
-        const { height: loopIndicatorHeight, margin: loopIndicatorMargin } =
-          calculateIndicatorDimensions('loop', showLoopsBackTo, !isCompact, true)
+    if (showContinuesTags) {
+      nodes
+        .filter((d) => hasContinues(d.data))
+        .each(function (d) {
+          const node = select(this)
+          const [nodeWidth, nodeHeight] = getDimensions(d.data)
+          const showLoopsBackTo = d.data.ref !== undefined && showLoopingIndicator
+          const { height: loopIndicatorHeight, margin: loopIndicatorMargin } =
+            calculateIndicatorDimensions('loop', showLoopsBackTo, !isCompact, true)
 
-        const numContinues = hasContinues(d.data) ? (d.data.numContinues ?? 0) : 0
+          const numContinues = hasContinues(d.data) ? (d.data.numContinues ?? 0) : 0
 
-        renderContinueIndicator(
-          node,
-          nodeWidth,
-          nodeHeight,
-          numContinues,
-          loopIndicatorHeight,
-          loopIndicatorMargin,
-          isCompact
-        )
-      })
+          renderContinueIndicator(
+            node,
+            nodeWidth,
+            nodeHeight,
+            numContinues,
+            loopIndicatorHeight,
+            loopIndicatorMargin,
+            isCompact
+          )
+        })
+    }
 
     if (loopingPathMode === LoopingPathMode.INDICATOR) {
       nodes
@@ -527,6 +552,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
       event,
       showLoopingIndicator,
       levelOfDetail,
+      showContinuesTags,
     }
 
     drawDialogueBadge(drawBadgesParam)
@@ -552,7 +578,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
     }
     // NOTE: zoomCalculator is a stable dependency, so we don't need to include it here
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [event, zoomLevel, loopingPathMode, levelOfDetail])
+  }, [event, zoomLevel, loopingPathMode, levelOfDetail, showContinuesTags])
 
   return (
     <div className={cx('container')}>
@@ -598,6 +624,58 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
 export default EventTree
 
 // - - - - - - - Helper functions - - - - - - -
+
+function renderNodeText(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  node: any,
+  data: DialogueNode | EndNode | CombatNode | SpecialNode,
+  currentNodeWidth: number,
+  currentNodeHeight: number,
+  otherNodeContentHeight: number,
+  levelOfDetail: LevelOfDetail
+) {
+  const isCompact = levelOfDetail === LevelOfDetail.COMPACT
+  const nodeHasText = !isCompact && hasText(data)
+  if (!nodeHasText || !data.text) return
+
+  const maxDisplayLines = TEXT.MAX_DISPLAY_LINES_BY_LEVEL_OF_DETAIL[levelOfDetail]
+  const nodeType = data.type
+  const emojiMargin = getEmojiMargin(node, levelOfDetail)
+
+  const textAreaHeight = currentNodeHeight - NODE_BOX.VERTICAL_PADDING * 2 - otherNodeContentHeight
+  const textAreaCenter = -currentNodeHeight / 2 + NODE_BOX.VERTICAL_PADDING + textAreaHeight / 2
+
+  const maxTextWidth = currentNodeWidth - TEXT.HORIZONTAL_PADDING * 2
+  const wrappedLines = wrapEventText(
+    data.text,
+    maxTextWidth,
+    nodeType === 'special' ? 'special' : undefined
+  )
+  const displayLines = wrappedLines.slice(0, maxDisplayLines)
+
+  if (wrappedLines.length > maxDisplayLines && displayLines[displayLines.length - 1]) {
+    const lastLineIndex = displayLines.length - 1
+    displayLines[lastLineIndex] = truncateLine(displayLines[lastLineIndex])
+  }
+
+  const lineHeight = nodeType === 'special' ? TEXT.SPECIAL_TEXT_HEIGHT : TEXT.LINE_HEIGHT
+  const baselineOffset =
+    nodeType === 'special' ? TEXT.SPECIAL_BASELINE_OFFSET : TEXT.BASELINE_OFFSET
+  const totalTextHeight = displayLines.length * lineHeight
+  const verticalCenteringOffset =
+    textAreaCenter + emojiMargin - totalTextHeight / 2 + baselineOffset
+
+  displayLines.forEach((line, i) => {
+    const y = i * lineHeight + verticalCenteringOffset
+
+    node
+      .append('text')
+      .attr('class', cx('event-node-text', `event-node-text--${nodeType}`))
+      .attr('x', 0)
+      .attr('y', y)
+      .text(line)
+  })
+}
 
 function renderChoiceLabel(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -780,58 +858,6 @@ function renderContinueIndicator(
     .attr('class', cx('event-node-text', 'event-node-text--indicator'))
     .attr('y', INNER_BOX.INDICATOR_HEIGHT / 2 + TEXT.BASELINE_OFFSET / 2)
     .text(continueText)
-}
-
-function renderNodeText(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  node: any,
-  data: DialogueNode | EndNode | CombatNode | SpecialNode,
-  currentNodeWidth: number,
-  currentNodeHeight: number,
-  otherNodeContentHeight: number,
-  levelOfDetail: LevelOfDetail
-) {
-  const isCompact = levelOfDetail === LevelOfDetail.COMPACT
-  const nodeHasText = !isCompact && hasText(data)
-  if (!nodeHasText || !data.text) return
-
-  const maxDisplayLines = TEXT.MAX_DISPLAY_LINES_BY_LEVEL_OF_DETAIL[levelOfDetail]
-  const nodeType = data.type
-  const emojiMargin = getEmojiMargin(node, levelOfDetail)
-
-  const textAreaHeight = currentNodeHeight - NODE_BOX.VERTICAL_PADDING * 2 - otherNodeContentHeight
-  const textAreaCenter = -currentNodeHeight / 2 + NODE_BOX.VERTICAL_PADDING + textAreaHeight / 2
-
-  const maxTextWidth = currentNodeWidth - TEXT.HORIZONTAL_PADDING * 2
-  const wrappedLines = wrapEventText(
-    data.text,
-    maxTextWidth,
-    nodeType === 'special' ? 'special' : undefined
-  )
-  const displayLines = wrappedLines.slice(0, maxDisplayLines)
-
-  if (wrappedLines.length > maxDisplayLines && displayLines[displayLines.length - 1]) {
-    const lastLineIndex = displayLines.length - 1
-    displayLines[lastLineIndex] = truncateLine(displayLines[lastLineIndex])
-  }
-
-  const lineHeight = nodeType === 'special' ? TEXT.SPECIAL_TEXT_HEIGHT : TEXT.LINE_HEIGHT
-  const baselineOffset =
-    nodeType === 'special' ? TEXT.SPECIAL_BASELINE_OFFSET : TEXT.BASELINE_OFFSET
-  const totalTextHeight = displayLines.length * lineHeight
-  const verticalCenteringOffset =
-    textAreaCenter + emojiMargin - totalTextHeight / 2 + baselineOffset
-
-  displayLines.forEach((line, i) => {
-    const y = i * lineHeight + verticalCenteringOffset
-
-    node
-      .append('text')
-      .attr('class', cx('event-node-text', `event-node-text--${nodeType}`))
-      .attr('x', 0)
-      .attr('y', y)
-      .text(line)
-  })
 }
 
 function renderLoopIndicator(

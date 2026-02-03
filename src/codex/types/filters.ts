@@ -2,6 +2,8 @@ export type FilterTypeCard = 'card-set' | 'rarity' | 'banner' | 'extra' | 'forma
 
 export type FilterTypeTalent = 'card-set' | 'requirement' | 'tier' | 'extra' | 'formatting-talent'
 
+export type FilterTypeEvent = 'formatting-event'
+
 export enum SharedFilterOption {
   All = 'Select all',
   None = 'Select none',
@@ -211,6 +213,7 @@ export interface EventCodexSearchFilterCache {
   loopingPathMode: string
   navigationMode: string
   levelOfDetail: string
+  showContinuesTags: boolean
   lastUpdated: number
 }
 

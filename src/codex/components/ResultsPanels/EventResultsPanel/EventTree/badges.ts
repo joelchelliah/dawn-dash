@@ -21,6 +21,7 @@ interface DrawBadgesParam {
   event: Event
   showLoopingIndicator: boolean
   levelOfDetail: LevelOfDetail
+  showContinuesTags: boolean
 }
 
 interface DrawNodeTypeBadgeParam extends DrawBadgesParam {
@@ -35,6 +36,7 @@ export function drawLoopBackLinkBadges({
   event,
   showLoopingIndicator,
   levelOfDetail,
+  showContinuesTags,
 }: DrawBadgesParam) {
   const loopBackLinks = findLoopBackLinks(root)
 
@@ -49,7 +51,8 @@ export function drawLoopBackLinkBadges({
       d,
       event,
       showLoopingIndicator,
-      levelOfDetail
+      levelOfDetail,
+      showContinuesTags
     )
 
     const startKey = `${sourceX},${sourceY}`
@@ -71,6 +74,7 @@ export function drawLoopBackLinkBadges({
     'start',
     isCompact,
     showLoopingIndicator,
+    showContinuesTags,
     startPositionToNodeMap,
     'loop-back-start-badge',
     'loop-back-badge'
@@ -82,6 +86,7 @@ export function drawLoopBackLinkBadges({
     'end',
     isCompact,
     showLoopingIndicator,
+    showContinuesTags,
     endPositionToNodeMap,
     'loop-back-end-badge',
     'loop-back-badge'
@@ -113,6 +118,7 @@ function drawLoopBackBadges(
   position: 'start' | 'end',
   isCompact: boolean,
   showLoopingIndicator: boolean,
+  showContinuesTags: boolean,
   positionToNodeMap: Map<string, EventTreeNode>,
   badgeClass: string,
   circleBaseClass: string
@@ -123,7 +129,12 @@ function drawLoopBackBadges(
     .data(
       Array.from(positionToNodeMap.entries()).map(([pos, node]) => {
         const [x, y] = pos.split(',').map(Number)
-        const isCompactEmojiOnly = isEmojiOnlyNode(node, isCompact, showLoopingIndicator)
+        const isCompactEmojiOnly = isEmojiOnlyNode(
+          node,
+          isCompact,
+          showContinuesTags,
+          showLoopingIndicator
+        )
 
         const offsetStart = isCompactEmojiOnly ? 18 : 0
         const offsetEnd = isCompactEmojiOnly ? 6 : 0
@@ -168,6 +179,7 @@ function drawNodeTypeBadge({
   event,
   showLoopingIndicator,
   levelOfDetail,
+  showContinuesTags,
   nodeType,
   emoji,
 }: DrawNodeTypeBadgeParam) {
@@ -180,7 +192,8 @@ function drawNodeTypeBadge({
       node.data,
       event,
       showLoopingIndicator,
-      levelOfDetail
+      levelOfDetail,
+      showContinuesTags
     )
 
     const isRootNode = node.depth === 0
@@ -205,7 +218,7 @@ function drawNodeTypeBadge({
     const showLargeBadge = isCompact
     const showExtraLargeBadge = isCompact
       ? isRootNode
-      : isEmojiOnlyNode(node.data, isCompact, showLoopingIndicator) || isRootNode
+      : isEmojiOnlyNode(node.data, isCompact, showContinuesTags, showLoopingIndicator) || isRootNode
 
     badge.append('circle').attr(
       'class',
@@ -266,7 +279,8 @@ function calculateLoopBackLinkCorners(
   d: any,
   event: Event,
   showLoopingIndicator: boolean,
-  levelOfDetail: LevelOfDetail
+  levelOfDetail: LevelOfDetail,
+  showContinuesTags: boolean
 ): { sourceX: number; sourceY: number; targetX: number; targetY: number } {
   const sourceCenterX = d.source.x || 0
   const sourceCenterY = d.source.y || 0
@@ -278,14 +292,16 @@ function calculateLoopBackLinkCorners(
     d.source.data,
     event,
     showLoopingIndicator,
-    levelOfDetail
+    levelOfDetail,
+    showContinuesTags
   )
   const [targetWidth, targetHeight] = getNodeDimensions(
     nodeMap,
     d.target.data,
     event,
     showLoopingIndicator,
-    levelOfDetail
+    levelOfDetail,
+    showContinuesTags
   )
 
   // Calculate box boundaries
