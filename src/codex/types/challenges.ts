@@ -1,13 +1,12 @@
+import { Banner, CardSet } from './filters'
+
 export type ChallengeData = {
   id: number
   name: string
   keywords: Set<string>
   specialKeywords: Set<string>
-  expansions: Set<string>
-  classes: Set<string>
-  isBoundless: boolean
-  hasAccessToAllColors: boolean
-  hasAccessToHoly: boolean
+  cardSets: Set<CardSet>
+  banners: Set<Banner>
 }
 
 export type ChallengeApiResponse = {
@@ -47,7 +46,8 @@ export type ChallengeApiResponse = {
       card: string
     }[]
     affixes: string[]
-    additionalTalents: string[]
+    additionalCards?: string[]
+    additionalTalents?: string[]
     winners: string[]
     uid: number
     class: string
