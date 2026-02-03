@@ -113,7 +113,7 @@
   &--checkbox {
     flex: 1;
     min-width: 13rem;
-    height: 0rem;
+    height: 1rem;
     padding: 0.25rem 0 0;
 
     @media (max-width: $breakpoint-mobile) {

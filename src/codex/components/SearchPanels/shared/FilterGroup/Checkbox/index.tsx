@@ -39,7 +39,7 @@ const Checkbox = ({ checkboxLabel, checked, onChange, type, name }: CheckboxProp
     `checkbox-label--${type}--${name.replace(' ', '-')}`
   )
   const checkboxClassName = cx('checkbox', `checkbox--${type}`)
-  const labelTextClassName = cx('checkbox-label-text', {
+  const labelTextClassName = cx('checkbox-label-text', `checkbox-label-text--${type}`, {
     'checkbox-label-text--checked': isHydrated ? checked : false,
   })
 

@@ -97,6 +97,8 @@ const EventSearchPanel = ({
   const [isReloadingMap, setIsReloadingMap] = useState(false)
   const loadingColor = getClassColor(CharacterClass.Rogue, ClassColorVariant.Dark)
 
+  const isAllEventsSelected = selectedEventIndex === ALL_EVENTS_INDEX
+
   const getAllEventsLabel = () => {
     if (filteredEvents.length === 0) {
       return 'No matching events'
@@ -276,16 +278,14 @@ const EventSearchPanel = ({
                 type="formatting-event"
               />
             </div>
-            {selectedEventIndex !== ALL_EVENTS_INDEX && (
-              <div className={cx('control-wrapper', 'control-wrapper--info-message')}>
-                {renderRedrawMapMessage()}
-              </div>
-            )}
+            <div className={cx('control-wrapper', 'control-wrapper--info-message')}>
+              {!isAllEventsSelected && renderRedrawMapMessage()}
+            </div>
           </div>
         </div>
       )}
 
-      {showStickyZoom && selectedEventIndex !== ALL_EVENTS_INDEX && (
+      {showStickyZoom && !isAllEventsSelected && (
         <StickyZoomSelect
           selectedClass={selectedClass}
           zoomLevel={zoomLevel}

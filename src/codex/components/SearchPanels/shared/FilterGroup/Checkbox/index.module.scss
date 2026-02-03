@@ -95,6 +95,15 @@ $checkmark-size: 0.625rem;
 
   &--formatting-event {
     width: 100%;
+    padding: 0.5rem 0.5rem;
+    border-radius: 0.25rem;
+
+    &[data-checked='true'] {
+      @include rainTexture(rgba($yellow-base, 0.15), true);
+    }
+    &:hover {
+      @include rainTexture(rgba($yellow-hover, 0.2), true);
+    }
   }
 
   &:hover {
@@ -112,6 +121,12 @@ $checkmark-size: 0.625rem;
 
   &--checked {
     opacity: 1 !important;
+  }
+
+  &--formatting-event {
+    opacity: 0.75;
+    color: $yellow-base;
+    font-size: font-size('xs');
   }
 }
 
