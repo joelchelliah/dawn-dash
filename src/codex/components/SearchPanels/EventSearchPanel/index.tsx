@@ -26,6 +26,7 @@ import {
 } from '@/codex/constants/eventSearchValues'
 import { UseAllEventSearchFilters } from '@/codex/hooks/useSearchFilters/useAllEventSearchFilters'
 import { useStickyZoom } from '@/codex/hooks/useStickyZoom'
+import Checkbox from '@/codex/components/SearchPanels/shared/FilterGroup/Checkbox'
 
 import PanelHeader from '../../PanelHeader'
 
@@ -86,6 +87,8 @@ const EventSearchPanel = ({
     setNavigationMode,
     levelOfDetail,
     setLevelOfDetail,
+    showContinuesTags,
+    setShowContinuesTags,
     resetFilters,
   } = useSearchFilters
 
@@ -93,6 +96,8 @@ const EventSearchPanel = ({
   const { isMobile } = useBreakpoint()
   const [isReloadingMap, setIsReloadingMap] = useState(false)
   const loadingColor = getClassColor(CharacterClass.Rogue, ClassColorVariant.Dark)
+
+  const isAllEventsSelected = selectedEventIndex === ALL_EVENTS_INDEX
 
   const getAllEventsLabel = () => {
     if (filteredEvents.length === 0) {
@@ -146,8 +151,9 @@ const EventSearchPanel = ({
   }, [selectedEventIndex, setZoomLevel])
 
   const handleResetClick = () => {
-    onEventChange(-1)
-    resetFilters()
+    resetFilters(() => {
+      onEventChange(-1)
+    })
   }
 
   const handleRedrawMap = () => {
@@ -263,16 +269,23 @@ const EventSearchPanel = ({
                 />
               </div>
             )}
-            {selectedEventIndex !== ALL_EVENTS_INDEX && (
-              <div className={cx('control-wrapper', 'control-wrapper--info-message')}>
-                {renderRedrawMapMessage()}
-              </div>
-            )}
+            <div className={cx('control-wrapper', 'control-wrapper--checkbox')}>
+              <Checkbox
+                name="show-continues-tags"
+                checkboxLabel="Show «Continues» tags"
+                checked={showContinuesTags}
+                onChange={() => setShowContinuesTags(!showContinuesTags)}
+                type="formatting-event"
+              />
+            </div>
+            <div className={cx('control-wrapper', 'control-wrapper--info-message')}>
+              {!isAllEventsSelected && renderRedrawMapMessage()}
+            </div>
           </div>
         </div>
       )}
 
-      {showStickyZoom && selectedEventIndex !== ALL_EVENTS_INDEX && (
+      {showStickyZoom && !isAllEventsSelected && (
         <StickyZoomSelect
           selectedClass={selectedClass}
           zoomLevel={zoomLevel}

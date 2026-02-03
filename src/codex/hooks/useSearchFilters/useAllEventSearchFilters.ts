@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
+import { flushSync } from 'react-dom'
+
 import { isNotNullOrUndefined } from '@/shared/utils/object'
 
 import {
@@ -30,7 +32,9 @@ export interface UseAllEventSearchFilters {
   setNavigationMode: (mode: TreeNavigationMode) => void
   levelOfDetail: LevelOfDetail
   setLevelOfDetail: (level: LevelOfDetail) => void
-  resetFilters: () => void
+  showContinuesTags: boolean
+  setShowContinuesTags: (show: boolean) => void
+  resetFilters: (callback?: () => void) => void
 }
 
 export const useAllEventSearchFilters = (): UseAllEventSearchFilters => {
@@ -44,6 +48,7 @@ export const useAllEventSearchFilters = (): UseAllEventSearchFilters => {
     TreeNavigationMode.DRAG
   )
   const [levelOfDetail, setLevelOfDetailUntracked] = useState<LevelOfDetail>(LevelOfDetail.BALANCED)
+  const [showContinuesTags, setShowContinuesTagsUntracked] = useState<boolean>(true)
 
   // Load from localStorage after hydration to avoid SSR mismatch
   useEffect(() => {
@@ -60,6 +65,9 @@ export const useAllEventSearchFilters = (): UseAllEventSearchFilters => {
     if (isNotNullOrUndefined(cachedFilters?.levelOfDetail)) {
       setLevelOfDetailUntracked(cachedFilters.levelOfDetail as LevelOfDetail)
     }
+    if (isNotNullOrUndefined(cachedFilters?.showContinuesTags)) {
+      setShowContinuesTagsUntracked(cachedFilters.showContinuesTags)
+    }
   }, [])
 
   // --------------------------------------------------
@@ -71,24 +79,49 @@ export const useAllEventSearchFilters = (): UseAllEventSearchFilters => {
   const trackedSetLoopingPathMode = createTrackedSetter(setLoopingPathModeUntracked)
   const trackedSetNavigationMode = createTrackedSetter(setNavigationModeUntracked)
   const trackedSetLevelOfDetail = createTrackedSetter(setLevelOfDetailUntracked)
+  const trackedSetShowContinuesTags = createTrackedSetter(setShowContinuesTagsUntracked)
 
   // --------------------------------------------------
   // ------------- Reset functionality ----------------
   // --------------------------------------------------
-  const resetFilters = useCallback(() => {
-    setZoomLevel(ZoomLevel.COVER)
-    setFilterText('')
-    trackedSetShowAdvancedOptions(false)
-    trackedSetLoopingPathMode(LoopingPathMode.LINK)
-    trackedSetNavigationMode(TreeNavigationMode.DRAG)
-    trackedSetLevelOfDetail(LevelOfDetail.BALANCED)
-  }, [
-    setFilterText,
-    trackedSetShowAdvancedOptions,
-    trackedSetLoopingPathMode,
-    trackedSetNavigationMode,
-    trackedSetLevelOfDetail,
-  ])
+  const resetFilters = useCallback(
+    (callback?: () => void) => {
+      flushSync(() => {
+        setZoomLevel(ZoomLevel.COVER)
+        setFilterText('')
+        trackedSetShowAdvancedOptions(false)
+        trackedSetLoopingPathMode(LoopingPathMode.LINK)
+        trackedSetNavigationMode(TreeNavigationMode.DRAG)
+        trackedSetLevelOfDetail(LevelOfDetail.BALANCED)
+        trackedSetShowContinuesTags(true)
+      })
+      // Clear any pending debounced cache write
+      // and immediately save to cache (don't wait for debounced effect)
+      if (filterDebounceTimeoutRef.current) {
+        clearTimeout(filterDebounceTimeoutRef.current)
+        filterDebounceTimeoutRef.current = null
+      }
+      cacheEventCodexSearchFilters({
+        showAdvancedOptions: false,
+        loopingPathMode: LoopingPathMode.LINK,
+        navigationMode: TreeNavigationMode.DRAG,
+        levelOfDetail: LevelOfDetail.BALANCED,
+        showContinuesTags: true,
+        lastUpdated: Date.now(),
+      })
+      if (callback) {
+        callback()
+      }
+    },
+    [
+      setFilterText,
+      trackedSetShowAdvancedOptions,
+      trackedSetLoopingPathMode,
+      trackedSetNavigationMode,
+      trackedSetLevelOfDetail,
+      trackedSetShowContinuesTags,
+    ]
+  )
 
   // --------------------------------------------------
   // -------- Debounced caching of filters ------------
@@ -108,6 +141,7 @@ export const useAllEventSearchFilters = (): UseAllEventSearchFilters => {
         loopingPathMode,
         navigationMode,
         levelOfDetail,
+        showContinuesTags,
         lastUpdated: Date.now(),
       })
     }, 1000)
@@ -117,7 +151,14 @@ export const useAllEventSearchFilters = (): UseAllEventSearchFilters => {
         clearTimeout(filterDebounceTimeoutRef.current)
       }
     }
-  }, [loopingPathMode, showAdvancedOptions, navigationMode, levelOfDetail, hasUserChangedFilter])
+  }, [
+    loopingPathMode,
+    showAdvancedOptions,
+    navigationMode,
+    levelOfDetail,
+    showContinuesTags,
+    hasUserChangedFilter,
+  ])
 
   // --------------------------------------------------
   // --------------------------------------------------
@@ -136,6 +177,8 @@ export const useAllEventSearchFilters = (): UseAllEventSearchFilters => {
     setNavigationMode: trackedSetNavigationMode,
     levelOfDetail,
     setLevelOfDetail: trackedSetLevelOfDetail,
+    showContinuesTags,
+    setShowContinuesTags: trackedSetShowContinuesTags,
     resetFilters,
   }
 }

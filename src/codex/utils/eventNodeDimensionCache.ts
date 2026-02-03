@@ -38,17 +38,19 @@ const createCacheKey = (
   eventId: string,
   nodeId: number,
   showLoopingIndicator: boolean,
-  levelOfDetail: LevelOfDetail
-): string => `${eventId}:${nodeId}:${showLoopingIndicator}:${levelOfDetail}`
+  levelOfDetail: LevelOfDetail,
+  showContinuesTags: boolean
+): string => `${eventId}:${nodeId}:${showLoopingIndicator}:${levelOfDetail}:${showContinuesTags}`
 
 export const getCachedDimensions = (
   eventId: string,
   nodeId: number,
   showLoopingIndicator: boolean,
-  levelOfDetail: LevelOfDetail
+  levelOfDetail: LevelOfDetail,
+  showContinuesTags: boolean
 ): NodeDimensions | undefined => {
   const cached = dimensionCache.get(
-    createCacheKey(eventId, nodeId, showLoopingIndicator, levelOfDetail)
+    createCacheKey(eventId, nodeId, showLoopingIndicator, levelOfDetail, showContinuesTags)
   )
 
   // Warn in DEV if cache miss for the currently cached event
@@ -68,21 +70,28 @@ export const setCachedDimensions = (
   width: number,
   height: number,
   showLoopingIndicator: boolean,
-  levelOfDetail: LevelOfDetail
+  levelOfDetail: LevelOfDetail,
+  showContinuesTags: boolean
 ): void => {
-  dimensionCache.set(createCacheKey(eventId, nodeId, showLoopingIndicator, levelOfDetail), {
-    width,
-    height,
-  })
+  dimensionCache.set(
+    createCacheKey(eventId, nodeId, showLoopingIndicator, levelOfDetail, showContinuesTags),
+    {
+      width,
+      height,
+    }
+  )
 }
 
 export const hasCachedDimensions = (
   eventId: string,
   nodeId: number,
   showLoopingIndicator: boolean,
-  levelOfDetail: LevelOfDetail
+  levelOfDetail: LevelOfDetail,
+  showContinuesTags: boolean
 ): boolean =>
-  dimensionCache.has(createCacheKey(eventId, nodeId, showLoopingIndicator, levelOfDetail))
+  dimensionCache.has(
+    createCacheKey(eventId, nodeId, showLoopingIndicator, levelOfDetail, showContinuesTags)
+  )
 
 /**
  * Pre-populates the cache with dimensions for all nodes in an event tree.
@@ -94,17 +103,20 @@ export const buildDimensionCache = (
   event: Event,
   showLoopingIndicator: boolean,
   levelOfDetail: LevelOfDetail,
+  showContinuesTags: boolean,
   calculateWidth: (
     nodeMap: NodeMap,
     node: EventTreeNode,
     showLoopingIndicator: boolean,
-    levelOfDetail: LevelOfDetail
+    levelOfDetail: LevelOfDetail,
+    showContinuesTags: boolean
   ) => number,
   calculateHeight: (
     node: EventTreeNode,
     width: number,
     showLoopingIndicator: boolean,
-    levelOfDetail: LevelOfDetail
+    levelOfDetail: LevelOfDetail,
+    showContinuesTags: boolean
   ) => number
 ): void => {
   if (!event.rootNode) return
@@ -114,7 +126,8 @@ export const buildDimensionCache = (
     event.name,
     event.rootNode.id,
     showLoopingIndicator,
-    levelOfDetail
+    levelOfDetail,
+    showContinuesTags
   )
 
   if (alreadyCached) {
@@ -123,10 +136,30 @@ export const buildDimensionCache = (
   }
 
   const cacheNodeRecursive = (node: EventTreeNode) => {
-    const width = calculateWidth(nodeMap, node, showLoopingIndicator, levelOfDetail)
-    const height = calculateHeight(node, width, showLoopingIndicator, levelOfDetail)
+    const width = calculateWidth(
+      nodeMap,
+      node,
+      showLoopingIndicator,
+      levelOfDetail,
+      showContinuesTags
+    )
+    const height = calculateHeight(
+      node,
+      width,
+      showLoopingIndicator,
+      levelOfDetail,
+      showContinuesTags
+    )
 
-    setCachedDimensions(event.name, node.id, width, height, showLoopingIndicator, levelOfDetail)
+    setCachedDimensions(
+      event.name,
+      node.id,
+      width,
+      height,
+      showLoopingIndicator,
+      levelOfDetail,
+      showContinuesTags
+    )
 
     if (node.children) {
       node.children.forEach(cacheNodeRecursive)

@@ -110,17 +110,24 @@
     }
   }
 
+  &--checkbox {
+    flex: 1;
+    min-width: 13rem;
+    height: 1rem;
+    padding: 0.25rem 0 0;
+
+    @media (max-width: $breakpoint-mobile) {
+      flex-basis: 100%;
+      padding: 0.25rem 0 0.75rem;
+    }
+  }
+
   &--info-message {
     display: flex;
-    align-items: flex-end;
-    justify-content: flex-end;
     flex: 1;
-    min-width: 14rem;
-
-    @media (max-width: $breakpoint-tablet) {
-      flex-basis: 100%;
-      justify-content: center;
-    }
+    min-width: 21rem;
+    flex-basis: 100%;
+    justify-content: flex-end;
   }
 }
 
@@ -143,8 +150,7 @@
   gap: 0.5rem;
   color: $color-primary-muted;
   font-size: font-size('xs');
-  margin-left: 0.125rem;
-  padding: 0.5rem 0.5rem;
+  padding: 0.5rem 0.125rem;
 
   @media (max-width: $breakpoint-mobile) {
     font-size: font-size('xxs');
@@ -200,6 +206,7 @@
     display: flex;
     gap: 1rem;
     flex-wrap: wrap;
+    align-items: center;
     @include superFancyBorder(0.75rem, 1rem);
   }
 }

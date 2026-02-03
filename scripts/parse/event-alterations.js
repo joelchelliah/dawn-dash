@@ -59,6 +59,30 @@ const CARDGAME_CHOICE_LABELS = [
   'The Wheel',
 ]
 
+/**
+ * Helper to create event alterations that add death event transitions after combat nodes
+ */
+function createCombatTransition(eventName, combatTarget, gotoEvent) {
+  return {
+    name: eventName,
+    alterations: [
+      {
+        find: { effect: `COMBAT: ${combatTarget}` },
+        ...addGotoEventChild(gotoEvent),
+      },
+    ],
+  }
+}
+
+function addGotoEventChild(gotoEvent) {
+  return {
+    addChild: {
+      type: 'special',
+      effects: [`EVENT: ${gotoEvent}`],
+    },
+  }
+}
+
 module.exports = [
   {
     name: 'Frozen Heart',
@@ -100,8 +124,25 @@ module.exports = [
           ],
         },
       },
+      {
+        find: { effect: 'COMBAT: Maki Tagdahar' },
+        ...addGotoEventChild('Maki Tagdahar Death'),
+      },
+      {
+        find: { effect: 'COMBAT: Battleseer Hildune' },
+        ...addGotoEventChild('Battleseer Hildune Death'),
+      },
     ],
   },
+  createCombatTransition('Abandoned Village', 'Kaius Tagdahar', 'Kaius Tagdahar Death'),
+  createCombatTransition(
+    'The Silent Reliquary Start',
+    'Rathael the Slain',
+    'Rathael the Slain Death'
+  ),
+  createCombatTransition('The Decayed Sanctum Start', 'AreaBoss', 'Queen of Decay Death'),
+  createCombatTransition('The Eldritch Sanctum Start', 'AreaBoss', 'Outerworldly Entity Death'),
+  createCombatTransition('The Defiled Sanctum Start', 'AreaBoss', 'Lord of Despair Death'),
   {
     name: 'The Defiled Sanctum',
     alterations: [

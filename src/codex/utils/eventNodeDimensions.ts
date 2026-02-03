@@ -334,13 +334,22 @@ export const getNodeDimensions = (
   node: EventTreeNode,
   event: Event,
   showLoopingIndicator: boolean,
-  levelOfDetail: LevelOfDetail
+  levelOfDetail: LevelOfDetail,
+  showContinuesTags: boolean
 ): [number, number] => {
-  const cached = getCachedDimensions(event.name, node.id, showLoopingIndicator, levelOfDetail)
+  const cached = getCachedDimensions(
+    event.name,
+    node.id,
+    showLoopingIndicator,
+    levelOfDetail,
+    showContinuesTags
+  )
   const nodeWidth =
-    cached?.width ?? _getNodeWidth(nodeMap, node, showLoopingIndicator, levelOfDetail)
+    cached?.width ??
+    _getNodeWidth(nodeMap, node, showLoopingIndicator, levelOfDetail, showContinuesTags)
   const nodeHeight =
-    cached?.height ?? _getNodeHeight(node, nodeWidth, showLoopingIndicator, levelOfDetail)
+    cached?.height ??
+    _getNodeHeight(node, nodeWidth, showLoopingIndicator, levelOfDetail, showContinuesTags)
 
   return [nodeWidth, nodeHeight]
 }
@@ -353,10 +362,11 @@ export const getNodeWidth = (
   node: EventTreeNode,
   event: Event,
   showLoopingIndicator: boolean,
-  levelOfDetail: LevelOfDetail
+  levelOfDetail: LevelOfDetail,
+  showContinuesTags: boolean
 ): number =>
-  getCachedDimensions(event.name, node.id, showLoopingIndicator, levelOfDetail)?.width ??
-  _getNodeWidth(nodeMap, node, showLoopingIndicator, levelOfDetail)
+  getCachedDimensions(event.name, node.id, showLoopingIndicator, levelOfDetail, showContinuesTags)
+    ?.width ?? _getNodeWidth(nodeMap, node, showLoopingIndicator, levelOfDetail, showContinuesTags)
 
 /**
  * Get node height with caching support
@@ -366,10 +376,11 @@ export const getNodeHeight = (
   event: Event,
   width: number,
   showLoopingIndicator: boolean,
-  levelOfDetail: LevelOfDetail
+  levelOfDetail: LevelOfDetail,
+  showContinuesTags: boolean
 ): number =>
-  getCachedDimensions(event.name, node.id, showLoopingIndicator, levelOfDetail)?.height ??
-  _getNodeHeight(node, width, showLoopingIndicator, levelOfDetail)
+  getCachedDimensions(event.name, node.id, showLoopingIndicator, levelOfDetail, showContinuesTags)
+    ?.height ?? _getNodeHeight(node, width, showLoopingIndicator, levelOfDetail, showContinuesTags)
 
 /**
  * Cache all node dimensions for better performance
@@ -378,9 +389,18 @@ export const cacheAllNodeDimensions = (
   nodeMap: NodeMap,
   event: Event,
   showLoopingIndicator: boolean,
-  levelOfDetail: LevelOfDetail
+  levelOfDetail: LevelOfDetail,
+  showContinuesTags: boolean
 ): void => {
-  buildCache(nodeMap, event, showLoopingIndicator, levelOfDetail, _getNodeWidth, _getNodeHeight)
+  buildCache(
+    nodeMap,
+    event,
+    showLoopingIndicator,
+    levelOfDetail,
+    showContinuesTags,
+    _getNodeWidth,
+    _getNodeHeight
+  )
 }
 
 /**
@@ -390,17 +410,18 @@ const _getNodeWidth = (
   nodeMap: NodeMap,
   node: EventTreeNode,
   showLoopingIndicator: boolean,
-  levelOfDetail: LevelOfDetail
+  levelOfDetail: LevelOfDetail,
+  showContinuesTags: boolean
 ): number => {
   const isCompact = levelOfDetail === LevelOfDetail.COMPACT
-  const numContinues = node.type === 'dialogue' ? (node.numContinues ?? 0) : 0
+  const numContinues = showContinuesTags && node.type === 'dialogue' ? (node.numContinues ?? 0) : 0
 
   const totalTextPadding = TEXT.HORIZONTAL_PADDING * 2
   const totalInnerBoxMarginAndPadding = INNER_BOX.HORIZONTAL_MARGIN_OR_PADDING * 4
 
   let width = isCompact ? NODE.COMPACT_WIDTH : NODE.WIDTH_RANGE[0]
 
-  if (isEmojiOnlyNode(node, isCompact, showLoopingIndicator)) {
+  if (isEmojiOnlyNode(node, isCompact, showContinuesTags, showLoopingIndicator)) {
     width = NODE.COMPACT_WIDTH
   }
 
@@ -473,7 +494,8 @@ const _getNodeHeight = (
   node: EventTreeNode,
   width: number,
   showLoopingIndicator: boolean,
-  levelOfDetail: LevelOfDetail
+  levelOfDetail: LevelOfDetail,
+  showContinuesTags: boolean
 ): number => {
   const isCompact = levelOfDetail === LevelOfDetail.COMPACT
   const emojiMargin = getEmojiMargin(node, levelOfDetail)
@@ -543,7 +565,7 @@ const _getNodeHeight = (
       node.type === 'dialogue'
         ? calculateIndicatorDimensions(
             'continue',
-            Boolean(node.numContinues),
+            Boolean(showContinuesTags && node.numContinues),
             textDimensions.hasText,
             effectsBoxHeight > 0
           )

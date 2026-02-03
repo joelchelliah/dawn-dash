@@ -45,7 +45,8 @@ export const calculateTreeBounds = (
   root: HierarchyNode<EventTreeNode>,
   event: Event,
   showLoopingIndicator: boolean,
-  levelOfDetail: LevelOfDetail
+  levelOfDetail: LevelOfDetail,
+  showContinuesTags: boolean
 ): TreeBounds => {
   let minX = Infinity // Left edge of the leftmost node
   let maxX = -Infinity // Right edge of the rightmost node
@@ -61,7 +62,8 @@ export const calculateTreeBounds = (
       d.data,
       event,
       showLoopingIndicator,
-      levelOfDetail
+      levelOfDetail,
+      showContinuesTags
     )
 
     // Track edges for both X and Y
@@ -102,13 +104,14 @@ export const isEmojiBadgeNode = (node: EventTreeNode): boolean =>
 export const isEmojiOnlyNode = (
   node: EventTreeNode,
   isCompact: boolean,
+  showContinuesTags: boolean,
   showLoopingIndicator: boolean
 ): boolean => {
   const isEmojiOnlyCandidate =
     isEmojiBadgeNode(node) &&
     !hasRequirements(node) &&
     !hasEffects(node) &&
-    !hasContinues(node) &&
+    !(showContinuesTags && hasContinues(node)) &&
     !(showLoopingIndicator && node.ref !== undefined)
 
   return isCompact
@@ -123,19 +126,20 @@ export const getCustomNodeEmoji = (node: EventTreeNode): string | undefined => {
   if (!isEffectsNode(node)) return undefined
 
   const effects = node.effects ?? []
+  const cardGameChoices =
+    'random [The Blood Moon, The Final Star, The Hangman, The Hourglass, The Pale Mask, The Wheel]'
+  const ManorMusic = ['Mazurka', 'Viennese', 'Waltz']
 
   if (effects.includes('MERCHANT')) return '🛍️'
   if (effects.includes('BUYCARDBYCATEGORY: potion')) return '🍷'
   if (effects.includes('ENCHANTERIMBUE')) return '🎗️'
   if (effects.includes('TAKEFROMVAULT') || effects.includes('ADDTOVAULT')) return '📦'
+
   // Custom emoji but keep existing node type
   if (effects.includes('CARDPUZZLE')) return '🧩'
-  if (
-    effects.includes(
-      'random [The Blood Moon, The Final Star, The Hangman, The Hourglass, The Pale Mask, The Wheel]'
-    )
-  )
-    return '🎲'
+  if (effects.includes(cardGameChoices)) return '🎲'
+  if (effects.some((effect) => effect.startsWith('EVENT:'))) return '📖'
+  if (effects.some((effect) => ManorMusic.some((music) => effect.includes(music)))) return '💃'
 
   return undefined
 }

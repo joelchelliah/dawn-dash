@@ -39,7 +39,8 @@ export const adjustHorizontalNodeSpacing = (
   root: HierarchyPointNode<EventTreeNode>,
   event: Event,
   showLoopingIndicator: boolean,
-  levelOfDetail: LevelOfDetail
+  levelOfDetail: LevelOfDetail,
+  showContinuesTags: boolean
 ) => {
   const minHorizontalGap = NODE.HORIZONTAL_SPACING_DEFAULT
   const nodesByDepth = groupNodesByDepth(root)
@@ -78,7 +79,8 @@ export const adjustHorizontalNodeSpacing = (
               event,
               minHorizontalGap,
               showLoopingIndicator,
-              levelOfDetail
+              levelOfDetail,
+              showContinuesTags
             )
 
             if (maxSafeShift > minHorizontalGap / 10) {
@@ -106,7 +108,14 @@ export const adjustHorizontalNodeSpacing = (
         // Calculate total width needed for all children with gaps
         let totalWidth = 0
         const childWidths = parent.children.map((child) =>
-          getNodeWidth(nodeMap, child.data, event, showLoopingIndicator, levelOfDetail)
+          getNodeWidth(
+            nodeMap,
+            child.data,
+            event,
+            showLoopingIndicator,
+            levelOfDetail,
+            showContinuesTags
+          )
         )
 
         childWidths.forEach((width, i) => {
@@ -176,7 +185,8 @@ export const adjustHorizontalNodeSpacing = (
               rightSibling,
               event,
               showLoopingIndicator,
-              levelOfDetail
+              levelOfDetail,
+              showContinuesTags
             )
 
             if (currentGap < minHorizontalGap) {
@@ -234,7 +244,8 @@ export const adjustHorizontalNodeSpacing = (
             leftmostRightChild,
             event,
             showLoopingIndicator,
-            levelOfDetail
+            levelOfDetail,
+            showContinuesTags
           )
 
           // If overlap exists, move parents apart symmetrically
@@ -386,7 +397,8 @@ export const adjustHorizontalNodeSpacing = (
                 rightSibling,
                 event,
                 showLoopingIndicator,
-                levelOfDetail
+                levelOfDetail,
+                showContinuesTags
               ) - minHorizontalGap
 
             if (initialGap <= 0) continue // Already at minimum gap, no tightening possible
@@ -402,7 +414,8 @@ export const adjustHorizontalNodeSpacing = (
               event,
               minHorizontalGap,
               showLoopingIndicator,
-              levelOfDetail
+              levelOfDetail,
+              showContinuesTags
             )
 
             // Shift right by maxShift (or maxShift/2 for even-count middle-left node)
@@ -435,7 +448,8 @@ export const adjustHorizontalNodeSpacing = (
                 node,
                 event,
                 showLoopingIndicator,
-                levelOfDetail
+                levelOfDetail,
+                showContinuesTags
               ) - minHorizontalGap
 
             if (initialGap <= 0) continue // Already at minimum gap, no tightening possible
@@ -451,7 +465,8 @@ export const adjustHorizontalNodeSpacing = (
               event,
               minHorizontalGap,
               showLoopingIndicator,
-              levelOfDetail
+              levelOfDetail,
+              showContinuesTags
             )
 
             // Shift left by maxShift, with special handling for middle nodes
@@ -495,7 +510,8 @@ export const adjustVerticalNodeSpacing = (
   root: HierarchyPointNode<EventTreeNode>,
   event: Event,
   showLoopingIndicator: boolean,
-  levelOfDetail: LevelOfDetail
+  levelOfDetail: LevelOfDetail,
+  showContinuesTags: boolean
 ) => {
   // Group nodes by depth
   const nodesByDepth = groupNodesByDepth(root)
@@ -568,7 +584,8 @@ export const adjustVerticalNodeSpacing = (
           node.parent.data,
           event,
           showLoopingIndicator,
-          levelOfDetail
+          levelOfDetail,
+          showContinuesTags
         )
 
         const [, nodeHeight] = getNodeDimensions(
@@ -576,7 +593,8 @@ export const adjustVerticalNodeSpacing = (
           node.data,
           event,
           showLoopingIndicator,
-          levelOfDetail
+          levelOfDetail,
+          showContinuesTags
         )
 
         // Calculate current gap between bottom of parent and top of child
@@ -593,14 +611,16 @@ export const adjustVerticalNodeSpacing = (
             refParent.data,
             event,
             showLoopingIndicator,
-            levelOfDetail
+            levelOfDetail,
+            showContinuesTags
           )
           const [, nodeHeight] = getNodeDimensions(
             nodeMap,
             node.data,
             event,
             showLoopingIndicator,
-            levelOfDetail
+            levelOfDetail,
+            showContinuesTags
           )
 
           // Calculate gap between bottom of refParent and top of this node
@@ -638,9 +658,17 @@ const getNodeLeftEdgeX = (
   node: HierarchyPointNode<EventTreeNode>,
   event: Event,
   showLoopingIndicator: boolean,
-  levelOfDetail: LevelOfDetail
+  levelOfDetail: LevelOfDetail,
+  showContinuesTags: boolean
 ): number => {
-  const nodeWidth = getNodeWidth(nodeMap, node.data, event, showLoopingIndicator, levelOfDetail)
+  const nodeWidth = getNodeWidth(
+    nodeMap,
+    node.data,
+    event,
+    showLoopingIndicator,
+    levelOfDetail,
+    showContinuesTags
+  )
 
   return (node.x ?? 0) - nodeWidth / 2
 }
@@ -653,9 +681,17 @@ const getNodeRightEdgeX = (
   node: HierarchyPointNode<EventTreeNode>,
   event: Event,
   showLoopingIndicator: boolean,
-  levelOfDetail: LevelOfDetail
+  levelOfDetail: LevelOfDetail,
+  showContinuesTags: boolean
 ): number => {
-  const nodeWidth = getNodeWidth(nodeMap, node.data, event, showLoopingIndicator, levelOfDetail)
+  const nodeWidth = getNodeWidth(
+    nodeMap,
+    node.data,
+    event,
+    showLoopingIndicator,
+    levelOfDetail,
+    showContinuesTags
+  )
 
   return (node.x ?? 0) + nodeWidth / 2
 }
@@ -679,21 +715,24 @@ const calculateGapBetweenNodes = (
   rightNode: HierarchyPointNode<EventTreeNode>,
   event: Event,
   showLoopingIndicator: boolean,
-  levelOfDetail: LevelOfDetail
+  levelOfDetail: LevelOfDetail,
+  showContinuesTags: boolean
 ): number => {
   const leftRightEdge = getNodeRightEdgeX(
     nodeMap,
     leftNode,
     event,
     showLoopingIndicator,
-    levelOfDetail
+    levelOfDetail,
+    showContinuesTags
   )
   const rightLeftEdge = getNodeLeftEdgeX(
     nodeMap,
     rightNode,
     event,
     showLoopingIndicator,
-    levelOfDetail
+    levelOfDetail,
+    showContinuesTags
   )
   return rightLeftEdge - leftRightEdge
 }
@@ -712,7 +751,8 @@ const calculateMaxShiftForNode = (
   event: Event,
   minHorizontalGap: number,
   showLoopingIndicator: boolean,
-  levelOfDetail: LevelOfDetail
+  levelOfDetail: LevelOfDetail,
+  showContinuesTags: boolean
 ): number => {
   let maxShift = initialMaxShift
 
@@ -738,8 +778,22 @@ const calculateMaxShiftForNode = (
       shiftDirection === 'right' ? sortedNodes[sortedNodes.length - 1] : sortedNodes[0]
     const boundaryEdge =
       shiftDirection === 'right'
-        ? getNodeRightEdgeX(nodeMap, boundaryNode, event, showLoopingIndicator, levelOfDetail)
-        : getNodeLeftEdgeX(nodeMap, boundaryNode, event, showLoopingIndicator, levelOfDetail)
+        ? getNodeRightEdgeX(
+            nodeMap,
+            boundaryNode,
+            event,
+            showLoopingIndicator,
+            levelOfDetail,
+            showContinuesTags
+          )
+        : getNodeLeftEdgeX(
+            nodeMap,
+            boundaryNode,
+            event,
+            showLoopingIndicator,
+            levelOfDetail,
+            showContinuesTags
+          )
 
     // Check against ALL nodes at this depth to find the closest obstacle
     const closestObstacleEdge =
@@ -751,7 +805,8 @@ const calculateMaxShiftForNode = (
             nodesByDepth,
             event,
             showLoopingIndicator,
-            levelOfDetail
+            levelOfDetail,
+            showContinuesTags
           )
         : findClosestLeftNodeEdgeX(
             nodeMap,
@@ -760,7 +815,8 @@ const calculateMaxShiftForNode = (
             nodesByDepth,
             event,
             showLoopingIndicator,
-            levelOfDetail
+            levelOfDetail,
+            showContinuesTags
           )
 
     if (closestObstacleEdge !== null) {
@@ -848,14 +904,22 @@ const findClosestRightNodeEdgeX = (
   nodesByDepth: HierarchyPointNode<EventTreeNode>[][],
   event: Event,
   showLoopingIndicator: boolean,
-  levelOfDetail: LevelOfDetail
+  levelOfDetail: LevelOfDetail,
+  showContinuesTags: boolean
 ): number | null => {
   const nodesAtCheckDepth = nodesByDepth[checkDepth] || []
   let closestEdge: number | null = null
   let minDistance = Infinity
 
   nodesAtCheckDepth.forEach((node) => {
-    const nodeLeftEdge = getNodeLeftEdgeX(nodeMap, node, event, showLoopingIndicator, levelOfDetail)
+    const nodeLeftEdge = getNodeLeftEdgeX(
+      nodeMap,
+      node,
+      event,
+      showLoopingIndicator,
+      levelOfDetail,
+      showContinuesTags
+    )
 
     if (nodeLeftEdge > x) {
       const distance = nodeLeftEdge - x
@@ -879,7 +943,8 @@ const findClosestLeftNodeEdgeX = (
   nodesByDepth: HierarchyPointNode<EventTreeNode>[][],
   event: Event,
   showLoopingIndicator: boolean,
-  levelOfDetail: LevelOfDetail
+  levelOfDetail: LevelOfDetail,
+  showContinuesTags: boolean
 ): number | null => {
   const nodesAtCheckDepth = nodesByDepth[checkDepth] || []
   let closestEdge: number | null = null
@@ -891,7 +956,8 @@ const findClosestLeftNodeEdgeX = (
       node,
       event,
       showLoopingIndicator,
-      levelOfDetail
+      levelOfDetail,
+      showContinuesTags
     )
 
     if (nodeRightEdge < x) {
