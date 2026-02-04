@@ -24,11 +24,11 @@
     margin-left: 2rem;
   }
 
-  &--non-collectible_margin {
+  &--special-icons_margin {
     margin-left: 0.5rem;
   }
 
-  &--rarity_and_non-collectible_margin {
+  &--rarity_and_special_icons_margin {
     margin-left: 2.5rem;
   }
 
@@ -158,7 +158,7 @@
         position: relative;
         top: 0.25rem;
         left: 0.0625rem;
-        color: $color-danger-base;
+        color: $color-danger-special-card;
       }
     }
   }
@@ -173,27 +173,80 @@
     }
   }
 
-  &__non-collectible {
-    display: inline-block;
-    width: 0.75rem;
-    margin: 0 0.25rem 0 -0.4375rem;
+  &__special-icon-base {
+    display: flex;
+    width: 1rem;
+    margin-left: -0.75rem;
+    margin-right: 0.25rem;
 
     svg {
       position: relative;
       top: 0.125rem;
-      width: 0.75rem;
-      height: 0.75rem;
-      color: $color-danger-base;
+      color: $color-danger-special-card;
     }
 
     @media (max-width: $breakpoint-mobile) {
+      margin-left: -0.25rem;
+    }
+  }
+
+  &__non-collectible-and-animal-companion {
+    @extend .result-card__special-icon-base;
+    flex-direction: column;
+
+    svg {
+      top: 0.5rem;
       width: 1rem;
-      margin: 0 0.25rem 0 -0.25rem;
+      height: 1rem;
+    }
+
+    @media (max-width: $breakpoint-mobile) {
+      flex-direction: row;
+      width: 1.5rem;
 
       svg {
         top: 0;
-        width: 0.625rem;
-        height: 0.625rem;
+        width: 0.75rem;
+        height: 0.75rem;
+      }
+    }
+  }
+
+  &__non-collectible {
+    @extend .result-card__special-icon-base;
+
+    svg {
+      width: 0.875rem;
+      height: 0.875rem;
+    }
+
+    @media (max-width: $breakpoint-mobile) {
+      width: 0.75rem;
+      margin-left: -0.25rem;
+
+      svg {
+        top: 0;
+        width: 0.75rem;
+        height: 0.75rem;
+      }
+    }
+  }
+
+  &__animal-companion {
+    @extend .result-card__special-icon-base;
+
+    svg {
+      width: 1rem;
+      height: 1rem;
+    }
+
+    @media (max-width: $breakpoint-mobile) {
+      margin-left: -0.25rem;
+
+      svg {
+        top: 0;
+        width: 1rem;
+        height: 1rem;
       }
     }
   }

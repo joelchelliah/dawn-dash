@@ -98,7 +98,7 @@
     top: 0.0625rem;
     right: 0.125rem;
     margin-right: -0.25rem;
-    color: $color-danger-base;
+    color: $color-danger-special-card;
   }
 
   &--animal-companion {
@@ -109,7 +109,7 @@
     top: 0.0625rem;
     right: 0.125rem;
     margin-right: -0.25rem;
-    color: $color-danger-base;
+    color: $color-danger-special-card;
   }
 
   &--non-collectible {
@@ -118,7 +118,7 @@
     height: 0.75rem;
     position: relative;
     top: 0.0625rem;
-    color: $color-danger-base;
+    color: $color-danger-special-card;
   }
 }
 

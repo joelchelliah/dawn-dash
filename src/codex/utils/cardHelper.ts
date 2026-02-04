@@ -131,3 +131,6 @@ export const parseCardDescription = (description: string, iconClassName?: string
 
 export const containsNonCollectible = (cards: CardData[]) =>
   cards.some((card) => isNonCollectible(card))
+
+export const containsAnimalCompanionCard = (cards: CardData[]) =>
+  cards.some((card) => isAnimalCompanionCard(card))

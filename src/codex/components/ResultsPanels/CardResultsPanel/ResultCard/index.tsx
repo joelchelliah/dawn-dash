@@ -8,6 +8,7 @@ import {
   TripleStarsIcon,
   SkullIcon,
   CrossIcon,
+  PawIcon,
 } from '@/shared/utils/icons'
 import { createCx } from '@/shared/utils/classnames'
 
@@ -15,8 +16,8 @@ import { UseAllCardSearchFilters } from '@/codex/hooks/useSearchFilters'
 import { CardData } from '@/codex/types/cards'
 import {
   isNonCollectible,
-  containsNonCollectible,
   parseCardDescription,
+  isAnimalCompanionCard,
 } from '@/codex/utils/cardHelper'
 
 import styles from './index.module.scss'
@@ -32,14 +33,14 @@ const cx = createCx(styles)
 const ResultCard = ({ card, useSearchFilters, showCardsWithoutKeywords }: ResultCardProps) => {
   const {
     parsedKeywords,
-    matchingCards,
     useCardSetFilters,
     useExtraCardFilters,
     useFormattingFilters,
     useCardStrike,
   } = useSearchFilters
   const { getCardSetNameFromIndex } = useCardSetFilters
-  const { shouldIncludeNonCollectibleCards } = useExtraCardFilters
+  const { shouldIncludeNonCollectibleCards, shouldIncludeAnimalCompanionCards } =
+    useExtraCardFilters
   const {
     shouldShowRarity,
     shouldShowDescription,
@@ -85,24 +86,56 @@ const ResultCard = ({ card, useSearchFilters, showCardsWithoutKeywords }: Result
 
   const descriptionClassName = cx('result-card__description', {
     'result-card__description--rarity_margin':
-      shouldShowRarity && !shouldIncludeNonCollectibleCards,
-    'result-card__description--non-collectible_margin':
-      !shouldShowRarity && shouldIncludeNonCollectibleCards,
-    'result-card__description--rarity_and_non-collectible_margin':
-      shouldShowRarity && shouldIncludeNonCollectibleCards,
+      shouldShowRarity && !(isNonCollectible(card) || isAnimalCompanionCard(card)),
+    'result-card__description--special-icons_margin':
+      !shouldShowRarity && (isNonCollectible(card) || isAnimalCompanionCard(card)),
+    'result-card__description--rarity_and_special_icons_margin':
+      shouldShowRarity && (isNonCollectible(card) || isAnimalCompanionCard(card)),
     'result-card__description--struck': isStruck,
     'result-card__description--hidden': shouldHideTrackedCards && isStruck,
   })
   const blightbaneLinkClassName = cx('result-card__blightbane-link', {
     'result-card__blightbane-link--rarity_margin':
-      shouldShowRarity && !shouldIncludeNonCollectibleCards,
-    'result-card__blightbane-link--non-collectible_margin':
-      !shouldShowRarity && shouldIncludeNonCollectibleCards,
-    'result-card__blightbane-link--rarity_and_non-collectible_margin':
-      shouldShowRarity && shouldIncludeNonCollectibleCards,
+      shouldShowRarity && !(isNonCollectible(card) || isAnimalCompanionCard(card)),
+    'result-card__blightbane-link--special-icons_margin':
+      !shouldShowRarity && (isNonCollectible(card) || isAnimalCompanionCard(card)),
+    'result-card__blightbane-link--rarity_and_special_icons_margin':
+      shouldShowRarity && (isNonCollectible(card) || isAnimalCompanionCard(card)),
   })
 
   const blightbaneLink = `https://www.blightbane.io/card/${card.name.replaceAll(' ', '_')}`
+
+  const renderSpecialIcons = () => {
+    const hasNonCollectible = shouldIncludeNonCollectibleCards && isNonCollectible(card)
+    const hasAnimalCompanion = shouldIncludeAnimalCompanionCards && isAnimalCompanionCard(card)
+
+    if (hasNonCollectible && hasAnimalCompanion) {
+      return (
+        <span className={cx('result-card__non-collectible-and-animal-companion')}>
+          <PawIcon />
+          <CrossIcon />
+        </span>
+      )
+    }
+
+    if (hasAnimalCompanion) {
+      return (
+        <span className={cx('result-card__animal-companion')}>
+          <PawIcon />
+        </span>
+      )
+    }
+
+    if (hasNonCollectible) {
+      return (
+        <span className={cx('result-card__non-collectible')}>
+          <CrossIcon />
+        </span>
+      )
+    }
+
+    return null
+  }
 
   return (
     <div className={cardContainerClassName} key={card.name}>
@@ -112,11 +145,7 @@ const ResultCard = ({ card, useSearchFilters, showCardsWithoutKeywords }: Result
             {indexToRarityIconMap[card.rarity as keyof typeof indexToRarityIconMap]}
           </span>
         )}
-        {shouldIncludeNonCollectibleCards && containsNonCollectible(matchingCards) && (
-          <span className={cx('result-card__non-collectible')}>
-            {isNonCollectible(card) && <CrossIcon />}
-          </span>
-        )}
+        {renderSpecialIcons()}
         <span className={cx('result-card__name')}>{card.name}</span>
         {shouldShowKeywords && !showCardsWithoutKeywords && (
           <span className={cx('result-card__keywords')}>{matchingKeywordsText}</span>
