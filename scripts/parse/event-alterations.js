@@ -15,6 +15,7 @@
  *   - { effect: 'CARDPUZZLE' } - Search by effect (substring match)
  *   - { requirement: 'COLLECTOR: Epic' } - Search by requirement (substring match)
  *   - { textOrLabel: 'text', effect: 'GOTOAREA: 91' } - Search by both text-or-label AND effect
+ *   - { textOrLabel: 'text', requirement: 'strength:=0' } - Search by both text-or-label AND requirement
  *
  * Modifying nodes:
  * - addRequirements: Add requirements to matched nodes
@@ -22,6 +23,9 @@
  * - replaceNode: Replace the entire matched node with a new node structure
  * - replaceChildren: Replace matched node's children with new nodes (array of node specs).
  *   Use refChildrenFromFirstSibling: true on a child to set refChildren to first sibling's child ids.
+ * - updateChild: Update properties of a node's single child (only if node has exactly 1 child).
+ *   Supports: text, type, effects, numContinues, requirements, refCreate
+ *   Skips nodes with 0 children, errors on nodes with >1 children.
  * - removeNode: true - Remove the matched node from the tree entirely
  * - modifyNode: Modify properties of matched nodes:
  *   - removeRef: true - Remove the ref field
@@ -363,6 +367,37 @@ module.exports = [
           removeNumContinues: true,
           removeChildren: true,
           refCreateStartsWith: 'Three cards get dealt in front of you',
+        },
+      },
+    ],
+  },
+  // Forking Tunnel has 4 overlapping random ranges for gold, that we are not able to correctly map to the correct node
+  // during the automatic parsing. This fix ensures that the correct nodes get the correct random range.
+  {
+    name: 'Forking Tunnel',
+    alterations: [
+      {
+        find: { textOrLabel: 'Open the crypt vault' },
+        updateChild: {
+          effects: ['GOLD: random [30 - 65]'],
+        },
+      },
+      {
+        find: { requirement: 'strength:=0', textOrLabel: 'Break some gold free' },
+        updateChild: {
+          effects: ['GOLD: random [25 - 50]'],
+        },
+      },
+      {
+        find: { requirement: 'strength:=1', textOrLabel: 'Break some gold free' },
+        updateChild: {
+          effects: ['GOLD: random [50 - 75]'],
+        },
+      },
+      {
+        find: { requirement: 'strength:2', textOrLabel: 'Break some gold free' },
+        updateChild: {
+          effects: ['GOLD: random [75 - 125]'],
         },
       },
     ],

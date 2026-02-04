@@ -7,6 +7,8 @@
  * - Updating nodes (e.g., adding requirements)
  * - Adding new child nodes (addChild)
  * - Replacing entire nodes (replaceNode)
+ * - Replacing children of nodes (replaceChildren)
+ * - Updating a single child node (updateChild) - only if node has exactly 1 child
  * - Removing nodes from the tree (removeNode)
  */
 function applyEventAlterations(rootNode, alterations, generateNodeId) {
@@ -23,6 +25,7 @@ function applyEventAlterations(rootNode, alterations, generateNodeId) {
       replaceChildren,
       modifyNode,
       removeNode,
+      updateChild,
     } = alteration
 
     // Validate that we have a find method
@@ -47,10 +50,19 @@ function applyEventAlterations(rootNode, alterations, generateNodeId) {
       searchDescription = `textStartsWith: "${find.textStartsWith}"`
     } else if (find.textOrLabel !== undefined) {
       const hasEffect = find.effect !== undefined
+      const hasRequirement = find.requirement !== undefined
       if (hasEffect) {
         // Search by textOrLabel AND effect
         matchingNodes = findNodesByTextOrLabelAndEffect(rootNode, find.textOrLabel, find.effect)
         searchDescription = `textOrLabel: "${find.textOrLabel}" + effect: "${find.effect}"`
+      } else if (hasRequirement) {
+        // Search by textOrLabel AND requirement
+        matchingNodes = findNodesByTextOrLabelAndRequirement(
+          rootNode,
+          find.textOrLabel,
+          find.requirement
+        )
+        searchDescription = `textOrLabel: "${find.textOrLabel}" + requirement: "${find.requirement}"`
       } else {
         // Search by textOrLabel only
         matchingNodes = findNodesByTextOrChoiceLabel(rootNode, find.textOrLabel)
@@ -182,6 +194,72 @@ function applyEventAlterations(rootNode, alterations, generateNodeId) {
         appliedCount++
       }
       continue
+    }
+
+    // Update child node properties (only if node has exactly 1 child)
+    if (updateChild) {
+      for (const node of matchingNodes) {
+        // Skip if no children
+        if (!node.children || node.children.length === 0) {
+          continue
+        }
+
+        // Error if more than 1 child
+        if (node.children.length > 1) {
+          console.error(
+            `  ❌ updateChild skipped for node ${node.id}: has ${node.children.length} children (expected exactly 1)`
+          )
+          continue
+        }
+
+        // Update the single child
+        const child = node.children[0]
+
+        // Update text if specified
+        if (updateChild.text !== undefined) {
+          child.text = updateChild.text
+        }
+
+        // Update type if specified
+        if (updateChild.type !== undefined) {
+          child.type = updateChild.type
+        }
+
+        // Update effects if specified
+        if (updateChild.effects !== undefined) {
+          child.effects = Array.isArray(updateChild.effects)
+            ? updateChild.effects.filter((e) => e)
+            : [updateChild.effects]
+        }
+
+        // Update numContinues if specified
+        if (updateChild.numContinues !== undefined) {
+          child.numContinues = updateChild.numContinues
+        }
+
+        // Update requirements if specified
+        if (updateChild.requirements !== undefined) {
+          const normalized = updateChild.requirements.filter((req) => req && typeof req === 'string')
+          if (normalized.length > 0) {
+            child.requirements = normalized
+          }
+        }
+
+        // Handle refCreate for the child
+        if (updateChild.refCreate !== undefined) {
+          const candidates = findNodesByTextOrChoiceLabel(rootNode, updateChild.refCreate)
+          const targetNode = candidates.find((candidate) => candidate.ref === undefined)
+          if (targetNode) {
+            child.ref = targetNode.id
+          } else {
+            console.warn(
+              `  ⚠️  refCreate "${updateChild.refCreate}" did not find a matching node without a ref for child of node ${node.id}`
+            )
+          }
+        }
+
+        appliedCount++
+      }
     }
 
     if (addRequirements) {
@@ -408,6 +486,39 @@ function findNodesByTextOrLabelAndEffect(node, searchText, searchEffect) {
   if (node.children) {
     for (const child of node.children) {
       matches.push(...findNodesByTextOrLabelAndEffect(child, searchText, searchEffect))
+    }
+  }
+
+  return matches
+}
+
+/**
+ * Recursively find nodes matching textOrLabel AND requirement
+ */
+function findNodesByTextOrLabelAndRequirement(node, searchText, searchRequirement) {
+  const matches = []
+
+  if (!node) return matches
+
+  // Check text or choiceLabel match
+  const textOrLabelMatches =
+    (node.text && node.text.includes(searchText)) ||
+    (node.choiceLabel && node.choiceLabel.includes(searchText))
+
+  // Check requirement match
+  const requirementMatches =
+    node.requirements &&
+    Array.isArray(node.requirements) &&
+    node.requirements.some((requirement) => requirement.includes(searchRequirement))
+
+  if (textOrLabelMatches && requirementMatches) {
+    matches.push(node)
+  }
+
+  // Recursively search children
+  if (node.children) {
+    for (const child of node.children) {
+      matches.push(...findNodesByTextOrLabelAndRequirement(child, searchText, searchRequirement))
     }
   }
 
