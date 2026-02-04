@@ -42,6 +42,12 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
     setIsMenuOpen(!isMenuOpen)
   }
 
+  const handleNavLinkClick = (page: string) => {
+    if (currentPage.toLowerCase() !== page.toLowerCase()) {
+      setLoadingPage(page)
+    }
+  }
+
   const getNavLinkImage = (url: string, alt: string, isHome?: boolean) => {
     const size = isHome ? 25 : 40
     return (
@@ -139,7 +145,7 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
             <Link
               href="/"
               className={cx('side-menu__nav-link', 'side-menu__nav-link--home')}
-              onClick={() => setLoadingPage('Home')}
+              onClick={() => handleNavLinkClick('Home')}
             >
               {getNavLinkImage(InfernalContractUrl, 'Dawn-Dash logo', true)}
               {getNavLinkText('Home')}
@@ -150,7 +156,7 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
             <Link
               href="/cardex"
               className={cx('side-menu__nav-link')}
-              onClick={() => setLoadingPage('Cardex')}
+              onClick={() => handleNavLinkClick('Cardex')}
             >
               {getNavLinkImage(AbracadabraImageUrl, 'Cardex logo')}
               {getNavLinkText('Cardex')}
@@ -161,7 +167,7 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
             <Link
               href="/skilldex"
               className={cx('side-menu__nav-link')}
-              onClick={() => setLoadingPage('Skilldex')}
+              onClick={() => handleNavLinkClick('Skilldex')}
             >
               {getNavLinkImage(EleganceImageUrl, 'Skilldex logo')}
               {getNavLinkText('Skilldex')}
@@ -172,7 +178,7 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
             <Link
               href="/eventmaps"
               className={cx('side-menu__nav-link')}
-              onClick={() => setLoadingPage('Eventmaps')}
+              onClick={() => handleNavLinkClick('Eventmaps')}
             >
               {getNavLinkImage(MapOfHuesImageUrl, 'Eventmaps logo')}
               {getNavLinkText('Eventmaps')}
@@ -183,7 +189,7 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
             <Link
               href="/speedruns"
               className={cx('side-menu__nav-link')}
-              onClick={() => setLoadingPage('Speedruns')}
+              onClick={() => handleNavLinkClick('Speedruns')}
             >
               {getNavLinkImage(DashImageUrl, 'Speedruns logo')}
               {getNavLinkText('Speedruns')}
