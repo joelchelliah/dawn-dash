@@ -79,11 +79,15 @@
     @include cardOverlayPositioningFix;
 
     .result-card__description {
-      color: $color-primary-base;
+      color: $color-primary-hover;
 
       &__icon {
         opacity: 1;
       }
+    }
+
+    .result-card__blightbane-link {
+      @include yellowGreenGradient(true);
     }
   }
 }

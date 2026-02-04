@@ -74,7 +74,7 @@ const CardSearchPanel = ({ useSearchFilters, useCardData }: CardSearchPanelProps
 
   const untrackedCardsNotificationMessage = (
     <>
-      🔍 You still have some <strong>tracked cards</strong> from your previous search!
+      🔍 You still have some <strong>tracked cards</strong> from your last search!
       <br />
       &nbsp; &nbsp; &nbsp;You can clear them with «<strong>Reset tracked cards</strong>».
     </>
