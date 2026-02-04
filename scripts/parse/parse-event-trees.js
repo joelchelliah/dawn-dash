@@ -2448,13 +2448,40 @@ async function processEvents() {
 }
 
 /**
+ * Remove a node from its parent's children array
+ * Returns true if the node was found and removed, false otherwise
+ */
+function removeNodeFromParent(node, nodeIdToRemove) {
+  if (!node || !node.children) return false
+
+  // Check if any of this node's children match the ID to remove
+  const childIndex = node.children.findIndex((child) => child.id === nodeIdToRemove)
+  if (childIndex !== -1) {
+    // Remove the child from the array
+    node.children.splice(childIndex, 1)
+    return true
+  }
+
+  // Recursively search in children
+  for (const child of node.children) {
+    if (removeNodeFromParent(child, nodeIdToRemove)) {
+      return true
+    }
+  }
+
+  return false
+}
+
+/**
  * Apply event alterations from event-alterations.json
  * Supports:
  * - Finding nodes by text or choiceLabel (find)
  * - Finding nodes by effect (findByEffect)
+ * - Finding nodes by requirement (findByRequirement)
  * - Updating nodes (e.g., adding requirements)
  * - Adding new child nodes (addChild)
  * - Replacing entire nodes (replaceNode)
+ * - Removing nodes from the tree (removeNode)
  */
 function applyEventAlterations(rootNode, alterations) {
   if (!rootNode || !alterations || alterations.length === 0) return 0
@@ -2462,7 +2489,8 @@ function applyEventAlterations(rootNode, alterations) {
   let appliedCount = 0
 
   for (const alteration of alterations) {
-    const { find, addRequirements, addChild, replaceNode, replaceChildren, modifyNode } = alteration
+    const { find, addRequirements, addChild, replaceNode, replaceChildren, modifyNode, removeNode } =
+      alteration
 
     // Validate that we have a find method
     if (!find) {
@@ -2499,6 +2527,10 @@ function applyEventAlterations(rootNode, alterations) {
       // Search by effect only
       matchingNodes = findNodesByEffect(rootNode, find.effect)
       searchDescription = `effect: "${find.effect}"`
+    } else if (find.requirement !== undefined) {
+      // Search by requirement only
+      matchingNodes = findNodesByRequirement(rootNode, find.requirement)
+      searchDescription = `requirement: "${find.requirement}"`
     } else {
       console.warn(`  ⚠️  Alteration has invalid find record: ${JSON.stringify(find)}`)
       continue
@@ -2507,6 +2539,20 @@ function applyEventAlterations(rootNode, alterations) {
     if (matchingNodes.length === 0) {
       console.warn(`  ⚠️  No nodes found matching: ${searchDescription}`)
       continue
+    }
+
+    // Remove node from tree
+    if (removeNode) {
+      for (const match of matchingNodes) {
+        // Find and remove this node from its parent's children array
+        const removed = removeNodeFromParent(rootNode, match.id)
+        if (removed) {
+          appliedCount++
+        } else {
+          console.warn(`  ⚠️  Failed to remove node ${match.id} from tree`)
+        }
+      }
+      continue // Skip other operations if we're removing the node
     }
 
     // Replace entire node
@@ -2824,6 +2870,34 @@ function findNodesByEffect(node, effectToFind) {
   if (node.children) {
     for (const child of node.children) {
       matches.push(...findNodesByEffect(child, effectToFind))
+    }
+  }
+
+  return matches
+}
+
+/**
+ * Recursively find nodes by requirement (substring match)
+ */
+function findNodesByRequirement(node, requirementToFind) {
+  const matches = []
+
+  if (!node) return matches
+
+  // Check if this node has the requirement
+  if (node.requirements && Array.isArray(node.requirements)) {
+    for (const requirement of node.requirements) {
+      if (requirement.includes(requirementToFind)) {
+        matches.push(node)
+        break // Only add the node once even if it has multiple matching requirements
+      }
+    }
+  }
+
+  // Recursively search children
+  if (node.children) {
+    for (const child of node.children) {
+      matches.push(...findNodesByRequirement(child, requirementToFind))
     }
   }
 

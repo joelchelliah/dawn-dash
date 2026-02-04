@@ -13,6 +13,7 @@
  *   - { textOrLabel: 'text' } - Search by text or choiceLabel (substring match)
  *   - { textStartsWith: 'text' } - Search where text or choiceLabel starts with
  *   - { effect: 'CARDPUZZLE' } - Search by effect (substring match)
+ *   - { requirement: 'COLLECTOR: Epic' } - Search by requirement (substring match)
  *   - { textOrLabel: 'text', effect: 'GOTOAREA: 91' } - Search by both text-or-label AND effect
  *
  * Modifying nodes:
@@ -21,6 +22,7 @@
  * - replaceNode: Replace the entire matched node with a new node structure
  * - replaceChildren: Replace matched node's children with new nodes (array of node specs).
  *   Use refChildrenFromFirstSibling: true on a child to set refChildren to first sibling's child ids.
+ * - removeNode: true - Remove the matched node from the tree entirely
  * - modifyNode: Modify properties of matched nodes:
  *   - removeRef: true - Remove the ref field
  *   - removeText: true - Remove the text field
@@ -375,6 +377,16 @@ module.exports = [
           removeChildren: true,
           refCreateStartsWith: '"Ah, adventurer! You',
         },
+      },
+      // EPIC rarity doesn't exist in the game anymore
+      {
+        find: { requirement: 'COLLECTOR: Epic' },
+        removeNode: true,
+      },
+      // g-0 (default) path will never occur in game
+      {
+        find: { requirement: 'COLLECTOR: g-0' },
+        removeNode: true,
       },
     ],
   },
