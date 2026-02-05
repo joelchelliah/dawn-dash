@@ -34,7 +34,7 @@ export function EventmapHead({ event, eventUrlParam }: EventmapHeadProps = {}) {
 
   return (
     <Head>
-      <title>{title}</title>
+      <title>Eventmaps | Dawn-Dash</title>
       <meta name="description" content={description} />
       <link rel="canonical" href={url} />
 
