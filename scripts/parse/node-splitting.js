@@ -16,8 +16,17 @@
 const RANDOM_KEYWORD = '«random»'
 
 /**
- * Extract effects (game commands) from text
- * Used by splitting functions to parse and clean effect commands
+ * Extract effects (game commands) from text and clean the text
+ *
+ * Handles two main patterns:
+ * 1. Commands followed by newline: >>>>COMMAND:value\nText continues...
+ * 2. Commands with inline prose: >>>>COMMAND:value; The text continues...
+ *
+ * The semicolon+space pattern ("; ") distinguishes prose from multi-command chains:
+ * - "DAMAGE:10; The statue accepts" → DAMAGE effect + "The statue accepts" as text
+ * - "GOLD:5;ADDCARD:Shield" → Two effects: GOLD and ADDCARD (no space = chained commands)
+ *
+ * @returns {Object} { effects: string[], cleanedText: string }
  */
 function extractEffects(text, functionDefinitions = new Map(), functionCalls = new Map()) {
   if (!text) return { effects: [], cleanedText: '' }
@@ -26,10 +35,38 @@ function extractEffects(text, functionDefinitions = new Map(), functionCalls = n
   let cleaned = text
 
   // Extract entire command sequences: >>>>COMMAND1:value1;COMMAND2:value2;COMMAND3
-  const commandSequencePattern = />>>>?[A-Za-z0-9_:;'\[\]\(\)  \t\-\/]+(?=\n|"|$)/gi
+  // Pattern matches commands until it hits a character outside the allowed set (like punctuation)
+  // Character class structure: letters, digits, underscore, colon, semicolon, quotes, brackets, parens, space, tab, slash, hyphen
+  // NOTE: Order matters to avoid unintended ranges (e.g., \t\/\- not \t\-\/ which would create ASCII range)
+  const commandSequencePattern = />>>>?[A-Za-z0-9_:;'\[\]\(\) \t\/\-]+/gi
 
   cleaned = cleaned.replace(commandSequencePattern, (commandSequence) => {
-    const commands = commandSequence.split(';')
+    let proseAfterCommand = ''
+    let actualCommandSequence = commandSequence
+
+    // STRATEGY 1: Check for newline first (most common case - 99% of commands)
+    const newlineIndex = commandSequence.indexOf('\n')
+
+    if (newlineIndex !== -1) {
+      // Clean case: commands end at newline, prose continues after
+      actualCommandSequence = commandSequence.substring(0, newlineIndex)
+      proseAfterCommand = commandSequence.substring(newlineIndex + 1)
+    } else {
+      // STRATEGY 2: No newline - check for "; " (semicolon+SPACE) separator
+      // The space distinguishes prose separation from multi-command chains:
+      //   - "DAMAGE:10; The statue" → command + prose (has space after semicolon)
+      //   - "GOLD:5;ADDCARD:x" → multiple commands (no space after semicolon)
+      const semicolonSpaceIndex = commandSequence.indexOf('; ')
+
+      if (semicolonSpaceIndex !== -1) {
+        // Split at "; " - everything after is prose, not part of the command
+        actualCommandSequence = commandSequence.substring(0, semicolonSpaceIndex)
+        proseAfterCommand = commandSequence.substring(semicolonSpaceIndex + 2) // +2 to skip "; "
+      }
+      // else: No newline, no "; " - entire sequence is commands
+    }
+
+    const commands = actualCommandSequence.split(';')
 
     commands.forEach((cmd) => {
       cmd = cmd.replace(/^>>>+/, '').trim()
@@ -61,11 +98,12 @@ function extractEffects(text, functionDefinitions = new Map(), functionCalls = n
       effects.push(...newEffects)
     })
 
-    return ''
+    // Return the prose text that followed the command (if any)
+    return proseAfterCommand
   })
 
-  // Remove any leftover semicolons
-  cleaned = cleaned.replace(/;+/g, ';').replace(/^;+|;+$/g, '')
+  // Remove any leftover semicolons and clean up spacing
+  cleaned = cleaned.replace(/;+/g, ';').replace(/^[;\s]+|[;\s]+$/g, '')
 
   const cleanedText = cleanText(cleaned)
 
@@ -99,52 +137,20 @@ function resolveSpecialKeywordEffects(value, functionDefinitions, functionCalls)
 
 /**
  * Clean text by removing Ink/game-specific markup
+ *
+ * Note: Game commands (>>>>COMMAND) should be removed by extractEffects() before cleanText() is called.
+ * However, we still include fallback cleanup here for edge cases where commands slip through.
  */
 function cleanText(text) {
   if (!text) return ''
 
   let cleaned = text
 
-  // Convert game commands to human-readable placeholders
-  cleaned = cleaned.replace(
-    />>>>?([A-Z_]+):([^;\n>"]+?)(?=>>>|;|\n|"|$)/gi,
-    (_match, command, value) => {
-      value = value.trim()
-      switch (command.toUpperCase()) {
-        case 'COMBAT':
-        case 'DIRECTCOMBAT':
-          return `[Combat: ${value}]`
-        case 'MERCHANT':
-          return '[Merchant]'
-        case 'GOLD':
-          return `[Gold: ${value}]`
-        case 'HEALTH':
-          return `[Health: ${value}]`
-        case 'RELOADEVENTS':
-          return '[Reload Events]'
-        case 'QUESTFLAG':
-          return `[Quest Flag: ${value}]`
-        case 'NEXTSTATUS':
-          return `[Status: ${value}]`
-        default:
-          return `[${command}: ${value}]`
-      }
-    }
-  )
-
-  // Remove standalone commands
-  cleaned = cleaned.replace(/>>>>?([A-Z_]+)(?![:\w])/gi, (_match, command) => {
-    switch (command.toUpperCase()) {
-      case 'MERCHANT':
-        return '[Merchant]'
-      case 'RELOADEVENTS':
-        return ''
-      case 'END':
-        return '[End]'
-      default:
-        return `[${command}]`
-    }
-  })
+  // Fallback: Remove any game commands that weren't caught by extractEffects
+  // This handles edge cases where commands appear in text that wasn't fully processed by extractEffects
+  // Pattern: matches command sequences until hitting: newline, quote, space (after optional semicolon), or end
+  // Examples: ">>>>DAMAGE:10; text" → "text",  "\n>>>>GOLD:50\ntext" → "\ntext"
+  cleaned = cleaned.replace(/>>>>?[A-Za-z0-9_:;'\[\]\(\)\t\-\/]+;?(?=\n|"| |$)/gi, '')
 
   // Remove color tags
   cleaned = cleaned.replace(/<color=[^>]+>/gi, '').replace(/<\/color[^>]*>/gi, '')
@@ -459,11 +465,32 @@ function separateChoicesFromEffects(node, createNode, generateNodeId) {
         }
 
         // Create an outcome node (child)
+        // Re-extract effects from child text in case some were missed during initial parsing
+        // This can happen when commands appear mid-line with text (e.g., ">>>>DAMAGE:10; text")
+        const childTextHasCommands = />>{2,}[A-Z_]+/.test(child.text || '')
+        let outcomeText = child.text || ''
+        let outcomeEffects = child.effects || []
+
+        if (childTextHasCommands) {
+          // Re-run extractEffects to capture any missed commands
+          const { effects: extractedEffects, cleanedText } = extractEffects(
+            child.text,
+            new Map(),
+            new Map()
+          )
+          outcomeText = cleanedText || cleanText(child.text)
+          // Merge extracted effects with existing effects
+          outcomeEffects = [...(child.effects || []), ...extractedEffects]
+        } else {
+          // Just clean the text without re-extracting
+          outcomeText = cleanText(child.text || '')
+        }
+
         const outcomeNode = createNode({
           id: generateNodeId(),
-          text: child.text || '',
+          text: outcomeText,
           type: outcomeType,
-          effects: child.effects,
+          effects: outcomeEffects,
           numContinues: child.numContinues,
           ref: child.ref,
           children: child.children,

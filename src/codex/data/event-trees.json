@@ -16473,11 +16473,11 @@
         {
           "id": 1,
           "type": "choice",
-          "choiceLabel": "Focus on the Collector",
+          "choiceLabel": "Focus on the Alchemist",
           "children": [
             {
               "id": 3786,
-              "text": "Focus on the Collector (fill in the lore for this.) final words",
+              "text": "Focus on the Alchemist (fill in the lore for this.) final words",
               "type": "end"
             }
           ]
@@ -16485,11 +16485,11 @@
         {
           "id": 2,
           "type": "choice",
-          "choiceLabel": "Focus on the Forger",
+          "choiceLabel": "Focus on the Collector",
           "children": [
             {
               "id": 3787,
-              "text": "Focus on the Forger (fill in the lore for this.) final words",
+              "text": "Focus on the Collector (fill in the lore for this.) final words",
               "type": "end"
             }
           ]
@@ -16497,11 +16497,11 @@
         {
           "id": 3,
           "type": "choice",
-          "choiceLabel": "Focus on the Succubus",
+          "choiceLabel": "Focus on the Forger",
           "children": [
             {
               "id": 3788,
-              "text": "Focus on the Succubus (fill in the lore for this.) final words",
+              "text": "Focus on the Forger (fill in the lore for this.) final words",
               "type": "end"
             }
           ]
@@ -22578,7 +22578,8 @@
                       "text": "The statue accepts your hand and offering in its thorned hand, its confident smile never waning as you feel the thorns press through the card and into your flesh. After a angonizing moment, the stone hand releases it now bloodied grip, revealing a brand new card!",
                       "type": "end",
                       "effects": [
-                        "TRADE: 6"
+                        "TRADE: 6",
+                        "DAMAGE: 10"
                       ]
                     }
                   ]
@@ -22596,7 +22597,8 @@
                       "text": "The statue accepts your hand and offering in its thorned hand, its confident smile never waning as you feel the thorns press through the card and into your flesh. After a angonizing moment, the stone hand releases it now bloodied grip, revealing a brand new card!",
                       "type": "end",
                       "effects": [
-                        "TRADE: 9"
+                        "TRADE: 9",
+                        "DAMAGE: 20"
                       ]
                     }
                   ]
@@ -22645,7 +22647,8 @@
               "text": "The statue accepts your hand and offering in its thorned hand, its confident smile never waning as you feel the thorns press through the card and into your flesh. After a angonizing moment, the stone hand releases it now bloodied grip, revealing a brand new card!",
               "type": "end",
               "effects": [
-                "TRADE: 6"
+                "TRADE: 6",
+                "DAMAGE: 10"
               ]
             }
           ]
@@ -22663,7 +22666,8 @@
               "text": "The statue accepts your hand and offering in its thorned hand, its confident smile never waning as you feel the thorns press through the card and into your flesh. After a angonizing moment, the stone hand releases it now bloodied grip, revealing a brand new card!",
               "type": "end",
               "effects": [
-                "TRADE: 9"
+                "TRADE: 9",
+                "DAMAGE: 20"
               ]
             }
           ]

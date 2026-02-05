@@ -22,6 +22,7 @@ const OUTPUT_FILE = path.join(__dirname, '../../src/codex/data/event-trees.json'
 const EVENT_ALTERATIONS = require('./event-alterations.js')
 const { DEFAULT_NODE_BLACKLIST, OPTIMIZATION_PASS_CONFIG, CONFIG } = require('./configs.js')
 const { applyEventAlterations } = require('./apply-event-alterations.js')
+const { validateEventTreesChanges } = require('./parse-validation.js')
 const {
   splitCombatNode,
   splitDialogueOnEffects,
@@ -3171,6 +3172,7 @@ function deduplicateAllTrees(eventTrees, maxIterations = 1) {
 ;(async () => {
   try {
     await processEvents()
+    validateEventTreesChanges()
   } catch (error) {
     console.error('❌ Fatal error:', error)
     console.error(error.stack)
