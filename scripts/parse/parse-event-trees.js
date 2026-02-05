@@ -26,12 +26,17 @@ const { validateEventTreesChanges } = require('./parse-validation.js')
 const {
   splitCombatNode,
   splitDialogueOnEffects,
-  separateChoicesFromEffects: separateChoicesFromEffectsHelper,
-  cleanUpRandomValues: cleanUpRandomValuesHelper,
-  normalizeAddKeywordRandomChoiceLabels: normalizeAddKeywordRandomChoiceLabelsHelper,
+  separateChoicesFromEffects,
   extractEffects,
-  RANDOM_KEYWORD,
 } = require('./node-splitting.js')
+const {
+  detectRandomVariables,
+  normalizeRandomEffectsInLine,
+  normalizeEffectsArray,
+  cleanUpRandomValues,
+  normalizeAddKeywordRandomChoiceLabels,
+  RANDOM_KEYWORD,
+} = require('./random-support.js')
 
 // Enables detailed logging for a specific event, when provided.
 // const DEBUG_EVENT_NAME = 'Frozen Heart'
@@ -51,65 +56,6 @@ function generateNodeId() {
   return nodeIdCounter++
 }
 
-/**
- * Detect random value assignments in Ink JSON
- * Returns a map of variable names to an array of their random ranges: { varName: [{ min, max }, ...] }
- * Multiple ranges per variable are supported (e.g., for branching paths with different random ranges)
- */
-function detectRandomVariables(inkJsonString) {
-  const randomVars = new Map()
-
-  try {
-    const inkJson = JSON.parse(inkJsonString)
-
-    // Recursive function to traverse the Ink JSON structure
-    function traverse(node) {
-      if (Array.isArray(node)) {
-        // Look for pattern: ["ev", minValue, maxValue, "rnd", "/ev", {"VAR=": "varName", ...}]
-        // This represents: VAR = random(min, max)
-        for (let i = 0; i <= node.length - 6; i++) {
-          if (
-            node[i] === 'ev' &&
-            typeof node[i + 1] === 'number' &&
-            typeof node[i + 2] === 'number' &&
-            node[i + 3] === 'rnd' &&
-            node[i + 4] === '/ev' &&
-            typeof node[i + 5] === 'object' &&
-            node[i + 5] !== null &&
-            'VAR=' in node[i + 5]
-          ) {
-            const varName = node[i + 5]['VAR=']
-            const min = node[i + 1]
-            const max = node[i + 2]
-
-            // Store all ranges for this variable (not just the last one)
-            if (!randomVars.has(varName)) {
-              randomVars.set(varName, [])
-            }
-
-            // Only add if this exact range doesn't already exist
-            const ranges = randomVars.get(varName)
-            const isDuplicate = ranges.some((r) => r.min === min && r.max === max)
-            if (!isDuplicate) {
-              ranges.push({ min, max })
-            }
-          }
-        }
-
-        // Continue traversing
-        node.forEach(traverse)
-      } else if (typeof node === 'object' && node !== null) {
-        Object.values(node).forEach(traverse)
-      }
-    }
-
-    traverse(inkJson)
-  } catch (error) {
-    // Silently fail if JSON parsing fails
-  }
-
-  return randomVars
-}
 
 /**
  * Detect knot definitions in Ink JSON.
@@ -189,27 +135,7 @@ function parseKnotContentManually(knotBody, randomVars = new Map()) {
   const { effects: extractedEffects, cleanedText } = extractEffects(text)
 
   // Normalize GOLD/DAMAGE effects to "COMMAND: random [min - max]" when value is in a random range (cleanUpRandomValues post-pass will fix text)
-  let effects = extractedEffects
-  if (randomVars.size > 0 && extractedEffects.length > 0) {
-    effects = extractedEffects.map((effect) => {
-      const s = String(effect)
-      const goldMatch = s.match(/^GOLD:\s*(\d+)$/i)
-      if (goldMatch) {
-        const value = parseInt(goldMatch[1], 10)
-        const ranges = randomVars.get('gold')
-        const r = ranges && ranges.find((range) => value >= range.min && value <= range.max)
-        return r ? `GOLD: random [${r.min} - ${r.max}]` : effect
-      }
-      const damageMatch = s.match(/^DAMAGE:\s*(\d+)$/i)
-      if (damageMatch) {
-        const value = parseInt(damageMatch[1], 10)
-        const ranges = randomVars.get('damage') || randomVars.get('Damage')
-        const r = ranges && ranges.find((range) => value >= range.min && value <= range.max)
-        return r ? `DAMAGE: random [${r.min} - ${r.max}]` : effect
-      }
-      return effect
-    })
-  }
+  const effects = normalizeEffectsArray(extractedEffects, randomVars)
 
   return createNode({
     id: generateNodeId(),
@@ -592,38 +518,8 @@ function buildTreeFromStory(
       if (line && line.trim()) {
         // Normalize random GOLD/DAMAGE commands to "COMMAND: random [min - max]"
         // so extractEffects produces the right effect; cleanUpRandomValues post-pass fixes "N gold" / "N damage" in text
-        if (randomVars.size > 0 && line.includes('>>>>')) {
-          let modifiedLine = line
-          const getRanges = (name) =>
-            randomVars.get(name) || randomVars.get(name.charAt(0).toUpperCase() + name.slice(1))
-          const normalizeNumericEffect = (commandKey, varName) => {
-            const re = new RegExp(`${commandKey}:(\\d+)`, 'gi')
-            const ranges = getRanges(varName)
-            if (!ranges) return
-            for (const match of line.matchAll(re)) {
-              const value = parseInt(match[1], 10)
-              const r = ranges.find((range) => value >= range.min && value <= range.max)
-              if (r) {
-                const command = match[0].slice(0, match[0].indexOf(':'))
-                modifiedLine = modifiedLine.replace(
-                  new RegExp(`${command}:${value}\\b`, 'gi'),
-                  `${command}:random [${r.min} - ${r.max}]`
-                )
-              }
-            }
-          }
-          if (/GOLD:\d+/.test(line)) {
-            normalizeNumericEffect('GOLD', 'gold')
-          }
-          if (/DAMAGE:\d+/.test(line)) {
-            normalizeNumericEffect('DAMAGE', 'damage')
-          }
-          if (modifiedLine !== line) {
-            text += (text ? '\n' : '') + modifiedLine.trim()
-            continue
-          }
-        }
-        text += (text ? '\n' : '') + line.trim()
+        const normalizedLine = normalizeRandomEffectsInLine(line, randomVars)
+        text += (text ? '\n' : '') + normalizedLine.trim()
       }
     }
   } catch (error) {
@@ -1399,7 +1295,7 @@ function buildTreeFromStory(
 
     // If combat was split (children changed), use the result
     if (combatSplitResult.finalChildren !== children) {
-      finalText = combatSplitResult.finalText  // Use split result directly, even if undefined
+      finalText = combatSplitResult.finalText // Use split result directly, even if undefined
       finalChildren = combatSplitResult.finalChildren
       finalEffects = combatSplitResult.finalEffects
       totalNodesInCurrentEvent++
@@ -1553,16 +1449,6 @@ function findInvalidRefsInTree(rootNode, nodeMap) {
   }
   checkRefs(rootNode)
   return invalidRefs
-}
-
-/**
- * Wrapper for cleanUpRandomValues from node-splitting.js
- */
-function cleanUpRandomValues(eventTrees) {
-  const updated = cleanUpRandomValuesHelper(eventTrees)
-  if (updated > 0) {
-    console.log(`\n🎲 Cleaned up random gold/damage in text: ${updated} node(s)`)
-  }
 }
 
 /**
@@ -2055,7 +1941,7 @@ async function processEvents() {
     console.log('\n🔀 Separating choices from effects...')
     let totalSeparated = 0
     eventTrees.forEach((tree) => {
-      const separatedCount = separateChoicesFromEffects(tree.rootNode)
+      const separatedCount = separateChoicesFromEffects(tree.rootNode, createNode, generateNodeId)
       totalSeparated += separatedCount
     })
     console.log(`  Separated ${totalSeparated} choice-effect pairs`)
@@ -2067,7 +1953,7 @@ async function processEvents() {
   let addKeywordRandomLabelsUpdated = 0
   eventTrees.forEach((tree) => {
     if (tree.rootNode) {
-      const stats = normalizeAddKeywordRandomChoiceLabels(tree.rootNode)
+      const stats = normalizeAddKeywordRandomChoiceLabels(tree.rootNode, { updated: 0 })
       addKeywordRandomLabelsUpdated += stats.updated
     }
   })
@@ -2199,7 +2085,10 @@ async function processEvents() {
   }
 
   if (OPTIMIZATION_PASS_CONFIG.CLEAN_UP_RANDOM_VALUES_ENABLED) {
-    cleanUpRandomValues(eventTrees)
+    const updated = cleanUpRandomValues(eventTrees)
+    if (updated > 0) {
+      console.log(`\n🎲 Cleaned up random gold/damage in text: ${updated} node(s)`)
+    }
   }
 
   // Replace card/talent IDs with names in choiceLabel, text, and effects
@@ -2254,20 +2143,6 @@ function filterDefaultNodes(node) {
   }
 
   node.children = filteredChildren
-}
-
-/**
- * Wrapper for separateChoicesFromEffects from node-splitting.js
- */
-function separateChoicesFromEffects(node) {
-  return separateChoicesFromEffectsHelper(node, createNode, generateNodeId)
-}
-
-/**
- * Wrapper for normalizeAddKeywordRandomChoiceLabels from node-splitting.js
- */
-function normalizeAddKeywordRandomChoiceLabels(node, stats = { updated: 0 }) {
-  return normalizeAddKeywordRandomChoiceLabelsHelper(node, stats)
 }
 
 /**

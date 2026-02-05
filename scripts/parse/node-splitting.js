@@ -9,11 +9,7 @@
  * 1. Combat Splitting: Separates combat nodes into combat + postcombat dialogue
  * 2. Dialogue Splitting: Splits dialogue nodes when effects appear mid-sequence
  * 3. Choice Separation: Separates choice nodes from their outcome/effect nodes
- * 4. Random Value Cleanup: Normalizes random gold/damage values in text
- * 5. Choice Label Normalization: Standardizes labels for random keyword effects
  */
-
-const RANDOM_KEYWORD = '«random»'
 
 /**
  * Extract effects (game commands) from text and clean the text
@@ -513,162 +509,6 @@ function separateChoicesFromEffects(node, createNode, generateNodeId) {
 }
 
 // ============================================================================
-// 4. RANDOM VALUE CLEANUP
-// ============================================================================
-
-/**
- * Clean up random gold/damage values in text
- *
- * For nodes whose effects contain "GOLD: random [min - max]" or "DAMAGE: random [min - max]",
- * replace numeric gold/damage in node.text (e.g. "47 gold", "5 damage") with «random» gold/damage.
- *
- * This ensures the text accurately reflects that the value is random, not a specific number.
- *
- * Special handling for split dialogue: if a node has random effects and a single dialogue child,
- * the child may contain the gold/damage text that was split from the parent. In this case,
- * we clean up the child's text AND migrate the random effect to the child node.
- *
- * This is run as a post-processing pass after all tree building and optimization.
- *
- * @param {Array} eventTrees - Array of event trees to process
- * @returns {number} Number of nodes updated
- */
-function cleanUpRandomValues(eventTrees) {
-  const goldRandomEffectRe = /^GOLD:\s*random\s*\[\s*(\d+)\s*-\s*(\d+)\s*\]$/i
-  const damageRandomEffectRe = /^DAMAGE:\s*random\s*\[\s*(\d+)\s*-\s*(\d+)\s*\]$/i
-  const goldInTextRe = /\b(\d+)\s*(gold)\b/gi
-  const damageInTextRe = /\b(\d+)\s*(damage)\b/gi
-  let updated = 0
-
-  function visit(node) {
-    if (!node) return
-
-    // Track random effects found in this node
-    let goldRange = null
-    let damageRange = null
-
-    if (node.effects && Array.isArray(node.effects) && node.text) {
-      let newText = node.text
-      for (const effect of node.effects) {
-        const goldM = String(effect).match(goldRandomEffectRe)
-        if (goldM) {
-          const min = parseInt(goldM[1], 10)
-          const max = parseInt(goldM[2], 10)
-          goldRange = { min, max }
-          newText = newText.replace(goldInTextRe, (_, numStr, word) => {
-            const n = parseInt(numStr, 10)
-            return n >= min && n <= max ? `${RANDOM_KEYWORD} ${word}` : `${numStr} ${word}`
-          })
-          break
-        }
-      }
-      for (const effect of node.effects) {
-        const damageM = String(effect).match(damageRandomEffectRe)
-        if (damageM) {
-          const min = parseInt(damageM[1], 10)
-          const max = parseInt(damageM[2], 10)
-          damageRange = { min, max }
-          newText = newText.replace(damageInTextRe, (_, numStr, word) => {
-            const n = parseInt(numStr, 10)
-            return n >= min && n <= max ? `${RANDOM_KEYWORD} ${word}` : `${numStr} ${word}`
-          })
-          break
-        }
-      }
-      if (newText !== node.text) {
-        node.text = newText
-        updated++
-      }
-    }
-
-    // Handle split dialogue: migrate random effects to child node if needed
-    if ((goldRange || damageRange) && node.children && node.children.length === 1) {
-      const child = node.children[0]
-      if (child.type === 'dialogue' && child.text) {
-        let childNewText = child.text
-        let childNewEffects = []
-
-        if (goldRange) {
-          childNewText = childNewText.replace(goldInTextRe, (_, numStr, word) => {
-            const n = parseInt(numStr, 10)
-            return n >= goldRange.min && n <= goldRange.max
-              ? `${RANDOM_KEYWORD} ${word}`
-              : `${numStr} ${word}`
-          })
-          childNewEffects = [
-            ...childNewEffects,
-            `GOLD: random [${goldRange.min} - ${goldRange.max}]`,
-          ]
-        }
-
-        if (damageRange) {
-          childNewText = childNewText.replace(damageInTextRe, (_, numStr, word) => {
-            const n = parseInt(numStr, 10)
-            return n >= damageRange.min && n <= damageRange.max
-              ? `${RANDOM_KEYWORD} ${word}`
-              : `${numStr} ${word}`
-          })
-          childNewEffects = [
-            ...childNewEffects,
-            `DAMAGE: random [${damageRange.min} - ${damageRange.max}]`,
-          ]
-        }
-
-        if (childNewText !== child.text) {
-          child.text = childNewText
-          child.effects = [...(child.effects || []), ...childNewEffects]
-          node.effects = node.effects.filter((e) => !childNewEffects.includes(e))
-          updated++
-        }
-      }
-    }
-
-    if (node.children) node.children.forEach(visit)
-  }
-
-  eventTrees.forEach((tree) => tree.rootNode && visit(tree.rootNode))
-  return updated
-}
-
-// ============================================================================
-// 5. CHOICE LABEL NORMALIZATION
-// ============================================================================
-
-const ADDKEYWORD_RANDOM_LIST_RE = /ADDKEYWORD:\s*random\s*\[/
-
-/**
- * Normalize ADDKEYWORD random choice labels
- *
- * When a choice node's only child has effect "ADDKEYWORD: random [A, B, C, ...]",
- * set the choice's label to "Add «random»" (the label was one specific keyword from the list).
- *
- * This runs after separateChoicesFromEffects so structure is choice -> outcome node with effects.
- *
- * @param {Object} node - The node to process
- * @returns {Object} Stats object with { updated: number }
- */
-function normalizeAddKeywordRandomChoiceLabels(node, stats = { updated: 0 }) {
-  if (!node) return stats
-  if (node.type === 'choice' && node.children?.length === 1) {
-    const child = node.children[0]
-    const effects = child.effects
-    if (
-      Array.isArray(effects) &&
-      effects.some((e) => typeof e === 'string' && ADDKEYWORD_RANDOM_LIST_RE.test(e))
-    ) {
-      node.choiceLabel = 'Add «random»'
-      stats.updated++
-    }
-  }
-  if (node.children) {
-    for (const child of node.children) {
-      normalizeAddKeywordRandomChoiceLabels(child, stats)
-    }
-  }
-  return stats
-}
-
-// ============================================================================
 // EXPORTS
 // ============================================================================
 
@@ -678,16 +518,8 @@ module.exports = {
   splitDialogueOnEffects,
   separateChoicesFromEffects,
 
-  // Normalization functions
-  cleanUpRandomValues,
-  normalizeAddKeywordRandomChoiceLabels,
-
   // Helper utilities (exported for testing/reuse)
   extractEffects,
   cleanText,
   resolveSpecialKeywordEffects,
-
-  // Constants
-  RANDOM_KEYWORD,
-  ADDKEYWORD_RANDOM_LIST_RE,
 }
