@@ -1344,6 +1344,79 @@ function buildTreeFromStory(
     }
   }
 
+  // POST-EFFECT DIALOGUE SEPARATION
+  // Similar to combat/postcombat splitting, we need to handle dialogue sequences where
+  // effects appear in the MIDDLE of the dialogue (not at the beginning).
+  // Example: "dialogue 1\ndialogue 2\n>>>>GOLD:50\ndialogue 3\ndialogue 4"
+  // Should become: node with "dialogue 1\ndialogue 2" + GOLD effect + numContinues=1
+  //                  -> child node with "dialogue 3\ndialogue 4" + numContinues=1
+  // This prevents merging all dialogue together which hides when effects occur.
+  let finalText = cleanedText
+  let finalChildren = children
+  let finalEffects = effects
+  let finalNumContinues = numContinues
+
+  // First, check if this is a dialogue node (not combat) with effects that appear mid-sequence
+  if (type === 'dialogue' && text && effects.length > 0 && continueCount > 1) {
+    // Find the FIRST effect command in the original text
+    // Match >>>>COMMAND or >>>COMMAND (but not COMBAT, which is handled separately)
+    const firstEffectMatch = text.match(/>>>>?(?!COMBAT)[A-Za-z0-9_:;'\[\]\(\)  \t\-\/]+/i)
+
+    if (firstEffectMatch) {
+      const effectIndex = firstEffectMatch.index
+
+      // Check if there's dialogue text BEFORE the effect (not just at the beginning)
+      const textBeforeEffect = text.substring(0, effectIndex).trim()
+      const textAfterEffectCommand = text.substring(effectIndex + firstEffectMatch[0].length).trim()
+
+      // Count newlines before the effect to estimate numContinues for first part
+      const linesBeforeEffect = textBeforeEffect.split('\n').filter(l => l.trim()).length
+
+      // Only split if there's both dialogue before AND after the effect
+      if (textBeforeEffect && textAfterEffectCommand && linesBeforeEffect > 0) {
+        // Extract the text with effect command for proper effect extraction
+        const textWithEffect = text.substring(0, effectIndex + firstEffectMatch[0].length)
+        const { effects: effectsBeforePost, cleanedText: cleanedTextBeforePost } = extractEffects(
+          textWithEffect,
+          functionDefinitions,
+          functionCalls
+        )
+
+        // Extract post-effect text
+        const { effects: postEffects, cleanedText: cleanedPostEffectText } = extractEffects(
+          textAfterEffectCommand,
+          functionDefinitions,
+          functionCalls
+        )
+
+        // Calculate numContinues for each part
+        const continuesBeforeEffect = Math.max(0, linesBeforeEffect - 1)
+        const linesAfterEffect = cleanedPostEffectText.split('\n').filter(l => l.trim()).length
+        const continuesAfterEffect = Math.max(0, linesAfterEffect - 1)
+
+        // Create a child node for the post-effect dialogue
+        if (cleanedPostEffectText && cleanedPostEffectText.trim()) {
+          const postEffectNode = createNode({
+            id: generateNodeId(),
+            text: cleanedPostEffectText,
+            type: children.length > 0 ? 'dialogue' : 'end',
+            effects: postEffects.length > 0 ? postEffects : undefined,
+            numContinues: continuesAfterEffect > 0 ? continuesAfterEffect : undefined,
+            children: children.length > 0 ? children : undefined,
+          })
+
+          totalNodesInCurrentEvent++
+
+          // Update final values: current node gets pre-effect text + effects
+          finalText = cleanedTextBeforePost || undefined
+          finalChildren = [postEffectNode]
+          finalEffects = effectsBeforePost
+          finalNumContinues = continuesBeforeEffect > 0 ? continuesBeforeEffect : undefined
+        }
+      }
+    }
+  }
+
   // POSTCOMBAT/AFTERCOMBAT SEPARATION
   // Combat nodes may have postcombat/aftercombat dialogue that should be in a separate child node
   // The raw text from Ink contains: [precombat text]\n>>>COMBAT:Enemy\n[postcombat text]
@@ -1351,9 +1424,6 @@ function buildTreeFromStory(
   // 1. Keep precombat text in the combat node
   // 2. Move postcombat text to a new dialogue child node
   // 3. Move all original children to that dialogue node
-  let finalText = cleanedText
-  let finalChildren = children
-  let finalEffects = effects
 
   if (type === 'combat' && text) {
     // Find the COMBAT command in the original text to split pre/post combat text
@@ -1453,7 +1523,7 @@ function buildTreeFromStory(
     text: safeText,
     type,
     effects: finalEffects,
-    numContinues,
+    numContinues: finalNumContinues,
     children: finalChildren,
   })
 }
@@ -2365,6 +2435,15 @@ async function processEvents() {
     console.log('\n🧭 Promoting shallow dialogue-menu hubs...')
     promoteShallowDialogueMenuHub(eventTrees)
     debugCheckEventPipelineState(eventTrees, 'after promoteShallowDialogueMenuHub')
+  }
+
+  // Detect and optimize dialogue menu hub patterns (Phase 1 + 2)
+  if (OPTIMIZATION_PASS_CONFIG.POST_PROCESSING_HUB_PATTERN_OPTIMIZATION_ENABLED) {
+    const {
+      detectAndOptimizeDialogueMenuHubs,
+    } = require('./post-processing-hub-pattern-optimization.js')
+    detectAndOptimizeDialogueMenuHubs(eventTrees, DEBUG_EVENT_NAME)
+    debugCheckEventPipelineState(eventTrees, 'after detectAndOptimizeDialogueMenuHubs')
   }
 
   if (OPTIMIZATION_PASS_CONFIG.CONVERT_SIBLING_AND_COUSIN_REFS_TO_REF_CHILDREN_ENABLED) {

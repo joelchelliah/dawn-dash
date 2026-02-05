@@ -238,6 +238,25 @@ const OPTIMIZATION_PASS_CONFIG = {
 
   // Replace numeric gold in node text with «random» when effects say "GOLD: random [min - max]".
   CLEAN_UP_RANDOM_VALUES_ENABLED: true,
+
+  // Automatically detect dialogue menu hub patterns and create refs in post-processing
+  // See: scripts/optimizationIdeas/auto-detect-dialogue-menu-hubs.md
+  POST_PROCESSING_HUB_PATTERN_OPTIMIZATION_ENABLED: true,
+
+  // Minimum number of choice children for hub candidates
+  POST_PROCESSING_HUB_PATTERN_OPTIMIZATION_MIN_CHOICES: 3,
+
+  // Minimum text length for hub candidates (avoids false positives from generic short phrases)
+  POST_PROCESSING_HUB_PATTERN_OPTIMIZATION_MIN_TEXT_LENGTH: 20,
+
+  // Events to apply hub pattern optimization (Phase 2: ref creation)
+  // Other events will still be detected and logged for discovery, but won't have refs created
+  POST_PROCESSING_HUB_PATTERN_OPTIMIZATION_WHITELIST: [
+    'A Familiar Face',
+    'Axe in the Stone',
+    'Battleseer Hildune Death',
+    'Brightcandle Consul',
+  ],
 }
 
 const CONFIG = {
