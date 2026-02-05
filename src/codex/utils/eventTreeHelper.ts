@@ -138,7 +138,7 @@ export const getCustomNodeEmoji = (node: EventTreeNode): string | undefined => {
   // Custom emoji but keep existing node type
   if (effects.includes('CARDPUZZLE')) return '🧩'
   if (effects.includes(cardGameChoices)) return '🎲'
-  if (effects.some((effect) => effect.startsWith('EVENT:'))) return '📖'
+  if (effects.some((effect) => effect.startsWith('GOTO EVENT:'))) return '📖'
   if (effects.some((effect) => ManorMusic.some((music) => effect.includes(music)))) return '💃'
   if (effects.length > 0 && effects.every((effect) => effect.match(/^GOLD: [^-]/))) return '💰'
 

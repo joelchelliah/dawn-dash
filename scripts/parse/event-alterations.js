@@ -84,7 +84,7 @@ function addGotoEventChild(gotoEvent) {
   return {
     addChild: {
       type: 'special',
-      effects: [`EVENT: ${gotoEvent}`],
+      effects: [`GOTO EVENT: ${gotoEvent}`],
     },
   }
 }
@@ -141,6 +141,7 @@ module.exports = [
     ],
   },
   createCombatTransition('Abandoned Village', 'Kaius Tagdahar', 'Kaius Tagdahar Death'),
+  createCombatTransition('The Chieftain', 'Gorn Tagdahar', 'Gorn Tagdahar Death'),
   createCombatTransition(
     'The Silent Reliquary Start',
     'Rathael the Slain',
