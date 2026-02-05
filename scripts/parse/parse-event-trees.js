@@ -21,8 +21,23 @@ const EVENTS_FILE = path.join(__dirname, '../data/events.json')
 const OUTPUT_FILE = path.join(__dirname, '../../src/codex/data/event-trees.json')
 const EVENT_ALTERATIONS = require('./event-alterations.js')
 const { DEFAULT_NODE_BLACKLIST, OPTIMIZATION_PASS_CONFIG, CONFIG } = require('./configs.js')
-
-const RANDOM_KEYWORD = '«random»'
+const { applyEventAlterations } = require('./apply-event-alterations.js')
+const { validateEventTreesChanges } = require('./parse-validation.js')
+const {
+  splitCombatNode,
+  splitDialogueOnEffects,
+  separateChoicesFromEffects,
+  extractEffects,
+} = require('./node-splitting.js')
+const {
+  detectRandomVariables,
+  normalizeRandomEffectsInLine,
+  normalizeEffectsArray,
+  cleanUpRandomValues,
+  normalizeAddKeywordRandomChoiceLabels,
+  normalizeKeywordTags,
+  RANDOM_KEYWORD,
+} = require('./random-support.js')
 
 // Enables detailed logging for a specific event, when provided.
 // const DEBUG_EVENT_NAME = 'Frozen Heart'
@@ -42,65 +57,6 @@ function generateNodeId() {
   return nodeIdCounter++
 }
 
-/**
- * Detect random value assignments in Ink JSON
- * Returns a map of variable names to an array of their random ranges: { varName: [{ min, max }, ...] }
- * Multiple ranges per variable are supported (e.g., for branching paths with different random ranges)
- */
-function detectRandomVariables(inkJsonString) {
-  const randomVars = new Map()
-
-  try {
-    const inkJson = JSON.parse(inkJsonString)
-
-    // Recursive function to traverse the Ink JSON structure
-    function traverse(node) {
-      if (Array.isArray(node)) {
-        // Look for pattern: ["ev", minValue, maxValue, "rnd", "/ev", {"VAR=": "varName", ...}]
-        // This represents: VAR = random(min, max)
-        for (let i = 0; i <= node.length - 6; i++) {
-          if (
-            node[i] === 'ev' &&
-            typeof node[i + 1] === 'number' &&
-            typeof node[i + 2] === 'number' &&
-            node[i + 3] === 'rnd' &&
-            node[i + 4] === '/ev' &&
-            typeof node[i + 5] === 'object' &&
-            node[i + 5] !== null &&
-            'VAR=' in node[i + 5]
-          ) {
-            const varName = node[i + 5]['VAR=']
-            const min = node[i + 1]
-            const max = node[i + 2]
-
-            // Store all ranges for this variable (not just the last one)
-            if (!randomVars.has(varName)) {
-              randomVars.set(varName, [])
-            }
-
-            // Only add if this exact range doesn't already exist
-            const ranges = randomVars.get(varName)
-            const isDuplicate = ranges.some((r) => r.min === min && r.max === max)
-            if (!isDuplicate) {
-              ranges.push({ min, max })
-            }
-          }
-        }
-
-        // Continue traversing
-        node.forEach(traverse)
-      } else if (typeof node === 'object' && node !== null) {
-        Object.values(node).forEach(traverse)
-      }
-    }
-
-    traverse(inkJson)
-  } catch (error) {
-    // Silently fail if JSON parsing fails
-  }
-
-  return randomVars
-}
 
 /**
  * Detect knot definitions in Ink JSON.
@@ -180,27 +136,7 @@ function parseKnotContentManually(knotBody, randomVars = new Map()) {
   const { effects: extractedEffects, cleanedText } = extractEffects(text)
 
   // Normalize GOLD/DAMAGE effects to "COMMAND: random [min - max]" when value is in a random range (cleanUpRandomValues post-pass will fix text)
-  let effects = extractedEffects
-  if (randomVars.size > 0 && extractedEffects.length > 0) {
-    effects = extractedEffects.map((effect) => {
-      const s = String(effect)
-      const goldMatch = s.match(/^GOLD:\s*(\d+)$/i)
-      if (goldMatch) {
-        const value = parseInt(goldMatch[1], 10)
-        const ranges = randomVars.get('gold')
-        const r = ranges && ranges.find((range) => value >= range.min && value <= range.max)
-        return r ? `GOLD: random [${r.min} - ${r.max}]` : effect
-      }
-      const damageMatch = s.match(/^DAMAGE:\s*(\d+)$/i)
-      if (damageMatch) {
-        const value = parseInt(damageMatch[1], 10)
-        const ranges = randomVars.get('damage') || randomVars.get('Damage')
-        const r = ranges && ranges.find((range) => value >= range.min && value <= range.max)
-        return r ? `DAMAGE: random [${r.min} - ${r.max}]` : effect
-      }
-      return effect
-    })
-  }
+  const effects = normalizeEffectsArray(extractedEffects, randomVars)
 
   return createNode({
     id: generateNodeId(),
@@ -583,38 +519,10 @@ function buildTreeFromStory(
       if (line && line.trim()) {
         // Normalize random GOLD/DAMAGE commands to "COMMAND: random [min - max]"
         // so extractEffects produces the right effect; cleanUpRandomValues post-pass fixes "N gold" / "N damage" in text
-        if (randomVars.size > 0 && line.includes('>>>>')) {
-          let modifiedLine = line
-          const getRanges = (name) =>
-            randomVars.get(name) || randomVars.get(name.charAt(0).toUpperCase() + name.slice(1))
-          const normalizeNumericEffect = (commandKey, varName) => {
-            const re = new RegExp(`${commandKey}:(\\d+)`, 'gi')
-            const ranges = getRanges(varName)
-            if (!ranges) return
-            for (const match of line.matchAll(re)) {
-              const value = parseInt(match[1], 10)
-              const r = ranges.find((range) => value >= range.min && value <= range.max)
-              if (r) {
-                const command = match[0].slice(0, match[0].indexOf(':'))
-                modifiedLine = modifiedLine.replace(
-                  new RegExp(`${command}:${value}\\b`, 'gi'),
-                  `${command}:random [${r.min} - ${r.max}]`
-                )
-              }
-            }
-          }
-          if (/GOLD:\d+/.test(line)) {
-            normalizeNumericEffect('GOLD', 'gold')
-          }
-          if (/DAMAGE:\d+/.test(line)) {
-            normalizeNumericEffect('DAMAGE', 'damage')
-          }
-          if (modifiedLine !== line) {
-            text += (text ? '\n' : '') + modifiedLine.trim()
-            continue
-          }
-        }
-        text += (text ? '\n' : '') + line.trim()
+        let normalizedLine = normalizeRandomEffectsInLine(line, randomVars)
+        // Normalize keyword tags like [kw:reliable] -> Reliable
+        normalizedLine = normalizeKeywordTags(normalizedLine)
+        text += (text ? '\n' : '') + normalizedLine.trim()
       }
     }
   } catch (error) {
@@ -773,6 +681,33 @@ function buildTreeFromStory(
         type: 'special',
         effects,
         children: knotBranches,
+      })
+    }
+  }
+
+  // COMBAT NODE SPLITTING - must happen BEFORE leaf node checks
+  // Split combat nodes into combat + postcombat dialogue when postcombat text exists
+  // This handles cases like ">>>>COMBAT:Boss\nThe boss falls... You find treasure."
+  if (type === 'combat' && text) {
+    const combatSplitResult = splitCombatNode(
+      text,
+      type,
+      effects,
+      [], // children (leaf nodes have no children yet)
+      createNode,
+      generateNodeId,
+      { functionDefinitions, functionCalls }
+    )
+
+    // If combat was split (postcombat child was created), return the split structure
+    if (combatSplitResult.finalChildren && combatSplitResult.finalChildren.length > 0) {
+      totalNodesInCurrentEvent += 2 // Combat node + postcombat child
+      return createNode({
+        id: generateNodeId(),
+        text: combatSplitResult.finalText,
+        type: 'combat',
+        effects: combatSplitResult.finalEffects,
+        children: combatSplitResult.finalChildren,
       })
     }
   }
@@ -1343,67 +1278,59 @@ function buildTreeFromStory(
     }
   }
 
-  // POSTCOMBAT/AFTERCOMBAT SEPARATION
-  // Combat nodes may have postcombat/aftercombat dialogue that should be in a separate child node
-  // The raw text from Ink contains: [precombat text]\n>>>COMBAT:Enemy\n[postcombat text]
-  // We need to:
-  // 1. Keep precombat text in the combat node
-  // 2. Move postcombat text to a new dialogue child node
-  // 3. Move all original children to that dialogue node
+  // POST-EFFECT DIALOGUE SEPARATION & POSTCOMBAT/AFTERCOMBAT SEPARATION
+  // Use helper functions from node-splitting.js
+  // These functions split on the ORIGINAL text to find effect markers, but return cleaned text
+
+  // Start with cleaned text as default
   let finalText = cleanedText
   let finalChildren = children
   let finalEffects = effects
+  let finalNumContinues = Math.max(0, continueCount - 1)
 
+  // Try dialogue splitting first (for mid-dialogue effects)
+  if (type === 'dialogue' && text && effects.length > 0 && continueCount > 1) {
+    const dialogueSplitResult = splitDialogueOnEffects(
+      text,
+      type,
+      effects,
+      continueCount,
+      children,
+      createNode,
+      generateNodeId,
+      { functionDefinitions, functionCalls }
+    )
+
+    // If dialogue was split, use the result
+    if (dialogueSplitResult.finalChildren !== children) {
+      finalText = dialogueSplitResult.finalText
+      finalChildren = dialogueSplitResult.finalChildren
+      finalEffects = dialogueSplitResult.finalEffects
+      finalNumContinues = dialogueSplitResult.finalNumContinues
+      totalNodesInCurrentEvent++
+    }
+  }
+
+  // Try combat splitting (for NON-LEAF combat nodes with choices/children)
+  // Note: Leaf combat nodes (no choices) are already handled earlier at line 688
+  // This section handles rare cases where combat nodes have choices after them
   if (type === 'combat' && text) {
-    // Find the COMBAT command in the original text to split pre/post combat text
-    // Match both >>>COMBAT and >>>>COMBAT (or just COMBAT if it appears without prefix)
-    const combatMatch = text.match(/(>>>+)?COMBAT:[^\n]*/i)
+    const combatSplitResult = splitCombatNode(
+      text,
+      type,
+      finalEffects,
+      finalChildren,
+      createNode,
+      generateNodeId,
+      { functionDefinitions, functionCalls }
+    )
 
-    if (combatMatch) {
-      const combatIndex = combatMatch.index
-      const combatCommandLength = combatMatch[0].length
-
-      // Extract pre-combat and post-combat text
-      const preCombatText = text.substring(0, combatIndex).trim()
-      const postCombatText = text.substring(combatIndex + combatCommandLength).trim()
-
-      // Extract effects from postcombat text
-      const { effects: postCombatEffects, cleanedText: cleanedPostCombatText } = extractEffects(
-        postCombatText,
-        functionDefinitions,
-        functionCalls
-      )
-
-      // Clean the pre-combat text
-      const { cleanedText: cleanedPreCombatText } = extractEffects(
-        preCombatText,
-        functionDefinitions,
-        functionCalls
-      )
-
-      // If there's postcombat text, create a dialogue child node
-      if (cleanedPostCombatText && cleanedPostCombatText.trim()) {
-        // Create the postcombat dialogue node
-        const postcombatNode = createNode({
-          id: generateNodeId(),
-          text: cleanedPostCombatText,
-          type: children.length > 0 ? 'dialogue' : 'end',
-          effects: postCombatEffects.length > 0 ? postCombatEffects : undefined,
-          children: children.length > 0 ? children : undefined,
-        })
-
-        totalNodesInCurrentEvent++
-
-        // Update final values: combat node gets pre-combat text, single child is postcombat node
-        finalText = cleanedPreCombatText || undefined
-        finalChildren = [postcombatNode]
-        // Keep only combat-related effects in the combat node
-        // (postcombat effects are now in the postcombat node)
-        finalEffects = effects.filter((e) => e.includes('COMBAT:'))
-      } else {
-        // No postcombat text, just use pre-combat text
-        finalText = cleanedPreCombatText || undefined
-      }
+    // If combat was split (children changed), use the result
+    if (combatSplitResult.finalChildren !== children) {
+      finalText = combatSplitResult.finalText // Use split result directly, even if undefined
+      finalChildren = combatSplitResult.finalChildren
+      finalEffects = combatSplitResult.finalEffects
+      totalNodesInCurrentEvent++
     }
   }
 
@@ -1452,112 +1379,14 @@ function buildTreeFromStory(
     text: safeText,
     type,
     effects: finalEffects,
-    numContinues,
+    numContinues: finalNumContinues,
     children: finalChildren,
   })
 }
 
 /**
- * Resolve ADDKEYWORD effect value, handling variable references and placeholders
- * Examples:
- *   "a keyword" -> "ADDKEYWORD: random"
- *   "chaos" -> multiple effects
- *   Variable from function (e.g., "Recall") -> "ADDKEYWORD: random [Recall, Figmented, ...]"
- *   Static keyword (e.g., "Defiled") -> "ADDKEYWORD: Defiled"
- */
-function resolveSpecialKeywordEffects(value, functionDefinitions, functionCalls) {
-  // Handle "a keyword" placeholder - game engine picks from all keywords
-  if (value === 'a keyword') {
-    return ['ADDKEYWORD: random']
-  }
-
-  // Handle "chaos" keyword - special case with multiple effects
-  if (value === 'chaos') {
-    return ['ADDKEYWORD: random', 'ADDKEYWORD: random', 'ADDTYPE: Corruption', 'SWAPCOST: blood']
-  }
-
-  // Check if this value comes from a function call
-  // The inkjs runtime has already substituted variables, so we see "Recall" instead of "cardOne"
-  // We check if any function could return this value
-  for (const functionName of functionCalls.values()) {
-    const returnValues = functionDefinitions.get(functionName)
-
-    // If this function can return the value we're seeing, show all possible values
-    if (returnValues && returnValues.length > 0 && returnValues.includes(value)) {
-      return [`ADDKEYWORD: random [${returnValues.join(', ')}]`]
-    }
-  }
-
-  // Default: just a static keyword
-  return [`ADDKEYWORD: ${value}`]
-}
-
-/**
- * Extract effects (game commands) from text (beginning or middle)
- * Returns { effects: [...], cleanedText: "..." }
- */
-function extractEffects(text, functionDefinitions = new Map(), functionCalls = new Map()) {
-  if (!text) return { effects: [], cleanedText: '' }
-
-  const effects = []
-  let cleaned = text
-
-  // Extract entire command sequences: >>>>COMMAND1:value1;COMMAND2:value2;COMMAND3
-  // Pattern matches from >>> until we hit a newline, quote, or end
-  // Includes uppercase, lowercase, numbers, and common punctuation in values
-  // Note: Use [ \t] instead of \s to avoid matching newlines (which would break multi-line command extraction)
-  const commandSequencePattern = />>>>?[A-Za-z0-9_:;'\[\]\(\)  \t\-\/]+(?=\n|"|$)/gi
-
-  cleaned = cleaned.replace(commandSequencePattern, (commandSequence) => {
-    // Now split the sequence by semicolons and process each command
-    const commands = commandSequence.split(';')
-
-    commands.forEach((cmd) => {
-      // Remove >>> prefix if present
-      cmd = cmd.replace(/^>>>+/, '').trim()
-      if (!cmd) return
-
-      // Parse COMMAND or COMMAND:value (case-insensitive)
-      const match = cmd.match(/^([A-Za-z_]+)(?::(.+))?$/i)
-      if (!match) return
-
-      const command = match[1].toUpperCase()
-      const value = match[2] ? match[2].trim() : null
-
-      let newEffects
-      if (value) {
-        switch (command) {
-          case 'COMBAT':
-          case 'DIRECTCOMBAT':
-            newEffects = [`COMBAT: ${value}`]
-            break
-          case 'ADDKEYWORD':
-            newEffects = resolveSpecialKeywordEffects(value, functionDefinitions, functionCalls)
-            break
-          default:
-            newEffects = [`${command}: ${value}`]
-        }
-      } else {
-        newEffects = [command]
-      }
-
-      effects.push(...newEffects)
-    })
-
-    return '' // Remove entire command sequence from text
-  })
-
-  // Remove any leftover semicolons from removed commands
-  cleaned = cleaned.replace(/;+/g, ';').replace(/^;+|;+$/g, '')
-
-  // Clean the remaining text (remove markup, etc.)
-  const cleanedText = cleanText(cleaned)
-
-  return { effects, cleanedText }
-}
-
-/**
  * Extract requirements from choice text and return cleaned text
+ * (kept in main file as it's specific to Ink choice parsing)
  */
 function extractChoiceMetadata(choiceText) {
   const requirements = []
@@ -1583,96 +1412,11 @@ function extractChoiceMetadata(choiceText) {
     cleanedText = cleanedText.replace(reqPattern, '').trim()
   }
 
-  // Clean up the text
+  // Clean up the text (using imported cleanText from node-splitting.js)
+  const { cleanText } = require('./node-splitting.js')
   cleanedText = cleanText(cleanedText)
 
   return { requirements, cleanedText }
-}
-
-/**
- * Clean text by removing Ink/game-specific markup and converting commands to readable format
- */
-function cleanText(text) {
-  if (!text) return ''
-
-  let cleaned = text
-
-  // Convert game commands to human-readable placeholders
-  // Match until semicolon, newline, quote, or another command (>>>)
-  cleaned = cleaned.replace(
-    />>>>?([A-Z_]+):([^;\n>"]+?)(?=>>>|;|\n|"|$)/gi,
-    (_match, command, value) => {
-      // Trim any trailing whitespace from the value
-      value = value.trim()
-      // Parse different command types
-      switch (command.toUpperCase()) {
-        case 'COMBAT':
-        case 'DIRECTCOMBAT':
-          return `[Combat: ${value}]`
-        case 'MERCHANT':
-          return '[Merchant]'
-        case 'GOLD':
-          return `[Gold: ${value}]`
-        case 'HEALTH':
-          return `[Health: ${value}]`
-        case 'RELOADEVENTS':
-          return '[Reload Events]'
-        case 'QUESTFLAG':
-          return `[Quest Flag: ${value}]`
-        case 'NEXTSTATUS':
-          return `[Status: ${value}]`
-        default:
-          // Generic command format
-          return `[${command}: ${value}]`
-      }
-    }
-  )
-
-  // Remove standalone commands (no colon/value)
-  cleaned = cleaned.replace(/>>>>?([A-Z_]+)(?![:\w])/gi, (_match, command) => {
-    switch (command.toUpperCase()) {
-      case 'MERCHANT':
-        return '[Merchant]'
-      case 'RELOADEVENTS':
-        return '' // Remove RELOADEVENTS completely
-      case 'END':
-        return '[End]'
-      default:
-        return `[${command}]`
-    }
-  })
-
-  // Remove color tags (including malformed closing tags like </color=red>)
-  cleaned = cleaned.replace(/<color=[^>]+>/gi, '').replace(/<\/color[^>]*>/gi, '')
-
-  // Remove HTML tags
-  cleaned = cleaned.replace(/<\/?[bi]>/gi, '')
-  cleaned = cleaned.replace(/<\/?b>/gi, '')
-
-  // Remove speaker tags like {#:"speaker"}
-  cleaned = cleaned.replace(/\{#[^}]+\}/g, '')
-
-  // Remove conditional text markers (these are if/else checks for what text to display)
-  // Examples: [?questflag:stormscarredintro], [?talent:stormscarred;!questflag:stormscarredintro], [?!questflag:quit]
-  cleaned = cleaned.replace(/\[\?[^\]]+\]/g, '')
-
-  // Remove [continue] markers (these are part of the conditional text system)
-  cleaned = cleaned.replace(/\[continue\]/gi, '')
-
-  // Remove leftover command brackets (these should have been extracted as effects)
-  // Examples: [DAMAGE: 10], [GOLD: -20], [Health: 50]
-  cleaned = cleaned.replace(/\[(DAMAGE|GOLD|HEALTH|Health|Gold):[^\]]+\];?\s*/gi, '')
-
-  // Remove newline escapes
-  cleaned = cleaned.replace(/\\n/g, ' ')
-
-  // Clean up multiple spaces
-  cleaned = cleaned.replace(/\s+/g, ' ')
-
-  // Remove trailing punctuation artifacts
-  cleaned = cleaned.trim()
-
-  return cleaned
 }
 
 /**
@@ -1737,59 +1481,6 @@ function findInvalidRefsInTree(rootNode, nodeMap) {
   }
   checkRefs(rootNode)
   return invalidRefs
-}
-
-/**
- * Post-pass: for nodes whose effects contain "GOLD: random [min - max]" or "DAMAGE: random [min - max]",
- * replace numeric gold/damage in node.text (e.g. "47 gold", "5 damage") with «random» gold/damage.
- */
-function cleanUpRandomValues(eventTrees) {
-  const goldRandomEffectRe = /^GOLD:\s*random\s*\[\s*(\d+)\s*-\s*(\d+)\s*\]$/i
-  const damageRandomEffectRe = /^DAMAGE:\s*random\s*\[\s*(\d+)\s*-\s*(\d+)\s*\]$/i
-  const goldInTextRe = /\b(\d+)\s*(gold)\b/gi
-  const damageInTextRe = /\b(\d+)\s*(damage)\b/gi
-  let updated = 0
-
-  function visit(node) {
-    if (!node) return
-    if (node.effects && Array.isArray(node.effects) && node.text) {
-      let newText = node.text
-      for (const effect of node.effects) {
-        const goldM = String(effect).match(goldRandomEffectRe)
-        if (goldM) {
-          const min = parseInt(goldM[1], 10)
-          const max = parseInt(goldM[2], 10)
-          newText = newText.replace(goldInTextRe, (_, numStr, word) => {
-            const n = parseInt(numStr, 10)
-            return n >= min && n <= max ? `${RANDOM_KEYWORD} ${word}` : `${numStr} ${word}`
-          })
-          break
-        }
-      }
-      for (const effect of node.effects) {
-        const damageM = String(effect).match(damageRandomEffectRe)
-        if (damageM) {
-          const min = parseInt(damageM[1], 10)
-          const max = parseInt(damageM[2], 10)
-          newText = newText.replace(damageInTextRe, (_, numStr, word) => {
-            const n = parseInt(numStr, 10)
-            return n >= min && n <= max ? `${RANDOM_KEYWORD} ${word}` : `${numStr} ${word}`
-          })
-          break
-        }
-      }
-      if (newText !== node.text) {
-        node.text = newText
-        updated++
-      }
-    }
-    if (node.children) node.children.forEach(visit)
-  }
-
-  eventTrees.forEach((tree) => tree.rootNode && visit(tree.rootNode))
-  if (updated > 0) {
-    console.log(`\n🎲 Cleaned up random gold/damage in text: ${updated} node(s)`)
-  }
 }
 
 /**
@@ -2282,7 +1973,7 @@ async function processEvents() {
     console.log('\n🔀 Separating choices from effects...')
     let totalSeparated = 0
     eventTrees.forEach((tree) => {
-      const separatedCount = separateChoicesFromEffects(tree.rootNode)
+      const separatedCount = separateChoicesFromEffects(tree.rootNode, createNode, generateNodeId)
       totalSeparated += separatedCount
     })
     console.log(`  Separated ${totalSeparated} choice-effect pairs`)
@@ -2294,7 +1985,7 @@ async function processEvents() {
   let addKeywordRandomLabelsUpdated = 0
   eventTrees.forEach((tree) => {
     if (tree.rootNode) {
-      const stats = normalizeAddKeywordRandomChoiceLabels(tree.rootNode)
+      const stats = normalizeAddKeywordRandomChoiceLabels(tree.rootNode, { updated: 0 })
       addKeywordRandomLabelsUpdated += stats.updated
     }
   })
@@ -2366,6 +2057,15 @@ async function processEvents() {
     debugCheckEventPipelineState(eventTrees, 'after promoteShallowDialogueMenuHub')
   }
 
+  // Detect and optimize dialogue menu hub patterns (Phase 1 + 2)
+  if (OPTIMIZATION_PASS_CONFIG.POST_PROCESSING_HUB_PATTERN_OPTIMIZATION_ENABLED) {
+    const {
+      detectAndOptimizeDialogueMenuHubs,
+    } = require('./post-processing-hub-pattern-optimization.js')
+    detectAndOptimizeDialogueMenuHubs(eventTrees, DEBUG_EVENT_NAME)
+    debugCheckEventPipelineState(eventTrees, 'after detectAndOptimizeDialogueMenuHubs')
+  }
+
   if (OPTIMIZATION_PASS_CONFIG.CONVERT_SIBLING_AND_COUSIN_REFS_TO_REF_CHILDREN_ENABLED) {
     console.log('\n🔗 Converting sibling and SIMPLE cousin refs to refChildren...')
     const { totalConversions, eventsWithConversions } =
@@ -2382,7 +2082,6 @@ async function processEvents() {
   }
 
   // Apply event alterations (manual fixes for conditional choices, etc.)
-  // This runs AFTER all optimizations so that refChildren can be resolved correctly
   if (OPTIMIZATION_PASS_CONFIG.APPLY_EVENT_ALTERATIONS_ENABLED) {
     console.log('\n🔧 Applying event alterations...')
     let totalAlterations = 0
@@ -2391,7 +2090,11 @@ async function processEvents() {
         eventTrees.forEach((tree) => {
           const eventAlterations = EVENT_ALTERATIONS.find((a) => a.name === tree.name)
           if (eventAlterations) {
-            const appliedCount = applyEventAlterations(tree.rootNode, eventAlterations.alterations)
+            const appliedCount = applyEventAlterations(
+              tree.rootNode,
+              eventAlterations.alterations,
+              generateNodeId
+            )
             if (appliedCount > 0) {
               totalAlterations += appliedCount
               if (tree.name === DEBUG_EVENT_NAME) {
@@ -2400,11 +2103,6 @@ async function processEvents() {
             }
           }
         })
-        if (totalAlterations > 0) {
-          console.log(`  Applied ${totalAlterations} alteration(s)`)
-        } else {
-          console.log(`  No alterations to apply`)
-        }
       } else {
         console.log(`  No event alterations module found`)
       }
@@ -2419,7 +2117,10 @@ async function processEvents() {
   }
 
   if (OPTIMIZATION_PASS_CONFIG.CLEAN_UP_RANDOM_VALUES_ENABLED) {
-    cleanUpRandomValues(eventTrees)
+    const updated = cleanUpRandomValues(eventTrees)
+    if (updated > 0) {
+      console.log(`\n🎲 Cleaned up random gold/damage in text: ${updated} node(s)`)
+    }
   }
 
   // Replace card/talent IDs with names in choiceLabel, text, and effects
@@ -2445,486 +2146,6 @@ async function processEvents() {
   const endTime = Date.now()
   const elapsedSeconds = ((endTime - startTime) / 1000).toFixed(2)
   console.log(`⏱️  Total parsing time: ${elapsedSeconds}s`)
-}
-
-/**
- * Apply event alterations from event-alterations.json
- * Supports:
- * - Finding nodes by text or choiceLabel (find)
- * - Finding nodes by effect (findByEffect)
- * - Updating nodes (e.g., adding requirements)
- * - Adding new child nodes (addChild)
- * - Replacing entire nodes (replaceNode)
- */
-function applyEventAlterations(rootNode, alterations) {
-  if (!rootNode || !alterations || alterations.length === 0) return 0
-
-  let appliedCount = 0
-
-  for (const alteration of alterations) {
-    const { find, addRequirements, addChild, replaceNode, replaceChildren, modifyNode } = alteration
-
-    // Validate that we have a find method
-    if (!find) {
-      console.warn(`  ⚠️  Alteration missing "find" field: ${JSON.stringify(alteration)}`)
-      continue
-    }
-
-    // Find matching nodes recursively
-    let matchingNodes = []
-    let searchDescription = ''
-
-    // Validate find is an object
-    if (typeof find !== 'object' || find === null) {
-      console.warn(`  ⚠️  Alteration "find" must be an object: ${JSON.stringify(alteration)}`)
-      continue
-    }
-
-    // Find nodes based on criteria
-    if (find.textStartsWith !== undefined) {
-      matchingNodes = findNodesByTextStartsWith(rootNode, find.textStartsWith)
-      searchDescription = `textStartsWith: "${find.textStartsWith}"`
-    } else if (find.textOrLabel !== undefined) {
-      const hasEffect = find.effect !== undefined
-      if (hasEffect) {
-        // Search by textOrLabel AND effect
-        matchingNodes = findNodesByTextOrLabelAndEffect(rootNode, find.textOrLabel, find.effect)
-        searchDescription = `textOrLabel: "${find.textOrLabel}" + effect: "${find.effect}"`
-      } else {
-        // Search by textOrLabel only
-        matchingNodes = findNodesByTextOrChoiceLabel(rootNode, find.textOrLabel)
-        searchDescription = `textOrLabel: "${find.textOrLabel}"`
-      }
-    } else if (find.effect !== undefined) {
-      // Search by effect only
-      matchingNodes = findNodesByEffect(rootNode, find.effect)
-      searchDescription = `effect: "${find.effect}"`
-    } else {
-      console.warn(`  ⚠️  Alteration has invalid find record: ${JSON.stringify(find)}`)
-      continue
-    }
-
-    if (matchingNodes.length === 0) {
-      console.warn(`  ⚠️  No nodes found matching: ${searchDescription}`)
-      continue
-    }
-
-    // Replace entire node
-    if (replaceNode) {
-      for (const match of matchingNodes) {
-        const refTargetMap = {}
-        const refSourceNodes = []
-        const refCreateNodes = []
-        const newNode = createNodeFromAlterationSpec(
-          replaceNode,
-          refTargetMap,
-          refSourceNodes,
-          refCreateNodes
-        )
-        if (newNode) {
-          // Copy the old node's ID to preserve references
-          newNode.id = match.id
-
-          // Resolve refSource nodes to actual refs (within the alteration)
-          for (const { node, refSource } of refSourceNodes) {
-            const targetNodeId = refTargetMap[refSource]
-            if (targetNodeId !== undefined) {
-              node.ref = targetNodeId
-            } else {
-              console.warn(
-                `  ⚠️  refSource ${refSource} not found in refTargetMap for alteration in node ${node.id}`
-              )
-            }
-          }
-
-          // Resolve refCreate nodes to actual refs (search the entire tree)
-          for (const { node, refCreate } of refCreateNodes) {
-            const candidates = findNodesByTextOrChoiceLabel(rootNode, refCreate)
-            // Find the first candidate that doesn't have a ref (it's the original node)
-            const targetNode = candidates.find((candidate) => candidate.ref === undefined)
-            if (targetNode) {
-              node.ref = targetNode.id
-            } else {
-              console.warn(
-                `  ⚠️  refCreate "${refCreate}" did not find a matching node without a ref for node ${node.id}`
-              )
-            }
-          }
-
-          // Replace all properties of the matched node with the new node
-          Object.keys(match).forEach((key) => delete match[key])
-          Object.assign(match, newNode)
-          appliedCount++
-        }
-      }
-      continue // Skip other operations if we're replacing the node
-    }
-
-    // Replace children of matched nodes
-    if (replaceChildren && Array.isArray(replaceChildren)) {
-      for (const match of matchingNodes) {
-        const refTargetMap = {}
-        const refSourceNodes = []
-        const refCreateNodes = []
-        const newChildren = replaceChildren
-          .map((spec) =>
-            createNodeFromAlterationSpec(spec, refTargetMap, refSourceNodes, refCreateNodes)
-          )
-          .filter((c) => c !== null)
-
-        const firstWithChildren = newChildren.find((c) => c.children?.length)
-        if (firstWithChildren) {
-          const resultIds = firstWithChildren.children.map((c) => c.id)
-          replaceChildren.forEach((spec, i) => {
-            if (spec.refChildrenFromFirstSibling && newChildren[i]) {
-              newChildren[i].refChildren = resultIds
-            }
-          })
-        }
-
-        for (const { node: n, refSource } of refSourceNodes) {
-          const targetId = refTargetMap[refSource]
-          if (targetId !== undefined) n.ref = targetId
-        }
-        for (const { node: n, refCreate } of refCreateNodes) {
-          const candidates = findNodesByTextOrChoiceLabel(rootNode, refCreate)
-          const target = candidates.find((c) => c.ref === undefined)
-          if (target) n.ref = target.id
-        }
-
-        match.children = newChildren
-        appliedCount++
-      }
-      continue
-    }
-
-    if (addRequirements) {
-      // Filter out empty strings
-      const newRequirements = addRequirements.filter((req) => req && typeof req === 'string')
-
-      if (newRequirements.length > 0) {
-        for (const node of matchingNodes) {
-          // Merge with existing requirements, avoiding duplicates
-          if (node.requirements) {
-            const existingSet = new Set(node.requirements)
-            newRequirements.forEach((req) => existingSet.add(req))
-            node.requirements = Array.from(existingSet)
-          } else {
-            node.requirements = newRequirements
-          }
-          appliedCount++
-        }
-      }
-    }
-
-    // Modify node properties
-    if (modifyNode) {
-      for (const node of matchingNodes) {
-        // Remove fields if specified with null
-        if (modifyNode.removeRef && node.ref !== undefined) {
-          delete node.ref
-        }
-        if (modifyNode.removeText && node.text !== undefined) {
-          delete node.text
-        }
-        if (modifyNode.removeNumContinues && node.numContinues !== undefined) {
-          delete node.numContinues
-        }
-        if (modifyNode.removeChildren && node.children !== undefined) {
-          delete node.children
-        }
-
-        // Set new values
-        if (modifyNode.type !== undefined) {
-          node.type = modifyNode.type
-        }
-
-        // Handle refCreate: search the tree for a matching node and create a ref
-        if (modifyNode.refCreate !== undefined) {
-          const candidates = findNodesByTextOrChoiceLabel(rootNode, modifyNode.refCreate)
-          const targetNode = candidates.find((candidate) => candidate.ref === undefined)
-          if (targetNode) {
-            node.ref = targetNode.id
-          } else {
-            console.warn(
-              `  ⚠️  refCreate "${modifyNode.refCreate}" did not find a matching node without a ref for node ${node.id}`
-            )
-          }
-        }
-
-        // Handle refCreateStartsWith: ref to first node whose text/choiceLabel starts with the string
-        if (modifyNode.refCreateStartsWith !== undefined) {
-          const candidates = findNodesByTextStartsWith(rootNode, modifyNode.refCreateStartsWith)
-          const targetNode = candidates.find((candidate) => candidate.ref === undefined)
-          if (targetNode) {
-            node.ref = targetNode.id
-          } else {
-            console.warn(
-              `  ⚠️  refCreateStartsWith "${modifyNode.refCreateStartsWith}" did not find a matching node for node ${node.id}`
-            )
-          }
-        }
-
-        appliedCount++
-      }
-    }
-
-    // Add children
-    if (addChild) {
-      for (const node of matchingNodes) {
-        const refTargetMap = {}
-        const refSourceNodes = []
-        const refCreateNodes = []
-        const newChild = createNodeFromAlterationSpec(
-          addChild,
-          refTargetMap,
-          refSourceNodes,
-          refCreateNodes
-        )
-        if (newChild) {
-          // Resolve refSource nodes to actual refs (within the alteration)
-          for (const { node: childNode, refSource } of refSourceNodes) {
-            const targetNodeId = refTargetMap[refSource]
-            if (targetNodeId !== undefined) {
-              childNode.ref = targetNodeId
-            } else {
-              console.warn(
-                `  ⚠️  refSource ${refSource} not found in refTargetMap for alteration in node ${childNode.id}`
-              )
-            }
-          }
-
-          // Resolve refCreate nodes to actual refs (search the entire tree)
-          for (const { node: childNode, refCreate } of refCreateNodes) {
-            const candidates = findNodesByTextOrChoiceLabel(rootNode, refCreate)
-            // Find the first candidate that doesn't have a ref (it's the original node)
-            const targetNode = candidates.find((candidate) => candidate.ref === undefined)
-            if (targetNode) {
-              childNode.ref = targetNode.id
-            } else {
-              console.warn(
-                `  ⚠️  refCreate "${refCreate}" did not find a matching node without a ref for node ${childNode.id}`
-              )
-            }
-          }
-
-          if (!node.children) {
-            node.children = []
-          }
-          node.children.push(newChild)
-          appliedCount++
-        }
-      }
-    }
-  }
-
-  return appliedCount
-}
-
-/**
- * Recursively find nodes matching text or choiceLabel
- */
-function findNodesByTextOrChoiceLabel(node, searchText) {
-  const matches = []
-
-  if (!node) return matches
-
-  // Check if this node matches
-  if (
-    (node.text && node.text.includes(searchText)) ||
-    (node.choiceLabel && node.choiceLabel.includes(searchText))
-  ) {
-    matches.push(node)
-  }
-
-  // Recursively search children
-  if (node.children) {
-    for (const child of node.children) {
-      matches.push(...findNodesByTextOrChoiceLabel(child, searchText))
-    }
-  }
-
-  return matches
-}
-
-/**
- * Recursively find nodes where text or choiceLabel starts with the given string
- */
-function findNodesByTextStartsWith(node, searchText) {
-  const matches = []
-
-  if (!node) return matches
-
-  const textOrLabel = node.text || node.choiceLabel || ''
-  if (textOrLabel.startsWith(searchText)) {
-    matches.push(node)
-  }
-
-  if (node.children) {
-    for (const child of node.children) {
-      matches.push(...findNodesByTextStartsWith(child, searchText))
-    }
-  }
-
-  return matches
-}
-
-/**
- * Recursively find nodes matching textOrLabel AND effect
- */
-function findNodesByTextOrLabelAndEffect(node, searchText, searchEffect) {
-  const matches = []
-
-  if (!node) return matches
-
-  // Check text or choiceLabel match
-  const textOrLabelMatches =
-    (node.text && node.text.includes(searchText)) ||
-    (node.choiceLabel && node.choiceLabel.includes(searchText))
-
-  // Check effect match
-  const effectMatches =
-    node.effects &&
-    Array.isArray(node.effects) &&
-    node.effects.some((effect) => effect.includes(searchEffect))
-
-  if (textOrLabelMatches && effectMatches) {
-    matches.push(node)
-  }
-
-  // Recursively search children
-  if (node.children) {
-    for (const child of node.children) {
-      matches.push(...findNodesByTextOrLabelAndEffect(child, searchText, searchEffect))
-    }
-  }
-
-  return matches
-}
-
-/**
- * Recursively find nodes that have a specific effect
- */
-function findNodesByEffect(node, effectToFind) {
-  const matches = []
-
-  if (!node) return matches
-
-  // Check if this node has the effect
-  if (node.effects && Array.isArray(node.effects)) {
-    for (const effect of node.effects) {
-      if (effect.includes(effectToFind)) {
-        matches.push(node)
-        break // Only add the node once even if it has multiple matching effects
-      }
-    }
-  }
-
-  // Recursively search children
-  if (node.children) {
-    for (const child of node.children) {
-      matches.push(...findNodesByEffect(child, effectToFind))
-    }
-  }
-
-  return matches
-}
-
-/**
- * Create a node from an alteration specification
- * Recursively creates children and assigns IDs
- *
- * Supports refTarget/refSource/refCreate for creating refs within alterations:
- * - refTarget: Marks a node as a ref target with a numeric ID
- * - refSource: Will be converted to ref: <node_id> pointing to the refTarget node
- * - refCreate: Will be converted to ref: <node_id> pointing to a node in the tree that matches
- *              the text/choiceLabel and has no ref of its own (the original node)
- *
- * @param {Object} spec - The node specification
- * @param {Object} refTargetMap - Map of refTarget numbers to actual node IDs
- * @param {Array} refSourceNodes - Array to collect nodes that need refSource resolution
- * @param {Array} refCreateNodes - Array to collect nodes that need refCreate resolution
- * @returns {Object} The created node
- */
-function createNodeFromAlterationSpec(
-  spec,
-  refTargetMap = {},
-  refSourceNodes = [],
-  refCreateNodes = []
-) {
-  if (!spec || !spec.type) {
-    console.warn(`  ⚠️  Invalid node spec: missing type`)
-    return null
-  }
-
-  const node = {
-    id: generateNodeId(),
-    type: spec.type,
-  }
-
-  if (spec.text !== undefined) {
-    node.text = spec.text
-  }
-
-  if (spec.choiceLabel !== undefined) {
-    node.choiceLabel = spec.choiceLabel
-  }
-
-  if (spec.speaker !== undefined) {
-    node.speaker = spec.speaker
-  }
-
-  // Requirements are now just strings directly
-  if (spec.requirements) {
-    const normalized = spec.requirements.filter((req) => req && typeof req === 'string')
-    if (normalized.length > 0) {
-      node.requirements = normalized
-    }
-  }
-
-  if (spec.effects) {
-    node.effects = Array.isArray(spec.effects) ? spec.effects.filter((e) => e) : [spec.effects]
-  }
-
-  if (spec.numContinues !== undefined) {
-    node.numContinues = spec.numContinues
-  }
-
-  if (spec.ref !== undefined) {
-    // NOTE: This probably breaks very easily, if our tree building decides to assign
-    // a different node id than our ref in the alteration spec is pointing to.
-    node.ref = spec.ref
-  }
-
-  if (spec.refChildren !== undefined) {
-    node.refChildren = Array.isArray(spec.refChildren) ? spec.refChildren : [spec.refChildren]
-  }
-
-  // Handle refTarget: mark this node as a target for refs
-  if (spec.refTarget !== undefined) {
-    refTargetMap[spec.refTarget] = node.id
-  }
-
-  // Handle refSource: mark this node for later ref resolution
-  if (spec.refSource !== undefined) {
-    refSourceNodes.push({ node, refSource: spec.refSource })
-  }
-
-  // Handle refCreate: mark this node for later ref resolution by searching the tree
-  if (spec.refCreate !== undefined) {
-    refCreateNodes.push({ node, refCreate: spec.refCreate })
-  }
-
-  // Recursively create children
-  if (spec.children && Array.isArray(spec.children)) {
-    node.children = spec.children
-      .map((childSpec) =>
-        createNodeFromAlterationSpec(childSpec, refTargetMap, refSourceNodes, refCreateNodes)
-      )
-      .filter((child) => child !== null)
-  }
-
-  return node
 }
 
 /**
@@ -2954,134 +2175,6 @@ function filterDefaultNodes(node) {
   }
 
   node.children = filteredChildren
-}
-
-/**
- * Separate choices from their effects for clearer visualization
- * When a node has both a choiceLabel and effects/children, split it into:
- * 1. A choice node (with choiceLabel and requirements)
- * 2. An outcome node (with effects and/or children)
- * Returns the number of nodes separated
- */
-function separateChoicesFromEffects(node) {
-  if (!node) return 0
-
-  let separatedCount = 0
-
-  // Process children first (bottom-up)
-  if (node.children && node.children.length > 0) {
-    // Create new children array to handle modifications
-    const newChildren = []
-
-    for (let i = 0; i < node.children.length; i++) {
-      const child = node.children[i]
-
-      // Recursively process this child's children
-      separatedCount += separateChoicesFromEffects(child)
-
-      // Check if this child needs to be split
-      // Split if: has choiceLabel AND (has effects OR has text OR children OR is an end node)
-      // Should not split special nodes!
-      // This ensures all choices are consistently represented as choice nodes
-      const hasChoiceLabel = child.choiceLabel && child.choiceLabel.trim()
-      const hasEffects = child.effects && child.effects.length > 0
-      const hasSubstantialText = child.text && child.text.trim() && child.text !== '[End]'
-      const isEndNode = child.type === 'end'
-      const isSpecialNode = child.type === 'special'
-      const shouldSplit =
-        hasChoiceLabel &&
-        !isSpecialNode &&
-        (hasEffects ||
-          hasSubstantialText ||
-          (child.children && child.children.length > 0) ||
-          isEndNode)
-
-      if (shouldSplit) {
-        // Create a choice node (parent)
-        const choiceNode = createNode({
-          id: child.id,
-          text: undefined, // Choice nodes don't have text
-          type: 'choice',
-          choiceLabel: child.choiceLabel,
-          requirements: child.requirements,
-        })
-
-        // Create an outcome node (child)
-        // Determine the outcome type:
-        // - The original node was 'combat' -> 'combat'
-        // - The original node has a ref -> keep the original type (it's a ref node)
-        // - The original node had no children -> 'end'
-        // - The original node was 'choice' or 'dialogue' -> 'dialogue'
-        // - Otherwise -> keep the original type, BUT warn!
-        const hasChildren = child.children && child.children.length > 0
-        const hasRef = child.ref !== undefined
-        let outcomeType
-        if (child.type === 'combat') {
-          outcomeType = 'combat'
-        } else if (hasRef) {
-          // Preserve the type for ref nodes (they don't have children, but they're not end nodes)
-          outcomeType = child.type
-        } else if (!hasChildren) {
-          outcomeType = 'end'
-        } else if (child.type === 'choice' || child.type === 'dialogue') {
-          outcomeType = 'dialogue'
-        } else {
-          console.warn('  ⚠️ Unexpected node split! Type: ', child.type, 'Node: ', child)
-          outcomeType = child.type
-        }
-
-        const outcomeNode = createNode({
-          id: generateNodeId(),
-          text: child.text || '',
-          type: outcomeType,
-          effects: child.effects,
-          numContinues: child.numContinues,
-          ref: child.ref, // Preserve ref field!
-          children: child.children,
-        })
-
-        // Link them
-        choiceNode.children = [outcomeNode]
-        newChildren.push(choiceNode)
-        separatedCount++
-      } else {
-        // Keep as is
-        newChildren.push(child)
-      }
-    }
-
-    node.children = newChildren
-  }
-
-  return separatedCount
-}
-
-const ADDKEYWORD_RANDOM_LIST_RE = /ADDKEYWORD:\s*random\s*\[/
-
-/**
- * When a choice node's only child has effect "ADDKEYWORD: random [A, B, C, ...]",
- * set the choice's label to "Add «random»" (the label was one specific keyword from the list).
- * Runs after separateChoicesFromEffects so structure is choice -> outcome node with effects.
- */
-function normalizeAddKeywordRandomChoiceLabels(node, stats = { updated: 0 }) {
-  if (!node) return stats
-  if (node.type === 'choice' && node.children?.length === 1) {
-    const child = node.children[0]
-    const effects = child.effects
-    if (
-      Array.isArray(effects) &&
-      effects.some((e) => typeof e === 'string' && ADDKEYWORD_RANDOM_LIST_RE.test(e))
-    ) {
-      node.choiceLabel = 'Add «random»'
-      stats.updated++
-    }
-  }
-  if (node.children) {
-    for (const child of node.children) {
-      normalizeAddKeywordRandomChoiceLabels(child, stats)
-    }
-  }
-  return stats
 }
 
 /**
@@ -3986,6 +3079,7 @@ function deduplicateAllTrees(eventTrees, maxIterations = 1) {
 ;(async () => {
   try {
     await processEvents()
+    validateEventTreesChanges()
   } catch (error) {
     console.error('❌ Fatal error:', error)
     console.error(error.stack)

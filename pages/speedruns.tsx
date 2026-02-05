@@ -20,7 +20,7 @@ export default function SpeedrunsPage() {
   return (
     <>
       <Head>
-        <title>{title}</title>
+        <title>Speedruns | Dawn-Dash</title>
         <meta name="description" content={description} />
         <link rel="canonical" href={url} />
 

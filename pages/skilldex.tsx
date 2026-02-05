@@ -21,7 +21,7 @@ export default function SkilldexPage() {
   return (
     <>
       <Head>
-        <title>{title}</title>
+        <title>Skilldex | Dawn-Dash</title>
         <meta name="description" content={description} />
         <link rel="canonical" href={url} />
 

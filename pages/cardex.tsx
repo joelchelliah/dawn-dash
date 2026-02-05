@@ -21,7 +21,7 @@ export default function CardexPage() {
   return (
     <>
       <Head>
-        <title>{title}</title>
+        <title>Cardex | Dawn-Dash</title>
         <meta name="description" content={description} />
         <link rel="canonical" href={url} />
 

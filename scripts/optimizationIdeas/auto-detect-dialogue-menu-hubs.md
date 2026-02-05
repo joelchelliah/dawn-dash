@@ -1349,6 +1349,97 @@ If auto-detection works well, could extend to:
 
 ---
 
+## Phase 3 Optimization: Structural Deduplication Division of Labor
+
+### Background
+
+After Phase 2 implementation (creating refs for detected hubs), we'll have **two passes** that handle duplicate patterns:
+
+1. **Hub Detection**: Dialogue menus with choice-based matching (semantic understanding)
+2. **Structural Deduplication**: Generic subtree matching (structural identity)
+
+Currently, these passes have **overlapping responsibilities** - both can deduplicate dialogue nodes with choices, leading to redundant work.
+
+### Proposed Optimization
+
+**Once Phase 2 is complete and validated**, optimize the structural deduplication pass to skip dialogue menus, creating a clear division of labor:
+
+#### Hub Detection (Semantic) - Handles:
+- ✅ Dialogue nodes with 3+ choices
+- ✅ Hub-return patterns (choice subset matching)
+- ✅ Exit choice variations
+- ✅ Dialogue menu loops
+
+#### Structural Dedup (Structural) - Handles:
+- ✅ Combat nodes with identical outcomes
+- ✅ Effect chains (GOLD, HEALTH, etc.)
+- ✅ Event sequences (non-dialogue)
+- ✅ Simple dialogues (< 3 choices)
+- ❌ **Skip dialogue nodes with 3+ choices** (let hub detection handle)
+
+### Implementation
+
+Add this check to the structural deduplication loop (`deduplicateEventTree` function):
+
+```javascript
+// Process nodes in breadth-first order (shallowest first)
+for (const node of allNodes) {
+  if (!node.children || node.children.length === 0) continue
+  if (node.ref !== undefined) continue // Skip nodes that are already references
+
+  // NEW: Skip dialogue nodes with multiple choices - let hub detection handle these
+  if (OPTIMIZATION_PASS_CONFIG.AUTO_DETECT_DIALOGUE_MENU_HUBS_ENABLED) {
+    const MIN_CHOICES = OPTIMIZATION_PASS_CONFIG.AUTO_DETECT_MIN_CHOICES || 3
+    if (node.type === 'dialogue' && node.children) {
+      const choiceCount = node.children.filter(c => c.choiceLabel).length
+      if (choiceCount >= MIN_CHOICES) {
+        continue // Skip - hub detection handles this
+      }
+    }
+  }
+
+  // ... rest of structural dedup logic
+}
+```
+
+### Benefits
+
+1. **Cleaner separation of concerns**
+   - Hub detection: Dialogue menus with choice patterns
+   - Structural dedup: Everything else (combat, effects, simple dialogues)
+
+2. **Better performance**
+   - Structural dedup skips nodes that hub detection handles
+   - Fewer signature calculations
+   - No overlap/conflict between passes
+
+3. **Better accuracy**
+   - Hub detection understands semantic meaning (choice subsets)
+   - Structural dedup focuses on what it does best (exact duplicates)
+   - No false positives from trying to dedupe dialogue menus structurally
+
+4. **Simpler config**
+   - No need for `DEDUPLICATE_SUBTREES_EVENT_BLACKLIST` for dialogue events
+   - Hub detection config becomes the single source of truth
+
+### Timeline
+
+**After Phase 2 is complete and validated** (estimated Week 3+):
+- [ ] Add the dialogue menu skip logic to `deduplicateEventTree()`
+- [ ] Test that both passes work correctly together
+- [ ] Remove dialogue events from `DEDUPLICATE_SUBTREES_EVENT_BLACKLIST` (if any)
+- [ ] Measure performance improvement (fewer signature calculations)
+- [ ] Validate node counts remain the same (no regressions)
+
+### Risk Mitigation
+
+- ✅ Only implement after Phase 2 is validated and stable
+- ✅ Keep as a toggle: can disable via `AUTO_DETECT_DIALOGUE_MENU_HUBS_ENABLED`
+- ✅ Compare before/after node counts to ensure no regressions
+- ✅ Test with `DEBUG_EVENT_NAME` to understand behavior
+
+---
+
 ## Related Files
 
 **Implementation**:
@@ -1392,24 +1483,29 @@ If auto-detection works well, could extend to:
 
 ### Implementation Checklist
 
-#### Phase 1: Validation (Week 1)
-- [ ] Implement `autoDetectDialogueMenuHubs()` in validation mode
-- [ ] Add detection heuristics (text signature, choice count, duplicates)
-- [ ] Implement `validateAutoDetection()` comparison function
-- [ ] Run validation against 14 manual patterns
-- [ ] Tune heuristics to achieve precision > 80%, recall > 70%
-- [ ] Document findings in validation report
+#### Phase 1: Detection (Week 1)
+- [x] Implement BFS-based hub detection algorithm
+- [x] Add choice subset matching logic (same or -1 choices)
+- [x] Integrate into post-processing pipeline
+- [x] Add `AUTO_DETECT_*` flags to `OPTIMIZATION_PASS_CONFIG`
+- [x] Add blacklist for critical events (Rathael, Frozen Heart)
+- [x] Log all detected hub candidates
+- [x] Compare detection results against manual config
+- [x] Document findings (108 hubs across 50 events, 42.1% recall)
 
-#### Phase 2: Safe Deployment (Week 2)
-- [ ] Add `AUTO_DETECT_*` flags to `OPTIMIZATION_PASS_CONFIG`
-- [ ] Add blacklist for critical events (Rathael, Frozen Heart)
-- [ ] Integrate into post-processing pipeline (after promote shallow hubs)
-- [ ] Create refs for detected hubs
+#### Phase 2: Ref Creation (Week 2)
+- [ ] Implement ref creation for detected hubs
+- [ ] Find shallowest hub copy as canonical (BFS depth tracking)
+- [ ] Convert duplicate hub copies to refs
 - [ ] Validate with `CHECK_INVALID_REFS`
 - [ ] Compare node counts before/after
-- [ ] Debug any issues with `DEBUG_EVENT_NAME`
+- [ ] Test with multiple events using `DEBUG_EVENT_NAME`
+- [ ] Ensure no conflicts with manually configured hubs
 
-#### Phase 3: Full Rollout (Week 3)
+#### Phase 3: Optimization & Rollout (Week 3)
+- [ ] Optimize structural dedup to skip dialogue menus (see "Phase 3 Optimization" section)
+- [ ] Test division of labor between hub detection and structural dedup
+- [ ] Measure performance improvement (fewer signature calculations)
 - [ ] Reduce manual config to 2-3 critical events only
 - [ ] Move visual-improvement events to auto-detection
 - [ ] Add comprehensive logging

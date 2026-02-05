@@ -420,7 +420,7 @@ function calculateLoopBackLinkCorners(
     // Route to target's bottom-right corner
     targetX = targetRightEdge
     // Source comes from whichever side makes sense
-    const safetyMargin = 20
+    const safetyMargin = 40
     if (sourceCenterX > targetCenterX + safetyMargin) {
       sourceX = sourceLeftEdge // From top-left of source
     } else {
