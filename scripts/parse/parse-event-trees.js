@@ -1370,7 +1370,7 @@ function buildTreeFromStory(
       const textAfterEffectCommand = text.substring(effectIndex + firstEffectMatch[0].length).trim()
 
       // Count newlines before the effect to estimate numContinues for first part
-      const linesBeforeEffect = textBeforeEffect.split('\n').filter(l => l.trim()).length
+      const linesBeforeEffect = textBeforeEffect.split('\n').filter((l) => l.trim()).length
 
       // Only split if there's both dialogue before AND after the effect
       if (textBeforeEffect && textAfterEffectCommand && linesBeforeEffect > 0) {
@@ -1391,7 +1391,7 @@ function buildTreeFromStory(
 
         // Calculate numContinues for each part
         const continuesBeforeEffect = Math.max(0, linesBeforeEffect - 1)
-        const linesAfterEffect = cleanedPostEffectText.split('\n').filter(l => l.trim()).length
+        const linesAfterEffect = cleanedPostEffectText.split('\n').filter((l) => l.trim()).length
         const continuesAfterEffect = Math.max(0, linesAfterEffect - 1)
 
         // Create a child node for the post-effect dialogue
@@ -1823,6 +1823,11 @@ function cleanUpRandomValues(eventTrees) {
 
   function visit(node) {
     if (!node) return
+
+    // Track random effects found in this node for potential child cleanup
+    let goldRange = null
+    let damageRange = null
+
     if (node.effects && Array.isArray(node.effects) && node.text) {
       let newText = node.text
       for (const effect of node.effects) {
@@ -1830,6 +1835,7 @@ function cleanUpRandomValues(eventTrees) {
         if (goldM) {
           const min = parseInt(goldM[1], 10)
           const max = parseInt(goldM[2], 10)
+          goldRange = { min, max }
           newText = newText.replace(goldInTextRe, (_, numStr, word) => {
             const n = parseInt(numStr, 10)
             return n >= min && n <= max ? `${RANDOM_KEYWORD} ${word}` : `${numStr} ${word}`
@@ -1842,6 +1848,7 @@ function cleanUpRandomValues(eventTrees) {
         if (damageM) {
           const min = parseInt(damageM[1], 10)
           const max = parseInt(damageM[2], 10)
+          damageRange = { min, max }
           newText = newText.replace(damageInTextRe, (_, numStr, word) => {
             const n = parseInt(numStr, 10)
             return n >= min && n <= max ? `${RANDOM_KEYWORD} ${word}` : `${numStr} ${word}`
@@ -1854,6 +1861,51 @@ function cleanUpRandomValues(eventTrees) {
         updated++
       }
     }
+
+    // Handle split dialogue: if this node has random effects and a single dialogue child,
+    // the child may contain the gold/damage text that was split from this node.
+    // In this case, we clean up the child's text AND migrate the random effect to the child node.
+    if ((goldRange || damageRange) && node.children && node.children.length === 1) {
+      const child = node.children[0]
+      if (child.type === 'dialogue' && child.text) {
+        let childNewText = child.text
+        let childNewEffects = []
+
+        if (goldRange) {
+          childNewText = childNewText.replace(goldInTextRe, (_, numStr, word) => {
+            const n = parseInt(numStr, 10)
+            return n >= goldRange.min && n <= goldRange.max
+              ? `${RANDOM_KEYWORD} ${word}`
+              : `${numStr} ${word}`
+          })
+          childNewEffects = [
+            ...childNewEffects,
+            `GOLD: random [${goldRange.min} - ${goldRange.max}]`,
+          ]
+        }
+
+        if (damageRange) {
+          childNewText = childNewText.replace(damageInTextRe, (_, numStr, word) => {
+            const n = parseInt(numStr, 10)
+            return n >= damageRange.min && n <= damageRange.max
+              ? `${RANDOM_KEYWORD} ${word}`
+              : `${numStr} ${word}`
+          })
+          childNewEffects = [
+            ...childNewEffects,
+            `DAMAGE: random [${damageRange.min} - ${damageRange.max}]`,
+          ]
+        }
+
+        if (childNewText !== child.text) {
+          child.text = childNewText
+          child.effects = [...(child.effects || []), ...childNewEffects]
+          node.effects = node.effects.filter((e) => !childNewEffects.includes(e))
+          updated++
+        }
+      }
+    }
+
     if (node.children) node.children.forEach(visit)
   }
 
