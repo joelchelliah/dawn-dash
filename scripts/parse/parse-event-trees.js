@@ -35,6 +35,7 @@ const {
   normalizeEffectsArray,
   cleanUpRandomValues,
   normalizeAddKeywordRandomChoiceLabels,
+  normalizeKeywordTags,
   RANDOM_KEYWORD,
 } = require('./random-support.js')
 
@@ -518,7 +519,9 @@ function buildTreeFromStory(
       if (line && line.trim()) {
         // Normalize random GOLD/DAMAGE commands to "COMMAND: random [min - max]"
         // so extractEffects produces the right effect; cleanUpRandomValues post-pass fixes "N gold" / "N damage" in text
-        const normalizedLine = normalizeRandomEffectsInLine(line, randomVars)
+        let normalizedLine = normalizeRandomEffectsInLine(line, randomVars)
+        // Normalize keyword tags like [kw:reliable] -> Reliable
+        normalizedLine = normalizeKeywordTags(normalizedLine)
         text += (text ? '\n' : '') + normalizedLine.trim()
       }
     }
@@ -678,6 +681,33 @@ function buildTreeFromStory(
         type: 'special',
         effects,
         children: knotBranches,
+      })
+    }
+  }
+
+  // COMBAT NODE SPLITTING - must happen BEFORE leaf node checks
+  // Split combat nodes into combat + postcombat dialogue when postcombat text exists
+  // This handles cases like ">>>>COMBAT:Boss\nThe boss falls... You find treasure."
+  if (type === 'combat' && text) {
+    const combatSplitResult = splitCombatNode(
+      text,
+      type,
+      effects,
+      [], // children (leaf nodes have no children yet)
+      createNode,
+      generateNodeId,
+      { functionDefinitions, functionCalls }
+    )
+
+    // If combat was split (postcombat child was created), return the split structure
+    if (combatSplitResult.finalChildren && combatSplitResult.finalChildren.length > 0) {
+      totalNodesInCurrentEvent += 2 // Combat node + postcombat child
+      return createNode({
+        id: generateNodeId(),
+        text: combatSplitResult.finalText,
+        type: 'combat',
+        effects: combatSplitResult.finalEffects,
+        children: combatSplitResult.finalChildren,
       })
     }
   }
@@ -1281,7 +1311,9 @@ function buildTreeFromStory(
     }
   }
 
-  // Try combat splitting (for postcombat dialogue)
+  // Try combat splitting (for NON-LEAF combat nodes with choices/children)
+  // Note: Leaf combat nodes (no choices) are already handled earlier at line 688
+  // This section handles rare cases where combat nodes have choices after them
   if (type === 'combat' && text) {
     const combatSplitResult = splitCombatNode(
       text,

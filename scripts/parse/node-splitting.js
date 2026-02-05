@@ -202,15 +202,25 @@ function cleanText(text) {
  * @returns {Object} { finalText, finalChildren, finalEffects } - Updated node properties
  */
 function splitCombatNode(text, type, effects, children, createNode, generateNodeId, context) {
+  const DEBUG = false // Set to true to enable debug logging
+
   if (type !== 'combat' || !text) {
     return { finalText: text, finalChildren: children, finalEffects: effects }
   }
 
   // Find the COMBAT command in the original text
-  const combatMatch = text.match(/(>>>+)?COMBAT:[^\n]*/i)
+  // Match COMBAT: with optional leading >>>> (2-4 > characters) or >>> (3 > characters)
+  // The pattern [^\n]* matches everything up to but not including the newline
+  const combatMatch = text.match(/(>>>+)?COMBAT:[^\n\r]*/i)
 
   if (!combatMatch) {
+    if (DEBUG) console.log('  [splitCombatNode] No COMBAT command found in text')
     return { finalText: text, finalChildren: children, finalEffects: effects }
+  }
+
+  if (DEBUG) {
+    console.log('  [splitCombatNode] COMBAT command found:', combatMatch[0])
+    console.log('  [splitCombatNode] Combat index:', combatMatch.index)
   }
 
   const combatIndex = combatMatch.index
@@ -219,6 +229,11 @@ function splitCombatNode(text, type, effects, children, createNode, generateNode
   // Extract pre-combat and post-combat text
   const preCombatText = text.substring(0, combatIndex).trim()
   const postCombatText = text.substring(combatIndex + combatCommandLength).trim()
+
+  if (DEBUG) {
+    console.log('  [splitCombatNode] Pre-combat text length:', preCombatText.length)
+    console.log('  [splitCombatNode] Post-combat text length:', postCombatText.length)
+  }
 
   // Extract effects from postcombat text
   const { effects: postCombatEffects, cleanedText: cleanedPostCombatText } = extractEffects(

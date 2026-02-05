@@ -358,6 +358,34 @@ function cleanUpRandomValues(eventTrees) {
 }
 
 // ============================================================================
+// 4. TEXT NORMALIZATION
+// ============================================================================
+
+/**
+ * Normalize keyword format tags in text
+ *
+ * Converts [kw:keyword] format to proper case keyword names.
+ * For example: "[kw:reliable]" -> "Reliable"
+ *
+ * This runs during tree building (in buildTreeFromStory) to normalize
+ * text BEFORE other processing steps.
+ *
+ * @param {string} text - Text containing potential [kw:keyword] tags
+ * @returns {string} Text with normalized keywords
+ */
+function normalizeKeywordTags(text) {
+  if (!text || !text.includes('[kw:')) {
+    return text
+  }
+
+  // Match [kw:keyword] pattern and replace with capitalized keyword
+  return text.replace(/\[kw:([^\]]+)\]/g, (_match, keyword) => {
+    // Capitalize first letter of the keyword
+    return keyword.charAt(0).toUpperCase() + keyword.slice(1)
+  })
+}
+
+// ============================================================================
 // EXPORTS
 // ============================================================================
 
@@ -369,6 +397,7 @@ module.exports = {
   normalizeRandomEffectsInLine,
   normalizeNumericEffectInLine,
   normalizeEffectsArray,
+  normalizeKeywordTags,
 
   // Post-processing passes
   cleanUpRandomValues,
