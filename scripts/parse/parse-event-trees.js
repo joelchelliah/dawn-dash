@@ -688,7 +688,8 @@ function buildTreeFromStory(
   // COMBAT NODE SPLITTING - must happen BEFORE leaf node checks
   // Split combat nodes into combat + postcombat dialogue when postcombat text exists
   // This handles cases like ">>>>COMBAT:Boss\nThe boss falls... You find treasure."
-  if (type === 'combat' && text) {
+  // IMPORTANT: Only split early for TRUE leaf nodes (no choices), otherwise wait for children to be built
+  if (type === 'combat' && text && choices.length === 0) {
     const combatSplitResult = splitCombatNode(
       text,
       type,

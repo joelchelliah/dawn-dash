@@ -84,6 +84,7 @@ function validateEventTreesChanges() {
     const diff = execSync(`git -c color.diff=never diff --no-ext-diff HEAD -- "${relativePath}"`, {
       encoding: 'utf-8',
       cwd: process.cwd(),
+      maxBuffer: 10 * 1024 * 1024, // 10MB buffer (default is 1MB, diffs can be large due to ID renumbering)
     })
 
     if (!diff.trim()) {
