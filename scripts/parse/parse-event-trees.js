@@ -22,8 +22,15 @@ const OUTPUT_FILE = path.join(__dirname, '../../src/codex/data/event-trees.json'
 const EVENT_ALTERATIONS = require('./event-alterations.js')
 const { DEFAULT_NODE_BLACKLIST, OPTIMIZATION_PASS_CONFIG, CONFIG } = require('./configs.js')
 const { applyEventAlterations } = require('./apply-event-alterations.js')
-
-const RANDOM_KEYWORD = '«random»'
+const {
+  splitCombatNode,
+  splitDialogueOnEffects,
+  separateChoicesFromEffects: separateChoicesFromEffectsHelper,
+  cleanUpRandomValues: cleanUpRandomValuesHelper,
+  normalizeAddKeywordRandomChoiceLabels: normalizeAddKeywordRandomChoiceLabelsHelper,
+  extractEffects,
+  RANDOM_KEYWORD,
+} = require('./node-splitting.js')
 
 // Enables detailed logging for a specific event, when provided.
 // const DEBUG_EVENT_NAME = 'Frozen Heart'
@@ -1344,137 +1351,57 @@ function buildTreeFromStory(
     }
   }
 
-  // POST-EFFECT DIALOGUE SEPARATION
-  // Similar to combat/postcombat splitting, we need to handle dialogue sequences where
-  // effects appear in the MIDDLE of the dialogue (not at the beginning).
-  // Example: "dialogue 1\ndialogue 2\n>>>>GOLD:50\ndialogue 3\ndialogue 4"
-  // Should become: node with "dialogue 1\ndialogue 2" + GOLD effect + numContinues=1
-  //                  -> child node with "dialogue 3\ndialogue 4" + numContinues=1
-  // This prevents merging all dialogue together which hides when effects occur.
+  // POST-EFFECT DIALOGUE SEPARATION & POSTCOMBAT/AFTERCOMBAT SEPARATION
+  // Use helper functions from node-splitting.js
+  // These functions split on the ORIGINAL text to find effect markers, but return cleaned text
+
+  // Start with cleaned text as default
   let finalText = cleanedText
   let finalChildren = children
   let finalEffects = effects
-  let finalNumContinues = numContinues
+  let finalNumContinues = Math.max(0, continueCount - 1)
 
-  // First, check if this is a dialogue node (not combat) with effects that appear mid-sequence
+  // Try dialogue splitting first (for mid-dialogue effects)
   if (type === 'dialogue' && text && effects.length > 0 && continueCount > 1) {
-    // Find the FIRST effect command in the original text
-    // Match >>>>COMMAND or >>>COMMAND (but not COMBAT, which is handled separately)
-    const firstEffectMatch = text.match(/>>>>?(?!COMBAT)[A-Za-z0-9_:;'\[\]\(\)  \t\-\/]+/i)
+    const dialogueSplitResult = splitDialogueOnEffects(
+      text,
+      type,
+      effects,
+      continueCount,
+      children,
+      createNode,
+      generateNodeId,
+      { functionDefinitions, functionCalls }
+    )
 
-    if (firstEffectMatch) {
-      const effectIndex = firstEffectMatch.index
-
-      // Check if there's dialogue text BEFORE the effect (not just at the beginning)
-      const textBeforeEffect = text.substring(0, effectIndex).trim()
-      const textAfterEffectCommand = text.substring(effectIndex + firstEffectMatch[0].length).trim()
-
-      // Count newlines before the effect to estimate numContinues for first part
-      const linesBeforeEffect = textBeforeEffect.split('\n').filter((l) => l.trim()).length
-
-      // Only split if there's both dialogue before AND after the effect
-      if (textBeforeEffect && textAfterEffectCommand && linesBeforeEffect > 0) {
-        // Extract the text with effect command for proper effect extraction
-        const textWithEffect = text.substring(0, effectIndex + firstEffectMatch[0].length)
-        const { effects: effectsBeforePost, cleanedText: cleanedTextBeforePost } = extractEffects(
-          textWithEffect,
-          functionDefinitions,
-          functionCalls
-        )
-
-        // Extract post-effect text
-        const { effects: postEffects, cleanedText: cleanedPostEffectText } = extractEffects(
-          textAfterEffectCommand,
-          functionDefinitions,
-          functionCalls
-        )
-
-        // Calculate numContinues for each part
-        const continuesBeforeEffect = Math.max(0, linesBeforeEffect - 1)
-        const linesAfterEffect = cleanedPostEffectText.split('\n').filter((l) => l.trim()).length
-        const continuesAfterEffect = Math.max(0, linesAfterEffect - 1)
-
-        // Create a child node for the post-effect dialogue
-        if (cleanedPostEffectText && cleanedPostEffectText.trim()) {
-          const postEffectNode = createNode({
-            id: generateNodeId(),
-            text: cleanedPostEffectText,
-            type: children.length > 0 ? 'dialogue' : 'end',
-            effects: postEffects.length > 0 ? postEffects : undefined,
-            numContinues: continuesAfterEffect > 0 ? continuesAfterEffect : undefined,
-            children: children.length > 0 ? children : undefined,
-          })
-
-          totalNodesInCurrentEvent++
-
-          // Update final values: current node gets pre-effect text + effects
-          finalText = cleanedTextBeforePost || undefined
-          finalChildren = [postEffectNode]
-          finalEffects = effectsBeforePost
-          finalNumContinues = continuesBeforeEffect > 0 ? continuesBeforeEffect : undefined
-        }
-      }
+    // If dialogue was split, use the result
+    if (dialogueSplitResult.finalChildren !== children) {
+      finalText = dialogueSplitResult.finalText
+      finalChildren = dialogueSplitResult.finalChildren
+      finalEffects = dialogueSplitResult.finalEffects
+      finalNumContinues = dialogueSplitResult.finalNumContinues
+      totalNodesInCurrentEvent++
     }
   }
 
-  // POSTCOMBAT/AFTERCOMBAT SEPARATION
-  // Combat nodes may have postcombat/aftercombat dialogue that should be in a separate child node
-  // The raw text from Ink contains: [precombat text]\n>>>COMBAT:Enemy\n[postcombat text]
-  // We need to:
-  // 1. Keep precombat text in the combat node
-  // 2. Move postcombat text to a new dialogue child node
-  // 3. Move all original children to that dialogue node
-
+  // Try combat splitting (for postcombat dialogue)
   if (type === 'combat' && text) {
-    // Find the COMBAT command in the original text to split pre/post combat text
-    // Match both >>>COMBAT and >>>>COMBAT (or just COMBAT if it appears without prefix)
-    const combatMatch = text.match(/(>>>+)?COMBAT:[^\n]*/i)
+    const combatSplitResult = splitCombatNode(
+      text,
+      type,
+      finalEffects,
+      finalChildren,
+      createNode,
+      generateNodeId,
+      { functionDefinitions, functionCalls }
+    )
 
-    if (combatMatch) {
-      const combatIndex = combatMatch.index
-      const combatCommandLength = combatMatch[0].length
-
-      // Extract pre-combat and post-combat text
-      const preCombatText = text.substring(0, combatIndex).trim()
-      const postCombatText = text.substring(combatIndex + combatCommandLength).trim()
-
-      // Extract effects from postcombat text
-      const { effects: postCombatEffects, cleanedText: cleanedPostCombatText } = extractEffects(
-        postCombatText,
-        functionDefinitions,
-        functionCalls
-      )
-
-      // Clean the pre-combat text
-      const { cleanedText: cleanedPreCombatText } = extractEffects(
-        preCombatText,
-        functionDefinitions,
-        functionCalls
-      )
-
-      // If there's postcombat text, create a dialogue child node
-      if (cleanedPostCombatText && cleanedPostCombatText.trim()) {
-        // Create the postcombat dialogue node
-        const postcombatNode = createNode({
-          id: generateNodeId(),
-          text: cleanedPostCombatText,
-          type: children.length > 0 ? 'dialogue' : 'end',
-          effects: postCombatEffects.length > 0 ? postCombatEffects : undefined,
-          children: children.length > 0 ? children : undefined,
-        })
-
-        totalNodesInCurrentEvent++
-
-        // Update final values: combat node gets pre-combat text, single child is postcombat node
-        finalText = cleanedPreCombatText || undefined
-        finalChildren = [postcombatNode]
-        // Keep only combat-related effects in the combat node
-        // (postcombat effects are now in the postcombat node)
-        finalEffects = effects.filter((e) => e.includes('COMBAT:'))
-      } else {
-        // No postcombat text, just use pre-combat text
-        finalText = cleanedPreCombatText || undefined
-      }
+    // If combat was split (children changed), use the result
+    if (combatSplitResult.finalChildren !== children) {
+      finalText = combatSplitResult.finalText  // Use split result directly, even if undefined
+      finalChildren = combatSplitResult.finalChildren
+      finalEffects = combatSplitResult.finalEffects
+      totalNodesInCurrentEvent++
     }
   }
 
@@ -1529,106 +1456,8 @@ function buildTreeFromStory(
 }
 
 /**
- * Resolve ADDKEYWORD effect value, handling variable references and placeholders
- * Examples:
- *   "a keyword" -> "ADDKEYWORD: random"
- *   "chaos" -> multiple effects
- *   Variable from function (e.g., "Recall") -> "ADDKEYWORD: random [Recall, Figmented, ...]"
- *   Static keyword (e.g., "Defiled") -> "ADDKEYWORD: Defiled"
- */
-function resolveSpecialKeywordEffects(value, functionDefinitions, functionCalls) {
-  // Handle "a keyword" placeholder - game engine picks from all keywords
-  if (value === 'a keyword') {
-    return ['ADDKEYWORD: random']
-  }
-
-  // Handle "chaos" keyword - special case with multiple effects
-  if (value === 'chaos') {
-    return ['ADDKEYWORD: random', 'ADDKEYWORD: random', 'ADDTYPE: Corruption', 'SWAPCOST: blood']
-  }
-
-  // Check if this value comes from a function call
-  // The inkjs runtime has already substituted variables, so we see "Recall" instead of "cardOne"
-  // We check if any function could return this value
-  for (const functionName of functionCalls.values()) {
-    const returnValues = functionDefinitions.get(functionName)
-
-    // If this function can return the value we're seeing, show all possible values
-    if (returnValues && returnValues.length > 0 && returnValues.includes(value)) {
-      return [`ADDKEYWORD: random [${returnValues.join(', ')}]`]
-    }
-  }
-
-  // Default: just a static keyword
-  return [`ADDKEYWORD: ${value}`]
-}
-
-/**
- * Extract effects (game commands) from text (beginning or middle)
- * Returns { effects: [...], cleanedText: "..." }
- */
-function extractEffects(text, functionDefinitions = new Map(), functionCalls = new Map()) {
-  if (!text) return { effects: [], cleanedText: '' }
-
-  const effects = []
-  let cleaned = text
-
-  // Extract entire command sequences: >>>>COMMAND1:value1;COMMAND2:value2;COMMAND3
-  // Pattern matches from >>> until we hit a newline, quote, or end
-  // Includes uppercase, lowercase, numbers, and common punctuation in values
-  // Note: Use [ \t] instead of \s to avoid matching newlines (which would break multi-line command extraction)
-  const commandSequencePattern = />>>>?[A-Za-z0-9_:;'\[\]\(\)  \t\-\/]+(?=\n|"|$)/gi
-
-  cleaned = cleaned.replace(commandSequencePattern, (commandSequence) => {
-    // Now split the sequence by semicolons and process each command
-    const commands = commandSequence.split(';')
-
-    commands.forEach((cmd) => {
-      // Remove >>> prefix if present
-      cmd = cmd.replace(/^>>>+/, '').trim()
-      if (!cmd) return
-
-      // Parse COMMAND or COMMAND:value (case-insensitive)
-      const match = cmd.match(/^([A-Za-z_]+)(?::(.+))?$/i)
-      if (!match) return
-
-      const command = match[1].toUpperCase()
-      const value = match[2] ? match[2].trim() : null
-
-      let newEffects
-      if (value) {
-        switch (command) {
-          case 'COMBAT':
-          case 'DIRECTCOMBAT':
-            newEffects = [`COMBAT: ${value}`]
-            break
-          case 'ADDKEYWORD':
-            newEffects = resolveSpecialKeywordEffects(value, functionDefinitions, functionCalls)
-            break
-          default:
-            newEffects = [`${command}: ${value}`]
-        }
-      } else {
-        newEffects = [command]
-      }
-
-      effects.push(...newEffects)
-    })
-
-    return '' // Remove entire command sequence from text
-  })
-
-  // Remove any leftover semicolons from removed commands
-  cleaned = cleaned.replace(/;+/g, ';').replace(/^;+|;+$/g, '')
-
-  // Clean the remaining text (remove markup, etc.)
-  const cleanedText = cleanText(cleaned)
-
-  return { effects, cleanedText }
-}
-
-/**
  * Extract requirements from choice text and return cleaned text
+ * (kept in main file as it's specific to Ink choice parsing)
  */
 function extractChoiceMetadata(choiceText) {
   const requirements = []
@@ -1654,96 +1483,11 @@ function extractChoiceMetadata(choiceText) {
     cleanedText = cleanedText.replace(reqPattern, '').trim()
   }
 
-  // Clean up the text
+  // Clean up the text (using imported cleanText from node-splitting.js)
+  const { cleanText } = require('./node-splitting.js')
   cleanedText = cleanText(cleanedText)
 
   return { requirements, cleanedText }
-}
-
-/**
- * Clean text by removing Ink/game-specific markup and converting commands to readable format
- */
-function cleanText(text) {
-  if (!text) return ''
-
-  let cleaned = text
-
-  // Convert game commands to human-readable placeholders
-  // Match until semicolon, newline, quote, or another command (>>>)
-  cleaned = cleaned.replace(
-    />>>>?([A-Z_]+):([^;\n>"]+?)(?=>>>|;|\n|"|$)/gi,
-    (_match, command, value) => {
-      // Trim any trailing whitespace from the value
-      value = value.trim()
-      // Parse different command types
-      switch (command.toUpperCase()) {
-        case 'COMBAT':
-        case 'DIRECTCOMBAT':
-          return `[Combat: ${value}]`
-        case 'MERCHANT':
-          return '[Merchant]'
-        case 'GOLD':
-          return `[Gold: ${value}]`
-        case 'HEALTH':
-          return `[Health: ${value}]`
-        case 'RELOADEVENTS':
-          return '[Reload Events]'
-        case 'QUESTFLAG':
-          return `[Quest Flag: ${value}]`
-        case 'NEXTSTATUS':
-          return `[Status: ${value}]`
-        default:
-          // Generic command format
-          return `[${command}: ${value}]`
-      }
-    }
-  )
-
-  // Remove standalone commands (no colon/value)
-  cleaned = cleaned.replace(/>>>>?([A-Z_]+)(?![:\w])/gi, (_match, command) => {
-    switch (command.toUpperCase()) {
-      case 'MERCHANT':
-        return '[Merchant]'
-      case 'RELOADEVENTS':
-        return '' // Remove RELOADEVENTS completely
-      case 'END':
-        return '[End]'
-      default:
-        return `[${command}]`
-    }
-  })
-
-  // Remove color tags (including malformed closing tags like </color=red>)
-  cleaned = cleaned.replace(/<color=[^>]+>/gi, '').replace(/<\/color[^>]*>/gi, '')
-
-  // Remove HTML tags
-  cleaned = cleaned.replace(/<\/?[bi]>/gi, '')
-  cleaned = cleaned.replace(/<\/?b>/gi, '')
-
-  // Remove speaker tags like {#:"speaker"}
-  cleaned = cleaned.replace(/\{#[^}]+\}/g, '')
-
-  // Remove conditional text markers (these are if/else checks for what text to display)
-  // Examples: [?questflag:stormscarredintro], [?talent:stormscarred;!questflag:stormscarredintro], [?!questflag:quit]
-  cleaned = cleaned.replace(/\[\?[^\]]+\]/g, '')
-
-  // Remove [continue] markers (these are part of the conditional text system)
-  cleaned = cleaned.replace(/\[continue\]/gi, '')
-
-  // Remove leftover command brackets (these should have been extracted as effects)
-  // Examples: [DAMAGE: 10], [GOLD: -20], [Health: 50]
-  cleaned = cleaned.replace(/\[(DAMAGE|GOLD|HEALTH|Health|Gold):[^\]]+\];?\s*/gi, '')
-
-  // Remove newline escapes
-  cleaned = cleaned.replace(/\\n/g, ' ')
-
-  // Clean up multiple spaces
-  cleaned = cleaned.replace(/\s+/g, ' ')
-
-  // Remove trailing punctuation artifacts
-  cleaned = cleaned.trim()
-
-  return cleaned
 }
 
 /**
@@ -1811,105 +1555,10 @@ function findInvalidRefsInTree(rootNode, nodeMap) {
 }
 
 /**
- * Post-pass: for nodes whose effects contain "GOLD: random [min - max]" or "DAMAGE: random [min - max]",
- * replace numeric gold/damage in node.text (e.g. "47 gold", "5 damage") with «random» gold/damage.
+ * Wrapper for cleanUpRandomValues from node-splitting.js
  */
 function cleanUpRandomValues(eventTrees) {
-  const goldRandomEffectRe = /^GOLD:\s*random\s*\[\s*(\d+)\s*-\s*(\d+)\s*\]$/i
-  const damageRandomEffectRe = /^DAMAGE:\s*random\s*\[\s*(\d+)\s*-\s*(\d+)\s*\]$/i
-  const goldInTextRe = /\b(\d+)\s*(gold)\b/gi
-  const damageInTextRe = /\b(\d+)\s*(damage)\b/gi
-  let updated = 0
-
-  function visit(node) {
-    if (!node) return
-
-    // Track random effects found in this node for potential child cleanup
-    let goldRange = null
-    let damageRange = null
-
-    if (node.effects && Array.isArray(node.effects) && node.text) {
-      let newText = node.text
-      for (const effect of node.effects) {
-        const goldM = String(effect).match(goldRandomEffectRe)
-        if (goldM) {
-          const min = parseInt(goldM[1], 10)
-          const max = parseInt(goldM[2], 10)
-          goldRange = { min, max }
-          newText = newText.replace(goldInTextRe, (_, numStr, word) => {
-            const n = parseInt(numStr, 10)
-            return n >= min && n <= max ? `${RANDOM_KEYWORD} ${word}` : `${numStr} ${word}`
-          })
-          break
-        }
-      }
-      for (const effect of node.effects) {
-        const damageM = String(effect).match(damageRandomEffectRe)
-        if (damageM) {
-          const min = parseInt(damageM[1], 10)
-          const max = parseInt(damageM[2], 10)
-          damageRange = { min, max }
-          newText = newText.replace(damageInTextRe, (_, numStr, word) => {
-            const n = parseInt(numStr, 10)
-            return n >= min && n <= max ? `${RANDOM_KEYWORD} ${word}` : `${numStr} ${word}`
-          })
-          break
-        }
-      }
-      if (newText !== node.text) {
-        node.text = newText
-        updated++
-      }
-    }
-
-    // Handle split dialogue: if this node has random effects and a single dialogue child,
-    // the child may contain the gold/damage text that was split from this node.
-    // In this case, we clean up the child's text AND migrate the random effect to the child node.
-    if ((goldRange || damageRange) && node.children && node.children.length === 1) {
-      const child = node.children[0]
-      if (child.type === 'dialogue' && child.text) {
-        let childNewText = child.text
-        let childNewEffects = []
-
-        if (goldRange) {
-          childNewText = childNewText.replace(goldInTextRe, (_, numStr, word) => {
-            const n = parseInt(numStr, 10)
-            return n >= goldRange.min && n <= goldRange.max
-              ? `${RANDOM_KEYWORD} ${word}`
-              : `${numStr} ${word}`
-          })
-          childNewEffects = [
-            ...childNewEffects,
-            `GOLD: random [${goldRange.min} - ${goldRange.max}]`,
-          ]
-        }
-
-        if (damageRange) {
-          childNewText = childNewText.replace(damageInTextRe, (_, numStr, word) => {
-            const n = parseInt(numStr, 10)
-            return n >= damageRange.min && n <= damageRange.max
-              ? `${RANDOM_KEYWORD} ${word}`
-              : `${numStr} ${word}`
-          })
-          childNewEffects = [
-            ...childNewEffects,
-            `DAMAGE: random [${damageRange.min} - ${damageRange.max}]`,
-          ]
-        }
-
-        if (childNewText !== child.text) {
-          child.text = childNewText
-          child.effects = [...(child.effects || []), ...childNewEffects]
-          node.effects = node.effects.filter((e) => !childNewEffects.includes(e))
-          updated++
-        }
-      }
-    }
-
-    if (node.children) node.children.forEach(visit)
-  }
-
-  eventTrees.forEach((tree) => tree.rootNode && visit(tree.rootNode))
+  const updated = cleanUpRandomValuesHelper(eventTrees)
   if (updated > 0) {
     console.log(`\n🎲 Cleaned up random gold/damage in text: ${updated} node(s)`)
   }
@@ -2607,131 +2256,17 @@ function filterDefaultNodes(node) {
 }
 
 /**
- * Separate choices from their effects for clearer visualization
- * When a node has both a choiceLabel and effects/children, split it into:
- * 1. A choice node (with choiceLabel and requirements)
- * 2. An outcome node (with effects and/or children)
- * Returns the number of nodes separated
+ * Wrapper for separateChoicesFromEffects from node-splitting.js
  */
 function separateChoicesFromEffects(node) {
-  if (!node) return 0
-
-  let separatedCount = 0
-
-  // Process children first (bottom-up)
-  if (node.children && node.children.length > 0) {
-    // Create new children array to handle modifications
-    const newChildren = []
-
-    for (let i = 0; i < node.children.length; i++) {
-      const child = node.children[i]
-
-      // Recursively process this child's children
-      separatedCount += separateChoicesFromEffects(child)
-
-      // Check if this child needs to be split
-      // Split if: has choiceLabel AND (has effects OR has text OR children OR is an end node)
-      // Should not split special nodes!
-      // This ensures all choices are consistently represented as choice nodes
-      const hasChoiceLabel = child.choiceLabel && child.choiceLabel.trim()
-      const hasEffects = child.effects && child.effects.length > 0
-      const hasSubstantialText = child.text && child.text.trim() && child.text !== '[End]'
-      const isEndNode = child.type === 'end'
-      const isSpecialNode = child.type === 'special'
-      const shouldSplit =
-        hasChoiceLabel &&
-        !isSpecialNode &&
-        (hasEffects ||
-          hasSubstantialText ||
-          (child.children && child.children.length > 0) ||
-          isEndNode)
-
-      if (shouldSplit) {
-        // Create a choice node (parent)
-        const choiceNode = createNode({
-          id: child.id,
-          text: undefined, // Choice nodes don't have text
-          type: 'choice',
-          choiceLabel: child.choiceLabel,
-          requirements: child.requirements,
-        })
-
-        // Create an outcome node (child)
-        // Determine the outcome type:
-        // - The original node was 'combat' -> 'combat'
-        // - The original node has a ref -> keep the original type (it's a ref node)
-        // - The original node had no children -> 'end'
-        // - The original node was 'choice' or 'dialogue' -> 'dialogue'
-        // - Otherwise -> keep the original type, BUT warn!
-        const hasChildren = child.children && child.children.length > 0
-        const hasRef = child.ref !== undefined
-        let outcomeType
-        if (child.type === 'combat') {
-          outcomeType = 'combat'
-        } else if (hasRef) {
-          // Preserve the type for ref nodes (they don't have children, but they're not end nodes)
-          outcomeType = child.type
-        } else if (!hasChildren) {
-          outcomeType = 'end'
-        } else if (child.type === 'choice' || child.type === 'dialogue') {
-          outcomeType = 'dialogue'
-        } else {
-          console.warn('  ⚠️ Unexpected node split! Type: ', child.type, 'Node: ', child)
-          outcomeType = child.type
-        }
-
-        const outcomeNode = createNode({
-          id: generateNodeId(),
-          text: child.text || '',
-          type: outcomeType,
-          effects: child.effects,
-          numContinues: child.numContinues,
-          ref: child.ref, // Preserve ref field!
-          children: child.children,
-        })
-
-        // Link them
-        choiceNode.children = [outcomeNode]
-        newChildren.push(choiceNode)
-        separatedCount++
-      } else {
-        // Keep as is
-        newChildren.push(child)
-      }
-    }
-
-    node.children = newChildren
-  }
-
-  return separatedCount
+  return separateChoicesFromEffectsHelper(node, createNode, generateNodeId)
 }
 
-const ADDKEYWORD_RANDOM_LIST_RE = /ADDKEYWORD:\s*random\s*\[/
-
 /**
- * When a choice node's only child has effect "ADDKEYWORD: random [A, B, C, ...]",
- * set the choice's label to "Add «random»" (the label was one specific keyword from the list).
- * Runs after separateChoicesFromEffects so structure is choice -> outcome node with effects.
+ * Wrapper for normalizeAddKeywordRandomChoiceLabels from node-splitting.js
  */
 function normalizeAddKeywordRandomChoiceLabels(node, stats = { updated: 0 }) {
-  if (!node) return stats
-  if (node.type === 'choice' && node.children?.length === 1) {
-    const child = node.children[0]
-    const effects = child.effects
-    if (
-      Array.isArray(effects) &&
-      effects.some((e) => typeof e === 'string' && ADDKEYWORD_RANDOM_LIST_RE.test(e))
-    ) {
-      node.choiceLabel = 'Add «random»'
-      stats.updated++
-    }
-  }
-  if (node.children) {
-    for (const child of node.children) {
-      normalizeAddKeywordRandomChoiceLabels(child, stats)
-    }
-  }
-  return stats
+  return normalizeAddKeywordRandomChoiceLabelsHelper(node, stats)
 }
 
 /**
