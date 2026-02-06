@@ -14,6 +14,7 @@ import {
  * - Choice labels
  * - Requirements
  * - Effects
+ * - Alias
  */
 export const searchEventTree = (event: Event, searchText: string): boolean => {
   if (!searchText.trim()) return true
@@ -52,6 +53,11 @@ export const searchEventTree = (event: Event, searchText: string): boolean => {
       isEffectsNode(node) &&
       node.effects?.some((eff) => eff.toLowerCase().includes(lowerSearch))
     ) {
+      return true
+    }
+
+    // Search alias
+    if (event.alias?.toLowerCase().includes(lowerSearch)) {
       return true
     }
 

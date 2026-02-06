@@ -106,13 +106,21 @@ $alternating-row-mobile-background: linear-gradient(to right, rgba(0, 0, 0, 0.25
   }
 
   &__artwork {
-    width: 40px;
-    height: 40px;
+    width: 50px;
+    height: 50px;
     border: 1px solid $color-component-border;
     border-radius: 0.25rem;
     background-size: cover;
     background-position: center;
     flex-shrink: 0;
+  }
+
+  &__text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    overflow: hidden;
+    flex: 1;
   }
 
   &__name {
@@ -125,6 +133,15 @@ $alternating-row-mobile-background: linear-gradient(to right, rgba(0, 0, 0, 0.25
     text-overflow: ellipsis;
     white-space: nowrap;
     max-width: 21rem;
+  }
+
+  &__alias {
+    font-size: font-size('xxs');
+    font-weight: 400;
+    color: $color-primary-muted;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   &:hover {

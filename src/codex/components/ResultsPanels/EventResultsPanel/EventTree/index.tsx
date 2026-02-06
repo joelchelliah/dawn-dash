@@ -605,6 +605,12 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
               ⚠️ &nbsp;Not in the game anymore!
             </p>
           )}
+          {event.alias && (
+            <p className={cx('event-header__title__alias')}>
+              🏷 &nbsp;Alias:{' '}
+              <span className={cx('event-header__title__alias__text')}>{event.alias}</span>
+            </p>
+          )}
         </div>
       </div>
 

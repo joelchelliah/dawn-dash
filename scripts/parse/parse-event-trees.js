@@ -1899,6 +1899,45 @@ function replaceCardIdsInNode(node, idToName, stats = { replaced: 0 }) {
 }
 
 /**
+ * Check if a string is in human-readable format (has spaces and not camelCase/PascalCase)
+ */
+function isHumanReadable(str) {
+  if (!str) return false
+
+  // Has spaces - likely human readable
+  if (str.includes(' ')) return true
+
+  // Capital in the middle or end (spaces already handled above) → camel/Pascal
+  if (/[A-Z]/.test(str.slice(1))) return false
+
+  // Otherwise, consider it human readable
+  return true
+}
+
+/**
+ * Determine the display name and alias based on human readability
+ */
+function determineNameAndAlias(name, caption) {
+  if (name === caption) {
+    return { displayName: name, alias: null }
+  }
+
+  const nameReadable = isHumanReadable(name)
+  const captionReadable = isHumanReadable(caption)
+
+  if (nameReadable && captionReadable && caption) {
+    return { displayName: caption, alias: name }
+  }
+  if (!nameReadable && captionReadable && caption) {
+    return { displayName: caption, alias: null }
+  }
+  if (nameReadable && !captionReadable) {
+    return { displayName: name, alias: null }
+  }
+  return { displayName: caption || name, alias: null }
+}
+
+/**
  * Main processing function
  */
 async function processEvents() {
@@ -1918,8 +1957,8 @@ async function processEvents() {
     const event = events[i]
     const { name, type, artwork, text, caption, deprecated } = event
 
-    // Use caption as name if it exists, otherwise use name
-    const displayName = caption || name
+    const { displayName, alias } = determineNameAndAlias(name, caption)
+    const blightbaneLink = `https://www.blightbane.io/event/${name.replaceAll(' ', '_')}`
 
     if (!text) {
       if (displayName === DEBUG_EVENT_NAME) {
@@ -1941,6 +1980,12 @@ async function processEvents() {
         type,
         artwork: artwork || '',
         rootNode,
+        blightbaneLink,
+      }
+
+      // Add alias field if it exists
+      if (alias) {
+        eventTree.alias = alias
       }
 
       // Add deprecated field if present

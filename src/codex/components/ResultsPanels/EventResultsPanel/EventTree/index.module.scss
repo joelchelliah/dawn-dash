@@ -110,6 +110,21 @@
       color: $color-danger-error;
       text-align: left;
     }
+
+    &__alias {
+      margin: 0;
+      font-size: font-size('xxs');
+      font-weight: 500;
+      color: $color-primary-muted;
+      text-align: left;
+
+      &__text {
+        font-size: font-size('xxs');
+        font-weight: 800;
+        color: $color-primary-muted;
+        text-align: left;
+      }
+    }
   }
 
   @media (max-width: $breakpoint-mobile) {

@@ -3,10 +3,12 @@ export type EventNodeType = 'dialogue' | 'choice' | 'combat' | 'special' | 'resu
 
 export interface Event {
   name: string
+  blightbaneLink: string
   type: number
   artwork: string
   rootNode: EventTreeNode
   deprecated?: boolean
+  alias?: string
 }
 
 export type EventTreeNode =
