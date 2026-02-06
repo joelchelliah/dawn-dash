@@ -54,10 +54,7 @@ function detectAndOptimizeDialogueMenuHubs(eventTrees, DEBUG_EVENT_NAME = '') {
 
   console.log('\n🔍 Detecting dialogue menu hub patterns')
 
-  const MIN_CHOICES =
-    OPTIMIZATION_PASS_CONFIG.POST_PROCESSING_HUB_PATTERN_OPTIMIZATION_MIN_CHOICES || 3
-  const MIN_TEXT_LENGTH =
-    OPTIMIZATION_PASS_CONFIG.POST_PROCESSING_HUB_PATTERN_OPTIMIZATION_MIN_TEXT_LENGTH || 20
+  const MIN_CHOICES = OPTIMIZATION_PASS_CONFIG.POST_PROCESSING_HUB_PATTERN_OPTIMIZATION_MIN_CHOICES
   const WHITELIST =
     OPTIMIZATION_PASS_CONFIG.POST_PROCESSING_HUB_PATTERN_OPTIMIZATION_WHITELIST || []
 
@@ -88,12 +85,7 @@ function detectAndOptimizeDialogueMenuHubs(eventTrees, DEBUG_EVENT_NAME = '') {
       if (node.ref !== undefined) continue
 
       // Check if this node qualifies for consideration
-      if (
-        node.type === 'dialogue' &&
-        node.text &&
-        node.text.length >= MIN_TEXT_LENGTH &&
-        node.ref === undefined
-      ) {
+      if (node.type === 'dialogue' && node.text && node.ref === undefined) {
         const choiceSet = getChoiceLabels(node)
 
         // Add nodes with MIN_CHOICES or more as potential hubs
@@ -191,6 +183,49 @@ function detectAndOptimizeDialogueMenuHubs(eventTrees, DEBUG_EVENT_NAME = '') {
           refsCreatedForEvent++
         })
       })
+
+      // Phase 3: Resolve transitive refs (refs pointing to nodes that are now refs themselves)
+      // This fixes cases where node A → B → C, ensuring A points directly to C
+      const resolveTransitiveRefs = (node, visited = new Set()) => {
+        if (!node || visited.has(node.id)) return
+        visited.add(node.id)
+
+        if (node.ref !== undefined) {
+          // Find the target node to check if it's also a ref
+          const findNodeById = (id) => {
+            const queue = [tree.rootNode]
+            while (queue.length > 0) {
+              const current = queue.shift()
+              if (!current) continue
+              if (current.id === id) return current
+              if (current.children) queue.push(...current.children)
+            }
+            return null
+          }
+
+          const targetNode = findNodeById(node.ref)
+          if (targetNode && targetNode.ref !== undefined) {
+            // Target is also a ref, follow the chain to the final target
+            let finalTarget = targetNode
+            const chainVisited = new Set()
+            while (finalTarget.ref !== undefined && !chainVisited.has(finalTarget.id)) {
+              chainVisited.add(finalTarget.id)
+              const nextTarget = findNodeById(finalTarget.ref)
+              if (!nextTarget) break
+              finalTarget = nextTarget
+            }
+            // Update this node to point directly to the final target
+            node.ref = finalTarget.id
+          }
+        }
+
+        // Recursively process children
+        if (node.children) {
+          node.children.forEach((child) => resolveTransitiveRefs(child, visited))
+        }
+      }
+
+      resolveTransitiveRefs(tree.rootNode)
 
       totalRefsCreated += refsCreatedForEvent
 

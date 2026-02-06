@@ -35,34 +35,9 @@ const DIALOGUE_MENU_EVENTS = {
     hubChoiceMatchThreshold: 30, // choices: 1/3
     passWhenOnlyExitPatternsAvailable: true,
   },
-  "Heroes' Rest Cemetery Start": {
-    menuHubPattern: 'The old wooden wheels creak',
-    menuExitPatterns: ['I have no more questions'],
-    hubChoiceMatchThreshold: 60, // choices: 2/3
-  },
-  'Historic Shard': {
-    menuHubPattern: 'You stare into the mirror',
-    menuExitPatterns: ["Skip: We don't have time"],
-    hubChoiceMatchThreshold: 60, // choices: 2/3
-  },
-  'Isle of Talos': {
-    menuHubPattern: 'Bolgar straightens his muddied',
-    menuExitPatterns: ['I have no more questions'],
-    hubChoiceMatchThreshold: 60, // choices: 2/3
-  },
   'Mysterious Crates': {
     menuHubPattern: 'You open the crates with a hefty blow of your weapon.',
     menuExitPatterns: ['Open the other crates', 'Leave'],
-    hubChoiceMatchThreshold: 60, // choices: 2/3
-  },
-  'Statue of Ilthar II Death': {
-    menuHubPattern: 'As a [[relation]]? Because you are',
-    menuExitPatterns: ["Skip: I've heard it all before"],
-    hubChoiceMatchThreshold: 60, // choices: 2/3
-  },
-  'Sunfall Meadows Start': {
-    menuHubPattern: 'You find yourself journeying along',
-    menuExitPatterns: ['What about my pay?'],
     hubChoiceMatchThreshold: 60, // choices: 2/3
   },
   'Rathael the Slain Death': {
@@ -71,16 +46,6 @@ const DIALOGUE_MENU_EVENTS = {
     // This is not really necessary for Rathael, but just including it for completeness
     // Slows down the tree building process a lot though...
     // hubChoiceMatchThreshold: 85, // choices: 7/8
-  },
-  'Rotting Residence': {
-    menuHubPattern: 'You can distinguish several rooms',
-    menuExitPatterns: ['Leave'],
-    hubChoiceMatchThreshold: 80, // choices: 4/5
-  },
-  'Survey the Field': {
-    menuHubPattern: 'You take a moment to',
-    menuExitPatterns: ['Continue'],
-    hubChoiceMatchThreshold: 60, // choices: 2/3
   },
   'Suspended Cage': {
     menuHubPattern: 'Quickly pry open the lock',
@@ -198,9 +163,6 @@ const OPTIMIZATION_PASS_CONFIG = {
   // Minimum number of choice children for hub candidates
   POST_PROCESSING_HUB_PATTERN_OPTIMIZATION_MIN_CHOICES: 3,
 
-  // Minimum text length for hub candidates (avoids false positives from generic short phrases)
-  POST_PROCESSING_HUB_PATTERN_OPTIMIZATION_MIN_TEXT_LENGTH: 20,
-
   // Events to apply hub pattern optimization (Phase 2: ref creation)
   // Other events will still be detected and logged for discovery, but won't have refs created
   POST_PROCESSING_HUB_PATTERN_OPTIMIZATION_WHITELIST: [
@@ -211,8 +173,18 @@ const OPTIMIZATION_PASS_CONFIG = {
     'Battleseer Hildune Death',
     'Brightcandle Consul',
     'Dawnbringer Ystel',
+    "Heroes' Rest Cemetery Start",
+    'Historic Shard',
+    'Isle of Talos',
     'Kaius Tagdahar Death',
+    'Rotting Residence',
+    'Survey the Field',
+    'Statue of Ilthar II Death',
+    'Sunfall Meadows Start',
   ],
+
+  // TODO: BLACKLIST:
+  // Mysterious Crates - Has a set of 2 choices that are identical to hub, but completely different!
 
   // Structural subtree deduplication (breadth-first):
   // - Replaces structurally identical subtrees with refs, preferring shallow originals.
@@ -224,8 +196,8 @@ const OPTIMIZATION_PASS_CONFIG = {
   // Depth 1 = immediate children only, 2 = children + grandchildren, 3 = + great-grandchildren, etc.
   // Higher values catch more structural differences but have minimal performance impact.
   DEDUPLICATE_SUBTREES_SIGNATURE_DEPTH: 3,
-  // Skip subtree deduplication for these events (e.g. Historic Shard: same-choice nodes differ by path).
-  DEDUPLICATE_SUBTREES_EVENT_BLACKLIST: ['Historic Shard'],
+  // TODO: This can probably be removed now?
+  DEDUPLICATE_SUBTREES_EVENT_BLACKLIST: [],
 
   // Rewrite refs so non-choice nodes never target a choice wrapper node.
   // E.g. a dialogue node's ref shouldn't point to a choice wrapper node, but rather the outcome node.
