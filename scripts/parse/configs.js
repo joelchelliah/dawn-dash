@@ -33,11 +33,6 @@ const DIALOGUE_MENU_EVENTS = {
     menuExitPatterns: ['Make a note of the painting and leave'],
     hubChoiceMatchThreshold: 60, // choices: 2/3
   },
-  'Brightcandle Consul': {
-    menuHubPattern: 'The Consul looks up and seems to think',
-    menuExitPatterns: ["Ask about the 'plan'"],
-    hubChoiceMatchThreshold: 50, // choices: 1/2
-  },
   'Dawnbringer Ystel': {
     menuHubPattern: "Ystel's figure exudes a sense",
     menuExitPatterns: ['Leave'],
@@ -64,11 +59,6 @@ const DIALOGUE_MENU_EVENTS = {
     menuHubPattern: 'Bolgar straightens his muddied',
     menuExitPatterns: ['I have no more questions'],
     hubChoiceMatchThreshold: 60, // choices: 2/3
-  },
-  'Kaius Tagdahar Death': {
-    menuHubPattern: 'A quick strike ends the young',
-    menuExitPatterns: ["Let's go"], // 2 exit nodes with this same pattern
-    hubChoiceMatchThreshold: 50, // choices: 1/2
   },
   'Mysterious Crates': {
     menuHubPattern: 'You open the crates with a hefty blow of your weapon.',
@@ -182,6 +172,18 @@ const OPTIMIZATION_PASS_CONFIG = {
   PATH_CONVERGENCE_DEDUP_MIN_CHOICES: 3, // Only apply to nodes with at least this many choices
 
   // === POST-PROCESSING PIPELINE ===
+  // Execution order (optimized for semantic-first, then structural optimization):
+  // 1. FILTER_DEFAULT_NODES
+  // 2. SEPARATE_CHOICES_FROM_EFFECTS
+  // 3. PROMOTE_SHALLOW_DIALOGUE_MENU_HUB (depends on #2)
+  // 4. POST_PROCESSING_HUB_PATTERN_OPTIMIZATION (semantic hub detection runs before structural dedup)
+  // 5. DEDUPLICATE_SUBTREES (structural dedup after semantic passes)
+  // 6. NORMALIZE_REFS_POINTING_TO_CHOICE_NODES
+  // 7. NORMALIZE_REFS_POINTING_TO_COMBAT_NODES
+  // 8. CONVERT_SIBLING_AND_COUSIN_REFS_TO_REF_CHILDREN
+  // 9. APPLY_EVENT_ALTERATIONS
+  // 10. CHECK_INVALID_REFS
+  // 11. CLEAN_UP_RANDOM_VALUES
   //
   // Remove nodes with `choiceLabel === 'default'` or `text === 'default'`
   // See DEFAULT_NODE_BLACKLIST for events that should be filtered.
@@ -191,13 +193,39 @@ const OPTIMIZATION_PASS_CONFIG = {
   // This also normalizes rendering and helps later passes reason about refs (e.g. deduplication).
   SEPARATE_CHOICES_FROM_EFFECTS_ENABLED: true,
 
-  // Apply manual fixes from `scripts/parse/event-alterations.js`.
-  // For manually adding or modifying nodes that were too difficult to parse automatically.
-  APPLY_EVENT_ALTERATIONS_ENABLED: true,
+  // For threshold-based dialogue menu events, promote the shallowest hub copy to be canonical.
+  // This fixes the timing issue where separateChoicesFromEffects() creates outcome nodes,
+  // making the shallowest hub copy available. Runs right after SEPARATE_CHOICES_FROM_EFFECTS.
+  // (see `promoteShallowDialogueMenuHub()` for details).
+  PROMOTE_SHALLOW_DIALOGUE_MENU_HUB_ENABLED: true,
+
+  // Automatically detect dialogue menu hub patterns and create refs in post-processing.
+  // Uses independent BFS-based detection (doesn't rely on inline hub detection config).
+  // Runs BEFORE structural deduplication to prioritize semantic hub optimization.
+  // See: scripts/optimizationIdeas/auto-detect-dialogue-menu-hubs.md
+  POST_PROCESSING_HUB_PATTERN_OPTIMIZATION_ENABLED: true,
+
+  // Minimum number of choice children for hub candidates
+  POST_PROCESSING_HUB_PATTERN_OPTIMIZATION_MIN_CHOICES: 3,
+
+  // Minimum text length for hub candidates (avoids false positives from generic short phrases)
+  POST_PROCESSING_HUB_PATTERN_OPTIMIZATION_MIN_TEXT_LENGTH: 20,
+
+  // Events to apply hub pattern optimization (Phase 2: ref creation)
+  // Other events will still be detected and logged for discovery, but won't have refs created
+  POST_PROCESSING_HUB_PATTERN_OPTIMIZATION_WHITELIST: [
+    'A Familiar Face',
+    'Abandoned Backpack',
+    'Axe in the Stone',
+    'Battleseer Hildune Death',
+    'Brightcandle Consul',
+    'Kaius Tagdahar Death',
+  ],
 
   // Structural subtree deduplication (breadth-first):
   // - Replaces structurally identical subtrees with refs, preferring shallow originals.
-  // - Runs several passes to ensure that we catch all false positives.
+  // - Runs AFTER hub optimization passes to let semantic detection handle dialogue patterns first.
+  // - Multiple iterations catch cascading duplicates that appear after first-pass deduplication.
   DEDUPLICATE_SUBTREES_NUM_ITERATIONS: 2,
   DEDUPLICATE_SUBTREES_MIN_SUBTREE_SIZE: 3, // Only dedupe if subtree has at least this many nodes
   // How many levels deep to include in the signature for deduplication comparison.
@@ -205,15 +233,15 @@ const OPTIMIZATION_PASS_CONFIG = {
   // Higher values catch more structural differences but have minimal performance impact.
   DEDUPLICATE_SUBTREES_SIGNATURE_DEPTH: 3,
   // Skip subtree deduplication for these events (e.g. Historic Shard: same-choice nodes differ by path).
-  DEDUPLICATE_SUBTREES_EVENT_BLACKLIST: ['Historic Shard'],
+  DEDUPLICATE_SUBTREES_EVENT_BLACKLIST: ['Kaius Tagdahar Death', 'Historic Shard'],
 
   // Rewrite refs so non-choice nodes never target a choice wrapper node.
   // E.g. a dialogue node's ref shouldn't point to a choice wrapper node, but rather the outcome node.
   NORMALIZE_REFS_POINTING_TO_CHOICE_NODES_ENABLED: true,
 
-  // For threshold-based dialogue menu events, promote the shallowest hub copy to be canonical
-  // (see `promoteShallowDialogueMenuHub()` for details).
-  PROMOTE_SHALLOW_DIALOGUE_MENU_HUB_ENABLED: true,
+  // Apply manual fixes from `scripts/parse/event-alterations.js`.
+  // For manually adding or modifying nodes that were too difficult to parse automatically.
+  APPLY_EVENT_ALTERATIONS_ENABLED: true,
 
   // Convert certain refs (sibling/simple cousin) into `refChildren` for nicer visualization.
   CONVERT_SIBLING_AND_COUSIN_REFS_TO_REF_CHILDREN_ENABLED: true,
@@ -238,25 +266,6 @@ const OPTIMIZATION_PASS_CONFIG = {
 
   // Replace numeric gold in node text with «random» when effects say "GOLD: random [min - max]".
   CLEAN_UP_RANDOM_VALUES_ENABLED: true,
-
-  // Automatically detect dialogue menu hub patterns and create refs in post-processing
-  // See: scripts/optimizationIdeas/auto-detect-dialogue-menu-hubs.md
-  POST_PROCESSING_HUB_PATTERN_OPTIMIZATION_ENABLED: true,
-
-  // Minimum number of choice children for hub candidates
-  POST_PROCESSING_HUB_PATTERN_OPTIMIZATION_MIN_CHOICES: 3,
-
-  // Minimum text length for hub candidates (avoids false positives from generic short phrases)
-  POST_PROCESSING_HUB_PATTERN_OPTIMIZATION_MIN_TEXT_LENGTH: 20,
-
-  // Events to apply hub pattern optimization (Phase 2: ref creation)
-  // Other events will still be detected and logged for discovery, but won't have refs created
-  POST_PROCESSING_HUB_PATTERN_OPTIMIZATION_WHITELIST: [
-    'A Familiar Face',
-    'Axe in the Stone',
-    'Battleseer Hildune Death',
-    'Brightcandle Consul',
-  ],
 }
 
 const CONFIG = {

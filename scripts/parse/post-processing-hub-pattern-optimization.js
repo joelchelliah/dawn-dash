@@ -77,15 +77,23 @@ function detectAndOptimizeDialogueMenuHubs(eventTrees, DEBUG_EVENT_NAME = '') {
     const confirmedHubs = new Map() // nodeId -> { node, choiceSet, matchingNodes, depth }
 
     const queue = [{ node: tree.rootNode, depth: 0 }]
-    const visited = new Set()
+    let nodesProcessed = 0
 
     while (queue.length > 0) {
+      nodesProcessed++
       const { node, depth } = queue.shift()
-      if (!node || visited.has(node.id)) continue
-      visited.add(node.id)
+
+      if (!node) continue
+      // Skip nodes that already have refs (they're already optimized)
+      if (node.ref !== undefined) continue
 
       // Check if this node qualifies for consideration
-      if (node.type === 'dialogue' && node.text && node.text.length >= MIN_TEXT_LENGTH && !node.ref) {
+      if (
+        node.type === 'dialogue' &&
+        node.text &&
+        node.text.length >= MIN_TEXT_LENGTH &&
+        node.ref === undefined
+      ) {
         const choiceSet = getChoiceLabels(node)
 
         // Add nodes with MIN_CHOICES or more as potential hubs
