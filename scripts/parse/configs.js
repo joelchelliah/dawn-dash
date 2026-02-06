@@ -28,16 +28,6 @@
 //     before returning to the hub, so we need to build that path fully first.
 //   * Note: This mode builds deeper trees, so may require higher node budgets.
 const DIALOGUE_MENU_EVENTS = {
-  'A Strange Painting': {
-    menuHubPattern: 'Amongst the paintings near the',
-    menuExitPatterns: ['Make a note of the painting and leave'],
-    hubChoiceMatchThreshold: 60, // choices: 2/3
-  },
-  'Dawnbringer Ystel': {
-    menuHubPattern: "Ystel's figure exudes a sense",
-    menuExitPatterns: ['Leave'],
-    hubChoiceMatchThreshold: 100, // choices: 3/3
-  },
   'Frozen Heart': {
     menuHubPattern: 'A rhythmic pulse fills the cave',
     menuExitPatterns: ['Take the left tunnel', 'Take the right tunnel'],
@@ -215,10 +205,12 @@ const OPTIMIZATION_PASS_CONFIG = {
   // Other events will still be detected and logged for discovery, but won't have refs created
   POST_PROCESSING_HUB_PATTERN_OPTIMIZATION_WHITELIST: [
     'A Familiar Face',
+    'A Strange Painting',
     'Abandoned Backpack',
     'Axe in the Stone',
     'Battleseer Hildune Death',
     'Brightcandle Consul',
+    'Dawnbringer Ystel',
     'Kaius Tagdahar Death',
   ],
 
@@ -233,7 +225,7 @@ const OPTIMIZATION_PASS_CONFIG = {
   // Higher values catch more structural differences but have minimal performance impact.
   DEDUPLICATE_SUBTREES_SIGNATURE_DEPTH: 3,
   // Skip subtree deduplication for these events (e.g. Historic Shard: same-choice nodes differ by path).
-  DEDUPLICATE_SUBTREES_EVENT_BLACKLIST: ['Kaius Tagdahar Death', 'Historic Shard'],
+  DEDUPLICATE_SUBTREES_EVENT_BLACKLIST: ['Historic Shard'],
 
   // Rewrite refs so non-choice nodes never target a choice wrapper node.
   // E.g. a dialogue node's ref shouldn't point to a choice wrapper node, but rather the outcome node.

@@ -196,7 +196,10 @@ function validateEventTreesChanges() {
     }
 
     if (affectedEvents.size > 0) {
-      ;[...affectedEvents].sort().forEach((name) => console.log(name))
+      console.log(`❌ ${affectedEvents.size} Events failig validation:`)
+      ;[...affectedEvents].sort().forEach((name) => console.log(`  - ${name}`))
+    } else {
+      console.log('✅ No events failing validation')
     }
   } catch (error) {
     if (error.message.includes('not a git repository') || error.message.includes('No such file')) {
