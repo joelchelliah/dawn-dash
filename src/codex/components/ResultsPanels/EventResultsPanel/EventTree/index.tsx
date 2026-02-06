@@ -598,7 +598,14 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
           className={cx('event-header__artwork')}
           onError={onImageSrcError}
         />
-        <h3 className={cx('event-header__name')}>{event.name}</h3>
+        <div className={cx('event-header__title')}>
+          <h3 className={cx('event-header__title__name')}>{event.name}</h3>
+          {event.deprecated && (
+            <p className={cx('event-header__title__deprecated')}>
+              ⚠️ &nbsp;Not in the game anymore!
+            </p>
+          )}
+        </div>
       </div>
 
       <div

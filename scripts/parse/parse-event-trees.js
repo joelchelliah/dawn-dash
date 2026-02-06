@@ -1916,7 +1916,7 @@ async function processEvents() {
 
   for (let i = 0; i < events.length; i++) {
     const event = events[i]
-    const { name, type, artwork, text, caption } = event
+    const { name, type, artwork, text, caption, deprecated } = event
 
     // Use caption as name if it exists, otherwise use name
     const displayName = caption || name
@@ -1936,12 +1936,19 @@ async function processEvents() {
     const rootNode = parseInkStory(text, displayName)
 
     if (rootNode) {
-      eventTrees.push({
+      const eventTree = {
         name: displayName,
         type,
         artwork: artwork || '',
         rootNode,
-      })
+      }
+
+      // Add deprecated field if present
+      if (deprecated) {
+        eventTree.deprecated = deprecated
+      }
+
+      eventTrees.push(eventTree)
       successCount++
       if (displayName === DEBUG_EVENT_NAME) {
         console.log(`    ✓ Success (${countNodes(rootNode)} nodes)`)

@@ -6,6 +6,7 @@ export interface Event {
   type: number
   artwork: string
   rootNode: EventTreeNode
+  deprecated?: boolean
 }
 
 export type EventTreeNode =
