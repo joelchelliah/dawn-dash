@@ -15,6 +15,8 @@ const OUTPUT_FILE = path.join(__dirname, './data/events.json')
 // All event-related types
 const EVENT_TYPES = [0, 1, 2, 3, 4, 5, 8, 10, 99]
 
+const DEPRECATED_EVENTS = ['Mirror Shard', 'Robed Figure']
+
 async function extractEvents() {
   console.log('Fetching card and talent data from Blightbane API...')
   const idToName = await buildIdToNameMapping()
@@ -133,6 +135,12 @@ async function extractEvents() {
         return name ? `${command}:${name}` : `${command}:${missingName(numId)}`
       }
     )
+
+    // Mark as deprecated if caption matches the blacklist
+    const caption = selectedEvent.caption || selectedEvent.name || ''
+    if (DEPRECATED_EVENTS.includes(caption)) {
+      selectedEvent.deprecated = true
+    }
 
     uniqueEvents.push(selectedEvent)
   }

@@ -57,7 +57,6 @@ function generateNodeId() {
   return nodeIdCounter++
 }
 
-
 /**
  * Detect knot definitions in Ink JSON.
  * Knots are named sections of story that can be called dynamically by game commands.
@@ -1788,8 +1787,12 @@ function promoteShallowDialogueMenuHub(eventTrees) {
       .sort((a, b) => metaById.get(a.id).depth - metaById.get(b.id).depth)[0]
     if (!hubWithChildren) return
 
+    // Find shallow nodes with refs (to ANY node, including choice wrappers from inline detection)
+    // The inline hub detection may have created refs to a choice wrapper (e.g., node 2 in Frozen Heart),
+    // and after separateChoicesFromEffects, the actual hub text ended up deeper (e.g., node 16522).
+    // We want to find ANY hub text node that has a ref, regardless of what it points to.
     const shallowRefToHub = hubTextNodes
-      .filter((n) => n.ref !== undefined && n.ref === hubWithChildren.id)
+      .filter((n) => n.ref !== undefined)
       .sort((a, b) => metaById.get(a.id).depth - metaById.get(b.id).depth)[0]
     if (!shallowRefToHub) return
 
@@ -1808,9 +1811,27 @@ function promoteShallowDialogueMenuHub(eventTrees) {
     hubWithChildren.ref = newHubId
     delete hubWithChildren.children
 
-    // Rewrite: anything that referenced old hub should now reference new hub
+    // Collect all ref targets from hub text nodes (to handle refs to choice wrappers like node 2)
+    const allRefTargets = new Set()
+    allRefTargets.add(oldHubId) // Include the old hub-with-children
+    hubTextNodes.forEach((n) => {
+      if (n.ref !== undefined) {
+        allRefTargets.add(n.ref) // Include any nodes that hub text nodes reference
+      }
+    })
+
+    // Rewrite: anything that referenced the old hub or any ref target should now reference the new (shallowest) hub
+    // This includes refs to the old hub-with-children AND refs to choice wrappers (from inline detection)
     nodesById.forEach((node) => {
-      if (node.ref !== undefined && node.ref === oldHubId) {
+      if (node.ref !== undefined && allRefTargets.has(node.ref)) {
+        node.ref = newHubId
+      }
+    })
+
+    // Also update any hub text nodes that had refs - they should all point to the new hub now
+    hubTextNodes.forEach((node) => {
+      if (node.id !== newHubId && node.ref !== undefined) {
+        // This hub text node has a ref - update it to point to the new hub
         node.ref = newHubId
       }
     })
@@ -1878,6 +1899,45 @@ function replaceCardIdsInNode(node, idToName, stats = { replaced: 0 }) {
 }
 
 /**
+ * Check if a string is in human-readable format (has spaces and not camelCase/PascalCase)
+ */
+function isHumanReadable(str) {
+  if (!str) return false
+
+  // Has spaces - likely human readable
+  if (str.includes(' ')) return true
+
+  // Capital in the middle or end (spaces already handled above) → camel/Pascal
+  if (/[A-Z]/.test(str.slice(1))) return false
+
+  // Otherwise, consider it human readable
+  return true
+}
+
+/**
+ * Determine the display name and alias based on human readability
+ */
+function determineNameAndAlias(name, caption) {
+  if (name === caption) {
+    return { displayName: name, alias: null }
+  }
+
+  const nameReadable = isHumanReadable(name)
+  const captionReadable = isHumanReadable(caption)
+
+  if (nameReadable && captionReadable && caption) {
+    return { displayName: caption, alias: name }
+  }
+  if (!nameReadable && captionReadable && caption) {
+    return { displayName: caption, alias: null }
+  }
+  if (nameReadable && !captionReadable) {
+    return { displayName: name, alias: null }
+  }
+  return { displayName: caption || name, alias: null }
+}
+
+/**
  * Main processing function
  */
 async function processEvents() {
@@ -1895,10 +1955,10 @@ async function processEvents() {
 
   for (let i = 0; i < events.length; i++) {
     const event = events[i]
-    const { name, type, artwork, text, caption } = event
+    const { name, type, artwork, text, caption, deprecated } = event
 
-    // Use caption as name if it exists, otherwise use name
-    const displayName = caption || name
+    const { displayName, alias } = determineNameAndAlias(name, caption)
+    const blightbaneLink = `https://www.blightbane.io/event/${name.replaceAll(' ', '_')}`
 
     if (!text) {
       if (displayName === DEBUG_EVENT_NAME) {
@@ -1915,12 +1975,25 @@ async function processEvents() {
     const rootNode = parseInkStory(text, displayName)
 
     if (rootNode) {
-      eventTrees.push({
+      const eventTree = {
         name: displayName,
         type,
         artwork: artwork || '',
         rootNode,
-      })
+        blightbaneLink,
+      }
+
+      // Add alias field if it exists
+      if (alias) {
+        eventTree.alias = alias
+      }
+
+      // Add deprecated field if present
+      if (deprecated) {
+        eventTree.deprecated = deprecated
+      }
+
+      eventTrees.push(eventTree)
       successCount++
       if (displayName === DEBUG_EVENT_NAME) {
         console.log(`    ✓ Success (${countNodes(rootNode)} nodes)`)
@@ -1992,6 +2065,29 @@ async function processEvents() {
   })
   console.log(`  Updated ${addKeywordRandomLabelsUpdated} choice label(s) to "Add «random»"`)
 
+  // Promote shallow dialogue-menu hubs (for inline-detected threshold-mode hubs)
+  // This fixes the timing issue where separateChoicesFromEffects() creates outcome nodes,
+  // making the shallowest hub copy available as a standalone node. We promote it to be
+  // canonical and rewrite all refs to point to it (instead of the deeper hub that "won"
+  // during tree building).
+  if (OPTIMIZATION_PASS_CONFIG.PROMOTE_SHALLOW_DIALOGUE_MENU_HUB_ENABLED) {
+    console.log('\n🧭 Promoting shallow dialogue-menu hubs...')
+    promoteShallowDialogueMenuHub(eventTrees)
+    debugCheckEventPipelineState(eventTrees, 'after promoteShallowDialogueMenuHub')
+  }
+
+  // Auto-detect and optimize dialogue menu hub patterns (independent BFS-based detection)
+  // This detects hub patterns from scratch (not relying on inline detection) and creates
+  // refs to the shallowest canonical hub. Runs BEFORE deduplication so semantic hub
+  // detection gets priority over structural subtree deduplication.
+  if (OPTIMIZATION_PASS_CONFIG.POST_PROCESSING_HUB_PATTERN_OPTIMIZATION_ENABLED) {
+    const {
+      detectAndOptimizeDialogueMenuHubs,
+    } = require('./post-processing-hub-pattern-optimization.js')
+    detectAndOptimizeDialogueMenuHubs(eventTrees, DEBUG_EVENT_NAME)
+    debugCheckEventPipelineState(eventTrees, 'after detectAndOptimizeDialogueMenuHubs')
+  }
+
   // Fetch card/talent id->name mapping (used by Cardgame pass and by replaceCardIdsInNode later)
   console.log('\n🃏 Fetching card/talent data for ID replacement...')
   const idToName = await buildIdToNameMapping()
@@ -1999,7 +2095,10 @@ async function processEvents() {
   // Calculate stats before deduplication
   const nodesBeforeDedupe = eventTrees.reduce((sum, tree) => sum + countNodes(tree.rootNode), 0)
 
-  // Deduplicate subtrees
+  // Deduplicate structurally identical subtrees (runs AFTER hub optimization passes)
+  // This performs breadth-first structural deduplication, replacing identical subtrees with refs.
+  // By running after semantic hub detection, we ensure that dialogue menu patterns are handled
+  // semantically first, then structural dedup cleans up any remaining non-hub duplicates.
   const dedupeIterations = Math.max(0, OPTIMIZATION_PASS_CONFIG.DEDUPLICATE_SUBTREES_NUM_ITERATIONS)
   if (dedupeIterations > 0) {
     console.log(
@@ -2024,7 +2123,9 @@ async function processEvents() {
     debugCheckEventPipelineState(eventTrees, 'after deduplicateAllTrees')
   }
 
-  // Normalize refs away from choice wrapper nodes (after dedupe, before refChildren conversion)
+  // Normalize refs away from choice wrapper nodes
+  // This ensures that non-choice nodes (like dialogue) don't ref choice wrapper nodes,
+  // but instead ref the outcome node (created by separateChoicesFromEffects).
   if (OPTIMIZATION_PASS_CONFIG.NORMALIZE_REFS_POINTING_TO_CHOICE_NODES_ENABLED) {
     console.log('\n🎯 Normalizing refs to skip choice wrappers...')
     const { totalRewrites, eventsWithRewrites } = normalizeRefsPointingToChoiceNodes(eventTrees)
@@ -2051,21 +2152,6 @@ async function processEvents() {
     })
   }
   debugCheckEventPipelineState(eventTrees, 'after normalizeRefsPointingToCombatNodes')
-
-  if (OPTIMIZATION_PASS_CONFIG.PROMOTE_SHALLOW_DIALOGUE_MENU_HUB_ENABLED) {
-    console.log('\n🧭 Promoting shallow dialogue-menu hubs...')
-    promoteShallowDialogueMenuHub(eventTrees)
-    debugCheckEventPipelineState(eventTrees, 'after promoteShallowDialogueMenuHub')
-  }
-
-  // Detect and optimize dialogue menu hub patterns (Phase 1 + 2)
-  if (OPTIMIZATION_PASS_CONFIG.POST_PROCESSING_HUB_PATTERN_OPTIMIZATION_ENABLED) {
-    const {
-      detectAndOptimizeDialogueMenuHubs,
-    } = require('./post-processing-hub-pattern-optimization.js')
-    detectAndOptimizeDialogueMenuHubs(eventTrees, DEBUG_EVENT_NAME)
-    debugCheckEventPipelineState(eventTrees, 'after detectAndOptimizeDialogueMenuHubs')
-  }
 
   if (OPTIMIZATION_PASS_CONFIG.CONVERT_SIBLING_AND_COUSIN_REFS_TO_REF_CHILDREN_ENABLED) {
     console.log('\n🔗 Converting sibling and SIMPLE cousin refs to refChildren...')

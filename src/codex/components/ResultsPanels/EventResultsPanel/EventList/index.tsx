@@ -131,18 +131,15 @@ function EventListItem({ event, allEvents, onEventSelect }: EventListItemProps):
       <Image
         src={eventImageSrc}
         alt={event.name}
-        width={40}
-        height={40}
+        width={50}
+        height={50}
         className={cx('event-list-item__artwork')}
         onError={onImageSrcError}
       />
-      <span
-        className={cx('event-list-item__name', {
-          'event-list-item__name--long': event.name.length > 20,
-        })}
-      >
-        {event.name}
-      </span>
+      <div className={cx('event-list-item__text')}>
+        <span className={cx('event-list-item__name')}>{event.name}</span>
+        {event.alias && <span className={cx('event-list-item__alias')}>({event.alias})</span>}
+      </div>
     </div>
   )
 }
