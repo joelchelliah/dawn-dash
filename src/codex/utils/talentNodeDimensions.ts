@@ -69,7 +69,7 @@ const _getNodeHeight = (
 ): number => {
   // Requirement nodes have fixed height based on their radius
   if (isRequirementNode(node)) {
-    return REQUIREMENT_NODE.RADIUS * 2
+    return REQUIREMENT_NODE.RADIUS_DEFAULT * 2
   }
 
   // Talent nodes have dynamic height based on content
@@ -126,7 +126,7 @@ export const getNodeHalfWidth = (node: HierarchicalTalentTreeNode) => {
     case TalentTreeNodeType.TALENT:
       return NODE.WIDTH / 2
     default:
-      return REQUIREMENT_NODE.RADIUS
+      return REQUIREMENT_NODE.RADIUS_DEFAULT
   }
 }
 

@@ -67,17 +67,11 @@ export const NODE = {
 } as const
 
 export const REQUIREMENT_NODE = {
-  /** Base radius for requirement node circles */
-  RADIUS: 28,
-
-  /** Circle radius divisors for different energy counts */
-  RADIUS_DIVISOR: {
-    /** Single energy: radius / 2 */
-    SINGLE: 2,
-    /** Two energies: radius / 1.75 */
-    DOUBLE: 1.75,
-    /** Three energies: radius - 2 */
-    TRIPLE_OFFSET: 2,
+  RADIUS_DEFAULT: 28,
+  RADIUS_BY_REQUIREMENT_COUNT: {
+    1: 14,
+    2: 16,
+    3: 26,
   },
 
   /** Icon sizes for different requirement types */
@@ -91,11 +85,8 @@ export const REQUIREMENT_NODE = {
   /** Spacing between multiple icons */
   ICON_SPACING: 2,
 
-  /** Label rendering constants */
-  LABEL: {
-    /** Line height for multi-line labels */
-    LINE_HEIGHT: 24,
-  },
+  LABEL_LINE_HEIGHT: 14,
+  LABEL_BOTTOM_MARGIN: 4,
 } as const
 
 export const TEXT = {

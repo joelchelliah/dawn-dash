@@ -114,7 +114,6 @@ export default function TalentTree({
     cacheAllNodeDimensions(filteredTree, renderingContext)
 
     // - - - - - Node dimensions - - - - -
-    const requirementNodeRadius = REQUIREMENT_NODE.RADIUS
     const nodeWidth = NODE.WIDTH
     const nameHeight = NODE.HEIGHT.NAME
     const minDescriptionHeight = NODE.HEIGHT.MIN_DESCRIPTION
@@ -198,13 +197,12 @@ export default function TalentTree({
 
         let circleRadius = 0
         if (showBiggerIcons) {
-          circleRadius = requirementNodeRadius
-        } else if (count === 1) {
-          circleRadius = requirementNodeRadius / REQUIREMENT_NODE.RADIUS_DIVISOR.SINGLE
-        } else if (count === 2) {
-          circleRadius = requirementNodeRadius / REQUIREMENT_NODE.RADIUS_DIVISOR.DOUBLE
-        } else if (count === 3) {
-          circleRadius = requirementNodeRadius - REQUIREMENT_NODE.RADIUS_DIVISOR.TRIPLE_OFFSET
+          circleRadius = REQUIREMENT_NODE.RADIUS_DEFAULT
+        } else if (count > 0) {
+          circleRadius =
+            REQUIREMENT_NODE.RADIUS_BY_REQUIREMENT_COUNT[
+              count as keyof typeof REQUIREMENT_NODE.RADIUS_BY_REQUIREMENT_COUNT
+            ] ?? 0
         }
 
         nodeElement
@@ -213,10 +211,9 @@ export default function TalentTree({
           .attr('class', cx('tree-root-node-circle'))
           .style('--color', color)
 
-        // Split label on comma for multi-line rendering
         const labelParts = label.split(',').map((part) => part.trim())
-        const lineHeight = REQUIREMENT_NODE.LABEL.LINE_HEIGHT
-        const totalHeight = labelParts.length * lineHeight
+        const lineHeight = REQUIREMENT_NODE.LABEL_LINE_HEIGHT
+        const totalHeight = labelParts.length * lineHeight + REQUIREMENT_NODE.LABEL_BOTTOM_MARGIN
         const startY = -circleRadius - totalHeight + lineHeight / 2
 
         const textElement = nodeElement
@@ -227,7 +224,6 @@ export default function TalentTree({
           .attr('class', cx('tree-root-node-label', `tree-root-node-label--depth-${maxDepth}`))
           .style('fill', lighten(color, 5))
 
-        // Add each line as a tspan
         labelParts.forEach((part, index) => {
           textElement
             .append('tspan')

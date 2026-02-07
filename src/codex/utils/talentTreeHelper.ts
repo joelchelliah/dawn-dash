@@ -391,7 +391,7 @@ export const calculateTalentTreeBounds = (
       height = getNodeHeight(node.data, renderingContext)
     } else {
       // Requirement nodes are circular with fixed dimensions
-      const radius = REQUIREMENT_NODE.RADIUS
+      const radius = REQUIREMENT_NODE.RADIUS_DEFAULT
       width = radius * 2
       height = radius * 2
     }
