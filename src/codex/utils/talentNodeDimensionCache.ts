@@ -31,14 +31,9 @@ interface RenderingContext {
 }
 
 /**
- * Cached dimensions for a single node.
+ * Cache only stores height since width is always static (NODE.WIDTH or REQUIREMENT_NODE.RADIUS * 2)
  */
-interface NodeDimensions {
-  width: number
-  height: number
-}
-
-const dimensionCache = new Map<string, NodeDimensions>()
+const heightCache = new Map<string, number>()
 
 const createCacheKey = (
   talentName: string,
@@ -53,25 +48,23 @@ export const getCachedDimensions = (
   showDescription: boolean,
   showKeywordsSection: boolean,
   showBlightbaneLink: boolean
-): NodeDimensions | undefined =>
-  dimensionCache.get(
+): { height: number } | undefined => {
+  const height = heightCache.get(
     createCacheKey(talentName, showDescription, showKeywordsSection, showBlightbaneLink)
   )
+  return height !== undefined ? { height } : undefined
+}
 
-export const setCachedDimensions = (
+export const setCachedHeight = (
   talentName: string,
-  width: number,
   height: number,
   showDescription: boolean,
   showKeywordsSection: boolean,
   showBlightbaneLink: boolean
 ): void => {
-  dimensionCache.set(
+  heightCache.set(
     createCacheKey(talentName, showDescription, showKeywordsSection, showBlightbaneLink),
-    {
-      width,
-      height,
-    }
+    height
   )
 }
 
@@ -81,23 +74,19 @@ export const hasCachedDimensions = (
   showKeywordsSection: boolean,
   showBlightbaneLink: boolean
 ): boolean =>
-  dimensionCache.has(
+  heightCache.has(
     createCacheKey(talentName, showDescription, showKeywordsSection, showBlightbaneLink)
   )
 
 /**
- * Pre-populates the cache with dimensions for all nodes in a talent tree.
- * Only calculates dimensions if they don't already exist for the given settings.
+ * Pre-populates the cache with heights for all nodes in a talent tree.
+ * Only calculates heights if they don't already exist for the given settings.
+ * Width is not cached since it's always static.
  */
 export const buildDimensionCache = (
   rootNode: HierarchicalTalentTreeNode,
   context: RenderingContext,
-  calculateWidth: (node: HierarchicalTalentTreeNode, context: RenderingContext) => number,
-  calculateHeight: (
-    node: HierarchicalTalentTreeNode,
-    width: number,
-    context: RenderingContext
-  ) => number
+  calculateHeight: (node: HierarchicalTalentTreeNode, context: RenderingContext) => number
 ): void => {
   const cacheNodeRecursive = (node: HierarchicalTalentTreeNode) => {
     const showDescription = context.isDescriptionExpanded(node.name)
@@ -114,19 +103,17 @@ export const buildDimensionCache = (
         context.shouldShowBlightbaneLink
       )
     ) {
-      // Still need to recurse to cache children, even if the dimensions are already cached for this node
+      // Still need to recurse to cache children, even if the height is already cached for this node
       if (node.children) {
         node.children.forEach(cacheNodeRecursive)
       }
       return
     }
 
-    const width = calculateWidth(node, context)
-    const height = calculateHeight(node, width, context)
+    const height = calculateHeight(node, context)
 
-    setCachedDimensions(
+    setCachedHeight(
       node.name,
-      width,
       height,
       showDescription,
       showKeywordsSection,
@@ -143,5 +130,5 @@ export const buildDimensionCache = (
 }
 
 export const clearAllCache = (): void => {
-  dimensionCache.clear()
+  heightCache.clear()
 }

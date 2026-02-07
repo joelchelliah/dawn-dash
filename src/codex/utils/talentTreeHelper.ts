@@ -1,3 +1,5 @@
+import { HierarchyPointNode } from 'd3-hierarchy'
+
 import {
   ArcanistImageUrl,
   CoinsOfPassingImageUrl,
@@ -33,6 +35,9 @@ import {
   TalentTreeNodeType,
   TalentTreeTalentNode,
 } from '../types/talents'
+import { NODE, REQUIREMENT_NODE } from '../constants/talentTreeValues'
+
+import { getNodeHeight, type TalentRenderingContext } from './talentNodeDimensions'
 
 const ICON_KEYWORDS_TO_URL = [
   { keyword: 'HEALTH', icon: HealthImageUrl },
@@ -342,4 +347,70 @@ const doesNodeMatchKeywords = (
       node.name.toLowerCase().includes(keyword.toLowerCase()) ||
       node.description.toLowerCase().includes(keyword.toLowerCase())
   )
+}
+
+/**
+ * Tree bounds information for sizing and positioning the SVG
+ */
+export interface TalentTreeBounds {
+  minX: number
+  maxX: number
+  minY: number
+  maxY: number
+  width: number
+  height: number
+}
+
+/**
+ * Calculate bounding box for the entire tree based on positioned nodes.
+ * Uses actual node dimensions for accurate bounds calculation.
+ * Skips the virtual root node (depth 0) since it's not rendered.
+ */
+export const calculateTalentTreeBounds = (
+  root: HierarchyPointNode<HierarchicalTalentTreeNode>,
+  renderingContext: TalentRenderingContext
+): TalentTreeBounds => {
+  let minX = Infinity // Top edge (vertical layout rotated)
+  let maxX = -Infinity // Bottom edge (vertical layout rotated)
+  let minY = Infinity // Left edge
+  let maxY = -Infinity // Right edge
+
+  // Only consider visible nodes (depth > 0), skip virtual root
+  root.descendants().forEach((node) => {
+    if (node.depth === 0) return // Skip virtual root node
+
+    const x = node.x ?? 0
+    const y = node.y ?? 0
+
+    // Get node dimensions based on type
+    let width: number
+    let height: number
+
+    if (node.data.type === TalentTreeNodeType.TALENT) {
+      // Talent nodes have static width and dynamic height
+      width = NODE.WIDTH
+      height = getNodeHeight(node.data, renderingContext)
+    } else {
+      // Requirement nodes are circular with fixed dimensions
+      const radius = REQUIREMENT_NODE.RADIUS
+      width = radius * 2
+      height = radius * 2
+    }
+
+    // Track edges for both X and Y
+    // In the talent tree, x represents vertical position, y represents horizontal position
+    if (x - height / 2 < minX) minX = x - height / 2
+    if (x + height / 2 > maxX) maxX = x + height / 2
+    if (y - width / 2 < minY) minY = y - width / 2
+    if (y + width / 2 > maxY) maxY = y + width / 2
+  })
+
+  return {
+    minX,
+    maxX,
+    minY,
+    maxY,
+    width: maxY - minY,
+    height: maxX - minX,
+  }
 }

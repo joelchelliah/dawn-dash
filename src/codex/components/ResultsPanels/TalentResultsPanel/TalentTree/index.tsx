@@ -2,7 +2,6 @@ import { useEffect, useRef } from 'react'
 
 import { select } from 'd3-selection'
 import { hierarchy, tree, type HierarchyPointLink } from 'd3-hierarchy'
-import { min, max } from 'd3-array'
 
 import { createCx } from '@/shared/utils/classnames'
 import { lighten } from '@/shared/utils/classColors'
@@ -15,6 +14,7 @@ import {
   HierarchicalTalentTreeNode,
 } from '@/codex/types/talents'
 import {
+  calculateTalentTreeBounds,
   getLinkColor,
   getMatchingKeywordsText,
   getNodeInTree,
@@ -123,34 +123,32 @@ const TalentTree = ({
     const requirementsHeight = NODE.HEIGHT.REQUIREMENTS
     const keywordsHeight = NODE.HEIGHT.KEYWORDS
     const blightbaneLinkHeight = NODE.HEIGHT.BLIGHTBANE_LINK
-    const defaultVerticalSpacing = TREE.DEFAULT_VERTICAL_SPACING
-    const horizontalSpacing = nodeWidth * NODE.SPACING.HORIZONTAL_MULTIPLIER
     // - - - - - - - - - - - - - - - - - -
 
     const getDynamicVerticalSpacing = (node: HierarchicalTalentTreeNode) => {
       if (node.type === TalentTreeNodeType.TALENT) {
         // Use cached height calculation for accurate dimensions
-        const nodeHeight = getNodeHeight(node, nodeWidth, renderingContext)
+        const nodeHeight = getNodeHeight(node, renderingContext)
         const isCollapsed = !isDescriptionExpanded(node.name)
 
         // Calculate vertical spacing based on node height
         // Collapsed nodes need more spacing relative to their height
         if (isCollapsed) {
-          return nodeHeight * NODE.SPACING.VERTICAL_COLLAPSED_MULTIPLIER
+          return nodeHeight * NODE.SPACING.VERTICAL_MULTIPLIER_WITHOUT_DESCRIPTION
         }
 
         // Expanded nodes need less spacing relative to their height
-        return nodeHeight * NODE.SPACING.VERTICAL_EXPANDED_MULTIPLIER
+        return nodeHeight * NODE.SPACING.VERTICAL_MULTIPLIER_WITH_DESCRIPTION
       }
-      return defaultVerticalSpacing
+      return NODE.SPACING.VERTICAL
     }
 
     const treeLayout = tree<HierarchicalTalentTreeNode>()
-      .nodeSize([defaultVerticalSpacing, horizontalSpacing])
+      .nodeSize([NODE.SPACING.VERTICAL, NODE.SPACING.HORIZONTAL])
       .separation((a, b) => {
         const aVertical = getDynamicVerticalSpacing(a.data)
         const bVertical = getDynamicVerticalSpacing(b.data)
-        const minSeparation = (aVertical + bVertical) / (2 * defaultVerticalSpacing)
+        const minSeparation = (aVertical + bVertical) / (2 * NODE.SPACING.VERTICAL)
 
         return a.parent === b.parent
           ? minSeparation
@@ -165,31 +163,27 @@ const TalentTree = ({
       node.y = node.y - offset
     })
 
+    const bounds = calculateTalentTreeBounds(treeData, renderingContext)
+
     const allNodes = treeData.descendants()
-    const minX = min(allNodes, (d) => d.x) ?? 0
-    const maxX = max(allNodes, (d) => d.x) ?? 0
-    const maxDepth = max(allNodes, (d) => d.depth) ?? 0
+    const maxDepth = Math.max(...allNodes.map((d) => d.depth))
 
-    const topPadding = TREE.VERTICAL_PADDING.TOP
-    const bottomPadding = TREE.VERTICAL_PADDING.BOTTOM
-    const minFactorForEverythingToFitInContainer = TREE.MIN_FIT_FACTOR
-    const svgHeight =
-      minFactorForEverythingToFitInContainer * maxX - minX + topPadding + bottomPadding
-
-    // Calculate width based on max depth
-    const baseWidth = TREE.BASE_WIDTH
-    const svgWidth = Math.max(TREE.MIN_WIDTH, (maxDepth / TREE.BASE_DEPTH) * baseWidth)
-    const svgVerticalPadding = TREE.SVG_VERTICAL_PADDING
+    const svgWidth = bounds.width + TREE.PADDING.LEFT + TREE.PADDING.RIGHT
+    const svgHeight = bounds.height + TREE.PADDING.VERTICAL * 2
 
     const mainSvg = select(svgRef.current)
-      .attr('viewBox', `0 -${svgVerticalPadding} ${svgWidth} ${svgHeight}`)
+      .attr('viewBox', `0 0 ${svgWidth} ${svgHeight}`)
       .attr('width', svgWidth)
       .attr('height', svgHeight)
+      .attr('preserveAspectRatio', 'xMinYMid meet')
 
     const defs = mainSvg.append('defs')
     const svg = mainSvg
       .append('g')
-      .attr('transform', `translate(${TREE.HORIZONTAL_PADDING}, ${-minX + topPadding})`)
+      .attr(
+        'transform',
+        `translate(${TREE.PADDING.LEFT - bounds.minY}, ${TREE.PADDING.VERTICAL - bounds.minX})`
+      )
 
     const getNodeHalfWidth = (node: HierarchicalTalentTreeNode) => {
       switch (node.type) {

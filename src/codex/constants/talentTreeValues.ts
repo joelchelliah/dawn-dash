@@ -6,9 +6,11 @@
 // Node Dimensions
 // ============================================================================
 
+const NODE_WIDTH = 200
+
 export const NODE = {
   /** Standard width for talent node rectangles */
-  WIDTH: 200,
+  WIDTH: NODE_WIDTH,
 
   /** Height components for different sections of talent nodes */
   HEIGHT: {
@@ -26,14 +28,14 @@ export const NODE = {
     BLIGHTBANE_LINK: 26,
   },
 
-  /** Spacing multipliers for node separation */
   SPACING: {
-    /** Default horizontal spacing: nodeWidth * 1.3625 */
-    HORIZONTAL_MULTIPLIER: 1.3625,
-    /** Vertical spacing for expanded descriptions */
-    VERTICAL_EXPANDED_MULTIPLIER: 1.7,
-    /** Vertical spacing for collapsed descriptions */
-    VERTICAL_COLLAPSED_MULTIPLIER: 2.8,
+    HORIZONTAL: NODE_WIDTH + 100,
+    VERTICAL: 100,
+
+    /** Vertical spacing for nodes with descriptions */
+    VERTICAL_MULTIPLIER_WITH_DESCRIPTION: 1.2,
+    /** Vertical spacing for nodes without descriptions */
+    VERTICAL_MULTIPLIER_WITHOUT_DESCRIPTION: 1.4,
   },
 
   /** Padding and offsets for various node elements */
@@ -114,32 +116,11 @@ export const TEXT = {
 } as const
 
 export const TREE = {
-  /** Default vertical spacing between nodes */
-  DEFAULT_VERTICAL_SPACING: 100,
-
-  /** Horizontal padding on edges of tree */
-  HORIZONTAL_PADDING: 50,
-
-  /** Vertical padding on top and bottom of tree */
-  VERTICAL_PADDING: {
-    TOP: 40,
-    BOTTOM: 1500,
+  PADDING: {
+    LEFT: 50, // Prevents `No Requirements` node label from being cut off
+    RIGHT: 10,
+    VERTICAL: 40,
   },
-
-  /** SVG viewBox vertical padding */
-  SVG_VERTICAL_PADDING: 40,
-
-  /** Minimum factor to ensure everything fits in container */
-  MIN_FIT_FACTOR: 0.955,
-
-  /** Base width for tree (at depth 4) */
-  BASE_WIDTH: 1050,
-
-  /** Minimum tree width */
-  MIN_WIDTH: 400,
-
-  /** Depth divisor for width scaling */
-  BASE_DEPTH: 4,
 
   /** Separation multiplier for nodes with different parents */
   DIFFERENT_PARENT_SEPARATION_MULTIPLIER: 1.375,
