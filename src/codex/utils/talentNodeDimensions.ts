@@ -121,9 +121,15 @@ const _getNodeHeight = (
 // Main Dimension Calculation Functions
 // ============================================================================
 
-/**
- * Get node height based on content and rendering context
- */
+export const getNodeHalfWidth = (node: HierarchicalTalentTreeNode) => {
+  switch (node.type) {
+    case TalentTreeNodeType.TALENT:
+      return NODE.WIDTH / 2
+    default:
+      return REQUIREMENT_NODE.RADIUS
+  }
+}
+
 export const getNodeHeight = (
   node: HierarchicalTalentTreeNode,
   context: TalentRenderingContext

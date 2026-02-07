@@ -13,13 +13,6 @@
   min-height: 500px;
 }
 
-.tree-link {
-  fill: none;
-  stroke: $color-primary-base;
-  stroke-width: 2px;
-  opacity: 0.75;
-}
-
 .tree-root-node-circle {
   fill: $color-component-bg;
   stroke: var(--color, $color-component-bg-hover);

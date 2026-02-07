@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 
-import { select } from 'd3-selection'
-import { hierarchy, tree, type HierarchyPointLink } from 'd3-hierarchy'
+import { select, Selection } from 'd3-selection'
+import { hierarchy, tree } from 'd3-hierarchy'
 
 import { createCx } from '@/shared/utils/classnames'
 import { lighten } from '@/shared/utils/classColors'
@@ -15,7 +15,6 @@ import {
 } from '@/codex/types/talents'
 import {
   calculateTalentTreeBounds,
-  getLinkColor,
   getMatchingKeywordsText,
   getNodeInTree,
   getTalentRequirementIconProps,
@@ -26,6 +25,7 @@ import {
 } from '@/codex/utils/talentTreeHelper'
 import {
   cacheAllNodeDimensions,
+  getNodeHalfWidth,
   getNodeHeight,
   type TalentRenderingContext,
 } from '@/codex/utils/talentNodeDimensions'
@@ -38,7 +38,6 @@ import {
   REQUIREMENT_NODE,
   TEXT,
   TREE,
-  LINK,
   REQUIREMENT_INDICATOR,
   EXPANSION_BUTTON,
   SEPARATOR,
@@ -47,6 +46,7 @@ import { buildHierarchicalTreeFromTalentTree } from '@/codex/utils/talentTreeBui
 import { useExpandableNodes } from '@/codex/hooks/useExpandableNodes'
 import { useAllTalentSearchFilters } from '@/codex/hooks/useSearchFilters'
 
+import { drawLinks } from './links'
 import styles from './index.module.scss'
 
 const cx = createCx(styles)
@@ -58,12 +58,12 @@ interface TalentTreeProps {
   useChildrenExpansion: ReturnType<typeof useExpandableNodes>
 }
 
-const TalentTree = ({
+export default function TalentTree({
   talentTree,
   useSearchFilters,
   useDescriptionExpansion,
   useChildrenExpansion,
-}: TalentTreeProps) => {
+}: TalentTreeProps) {
   const svgRef = useRef<SVGSVGElement>(null)
   const { parsedKeywords, useFormattingFilters } = useSearchFilters
   const { shouldUseMobileFriendlyRendering, shouldShowKeywords, shouldShowBlightbaneLink } =
@@ -125,43 +125,22 @@ const TalentTree = ({
     const blightbaneLinkHeight = NODE.HEIGHT.BLIGHTBANE_LINK
     // - - - - - - - - - - - - - - - - - -
 
-    const getDynamicVerticalSpacing = (node: HierarchicalTalentTreeNode) => {
-      if (node.type === TalentTreeNodeType.TALENT) {
-        // Use cached height calculation for accurate dimensions
-        const nodeHeight = getNodeHeight(node, renderingContext)
-        const isCollapsed = !isDescriptionExpanded(node.name)
-
-        // Calculate vertical spacing based on node height
-        // Collapsed nodes need more spacing relative to their height
-        if (isCollapsed) {
-          return nodeHeight * NODE.SPACING.VERTICAL_MULTIPLIER_WITHOUT_DESCRIPTION
-        }
-
-        // Expanded nodes need less spacing relative to their height
-        return nodeHeight * NODE.SPACING.VERTICAL_MULTIPLIER_WITH_DESCRIPTION
-      }
-      return NODE.SPACING.VERTICAL
-    }
-
     const treeLayout = tree<HierarchicalTalentTreeNode>()
-      .nodeSize([NODE.SPACING.VERTICAL, NODE.SPACING.HORIZONTAL])
+      .nodeSize([NODE.SPACING.VERTICAL_BASE, NODE.SPACING.HORIZONTAL])
       .separation((a, b) => {
-        const aVertical = getDynamicVerticalSpacing(a.data)
-        const bVertical = getDynamicVerticalSpacing(b.data)
-        const minSeparation = (aVertical + bVertical) / (2 * NODE.SPACING.VERTICAL)
+        const aHeight = getNodeHeight(a.data, renderingContext)
+        const bHeight = getNodeHeight(b.data, renderingContext)
 
+        // Half of each node's height + fixed gap between them
+        const totalSpacing = aHeight / 2 + NODE.SPACING.VERTICAL_GAP + bHeight / 2
+        const multiplier = totalSpacing / NODE.SPACING.VERTICAL_BASE
+
+        // Add extra spacing for different parent branches
         return a.parent === b.parent
-          ? minSeparation
-          : minSeparation * TREE.DIFFERENT_PARENT_SEPARATION_MULTIPLIER
+          ? multiplier
+          : multiplier * NODE.SPACING.VERTICAL_GAP_MULTIPLIER_DIFFERENT_PARENTS
       })
     const treeData = treeLayout(treeNode)
-
-    const leftPadding = nodeWidth * NODE.PADDING.LEFT_MULTIPLIER
-    const offset = (treeNode.children?.[0]?.y ?? 0) - leftPadding
-
-    treeData.each((node) => {
-      node.y = node.y - offset
-    })
 
     const bounds = calculateTalentTreeBounds(treeData, renderingContext)
 
@@ -185,43 +164,7 @@ const TalentTree = ({
         `translate(${TREE.PADDING.LEFT - bounds.minY}, ${TREE.PADDING.VERTICAL - bounds.minX})`
       )
 
-    const getNodeHalfWidth = (node: HierarchicalTalentTreeNode) => {
-      switch (node.type) {
-        case TalentTreeNodeType.TALENT:
-          return nodeWidth / 2
-        default:
-          return requirementNodeRadius
-      }
-    }
-
-    const generateLinkPath = (d: HierarchyPointLink<HierarchicalTalentTreeNode>) => {
-      const isRootNode = d.source.depth <= 1
-      const xOffset = LINK.X_OFFSET
-      const sourceHalfWidth = getNodeHalfWidth(d.source.data)
-      const targetHalfWidth = getNodeHalfWidth(d.target.data)
-
-      const sourceX = isRootNode ? d.source.y + 2 * xOffset : d.source.y + sourceHalfWidth - xOffset
-      const sourceY = d.source.x
-      const targetX = d.target.y - targetHalfWidth
-      const targetY = d.target.x
-
-      // Smooth horizontal curve
-      const midX = (sourceX + targetX) / 2
-      return `M${sourceX},${sourceY}C${midX},${sourceY} ${midX},${targetY} ${targetX},${targetY}`
-    }
-
-    // Links between parent and child nodes
-    svg
-      .selectAll('.link')
-      .data(treeData.links().filter((link) => link.source.depth > 0)) // Skip links from virtual root
-      .enter()
-      .append('path')
-      .attr('class', cx('tree-link'))
-      .attr('d', generateLinkPath)
-      .style('stroke', (link) => {
-        const { name, type } = link.source.data
-        return getLinkColor(link, name, type)
-      })
+    drawLinks({ svg, treeData })
 
     // Add nodes
     const nodes = svg
@@ -231,17 +174,7 @@ const TalentTree = ({
       .append('g')
       .attr('transform', ({ y, x }) => `translate(${y ?? 0},${x ?? 0})`)
 
-    // Add filter for talent node glow effect
-    defs
-      .append('filter')
-      .attr('id', 'talent-glow')
-      .append('feGaussianBlur')
-      .attr('stdDeviation', NODE.GLOW.BLUR_STD_DEVIATION)
-      .attr('result', 'coloredBlur')
-
-    defs.select('#talent-glow').append('feMerge').append('feMergeNode').attr('in', 'coloredBlur')
-
-    defs.select('#talent-glow').append('feMerge').append('feMergeNode').attr('in', 'SourceGraphic')
+    createGlowFilter(defs, 'talent-glow')
 
     nodes.each(function ({ data }, _index) {
       if (!data.type) {
@@ -369,8 +302,8 @@ const TalentTree = ({
         const additionalHeight = descriptionHeight + extraRequirementHeight + blightbaneHeight
         const dynamicNodeHeight = nameHeight + additionalHeight + 6
 
-        const nodeGlowWidth = nodeWidth + NODE.GLOW.EXTRA_WIDTH
-        const nodeGlowHeight = dynamicNodeHeight + NODE.GLOW.EXTRA_HEIGHT
+        const nodeGlowWidth = nodeWidth + NODE.GLOW_SIZE
+        const nodeGlowHeight = dynamicNodeHeight + NODE.GLOW_SIZE
 
         nodeElement
           .append('rect')
@@ -379,6 +312,7 @@ const TalentTree = ({
           .attr('x', -nodeGlowWidth / 2)
           .attr('y', -nodeGlowHeight / 2)
           .attr('class', cx('talent-node-glow', `talent-node-glow--tier-${data.tier || 0}`))
+          .attr('filter', 'url(#talent-glow)')
 
         nodeElement
           .append('rect')
@@ -802,4 +736,16 @@ const TalentTree = ({
   )
 }
 
-export default TalentTree
+const createGlowFilter = (
+  defs: Selection<SVGDefsElement, unknown, null, undefined>,
+  filterId: string
+): void => {
+  const blurAmount = '4'
+  const filter = defs.append('filter').attr('id', filterId)
+
+  filter.append('feGaussianBlur').attr('stdDeviation', blurAmount).attr('result', 'coloredBlur')
+
+  const merge = filter.append('feMerge')
+  merge.append('feMergeNode').attr('in', 'coloredBlur')
+  merge.append('feMergeNode').attr('in', 'SourceGraphic')
+}

@@ -8,6 +8,14 @@
 
 const NODE_WIDTH = 200
 
+export const TREE = {
+  PADDING: {
+    LEFT: 50, // Prevents `No Requirements` node label from being cut off
+    RIGHT: 10,
+    VERTICAL: 40,
+  },
+} as const
+
 export const NODE = {
   /** Standard width for talent node rectangles */
   WIDTH: NODE_WIDTH,
@@ -30,30 +38,21 @@ export const NODE = {
 
   SPACING: {
     HORIZONTAL: NODE_WIDTH + 100,
-    VERTICAL: 100,
-
-    /** Vertical spacing for nodes with descriptions */
-    VERTICAL_MULTIPLIER_WITH_DESCRIPTION: 1.2,
-    /** Vertical spacing for nodes without descriptions */
-    VERTICAL_MULTIPLIER_WITHOUT_DESCRIPTION: 1.4,
+    /** Base vertical spacing for D3 layout calculation */
+    VERTICAL_BASE: 100,
+    /** Fixed gap between nodes (edge to edge) */
+    VERTICAL_GAP: 30,
+    /** Multiplier for spacing between nodes from different parent branches */
+    VERTICAL_GAP_MULTIPLIER_DIFFERENT_PARENTS: 1.25,
   },
+
+  // Additional size of the glow rectangle
+  GLOW_SIZE: 6,
 
   /** Padding and offsets for various node elements */
   PADDING: {
     /** Extra padding for description lines to create spacing */
     DESCRIPTION_LINES: 12,
-    /** Offset for left side of tree */
-    LEFT_MULTIPLIER: 0.25,
-  },
-
-  /** Glow effect dimensions */
-  GLOW: {
-    /** Additional width for glow effect around node */
-    EXTRA_WIDTH: 6,
-    /** Additional height for glow effect around node */
-    EXTRA_HEIGHT: 6,
-    /** Standard deviation for Gaussian blur filter */
-    BLUR_STD_DEVIATION: 8,
   },
 
   /** Name-specific constants */
@@ -113,22 +112,6 @@ export const TEXT = {
     /** Description lines base offset */
     DESCRIPTION: -1,
   },
-} as const
-
-export const TREE = {
-  PADDING: {
-    LEFT: 50, // Prevents `No Requirements` node label from being cut off
-    RIGHT: 10,
-    VERTICAL: 40,
-  },
-
-  /** Separation multiplier for nodes with different parents */
-  DIFFERENT_PARENT_SEPARATION_MULTIPLIER: 1.375,
-} as const
-
-export const LINK = {
-  /** X offset for link positioning */
-  X_OFFSET: 2,
 } as const
 
 export const REQUIREMENT_INDICATOR = {

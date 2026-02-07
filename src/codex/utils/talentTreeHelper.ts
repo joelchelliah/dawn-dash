@@ -153,7 +153,6 @@ export const getTalentRequirementIconProps = (
   }
 }
 
-// Determines the color for a tree link between two nodes
 export const getLinkColor = (
   link: d3.HierarchyPointLink<HierarchicalTalentTreeNode>,
   name: string,
