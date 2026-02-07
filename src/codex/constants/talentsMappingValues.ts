@@ -48,4 +48,4 @@ export const ACTUALLY_EVENT_ONLY_TALENTS = [
 //   ],
 // }
 
-export const REMOVED_TALENTS = ['Prodigy', 'Lucky', "Alcars' Rage"]
+export const REMOVED_TALENTS = ['Prodigy', 'Lucky', "Alcars' Rage", 'Sworn to Vengeance']

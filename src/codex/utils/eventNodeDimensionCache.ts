@@ -40,7 +40,8 @@ const createCacheKey = (
   showLoopingIndicator: boolean,
   levelOfDetail: LevelOfDetail,
   showContinuesTags: boolean
-): string => `${eventId}:${nodeId}:${showLoopingIndicator}:${levelOfDetail}:${showContinuesTags}`
+): string =>
+  `${eventId}:${nodeId}:looping-${showLoopingIndicator}:level-${levelOfDetail}:continues-${showContinuesTags}`
 
 export const getCachedDimensions = (
   eventId: string,

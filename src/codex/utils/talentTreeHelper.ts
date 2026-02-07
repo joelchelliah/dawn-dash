@@ -1,122 +1,345 @@
-import { isNotNullOrUndefined } from '@/shared/utils/object'
+import {
+  ArcanistImageUrl,
+  CoinsOfPassingImageUrl,
+  DexImageUrl,
+  ChestImageUrl,
+  HealthImageUrl,
+  HolyImageUrl,
+  HunterImageUrl,
+  InfernalContractUrl,
+  IntImageUrl,
+  KnightImageUrl,
+  NeutralImageUrl,
+  RogueImageUrl,
+  SeekerImageUrl,
+  StrImageUrl,
+  SunforgeImageUrl,
+  WarriorImageUrl,
+  DarkRevenanceImageUrl,
+  TaurusRageImageUrl,
+  SacredTomeImageUrl,
+  RuneOfPersistenceImageUrl,
+  HealingPotionImageUrl,
+  WatchedImageUrl,
+  CollectorImageUrl,
+  ForgeryImageUrl,
+} from '@/shared/utils/imageUrls'
+import { CharacterClass } from '@/shared/types/characterClass'
+import { ClassColorVariant, darken, getClassColor } from '@/shared/utils/classColors'
+import { wrapText } from '@/shared/utils/textHelper'
 
 import {
   HierarchicalTalentTreeNode,
-  TalentTree,
-  TalentTreeNode,
   TalentTreeNodeType,
-  TalentTreeRequirementNode,
   TalentTreeTalentNode,
 } from '../types/talents'
-import { RequirementFilterOption } from '../types/filters'
 
-export const isTalentTreeEqual = (talentTreeA: TalentTree, talentTreeB: TalentTree): boolean =>
-  isTalentTreeNodeEqual(talentTreeA.offerNode, talentTreeB.offerNode) &&
-  isTalentTreeNodeEqual(talentTreeA.noReqNode, talentTreeB.noReqNode) &&
-  isTalentTreeNodeEqual(talentTreeA.cardNode, talentTreeB.cardNode) &&
-  areTalentTreeNodesEqual(talentTreeA.classNodes, talentTreeB.classNodes) &&
-  areTalentTreeNodesEqual(talentTreeA.energyNodes, talentTreeB.energyNodes) &&
-  areTalentTreeNodesEqual(talentTreeA.eventNodes, talentTreeB.eventNodes)
+const ICON_KEYWORDS_TO_URL = [
+  { keyword: 'HEALTH', icon: HealthImageUrl },
+  { keyword: 'HOLY', icon: HolyImageUrl },
+  { keyword: 'STR', icon: StrImageUrl },
+  { keyword: 'INT', icon: IntImageUrl },
+  { keyword: 'DEX', icon: DexImageUrl },
+  { keyword: 'NEUTRAL', icon: NeutralImageUrl },
+]
 
-const areTalentTreeNodesEqual = (nodesA: TalentTreeNode[], nodesB: TalentTreeNode[]): boolean =>
-  nodesA.length === nodesB.length &&
-  nodesA.every((a) => nodesB.some((b) => isTalentTreeNodeEqual(a, b))) &&
-  nodesB.every((b) => nodesA.some((a) => isTalentTreeNodeEqual(a, b)))
+const KEYWORD_TO_EMOJI_MAP: Record<string, string> = {
+  HEALTH: ' ❤️',
+  HOLY: ' 🟡',
+  STR: ' 🔴',
+  INT: ' 🔵',
+  DEX: ' 🟢',
+  NEUTRAL: ' ⚪',
+  '\\(BLOOD\\)': '',
+}
 
-const isTalentTreeNodeEqual = (nodeA: TalentTreeNode, nodeB: TalentTreeNode): boolean => {
-  if (nodeA.type !== nodeB.type) return false
+const colorGrey = getClassColor(CharacterClass.Neutral, ClassColorVariant.Default)
+const colorRed = getClassColor(CharacterClass.Warrior, ClassColorVariant.Default)
+const colorGreen = getClassColor(CharacterClass.Rogue, ClassColorVariant.Default)
+const colorBlue = getClassColor(CharacterClass.Arcanist, ClassColorVariant.Default)
+const colorHoly = getClassColor(CharacterClass.Sunforge, ClassColorVariant.Default)
+const colorOffers = darken(getClassColor(CharacterClass.Warrior, ClassColorVariant.Default), 10)
+const colorEvents = darken(getClassColor(CharacterClass.Seeker, ClassColorVariant.Default), 10)
+const colorCards = darken(getClassColor(CharacterClass.Sunforge, ClassColorVariant.Light), 10)
 
-  if (nodeA.type === TalentTreeNodeType.TALENT && nodeB.type === TalentTreeNodeType.TALENT) {
-    return (
-      nodeA.name === nodeB.name &&
-      nodeA.description === nodeB.description &&
-      nodeA.tier === nodeB.tier &&
-      areTalentTreeNodesEqual(nodeA.children, nodeB.children)
-    )
+// Returns useful props for rendering a talent requirement node
+export const getTalentRequirementIconProps = (
+  isClassRequirement: boolean,
+  label: string
+): { count: number; url: string; url2?: string; url3?: string; color: string; label: string } => {
+  if (isClassRequirement) {
+    const color = getClassColor(label as CharacterClass, ClassColorVariant.Dark)
+
+    switch (label) {
+      case CharacterClass.Arcanist:
+        return { count: 1, url: ArcanistImageUrl, color, label }
+      case CharacterClass.Hunter:
+        return { count: 1, url: HunterImageUrl, color, label }
+      case CharacterClass.Knight:
+        return { count: 1, url: KnightImageUrl, color, label }
+      case CharacterClass.Rogue:
+        return { count: 1, url: RogueImageUrl, color, label }
+      case CharacterClass.Seeker:
+        return { count: 1, url: SeekerImageUrl, color, label }
+      case CharacterClass.Warrior:
+        return { count: 1, url: WarriorImageUrl, color, label }
+      default:
+        return { count: 1, url: SunforgeImageUrl, color, label }
+    }
+  }
+
+  switch (label) {
+    case 'DEX':
+      return { count: 1, url: DexImageUrl, color: colorGreen, label: 'DEX' }
+    case 'DEX2':
+      return { count: 2, url: DexImageUrl, color: colorGreen, label: '2 DEX' }
+    case 'DEX3':
+      return { count: 3, url: DexImageUrl, color: colorGreen, label: '3 DEX' }
+    case 'INT':
+      return { count: 1, url: IntImageUrl, color: colorBlue, label: 'INT' }
+    case 'INT2':
+      return { count: 2, url: IntImageUrl, color: colorBlue, label: '2 INT' }
+    case 'INT3':
+      return { count: 3, url: IntImageUrl, color: colorBlue, label: '3 INT' }
+    case 'STR':
+      return { count: 1, url: StrImageUrl, color: colorRed, label: 'STR' }
+    case 'STR2':
+      return { count: 2, url: StrImageUrl, color: colorRed, label: '2 STR' }
+    case 'STR3':
+      return { count: 3, url: StrImageUrl, color: colorRed, label: '3 STR' }
+    case 'HOLY':
+      return { count: 1, url: HolyImageUrl, color: colorHoly, label: 'HOLY' }
+    case 'Offers':
+      return { count: 1, url: InfernalContractUrl, color: colorOffers, label: 'Offers' }
+    case 'Events':
+    case 'Obtained from events':
+      return {
+        count: 1,
+        url: CoinsOfPassingImageUrl,
+        color: colorEvents,
+        label: 'Obtained from events',
+      }
+    case 'Cards':
+    case 'Obtained from cards':
+      return {
+        count: 1,
+        url: RuneOfPersistenceImageUrl,
+        color: colorCards,
+        label: 'Obtained from cards',
+      }
+    case 'No Requirements':
+      return { count: 1, url: NeutralImageUrl, color: colorGrey, label: 'No requirements' }
+    case 'Sacred Tome':
+      return { count: 1, url: SacredTomeImageUrl, color: colorCards, label }
+    case 'Taurus Rage':
+      return { count: 1, url: TaurusRageImageUrl, color: colorCards, label }
+    case 'Dark Revenance':
+      return { count: 1, url: DarkRevenanceImageUrl, color: colorCards, label }
+    case 'Healing potion':
+      return { count: 1, url: HealingPotionImageUrl, color: colorCards, label }
+    case 'Watched':
+      return { count: 1, url: WatchedImageUrl, color: colorCards, label }
+    case 'Collector':
+      return { count: 1, url: CollectorImageUrl, color: colorCards, label }
+    case 'Forgery':
+      return { count: 1, url: ForgeryImageUrl, color: colorCards, label }
+    default:
+      return { count: 1, url: ChestImageUrl, color: colorEvents, label }
+  }
+}
+
+// Determines the color for a tree link between two nodes
+export const getLinkColor = (
+  link: d3.HierarchyPointLink<HierarchicalTalentTreeNode>,
+  name: string,
+  type: TalentTreeNodeType | undefined
+): string => {
+  const colorGrey = darken(getClassColor(CharacterClass.Neutral, ClassColorVariant.Darkest), 15)
+
+  if (type === TalentTreeNodeType.CLASS_REQUIREMENT) {
+    return getClassColor(name as CharacterClass, ClassColorVariant.Dark)
+  } else if (type === TalentTreeNodeType.TALENT) {
+    let currentNode = link.source
+    while (currentNode.parent && currentNode.data.type === TalentTreeNodeType.TALENT) {
+      currentNode = currentNode.parent
+    }
+    return getLinkColor(link, currentNode.data.name, currentNode.data.type)
+  } else if (type === TalentTreeNodeType.EVENT_REQUIREMENT) {
+    return colorEvents
+  } else if (type === TalentTreeNodeType.CARD_REQUIREMENT) {
+    return colorCards
   } else {
-    return nodeA.name === nodeB.name && areTalentTreeNodesEqual(nodeA.children, nodeB.children)
+    const tinyDarken = (color: string) => darken(color, 10)
+    switch (name) {
+      case 'DEX':
+      case 'DEX2':
+        return tinyDarken(colorGreen)
+      case 'INT':
+      case 'INT2':
+        return tinyDarken(colorBlue)
+      case 'STR':
+      case 'STR2':
+      case 'STR3':
+        return tinyDarken(colorRed)
+      case 'Offers':
+        return tinyDarken(colorOffers)
+      case 'Events':
+        return tinyDarken(colorEvents)
+      default:
+        return colorGrey
+    }
   }
 }
 
-export const buildHierarchicalTreeFromTalentTree = (
-  talentTree: TalentTree
-): HierarchicalTalentTreeNode => {
-  const eventNodes = talentTree.eventNodes
-    .map(buildHierarchicalTreeNodeFromRequirementNode)
-    .filter(isNotNullOrUndefined)
+// Parses a description line and returns segments with text and image placeholders for desktop rendering
+export const parseTalentDescriptionLineForDesktopRendering = (line: string) => {
+  const parsedDescription = line
+    .replace(/<br\s*\/?>/g, '<br />') // Normalize <br> tags
+    .replace(/\[\[/g, '[') // Replace [[ with [
+    .replace(/\]\]/g, ']') // Replace ]] with ]
+    .replace(/\(\[/g, '(') // Replace ([ with (
+    .replace(/\(\{/g, '(') // Replace ({ with (
+    .replace(/\]\)/g, ')') // Replace ]) with )
+    .replace(/\}\)/g, ')') // Replace }) with )
+    .trim()
 
-  const eventNodesRoot: HierarchicalTalentTreeNode = {
-    name: 'Obtained from events',
-    description: '',
-    type: TalentTreeNodeType.EVENT_REQUIREMENT,
-    children: eventNodes,
-    classOrEnergyRequirements: [RequirementFilterOption.ObtainedFromEvents],
-    talentRequirements: [],
-    otherRequirements: [],
+  const keywordPattern = new RegExp(
+    `(${ICON_KEYWORDS_TO_URL.map((k) => k.keyword).join('|')})`,
+    'g'
+  )
+  const segments: Array<{ type: 'text' | 'image'; content: string; icon?: string }> = []
+
+  let lastIndex = 0
+  let match: RegExpExecArray | null
+
+  while ((match = keywordPattern.exec(parsedDescription)) !== null) {
+    // 1. Add text before the keyword if any
+    if (match.index > lastIndex) {
+      const textContent = parsedDescription.slice(lastIndex, match.index)
+      if (textContent) {
+        segments.push({ type: 'text', content: textContent })
+      }
+    }
+
+    // 2. Add the keyword as an image segment
+    const keyword = match[1]
+    const keywordData = ICON_KEYWORDS_TO_URL.find((k) => k.keyword === keyword)
+    if (keywordData) {
+      segments.push({ type: 'image', content: keyword, icon: keywordData.icon })
+    }
+
+    lastIndex = keywordPattern.lastIndex
   }
 
-  return {
-    name: 'Root',
-    description: '',
-    children: [
-      buildHierarchicalTreeNodeFromRequirementNode(talentTree.noReqNode),
-      ...talentTree.energyNodes
-        .map(buildHierarchicalTreeNodeFromRequirementNode)
-        .filter(isNotNullOrUndefined),
-      ...talentTree.classNodes
-        .map(buildHierarchicalTreeNodeFromRequirementNode)
-        .filter(isNotNullOrUndefined),
-      ...(eventNodes.length > 0 ? [eventNodesRoot] : []),
-      buildHierarchicalTreeNodeFromRequirementNode(talentTree.cardNode),
-      buildHierarchicalTreeNodeFromRequirementNode(talentTree.offerNode),
-    ].filter(isNotNullOrUndefined),
-    classOrEnergyRequirements: [],
-    talentRequirements: [],
-    otherRequirements: [],
+  // 3. Add remaining text after the last keyword
+  if (lastIndex < parsedDescription.length) {
+    const remainingContent = parsedDescription.slice(lastIndex)
+    if (remainingContent) {
+      segments.push({ type: 'text', content: remainingContent })
+    }
   }
+
+  // Return at least one text segment if no keywords were found
+  return segments.length > 0 ? segments : [{ type: 'text', content: parsedDescription }]
 }
 
-const buildHierarchicalTreeNodeFromTalentNode = (
-  node: TalentTreeTalentNode
-): HierarchicalTalentTreeNode => {
-  const name = node.name
-  const children = node.children.map(buildHierarchicalTreeNodeFromTalentNode)
+// Parses a description line and replaces keywords with emojis for mobile rendering
+export const parseTalentDescriptionLineForMobileRendering = (line: string): string => {
+  let result = line
+    .replace(/<br\s*\/?>/g, '') // Remove <br> tags
+    .replace(/<\/?[bB]>/g, '') // Remove <b> tags
+    .replace(/<\/?nobr>/g, '') // Remove <nobr> tags
+    .replace(/\[\[/g, '[') // Replace [[ with [
+    .replace(/\]\]/g, ']') // Replace ]] with ]
+    .replace(/\(\[/g, '(') // Replace ([ with (
+    .replace(/\(\{/g, '(') // Replace ({ with (
+    .replace(/\]\)/g, ')') // Replace ]) with )
+    .replace(/\}\)/g, ')') // Replace }) with )
+    .trim()
 
-  return {
-    name,
-    description: node.description,
-    type: TalentTreeNodeType.TALENT,
-    tier: node.tier,
-    children: children.length > 0 ? children : undefined,
-    classOrEnergyRequirements: node.classOrEnergyRequirements,
-    talentRequirements: node.talentRequirements,
-    otherRequirements: node.otherRequirements,
-  }
+  Object.entries(KEYWORD_TO_EMOJI_MAP).forEach(([keyword, emoji]) => {
+    result = result.replace(new RegExp(keyword, 'g'), emoji)
+  })
+  return result
 }
 
-const buildHierarchicalTreeNodeFromRequirementNode = (
-  node: TalentTreeRequirementNode
-): HierarchicalTalentTreeNode | undefined => {
-  const children = node.children.map(buildHierarchicalTreeNodeFromTalentNode)
+// Wraps text into multiple lines based on available width
+// Uses talents-specific character counting for icon keywords
+export const wrapTextForTalents = (text: string, width: number) => {
+  return wrapText(text, width, countRelevantCharactersForLineWidth)
+}
 
-  if (children.length === 0) {
-    return undefined
+// Returns a formatted string of keywords that match the talent's name or description
+export const getMatchingKeywordsText = (
+  talent: HierarchicalTalentTreeNode,
+  parsedKeywords: string[]
+) => {
+  const matches = parsedKeywords.filter(
+    (keyword) =>
+      talent.name.toLowerCase().includes(keyword.toLowerCase()) ||
+      talent.description.toLowerCase().includes(keyword.toLowerCase())
+  )
+  return matches.length > 0 ? `{ ${matches.join(', ')} }` : ''
+}
+
+/**
+ * Recursively checks if a node or any of its descendants match keywords
+ */
+export const matchesKeywordOrHasMatchingDescendant = (
+  node: HierarchicalTalentTreeNode,
+  parsedKeywords: string[]
+): boolean => {
+  if (doesNodeMatchKeywords(node, parsedKeywords)) return true
+  if (!node.children || node.children.length === 0) return false
+  return node.children.some((child) => matchesKeywordOrHasMatchingDescendant(child, parsedKeywords))
+}
+
+/**
+ * Finds a node by name and type in the talent tree
+ */
+export const getNodeInTree = (
+  name: string,
+  type: TalentTreeNodeType,
+  node: HierarchicalTalentTreeNode
+): HierarchicalTalentTreeNode | null => {
+  if (node.name === name && node.type === type) return node
+  if (!node.children) return null
+  for (const child of node.children) {
+    const found = getNodeInTree(name, type, child)
+    if (found) return found
   }
+  return null
+}
 
-  const classOrEnergyRequirements = [
-    TalentTreeNodeType.EVENT_REQUIREMENT,
-    TalentTreeNodeType.CARD_REQUIREMENT,
-  ].includes(node.type)
-    ? []
-    : [node.name]
+export const isTalentOffer = (talent: TalentTreeTalentNode) =>
+  hasTalentMonsterExpansion(talent) && hasTalentOfferPrefix(talent)
 
-  return {
-    name: node.name,
-    description: node.name,
-    type: node.type,
-    children,
-    classOrEnergyRequirements,
-    talentRequirements: [],
-    otherRequirements: [],
-  }
+export const isTalentInAnyEvents = (talent: TalentTreeTalentNode) => talent.events.length > 0
+
+// Counts characters for line width calculation
+// excluding HTML tags and replacing icon keywords
+const countRelevantCharactersForLineWidth = (str: string) => {
+  // Strip Html tags
+  let effectiveStr = str.replace(/<\/?(?:b|nobr)>/gi, '')
+  // Replace each icon keyword with '##' for width calculation
+  ICON_KEYWORDS_TO_URL.forEach(({ keyword }) => {
+    effectiveStr = effectiveStr.replace(new RegExp(keyword, 'g'), '##')
+  })
+  return effectiveStr.length
+}
+
+const hasTalentMonsterExpansion = (talent: TalentTreeTalentNode) => talent.expansion === 0
+
+const hasTalentOfferPrefix = (talent: TalentTreeTalentNode) => talent.name.startsWith('Offer of')
+
+const doesNodeMatchKeywords = (
+  node: HierarchicalTalentTreeNode,
+  parsedKeywords: string[]
+): boolean => {
+  if (parsedKeywords.length === 0) return false
+  return parsedKeywords.some(
+    (keyword) =>
+      node.name.toLowerCase().includes(keyword.toLowerCase()) ||
+      node.description.toLowerCase().includes(keyword.toLowerCase())
+  )
 }

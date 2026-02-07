@@ -23,12 +23,27 @@ import {
   parseTalentDescriptionLineForDesktopRendering,
   parseTalentDescriptionLineForMobileRendering,
   wrapTextForTalents,
-} from '@/codex/utils/talentHelper'
+} from '@/codex/utils/talentTreeHelper'
+import {
+  cacheAllNodeDimensions,
+  getNodeHeight,
+  type TalentRenderingContext,
+} from '@/codex/utils/talentNodeDimensions'
 import {
   REQUIREMENT_CLASS_TO_FILTER_OPTIONS_MAP,
   REQUIREMENT_ENERGY_TO_FILTER_OPTIONS_MAP,
 } from '@/codex/constants/talentsMappingValues'
-import { buildHierarchicalTreeFromTalentTree } from '@/codex/utils/talentTreeHelper'
+import {
+  NODE,
+  REQUIREMENT_NODE,
+  TEXT,
+  TREE,
+  LINK,
+  REQUIREMENT_INDICATOR,
+  EXPANSION_BUTTON,
+  SEPARATOR,
+} from '@/codex/constants/talentTreeValues'
+import { buildHierarchicalTreeFromTalentTree } from '@/codex/utils/talentTreeBuilder'
 import { useExpandableNodes } from '@/codex/hooks/useExpandableNodes'
 import { useAllTalentSearchFilters } from '@/codex/hooks/useSearchFilters'
 
@@ -88,47 +103,44 @@ const TalentTree = ({
     const filteredTree = filterCollapsedChildren(fullTree)
     const treeNode = hierarchy<HierarchicalTalentTreeNode>(filteredTree)
 
+    // Create rendering context for dimension calculations
+    const renderingContext: TalentRenderingContext = {
+      isDescriptionExpanded,
+      shouldShowBlightbaneLink,
+      parsedKeywords: shouldShowKeywords ? parsedKeywords : [],
+    }
+
+    // Pre-cache all node dimensions for performance
+    cacheAllNodeDimensions(filteredTree, renderingContext)
+
     // - - - - - Node dimensions - - - - -
-    const requirementNodeRadius = 28
-    const nodeWidth = 200
-    const nameHeight = 30
-    const minDescriptionHeight = 15
-    const collapsedDescriptionHeight = 4
-    const descriptionLineHeight = 15
-    const requirementsHeight = 16 // Height for additional requirements text
-    const keywordsHeight = 20 // Height for matching keywords text
-    const blightbaneLinkHeight = 26 // Height for the Blightbane link
-    const defaultVerticalSpacing = 100
-    const horizontalSpacing = nodeWidth * 1.3625
+    const requirementNodeRadius = REQUIREMENT_NODE.RADIUS
+    const nodeWidth = NODE.WIDTH
+    const nameHeight = NODE.HEIGHT.NAME
+    const minDescriptionHeight = NODE.HEIGHT.MIN_DESCRIPTION
+    const collapsedDescriptionHeight = NODE.HEIGHT.COLLAPSED_DESCRIPTION
+    const descriptionLineHeight = TEXT.LINE_HEIGHT
+    const requirementsHeight = NODE.HEIGHT.REQUIREMENTS
+    const keywordsHeight = NODE.HEIGHT.KEYWORDS
+    const blightbaneLinkHeight = NODE.HEIGHT.BLIGHTBANE_LINK
+    const defaultVerticalSpacing = TREE.DEFAULT_VERTICAL_SPACING
+    const horizontalSpacing = nodeWidth * NODE.SPACING.HORIZONTAL_MULTIPLIER
     // - - - - - - - - - - - - - - - - - -
 
     const getDynamicVerticalSpacing = (node: HierarchicalTalentTreeNode) => {
       if (node.type === TalentTreeNodeType.TALENT) {
-        const additionalRequirements = [
-          ...node.otherRequirements,
-          ...node.talentRequirements,
-        ].filter(isNotNullOrUndefined)
+        // Use cached height calculation for accurate dimensions
+        const nodeHeight = getNodeHeight(node, nodeWidth, renderingContext)
+        const isCollapsed = !isDescriptionExpanded(node.name)
 
-        const extraRequirementHeight = additionalRequirements.length ? requirementsHeight : 0
-        const matchingKeywordsHeight =
-          shouldShowKeywords && getMatchingKeywordsText(node, parsedKeywords).length > 0
-            ? keywordsHeight
-            : 0
-        const blightbaneHeight = shouldShowBlightbaneLink ? blightbaneLinkHeight / 2 : 0
-
-        const additionalHeight = extraRequirementHeight + matchingKeywordsHeight + blightbaneHeight
-
-        if (!isDescriptionExpanded(node.name)) {
-          return nameHeight * 2.8 + additionalHeight
+        // Calculate vertical spacing based on node height
+        // Collapsed nodes need more spacing relative to their height
+        if (isCollapsed) {
+          return nodeHeight * NODE.SPACING.VERTICAL_COLLAPSED_MULTIPLIER
         }
 
-        const descLines = wrapTextForTalents(node.description, nodeWidth + 10)
-        const descriptionHeight = Math.max(
-          minDescriptionHeight,
-          descLines.length * descriptionLineHeight
-        )
-
-        return (nameHeight + descriptionHeight + additionalHeight) * 1.7
+        // Expanded nodes need less spacing relative to their height
+        return nodeHeight * NODE.SPACING.VERTICAL_EXPANDED_MULTIPLIER
       }
       return defaultVerticalSpacing
     }
@@ -140,11 +152,13 @@ const TalentTree = ({
         const bVertical = getDynamicVerticalSpacing(b.data)
         const minSeparation = (aVertical + bVertical) / (2 * defaultVerticalSpacing)
 
-        return a.parent === b.parent ? minSeparation : minSeparation * 1.25
+        return a.parent === b.parent
+          ? minSeparation
+          : minSeparation * TREE.DIFFERENT_PARENT_SEPARATION_MULTIPLIER
       })
     const treeData = treeLayout(treeNode)
 
-    const leftPadding = nodeWidth * 0.25
+    const leftPadding = nodeWidth * NODE.PADDING.LEFT_MULTIPLIER
     const offset = (treeNode.children?.[0]?.y ?? 0) - leftPadding
 
     treeData.each((node) => {
@@ -156,16 +170,16 @@ const TalentTree = ({
     const maxX = max(allNodes, (d) => d.x) ?? 0
     const maxDepth = max(allNodes, (d) => d.depth) ?? 0
 
-    const topPadding = 40
-    const bottomPadding = 1500
-    const minFactorForEverythingToFitInContainer = 0.955
+    const topPadding = TREE.VERTICAL_PADDING.TOP
+    const bottomPadding = TREE.VERTICAL_PADDING.BOTTOM
+    const minFactorForEverythingToFitInContainer = TREE.MIN_FIT_FACTOR
     const svgHeight =
       minFactorForEverythingToFitInContainer * maxX - minX + topPadding + bottomPadding
 
     // Calculate width based on max depth
-    const baseWidth = 1050 // Width for depth 4
-    const svgWidth = Math.max(400, (maxDepth / 4) * baseWidth) // Minimum 400px, scale with depth
-    const svgVerticalPadding = 40
+    const baseWidth = TREE.BASE_WIDTH
+    const svgWidth = Math.max(TREE.MIN_WIDTH, (maxDepth / TREE.BASE_DEPTH) * baseWidth)
+    const svgVerticalPadding = TREE.SVG_VERTICAL_PADDING
 
     const mainSvg = select(svgRef.current)
       .attr('viewBox', `0 -${svgVerticalPadding} ${svgWidth} ${svgHeight}`)
@@ -173,7 +187,9 @@ const TalentTree = ({
       .attr('height', svgHeight)
 
     const defs = mainSvg.append('defs')
-    const svg = mainSvg.append('g').attr('transform', `translate(50, ${-minX + topPadding})`)
+    const svg = mainSvg
+      .append('g')
+      .attr('transform', `translate(${TREE.HORIZONTAL_PADDING}, ${-minX + topPadding})`)
 
     const getNodeHalfWidth = (node: HierarchicalTalentTreeNode) => {
       switch (node.type) {
@@ -186,7 +202,7 @@ const TalentTree = ({
 
     const generateLinkPath = (d: HierarchyPointLink<HierarchicalTalentTreeNode>) => {
       const isRootNode = d.source.depth <= 1
-      const xOffset = 2
+      const xOffset = LINK.X_OFFSET
       const sourceHalfWidth = getNodeHalfWidth(d.source.data)
       const targetHalfWidth = getNodeHalfWidth(d.target.data)
 
@@ -226,7 +242,7 @@ const TalentTree = ({
       .append('filter')
       .attr('id', 'talent-glow')
       .append('feGaussianBlur')
-      .attr('stdDeviation', '8')
+      .attr('stdDeviation', NODE.GLOW.BLUR_STD_DEVIATION)
       .attr('result', 'coloredBlur')
 
     defs.select('#talent-glow').append('feMerge').append('feMergeNode').attr('in', 'coloredBlur')
@@ -257,11 +273,11 @@ const TalentTree = ({
         if (showBiggerIcons) {
           circleRadius = requirementNodeRadius
         } else if (count === 1) {
-          circleRadius = requirementNodeRadius / 2
+          circleRadius = requirementNodeRadius / REQUIREMENT_NODE.RADIUS_DIVISOR.SINGLE
         } else if (count === 2) {
-          circleRadius = requirementNodeRadius / 1.75
+          circleRadius = requirementNodeRadius / REQUIREMENT_NODE.RADIUS_DIVISOR.DOUBLE
         } else if (count === 3) {
-          circleRadius = requirementNodeRadius - 2
+          circleRadius = requirementNodeRadius - REQUIREMENT_NODE.RADIUS_DIVISOR.TRIPLE_OFFSET
         }
 
         nodeElement
@@ -272,7 +288,7 @@ const TalentTree = ({
 
         // Split label on comma for multi-line rendering
         const labelParts = label.split(',').map((part) => part.trim())
-        const lineHeight = 24 // Adjust based on your font size
+        const lineHeight = REQUIREMENT_NODE.LABEL.LINE_HEIGHT
         const totalHeight = labelParts.length * lineHeight
         const startY = -circleRadius - totalHeight + lineHeight / 2
 
@@ -295,8 +311,10 @@ const TalentTree = ({
 
         if (count > 0) {
           // Different icon sizes depending on if we are showing a class or energy node.
-          const iconSize = showBiggerIcons ? 52 : 22
-          const spacing = 2
+          const iconSize = showBiggerIcons
+            ? REQUIREMENT_NODE.ICON_SIZE.LARGE
+            : REQUIREMENT_NODE.ICON_SIZE.SMALL
+          const spacing = REQUIREMENT_NODE.ICON_SPACING
           const totalWidth = count * iconSize + (count - 1) * spacing
           const startX = -totalWidth / 2
 
@@ -346,7 +364,7 @@ const TalentTree = ({
           ...data.talentRequirements,
         ].filter(isNotNullOrUndefined)
 
-        const descriptionLinesPadding = 12
+        const descriptionLinesPadding = NODE.PADDING.DESCRIPTION_LINES
         const descriptionHeight = isCollapsed
           ? collapsedDescriptionHeight
           : Math.max(minDescriptionHeight, descLines.length * descriptionLineHeight) +
@@ -357,8 +375,8 @@ const TalentTree = ({
         const additionalHeight = descriptionHeight + extraRequirementHeight + blightbaneHeight
         const dynamicNodeHeight = nameHeight + additionalHeight + 6
 
-        const nodeGlowWidth = nodeWidth + 6
-        const nodeGlowHeight = dynamicNodeHeight + 6
+        const nodeGlowWidth = nodeWidth + NODE.GLOW.EXTRA_WIDTH
+        const nodeGlowHeight = dynamicNodeHeight + NODE.GLOW.EXTRA_HEIGHT
 
         nodeElement
           .append('rect')
@@ -394,7 +412,7 @@ const TalentTree = ({
         }
         if (shouldShowBlightbaneLink) {
           // Very tiny adjustment of divider line.
-          const offset = 2
+          const offset = SEPARATOR.BLIGHTBANE_OFFSET
           nodeElement
             .append('line')
             .attr('x1', -nodeWidth / 2)
@@ -426,12 +444,12 @@ const TalentTree = ({
           .attr('transform', `translate(0, ${-dynamicNodeHeight / 2 + nameHeight / 2})`)
 
         // For names too long to have larger fonts when collapsed
-        const isNameReallyLong = data.name.length > 24
+        const isNameReallyLong = data.name.length > NODE.NAME.REALLY_LONG_THRESHOLD
 
         nameGroup
           .append('text')
           .attr('x', 0)
-          .attr('y', isCollapsed ? 10 : 4)
+          .attr('y', isCollapsed ? NODE.NAME.Y_COLLAPSED : NODE.NAME.Y_EXPANDED)
           .text(data.name)
           .attr(
             'class',
@@ -465,7 +483,8 @@ const TalentTree = ({
           // Calculate the base Y position for description
           const descBaseY =
             -dynamicNodeHeight / 2 + nameHeight + extraRequirementHeight + descriptionHeight / 2
-          const verticalCenteringOffset = descriptionLinesPadding / 2 - 1
+          const verticalCenteringOffset =
+            descriptionLinesPadding / 2 + TEXT.CENTERING_OFFSET.DESCRIPTION
 
           if (shouldUseMobileFriendlyRendering) {
             // Mobile-friendly rendering: use SVG text with emojis
@@ -489,7 +508,7 @@ const TalentTree = ({
             // Desktop rendering: use foreignObject with HTML and images
             descLines.forEach((line, i) => {
               const segments = parseTalentDescriptionLineForDesktopRendering(line)
-              const verticalCenteringOffset = -15
+              const verticalCenteringOffset = TEXT.CENTERING_OFFSET.DESKTOP
               const yPosition =
                 descBaseY +
                 i * descriptionLineHeight -
@@ -630,27 +649,29 @@ const TalentTree = ({
         propsPerRequirement[0].count > 2
           ? propsPerRequirement[0].url3 || propsPerRequirement[0].url
           : propsPerRequirement[1]?.url2 || propsPerRequirement[1]?.url
-      const iconSize = isEnergyRequirement ? 22 : 38
+      const iconSize = isEnergyRequirement
+        ? REQUIREMENT_INDICATOR.ICON_SIZE.ENERGY
+        : REQUIREMENT_INDICATOR.ICON_SIZE.CLASS
 
       // Tweaking of circle sizes and spacing to fit the different scenarios.
-      let circleRx = 21
-      let circleRy = 21
+      let circleRx: number = REQUIREMENT_INDICATOR.CIRCLE.RX
+      let circleRy: number = REQUIREMENT_INDICATOR.CIRCLE.RY
       let spacing = 0
-      let nudgeToTheLeft = 12
+      let nudgeToTheLeft: number = REQUIREMENT_INDICATOR.DEFAULT_NUDGE
       if (isEnergyRequirement && count === 1) {
-        circleRx = 13
-        circleRy = 13
-        nudgeToTheLeft = 6
+        circleRx = REQUIREMENT_INDICATOR.ENERGY.SINGLE.RX
+        circleRy = REQUIREMENT_INDICATOR.ENERGY.SINGLE.RY
+        nudgeToTheLeft = REQUIREMENT_INDICATOR.ENERGY.SINGLE.NUDGE
       } else if (isEnergyRequirement && count === 2) {
-        circleRx = 14
-        circleRy = 18
-        spacing = 4
-        nudgeToTheLeft = 6
+        circleRx = REQUIREMENT_INDICATOR.ENERGY.DOUBLE.RX
+        circleRy = REQUIREMENT_INDICATOR.ENERGY.DOUBLE.RY
+        spacing = REQUIREMENT_INDICATOR.ENERGY.DOUBLE.SPACING
+        nudgeToTheLeft = REQUIREMENT_INDICATOR.ENERGY.DOUBLE.NUDGE
       } else if (isEnergyRequirement && count === 3) {
-        circleRx = 16
-        circleRy = 28
-        spacing = 2
-        nudgeToTheLeft = 6
+        circleRx = REQUIREMENT_INDICATOR.ENERGY.TRIPLE.RX
+        circleRy = REQUIREMENT_INDICATOR.ENERGY.TRIPLE.RY
+        spacing = REQUIREMENT_INDICATOR.ENERGY.TRIPLE.SPACING
+        nudgeToTheLeft = REQUIREMENT_INDICATOR.ENERGY.TRIPLE.NUDGE
       }
       const totalHeight = count * iconSize + (count - 1) * spacing
       const x = indicatorX - iconSize / 2 - nudgeToTheLeft
@@ -707,7 +728,7 @@ const TalentTree = ({
             .attr('y', y)
             .attr('width', iconSize)
             .attr('height', iconSize)
-            .style('opacity', 0.9)
+            .style('opacity', REQUIREMENT_INDICATOR.STACKED_ICON_OPACITY)
         }
       }
     })
@@ -730,11 +751,13 @@ const TalentTree = ({
       const nodeElement = select(this)
       const isExpanded = areChildrenExpanded(data.name)
 
-      const xOffset = isExpanded ? 6 : 24
+      const xOffset = isExpanded
+        ? EXPANSION_BUTTON.X_OFFSET.EXPANDED
+        : EXPANSION_BUTTON.X_OFFSET.COLLAPSED
       const buttonX = nodeWidth / 2 + xOffset
       const buttonY = 0
-      const buttonRadius = 14
-      const buttonHoverRadius = buttonRadius + 4
+      const buttonRadius = EXPANSION_BUTTON.RADIUS
+      const buttonHoverRadius = buttonRadius + EXPANSION_BUTTON.HOVER_RADIUS_ADDITION
 
       const buttonGroup = nodeElement
         .append('g')
@@ -760,11 +783,11 @@ const TalentTree = ({
       buttonGroup
         .append('text')
         .attr('x', 0)
-        .attr('y', -2)
+        .attr('y', EXPANSION_BUTTON.TEXT_Y_OFFSET)
         .attr('text-anchor', 'middle')
         .attr('dominant-baseline', 'central')
         .attr('class', cx('expansion-button-text'))
-        .text(isExpanded ? '−' : '+')
+        .text(isExpanded ? EXPANSION_BUTTON.SYMBOL.EXPANDED : EXPANSION_BUTTON.SYMBOL.COLLAPSED)
     })
   }, [
     talentTree,
