@@ -56,7 +56,6 @@
 }
 
 .talent-node {
-  cursor: pointer;
   stroke-width: 2px;
   stroke-opacity: 0.75;
   rx: 8px;
@@ -184,6 +183,14 @@
   &::after {
     @include yellowGreenGradientBackgroundSupportInAfterBlock();
   }
+}
+
+.talent-node-card-sets {
+  font-size: font-size('xxs');
+  font-weight: 400;
+  fill: $color-primary-muted;
+  text-anchor: middle;
+  pointer-events: none;
 }
 
 .talent-node-keywords {

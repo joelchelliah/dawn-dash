@@ -84,6 +84,7 @@ export interface HierarchicalTalentTreeNode {
   description: string
   type?: TalentTreeNodeType
   tier?: number
+  cardSetIndex?: number
   children?: HierarchicalTalentTreeNode[]
   // To be able to check if node has additional requirements, not present in parent node.
   // Or special requirements when talent is obtained from an event.

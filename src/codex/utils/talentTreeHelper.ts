@@ -37,7 +37,8 @@ import {
 } from '../types/talents'
 import { NODE, REQUIREMENT_NODE } from '../constants/talentTreeValues'
 
-import { getNodeHeight, type TalentRenderingContext } from './talentNodeDimensions'
+import { getNodeHeight } from './talentNodeDimensions'
+import { TalentRenderingContext } from './talentNodeDimensionCache'
 
 const ICON_KEYWORDS_TO_URL = [
   { keyword: 'HEALTH', icon: HealthImageUrl },
@@ -195,60 +196,7 @@ export const getLinkColor = (
   }
 }
 
-// Parses a description line and returns segments with text and image placeholders for desktop rendering
-export const parseTalentDescriptionLineForDesktopRendering = (line: string) => {
-  const parsedDescription = line
-    .replace(/<br\s*\/?>/g, '<br />') // Normalize <br> tags
-    .replace(/\[\[/g, '[') // Replace [[ with [
-    .replace(/\]\]/g, ']') // Replace ]] with ]
-    .replace(/\(\[/g, '(') // Replace ([ with (
-    .replace(/\(\{/g, '(') // Replace ({ with (
-    .replace(/\]\)/g, ')') // Replace ]) with )
-    .replace(/\}\)/g, ')') // Replace }) with )
-    .trim()
-
-  const keywordPattern = new RegExp(
-    `(${ICON_KEYWORDS_TO_URL.map((k) => k.keyword).join('|')})`,
-    'g'
-  )
-  const segments: Array<{ type: 'text' | 'image'; content: string; icon?: string }> = []
-
-  let lastIndex = 0
-  let match: RegExpExecArray | null
-
-  while ((match = keywordPattern.exec(parsedDescription)) !== null) {
-    // 1. Add text before the keyword if any
-    if (match.index > lastIndex) {
-      const textContent = parsedDescription.slice(lastIndex, match.index)
-      if (textContent) {
-        segments.push({ type: 'text', content: textContent })
-      }
-    }
-
-    // 2. Add the keyword as an image segment
-    const keyword = match[1]
-    const keywordData = ICON_KEYWORDS_TO_URL.find((k) => k.keyword === keyword)
-    if (keywordData) {
-      segments.push({ type: 'image', content: keyword, icon: keywordData.icon })
-    }
-
-    lastIndex = keywordPattern.lastIndex
-  }
-
-  // 3. Add remaining text after the last keyword
-  if (lastIndex < parsedDescription.length) {
-    const remainingContent = parsedDescription.slice(lastIndex)
-    if (remainingContent) {
-      segments.push({ type: 'text', content: remainingContent })
-    }
-  }
-
-  // Return at least one text segment if no keywords were found
-  return segments.length > 0 ? segments : [{ type: 'text', content: parsedDescription }]
-}
-
-// Parses a description line and replaces keywords with emojis for mobile rendering
-export const parseTalentDescriptionLineForMobileRendering = (line: string): string => {
+export const parseTalentDescriptionLine = (line: string): string => {
   let result = line
     .replace(/<br\s*\/?>/g, '') // Remove <br> tags
     .replace(/<\/?[bB]>/g, '') // Remove <b> tags
@@ -388,7 +336,7 @@ export const calculateTalentTreeBounds = (
     if (node.data.type === TalentTreeNodeType.TALENT) {
       // Talent nodes have static width and dynamic height
       width = NODE.WIDTH
-      height = getNodeHeight(node.data, renderingContext)
+      height = getNodeHeight(node.data, renderingContext).height
     } else {
       // Requirement nodes are circular with fixed dimensions
       const radius = REQUIREMENT_NODE.RADIUS_DEFAULT

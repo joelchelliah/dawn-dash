@@ -7,19 +7,19 @@ import {
 import { createFilterHook } from './useFilterFactory'
 
 const defaultFilters = {
-  [FormattingTalentFilterOption.MobileFriendlyRendering]: true,
-  [FormattingTalentFilterOption.ShowDescriptionByDefault]: true,
+  [FormattingTalentFilterOption.ShowDescription]: true,
+  [FormattingTalentFilterOption.ShowCardSet]: false,
   [FormattingTalentFilterOption.ShowKeywords]: false,
   [FormattingTalentFilterOption.ShowBlightbaneLink]: false,
-  [FormattingTalentFilterOption.ExpandNodesByDefault]: true,
+  [FormattingTalentFilterOption.ExpandAllNodes]: true,
 }
 
 const valueToStringMap = {
-  [FormattingTalentFilterOption.MobileFriendlyRendering]: 'Use mobile-friendly rendering',
-  [FormattingTalent.ShowDescriptionByDefault]: 'Show all descriptions by default',
-  [FormattingTalent.ShowKeywords]: 'Show matching keywords',
-  [FormattingTalent.ShowBlightbaneLink]: 'Show Blightbane link',
-  [FormattingTalent.ExpandNodesByDefault]: 'Expand all nodes by default',
+  [FormattingTalentFilterOption.ShowDescription]: 'Show talent description',
+  [FormattingTalentFilterOption.ShowCardSet]: 'Show card set',
+  [FormattingTalentFilterOption.ShowKeywords]: 'Show matching keywords',
+  [FormattingTalentFilterOption.ShowBlightbaneLink]: 'Show Blightbane link',
+  [FormattingTalentFilterOption.ExpandAllNodes]: 'Expand all nodes',
 }
 
 export const allFormattingTalentFilters = FormattingTalent.getAll()
@@ -35,19 +35,19 @@ export const useFormattingTalentFilters = (
 ) => {
   const { filters, handleFilterToggle, getValueToString, resetFilters } =
     useBaseFilters(cachedFilters)
-  const shouldUseMobileFriendlyRendering = filters[FormattingTalent.MobileFriendlyRendering]
-  const shouldShowDescription = filters[FormattingTalent.ShowDescriptionByDefault]
+  const shouldShowDescription = filters[FormattingTalent.ShowDescription]
+  const shouldShowCardSet = filters[FormattingTalent.ShowCardSet]
   const shouldShowKeywords = filters[FormattingTalent.ShowKeywords]
   const shouldShowBlightbaneLink = filters[FormattingTalent.ShowBlightbaneLink]
-  const shouldExpandNodes = filters[FormattingTalent.ExpandNodesByDefault]
+  const shouldExpandNodes = filters[FormattingTalent.ExpandAllNodes]
 
   return {
     formattingFilters: filters,
     handleFormattingFilterToggle: handleFilterToggle,
     getFormattingFilterName: getValueToString,
     resetFormattingFilters: resetFilters,
-    shouldUseMobileFriendlyRendering,
     shouldShowDescription,
+    shouldShowCardSet,
     shouldShowKeywords,
     shouldShowBlightbaneLink,
     shouldExpandNodes,

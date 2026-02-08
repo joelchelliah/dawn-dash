@@ -58,6 +58,7 @@ const buildHierarchicalTreeNodeFromTalentNode = (
     description: node.description,
     type: TalentTreeNodeType.TALENT,
     tier: node.tier,
+    cardSetIndex: node.expansion,
     children: children.length > 0 ? children : undefined,
     classOrEnergyRequirements: node.classOrEnergyRequirements,
     talentRequirements: node.talentRequirements,

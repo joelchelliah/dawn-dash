@@ -24,14 +24,26 @@ export const NODE = {
   HEIGHT: {
     /** Height of the name section */
     NAME: 30,
+    // Estimated height of the separator line + padding
+    // The separator itself isnt that tall, but we've already baked in the padding,
+    // When allocating space for the requirements.
+
+    SEPARATOR: 8,
     /** Minimum height for description section */
     MIN_DESCRIPTION: 15,
     /** Height when description is collapsed */
-    COLLAPSED_DESCRIPTION: 4,
+    COLLAPSED_DESCRIPTION: 5,
+
+    /** Height for card set section */
+    CARD_SET: 16,
+
     /** Height for additional requirements text */
-    REQUIREMENTS: 16,
+    ADDITIONAL_REQUIREMENTS: 16,
+    ADDITIONAL_REQUIREMENTS_NO_DESCRIPTION: 22,
+
     /** Height for matching keywords section */
     KEYWORDS: 20,
+
     /** Height for Blightbane link section */
     BLIGHTBANE_LINK: 26,
   },
@@ -57,12 +69,12 @@ export const NODE = {
 
   /** Name-specific constants */
   NAME: {
-    /** Character count threshold for "really long" names */
+    /** Character count threshold for "really long" names, so that we can give it a smaller font */
     REALLY_LONG_THRESHOLD: 24,
     /** Y offset for collapsed node names */
-    Y_COLLAPSED: 10,
+    Y_COLLAPSED: 8,
     /** Y offset for expanded node names */
-    Y_EXPANDED: 4,
+    Y_EXPANDED: 5,
   },
 } as const
 
@@ -168,9 +180,4 @@ export const EXPANSION_BUTTON = {
     EXPANDED: '−',
     COLLAPSED: '+',
   },
-} as const
-
-export const SEPARATOR = {
-  /** Offset for Blightbane link separator line */
-  BLIGHTBANE_OFFSET: 2,
 } as const

@@ -4,7 +4,12 @@ import { HierarchicalTalentTreeNode, TalentTreeNodeType } from '@/codex/types/ta
 import { NODE, REQUIREMENT_NODE, TEXT } from '@/codex/constants/talentTreeValues'
 
 import { wrapTalentText } from './talentTextWidthEstimation'
-import { getCachedDimensions, buildDimensionCache as buildCache } from './talentNodeDimensionCache'
+import {
+  getCachedDimensions,
+  buildDimensionCache as buildCache,
+  TalentRenderingContext,
+  TalentNodeHeight,
+} from './talentNodeDimensionCache'
 import { getMatchingKeywordsText } from './talentTreeHelper'
 
 /**
@@ -12,13 +17,7 @@ import { getMatchingKeywordsText } from './talentTreeHelper'
  */
 export type NodeMap = Map<string, HierarchicalTalentTreeNode>
 
-export interface TalentRenderingContext {
-  isDescriptionExpanded: (name: string) => boolean
-  shouldShowBlightbaneLink: boolean
-  parsedKeywords: string[]
-}
-
-// ============================================================================
+// ===========================================================================
 // Type Guards and Helpers
 // ============================================================================
 
@@ -34,6 +33,7 @@ export const isTalentNode = (node: HierarchicalTalentTreeNode): boolean => {
  */
 export const isRequirementNode = (node: HierarchicalTalentTreeNode): boolean => {
   return (
+    node.type === TalentTreeNodeType.NO_REQUIREMENTS ||
     node.type === TalentTreeNodeType.CLASS_REQUIREMENT ||
     node.type === TalentTreeNodeType.ENERGY_REQUIREMENT ||
     node.type === TalentTreeNodeType.EVENT_REQUIREMENT ||
@@ -66,21 +66,21 @@ export const hasAdditionalRequirements = (node: HierarchicalTalentTreeNode): boo
 const _getNodeHeight = (
   node: HierarchicalTalentTreeNode,
   context: TalentRenderingContext
-): number => {
-  // Requirement nodes have fixed height based on their radius
+): TalentNodeHeight => {
   if (isRequirementNode(node)) {
-    return REQUIREMENT_NODE.RADIUS_DEFAULT * 2
+    const height = REQUIREMENT_NODE.RADIUS_DEFAULT * 2
+    return { height, contentHeight: height }
   }
 
-  // Talent nodes have dynamic height based on content
   if (isTalentNode(node)) {
-    const isCollapsed = !context.isDescriptionExpanded(node.name)
+    const isCollapsed = !context.shouldShowDescription
 
-    let totalHeight = NODE.HEIGHT.NAME
+    let outerHeight = 0
+    let contentHeight = NODE.HEIGHT.NAME
 
     // Description height
     if (isCollapsed) {
-      totalHeight += NODE.HEIGHT.COLLAPSED_DESCRIPTION
+      contentHeight += NODE.HEIGHT.COLLAPSED_DESCRIPTION
     } else {
       const maxTextWidth = NODE.WIDTH - TEXT.HORIZONTAL_PADDING * 2
       const descLines = wrapTalentText(node.description, maxTextWidth, 'default')
@@ -88,33 +88,42 @@ const _getNodeHeight = (
         NODE.HEIGHT.MIN_DESCRIPTION,
         descLines.length * TEXT.LINE_HEIGHT
       )
-      totalHeight += descriptionHeight + NODE.PADDING.DESCRIPTION_LINES
+      contentHeight += descriptionHeight + NODE.PADDING.DESCRIPTION_LINES
+    }
+
+    if (context.shouldShowBlightbaneLink) {
+      contentHeight += NODE.HEIGHT.BLIGHTBANE_LINK
     }
 
     // Additional requirements height
     if (hasAdditionalRequirements(node)) {
-      totalHeight += NODE.HEIGHT.REQUIREMENTS
+      contentHeight += NODE.HEIGHT.ADDITIONAL_REQUIREMENTS
+    }
+
+    // Blightbane link height
+    if (context.shouldShowBlightbaneLink) {
+      outerHeight += NODE.HEIGHT.BLIGHTBANE_LINK
+    }
+
+    if (context.shouldShowCardSet(node.cardSetIndex)) {
+      outerHeight += NODE.HEIGHT.CARD_SET
     }
 
     if (
       context.parsedKeywords.length > 0 &&
       getMatchingKeywordsText(node, context.parsedKeywords).length > 0
     ) {
-      totalHeight += NODE.HEIGHT.KEYWORDS
+      outerHeight += NODE.HEIGHT.KEYWORDS
     }
 
-    // Blightbane link height
-    if (context.shouldShowBlightbaneLink) {
-      totalHeight += NODE.HEIGHT.BLIGHTBANE_LINK
-    }
-
-    // Add some padding
-    totalHeight += 6
-
-    return totalHeight
+    return { height: outerHeight + contentHeight, contentHeight }
   }
 
-  return NODE.HEIGHT.NAME
+  if (node.type === undefined) {
+    return { height: 0, contentHeight: 0 }
+  }
+
+  throw new Error(`Unknown node type: ${node.type}`)
 }
 
 // ============================================================================
@@ -133,20 +142,21 @@ export const getNodeHalfWidth = (node: HierarchicalTalentTreeNode) => {
 export const getNodeHeight = (
   node: HierarchicalTalentTreeNode,
   context: TalentRenderingContext
-): number => {
-  const showDescription = context.isDescriptionExpanded(node.name)
+): TalentNodeHeight => {
   const showKeywordsSection =
     context.parsedKeywords.length > 0 &&
     getMatchingKeywordsText(node, context.parsedKeywords).length > 0
+  const showCardSet = context.shouldShowCardSet(node.cardSetIndex)
 
   const cached = getCachedDimensions(
     node.name,
-    showDescription,
+    context.shouldShowDescription,
+    showCardSet,
     showKeywordsSection,
     context.shouldShowBlightbaneLink
   )
 
-  return cached?.height ?? _getNodeHeight(node, context)
+  return cached ?? _getNodeHeight(node, context)
 }
 
 export const cacheAllNodeDimensions = (

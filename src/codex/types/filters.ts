@@ -173,11 +173,11 @@ export const FormattingCard = {
 // -------------------- Formatting Talent --------------------
 
 export enum FormattingTalentFilterOption {
-  MobileFriendlyRendering = 'MobileFriendlyRendering',
-  ShowDescriptionByDefault = 'ShowDescriptionByDefault',
+  ShowDescription = 'ShowDescriptions',
+  ShowCardSet = 'ShowCardSet',
   ShowKeywords = 'ShowKeywords',
   ShowBlightbaneLink = 'ShowBlightbaneLink',
-  ExpandNodesByDefault = 'ExpandNodesByDefault',
+  ExpandAllNodes = 'ExpandNodesByDefault',
 }
 
 export type FormattingTalent = FormattingTalentFilterOption

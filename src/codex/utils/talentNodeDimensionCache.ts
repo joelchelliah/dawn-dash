@@ -21,49 +21,62 @@ import { HierarchicalTalentTreeNode } from '@/codex/types/talents'
 
 import { getMatchingKeywordsText } from './talentTreeHelper'
 
-/**
- * Rendering context interface (matching TalentRenderingContext from talentNodeDimensions)
- */
-interface RenderingContext {
-  isDescriptionExpanded: (name: string) => boolean
+export interface TalentRenderingContext {
+  shouldShowDescription: boolean
+  shouldShowCardSet: (index?: number) => boolean
   shouldShowBlightbaneLink: boolean
   parsedKeywords: string[]
 }
 
-/**
- * Cache only stores height since width is always static (NODE.WIDTH or REQUIREMENT_NODE.RADIUS * 2)
- */
-const heightCache = new Map<string, number>()
+export interface TalentNodeHeight {
+  height: number
+  contentHeight: number
+}
+
+const heightCache = new Map<string, TalentNodeHeight>()
 
 const createCacheKey = (
   talentName: string,
   showDescription: boolean,
+  showCardSet: boolean,
   showKeywordsSection: boolean,
   showBlightbaneLink: boolean
 ): string =>
-  `${talentName}:description-${showDescription}:keywords-${showKeywordsSection}:blightbane-${showBlightbaneLink}`
+  `${talentName}:description-${showDescription}:card-set-${showCardSet}:keywords-${showKeywordsSection}:blightbane-${showBlightbaneLink}`
 
 export const getCachedDimensions = (
   talentName: string,
   showDescription: boolean,
+  showCardSet: boolean,
   showKeywordsSection: boolean,
   showBlightbaneLink: boolean
-): { height: number } | undefined => {
-  const height = heightCache.get(
-    createCacheKey(talentName, showDescription, showKeywordsSection, showBlightbaneLink)
+): TalentNodeHeight | undefined =>
+  heightCache.get(
+    createCacheKey(
+      talentName,
+      showDescription,
+      showCardSet,
+      showKeywordsSection,
+      showBlightbaneLink
+    )
   )
-  return height !== undefined ? { height } : undefined
-}
 
 export const setCachedHeight = (
   talentName: string,
-  height: number,
+  height: TalentNodeHeight,
   showDescription: boolean,
+  showCardSet: boolean,
   showKeywordsSection: boolean,
   showBlightbaneLink: boolean
 ): void => {
   heightCache.set(
-    createCacheKey(talentName, showDescription, showKeywordsSection, showBlightbaneLink),
+    createCacheKey(
+      talentName,
+      showDescription,
+      showCardSet,
+      showKeywordsSection,
+      showBlightbaneLink
+    ),
     height
   )
 }
@@ -71,11 +84,18 @@ export const setCachedHeight = (
 export const hasCachedDimensions = (
   talentName: string,
   showDescription: boolean,
+  showCardSet: boolean,
   showKeywordsSection: boolean,
   showBlightbaneLink: boolean
 ): boolean =>
   heightCache.has(
-    createCacheKey(talentName, showDescription, showKeywordsSection, showBlightbaneLink)
+    createCacheKey(
+      talentName,
+      showDescription,
+      showCardSet,
+      showKeywordsSection,
+      showBlightbaneLink
+    )
   )
 
 /**
@@ -85,11 +105,15 @@ export const hasCachedDimensions = (
  */
 export const buildDimensionCache = (
   rootNode: HierarchicalTalentTreeNode,
-  context: RenderingContext,
-  calculateHeight: (node: HierarchicalTalentTreeNode, context: RenderingContext) => number
+  context: TalentRenderingContext,
+  calculateHeight: (
+    node: HierarchicalTalentTreeNode,
+    context: TalentRenderingContext
+  ) => TalentNodeHeight
 ): void => {
   const cacheNodeRecursive = (node: HierarchicalTalentTreeNode) => {
-    const showDescription = context.isDescriptionExpanded(node.name)
+    const showDescription = context.shouldShowDescription
+    const showCardSet = context.shouldShowCardSet(node.cardSetIndex)
     // Keywords section is shown if BOTH showKeywords filter is on AND this node has matching keywords
     const showKeywordsSection =
       context.parsedKeywords.length > 0 &&
@@ -99,6 +123,7 @@ export const buildDimensionCache = (
       hasCachedDimensions(
         node.name,
         showDescription,
+        showCardSet,
         showKeywordsSection,
         context.shouldShowBlightbaneLink
       )
@@ -116,6 +141,7 @@ export const buildDimensionCache = (
       node.name,
       height,
       showDescription,
+      showCardSet,
       showKeywordsSection,
       context.shouldShowBlightbaneLink
     )

@@ -19,16 +19,15 @@ import {
   getNodeInTree,
   getTalentRequirementIconProps,
   matchesKeywordOrHasMatchingDescendant,
-  parseTalentDescriptionLineForDesktopRendering,
-  parseTalentDescriptionLineForMobileRendering,
+  parseTalentDescriptionLine,
   wrapTextForTalents,
 } from '@/codex/utils/talentTreeHelper'
 import {
   cacheAllNodeDimensions,
   getNodeHalfWidth,
   getNodeHeight,
-  type TalentRenderingContext,
 } from '@/codex/utils/talentNodeDimensions'
+import { TalentRenderingContext } from '@/codex/utils/talentNodeDimensionCache'
 import {
   REQUIREMENT_CLASS_TO_FILTER_OPTIONS_MAP,
   REQUIREMENT_ENERGY_TO_FILTER_OPTIONS_MAP,
@@ -40,7 +39,6 @@ import {
   TREE,
   REQUIREMENT_INDICATOR,
   EXPANSION_BUTTON,
-  SEPARATOR,
 } from '@/codex/constants/talentTreeValues'
 import { buildHierarchicalTreeFromTalentTree } from '@/codex/utils/talentTreeBuilder'
 import { useExpandableNodes } from '@/codex/hooks/useExpandableNodes'
@@ -54,7 +52,6 @@ const cx = createCx(styles)
 interface TalentTreeProps {
   talentTree: TalentTreeType | undefined
   useSearchFilters: ReturnType<typeof useAllTalentSearchFilters>
-  useDescriptionExpansion: ReturnType<typeof useExpandableNodes>
   useChildrenExpansion: ReturnType<typeof useExpandableNodes>
 }
 
@@ -63,15 +60,13 @@ type NodeElement = Selection<SVGGElement, unknown, null, undefined>
 export default function TalentTree({
   talentTree,
   useSearchFilters,
-  useDescriptionExpansion,
   useChildrenExpansion,
 }: TalentTreeProps) {
   const svgRef = useRef<SVGSVGElement>(null)
-  const { parsedKeywords, useFormattingFilters } = useSearchFilters
-  const { shouldUseMobileFriendlyRendering, shouldShowKeywords, shouldShowBlightbaneLink } =
+  const { parsedKeywords, useFormattingFilters, useCardSetFilters } = useSearchFilters
+  const { isCardSetIndexSelected, getCardSetNameFromIndex } = useCardSetFilters
+  const { shouldShowDescription, shouldShowCardSet, shouldShowKeywords, shouldShowBlightbaneLink } =
     useFormattingFilters
-  const { toggleNodeExpansion: toggleDescriptionExpansion, isNodeExpanded: isDescriptionExpanded } =
-    useDescriptionExpansion
   const { toggleNodeExpansion: toggleChildrenExpansion, isNodeExpanded: areChildrenExpanded } =
     useChildrenExpansion
 
@@ -107,10 +102,15 @@ export default function TalentTree({
 
     // Create rendering context for dimension calculations
     const renderingContext: TalentRenderingContext = {
-      isDescriptionExpanded,
+      shouldShowDescription,
+      shouldShowCardSet: (index?: number) =>
+        shouldShowCardSet && index !== undefined && isCardSetIndexSelected(index),
       shouldShowBlightbaneLink,
       parsedKeywords: shouldShowKeywords ? parsedKeywords : [],
     }
+
+    const getCardSetName = (index?: number) =>
+      shouldShowCardSet && index !== undefined ? getCardSetNameFromIndex(index) : undefined
 
     // Pre-cache all node dimensions for performance
     cacheAllNodeDimensions(filteredTree, renderingContext)
@@ -118,8 +118,8 @@ export default function TalentTree({
     const treeLayout = tree<HierarchicalTalentTreeNode>()
       .nodeSize([NODE.SPACING.VERTICAL_BASE, NODE.SPACING.HORIZONTAL])
       .separation((a, b) => {
-        const aHeight = getNodeHeight(a.data, renderingContext)
-        const bHeight = getNodeHeight(b.data, renderingContext)
+        const { height: aHeight } = getNodeHeight(a.data, renderingContext)
+        const { height: bHeight } = getNodeHeight(b.data, renderingContext)
 
         // Half of each node's height + fixed gap between them
         const totalSpacing = aHeight / 2 + NODE.SPACING.VERTICAL_GAP + bHeight / 2
@@ -180,12 +180,13 @@ export default function TalentTree({
         renderTalentNode(
           nodeElement,
           data,
-          isDescriptionExpanded,
-          toggleDescriptionExpansion,
-          shouldUseMobileFriendlyRendering,
+          renderingContext,
+          shouldShowDescription,
+          shouldShowCardSet,
           shouldShowKeywords,
           shouldShowBlightbaneLink,
-          parsedKeywords
+          parsedKeywords,
+          getCardSetName
         )
       }
     })
@@ -219,9 +220,8 @@ export default function TalentTree({
     })
   }, [
     talentTree,
-    isDescriptionExpanded,
-    shouldUseMobileFriendlyRendering,
-    toggleDescriptionExpansion,
+    shouldShowDescription,
+    shouldShowCardSet,
     shouldShowKeywords,
     shouldShowBlightbaneLink,
     parsedKeywords,
@@ -491,18 +491,192 @@ function renderRequirementNode(
 }
 
 /**
- * Renders the name of a talent node
+ * Renders the Blightbane link for a talent node
  */
+function renderBlightbaneLink(
+  nodeElement: NodeElement,
+  data: HierarchicalTalentTreeNode,
+  halfContentNodeHeight: number,
+  nameHeight: number,
+  descriptionHeight: number,
+  extraRequirementHeight: number,
+  blightbaneHeight: number
+): void {
+  const blightbaneLink = `https://www.blightbane.io/talent/${data.name.replaceAll(' ', '_')}`
+  const linkYPosition =
+    -halfContentNodeHeight +
+    nameHeight +
+    descriptionHeight +
+    extraRequirementHeight +
+    blightbaneHeight / 2
+
+  nodeElement
+    .append('text')
+    .attr('x', 0)
+    .attr('y', linkYPosition + 7)
+    .attr('class', cx('talent-node-blightbane-link'))
+    .text('View in Blightbane')
+    .on('click', function (event) {
+      event.stopPropagation()
+      window.open(blightbaneLink, '_blank', 'noopener,noreferrer')
+    })
+}
+
+/**
+ * Renders the main talent card node (background, borders, content)
+ */
+function renderTalentNode(
+  nodeElement: NodeElement,
+  data: HierarchicalTalentTreeNode,
+  renderingContext: TalentRenderingContext,
+  shouldShowDescription: boolean,
+  shouldShowCardSet: boolean,
+  shouldShowKeywords: boolean,
+  shouldShowBlightbaneLink: boolean,
+  parsedKeywords: string[],
+  getCardSetName: (index?: number) => string | undefined
+): void {
+  const nameHeight = NODE.HEIGHT.NAME
+  const minDescriptionHeight = NODE.HEIGHT.MIN_DESCRIPTION
+  const descriptionLineHeight = TEXT.LINE_HEIGHT
+  const descriptionLinesPadding = NODE.PADDING.DESCRIPTION_LINES
+  const keywordsHeight = NODE.HEIGHT.KEYWORDS
+  const blightbaneLinkHeight = NODE.HEIGHT.BLIGHTBANE_LINK
+
+  const isDescriptionHidden = !shouldShowDescription
+  const descLines = wrapTextForTalents(data.description, NODE.WIDTH + 8)
+  const additionalRequirements = [...data.otherRequirements, ...data.talentRequirements].filter(
+    isNotNullOrUndefined
+  )
+
+  const descriptionHeight = isDescriptionHidden
+    ? NODE.HEIGHT.COLLAPSED_DESCRIPTION
+    : Math.max(minDescriptionHeight, descLines.length * descriptionLineHeight) +
+      descriptionLinesPadding
+  const additionalRequirementHeight = additionalRequirements.length
+    ? NODE.HEIGHT.ADDITIONAL_REQUIREMENTS
+    : 0
+  const blightbaneHeight = shouldShowBlightbaneLink ? blightbaneLinkHeight : 0
+  const matchingKeywordsHeight = shouldShowKeywords ? keywordsHeight : 0
+
+  const { contentHeight: nodeHeight } = getNodeHeight(data, renderingContext)
+  const halfNodeHeight = nodeHeight / 2
+  const halfNodeWidth = NODE.WIDTH / 2
+
+  const nodeGlowWidth = NODE.WIDTH + NODE.GLOW_SIZE
+  const nodeGlowHeight = nodeHeight + NODE.GLOW_SIZE
+
+  // Glow rectangle
+  nodeElement
+    .append('rect')
+    .attr('width', nodeGlowWidth)
+    .attr('height', nodeGlowHeight)
+    .attr('x', -nodeGlowWidth / 2)
+    .attr('y', -nodeGlowHeight / 2)
+    .attr('class', cx('talent-node-glow', `talent-node-glow--tier-${data.tier || 0}`))
+    .attr('filter', 'url(#talent-glow)')
+
+  // Main node rectangle
+  nodeElement
+    .append('rect')
+    .attr('width', NODE.WIDTH)
+    .attr('height', nodeHeight)
+    .attr('x', -halfNodeWidth)
+    .attr('y', -halfNodeHeight)
+    .attr('class', cx('talent-node', `talent-node--tier-${data.tier || 0}`))
+
+  // Separator line between name and description
+  if (!isDescriptionHidden) {
+    const separatorY = -halfNodeHeight + nameHeight
+    nodeElement
+      .append('line')
+      .attr('x1', -halfNodeWidth)
+      .attr('y1', separatorY)
+      .attr('x2', halfNodeWidth)
+      .attr('y2', separatorY)
+      .attr('class', cx('talent-node-separator', `talent-node-separator--tier-${data.tier || 0}`))
+  }
+
+  // Separator line before Blightbane link
+  if (shouldShowBlightbaneLink) {
+    const separatorY =
+      -halfNodeHeight + nameHeight + descriptionHeight + additionalRequirementHeight
+    nodeElement
+      .append('line')
+      .attr('x1', -halfNodeWidth)
+      .attr('y1', separatorY)
+      .attr('x2', halfNodeWidth)
+      .attr('y2', separatorY)
+      .attr('class', cx('talent-node-separator', `talent-node-separator--tier-${data.tier || 0}`))
+  }
+
+  if (shouldShowCardSet) {
+    renderCardSets(nodeElement, halfNodeHeight, getCardSetName(data.cardSetIndex))
+  }
+
+  renderTalentName(nodeElement, data, halfNodeHeight, isDescriptionHidden)
+
+  const separatorHeight = NODE.HEIGHT.SEPARATOR
+  const posAfterNameSeparator =
+    -halfNodeHeight + nameHeight + (isDescriptionHidden ? 0 : separatorHeight)
+
+  renderTalentAdditionalRequirements(
+    nodeElement,
+    additionalRequirements,
+    posAfterNameSeparator,
+    isDescriptionHidden
+  )
+
+  const posBeforeDescription = posAfterNameSeparator + additionalRequirementHeight
+
+  renderTalentDescription(
+    nodeElement,
+    data,
+    posBeforeDescription,
+    descriptionHeight,
+    descriptionLineHeight,
+    descriptionLinesPadding,
+    isDescriptionHidden
+  )
+
+  if (shouldShowBlightbaneLink) {
+    renderBlightbaneLink(
+      nodeElement,
+      data,
+      halfNodeHeight,
+      nameHeight,
+      descriptionHeight,
+      additionalRequirementHeight,
+      blightbaneHeight
+    )
+  }
+
+  if (shouldShowKeywords) {
+    renderKeywords(
+      nodeElement,
+      data,
+      halfNodeHeight,
+      nameHeight,
+      descriptionHeight,
+      additionalRequirementHeight,
+      blightbaneHeight,
+      matchingKeywordsHeight,
+      keywordsHeight,
+      parsedKeywords
+    )
+  }
+}
+
 function renderTalentName(
   nodeElement: NodeElement,
   data: HierarchicalTalentTreeNode,
-  dynamicNodeHeight: number,
-  nameHeight: number,
+  halfNodeHeight: number,
   isCollapsed: boolean
 ): void {
+  const halfNameHeight = NODE.HEIGHT.NAME / 2
   const nameGroup = nodeElement
     .append('g')
-    .attr('transform', `translate(0, ${-dynamicNodeHeight / 2 + nameHeight / 2})`)
+    .attr('transform', `translate(0, ${-halfNodeHeight + halfNameHeight})`)
 
   // For names too long to have larger fonts when collapsed
   const isNameReallyLong = data.name.length > NODE.NAME.REALLY_LONG_THRESHOLD
@@ -521,341 +695,66 @@ function renderTalentName(
     )
 }
 
-/**
- * Renders the "Requires:" text for additional requirements
- */
-function renderTalentRequirements(
+function renderTalentAdditionalRequirements(
   nodeElement: NodeElement,
   additionalRequirements: string[],
-  dynamicNodeHeight: number,
-  nameHeight: number,
-  requirementsHeight: number,
-  isCollapsed: boolean
+  yPosBeforeAdditionalRequirements: number,
+  isDescriptionHidden: boolean
 ): void {
   if (additionalRequirements.length === 0) return
+
+  const halfAdditionalRequirementsHeight = isDescriptionHidden
+    ? NODE.HEIGHT.ADDITIONAL_REQUIREMENTS_NO_DESCRIPTION / 2
+    : NODE.HEIGHT.ADDITIONAL_REQUIREMENTS / 2
 
   const reqGroup = nodeElement
     .append('g')
     .attr(
       'transform',
-      `translate(0, ${-dynamicNodeHeight / 2 + nameHeight + requirementsHeight / 2})`
+      `translate(0, ${yPosBeforeAdditionalRequirements + halfAdditionalRequirementsHeight})`
     )
 
   reqGroup
     .append('text')
-    .attr('x', 0)
-    .attr('y', 8)
+    .attr('y', 0)
     .attr(
       'class',
-      cx('talent-node-requirements', { 'talent-node-requirements--collapsed': isCollapsed })
+      cx('talent-node-requirements', { 'talent-node-requirements--collapsed': isDescriptionHidden })
     )
     .text(`Requires: ${additionalRequirements.join(', ')}!`)
 }
 
-/**
- * Renders the description of a talent node
- */
 function renderTalentDescription(
   nodeElement: NodeElement,
   data: HierarchicalTalentTreeNode,
-  dynamicNodeHeight: number,
-  nameHeight: number,
-  extraRequirementHeight: number,
+  yPosBeforeDescription: number,
   descriptionHeight: number,
   descriptionLineHeight: number,
   descriptionLinesPadding: number,
-  isCollapsed: boolean,
-  shouldUseMobileFriendlyRendering: boolean
+  isCollapsed: boolean
 ): void {
   if (isCollapsed) return
 
   const descLines = wrapTextForTalents(data.description, NODE.WIDTH + 8)
-  const descBaseY =
-    -dynamicNodeHeight / 2 + nameHeight + extraRequirementHeight + descriptionHeight / 2
+  const descBaseY = yPosBeforeDescription + descriptionHeight / 2
   const verticalCenteringOffset = descriptionLinesPadding / 2 + TEXT.CENTERING_OFFSET.DESCRIPTION
 
-  if (shouldUseMobileFriendlyRendering) {
-    // Mobile-friendly rendering: use SVG text with emojis
-    descLines.forEach((line, i) => {
-      const segments = parseTalentDescriptionLineForMobileRendering(line)
-      const yPosition =
-        descBaseY +
-        i * descriptionLineHeight -
-        ((descLines.length - 1) * descriptionLineHeight) / 2 +
-        verticalCenteringOffset
+  descLines.forEach((line, i) => {
+    const segments = parseTalentDescriptionLine(line)
+    const yPosition =
+      descBaseY +
+      i * descriptionLineHeight -
+      ((descLines.length - 1) * descriptionLineHeight) / 2 +
+      verticalCenteringOffset
 
-      nodeElement
-        .append('text')
-        .attr('x', 0)
-        .attr('y', yPosition)
-        .attr('class', cx('talent-node-description'))
-        .style('pointer-events', 'none')
-        .text(segments)
-    })
-  } else {
-    // Desktop rendering: use foreignObject with HTML and images
-    descLines.forEach((line, i) => {
-      const segments = parseTalentDescriptionLineForDesktopRendering(line)
-      const verticalCenteringOffset = TEXT.CENTERING_OFFSET.DESKTOP
-      const yPosition =
-        descBaseY +
-        i * descriptionLineHeight -
-        ((descLines.length - 1) * descriptionLineHeight) / 2 +
-        verticalCenteringOffset
-
-      const foreignObject = nodeElement
-        .append('foreignObject')
-        .attr('x', -NODE.WIDTH / 2)
-        .attr('y', yPosition)
-        .attr('width', NODE.WIDTH)
-        .attr('height', descriptionLineHeight)
-        .style('pointer-events', 'none')
-
-      let htmlContent = ''
-      segments.forEach((segment) => {
-        if (segment.type === 'text') {
-          htmlContent += segment.content
-        } else if (segment.type === 'image' && 'icon' in segment) {
-          htmlContent += `<img src="${segment.icon}" alt="" />`
-        }
-      })
-
-      foreignObject
-        .append('xhtml:div')
-        .attr('xmlns', 'http://www.w3.org/1999/xhtml')
-        .attr('class', cx('talent-node-description'))
-        .html(htmlContent)
-    })
-  }
-}
-
-/**
- * Renders the Blightbane link for a talent node
- */
-function renderBlightbaneLink(
-  nodeElement: NodeElement,
-  data: HierarchicalTalentTreeNode,
-  dynamicNodeHeight: number,
-  nameHeight: number,
-  descriptionHeight: number,
-  extraRequirementHeight: number,
-  blightbaneHeight: number,
-  blightbaneLinkHeight: number,
-  shouldUseMobileFriendlyRendering: boolean
-): void {
-  const blightbaneLink = `https://www.blightbane.io/talent/${data.name.replaceAll(' ', '_')}`
-  const linkYPosition =
-    -dynamicNodeHeight / 2 +
-    nameHeight +
-    descriptionHeight +
-    extraRequirementHeight +
-    blightbaneHeight / 2
-
-  if (shouldUseMobileFriendlyRendering) {
-    // Mobile-friendly rendering: use SVG text (clicking will be harder but functional)
     nodeElement
       .append('text')
       .attr('x', 0)
-      .attr('y', linkYPosition + 7)
-      .attr('class', cx('talent-node-blightbane-link'))
-      .text('View in Blightbane')
-      .on('click', function (event) {
-        event.stopPropagation()
-        window.open(blightbaneLink, '_blank', 'noopener,noreferrer')
-      })
-  } else {
-    // Desktop rendering: use foreignObject with HTML link
-    const linkForeignObject = nodeElement
-      .append('foreignObject')
-      .attr('x', -NODE.WIDTH / 2)
-      .attr('y', linkYPosition - 5)
-      .attr('width', NODE.WIDTH)
-      .attr('height', blightbaneLinkHeight)
-
-    linkForeignObject
-      .append('xhtml:div')
-      .attr('xmlns', 'http://www.w3.org/1999/xhtml')
-      .attr('class', cx('talent-node-blightbane-link-wrapper'))
-      .html(
-        `<a href="${blightbaneLink}" target="_blank" rel="noopener noreferrer" class="${cx('talent-node-blightbane-link')}">View in Blightbane</a>`
-      )
-  }
-}
-
-/**
- * Renders the keywords for a talent node
- */
-function renderKeywords(
-  nodeElement: NodeElement,
-  data: HierarchicalTalentTreeNode,
-  dynamicNodeHeight: number,
-  nameHeight: number,
-  descriptionHeight: number,
-  extraRequirementHeight: number,
-  blightbaneHeight: number,
-  matchingKeywordsHeight: number,
-  keywordsHeight: number,
-  parsedKeywords: string[]
-): void {
-  const keywordsYPosition =
-    -dynamicNodeHeight / 2 +
-    nameHeight +
-    descriptionHeight +
-    extraRequirementHeight +
-    blightbaneHeight +
-    matchingKeywordsHeight
-
-  nodeElement
-    .append('text')
-    .attr('x', 0)
-    .attr('y', keywordsYPosition + 6)
-    .attr('height', keywordsHeight)
-    .attr('width', NODE.WIDTH)
-    .text(getMatchingKeywordsText(data, parsedKeywords))
-    .attr('class', cx('talent-node-keywords'))
-}
-
-/**
- * Renders the main talent card node (background, borders, content)
- */
-function renderTalentNode(
-  nodeElement: NodeElement,
-  data: HierarchicalTalentTreeNode,
-  isDescriptionExpanded: (name: string) => boolean,
-  toggleDescriptionExpansion: (name: string) => void,
-  shouldUseMobileFriendlyRendering: boolean,
-  shouldShowKeywords: boolean,
-  shouldShowBlightbaneLink: boolean,
-  parsedKeywords: string[]
-): void {
-  const nameHeight = NODE.HEIGHT.NAME
-  const minDescriptionHeight = NODE.HEIGHT.MIN_DESCRIPTION
-  const collapsedDescriptionHeight = NODE.HEIGHT.COLLAPSED_DESCRIPTION
-  const descriptionLineHeight = TEXT.LINE_HEIGHT
-  const descriptionLinesPadding = NODE.PADDING.DESCRIPTION_LINES
-  const requirementsHeight = NODE.HEIGHT.REQUIREMENTS
-  const keywordsHeight = NODE.HEIGHT.KEYWORDS
-  const blightbaneLinkHeight = NODE.HEIGHT.BLIGHTBANE_LINK
-
-  const isCollapsed = !isDescriptionExpanded(data.name)
-  const descLines = wrapTextForTalents(data.description, NODE.WIDTH + 8)
-  const additionalRequirements = [...data.otherRequirements, ...data.talentRequirements].filter(
-    isNotNullOrUndefined
-  )
-
-  const descriptionHeight = isCollapsed
-    ? collapsedDescriptionHeight
-    : Math.max(minDescriptionHeight, descLines.length * descriptionLineHeight) +
-      descriptionLinesPadding
-  const extraRequirementHeight = additionalRequirements.length ? requirementsHeight : 0
-  const matchingKeywordsHeight = shouldShowKeywords ? keywordsHeight : 0
-  const blightbaneHeight = shouldShowBlightbaneLink ? blightbaneLinkHeight : 0
-  const additionalHeight = descriptionHeight + extraRequirementHeight + blightbaneHeight
-  const dynamicNodeHeight = nameHeight + additionalHeight + 6
-
-  const nodeGlowWidth = NODE.WIDTH + NODE.GLOW_SIZE
-  const nodeGlowHeight = dynamicNodeHeight + NODE.GLOW_SIZE
-
-  nodeElement
-    .append('rect')
-    .attr('width', nodeGlowWidth)
-    .attr('height', nodeGlowHeight)
-    .attr('x', -nodeGlowWidth / 2)
-    .attr('y', -nodeGlowHeight / 2)
-    .attr('class', cx('talent-node-glow', `talent-node-glow--tier-${data.tier || 0}`))
-    .attr('filter', 'url(#talent-glow)')
-
-  nodeElement
-    .append('rect')
-    .attr('width', NODE.WIDTH)
-    .attr('height', dynamicNodeHeight)
-    .attr('x', -NODE.WIDTH / 2)
-    .attr('y', -dynamicNodeHeight / 2)
-    .attr('class', cx('talent-node', `talent-node--tier-${data.tier || 0}`))
-    .on('click', function (event) {
-      event.stopPropagation()
-      toggleDescriptionExpansion(data.name)
-    })
-
-  if (!isCollapsed) {
-    nodeElement
-      .append('line')
-      .attr('x1', -NODE.WIDTH / 2)
-      .attr('y1', -dynamicNodeHeight / 2 + nameHeight)
-      .attr('x2', NODE.WIDTH / 2)
-      .attr('y2', -dynamicNodeHeight / 2 + nameHeight)
-      .attr('class', cx('talent-node-separator', `talent-node-separator--tier-${data.tier || 0}`))
-  }
-  if (shouldShowBlightbaneLink) {
-    // Very tiny adjustment of divider line.
-    const offset = SEPARATOR.BLIGHTBANE_OFFSET
-    nodeElement
-      .append('line')
-      .attr('x1', -NODE.WIDTH / 2)
-      .attr(
-        'y1',
-        -dynamicNodeHeight / 2 + nameHeight + descriptionHeight + extraRequirementHeight + offset
-      )
-      .attr('x2', NODE.WIDTH / 2)
-      .attr(
-        'y2',
-        -dynamicNodeHeight / 2 + nameHeight + descriptionHeight + extraRequirementHeight + offset
-      )
-      .attr('class', cx('talent-node-separator', `talent-node-separator--tier-${data.tier || 0}`))
-  }
-
-  renderTalentName(nodeElement, data, dynamicNodeHeight, nameHeight, isCollapsed)
-
-  renderTalentRequirements(
-    nodeElement,
-    additionalRequirements,
-    dynamicNodeHeight,
-    nameHeight,
-    requirementsHeight,
-    isCollapsed
-  )
-
-  renderTalentDescription(
-    nodeElement,
-    data,
-    dynamicNodeHeight,
-    nameHeight,
-    extraRequirementHeight,
-    descriptionHeight,
-    descriptionLineHeight,
-    descriptionLinesPadding,
-    isCollapsed,
-    shouldUseMobileFriendlyRendering
-  )
-
-  if (shouldShowBlightbaneLink) {
-    renderBlightbaneLink(
-      nodeElement,
-      data,
-      dynamicNodeHeight,
-      nameHeight,
-      descriptionHeight,
-      extraRequirementHeight,
-      blightbaneHeight,
-      blightbaneLinkHeight,
-      shouldUseMobileFriendlyRendering
-    )
-  }
-
-  if (shouldShowKeywords) {
-    renderKeywords(
-      nodeElement,
-      data,
-      dynamicNodeHeight,
-      nameHeight,
-      descriptionHeight,
-      extraRequirementHeight,
-      blightbaneHeight,
-      matchingKeywordsHeight,
-      keywordsHeight,
-      parsedKeywords
-    )
-  }
+      .attr('y', yPosition)
+      .attr('class', cx('talent-node-description'))
+      .style('pointer-events', 'none')
+      .text(segments)
+  })
 }
 
 /**
@@ -919,6 +818,61 @@ function renderExpansionButton(
     .attr('dominant-baseline', 'central')
     .attr('class', cx('expansion-button-text'))
     .text(isExpanded ? EXPANSION_BUTTON.SYMBOL.EXPANDED : EXPANSION_BUTTON.SYMBOL.COLLAPSED)
+}
+
+/**
+ * Renders the card sets for a talent node (displayed above the node)
+ */
+function renderCardSets(
+  nodeElement: NodeElement,
+  halfNodeHeight: number,
+  cardSetName?: string
+): void {
+  if (!cardSetName) return
+
+  const cardSetYPosition = -halfNodeHeight - NODE.HEIGHT.CARD_SET
+
+  nodeElement
+    .append('text')
+    .attr('x', 0)
+    .attr('y', cardSetYPosition + 6)
+    .attr('height', NODE.HEIGHT.CARD_SET)
+    .attr('width', NODE.WIDTH)
+    .text(cardSetName)
+    .attr('class', cx('talent-node-card-sets'))
+}
+
+/**
+ * Renders the keywords for a talent node
+ */
+function renderKeywords(
+  nodeElement: NodeElement,
+  data: HierarchicalTalentTreeNode,
+  halfContentNodeHeight: number,
+  nameHeight: number,
+  descriptionHeight: number,
+  extraRequirementHeight: number,
+  blightbaneHeight: number,
+  matchingKeywordsHeight: number,
+  keywordsHeight: number,
+  parsedKeywords: string[]
+): void {
+  const keywordsYPosition =
+    -halfContentNodeHeight +
+    nameHeight +
+    descriptionHeight +
+    extraRequirementHeight +
+    blightbaneHeight +
+    matchingKeywordsHeight
+
+  nodeElement
+    .append('text')
+    .attr('x', 0)
+    .attr('y', keywordsYPosition + 6)
+    .attr('height', keywordsHeight)
+    .attr('width', NODE.WIDTH)
+    .text(getMatchingKeywordsText(data, parsedKeywords))
+    .attr('class', cx('talent-node-keywords'))
 }
 
 const createGlowFilter = (
