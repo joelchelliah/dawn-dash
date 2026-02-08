@@ -1,4 +1,4 @@
-import { type HierarchyPointLink } from 'd3-hierarchy'
+import { HierarchyPointNode, type HierarchyPointLink } from 'd3-hierarchy'
 
 import { createCx } from '@/shared/utils/classnames'
 
@@ -17,6 +17,11 @@ interface DrawLinksParam {
 }
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
+interface LinksWithNewRequirements {
+  link: HierarchyPointLink<HierarchicalTalentTreeNode>
+  newRequirements: string[]
+}
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export function drawLinks({ svg, treeData }: DrawLinksParam) {
   svg
@@ -32,6 +37,28 @@ export function drawLinks({ svg, treeData }: DrawLinksParam) {
     })
 }
 /* eslint-enable @typescript-eslint/no-explicit-any */
+
+export function getLinksWithNewRequirements(
+  treeData: HierarchyPointNode<HierarchicalTalentTreeNode>
+): LinksWithNewRequirements[] {
+  return treeData
+    .links()
+    .filter((link) => link.source.depth > 0)
+    .map((link) => {
+      const newRequirements = [
+        ...link.target.data.classOrEnergyRequirements.filter(
+          (requirement) => !link.source.data.classOrEnergyRequirements.includes(requirement)
+        ),
+        ...link.target.data.talentRequirements.filter(
+          (requirement) => link.source.data.name !== requirement
+        ),
+        ...link.target.data.otherRequirements,
+      ]
+
+      return { link, newRequirements }
+    })
+    .filter(({ newRequirements }) => newRequirements.length > 0)
+}
 
 /**
  * Generates a smooth curved path between nodes

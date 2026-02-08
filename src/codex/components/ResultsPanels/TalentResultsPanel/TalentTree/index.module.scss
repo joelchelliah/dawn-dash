@@ -13,13 +13,13 @@
   min-height: 500px;
 }
 
-.tree-root-node-circle {
+.requirement-node-circle {
   fill: $color-component-bg;
   stroke: var(--color, $color-component-bg-hover);
   stroke-width: 2px;
 }
 
-.tree-root-node-label {
+.requirement-node-label {
   font-size: font-size('lg');
   font-weight: 600;
   text-anchor: middle;

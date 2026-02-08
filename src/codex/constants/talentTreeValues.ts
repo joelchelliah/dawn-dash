@@ -10,7 +10,7 @@ const NODE_WIDTH = 200
 
 export const TREE = {
   PADDING: {
-    LEFT: 50, // Prevents `No Requirements` node label from being cut off
+    LEFT: 70, // Prevents `Obtained from events` node label from being cut off
     RIGHT: 10,
     VERTICAL: 40,
   },
@@ -85,8 +85,8 @@ export const REQUIREMENT_NODE = {
   /** Spacing between multiple icons */
   ICON_SPACING: 2,
 
-  LABEL_LINE_HEIGHT: 14,
-  LABEL_BOTTOM_MARGIN: 4,
+  LABEL_LINE_HEIGHT: 18,
+  LABEL_BOTTOM_MARGIN: 2,
 } as const
 
 export const TEXT = {
