@@ -12,25 +12,23 @@ import { useBreakpoint } from '@/shared/hooks/useBreakpoint'
 
 import eventTreesData from '@/codex/data/event-trees.json'
 import { Event } from '@/codex/types/events'
+import { ZOOM_LEVELS, ZoomLevel, ZOOM_LABEL_MAP } from '@/codex/constants/zoomValues'
 import {
-  ZOOM_LEVELS,
-  ZoomLevel,
   LoopingPathMode,
   LOOPING_PATH_MODES,
   TreeNavigationMode,
   TREE_NAVIGATION_MODES,
   ALL_EVENTS_INDEX,
-  ZOOM_LABEL_MAP,
   LevelOfDetail,
   LEVEL_OF_DETAIL_OPTIONS,
 } from '@/codex/constants/eventSearchValues'
 import { UseAllEventSearchFilters } from '@/codex/hooks/useSearchFilters/useAllEventSearchFilters'
 import { useStickyZoom } from '@/codex/hooks/useStickyZoom'
+import StickyZoomSelect from '@/codex/components/shared/StickyZoomSelect'
 import Checkbox from '@/codex/components/SearchPanels/shared/FilterGroup/Checkbox'
 
 import PanelHeader from '../../PanelHeader'
 
-import StickyZoomSelect from './StickyZoomSelect'
 import styles from './index.module.scss'
 
 const cx = createCx(styles)

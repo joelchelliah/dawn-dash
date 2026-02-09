@@ -1,6 +1,6 @@
 import { useRef } from 'react'
 
-import { ZoomLevel, MAX_ZOOM_LEVEL } from '@/codex/constants/eventSearchValues'
+import { ZoomLevel, MAX_ZOOM_LEVEL } from '@/codex/constants/zoomValues'
 
 interface CoverScaleCache {
   eventId: string
