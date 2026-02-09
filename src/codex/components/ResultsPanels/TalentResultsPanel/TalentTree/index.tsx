@@ -127,7 +127,7 @@ export default function TalentTree({
     // Calculate zoom scale for numbered zoom levels
     const getZoomScale = (): number | undefined => {
       if (zoomLevel === ZoomLevel.COVER) return undefined
-      return parseInt(zoomLevel.toString()) / 150
+      return parseInt(zoomLevel.toString()) / 100
     }
 
     const zoomScale = getZoomScale()
