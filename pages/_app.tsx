@@ -2,6 +2,7 @@ import './app.scss'
 
 import Head from 'next/head'
 import Script from 'next/script'
+import { Analytics } from '@vercel/analytics/next'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 
 import type { AppProps, NextWebVitalsMetric } from 'next/app'
@@ -64,6 +65,7 @@ export default function App({ Component, pageProps }: AppProps) {
       </Script>
 
       <Component {...pageProps} />
+      <Analytics />
       <SpeedInsights />
     </>
   )
