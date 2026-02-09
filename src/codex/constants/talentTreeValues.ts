@@ -20,15 +20,6 @@ export const NODE = {
   /** Standard width for talent node rectangles */
   WIDTH: NODE_WIDTH,
 
-  /** Height components for different sections of talent nodes */
-  HEIGHT: {
-    /** Height for matching keywords section */
-    KEYWORDS: 20,
-
-    /** Height for Blightbane link section */
-    BLIGHTBANE_LINK: 26,
-  },
-
   SPACING: {
     HORIZONTAL: NODE_WIDTH + 100,
     /** Base vertical spacing for D3 layout calculation */
@@ -42,16 +33,11 @@ export const NODE = {
   // Additional size of the glow rectangle
   GLOW_SIZE: 6,
 
-  /** Padding and offsets for various node elements */
-  PADDING: {
-    /** Extra padding for description lines to create spacing */
-    DESCRIPTION_LINES: 12,
-  },
-
   /** Card set-specific constants */
   CARD_SET: {
     HEIGHT: 8,
-    VERTICAL_MARGIN: 10,
+    TOP_MARGIN: -2,
+    BOTTOM_MARGIN: 10,
   },
 
   /** Name-specific constants */
@@ -82,6 +68,13 @@ export const NODE = {
     HEIGHT: 8,
     VERTICAL_MARGIN: 10,
   },
+
+  /** Keywords-specific constants */
+  KEYWORDS: {
+    HEIGHT: 8,
+    TOP_MARGIN: 10,
+    BOTTOM_MARGIN: -2,
+  },
 } as const
 
 export const REQUIREMENT_NODE = {
@@ -105,22 +98,6 @@ export const REQUIREMENT_NODE = {
 
   LABEL_LINE_HEIGHT: 18,
   LABEL_BOTTOM_MARGIN: 2,
-} as const
-
-export const TEXT = {
-  /** Line height for description text */
-  LINE_HEIGHT: 15,
-
-  /** Horizontal padding for text wrapping calculations */
-  HORIZONTAL_PADDING: 5,
-
-  /** Vertical centering offsets */
-  CENTERING_OFFSET: {
-    /** Desktop rendering vertical offset */
-    DESKTOP: -15,
-    /** Description lines base offset */
-    DESCRIPTION: -1,
-  },
 } as const
 
 export const REQUIREMENT_INDICATOR = {

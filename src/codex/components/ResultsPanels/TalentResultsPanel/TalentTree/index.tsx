@@ -50,9 +50,9 @@ const cx = createCx(styles)
 const DEBUG_RECTANGLES = {
   cardSet: false,
   name: false,
-  additionalRequirements: true,
-  description: true,
-  blightbaneLink: true,
+  additionalRequirements: false,
+  description: false,
+  blightbaneLink: false,
   keywords: false,
 }
 
@@ -513,8 +513,7 @@ function renderTalentNode(
   parsedKeywords: string[],
   getCardSetName: (index?: number) => string | undefined
 ): void {
-  const keywordsHeight = NODE.HEIGHT.KEYWORDS
-
+  const tier = data.tier || 0
   const nameHeight = shouldShowDescription
     ? NODE.NAME.HEIGHT + 2 * NODE.NAME.VERTICAL_MARGIN
     : NODE.NAME.HEIGHT_NO_DESCRIPTION + 2 * NODE.NAME.VERTICAL_MARGIN
@@ -537,12 +536,6 @@ function renderTalentNode(
     ? descriptionLines.length * NODE.DESCRIPTION.LINE_HEIGHT + 2 * NODE.DESCRIPTION.VERTICAL_MARGIN
     : 0
 
-  const blightbaneLinkHeight = shouldShowBlightbaneLink
-    ? NODE.BLIGHTBANE_LINK.HEIGHT + 2 * NODE.BLIGHTBANE_LINK.VERTICAL_MARGIN
-    : 0
-
-  const matchingKeywordsHeight = shouldShowKeywords ? keywordsHeight : 0
-
   const { contentHeight: nodeHeight } = getNodeHeight(data, renderingContext)
   const halfNodeHeight = nodeHeight / 2
   const halfNodeWidth = NODE.WIDTH / 2
@@ -557,7 +550,7 @@ function renderTalentNode(
     .attr('height', nodeGlowHeight)
     .attr('x', -nodeGlowWidth / 2)
     .attr('y', -nodeGlowHeight / 2)
-    .attr('class', cx('talent-node-glow', `talent-node-glow--tier-${data.tier || 0}`))
+    .attr('class', cx('talent-node-glow', `talent-node-glow--tier-${tier}`))
     .attr('filter', 'url(#talent-glow)')
 
   // Main node rectangle
@@ -567,7 +560,7 @@ function renderTalentNode(
     .attr('height', nodeHeight)
     .attr('x', -halfNodeWidth)
     .attr('y', -halfNodeHeight)
-    .attr('class', cx('talent-node', `talent-node--tier-${data.tier || 0}`))
+    .attr('class', cx('talent-node', `talent-node--tier-${tier}`))
 
   // Separator line after name
   if (shouldShowDescription) {
@@ -578,7 +571,7 @@ function renderTalentNode(
       .attr('y1', separatorY)
       .attr('x2', halfNodeWidth)
       .attr('y2', separatorY)
-      .attr('class', cx('talent-node-separator', `talent-node-separator--tier-${data.tier || 0}`))
+      .attr('class', cx('talent-node-separator', `talent-node-separator--tier-${tier}`))
   }
 
   // Separator line before Blightbane link
@@ -591,11 +584,14 @@ function renderTalentNode(
       .attr('y1', separatorY)
       .attr('x2', halfNodeWidth)
       .attr('y2', separatorY)
-      .attr('class', cx('talent-node-separator', `talent-node-separator--tier-${data.tier || 0}`))
+      .attr('class', cx('talent-node-separator', `talent-node-separator--tier-${tier}`))
   }
 
   if (shouldShowCardSet) {
-    renderCardSets(nodeElement, -halfNodeHeight, getCardSetName(data.cardSetIndex))
+    const cardSetName = getCardSetName(data.cardSetIndex)
+    if (cardSetName) {
+      renderCardSets(nodeElement, -halfNodeHeight, cardSetName, tier)
+    }
   }
 
   renderTalentName(nodeElement, data, -halfNodeHeight, !shouldShowDescription)
@@ -624,37 +620,33 @@ function renderTalentNode(
   }
 
   if (shouldShowKeywords) {
-    renderKeywords(
-      nodeElement,
-      data,
-      halfNodeHeight,
-      nameHeight,
-      descriptionHeight,
-      additionalRequirementHeight,
-      blightbaneLinkHeight,
-      matchingKeywordsHeight,
-      keywordsHeight,
-      parsedKeywords
-    )
+    const matchingKeywords = getMatchingKeywordsText(data, parsedKeywords)
+    if (matchingKeywords.length > 0) {
+      renderKeywords(nodeElement, halfNodeHeight, matchingKeywords)
+    }
   }
 }
 
-function renderCardSets(nodeElement: NodeElement, originY: number, cardSetName?: string): void {
-  if (!cardSetName) return
-
+function renderCardSets(
+  nodeElement: NodeElement,
+  originY: number,
+  cardSetName: string,
+  tier: number
+): void {
   const halfCardSetHeight = NODE.CARD_SET.HEIGHT / 2
-  const halfCardSetVerticalMargin = NODE.CARD_SET.VERTICAL_MARGIN
+  const topMargin = NODE.CARD_SET.TOP_MARGIN
+  const bottomMargin = NODE.CARD_SET.BOTTOM_MARGIN
   const cardSetGroup = nodeElement
     .append('g')
-    .attr('transform', `translate(0, ${originY - halfCardSetHeight - halfCardSetVerticalMargin})`)
+    .attr('transform', `translate(0, ${originY - halfCardSetHeight - bottomMargin})`)
 
   if (DEBUG_RECTANGLES.cardSet) {
     cardSetGroup
       .append('rect')
       .attr('x', -NODE.WIDTH / 2)
-      .attr('y', -halfCardSetHeight - halfCardSetVerticalMargin)
+      .attr('y', -halfCardSetHeight - bottomMargin)
       .attr('width', NODE.WIDTH)
-      .attr('height', NODE.CARD_SET.HEIGHT + 2 * halfCardSetVerticalMargin)
+      .attr('height', NODE.CARD_SET.HEIGHT + topMargin + bottomMargin)
       .attr('fill', 'rgba(255, 0, 255, 0.2)')
       .attr('stroke', 'rgba(255, 0, 255, 0.5)')
       .attr('stroke-width', 1)
@@ -663,9 +655,8 @@ function renderCardSets(nodeElement: NodeElement, originY: number, cardSetName?:
   cardSetGroup
     .append('text')
     .attr('y', halfCardSetHeight)
-    .attr('width', NODE.WIDTH)
     .text(cardSetName)
-    .attr('class', cx('talent-node-card-sets'))
+    .attr('class', cx('talent-node-card-sets', `talent-node-card-sets--tier-${tier}`))
 }
 
 function renderTalentName(
@@ -822,7 +813,6 @@ function renderBlightbaneLink(
 
   blightbaneGroup
     .append('text')
-    .attr('x', 0)
     .attr('y', halfBlightbaneLinkHeight)
     .attr('class', cx('talent-node-blightbane-link'))
     .text('View in Blightbane')
@@ -832,9 +822,37 @@ function renderBlightbaneLink(
     })
 }
 
+function renderKeywords(nodeElement: NodeElement, originY: number, matchingKeywords: string): void {
+  const keywordsHeight = NODE.KEYWORDS.HEIGHT
+  const halfKeywordsHeight = keywordsHeight / 2
+  const topMargin = NODE.KEYWORDS.TOP_MARGIN
+  const bottomMargin = NODE.KEYWORDS.BOTTOM_MARGIN
+
+  const keywordsGroup = nodeElement
+    .append('g')
+    .attr('transform', `translate(0, ${originY + halfKeywordsHeight + topMargin})`)
+
+  if (DEBUG_RECTANGLES.keywords) {
+    keywordsGroup
+      .append('rect')
+      .attr('x', -NODE.WIDTH / 2)
+      .attr('y', -halfKeywordsHeight - topMargin)
+      .attr('width', NODE.WIDTH)
+      .attr('height', keywordsHeight + topMargin + bottomMargin)
+      .attr('fill', 'rgba(0, 255, 255, 0.2)')
+      .attr('stroke', 'rgba(0, 255, 255, 0.5)')
+      .attr('stroke-width', 1)
+  }
+
+  keywordsGroup
+    .append('text')
+    .attr('y', halfKeywordsHeight)
+    .attr('class', cx('talent-node-keywords'))
+    .text(matchingKeywords)
+}
+
 function renderExpansionButton(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  nodeElement: Selection<SVGGElement, any, any, any>,
+  nodeElement: NodeElement,
   data: HierarchicalTalentTreeNode,
   fullTree: HierarchicalTalentTreeNode,
   parsedKeywords: string[],
@@ -890,59 +908,6 @@ function renderExpansionButton(
     .attr('dominant-baseline', 'central')
     .attr('class', cx('expansion-button-text'))
     .text(isExpanded ? EXPANSION_BUTTON.SYMBOL.EXPANDED : EXPANSION_BUTTON.SYMBOL.COLLAPSED)
-}
-
-/**
- * Renders the keywords for a talent node
- */
-function renderKeywords(
-  nodeElement: NodeElement,
-  data: HierarchicalTalentTreeNode,
-  halfContentNodeHeight: number,
-  nameHeight: number,
-  descriptionHeight: number,
-  extraRequirementHeight: number,
-  blightbaneHeight: number,
-  matchingKeywordsHeight: number,
-  keywordsHeight: number,
-  parsedKeywords: string[]
-): void {
-  const keywordsYPosition =
-    -halfContentNodeHeight +
-    nameHeight +
-    descriptionHeight +
-    extraRequirementHeight +
-    blightbaneHeight +
-    matchingKeywordsHeight
-
-  const rectYPosition =
-    -halfContentNodeHeight +
-    nameHeight +
-    descriptionHeight +
-    extraRequirementHeight +
-    blightbaneHeight
-
-  // DEBUG: Draw rectangle around keywords area
-  if (DEBUG_RECTANGLES.keywords) {
-    nodeElement
-      .append('rect')
-      .attr('x', -NODE.WIDTH / 2)
-      .attr('y', rectYPosition)
-      .attr('width', NODE.WIDTH)
-      .attr('height', keywordsHeight)
-      .attr('fill', 'rgba(0, 255, 255, 0.2)')
-      .attr('stroke', 'rgba(0, 255, 255, 0.5)')
-      .attr('stroke-width', 1)
-  }
-
-  nodeElement
-    .append('text')
-    .attr('x', 0)
-    .attr('y', keywordsYPosition + 6)
-    .attr('height', keywordsHeight)
-    .attr('width', NODE.WIDTH)
-    .text(getMatchingKeywordsText(data, parsedKeywords))
-    .attr('class', cx('talent-node-keywords'))
 }
 
 const createGlowFilter = (

@@ -79,7 +79,7 @@ const _getNodeHeight = (
 
     // Card set height
     if (context.shouldShowCardSet(node.cardSetIndex)) {
-      outerHeight += NODE.CARD_SET.HEIGHT + 2 * NODE.CARD_SET.VERTICAL_MARGIN
+      outerHeight += NODE.CARD_SET.HEIGHT + NODE.CARD_SET.TOP_MARGIN + NODE.CARD_SET.BOTTOM_MARGIN
     }
 
     // Name height
@@ -119,7 +119,7 @@ const _getNodeHeight = (
       context.parsedKeywords.length > 0 &&
       getMatchingKeywordsText(node, context.parsedKeywords).length > 0
     ) {
-      outerHeight += NODE.HEIGHT.KEYWORDS
+      outerHeight += NODE.KEYWORDS.HEIGHT + NODE.KEYWORDS.TOP_MARGIN + NODE.KEYWORDS.BOTTOM_MARGIN
     }
 
     return { height: outerHeight + contentHeight, contentHeight }

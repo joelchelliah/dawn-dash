@@ -69,6 +69,19 @@
   }
 }
 
+.talent-node-card-sets {
+  font-size: font-size('xxs');
+  font-weight: 400;
+  text-anchor: middle;
+  pointer-events: none;
+
+  @each $tier, $color in $tier-index-to-color-map {
+    &--tier-#{$tier} {
+      fill: color.mix($color-primary-base, $color, 40%);
+    }
+  }
+}
+
 .talent-node-name {
   font-size: font-size('xxs');
   font-weight: 600;
@@ -183,14 +196,6 @@
   &::after {
     @include yellowGreenGradientBackgroundSupportInAfterBlock();
   }
-}
-
-.talent-node-card-sets {
-  font-size: font-size('xxs');
-  font-weight: 400;
-  fill: $color-primary-muted;
-  text-anchor: middle;
-  pointer-events: none;
 }
 
 .talent-node-keywords {
