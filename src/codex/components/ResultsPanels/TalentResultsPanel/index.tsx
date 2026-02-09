@@ -29,16 +29,21 @@ const TalentResultsPanel = ({ useSearchFilters }: TalentResultsPanelProps) => {
     if (!matchingTalentTree) return []
 
     function collectTalentNames(nodes: TalentTreeNode[]): string[] {
-      let names: string[] = []
-      for (const node of nodes) {
-        if (node.type === TalentTreeNodeType.TALENT) {
-          names.push(node.name)
-          names = names.concat(collectTalentNames(node.children))
-        } else {
-          names = names.concat(collectTalentNames(node.children))
+      const namesSet = new Set<string>()
+
+      function traverse(nodes: TalentTreeNode[]) {
+        for (const node of nodes) {
+          if (node.type === TalentTreeNodeType.TALENT) {
+            namesSet.add(node.name)
+            traverse(node.children)
+          } else {
+            traverse(node.children)
+          }
         }
       }
-      return names
+
+      traverse(nodes)
+      return Array.from(namesSet)
     }
 
     return collectTalentNames([
@@ -63,6 +68,7 @@ const TalentResultsPanel = ({ useSearchFilters }: TalentResultsPanelProps) => {
       <div className={cx('results-container')} key={parsedKeywords.join(',')}>
         <KeywordsSummary
           matches={matchingTalentNames}
+          resultType="talent"
           parsedKeywords={parsedKeywords}
           showingResultsWithoutKeywords={showingTalentsWithoutKeywords}
           className={cx('results-container__info')}

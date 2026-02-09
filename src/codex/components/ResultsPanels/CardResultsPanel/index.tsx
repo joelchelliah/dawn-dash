@@ -46,6 +46,7 @@ const CardResultsPanel = ({ useSearchFilters }: CardResultsPanelProps) => {
       <div className={cx('results-container')} key={parsedKeywords.join(',')}>
         <KeywordsSummary
           matches={matchingCards.map((card) => card.name)}
+          resultType="card"
           useCardStrike={useCardStrike}
           parsedKeywords={parsedKeywords}
           showingResultsWithoutKeywords={showingCardsWithoutKeywords}

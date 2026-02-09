@@ -124,7 +124,8 @@ export default function TalentTree({
       .attr('viewBox', `0 0 ${svgWidth} ${svgHeight}`)
       .attr('width', svgWidth)
       .attr('height', svgHeight)
-      .attr('preserveAspectRatio', 'xMinYMid meet')
+      // Align the tree to the top left corner
+      .attr('preserveAspectRatio', 'xMinYMin meet')
 
     const defs = mainSvg.append('defs')
     const svg = mainSvg

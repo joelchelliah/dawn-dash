@@ -16,6 +16,7 @@ interface KeywordsSummaryProps {
   showingResultsWithoutKeywords: boolean
   shouldHideTrackedCards?: boolean
   className?: string
+  resultType?: string
 }
 
 const KeywordsSummary = ({
@@ -25,6 +26,7 @@ const KeywordsSummary = ({
   showingResultsWithoutKeywords,
   shouldHideTrackedCards = false,
   className,
+  resultType = 'result',
 }: KeywordsSummaryProps) => {
   const [undoTrackedAnimationKey, setUndoTrackedAnimationKey] = useState(0)
   const hasParsedKeywords = parsedKeywords.length > 0
@@ -52,7 +54,7 @@ const KeywordsSummary = ({
       )
     }
 
-    const resultsStr = matches.length === 1 ? 'result' : 'results'
+    const resultsStr = matches.length === 1 ? resultType : `${resultType}s`
 
     return (
       <span>
