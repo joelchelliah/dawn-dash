@@ -22,6 +22,7 @@ import { NODE, TREE } from '@/codex/constants/talentTreeValues'
 import { buildHierarchicalTreeFromTalentTree } from '@/codex/utils/talentTreeBuilder'
 import { useExpandableNodes } from '@/codex/hooks/useExpandableNodes'
 import { useAllTalentSearchFilters } from '@/codex/hooks/useSearchFilters'
+import { ZoomLevel } from '@/codex/constants/zoomValues'
 
 import { drawLinks, getLinksWithNewRequirements } from './links'
 import { renderRequirementNode, renderRequirementIndicators } from './requirementNodes'
@@ -35,14 +36,17 @@ interface TalentTreeProps {
   talentTree: TalentTreeType | undefined
   useSearchFilters: ReturnType<typeof useAllTalentSearchFilters>
   useChildrenExpansion: ReturnType<typeof useExpandableNodes>
+  zoomLevel: ZoomLevel
 }
 
 export default function TalentTree({
   talentTree,
   useSearchFilters,
   useChildrenExpansion,
+  zoomLevel,
 }: TalentTreeProps) {
   const svgRef = useRef<SVGSVGElement>(null)
+  const scrollWrapperRef = useRef<HTMLDivElement>(null)
   const { parsedKeywords, useFormattingFilters, useCardSetFilters } = useSearchFilters
   const { isCardSetIndexSelected, getCardSetNameFromIndex } = useCardSetFilters
   const { shouldShowDescription, shouldShowCardSet, shouldShowKeywords, shouldShowBlightbaneLink } =
@@ -51,7 +55,7 @@ export default function TalentTree({
     useChildrenExpansion
 
   useEffect(() => {
-    if (!svgRef.current || !talentTree) return
+    if (!svgRef.current || !talentTree || !scrollWrapperRef.current) return
 
     // Clear previous visualization
     select(svgRef.current).selectAll('*').remove()
@@ -120,20 +124,43 @@ export default function TalentTree({
     const svgWidth = bounds.width + TREE.PADDING.LEFT + TREE.PADDING.RIGHT
     const svgHeight = bounds.height + TREE.PADDING.VERTICAL * 2
 
+    // Calculate zoom scale for numbered zoom levels
+    const getZoomScale = (): number | undefined => {
+      if (zoomLevel === ZoomLevel.COVER) return undefined
+      return parseInt(zoomLevel.toString()) / 150
+    }
+
+    const zoomScale = getZoomScale()
+
     const mainSvg = select(svgRef.current)
-      .attr('viewBox', `0 0 ${svgWidth} ${svgHeight}`)
-      .attr('width', svgWidth)
-      .attr('height', svgHeight)
-      // Align the tree to the top left corner
-      .attr('preserveAspectRatio', 'xMinYMin meet')
+
+    if (zoomScale) {
+      // When zoomed: remove viewBox, set explicit scaled dimensions
+      mainSvg
+        .attr('width', svgWidth * zoomScale)
+        .attr('height', svgHeight * zoomScale)
+        .attr('viewBox', null)
+        .attr('preserveAspectRatio', null)
+    } else {
+      // Use viewBox to make everything fit
+      mainSvg
+        .attr('width', svgWidth)
+        .attr('height', svgHeight)
+        .attr('viewBox', `0 0 ${svgWidth} ${svgHeight}`)
+        .attr('preserveAspectRatio', 'xMinYMin meet')
+    }
 
     const defs = mainSvg.append('defs')
+
+    // Apply zoom scale to the content group
+    // When scaling, we need to apply scale first, then translate by the scaled offset
+    const zoomTransformScale = zoomScale ?? 1
+    const offsetX = TREE.PADDING.LEFT - bounds.minY
+    const offsetY = TREE.PADDING.VERTICAL - bounds.minX
+
     const svg = mainSvg
       .append('g')
-      .attr(
-        'transform',
-        `translate(${TREE.PADDING.LEFT - bounds.minY}, ${TREE.PADDING.VERTICAL - bounds.minX})`
-      )
+      .attr('transform', `scale(${zoomTransformScale}) translate(${offsetX}, ${offsetY})`)
 
     drawLinks({ svg, treeData })
 
@@ -210,11 +237,22 @@ export default function TalentTree({
     toggleChildrenExpansion,
     isCardSetIndexSelected,
     getCardSetNameFromIndex,
+    zoomLevel,
   ])
 
   return (
-    <div className={cx('talent-tree-container')}>
-      <svg ref={svgRef} className={cx('talent-tree')} />
+    <div
+      ref={scrollWrapperRef}
+      className={cx('talent-tree-scroll-wrapper', {
+        'talent-tree-scroll-wrapper--cover-zoom': zoomLevel === ZoomLevel.COVER,
+      })}
+    >
+      <svg
+        ref={svgRef}
+        className={cx('talent-tree', {
+          'talent-tree--zoomed': zoomLevel !== ZoomLevel.COVER,
+        })}
+      />
     </div>
   )
 }

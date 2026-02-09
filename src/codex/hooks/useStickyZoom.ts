@@ -2,11 +2,7 @@ import { useEffect, useState, useCallback } from 'react'
 
 import { useBreakpoint } from '@/shared/hooks/useBreakpoint'
 
-// This value needs to be adjusted if we change the layout of search panel
-const STICKY_ZOOM_THRESHOLD = 250
-const STICKY_ZOOM_THRESHOLD_MOBILE = 300
-
-export const useStickyZoom = () => {
+export const useStickyZoom = (threshold: number, mobileThreshold: number) => {
   const { isMobile } = useBreakpoint()
   const [showStickyZoom, setShowStickyZoom] = useState(false)
 
@@ -14,11 +10,15 @@ export const useStickyZoom = () => {
     if (typeof window === 'undefined') return
 
     const scrollY = window.scrollY
-    setShowStickyZoom(scrollY > (isMobile ? STICKY_ZOOM_THRESHOLD_MOBILE : STICKY_ZOOM_THRESHOLD))
-  }, [isMobile])
+    setShowStickyZoom(scrollY > (isMobile ? mobileThreshold : threshold))
+  }, [isMobile, threshold, mobileThreshold])
 
   useEffect(() => {
     if (typeof window === 'undefined') return
+    if (!isMobile && threshold === 0) {
+      setShowStickyZoom(true)
+      return
+    }
 
     updateShowStickyZoom()
     window.addEventListener('scroll', updateShowStickyZoom, { passive: true })
@@ -26,7 +26,7 @@ export const useStickyZoom = () => {
     return () => {
       window.removeEventListener('scroll', updateShowStickyZoom)
     }
-  }, [updateShowStickyZoom, isMobile])
+  }, [updateShowStickyZoom, isMobile, threshold])
 
   return showStickyZoom
 }

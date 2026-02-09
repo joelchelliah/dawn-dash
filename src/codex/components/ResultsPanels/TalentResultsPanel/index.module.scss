@@ -2,12 +2,21 @@
 
 .results-panel {
   flex: 2;
+  min-width: 0; // Allow flex item to shrink below content size
   background-color: $color-component-bg;
   padding: 1rem;
   border-radius: 4px;
 
+  &__sticky-zoom {
+    margin-top: 6rem;
+  }
+
   @media (max-width: $breakpoint-mobile) {
     flex: 1;
+
+    &__sticky-zoom {
+      margin-top: 0;
+    }
   }
 }
 

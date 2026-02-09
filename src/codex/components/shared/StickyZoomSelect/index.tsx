@@ -13,6 +13,7 @@ interface StickyZoomSelectProps {
   zoomLevel: ZoomLevel
   setZoomLevel: (zoom: ZoomLevel) => void
   disabled?: boolean
+  className?: string
 }
 
 const StickyZoomSelect = ({
@@ -20,6 +21,7 @@ const StickyZoomSelect = ({
   zoomLevel,
   setZoomLevel,
   disabled = false,
+  className,
 }: StickyZoomSelectProps) => {
   const zoomOptions = ZOOM_LEVELS.map((zoom) => ({
     value: zoom,
@@ -27,7 +29,7 @@ const StickyZoomSelect = ({
   }))
 
   return (
-    <div className={cx('sticky-zoom')}>
+    <div className={cx('sticky-zoom', className)}>
       <Select
         id="sticky-zoom-select"
         selectedClass={selectedClass}

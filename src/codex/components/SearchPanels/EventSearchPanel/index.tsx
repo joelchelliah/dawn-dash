@@ -90,7 +90,7 @@ const EventSearchPanel = ({
     resetFilters,
   } = useSearchFilters
 
-  const showStickyZoom = useStickyZoom()
+  const showStickyZoom = useStickyZoom(250, 300)
   const { isMobile } = useBreakpoint()
   const [isReloadingMap, setIsReloadingMap] = useState(false)
   const loadingColor = getClassColor(CharacterClass.Rogue, ClassColorVariant.Dark)
