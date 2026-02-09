@@ -19,8 +19,6 @@ import {
   getNodeInTree,
   getTalentRequirementIconProps,
   matchesKeywordOrHasMatchingDescendant,
-  parseTalentDescriptionLine,
-  wrapTextForTalents,
 } from '@/codex/utils/talentTreeHelper'
 import {
   cacheAllNodeDimensions,
@@ -35,7 +33,6 @@ import {
 import {
   NODE,
   REQUIREMENT_NODE,
-  TEXT,
   TREE,
   REQUIREMENT_INDICATOR,
   EXPANSION_BUTTON,
@@ -43,11 +40,21 @@ import {
 import { buildHierarchicalTreeFromTalentTree } from '@/codex/utils/talentTreeBuilder'
 import { useExpandableNodes } from '@/codex/hooks/useExpandableNodes'
 import { useAllTalentSearchFilters } from '@/codex/hooks/useSearchFilters'
+import { wrapTalentText } from '@/codex/utils/talentTextWidthEstimation'
 
 import { drawLinks, getLinksWithNewRequirements } from './links'
 import styles from './index.module.scss'
 
 const cx = createCx(styles)
+
+const DEBUG_RECTANGLES = {
+  cardSet: false,
+  name: false,
+  additionalRequirements: true,
+  description: true,
+  blightbaneLink: true,
+  keywords: false,
+}
 
 interface TalentTreeProps {
   talentTree: TalentTreeType | undefined
@@ -227,6 +234,8 @@ export default function TalentTree({
     parsedKeywords,
     areChildrenExpanded,
     toggleChildrenExpansion,
+    isCardSetIndexSelected,
+    getCardSetNameFromIndex,
   ])
 
   return (
@@ -491,38 +500,6 @@ function renderRequirementNode(
 }
 
 /**
- * Renders the Blightbane link for a talent node
- */
-function renderBlightbaneLink(
-  nodeElement: NodeElement,
-  data: HierarchicalTalentTreeNode,
-  halfContentNodeHeight: number,
-  nameHeight: number,
-  descriptionHeight: number,
-  extraRequirementHeight: number,
-  blightbaneHeight: number
-): void {
-  const blightbaneLink = `https://www.blightbane.io/talent/${data.name.replaceAll(' ', '_')}`
-  const linkYPosition =
-    -halfContentNodeHeight +
-    nameHeight +
-    descriptionHeight +
-    extraRequirementHeight +
-    blightbaneHeight / 2
-
-  nodeElement
-    .append('text')
-    .attr('x', 0)
-    .attr('y', linkYPosition + 7)
-    .attr('class', cx('talent-node-blightbane-link'))
-    .text('View in Blightbane')
-    .on('click', function (event) {
-      event.stopPropagation()
-      window.open(blightbaneLink, '_blank', 'noopener,noreferrer')
-    })
-}
-
-/**
  * Renders the main talent card node (background, borders, content)
  */
 function renderTalentNode(
@@ -536,27 +513,34 @@ function renderTalentNode(
   parsedKeywords: string[],
   getCardSetName: (index?: number) => string | undefined
 ): void {
-  const nameHeight = NODE.HEIGHT.NAME
-  const minDescriptionHeight = NODE.HEIGHT.MIN_DESCRIPTION
-  const descriptionLineHeight = TEXT.LINE_HEIGHT
-  const descriptionLinesPadding = NODE.PADDING.DESCRIPTION_LINES
   const keywordsHeight = NODE.HEIGHT.KEYWORDS
-  const blightbaneLinkHeight = NODE.HEIGHT.BLIGHTBANE_LINK
 
-  const isDescriptionHidden = !shouldShowDescription
-  const descLines = wrapTextForTalents(data.description, NODE.WIDTH + 8)
+  const nameHeight = shouldShowDescription
+    ? NODE.NAME.HEIGHT + 2 * NODE.NAME.VERTICAL_MARGIN
+    : NODE.NAME.HEIGHT_NO_DESCRIPTION + 2 * NODE.NAME.VERTICAL_MARGIN
+
   const additionalRequirements = [...data.otherRequirements, ...data.talentRequirements].filter(
     isNotNullOrUndefined
   )
-
-  const descriptionHeight = isDescriptionHidden
-    ? NODE.HEIGHT.COLLAPSED_DESCRIPTION
-    : Math.max(minDescriptionHeight, descLines.length * descriptionLineHeight) +
-      descriptionLinesPadding
   const additionalRequirementHeight = additionalRequirements.length
-    ? NODE.HEIGHT.ADDITIONAL_REQUIREMENTS
+    ? shouldShowDescription
+      ? NODE.ADDITIONAL_REQUIREMENTS.HEIGHT + 2 * NODE.ADDITIONAL_REQUIREMENTS.VERTICAL_MARGIN
+      : NODE.ADDITIONAL_REQUIREMENTS.HEIGHT_NO_DESCRIPTION +
+        2 * NODE.ADDITIONAL_REQUIREMENTS.VERTICAL_MARGIN_NO_DESCRIPTION
     : 0
-  const blightbaneHeight = shouldShowBlightbaneLink ? blightbaneLinkHeight : 0
+
+  const descriptionLines = wrapTalentText(
+    data.description,
+    NODE.WIDTH - NODE.DESCRIPTION.HORIZONTAL_MARGIN * 2
+  )
+  const descriptionHeight = shouldShowDescription
+    ? descriptionLines.length * NODE.DESCRIPTION.LINE_HEIGHT + 2 * NODE.DESCRIPTION.VERTICAL_MARGIN
+    : 0
+
+  const blightbaneLinkHeight = shouldShowBlightbaneLink
+    ? NODE.BLIGHTBANE_LINK.HEIGHT + 2 * NODE.BLIGHTBANE_LINK.VERTICAL_MARGIN
+    : 0
+
   const matchingKeywordsHeight = shouldShowKeywords ? keywordsHeight : 0
 
   const { contentHeight: nodeHeight } = getNodeHeight(data, renderingContext)
@@ -585,8 +569,8 @@ function renderTalentNode(
     .attr('y', -halfNodeHeight)
     .attr('class', cx('talent-node', `talent-node--tier-${data.tier || 0}`))
 
-  // Separator line between name and description
-  if (!isDescriptionHidden) {
+  // Separator line after name
+  if (shouldShowDescription) {
     const separatorY = -halfNodeHeight + nameHeight
     nodeElement
       .append('line')
@@ -611,44 +595,32 @@ function renderTalentNode(
   }
 
   if (shouldShowCardSet) {
-    renderCardSets(nodeElement, halfNodeHeight, getCardSetName(data.cardSetIndex))
+    renderCardSets(nodeElement, -halfNodeHeight, getCardSetName(data.cardSetIndex))
   }
 
-  renderTalentName(nodeElement, data, halfNodeHeight, isDescriptionHidden)
+  renderTalentName(nodeElement, data, -halfNodeHeight, !shouldShowDescription)
 
-  const separatorHeight = NODE.HEIGHT.SEPARATOR
-  const posAfterNameSeparator =
-    -halfNodeHeight + nameHeight + (isDescriptionHidden ? 0 : separatorHeight)
+  const posAfterNameSeparator = -halfNodeHeight + nameHeight
 
-  renderTalentAdditionalRequirements(
-    nodeElement,
-    additionalRequirements,
-    posAfterNameSeparator,
-    isDescriptionHidden
-  )
+  if (additionalRequirements.length > 0) {
+    renderTalentAdditionalRequirements(
+      nodeElement,
+      additionalRequirements,
+      posAfterNameSeparator,
+      !shouldShowDescription
+    )
+  }
 
   const posBeforeDescription = posAfterNameSeparator + additionalRequirementHeight
 
-  renderTalentDescription(
-    nodeElement,
-    data,
-    posBeforeDescription,
-    descriptionHeight,
-    descriptionLineHeight,
-    descriptionLinesPadding,
-    isDescriptionHidden
-  )
+  if (shouldShowDescription) {
+    renderTalentDescription(nodeElement, posBeforeDescription, descriptionLines)
+  }
+
+  const posBeforeBlightbaneLink = posBeforeDescription + descriptionHeight
 
   if (shouldShowBlightbaneLink) {
-    renderBlightbaneLink(
-      nodeElement,
-      data,
-      halfNodeHeight,
-      nameHeight,
-      descriptionHeight,
-      additionalRequirementHeight,
-      blightbaneHeight
-    )
+    renderBlightbaneLink(nodeElement, data, posBeforeBlightbaneLink)
   }
 
   if (shouldShowKeywords) {
@@ -659,7 +631,7 @@ function renderTalentNode(
       nameHeight,
       descriptionHeight,
       additionalRequirementHeight,
-      blightbaneHeight,
+      blightbaneLinkHeight,
       matchingKeywordsHeight,
       keywordsHeight,
       parsedKeywords
@@ -667,30 +639,72 @@ function renderTalentNode(
   }
 }
 
+function renderCardSets(nodeElement: NodeElement, originY: number, cardSetName?: string): void {
+  if (!cardSetName) return
+
+  const halfCardSetHeight = NODE.CARD_SET.HEIGHT / 2
+  const halfCardSetVerticalMargin = NODE.CARD_SET.VERTICAL_MARGIN
+  const cardSetGroup = nodeElement
+    .append('g')
+    .attr('transform', `translate(0, ${originY - halfCardSetHeight - halfCardSetVerticalMargin})`)
+
+  if (DEBUG_RECTANGLES.cardSet) {
+    cardSetGroup
+      .append('rect')
+      .attr('x', -NODE.WIDTH / 2)
+      .attr('y', -halfCardSetHeight - halfCardSetVerticalMargin)
+      .attr('width', NODE.WIDTH)
+      .attr('height', NODE.CARD_SET.HEIGHT + 2 * halfCardSetVerticalMargin)
+      .attr('fill', 'rgba(255, 0, 255, 0.2)')
+      .attr('stroke', 'rgba(255, 0, 255, 0.5)')
+      .attr('stroke-width', 1)
+  }
+
+  cardSetGroup
+    .append('text')
+    .attr('y', halfCardSetHeight)
+    .attr('width', NODE.WIDTH)
+    .text(cardSetName)
+    .attr('class', cx('talent-node-card-sets'))
+}
+
 function renderTalentName(
   nodeElement: NodeElement,
   data: HierarchicalTalentTreeNode,
-  halfNodeHeight: number,
-  isCollapsed: boolean
+  originY: number,
+  isDescriptionHidden: boolean
 ): void {
-  const halfNameHeight = NODE.HEIGHT.NAME / 2
+  const nameHeight = isDescriptionHidden ? NODE.NAME.HEIGHT_NO_DESCRIPTION : NODE.NAME.HEIGHT
+  const halfNameHeight = nameHeight / 2
+  const halfVerticalMargin = NODE.NAME.VERTICAL_MARGIN
   const nameGroup = nodeElement
     .append('g')
-    .attr('transform', `translate(0, ${-halfNodeHeight + halfNameHeight})`)
+    .attr('transform', `translate(0, ${originY + halfNameHeight + halfVerticalMargin})`)
+
+  if (DEBUG_RECTANGLES.name) {
+    nameGroup
+      .append('rect')
+      .attr('x', -NODE.WIDTH / 2)
+      .attr('y', -halfNameHeight - halfVerticalMargin)
+      .attr('width', NODE.WIDTH)
+      .attr('height', nameHeight + 2 * halfVerticalMargin)
+      .attr('fill', 'rgba(255, 0, 0, 0.4)')
+      .attr('stroke', 'rgba(255, 0, 0, 1)')
+      .attr('stroke-width', 1)
+  }
 
   // For names too long to have larger fonts when collapsed
   const isNameReallyLong = data.name.length > NODE.NAME.REALLY_LONG_THRESHOLD
 
   nameGroup
     .append('text')
-    .attr('x', 0)
-    .attr('y', isCollapsed ? NODE.NAME.Y_COLLAPSED : NODE.NAME.Y_EXPANDED)
+    .attr('y', halfNameHeight)
     .text(data.name)
     .attr(
       'class',
       cx('talent-node-name', {
-        'talent-node-name--collapsed': isCollapsed,
-        'talent-node-name--collapsed-long-name': isCollapsed && isNameReallyLong,
+        'talent-node-name--collapsed': isDescriptionHidden,
+        'talent-node-name--collapsed-long-name': isDescriptionHidden && isNameReallyLong,
       })
     )
 }
@@ -698,25 +712,39 @@ function renderTalentName(
 function renderTalentAdditionalRequirements(
   nodeElement: NodeElement,
   additionalRequirements: string[],
-  yPosBeforeAdditionalRequirements: number,
+  originY: number,
   isDescriptionHidden: boolean
 ): void {
-  if (additionalRequirements.length === 0) return
+  const additionalRequirementsHeight = isDescriptionHidden
+    ? NODE.ADDITIONAL_REQUIREMENTS.HEIGHT_NO_DESCRIPTION
+    : NODE.ADDITIONAL_REQUIREMENTS.HEIGHT
+  const halfAdditionalRequirementsHeight = additionalRequirementsHeight / 2
+  const halfVerticalMargin = isDescriptionHidden
+    ? NODE.ADDITIONAL_REQUIREMENTS.VERTICAL_MARGIN_NO_DESCRIPTION
+    : NODE.ADDITIONAL_REQUIREMENTS.VERTICAL_MARGIN
 
-  const halfAdditionalRequirementsHeight = isDescriptionHidden
-    ? NODE.HEIGHT.ADDITIONAL_REQUIREMENTS_NO_DESCRIPTION / 2
-    : NODE.HEIGHT.ADDITIONAL_REQUIREMENTS / 2
-
-  const reqGroup = nodeElement
+  const requirementsGroup = nodeElement
     .append('g')
     .attr(
       'transform',
-      `translate(0, ${yPosBeforeAdditionalRequirements + halfAdditionalRequirementsHeight})`
+      `translate(0, ${originY + halfAdditionalRequirementsHeight + halfVerticalMargin})`
     )
 
-  reqGroup
+  if (DEBUG_RECTANGLES.additionalRequirements) {
+    requirementsGroup
+      .append('rect')
+      .attr('x', -NODE.WIDTH / 2)
+      .attr('y', -halfAdditionalRequirementsHeight - halfVerticalMargin)
+      .attr('width', NODE.WIDTH)
+      .attr('height', additionalRequirementsHeight + 2 * halfVerticalMargin)
+      .attr('fill', 'rgba(0, 255, 0, 0.2)')
+      .attr('stroke', 'rgba(0, 255, 0, 0.5)')
+      .attr('stroke-width', 1)
+  }
+
+  requirementsGroup
     .append('text')
-    .attr('y', 0)
+    .attr('y', halfAdditionalRequirementsHeight)
     .attr(
       'class',
       cx('talent-node-requirements', { 'talent-node-requirements--collapsed': isDescriptionHidden })
@@ -726,40 +754,84 @@ function renderTalentAdditionalRequirements(
 
 function renderTalentDescription(
   nodeElement: NodeElement,
-  data: HierarchicalTalentTreeNode,
-  yPosBeforeDescription: number,
-  descriptionHeight: number,
-  descriptionLineHeight: number,
-  descriptionLinesPadding: number,
-  isCollapsed: boolean
+  originY: number,
+  descriptionLines: string[]
 ): void {
-  if (isCollapsed) return
+  const descriptionHeight = descriptionLines.length * NODE.DESCRIPTION.LINE_HEIGHT
+  const halfDescriptionHeight = descriptionHeight / 2
+  const halfVerticalMargin = NODE.DESCRIPTION.VERTICAL_MARGIN
 
-  const descLines = wrapTextForTalents(data.description, NODE.WIDTH + 8)
-  const descBaseY = yPosBeforeDescription + descriptionHeight / 2
-  const verticalCenteringOffset = descriptionLinesPadding / 2 + TEXT.CENTERING_OFFSET.DESCRIPTION
+  const descriptionGroup = nodeElement
+    .append('g')
+    .attr('transform', `translate(0, ${originY + halfDescriptionHeight + halfVerticalMargin})`)
 
-  descLines.forEach((line, i) => {
-    const segments = parseTalentDescriptionLine(line)
-    const yPosition =
-      descBaseY +
-      i * descriptionLineHeight -
-      ((descLines.length - 1) * descriptionLineHeight) / 2 +
-      verticalCenteringOffset
+  if (DEBUG_RECTANGLES.description) {
+    descriptionGroup
+      .append('rect')
+      .attr('x', -NODE.WIDTH / 2)
+      .attr('y', -halfDescriptionHeight - halfVerticalMargin)
+      .attr('width', NODE.WIDTH)
+      .attr('height', descriptionHeight + 2 * halfVerticalMargin)
+      .attr('fill', 'rgba(0, 0, 255, 0.2)')
+      .attr('stroke', 'rgba(0, 0, 255, 0.5)')
+      .attr('stroke-width', 1)
+  }
 
-    nodeElement
+  // Position text lines within the centered content area
+  // Start from top of content area (-halfDescriptionHeight) and offset by line index
+  // The 0.75 multiplier accounts for SVG text baseline positioning - text baseline sits
+  // approximately 75% down from the top of the line height, creating proper vertical centering
+  descriptionLines.forEach((line, i) => {
+    const yPosition = -halfDescriptionHeight + (i + 0.75) * NODE.DESCRIPTION.LINE_HEIGHT
+
+    descriptionGroup
       .append('text')
-      .attr('x', 0)
       .attr('y', yPosition)
       .attr('class', cx('talent-node-description'))
       .style('pointer-events', 'none')
-      .text(segments)
+      .text(line)
   })
 }
 
-/**
- * Renders the expansion button for a talent node
- */
+function renderBlightbaneLink(
+  nodeElement: NodeElement,
+  data: HierarchicalTalentTreeNode,
+  originY: number
+): void {
+  const blightbaneLinkHeight = NODE.BLIGHTBANE_LINK.HEIGHT
+  const halfBlightbaneLinkHeight = blightbaneLinkHeight / 2
+  const halfVerticalMargin = NODE.BLIGHTBANE_LINK.VERTICAL_MARGIN
+
+  const blightbaneLink = `https://www.blightbane.io/talent/${data.name.replaceAll(' ', '_')}`
+
+  const blightbaneGroup = nodeElement
+    .append('g')
+    .attr('transform', `translate(0, ${originY + halfBlightbaneLinkHeight + halfVerticalMargin})`)
+
+  if (DEBUG_RECTANGLES.blightbaneLink) {
+    blightbaneGroup
+      .append('rect')
+      .attr('x', -NODE.WIDTH / 2)
+      .attr('y', -halfBlightbaneLinkHeight - halfVerticalMargin)
+      .attr('width', NODE.WIDTH)
+      .attr('height', blightbaneLinkHeight + 2 * halfVerticalMargin)
+      .attr('fill', 'rgba(255, 255, 0, 0.2)')
+      .attr('stroke', 'rgba(255, 255, 0, 0.5)')
+      .attr('stroke-width', 1)
+  }
+
+  blightbaneGroup
+    .append('text')
+    .attr('x', 0)
+    .attr('y', halfBlightbaneLinkHeight)
+    .attr('class', cx('talent-node-blightbane-link'))
+    .text('View in Blightbane')
+    .on('click', function (event) {
+      event.stopPropagation()
+      window.open(blightbaneLink, '_blank', 'noopener,noreferrer')
+    })
+}
+
 function renderExpansionButton(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   nodeElement: Selection<SVGGElement, any, any, any>,
@@ -821,28 +893,6 @@ function renderExpansionButton(
 }
 
 /**
- * Renders the card sets for a talent node (displayed above the node)
- */
-function renderCardSets(
-  nodeElement: NodeElement,
-  halfNodeHeight: number,
-  cardSetName?: string
-): void {
-  if (!cardSetName) return
-
-  const cardSetYPosition = -halfNodeHeight - NODE.HEIGHT.CARD_SET
-
-  nodeElement
-    .append('text')
-    .attr('x', 0)
-    .attr('y', cardSetYPosition + 6)
-    .attr('height', NODE.HEIGHT.CARD_SET)
-    .attr('width', NODE.WIDTH)
-    .text(cardSetName)
-    .attr('class', cx('talent-node-card-sets'))
-}
-
-/**
  * Renders the keywords for a talent node
  */
 function renderKeywords(
@@ -864,6 +914,26 @@ function renderKeywords(
     extraRequirementHeight +
     blightbaneHeight +
     matchingKeywordsHeight
+
+  const rectYPosition =
+    -halfContentNodeHeight +
+    nameHeight +
+    descriptionHeight +
+    extraRequirementHeight +
+    blightbaneHeight
+
+  // DEBUG: Draw rectangle around keywords area
+  if (DEBUG_RECTANGLES.keywords) {
+    nodeElement
+      .append('rect')
+      .attr('x', -NODE.WIDTH / 2)
+      .attr('y', rectYPosition)
+      .attr('width', NODE.WIDTH)
+      .attr('height', keywordsHeight)
+      .attr('fill', 'rgba(0, 255, 255, 0.2)')
+      .attr('stroke', 'rgba(0, 255, 255, 0.5)')
+      .attr('stroke-width', 1)
+  }
 
   nodeElement
     .append('text')

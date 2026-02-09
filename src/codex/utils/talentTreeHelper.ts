@@ -5,7 +5,6 @@ import {
   CoinsOfPassingImageUrl,
   DexImageUrl,
   ChestImageUrl,
-  HealthImageUrl,
   HolyImageUrl,
   HunterImageUrl,
   InfernalContractUrl,
@@ -28,7 +27,6 @@ import {
 } from '@/shared/utils/imageUrls'
 import { CharacterClass } from '@/shared/types/characterClass'
 import { ClassColorVariant, darken, getClassColor } from '@/shared/utils/classColors'
-import { wrapText } from '@/shared/utils/textHelper'
 
 import {
   HierarchicalTalentTreeNode,
@@ -39,25 +37,6 @@ import { NODE, REQUIREMENT_NODE } from '../constants/talentTreeValues'
 
 import { getNodeHeight } from './talentNodeDimensions'
 import { TalentRenderingContext } from './talentNodeDimensionCache'
-
-const ICON_KEYWORDS_TO_URL = [
-  { keyword: 'HEALTH', icon: HealthImageUrl },
-  { keyword: 'HOLY', icon: HolyImageUrl },
-  { keyword: 'STR', icon: StrImageUrl },
-  { keyword: 'INT', icon: IntImageUrl },
-  { keyword: 'DEX', icon: DexImageUrl },
-  { keyword: 'NEUTRAL', icon: NeutralImageUrl },
-]
-
-const KEYWORD_TO_EMOJI_MAP: Record<string, string> = {
-  HEALTH: ' ❤️',
-  HOLY: ' 🟡',
-  STR: ' 🔴',
-  INT: ' 🔵',
-  DEX: ' 🟢',
-  NEUTRAL: ' ⚪',
-  '\\(BLOOD\\)': '',
-}
 
 const colorGrey = getClassColor(CharacterClass.Neutral, ClassColorVariant.Default)
 const colorRed = getClassColor(CharacterClass.Warrior, ClassColorVariant.Default)
@@ -196,31 +175,6 @@ export const getLinkColor = (
   }
 }
 
-export const parseTalentDescriptionLine = (line: string): string => {
-  let result = line
-    .replace(/<br\s*\/?>/g, '') // Remove <br> tags
-    .replace(/<\/?[bB]>/g, '') // Remove <b> tags
-    .replace(/<\/?nobr>/g, '') // Remove <nobr> tags
-    .replace(/\[\[/g, '[') // Replace [[ with [
-    .replace(/\]\]/g, ']') // Replace ]] with ]
-    .replace(/\(\[/g, '(') // Replace ([ with (
-    .replace(/\(\{/g, '(') // Replace ({ with (
-    .replace(/\]\)/g, ')') // Replace ]) with )
-    .replace(/\}\)/g, ')') // Replace }) with )
-    .trim()
-
-  Object.entries(KEYWORD_TO_EMOJI_MAP).forEach(([keyword, emoji]) => {
-    result = result.replace(new RegExp(keyword, 'g'), emoji)
-  })
-  return result
-}
-
-// Wraps text into multiple lines based on available width
-// Uses talents-specific character counting for icon keywords
-export const wrapTextForTalents = (text: string, width: number) => {
-  return wrapText(text, width, countRelevantCharactersForLineWidth)
-}
-
 // Returns a formatted string of keywords that match the talent's name or description
 export const getMatchingKeywordsText = (
   talent: HierarchicalTalentTreeNode,
@@ -267,18 +221,6 @@ export const isTalentOffer = (talent: TalentTreeTalentNode) =>
   hasTalentMonsterExpansion(talent) && hasTalentOfferPrefix(talent)
 
 export const isTalentInAnyEvents = (talent: TalentTreeTalentNode) => talent.events.length > 0
-
-// Counts characters for line width calculation
-// excluding HTML tags and replacing icon keywords
-const countRelevantCharactersForLineWidth = (str: string) => {
-  // Strip Html tags
-  let effectiveStr = str.replace(/<\/?(?:b|nobr)>/gi, '')
-  // Replace each icon keyword with '##' for width calculation
-  ICON_KEYWORDS_TO_URL.forEach(({ keyword }) => {
-    effectiveStr = effectiveStr.replace(new RegExp(keyword, 'g'), '##')
-  })
-  return effectiveStr.length
-}
 
 const hasTalentMonsterExpansion = (talent: TalentTreeTalentNode) => talent.expansion === 0
 

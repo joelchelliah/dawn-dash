@@ -6,32 +6,18 @@
  * - Estimation-based fallback for SSR (maintains functionality)
  */
 
-import { measureTextWidth, wrapTextByCanvas, type FontConfig } from './canvasTextMeasurement'
-
-/**
- * Font configuration for different talent node text types.
- * Must match the SCSS font-size definitions.
- */
-type TalentFontConfig = FontConfig | 'nameCollapsed' | 'nameCollapsedLong'
+import { measureTextWidth, wrapTextByCanvas } from './canvasTextMeasurement'
 
 /**
  * Approximate character width in pixels for different font types.
  * These values are empirically derived to match the actual rendered font metrics
  * and are used as fallback when Canvas is not available (e.g., during SSR).
- *
- * Font configurations:
- * - default: 12px, normal weight (description text)
- * - nameCollapsed: 18px, 600 weight (talent names when collapsed)
- * - nameCollapsedLong: 14px, 600 weight (long talent names when collapsed)
  */
 const APPROX_PIXELS_PER_CHARACTER = {
   default: 6.4,
   defaultUppercase: 8.2,
-  nameCollapsed: 10.5,
-  nameCollapsedUppercase: 12.5,
-  nameCollapsedLong: 8.2,
-  nameCollapsedLongUppercase: 9.5,
   space: 3,
+  emoji: 14, // Emojis are typically wider than regular characters at 12px font size
 }
 
 /**
@@ -39,18 +25,13 @@ const APPROX_PIXELS_PER_CHARACTER = {
  * - Canvas API when available (browser)
  * - Estimation when Canvas unavailable (SSR)
  */
-export const measureTalentTextWidth = (
-  text: string,
-  fontType: TalentFontConfig = 'default'
-): number => {
-  // Try canvas measurement first for standard font configs
-  if (fontType === 'default' || fontType === 'choice' || fontType === 'special') {
-    const canvasWidth = measureTextWidth(text, fontType)
-    if (canvasWidth !== null) return canvasWidth
-  }
+export const measureTalentTextWidth = (text: string): number => {
+  const parsedText = parseTalentText(text)
+  const canvasWidth = measureTextWidth(parsedText, 'default')
+  if (canvasWidth !== null) return canvasWidth
 
   // For talent-specific fonts or SSR fallback
-  return estimateTalentTextWidth(text, fontType)
+  return estimateTalentTextWidth(parsedText)
 }
 
 /**
@@ -58,53 +39,36 @@ export const measureTalentTextWidth = (
  * - Canvas API when available (browser)
  * - Estimation when Canvas unavailable (SSR)
  */
-export const wrapTalentText = (
-  text: string,
-  maxWidth: number,
-  fontType: TalentFontConfig = 'default'
-): string[] => {
-  // Try canvas wrapping for standard font configs
-  if (fontType === 'default' || fontType === 'choice' || fontType === 'special') {
-    const canvasResult = wrapTextByCanvas(text, maxWidth, fontType)
-    if (canvasResult.length > 0 && canvasResult[0] !== undefined) {
-      return canvasResult
-    }
+export const wrapTalentText = (text: string, maxWidth: number): string[] => {
+  const parsedText = parseTalentText(text)
+  const canvasResult = wrapTextByCanvas(parsedText, maxWidth, 'default')
+
+  if (canvasResult.length > 0 && canvasResult[0] !== undefined) {
+    return canvasResult
   }
 
   // For talent-specific fonts or SSR fallback
-  return estimateTalentTextWrapping(text, maxWidth, fontType)
+  return estimateTalentTextWrapping(parsedText, maxWidth)
 }
 
 /**
  * Estimates text width using character-based calculation.
  * Used as fallback when Canvas is not available (e.g. in SSR).
  */
-const estimateTalentTextWidth = (text: string, fontConfig: TalentFontConfig): number => {
-  let base: number
-  let upper: number
-
-  switch (fontConfig) {
-    case 'nameCollapsed':
-      base = APPROX_PIXELS_PER_CHARACTER.nameCollapsed
-      upper = APPROX_PIXELS_PER_CHARACTER.nameCollapsedUppercase
-      break
-    case 'nameCollapsedLong':
-      base = APPROX_PIXELS_PER_CHARACTER.nameCollapsedLong
-      upper = APPROX_PIXELS_PER_CHARACTER.nameCollapsedLongUppercase
-      break
-    case 'choice':
-      base = APPROX_PIXELS_PER_CHARACTER.default
-      upper = APPROX_PIXELS_PER_CHARACTER.defaultUppercase
-      break
-    default:
-      base = APPROX_PIXELS_PER_CHARACTER.default
-      upper = APPROX_PIXELS_PER_CHARACTER.defaultUppercase
-  }
+const estimateTalentTextWidth = (text: string): number => {
+  const base = APPROX_PIXELS_PER_CHARACTER.default
+  const upper = APPROX_PIXELS_PER_CHARACTER.defaultUppercase
+  const emoji = APPROX_PIXELS_PER_CHARACTER.emoji
 
   let width = 0
   for (const char of text) {
+    const codePoint = char.codePointAt(0) || 0
+
     if (char === ' ') {
       width += APPROX_PIXELS_PER_CHARACTER.space
+    } else if (isEmoji(codePoint)) {
+      // Emoji detection using code point ranges
+      width += emoji
     } else if (/[A-Z]/.test(char)) {
       width += upper
     } else {
@@ -118,18 +82,14 @@ const estimateTalentTextWidth = (text: string, fontConfig: TalentFontConfig): nu
  * Wraps text using character-based estimation.
  * Used as fallback when Canvas is not available (e.g. in SSR).
  */
-const estimateTalentTextWrapping = (
-  text: string,
-  maxWidth: number,
-  fontType: TalentFontConfig
-): string[] => {
+const estimateTalentTextWrapping = (text: string, maxWidth: number): string[] => {
   const words = text.split(' ')
   const lines: string[] = []
   let currentLine = words[0]
 
   for (let i = 1; i < words.length; i++) {
     const testLine = currentLine + ' ' + words[i]
-    const testWidth = estimateTalentTextWidth(testLine, fontType)
+    const testWidth = estimateTalentTextWidth(testLine)
 
     if (testWidth > maxWidth) {
       lines.push(currentLine)
@@ -141,4 +101,48 @@ const estimateTalentTextWrapping = (
 
   lines.push(currentLine)
   return lines
+}
+
+const parseTalentText = (text: string): string => {
+  let result = text
+    .replace(/<br\s*\/?>/g, '') // Remove <br> tags
+    .replace(/<\/?[bB]>/g, '') // Remove <b> tags
+    .replace(/<\/?nobr>/g, '') // Remove <nobr> tags
+    .replace(/\[\[/g, '[') // Replace [[ with [
+    .replace(/\]\]/g, ']') // Replace ]] with ]
+    .replace(/\(\[/g, '(') // Replace ([ with (
+    .replace(/\(\{/g, '(') // Replace ({ with (
+    .replace(/\]\)/g, ')') // Replace ]) with )
+    .replace(/\}\)/g, ')') // Replace }) with )
+    .trim()
+
+  Object.entries(KEYWORD_TO_EMOJI_MAP).forEach(([keyword, emoji]) => {
+    result = result.replace(new RegExp(keyword, 'g'), emoji)
+  })
+  return result
+}
+
+const KEYWORD_TO_EMOJI_MAP: Record<string, string> = {
+  HEALTH: ' ❤️',
+  HOLY: ' 🟡',
+  STR: ' 🔴',
+  INT: ' 🔵',
+  DEX: ' 🟢',
+  NEUTRAL: ' ⚪',
+  '\\(BLOOD\\)': '',
+}
+
+/**
+ * Detects if a character code point is likely an emoji.
+ * Covers common emoji ranges used in the talent tree.
+ */
+const isEmoji = (codePoint: number): boolean => {
+  return (
+    (codePoint >= 0x1f300 && codePoint <= 0x1f9ff) || // Misc Symbols and Pictographs, Emoticons, etc.
+    (codePoint >= 0x2600 && codePoint <= 0x26ff) || // Misc symbols (⚪ etc.)
+    (codePoint >= 0x2700 && codePoint <= 0x27bf) || // Dingbats
+    (codePoint >= 0xfe00 && codePoint <= 0xfe0f) || // Variation Selectors
+    (codePoint >= 0x1f000 && codePoint <= 0x1f02f) || // Mahjong Tiles, Domino Tiles
+    (codePoint >= 0x1f0a0 && codePoint <= 0x1f0ff) // Playing Cards
+  )
 }

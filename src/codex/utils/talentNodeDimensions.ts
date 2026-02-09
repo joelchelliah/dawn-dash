@@ -1,7 +1,7 @@
 import { isNotNullOrUndefined } from '@/shared/utils/object'
 
 import { HierarchicalTalentTreeNode, TalentTreeNodeType } from '@/codex/types/talents'
-import { NODE, REQUIREMENT_NODE, TEXT } from '@/codex/constants/talentTreeValues'
+import { NODE, REQUIREMENT_NODE } from '@/codex/constants/talentTreeValues'
 
 import { wrapTalentText } from './talentTextWidthEstimation'
 import {
@@ -73,42 +73,48 @@ const _getNodeHeight = (
   }
 
   if (isTalentNode(node)) {
-    const isCollapsed = !context.shouldShowDescription
+    const isDescriptionHidden = !context.shouldShowDescription
 
     let outerHeight = 0
-    let contentHeight = NODE.HEIGHT.NAME
 
-    // Description height
-    if (isCollapsed) {
-      contentHeight += NODE.HEIGHT.COLLAPSED_DESCRIPTION
-    } else {
-      const maxTextWidth = NODE.WIDTH - TEXT.HORIZONTAL_PADDING * 2
-      const descLines = wrapTalentText(node.description, maxTextWidth, 'default')
-      const descriptionHeight = Math.max(
-        NODE.HEIGHT.MIN_DESCRIPTION,
-        descLines.length * TEXT.LINE_HEIGHT
-      )
-      contentHeight += descriptionHeight + NODE.PADDING.DESCRIPTION_LINES
+    // Card set height
+    if (context.shouldShowCardSet(node.cardSetIndex)) {
+      outerHeight += NODE.CARD_SET.HEIGHT + 2 * NODE.CARD_SET.VERTICAL_MARGIN
     }
 
-    if (context.shouldShowBlightbaneLink) {
-      contentHeight += NODE.HEIGHT.BLIGHTBANE_LINK
-    }
+    // Name height
+    let contentHeight = isDescriptionHidden
+      ? NODE.NAME.HEIGHT_NO_DESCRIPTION + 2 * NODE.NAME.VERTICAL_MARGIN
+      : NODE.NAME.HEIGHT + 2 * NODE.NAME.VERTICAL_MARGIN
 
     // Additional requirements height
     if (hasAdditionalRequirements(node)) {
-      contentHeight += NODE.HEIGHT.ADDITIONAL_REQUIREMENTS
+      const reqHeight = isDescriptionHidden
+        ? NODE.ADDITIONAL_REQUIREMENTS.HEIGHT_NO_DESCRIPTION
+        : NODE.ADDITIONAL_REQUIREMENTS.HEIGHT
+      const reqMargin = isDescriptionHidden
+        ? NODE.ADDITIONAL_REQUIREMENTS.VERTICAL_MARGIN_NO_DESCRIPTION
+        : NODE.ADDITIONAL_REQUIREMENTS.VERTICAL_MARGIN
+      contentHeight += reqHeight + 2 * reqMargin
+    }
+
+    // Description height
+    if (!isDescriptionHidden) {
+      const descLines = wrapTalentText(
+        node.description,
+        NODE.WIDTH - 2 * NODE.DESCRIPTION.HORIZONTAL_MARGIN
+      )
+      const descriptionHeight = descLines.length * NODE.DESCRIPTION.LINE_HEIGHT
+
+      contentHeight += descriptionHeight + 2 * NODE.DESCRIPTION.VERTICAL_MARGIN
     }
 
     // Blightbane link height
     if (context.shouldShowBlightbaneLink) {
-      outerHeight += NODE.HEIGHT.BLIGHTBANE_LINK
+      contentHeight += NODE.BLIGHTBANE_LINK.HEIGHT + 2 * NODE.BLIGHTBANE_LINK.VERTICAL_MARGIN
     }
 
-    if (context.shouldShowCardSet(node.cardSetIndex)) {
-      outerHeight += NODE.HEIGHT.CARD_SET
-    }
-
+    // Keywords height
     if (
       context.parsedKeywords.length > 0 &&
       getMatchingKeywordsText(node, context.parsedKeywords).length > 0

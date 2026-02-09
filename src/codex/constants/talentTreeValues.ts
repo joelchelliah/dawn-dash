@@ -22,25 +22,6 @@ export const NODE = {
 
   /** Height components for different sections of talent nodes */
   HEIGHT: {
-    /** Height of the name section */
-    NAME: 30,
-    // Estimated height of the separator line + padding
-    // The separator itself isnt that tall, but we've already baked in the padding,
-    // When allocating space for the requirements.
-
-    SEPARATOR: 8,
-    /** Minimum height for description section */
-    MIN_DESCRIPTION: 15,
-    /** Height when description is collapsed */
-    COLLAPSED_DESCRIPTION: 5,
-
-    /** Height for card set section */
-    CARD_SET: 16,
-
-    /** Height for additional requirements text */
-    ADDITIONAL_REQUIREMENTS: 16,
-    ADDITIONAL_REQUIREMENTS_NO_DESCRIPTION: 22,
-
     /** Height for matching keywords section */
     KEYWORDS: 20,
 
@@ -67,14 +48,39 @@ export const NODE = {
     DESCRIPTION_LINES: 12,
   },
 
+  /** Card set-specific constants */
+  CARD_SET: {
+    HEIGHT: 8,
+    VERTICAL_MARGIN: 10,
+  },
+
   /** Name-specific constants */
   NAME: {
-    /** Character count threshold for "really long" names, so that we can give it a smaller font */
+    HEIGHT: 10,
+    HEIGHT_NO_DESCRIPTION: 14,
+    VERTICAL_MARGIN: 10,
     REALLY_LONG_THRESHOLD: 24,
-    /** Y offset for collapsed node names */
-    Y_COLLAPSED: 8,
-    /** Y offset for expanded node names */
-    Y_EXPANDED: 5,
+  },
+
+  /** Additional requirements-specific constants */
+  ADDITIONAL_REQUIREMENTS: {
+    HEIGHT: 8,
+    HEIGHT_NO_DESCRIPTION: 9,
+    VERTICAL_MARGIN: 6,
+    VERTICAL_MARGIN_NO_DESCRIPTION: 7,
+  },
+
+  /** Description-specific constants */
+  DESCRIPTION: {
+    LINE_HEIGHT: 14,
+    HORIZONTAL_MARGIN: 8,
+    VERTICAL_MARGIN: 8,
+  },
+
+  /** Blightbane link-specific constants */
+  BLIGHTBANE_LINK: {
+    HEIGHT: 8,
+    VERTICAL_MARGIN: 10,
   },
 } as const
 
