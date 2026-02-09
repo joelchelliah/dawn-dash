@@ -159,10 +159,6 @@ export const getNodeHeight = (
     getMatchingKeywordsText(node, context.parsedKeywords).length > 0
   const showCardSet = context.shouldShowCardSet(node.cardSetIndex)
 
-  if (node.name === 'Frozen Heart') {
-    console.log(node)
-  }
-
   const cached = getCachedDimensions(
     node.name,
     specialRequirements,

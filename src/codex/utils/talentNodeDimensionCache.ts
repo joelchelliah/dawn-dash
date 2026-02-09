@@ -168,7 +168,3 @@ export const buildDimensionCache = (
 
   cacheNodeRecursive(rootNode)
 }
-
-export const clearAllCache = (): void => {
-  heightCache.clear()
-}
