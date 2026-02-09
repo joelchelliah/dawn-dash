@@ -16,6 +16,7 @@ export function EventmapHead({ event, eventUrlParam }: EventmapHeadProps = {}) {
   const hasEventArtwork = !!event?.artwork && event.artwork.trim().length > 0
 
   const ogTitle = isEventPage ? `🗺 Eventmap - ${eventName}` : '🗺 Eventmaps'
+  const tabTitle = isEventPage ? `${eventName} | Eventmap | Dawn-Dash` : 'Eventmaps | Dawn-Dash'
   const title = `Dawn-Dash: ${ogTitle}`
 
   const description = isEventPage
@@ -34,7 +35,7 @@ export function EventmapHead({ event, eventUrlParam }: EventmapHeadProps = {}) {
 
   return (
     <Head>
-      <title>Eventmaps | Dawn-Dash</title>
+      <title>{tabTitle}</title>
       <meta name="description" content={description} />
       <link rel="canonical" href={url} />
 
