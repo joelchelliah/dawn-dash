@@ -2,10 +2,14 @@ import { useEffect, useState, useMemo } from 'react'
 
 import GradientButton from '@/shared/components/Buttons/GradientButton'
 import { createCx } from '@/shared/utils/classnames'
+import { CharacterClass } from '@/shared/types/characterClass'
 
 import { TalentTreeNode, TalentTreeNodeType } from '@/codex/types/talents'
 import { UseAllTalentSearchFilters } from '@/codex/hooks/useSearchFilters'
 import { useExpandableNodes } from '@/codex/hooks/useExpandableNodes'
+import { ZoomLevel } from '@/codex/constants/zoomValues'
+import StickyZoomSelect from '@/codex/components/shared/StickyZoomSelect'
+import { useStickyZoom } from '@/codex/hooks/useStickyZoom'
 
 import PanelHeader from '../../PanelHeader'
 import KeywordsSummary from '../KeywordsSummary'
@@ -21,9 +25,11 @@ const cx = createCx(styles)
 
 const TalentResultsPanel = ({ useSearchFilters }: TalentResultsPanelProps) => {
   const [showTalentsWithoutKeywords, setShowTalentsWithoutKeywords] = useState(false)
+  const [zoomLevel, setZoomLevel] = useState<ZoomLevel>(ZoomLevel.COVER)
   const { parsedKeywords, matchingTalentTree, useFormattingFilters } = useSearchFilters
   const { shouldExpandNodes } = useFormattingFilters
   const useChildrenExpansion = useExpandableNodes(shouldExpandNodes)
+  const showStickyZoom = useStickyZoom(0, 1400)
 
   const matchingTalentNames = useMemo(() => {
     if (!matchingTalentTree) return []
@@ -59,6 +65,8 @@ const TalentResultsPanel = ({ useSearchFilters }: TalentResultsPanelProps) => {
     if (parsedKeywords.length > 0) {
       setShowTalentsWithoutKeywords(false)
     }
+    // Reset zoom to Cover when keywords change
+    setZoomLevel(ZoomLevel.COVER)
   }, [parsedKeywords])
 
   const renderMatchingTalents = () => {
@@ -78,14 +86,28 @@ const TalentResultsPanel = ({ useSearchFilters }: TalentResultsPanelProps) => {
           talentTree={matchingTalentTree}
           useSearchFilters={useSearchFilters}
           useChildrenExpansion={useChildrenExpansion}
+          zoomLevel={zoomLevel}
         />
       </div>
     )
   }
 
+  const hasResults = parsedKeywords.length > 0 || showTalentsWithoutKeywords
+  const showZoomControl = hasResults && showStickyZoom
+
   return (
     <div className={cx('results-panel')}>
       <PanelHeader type="TalentResults" />
+
+      {showZoomControl && (
+        <StickyZoomSelect
+          className={cx('results-panel__sticky-zoom')}
+          selectedClass={CharacterClass.Rogue}
+          zoomLevel={zoomLevel}
+          setZoomLevel={setZoomLevel}
+          disabled={!matchingTalentTree}
+        />
+      )}
 
       {parsedKeywords.length > 0 || showTalentsWithoutKeywords ? (
         renderMatchingTalents()

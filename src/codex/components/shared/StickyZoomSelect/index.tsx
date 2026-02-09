@@ -2,24 +2,26 @@ import { createCx } from '@/shared/utils/classnames'
 import Select from '@/shared/components/Select'
 import { CharacterClass } from '@/shared/types/characterClass'
 
-import { ZoomLevel, ZOOM_LEVELS, ZOOM_LABEL_MAP } from '@/codex/constants/eventSearchValues'
+import { ZoomLevel, ZOOM_LEVELS, ZOOM_LABEL_MAP } from '@/codex/constants/zoomValues'
 
 import styles from './index.module.scss'
 
 const cx = createCx(styles)
 
 interface StickyZoomSelectProps {
-  selectedClass: CharacterClass
+  selectedClass?: CharacterClass
   zoomLevel: ZoomLevel
   setZoomLevel: (zoom: ZoomLevel) => void
-  disabled: boolean
+  disabled?: boolean
+  className?: string
 }
 
 const StickyZoomSelect = ({
-  selectedClass,
+  selectedClass = CharacterClass.Neutral,
   zoomLevel,
   setZoomLevel,
-  disabled,
+  disabled = false,
+  className,
 }: StickyZoomSelectProps) => {
   const zoomOptions = ZOOM_LEVELS.map((zoom) => ({
     value: zoom,
@@ -27,7 +29,7 @@ const StickyZoomSelect = ({
   }))
 
   return (
-    <div className={cx('sticky-zoom')}>
+    <div className={cx('sticky-zoom', className)}>
       <Select
         id="sticky-zoom-select"
         selectedClass={selectedClass}

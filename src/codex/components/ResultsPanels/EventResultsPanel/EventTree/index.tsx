@@ -46,8 +46,8 @@ import {
 } from '@/codex/utils/eventTreeSpacing'
 import { clearEventCache } from '@/codex/utils/eventNodeDimensionCache'
 import { NODE, TREE, TEXT, INNER_BOX, NODE_BOX } from '@/codex/constants/eventTreeValues'
+import { ZoomLevel } from '@/codex/constants/zoomValues'
 import {
-  ZoomLevel,
   LoopingPathMode,
   TreeNavigationMode,
   LevelOfDetail,

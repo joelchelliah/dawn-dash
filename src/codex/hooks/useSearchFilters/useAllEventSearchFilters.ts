@@ -8,10 +8,10 @@ import {
   cacheEventCodexSearchFilters,
   getCachedEventCodexSearchFilters,
 } from '@/codex/utils/codexFilterStore'
+import { ZoomLevel } from '@/codex/constants/zoomValues'
 import {
   LoopingPathMode,
   TreeNavigationMode,
-  ZoomLevel,
   LevelOfDetail,
 } from '@/codex/constants/eventSearchValues'
 
