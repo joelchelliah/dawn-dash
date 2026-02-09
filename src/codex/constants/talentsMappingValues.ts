@@ -27,6 +27,7 @@ export const REQUIREMENT_ENERGY_TO_FILTER_OPTIONS_MAP: Record<string, Requiremen
 // TODO: Is it better to have this in the database instead?
 export const ACTUALLY_EVENT_ONLY_TALENTS = [
   'Blessing of Serem-Pek', // The Godscar Wastes Finish
+  'Brush With Death', // The Chasm
   'Compassionate', // Wounded Animal
   'Frozen Heart', // Frozen Heart
   'Peace of Mind', // Mystical Glade
