@@ -50,10 +50,10 @@ export const NODE = {
 
   /** Additional requirements-specific constants */
   ADDITIONAL_REQUIREMENTS: {
-    HEIGHT: 8,
-    HEIGHT_NO_DESCRIPTION: 9,
-    VERTICAL_MARGIN: 6,
-    VERTICAL_MARGIN_NO_DESCRIPTION: 7,
+    HEIGHT: 11,
+    HEIGHT_NO_DESCRIPTION: 4,
+    VERTICAL_MARGIN: 3,
+    VERTICAL_MARGIN_NO_DESCRIPTION: 8,
   },
 
   /** Description-specific constants */
@@ -96,7 +96,7 @@ export const REQUIREMENT_NODE = {
   /** Spacing between multiple icons */
   ICON_SPACING: 2,
 
-  LABEL_LINE_HEIGHT: 18,
+  LABEL_LINE_HEIGHT: 20,
   LABEL_BOTTOM_MARGIN: 2,
 } as const
 

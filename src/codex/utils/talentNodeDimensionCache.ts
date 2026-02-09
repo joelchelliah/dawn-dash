@@ -37,15 +37,17 @@ const heightCache = new Map<string, TalentNodeHeight>()
 
 const createCacheKey = (
   talentName: string,
+  specialRequirements: string,
   showDescription: boolean,
   showCardSet: boolean,
   showKeywordsSection: boolean,
   showBlightbaneLink: boolean
 ): string =>
-  `${talentName}:description-${showDescription}:card-set-${showCardSet}:keywords-${showKeywordsSection}:blightbane-${showBlightbaneLink}`
+  `${talentName}:req-${specialRequirements}:description-${showDescription}:card-set-${showCardSet}:keywords-${showKeywordsSection}:blightbane-${showBlightbaneLink}`
 
 export const getCachedDimensions = (
   talentName: string,
+  specialRequirements: string,
   showDescription: boolean,
   showCardSet: boolean,
   showKeywordsSection: boolean,
@@ -54,6 +56,7 @@ export const getCachedDimensions = (
   heightCache.get(
     createCacheKey(
       talentName,
+      specialRequirements,
       showDescription,
       showCardSet,
       showKeywordsSection,
@@ -63,6 +66,7 @@ export const getCachedDimensions = (
 
 export const setCachedHeight = (
   talentName: string,
+  specialRequirements: string,
   height: TalentNodeHeight,
   showDescription: boolean,
   showCardSet: boolean,
@@ -72,6 +76,7 @@ export const setCachedHeight = (
   heightCache.set(
     createCacheKey(
       talentName,
+      specialRequirements,
       showDescription,
       showCardSet,
       showKeywordsSection,
@@ -83,6 +88,7 @@ export const setCachedHeight = (
 
 export const hasCachedDimensions = (
   talentName: string,
+  specialRequirements: string,
   showDescription: boolean,
   showCardSet: boolean,
   showKeywordsSection: boolean,
@@ -91,6 +97,7 @@ export const hasCachedDimensions = (
   heightCache.has(
     createCacheKey(
       talentName,
+      specialRequirements,
       showDescription,
       showCardSet,
       showKeywordsSection,
@@ -112,6 +119,11 @@ export const buildDimensionCache = (
   ) => TalentNodeHeight
 ): void => {
   const cacheNodeRecursive = (node: HierarchicalTalentTreeNode) => {
+    const specialRequirements = [
+      ...node.otherRequirements,
+      ...node.talentRequirements,
+      ...node.classOrEnergyRequirements,
+    ].join(',')
     const showDescription = context.shouldShowDescription
     const showCardSet = context.shouldShowCardSet(node.cardSetIndex)
     // Keywords section is shown if BOTH showKeywords filter is on AND this node has matching keywords
@@ -122,6 +134,7 @@ export const buildDimensionCache = (
     if (
       hasCachedDimensions(
         node.name,
+        specialRequirements,
         showDescription,
         showCardSet,
         showKeywordsSection,
@@ -139,6 +152,7 @@ export const buildDimensionCache = (
 
     setCachedHeight(
       node.name,
+      specialRequirements,
       height,
       showDescription,
       showCardSet,

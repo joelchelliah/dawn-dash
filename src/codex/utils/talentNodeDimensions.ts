@@ -149,13 +149,23 @@ export const getNodeHeight = (
   node: HierarchicalTalentTreeNode,
   context: TalentRenderingContext
 ): TalentNodeHeight => {
+  const specialRequirements = [
+    ...node.otherRequirements,
+    ...node.talentRequirements,
+    ...node.classOrEnergyRequirements,
+  ].join(',')
   const showKeywordsSection =
     context.parsedKeywords.length > 0 &&
     getMatchingKeywordsText(node, context.parsedKeywords).length > 0
   const showCardSet = context.shouldShowCardSet(node.cardSetIndex)
 
+  if (node.name === 'Frozen Heart') {
+    console.log(node)
+  }
+
   const cached = getCachedDimensions(
     node.name,
+    specialRequirements,
     context.shouldShowDescription,
     showCardSet,
     showKeywordsSection,

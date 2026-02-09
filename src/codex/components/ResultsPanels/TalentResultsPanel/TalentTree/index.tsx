@@ -247,9 +247,6 @@ export default function TalentTree({
 
 // - - - - - Helper rendering functions - - - - -
 
-/**
- * Renders a requirement indicator on a link between nodes
- */
 function renderRequirementIndicators(
   svg: NodeElement,
   defs: NodeElement,
@@ -438,9 +435,6 @@ function renderRequirementIcons(
   }
 }
 
-/**
- * Renders a requirement node (class, energy, event, card, or offer)
- */
 function renderRequirementNode(
   nodeElement: NodeElement,
   defs: Selection<SVGDefsElement, unknown, null, undefined>,
@@ -589,7 +583,7 @@ function renderTalentNode(
 
   if (shouldShowCardSet) {
     const cardSetName = getCardSetName(data.cardSetIndex)
-    if (cardSetName) {
+    if (cardSetName && cardSetName !== '-') {
       renderCardSets(nodeElement, -halfNodeHeight, cardSetName, tier)
     }
   }
