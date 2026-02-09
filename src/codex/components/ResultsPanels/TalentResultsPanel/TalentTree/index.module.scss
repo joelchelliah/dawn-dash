@@ -13,20 +13,13 @@
   min-height: 500px;
 }
 
-.tree-link {
-  fill: none;
-  stroke: $color-primary-base;
-  stroke-width: 2px;
-  opacity: 0.75;
-}
-
-.tree-root-node-circle {
+.requirement-node-circle {
   fill: $color-component-bg;
   stroke: var(--color, $color-component-bg-hover);
   stroke-width: 2px;
 }
 
-.tree-root-node-label {
+.requirement-node-label {
   font-size: font-size('lg');
   font-weight: 600;
   text-anchor: middle;
@@ -63,7 +56,6 @@
 }
 
 .talent-node {
-  cursor: pointer;
   stroke-width: 2px;
   stroke-opacity: 0.75;
   rx: 8px;
@@ -73,6 +65,19 @@
     &--tier-#{$tier} {
       fill: color.mix($color-component-bg, $color, 95%);
       stroke: $color;
+    }
+  }
+}
+
+.talent-node-card-sets {
+  font-size: font-size('xxs');
+  font-weight: 400;
+  text-anchor: middle;
+  pointer-events: none;
+
+  @each $tier, $color in $tier-index-to-color-map {
+    &--tier-#{$tier} {
+      fill: color.mix($color-primary-base, $color, 40%);
     }
   }
 }

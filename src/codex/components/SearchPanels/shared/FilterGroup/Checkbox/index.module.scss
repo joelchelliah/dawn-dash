@@ -81,16 +81,13 @@ $checkmark-size: 0.625rem;
     width: 100%;
   }
 
-  &--formatting-card {
+  &--formatting-card,
+  &--formatting-talent {
     width: calc(50% - 1.5rem);
 
     @media (max-width: $breakpoint-mobile) {
       width: 100%;
     }
-  }
-
-  &--formatting-talent {
-    width: 100%;
   }
 
   &--formatting-event {

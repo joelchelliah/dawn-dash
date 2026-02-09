@@ -22,8 +22,7 @@ const cx = createCx(styles)
 const TalentResultsPanel = ({ useSearchFilters }: TalentResultsPanelProps) => {
   const [showTalentsWithoutKeywords, setShowTalentsWithoutKeywords] = useState(false)
   const { parsedKeywords, matchingTalentTree, useFormattingFilters } = useSearchFilters
-  const { shouldExpandNodes, shouldShowDescription } = useFormattingFilters
-  const useDescriptionExpansion = useExpandableNodes(shouldShowDescription)
+  const { shouldExpandNodes } = useFormattingFilters
   const useChildrenExpansion = useExpandableNodes(shouldExpandNodes)
 
   const matchingTalentNames = useMemo(() => {
@@ -72,7 +71,6 @@ const TalentResultsPanel = ({ useSearchFilters }: TalentResultsPanelProps) => {
         <TalentTree
           talentTree={matchingTalentTree}
           useSearchFilters={useSearchFilters}
-          useDescriptionExpansion={useDescriptionExpansion}
           useChildrenExpansion={useChildrenExpansion}
         />
       </div>

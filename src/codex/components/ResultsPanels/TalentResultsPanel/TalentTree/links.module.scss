@@ -1,0 +1,8 @@
+@use 'index' as *;
+
+.link {
+  fill: none;
+  stroke: $color-primary-base;
+  stroke-width: 2px;
+  opacity: 0.75;
+}

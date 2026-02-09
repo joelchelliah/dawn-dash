@@ -14,6 +14,7 @@ export const TaurusRageImageUrl = `${blightbaneImagesUrl}/icons/taurus.webp`
 export const DarkRevenanceImageUrl = `${blightbaneImagesUrl}/icons/rise-from-the-grave.webp`
 export const RuneOfPersistenceImageUrl = `${blightbaneImagesUrl}/icons/Death_of_Divinity_29.webp`
 export const HealingPotionImageUrl = `${blightbaneImagesUrl}/icons/cardart_3_6.webp`
+export const SurgeOfDexterityImageUrl = `${blightbaneImagesUrl}/icons/cardart_4_55.webp`
 export const WatchedImageUrl = `${blightbaneImagesUrl}/icons/cardart_3_24.webp`
 export const CollectorImageUrl = `${blightbaneImagesUrl}/icons/cardart_2_4.webp`
 export const ForgeryImageUrl = `${blightbaneImagesUrl}/icons/cardart_3_59.webp`

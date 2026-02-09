@@ -74,12 +74,14 @@ export const mapTalentsDataToTalentTree = (unparsedTalents: TalentData[]): Talen
           .filter((name) => isNotNullOrUndefined(name) && name !== parentName) as string[])
 
     // Don't include card requirements if talent is obtained from events or no requirements.
-    // Special rule for Compassionate.
+    // Special rule for Compassionate && Brush with Death.
+    // Do NOT add these 2 as card requirements in the DB! It will get sorted into "Obtained from cards".
     const skipRequiredCards =
       parentName === 'No Requirements' || parentName === 'ObtainedFromEvents'
     const otherRequirements = [
       ...(skipRequiredCards ? [] : talent.requires_cards),
       talent.name === 'Compassionate' ? 'Healing potion' : undefined,
+      talent.name.toLowerCase() === 'brush with death' ? 'Surge of Dexterity' : undefined,
     ].filter(isNotNullOrUndefined)
 
     const newVisited = new Set(visited).add(talent.blightbane_id)

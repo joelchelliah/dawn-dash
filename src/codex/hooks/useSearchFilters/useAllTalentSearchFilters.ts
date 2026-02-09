@@ -13,8 +13,7 @@ import {
   cacheTalentCodexSearchFilters,
   getCachedTalentCodexSearchFilters,
 } from '@/codex/utils/codexFilterStore'
-import { isTalentOffer } from '@/codex/utils/talentHelper'
-import { isTalentTreeEqual } from '@/codex/utils/talentTreeHelper'
+import { isTalentOffer } from '@/codex/utils/talentTreeHelper'
 import { RequirementFilterOption } from '@/codex/types/filters'
 
 import { useCardSetFilters } from './useCardSetFilters'
@@ -447,6 +446,34 @@ export const useAllTalentSearchFilters = (
     useRequirementFilters: trackedUseRequirementFilters,
     useFormattingFilters: trackedUseFormattingFilters,
     resetFilters,
+  }
+}
+
+const isTalentTreeEqual = (talentTreeA: TalentTree, talentTreeB: TalentTree): boolean =>
+  isTalentTreeNodeEqual(talentTreeA.offerNode, talentTreeB.offerNode) &&
+  isTalentTreeNodeEqual(talentTreeA.noReqNode, talentTreeB.noReqNode) &&
+  isTalentTreeNodeEqual(talentTreeA.cardNode, talentTreeB.cardNode) &&
+  areTalentTreeNodesEqual(talentTreeA.classNodes, talentTreeB.classNodes) &&
+  areTalentTreeNodesEqual(talentTreeA.energyNodes, talentTreeB.energyNodes) &&
+  areTalentTreeNodesEqual(talentTreeA.eventNodes, talentTreeB.eventNodes)
+
+const areTalentTreeNodesEqual = (nodesA: TalentTreeNode[], nodesB: TalentTreeNode[]): boolean =>
+  nodesA.length === nodesB.length &&
+  nodesA.every((a) => nodesB.some((b) => isTalentTreeNodeEqual(a, b))) &&
+  nodesB.every((b) => nodesA.some((a) => isTalentTreeNodeEqual(a, b)))
+
+const isTalentTreeNodeEqual = (nodeA: TalentTreeNode, nodeB: TalentTreeNode): boolean => {
+  if (nodeA.type !== nodeB.type) return false
+
+  if (nodeA.type === TalentTreeNodeType.TALENT && nodeB.type === TalentTreeNodeType.TALENT) {
+    return (
+      nodeA.name === nodeB.name &&
+      nodeA.description === nodeB.description &&
+      nodeA.tier === nodeB.tier &&
+      areTalentTreeNodesEqual(nodeA.children, nodeB.children)
+    )
+  } else {
+    return nodeA.name === nodeB.name && areTalentTreeNodesEqual(nodeA.children, nodeB.children)
   }
 }
 
