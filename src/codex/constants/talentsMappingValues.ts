@@ -39,14 +39,4 @@ export const ACTUALLY_EVENT_ONLY_TALENTS = [
   'Watched', // Shrine of Misery
 ]
 
-// export const TALENTS_OBTAINED_FROM_CARDS = {
-//   ONLY: [
-//     'Mark of Taurus', // Taurus Rage
-//     'Undead', // Dark Revenance
-//   ],
-//   ALSO: [
-//     'Devotion', // Sacred Tome
-//   ],
-// }
-
 export const REMOVED_TALENTS = ['Prodigy', 'Lucky', "Alcars' Rage", 'Sworn to Vengeance']
