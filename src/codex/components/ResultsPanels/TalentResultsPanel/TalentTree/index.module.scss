@@ -17,7 +17,9 @@
   }
 
   @media (max-width: $breakpoint-mobile) {
-    max-height: 600px;
+    // Full height is ok on mobile, since horizontal scroll is done by swiping.
+    // So the user not being able to see the scrollbar is not a problem.
+    max-height: 100%;
   }
 }
 
