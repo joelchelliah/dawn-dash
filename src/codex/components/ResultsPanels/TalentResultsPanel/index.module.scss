@@ -8,7 +8,8 @@
   border-radius: 4px;
 
   &__sticky-zoom {
-    margin-top: 6rem;
+    margin-top: var(--sticky-zoom-margin, 6rem);
+    transition: margin-top 0.5s ease-in-out;
   }
 
   @media (max-width: $breakpoint-mobile) {

@@ -33,6 +33,18 @@ const TalentResultsPanel = ({ useSearchFilters }: TalentResultsPanelProps) => {
   const useChildrenExpansion = useExpandableNodes(shouldExpandNodes)
   const showStickyZoom = useStickyZoom(0, 1300)
 
+  // We want the sticky zoom to move to the top once the user scrolls down a bit.
+  useEffect(() => {
+    const handleScroll = () => {
+      document.documentElement.style.setProperty(
+        '--sticky-zoom-margin',
+        window.scrollY > 100 ? '-2rem' : '6rem'
+      )
+    }
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
   const matchingTalentNames = useMemo(() => {
     if (!matchingTalentTree) return []
 
