@@ -29,7 +29,7 @@ const TalentResultsPanel = ({ useSearchFilters }: TalentResultsPanelProps) => {
   const { parsedKeywords, matchingTalentTree, useFormattingFilters } = useSearchFilters
   const { shouldExpandNodes } = useFormattingFilters
   const useChildrenExpansion = useExpandableNodes(shouldExpandNodes)
-  const showStickyZoom = useStickyZoom(0, 1400)
+  const showStickyZoom = useStickyZoom(0, 1300)
 
   const matchingTalentNames = useMemo(() => {
     if (!matchingTalentTree) return []

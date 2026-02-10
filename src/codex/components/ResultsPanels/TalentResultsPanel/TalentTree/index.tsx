@@ -124,10 +124,12 @@ export default function TalentTree({
     const svgWidth = bounds.width + TREE.PADDING.LEFT + TREE.PADDING.RIGHT
     const svgHeight = bounds.height + TREE.PADDING.VERTICAL * 2
 
-    // Calculate zoom scale for numbered zoom levels
+    // Calculate zoom scale for numbered zoom levels.
+    // With a depth multiplier so deeper trees don't zoom in as much.
     const getZoomScale = (): number | undefined => {
       if (zoomLevel === ZoomLevel.COVER) return undefined
-      return parseInt(zoomLevel.toString()) / 100
+      const depthMultiplier = 1 / Math.pow(maxDepth, 0.25)
+      return (parseInt(zoomLevel.toString()) / 100) * depthMultiplier
     }
 
     const zoomScale = getZoomScale()
