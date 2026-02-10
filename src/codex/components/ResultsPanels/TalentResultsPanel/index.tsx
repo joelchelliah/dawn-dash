@@ -75,7 +75,7 @@ const TalentResultsPanel = ({ useSearchFilters }: TalentResultsPanelProps) => {
     const showingTalentsWithoutKeywords = parsedKeywords.length === 0 && showTalentsWithoutKeywords
 
     return (
-      <div className={cx('results-container')} key={parsedKeywords.join(',')}>
+      <div className={cx('results-container')}>
         <KeywordsSummary
           matches={matchingTalentNames}
           resultType="talent"

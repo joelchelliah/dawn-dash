@@ -1,4 +1,4 @@
-import { useDeferredValue, useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 import { isArrayEqual } from '@/shared/utils/lists'
 
@@ -9,25 +9,34 @@ interface UseKeywords {
   resetParsedKeywords: () => void
 }
 
+const DEBOUNCE_MS = 150
+
 /**
- * Hook for managing keyword search with parsing and debouncing via React's useDeferredValue.
+ * Hook for managing keyword search with parsing and debouncing.
  *
  * - `keywords` updates immediately when the user types (for responsive UI)
- * - `deferredKeywords` updates with a slight delay (for expensive parsing/filtering)
+ * - `parsedKeywords` updates after a short debounce delay, preventing
+ *   expensive downstream filtering from running on every keystroke and
+ *   blocking the main thread
  * - Keywords are parsed into an array using commas and "or" as separators
- * - This prevents expensive computations on every keystroke while keeping the UI responsive
  */
 export const useKeywords = (defaultValue: string | undefined): UseKeywords => {
   const [keywords, setKeywords] = useState(defaultValue || '')
-  const deferredKeywords = useDeferredValue(keywords)
   const [parsedKeywords, setParsedKeywords] = useState<string[]>([])
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
-    const parsed = parseKeywords(deferredKeywords)
-    if (!isArrayEqual(parsedKeywords, parsed)) {
-      setParsedKeywords(parsed)
+    debounceRef.current = setTimeout(() => {
+      const parsed = parseKeywords(keywords)
+      if (!isArrayEqual(parsedKeywords, parsed)) {
+        setParsedKeywords(parsed)
+      }
+    }, DEBOUNCE_MS)
+
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current)
     }
-  }, [deferredKeywords, parsedKeywords])
+  }, [keywords, parsedKeywords])
 
   return {
     keywords,
