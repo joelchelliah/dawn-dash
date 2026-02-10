@@ -50,9 +50,9 @@ export const NODE = {
 
   /** Additional requirements-specific constants */
   ADDITIONAL_REQUIREMENTS: {
-    HEIGHT: 11,
+    HEIGHT: 14,
     HEIGHT_NO_DESCRIPTION: 4,
-    VERTICAL_MARGIN: 3,
+    VERTICAL_MARGIN: 1,
     VERTICAL_MARGIN_NO_DESCRIPTION: 8,
   },
 
