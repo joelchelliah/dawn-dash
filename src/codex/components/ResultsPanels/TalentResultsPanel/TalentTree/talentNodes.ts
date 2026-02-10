@@ -15,15 +15,33 @@ import styles from './index.module.scss'
 const cx = createCx(styles)
 
 type NodeElement = Selection<SVGGElement, unknown, null, undefined>
+type SectionGroup = Selection<SVGGElement, unknown, null, undefined>
 
 // Debug rectangles to visualize component boundaries
 const DEBUG_RECTANGLES = {
-  cardSet: false,
-  name: false,
-  additionalRequirements: false,
-  description: false,
-  blightbaneLink: false,
-  keywords: false,
+  cardSet: { enabled: false, color: '255, 0, 255' },
+  name: { enabled: false, color: '255, 0, 0' },
+  additionalRequirements: { enabled: false, color: '0, 255, 0' },
+  description: { enabled: false, color: '0, 0, 255' },
+  blightbaneLink: { enabled: false, color: '255, 255, 0' },
+  keywords: { enabled: false, color: '0, 255, 255' },
+}
+
+/**
+ * Creates a glow filter for talent nodes
+ */
+export function createGlowFilter(
+  defs: Selection<SVGDefsElement, unknown, null, undefined>,
+  filterId: string
+): void {
+  const blurAmount = '4'
+  const filter = defs.append('filter').attr('id', filterId)
+
+  filter.append('feGaussianBlur').attr('stdDeviation', blurAmount).attr('result', 'coloredBlur')
+
+  const merge = filter.append('feMerge')
+  merge.append('feMergeNode').attr('in', 'coloredBlur')
+  merge.append('feMergeNode').attr('in', 'SourceGraphic')
 }
 
 /**
@@ -41,19 +59,17 @@ export function renderTalentNode(
   getCardSetName: (index?: number) => string | undefined
 ): void {
   const tier = data.tier || 0
-  const nameHeight = shouldShowDescription
-    ? NODE.NAME.HEIGHT + 2 * NODE.NAME.VERTICAL_MARGIN
-    : NODE.NAME.HEIGHT_NO_DESCRIPTION + 2 * NODE.NAME.VERTICAL_MARGIN
+  const { height: nameHeight, margin: nameMargin } = getNameDimensions(shouldShowDescription)
+  const totalNameHeight = nameHeight + 2 * nameMargin
 
   const additionalRequirements = [...data.otherRequirements, ...data.talentRequirements].filter(
     isNotNullOrUndefined
   )
-  const additionalRequirementHeight = additionalRequirements.length
-    ? shouldShowDescription
-      ? NODE.ADDITIONAL_REQUIREMENTS.HEIGHT + 2 * NODE.ADDITIONAL_REQUIREMENTS.VERTICAL_MARGIN
-      : NODE.ADDITIONAL_REQUIREMENTS.HEIGHT_NO_DESCRIPTION +
-        2 * NODE.ADDITIONAL_REQUIREMENTS.VERTICAL_MARGIN_NO_DESCRIPTION
-    : 0
+
+  const { height: additionalRequirementHeight, margin: additionalRequirementMargin } =
+    getAdditionalRequirementsDimensions(additionalRequirements.length, shouldShowDescription)
+  const totalAdditionalRequirementHeight =
+    additionalRequirementHeight + 2 * additionalRequirementMargin
 
   const descriptionLines = wrapTalentText(
     data.description,
@@ -89,29 +105,18 @@ export function renderTalentNode(
     .attr('y', -halfNodeHeight)
     .attr('class', cx('talent-node', `talent-node--tier-${tier}`))
 
+  const yPosAfterName = -halfNodeHeight + totalNameHeight
+  const yPosAfterAdditionalRequirements = yPosAfterName + totalAdditionalRequirementHeight
+  const yPosAfterDescription = yPosAfterAdditionalRequirements + descriptionHeight
+
   // Separator line after name
   if (shouldShowDescription) {
-    const separatorY = -halfNodeHeight + nameHeight
-    nodeElement
-      .append('line')
-      .attr('x1', -halfNodeWidth)
-      .attr('y1', separatorY)
-      .attr('x2', halfNodeWidth)
-      .attr('y2', separatorY)
-      .attr('class', cx('talent-node-separator', `talent-node-separator--tier-${tier}`))
+    appendSeparator(nodeElement, yPosAfterName, tier)
   }
 
   // Separator line before Blightbane link
   if (shouldShowBlightbaneLink) {
-    const separatorY =
-      -halfNodeHeight + nameHeight + descriptionHeight + additionalRequirementHeight
-    nodeElement
-      .append('line')
-      .attr('x1', -halfNodeWidth)
-      .attr('y1', separatorY)
-      .attr('x2', halfNodeWidth)
-      .attr('y2', separatorY)
-      .attr('class', cx('talent-node-separator', `talent-node-separator--tier-${tier}`))
+    appendSeparator(nodeElement, yPosAfterDescription, tier)
   }
 
   if (shouldShowCardSet) {
@@ -121,29 +126,23 @@ export function renderTalentNode(
     }
   }
 
-  renderTalentName(nodeElement, data, -halfNodeHeight, !shouldShowDescription)
-
-  const posAfterNameSeparator = -halfNodeHeight + nameHeight
+  renderTalentName(nodeElement, data, -halfNodeHeight, shouldShowDescription)
 
   if (additionalRequirements.length > 0) {
     renderTalentAdditionalRequirements(
       nodeElement,
       additionalRequirements,
-      posAfterNameSeparator,
-      !shouldShowDescription
+      yPosAfterName,
+      shouldShowDescription
     )
   }
 
-  const posBeforeDescription = posAfterNameSeparator + additionalRequirementHeight
-
   if (shouldShowDescription) {
-    renderTalentDescription(nodeElement, posBeforeDescription, descriptionLines)
+    renderTalentDescription(nodeElement, yPosAfterAdditionalRequirements, descriptionLines)
   }
 
-  const posBeforeBlightbaneLink = posBeforeDescription + descriptionHeight
-
   if (shouldShowBlightbaneLink) {
-    renderBlightbaneLink(nodeElement, data, posBeforeBlightbaneLink)
+    renderBlightbaneLink(nodeElement, data, yPosAfterDescription)
   }
 
   if (shouldShowKeywords) {
@@ -154,9 +153,6 @@ export function renderTalentNode(
   }
 }
 
-/**
- * Renders the card set label above the talent node
- */
 function renderCardSets(
   nodeElement: NodeElement,
   originY: number,
@@ -166,21 +162,14 @@ function renderCardSets(
   const halfCardSetHeight = NODE.CARD_SET.HEIGHT / 2
   const topMargin = NODE.CARD_SET.TOP_MARGIN
   const bottomMargin = NODE.CARD_SET.BOTTOM_MARGIN
-  const cardSetGroup = nodeElement
-    .append('g')
-    .attr('transform', `translate(0, ${originY - halfCardSetHeight - bottomMargin})`)
-
-  if (DEBUG_RECTANGLES.cardSet) {
-    cardSetGroup
-      .append('rect')
-      .attr('x', -NODE.WIDTH / 2)
-      .attr('y', -halfCardSetHeight - bottomMargin)
-      .attr('width', NODE.WIDTH)
-      .attr('height', NODE.CARD_SET.HEIGHT + topMargin + bottomMargin)
-      .attr('fill', 'rgba(255, 0, 255, 0.2)')
-      .attr('stroke', 'rgba(255, 0, 255, 0.5)')
-      .attr('stroke-width', 1)
-  }
+  const cardSetGroup = appendSectionGroup(
+    nodeElement,
+    originY - halfCardSetHeight - bottomMargin,
+    halfCardSetHeight,
+    bottomMargin,
+    NODE.CARD_SET.HEIGHT + topMargin + bottomMargin,
+    'cardSet'
+  )
 
   cardSetGroup
     .append('text')
@@ -189,33 +178,22 @@ function renderCardSets(
     .attr('class', cx('talent-node-card-sets', `talent-node-card-sets--tier-${tier}`))
 }
 
-/**
- * Renders the talent name in the node
- */
 function renderTalentName(
   nodeElement: NodeElement,
   data: HierarchicalTalentTreeNode,
   originY: number,
-  isDescriptionHidden: boolean
+  shouldShowDescription: boolean
 ): void {
-  const nameHeight = isDescriptionHidden ? NODE.NAME.HEIGHT_NO_DESCRIPTION : NODE.NAME.HEIGHT
+  const { height: nameHeight, margin: nameMargin } = getNameDimensions(shouldShowDescription)
   const halfNameHeight = nameHeight / 2
-  const halfVerticalMargin = NODE.NAME.VERTICAL_MARGIN
-  const nameGroup = nodeElement
-    .append('g')
-    .attr('transform', `translate(0, ${originY + halfNameHeight + halfVerticalMargin})`)
-
-  if (DEBUG_RECTANGLES.name) {
-    nameGroup
-      .append('rect')
-      .attr('x', -NODE.WIDTH / 2)
-      .attr('y', -halfNameHeight - halfVerticalMargin)
-      .attr('width', NODE.WIDTH)
-      .attr('height', nameHeight + 2 * halfVerticalMargin)
-      .attr('fill', 'rgba(255, 0, 0, 0.4)')
-      .attr('stroke', 'rgba(255, 0, 0, 1)')
-      .attr('stroke-width', 1)
-  }
+  const nameGroup = appendSectionGroup(
+    nodeElement,
+    originY + halfNameHeight + nameMargin,
+    halfNameHeight,
+    nameMargin,
+    nameHeight + 2 * nameMargin,
+    'name'
+  )
 
   // For names too long to have larger fonts when collapsed
   const isNameReallyLong = data.name.length > NODE.NAME.REALLY_LONG_THRESHOLD
@@ -227,61 +205,74 @@ function renderTalentName(
     .attr(
       'class',
       cx('talent-node-name', {
-        'talent-node-name--collapsed': isDescriptionHidden,
-        'talent-node-name--collapsed-long-name': isDescriptionHidden && isNameReallyLong,
+        'talent-node-name--collapsed': !shouldShowDescription,
+        'talent-node-name--collapsed-long-name': !shouldShowDescription && isNameReallyLong,
       })
     )
 }
 
-/**
- * Renders additional requirements text (talent and other requirements)
- */
+function getNameDimensions(shouldShowDescription: boolean): {
+  height: number
+  margin: number
+} {
+  const height = shouldShowDescription ? NODE.NAME.HEIGHT : NODE.NAME.HEIGHT_NO_DESCRIPTION
+  const margin = NODE.NAME.VERTICAL_MARGIN
+
+  return { height, margin }
+}
+
 function renderTalentAdditionalRequirements(
   nodeElement: NodeElement,
   additionalRequirements: string[],
   originY: number,
-  isDescriptionHidden: boolean
+  shouldShowDescription: boolean
 ): void {
-  const additionalRequirementsHeight = isDescriptionHidden
-    ? NODE.ADDITIONAL_REQUIREMENTS.HEIGHT_NO_DESCRIPTION
-    : NODE.ADDITIONAL_REQUIREMENTS.HEIGHT
-  const halfAdditionalRequirementsHeight = additionalRequirementsHeight / 2
-  const halfVerticalMargin = isDescriptionHidden
-    ? NODE.ADDITIONAL_REQUIREMENTS.VERTICAL_MARGIN_NO_DESCRIPTION
-    : NODE.ADDITIONAL_REQUIREMENTS.VERTICAL_MARGIN
+  const { height: additionalRequirementHeight, margin: additionalRequirementMargin } =
+    getAdditionalRequirementsDimensions(additionalRequirements.length, shouldShowDescription)
 
-  const requirementsGroup = nodeElement
-    .append('g')
-    .attr(
-      'transform',
-      `translate(0, ${originY + halfAdditionalRequirementsHeight + halfVerticalMargin})`
-    )
+  const halfAdditionalRequirementsHeight = additionalRequirementHeight / 2
 
-  if (DEBUG_RECTANGLES.additionalRequirements) {
-    requirementsGroup
-      .append('rect')
-      .attr('x', -NODE.WIDTH / 2)
-      .attr('y', -halfAdditionalRequirementsHeight - halfVerticalMargin)
-      .attr('width', NODE.WIDTH)
-      .attr('height', additionalRequirementsHeight + 2 * halfVerticalMargin)
-      .attr('fill', 'rgba(0, 255, 0, 0.2)')
-      .attr('stroke', 'rgba(0, 255, 0, 0.5)')
-      .attr('stroke-width', 1)
-  }
+  const requirementsGroup = appendSectionGroup(
+    nodeElement,
+    originY + halfAdditionalRequirementsHeight + additionalRequirementMargin,
+    halfAdditionalRequirementsHeight,
+    additionalRequirementMargin,
+    additionalRequirementHeight + 2 * additionalRequirementMargin,
+    'additionalRequirements'
+  )
 
   requirementsGroup
     .append('text')
     .attr('y', halfAdditionalRequirementsHeight)
     .attr(
       'class',
-      cx('talent-node-requirements', { 'talent-node-requirements--collapsed': isDescriptionHidden })
+      cx('talent-node-requirements', {
+        'talent-node-requirements--collapsed': !shouldShowDescription,
+      })
     )
     .text(`Requires: ${additionalRequirements.join(', ')}!`)
 }
 
-/**
- * Renders the talent description text
- */
+function getAdditionalRequirementsDimensions(
+  numRequirements: number,
+  shouldShowDescription: boolean
+): {
+  height: number
+  margin: number
+} {
+  if (numRequirements === 0) {
+    return { height: 0, margin: 0 }
+  }
+  const height = shouldShowDescription
+    ? NODE.ADDITIONAL_REQUIREMENTS.HEIGHT
+    : NODE.ADDITIONAL_REQUIREMENTS.HEIGHT_NO_DESCRIPTION
+  const margin = shouldShowDescription
+    ? NODE.ADDITIONAL_REQUIREMENTS.VERTICAL_MARGIN
+    : NODE.ADDITIONAL_REQUIREMENTS.VERTICAL_MARGIN_NO_DESCRIPTION
+
+  return { height, margin }
+}
+
 function renderTalentDescription(
   nodeElement: NodeElement,
   originY: number,
@@ -291,21 +282,14 @@ function renderTalentDescription(
   const halfDescriptionHeight = descriptionHeight / 2
   const halfVerticalMargin = NODE.DESCRIPTION.VERTICAL_MARGIN
 
-  const descriptionGroup = nodeElement
-    .append('g')
-    .attr('transform', `translate(0, ${originY + halfDescriptionHeight + halfVerticalMargin})`)
-
-  if (DEBUG_RECTANGLES.description) {
-    descriptionGroup
-      .append('rect')
-      .attr('x', -NODE.WIDTH / 2)
-      .attr('y', -halfDescriptionHeight - halfVerticalMargin)
-      .attr('width', NODE.WIDTH)
-      .attr('height', descriptionHeight + 2 * halfVerticalMargin)
-      .attr('fill', 'rgba(0, 0, 255, 0.2)')
-      .attr('stroke', 'rgba(0, 0, 255, 0.5)')
-      .attr('stroke-width', 1)
-  }
+  const descriptionGroup = appendSectionGroup(
+    nodeElement,
+    originY + halfDescriptionHeight + halfVerticalMargin,
+    halfDescriptionHeight,
+    halfVerticalMargin,
+    descriptionHeight + 2 * halfVerticalMargin,
+    'description'
+  )
 
   // Position text lines within the centered content area
   // Start from top of content area (-halfDescriptionHeight) and offset by line index
@@ -323,35 +307,24 @@ function renderTalentDescription(
   })
 }
 
-/**
- * Renders the clickable Blightbane link
- */
 function renderBlightbaneLink(
   nodeElement: NodeElement,
   data: HierarchicalTalentTreeNode,
   originY: number
 ): void {
-  const blightbaneLinkHeight = NODE.BLIGHTBANE_LINK.HEIGHT
-  const halfBlightbaneLinkHeight = blightbaneLinkHeight / 2
+  const halfBlightbaneLinkHeight = NODE.BLIGHTBANE_LINK.HEIGHT / 2
   const halfVerticalMargin = NODE.BLIGHTBANE_LINK.VERTICAL_MARGIN
 
   const blightbaneLink = `https://www.blightbane.io/talent/${data.name.replaceAll(' ', '_')}`
 
-  const blightbaneGroup = nodeElement
-    .append('g')
-    .attr('transform', `translate(0, ${originY + halfBlightbaneLinkHeight + halfVerticalMargin})`)
-
-  if (DEBUG_RECTANGLES.blightbaneLink) {
-    blightbaneGroup
-      .append('rect')
-      .attr('x', -NODE.WIDTH / 2)
-      .attr('y', -halfBlightbaneLinkHeight - halfVerticalMargin)
-      .attr('width', NODE.WIDTH)
-      .attr('height', blightbaneLinkHeight + 2 * halfVerticalMargin)
-      .attr('fill', 'rgba(255, 255, 0, 0.2)')
-      .attr('stroke', 'rgba(255, 255, 0, 0.5)')
-      .attr('stroke-width', 1)
-  }
+  const blightbaneGroup = appendSectionGroup(
+    nodeElement,
+    originY + halfBlightbaneLinkHeight + halfVerticalMargin,
+    halfBlightbaneLinkHeight,
+    halfVerticalMargin,
+    NODE.BLIGHTBANE_LINK.HEIGHT + 2 * halfVerticalMargin,
+    'blightbaneLink'
+  )
 
   blightbaneGroup
     .append('text')
@@ -364,30 +337,19 @@ function renderBlightbaneLink(
     })
 }
 
-/**
- * Renders matching keywords below the talent node
- */
 function renderKeywords(nodeElement: NodeElement, originY: number, matchingKeywords: string): void {
-  const keywordsHeight = NODE.KEYWORDS.HEIGHT
-  const halfKeywordsHeight = keywordsHeight / 2
+  const halfKeywordsHeight = NODE.KEYWORDS.HEIGHT / 2
   const topMargin = NODE.KEYWORDS.TOP_MARGIN
   const bottomMargin = NODE.KEYWORDS.BOTTOM_MARGIN
 
-  const keywordsGroup = nodeElement
-    .append('g')
-    .attr('transform', `translate(0, ${originY + halfKeywordsHeight + topMargin})`)
-
-  if (DEBUG_RECTANGLES.keywords) {
-    keywordsGroup
-      .append('rect')
-      .attr('x', -NODE.WIDTH / 2)
-      .attr('y', -halfKeywordsHeight - topMargin)
-      .attr('width', NODE.WIDTH)
-      .attr('height', keywordsHeight + topMargin + bottomMargin)
-      .attr('fill', 'rgba(0, 255, 255, 0.2)')
-      .attr('stroke', 'rgba(0, 255, 255, 0.5)')
-      .attr('stroke-width', 1)
-  }
+  const keywordsGroup = appendSectionGroup(
+    nodeElement,
+    originY + halfKeywordsHeight + topMargin,
+    halfKeywordsHeight,
+    topMargin,
+    NODE.KEYWORDS.HEIGHT + topMargin + bottomMargin,
+    'keywords'
+  )
 
   keywordsGroup
     .append('text')
@@ -396,19 +358,43 @@ function renderKeywords(nodeElement: NodeElement, originY: number, matchingKeywo
     .text(matchingKeywords)
 }
 
+function appendSeparator(nodeElement: NodeElement, y: number, tier: number): void {
+  const halfNodeWidth = NODE.WIDTH / 2
+  nodeElement
+    .append('line')
+    .attr('x1', -halfNodeWidth)
+    .attr('y1', y)
+    .attr('x2', halfNodeWidth)
+    .attr('y2', y)
+    .attr('class', cx('talent-node-separator', `talent-node-separator--tier-${tier}`))
+}
+
 /**
- * Creates a glow filter for talent nodes
+ * Appends a positioned group for a node section, with an optional debug rectangle.
  */
-export function createGlowFilter(
-  defs: Selection<SVGDefsElement, unknown, null, undefined>,
-  filterId: string
-): void {
-  const blurAmount = '4'
-  const filter = defs.append('filter').attr('id', filterId)
+function appendSectionGroup(
+  nodeElement: NodeElement,
+  translateY: number,
+  halfHeight: number,
+  halfVerticalMargin: number,
+  totalHeightIncludingMargins: number,
+  debugKey: keyof typeof DEBUG_RECTANGLES
+): SectionGroup {
+  const group = nodeElement.append('g').attr('transform', `translate(0, ${translateY})`)
+  const debug = DEBUG_RECTANGLES[debugKey]
 
-  filter.append('feGaussianBlur').attr('stdDeviation', blurAmount).attr('result', 'coloredBlur')
+  if (debug?.enabled) {
+    const color = debug.color
+    group
+      .append('rect')
+      .attr('x', -NODE.WIDTH / 2)
+      .attr('y', -halfHeight - halfVerticalMargin)
+      .attr('width', NODE.WIDTH)
+      .attr('height', totalHeightIncludingMargins)
+      .attr('fill', `rgba(${color}, 0.2)`)
+      .attr('stroke', `rgba(${color}, 0.5)`)
+      .attr('stroke-width', 1)
+  }
 
-  const merge = filter.append('feMerge')
-  merge.append('feMergeNode').attr('in', 'coloredBlur')
-  merge.append('feMergeNode').attr('in', 'SourceGraphic')
+  return group
 }
