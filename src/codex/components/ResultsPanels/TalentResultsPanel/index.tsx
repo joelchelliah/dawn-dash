@@ -3,6 +3,7 @@ import { useEffect, useState, useMemo } from 'react'
 import GradientButton from '@/shared/components/Buttons/GradientButton'
 import { createCx } from '@/shared/utils/classnames'
 import { CharacterClass } from '@/shared/types/characterClass'
+import { useBreakpoint } from '@/shared/hooks/useBreakpoint'
 
 import { TalentTreeNode, TalentTreeNodeType } from '@/codex/types/talents'
 import { UseAllTalentSearchFilters } from '@/codex/hooks/useSearchFilters'
@@ -26,6 +27,7 @@ const cx = createCx(styles)
 const TalentResultsPanel = ({ useSearchFilters }: TalentResultsPanelProps) => {
   const [showTalentsWithoutKeywords, setShowTalentsWithoutKeywords] = useState(false)
   const [zoomLevel, setZoomLevel] = useState<ZoomLevel>(ZoomLevel.COVER)
+  const { isMobile } = useBreakpoint()
   const { parsedKeywords, matchingTalentTree, useFormattingFilters } = useSearchFilters
   const { shouldExpandNodes } = useFormattingFilters
   const useChildrenExpansion = useExpandableNodes(shouldExpandNodes)
@@ -101,6 +103,7 @@ const TalentResultsPanel = ({ useSearchFilters }: TalentResultsPanelProps) => {
 
       {showZoomControl && (
         <StickyZoomSelect
+          position={isMobile ? 'left' : 'right'}
           className={cx('results-panel__sticky-zoom')}
           selectedClass={CharacterClass.Rogue}
           zoomLevel={zoomLevel}

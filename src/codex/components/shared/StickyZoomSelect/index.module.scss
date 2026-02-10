@@ -12,6 +12,13 @@
   box-shadow: -4px 4px 12px rgba(0, 0, 0, 0.75);
   animation: fadeInFromRight 0.5s ease-out;
 
+  &--left {
+    right: auto;
+    left: 2rem;
+    box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.75);
+    animation: fadeInFromLeft 0.5s ease-out;
+  }
+
   @media (max-width: $breakpoint-mobile) {
     top: 5.5rem;
     padding: 0.375rem 0.5rem 0.5rem;
@@ -22,6 +29,17 @@
   from {
     opacity: 0;
     transform: translateX(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeInFromLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-50px);
   }
   to {
     opacity: 1;

@@ -12,6 +12,7 @@ interface StickyZoomSelectProps {
   selectedClass?: CharacterClass
   zoomLevel: ZoomLevel
   setZoomLevel: (zoom: ZoomLevel) => void
+  position?: 'right' | 'left'
   disabled?: boolean
   className?: string
 }
@@ -20,6 +21,7 @@ const StickyZoomSelect = ({
   selectedClass = CharacterClass.Neutral,
   zoomLevel,
   setZoomLevel,
+  position = 'right',
   disabled = false,
   className,
 }: StickyZoomSelectProps) => {
@@ -29,7 +31,7 @@ const StickyZoomSelect = ({
   }))
 
   return (
-    <div className={cx('sticky-zoom', className)}>
+    <div className={cx('sticky-zoom', className, { 'sticky-zoom--left': position === 'left' })}>
       <Select
         id="sticky-zoom-select"
         selectedClass={selectedClass}
