@@ -13,11 +13,20 @@
 const { OPTIMIZATION_PASS_CONFIG } = require('./configs.js')
 
 /**
- * Extract choice labels from a node's children
+ * Extract choice tokens from a node's children.
+ * Each token encodes both the choiceLabel and any requirements, so that two
+ * choices with the same label but different requirements are treated as distinct.
+ * Format: "label" or "label|req1,req2" (requirements sorted for stable comparison)
  */
 function getChoiceLabels(node) {
   if (!node.children) return []
-  return node.children.filter((c) => c.choiceLabel).map((c) => c.choiceLabel)
+  return node.children
+    .filter((c) => c.choiceLabel)
+    .map((c) => {
+      if (!c.requirements || c.requirements.length === 0) return c.choiceLabel
+      const reqs = [...c.requirements].sort().join(',')
+      return `${c.choiceLabel}|${reqs}`
+    })
 }
 
 /**

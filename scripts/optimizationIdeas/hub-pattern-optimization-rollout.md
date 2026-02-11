@@ -2,14 +2,15 @@
 
 ## Current Status
 
-**Phase 2 Complete**: Full blacklist rollout done, 87 events optimized, -328 nodes total.
+**Phase 2 Complete**: Full blacklist rollout done, 85 events optimized, -329 nodes total.
 
 **What We Built**:
 - ✅ Choice-based detection (not text signature matching)
 - ✅ BFS traversal with depth tracking
 - ✅ "Same or -1 choice" heuristic
 - ✅ Whitelist-based rollout (Phase 1) → Blacklist rollout (Phase 2)
-- ✅ Blacklist: 5 known false positives (`Frozen Heart`, `Mysterious Crates`, `Suspended Cage`, `The Deal`, `The Godscar Wastes Finish`)
+- ✅ Requirements-aware choice matching (same label + different requirements = distinct choices)
+- ✅ Blacklist: 4 known false positives (`Frozen Heart`, `Mysterious Crates`, `Suspended Cage`, `The Deal`)
 
 ---
 

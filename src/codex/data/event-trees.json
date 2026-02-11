@@ -7337,7 +7337,7 @@
     "artwork": "opportunity_image",
     "rootNode": {
       "id": 0,
-      "text": "A skeleton in highly oxidised yet impressive armor sits against a nearby signpost. As you walk past, an ivory hand suddenly grasps at your weapon. \"Pleeeeeeease\" a hollow howl escapes from the undead's broken jaw...",
+      "text": "A skeleton in highly oxidised yet impressive armor sits against a nearby stone. As you walk past, an ivory hand suddenly grasps at your weapon. \"Pleeeeeeease\" a hollow howl escapes from the undead's broken jaw...",
       "type": "dialogue",
       "numContinues": 0,
       "children": [
@@ -15230,11 +15230,11 @@
         {
           "id": 1,
           "type": "choice",
-          "choiceLabel": "Focus on the Necromancer",
+          "choiceLabel": "Focus on the Priestess",
           "children": [
             {
               "id": 18047,
-              "text": "Focus on the Necromancer (fill in the lore for this.) final words",
+              "text": "Focus on the Priestess (fill in the lore for this.) final words",
               "type": "end"
             }
           ]
@@ -15242,11 +15242,11 @@
         {
           "id": 2,
           "type": "choice",
-          "choiceLabel": "Focus on the Blacksmith",
+          "choiceLabel": "Focus on the Collector",
           "children": [
             {
               "id": 18048,
-              "text": "Focus on the Blacksmith (fill in the lore for this.) final words",
+              "text": "Focus on the Collector (fill in the lore for this.) final words",
               "type": "end"
             }
           ]
@@ -15254,11 +15254,11 @@
         {
           "id": 3,
           "type": "choice",
-          "choiceLabel": "Focus on the Forger",
+          "choiceLabel": "Focus on the Alchemist",
           "children": [
             {
               "id": 18049,
-              "text": "Focus on the Forger (fill in the lore for this.) final words",
+              "text": "Focus on the Alchemist (fill in the lore for this.) final words",
               "type": "end"
             }
           ]
@@ -22229,7 +22229,38 @@
                           "id": 7,
                           "text": "\"Now off we go, business doesn't wait!\" the merchant chirps merrily, climbing back atop the wagon.",
                           "type": "dialogue",
-                          "ref": 0
+                          "children": [
+                            {
+                              "id": 5,
+                              "type": "choice",
+                              "choiceLabel": "Explore the area more",
+                              "children": [
+                                {
+                                  "id": 22466,
+                                  "text": "",
+                                  "type": "end",
+                                  "effects": [
+                                    "REMOVEAREAEFFECT: Caravan Wagon"
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "id": 6,
+                              "type": "choice",
+                              "choiceLabel": "Leave: Venture forth.",
+                              "children": [
+                                {
+                                  "id": 22467,
+                                  "text": "",
+                                  "type": "end",
+                                  "effects": [
+                                    "NEXTAREA"
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
                         }
                       ]
                     }
@@ -22285,7 +22316,38 @@
                       "text": "\"Alas, our precious cargo can't say the same. Given the circumstances, we will have to make a report. You, my dear guardian, can expect a missive from Emporium Headquarters about damages soon.\" \"As for us, we thank thee- do come visit us if you find yourself in need of quality merchendise, guardian. Until then, we bid you farefell.\" \"Now off we go, business doesn't wait!\" the merchant chirps merrily, climbing back atop the wagon.",
                       "type": "dialogue",
                       "numContinues": 2,
-                      "ref": 0
+                      "children": [
+                        {
+                          "id": 11,
+                          "type": "choice",
+                          "choiceLabel": "Explore the area more",
+                          "children": [
+                            {
+                              "id": 22471,
+                              "text": "",
+                              "type": "end",
+                              "effects": [
+                                "REMOVEAREAEFFECT: Caravan Wagon"
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "id": 12,
+                          "type": "choice",
+                          "choiceLabel": "Leave: Venture forth.",
+                          "children": [
+                            {
+                              "id": 22472,
+                              "text": "",
+                              "type": "end",
+                              "effects": [
+                                "NEXTAREA"
+                              ]
+                            }
+                          ]
+                        }
+                      ]
                     }
                   ]
                 }
@@ -27656,56 +27718,12 @@
               "text": "\"We found it! How did it hide? It matters not, it is food now. FOOD! Yes- our food!\" The stoic old mage swings around, and you can see the fear in his deep set eyes. \"Stay back!\" \"It will be our food! Yes! Yes more food! More- it will be enough!\" Your head starts to spin as a stinging pain starts to wash over you. The howling winds seem everywhere, lifting the body of the fallen matron first before it gets shred into numerous pieces as screams of joy surround you from every angle... Suddenly, a loud crack suddenly breaks though the piercing winds, quickly followed by a screeching howl. \"No! NO! NO, no no- ours-\" the joyful screams turn to despair, fading rapidly as its attention seems to shift away from you until you no longer feel its presence. Reghar looms over the shattered phylacteries, his hammer still embedded in one of the strange contraptions as he observes the Anima dissipate uncontrollably. \"That's for Kivos, you bastard,\" he declares with a steely gaze.",
               "type": "dialogue",
               "numContinues": 6,
-              "children": [
-                {
-                  "id": 33,
-                  "type": "choice",
-                  "choiceLabel": "Let all of the anima escape",
-                  "refChildren": [
-                    23882
-                  ]
-                },
-                {
-                  "id": 37,
-                  "type": "choice",
-                  "choiceLabel": "Consume only part of the Anima",
-                  "refChildren": [
-                    23885
-                  ]
-                },
-                {
-                  "id": 41,
-                  "type": "choice",
-                  "choiceLabel": "Holy: Release all of the Anima",
-                  "requirements": [
-                    "accesstoholy:true"
-                  ],
-                  "refChildren": [
-                    23892
-                  ]
-                },
-                {
-                  "id": 50,
-                  "type": "choice",
-                  "choiceLabel": "Consume all of the Anima",
-                  "requirements": [
-                    "talent:Blessing of Serem-Pek"
-                  ],
-                  "refChildren": [
-                    23899
-                  ]
-                },
-                {
-                  "id": 59,
-                  "type": "choice",
-                  "choiceLabel": "Consume all of the Anima",
-                  "requirements": [
-                    "NOT talent:Blessing of Serem-Pek"
-                  ],
-                  "refChildren": [
-                    23902
-                  ]
-                }
+              "refChildren": [
+                2,
+                6,
+                10,
+                19,
+                28
               ]
             }
           ]
@@ -27734,47 +27752,7 @@
                       "text": "The winds start to pick up, swirling around you, judging you. \"FOOL! It does not know what it has done! It will suffer! S-...\" Suddenly, a loud crack suddenly breaks though the piercing winds, quickly followed by a screeching howl. \"No! NO! NO, no no- ours-\" the joyful screams turn to despair, fading rapidly as its attention seems to shift away from you until you no longer feel its presence. Reghar looms over the shattered phylacteries, his hammer still embedded in one of the strange contraptions as he observes the Anima dissipate uncontrollably. \"That's for Kivos, you bastard,\" he declares with a steely gaze.",
                       "type": "dialogue",
                       "numContinues": 3,
-                      "children": [
-                        {
-                          "id": 65,
-                          "type": "choice",
-                          "choiceLabel": "Let all of the anima escape",
-                          "ref": 2
-                        },
-                        {
-                          "id": 69,
-                          "type": "choice",
-                          "choiceLabel": "Consume only part of the Anima",
-                          "ref": 6
-                        },
-                        {
-                          "id": 73,
-                          "type": "choice",
-                          "choiceLabel": "Holy: Release all of the Anima",
-                          "requirements": [
-                            "accesstoholy:true"
-                          ],
-                          "ref": 10
-                        },
-                        {
-                          "id": 82,
-                          "type": "choice",
-                          "choiceLabel": "Consume all of the Anima",
-                          "requirements": [
-                            "talent:Blessing of Serem-Pek"
-                          ],
-                          "ref": 19
-                        },
-                        {
-                          "id": 91,
-                          "type": "choice",
-                          "choiceLabel": "Consume all of the Anima",
-                          "requirements": [
-                            "NOT talent:Blessing of Serem-Pek"
-                          ],
-                          "ref": 28
-                        }
-                      ]
+                      "ref": 23903
                     }
                   ]
                 },
@@ -27788,47 +27766,7 @@
                       "text": "The winds start to pick up, swirling around you, judging you. \"Then why did it kill? Did it want to make us suffer? Have us feed...\" Suddenly, a loud crack suddenly breaks though the piercing winds, quickly followed by a screeching howl. \"No! NO! NO, no no- ours-\" the joyful screams turn to despair, fading rapidly as its attention seems to shift away from you until you no longer feel its presence. Reghar looms over the shattered phylacteries, his hammer still embedded in one of the strange contraptions as he observes the Anima dissipate uncontrollably. \"That's for Kivos, you bastard,\" he declares with a steely gaze.",
                       "type": "dialogue",
                       "numContinues": 3,
-                      "children": [
-                        {
-                          "id": 96,
-                          "type": "choice",
-                          "choiceLabel": "Let all of the anima escape",
-                          "ref": 2
-                        },
-                        {
-                          "id": 100,
-                          "type": "choice",
-                          "choiceLabel": "Consume only part of the Anima",
-                          "ref": 6
-                        },
-                        {
-                          "id": 104,
-                          "type": "choice",
-                          "choiceLabel": "Holy: Release all of the Anima",
-                          "requirements": [
-                            "accesstoholy:true"
-                          ],
-                          "ref": 10
-                        },
-                        {
-                          "id": 113,
-                          "type": "choice",
-                          "choiceLabel": "Consume all of the Anima",
-                          "requirements": [
-                            "talent:Blessing of Serem-Pek"
-                          ],
-                          "ref": 19
-                        },
-                        {
-                          "id": 122,
-                          "type": "choice",
-                          "choiceLabel": "Consume all of the Anima",
-                          "requirements": [
-                            "NOT talent:Blessing of Serem-Pek"
-                          ],
-                          "ref": 28
-                        }
-                      ]
+                      "ref": 23903
                     }
                   ]
                 }

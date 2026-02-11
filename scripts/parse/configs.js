@@ -134,7 +134,6 @@ const OPTIMIZATION_PASS_CONFIG = {
     'Mysterious Crates', // FALSE POSITIVE: 2 choices match hub pattern but are completely different subtrees
     'Suspended Cage', // FALSE POSITIVE: Truth -> Imperfection -> Darkness false match
     'The Deal', // FALSE POSITIVE: 2 potions are taken after another, but this creates a false match on the second potion
-    'The Godscar Wastes Finish', // FALSE POSITIVE: access to holy path getting messed up... [continue, continue] is triggering a false positive on an earlier node with 2 continues.
   ],
 
   // Structural subtree deduplication (breadth-first):
