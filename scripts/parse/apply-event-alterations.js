@@ -81,6 +81,14 @@ function applyEventAlterations(rootNode, alterations, generateNodeId) {
       continue
     }
 
+    // Apply additional property filters
+    if (find.hasRef !== undefined) {
+      matchingNodes = matchingNodes.filter((n) =>
+        find.hasRef ? n.ref !== undefined : n.ref === undefined
+      )
+      searchDescription += ` + hasRef: ${find.hasRef}`
+    }
+
     if (matchingNodes.length === 0) {
       console.warn(`  ⚠️  No nodes found matching: ${searchDescription}`)
       continue
@@ -239,7 +247,9 @@ function applyEventAlterations(rootNode, alterations, generateNodeId) {
 
         // Update requirements if specified
         if (updateChild.requirements !== undefined) {
-          const normalized = updateChild.requirements.filter((req) => req && typeof req === 'string')
+          const normalized = updateChild.requirements.filter(
+            (req) => req && typeof req === 'string'
+          )
           if (normalized.length > 0) {
             child.requirements = normalized
           }
@@ -296,6 +306,9 @@ function applyEventAlterations(rootNode, alterations, generateNodeId) {
         }
         if (modifyNode.removeChildren && node.children !== undefined) {
           delete node.children
+        }
+        if (modifyNode.removeRefChildren && node.refChildren !== undefined) {
+          delete node.refChildren
         }
 
         // Set new values

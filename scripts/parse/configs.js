@@ -35,11 +35,6 @@ const DIALOGUE_MENU_EVENTS = {
     hubChoiceMatchThreshold: 30, // choices: 1/3
     passWhenOnlyExitPatternsAvailable: true,
   },
-  'Mysterious Crates': {
-    menuHubPattern: 'You open the crates with a hefty blow of your weapon.',
-    menuExitPatterns: ['Open the other crates', 'Leave'],
-    hubChoiceMatchThreshold: 60, // choices: 2/3
-  },
   'Rathael the Slain Death': {
     menuHubPattern: 'A chance to tangle with one of these',
     menuExitPatterns: ['Fight: Confront the Seraph'],
@@ -50,36 +45,6 @@ const DIALOGUE_MENU_EVENTS = {
   'Suspended Cage': {
     menuHubPattern: 'Quickly pry open the lock',
     menuExitPatterns: ['Leave'],
-    hubChoiceMatchThreshold: 60, // choices: 2/3
-  },
-  'The Boneyard': {
-    menuHubPattern: '"A parasite, one of the worst',
-    menuExitPatterns: ['Continue'],
-    hubChoiceMatchThreshold: 60, // choices: 2/3
-  },
-  'The Defiled Sanctum': {
-    menuHubPattern: '"First." one of the heads answers.',
-    menuExitPatterns: ['Tell me something else.'],
-    hubChoiceMatchThreshold: 60, // choices: 2/3
-  },
-  'The Ferryman': {
-    menuHubPattern: '"I am but a guide for the souls',
-    menuExitPatterns: ['Back to other questions.'],
-    hubChoiceMatchThreshold: 60, // choices: 2/3
-  },
-  'The Priestess': {
-    menuHubPattern: 'In this mystical place',
-    menuExitPatterns: ['We have to keep moving.'],
-    hubChoiceMatchThreshold: 60, // choices: 2/3
-  },
-  'Warfront Survivor': {
-    menuHubPattern: 'Amidst the carnage you notice',
-    menuExitPatterns: ['Attack the Demon'],
-    hubChoiceMatchThreshold: 50, // choices: 1/2
-  },
-  'Weeping Woods Start': {
-    menuHubPattern: '"A wise decision. The dark lands',
-    menuExitPatterns: ['That is all I needed to know'],
     hubChoiceMatchThreshold: 60, // choices: 2/3
   },
 }
@@ -163,28 +128,14 @@ const OPTIMIZATION_PASS_CONFIG = {
   // Minimum number of choice children for hub candidates
   POST_PROCESSING_HUB_PATTERN_OPTIMIZATION_MIN_CHOICES: 3,
 
-  // Events to apply hub pattern optimization (Phase 2: ref creation)
-  // Other events will still be detected and logged for discovery, but won't have refs created
-  POST_PROCESSING_HUB_PATTERN_OPTIMIZATION_WHITELIST: [
-    'A Familiar Face',
-    'A Strange Painting',
-    'Abandoned Backpack',
-    'Axe in the Stone',
-    'Battleseer Hildune Death',
-    'Brightcandle Consul',
-    'Dawnbringer Ystel',
-    "Heroes' Rest Cemetery Start",
-    'Historic Shard',
-    'Isle of Talos',
-    'Kaius Tagdahar Death',
-    'Rotting Residence',
-    'Survey the Field',
-    'Statue of Ilthar II Death',
-    'Sunfall Meadows Start',
+  // All events get optimization EXCEPT those in this blacklist (known false positives)
+  POST_PROCESSING_HUB_PATTERN_OPTIMIZATION_BLACKLIST: [
+    'Frozen Heart', // FALSE POSITIVE: "You mean the amulet?" - huntress/NOT huntress choices have same direct children texts
+    'Mysterious Crates', // FALSE POSITIVE: 2 choices match hub pattern but are completely different subtrees
+    'Suspended Cage', // FALSE POSITIVE: Truth -> Imperfection -> Darkness false match
+    'The Deal', // FALSE POSITIVE: 2 potions are taken after another, but this creates a false match on the second potion
+    'The Godscar Wastes Finish', // FALSE POSITIVE: access to holy path getting messed up... [continue, continue] is triggering a false positive on an earlier node with 2 continues.
   ],
-
-  // TODO: BLACKLIST:
-  // Mysterious Crates - Has a set of 2 choices that are identical to hub, but completely different!
 
   // Structural subtree deduplication (breadth-first):
   // - Replaces structurally identical subtrees with refs, preferring shallow originals.
@@ -210,20 +161,8 @@ const OPTIMIZATION_PASS_CONFIG = {
   // Convert certain refs (sibling/simple cousin) into `refChildren` for nicer visualization.
   CONVERT_SIBLING_AND_COUSIN_REFS_TO_REF_CHILDREN_ENABLED: true,
   // Some complex trees get weird horizontal spacing issues when this pass reorders parents
-  COUSIN_REF_BLACKLIST: [
-    'Vesparin Vault',
-    'TempleOffering',
-    'Frozen Heart',
-    'The Defiled Sanctum',
-    'The Ferryman',
-    'Warfront Survivor',
-  ],
-  COMPLEX_COUSIN_REF_BLACKLIST: [
-    'Brightcandle Inn',
-    'Damsel in Distress',
-    'Suspended Cage',
-    'The Priestess',
-  ],
+  COUSIN_REF_BLACKLIST: ['Frozen Heart', 'Vesparin Vault'],
+  COMPLEX_COUSIN_REF_BLACKLIST: ['Mysterious Crates', 'Suspended Cage'],
 
   // Validate refs (detect refs pointing to missing nodes) and log warnings.
   CHECK_INVALID_REFS_ENABLED: true,

@@ -17,6 +17,10 @@
  *   - { textOrLabel: 'text', effect: 'GOTOAREA: 91' } - Search by both text-or-label AND effect
  *   - { textOrLabel: 'text', requirement: 'strength:=0' } - Search by both text-or-label AND requirement
  *
+ * Additional property filters (combinable with any search above):
+ *   - { ..., hasRef: false } - Only match nodes that have no ref field (i.e. the original, not a ref copy)
+ *   - { ..., hasRef: true } - Only match nodes that have a ref field
+ *
  * Modifying nodes:
  * - addRequirements: Add requirements to matched nodes
  * - addChild: Add a new child node to matched nodes
@@ -155,12 +159,13 @@ module.exports = [
     alterations: [
       {
         // Find the dialogue node that should be an end node (GOTOAREA transition)
-        find: { textOrLabel: 'The heads turn in unison before you speak', effect: 'GOTOAREA: 91' },
+        find: { effect: 'GOTOAREA: 91' },
         modifyNode: {
           removeRef: true,
-          removeNumContinues: true,
           removeText: true,
+          removeNumContinues: true,
           removeChildren: true,
+          removeRefChildren: true,
           type: 'end',
         },
       },
@@ -260,7 +265,7 @@ module.exports = [
     name: 'The Cardgame',
     alterations: [
       {
-        find: { textStartsWith: 'Three cards get dealt in front of you' },
+        find: { textStartsWith: 'Three cards get dealt in front of you', hasRef: false },
         replaceChildren: [
           {
             type: 'special',
@@ -507,6 +512,21 @@ module.exports = [
             ],
           },
         ],
+      },
+    ],
+  },
+  {
+    name: 'Obsidian Garden Finish',
+    alterations: [
+      {
+        find: { effect: 'NEXTAREA' },
+        modifyNode: {
+          removeRef: true,
+          removeNumContinues: true,
+          removeText: true,
+          removeChildren: true,
+          type: 'end',
+        },
       },
     ],
   },
