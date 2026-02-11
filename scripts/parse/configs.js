@@ -175,6 +175,11 @@ const OPTIMIZATION_PASS_CONFIG = {
     'Battleseer Hildune Death',
     'Brightcandle Consul',
     'Brightcandle Inn',
+    'Circle of Candles',
+    'Cloaked Stranger',
+    'Consul Briefing',
+    'Count Vesparin',
+    'Damsel in Distress',
     'Dawnbringer Ystel',
     "Heroes' Rest Cemetery Start",
     'Historic Shard',
@@ -221,7 +226,7 @@ const OPTIMIZATION_PASS_CONFIG = {
     'The Ferryman',
     'Warfront Survivor',
   ],
-  COMPLEX_COUSIN_REF_BLACKLIST: ['Damsel in Distress', 'Suspended Cage', 'The Priestess'],
+  COMPLEX_COUSIN_REF_BLACKLIST: ['Suspended Cage', 'The Priestess'],
 
   // Validate refs (detect refs pointing to missing nodes) and log warnings.
   CHECK_INVALID_REFS_ENABLED: true,
