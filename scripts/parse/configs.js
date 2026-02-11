@@ -190,7 +190,13 @@ const OPTIMIZATION_PASS_CONFIG = {
     'Fallen Goliath',
     'Forking Tunnel',
     // 'Frozen Heart', -- FALSE POSITIVE MATCH: "You mean the amulet?" - for both 'huntress' and 'NOT huntress' choices have same direct children texts
+    'Glowing Runes',
+    'Gorn Tagdahar Death',
+    // NOTE: There should be 2 spaces here between Star and Finish!
+    'Grove of the Dying Star  Finish',
+    'Heart of the Temple',
     "Heroes' Rest Cemetery Start",
+    'Hidden Library',
     'Historic Shard',
     'Isle of Talos',
     'Kaius Tagdahar Death',
@@ -229,7 +235,6 @@ const OPTIMIZATION_PASS_CONFIG = {
   // Some complex trees get weird horizontal spacing issues when this pass reorders parents
   COUSIN_REF_BLACKLIST: [
     'Frozen Heart',
-    'TempleOffering',
     'The Defiled Sanctum',
     'The Ferryman',
     'Vesparin Vault',

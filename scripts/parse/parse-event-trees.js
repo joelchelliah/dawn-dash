@@ -559,7 +559,8 @@ function buildTreeFromStory(
     OPTIMIZATION_PASS_CONFIG.TEXT_LOOP_DETECTION_ENABLED &&
     cleanedText &&
     !cleanedText.includes(RANDOM_KEYWORD) &&
-    textToNodeId.has(cleanedText)
+    textToNodeId.has(cleanedText) &&
+    type === 'dialogue'
   ) {
     if (eventName === DEBUG_EVENT_NAME) {
       console.log(`- TEXT-BASED LOOP detected at state hash: ${currentStateHash}`)

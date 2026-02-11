@@ -7340,7 +7340,7 @@
     "artwork": "opportunity_image",
     "rootNode": {
       "id": 0,
-      "text": "A skeleton in highly oxidised yet impressive armor sits against a nearby tree trunk. As you walk past, an ivory hand suddenly grasps at your weapon. \"Pleeeeeeease\" a hollow howl escapes from the undead's broken jaw...",
+      "text": "A skeleton in highly oxidised yet impressive armor sits against a nearby signpost. As you walk past, an ivory hand suddenly grasps at your weapon. \"Pleeeeeeease\" a hollow howl escapes from the undead's broken jaw...",
       "type": "dialogue",
       "numContinues": 0,
       "children": [
@@ -10808,35 +10808,7 @@
                           "id": 10,
                           "text": "Hildune spits on the amulet and pretends to polish it for a moment. \"Good as new.\" she grins and tosses the amulet to you. \"May it serve you well [[class]].\"",
                           "type": "dialogue",
-                          "children": [
-                            {
-                              "id": 3,
-                              "type": "choice",
-                              "choiceLabel": "What will you do?",
-                              "children": [
-                                {
-                                  "id": 16598,
-                                  "text": "\"I will rebuild. You have broken this leash of the Wildscars, and we will move west. With our patrons blessing, we will conquer the Varwynweald and usher in a new age for our tribe.\"",
-                                  "type": "dialogue",
-                                  "numContinues": 0,
-                                  "children": [
-                                    {
-                                      "id": 4,
-                                      "type": "choice",
-                                      "choiceLabel": "What's next?",
-                                      "ref": 20
-                                    }
-                                  ]
-                                }
-                              ]
-                            },
-                            {
-                              "id": 7,
-                              "type": "choice",
-                              "choiceLabel": "What's next?",
-                              "ref": 20
-                            }
-                          ]
+                          "ref": 16614
                         }
                       ]
                     }
@@ -10852,46 +10824,7 @@
                       "text": "\"I will rebuild. You have broken this leash of the Wildscars, and we will move west. With our patrons blessing, we will conquer the Varwynweald and usher in a new age for our tribe.\"",
                       "type": "dialogue",
                       "numContinues": 0,
-                      "children": [
-                        {
-                          "id": 12,
-                          "type": "choice",
-                          "choiceLabel": "You promised me great power",
-                          "children": [
-                            {
-                              "id": 16606,
-                              "text": "\"Indeed I did. You’ve proven your worth, outsider. Now, give me your half of the amulet.\" She retrieves the other half of the amulet from Gorn’s slain body. With a wave of her gnarled hand, she mends the amulet into one, and presents you with it.",
-                              "type": "dialogue",
-                              "effects": [
-                                "REMOVECARDFROMDECK: Broken Amulet",
-                                "ADDCARD: Aurora Prism"
-                              ],
-                              "numContinues": 1,
-                              "children": [
-                                {
-                                  "id": 16,
-                                  "text": "Hildune spits on the amulet and pretends to polish it for a moment. \"Good as new.\" she grins and tosses the amulet to you. \"May it serve you well [[class]].\"",
-                                  "type": "dialogue",
-                                  "children": [
-                                    {
-                                      "id": 13,
-                                      "type": "choice",
-                                      "choiceLabel": "What's next?",
-                                      "ref": 20
-                                    }
-                                  ]
-                                }
-                              ]
-                            }
-                          ]
-                        },
-                        {
-                          "id": 17,
-                          "type": "choice",
-                          "choiceLabel": "What's next?",
-                          "ref": 20
-                        }
-                      ]
+                      "ref": 16614
                     }
                   ]
                 },
@@ -11125,62 +11058,7 @@
               "text": "Has it been so long not even my name survived? It is, perhaps for the better. Our time has long passed. It was on our watch as caretakers, the Garden descended into this... hellscape. Perhaps, the young Gods will fare better. I am Mea’Anash - or ‘The Guardian of the Garden’ in your tongue. I was once, long ago, the caretaker of what you now call Aethos. The spirit’s attention shifts to the clearing around you as intense feelings of sadness wash over you.",
               "type": "dialogue",
               "numContinues": 2,
-              "children": [
-                {
-                  "id": 2,
-                  "type": "choice",
-                  "choiceLabel": "Who are these druids?",
-                  "children": [
-                    {
-                      "id": 16650,
-                      "text": "The spirit lifts one of its massive paws off the corpse of one of the ritualists. \"Foolish creatures. They should have died with the goddess. Instead, they sought to resurrect her, infusing her with what little power of ours lingered amongst these ruins.\" I do not blame them for trying to restore what was lost. But I condemn them for their foolish belief in the unholy whispers of new gods that have no doubt planted this seed of corruption.",
-                      "type": "dialogue",
-                      "numContinues": 1,
-                      "children": [
-                        {
-                          "id": 3,
-                          "type": "choice",
-                          "choiceLabel": "New gods?",
-                          "ref": 31
-                        },
-                        {
-                          "id": 13,
-                          "type": "choice",
-                          "choiceLabel": "Restore what was lost?",
-                          "ref": 49
-                        },
-                        {
-                          "id": 23,
-                          "type": "choice",
-                          "choiceLabel": "What happens now?",
-                          "children": [
-                            {
-                              "id": 16649,
-                              "text": "\"We will dissipate over time, returning our essence to the Garden. In saving me you have given these lands a chance to heal.\"",
-                              "type": "dialogue",
-                              "numContinues": 0,
-                              "children": [
-                                {
-                                  "id": 24,
-                                  "type": "choice",
-                                  "choiceLabel": "I need to get back, Spirit",
-                                  "ref": 75
-                                }
-                              ]
-                            }
-                          ]
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "id": 27,
-                  "type": "choice",
-                  "choiceLabel": "I need to get back, Spirit",
-                  "ref": 75
-                }
-              ]
+              "ref": 0
             }
           ]
         },
@@ -11205,35 +11083,7 @@
                       "text": "Yes, [[class]]. What else should I call these beings I sense but can not name. Even in my weakened state, I sense their violent, adversarial nature that would rival the primals in power, brimming inside a corrupted shell.",
                       "type": "dialogue",
                       "numContinues": 0,
-                      "children": [
-                        {
-                          "id": 32,
-                          "type": "choice",
-                          "choiceLabel": "Restore what was lost?",
-                          "children": [
-                            {
-                              "id": 16663,
-                              "text": "Selandris was once a bright and beautiful star. Its warm and loving glow gave this world its well-earned name: Mea’Nathal. The Garden. An example of life and harmony amidst a swirling tide of chaos. And when Selandris died, so too did her Garden. These creatures thought restoring Selandris by some unholy means would return this world to its former glory. They were willing to pay any price, making them an easy vassal for the evils that now call this graveyard their home.",
-                              "type": "dialogue",
-                              "numContinues": 1,
-                              "children": [
-                                {
-                                  "id": 33,
-                                  "type": "choice",
-                                  "choiceLabel": "What happens now?",
-                                  "ref": 67
-                                }
-                              ]
-                            }
-                          ]
-                        },
-                        {
-                          "id": 41,
-                          "type": "choice",
-                          "choiceLabel": "What happens now?",
-                          "ref": 67
-                        }
-                      ]
+                      "ref": 16699
                     }
                   ]
                 },
@@ -11247,35 +11097,7 @@
                       "text": "Selandris was once a bright and beautiful star. Its warm and loving glow gave this world its well-earned name: Mea’Nathal. The Garden. An example of life and harmony amidst a swirling tide of chaos. And when Selandris died, so too did her Garden. These creatures thought restoring Selandris by some unholy means would return this world to its former glory. They were willing to pay any price, making them an easy vassal for the evils that now call this graveyard their home.",
                       "type": "dialogue",
                       "numContinues": 1,
-                      "children": [
-                        {
-                          "id": 50,
-                          "type": "choice",
-                          "choiceLabel": "New gods?",
-                          "children": [
-                            {
-                              "id": 16681,
-                              "text": "Yes, [[class]]. What else should I call these beings I sense but can not name. Even in my weakened state, I sense their violent, adversarial nature that would rival the primals in power, brimming inside a corrupted shell.",
-                              "type": "dialogue",
-                              "numContinues": 0,
-                              "children": [
-                                {
-                                  "id": 51,
-                                  "type": "choice",
-                                  "choiceLabel": "What happens now?",
-                                  "ref": 67
-                                }
-                              ]
-                            }
-                          ]
-                        },
-                        {
-                          "id": 59,
-                          "type": "choice",
-                          "choiceLabel": "What happens now?",
-                          "ref": 67
-                        }
-                      ]
+                      "ref": 16699
                     }
                   ]
                 },
@@ -11289,35 +11111,7 @@
                       "text": "\"We will dissipate over time, returning our essence to the Garden. In saving me you have given these lands a chance to heal.\"",
                       "type": "dialogue",
                       "numContinues": 0,
-                      "children": [
-                        {
-                          "id": 68,
-                          "type": "choice",
-                          "choiceLabel": "Who are you",
-                          "children": [
-                            {
-                              "id": 16694,
-                              "text": "Has it been so long not even my name survived? It is, perhaps for the better. Our time has long passed. It was on our watch as caretakers, the Garden descended into this... hellscape. Perhaps, the young Gods will fare better. I am Mea’Anash - or ‘The Guardian of the Garden’ in your tongue. I was once, long ago, the caretaker of what you now call Aethos. The spirit’s attention shifts to the clearing around you as intense feelings of sadness wash over you.",
-                              "type": "dialogue",
-                              "numContinues": 2,
-                              "children": [
-                                {
-                                  "id": 69,
-                                  "type": "choice",
-                                  "choiceLabel": "I need to get back, Spirit",
-                                  "ref": 75
-                                }
-                              ]
-                            }
-                          ]
-                        },
-                        {
-                          "id": 72,
-                          "type": "choice",
-                          "choiceLabel": "I need to get back, Spirit",
-                          "ref": 75
-                        }
-                      ]
+                      "ref": 0
                     }
                   ]
                 }
@@ -11394,32 +11188,7 @@
               "text": "\"You are too late, 'hero'.\" the radiant figure shouts, waving a brightly blazing torch from one side to the other. \"All of these faithful men and women you slaughtered, they gladly and willingly gave their lives for what I'm about to do.\"",
               "type": "dialogue",
               "numContinues": 0,
-              "children": [
-                {
-                  "id": 2,
-                  "type": "choice",
-                  "choiceLabel": "Call out to the Dawnbringer",
-                  "requirements": [
-                    "questflag:priest"
-                  ],
-                  "ref": 472
-                },
-                {
-                  "id": 135,
-                  "type": "choice",
-                  "choiceLabel": "What are you doing?",
-                  "requirements": [
-                    "NOT questflag:priest"
-                  ],
-                  "ref": 605
-                },
-                {
-                  "id": 462,
-                  "type": "choice",
-                  "choiceLabel": "Rush up the stairs and attack",
-                  "ref": 932
-                }
-              ]
+              "ref": 0
             }
           ]
         },
@@ -11458,32 +11227,7 @@
                               "text": "\"I know this isn't right Corellion. There is no mercy in this senseless destruction.\" The Dawnbringer pauses, tilting his head. \"What about you, hero? No objections? Do you truly see as I do then, that this is the only way? An end to suffering?\"",
                               "type": "dialogue",
                               "numContinues": 1,
-                              "children": [
-                                {
-                                  "id": 475,
-                                  "type": "choice",
-                                  "choiceLabel": "What about hope?",
-                                  "ref": 818
-                                },
-                                {
-                                  "id": 502,
-                                  "type": "choice",
-                                  "choiceLabel": "What about you?",
-                                  "ref": 845
-                                },
-                                {
-                                  "id": 529,
-                                  "type": "choice",
-                                  "choiceLabel": "What about me?",
-                                  "ref": 872
-                                },
-                                {
-                                  "id": 556,
-                                  "type": "choice",
-                                  "choiceLabel": "I see it as you do",
-                                  "ref": 899
-                                }
-                              ]
+                              "ref": 17482
                             }
                           ]
                         },
@@ -11646,32 +11390,7 @@
                               "text": "The Dawnbringer pauses, tilting his head. \"What about you, hero? No objections? Do you truly see as I do then, that this is the only way? An end to suffering?\"",
                               "type": "dialogue",
                               "numContinues": 0,
-                              "children": [
-                                {
-                                  "id": 608,
-                                  "type": "choice",
-                                  "choiceLabel": "What about hope?",
-                                  "ref": 818
-                                },
-                                {
-                                  "id": 635,
-                                  "type": "choice",
-                                  "choiceLabel": "What about you?",
-                                  "ref": 845
-                                },
-                                {
-                                  "id": 662,
-                                  "type": "choice",
-                                  "choiceLabel": "What about me?",
-                                  "ref": 872
-                                },
-                                {
-                                  "id": 689,
-                                  "type": "choice",
-                                  "choiceLabel": "I see it as you do",
-                                  "ref": 899
-                                }
-                              ]
+                              "ref": 17482
                             }
                           ]
                         },
@@ -11684,32 +11403,7 @@
                               "id": 17392,
                               "text": "default",
                               "type": "dialogue",
-                              "children": [
-                                {
-                                  "id": 713,
-                                  "type": "choice",
-                                  "choiceLabel": "What about hope?",
-                                  "ref": 818
-                                },
-                                {
-                                  "id": 740,
-                                  "type": "choice",
-                                  "choiceLabel": "What about you?",
-                                  "ref": 845
-                                },
-                                {
-                                  "id": 767,
-                                  "type": "choice",
-                                  "choiceLabel": "What about me?",
-                                  "ref": 872
-                                },
-                                {
-                                  "id": 794,
-                                  "type": "choice",
-                                  "choiceLabel": "I see it as you do",
-                                  "ref": 899
-                                }
-                              ]
+                              "ref": 17482
                             }
                           ]
                         }
@@ -12382,8 +12076,7 @@
                             {
                               "id": 17538,
                               "text": "The book details the process of creating 'Demon Gates' by way of connecting the Demonic Realm with the Corporeal Realm. The gates allow demons to travel back and forth between the realms but must always be maintained by a practiced summoner, or else the gate will collapse and the connection is severed. Ah, this could explain how the demon-population of Umbris seems to have grown so much since the start of the invasion...",
-                              "type": "end",
-                              "ref": 17541
+                              "type": "end"
                             }
                           ]
                         },
@@ -12437,8 +12130,7 @@
                             {
                               "id": 17542,
                               "text": "The book details the process of creating 'Demon Gates' by way of connecting the Demonic Realm with the Corporeal Realm. The gates allow demons to travel back and forth between the realms but must always be maintained by a practiced summoner, or else the gate will collapse and the connection is severed. Ah, this could explain how the demon-population of Umbris seems to have grown so much since the start of the invasion...",
-                              "type": "end",
-                              "ref": 17543
+                              "type": "end"
                             }
                           ]
                         }
@@ -15688,11 +15380,11 @@
         {
           "id": 1,
           "type": "choice",
-          "choiceLabel": "Focus on the Alchemist",
+          "choiceLabel": "Focus on the Succubus",
           "children": [
             {
               "id": 18047,
-              "text": "Focus on the Alchemist (fill in the lore for this.) final words",
+              "text": "Focus on the Succubus (fill in the lore for this.) final words",
               "type": "end"
             }
           ]
@@ -15700,11 +15392,11 @@
         {
           "id": 2,
           "type": "choice",
-          "choiceLabel": "Focus on the Necromancer",
+          "choiceLabel": "Focus on the Consul",
           "children": [
             {
               "id": 18048,
-              "text": "Focus on the Necromancer (fill in the lore for this.) final words",
+              "text": "Focus on the Consul (fill in the lore for this.) final words",
               "type": "end"
             }
           ]
@@ -15712,11 +15404,11 @@
         {
           "id": 3,
           "type": "choice",
-          "choiceLabel": "Focus on the Succubus",
+          "choiceLabel": "Focus on the Forger",
           "children": [
             {
               "id": 18049,
-              "text": "Focus on the Succubus (fill in the lore for this.) final words",
+              "text": "Focus on the Forger (fill in the lore for this.) final words",
               "type": "end"
             }
           ]
