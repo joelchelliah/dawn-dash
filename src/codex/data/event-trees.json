@@ -5646,80 +5646,7 @@
                               "text": "\"We were heading into the Black Cathedral itself. Corellion - the Dawnbringer, he had located a route into that dark palace itself, sensing a great evil within.\"",
                               "type": "dialogue",
                               "numContinues": 0,
-                              "children": [
-                                {
-                                  "id": 22,
-                                  "type": "choice",
-                                  "choiceLabel": "How did you get captured?",
-                                  "children": [
-                                    {
-                                      "id": 15668,
-                                      "text": "\"I have no memory of getting captured. This is one of Rae's blessings to be sure, [[class]]. I thank you for freeing me from this nightmare, but I fear my trials have not come to an end yet. I will see this through.\"",
-                                      "type": "dialogue",
-                                      "numContinues": 0,
-                                      "children": [
-                                        {
-                                          "id": 23,
-                                          "type": "choice",
-                                          "choiceLabel": "Continue",
-                                          "requirements": [
-                                            "questflag:enchanter"
-                                          ],
-                                          "children": [
-                                            {
-                                              "id": 15666,
-                                              "text": "\"The naivety of these Candorians never fails to impress me... Trials - bwah! Self-righteous bedtime stories more like.\"",
-                                              "type": "dialogue",
-                                              "numContinues": 0,
-                                              "children": [
-                                                {
-                                                  "id": 24,
-                                                  "type": "choice",
-                                                  "choiceLabel": "Leave",
-                                                  "children": [
-                                                    {
-                                                      "id": 15665,
-                                                      "text": "",
-                                                      "type": "end"
-                                                    }
-                                                  ]
-                                                }
-                                              ]
-                                            }
-                                          ]
-                                        },
-                                        {
-                                          "id": 25,
-                                          "type": "choice",
-                                          "choiceLabel": "Leave",
-                                          "requirements": [
-                                            "NOT questflag:enchanter"
-                                          ],
-                                          "children": [
-                                            {
-                                              "id": 15667,
-                                              "text": "",
-                                              "type": "end"
-                                            }
-                                          ]
-                                        }
-                                      ]
-                                    }
-                                  ]
-                                },
-                                {
-                                  "id": 26,
-                                  "type": "choice",
-                                  "choiceLabel": "Leave",
-                                  "children": [
-                                    {
-                                      "id": 15669,
-                                      "text": "",
-                                      "type": "end"
-                                    }
-                                  ]
-                                }
-                              ]
+                              "ref": 15678
                             }
                           ]
                         },
@@ -5747,47 +5674,7 @@
                                       "text": "\"The naivety of these Candorians never fails to impress me... Trials - bwah! Self-righteous bedtime stories more like.\"",
                                       "type": "dialogue",
                                       "numContinues": 0,
-                                      "children": [
-                                        {
-                                          "id": 29,
-                                          "type": "choice",
-                                          "choiceLabel": "Where were you going?",
-                                          "children": [
-                                            {
-                                              "id": 15672,
-                                              "text": "\"We were heading into the Black Cathedral itself. Corellion - the Dawnbringer, he had located a route into that dark palace itself, sensing a great evil within.\"",
-                                              "type": "dialogue",
-                                              "numContinues": 0,
-                                              "children": [
-                                                {
-                                                  "id": 30,
-                                                  "type": "choice",
-                                                  "choiceLabel": "Leave",
-                                                  "children": [
-                                                    {
-                                                      "id": 15671,
-                                                      "text": "",
-                                                      "type": "end"
-                                                    }
-                                                  ]
-                                                }
-                                              ]
-                                            }
-                                          ]
-                                        },
-                                        {
-                                          "id": 31,
-                                          "type": "choice",
-                                          "choiceLabel": "Leave",
-                                          "children": [
-                                            {
-                                              "id": 15673,
-                                              "text": "",
-                                              "type": "end"
-                                            }
-                                          ]
-                                        }
-                                      ]
+                                      "ref": 15678
                                     }
                                   ]
                                 },
@@ -6092,35 +5979,7 @@
               "text": "The ground is littered with fragments of burnt wood and scorched earth. It's as if a great fireball had struck here, but there is no sign of the object that woud have caused such an impact. A massive crater looms ahead, its edges scarred by some tremendous impact. The air here crackles with an unnatural energy, causing the hairs on your arms to stand on end.",
               "type": "dialogue",
               "numContinues": 1,
-              "children": [
-                {
-                  "id": 2,
-                  "type": "choice",
-                  "choiceLabel": "Look around cautiously",
-                  "children": [
-                    {
-                      "id": 15707,
-                      "text": "You carefully survey your surroundings. The trees around the crater's edge are twisted grotesquely, their branches reaching out as if warped by a powerful force. The wildlife is eerily silent. A massive crater looms ahead, its edges scarred by some tremendous impact. The air here crackles with an unnatural energy, causing the hairs on your arms to stand on end.",
-                      "type": "dialogue",
-                      "numContinues": 1,
-                      "children": [
-                        {
-                          "id": 3,
-                          "type": "choice",
-                          "choiceLabel": "Consider descending into the crater",
-                          "ref": 17
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "id": 6,
-                  "type": "choice",
-                  "choiceLabel": "Consider descending into the crater",
-                  "ref": 17
-                }
-              ]
+              "ref": 0
             }
           ]
         },
@@ -6134,35 +5993,7 @@
               "text": "You carefully survey your surroundings. The trees around the crater's edge are twisted grotesquely, their branches reaching out as if warped by a powerful force. The wildlife is eerily silent. A massive crater looms ahead, its edges scarred by some tremendous impact. The air here crackles with an unnatural energy, causing the hairs on your arms to stand on end.",
               "type": "dialogue",
               "numContinues": 1,
-              "children": [
-                {
-                  "id": 10,
-                  "type": "choice",
-                  "choiceLabel": "Inspect the ground",
-                  "children": [
-                    {
-                      "id": 15715,
-                      "text": "The ground is littered with fragments of burnt wood and scorched earth. It's as if a great fireball had struck here, but there is no sign of the object that woud have caused such an impact. A massive crater looms ahead, its edges scarred by some tremendous impact. The air here crackles with an unnatural energy, causing the hairs on your arms to stand on end.",
-                      "type": "dialogue",
-                      "numContinues": 1,
-                      "children": [
-                        {
-                          "id": 11,
-                          "type": "choice",
-                          "choiceLabel": "Consider descending into the crater",
-                          "ref": 17
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "id": 14,
-                  "type": "choice",
-                  "choiceLabel": "Consider descending into the crater",
-                  "ref": 17
-                }
-              ]
+              "ref": 0
             }
           ]
         },
@@ -6484,35 +6315,7 @@
                       "text": "The old man nods. \"Some lesser fiend, nothing like a balor or archdemon. Not powerful enough to cause real trouble but she did take some of the bandits that normally roam the outskirts of my swamp. I should thank her really.",
                       "type": "dialogue",
                       "numContinues": 0,
-                      "children": [
-                        {
-                          "id": 3,
-                          "type": "choice",
-                          "choiceLabel": "An army?",
-                          "children": [
-                            {
-                              "id": 15809,
-                              "text": "They looked like zealots to me. Then again, most of you humans do these days. I stayed clear of them, the occasional brigand or demon I can handle - but these self-rightious fanatics looked more trouble than they were worth.\"",
-                              "type": "dialogue",
-                              "numContinues": 0,
-                              "children": [
-                                {
-                                  "id": 4,
-                                  "type": "choice",
-                                  "choiceLabel": "That is most helpful.",
-                                  "ref": 254
-                                }
-                              ]
-                            }
-                          ]
-                        },
-                        {
-                          "id": 66,
-                          "type": "choice",
-                          "choiceLabel": "That is most helpful.",
-                          "ref": 254
-                        }
-                      ]
+                      "ref": 16061
                     }
                   ]
                 },
@@ -6526,35 +6329,7 @@
                       "text": "They looked like zealots to me. Then again, most of you humans do these days. I stayed clear of them, the occasional brigand or demon I can handle - but these self-rightious fanatics looked more trouble than they were worth.\"",
                       "type": "dialogue",
                       "numContinues": 0,
-                      "children": [
-                        {
-                          "id": 129,
-                          "type": "choice",
-                          "choiceLabel": "New neighbors?",
-                          "children": [
-                            {
-                              "id": 15935,
-                              "text": "The old man nods. \"Some lesser fiend, nothing like a balor or archdemon. Not powerful enough to cause real trouble but she did take some of the bandits that normally roam the outskirts of my swamp. I should thank her really.",
-                              "type": "dialogue",
-                              "numContinues": 0,
-                              "children": [
-                                {
-                                  "id": 130,
-                                  "type": "choice",
-                                  "choiceLabel": "That is most helpful.",
-                                  "ref": 254
-                                }
-                              ]
-                            }
-                          ]
-                        },
-                        {
-                          "id": 192,
-                          "type": "choice",
-                          "choiceLabel": "That is most helpful.",
-                          "ref": 254
-                        }
-                      ]
+                      "ref": 16061
                     }
                   ]
                 },
@@ -6579,20 +6354,7 @@
                               "text": "The old man narrows his emerald eyes. \"I live out here to be left alone, [[class]]. When humans come trounching through my garden, it is rarely to leave me a fresh loaf of bread.\" Bandits, soldiers, would be heroes - all think me easy prey. And most of them end up fertilizing my plants.\" Bolgar can't help but chuckle as he pokes his gnarled staff at a skull in the dirt at his feet.",
                               "type": "dialogue",
                               "numContinues": 1,
-                              "children": [
-                                {
-                                  "id": 256,
-                                  "type": "choice",
-                                  "choiceLabel": "You will face justice.",
-                                  "ref": 286
-                                },
-                                {
-                                  "id": 271,
-                                  "type": "choice",
-                                  "choiceLabel": "No harm done.",
-                                  "ref": 301
-                                }
-                              ]
+                              "ref": 16060
                             }
                           ]
                         },
@@ -6622,35 +6384,6 @@
                                       "numContinues": 2,
                                       "children": [
                                         {
-                                          "id": 288,
-                                          "type": "choice",
-                                          "choiceLabel": "Can you Imbue something now?",
-                                          "children": [
-                                            {
-                                              "id": 16036,
-                                              "text": "I do not possess the required materials right now, but once we venture beyond my garden, I am bound to find something I could use.",
-                                              "type": "dialogue",
-                                              "numContinues": 0,
-                                              "children": [
-                                                {
-                                                  "id": 289,
-                                                  "type": "choice",
-                                                  "choiceLabel": "Where do I need to go?",
-                                                  "children": [
-                                                    {
-                                                      "id": 16035,
-                                                      "text": "Bolgar nods. \"We could follow in the footsteps of this... 'Dawnbringer' through the mountains over yonder. Or try to gain on him via other means, the choice is yours, [[class]].\"",
-                                                      "type": "dialogue",
-                                                      "numContinues": 0,
-                                                      "ref": 16042
-                                                    }
-                                                  ]
-                                                }
-                                              ]
-                                            }
-                                          ]
-                                        },
-                                        {
                                           "id": 295,
                                           "type": "choice",
                                           "choiceLabel": "Enough talk, we need to go.",
@@ -6674,35 +6407,7 @@
                                                       "text": "There is a place that could help you find this Dawnbringer faster than just chasing their heels. There is some risk involved, but if you're willing to do a little extraplanar travel, I could provide a shortcut. Free of charge...",
                                                       "type": "dialogue",
                                                       "numContinues": 0,
-                                                      "children": [
-                                                        {
-                                                          "id": 297,
-                                                          "type": "choice",
-                                                          "choiceLabel": "Explore the area some more",
-                                                          "children": [
-                                                            {
-                                                              "id": 16037,
-                                                              "text": "",
-                                                              "type": "end"
-                                                            }
-                                                          ]
-                                                        },
-                                                        {
-                                                          "id": 298,
-                                                          "type": "choice",
-                                                          "choiceLabel": "Leave: Venture forth",
-                                                          "children": [
-                                                            {
-                                                              "id": 16038,
-                                                              "text": "",
-                                                              "type": "end",
-                                                              "effects": [
-                                                                "NEXTAREA"
-                                                              ]
-                                                            }
-                                                          ]
-                                                        }
-                                                      ]
+                                                      "ref": 16042
                                                     }
                                                   ]
                                                 },
@@ -6736,6 +6441,35 @@
                                               ]
                                             }
                                           ]
+                                        },
+                                        {
+                                          "id": 288,
+                                          "type": "choice",
+                                          "choiceLabel": "Can you Imbue something now?",
+                                          "children": [
+                                            {
+                                              "id": 16036,
+                                              "text": "I do not possess the required materials right now, but once we venture beyond my garden, I am bound to find something I could use.",
+                                              "type": "dialogue",
+                                              "numContinues": 0,
+                                              "children": [
+                                                {
+                                                  "id": 289,
+                                                  "type": "choice",
+                                                  "choiceLabel": "Where do I need to go?",
+                                                  "children": [
+                                                    {
+                                                      "id": 16035,
+                                                      "text": "Bolgar nods. \"We could follow in the footsteps of this... 'Dawnbringer' through the mountains over yonder. Or try to gain on him via other means, the choice is yours, [[class]].\"",
+                                                      "type": "dialogue",
+                                                      "numContinues": 0,
+                                                      "ref": 16042
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          ]
                                         }
                                       ]
                                     }
@@ -6760,8 +6494,44 @@
                                   "id": 302,
                                   "type": "choice",
                                   "choiceLabel": "Arcane knowledge?",
-                                  "refChildren": [
-                                    16043
+                                  "children": [
+                                    {
+                                      "id": 16058,
+                                      "text": "The old man nods. \"The Imbuing of an Enchantment is a powerful but expensive process that allows you to have an enchantment from your deck be active permanently. The Enchantment card must be in your deck and must last longer than a round to be imbued. The card is removed in the process.",
+                                      "type": "dialogue",
+                                      "effects": [
+                                        "QUESTFLAG: enchanter"
+                                      ],
+                                      "numContinues": 2,
+                                      "children": [
+                                        {
+                                          "id": 303,
+                                          "type": "choice",
+                                          "choiceLabel": "Can you Imbue something now?",
+                                          "refChildren": [
+                                            16036
+                                          ]
+                                        },
+                                        {
+                                          "id": 310,
+                                          "type": "choice",
+                                          "choiceLabel": "Enough talk, we need to go.",
+                                          "children": [
+                                            {
+                                              "id": 16057,
+                                              "text": "Bolgar nods. \"We could follow in the footsteps of this... 'Dawnbringer' through the mountains over yonder. Or try to gain on him via other means, the choice is yours, [[class]].\"",
+                                              "type": "dialogue",
+                                              "numContinues": 0,
+                                              "refChildren": [
+                                                296,
+                                                299,
+                                                300
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
                                   ]
                                 }
                               ]
@@ -6919,75 +6689,7 @@
               "text": "Memorizing a card will make it Memorized. Cards with this property get shuffled to the top of your deck at the start of combat. Imbuing an Enchantment is a powerful but expensive process that allows you to have an enchantment from your deck be active permanently. The Enchantment card must already be present in your deck, must last longer than a round in order to be imbued, and will be destroyed in the process.",
               "type": "dialogue",
               "numContinues": 2,
-              "children": [
-                {
-                  "id": 2,
-                  "type": "choice",
-                  "choiceLabel": "How does this work?",
-                  "children": [
-                    {
-                      "id": 16068,
-                      "text": "Memorizing a card will make it Memorized. Cards with this property get shuffled to the top of your deck at the start of combat. Imbuing an Enchantment is a powerful but expensive process that allows you to have an enchantment from your deck be active permanently. The Enchantment card must already be present in your deck, must last longer than a round in order to be imbued, and will be destroyed in the process.",
-                      "type": "dialogue",
-                      "numContinues": 2,
-                      "ref": 16072
-                    }
-                  ]
-                },
-                {
-                  "id": 3,
-                  "type": "choice",
-                  "choiceLabel": "25 Gold: Memorize a card",
-                  "requirements": [
-                    "gold:25",
-                    "decksize:1"
-                  ],
-                  "children": [
-                    {
-                      "id": 16069,
-                      "text": "",
-                      "type": "end",
-                      "effects": [
-                        "GOLD: -25",
-                        "MEMORIZE"
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "id": 4,
-                  "type": "choice",
-                  "choiceLabel": "100 Gold: Imbue an Enchantment",
-                  "requirements": [
-                    "gold:100",
-                    "enchantments:1",
-                    "NOT questflag:noimbue"
-                  ],
-                  "children": [
-                    {
-                      "id": 16070,
-                      "text": "",
-                      "type": "end",
-                      "effects": [
-                        "GOLD: -100",
-                        "ENCHANTERIMBUE"
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "id": 5,
-                  "type": "choice",
-                  "choiceLabel": "Leave",
-                  "children": [
-                    {
-                      "id": 16071,
-                      "text": "",
-                      "type": "end"
-                    }
-                  ]
-                }
-              ]
+              "ref": 0
             }
           ]
         },
@@ -7892,7 +7594,7 @@
     "artwork": "opportunity_image",
     "rootNode": {
       "id": 0,
-      "text": "A skeleton in highly oxidised yet impressive armor sits against a nearby wall. As you walk past, an ivory hand suddenly grasps at your weapon. \"Pleeeeeeease\" a hollow howl escapes from the undead's broken jaw...",
+      "text": "A skeleton in highly oxidised yet impressive armor sits against a nearby stone. As you walk past, an ivory hand suddenly grasps at your weapon. \"Pleeeeeeease\" a hollow howl escapes from the undead's broken jaw...",
       "type": "dialogue",
       "numContinues": 0,
       "children": [
@@ -16391,11 +16093,11 @@
         {
           "id": 1,
           "type": "choice",
-          "choiceLabel": "Focus on the Necromancer",
+          "choiceLabel": "Focus on the Blacksmith",
           "children": [
             {
               "id": 18047,
-              "text": "Focus on the Necromancer (fill in the lore for this.) final words",
+              "text": "Focus on the Blacksmith (fill in the lore for this.) final words",
               "type": "end"
             }
           ]
@@ -16403,11 +16105,11 @@
         {
           "id": 2,
           "type": "choice",
-          "choiceLabel": "Focus on the Consul",
+          "choiceLabel": "Focus on the Alchemist",
           "children": [
             {
               "id": 18048,
-              "text": "Focus on the Consul (fill in the lore for this.) final words",
+              "text": "Focus on the Alchemist (fill in the lore for this.) final words",
               "type": "end"
             }
           ]
@@ -16415,11 +16117,11 @@
         {
           "id": 3,
           "type": "choice",
-          "choiceLabel": "Focus on the Succubus",
+          "choiceLabel": "Focus on the Priestess",
           "children": [
             {
               "id": 18049,
-              "text": "Focus on the Succubus (fill in the lore for this.) final words",
+              "text": "Focus on the Priestess (fill in the lore for this.) final words",
               "type": "end"
             }
           ]
