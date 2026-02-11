@@ -7006,7 +7006,7 @@
                                       "effects": [
                                         "COMBAT: Statue of Ilthar I"
                                       ],
-                                      "ref": 31
+                                      "ref": 16112
                                     }
                                   ]
                                 }
@@ -7037,7 +7037,7 @@
                                       "effects": [
                                         "COMBAT: Statue of Ilthar I"
                                       ],
-                                      "ref": 31
+                                      "ref": 16112
                                     }
                                   ]
                                 }
@@ -7072,7 +7072,7 @@
                               "effects": [
                                 "COMBAT: Statue of Ilthar I"
                               ],
-                              "ref": 31
+                              "ref": 16112
                             }
                           ]
                         }
@@ -7229,134 +7229,7 @@
                               "text": "\"Aye - I did. My master served under 'im during the War of Horns. And I would 'ave given everything to follow him into the Black Citadel itself. \"But I was too young fer soldiering. By the time I was, Kivos had fallen.\" The grizzled man looks wistfully for a moment, fist clenching around his hammer. And then there's you. Thank ye for indulging an old man, and allowing him a chance to make amends for his past. I dun' know why, but I see much of Kivos in ye, [[class]].",
                               "type": "dialogue",
                               "numContinues": 2,
-                              "children": [
-                                {
-                                  "id": 4,
-                                  "type": "choice",
-                                  "choiceLabel": "What happened here?",
-                                  "children": [
-                                    {
-                                      "id": 16117,
-                                      "text": "I only heard the tales. Terrible whispers of a battle - nay, a slaughter. Crusaders of Stalwart and demons alike were squashed as bugs beneath a boot.",
-                                      "type": "dialogue",
-                                      "numContinues": 0,
-                                      "children": [
-                                        {
-                                          "id": 5,
-                                          "type": "choice",
-                                          "choiceLabel": "Stalwart?",
-                                          "children": [
-                                            {
-                                              "id": 16116,
-                                              "text": "Stalwart was a shining bastion against the demon hordes. With Kivos at the helm it marked the beginning of a new age. Brightcandle or even Great Candor is but a sputtering flame compared to the blazing glory that Stalwart once was.",
-                                              "type": "dialogue",
-                                              "numContinues": 0,
-                                              "children": [
-                                                {
-                                                  "id": 6,
-                                                  "type": "choice",
-                                                  "choiceLabel": "What is this place?",
-                                                  "children": [
-                                                    {
-                                                      "id": 16113,
-                                                      "text": "Now, a wasteland - but it has served as a no mans land between Umbris and the Shattered Realms, making it hard for either side to fall back into all out war. No army dares cross it, not after what happened at Stalwart. You're closer than you might realise, friend. Except the bugs are still here. Feeding on whatever is left of the misery it caused. And once it had its fill, once it's strong enough... The old man waves his boney fingers, dispersing some of the lingering essence lingering in the air. \"There's worse things in this world than mere demons. We best keep moving...\"",
-                                                      "type": "end",
-                                                      "effects": [
-                                                        "ANIMA: -10"
-                                                      ]
-                                                    }
-                                                  ]
-                                                },
-                                                {
-                                                  "id": 7,
-                                                  "type": "choice",
-                                                  "choiceLabel": "Continue",
-                                                  "requirements": [
-                                                    "questflag:enchanter"
-                                                  ],
-                                                  "children": [
-                                                    {
-                                                      "id": 16114,
-                                                      "text": "You're closer than you might realise, friend. Except the bugs are still here. Feeding on whatever is left of the misery it caused. And once it had its fill, once it's strong enough... The old man waves his boney fingers, dispersing some of the lingering essence lingering in the air. \"There's worse things in this world than mere demons. We best keep moving...\"",
-                                                      "type": "end",
-                                                      "effects": [
-                                                        "ANIMA: -10"
-                                                      ]
-                                                    }
-                                                  ]
-                                                },
-                                                {
-                                                  "id": 8,
-                                                  "type": "choice",
-                                                  "choiceLabel": "Leave",
-                                                  "requirements": [
-                                                    "NOT questflag:enchanter"
-                                                  ],
-                                                  "children": [
-                                                    {
-                                                      "id": 16115,
-                                                      "text": "",
-                                                      "type": "end"
-                                                    }
-                                                  ]
-                                                }
-                                              ]
-                                            }
-                                          ]
-                                        }
-                                      ]
-                                    }
-                                  ]
-                                },
-                                {
-                                  "id": 9,
-                                  "type": "choice",
-                                  "choiceLabel": "What is this place?",
-                                  "children": [
-                                    {
-                                      "id": 16118,
-                                      "text": "Now, a wasteland - but it has served as a no mans land between Umbris and the Shattered Realms, making it hard for either side to fall back into all out war. No army dares cross it, not after what happened at Stalwart. You're closer than you might realise, friend. Except the bugs are still here. Feeding on whatever is left of the misery it caused. And once it had its fill, once it's strong enough... The old man waves his boney fingers, dispersing some of the lingering essence lingering in the air. \"There's worse things in this world than mere demons. We best keep moving...\"",
-                                      "type": "end",
-                                      "effects": [
-                                        "ANIMA: -10"
-                                      ]
-                                    }
-                                  ]
-                                },
-                                {
-                                  "id": 10,
-                                  "type": "choice",
-                                  "choiceLabel": "Continue",
-                                  "requirements": [
-                                    "questflag:enchanter"
-                                  ],
-                                  "children": [
-                                    {
-                                      "id": 16119,
-                                      "text": "You're closer than you might realise, friend. Except the bugs are still here. Feeding on whatever is left of the misery it caused. And once it had its fill, once it's strong enough... The old man waves his boney fingers, dispersing some of the lingering essence lingering in the air. \"There's worse things in this world than mere demons. We best keep moving...\"",
-                                      "type": "end",
-                                      "effects": [
-                                        "ANIMA: -10"
-                                      ]
-                                    }
-                                  ]
-                                },
-                                {
-                                  "id": 11,
-                                  "type": "choice",
-                                  "choiceLabel": "Leave",
-                                  "requirements": [
-                                    "NOT questflag:enchanter"
-                                  ],
-                                  "children": [
-                                    {
-                                      "id": 16120,
-                                      "text": "",
-                                      "type": "end"
-                                    }
-                                  ]
-                                }
-                              ]
+                              "ref": 16136
                             }
                           ]
                         }
@@ -7385,134 +7258,7 @@
                               "text": "Stalwart was a shining bastion against the demon hordes. With Kivos at the helm it marked the beginning of a new age. Brightcandle or even Great Candor is but a sputtering flame compared to the blazing glory that Stalwart once was.",
                               "type": "dialogue",
                               "numContinues": 0,
-                              "children": [
-                                {
-                                  "id": 14,
-                                  "type": "choice",
-                                  "choiceLabel": "Kivos?",
-                                  "children": [
-                                    {
-                                      "id": 16127,
-                                      "text": "Aye. Kivos Fellheart. A Goliath, said to be a descendant of the Sungod herself. He single handedly turned the tide during the War of Horns. I was just a wee boy, but I remember the faces once we heard the news of his death.",
-                                      "type": "dialogue",
-                                      "numContinues": 0,
-                                      "children": [
-                                        {
-                                          "id": 15,
-                                          "type": "choice",
-                                          "choiceLabel": "You knew this Goliath?",
-                                          "children": [
-                                            {
-                                              "id": 16126,
-                                              "text": "\"Aye - I did. My master served under 'im during the War of Horns. And I would 'ave given everything to follow him into the Black Citadel itself. \"But I was too young fer soldiering. By the time I was, Kivos had fallen.\" The grizzled man looks wistfully for a moment, fist clenching around his hammer. And then there's you. Thank ye for indulging an old man, and allowing him a chance to make amends for his past. I dun' know why, but I see much of Kivos in ye, [[class]].",
-                                              "type": "dialogue",
-                                              "numContinues": 2,
-                                              "children": [
-                                                {
-                                                  "id": 16,
-                                                  "type": "choice",
-                                                  "choiceLabel": "What is this place?",
-                                                  "children": [
-                                                    {
-                                                      "id": 16123,
-                                                      "text": "Now, a wasteland - but it has served as a no mans land between Umbris and the Shattered Realms, making it hard for either side to fall back into all out war. No army dares cross it, not after what happened at Stalwart. You're closer than you might realise, friend. Except the bugs are still here. Feeding on whatever is left of the misery it caused. And once it had its fill, once it's strong enough... The old man waves his boney fingers, dispersing some of the lingering essence lingering in the air. \"There's worse things in this world than mere demons. We best keep moving...\"",
-                                                      "type": "end",
-                                                      "effects": [
-                                                        "ANIMA: -10"
-                                                      ]
-                                                    }
-                                                  ]
-                                                },
-                                                {
-                                                  "id": 17,
-                                                  "type": "choice",
-                                                  "choiceLabel": "Continue",
-                                                  "requirements": [
-                                                    "questflag:enchanter"
-                                                  ],
-                                                  "children": [
-                                                    {
-                                                      "id": 16124,
-                                                      "text": "You're closer than you might realise, friend. Except the bugs are still here. Feeding on whatever is left of the misery it caused. And once it had its fill, once it's strong enough... The old man waves his boney fingers, dispersing some of the lingering essence lingering in the air. \"There's worse things in this world than mere demons. We best keep moving...\"",
-                                                      "type": "end",
-                                                      "effects": [
-                                                        "ANIMA: -10"
-                                                      ]
-                                                    }
-                                                  ]
-                                                },
-                                                {
-                                                  "id": 18,
-                                                  "type": "choice",
-                                                  "choiceLabel": "Leave",
-                                                  "requirements": [
-                                                    "NOT questflag:enchanter"
-                                                  ],
-                                                  "children": [
-                                                    {
-                                                      "id": 16125,
-                                                      "text": "",
-                                                      "type": "end"
-                                                    }
-                                                  ]
-                                                }
-                                              ]
-                                            }
-                                          ]
-                                        }
-                                      ]
-                                    }
-                                  ]
-                                },
-                                {
-                                  "id": 19,
-                                  "type": "choice",
-                                  "choiceLabel": "What is this place?",
-                                  "children": [
-                                    {
-                                      "id": 16128,
-                                      "text": "Now, a wasteland - but it has served as a no mans land between Umbris and the Shattered Realms, making it hard for either side to fall back into all out war. No army dares cross it, not after what happened at Stalwart. You're closer than you might realise, friend. Except the bugs are still here. Feeding on whatever is left of the misery it caused. And once it had its fill, once it's strong enough... The old man waves his boney fingers, dispersing some of the lingering essence lingering in the air. \"There's worse things in this world than mere demons. We best keep moving...\"",
-                                      "type": "end",
-                                      "effects": [
-                                        "ANIMA: -10"
-                                      ]
-                                    }
-                                  ]
-                                },
-                                {
-                                  "id": 20,
-                                  "type": "choice",
-                                  "choiceLabel": "Continue",
-                                  "requirements": [
-                                    "questflag:enchanter"
-                                  ],
-                                  "children": [
-                                    {
-                                      "id": 16129,
-                                      "text": "You're closer than you might realise, friend. Except the bugs are still here. Feeding on whatever is left of the misery it caused. And once it had its fill, once it's strong enough... The old man waves his boney fingers, dispersing some of the lingering essence lingering in the air. \"There's worse things in this world than mere demons. We best keep moving...\"",
-                                      "type": "end",
-                                      "effects": [
-                                        "ANIMA: -10"
-                                      ]
-                                    }
-                                  ]
-                                },
-                                {
-                                  "id": 21,
-                                  "type": "choice",
-                                  "choiceLabel": "Leave",
-                                  "requirements": [
-                                    "NOT questflag:enchanter"
-                                  ],
-                                  "children": [
-                                    {
-                                      "id": 16130,
-                                      "text": "",
-                                      "type": "end"
-                                    }
-                                  ]
-                                }
-                              ]
+                              "ref": 16136
                             }
                           ]
                         }
@@ -7594,7 +7340,7 @@
     "artwork": "opportunity_image",
     "rootNode": {
       "id": 0,
-      "text": "A skeleton in highly oxidised yet impressive armor sits against a nearby stone. As you walk past, an ivory hand suddenly grasps at your weapon. \"Pleeeeeeease\" a hollow howl escapes from the undead's broken jaw...",
+      "text": "A skeleton in highly oxidised yet impressive armor sits against a nearby tree trunk. As you walk past, an ivory hand suddenly grasps at your weapon. \"Pleeeeeeease\" a hollow howl escapes from the undead's broken jaw...",
       "type": "dialogue",
       "numContinues": 0,
       "children": [
@@ -8369,29 +8115,7 @@
                               "text": "Rocks pelt your body, leaving ugly bruises as you flee back across the chamber. The chamber collapses behind you, and you suck in ragged breaths in the utter blackness. Two tunnels split before you. Each leads further into the complex network of caverns and corridors. What will you do?",
                               "type": "dialogue",
                               "numContinues": 0,
-                              "children": [
-                                {
-                                  "id": 11,
-                                  "type": "choice",
-                                  "choiceLabel": "Take the right tunnel",
-                                  "ref": 102
-                                },
-                                {
-                                  "id": 99,
-                                  "type": "choice",
-                                  "choiceLabel": "Go back",
-                                  "children": [
-                                    {
-                                      "id": 16269,
-                                      "text": "You reconsider your venture into the dark mineshafts. Perhaps there is another way back to the surface?",
-                                      "type": "end",
-                                      "effects": [
-                                        "RELOADEVENTS"
-                                      ]
-                                    }
-                                  ]
-                                }
-                              ]
+                              "ref": 0
                             }
                           ]
                         }
@@ -8464,28 +8188,7 @@
                               "text": "You put the Amber back down, sensing something very wrong about the strange crystal.",
                               "type": "dialogue",
                               "numContinues": 0,
-                              "children": [
-                                {
-                                  "id": 105,
-                                  "type": "choice",
-                                  "choiceLabel": "Go back",
-                                  "children": [
-                                    {
-                                      "id": 16275,
-                                      "text": "Two tunnels split before you. Each leads further into the complex network of caverns and corridors. What will you do?",
-                                      "type": "dialogue",
-                                      "numContinues": 0,
-                                      "ref": 0
-                                    }
-                                  ]
-                                },
-                                {
-                                  "id": 106,
-                                  "type": "choice",
-                                  "choiceLabel": "Go forward",
-                                  "ref": 163
-                                }
-                              ]
+                              "ref": 16362
                             }
                           ]
                         },
@@ -8502,28 +8205,7 @@
                                 "QUESTFLAG: ambercrystal"
                               ],
                               "numContinues": 1,
-                              "children": [
-                                {
-                                  "id": 134,
-                                  "type": "choice",
-                                  "choiceLabel": "Go back",
-                                  "children": [
-                                    {
-                                      "id": 16304,
-                                      "text": "Two tunnels split before you. Each leads further into the complex network of caverns and corridors. What will you do?",
-                                      "type": "dialogue",
-                                      "numContinues": 0,
-                                      "ref": 0
-                                    }
-                                  ]
-                                },
-                                {
-                                  "id": 135,
-                                  "type": "choice",
-                                  "choiceLabel": "Go forward",
-                                  "ref": 163
-                                }
-                              ]
+                              "ref": 16362
                             }
                           ]
                         }
@@ -8584,21 +8266,6 @@
                               "type": "dialogue",
                               "numContinues": 0,
                               "children": [
-                                {
-                                  "id": 172,
-                                  "type": "choice",
-                                  "choiceLabel": "Go forward",
-                                  "children": [
-                                    {
-                                      "id": 16342,
-                                      "text": "At last, the familiar warm tones of the crystal illuminate the widening walls of the cavern once more. You seem to have made it through the maze of tunnels.",
-                                      "type": "end",
-                                      "effects": [
-                                        "RELOADEVENTS"
-                                      ]
-                                    }
-                                  ]
-                                },
                                 {
                                   "id": 166,
                                   "type": "choice",
@@ -8706,6 +8373,21 @@
                                       ]
                                     }
                                   ]
+                                },
+                                {
+                                  "id": 172,
+                                  "type": "choice",
+                                  "choiceLabel": "Go forward",
+                                  "children": [
+                                    {
+                                      "id": 16342,
+                                      "text": "At last, the familiar warm tones of the crystal illuminate the widening walls of the cavern once more. You seem to have made it through the maze of tunnels.",
+                                      "type": "end",
+                                      "effects": [
+                                        "RELOADEVENTS"
+                                      ]
+                                    }
+                                  ]
                                 }
                               ]
                             }
@@ -8724,55 +8406,11 @@
                               "text": "You find a nice hefty rock, and smash your way through the passage, widening it until you can pass through unscathed.The Amber gleams more potently, the warm hues reflected by the veins of pure gold coursing through the crystalline formations.",
                               "type": "dialogue",
                               "numContinues": 0,
-                              "children": [
-                                {
-                                  "id": 174,
-                                  "type": "choice",
-                                  "choiceLabel": "Break some gold free",
-                                  "requirements": [
-                                    "strength:=0"
-                                  ],
-                                  "refChildren": [
-                                    16337
-                                  ]
-                                },
-                                {
-                                  "id": 176,
-                                  "type": "choice",
-                                  "choiceLabel": "Break some gold free",
-                                  "requirements": [
-                                    "strength:=1"
-                                  ],
-                                  "refChildren": [
-                                    16339
-                                  ]
-                                },
-                                {
-                                  "id": 178,
-                                  "type": "choice",
-                                  "choiceLabel": "Break some gold free",
-                                  "requirements": [
-                                    "strength:2"
-                                  ],
-                                  "refChildren": [
-                                    16341
-                                  ]
-                                },
-                                {
-                                  "id": 180,
-                                  "type": "choice",
-                                  "choiceLabel": "Go forward",
-                                  "children": [
-                                    {
-                                      "id": 16350,
-                                      "text": "At last, the familiar warm tones of the crystal illuminate the widening walls of the cavern once more. You seem to have made it through the maze of tunnels.",
-                                      "type": "end",
-                                      "effects": [
-                                        "RELOADEVENTS"
-                                      ]
-                                    }
-                                  ]
-                                }
+                              "refChildren": [
+                                166,
+                                168,
+                                170,
+                                172
                               ]
                             }
                           ]
@@ -8801,50 +8439,7 @@
                                         "REMOVECHOSENCARD: 3"
                                       ],
                                       "numContinues": 1,
-                                      "children": [
-                                        {
-                                          "id": 183,
-                                          "type": "choice",
-                                          "choiceLabel": "Break some gold free",
-                                          "requirements": [
-                                            "strength:=0"
-                                          ],
-                                          "ref": 166
-                                        },
-                                        {
-                                          "id": 185,
-                                          "type": "choice",
-                                          "choiceLabel": "Break some gold free",
-                                          "requirements": [
-                                            "strength:=1"
-                                          ],
-                                          "ref": 168
-                                        },
-                                        {
-                                          "id": 187,
-                                          "type": "choice",
-                                          "choiceLabel": "Break some gold free",
-                                          "requirements": [
-                                            "strength:2"
-                                          ],
-                                          "ref": 170
-                                        },
-                                        {
-                                          "id": 189,
-                                          "type": "choice",
-                                          "choiceLabel": "Go forward",
-                                          "children": [
-                                            {
-                                              "id": 16358,
-                                              "text": "At last, the familiar warm tones of the crystal illuminate the widening walls of the cavern once more. You seem to have made it through the maze of tunnels.",
-                                              "type": "end",
-                                              "effects": [
-                                                "RELOADEVENTS"
-                                              ]
-                                            }
-                                          ]
-                                        }
-                                      ]
+                                      "ref": 16343
                                     }
                                   ]
                                 }
@@ -12326,7 +11921,7 @@
                                       "effects": [
                                         "COMBAT: Avatar of the Pyre"
                                       ],
-                                      "ref": 941
+                                      "ref": 17498
                                     }
                                   ]
                                 },
@@ -12394,7 +11989,7 @@
                                                       "effects": [
                                                         "COMBAT: Avatar of the Pyre"
                                                       ],
-                                                      "ref": 941
+                                                      "ref": 17498
                                                     }
                                                   ]
                                                 }
@@ -16093,11 +15688,11 @@
         {
           "id": 1,
           "type": "choice",
-          "choiceLabel": "Focus on the Blacksmith",
+          "choiceLabel": "Focus on the Alchemist",
           "children": [
             {
               "id": 18047,
-              "text": "Focus on the Blacksmith (fill in the lore for this.) final words",
+              "text": "Focus on the Alchemist (fill in the lore for this.) final words",
               "type": "end"
             }
           ]
@@ -16105,11 +15700,11 @@
         {
           "id": 2,
           "type": "choice",
-          "choiceLabel": "Focus on the Alchemist",
+          "choiceLabel": "Focus on the Necromancer",
           "children": [
             {
               "id": 18048,
-              "text": "Focus on the Alchemist (fill in the lore for this.) final words",
+              "text": "Focus on the Necromancer (fill in the lore for this.) final words",
               "type": "end"
             }
           ]
@@ -16117,11 +15712,11 @@
         {
           "id": 3,
           "type": "choice",
-          "choiceLabel": "Focus on the Priestess",
+          "choiceLabel": "Focus on the Succubus",
           "children": [
             {
               "id": 18049,
-              "text": "Focus on the Priestess (fill in the lore for this.) final words",
+              "text": "Focus on the Succubus (fill in the lore for this.) final words",
               "type": "end"
             }
           ]
@@ -18974,7 +18569,7 @@
                               "effects": [
                                 "COMBAT: Viola Skysworn"
                               ],
-                              "ref": 562
+                              "ref": 19110
                             }
                           ]
                         }

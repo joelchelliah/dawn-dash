@@ -1660,18 +1660,21 @@ function normalizeRefsPointingToChoiceNodes(eventTrees) {
  * and choices actually live.
  *
  * This function finds all refs pointing to split combat nodes and redirects them to the postcombat
- * dialogue child.
+ * dialogue child. Exception: combat nodes referencing another combat node are left unchanged, since
+ * a combat-to-combat ref should stay anchored to the combat node itself.
  *
  * Example:
  *   BEFORE normalization:
  *     Combat Node (id=100)
  *       └─ Postcombat Dialogue Node (id=101, text="hub dialogue", children=[...])
  *     Some Other Node (ref=100)  // ❌ Points to combat node
+ *     Combat Node   (ref=100)    // ✅ Already correct — combat → combat ref stays as-is
  *
  *   AFTER normalization:
  *     Combat Node (id=100)
  *       └─ Postcombat Dialogue Node (id=101, text="hub dialogue", children=[...])
  *     Some Other Node (ref=101)  // ✅ Points to postcombat dialogue node
+ *     Combat Node   (ref=100)    // ✅ Still points to the combat node
  */
 function normalizeRefsPointingToCombatNodes(eventTrees) {
   let totalRewrites = 0
@@ -1707,8 +1710,14 @@ function normalizeRefsPointingToCombatNodes(eventTrees) {
     function visit(node) {
       if (!node) return
 
-      // If this node has a ref pointing to a split combat node, redirect it to the postcombat child
-      if (node.ref !== undefined && combatNodeToPostcombatChild.has(node.ref)) {
+      // If this node has a ref pointing to a split combat node, redirect it to the postcombat child.
+      // Exception: combat nodes referencing another combat node should keep pointing to the combat
+      // node, not its postcombat dialogue child.
+      if (
+        node.ref !== undefined &&
+        node.type !== 'combat' &&
+        combatNodeToPostcombatChild.has(node.ref)
+      ) {
         const oldRef = node.ref
         const newRef = combatNodeToPostcombatChild.get(oldRef)
         node.ref = newRef

@@ -186,6 +186,10 @@ const OPTIMIZATION_PASS_CONFIG = {
     'Earthy Crater',
     'Emberwyld Heights Finish',
     'Enchanter',
+    'Entrancing Song',
+    'Fallen Goliath',
+    'Forking Tunnel',
+    // 'Frozen Heart', -- FALSE POSITIVE MATCH: "You mean the amulet?" - for both 'huntress' and 'NOT huntress' choices have same direct children texts
     "Heroes' Rest Cemetery Start",
     'Historic Shard',
     'Isle of Talos',
@@ -224,11 +228,11 @@ const OPTIMIZATION_PASS_CONFIG = {
   CONVERT_SIBLING_AND_COUSIN_REFS_TO_REF_CHILDREN_ENABLED: true,
   // Some complex trees get weird horizontal spacing issues when this pass reorders parents
   COUSIN_REF_BLACKLIST: [
-    'Vesparin Vault',
-    'TempleOffering',
     'Frozen Heart',
+    'TempleOffering',
     'The Defiled Sanctum',
     'The Ferryman',
+    'Vesparin Vault',
     'Warfront Survivor',
   ],
   COMPLEX_COUSIN_REF_BLACKLIST: ['Suspended Cage', 'The Priestess'],
