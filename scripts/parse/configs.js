@@ -169,9 +169,12 @@ const OPTIMIZATION_PASS_CONFIG = {
     'A Familiar Face',
     'A Strange Painting',
     'Abandoned Backpack',
+    'Abandoned Village',
+    'Ancient Tree',
     'Axe in the Stone',
     'Battleseer Hildune Death',
     'Brightcandle Consul',
+    'Brightcandle Inn',
     'Dawnbringer Ystel',
     "Heroes' Rest Cemetery Start",
     'Historic Shard',
@@ -218,12 +221,7 @@ const OPTIMIZATION_PASS_CONFIG = {
     'The Ferryman',
     'Warfront Survivor',
   ],
-  COMPLEX_COUSIN_REF_BLACKLIST: [
-    'Brightcandle Inn',
-    'Damsel in Distress',
-    'Suspended Cage',
-    'The Priestess',
-  ],
+  COMPLEX_COUSIN_REF_BLACKLIST: ['Damsel in Distress', 'Suspended Cage', 'The Priestess'],
 
   // Validate refs (detect refs pointing to missing nodes) and log warnings.
   CHECK_INVALID_REFS_ENABLED: true,
