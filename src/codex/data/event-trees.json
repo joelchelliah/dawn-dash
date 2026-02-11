@@ -7340,7 +7340,7 @@
     "artwork": "opportunity_image",
     "rootNode": {
       "id": 0,
-      "text": "A skeleton in highly oxidised yet impressive armor sits against a nearby stone. As you walk past, an ivory hand suddenly grasps at your weapon. \"Pleeeeeeease\" a hollow howl escapes from the undead's broken jaw...",
+      "text": "A skeleton in highly oxidised yet impressive armor sits against a nearby signpost. As you walk past, an ivory hand suddenly grasps at your weapon. \"Pleeeeeeease\" a hollow howl escapes from the undead's broken jaw...",
       "type": "dialogue",
       "numContinues": 0,
       "children": [
@@ -15232,11 +15232,11 @@
         {
           "id": 1,
           "type": "choice",
-          "choiceLabel": "Focus on the Priestess",
+          "choiceLabel": "Focus on the Necromancer",
           "children": [
             {
               "id": 18047,
-              "text": "Focus on the Priestess (fill in the lore for this.) final words",
+              "text": "Focus on the Necromancer (fill in the lore for this.) final words",
               "type": "end"
             }
           ]
@@ -15256,11 +15256,11 @@
         {
           "id": 3,
           "type": "choice",
-          "choiceLabel": "Focus on the Blacksmith",
+          "choiceLabel": "Focus on the Succubus",
           "children": [
             {
               "id": 18049,
-              "text": "Focus on the Blacksmith (fill in the lore for this.) final words",
+              "text": "Focus on the Succubus (fill in the lore for this.) final words",
               "type": "end"
             }
           ]
@@ -19234,29 +19234,7 @@
               "text": "The vacant expression in her eyes is no different than those of the thralls around her. Clearly, this priest has fallen under some sort of spell...",
               "type": "dialogue",
               "numContinues": 0,
-              "children": [
-                {
-                  "id": 2,
-                  "type": "choice",
-                  "choiceLabel": "Approach the priestess",
-                  "ref": 75
-                },
-                {
-                  "id": 74,
-                  "type": "choice",
-                  "choiceLabel": "Let's look around",
-                  "requirements": [
-                    "checkpoint:5"
-                  ],
-                  "children": [
-                    {
-                      "id": 19374,
-                      "text": "Theresa leans in and studies the Priestess for a moment, then smiles. \"A simple charm, if only I could remember how to break this spell. I am sure we'll find something around here...\"",
-                      "type": "end"
-                    }
-                  ]
-                }
-              ]
+              "ref": 0
             }
           ]
         },
@@ -19294,21 +19272,6 @@
                               "numContinues": 0,
                               "children": [
                                 {
-                                  "id": 107,
-                                  "type": "choice",
-                                  "choiceLabel": "Release her at once, demon!",
-                                  "children": [
-                                    {
-                                      "id": 19402,
-                                      "text": "The demon loses her composure as her eyes flare up. \"Such a BORING puppet!\" With a huff of black and purple smoke the demon disappears, along with the echoing sounds of her laughter.",
-                                      "type": "end",
-                                      "effects": [
-                                        "SCREENSHAKE: 0"
-                                      ]
-                                    }
-                                  ]
-                                },
-                                {
                                   "id": 78,
                                   "type": "choice",
                                   "choiceLabel": "Who destroyed your domain?",
@@ -19329,37 +19292,7 @@
                                               "text": "\"Who? I don't know his name. He didn't seem in the mood for talking with his hair on fire and slashing into my puppets left and right.\" The demoness pouts. \"I lost a lot of good puppets that day.\"",
                                               "type": "dialogue",
                                               "numContinues": 0,
-                                              "children": [
-                                                {
-                                                  "id": 80,
-                                                  "type": "choice",
-                                                  "choiceLabel": "Perhaps we can make a deal",
-                                                  "children": [
-                                                    {
-                                                      "id": 19382,
-                                                      "text": "The succubus blinks. \"A... trade?\" she smiles and taps her chin with a pointy nail. \"What can you offer me, puppet?\"",
-                                                      "type": "dialogue",
-                                                      "numContinues": 0,
-                                                      "ref": 19438
-                                                    }
-                                                  ]
-                                                },
-                                                {
-                                                  "id": 88,
-                                                  "type": "choice",
-                                                  "choiceLabel": "Release her at once, demon!",
-                                                  "children": [
-                                                    {
-                                                      "id": 19383,
-                                                      "text": "The demon loses her composure as her eyes flare up. \"Such a BORING puppet!\" With a huff of black and purple smoke the demon disappears, along with the echoing sounds of her laughter.",
-                                                      "type": "end",
-                                                      "effects": [
-                                                        "SCREENSHAKE: 0"
-                                                      ]
-                                                    }
-                                                  ]
-                                                }
-                                              ]
+                                              "ref": 19403
                                             }
                                           ]
                                         },
@@ -19372,37 +19305,7 @@
                                               "id": 19393,
                                               "text": "default",
                                               "type": "dialogue",
-                                              "children": [
-                                                {
-                                                  "id": 90,
-                                                  "type": "choice",
-                                                  "choiceLabel": "Perhaps we can make a deal",
-                                                  "children": [
-                                                    {
-                                                      "id": 19391,
-                                                      "text": "The succubus blinks. \"A... trade?\" she smiles and taps her chin with a pointy nail. \"What can you offer me, puppet?\"",
-                                                      "type": "dialogue",
-                                                      "numContinues": 0,
-                                                      "ref": 19438
-                                                    }
-                                                  ]
-                                                },
-                                                {
-                                                  "id": 98,
-                                                  "type": "choice",
-                                                  "choiceLabel": "Release her at once, demon!",
-                                                  "children": [
-                                                    {
-                                                      "id": 19392,
-                                                      "text": "The demon loses her composure as her eyes flare up. \"Such a BORING puppet!\" With a huff of black and purple smoke the demon disappears, along with the echoing sounds of her laughter.",
-                                                      "type": "end",
-                                                      "effects": [
-                                                        "SCREENSHAKE: 0"
-                                                      ]
-                                                    }
-                                                  ]
-                                                }
-                                              ]
+                                              "ref": 19403
                                             }
                                           ]
                                         }
@@ -19423,6 +19326,21 @@
                                       "ref": 19438
                                     }
                                   ]
+                                },
+                                {
+                                  "id": 107,
+                                  "type": "choice",
+                                  "choiceLabel": "Release her at once, demon!",
+                                  "children": [
+                                    {
+                                      "id": 19402,
+                                      "text": "The demon loses her composure as her eyes flare up. \"Such a BORING puppet!\" With a huff of black and purple smoke the demon disappears, along with the echoing sounds of her laughter.",
+                                      "type": "end",
+                                      "effects": [
+                                        "SCREENSHAKE: 0"
+                                      ]
+                                    }
+                                  ]
                                 }
                               ]
                             }
@@ -19438,38 +19356,10 @@
                               "text": "The demon raises her finger and waggles it playfully. \"Oh, now why would I do that? I worked so hard to rebuild my collection after that boorish oaf destroyed my little domain.\"",
                               "type": "dialogue",
                               "numContinues": 0,
-                              "children": [
-                                {
-                                  "id": 109,
-                                  "type": "choice",
-                                  "choiceLabel": "Who destroyed your domain?",
-                                  "refChildren": [
-                                    19394
-                                  ]
-                                },
-                                {
-                                  "id": 130,
-                                  "type": "choice",
-                                  "choiceLabel": "Perhaps we can make a deal",
-                                  "refChildren": [
-                                    19401
-                                  ]
-                                },
-                                {
-                                  "id": 138,
-                                  "type": "choice",
-                                  "choiceLabel": "Release her at once, demon!",
-                                  "children": [
-                                    {
-                                      "id": 19430,
-                                      "text": "The demon loses her composure as her eyes flare up. \"Such a BORING puppet!\" With a huff of black and purple smoke the demon disappears, along with the echoing sounds of her laughter.",
-                                      "type": "end",
-                                      "effects": [
-                                        "SCREENSHAKE: 0"
-                                      ]
-                                    }
-                                  ]
-                                }
+                              "refChildren": [
+                                78,
+                                99,
+                                107
                               ]
                             }
                           ]
@@ -20066,36 +19956,7 @@
               "text": "Sanguine Shrines convert the energy cost of a single card to Blood Energy, allowing you to spend health instead of energy to play it at the cost of 10 Maximum Health.",
               "type": "dialogue",
               "numContinues": 0,
-              "children": [
-                {
-                  "id": 2,
-                  "type": "choice",
-                  "choiceLabel": "10 Maximum Health: Drip blood in the cup",
-                  "children": [
-                    {
-                      "id": 21942,
-                      "text": "The statues' goblet slowly fills with blood as its stony fingers produce a bloodstained card, its fanged mouth curving into a satisfied smile...",
-                      "type": "end",
-                      "effects": [
-                        "MAXHEALTH: -10",
-                        "BLOODCARD"
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "id": 3,
-                  "type": "choice",
-                  "choiceLabel": "Leave",
-                  "children": [
-                    {
-                      "id": 21943,
-                      "text": "",
-                      "type": "end"
-                    }
-                  ]
-                }
-              ]
+              "ref": 0
             }
           ]
         },
@@ -20152,20 +20013,7 @@
               "text": "Semira spits at your feet. \"I may be dead, but I'm not stupid!\"",
               "type": "dialogue",
               "numContinues": 0,
-              "children": [
-                {
-                  "id": 2,
-                  "type": "choice",
-                  "choiceLabel": "Finish the Assassin",
-                  "ref": 140
-                },
-                {
-                  "id": 71,
-                  "type": "choice",
-                  "choiceLabel": "Spare the Assassin",
-                  "ref": 209
-                }
-              ]
+              "ref": 0
             }
           ]
         },
@@ -20201,46 +20049,7 @@
                               "text": "My services are two-fold. I can help you safekeep a particular card to pick up later. My vault can store up to 4 cards. If you add a new card after the 4th, you will have to remove a card first. Or I can use my talents as a master of realities to create a perfect base copy of a single card. The choice is yours, [[class]].",
                               "type": "dialogue",
                               "numContinues": 1,
-                              "children": [
-                                {
-                                  "id": 143,
-                                  "type": "choice",
-                                  "choiceLabel": "What about the merchant.",
-                                  "children": [
-                                    {
-                                      "id": 22072,
-                                      "text": "I can't release him just yet. He might be a buffoon, but he knows too much. At some point his superiors will learn of this and I doubt he has the wits to keep his mouth shut even if he wanted to. To be forthright, I sincerely doubt he'll be missed. Besides, he'll be safer here with the war going on. After all this is over, Tessa will release him - in good health and mind. Well, as much as one can expect with this particular fellow.",
-                                      "type": "dialogue",
-                                      "numContinues": 1,
-                                      "ref": 22089
-                                    }
-                                  ]
-                                },
-                                {
-                                  "id": 144,
-                                  "type": "choice",
-                                  "choiceLabel": "No deal, free the merchant.",
-                                  "ref": 153
-                                },
-                                {
-                                  "id": 149,
-                                  "type": "choice",
-                                  "choiceLabel": "Fine, come with me.",
-                                  "children": [
-                                    {
-                                      "id": 22079,
-                                      "text": "The Count smiles and nods. \"Give me a moment to say my goodbyes and leave enough of a distraction so the Emporium won't bother us for a while. I will wait for you at the Brightcandle Inn, awaiting where-ever the crusade takes us next.\"",
-                                      "type": "dialogue",
-                                      "effects": [
-                                        "QUESTFLAG: illusionist",
-                                        "COMPLETEQUEST"
-                                      ],
-                                      "numContinues": 1,
-                                      "ref": 22132
-                                    }
-                                  ]
-                                }
-                              ]
+                              "ref": 22089
                             }
                           ]
                         },
@@ -20357,179 +20166,11 @@
                       "text": "Oh it is. You see, the Emporium won't rest until I'm dead. And with enemies as powerful as those, I am in desperate need of new allies. And before you say anything - I do not expect to earn your trust just because I ask. I'm willing to put in the work. Even if that means fighting along side you on this godforsaken crusade.",
                       "type": "dialogue",
                       "numContinues": 1,
-                      "children": [
-                        {
-                          "id": 198,
-                          "type": "choice",
-                          "choiceLabel": "No deal, free the merchant.",
-                          "refChildren": [
-                            22085
-                          ]
-                        },
-                        {
-                          "id": 203,
-                          "type": "choice",
-                          "choiceLabel": "Fine, come with me.",
-                          "refChildren": [
-                            22088
-                          ]
-                        },
-                        {
-                          "id": 162,
-                          "type": "choice",
-                          "choiceLabel": "How can you be of use?",
-                          "children": [
-                            {
-                              "id": 22105,
-                              "text": "My services are two-fold. I can help you safekeep a particular card to pick up later. My vault can store up to 4 cards. If you add a new card after the 4th, you will have to remove a card first. Or I can use my talents as a master of realities to create a perfect base copy of a single card. The choice is yours, [[class]].",
-                              "type": "dialogue",
-                              "numContinues": 1,
-                              "children": [
-                                {
-                                  "id": 163,
-                                  "type": "choice",
-                                  "choiceLabel": "What about the merchant.",
-                                  "children": [
-                                    {
-                                      "id": 22097,
-                                      "text": "I can't release him just yet. He might be a buffoon, but he knows too much. At some point his superiors will learn of this and I doubt he has the wits to keep his mouth shut even if he wanted to. To be forthright, I sincerely doubt he'll be missed. Besides, he'll be safer here with the war going on. After all this is over, Tessa will release him - in good health and mind. Well, as much as one can expect with this particular fellow.",
-                                      "type": "dialogue",
-                                      "numContinues": 1,
-                                      "children": [
-                                        {
-                                          "id": 164,
-                                          "type": "choice",
-                                          "choiceLabel": "No deal, free the merchant.",
-                                          "ref": 153
-                                        },
-                                        {
-                                          "id": 169,
-                                          "type": "choice",
-                                          "choiceLabel": "Fine, come with me.",
-                                          "children": [
-                                            {
-                                              "id": 22096,
-                                              "text": "The Count smiles and nods. \"Give me a moment to say my goodbyes and leave enough of a distraction so the Emporium won't bother us for a while. I will wait for you at the Brightcandle Inn, awaiting where-ever the crusade takes us next.\"",
-                                              "type": "dialogue",
-                                              "effects": [
-                                                "QUESTFLAG: illusionist",
-                                                "COMPLETEQUEST"
-                                              ],
-                                              "numContinues": 1,
-                                              "ref": 22132
-                                            }
-                                          ]
-                                        }
-                                      ]
-                                    }
-                                  ]
-                                },
-                                {
-                                  "id": 172,
-                                  "type": "choice",
-                                  "choiceLabel": "No deal, free the merchant.",
-                                  "ref": 153
-                                },
-                                {
-                                  "id": 177,
-                                  "type": "choice",
-                                  "choiceLabel": "Fine, come with me.",
-                                  "children": [
-                                    {
-                                      "id": 22104,
-                                      "text": "The Count smiles and nods. \"Give me a moment to say my goodbyes and leave enough of a distraction so the Emporium won't bother us for a while. I will wait for you at the Brightcandle Inn, awaiting where-ever the crusade takes us next.\"",
-                                      "type": "dialogue",
-                                      "effects": [
-                                        "QUESTFLAG: illusionist",
-                                        "COMPLETEQUEST"
-                                      ],
-                                      "numContinues": 1,
-                                      "ref": 22132
-                                    }
-                                  ]
-                                }
-                              ]
-                            }
-                          ]
-                        },
-                        {
-                          "id": 180,
-                          "type": "choice",
-                          "choiceLabel": "What about the merchant.",
-                          "children": [
-                            {
-                              "id": 22121,
-                              "text": "I can't release him just yet. He might be a buffoon, but he knows too much. At some point his superiors will learn of this and I doubt he has the wits to keep his mouth shut even if he wanted to. To be forthright, I sincerely doubt he'll be missed. Besides, he'll be safer here with the war going on. After all this is over, Tessa will release him - in good health and mind. Well, as much as one can expect with this particular fellow.",
-                              "type": "dialogue",
-                              "numContinues": 1,
-                              "children": [
-                                {
-                                  "id": 181,
-                                  "type": "choice",
-                                  "choiceLabel": "How can you be of use?",
-                                  "children": [
-                                    {
-                                      "id": 22113,
-                                      "text": "My services are two-fold. I can help you safekeep a particular card to pick up later. My vault can store up to 4 cards. If you add a new card after the 4th, you will have to remove a card first. Or I can use my talents as a master of realities to create a perfect base copy of a single card. The choice is yours, [[class]].",
-                                      "type": "dialogue",
-                                      "numContinues": 1,
-                                      "children": [
-                                        {
-                                          "id": 182,
-                                          "type": "choice",
-                                          "choiceLabel": "No deal, free the merchant.",
-                                          "ref": 153
-                                        },
-                                        {
-                                          "id": 187,
-                                          "type": "choice",
-                                          "choiceLabel": "Fine, come with me.",
-                                          "children": [
-                                            {
-                                              "id": 22112,
-                                              "text": "The Count smiles and nods. \"Give me a moment to say my goodbyes and leave enough of a distraction so the Emporium won't bother us for a while. I will wait for you at the Brightcandle Inn, awaiting where-ever the crusade takes us next.\"",
-                                              "type": "dialogue",
-                                              "effects": [
-                                                "QUESTFLAG: illusionist",
-                                                "COMPLETEQUEST"
-                                              ],
-                                              "numContinues": 1,
-                                              "ref": 22132
-                                            }
-                                          ]
-                                        }
-                                      ]
-                                    }
-                                  ]
-                                },
-                                {
-                                  "id": 190,
-                                  "type": "choice",
-                                  "choiceLabel": "No deal, free the merchant.",
-                                  "ref": 153
-                                },
-                                {
-                                  "id": 195,
-                                  "type": "choice",
-                                  "choiceLabel": "Fine, come with me.",
-                                  "children": [
-                                    {
-                                      "id": 22120,
-                                      "text": "The Count smiles and nods. \"Give me a moment to say my goodbyes and leave enough of a distraction so the Emporium won't bother us for a while. I will wait for you at the Brightcandle Inn, awaiting where-ever the crusade takes us next.\"",
-                                      "type": "dialogue",
-                                      "effects": [
-                                        "QUESTFLAG: illusionist",
-                                        "COMPLETEQUEST"
-                                      ],
-                                      "numContinues": 1,
-                                      "ref": 22132
-                                    }
-                                  ]
-                                }
-                              ]
-                            }
-                          ]
-                        }
+                      "refChildren": [
+                        142,
+                        152,
+                        153,
+                        158
                       ]
                     }
                   ]
@@ -20594,31 +20235,10 @@
               "text": "The assassin seems disappointed, quickly leaping up onto the oaken desk. \"You have a lot to learn, [[class]]!\" she chuckles before leaping out of the tall painted window right behind the desk. You rush to the window but once you get there, the Emporium bountyhunter is nowhere to be seen... A brief moment later, the Count steps in the room and appraises the situation. \"I'm glad it was her who found herself on the other end of that [[weapon]], [[class]]. Now, as for our... misunderstanding, I have a proposition of sorts.\"",
               "type": "dialogue",
               "numContinues": 1,
-              "children": [
-                {
-                  "id": 210,
-                  "type": "choice",
-                  "choiceLabel": "Demand the release of the merchant.",
-                  "refChildren": [
-                    22089
-                  ]
-                },
-                {
-                  "id": 230,
-                  "type": "choice",
-                  "choiceLabel": "This better be good.",
-                  "refChildren": [
-                    22129
-                  ]
-                },
-                {
-                  "id": 275,
-                  "type": "choice",
-                  "choiceLabel": "Skip: It can wait until we're at the Inn.",
-                  "refChildren": [
-                    22132
-                  ]
-                }
+              "refChildren": [
+                141,
+                161,
+                206
               ]
             }
           ]
@@ -20701,53 +20321,7 @@
               "text": "The statue seems to look up longingly from its flourishing, frozen bow, its one hand extended towards you, the other hiding a dagger behind its back.",
               "type": "dialogue",
               "numContinues": 0,
-              "children": [
-                {
-                  "id": 2,
-                  "type": "choice",
-                  "choiceLabel": "Place your hand in its hand",
-                  "requirements": [
-                    "NOT talent:skylars kiss"
-                  ],
-                  "children": [
-                    {
-                      "id": 22198,
-                      "text": "As you place your hand in the statue's, its other hand suddenly snaps forward and presses a stone dagger on top of it. Though the dagger is blunt, unable to puncture your skin, a stinging pain suddenly pierces your mind. \"Forgive me, my love.\" The words seem to flow through your thoughts, weaving through your own until both the voice and the pain fade.",
-                      "type": "end",
-                      "effects": [
-                        "ADDTALENT: Skylars kiss"
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "id": 3,
-                  "type": "choice",
-                  "choiceLabel": "Place a card in its hand",
-                  "children": [
-                    {
-                      "id": 22199,
-                      "text": "The statue seems to nod conspiratorially, before it returns the marked card. Then it resumes its static pose and vacant expression once more.",
-                      "type": "end",
-                      "effects": [
-                        "PERSISTENT"
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "id": 4,
-                  "type": "choice",
-                  "choiceLabel": "Leave",
-                  "children": [
-                    {
-                      "id": 22200,
-                      "text": "",
-                      "type": "end"
-                    }
-                  ]
-                }
-              ]
+              "ref": 0
             }
           ]
         },
@@ -20820,64 +20394,7 @@
               "text": "Predictably, the outcomes of the Shrine of Chaos are quite unpredictable. Use at your own peril.",
               "type": "dialogue",
               "numContinues": 0,
-              "children": [
-                {
-                  "id": 2,
-                  "type": "choice",
-                  "choiceLabel": "Investigate",
-                  "children": [
-                    {
-                      "id": 22205,
-                      "text": "Predictably, the outcomes of the Shrine of Chaos are quite unpredictable. Use at your own peril.",
-                      "type": "dialogue",
-                      "numContinues": 0,
-                      "ref": 22209
-                    }
-                  ]
-                },
-                {
-                  "id": 3,
-                  "type": "choice",
-                  "choiceLabel": "Shuffle all energy",
-                  "children": [
-                    {
-                      "id": 22206,
-                      "text": "The stone tendrils lash out at the cards, frantically rearranging them as they twist swirl around the base of the smooth black stone, finally settling into a spider like figure that hands back each card almost reverantly before they return to their formless mass.",
-                      "type": "end",
-                      "effects": [
-                        "RANDOMIZEENERGY"
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "id": 4,
-                  "type": "choice",
-                  "choiceLabel": "Shuffle all upgrades",
-                  "children": [
-                    {
-                      "id": 22207,
-                      "text": "The stone tendrils lash out at the cards, frantically rearranging them as they twist swirl around the base of the smooth black stone, finally settling into a spider like figure that hands back each card almost reverantly before they return to their formless mass.",
-                      "type": "end",
-                      "effects": [
-                        "RANDOMIZEUPGRADES"
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "id": 5,
-                  "type": "choice",
-                  "choiceLabel": "Leave",
-                  "children": [
-                    {
-                      "id": 22208,
-                      "text": "",
-                      "type": "end"
-                    }
-                  ]
-                }
-              ]
+              "ref": 0
             }
           ]
         },
@@ -20947,73 +20464,7 @@
               "text": "The shrine allows you to transform a card into a different card of the same color and same rarity.",
               "type": "dialogue",
               "numContinues": 0,
-              "children": [
-                {
-                  "id": 2,
-                  "type": "choice",
-                  "choiceLabel": "Offer a card",
-                  "children": [
-                    {
-                      "id": 22213,
-                      "text": "The statue accepts your hand and offering in its thorned hand. The confident smile appears to fade into a smirk that seems to recognize your reservations before it offers you a brand new card.",
-                      "type": "end",
-                      "effects": [
-                        "TRADE: 3"
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "id": 3,
-                  "type": "choice",
-                  "choiceLabel": "Take 10 Damage: Offer a card",
-                  "requirements": [
-                    "health:10"
-                  ],
-                  "children": [
-                    {
-                      "id": 22214,
-                      "text": "The statue accepts your hand and offering in its thorned hand, its confident smile never waning as you feel the thorns press through the card and into your flesh. After a angonizing moment, the stone hand releases it now bloodied grip, revealing a brand new card!",
-                      "type": "end",
-                      "effects": [
-                        "TRADE: 6",
-                        "DAMAGE: 10"
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "id": 4,
-                  "type": "choice",
-                  "choiceLabel": "Take 20 Damage: Offer a card",
-                  "requirements": [
-                    "health:20"
-                  ],
-                  "children": [
-                    {
-                      "id": 22215,
-                      "text": "The statue accepts your hand and offering in its thorned hand, its confident smile never waning as you feel the thorns press through the card and into your flesh. After a angonizing moment, the stone hand releases it now bloodied grip, revealing a brand new card!",
-                      "type": "end",
-                      "effects": [
-                        "TRADE: 9",
-                        "DAMAGE: 20"
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "id": 5,
-                  "type": "choice",
-                  "choiceLabel": "Leave",
-                  "children": [
-                    {
-                      "id": 22216,
-                      "text": "",
-                      "type": "end"
-                    }
-                  ]
-                }
-              ]
+              "ref": 0
             }
           ]
         },
@@ -21123,69 +20574,7 @@
                       "text": "You shield your eyes from the bright lights to try and find the source of the magical display, but fail to see anything that would conjure the hypnotic patterns of lights. The angelic features of the stone statue tower out from its pristine pedestal. Above its brilliantly carved head, both hands reach for the darkened skies, its fingers forming a perfect triangle while colorful lights dance over its marbled features.",
                       "type": "dialogue",
                       "numContinues": 1,
-                      "children": [
-                        {
-                          "id": 3,
-                          "type": "choice",
-                          "choiceLabel": "Infuse the energy of a card",
-                          "children": [
-                            {
-                              "id": 22222,
-                              "text": "You offer the statue a card and the dancing lights pause - then each beam centers on your hand, quickly merging into a blinding white beam. After a brief moment, the lights resume their lively dance, having turned the cards natural energy into a humming power.",
-                              "type": "end",
-                              "effects": [
-                                "SELECTCARD: false",
-                                "DECOLOR"
-                              ]
-                            }
-                          ]
-                        },
-                        {
-                          "id": 4,
-                          "type": "choice",
-                          "choiceLabel": "Swap the energy cost of 2 cards",
-                          "requirements": [
-                            "intellect:3"
-                          ],
-                          "children": [
-                            {
-                              "id": 22223,
-                              "text": "As soon as you offer the statue the second card, the dancing lights seem to pause - then center their position on the first card, then the second, quickly merging into a blinding white beam. After a brief moment, the lights resume their lively dance, revealing the newly forged cards.",
-                              "type": "end",
-                              "effects": [
-                                "SWAPENERGY"
-                              ]
-                            }
-                          ]
-                        },
-                        {
-                          "id": 5,
-                          "type": "choice",
-                          "choiceLabel": "Add a Surge card",
-                          "children": [
-                            {
-                              "id": 22224,
-                              "text": "",
-                              "type": "end",
-                              "effects": [
-                                "ADDSURGE"
-                              ]
-                            }
-                          ]
-                        },
-                        {
-                          "id": 6,
-                          "type": "choice",
-                          "choiceLabel": "Leave",
-                          "children": [
-                            {
-                              "id": 22225,
-                              "text": "",
-                              "type": "end"
-                            }
-                          ]
-                        }
-                      ]
+                      "ref": 0
                     }
                   ]
                 },
@@ -21216,69 +20605,7 @@
                               "text": "Try as you might, your hands and feet fail to find purchase on the smooth stone. The angelic features of the stone statue tower out from its pristine pedestal. Above its brilliantly carved head, both hands reach for the darkened skies, its fingers forming a perfect triangle while colorful lights dance over its marbled features.",
                               "type": "dialogue",
                               "numContinues": 1,
-                              "children": [
-                                {
-                                  "id": 9,
-                                  "type": "choice",
-                                  "choiceLabel": "Infuse the energy of a card",
-                                  "children": [
-                                    {
-                                      "id": 22227,
-                                      "text": "You offer the statue a card and the dancing lights pause - then each beam centers on your hand, quickly merging into a blinding white beam. After a brief moment, the lights resume their lively dance, having turned the cards natural energy into a humming power.",
-                                      "type": "end",
-                                      "effects": [
-                                        "SELECTCARD: false",
-                                        "DECOLOR"
-                                      ]
-                                    }
-                                  ]
-                                },
-                                {
-                                  "id": 10,
-                                  "type": "choice",
-                                  "choiceLabel": "Swap the energy cost of 2 cards",
-                                  "requirements": [
-                                    "intellect:3"
-                                  ],
-                                  "children": [
-                                    {
-                                      "id": 22228,
-                                      "text": "As soon as you offer the statue the second card, the dancing lights seem to pause - then center their position on the first card, then the second, quickly merging into a blinding white beam. After a brief moment, the lights resume their lively dance, revealing the newly forged cards.",
-                                      "type": "end",
-                                      "effects": [
-                                        "SWAPENERGY"
-                                      ]
-                                    }
-                                  ]
-                                },
-                                {
-                                  "id": 11,
-                                  "type": "choice",
-                                  "choiceLabel": "Add a Surge card",
-                                  "children": [
-                                    {
-                                      "id": 22229,
-                                      "text": "",
-                                      "type": "end",
-                                      "effects": [
-                                        "ADDSURGE"
-                                      ]
-                                    }
-                                  ]
-                                },
-                                {
-                                  "id": 12,
-                                  "type": "choice",
-                                  "choiceLabel": "Leave",
-                                  "children": [
-                                    {
-                                      "id": 22230,
-                                      "text": "",
-                                      "type": "end"
-                                    }
-                                  ]
-                                }
-                              ]
+                              "ref": 0
                             }
                           ]
                         },
@@ -21309,7 +20636,7 @@
                                       "text": "Try as you might, your hands and feet fail to find purchase on the smooth stone. The angelic features of the stone statue tower out from its pristine pedestal. Above its brilliantly carved head, both hands reach for the darkened skies, its fingers forming a perfect triangle while colorful lights dance over its marbled features.",
                                       "type": "dialogue",
                                       "numContinues": 1,
-                                      "ref": 22231
+                                      "ref": 0
                                     }
                                   ]
                                 },
@@ -21471,35 +20798,7 @@
               "text": "The shrine allows you to transform a card into a different card of the same color and upgraded rarity.",
               "type": "dialogue",
               "numContinues": 0,
-              "children": [
-                {
-                  "id": 2,
-                  "type": "choice",
-                  "choiceLabel": "Transform a card",
-                  "children": [
-                    {
-                      "id": 22248,
-                      "text": "The statue hungrily accepts the card before it vanishes. After a moment, it opens a clenched fist, revealing a brand new card!",
-                      "type": "end",
-                      "effects": [
-                        "TRANSPOSE"
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "id": 3,
-                  "type": "choice",
-                  "choiceLabel": "Leave",
-                  "children": [
-                    {
-                      "id": 22249,
-                      "text": "",
-                      "type": "end"
-                    }
-                  ]
-                }
-              ]
+              "ref": 0
             }
           ]
         },
@@ -23369,38 +22668,7 @@
                           "id": 7,
                           "text": "\"Now off we go, business doesn't wait!\" the merchant chirps merrily, climbing back atop the wagon.",
                           "type": "dialogue",
-                          "children": [
-                            {
-                              "id": 5,
-                              "type": "choice",
-                              "choiceLabel": "Explore the area more",
-                              "children": [
-                                {
-                                  "id": 22466,
-                                  "text": "",
-                                  "type": "end",
-                                  "effects": [
-                                    "REMOVEAREAEFFECT: Caravan Wagon"
-                                  ]
-                                }
-                              ]
-                            },
-                            {
-                              "id": 6,
-                              "type": "choice",
-                              "choiceLabel": "Leave: Venture forth.",
-                              "children": [
-                                {
-                                  "id": 22467,
-                                  "text": "",
-                                  "type": "end",
-                                  "effects": [
-                                    "NEXTAREA"
-                                  ]
-                                }
-                              ]
-                            }
-                          ]
+                          "ref": 0
                         }
                       ]
                     }
@@ -23456,38 +22724,7 @@
                       "text": "\"Alas, our precious cargo can't say the same. Given the circumstances, we will have to make a report. You, my dear guardian, can expect a missive from Emporium Headquarters about damages soon.\" \"As for us, we thank thee- do come visit us if you find yourself in need of quality merchendise, guardian. Until then, we bid you farefell.\" \"Now off we go, business doesn't wait!\" the merchant chirps merrily, climbing back atop the wagon.",
                       "type": "dialogue",
                       "numContinues": 2,
-                      "children": [
-                        {
-                          "id": 11,
-                          "type": "choice",
-                          "choiceLabel": "Explore the area more",
-                          "children": [
-                            {
-                              "id": 22471,
-                              "text": "",
-                              "type": "end",
-                              "effects": [
-                                "REMOVEAREAEFFECT: Caravan Wagon"
-                              ]
-                            }
-                          ]
-                        },
-                        {
-                          "id": 12,
-                          "type": "choice",
-                          "choiceLabel": "Leave: Venture forth.",
-                          "children": [
-                            {
-                              "id": 22472,
-                              "text": "",
-                              "type": "end",
-                              "effects": [
-                                "NEXTAREA"
-                              ]
-                            }
-                          ]
-                        }
-                      ]
+                      "ref": 0
                     }
                   ]
                 }
