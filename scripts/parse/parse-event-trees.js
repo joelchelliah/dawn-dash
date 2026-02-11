@@ -1942,7 +1942,11 @@ function determineNameAndAlias(name, caption) {
     return { displayName: caption, alias: null }
   }
   if (nameReadable && !captionReadable) {
-    return { displayName: name, alias: null }
+    const aliasMap = {
+      'Heart of the Temple': 'Heart of Fire',
+    }
+
+    return { displayName: name, alias: aliasMap[name] || null }
   }
   return { displayName: caption || name, alias: null }
 }
