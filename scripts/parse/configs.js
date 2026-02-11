@@ -47,21 +47,6 @@ const DIALOGUE_MENU_EVENTS = {
     menuExitPatterns: ['Leave'],
     hubChoiceMatchThreshold: 60, // choices: 2/3
   },
-  'The Priestess': {
-    menuHubPattern: 'In this mystical place',
-    menuExitPatterns: ['We have to keep moving.'],
-    hubChoiceMatchThreshold: 60, // choices: 2/3
-  },
-  'Warfront Survivor': {
-    menuHubPattern: 'Amidst the carnage you notice',
-    menuExitPatterns: ['Attack the Demon'],
-    hubChoiceMatchThreshold: 50, // choices: 1/2
-  },
-  'Weeping Woods Start': {
-    menuHubPattern: '"A wise decision. The dark lands',
-    menuExitPatterns: ['That is all I needed to know'],
-    hubChoiceMatchThreshold: 60, // choices: 2/3
-  },
 }
 
 // For the events in this list, we should not include nodes that have the

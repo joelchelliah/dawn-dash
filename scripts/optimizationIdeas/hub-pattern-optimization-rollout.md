@@ -34,19 +34,13 @@ Switched from whitelist to blacklist. All 183 events now processed automatically
 
 **Goal**: Simplify/remove existing optimizations that overlap with hub pattern optimization.
 
-### 1. DIALOGUE_MENU_EVENTS (Manual Config) — High Priority
+### ~~1. DIALOGUE_MENU_EVENTS (Manual Config)~~ ✅ Complete
 
-**Current State**: ~20 events manually configured with hub patterns
-
-**Overlap**: Hub pattern optimization now handles most of these automatically
-
-**Action Plan**:
-- [ ] Compare manual config results vs. auto-detection for each event
-- [ ] Move non-critical events out of manual config
-- [ ] Keep only events that hit node budget limits without early detection during tree *building*
-  - Example: "Rathael the Slain Death" (9! = 362,880 ordering explosion)
-
-**Expected Outcome**: Manual config reduced from ~20 → 2-3 critical events
+Reduced from ~20 events → 3 critical events.
+(`Frozen Heart`, `Rathael the Slain Death`).
+These are kept because they require early detection *during tree building* to prevent node budget explosions.
+(`Suspended Cage`)
+This is kept because autodetection here is really tricky... and would require a lot of logic to avoid false positives.
 
 ---
 
