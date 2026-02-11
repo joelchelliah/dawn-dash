@@ -47,21 +47,6 @@ const DIALOGUE_MENU_EVENTS = {
     menuExitPatterns: ['Leave'],
     hubChoiceMatchThreshold: 60, // choices: 2/3
   },
-  'The Boneyard': {
-    menuHubPattern: '"A parasite, one of the worst',
-    menuExitPatterns: ['Continue'],
-    hubChoiceMatchThreshold: 60, // choices: 2/3
-  },
-  'The Defiled Sanctum': {
-    menuHubPattern: '"First." one of the heads answers.',
-    menuExitPatterns: ['Tell me something else.'],
-    hubChoiceMatchThreshold: 60, // choices: 2/3
-  },
-  'The Ferryman': {
-    menuHubPattern: '"I am but a guide for the souls',
-    menuExitPatterns: ['Back to other questions.'],
-    hubChoiceMatchThreshold: 60, // choices: 2/3
-  },
   'The Priestess': {
     menuHubPattern: 'In this mystical place',
     menuExitPatterns: ['We have to keep moving.'],
@@ -222,6 +207,10 @@ const OPTIMIZATION_PASS_CONFIG = {
     'Sunfall Meadows Finish',
     'Sunfall Meadows Start',
     'Survey the Field',
+    // 'Suspended Cage', -- FALSE POSITIVE MATCH! Truth -> Imperfection -> Darkness
+    'The Boneyard',
+    'The Defiled Sanctum',
+    'The Ferryman',
   ],
 
   // TODO: BLACKLIST:
@@ -251,13 +240,7 @@ const OPTIMIZATION_PASS_CONFIG = {
   // Convert certain refs (sibling/simple cousin) into `refChildren` for nicer visualization.
   CONVERT_SIBLING_AND_COUSIN_REFS_TO_REF_CHILDREN_ENABLED: true,
   // Some complex trees get weird horizontal spacing issues when this pass reorders parents
-  COUSIN_REF_BLACKLIST: [
-    'Frozen Heart',
-    'The Defiled Sanctum',
-    'The Ferryman',
-    'Vesparin Vault',
-    'Warfront Survivor',
-  ],
+  COUSIN_REF_BLACKLIST: ['Frozen Heart', 'Vesparin Vault', 'Warfront Survivor'],
   COMPLEX_COUSIN_REF_BLACKLIST: ['Mysterious Crates', 'Suspended Cage', 'The Priestess'],
 
   // Validate refs (detect refs pointing to missing nodes) and log warnings.

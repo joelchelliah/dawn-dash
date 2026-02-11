@@ -155,12 +155,13 @@ module.exports = [
     alterations: [
       {
         // Find the dialogue node that should be an end node (GOTOAREA transition)
-        find: { textOrLabel: 'The heads turn in unison before you speak', effect: 'GOTOAREA: 91' },
+        find: { effect: 'GOTOAREA: 91' },
         modifyNode: {
           removeRef: true,
-          removeNumContinues: true,
           removeText: true,
+          removeNumContinues: true,
           removeChildren: true,
+          removeRefChildren: true,
           type: 'end',
         },
       },

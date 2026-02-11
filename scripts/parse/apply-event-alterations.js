@@ -239,7 +239,9 @@ function applyEventAlterations(rootNode, alterations, generateNodeId) {
 
         // Update requirements if specified
         if (updateChild.requirements !== undefined) {
-          const normalized = updateChild.requirements.filter((req) => req && typeof req === 'string')
+          const normalized = updateChild.requirements.filter(
+            (req) => req && typeof req === 'string'
+          )
           if (normalized.length > 0) {
             child.requirements = normalized
           }
@@ -296,6 +298,9 @@ function applyEventAlterations(rootNode, alterations, generateNodeId) {
         }
         if (modifyNode.removeChildren && node.children !== undefined) {
           delete node.children
+        }
+        if (modifyNode.removeRefChildren && node.refChildren !== undefined) {
+          delete node.refChildren
         }
 
         // Set new values
