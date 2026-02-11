@@ -15,7 +15,7 @@ const OUTPUT_FILE = path.join(__dirname, './data/events.json')
 // All event-related types
 const EVENT_TYPES = [0, 1, 2, 3, 4, 5, 8, 10, 99]
 
-const DEPRECATED_EVENTS = ['Mirror Shard', 'Robed Figure']
+const DEPRECATED_EVENTS = ['Mirror Shard', 'Robed Figure', 'Iron Gates']
 
 async function extractEvents() {
   console.log('Fetching card and talent data from Blightbane API...')

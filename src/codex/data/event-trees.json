@@ -7340,7 +7340,7 @@
     "artwork": "opportunity_image",
     "rootNode": {
       "id": 0,
-      "text": "A skeleton in highly oxidised yet impressive armor sits against a nearby signpost. As you walk past, an ivory hand suddenly grasps at your weapon. \"Pleeeeeeease\" a hollow howl escapes from the undead's broken jaw...",
+      "text": "A skeleton in highly oxidised yet impressive armor sits against a nearby tree trunk. As you walk past, an ivory hand suddenly grasps at your weapon. \"Pleeeeeeease\" a hollow howl escapes from the undead's broken jaw...",
       "type": "dialogue",
       "numContinues": 0,
       "children": [
@@ -13048,71 +13048,7 @@
               "text": "I offer two services. First, I can help you safely store a basic version of any card for you to retrieve later. [Cards in the Vault persist between runs]. The vault can hold up to 4 cards. However, if you want to add a new card after the 4th, you'll have to remove one first. Or I can use my talents to create a perfect copy of a single card. The choice is yours, [[class]].",
               "type": "dialogue",
               "numContinues": 2,
-              "children": [
-                {
-                  "id": 2,
-                  "type": "choice",
-                  "choiceLabel": "What can you do?",
-                  "children": [
-                    {
-                      "id": 17696,
-                      "text": "I offer two services. First, I can help you safely store a basic version of any card for you to retrieve later. [Cards in the Vault persist between runs]. The vault can hold up to 4 cards. However, if you want to add a new card after the 4th, you'll have to remove one first. Or I can use my talents to create a perfect copy of a single card. The choice is yours, [[class]].",
-                      "type": "dialogue",
-                      "numContinues": 2,
-                      "ref": 17707
-                    }
-                  ]
-                },
-                {
-                  "id": 3,
-                  "type": "choice",
-                  "choiceLabel": "Open the vault",
-                  "requirements": [
-                    "vaultnumber:1"
-                  ],
-                  "ref": 13
-                },
-                {
-                  "id": 7,
-                  "type": "choice",
-                  "choiceLabel": "Open the vault",
-                  "requirements": [
-                    "vaultnumber:0"
-                  ],
-                  "ref": 17
-                },
-                {
-                  "id": 11,
-                  "type": "choice",
-                  "choiceLabel": "100 Gold: Copy a card.",
-                  "requirements": [
-                    "gold:100"
-                  ],
-                  "children": [
-                    {
-                      "id": 17705,
-                      "text": "",
-                      "type": "end",
-                      "effects": [
-                        "GOLD: -100",
-                        "COPYCARD"
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "id": 12,
-                  "type": "choice",
-                  "choiceLabel": "Leave: Nothing right now.",
-                  "children": [
-                    {
-                      "id": 17706,
-                      "text": "",
-                      "type": "end"
-                    }
-                  ]
-                }
-              ]
+              "ref": 0
             }
           ]
         },
@@ -13198,58 +13134,10 @@
               "text": "Of course, would you like to enter a new card as the vault is currently empty?",
               "type": "dialogue",
               "numContinues": 0,
-              "children": [
-                {
-                  "id": 18,
-                  "type": "choice",
-                  "choiceLabel": "Retrieve a card.",
-                  "requirements": [
-                    "vaultnumber:1"
-                  ],
-                  "children": [
-                    {
-                      "id": 17712,
-                      "text": "",
-                      "type": "end",
-                      "effects": [
-                        "TAKEFROMVAULT"
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "id": 19,
-                  "type": "choice",
-                  "choiceLabel": "50 Gold: Safekeep a card.",
-                  "requirements": [
-                    "gold:50"
-                  ],
-                  "children": [
-                    {
-                      "id": 17713,
-                      "text": "I'll hold on to this. Talk to me again when you want it back. Free of charge.",
-                      "type": "end",
-                      "effects": [
-                        "GOLD: -50",
-                        "ADDTOVAULT"
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "id": 20,
-                  "type": "choice",
-                  "choiceLabel": "Return",
-                  "children": [
-                    {
-                      "id": 17714,
-                      "text": "Welcome back, [[class]]. Here to witness the impossible become possible? Or would you like me to hold onto a card for you?",
-                      "type": "dialogue",
-                      "numContinues": 0,
-                      "ref": 0
-                    }
-                  ]
-                }
+              "refChildren": [
+                14,
+                15,
+                16
               ]
             }
           ]
@@ -13309,26 +13197,7 @@
               "text": "A third imp staggers out from the darkness. \"OUR OLD HERO DEAD.\" then points at the half eaten corpse behind it. \"YEAH HE NOT SO GOOD HERO.\" a third imp adds, plucking sadly at the single string strung onto a large femur bone.",
               "type": "dialogue",
               "numContinues": 1,
-              "children": [
-                {
-                  "id": 2,
-                  "type": "choice",
-                  "choiceLabel": "I suppose I am somewhat of a hero myself",
-                  "ref": 15
-                },
-                {
-                  "id": 5,
-                  "type": "choice",
-                  "choiceLabel": "None of your business",
-                  "ref": 18
-                },
-                {
-                  "id": 8,
-                  "type": "choice",
-                  "choiceLabel": "Leave me be, demons",
-                  "ref": 21
-                }
-              ]
+              "ref": 0
             }
           ]
         },
@@ -13542,7 +13411,8 @@
         }
       ]
     },
-    "blightbaneLink": "https://www.blightbane.io/event/Iron_Gates"
+    "blightbaneLink": "https://www.blightbane.io/event/Iron_Gates",
+    "deprecated": true
   },
   {
     "name": "Isle of Talos",
@@ -14178,49 +14048,7 @@
                       "text": "As your hand touches the cold stone, you feel a subtle vibration, as if the spirit of Lucius himself acknowledges your presence. The statue of Lightmarshal Lucius stands tall and imposing, his gaze fixed eternally forward, a testament to his unwavering commitment to the Vigil. The air around it feels charged, as if the statue itself is still guarding the hallowed halls.",
                       "type": "dialogue",
                       "numContinues": 1,
-                      "children": [
-                        {
-                          "id": 3,
-                          "type": "choice",
-                          "choiceLabel": "Examine the statue.",
-                          "children": [
-                            {
-                              "id": 17954,
-                              "text": "As you look closer, you can see the intricate details of his armor and the symbols of valor. His expression is stern, yet there's a hint of sorrow for the countless lives lost under his command.",
-                              "type": "dialogue",
-                              "numContinues": 0,
-                              "ref": 17965
-                            }
-                          ]
-                        },
-                        {
-                          "id": 4,
-                          "type": "choice",
-                          "choiceLabel": "Look for any inscriptions.",
-                          "ref": 13
-                        },
-                        {
-                          "id": 8,
-                          "type": "choice",
-                          "choiceLabel": "Smash!",
-                          "requirements": [
-                            "strength:3"
-                          ],
-                          "ref": 17
-                        },
-                        {
-                          "id": 10,
-                          "type": "choice",
-                          "choiceLabel": "Leave.",
-                          "children": [
-                            {
-                              "id": 17961,
-                              "text": "",
-                              "type": "end"
-                            }
-                          ]
-                        }
-                      ]
+                      "ref": 0
                     }
                   ]
                 },
@@ -15014,8 +14842,20 @@
                           "requirements": [
                             "class:seeker"
                           ],
-                          "refChildren": [
-                            18012
+                          "children": [
+                            {
+                              "id": 18018,
+                              "text": "You flip through the pages of the time, noting several different sections:",
+                              "type": "dialogue",
+                              "numContinues": 0,
+                              "refChildren": [
+                                5,
+                                6,
+                                7,
+                                8,
+                                9
+                              ]
+                            }
                           ]
                         },
                         {
@@ -15025,8 +14865,20 @@
                           "requirements": [
                             "class:knight"
                           ],
-                          "refChildren": [
-                            18012
+                          "children": [
+                            {
+                              "id": 18024,
+                              "text": "You flip through the pages of the time, noting several different sections:",
+                              "type": "dialogue",
+                              "numContinues": 0,
+                              "refChildren": [
+                                5,
+                                6,
+                                7,
+                                8,
+                                9
+                              ]
+                            }
                           ]
                         },
                         {
@@ -15380,11 +15232,11 @@
         {
           "id": 1,
           "type": "choice",
-          "choiceLabel": "Focus on the Succubus",
+          "choiceLabel": "Focus on the Collector",
           "children": [
             {
               "id": 18047,
-              "text": "Focus on the Succubus (fill in the lore for this.) final words",
+              "text": "Focus on the Collector (fill in the lore for this.) final words",
               "type": "end"
             }
           ]
@@ -15392,11 +15244,11 @@
         {
           "id": 2,
           "type": "choice",
-          "choiceLabel": "Focus on the Consul",
+          "choiceLabel": "Focus on the Forger",
           "children": [
             {
               "id": 18048,
-              "text": "Focus on the Consul (fill in the lore for this.) final words",
+              "text": "Focus on the Forger (fill in the lore for this.) final words",
               "type": "end"
             }
           ]
@@ -15404,11 +15256,11 @@
         {
           "id": 3,
           "type": "choice",
-          "choiceLabel": "Focus on the Forger",
+          "choiceLabel": "Focus on the Necromancer",
           "children": [
             {
               "id": 18049,
-              "text": "Focus on the Forger (fill in the lore for this.) final words",
+              "text": "Focus on the Necromancer (fill in the lore for this.) final words",
               "type": "end"
             }
           ]
@@ -15517,26 +15369,7 @@
                               "text": "\"New leader say they own all now! We was supposed to share, work for all molekin.\" They motion to the bloody wound across their fur.",
                               "type": "dialogue",
                               "numContinues": 0,
-                              "children": [
-                                {
-                                  "id": 7,
-                                  "type": "choice",
-                                  "choiceLabel": "Heal it using a potion",
-                                  "requirements": [
-                                    "card:healing potion"
-                                  ],
-                                  "ref": 18
-                                },
-                                {
-                                  "id": 13,
-                                  "type": "choice",
-                                  "choiceLabel": "New leader?",
-                                  "requirements": [
-                                    "NOT card:healing potion"
-                                  ],
-                                  "ref": 24
-                                }
-                              ]
+                              "ref": 18077
                             }
                           ]
                         },
@@ -15822,20 +15655,7 @@
               "text": "\"Me?\" the large, mole-like creature gasps. \"I am the undesputed king of kaboom of this road! Now drop that tribute before you hit another one of my surprises!\" the creature growls as he waves his wrench at the wagon behind you.",
               "type": "dialogue",
               "numContinues": 0,
-              "children": [
-                {
-                  "id": 2,
-                  "type": "choice",
-                  "choiceLabel": "Fine, take what you need.",
-                  "ref": 34
-                },
-                {
-                  "id": 19,
-                  "type": "choice",
-                  "choiceLabel": "You won't take anything bandits!",
-                  "ref": 51
-                }
-              ]
+              "ref": 0
             }
           ]
         },
@@ -15905,85 +15725,7 @@
                       "text": "\"Us? Repair this wagon? What a preposterous proposal! It is stipulated by contract clause 164.2, section C that the contractee, meaning -you-, will provide safe passage, up to and including compensating any damages suffered during the process of this contract.\"",
                       "type": "dialogue",
                       "numContinues": 0,
-                      "children": [
-                        {
-                          "id": 53,
-                          "type": "choice",
-                          "choiceLabel": "Double the pay",
-                          "children": [
-                            {
-                              "id": 18133,
-                              "text": "\"While I appreciate your negotiation tactics, we simply cannot accept such terms. See us through safely, and the Emporium will reward your competence. That is the best we can offer.\"",
-                              "type": "dialogue",
-                              "numContinues": 0,
-                              "children": [
-                                {
-                                  "id": 54,
-                                  "type": "choice",
-                                  "choiceLabel": "Don't repair the wagon",
-                                  "children": [
-                                    {
-                                      "id": 18131,
-                                      "text": "",
-                                      "type": "end"
-                                    }
-                                  ]
-                                },
-                                {
-                                  "id": 55,
-                                  "type": "choice",
-                                  "choiceLabel": "5 Gold: Repair the wagon",
-                                  "requirements": [
-                                    "gold:5"
-                                  ],
-                                  "children": [
-                                    {
-                                      "id": 18132,
-                                      "text": "",
-                                      "type": "end",
-                                      "effects": [
-                                        "GOLD: -5",
-                                        "AREASPECIAL: 25"
-                                      ]
-                                    }
-                                  ]
-                                }
-                              ]
-                            }
-                          ]
-                        },
-                        {
-                          "id": 56,
-                          "type": "choice",
-                          "choiceLabel": "Don't repair the wagon",
-                          "children": [
-                            {
-                              "id": 18134,
-                              "text": "",
-                              "type": "end"
-                            }
-                          ]
-                        },
-                        {
-                          "id": 57,
-                          "type": "choice",
-                          "choiceLabel": "5 Gold: Repair the wagon",
-                          "requirements": [
-                            "gold:5"
-                          ],
-                          "children": [
-                            {
-                              "id": 18135,
-                              "text": "",
-                              "type": "end",
-                              "effects": [
-                                "GOLD: -5",
-                                "AREASPECIAL: 25"
-                              ]
-                            }
-                          ]
-                        }
-                      ]
+                      "ref": 18145
                     }
                   ]
                 },
@@ -15997,85 +15739,7 @@
                       "text": "\"While I appreciate your negotiation tactics, we simply cannot accept such terms. See us through safely, and the Emporium will reward your competence. That is the best we can offer.\"",
                       "type": "dialogue",
                       "numContinues": 0,
-                      "children": [
-                        {
-                          "id": 59,
-                          "type": "choice",
-                          "choiceLabel": "Why don't you repair it?",
-                          "children": [
-                            {
-                              "id": 18139,
-                              "text": "\"Us? Repair this wagon? What a preposterous proposal! It is stipulated by contract clause 164.2, section C that the contractee, meaning -you-, will provide safe passage, up to and including compensating any damages suffered during the process of this contract.\"",
-                              "type": "dialogue",
-                              "numContinues": 0,
-                              "children": [
-                                {
-                                  "id": 60,
-                                  "type": "choice",
-                                  "choiceLabel": "Don't repair the wagon",
-                                  "children": [
-                                    {
-                                      "id": 18137,
-                                      "text": "",
-                                      "type": "end"
-                                    }
-                                  ]
-                                },
-                                {
-                                  "id": 61,
-                                  "type": "choice",
-                                  "choiceLabel": "5 Gold: Repair the wagon",
-                                  "requirements": [
-                                    "gold:5"
-                                  ],
-                                  "children": [
-                                    {
-                                      "id": 18138,
-                                      "text": "",
-                                      "type": "end",
-                                      "effects": [
-                                        "GOLD: -5",
-                                        "AREASPECIAL: 25"
-                                      ]
-                                    }
-                                  ]
-                                }
-                              ]
-                            }
-                          ]
-                        },
-                        {
-                          "id": 62,
-                          "type": "choice",
-                          "choiceLabel": "Don't repair the wagon",
-                          "children": [
-                            {
-                              "id": 18140,
-                              "text": "",
-                              "type": "end"
-                            }
-                          ]
-                        },
-                        {
-                          "id": 63,
-                          "type": "choice",
-                          "choiceLabel": "5 Gold: Repair the wagon",
-                          "requirements": [
-                            "gold:5"
-                          ],
-                          "children": [
-                            {
-                              "id": 18141,
-                              "text": "",
-                              "type": "end",
-                              "effects": [
-                                "GOLD: -5",
-                                "AREASPECIAL: 25"
-                              ]
-                            }
-                          ]
-                        }
-                      ]
+                      "ref": 18145
                     }
                   ]
                 },
