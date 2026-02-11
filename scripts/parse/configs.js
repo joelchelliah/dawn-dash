@@ -143,78 +143,14 @@ const OPTIMIZATION_PASS_CONFIG = {
   // Minimum number of choice children for hub candidates
   POST_PROCESSING_HUB_PATTERN_OPTIMIZATION_MIN_CHOICES: 3,
 
-  // Events to apply hub pattern optimization (Phase 2: ref creation)
-  // Other events will still be detected and logged for discovery, but won't have refs created
-  POST_PROCESSING_HUB_PATTERN_OPTIMIZATION_WHITELIST: [
-    'A Familiar Face',
-    'A Strange Painting',
-    'Abandoned Backpack',
-    'Abandoned Village',
-    'Ancient Tree',
-    'Axe in the Stone',
-    'Battleseer Hildune Death',
-    'Brightcandle Consul',
-    'Brightcandle Inn',
-    'Circle of Candles',
-    'Cloaked Stranger',
-    'Consul Briefing',
-    'Count Vesparin',
-    'Damsel in Distress',
-    'Dawnbringer Ystel',
-    'Discarded Journal',
-    'Druid of the Grove',
-    'Earthy Crater',
-    'Emberwyld Heights Finish',
-    'Enchanter',
-    'Entrancing Song',
-    'Fallen Goliath',
-    'Forking Tunnel',
-    // 'Frozen Heart', -- FALSE POSITIVE MATCH: "You mean the amulet?" - for both 'huntress' and 'NOT huntress' choices have same direct children texts
-    'Glowing Runes',
-    'Gorn Tagdahar Death',
-    // NOTE: There should be 2 spaces here between Star and Finish!
-    'Grove of the Dying Star  Finish',
-    'Heart of the Temple',
-    "Heroes' Rest Cemetery Start",
-    'Hidden Library',
-    'Historic Shard',
-    'Illusionist',
-    'Infernal Racket',
-    'Isle of Talos',
-    'Kaius Tagdahar Death',
-    'Lightmarshal Lucius',
-    'Marrow Halls',
-    'Molekin Burrow',
-    'Mudfang Confrontation',
-    // 'Mysterious Crates', -- FALSE POSITIVE MATCH! May be solvable when we go over to blacklist, by only blacklisting certain hub candidates?
-    'Mystical Glade',
-    'Noxlight Swamp Finish',
-    'Obsidian Garden Finish',
-    'Painted Landscape',
-    'Possessed Priestess',
-    'Potbellied Imp',
-    'Rich Buffet',
-    'Robed Figure',
-    'Rotting Residence',
-    'Sanguine Shrine',
-    'Semira Death',
-    'Shrine of Binding',
-    'Shrine of Chaos',
-    'Shrine of Commerce',
-    'Shrine of Energy',
-    'Shrine of Evolution',
-    'Statue of Ilthar II Death',
-    'Sunfall Meadows Finish',
-    'Sunfall Meadows Start',
-    'Survey the Field',
-    // 'Suspended Cage', -- FALSE POSITIVE MATCH! Truth -> Imperfection -> Darkness
-    'The Boneyard',
-    'The Defiled Sanctum',
-    'The Ferryman',
+  // All events get optimization EXCEPT those in this blacklist (known false positives)
+  POST_PROCESSING_HUB_PATTERN_OPTIMIZATION_BLACKLIST: [
+    'Frozen Heart', // FALSE POSITIVE: "You mean the amulet?" - huntress/NOT huntress choices have same direct children texts
+    'Mysterious Crates', // FALSE POSITIVE: 2 choices match hub pattern but are completely different subtrees
+    'Suspended Cage', // FALSE POSITIVE: Truth -> Imperfection -> Darkness false match
+    'The Deal', // FALSE POSITIVE: 2 potions are taken after another, but this creates a false match on the second potion
+    'The Godscar Wastes Finish', // FALSE POSITIVE: access to holy path getting messed up... [continue, continue] is triggering a false positive on an earlier node with 2 continues.
   ],
-
-  // TODO: BLACKLIST:
-  // Mysterious Crates - Has a set of 2 choices that are identical to hub, but completely different!
 
   // Structural subtree deduplication (breadth-first):
   // - Replaces structurally identical subtrees with refs, preferring shallow originals.
@@ -240,8 +176,8 @@ const OPTIMIZATION_PASS_CONFIG = {
   // Convert certain refs (sibling/simple cousin) into `refChildren` for nicer visualization.
   CONVERT_SIBLING_AND_COUSIN_REFS_TO_REF_CHILDREN_ENABLED: true,
   // Some complex trees get weird horizontal spacing issues when this pass reorders parents
-  COUSIN_REF_BLACKLIST: ['Frozen Heart', 'Vesparin Vault', 'Warfront Survivor'],
-  COMPLEX_COUSIN_REF_BLACKLIST: ['Mysterious Crates', 'Suspended Cage', 'The Priestess'],
+  COUSIN_REF_BLACKLIST: ['Frozen Heart', 'Vesparin Vault'],
+  COMPLEX_COUSIN_REF_BLACKLIST: ['Mysterious Crates', 'Suspended Cage'],
 
   // Validate refs (detect refs pointing to missing nodes) and log warnings.
   CHECK_INVALID_REFS_ENABLED: true,

@@ -55,8 +55,8 @@ function detectAndOptimizeDialogueMenuHubs(eventTrees, DEBUG_EVENT_NAME = '') {
   console.log('\n🔍 Detecting dialogue menu hub patterns')
 
   const MIN_CHOICES = OPTIMIZATION_PASS_CONFIG.POST_PROCESSING_HUB_PATTERN_OPTIMIZATION_MIN_CHOICES
-  const WHITELIST =
-    OPTIMIZATION_PASS_CONFIG.POST_PROCESSING_HUB_PATTERN_OPTIMIZATION_WHITELIST || []
+  const BLACKLIST =
+    OPTIMIZATION_PASS_CONFIG.POST_PROCESSING_HUB_PATTERN_OPTIMIZATION_BLACKLIST || []
 
   let totalHubCandidates = 0
   let totalRefsCreated = 0
@@ -67,7 +67,7 @@ function detectAndOptimizeDialogueMenuHubs(eventTrees, DEBUG_EVENT_NAME = '') {
     const eventName = tree.name
     if (!tree.rootNode) return
 
-    const isWhitelisted = WHITELIST.includes(eventName)
+    const isEnabled = !BLACKLIST.includes(eventName)
 
     // BFS traversal to detect hubs (with depth tracking)
     const potentialHubs = [] // { node, choiceSet, depth }
@@ -150,10 +150,10 @@ function detectAndOptimizeDialogueMenuHubs(eventTrees, DEBUG_EVENT_NAME = '') {
       }
     })
 
-    // Phase 2: For whitelisted events, create refs to canonical hub
+    // Phase 2: For non-blacklisted events, create refs to canonical hub
     let refsCreatedForEvent = 0
 
-    if (isWhitelisted) {
+    if (isEnabled) {
       hubsByChoiceSignature.forEach(({ nodesWithDepth }) => {
         if (nodesWithDepth.length < 2) return // Need at least 2 nodes to optimize
 
@@ -238,8 +238,8 @@ function detectAndOptimizeDialogueMenuHubs(eventTrees, DEBUG_EVENT_NAME = '') {
       }
     }
 
-    // Phase 1 Reporting: Only log events NOT in whitelist (for discovery)
-    if (!isWhitelisted) {
+    // Phase 1 Reporting: Only log blacklisted events (for discovery of potential false positives)
+    if (!isEnabled) {
       let candidatesForEvent = 0
       const candidateDetails = []
 
@@ -293,7 +293,7 @@ function detectAndOptimizeDialogueMenuHubs(eventTrees, DEBUG_EVENT_NAME = '') {
   // Summary logging
   if (totalRefsCreated > 0) {
     console.log(
-      `  ✅ Optimized ${eventsWithOptimization.length} whitelisted event(s), created ${totalRefsCreated} refs`
+      `  ✅ Optimized ${eventsWithOptimization.length} event(s), created ${totalRefsCreated} refs`
     )
     eventsWithOptimization.forEach(({ name, refsCreated, hubPatterns }) => {
       console.log(`    - "${name}": ${refsCreated} refs created (${hubPatterns} hub pattern(s))`)
@@ -302,7 +302,7 @@ function detectAndOptimizeDialogueMenuHubs(eventTrees, DEBUG_EVENT_NAME = '') {
 
   if (eventsWithCandidates.length > 0) {
     console.log(
-      `\n  📋 Discovered ${totalHubCandidates} hub candidate(s) in ${eventsWithCandidates.length} non-whitelisted event(s):`
+      `\n  📋 Discovered ${totalHubCandidates} hub candidate(s) in ${eventsWithCandidates.length} blacklisted event(s):`
     )
     eventsWithCandidates.forEach(({ name, candidates, details }) => {
       console.log(`    - "${name}": ${candidates} candidate(s)`)
