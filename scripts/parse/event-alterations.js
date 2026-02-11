@@ -510,4 +510,19 @@ module.exports = [
       },
     ],
   },
+  {
+    name: 'Obsidian Garden Finish',
+    alterations: [
+      {
+        find: { effect: 'NEXTAREA' },
+        modifyNode: {
+          removeRef: true,
+          removeNumContinues: true,
+          removeText: true,
+          removeChildren: true,
+          type: 'end',
+        },
+      },
+    ],
+  },
 ]

@@ -35,11 +35,6 @@ const DIALOGUE_MENU_EVENTS = {
     hubChoiceMatchThreshold: 30, // choices: 1/3
     passWhenOnlyExitPatternsAvailable: true,
   },
-  'Mysterious Crates': {
-    menuHubPattern: 'You open the crates with a hefty blow of your weapon.',
-    menuExitPatterns: ['Open the other crates', 'Leave'],
-    hubChoiceMatchThreshold: 60, // choices: 2/3
-  },
   'Rathael the Slain Death': {
     menuHubPattern: 'A chance to tangle with one of these',
     menuExitPatterns: ['Fight: Confront the Seraph'],
@@ -206,6 +201,14 @@ const OPTIMIZATION_PASS_CONFIG = {
     'Marrow Halls',
     'Molekin Burrow',
     'Mudfang Confrontation',
+    // 'Mysterious Crates', -- FALSE POSITIVE MATCH! May be solvable when we go over to blacklist, by only blacklisting certain hub candidates?
+    'Mystical Glade',
+    'Noxlight Swamp Finish',
+    'Obsidian Garden Finish',
+    'Painted Landscape',
+    'Possessed Priestess',
+    'Potbellied Imp',
+    'Rich Buffet',
     'Rotting Residence',
     'Survey the Field',
     'Statue of Ilthar II Death',
@@ -246,7 +249,7 @@ const OPTIMIZATION_PASS_CONFIG = {
     'Vesparin Vault',
     'Warfront Survivor',
   ],
-  COMPLEX_COUSIN_REF_BLACKLIST: ['Suspended Cage', 'The Priestess'],
+  COMPLEX_COUSIN_REF_BLACKLIST: ['Mysterious Crates', 'Suspended Cage', 'The Priestess'],
 
   // Validate refs (detect refs pointing to missing nodes) and log warnings.
   CHECK_INVALID_REFS_ENABLED: true,
