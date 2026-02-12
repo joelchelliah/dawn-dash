@@ -39,4 +39,4 @@ export const ACTUALLY_EVENT_ONLY_TALENTS = [
   'Watched', // Shrine of Misery
 ]
 
-export const REMOVED_TALENTS = ['Prodigy', 'Lucky', "Alcars' Rage", 'Sworn to Vengeance']
+export const UNAVAILABLE_TALENTS = ['Prodigy', 'Lucky', "Alcars' Rage", 'Sworn to Vengeance']

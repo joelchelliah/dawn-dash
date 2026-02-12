@@ -17,6 +17,7 @@ import {
   SunforgeImageUrl,
   WarriorImageUrl,
   RuneOfPersistenceImageUrl,
+  NoSoupImageUrl,
 } from '@/shared/utils/imageUrls'
 
 import { allTiers } from '@/codex/hooks/useSearchFilters/useTierFilters'
@@ -169,6 +170,13 @@ const TalentSearchPanel = ({ useSearchFilters, useTalentData }: TalentSearchPane
           <span className={cx('filter-label')}>
             {renderRequirementFilterLabelIcon(RuneOfPersistenceImageUrl, alt, true)}
             Card
+          </span>
+        )
+      case RequirementFilterOption.Unavailable:
+        return (
+          <span className={cx('filter-label')}>
+            {renderRequirementFilterLabelIcon(NoSoupImageUrl, alt, true)}
+            Unavailable
           </span>
         )
       default:

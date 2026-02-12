@@ -72,6 +72,7 @@ const TalentResultsPanel = ({ useSearchFilters }: TalentResultsPanelProps) => {
       ...(matchingTalentTree.classNodes ?? []),
       ...(matchingTalentTree.eventNodes.flatMap((node) => node.children) ?? []),
       ...(matchingTalentTree.offerNode.children ?? []),
+      ...(matchingTalentTree.unavailableNode.children ?? []),
     ])
   }, [matchingTalentTree])
 

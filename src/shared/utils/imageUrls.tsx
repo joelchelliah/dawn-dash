@@ -2,25 +2,26 @@ const blightbaneImagesUrl = 'https://blightbane.io/images'
 
 // Cards
 export const AbracadabraImageUrl = `${blightbaneImagesUrl}/icons/cards_metamorphosis_2_48.webp`
+export const CoinsOfPassingImageUrl = `${blightbaneImagesUrl}/icons/siegeOfshadows_abilities_2-quest_coinsOfPassing.webp`
+export const CollectorImageUrl = `${blightbaneImagesUrl}/icons/cardart_2_4.webp`
 export const DanceOfBlightImageUrl = `${blightbaneImagesUrl}/icons/Dance%20of%20Blight_eclypse.webp`
 export const DantelionImageUrl = `${blightbaneImagesUrl}/monsters/dc_dantelion.webp`
-export const DashImageUrl = `${blightbaneImagesUrl}/icons/cardart_4_53.webp`
-export const EleganceImageUrl = `${blightbaneImagesUrl}/icons/elegance.webp`
-export const InfernalContractUrl = `${blightbaneImagesUrl}/icons/cardart_3_10.webp`
-export const RushedForgeryImageUrl = `${blightbaneImagesUrl}/icons/Forgery_eclypse-miniset.webp`
-export const CoinsOfPassingImageUrl = `${blightbaneImagesUrl}/icons/siegeOfshadows_abilities_2-quest_coinsOfPassing.webp`
-export const SacredTomeImageUrl = `${blightbaneImagesUrl}/icons/Masks%20of%20Misery_57.webp`
-export const TaurusRageImageUrl = `${blightbaneImagesUrl}/icons/taurus.webp`
 export const DarkRevenanceImageUrl = `${blightbaneImagesUrl}/icons/rise-from-the-grave.webp`
-export const RuneOfPersistenceImageUrl = `${blightbaneImagesUrl}/icons/Death_of_Divinity_29.webp`
-export const HealingPotionImageUrl = `${blightbaneImagesUrl}/icons/cardart_3_6.webp`
-export const SurgeOfDexterityImageUrl = `${blightbaneImagesUrl}/icons/cardart_4_55.webp`
-export const WatchedImageUrl = `${blightbaneImagesUrl}/icons/cardart_3_24.webp`
+export const DashImageUrl = `${blightbaneImagesUrl}/icons/cardart_4_53.webp`
 export const DiamondMindImageUrl = `${blightbaneImagesUrl}/icons/card_unlocks_16.webp`
-export const CollectorImageUrl = `${blightbaneImagesUrl}/icons/cardart_2_4.webp`
+export const EleganceImageUrl = `${blightbaneImagesUrl}/icons/elegance.webp`
 export const ForgeryImageUrl = `${blightbaneImagesUrl}/icons/cardart_3_59.webp`
-export const MapOfHuesImageUrl = `${blightbaneImagesUrl}/icons/map%20of%20hues_eclypse.webp`
 export const HauntingNightmaresImageUrl = `${blightbaneImagesUrl}/icons/Haunting%20nightmares_infernal.webp`
+export const HealingPotionImageUrl = `${blightbaneImagesUrl}/icons/cardart_3_6.webp`
+export const InfernalContractUrl = `${blightbaneImagesUrl}/icons/cardart_3_10.webp`
+export const MapOfHuesImageUrl = `${blightbaneImagesUrl}/icons/map%20of%20hues_eclypse.webp`
+export const NoSoupImageUrl = `${blightbaneImagesUrl}/icons/no%20soup_eclypse.webp`
+export const RuneOfPersistenceImageUrl = `${blightbaneImagesUrl}/icons/Death_of_Divinity_29.webp`
+export const RushedForgeryImageUrl = `${blightbaneImagesUrl}/icons/Forgery_eclypse-miniset.webp`
+export const SacredTomeImageUrl = `${blightbaneImagesUrl}/icons/Masks%20of%20Misery_57.webp`
+export const SurgeOfDexterityImageUrl = `${blightbaneImagesUrl}/icons/cardart_4_55.webp`
+export const TaurusRageImageUrl = `${blightbaneImagesUrl}/icons/taurus.webp`
+export const WatchedImageUrl = `${blightbaneImagesUrl}/icons/cardart_3_24.webp`
 
 // Classes
 export const ArcanistImageUrl = `${blightbaneImagesUrl}/classes/Arcanist_I_M.webp`

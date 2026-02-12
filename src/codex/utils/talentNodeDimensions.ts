@@ -38,7 +38,8 @@ export const isRequirementNode = (node: HierarchicalTalentTreeNode): boolean => 
     node.type === TalentTreeNodeType.ENERGY_REQUIREMENT ||
     node.type === TalentTreeNodeType.EVENT_REQUIREMENT ||
     node.type === TalentTreeNodeType.CARD_REQUIREMENT ||
-    node.type === TalentTreeNodeType.OFFER_REQUIREMENT
+    node.type === TalentTreeNodeType.OFFER_REQUIREMENT ||
+    node.type === TalentTreeNodeType.UNAVAILABLE_REQUIREMENT
   )
 }
 

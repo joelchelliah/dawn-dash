@@ -1,7 +1,6 @@
 import { isNotNullOrUndefined } from '@/shared/utils/object'
 
 import {
-  REMOVED_TALENTS,
   REQUIREMENT_CLASS_TO_FILTER_OPTIONS_MAP,
   REQUIREMENT_ENERGY_TO_FILTER_OPTIONS_MAP,
 } from '../constants/talentsMappingValues'
@@ -16,7 +15,6 @@ export const removeDuplicateAndNonExistingTalents = (talents: TalentData[]): Tal
 
   return talents.filter((talent) => {
     if (seen.has(talent.name)) return false
-    if (REMOVED_TALENTS.includes(talent.name)) return false
 
     seen.add(talent.name)
     return true
@@ -135,11 +133,12 @@ export const getClassOrEnergyRequirements = (
     classOrEnergyRequirements = eventRequirements
   }
 
-  // If the parent is a card or offer requirement node,
+  // If the parent is a card or offer or unavailable requirement node,
   // do not show any requirements
   else if (
     parentRequirements.includes(RequirementFilterOption.ObtainedFromCards) ||
-    parentRequirements.includes(RequirementFilterOption.Offer)
+    parentRequirements.includes(RequirementFilterOption.Offer) ||
+    parentRequirements.includes(RequirementFilterOption.Unavailable)
   ) {
     classOrEnergyRequirements = []
   }

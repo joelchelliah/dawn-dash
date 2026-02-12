@@ -12,6 +12,7 @@ import {
 import { RequirementFilterOption } from '../types/filters'
 import {
   ACTUALLY_EVENT_ONLY_TALENTS,
+  UNAVAILABLE_TALENTS,
   REQUIREMENT_CLASS_TO_FILTER_OPTIONS_MAP,
   REQUIREMENT_ENERGY_TO_FILTER_OPTIONS_MAP,
 } from '../constants/talentsMappingValues'
@@ -206,6 +207,13 @@ export const mapTalentsDataToTalentTree = (unparsedTalents: TalentData[]): Talen
     children: createTalentNodes(isOffer, RequirementFilterOption.Offer),
   }
 
+  const rootUnavailableTalentNode: TalentTreeRequirementNode = {
+    type: TalentTreeNodeType.UNAVAILABLE_REQUIREMENT,
+    name: 'Unavailable talents',
+    requirementFilterOptions: [RequirementFilterOption.Unavailable],
+    children: createTalentNodes(isUnavailableTalent, RequirementFilterOption.Unavailable),
+  }
+
   return {
     noReqNode: rootNoRequirementsNode,
     classNodes: rootClassRequirementNodes,
@@ -213,6 +221,7 @@ export const mapTalentsDataToTalentTree = (unparsedTalents: TalentData[]): Talen
     eventNodes: rootEventRequirementNodes,
     cardNode: rootCardRequirementNode,
     offerNode: rootOfferNode,
+    unavailableNode: rootUnavailableTalentNode,
   }
 }
 
@@ -223,6 +232,8 @@ const isOffer = (talent: TalentData) => talent.expansion === 0 && talent.name.st
 const hasCardRequirement = (talent: TalentData) =>
   talent.requires_cards.length > 0 && talent.requires_talents.length === 0
 
+const isUnavailableTalent = (talent: TalentData) => UNAVAILABLE_TALENTS.includes(talent.name)
+
 const isValidEventTalent = (eventName: string) => (talent: TalentData) =>
   talent.events.includes(eventName)
 
@@ -230,7 +241,8 @@ const isRootTalent = (talent: TalentData) =>
   talent.requires_talents.length === 0 &&
   talent.requires_classes.length === 0 &&
   talent.requires_energy.length === 0 &&
-  talent.expansion !== 0
+  talent.expansion !== 0 &&
+  !isUnavailableTalent(talent)
 
 const hasClass = (className: string) => (talent: TalentData) =>
   talent.requires_classes.includes(className) && talent.requires_talents.length === 0

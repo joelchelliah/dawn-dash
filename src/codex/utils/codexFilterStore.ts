@@ -17,7 +17,7 @@ export const getCachedCardCodexSearchFilters = (): CardCodexSearchFilterCache | 
   return getFromCache<CardCodexSearchFilterCache>(CARDS_CACHE_KEY, null).data
 }
 
-const TALENTS_CACHE_VERSION = 'v2'
+const TALENTS_CACHE_VERSION = 'v3'
 const TALENTS_CACHE_KEY = `codex_talents_filters_${TALENTS_CACHE_VERSION}`
 
 export const cacheTalentCodexSearchFilters = (filters: TalentCodexSearchFilterCache) => {

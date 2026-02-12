@@ -22,6 +22,7 @@ const defaultFilters = {
   [RequirementFilterOption.ObtainedFromEvents]: true,
   [RequirementFilterOption.Offer]: true,
   [RequirementFilterOption.ObtainedFromCards]: true,
+  [RequirementFilterOption.Unavailable]: true,
   [SharedFilterOption.All]: true,
   [SharedFilterOption.None]: false,
 }
@@ -41,6 +42,7 @@ const valueToStringMap = {
   [RequirementFilterOption.ObtainedFromEvents]: 'Obtained from events',
   [RequirementFilterOption.Offer]: 'Offer',
   [RequirementFilterOption.ObtainedFromCards]: 'Obtained from cards',
+  [RequirementFilterOption.Unavailable]: 'Unavailable talents',
   [SharedFilterOption.All]: SharedFilterOption.All,
   [SharedFilterOption.None]: SharedFilterOption.None,
 }
@@ -60,6 +62,7 @@ const indexMap = {
   [RequirementFilterOption.ObtainedFromEvents]: 11,
   [RequirementFilterOption.Offer]: 12,
   [RequirementFilterOption.ObtainedFromCards]: 13,
+  [RequirementFilterOption.Unavailable]: 14,
 }
 
 export const allRequirements: string[] = Requirement.getAll()

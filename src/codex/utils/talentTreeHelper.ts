@@ -26,6 +26,7 @@ import {
   ForgeryImageUrl,
   SurgeOfDexterityImageUrl,
   DiamondMindImageUrl,
+  NoSoupImageUrl,
 } from '@/shared/utils/imageUrls'
 import { CharacterClass } from '@/shared/types/characterClass'
 import { ClassColorVariant, darken, getClassColor } from '@/shared/utils/classColors'
@@ -48,6 +49,7 @@ const colorHoly = getClassColor(CharacterClass.Sunforge, ClassColorVariant.Defau
 const colorOffers = darken(getClassColor(CharacterClass.Warrior, ClassColorVariant.Default), 10)
 const colorEvents = darken(getClassColor(CharacterClass.Seeker, ClassColorVariant.Default), 10)
 const colorCards = darken(getClassColor(CharacterClass.Sunforge, ClassColorVariant.Light), 10)
+const colorUnavailable = darken(getClassColor(CharacterClass.Hunter, ClassColorVariant.Default), 5)
 
 // Returns useful props for rendering a talent requirement node
 export const getTalentRequirementIconProps = (
@@ -114,6 +116,8 @@ export const getTalentRequirementIconProps = (
         color: colorCards,
         label: 'Obtained from cards',
       }
+    case 'Unavailable talents':
+      return { count: 1, url: NoSoupImageUrl, color: colorUnavailable, label: 'Unavailable' }
     case 'No Requirements':
       return { count: 1, url: NeutralImageUrl, color: colorGrey, label: 'No requirements' }
     case 'Sacred Tome':
@@ -175,6 +179,9 @@ export const getLinkColor = (
         return tinyDarken(colorOffers)
       case 'Events':
         return tinyDarken(colorEvents)
+      case 'Unavailable':
+      case 'Unavailable talents':
+        return tinyDarken(colorUnavailable)
       default:
         return colorGrey
     }

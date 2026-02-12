@@ -40,6 +40,7 @@ export const buildHierarchicalTreeFromTalentTree = (
       ...(eventNodes.length > 0 ? [eventNodesRoot] : []),
       buildHierarchicalTreeNodeFromRequirementNode(talentTree.cardNode),
       buildHierarchicalTreeNodeFromRequirementNode(talentTree.offerNode),
+      buildHierarchicalTreeNodeFromRequirementNode(talentTree.unavailableNode),
     ].filter(isNotNullOrUndefined),
     classOrEnergyRequirements: [],
     talentRequirements: [],

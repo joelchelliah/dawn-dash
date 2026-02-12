@@ -162,7 +162,8 @@ function renderRequirementIcons(
     data.type === TalentTreeNodeType.CLASS_REQUIREMENT ||
     data.type === TalentTreeNodeType.OFFER_REQUIREMENT ||
     data.type === TalentTreeNodeType.EVENT_REQUIREMENT ||
-    data.type === TalentTreeNodeType.CARD_REQUIREMENT
+    data.type === TalentTreeNodeType.CARD_REQUIREMENT ||
+    data.type === TalentTreeNodeType.UNAVAILABLE_REQUIREMENT
 
   const iconSize = showBiggerIcons
     ? REQUIREMENT_NODE.ICON_SIZE.LARGE
@@ -229,7 +230,8 @@ export function renderRequirementNode(
     data.type === TalentTreeNodeType.CLASS_REQUIREMENT ||
     data.type === TalentTreeNodeType.OFFER_REQUIREMENT ||
     data.type === TalentTreeNodeType.EVENT_REQUIREMENT ||
-    data.type === TalentTreeNodeType.CARD_REQUIREMENT
+    data.type === TalentTreeNodeType.CARD_REQUIREMENT ||
+    data.type === TalentTreeNodeType.UNAVAILABLE_REQUIREMENT
 
   let circleRadius = 0
   if (showBiggerIcons) {
