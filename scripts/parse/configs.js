@@ -176,20 +176,7 @@ const OPTIMIZATION_PASS_CONFIG = {
 
 const CONFIG = {
   MAX_DEPTH: 100, // Limit depth for performance
-
-  // SIBLING-FIRST EXPLORATION:
-  // At shallow depths, we explore all siblings at each level before going deeper.
-  // This ensures all major branches are explored even if one branch is very complex.
-  // How it works: At each shallow level, we save story states for all choices,
-  // then recursively explore each one. This allows all siblings to START their
-  // exploration before the node limit kicks in.
-  SIBLING_FIRST_DEPTH: 8, // Explore each sibling all the way until we reach this depth
-  SIBLING_FIRST_NODE_BUDGET: 1000000, // Max nodes to create during sibling-first phase
-
-  // DEPTH-FIRST EXPLORATION:
-  // After sibling-first phase, we switch to standard depth-first exploration.
-  // Node counter is RESET when first entering depth-first phase for this event.
-  DEPTH_FIRST_NODE_BUDGET: 500000, // Max nodes to create during depth-first phase
+  NODE_BUDGET: 30000, // Max nodes to create per event
 }
 
 module.exports = {

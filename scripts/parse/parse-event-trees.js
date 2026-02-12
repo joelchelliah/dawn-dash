@@ -49,7 +49,6 @@ const DEBUG_EVENT_NAME = ''
 
 let nodeIdCounter = 0
 let totalNodesInCurrentEvent = 0
-let hasResetForDepthFirst = false // Track if we've reset the counter for this event
 let pathConvergenceStates = new Map() // Track path convergence for early dedup (text + choices)
 let hubChoiceSnapshots = new Map() // Track hub choice snapshots: eventName -> { hubNodeId, choiceLabels: Set, threshold }
 let dialogueMenuHubIdsByEventName = new Map() // eventName -> hubNodeId (for debugging post-processing)
@@ -357,7 +356,6 @@ function parseInkStory(inkJsonString, eventName) {
     // Reset counters for each event
     nodeIdCounter = 0
     totalNodesInCurrentEvent = 0
-    hasResetForDepthFirst = false
     pathConvergenceStates = new Map()
     hubChoiceSnapshots = new Map()
 
@@ -444,11 +442,9 @@ function parseInkStory(inkJsonString, eventName) {
       return null
     }
 
-    // Check if we hit the depth-first node limit
-    // Note: This check happens after the tree is built, so it only detects if we hit
-    // the limit during depth-first phase (counter was reset at transition)
-    if (totalNodesInCurrentEvent >= CONFIG.DEPTH_FIRST_NODE_BUDGET) {
-      console.warn(`  ⚠️  Event "${eventName}" hit depth-first node limit - tree may be incomplete`)
+    // Check if we hit the node limit
+    if (totalNodesInCurrentEvent >= CONFIG.NODE_BUDGET) {
+      console.warn(`  ⚠️  Event "${eventName}" hit node limit - tree may be incomplete`)
     }
 
     return rootNode
@@ -460,10 +456,6 @@ function parseInkStory(inkJsonString, eventName) {
 
 /**
  * Build a hierarchical tree by recursively exploring all story paths
- *
- * EXPLORATION STRATEGY:
- * - Sibling-first (depths < SIBLING_FIRST_DEPTH): All siblings explored before going deep
- * - Depth-first (depths >= SIBLING_FIRST_DEPTH): Standard recursive exploration
  *
  * DEDUPLICATION DURING BUILDING:
  * 1. Text-based loop detection: Same dialogue text in ancestor chain
@@ -488,13 +480,6 @@ function buildTreeFromStory(
   functionCalls = new Map(),
   knots = new Map()
 ) {
-  // RESET node counter when transitioning from sibling-first to depth-first
-  // This happens exactly ONCE when we first reach SIBLING_FIRST_DEPTH
-  if (depth === CONFIG.SIBLING_FIRST_DEPTH && !hasResetForDepthFirst) {
-    hasResetForDepthFirst = true
-    totalNodesInCurrentEvent = 0
-  }
-
   // Prevent infinite loops and excessive depth (check this early before collecting text)
   if (depth > CONFIG.MAX_DEPTH) {
     console.warn(
@@ -613,37 +598,15 @@ function buildTreeFromStory(
 
   // Check node limit to prevent infinite exploration
   // We check this AFTER collecting text/choices so we can log useful info
-  const inSiblingFirstMode = depth < CONFIG.SIBLING_FIRST_DEPTH
-  const inDepthFirstMode = depth >= CONFIG.SIBLING_FIRST_DEPTH
-
-  if (inSiblingFirstMode) {
-    // During sibling-first phase: use separate budget
-    if (totalNodesInCurrentEvent >= CONFIG.SIBLING_FIRST_NODE_BUDGET) {
-      const preview = cleanedText ? cleanedText.substring(0, 50) : '(no text)'
-      const choiceCount = choices.length
-      console.warn(
-        `  ⚠️  Event "${eventName}" reached sibling-first budget (${CONFIG.SIBLING_FIRST_NODE_BUDGET}) at depth ${depth}`
-      )
-      if (eventName === DEBUG_EVENT_NAME) {
-        console.warn(
-          `      Text: "${preview}${cleanedText && cleanedText.length > 50 ? '...' : ''}"`
-        )
-        console.warn(`      Choices: ${choiceCount}`)
-      }
-      return null
-    }
-  } else if (inDepthFirstMode) {
-    // During depth-first phase: use depth-first limit
-    if (totalNodesInCurrentEvent >= CONFIG.DEPTH_FIRST_NODE_BUDGET) {
-      const preview = cleanedText ? cleanedText.substring(0, 50) : '(no text)'
-      const choiceCount = choices.length
-      console.warn(
-        `  ⚠️  Event "${eventName}" reached depth-first node limit (${CONFIG.DEPTH_FIRST_NODE_BUDGET}) at depth ${depth}`
-      )
-      console.warn(`      Text: "${preview}${cleanedText && cleanedText.length > 50 ? '...' : ''}"`)
-      console.warn(`      Choices: ${choiceCount}`)
-      return null
-    }
+  if (totalNodesInCurrentEvent >= CONFIG.NODE_BUDGET) {
+    const preview = cleanedText ? cleanedText.substring(0, 50) : '(no text)'
+    const choiceCount = choices.length
+    console.warn(
+      `  ⚠️  Event "${eventName}" reached node limit (${CONFIG.NODE_BUDGET}) at depth ${depth}`
+    )
+    console.warn(`      Text: "${preview}${cleanedText && cleanedText.length > 50 ? '...' : ''}"`)
+    console.warn(`      Choices: ${choiceCount}`)
+    return null
   }
 
   // Clone tracking maps for this branch to maintain separate state per path
@@ -888,12 +851,6 @@ function buildTreeFromStory(
 
   // Build children by exploring each choice
   const children = []
-
-  // HYBRID SIBLING-FIRST/DEPTH-FIRST EXPLORATION
-  // For shallow depths (< SIBLING_FIRST_DEPTH), we use sibling-first exploration:
-  // all siblings at this level are explored before going deeper into any single branch.
-  // This ensures all major branches get explored even if one branch is very complex.
-  const useSiblingFirst = depth < CONFIG.SIBLING_FIRST_DEPTH
 
   // Helper function to check if a choice should be built normally (matches menuExitPatterns)
   // or should become a ref node (doesn't match menuExitPatterns)
@@ -1206,84 +1163,32 @@ function buildTreeFromStory(
     })
   }
 
-  if (useSiblingFirst) {
-    // SIBLING-FIRST: Two-pass approach
-    // Pass 1: Save story states for all choices at this level (doesn't recurse yet)
-    const childData = []
+  for (let i = 0; i < choices.length; i++) {
+    const choice = choices[i]
+    const { requirements, cleanedText: choiceText } = extractChoiceMetadata(choice.text)
+    const savedState = story.state.toJson()
 
-    for (let i = 0; i < choices.length; i++) {
-      const choice = choices[i]
-      const { requirements, cleanedText: choiceText } = extractChoiceMetadata(choice.text)
-      const savedState = story.state.toJson()
+    try {
+      story.ChooseChoiceIndex(i)
+      const stateAfterChoice = story.state.toJson()
 
-      try {
-        story.ChooseChoiceIndex(i)
-
-        // Save the story state after making this choice
-        const childState = story.state.toJson()
-
-        childData.push({
-          choiceIndex: i,
-          choiceText,
-          requirements,
-          storyState: childState,
-          pathHash: `${currentStateHash}_c${i}`,
-        })
-      } catch (error) {
-        console.warn(`    ⚠️  Error exploring choice in "${eventName}": ${error.message}`)
+      const childResult = buildChildNodeWhileHandlingDialogueHubDetection(
+        story,
+        stateAfterChoice,
+        choiceText,
+        requirements,
+        `${currentStateHash}_c${i}`,
+        true
+      )
+      const orderedChild = createOrderedChild(childResult, choiceText, requirements)
+      if (orderedChild) {
+        children.push(orderedChild)
       }
-
-      story.state.LoadJson(savedState)
+    } catch (error) {
+      console.warn(`    ⚠️  Error exploring choice in "${eventName}": ${error.message}`)
     }
 
-    // Pass 2: Now recursively explore each child (they explore deep, but all get a chance to start)
-    for (const { choiceText, requirements, storyState, pathHash } of childData) {
-      try {
-        const childResult = buildChildNodeWhileHandlingDialogueHubDetection(
-          story,
-          storyState,
-          choiceText,
-          requirements,
-          pathHash,
-          true
-        )
-        const orderedChild = createOrderedChild(childResult, choiceText, requirements)
-        if (orderedChild) {
-          children.push(orderedChild)
-        }
-      } catch (error) {
-        console.warn(`    ⚠️  Error in sibling-first child exploration: ${error.message}`)
-      }
-    }
-  } else {
-    // DEPTH-FIRST: Standard recursive exploration (current behavior)
-    for (let i = 0; i < choices.length; i++) {
-      const choice = choices[i]
-      const { requirements, cleanedText: choiceText } = extractChoiceMetadata(choice.text)
-      const savedState = story.state.toJson()
-
-      try {
-        story.ChooseChoiceIndex(i)
-        const stateAfterChoice = story.state.toJson()
-
-        const childResult = buildChildNodeWhileHandlingDialogueHubDetection(
-          story,
-          stateAfterChoice,
-          choiceText,
-          requirements,
-          `${currentStateHash}_c${i}`,
-          true
-        )
-        const orderedChild = createOrderedChild(childResult, choiceText, requirements)
-        if (orderedChild) {
-          children.push(orderedChild)
-        }
-      } catch (error) {
-        console.warn(`    ⚠️  Error exploring choice in "${eventName}": ${error.message}`)
-      }
-
-      story.state.LoadJson(savedState)
-    }
+    story.state.LoadJson(savedState)
   }
 
   // POST-EFFECT DIALOGUE SEPARATION & POSTCOMBAT/AFTERCOMBAT SEPARATION
