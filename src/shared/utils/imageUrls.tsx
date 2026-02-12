@@ -16,6 +16,7 @@ export const RuneOfPersistenceImageUrl = `${blightbaneImagesUrl}/icons/Death_of_
 export const HealingPotionImageUrl = `${blightbaneImagesUrl}/icons/cardart_3_6.webp`
 export const SurgeOfDexterityImageUrl = `${blightbaneImagesUrl}/icons/cardart_4_55.webp`
 export const WatchedImageUrl = `${blightbaneImagesUrl}/icons/cardart_3_24.webp`
+export const DiamondMindImageUrl = `${blightbaneImagesUrl}/icons/card_unlocks_16.webp`
 export const CollectorImageUrl = `${blightbaneImagesUrl}/icons/cardart_2_4.webp`
 export const ForgeryImageUrl = `${blightbaneImagesUrl}/icons/cardart_3_59.webp`
 export const MapOfHuesImageUrl = `${blightbaneImagesUrl}/icons/map%20of%20hues_eclypse.webp`

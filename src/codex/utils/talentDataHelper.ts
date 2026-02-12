@@ -111,9 +111,13 @@ export const getClassOrEnergyRequirements = (
   parentRequirements: string[],
   devotionBlightbaneId: number | null
 ): string[] => {
+  const requirementsFromMatrix = talent.event_requirement_matrix?.[0] ?? []
   const eventRequirements =
-    talent.event_requirement_matrix && talent.event_requirement_matrix.length > 0
-      ? talent.event_requirement_matrix[0]
+    requirementsFromMatrix.length > 0 &&
+    // Note: if it's a number then it's a talent requirement! Don't want those here.
+    // E.g. Abyssal Resistance & Legion Insight require Diamond Mind.
+    requirementsFromMatrix.every((requirement) => isNaN(Number(requirement)))
+      ? requirementsFromMatrix
       : []
 
   const defaultClassOrEnergyRequirements = Array.from(

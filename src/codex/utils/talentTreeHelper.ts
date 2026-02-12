@@ -25,6 +25,7 @@ import {
   CollectorImageUrl,
   ForgeryImageUrl,
   SurgeOfDexterityImageUrl,
+  DiamondMindImageUrl,
 } from '@/shared/utils/imageUrls'
 import { CharacterClass } from '@/shared/types/characterClass'
 import { ClassColorVariant, darken, getClassColor } from '@/shared/utils/classColors'
@@ -127,6 +128,8 @@ export const getTalentRequirementIconProps = (
       return { count: 1, url: SurgeOfDexterityImageUrl, color: colorCards, label }
     case 'Watched':
       return { count: 1, url: WatchedImageUrl, color: colorCards, label }
+    case 'Diamond Mind':
+      return { count: 1, url: DiamondMindImageUrl, color: colorCards, label }
     case 'Collector':
       return { count: 1, url: CollectorImageUrl, color: colorCards, label }
     case 'Forgery':

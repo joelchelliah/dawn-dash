@@ -63,13 +63,33 @@ export const mapTalentsDataToTalentTree = (unparsedTalents: TalentData[]): Talen
       preProcessedTalents.find(({ name }) => name === 'Devotion')?.blightbane_id ?? null
     )
 
-    // Don't include talent requirements if talent is obtained from events.
-    // Exception: Blessing of Serem-Pek.
+    // Don't include talent requirements if talent is obtained from events,
+    // unless the talent is one of these exceptions! These are all ONLY obtainable from events,
+    // so it makes sense to show their required talents as well.
+    const skipRequiresTalentsExceptions = [
+      'Blessing of Serem-Pek', // Watched
+      'Abyssal Resistance', // Diamond Mind
+      'Legion Insight', // Diamond Mind
+    ]
+
+    const talentRequirementsFromEventMatrix =
+      talent.event_requirement_matrix?.[0]?.filter((requirement) => !isNaN(Number(requirement))) ??
+      []
+    const hasTalentRequirementsFromEventMatrix = talentRequirementsFromEventMatrix.length > 0
+
+    if (hasTalentRequirementsFromEventMatrix && talent.requires_talents.length > 0) {
+      console.warn(
+        `💀  Talent ${talent.name} has both inherent talent requirements and event requirements! We don't support this yet!`
+      )
+    }
+    const requiresTalents = hasTalentRequirementsFromEventMatrix
+      ? talentRequirementsFromEventMatrix.map((id) => Number(id))
+      : talent.requires_talents
     const skipRequiresTalents =
-      parentName === 'ObtainedFromEvents' && talent.name !== 'Blessing of Serem-Pek'
+      parentName === 'ObtainedFromEvents' && !skipRequiresTalentsExceptions.includes(talent.name)
     const talentRequirements = skipRequiresTalents
       ? []
-      : (talent.requires_talents
+      : (requiresTalents
           .map((id) => idToPreProcessedTalent.get(id)?.name)
           .filter((name) => isNotNullOrUndefined(name) && name !== parentName) as string[])
 
@@ -97,7 +117,7 @@ export const mapTalentsDataToTalentTree = (unparsedTalents: TalentData[]): Talen
     }
     children.forEach(collectDescendantNames)
 
-    return {
+    const talentNode = {
       type: TalentTreeNodeType.TALENT,
       name: talent.name,
       description: talent.description,
@@ -111,6 +131,8 @@ export const mapTalentsDataToTalentTree = (unparsedTalents: TalentData[]): Talen
       talentRequirements,
       otherRequirements,
     }
+
+    return talentNode as TalentTreeTalentNode
   }
 
   const createTalentNodes = (
