@@ -54,15 +54,20 @@ const DIALOGUE_MENU_EVENTS = {
 // Skip those nodes along with their entire subtree.
 const DEFAULT_NODE_BLACKLIST = ['A Familiar Face']
 
+const RANDOM_KEYWORD = '«random»'
+
 // Toggle optimization/debug passes without commenting code.
 // Keep defaults as "true" to preserve current behavior.
 const OPTIMIZATION_PASS_CONFIG = {
   // === OPTIMIZATION PASSES DURING TREE BUILDING ===
 
   // Text-based loop detection:
-  // - If dialogue text repeats in the ancestor chain, create a ref immediately.
-  // - Prevents infinite dialogue loops.
+  // - If dialogue text repeats on the current root-to-leaf path, create a ref immediately.
+  // - Prevents infinite dialogue loops (e.g. The Ferryman).
+  // - Cross-branch dedup is intentionally NOT done here as it messes up refs!
   TEXT_LOOP_DETECTION_ENABLED: true,
+  TEXT_LOOP_DETECTION_MIN_LENGTH: 20,
+  TEXT_LOOP_DETECTION_IGNORE_PATTERNS: [RANDOM_KEYWORD],
 
   // Choice + story-path loop detection:
   // - Hashes: (choice labels + Ink story path).
@@ -113,10 +118,9 @@ const OPTIMIZATION_PASS_CONFIG = {
   // This also normalizes rendering and helps later passes reason about refs (e.g. deduplication).
   SEPARATE_CHOICES_FROM_EFFECTS_ENABLED: true,
 
-  // For threshold-based dialogue menu events, promote the shallowest hub copy to be canonical.
   // This fixes the timing issue where separateChoicesFromEffects() creates outcome nodes,
   // making the shallowest hub copy available. Runs right after SEPARATE_CHOICES_FROM_EFFECTS.
-  // (see `promoteShallowDialogueMenuHub()` for details).
+  // Currently only needed for Frozen Heart!
   PROMOTE_SHALLOW_DIALOGUE_MENU_HUB_ENABLED: true,
 
   // Automatically detect dialogue menu hub patterns and create refs in post-processing.
@@ -192,4 +196,5 @@ module.exports = {
   DEFAULT_NODE_BLACKLIST,
   OPTIMIZATION_PASS_CONFIG,
   CONFIG,
+  RANDOM_KEYWORD,
 }

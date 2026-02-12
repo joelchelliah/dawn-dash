@@ -13,7 +13,7 @@
  * - Text is cleaned up after all tree transformations are complete
  */
 
-const RANDOM_KEYWORD = '«random»'
+const { RANDOM_KEYWORD } = require('./configs.js')
 
 // ============================================================================
 // 1. RANDOM VARIABLE DETECTION

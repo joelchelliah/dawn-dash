@@ -20,7 +20,12 @@ console.warn = (...args) => {
 const EVENTS_FILE = path.join(__dirname, '../data/events.json')
 const OUTPUT_FILE = path.join(__dirname, '../../src/codex/data/event-trees.json')
 const EVENT_ALTERATIONS = require('./event-alterations.js')
-const { DEFAULT_NODE_BLACKLIST, OPTIMIZATION_PASS_CONFIG, CONFIG } = require('./configs.js')
+const {
+  DEFAULT_NODE_BLACKLIST,
+  OPTIMIZATION_PASS_CONFIG,
+  CONFIG,
+  RANDOM_KEYWORD,
+} = require('./configs.js')
 const { applyEventAlterations } = require('./apply-event-alterations.js')
 const { validateEventTreesChanges } = require('./parse-validation.js')
 const {
@@ -36,7 +41,6 @@ const {
   cleanUpRandomValues,
   normalizeAddKeywordRandomChoiceLabels,
   normalizeKeywordTags,
-  RANDOM_KEYWORD,
 } = require('./random-support.js')
 
 // Enables detailed logging for a specific event, when provided.
@@ -478,7 +482,7 @@ function buildTreeFromStory(
   depth = 0,
   pathHash = '',
   ancestorTexts = [],
-  textToNodeId = new Map(),
+  pathTextToNodeId = new Map(),
   randomVars = new Map(),
   functionDefinitions = new Map(),
   functionCalls = new Map(),
@@ -552,24 +556,25 @@ function buildTreeFromStory(
   // Multiple strategies detect patterns during tree building and create ref nodes
   // to prevent infinite exploration and reduce redundant path exploration
 
-  // 1. TEXT-BASED LOOP DETECTION (catches dialogue loops like The Ferryman)
-  // Check if we've seen this exact text before in our exploration.
-  // Skip when text contains RANDOM_KEYWORD so we don't collapse distinct branches that only differ by the random value.
+  // TEXT-BASED CYCLE DETECTION (path-scoped - catches same-path loops)
+  // If this exact text was seen on the current root-to-leaf path, we have a cycle.
+  const textLoopIgnorePatterns = OPTIMIZATION_PASS_CONFIG.TEXT_LOOP_DETECTION_IGNORE_PATTERNS || []
+  const textLoopMinLength = OPTIMIZATION_PASS_CONFIG.TEXT_LOOP_DETECTION_MIN_LENGTH || 0
   if (
     OPTIMIZATION_PASS_CONFIG.TEXT_LOOP_DETECTION_ENABLED &&
     cleanedText &&
-    !cleanedText.includes(RANDOM_KEYWORD) &&
-    textToNodeId.has(cleanedText) &&
+    cleanedText.length >= textLoopMinLength &&
+    !textLoopIgnorePatterns.some((p) => cleanedText.includes(p)) &&
+    pathTextToNodeId.has(cleanedText) &&
     type === 'dialogue'
   ) {
     if (eventName === DEBUG_EVENT_NAME) {
-      console.log(`- TEXT-BASED LOOP detected at state hash: ${currentStateHash}`)
-      console.log(`placing a ref marker on node: ${cleanedText}`)
+      console.log(`- TEXT-BASED CYCLE detected at state hash: ${currentStateHash}`)
+      console.log(`  placing a ref marker on node: ${cleanedText}`)
     }
 
-    const originalNodeId = textToNodeId.get(cleanedText)
+    const originalNodeId = pathTextToNodeId.get(cleanedText)
     totalNodesInCurrentEvent++
-    // Create ref node pointing to the first occurrence of this text
     return createNode({
       id: generateNodeId(),
       text: cleanedText,
@@ -645,7 +650,8 @@ function buildTreeFromStory(
   const newVisitedStates = new Set(visitedStates)
   newVisitedStates.add(currentStateHash)
   const newStateToNodeId = new Map(stateToNodeId)
-  const newTextToNodeId = new Map(textToNodeId)
+  // pathTextToNodeId is cloned per branch - used for cycle detection on the current root-to-leaf path.
+  const newPathTextToNodeId = new Map(pathTextToNodeId)
 
   // Track ancestor texts (unused but kept for potential future use)
   const newAncestorTexts = cleanedText ? [...ancestorTexts, cleanedText] : ancestorTexts
@@ -757,13 +763,14 @@ function buildTreeFromStory(
     newStateToNodeId.set(currentStateHash, nodeId)
   }
 
-  // Store text-to-node mapping for text-based loop detection (skip RANDOM_KEYWORD text so we don't collapse distinct branches)
+  // Register in path-scoped map immediately (no child sig needed - just tracks the current path for cycle detection)
   if (
     OPTIMIZATION_PASS_CONFIG.TEXT_LOOP_DETECTION_ENABLED &&
     cleanedText &&
-    !cleanedText.includes(RANDOM_KEYWORD)
+    cleanedText.length >= textLoopMinLength &&
+    !textLoopIgnorePatterns.some((p) => cleanedText.includes(p))
   ) {
-    newTextToNodeId.set(cleanedText, nodeId)
+    newPathTextToNodeId.set(cleanedText, nodeId)
   }
 
   // If there are no choices, this is a leaf node
@@ -1036,7 +1043,7 @@ function buildTreeFromStory(
           depth + 1,
           pathHash,
           newAncestorTexts,
-          newTextToNodeId,
+          newPathTextToNodeId,
           randomVars,
           functionDefinitions,
           functionCalls,
@@ -1078,7 +1085,7 @@ function buildTreeFromStory(
       depth + 1,
       pathHash,
       newAncestorTexts,
-      newTextToNodeId,
+      newPathTextToNodeId,
       randomVars,
       functionDefinitions,
       functionCalls,

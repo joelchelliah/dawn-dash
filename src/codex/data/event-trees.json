@@ -7337,7 +7337,7 @@
     "artwork": "opportunity_image",
     "rootNode": {
       "id": 0,
-      "text": "A skeleton in highly oxidised yet impressive armor sits against a nearby stone. As you walk past, an ivory hand suddenly grasps at your weapon. \"Pleeeeeeease\" a hollow howl escapes from the undead's broken jaw...",
+      "text": "A skeleton in highly oxidised yet impressive armor sits against a nearby tree trunk. As you walk past, an ivory hand suddenly grasps at your weapon. \"Pleeeeeeease\" a hollow howl escapes from the undead's broken jaw...",
       "type": "dialogue",
       "numContinues": 0,
       "children": [
@@ -15230,11 +15230,11 @@
         {
           "id": 1,
           "type": "choice",
-          "choiceLabel": "Focus on the Priestess",
+          "choiceLabel": "Focus on the Forger",
           "children": [
             {
               "id": 18047,
-              "text": "Focus on the Priestess (fill in the lore for this.) final words",
+              "text": "Focus on the Forger (fill in the lore for this.) final words",
               "type": "end"
             }
           ]
@@ -15242,11 +15242,11 @@
         {
           "id": 2,
           "type": "choice",
-          "choiceLabel": "Focus on the Collector",
+          "choiceLabel": "Focus on the Alchemist",
           "children": [
             {
               "id": 18048,
-              "text": "Focus on the Collector (fill in the lore for this.) final words",
+              "text": "Focus on the Alchemist (fill in the lore for this.) final words",
               "type": "end"
             }
           ]
@@ -15254,11 +15254,11 @@
         {
           "id": 3,
           "type": "choice",
-          "choiceLabel": "Focus on the Alchemist",
+          "choiceLabel": "Focus on the Priestess",
           "children": [
             {
               "id": 18049,
-              "text": "Focus on the Alchemist (fill in the lore for this.) final words",
+              "text": "Focus on the Priestess (fill in the lore for this.) final words",
               "type": "end"
             }
           ]
