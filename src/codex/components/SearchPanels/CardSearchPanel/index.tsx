@@ -22,6 +22,7 @@ import { allBanners } from '@/codex/hooks/useSearchFilters/useBannerFilters'
 import { allExtraCardFilters } from '@/codex/hooks/useSearchFilters/useExtraCardFilters'
 import { allCardSets } from '@/codex/hooks/useSearchFilters/useCardSetFilters'
 import { UseCardData } from '@/codex/hooks/useCardData'
+import { isAnimalCompanionCard } from '@/codex/utils/cardHelper'
 
 import CodexLastUpdated from '../../CodexLastUpdated'
 import PanelHeader from '../../PanelHeader'
@@ -43,6 +44,7 @@ const CardSearchPanel = ({ useSearchFilters, useCardData }: CardSearchPanelProps
     keywords,
     parsedKeywords,
     setKeywords,
+    matchingCards,
     useCardSetFilters,
     useRarityFilters,
     useBannerFilters,
@@ -106,10 +108,7 @@ const CardSearchPanel = ({ useSearchFilters, useCardData }: CardSearchPanelProps
     ) {
       setNotificationMessage(specialKeywordRulesNotificationMessage)
       setShowNotification(true)
-    } else if (
-      shouldIncludeAnimalCompanionCards &&
-      parsedKeywords.some((keyword) => '(companion)'.includes(keyword.toLowerCase()))
-    ) {
+    } else if (shouldIncludeAnimalCompanionCards && matchingCards.some(isAnimalCompanionCard)) {
       setNotificationMessage(animalCompanionNotificationMessage)
       setShowNotification(true)
     }
