@@ -163,11 +163,12 @@ const EventSearchPanel = ({
     if (isReloadingMap) {
       return <LoadingDots color={loadingColor} className={cx('info-message-loading')} />
     }
+    const textPrefix = isMobile ? 'Something wrong?' : 'Did something go wrong?'
     return (
       <div className={cx('info-message')}>
         <span className={cx('info-message__emoji')}>ℹ️</span>
         <span className={cx('info-message__text')}>
-          Did something go wrong?{' '}
+          {textPrefix}{' '}
           <GradientLink
             text="Redraw the map"
             onClick={handleRedrawMap}
