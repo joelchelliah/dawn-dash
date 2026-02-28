@@ -27,6 +27,8 @@ const NON_COLLECTIBLE_CATEGORIES_FOR_MONSTER_EXPANSION = [
 ]
 
 const NON_COLLECTIBLE_CARDS = [
+  'Pacified',
+
   'Ascension I',
   'Ascension II',
   'Ascension III',
@@ -81,11 +83,18 @@ const NON_COLLECTIBLE_CARDS = [
   'Pirate Ink I',
   'Pirate Ink II',
   'Pirate Ink III',
+  'Pirate Ink IV',
+  'Pirate Ink V',
 
   'Larceny INT',
   'Larceny STR',
   'Larceny DEX',
   'Larceny HOLY',
+
+  'Colonel',
+  'Lieutenant',
+  'Private',
+  'Sergeant',
 ]
 
 export const hasMonsterExpansion = (card: CardData) => card.expansion === 0

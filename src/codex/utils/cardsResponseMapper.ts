@@ -38,9 +38,10 @@ const removeDeprecatedCards = <T extends CardApiResponse | CardData>(cards: T[])
  * expansions that feel unintuitive.
  */
 const getActualExpansion = (card: CardApiResponse | CardData): number => {
+  if (ACTUALLY_MONSTER_CARDS.includes(card.name)) return 0
   if (ACTUALLY_CORE_CARDS.includes(card.name)) return 1
   if (ACTUALLY_ECLYPSE_CARDS.includes(card.name)) return 7
-  if (ACTUALLY_MONSTER_CARDS.includes(card.name)) return 0
+  if (ACTUALLY_SYNTHESIS_CARDS.includes(card.name)) return 8
 
   return card.expansion
 }
@@ -53,6 +54,7 @@ const ACTUALLY_CORE_CARDS = [
   'Concussive Bomb',
   'Soulfire Bomb',
   'Cryo Bomb',
+  'Pacified',
 ]
 const ACTUALLY_ECLYPSE_CARDS = [
   'Battlespear C',
@@ -65,7 +67,13 @@ const ACTUALLY_ECLYPSE_CARDS = [
   'Map of Hues',
   'Map of Power',
   'Map of Riches',
+  'Pirate Ink I',
+  'Pirate Ink II',
+  'Pirate Ink III',
+  'Pirate Ink IV',
+  'Pirate Ink V',
 ]
+const ACTUALLY_SYNTHESIS_CARDS = ['Colonel', 'Lieutenant', 'Private', 'Sergeant']
 const ACTUALLY_MONSTER_CARDS = ["Typhon's Cunning II", "Typhon's Cunning III"]
 
 const DEPRECATED_CARDS = ['Cutlass_OLD']
