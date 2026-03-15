@@ -19,59 +19,63 @@ const BLIGHTBANE_URL = 'https://blightbane.io/api'
 const TALENTS_TABLE = 'Talents'
 
 async function fetchTalentsFromBlightbane(): Promise<TalentData[]> {
-  const numTiers = 7
-  const aggregatedTalents: TalentData[] = []
+  console.info('Fetching all talents from Blightbane API...')
 
-  for (let tier = 0; tier < numTiers; tier++) {
-    console.info(`Fetching talents for tier=${tier}`)
+  const url = `${BLIGHTBANE_URL}/cards-codex?search=&rarity=&category=10&type=&banner=&exp=`
 
-    const options = `search=&rarity=${tier}&category=10&type=&banner=&exp=`
-    const url = `${BLIGHTBANE_URL}/cards?${options}`
+  try {
+    const response = await fetch(url)
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`)
+    }
+    const data: TalentsApiResponse = await response.json()
+    const { card_len, cards: talents } = data
 
-    try {
-      const response = await fetch(url)
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
-      }
-      const data: TalentsApiResponse = await response.json()
-      const { card_len, cards: talents } = data
+    console.info(`Fetched ${card_len} talents from API`)
 
-      if (card_len > 100) {
-        console.error(`Too many talents! Tier: ${tier}, Count: ${card_len}`)
-        continue
-      }
-
-      const output = await Promise.all(
-        talents.map(async (talent) => {
+    const output = await Promise.all(
+      talents.map(async (talent, index) => {
+        try {
+          console.info(`Processing talent ${index + 1}/${talents.length}: ${talent.name}`)
           const details = await fetchDetailedTalent(talent.name)
+
+          if (!details) {
+            throw new Error(`Details returned null/undefined for ${talent.name}`)
+          }
+
           return {
             name: talent.name,
             description: talent.description,
             flavour_text: details.flavortext ?? '',
             tier: talent.rarity,
             expansion: talent.expansion,
-            events: details.events,
+            events: details.events ?? [],
             requires_classes: [],
             requires_energy: [],
-            requires_talents: details.prereq.map(Number),
-            required_for_talents: details.ispreq.map(Number),
+            requires_talents: (details.prereq ?? []).map(Number),
+            required_for_talents: (details.ispreq ?? []).map(Number),
             event_requirement_matrix: [],
             requires_cards: [],
             blightbane_id: talent.id,
             last_updated: new Date().toISOString(),
             verified: false,
           } as TalentData
-        })
-      )
+        } catch (error) {
+          console.error(
+            `Failed to process talent ${talent.name} (${index + 1}/${talents.length}):`,
+            error
+          )
+          throw error
+        }
+      })
+    )
 
-      aggregatedTalents.push(...output)
-    } catch (error) {
-      console.error(`Error fetching talents for tier=${tier}:`, error)
-    }
+    console.info(`Talent fetch completed. Total talents fetched: ${output.length}`)
+    return output
+  } catch (error) {
+    console.error('Error fetching talents:', error)
+    throw error
   }
-
-  console.info(`Talent fetch completed. Total talents fetched: ${aggregatedTalents.length}`)
-  return aggregatedTalents
 }
 
 async function fetchDetailedTalent(talentName: string): Promise<TalentApiResponse> {
@@ -80,9 +84,16 @@ async function fetchDetailedTalent(talentName: string): Promise<TalentApiRespons
 
   try {
     const url = `${BLIGHTBANE_URL}/card/${safeTalentName}?talent=true`
-    return fetch(url).then((res) => res.json())
+    const response = await fetch(url)
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`)
+    }
+    const data = await response.json()
+    console.info(`Successfully fetched details for ${safeTalentName}`)
+    return data
   } catch (error) {
-    throw `Error fetching details for ${safeTalentName}: ${error}`
+    console.error(`Error fetching details for ${safeTalentName}:`, error)
+    throw error
   }
 }
 
@@ -102,6 +113,7 @@ serve(async (req) => {
 
     console.info('Fetching talents from Blightbane API...')
     const talentsFromBlightbane = await fetchTalentsFromBlightbane()
+    console.info(`Fetched ${talentsFromBlightbane.length} talents from Blightbane`)
 
     // Only clear the table if 'clear' is true
     const url = new URL(req.url)
@@ -118,9 +130,11 @@ serve(async (req) => {
         console.error('Error clearing table:', error)
         throw error
       }
+      console.info('Table cleared successfully')
     }
 
     // Note that even when selecting only the blightbane_id, the data is still returned as an array of objects!
+    console.info('Fetching existing talent IDs from database...')
     const { data: existingTalentIdData, error: fetchError } = await supabaseClient
       .from(TALENTS_TABLE)
       .select('blightbane_id')
@@ -130,7 +144,11 @@ serve(async (req) => {
       throw fetchError
     }
 
-    const existingIds = new Set(existingTalentIdData.map(({ blightbane_id }) => blightbane_id))
+    console.info(`Found ${existingTalentIdData?.length ?? 0} existing talents in database`)
+
+    const existingIds = new Set(
+      (existingTalentIdData ?? []).map(({ blightbane_id }) => blightbane_id)
+    )
     const newTalents = talentsFromBlightbane.filter(
       ({ blightbane_id }) => !existingIds.has(blightbane_id)
     )
