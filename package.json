@@ -48,7 +48,8 @@
     "verify": "npm run format:check && npm run lint && npm run type-check && npm run test",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "sync-events": "node scripts/sync-events.js"
   },
   "devDependencies": {
     "@types/serviceworker": "^0.0.107",
