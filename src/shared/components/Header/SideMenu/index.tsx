@@ -7,6 +7,7 @@ import LoadingDots from '@/shared/components/LoadingDots'
 import { HamburgerIcon, HamburgerMenuIcon, CloseIcon, CloseMenuIcon } from '@/shared/utils/icons'
 import {
   AbracadabraImageUrl,
+  ChallengeImageUrl,
   DashImageUrl,
   EleganceImageUrl,
   InfernalContractUrl,
@@ -108,6 +109,9 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
   const eventmapLinkContainerClassNames = cx('side-menu__nav-link-container', {
     'side-menu__nav-link-container--active': currentPage === 'eventmaps',
   })
+  const weeklyLinkContainerClassNames = cx('side-menu__nav-link-container', {
+    'side-menu__nav-link-container--active': currentPage === 'weekly',
+  })
 
   const menuIcon = isMobile ? (
     isMenuOpen ? (
@@ -185,6 +189,17 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
             </Link>
           </div>
 
+          <div className={weeklyLinkContainerClassNames}>
+            <Link
+              href="/weekly"
+              className={cx('side-menu__nav-link')}
+              onClick={() => handleNavLinkClick('Weekly')}
+            >
+              {getNavLinkImage(ChallengeImageUrl, 'Weekly Challenge logo')}
+              {getNavLinkText('Weekly')}
+            </Link>
+          </div>
+
           <div className={speedrunsLinkContainerClassNames}>
             <Link
               href="/speedruns"
@@ -238,6 +253,18 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
           Fully mapped out event trees for all events available in <b>Dawncaster</b>. See all
           dialogue options, along with their requirements and rewards, so that you can get the best
           outcome from each event!
+        </p>
+
+        <div className={cx('info-divider')} />
+
+        <h3 className={cx('info-title')}>
+          {getNavLinkImage(ChallengeImageUrl, 'Weekly Challenge logo')} Weekly Challenge
+        </h3>
+
+        <p className={cx('info-last-paragraph')}>
+          View the current <b>Dawncaster</b> weekly challenge with a complete breakdown of scoring
+          keywords, available setups, banners, and card sets. Perfect for planning your run and
+          maximizing your score!
         </p>
 
         <div className={cx('info-divider')} />

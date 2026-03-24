@@ -23,11 +23,16 @@ export const useNavigation = () => {
     router.replace('/eventmaps')
   }
 
+  const resetToWeekly = () => {
+    router.replace('/weekly')
+  }
+
   return {
     resetToLandingPage,
     resetToSpeedruns,
     resetToCardCodex,
     resetToTalentCodex,
     resetToEventCodex,
+    resetToWeekly,
   }
 }

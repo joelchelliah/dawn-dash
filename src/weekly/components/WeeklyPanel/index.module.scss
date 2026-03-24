@@ -1,0 +1,143 @@
+@use 'index' as *;
+
+.panel {
+  background: $color-component-bg;
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  width: 100%;
+  margin: 0 auto;
+
+  @media (max-width: $breakpoint-tablet) {
+    padding: 20px;
+  }
+
+  @media (max-width: $breakpoint-mobile) {
+    padding: 15px;
+  }
+
+  &--loading,
+  &--error {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 400px;
+  }
+}
+
+.loading-content,
+.error-content {
+  text-align: center;
+
+  h2 {
+    color: $color-primary-base;
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+  }
+
+  p {
+    color: $color-primary-muted;
+    font-size: 1rem;
+  }
+}
+
+.panel-header {
+  border-bottom: 2px solid $color-component-border;
+  padding-bottom: 20px;
+  margin-bottom: 30px;
+
+  @media (max-width: $breakpoint-mobile) {
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+  }
+}
+
+.challenge-name {
+  color: $color-primary-base;
+  font-size: 2rem;
+  margin: 0 0 10px 0;
+  font-weight: 600;
+
+  @media (max-width: $breakpoint-tablet) {
+    font-size: 1.75rem;
+  }
+
+  @media (max-width: $breakpoint-mobile) {
+    font-size: 1.5rem;
+  }
+}
+
+.challenge-id {
+  color: $color-primary-muted;
+  font-size: 1rem;
+  margin: 0;
+}
+
+.panel-content {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+
+  @media (max-width: $breakpoint-mobile) {
+    gap: 20px;
+  }
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.section-title {
+  color: $color-primary-base;
+  font-size: 1.25rem;
+  margin: 0;
+  font-weight: 500;
+
+  @media (max-width: $breakpoint-mobile) {
+    font-size: 1.1rem;
+  }
+}
+
+.keyword-list,
+.banner-list,
+.cardset-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.keyword-badge,
+.banner-badge,
+.cardset-badge {
+  display: inline-block;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: $color-primary-base;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+
+  @media (max-width: $breakpoint-mobile) {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+  }
+}
+
+.keyword-badge--special {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 165, 0, 0.2));
+  border-color: rgba(255, 215, 0, 0.4);
+
+  &:hover {
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.3), rgba(255, 165, 0, 0.3));
+    border-color: rgba(255, 215, 0, 0.5);
+  }
+}
