@@ -1,3 +1,5 @@
+import { useEffect, useRef, useState } from 'react'
+
 import { createCx } from '@/shared/utils/classnames'
 
 import styles from './index.module.scss'
@@ -10,7 +12,11 @@ interface ModalProps {
   isOpen: boolean
   onClose: () => void
   maxWidth?: number
+  scrollable?: boolean
 }
+
+// To prevent "jumping" when the modal is scrolled to the bottom
+const SCROLL_IS_AT_BOTTOM_OFFSET = 90
 
 function Modal({
   children,
@@ -18,21 +24,59 @@ function Modal({
   isOpen,
   onClose,
   maxWidth,
+  scrollable,
 }: ModalProps): JSX.Element | null {
+  const contentRef = useRef<HTMLDivElement>(null)
+  const [showBottomFade, setShowBottomFade] = useState(false)
+
+  useEffect(() => {
+    if (!scrollable || !isOpen) return
+
+    const contentEl = contentRef.current
+    if (!contentEl) return
+
+    const checkScroll = () => {
+      const { scrollTop, scrollHeight, clientHeight } = contentEl
+      const isScrolledToBottom =
+        scrollTop + clientHeight >= scrollHeight - SCROLL_IS_AT_BOTTOM_OFFSET
+      setShowBottomFade(!isScrolledToBottom && scrollHeight > clientHeight)
+    }
+
+    // Check initially and on scroll
+    checkScroll()
+    contentEl.addEventListener('scroll', checkScroll)
+
+    // Also check on resize
+    const resizeObserver = new ResizeObserver(checkScroll)
+    resizeObserver.observe(contentEl)
+
+    return () => {
+      contentEl.removeEventListener('scroll', checkScroll)
+      resizeObserver.disconnect()
+    }
+  }, [scrollable, isOpen])
+
   if (!isOpen) return null
 
+  const wrapperClassName = cx('wrapper', {
+    'wrapper--without-class-border': !borderColor,
+  })
+
   const contentClassName = cx('content', {
-    'content--without-class-border': !borderColor,
+    'content--scrollable': scrollable,
+    'content--show-fade': showBottomFade,
   })
 
   return (
     <div className={cx('overlay')} onClick={onClose}>
       <div
-        className={contentClassName}
+        className={wrapperClassName}
         onClick={(e) => e.stopPropagation()}
         style={{ borderColor, maxWidth }}
       >
-        {children}
+        <div ref={contentRef} className={contentClassName}>
+          {children}
+        </div>
       </div>
     </div>
   )

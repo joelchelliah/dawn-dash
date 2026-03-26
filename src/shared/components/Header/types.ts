@@ -4,4 +4,4 @@ export type CurrentPageType =
   | 'cardex'
   | 'skilldex'
   | 'eventmaps'
-  | 'weekly'
+  | 'scoring'

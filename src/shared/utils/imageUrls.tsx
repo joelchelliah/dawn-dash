@@ -3,7 +3,7 @@ const blightbaneImagesUrl = 'https://blightbane.io/images'
 // Cards
 export const AbracadabraImageUrl = `${blightbaneImagesUrl}/icons/cards_metamorphosis_2_48.webp`
 export const CoinsOfPassingImageUrl = `${blightbaneImagesUrl}/icons/siegeOfshadows_abilities_2-quest_coinsOfPassing.webp`
-export const ChallengeImageUrl = `${blightbaneImagesUrl}/icons/siegeOfshadows_abilities_2-quest_coinsOfPassing.webp`
+export const DeificLarcenyImageUrl = `${blightbaneImagesUrl}/icons/deific-larceny.webp`
 export const CollectorImageUrl = `${blightbaneImagesUrl}/icons/cardart_2_4.webp`
 export const DanceOfBlightImageUrl = `${blightbaneImagesUrl}/icons/Dance%20of%20Blight_eclypse.webp`
 export const DantelionImageUrl = `${blightbaneImagesUrl}/monsters/dc_dantelion.webp`

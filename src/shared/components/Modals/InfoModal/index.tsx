@@ -8,11 +8,12 @@ interface InfoModalProps {
   children: React.ReactNode
   isOpen: boolean
   onClose: () => void
+  scrollable?: boolean
 }
 
-function InfoModal({ additionalText, children, isOpen, onClose }: InfoModalProps) {
+function InfoModal({ additionalText, children, isOpen, onClose, scrollable }: InfoModalProps) {
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
+    <Modal isOpen={isOpen} onClose={onClose} scrollable={scrollable}>
       {children}
       {additionalText && (
         <div>

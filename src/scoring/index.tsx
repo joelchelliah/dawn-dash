@@ -13,25 +13,25 @@ import styles from './index.module.scss'
 
 const cx = createCx(styles)
 
-function useWeeklyScrollToTop() {
+function useScoringScrollToTop() {
   const { isTabletOrSmaller } = useBreakpoint()
   return useScrollToTop(isTabletOrSmaller ? 1750 : 1250)
 }
 
-function Weekly(): JSX.Element {
-  const { resetToWeekly } = useNavigation()
+function Scoring(): JSX.Element {
+  const { resetToScoring } = useNavigation()
   const { challengeData, isLoading, isError } = useChallengeData()
-  const { showScrollToTopButton, scrollToTop } = useWeeklyScrollToTop()
+  const { showScrollToTopButton, scrollToTop } = useScoringScrollToTop()
 
   return (
     <div className={cx('container')}>
       <Header
-        onLogoClick={resetToWeekly}
+        onLogoClick={resetToScoring}
         logoSrc={InfernalContractUrl}
         preTitle="Dawn-Dash"
-        title="Weekly"
-        subtitle="Dawncaster weekly challenge"
-        currentPage="weekly"
+        title="Scoring"
+        subtitle="Dawncaster scoring guides"
+        currentPage="scoring"
       />
 
       <div className={cx('content')}>
@@ -48,4 +48,4 @@ function Weekly(): JSX.Element {
   )
 }
 
-export default Weekly
+export default Scoring

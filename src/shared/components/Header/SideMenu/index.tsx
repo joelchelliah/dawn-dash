@@ -7,7 +7,7 @@ import LoadingDots from '@/shared/components/LoadingDots'
 import { HamburgerIcon, HamburgerMenuIcon, CloseIcon, CloseMenuIcon } from '@/shared/utils/icons'
 import {
   AbracadabraImageUrl,
-  ChallengeImageUrl,
+  DeificLarcenyImageUrl,
   DashImageUrl,
   EleganceImageUrl,
   InfernalContractUrl,
@@ -109,8 +109,8 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
   const eventmapLinkContainerClassNames = cx('side-menu__nav-link-container', {
     'side-menu__nav-link-container--active': currentPage === 'eventmaps',
   })
-  const weeklyLinkContainerClassNames = cx('side-menu__nav-link-container', {
-    'side-menu__nav-link-container--active': currentPage === 'weekly',
+  const scoringLinkContainerClassNames = cx('side-menu__nav-link-container', {
+    'side-menu__nav-link-container--active': currentPage === 'scoring',
   })
 
   const menuIcon = isMobile ? (
@@ -189,14 +189,14 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
             </Link>
           </div>
 
-          <div className={weeklyLinkContainerClassNames}>
+          <div className={scoringLinkContainerClassNames}>
             <Link
-              href="/weekly"
+              href="/scoring"
               className={cx('side-menu__nav-link')}
-              onClick={() => handleNavLinkClick('Weekly')}
+              onClick={() => handleNavLinkClick('Scoring')}
             >
-              {getNavLinkImage(ChallengeImageUrl, 'Weekly Challenge logo')}
-              {getNavLinkText('Weekly')}
+              {getNavLinkImage(DeificLarcenyImageUrl, 'Scoring logo')}
+              {getNavLinkText('Scoring')}
             </Link>
           </div>
 
@@ -220,7 +220,7 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
         </nav>
       </div>
 
-      <InfoModal isOpen={isAboutInfoOpen} onClose={() => setIsAboutInfoOpen(false)}>
+      <InfoModal isOpen={isAboutInfoOpen} onClose={() => setIsAboutInfoOpen(false)} scrollable>
         <h3 className={cx('info-title')}>
           {getNavLinkImage(AbracadabraImageUrl, 'Cardex logo')} Cardex
         </h3>
@@ -258,13 +258,13 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
         <div className={cx('info-divider')} />
 
         <h3 className={cx('info-title')}>
-          {getNavLinkImage(ChallengeImageUrl, 'Weekly Challenge logo')} Weekly Challenge
+          {getNavLinkImage(DeificLarcenyImageUrl, 'Scoring logo')} Scoring
         </h3>
 
         <p className={cx('info-last-paragraph')}>
-          View the current <b>Dawncaster</b> weekly challenge with a complete breakdown of scoring
-          keywords, available setups, banners, and card sets. Perfect for planning your run and
-          maximizing your score!
+          Detailed <b>Dawncaster</b> scoring guides, specifically tailored for Standard mode,
+          Sunforge, and the Weekly Challenges. Full breakdown of all scoring parameters, and how to
+          maximize each one!
         </p>
 
         <div className={cx('info-divider')} />

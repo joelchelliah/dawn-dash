@@ -1,26 +1,27 @@
 import Head from 'next/head'
 import dynamic from 'next/dynamic'
 
-const Weekly = dynamic(() => import('../src/weekly'), {
-  loading: () => <div>Loading weekly challenge...</div>,
+const Scoring = dynamic(() => import('../src/scoring'), {
+  loading: () => <div>Loading scoring guide...</div>,
 })
 
-export default function WeeklyPage() {
-  const ogTitle = '📅 Weekly Challenge'
+export default function ScoringPage() {
+  const ogTitle = '🧮 Scoring'
   const title = `Dawn-Dash: ${ogTitle}`
 
   const description =
-    'See a full breakdown of the latest Dawncaster weekly challenge, including scoring rules, setups, and available cards and talents!'
-  const ogDescription = 'Full breakdown of the current Dawncaster weekly challenge!'
+    'Detailed Dawncaster scoring guides, specifically tailored to help you maximize your scores in Standard mode, Sunforge, and the Weekly Challenges!'
+  const ogDescription =
+    'Detailed Dawncaster scoring guides, tailored for Standard mode, Sunforge, and the Weekly Challenges!'
 
-  const image = 'https://www.dawn-dash.com/og-image-weekly.png'
-  const url = 'https://www.dawn-dash.com/weekly'
-  const squareLogo = 'https://www.dawn-dash.com/logo-weekly.png'
+  const image = 'https://www.dawn-dash.com/og-image-scoring.png'
+  const url = 'https://www.dawn-dash.com/scoring'
+  const squareLogo = 'https://www.dawn-dash.com/logo-scoring.png'
 
   return (
     <>
       <Head>
-        <title>Weekly Challenge | Dawn-Dash</title>
+        <title>Scoring | Dawn-Dash</title>
         <meta name="description" content={description} />
         <link rel="canonical" href={url} />
 
@@ -34,7 +35,7 @@ export default function WeeklyPage() {
         <meta property="og:url" content={url} />
 
         {/* The url shown in Discord */}
-        <meta property="og:site_name" content="dawn-dash.com/weekly" />
+        <meta property="og:site_name" content="dawn-dash.com/scoring" />
 
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={title} />
@@ -56,7 +57,7 @@ export default function WeeklyPage() {
           }}
         />
       </Head>
-      <Weekly />
+      <Scoring />
     </>
   )
 }

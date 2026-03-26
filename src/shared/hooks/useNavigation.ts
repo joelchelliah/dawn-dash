@@ -23,8 +23,8 @@ export const useNavigation = () => {
     router.replace('/eventmaps')
   }
 
-  const resetToWeekly = () => {
-    router.replace('/weekly')
+  const resetToScoring = () => {
+    router.replace('/scoring')
   }
 
   return {
@@ -33,6 +33,6 @@ export const useNavigation = () => {
     resetToCardCodex,
     resetToTalentCodex,
     resetToEventCodex,
-    resetToWeekly,
+    resetToScoring,
   }
 }
