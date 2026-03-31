@@ -1,6 +1,7 @@
 @use 'index' as *;
+@use 'sass:color';
 
-.guide-content {
+.content {
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -28,7 +29,7 @@
   }
 }
 
-.mode-buttons {
+.buttons {
   display: flex;
   flex-wrap: wrap;
   gap: 0.75rem;
@@ -54,5 +55,35 @@
         flex: 1 1 100%;
       }
     }
+  }
+}
+
+.description {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1rem;
+
+  p {
+    margin: 0;
+    line-height: 1.6;
+    color: $color-primary-base;
+  }
+
+  .highlight-standard {
+    color: color.adjust($color-banner-3, $lightness: 50%, $alpha: -0.25);
+    font-weight: 600;
+  }
+  .highlight-sunforge {
+    color: color.adjust($color-banner-8, $lightness: 40%, $alpha: -0.25);
+    font-weight: 600;
+  }
+  .highlight-weekly-challenge {
+    color: color.adjust($color-banner-3, $lightness: 50%, $alpha: -0.25);
+    font-weight: 600;
+  }
+
+  @media (max-width: $breakpoint-mobile) {
+    margin-top: 0.75rem;
   }
 }

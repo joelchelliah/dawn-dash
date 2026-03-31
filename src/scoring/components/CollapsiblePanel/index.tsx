@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { createCx } from '@/shared/utils/classnames'
 import GradientButton from '@/shared/components/Buttons/GradientButton'
@@ -8,7 +8,7 @@ import styles from './index.module.scss'
 const cx = createCx(styles)
 
 interface CollapsiblePanelProps {
-  title?: string
+  title?: React.ReactNode
   children: React.ReactNode
   collapsible?: boolean
   defaultExpanded?: boolean
@@ -27,6 +27,10 @@ function CollapsiblePanel({
       setIsExpanded(!isExpanded)
     }
   }
+
+  useEffect(() => {
+    setIsExpanded(defaultExpanded || !collapsible)
+  }, [defaultExpanded, collapsible])
 
   return (
     <div className={cx('panel')}>
