@@ -1,3 +1,5 @@
+import { useState } from 'react'
+
 import { createCx } from '@/shared/utils/classnames'
 import { useNavigation } from '@/shared/hooks/useNavigation'
 import { InfernalContractUrl } from '@/shared/utils/imageUrls'
@@ -8,8 +10,11 @@ import { useScrollToTop } from '@/shared/hooks/useScrollToTop'
 import { useBreakpoint } from '@/shared/hooks/useBreakpoint'
 
 import { useChallengeData } from './hooks/useChallengeData'
-import WeeklyPanel from './components/WeeklyPanel'
+import ScoringGuidePanel from './components/ScoringGuidePanel'
+import GameModeInfoPanel from './components/GameModeInfoPanel'
+import BlightbaneScorePanel from './components/BlightbaneScorePanel'
 import styles from './index.module.scss'
+import { GameMode } from './types'
 
 const cx = createCx(styles)
 
@@ -22,6 +27,7 @@ function Scoring(): JSX.Element {
   const { resetToScoring } = useNavigation()
   const { challengeData, isLoading, isError } = useChallengeData()
   const { showScrollToTopButton, scrollToTop } = useScoringScrollToTop()
+  const [selectedMode, setSelectedMode] = useState<GameMode>(GameMode.Standard)
 
   return (
     <div className={cx('container')}>
@@ -35,7 +41,13 @@ function Scoring(): JSX.Element {
       />
 
       <div className={cx('content')}>
-        <WeeklyPanel challengeData={challengeData} isLoading={isLoading} isError={isError} />
+        <ScoringGuidePanel selectedMode={selectedMode} onModeChange={setSelectedMode} />
+        <GameModeInfoPanel mode={selectedMode} />
+        <BlightbaneScorePanel
+          challengeData={challengeData}
+          isLoading={isLoading}
+          isError={isError}
+        />
       </div>
 
       <Footer />

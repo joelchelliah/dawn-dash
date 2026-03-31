@@ -1,6 +1,6 @@
 @use 'index' as *;
 
-%codex-container {
+%page-container {
   display: flex;
   flex-direction: column;
   padding: 0.375rem 0.625rem 0.625rem;
@@ -12,7 +12,7 @@
   @include starsTexture('lower');
 }
 
-%codex-content {
+%page-content {
   display: flex;
   justify-content: center;
   gap: 2rem;

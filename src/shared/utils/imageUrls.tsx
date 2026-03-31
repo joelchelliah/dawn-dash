@@ -23,6 +23,8 @@ export const SacredTomeImageUrl = `${blightbaneImagesUrl}/icons/Masks%20of%20Mis
 export const SurgeOfDexterityImageUrl = `${blightbaneImagesUrl}/icons/cardart_4_55.webp`
 export const TaurusRageImageUrl = `${blightbaneImagesUrl}/icons/taurus.webp`
 export const WatchedImageUrl = `${blightbaneImagesUrl}/icons/cardart_3_24.webp`
+export const AdaptiveEdgeImageUrl = `${blightbaneImagesUrl}/icons/Evolving%20edge.webp`
+export const ArcaneMissileImageUrl = `${blightbaneImagesUrl}/icons/arcane-missile.webp`
 
 // Classes
 export const ArcanistImageUrl = `${blightbaneImagesUrl}/classes/Arcanist_I_M.webp`

@@ -1,26 +1,11 @@
 @use 'index' as *;
+@use '../shared/page-base';
 
 .container {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  background: $color-base-bg;
+  @extend %page-container;
 }
 
 .content {
-  flex: 1;
-  display: flex;
+  @extend %page-content;
   flex-direction: column;
-  padding: 20px;
-  max-width: 1400px;
-  margin: 0 auto;
-  width: 100%;
-
-  @media (max-width: $breakpoint-tablet) {
-    padding: 15px;
-  }
-
-  @media (max-width: $breakpoint-mobile) {
-    padding: 10px;
-  }
 }

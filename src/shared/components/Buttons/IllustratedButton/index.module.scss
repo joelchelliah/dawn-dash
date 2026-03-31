@@ -1,0 +1,56 @@
+@use 'index' as *;
+
+.container {
+  @extend %flex-center;
+  justify-content: flex-start;
+  flex: 1;
+  padding: 0.375rem;
+  background-color: $color-button-bg;
+  border: 1px dashed $color-component-border;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 6.25rem;
+  max-width: 25rem;
+  white-space: nowrap;
+  gap: 0.5rem;
+
+  &:hover {
+    background-color: $color-button-bg-hover;
+    border-style: solid;
+  }
+
+  &--active {
+    background-color: $color-button-bg-active;
+    border-width: 1px;
+    border-style: solid;
+  }
+
+  // Medium+ screens: three buttons per row
+  @media (max-width: $breakpoint-tablet-plus) {
+    flex: 1 1 calc(33.33% - 0.5rem);
+
+    &:last-child:nth-child(odd) {
+      max-width: 100%; // This is why we need flex: 1 1 calc...
+    }
+  }
+
+  // Small screens: two buttons per row
+  @media (max-width: $breakpoint-mobile) {
+    flex: 1 1 calc(50% - 0.375rem);
+  }
+}
+
+.icon {
+  vertical-align: middle;
+  margin-right: 0.25rem;
+  border: 1px groove rgb(153, 153, 153);
+  border-radius: 0.25rem;
+  object-fit: cover;
+}
+
+.label {
+  font-weight: 600;
+  font-size: font-size('sm');
+  line-height: 1.5rem;
+}

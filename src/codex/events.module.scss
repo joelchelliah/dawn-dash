@@ -1,11 +1,11 @@
 @use 'index' as *;
-@use './codex-base' as *;
+@use '../shared/page-base';
 
 .container {
-  @extend %codex-container;
+  @extend %page-container;
 }
 
 .content {
-  @extend %codex-content;
+  @extend %page-content;
   flex-direction: column;
 }
