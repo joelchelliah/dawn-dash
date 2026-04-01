@@ -59,29 +59,7 @@ $max-width: 32rem;
     }
   }
 
-  // Make the modal scrollable on mobile landscape
-  @media (orientation: landscape) and (max-height: 600px) {
-    max-height: 80vh;
-    overflow-y: auto;
-  }
-
   &--scrollable {
     max-height: 85vh;
-    overflow-y: auto;
-    overflow-x: hidden;
-    position: relative;
-  }
-
-  &--show-fade::after {
-    content: '';
-    position: sticky;
-    display: block;
-    bottom: -2rem;
-    left: 0;
-    right: 0;
-    height: 12rem;
-    background: linear-gradient(to bottom, transparent, $color-component-bg);
-    pointer-events: none;
-    margin-top: -4rem;
   }
 }

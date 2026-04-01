@@ -20,7 +20,7 @@ const cx = createCx(styles)
 
 function useScoringScrollToTop() {
   const { isTabletOrSmaller } = useBreakpoint()
-  return useScrollToTop(isTabletOrSmaller ? 1750 : 1250)
+  return useScrollToTop(isTabletOrSmaller ? 1250 : 1500)
 }
 
 function Scoring(): JSX.Element {

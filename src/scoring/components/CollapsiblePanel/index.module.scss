@@ -26,19 +26,13 @@
   }
 
   &__title {
-    font-size: font-size('md');
+    font-size: font-size('lg');
     font-weight: 600;
     margin: 0;
 
     @media (max-width: $breakpoint-mobile) {
-      font-size: font-size('sm');
+      font-size: font-size('md');
     }
-  }
-  &__emoji {
-    font-size: font-size('md-plus');
-    margin-right: 0.25rem;
-    position: relative;
-    top: 2px;
   }
 }
 

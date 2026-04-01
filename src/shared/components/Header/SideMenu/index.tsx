@@ -262,8 +262,9 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
         </h3>
 
         <p className={cx('info-last-paragraph')}>
-          Detailed <b>Dawncaster</b> scoring guides, specifically tailored for Standard mode,
-          Sunforge, and the Weekly Challenges. Full breakdown of all scoring parameters, and how to
+          Detailed <b>Dawncaster</b> scoring guides, specifically tailored for{' '}
+          <strong>Standard</strong> mode, <strong>Sunforge</strong>, and the{' '}
+          <strong>Weekly Challenges</strong>. Full breakdown of all scoring parameters, and how to
           maximize each one!
         </p>
 
