@@ -1,0 +1,37 @@
+@use 'index' as *;
+@use 'sass:color' as color;
+
+.scoring-button {
+  min-width: 5rem;
+  font-size: font-size('xs');
+
+  &--Standard {
+    color: color.adjust($color-scoring-standard, $alpha: -0.2);
+    border-color: color.adjust($color-scoring-standard, $alpha: -0.2);
+
+    &:hover {
+      color: color.adjust($color-scoring-standard, $lightness: 2);
+      border-color: color.adjust($color-scoring-standard, $lightness: 2);
+    }
+  }
+
+  &--Sunforge {
+    color: color.adjust($color-scoring-sunforge, $alpha: -0.2);
+    border-color: color.adjust($color-scoring-sunforge, $alpha: -0.2);
+
+    &:hover {
+      color: color.adjust($color-scoring-sunforge, $lightness: 2);
+      border-color: color.adjust($color-scoring-sunforge, $lightness: 2);
+    }
+  }
+
+  &--WeeklyChallenge {
+    color: color.adjust($color-scoring-weekly-challenge, $alpha: -0.2);
+    border-color: color.adjust($color-scoring-weekly-challenge, $alpha: -0.2);
+
+    &:hover {
+      color: color.adjust($color-scoring-weekly-challenge, $lightness: 2);
+      border-color: color.adjust($color-scoring-weekly-challenge, $lightness: 2);
+    }
+  }
+}

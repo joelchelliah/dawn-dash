@@ -1,7 +1,10 @@
 import { useState } from 'react'
 
 import ScrollableWithFade from '@/shared/components/ScrollableWithFade'
+import Select from '@/shared/components/Select'
 import { createCx } from '@/shared/utils/classnames'
+import { useBreakpoint } from '@/shared/hooks/useBreakpoint'
+import { CharacterClass } from '@/shared/types/characterClass'
 import Code from '@/shared/components/Code'
 
 import { GameMode } from '@/scoring/types'
@@ -179,37 +182,58 @@ interface ParameterRankTableProps {
 
 function ParameterRankTable({ mode }: ParameterRankTableProps): JSX.Element {
   const [selectedParameter, setSelectedParameter] = useState<ParameterId>('damage')
+  const { isMobile } = useBreakpoint()
 
   const selectedParam = PARAMETER_DETAILS.find((p) => p.id === selectedParameter)
+  const selectClass =
+    mode === 'Standard'
+      ? CharacterClass.Warrior
+      : mode === 'Sunforge'
+        ? CharacterClass.Sunforge
+        : CharacterClass.Knight
+
+  const selectOptions = PARAMETER_DETAILS.map((param) => ({
+    value: param.id,
+    label: param.title,
+  }))
 
   return (
     <div className={cx('parameter-selector-container')}>
       <div className={cx('columns')}>
-        <div className={cx('left-column')}>
-          <ul className={cx('parameter-list')}>
-            {PARAMETER_DETAILS.map((param) => (
-              <li
-                key={param.id}
-                className={cx('parameter-item', `parameter-item--${mode}`, {
-                  active: selectedParameter === param.id,
-                })}
-                onClick={() => setSelectedParameter(param.id)}
-              >
-                <span className={cx('parameter-emoji')}>{param.emoji}</span>
-                <span className={cx('parameter-name')}>{param.title}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
+        {isMobile ? (
+          <div className={cx('mobile-select-container')}>
+            <Select
+              id="parameter-select"
+              selectedClass={selectClass}
+              label="Scoring parameter"
+              options={selectOptions}
+              value={selectedParameter}
+              onChange={(value) => setSelectedParameter(value as ParameterId)}
+            />
+          </div>
+        ) : (
+          <div className={cx('left-column')}>
+            <ul className={cx('parameter-list')}>
+              {PARAMETER_DETAILS.map((param) => (
+                <li
+                  key={param.id}
+                  className={cx('parameter-item', `parameter-item--${mode}`, {
+                    active: selectedParameter === param.id,
+                  })}
+                  onClick={() => setSelectedParameter(param.id)}
+                >
+                  <span className={cx('parameter-emoji')}>{param.emoji}</span>
+                  <span className={cx('parameter-name')}>{param.title}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         <div className={cx('right-column')}>
-          {selectedParam && (
-            <ScrollableWithFade
-              maxHeight={MAX_HEIGHT}
-              fadeColor="rgba(0, 0, 0, 1.75)"
-              scrollBottomOffset={SCROLL_BOTTOM_OFFSET}
-            >
-              <div className={cx('parameter-details')}>
+          {selectedParam &&
+            (isMobile ? (
+              <div className={cx('parameter-details', 'parameter-details--mobile')}>
                 <h3 className={cx('parameter-title')}>
                   {selectedParam.emoji} &nbsp; {selectedParam.title}
                 </h3>
@@ -360,8 +384,165 @@ function ParameterRankTable({ mode }: ParameterRankTableProps): JSX.Element {
                   </div>
                 )}
               </div>
-            </ScrollableWithFade>
-          )}
+            ) : (
+              <ScrollableWithFade
+                maxHeight={MAX_HEIGHT}
+                fadeColor="rgba(0, 0, 0, 1.75)"
+                scrollBottomOffset={SCROLL_BOTTOM_OFFSET}
+              >
+                <div className={cx('parameter-details')}>
+                  <h3 className={cx('parameter-title')}>
+                    {selectedParam.emoji} &nbsp; {selectedParam.title}
+                  </h3>
+                  <p className={cx('parameter-description')}>{selectedParam.description}</p>
+
+                  {selectedParam.id === 'bosses' ? (
+                    <div className={cx('bosses-content')}>
+                      <table className={cx('difficulty-table')}>
+                        <thead>
+                          <tr>
+                            <th>Difficulty</th>
+                            <th>Bosses available</th>
+                            <th>Points per boss</th>
+                            <th>Max score</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {BOSSES_DIFFICULTY_DATA.map(
+                            ({ difficulty, bosses, pointsPerBoss, maxPoints }) => (
+                              <tr key={difficulty}>
+                                <td className={cx('difficulty-name')}>{difficulty}</td>
+                                <td>{bosses}</td>
+                                <td className={cx('points')}>{pointsPerBoss.toLocaleString()}</td>
+                                <td className={cx('points')}>{maxPoints.toLocaleString()}</td>
+                              </tr>
+                            )
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  ) : selectedParam.ranks ? (
+                    <table className={cx('ranks-table')}>
+                      <thead>
+                        <tr>
+                          <th>Rank</th>
+                          <th>Threshold</th>
+                          <th>Score</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {selectedParam.ranks.map((rank) => (
+                          <tr key={rank.rank}>
+                            <td className={cx('rank')}>{rank.rank}</td>
+                            <td>{rank.threshold}</td>
+                            <td className={cx('points')}>{rank.points.toLocaleString()}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  ) : null}
+
+                  {selectedParam.id === 'damage' && (
+                    <div>
+                      <br />
+                      <ExampleBox emoji="💥">
+                        <p>
+                          Overkill damage counts as well! However, charm kills don&apos;t count as
+                          damage dealt, even with a high charm value. Slay and subjugation wins also
+                          don&apos;t count.
+                        </p>
+                      </ExampleBox>
+                    </div>
+                  )}
+
+                  {selectedParam.id === 'awareness' && (
+                    <div>
+                      <br />
+                      <ExampleBox emoji="🫀">
+                        <p>
+                          Beware of effects/enchantments that can add <strong>Stagger</strong> or{' '}
+                          <strong>Poison</strong> to you before your first turn. This can ruin a
+                          perfect Awareness score, even when you are killing everything on turn 1.
+                        </p>
+                      </ExampleBox>
+                    </div>
+                  )}
+
+                  {selectedParam.id === 'lethality' && (
+                    <div>
+                      <br />
+                      <ExampleBox emoji="🤺">
+                        <p>
+                          Note that whenever an enemy has <strong>First Strike</strong>, you are
+                          already starting that fight on turn 2. This is regardless of whether you
+                          have the <strong>Perception</strong> talent or not.
+                        </p>
+                      </ExampleBox>
+                    </div>
+                  )}
+
+                  {selectedParam.id === 'versatility' && (
+                    <div>
+                      <br />
+                      <ExampleBox emoji="🛒">
+                        <p>
+                          Getting several copies of the same card will <strong>not</strong> affect
+                          this parameter at all! Only disctinct cards are counted.
+                        </p>
+                      </ExampleBox>
+                    </div>
+                  )}
+
+                  {selectedParam.id === 'wealth' && (
+                    <div>
+                      <p>
+                        <br />
+                        The <strong>Gold</strong> here, is just the amount of gold you have left at
+                        the end of your run. But to calculate the <strong>Deck value</strong>, you
+                        have to add together the value of each card in your deck, which is based on
+                        the card&apos;s rarity.
+                        <br />
+                        <br />
+                        Additionally, if a card has the <strong>Valuable</strong> keyword, its value
+                        is quadrupled!
+                      </p>
+                      <br />
+                      <table className={cx('values-table')}>
+                        <thead>
+                          <tr>
+                            <th>Card rarity</th>
+                            <th>Base value</th>
+                            <th>&quot;Valuable&quot; value</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {CARD_VALUES.map(({ rarity, baseValue, valuableValue }) => (
+                            <tr key={rarity}>
+                              <td className={cx('rarity')}>{rarity}</td>
+                              <td className={cx('value')}>{baseValue}</td>
+                              <td className={cx('value')}>{valuableValue}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+
+                      <br />
+                      <br />
+
+                      <ExampleBox emoji="💍">
+                        <p>
+                          Let&apos;s say you have 1 gold. How many <strong>Ring of Power</strong> do
+                          you need to max out your <strong>Wealth</strong> bonus?
+                        </p>
+                        <p>
+                          <strong>Answer: 25</strong> (<Code>25 × 4 × 50 + 1 = 5001</Code>)
+                        </p>
+                      </ExampleBox>
+                    </div>
+                  )}
+                </div>
+              </ScrollableWithFade>
+            ))}
         </div>
       </div>
     </div>

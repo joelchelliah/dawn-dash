@@ -1,6 +1,7 @@
 import Code from '@/shared/components/Code'
 import Image from '@/shared/components/Image'
 import { createCx } from '@/shared/utils/classnames'
+import { AdaptiveEdgeImageUrl, SunforgeImageUrl } from '@/shared/utils/imageUrls'
 
 import { GameMode } from '@/scoring/types'
 
@@ -58,10 +59,16 @@ const MAX_SCORES = [
 ]
 
 function InGameScorePanel({ mode, openByDefault = false }: InGameScorePanelProps): JSX.Element {
-  const title = <span>💯 &nbsp;Standard score</span>
+  const title = mode === GameMode.Sunforge ? 'Sunforge score' : 'Standard score'
 
   return (
-    <CollapsiblePanel title={title} collapsible defaultExpanded={openByDefault}>
+    <CollapsiblePanel
+      title={title}
+      imageUrl={mode === GameMode.Sunforge ? SunforgeImageUrl : AdaptiveEdgeImageUrl}
+      mode={mode}
+      collapsible
+      defaultExpanded={openByDefault}
+    >
       <div className={cx('content')}>
         <p>
           Your <Highlight mode={mode}>Standard</Highlight> mode score is determined by the sum of
@@ -108,27 +115,28 @@ function InGameScorePanel({ mode, openByDefault = false }: InGameScorePanelProps
         <ul className={cx('simple-list')}>
           <li>
             <strong>⚔️ Damage, ❤️ Awareness, 🃏 Versatility,</strong> and <strong>💰 Wealth</strong>{' '}
-            give you <strong>2000 points</strong> each.
+            give you <Highlight mode={mode}>2000</Highlight> points each.
           </li>
           <li>
-            <strong>💨 Lethality</strong> gives you <strong>500 points</strong>.
+            <strong>💨 Lethality</strong> gives you <Highlight mode={mode}>500</Highlight> points.
           </li>
           <li>
             <strong>💀 Bosses defeated</strong> depends on your difficulty in addition to the kill
-            count. Maxing out at <strong>6000 points</strong> on Impossible difficulty.
+            count. Maxing out at <Highlight mode={mode}>6000</Highlight> points on Impossible
+            difficulty.
           </li>
         </ul>
 
         <p>
           Score growth between ranks is <strong>non-linear</strong>. Meaning that jumping from rank{' '}
           <strong>VIII</strong> (8) to <strong>IX</strong> (9) in one parameter is usually worth a
-          lot more than jumping from <strong>I</strong> to <strong>V</strong> in another. This is
-          important to keep in mind if you are forced to prioritize one parameter over another.
-          Sadly, most of these parameters are completely invisible to you during the run, so
-          you&apos;ll have to keep track of them on your own.
+          lot more than jumping from <strong>I</strong> to <strong>V</strong> in another. Important
+          to keep in mind if you are forced to prioritize one parameter over another. Sadly, most of
+          these parameters are completely invisible to you during the run, so you&apos;ll have to
+          keep track of them on your own.
         </p>
 
-        <ExampleBox emoji="💡">
+        <ExampleBox emoji="🧠">
           Sacrificing a perfect <strong>Awareness</strong> score, just to slightly improve your{' '}
           <strong>Versatility</strong>, is effectively never worth it! One exception might be{' '}
           <strong>Lethality</strong>, as it only gives you a measly <strong>500</strong> points at
@@ -174,10 +182,10 @@ function InGameScorePanel({ mode, openByDefault = false }: InGameScorePanelProps
         </ul>
       </div>
 
-      <p>
+      <ExampleBox emoji="💯">
         These numbers will of course vary over time, as the game introduces new malignancies, or
-        tweaks the bonus percentages of existing ones.
-      </p>
+        tweaks existing ones.
+      </ExampleBox>
     </CollapsiblePanel>
   )
 }

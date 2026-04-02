@@ -10,4 +10,8 @@
   border: 1px dotted $color-component-border;
   color: $color-primary-active;
   white-space: nowrap;
+
+  @media (max-width: $breakpoint-mobile) {
+    font-size: font-size('xxs');
+  }
 }
