@@ -1,4 +1,5 @@
 @use 'index' as *;
+@use 'sass:color' as color;
 
 .content {
   display: flex;
@@ -40,6 +41,16 @@
     width: 100%;
     border: 1px solid $color-component-border-dark;
     border-radius: 0.25rem;
+
+    &--Standard {
+      border-color: color.adjust($color-scoring-standard, $alpha: -0.35);
+    }
+    &--Sunforge {
+      border-color: color.adjust($color-scoring-sunforge, $alpha: -0.35);
+    }
+    &--WeeklyChallenge {
+      border-color: color.adjust($color-scoring-weekly-challenge, $alpha: -0.35);
+    }
 
     @media (max-width: $breakpoint-mobile) {
       display: flex;

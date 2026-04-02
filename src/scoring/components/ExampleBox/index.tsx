@@ -2,28 +2,27 @@ import { ReactNode } from 'react'
 
 import { createCx } from '@/shared/utils/classnames'
 
+import { GameMode } from '@/scoring/types'
+
 import styles from './index.module.scss'
 
 const cx = createCx(styles)
 
 interface ExampleBoxProps {
-  title?: string
-  emoji?: string
+  emoji: string
+  mode: GameMode
   children: ReactNode
 }
 
-function ExampleBox({ title, emoji, children }: ExampleBoxProps): JSX.Element {
+function ExampleBox({ emoji, mode, children }: ExampleBoxProps): JSX.Element {
   return (
-    <div className={cx('example-box')}>
+    <div className={cx('example-box', `example-box--${mode}`)}>
       {emoji && (
-        <div className={cx('emoji-badge')}>
+        <div className={cx('emoji-badge', `emoji-badge--${mode}`)}>
           <span className={cx('emoji')}>{emoji}</span>
         </div>
       )}
-      <div className={cx('content')}>
-        {title && <p className={cx('title')}>{title}</p>}
-        {children}
-      </div>
+      <div className={cx('content')}>{children}</div>
     </div>
   )
 }

@@ -17,14 +17,14 @@
     display: block;
     padding: 0.75rem;
     border-radius: 0.25rem;
-    border: 1px solid $color-component-border-dark;
-    font-size: font-size('xs');
+    font-size: font-size('sm');
     color: $color-primary-muted;
     margin-bottom: 1rem;
 
     @media (max-width: $breakpoint-mobile) {
       padding: 0.5rem;
       margin-bottom: 0.75rem;
+      font-size: font-size('xs');
     }
   }
 }

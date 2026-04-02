@@ -35,14 +35,17 @@ function Scoring(): JSX.Element {
         onLogoClick={resetToScoring}
         logoSrc={DeificLarcenyImageUrl}
         title="Scoring"
-        subtitle="Dawncaster scoring guides"
+        subtitle="Dawncaster scoring guide"
         currentPage="scoring"
       />
 
       <div className={cx('content')}>
         <ScoringGuidePanel selectedMode={selectedMode} onModeChange={setSelectedMode} />
 
-        <InGameScorePanel mode={selectedMode} openByDefault={selectedMode === GameMode.Standard} />
+        <InGameScorePanel
+          mode={selectedMode}
+          openByDefault={selectedMode !== GameMode.WeeklyChallenge}
+        />
 
         {selectedMode === GameMode.WeeklyChallenge && (
           <BlightbaneScorePanel

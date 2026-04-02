@@ -86,7 +86,7 @@ function InGameScorePanel({ mode, openByDefault = false }: InGameScorePanelProps
               className={cx('score-image')}
             />
           </div>
-          <div className={cx('right-column')}>
+          <div className={cx('right-column', `right-column--${mode}`)}>
             <ul className={cx('score-parameters')}>
               {SCORE_PARAMETERS.map(({ label, emoji, description }) => (
                 <li key={label}>
@@ -136,7 +136,7 @@ function InGameScorePanel({ mode, openByDefault = false }: InGameScorePanelProps
           keep track of them on your own.
         </p>
 
-        <ExampleBox emoji="🧠">
+        <ExampleBox emoji="🧠" mode={mode}>
           Sacrificing a perfect <strong>Awareness</strong> score, just to slightly improve your{' '}
           <strong>Versatility</strong>, is effectively never worth it! One exception might be{' '}
           <strong>Lethality</strong>, as it only gives you a measly <strong>500</strong> points at
@@ -182,7 +182,7 @@ function InGameScorePanel({ mode, openByDefault = false }: InGameScorePanelProps
         </ul>
       </div>
 
-      <ExampleBox emoji="💯">
+      <ExampleBox emoji="💯" mode={mode}>
         These numbers will of course vary over time, as the game introduces new malignancies, or
         tweaks existing ones.
       </ExampleBox>

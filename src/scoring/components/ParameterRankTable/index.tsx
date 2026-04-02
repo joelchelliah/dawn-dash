@@ -198,7 +198,7 @@ function ParameterRankTable({ mode }: ParameterRankTableProps): JSX.Element {
   }))
 
   return (
-    <div className={cx('parameter-selector-container')}>
+    <div className={cx('parameter-selector-container', `parameter-selector-container--${mode}`)}>
       <div className={cx('columns')}>
         {isMobile ? (
           <div className={cx('mobile-select-container')}>
@@ -213,7 +213,7 @@ function ParameterRankTable({ mode }: ParameterRankTableProps): JSX.Element {
           </div>
         ) : (
           <div className={cx('left-column')}>
-            <ul className={cx('parameter-list')}>
+            <ul className={cx('parameter-list', `parameter-list--${mode}`)}>
               {PARAMETER_DETAILS.map((param) => (
                 <li
                   key={param.id}
@@ -244,16 +244,16 @@ function ParameterRankTable({ mode }: ParameterRankTableProps): JSX.Element {
                     <table className={cx('difficulty-table')}>
                       <thead>
                         <tr>
-                          <th>Difficulty</th>
-                          <th>Bosses available</th>
-                          <th>Points per boss</th>
-                          <th>Max score</th>
+                          <th className={cx(`mode--${mode}`)}>Difficulty</th>
+                          <th className={cx(`mode--${mode}`)}>Bosses available</th>
+                          <th className={cx(`mode--${mode}`)}>Points per boss</th>
+                          <th className={cx(`mode--${mode}`)}>Max score</th>
                         </tr>
                       </thead>
                       <tbody>
                         {BOSSES_DIFFICULTY_DATA.map(
                           ({ difficulty, bosses, pointsPerBoss, maxPoints }) => (
-                            <tr key={difficulty}>
+                            <tr key={difficulty} className={cx(`mode--${mode}`)}>
                               <td className={cx('difficulty-name')}>{difficulty}</td>
                               <td>{bosses}</td>
                               <td className={cx('points')}>{pointsPerBoss.toLocaleString()}</td>
@@ -268,14 +268,14 @@ function ParameterRankTable({ mode }: ParameterRankTableProps): JSX.Element {
                   <table className={cx('ranks-table')}>
                     <thead>
                       <tr>
-                        <th>Rank</th>
-                        <th>Threshold</th>
-                        <th>Score</th>
+                        <th className={cx(`mode--${mode}`)}>Rank</th>
+                        <th className={cx(`mode--${mode}`)}>Threshold</th>
+                        <th className={cx(`mode--${mode}`)}>Score</th>
                       </tr>
                     </thead>
                     <tbody>
                       {selectedParam.ranks.map((rank) => (
-                        <tr key={rank.rank}>
+                        <tr key={rank.rank} className={cx(`mode--${mode}`)}>
                           <td className={cx('rank')}>{rank.rank}</td>
                           <td>{rank.threshold}</td>
                           <td className={cx('points')}>{rank.points.toLocaleString()}</td>
@@ -288,7 +288,7 @@ function ParameterRankTable({ mode }: ParameterRankTableProps): JSX.Element {
                 {selectedParam.id === 'damage' && (
                   <div>
                     <br />
-                    <ExampleBox emoji="💥">
+                    <ExampleBox emoji="💥" mode={mode}>
                       <p>
                         Overkill damage counts as well! However, charm kills don&apos;t count as
                         damage dealt, even with a high charm value. Slay and subjugation wins also
@@ -301,7 +301,7 @@ function ParameterRankTable({ mode }: ParameterRankTableProps): JSX.Element {
                 {selectedParam.id === 'awareness' && (
                   <div>
                     <br />
-                    <ExampleBox emoji="🫀">
+                    <ExampleBox emoji="🫀" mode={mode}>
                       <p>
                         Beware of effects/enchantments that can add <strong>Stagger</strong> or{' '}
                         <strong>Poison</strong> to you before your first turn. This can ruin a
@@ -314,7 +314,7 @@ function ParameterRankTable({ mode }: ParameterRankTableProps): JSX.Element {
                 {selectedParam.id === 'lethality' && (
                   <div>
                     <br />
-                    <ExampleBox emoji="🤺">
+                    <ExampleBox emoji="🤺" mode={mode}>
                       <p>
                         Note that whenever an enemy has <strong>First Strike</strong>, you are
                         already starting that fight on turn 2. This is regardless of whether you
@@ -327,7 +327,7 @@ function ParameterRankTable({ mode }: ParameterRankTableProps): JSX.Element {
                 {selectedParam.id === 'versatility' && (
                   <div>
                     <br />
-                    <ExampleBox emoji="🛒">
+                    <ExampleBox emoji="🛒" mode={mode}>
                       <p>
                         Getting several copies of the same card will <strong>not</strong> affect
                         this parameter at all! Only disctinct cards are counted.
@@ -353,14 +353,14 @@ function ParameterRankTable({ mode }: ParameterRankTableProps): JSX.Element {
                     <table className={cx('values-table')}>
                       <thead>
                         <tr>
-                          <th>Card rarity</th>
-                          <th>Base value</th>
-                          <th>&quot;Valuable&quot; value</th>
+                          <th className={cx(`mode--${mode}`)}>Card rarity</th>
+                          <th className={cx(`mode--${mode}`)}>Base value</th>
+                          <th className={cx(`mode--${mode}`)}>&quot;Valuable&quot; value</th>
                         </tr>
                       </thead>
                       <tbody>
                         {CARD_VALUES.map(({ rarity, baseValue, valuableValue }) => (
-                          <tr key={rarity}>
+                          <tr key={rarity} className={cx(`mode--${mode}`)}>
                             <td className={cx('rarity')}>{rarity}</td>
                             <td className={cx('value')}>{baseValue}</td>
                             <td className={cx('value')}>{valuableValue}</td>
@@ -372,7 +372,7 @@ function ParameterRankTable({ mode }: ParameterRankTableProps): JSX.Element {
                     <br />
                     <br />
 
-                    <ExampleBox emoji="💍">
+                    <ExampleBox emoji="💍" mode={mode}>
                       <p>
                         Let&apos;s say you have 1 gold. How many <strong>Ring of Power</strong> do
                         you need to max out your <strong>Wealth</strong> bonus?
@@ -401,16 +401,16 @@ function ParameterRankTable({ mode }: ParameterRankTableProps): JSX.Element {
                       <table className={cx('difficulty-table')}>
                         <thead>
                           <tr>
-                            <th>Difficulty</th>
-                            <th>Bosses available</th>
-                            <th>Points per boss</th>
-                            <th>Max score</th>
+                            <th className={cx(`mode--${mode}`)}>Difficulty</th>
+                            <th className={cx(`mode--${mode}`)}>Bosses available</th>
+                            <th className={cx(`mode--${mode}`)}>Points per boss</th>
+                            <th className={cx(`mode--${mode}`)}>Max score</th>
                           </tr>
                         </thead>
                         <tbody>
                           {BOSSES_DIFFICULTY_DATA.map(
                             ({ difficulty, bosses, pointsPerBoss, maxPoints }) => (
-                              <tr key={difficulty}>
+                              <tr key={difficulty} className={cx(`mode--${mode}`)}>
                                 <td className={cx('difficulty-name')}>{difficulty}</td>
                                 <td>{bosses}</td>
                                 <td className={cx('points')}>{pointsPerBoss.toLocaleString()}</td>
@@ -425,14 +425,14 @@ function ParameterRankTable({ mode }: ParameterRankTableProps): JSX.Element {
                     <table className={cx('ranks-table')}>
                       <thead>
                         <tr>
-                          <th>Rank</th>
-                          <th>Threshold</th>
-                          <th>Score</th>
+                          <th className={cx(`mode--${mode}`)}>Rank</th>
+                          <th className={cx(`mode--${mode}`)}>Threshold</th>
+                          <th className={cx(`mode--${mode}`)}>Score</th>
                         </tr>
                       </thead>
                       <tbody>
                         {selectedParam.ranks.map((rank) => (
-                          <tr key={rank.rank}>
+                          <tr key={rank.rank} className={cx(`mode--${mode}`)}>
                             <td className={cx('rank')}>{rank.rank}</td>
                             <td>{rank.threshold}</td>
                             <td className={cx('points')}>{rank.points.toLocaleString()}</td>
@@ -445,7 +445,7 @@ function ParameterRankTable({ mode }: ParameterRankTableProps): JSX.Element {
                   {selectedParam.id === 'damage' && (
                     <div>
                       <br />
-                      <ExampleBox emoji="💥">
+                      <ExampleBox emoji="💥" mode={mode}>
                         <p>
                           Overkill damage counts as well! However, charm kills don&apos;t count as
                           damage dealt, even with a high charm value. Slay and subjugation wins also
@@ -458,7 +458,7 @@ function ParameterRankTable({ mode }: ParameterRankTableProps): JSX.Element {
                   {selectedParam.id === 'awareness' && (
                     <div>
                       <br />
-                      <ExampleBox emoji="🫀">
+                      <ExampleBox emoji="🫀" mode={mode}>
                         <p>
                           Beware of effects/enchantments that can add <strong>Stagger</strong> or{' '}
                           <strong>Poison</strong> to you before your first turn. This can ruin a
@@ -471,7 +471,7 @@ function ParameterRankTable({ mode }: ParameterRankTableProps): JSX.Element {
                   {selectedParam.id === 'lethality' && (
                     <div>
                       <br />
-                      <ExampleBox emoji="🤺">
+                      <ExampleBox emoji="🤺" mode={mode}>
                         <p>
                           Note that whenever an enemy has <strong>First Strike</strong>, you are
                           already starting that fight on turn 2. This is regardless of whether you
@@ -484,7 +484,7 @@ function ParameterRankTable({ mode }: ParameterRankTableProps): JSX.Element {
                   {selectedParam.id === 'versatility' && (
                     <div>
                       <br />
-                      <ExampleBox emoji="🛒">
+                      <ExampleBox emoji="🛒" mode={mode}>
                         <p>
                           Getting several copies of the same card will <strong>not</strong> affect
                           this parameter at all! Only disctinct cards are counted.
@@ -510,14 +510,14 @@ function ParameterRankTable({ mode }: ParameterRankTableProps): JSX.Element {
                       <table className={cx('values-table')}>
                         <thead>
                           <tr>
-                            <th>Card rarity</th>
-                            <th>Base value</th>
-                            <th>&quot;Valuable&quot; value</th>
+                            <th className={cx(`mode--${mode}`)}>Card rarity</th>
+                            <th className={cx(`mode--${mode}`)}>Base value</th>
+                            <th className={cx(`mode--${mode}`)}>&quot;Valuable&quot; value</th>
                           </tr>
                         </thead>
                         <tbody>
                           {CARD_VALUES.map(({ rarity, baseValue, valuableValue }) => (
-                            <tr key={rarity}>
+                            <tr key={rarity} className={cx(`mode--${mode}`)}>
                               <td className={cx('rarity')}>{rarity}</td>
                               <td className={cx('value')}>{baseValue}</td>
                               <td className={cx('value')}>{valuableValue}</td>
@@ -529,7 +529,7 @@ function ParameterRankTable({ mode }: ParameterRankTableProps): JSX.Element {
                       <br />
                       <br />
 
-                      <ExampleBox emoji="💍">
+                      <ExampleBox emoji="💍" mode={mode}>
                         <p>
                           Let&apos;s say you have 1 gold. How many <strong>Ring of Power</strong> do
                           you need to max out your <strong>Wealth</strong> bonus?

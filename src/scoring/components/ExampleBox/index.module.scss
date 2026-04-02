@@ -1,12 +1,36 @@
 @use 'index' as *;
+@use 'sass:color' as color;
 
+@mixin standard() {
+  background-color: $color-base-bg;
+  border-color: color.adjust($color-scoring-standard, $alpha: -0.35);
+}
+
+@mixin sunforge() {
+  background-color: $color-base-bg;
+  border-color: color.adjust($color-scoring-sunforge, $alpha: -0.35);
+}
+
+@mixin weekly-challenge() {
+  background-color: $color-base-bg;
+  border-color: color.adjust($color-scoring-weekly-challenge, $alpha: -0.35);
+}
 .example-box {
   position: relative;
-  background-color: rgba(100, 150, 255, 0.05);
-  border: 1px solid rgba(100, 150, 255, 0.2);
+  border: 1px solid $color-component-border-dark;
   border-radius: 0.5rem;
   padding: 1rem;
   margin: 0 1rem 1rem 1rem;
+
+  &--Standard {
+    @include standard();
+  }
+  &--Sunforge {
+    @include sunforge();
+  }
+  &--WeeklyChallenge {
+    @include weekly-challenge();
+  }
 }
 
 .emoji-badge {
@@ -21,6 +45,16 @@
   display: flex;
   align-items: center;
   justify-content: center;
+
+  &--Standard {
+    @include standard();
+  }
+  &--Sunforge {
+    @include sunforge();
+  }
+  &--WeeklyChallenge {
+    @include weekly-challenge();
+  }
 
   @media (max-width: $breakpoint-mobile) {
     width: 1.75rem;
@@ -50,9 +84,4 @@
       margin-bottom: 0;
     }
   }
-}
-
-.title {
-  font-weight: 600;
-  color: $color-primary-active;
 }

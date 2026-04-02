@@ -10,7 +10,6 @@ import { CharacterClass } from '@/shared/types/characterClass'
 
 import { GameMode } from '../../types'
 import CollapsiblePanel from '../CollapsiblePanel'
-import Highlight from '../Highlight'
 
 import styles from './index.module.scss'
 
@@ -79,46 +78,6 @@ const getButtonBorderColor = (mode: GameMode, isActive: boolean): string => {
   }
 }
 
-const getStandardModeContent = () => {
-  return (
-    <div className={cx('description')}>
-      <p>
-        The <Highlight mode={GameMode.Standard}>Standard</Highlight> scoring is based solely on the{' '}
-        <strong>in-game scoring parameters</strong> which you see at the end of the run.
-      </p>
-    </div>
-  )
-}
-
-const getSunforgeModeContent = () => {
-  return (
-    <div className={cx('description')}>
-      <p>
-        The <Highlight mode={GameMode.Sunforge}>Sunforge</Highlight> scoring is based on the same
-        in-game scoring parameters as the <strong>Standard</strong> mode, but with an additional{' '}
-        <strong>Sunforge score multiplier</strong> depending on how many rerolls you have left at
-        the end of the run.
-      </p>
-
-      <p className={cx('notice')}>
-        🚚 🚚 🚚 TODO: MOVE THIS TO IN-GAME SECTION?!
-        <br />
-        ℹ️ There are some tiny differences in the in-game scoring parameters between Sunforge and
-        Standard mode, but the minimum and maximum values are still the same. So these differences
-        will not be covered below.
-      </p>
-    </div>
-  )
-}
-
-const getWeeklyChallengeModeContent = () => {
-  return (
-    <div className={cx('description')}>
-      <p>Game mode info will be added here.</p>
-    </div>
-  )
-}
-
 function ScoringGuidePanel({ selectedMode, onModeChange }: ScoringGuidePanelProps): JSX.Element {
   return (
     <CollapsiblePanel>
@@ -141,10 +100,6 @@ function ScoringGuidePanel({ selectedMode, onModeChange }: ScoringGuidePanelProp
             />
           ))}
         </div>
-
-        {selectedMode === GameMode.Standard && getStandardModeContent()}
-        {selectedMode === GameMode.Sunforge && getSunforgeModeContent()}
-        {selectedMode === GameMode.WeeklyChallenge && getWeeklyChallengeModeContent()}
       </div>
     </CollapsiblePanel>
   )
