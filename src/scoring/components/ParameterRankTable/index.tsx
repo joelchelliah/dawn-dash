@@ -2,6 +2,9 @@ import { useState } from 'react'
 
 import ScrollableWithFade from '@/shared/components/ScrollableWithFade'
 import { createCx } from '@/shared/utils/classnames'
+import Code from '@/shared/components/Code'
+
+import { GameMode } from '@/scoring/types'
 
 import ExampleBox from '../ExampleBox'
 
@@ -170,7 +173,11 @@ const CARD_VALUES = [
 const MAX_HEIGHT = '450px'
 const SCROLL_BOTTOM_OFFSET = 125
 
-function ParameterRankTable(): JSX.Element {
+interface ParameterRankTableProps {
+  mode: GameMode
+}
+
+function ParameterRankTable({ mode }: ParameterRankTableProps): JSX.Element {
   const [selectedParameter, setSelectedParameter] = useState<ParameterId>('damage')
 
   const selectedParam = PARAMETER_DETAILS.find((p) => p.id === selectedParameter)
@@ -183,7 +190,7 @@ function ParameterRankTable(): JSX.Element {
             {PARAMETER_DETAILS.map((param) => (
               <li
                 key={param.id}
-                className={cx('parameter-item', {
+                className={cx('parameter-item', `parameter-item--${mode}`, {
                   active: selectedParameter === param.id,
                 })}
                 onClick={() => setSelectedParameter(param.id)}
@@ -347,7 +354,7 @@ function ParameterRankTable(): JSX.Element {
                         you need to max out your <strong>Wealth</strong> bonus?
                       </p>
                       <p>
-                        <strong>Answer: 25</strong> (25 × 4 × 50 + 1 = 5001)
+                        <strong>Answer: 25</strong> (<Code>25 × 4 × 50 + 1 = 5001</Code>)
                       </p>
                     </ExampleBox>
                   </div>

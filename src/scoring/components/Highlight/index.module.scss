@@ -1,0 +1,17 @@
+@use 'index' as *;
+
+.highlight {
+  font-weight: 600;
+
+  &--standard {
+    color: $color-scoring-standard;
+  }
+
+  &--sunforge {
+    color: $color-scoring-sunforge;
+  }
+
+  &--weekly-challenge {
+    color: $color-scoring-weekly-challenge;
+  }
+}

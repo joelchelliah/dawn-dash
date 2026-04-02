@@ -119,35 +119,10 @@
     white-space: nowrap;
   }
 
-  .section {
-    margin-top: 2rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid $color-component-border-dark;
-
-    &:first-of-type {
-      border-top: none;
-      padding-top: 0;
-    }
-  }
-
-  .section-title {
-    font-size: font-size('lg');
-    font-weight: 700;
-    margin: 0 0 1rem 0;
-    color: $color-primary-hover;
-  }
-
-  .subsection-title {
-    font-size: font-size('base');
-    font-weight: 600;
-    margin: 1rem 0 0.5rem 0;
-    color: $color-primary-active;
-  }
-
   .simple-list {
     list-style: none;
     padding-left: 0.5rem;
-    margin: -1rem 0 0;
+    margin: -1.75rem 0 0.5rem;
 
     li {
       padding: 0.25rem 0;
@@ -159,109 +134,5 @@
         margin-right: 0.5rem;
       }
     }
-  }
-
-  .difficulty-table,
-  .ranks-table,
-  .values-table,
-  .max-scores-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 1rem 0;
-    font-size: font-size('sm');
-
-    @media (max-width: $breakpoint-mobile) {
-      font-size: font-size('xs');
-    }
-
-    thead {
-      background-color: rgba(0, 0, 0, 0.3);
-
-      th {
-        padding: 0.75rem;
-        text-align: left;
-        font-weight: 600;
-        color: $color-primary-active;
-        border-bottom: 2px solid $color-component-border;
-
-        @media (max-width: $breakpoint-mobile) {
-          padding: 0.5rem;
-        }
-      }
-    }
-
-    tbody {
-      tr {
-        border-bottom: 1px solid $color-component-border-dark;
-
-        &:nth-child(even) {
-          background-color: rgba(0, 0, 0, 0.15);
-        }
-
-        &:hover {
-          background-color: rgba(255, 255, 255, 0.05);
-        }
-      }
-
-      td {
-        padding: 0.75rem;
-        color: $color-primary-base;
-
-        @media (max-width: $breakpoint-mobile) {
-          padding: 0.5rem;
-        }
-      }
-    }
-  }
-
-  .difficulty-name {
-    font-weight: 600;
-    color: $color-primary-active;
-  }
-
-  .points,
-  .max-score {
-    font-weight: 600;
-    color: $yellow-base;
-    text-align: right;
-  }
-
-  .rank {
-    font-weight: 700;
-    color: $color-primary-hover;
-    text-align: center;
-    width: 4rem;
-  }
-
-  .rarity {
-    font-weight: 500;
-  }
-
-  .value {
-    text-align: right;
-    font-weight: 600;
-  }
-
-  .note {
-    font-size: font-size('sm');
-    color: $color-primary-muted;
-    font-style: italic;
-    margin: 0.75rem 0;
-    line-height: 1.6;
-  }
-
-  .card-values {
-    margin-top: 1rem;
-  }
-
-  .hint {
-    font-size: font-size('sm');
-    color: $color-primary-muted;
-    font-style: italic;
-  }
-
-  .answer {
-    font-weight: 600;
-    color: $yellow-base;
   }
 }

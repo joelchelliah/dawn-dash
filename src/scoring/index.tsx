@@ -42,7 +42,7 @@ function Scoring(): JSX.Element {
       <div className={cx('content')}>
         <ScoringGuidePanel selectedMode={selectedMode} onModeChange={setSelectedMode} />
 
-        <InGameScorePanel openByDefault={selectedMode === GameMode.Standard} />
+        <InGameScorePanel mode={selectedMode} openByDefault={selectedMode === GameMode.Standard} />
 
         {selectedMode === GameMode.WeeklyChallenge && (
           <BlightbaneScorePanel

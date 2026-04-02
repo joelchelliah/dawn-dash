@@ -10,6 +10,7 @@ import { CharacterClass } from '@/shared/types/characterClass'
 
 import { GameMode } from '../../types'
 import CollapsiblePanel from '../CollapsiblePanel'
+import Highlight from '../Highlight'
 
 import styles from './index.module.scss'
 
@@ -82,8 +83,8 @@ const getStandardModeContent = () => {
   return (
     <div className={cx('description')}>
       <p>
-        The <span className={cx('highlight-standard')}>Standard</span> scoring is based solely on
-        the <strong>in-game scoring parameters</strong> which you see at the end of the run.
+        The <Highlight mode={GameMode.Standard}>Standard</Highlight> scoring is based solely on the{' '}
+        <strong>in-game scoring parameters</strong> which you see at the end of the run.
       </p>
     </div>
   )
@@ -93,7 +94,7 @@ const getSunforgeModeContent = () => {
   return (
     <div className={cx('description')}>
       <p>
-        The <span className={cx('highlight-sunforge')}>Sunforge</span> scoring is based on the same
+        The <Highlight mode={GameMode.Sunforge}>Sunforge</Highlight> scoring is based on the same
         in-game scoring parameters as the <strong>Standard</strong> mode, but with an additional{' '}
         <strong>Sunforge score multiplier</strong> depending on how many rerolls you have left at
         the end of the run.

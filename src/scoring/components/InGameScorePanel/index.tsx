@@ -1,8 +1,12 @@
+import Code from '@/shared/components/Code'
 import Image from '@/shared/components/Image'
 import { createCx } from '@/shared/utils/classnames'
 
+import { GameMode } from '@/scoring/types'
+
 import CollapsiblePanel from '../CollapsiblePanel'
 import ExampleBox from '../ExampleBox'
+import Highlight from '../Highlight'
 import ParameterRankTable from '../ParameterRankTable'
 
 import styles from './index.module.scss'
@@ -10,6 +14,7 @@ import styles from './index.module.scss'
 const cx = createCx(styles)
 
 interface InGameScorePanelProps {
+  mode: GameMode
   openByDefault?: boolean
 }
 
@@ -47,19 +52,22 @@ const SCORE_PARAMETERS = [
 ]
 
 const MAX_SCORES = [
-  { difficulty: 'Impossible', score: 47125 },
-  { difficulty: 'Hard', score: 40625 },
-  { difficulty: 'Challenging', score: 32175 },
-  { difficulty: 'Normal', score: 29900 },
+  { difficulty: 'Hard', score: 40000, calc: '(4000 + 4 × 2000 + 500) × (1 + 2.2)' },
+  { difficulty: 'Challenging', score: 31680, calc: '(1400 + 4 × 2000 + 500) × (1 + 2.2)' },
+  { difficulty: 'Normal', score: 29440, calc: '(700 + 4 × 2000 + 500) × (1 + 2.2)' },
 ]
 
-function InGameScorePanel({ openByDefault = false }: InGameScorePanelProps): JSX.Element {
-  const title = <span>💯 &nbsp;In-Game Score</span>
+function InGameScorePanel({ mode, openByDefault = false }: InGameScorePanelProps): JSX.Element {
+  const title = <span>💯 &nbsp;Standard score</span>
 
   return (
     <CollapsiblePanel title={title} collapsible defaultExpanded={openByDefault}>
       <div className={cx('content')}>
-        <p>The in-game score is determined by the following six parameters:</p>
+        <p>
+          Your <Highlight mode={mode}>Standard</Highlight> mode score is determined by the sum of
+          your score in six different parameters, multiplied by your <strong>Malignancy</strong>{' '}
+          modifier. These six parameters are:
+        </p>
 
         <div className={cx('columns')}>
           <div className={cx('left-column')}>
@@ -114,56 +122,62 @@ function InGameScorePanel({ openByDefault = false }: InGameScorePanelProps): JSX
         <p>
           Score growth between ranks is <strong>non-linear</strong>. Meaning that jumping from rank{' '}
           <strong>VIII</strong> (8) to <strong>IX</strong> (9) in one parameter is usually worth a
-          lot more than jumping from <strong>I</strong> to <strong>III</strong> in another.
+          lot more than jumping from <strong>I</strong> to <strong>V</strong> in another. This is
+          important to keep in mind if you are forced to prioritize one parameter over another.
+          Sadly, most of these parameters are completely invisible to you during the run, so
+          you&apos;ll have to keep track of them on your own.
         </p>
 
         <ExampleBox emoji="💡">
           Sacrificing a perfect <strong>Awareness</strong> score, just to slightly improve your{' '}
           <strong>Versatility</strong>, is effectively never worth it! One exception might be{' '}
           <strong>Lethality</strong>, as it only gives you a measly <strong>500</strong> points at
-          max rank.
+          max rank, and also drops very slowly.
         </ExampleBox>
 
-        <p>Here&apos;s a detailed breakdown of the ranks and scores for each parameter:</p>
+        <p>Here&apos;s a detailed breakdown of each parameter:</p>
 
-        <ParameterRankTable />
+        <ParameterRankTable mode={mode} />
 
-        <div className={cx('section')}>
-          <h3 className={cx('section-title')}>🏆 Maximum In-Game Score</h3>
-          <p>
-            The total in-game <em>base</em> score is the sum of all these parameters. If you max out
-            everything on Impossible difficulty, this gives you a base of <strong>14,500</strong>{' '}
-            (6000 + 4 × 2000 + 500).
-          </p>
+        <br />
+        <p>
+          Your in-game <strong>base score</strong> is the sum of these six parameters. If you max
+          out everything on <strong>Impossible</strong> difficulty, this gives you a base score of{' '}
+          <Highlight mode={mode}>14,500</Highlight> (<Code>6000 + 4 × 2000 + 500</Code>).
+        </p>
 
-          <p>
-            This score is then multiplied by your <strong>malignancy modifier</strong>. As of the
-            time of writing, the max malignancy % you can have is <strong>225%</strong>.
-          </p>
+        <p>
+          This score is then multiplied by your <strong>Malignancy</strong> modifier, which is the
+          sum of all malignancies enabled for the run. As of the time of writing{' '}
+          <small>
+            <em>(01.04.2026)</em>
+          </small>
+          , the highest malignancy percentage you can have is <strong>220%</strong>. Going with the
+          numbers above, this gives us a Malignancy bonus of{' '}
+          <Highlight mode={mode}>31,900</Highlight> (<Code>14500 × 2.2</Code>).
+        </p>
+        <p>
+          Adding that to the base score, puts the highest achievable in-game score for an{' '}
+          <strong>Impossible</strong> run at <Highlight mode={mode}>46,400</Highlight> (
+          <Code>14500 + 31900</Code>)!
+        </p>
 
-          <p>
-            Taking that into account, the highest achievable in-game score for either a{' '}
-            <strong>Regular run</strong> or a <strong>Weekly Challenge</strong> run is:
-          </p>
+        <p>Similarily for the other difficulties, the highest achievable scores are:</p>
 
-          <table className={cx('max-scores-table')}>
-            <thead>
-              <tr>
-                <th>Difficulty</th>
-                <th>Maximum Score</th>
-              </tr>
-            </thead>
-            <tbody>
-              {MAX_SCORES.map(({ difficulty, score }) => (
-                <tr key={difficulty}>
-                  <td className={cx('difficulty-name')}>{difficulty}</td>
-                  <td className={cx('max-score')}>{score.toLocaleString()}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <ul className={cx('simple-list')}>
+          {MAX_SCORES.map(({ difficulty, score, calc }) => (
+            <li key={difficulty}>
+              <strong>{difficulty}</strong>:{' '}
+              <Highlight mode={mode}>{score.toLocaleString()}</Highlight> ({<Code>{calc}</Code>})
+            </li>
+          ))}
+        </ul>
       </div>
+
+      <p>
+        These numbers will of course vary over time, as the game introduces new malignancies, or
+        tweaks the bonus percentages of existing ones.
+      </p>
     </CollapsiblePanel>
   )
 }
