@@ -22,7 +22,7 @@ function InfoModal({ additionalText, children, isOpen, onClose, scrollable }: In
         </div>
       )}
       <GradientButton bold className={styles['close-button']} onClick={onClose}>
-        Nice!
+        Got it!
       </GradientButton>
     </Modal>
   )

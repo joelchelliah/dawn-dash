@@ -12,6 +12,7 @@ import { GameMode } from '@/scoring/types'
 import ExampleBox from '../ExampleBox'
 
 import styles from './index.module.scss'
+import Highlight from '../Highlight'
 
 const cx = createCx(styles)
 
@@ -29,17 +30,24 @@ const PARAMETER_DETAILS = [
     id: 'bosses' as const,
     emoji: '💀',
     title: 'Bosses defeated',
-    description: (
+    standardDesc: (
       <span>
         This is the only parameter that scores differently across <strong>difficulty</strong>{' '}
         levels, giving you a higher bonus per kill depending on the difficulty of your current run.
         How the ranks are assigned for this parameter is not that relevant, as the score is just the
         sum of the points for each boss defeated, for the given difficulty.
+      </span>
+    ),
+    sunforgeDesc: (
+      <span>
+        This parameter is scored solely based on the number of bosses defeated. The further you make
+        it in the run, the more points you get per boss. How the ranks are assigned for this
+        parameter is therefore not relevant.
         <br />
         <br />
-        Having access to an 8th boss for the two hardest difficulties significantly increases the
-        max achievable total score for <strong>Hard</strong> and <strong>Impossible</strong> runs
-        compared to <strong>Normal</strong> and <strong>Challenging</strong>.
+        The max achievable score for this parameter is{' '}
+        <Highlight mode={GameMode.Sunforge}>11,750</Highlight>, for killing all{' '}
+        <strong>32 bosses</strong>.
       </span>
     ),
   },
@@ -52,6 +60,11 @@ const PARAMETER_DETAILS = [
         Determined by the <strong>highest damage</strong> you do in a single instance. This can
         either be direct action damage, burning, bleed damage (not triggering damage + bleed), doom,
         etc. Any single source of damage will do.
+        <br />
+        <br />
+        This parameter is ranked the same way for both{' '}
+        <Highlight mode={GameMode.Standard}>Standard</Highlight> and{' '}
+        <Highlight mode={GameMode.Sunforge}>Sunforge</Highlight>.
       </span>
     ),
     ranks: [
@@ -78,7 +91,9 @@ const PARAMETER_DETAILS = [
         <br />
         <br />
         The max score for this is probably the hardest one to achieve, as it requires you to finish
-        the entire run with no damage taken. It gets more lenient at lower ranks.
+        the entire run with no damage taken. This parameter is ranked the same way for both{' '}
+        <Highlight mode={GameMode.Standard}>Standard</Highlight> and{' '}
+        <Highlight mode={GameMode.Sunforge}>Sunforge</Highlight>.
       </span>
     ),
     ranks: [
@@ -102,6 +117,11 @@ const PARAMETER_DETAILS = [
         Determined by the <strong>average number of turns</strong> per fight. The easiest parameter
         to max out, hence its lower bonus. The exact rounding mechanism is unclear, but the
         calculated average appears to be rounded down when slightly above a whole number.
+        <br />
+        <br />
+        This parameter is ranked the same way for both{' '}
+        <Highlight mode={GameMode.Standard}>Standard</Highlight> and{' '}
+        <Highlight mode={GameMode.Sunforge}>Sunforge</Highlight>.
       </span>
     ),
     ranks: [
@@ -122,10 +142,22 @@ const PARAMETER_DETAILS = [
     title: 'Versatility',
     description: (
       <span>
-        Determined by the <strong>number of distinct cards</strong> in your deck. Can easily be
-        maxed out in <strong>Regular</strong> runs by picking up all rewards, actively using the
-        shops, or playing several card-generating actions. Only limited by your own ability to
-        manage your inventory.
+        Determined by the <strong>number of distinct cards</strong> in your deck.
+      </span>
+    ),
+    standardDesc: (
+      <span>
+        Can easily be maxed out in <Highlight mode={GameMode.Standard}>Standard</Highlight> runs by
+        picking up all rewards, actively using the shops, and/or playing several card-generating
+        actions. Only limited by your own ability to manage your deck.
+      </span>
+    ),
+    sunforgeDesc: (
+      <span>
+        A lot harder to score well in <Highlight mode={GameMode.Sunforge}>Sunforge</Highlight>{' '}
+        compared to the other modes, as you have very few opportunities to pick up new cards outside
+        of the drafting phase. Might even be impossible to max this out, since you only have a
+        limited amount of battles to rely on any card-generation actions.
       </span>
     ),
     ranks: [
@@ -147,8 +179,25 @@ const PARAMETER_DETAILS = [
     description: (
       <span>
         This can be tricky to understand as it&apos;s based on two separate components:{' '}
-        <strong>Gold</strong> + <strong>Deck value</strong>. We will cover Deck value in more detail
+        <strong>Gold</strong> + <strong>Deck value</strong>. We will cover deck value in more detail
         below.
+      </span>
+    ),
+    standardDesc: (
+      <span>
+        This parameter is ranked a lot more leniently in{' '}
+        <Highlight mode={GameMode.Standard}>Standard</Highlight> mode compared to{' '}
+        <Highlight mode={GameMode.Sunforge}>Sunforge</Highlight>. As we can see below, there is a
+        near-linear progression at lower ranks, with only the upper two ranks being significantly
+        more difficult to achieve:
+      </span>
+    ),
+    sunforgeDesc: (
+      <span>
+        This parameter is ranked a lot stricter in{' '}
+        <Highlight mode={GameMode.Sunforge}>Sunforge</Highlight> mode compared to{' '}
+        <Highlight mode={GameMode.Standard}>Standard</Highlight>. As we can see below, there is a
+        quite a high threshold even for the lower ranks, and a linear progression at higher ranks:
       </span>
     ),
     ranks: [
@@ -156,11 +205,22 @@ const PARAMETER_DETAILS = [
       { rank: 'VIII', threshold: 'Over 2500 total', points: 1500 },
       { rank: 'VII', threshold: 'Over 1500 total', points: 1250 },
       { rank: 'VI', threshold: 'Over 1000 total', points: 1000 },
-      { rank: 'V', threshold: 'Over 700 total', points: 750 },
+      { rank: 'V', threshold: 'Over 750 total', points: 750 },
       { rank: 'IV', threshold: 'Over 400 total', points: 400 },
-      { rank: 'III', threshold: 'Over 250 total', points: 300 },
+      { rank: 'III', threshold: 'Over 250 total', points: 350 },
       { rank: 'II', threshold: 'Over 150 total', points: 200 },
-      { rank: 'I', threshold: 'Any amount', points: '???' },
+      { rank: 'I', threshold: 'Over 100', points: 100 },
+    ],
+    ranksSunforge: [
+      { rank: 'IX', threshold: '???', points: 2000 },
+      { rank: 'VIII', threshold: '???', points: 1500 },
+      { rank: 'VII', threshold: 'Over 2500 total', points: 1250 },
+      { rank: 'VI', threshold: 'Over 2000 total', points: 1000 },
+      { rank: 'V', threshold: 'Over 1500 total', points: 750 },
+      { rank: 'IV', threshold: 'Over 1000 total', points: 400 },
+      { rank: 'III', threshold: 'Over 900 total', points: 350 },
+      { rank: 'II', threshold: 'Over 800 total', points: 200 },
+      { rank: 'I', threshold: '???', points: 100 },
     ],
   },
 ]
@@ -237,7 +297,15 @@ function ParameterRankTable({ mode }: ParameterRankTableProps): JSX.Element {
                 <h3 className={cx('parameter-title')}>
                   {selectedParam.emoji} &nbsp; {selectedParam.title}
                 </h3>
-                <p className={cx('parameter-description')}>{selectedParam.description}</p>
+                {selectedParam.description && (
+                  <p className={cx('parameter-description')}>{selectedParam.description}</p>
+                )}
+                {selectedParam.standardDesc && mode === GameMode.Standard && (
+                  <p className={cx('parameter-description')}>{selectedParam.standardDesc}</p>
+                )}
+                {selectedParam.sunforgeDesc && mode === GameMode.Sunforge && (
+                  <p className={cx('parameter-description')}>{selectedParam.sunforgeDesc}</p>
+                )}
 
                 {selectedParam.id === 'bosses' ? (
                   <div className={cx('bosses-content')}>
@@ -274,7 +342,7 @@ function ParameterRankTable({ mode }: ParameterRankTableProps): JSX.Element {
                       </tr>
                     </thead>
                     <tbody>
-                      {selectedParam.ranks.map((rank) => (
+                      {(selectedParam.ranksSunforge || selectedParam.ranks).map((rank) => (
                         <tr key={rank.rank} className={cx(`mode--${mode}`)}>
                           <td className={cx('rank')}>{rank.rank}</td>
                           <td>{rank.threshold}</td>
@@ -394,9 +462,17 @@ function ParameterRankTable({ mode }: ParameterRankTableProps): JSX.Element {
                   <h3 className={cx('parameter-title')}>
                     {selectedParam.emoji} &nbsp; {selectedParam.title}
                   </h3>
-                  <p className={cx('parameter-description')}>{selectedParam.description}</p>
+                  {selectedParam.description && (
+                    <p className={cx('parameter-description')}>{selectedParam.description}</p>
+                  )}
+                  {selectedParam.standardDesc && mode === GameMode.Standard && (
+                    <p className={cx('parameter-description')}>{selectedParam.standardDesc}</p>
+                  )}
+                  {selectedParam.sunforgeDesc && mode === GameMode.Sunforge && (
+                    <p className={cx('parameter-description')}>{selectedParam.sunforgeDesc}</p>
+                  )}
 
-                  {selectedParam.id === 'bosses' ? (
+                  {selectedParam.id === 'bosses' && mode === GameMode.Standard ? (
                     <div className={cx('bosses-content')}>
                       <table className={cx('difficulty-table')}>
                         <thead>
@@ -431,7 +507,7 @@ function ParameterRankTable({ mode }: ParameterRankTableProps): JSX.Element {
                         </tr>
                       </thead>
                       <tbody>
-                        {selectedParam.ranks.map((rank) => (
+                        {(selectedParam.ranksSunforge || selectedParam.ranks).map((rank) => (
                           <tr key={rank.rank} className={cx(`mode--${mode}`)}>
                             <td className={cx('rank')}>{rank.rank}</td>
                             <td>{rank.threshold}</td>
@@ -442,6 +518,31 @@ function ParameterRankTable({ mode }: ParameterRankTableProps): JSX.Element {
                     </table>
                   ) : null}
 
+                  {selectedParam.id === 'bosses' && mode === GameMode.Standard && (
+                    <div>
+                      <br />
+                      <ExampleBox emoji="👾" mode={mode}>
+                        <p>
+                          Having access to an 8th boss for the two hardest difficulties
+                          significantly increases the max achievable total score for{' '}
+                          <strong>Hard</strong> and <strong>Impossible</strong> runs compared to{' '}
+                          <strong>Normal</strong> and <strong>Challenging</strong>.
+                        </p>
+                      </ExampleBox>
+                    </div>
+                  )}
+                  {selectedParam.id === 'bosses' && mode === GameMode.Sunforge && (
+                    <div>
+                      <br />
+                      <ExampleBox emoji="👾" mode={mode}>
+                        <p>
+                          The score per boss kill most likely increases every time you clear a
+                          Portal. This is also how the game summary assigns a{' '}
+                          <strong>difficulty</strong> tag to your finished run.
+                        </p>
+                      </ExampleBox>
+                    </div>
+                  )}
                   {selectedParam.id === 'damage' && (
                     <div>
                       <br />

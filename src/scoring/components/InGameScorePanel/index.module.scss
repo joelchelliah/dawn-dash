@@ -131,20 +131,13 @@
     white-space: nowrap;
   }
 
-  .simple-list {
-    list-style: none;
-    padding-left: 0.5rem;
-    margin: -1.75rem 0 0.5rem;
+  .disclaimer {
+    display: flex;
+    justify-content: center;
+    width: 100%;
 
-    li {
-      padding: 0.25rem 0;
-      line-height: 1.6;
-
-      &::before {
-        content: '• ';
-        color: $color-primary-muted;
-        margin-right: 0.5rem;
-      }
+    &__link {
+      font-size: font-size('xs');
     }
   }
 }

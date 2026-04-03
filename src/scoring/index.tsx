@@ -29,6 +29,8 @@ function Scoring(): JSX.Element {
   const { showScrollToTopButton, scrollToTop } = useScoringScrollToTop()
   const [selectedMode, setSelectedMode] = useState<GameMode>(GameMode.Standard)
 
+  const inGameScoreMode = selectedMode === GameMode.Sunforge ? GameMode.Sunforge : GameMode.Standard
+
   return (
     <div className={cx('container')}>
       <Header
@@ -43,8 +45,9 @@ function Scoring(): JSX.Element {
         <ScoringGuidePanel selectedMode={selectedMode} onModeChange={setSelectedMode} />
 
         <InGameScorePanel
-          mode={selectedMode}
+          mode={inGameScoreMode}
           openByDefault={selectedMode !== GameMode.WeeklyChallenge}
+          includeWeeklyInfo={selectedMode === GameMode.WeeklyChallenge}
         />
 
         {selectedMode === GameMode.WeeklyChallenge && (
