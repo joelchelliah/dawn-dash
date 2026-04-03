@@ -1,9 +1,6 @@
 import { useState } from 'react'
 
-import ScrollableWithFade from '@/shared/components/ScrollableWithFade'
-import Select from '@/shared/components/Select'
 import { createCx } from '@/shared/utils/classnames'
-import { useBreakpoint } from '@/shared/hooks/useBreakpoint'
 import { CharacterClass } from '@/shared/types/characterClass'
 import Code from '@/shared/components/Code'
 
@@ -11,6 +8,7 @@ import { GameMode } from '@/scoring/types'
 
 import ExampleBox from '../ExampleBox'
 import Highlight from '../Highlight'
+import SelectableScoringInfo, { SelectableItem } from '../SelectableScoringInfo'
 
 import styles from './index.module.scss'
 
@@ -82,7 +80,7 @@ const PARAMETER_DETAILS = [
       { rank: 'IV', threshold: 'Over 100 damage', points: 500 },
       { rank: 'III', threshold: 'Over 50 damage', points: 250 },
       { rank: 'II', threshold: 'Over 25 damage', points: 150 },
-      { rank: 'I', threshold: 'Any damage', points: 100 },
+      { rank: 'I', threshold: '???', points: 100 },
     ],
   },
   {
@@ -138,8 +136,8 @@ const PARAMETER_DETAILS = [
       { rank: 'V', threshold: '6 turns', points: 300 },
       { rank: 'IV', threshold: '7 turns', points: 250 },
       { rank: 'III', threshold: '8 turns', points: 200 },
-      { rank: 'II', threshold: '9 turns', points: 150 },
-      { rank: 'I', threshold: '10+ turns', points: 100 },
+      { rank: 'II', threshold: '???', points: 150 },
+      { rank: 'I', threshold: '???', points: 100 },
     ],
   },
   {
@@ -175,7 +173,7 @@ const PARAMETER_DETAILS = [
       { rank: 'IV', threshold: 'Over 19 cards', points: 500 },
       { rank: 'III', threshold: 'Over 9 cards', points: 250 },
       { rank: 'II', threshold: 'Over 5 cards', points: 100 },
-      { rank: 'I', threshold: 'Any number of cards', points: 50 },
+      { rank: 'I', threshold: '???', points: 50 },
     ],
   },
   {
@@ -215,7 +213,7 @@ const PARAMETER_DETAILS = [
       { rank: 'IV', threshold: 'Over 400 total', points: 400 },
       { rank: 'III', threshold: 'Over 250 total', points: 350 },
       { rank: 'II', threshold: 'Over 150 total', points: 200 },
-      { rank: 'I', threshold: 'Over 100', points: 100 },
+      { rank: 'I', threshold: '???', points: 100 },
     ],
     ranksSunforge: [
       { rank: 'IX', threshold: '???', points: 2000 },
@@ -239,23 +237,20 @@ const CARD_VALUES = [
   { rarity: 'Monster', baseValue: 0, valuableValue: 0 },
 ]
 
-const MAX_HEIGHT = '450px'
-const SCROLL_BOTTOM_OFFSET = 125
-
 interface ParameterRankTableProps {
   mode: GameMode
 }
 
 function ParameterRankTable({ mode }: ParameterRankTableProps): JSX.Element {
   const [selectedParameter, setSelectedParameter] = useState<ParameterId>('damage')
-  const { isMobile } = useBreakpoint()
 
   const selectedParam = PARAMETER_DETAILS.find((p) => p.id === selectedParameter)
   const selectClass = MODE_TO_CLASS[mode]
 
-  const selectOptions = PARAMETER_DETAILS.map((param) => ({
+  const selectOptions: SelectableItem<ParameterId>[] = PARAMETER_DETAILS.map((param) => ({
     value: param.id,
     label: param.title,
+    emoji: param.emoji,
   }))
 
   const renderParameterBasedInfo = () => {
@@ -462,56 +457,15 @@ function ParameterRankTable({ mode }: ParameterRankTableProps): JSX.Element {
   }
 
   return (
-    <div className={cx('parameter-selector-container', `parameter-selector-container--${mode}`)}>
-      <div className={cx('columns')}>
-        {isMobile ? (
-          <div className={cx('mobile-select-container')}>
-            <Select
-              id="parameter-select"
-              selectedClass={selectClass}
-              label="Scoring parameter"
-              options={selectOptions}
-              value={selectedParameter}
-              onChange={(value) => setSelectedParameter(value as ParameterId)}
-            />
-          </div>
-        ) : (
-          <div className={cx('left-column')}>
-            <ul className={cx('parameter-list', `parameter-list--${mode}`)}>
-              {PARAMETER_DETAILS.map((param) => (
-                <li
-                  key={param.id}
-                  className={cx('parameter-item', `parameter-item--${mode}`, {
-                    active: selectedParameter === param.id,
-                  })}
-                  onClick={() => setSelectedParameter(param.id)}
-                >
-                  <span className={cx('parameter-emoji')}>{param.emoji}</span>
-                  <span className={cx('parameter-name')}>{param.title}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        <div className={cx('right-column')}>
-          {selectedParam &&
-            (isMobile ? (
-              <div className={cx('parameter-details', 'parameter-details--mobile')}>
-                {renderParameterContent()}
-              </div>
-            ) : (
-              <ScrollableWithFade
-                maxHeight={MAX_HEIGHT}
-                fadeColor="rgba(0, 0, 0, 1.75)"
-                scrollBottomOffset={SCROLL_BOTTOM_OFFSET}
-              >
-                <div className={cx('parameter-details')}>{renderParameterContent()}</div>
-              </ScrollableWithFade>
-            ))}
-        </div>
-      </div>
-    </div>
+    <SelectableScoringInfo
+      mode={mode}
+      selectedClass={selectClass}
+      items={selectOptions}
+      selectedValue={selectedParameter}
+      onSelectChange={setSelectedParameter}
+      selectLabel="Scoring parameter"
+      renderContent={renderParameterContent}
+    />
   )
 }
 

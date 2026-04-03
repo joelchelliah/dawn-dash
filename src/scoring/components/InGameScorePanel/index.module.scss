@@ -11,63 +11,6 @@
     flex-direction: column;
   }
 
-  .columns {
-    display: flex;
-    flex-direction: row;
-    gap: 1rem;
-    align-items: flex-start;
-    width: 100%;
-
-    @media (max-width: $breakpoint-mobile) {
-      flex-direction: column;
-      align-items: center;
-      gap: 2rem;
-      margin-bottom: -1rem;
-    }
-  }
-
-  .left-column {
-    flex: 0 0 auto;
-
-    @media (max-width: $breakpoint-mobile) {
-      display: flex;
-      justify-content: center;
-    }
-  }
-
-  .right-column {
-    flex: 1;
-    min-width: 0;
-    width: 100%;
-    border: 1px solid $color-component-border-dark;
-    border-radius: 0.25rem;
-
-    &--Standard {
-      border-color: color.adjust($color-scoring-standard, $alpha: -0.35);
-    }
-    &--Sunforge {
-      border-color: color.adjust($color-scoring-sunforge, $alpha: -0.35);
-    }
-    &--WeeklyChallenge {
-      border-color: color.adjust($color-scoring-weekly-challenge, $alpha: -0.35);
-    }
-
-    @media (max-width: $breakpoint-mobile) {
-      display: flex;
-      justify-content: center;
-      width: 100%;
-    }
-  }
-
-  .score-image {
-    width: 302px;
-    height: 310px;
-    border-radius: 0.25rem;
-    box-shadow:
-      0 8px 24px rgba(0, 0, 0, 0.5),
-      0 4px 8px rgba(0, 0, 0, 0.3);
-  }
-
   p {
     margin: 0 0 1rem 0;
     line-height: 1.6;

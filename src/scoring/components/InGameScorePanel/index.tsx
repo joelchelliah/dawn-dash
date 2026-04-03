@@ -1,21 +1,21 @@
 import { useState } from 'react'
+
 import Code from '@/shared/components/Code'
-import Image from '@/shared/components/Image'
 import { createCx } from '@/shared/utils/classnames'
 import { AdaptiveEdgeImageUrl, SunforgeImageUrl } from '@/shared/utils/imageUrls'
+import GradientLink from '@/shared/components/GradientLink'
+import InfoModal from '@/shared/components/Modals/InfoModal'
 
 import { GameMode } from '@/scoring/types'
 
 import CollapsiblePanel from '../CollapsiblePanel'
 import ExampleBox from '../ExampleBox'
 import Highlight from '../Highlight'
+import IllustratedScoringInfo from '../IllustratedScoringInfo'
 import ParameterRankTable from '../ParameterRankTable'
 import ScoringList from '../ScoringList'
 
 import styles from './index.module.scss'
-import ScoringButton from '../ScoringButton'
-import GradientLink from '@/shared/components/GradientLink'
-import InfoModal from '@/shared/components/Modals/InfoModal'
 
 const cx = createCx(styles)
 
@@ -150,29 +150,22 @@ function InGameScorePanel({
       <div className={cx('content')}>
         {getIntro(mode, includeWeeklyInfo)}
 
-        <div className={cx('columns')}>
-          <div className={cx('left-column')}>
-            <Image
-              src="/scoring/in-game-score.webp"
-              alt="In-Game Score Example"
-              width={302}
-              height={310}
-              className={cx('score-image')}
-            />
-          </div>
-          <div className={cx('right-column', `right-column--${mode}`)}>
-            <ul className={cx('score-parameters')}>
-              {SCORE_PARAMETERS.map(({ label, emoji, description }) => (
-                <li key={label}>
-                  <span className={cx('label')}>
-                    {emoji} {label}:
-                  </span>{' '}
-                  <span className={cx('description')}>{description}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
+        <IllustratedScoringInfo
+          mode={mode}
+          imageSrc="/scoring/in-game-score.webp"
+          imageAlt="In-Game Score Example"
+        >
+          <ul className={cx('score-parameters')}>
+            {SCORE_PARAMETERS.map(({ label, emoji, description }) => (
+              <li key={label}>
+                <span className={cx('label')}>
+                  {emoji} {label}:
+                </span>{' '}
+                <span className={cx('description')}>{description}</span>
+              </li>
+            ))}
+          </ul>
+        </IllustratedScoringInfo>
 
         <br />
         <p>
@@ -246,9 +239,9 @@ function InGameScorePanel({
             <strong>Dawncaster Discord</strong>, and discussions with other long-time players.
           </p>
           <p>
-            If you notice any discrepancies, in either the ranks numbers or any other information,
-            please let me know on either <strong>Discord</strong> or <strong>GitHub</strong> (see
-            link in the footer)!
+            If you notice any discrepancies or missing information, in either the rank values or any
+            other sections, please let me know on either <strong>Discord</strong> (@joel6801) or via{' '}
+            <strong>GitHub</strong> (see link in the footer) 🙏
           </p>
         </InfoModal>
 
