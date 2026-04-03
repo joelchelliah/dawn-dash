@@ -64,6 +64,7 @@ function Scoring(): JSX.Element {
       <ScrollToTopButton
         show={showScrollToTopButton && !isLoading && !isError}
         onClick={scrollToTop}
+        alwaysOnTop
       />
     </div>
   )

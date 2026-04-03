@@ -320,6 +320,16 @@
 .points {
   font-weight: 600;
   color: $color-primary-active;
+
+  &--Standard {
+    color: color.adjust($color-scoring-standard, $lightness: 10%) !important;
+  }
+  &--Sunforge {
+    color: color.adjust($color-scoring-sunforge, $lightness: 15%) !important;
+  }
+  &--WeeklyChallenge {
+    color: $color-scoring-weekly-challenge !important;
+  }
 }
 
 .rarity {

@@ -222,14 +222,15 @@ function InGameScorePanel({
         </ExampleBox>
 
         <p>
-          Here&apos;s a detailed breakdown of each <strong>parameter</strong>:
+          Here&apos;s a detailed breakdown of each <strong>score parameter</strong>:
         </p>
 
         <ParameterRankTable mode={mode} />
 
         <div className={cx('disclaimer')}>
+          📋
           <GradientLink
-            text="A disclaimer on the info above"
+            text="A disclaimer on the numbers above"
             onClick={() => setIsDisclaimerOpen(true)}
             className={cx('disclaimer__link')}
           />
@@ -251,7 +252,6 @@ function InGameScorePanel({
           </p>
         </InfoModal>
 
-        <br />
         <p>
           Your in-game <strong>base score</strong> is the sum of your scores in the six parameters
           above.{' '}

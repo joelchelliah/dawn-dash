@@ -10,13 +10,19 @@ import Code from '@/shared/components/Code'
 import { GameMode } from '@/scoring/types'
 
 import ExampleBox from '../ExampleBox'
+import Highlight from '../Highlight'
 
 import styles from './index.module.scss'
-import Highlight from '../Highlight'
 
 const cx = createCx(styles)
 
 type ParameterId = 'bosses' | 'damage' | 'awareness' | 'lethality' | 'versatility' | 'wealth'
+
+const MODE_TO_CLASS: Record<GameMode, CharacterClass> = {
+  [GameMode.Standard]: CharacterClass.Warrior,
+  [GameMode.Sunforge]: CharacterClass.Sunforge,
+  [GameMode.WeeklyChallenge]: CharacterClass.Knight,
+}
 
 const BOSSES_DIFFICULTY_DATA = [
   { difficulty: 'Impossible', bosses: 8, pointsPerBoss: 750, maxPoints: 6000 },
@@ -245,17 +251,215 @@ function ParameterRankTable({ mode }: ParameterRankTableProps): JSX.Element {
   const { isMobile } = useBreakpoint()
 
   const selectedParam = PARAMETER_DETAILS.find((p) => p.id === selectedParameter)
-  const selectClass =
-    mode === 'Standard'
-      ? CharacterClass.Warrior
-      : mode === 'Sunforge'
-        ? CharacterClass.Sunforge
-        : CharacterClass.Knight
+  const selectClass = MODE_TO_CLASS[mode]
 
   const selectOptions = PARAMETER_DETAILS.map((param) => ({
     value: param.id,
     label: param.title,
   }))
+
+  const renderParameterBasedInfo = () => {
+    if (!selectedParam) return null
+
+    switch (selectedParam.id) {
+      case 'bosses':
+        if (mode === GameMode.Standard) {
+          return (
+            <ExampleBox emoji="👾" mode={mode}>
+              <p>
+                Having access to an 8th boss for the two hardest difficulties significantly
+                increases the max achievable total score for <strong>Hard</strong> and{' '}
+                <strong>Impossible</strong> runs compared to <strong>Normal</strong> and{' '}
+                <strong>Challenging</strong>.
+              </p>
+            </ExampleBox>
+          )
+        }
+        if (mode === GameMode.Sunforge) {
+          return (
+            <ExampleBox emoji="👾" mode={mode}>
+              <p>
+                The boss kill score most likely increases every time you clear a Portal. This is
+                also how the game summary assigns a <strong>difficulty</strong> tag to your finished
+                run.
+              </p>
+            </ExampleBox>
+          )
+        }
+        return null
+
+      case 'damage':
+        return (
+          <ExampleBox emoji="💥" mode={mode}>
+            <p>
+              Overkill damage counts as well! However, charm kills don&apos;t count as damage dealt,
+              even with a high charm value. Slay and subjugation wins also don&apos;t count.
+            </p>
+          </ExampleBox>
+        )
+
+      case 'awareness':
+        return (
+          <ExampleBox emoji="🫀" mode={mode}>
+            <p>
+              Beware of effects/enchantments that can add <strong>Stagger</strong> or{' '}
+              <strong>Poison</strong> to you before your first turn. This can ruin a perfect
+              Awareness score, even when you are killing everything on turn 1.
+            </p>
+          </ExampleBox>
+        )
+
+      case 'lethality':
+        return (
+          <ExampleBox emoji="🤺" mode={mode}>
+            <p>
+              Note that whenever an enemy has <strong>First Strike</strong>, you are already
+              starting that fight on turn 2. This is regardless of whether you have the{' '}
+              <strong>Perception</strong> talent or not.
+            </p>
+          </ExampleBox>
+        )
+
+      case 'versatility':
+        return (
+          <ExampleBox emoji="🛒" mode={mode}>
+            <p>
+              Getting several copies of the same card will <strong>not</strong> affect this
+              parameter at all! Only disctinct cards are counted.
+            </p>
+          </ExampleBox>
+        )
+
+      case 'wealth':
+        return (
+          <>
+            <p>
+              The <strong>Gold</strong> here, is just the amount of gold you have left at the end of
+              your run. But to calculate the <strong>Deck value</strong>, you have to add together
+              the value of each card in your deck, which is based on the card&apos;s rarity.
+              <br />
+              <br />
+              Additionally, if a card has the <strong>Valuable</strong> keyword, its value is
+              quadrupled!
+            </p>
+            <table className={cx('values-table')}>
+              <thead>
+                <tr>
+                  <th className={cx(`mode--${mode}`)}>Card rarity</th>
+                  <th className={cx(`mode--${mode}`)}>Base value</th>
+                  <th className={cx(`mode--${mode}`)}>&quot;Valuable&quot; value</th>
+                </tr>
+              </thead>
+              <tbody>
+                {CARD_VALUES.map(({ rarity, baseValue, valuableValue }) => (
+                  <tr key={rarity} className={cx(`mode--${mode}`)}>
+                    <td className={cx('rarity')}>{rarity}</td>
+                    <td className={cx('value')}>{baseValue}</td>
+                    <td className={cx('value')}>{valuableValue}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            <br />
+
+            <ExampleBox emoji="💍" mode={mode}>
+              <p>
+                Let&apos;s say you have 1 gold. How many <strong>Ring of Power</strong> do you need
+                to max out your <strong>Wealth</strong> bonus?
+              </p>
+              <p>
+                <strong>Answer: 25</strong> (<Code>25 × 4 × 50 + 1 = 5001</Code>)
+              </p>
+            </ExampleBox>
+          </>
+        )
+
+      default:
+        return null
+    }
+  }
+
+  const renderParameterContent = () => {
+    if (!selectedParam) return null
+
+    const ranksToDisplay =
+      mode === GameMode.Sunforge && selectedParam.ranksSunforge
+        ? selectedParam.ranksSunforge
+        : selectedParam.ranks
+
+    return (
+      <>
+        <h3 className={cx('parameter-title')}>
+          {selectedParam.emoji} &nbsp; {selectedParam.title}
+        </h3>
+        {selectedParam.description && (
+          <p className={cx('parameter-description')}>{selectedParam.description}</p>
+        )}
+        {selectedParam.standardDesc && mode === GameMode.Standard && (
+          <p className={cx('parameter-description')}>{selectedParam.standardDesc}</p>
+        )}
+        {selectedParam.sunforgeDesc && mode === GameMode.Sunforge && (
+          <p className={cx('parameter-description')}>{selectedParam.sunforgeDesc}</p>
+        )}
+
+        {selectedParam.id === 'bosses' && mode === GameMode.Standard ? (
+          <div className={cx('bosses-content')}>
+            <table className={cx('difficulty-table')}>
+              <thead>
+                <tr>
+                  <th className={cx(`mode--${mode}`)}>Difficulty</th>
+                  <th className={cx(`mode--${mode}`)}>Bosses available</th>
+                  <th className={cx(`mode--${mode}`)}>Points per boss</th>
+                  <th className={cx(`mode--${mode}`)}>Max score</th>
+                </tr>
+              </thead>
+              <tbody>
+                {BOSSES_DIFFICULTY_DATA.map(({ difficulty, bosses, pointsPerBoss, maxPoints }) => (
+                  <tr key={difficulty} className={cx(`mode--${mode}`)}>
+                    <td className={cx('difficulty-name')}>{difficulty}</td>
+                    <td>{bosses}</td>
+                    <td className={cx('value')}>{pointsPerBoss.toLocaleString()}</td>
+                    <td className={cx('points', `points--${mode}`)}>
+                      {maxPoints.toLocaleString()}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : ranksToDisplay ? (
+          <table className={cx('ranks-table')}>
+            <thead>
+              <tr>
+                <th className={cx(`mode--${mode}`)}>Rank</th>
+                <th className={cx(`mode--${mode}`)}>Threshold</th>
+                <th className={cx(`mode--${mode}`)}>Score</th>
+              </tr>
+            </thead>
+            <tbody>
+              {ranksToDisplay.map((rank) => (
+                <tr key={rank.rank} className={cx(`mode--${mode}`)}>
+                  <td className={cx('rank')}>{rank.rank}</td>
+                  <td>{rank.threshold}</td>
+                  <td className={cx('points', `points--${mode}`)}>
+                    {rank.points.toLocaleString()}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : null}
+
+        {selectedParam && (
+          <>
+            <br />
+          </>
+        )}
+        {renderParameterBasedInfo()}
+      </>
+    )
+  }
 
   return (
     <div className={cx('parameter-selector-container', `parameter-selector-container--${mode}`)}>
@@ -294,163 +498,7 @@ function ParameterRankTable({ mode }: ParameterRankTableProps): JSX.Element {
           {selectedParam &&
             (isMobile ? (
               <div className={cx('parameter-details', 'parameter-details--mobile')}>
-                <h3 className={cx('parameter-title')}>
-                  {selectedParam.emoji} &nbsp; {selectedParam.title}
-                </h3>
-                {selectedParam.description && (
-                  <p className={cx('parameter-description')}>{selectedParam.description}</p>
-                )}
-                {selectedParam.standardDesc && mode === GameMode.Standard && (
-                  <p className={cx('parameter-description')}>{selectedParam.standardDesc}</p>
-                )}
-                {selectedParam.sunforgeDesc && mode === GameMode.Sunforge && (
-                  <p className={cx('parameter-description')}>{selectedParam.sunforgeDesc}</p>
-                )}
-
-                {selectedParam.id === 'bosses' ? (
-                  <div className={cx('bosses-content')}>
-                    <table className={cx('difficulty-table')}>
-                      <thead>
-                        <tr>
-                          <th className={cx(`mode--${mode}`)}>Difficulty</th>
-                          <th className={cx(`mode--${mode}`)}>Bosses available</th>
-                          <th className={cx(`mode--${mode}`)}>Points per boss</th>
-                          <th className={cx(`mode--${mode}`)}>Max score</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {BOSSES_DIFFICULTY_DATA.map(
-                          ({ difficulty, bosses, pointsPerBoss, maxPoints }) => (
-                            <tr key={difficulty} className={cx(`mode--${mode}`)}>
-                              <td className={cx('difficulty-name')}>{difficulty}</td>
-                              <td>{bosses}</td>
-                              <td className={cx('points')}>{pointsPerBoss.toLocaleString()}</td>
-                              <td className={cx('points')}>{maxPoints.toLocaleString()}</td>
-                            </tr>
-                          )
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
-                ) : selectedParam.ranks ? (
-                  <table className={cx('ranks-table')}>
-                    <thead>
-                      <tr>
-                        <th className={cx(`mode--${mode}`)}>Rank</th>
-                        <th className={cx(`mode--${mode}`)}>Threshold</th>
-                        <th className={cx(`mode--${mode}`)}>Score</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {(selectedParam.ranksSunforge || selectedParam.ranks).map((rank) => (
-                        <tr key={rank.rank} className={cx(`mode--${mode}`)}>
-                          <td className={cx('rank')}>{rank.rank}</td>
-                          <td>{rank.threshold}</td>
-                          <td className={cx('points')}>{rank.points.toLocaleString()}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                ) : null}
-
-                {selectedParam.id === 'damage' && (
-                  <div>
-                    <br />
-                    <ExampleBox emoji="💥" mode={mode}>
-                      <p>
-                        Overkill damage counts as well! However, charm kills don&apos;t count as
-                        damage dealt, even with a high charm value. Slay and subjugation wins also
-                        don&apos;t count.
-                      </p>
-                    </ExampleBox>
-                  </div>
-                )}
-
-                {selectedParam.id === 'awareness' && (
-                  <div>
-                    <br />
-                    <ExampleBox emoji="🫀" mode={mode}>
-                      <p>
-                        Beware of effects/enchantments that can add <strong>Stagger</strong> or{' '}
-                        <strong>Poison</strong> to you before your first turn. This can ruin a
-                        perfect Awareness score, even when you are killing everything on turn 1.
-                      </p>
-                    </ExampleBox>
-                  </div>
-                )}
-
-                {selectedParam.id === 'lethality' && (
-                  <div>
-                    <br />
-                    <ExampleBox emoji="🤺" mode={mode}>
-                      <p>
-                        Note that whenever an enemy has <strong>First Strike</strong>, you are
-                        already starting that fight on turn 2. This is regardless of whether you
-                        have the <strong>Perception</strong> talent or not.
-                      </p>
-                    </ExampleBox>
-                  </div>
-                )}
-
-                {selectedParam.id === 'versatility' && (
-                  <div>
-                    <br />
-                    <ExampleBox emoji="🛒" mode={mode}>
-                      <p>
-                        Getting several copies of the same card will <strong>not</strong> affect
-                        this parameter at all! Only disctinct cards are counted.
-                      </p>
-                    </ExampleBox>
-                  </div>
-                )}
-
-                {selectedParam.id === 'wealth' && (
-                  <div>
-                    <p>
-                      <br />
-                      The <strong>Gold</strong> here, is just the amount of gold you have left at
-                      the end of your run. But to calculate the <strong>Deck value</strong>, you
-                      have to add together the value of each card in your deck, which is based on
-                      the card&apos;s rarity.
-                      <br />
-                      <br />
-                      Additionally, if a card has the <strong>Valuable</strong> keyword, its value
-                      is quadrupled!
-                    </p>
-                    <br />
-                    <table className={cx('values-table')}>
-                      <thead>
-                        <tr>
-                          <th className={cx(`mode--${mode}`)}>Card rarity</th>
-                          <th className={cx(`mode--${mode}`)}>Base value</th>
-                          <th className={cx(`mode--${mode}`)}>&quot;Valuable&quot; value</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {CARD_VALUES.map(({ rarity, baseValue, valuableValue }) => (
-                          <tr key={rarity} className={cx(`mode--${mode}`)}>
-                            <td className={cx('rarity')}>{rarity}</td>
-                            <td className={cx('value')}>{baseValue}</td>
-                            <td className={cx('value')}>{valuableValue}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-
-                    <br />
-                    <br />
-
-                    <ExampleBox emoji="💍" mode={mode}>
-                      <p>
-                        Let&apos;s say you have 1 gold. How many <strong>Ring of Power</strong> do
-                        you need to max out your <strong>Wealth</strong> bonus?
-                      </p>
-                      <p>
-                        <strong>Answer: 25</strong> (<Code>25 × 4 × 50 + 1 = 5001</Code>)
-                      </p>
-                    </ExampleBox>
-                  </div>
-                )}
+                {renderParameterContent()}
               </div>
             ) : (
               <ScrollableWithFade
@@ -458,190 +506,7 @@ function ParameterRankTable({ mode }: ParameterRankTableProps): JSX.Element {
                 fadeColor="rgba(0, 0, 0, 1.75)"
                 scrollBottomOffset={SCROLL_BOTTOM_OFFSET}
               >
-                <div className={cx('parameter-details')}>
-                  <h3 className={cx('parameter-title')}>
-                    {selectedParam.emoji} &nbsp; {selectedParam.title}
-                  </h3>
-                  {selectedParam.description && (
-                    <p className={cx('parameter-description')}>{selectedParam.description}</p>
-                  )}
-                  {selectedParam.standardDesc && mode === GameMode.Standard && (
-                    <p className={cx('parameter-description')}>{selectedParam.standardDesc}</p>
-                  )}
-                  {selectedParam.sunforgeDesc && mode === GameMode.Sunforge && (
-                    <p className={cx('parameter-description')}>{selectedParam.sunforgeDesc}</p>
-                  )}
-
-                  {selectedParam.id === 'bosses' && mode === GameMode.Standard ? (
-                    <div className={cx('bosses-content')}>
-                      <table className={cx('difficulty-table')}>
-                        <thead>
-                          <tr>
-                            <th className={cx(`mode--${mode}`)}>Difficulty</th>
-                            <th className={cx(`mode--${mode}`)}>Bosses available</th>
-                            <th className={cx(`mode--${mode}`)}>Points per boss</th>
-                            <th className={cx(`mode--${mode}`)}>Max score</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {BOSSES_DIFFICULTY_DATA.map(
-                            ({ difficulty, bosses, pointsPerBoss, maxPoints }) => (
-                              <tr key={difficulty} className={cx(`mode--${mode}`)}>
-                                <td className={cx('difficulty-name')}>{difficulty}</td>
-                                <td>{bosses}</td>
-                                <td className={cx('points')}>{pointsPerBoss.toLocaleString()}</td>
-                                <td className={cx('points')}>{maxPoints.toLocaleString()}</td>
-                              </tr>
-                            )
-                          )}
-                        </tbody>
-                      </table>
-                    </div>
-                  ) : selectedParam.ranks ? (
-                    <table className={cx('ranks-table')}>
-                      <thead>
-                        <tr>
-                          <th className={cx(`mode--${mode}`)}>Rank</th>
-                          <th className={cx(`mode--${mode}`)}>Threshold</th>
-                          <th className={cx(`mode--${mode}`)}>Score</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {(selectedParam.ranksSunforge || selectedParam.ranks).map((rank) => (
-                          <tr key={rank.rank} className={cx(`mode--${mode}`)}>
-                            <td className={cx('rank')}>{rank.rank}</td>
-                            <td>{rank.threshold}</td>
-                            <td className={cx('points')}>{rank.points.toLocaleString()}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  ) : null}
-
-                  {selectedParam.id === 'bosses' && mode === GameMode.Standard && (
-                    <div>
-                      <br />
-                      <ExampleBox emoji="👾" mode={mode}>
-                        <p>
-                          Having access to an 8th boss for the two hardest difficulties
-                          significantly increases the max achievable total score for{' '}
-                          <strong>Hard</strong> and <strong>Impossible</strong> runs compared to{' '}
-                          <strong>Normal</strong> and <strong>Challenging</strong>.
-                        </p>
-                      </ExampleBox>
-                    </div>
-                  )}
-                  {selectedParam.id === 'bosses' && mode === GameMode.Sunforge && (
-                    <div>
-                      <br />
-                      <ExampleBox emoji="👾" mode={mode}>
-                        <p>
-                          The score per boss kill most likely increases every time you clear a
-                          Portal. This is also how the game summary assigns a{' '}
-                          <strong>difficulty</strong> tag to your finished run.
-                        </p>
-                      </ExampleBox>
-                    </div>
-                  )}
-                  {selectedParam.id === 'damage' && (
-                    <div>
-                      <br />
-                      <ExampleBox emoji="💥" mode={mode}>
-                        <p>
-                          Overkill damage counts as well! However, charm kills don&apos;t count as
-                          damage dealt, even with a high charm value. Slay and subjugation wins also
-                          don&apos;t count.
-                        </p>
-                      </ExampleBox>
-                    </div>
-                  )}
-
-                  {selectedParam.id === 'awareness' && (
-                    <div>
-                      <br />
-                      <ExampleBox emoji="🫀" mode={mode}>
-                        <p>
-                          Beware of effects/enchantments that can add <strong>Stagger</strong> or{' '}
-                          <strong>Poison</strong> to you before your first turn. This can ruin a
-                          perfect Awareness score, even when you are killing everything on turn 1.
-                        </p>
-                      </ExampleBox>
-                    </div>
-                  )}
-
-                  {selectedParam.id === 'lethality' && (
-                    <div>
-                      <br />
-                      <ExampleBox emoji="🤺" mode={mode}>
-                        <p>
-                          Note that whenever an enemy has <strong>First Strike</strong>, you are
-                          already starting that fight on turn 2. This is regardless of whether you
-                          have the <strong>Perception</strong> talent or not.
-                        </p>
-                      </ExampleBox>
-                    </div>
-                  )}
-
-                  {selectedParam.id === 'versatility' && (
-                    <div>
-                      <br />
-                      <ExampleBox emoji="🛒" mode={mode}>
-                        <p>
-                          Getting several copies of the same card will <strong>not</strong> affect
-                          this parameter at all! Only disctinct cards are counted.
-                        </p>
-                      </ExampleBox>
-                    </div>
-                  )}
-
-                  {selectedParam.id === 'wealth' && (
-                    <div>
-                      <p>
-                        <br />
-                        The <strong>Gold</strong> here, is just the amount of gold you have left at
-                        the end of your run. But to calculate the <strong>Deck value</strong>, you
-                        have to add together the value of each card in your deck, which is based on
-                        the card&apos;s rarity.
-                        <br />
-                        <br />
-                        Additionally, if a card has the <strong>Valuable</strong> keyword, its value
-                        is quadrupled!
-                      </p>
-                      <br />
-                      <table className={cx('values-table')}>
-                        <thead>
-                          <tr>
-                            <th className={cx(`mode--${mode}`)}>Card rarity</th>
-                            <th className={cx(`mode--${mode}`)}>Base value</th>
-                            <th className={cx(`mode--${mode}`)}>&quot;Valuable&quot; value</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {CARD_VALUES.map(({ rarity, baseValue, valuableValue }) => (
-                            <tr key={rarity} className={cx(`mode--${mode}`)}>
-                              <td className={cx('rarity')}>{rarity}</td>
-                              <td className={cx('value')}>{baseValue}</td>
-                              <td className={cx('value')}>{valuableValue}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-
-                      <br />
-                      <br />
-
-                      <ExampleBox emoji="💍" mode={mode}>
-                        <p>
-                          Let&apos;s say you have 1 gold. How many <strong>Ring of Power</strong> do
-                          you need to max out your <strong>Wealth</strong> bonus?
-                        </p>
-                        <p>
-                          <strong>Answer: 25</strong> (<Code>25 × 4 × 50 + 1 = 5001</Code>)
-                        </p>
-                      </ExampleBox>
-                    </div>
-                  )}
-                </div>
+                <div className={cx('parameter-details')}>{renderParameterContent()}</div>
               </ScrollableWithFade>
             ))}
         </div>
