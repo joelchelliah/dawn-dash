@@ -300,6 +300,11 @@ function InGameScorePanel({
                 </>
               ))}
             />
+
+            <p>
+              These numbers will of course vary over time, as the game introduces new malignancies,
+              or tweaks the percentages on existing ones.
+            </p>
           </>
         )}
         {mode === GameMode.Sunforge && (
@@ -340,26 +345,34 @@ function InGameScorePanel({
                 </>,
               ]}
             />
+
+            <p>
+              The tricky bit is figuring out how few rerolls you can get away with using, and still
+              draft a winning deck that will maximize your score.
+            </p>
           </>
         )}
       </div>
 
-      <br />
-      <ExampleBox emoji="💯" mode={mode}>
-        {mode === GameMode.Standard && (
+      {mode === GameMode.Standard && (
+        <ExampleBox emoji="👺" mode={mode}>
           <>
-            These numbers will of course vary over time, as the game introduces new malignancies, or
-            tweaks existing ones.
+            There is one very niche way of going over the maximum malignancy percentage. If you play
+            an <strong>Invasions</strong> run, and pick up the <strong>Offer of Pride</strong> while
+            already having five malignancies, you will be granted a sixth malignancy!
           </>
-        )}
-        {mode === GameMode.Sunforge && (
+        </ExampleBox>
+      )}
+
+      {mode === GameMode.Sunforge && (
+        <ExampleBox emoji="🎲" mode={mode}>
           <>
             There is also a post-combat reward that says{' '}
             <strong>"Choose 1 of 3 cards (and gain 1 reroll token)"</strong>. Depending on your
             luck, you may see this between 0 and 12 times during the run.
           </>
-        )}
-      </ExampleBox>
+        </ExampleBox>
+      )}
     </CollapsiblePanel>
   )
 }
