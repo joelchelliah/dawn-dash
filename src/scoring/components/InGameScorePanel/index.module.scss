@@ -1,21 +1,9 @@
 @use 'index' as *;
 @use 'sass:color' as color;
+@use '../panelShared' as shared;
 
 .content {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  align-items: flex-start;
-
-  @media (max-width: $breakpoint-mobile) {
-    flex-direction: column;
-  }
-
-  p {
-    margin: 0 0 1rem 0;
-    line-height: 1.6;
-    color: $color-primary-base;
-  }
+  @include shared.panel-content;
 
   .score-parameters {
     list-style: none;
@@ -60,14 +48,6 @@
         padding-left: 0.25rem;
       }
     }
-  }
-
-  .divider {
-    width: 90%;
-    height: 1px;
-    background-color: $color-component-border;
-    opacity: 0.5;
-    margin: 1rem auto;
   }
 
   .nobr {
