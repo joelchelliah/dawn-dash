@@ -5,6 +5,10 @@
   min-width: 5rem;
   font-size: font-size('xs');
 
+  &:hover {
+    font-weight: 600;
+  }
+
   &--Standard {
     color: color.adjust($color-scoring-standard, $alpha: -0.2);
     border-color: color.adjust($color-scoring-standard, $alpha: -0.2);
@@ -32,6 +36,16 @@
     &:hover {
       color: color.adjust($color-scoring-weekly-challenge, $lightness: 2);
       border-color: color.adjust($color-scoring-weekly-challenge, $lightness: 2);
+    }
+  }
+
+  &--Blightbane {
+    color: color.adjust($color-scoring-blightbane, $alpha: -0.2);
+    border-color: color.adjust($color-scoring-blightbane, $alpha: -0.2);
+
+    &:hover {
+      color: color.adjust($color-scoring-blightbane, $lightness: 2);
+      border-color: color.adjust($color-scoring-blightbane, $lightness: 2);
     }
   }
 }

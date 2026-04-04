@@ -1,6 +1,6 @@
 import { createCx } from '@/shared/utils/classnames'
 
-import { GameMode } from '@/scoring/types'
+import { ScoringMode } from '@/scoring/types'
 
 import styles from './index.module.scss'
 
@@ -8,19 +8,19 @@ const cx = createCx(styles)
 
 interface HighlightProps {
   children: React.ReactNode
-  mode: GameMode
+  mode: ScoringMode
   className?: string
 }
 
-const getHighlightClass = (mode: GameMode): string => {
+const getHighlightClass = (mode: ScoringMode): string => {
   switch (mode) {
-    case GameMode.Standard:
+    case ScoringMode.Standard:
       return 'highlight--standard'
-    case GameMode.Sunforge:
+    case ScoringMode.Sunforge:
       return 'highlight--sunforge'
-    case GameMode.WeeklyChallenge:
+    case ScoringMode.WeeklyChallenge:
       return 'highlight--weekly-challenge'
-    case GameMode.Blightbane:
+    case ScoringMode.Blightbane:
       return 'highlight--blightbane'
     default:
       return ''

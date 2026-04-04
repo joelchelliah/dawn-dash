@@ -3,14 +3,14 @@ import { ReactNode } from 'react'
 import Image from '@/shared/components/Image'
 import { createCx } from '@/shared/utils/classnames'
 
-import { GameMode } from '@/scoring/types'
+import { ScoringMode } from '@/scoring/types'
 
 import styles from './index.module.scss'
 
 const cx = createCx(styles)
 
 interface IllustratedScoringInfoProps {
-  mode: GameMode
+  mode: ScoringMode
   imageSrc: string
   imageAlt: string
   children: ReactNode

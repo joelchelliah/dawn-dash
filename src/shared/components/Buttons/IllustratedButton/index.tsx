@@ -14,6 +14,7 @@ interface IllustratedButtonProps {
   onClick: () => void
   color: string
   borderColor: string
+  hoverColor?: string
   imageAlt?: string
   imageWidth?: number
   imageHeight?: number
@@ -25,6 +26,7 @@ function IllustratedButton({
   isActive,
   onClick,
   color,
+  hoverColor,
   borderColor,
   imageAlt,
   imageWidth = 36,
@@ -38,10 +40,13 @@ function IllustratedButton({
     <button
       className={buttonClassName}
       onClick={onClick}
-      style={{
-        borderColor,
-        boxShadow: isActive ? `0 0 8px 1px ${borderColor}40` : undefined,
-      }}
+      style={
+        {
+          borderColor,
+          boxShadow: isActive ? `0 0 8px 1px ${borderColor}40` : undefined,
+          '--hover-color': hoverColor,
+        } as React.CSSProperties
+      }
     >
       <Image
         src={imageUrl}

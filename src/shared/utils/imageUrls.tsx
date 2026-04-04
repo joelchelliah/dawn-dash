@@ -25,6 +25,7 @@ export const TaurusRageImageUrl = `${blightbaneImagesUrl}/icons/taurus.webp`
 export const WatchedImageUrl = `${blightbaneImagesUrl}/icons/cardart_3_24.webp`
 export const AdaptiveEdgeImageUrl = `${blightbaneImagesUrl}/icons/Evolving%20edge.webp`
 export const ArcaneMissileImageUrl = `${blightbaneImagesUrl}/icons/arcane-missile.webp`
+export const AnimaImageUrl = `${blightbaneImagesUrl}/icons/MoM_anima.webp`
 
 // Classes
 export const ArcanistImageUrl = `${blightbaneImagesUrl}/classes/Arcanist_I_M.webp`

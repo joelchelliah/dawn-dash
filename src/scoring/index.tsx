@@ -13,7 +13,7 @@ import { useChallengeData } from './hooks/useChallengeData'
 import ScoringGuidePanel from './components/ScoringGuidePanel'
 import BlightbaneScorePanel from './components/BlightbaneScorePanel'
 import styles from './index.module.scss'
-import { GameMode } from './types'
+import { ScoringMode } from './types'
 import InGameScorePanel from './components/InGameScorePanel'
 import WeeklyChallengePanel from './components/WeeklyChallengePanel'
 
@@ -27,9 +27,10 @@ function useScoringScrollToTop() {
 function Scoring(): JSX.Element {
   const { resetToScoring } = useNavigation()
   const { showScrollToTopButton, scrollToTop } = useScoringScrollToTop()
-  const [selectedMode, setSelectedMode] = useState<GameMode>(GameMode.Standard)
+  const [selectedMode, setSelectedMode] = useState<ScoringMode>(ScoringMode.Standard)
 
-  const inGameScoreMode = selectedMode === GameMode.Sunforge ? GameMode.Sunforge : GameMode.Standard
+  const inGameScoreMode =
+    selectedMode === ScoringMode.Sunforge ? ScoringMode.Sunforge : ScoringMode.Standard
 
   return (
     <div className={cx('container')}>
@@ -44,13 +45,13 @@ function Scoring(): JSX.Element {
       <div className={cx('content')}>
         <ScoringGuidePanel selectedMode={selectedMode} onModeChange={setSelectedMode} />
 
-        {selectedMode === GameMode.WeeklyChallenge && <WeeklyChallengePanel />}
+        {selectedMode === ScoringMode.WeeklyChallenge && <WeeklyChallengePanel />}
         <InGameScorePanel
           mode={inGameScoreMode}
-          openByDefault={selectedMode !== GameMode.WeeklyChallenge}
+          openByDefault={selectedMode !== ScoringMode.WeeklyChallenge}
         />
 
-        {selectedMode === GameMode.WeeklyChallenge && <BlightbaneScorePanel />}
+        {selectedMode === ScoringMode.WeeklyChallenge && <BlightbaneScorePanel />}
       </div>
 
       <Footer />

@@ -53,6 +53,10 @@
     @include border-color($color-scoring-weekly-challenge, 'header');
   }
 
+  &--Blightbane.panel-header--expanded {
+    @include border-color($color-scoring-blightbane, 'header');
+  }
+
   &__title-container {
     display: flex;
     align-items: center;
@@ -86,6 +90,10 @@
       @include border-color($color-scoring-weekly-challenge, 'image');
     }
 
+    &--Blightbane {
+      @include border-color($color-scoring-blightbane, 'image');
+    }
+
     @media (max-width: $breakpoint-mobile) {
       width: 32px;
       height: 32px;
@@ -101,7 +109,7 @@
       color: $color-scoring-standard;
 
       &:hover {
-        color: color.adjust($color-scoring-standard, $lightness: 12);
+        color: color.adjust($color-scoring-standard, $lightness: 8);
       }
     }
 
@@ -109,7 +117,7 @@
       color: $color-scoring-sunforge;
 
       &:hover {
-        color: color.adjust($color-scoring-sunforge, $lightness: 50);
+        color: color.adjust($color-scoring-sunforge, $lightness: 30);
       }
     }
 
@@ -118,6 +126,14 @@
 
       &:hover {
         color: color.adjust($color-scoring-weekly-challenge, $lightness: 10);
+      }
+    }
+
+    &--Blightbane {
+      color: $color-scoring-blightbane;
+
+      &:hover {
+        color: color.adjust($color-scoring-blightbane, $lightness: 20);
       }
     }
 

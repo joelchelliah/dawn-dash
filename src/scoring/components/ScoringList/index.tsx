@@ -1,6 +1,6 @@
 import { createCx } from '@/shared/utils/classnames'
 
-import { GameMode } from '@/scoring/types'
+import { ScoringMode } from '@/scoring/types'
 
 import styles from './index.module.scss'
 
@@ -8,7 +8,7 @@ const cx = createCx(styles)
 
 interface ScoringListProps {
   items: JSX.Element[]
-  mode: GameMode
+  mode: ScoringMode
 }
 
 function ScoringList({ items, mode }: ScoringListProps): JSX.Element {

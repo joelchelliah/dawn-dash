@@ -1,5 +1,18 @@
 @use 'index' as *;
 
-.score-content {
-  // The WeeklyPanel already has its own styling, this wrapper just provides structure
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: flex-start;
+
+  @media (max-width: $breakpoint-mobile) {
+    flex-direction: column;
+  }
+
+  p {
+    margin: 0 0 1rem 0;
+    line-height: 1.6;
+    color: $color-primary-base;
+  }
 }

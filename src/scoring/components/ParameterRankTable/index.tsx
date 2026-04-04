@@ -4,7 +4,7 @@ import { createCx } from '@/shared/utils/classnames'
 import { CharacterClass } from '@/shared/types/characterClass'
 import Code from '@/shared/components/Code'
 
-import { GameMode } from '@/scoring/types'
+import { ScoringMode } from '@/scoring/types'
 
 import ExampleBox from '../ExampleBox'
 import Highlight from '../Highlight'
@@ -16,10 +16,11 @@ const cx = createCx(styles)
 
 type ParameterId = 'bosses' | 'damage' | 'awareness' | 'lethality' | 'versatility' | 'wealth'
 
-const MODE_TO_CLASS: Record<GameMode, CharacterClass> = {
-  [GameMode.Standard]: CharacterClass.Warrior,
-  [GameMode.Sunforge]: CharacterClass.Sunforge,
-  [GameMode.WeeklyChallenge]: CharacterClass.Knight,
+const MODE_TO_CLASS: Record<ScoringMode, CharacterClass> = {
+  [ScoringMode.Standard]: CharacterClass.Warrior,
+  [ScoringMode.Sunforge]: CharacterClass.Sunforge,
+  [ScoringMode.WeeklyChallenge]: CharacterClass.Knight,
+  [ScoringMode.Blightbane]: CharacterClass.Rogue,
 }
 
 const BOSSES_DIFFICULTY_DATA = [
@@ -50,7 +51,7 @@ const PARAMETER_DETAILS = [
         <br />
         <br />
         The max achievable score for this parameter is{' '}
-        <Highlight mode={GameMode.Sunforge}>11,750</Highlight>, for killing all{' '}
+        <Highlight mode={ScoringMode.Sunforge}>11,750</Highlight>, for killing all{' '}
         <strong>32 bosses</strong>.
       </span>
     ),
@@ -67,8 +68,8 @@ const PARAMETER_DETAILS = [
         <br />
         <br />
         This parameter is ranked the same way for both{' '}
-        <Highlight mode={GameMode.Standard}>Standard</Highlight> and{' '}
-        <Highlight mode={GameMode.Sunforge}>Sunforge</Highlight>.
+        <Highlight mode={ScoringMode.Standard}>Standard</Highlight> and{' '}
+        <Highlight mode={ScoringMode.Sunforge}>Sunforge</Highlight>.
       </span>
     ),
     ranks: [
@@ -96,8 +97,8 @@ const PARAMETER_DETAILS = [
         <br />
         The max score for this is probably the hardest one to achieve, as it requires you to finish
         the entire run with no damage taken. This parameter is ranked the same way for both{' '}
-        <Highlight mode={GameMode.Standard}>Standard</Highlight> and{' '}
-        <Highlight mode={GameMode.Sunforge}>Sunforge</Highlight>.
+        <Highlight mode={ScoringMode.Standard}>Standard</Highlight> and{' '}
+        <Highlight mode={ScoringMode.Sunforge}>Sunforge</Highlight>.
       </span>
     ),
     ranks: [
@@ -124,8 +125,8 @@ const PARAMETER_DETAILS = [
         <br />
         <br />
         This parameter is ranked the same way for both{' '}
-        <Highlight mode={GameMode.Standard}>Standard</Highlight> and{' '}
-        <Highlight mode={GameMode.Sunforge}>Sunforge</Highlight>.
+        <Highlight mode={ScoringMode.Standard}>Standard</Highlight> and{' '}
+        <Highlight mode={ScoringMode.Sunforge}>Sunforge</Highlight>.
       </span>
     ),
     ranks: [
@@ -151,14 +152,14 @@ const PARAMETER_DETAILS = [
     ),
     standardDesc: (
       <span>
-        Can easily be maxed out in <Highlight mode={GameMode.Standard}>Standard</Highlight> runs by
-        picking up all rewards, actively using the shops, and/or playing several card-generating
+        Can easily be maxed out in <Highlight mode={ScoringMode.Standard}>Standard</Highlight> runs
+        by picking up all rewards, actively using the shops, and/or playing several card-generating
         actions. Only limited by your own ability to manage your deck.
       </span>
     ),
     sunforgeDesc: (
       <span>
-        A lot harder to score well in <Highlight mode={GameMode.Sunforge}>Sunforge</Highlight>{' '}
+        A lot harder to score well in <Highlight mode={ScoringMode.Sunforge}>Sunforge</Highlight>{' '}
         compared to the other modes, as you have very few opportunities to pick up new cards outside
         of the drafting phase. Might even be impossible to max this out, since you only have a
         limited amount of battles to rely on any card-generation actions.
@@ -190,8 +191,8 @@ const PARAMETER_DETAILS = [
     standardDesc: (
       <span>
         This parameter is ranked a lot more leniently in{' '}
-        <Highlight mode={GameMode.Standard}>Standard</Highlight> mode compared to{' '}
-        <Highlight mode={GameMode.Sunforge}>Sunforge</Highlight>. As we can see below, there is a
+        <Highlight mode={ScoringMode.Standard}>Standard</Highlight> mode compared to{' '}
+        <Highlight mode={ScoringMode.Sunforge}>Sunforge</Highlight>. As we can see below, there is a
         near-linear progression at lower ranks, with only the upper two ranks being significantly
         more difficult to achieve:
       </span>
@@ -199,8 +200,8 @@ const PARAMETER_DETAILS = [
     sunforgeDesc: (
       <span>
         This parameter is ranked a lot stricter in{' '}
-        <Highlight mode={GameMode.Sunforge}>Sunforge</Highlight> mode compared to{' '}
-        <Highlight mode={GameMode.Standard}>Standard</Highlight>. As we can see below, there is a
+        <Highlight mode={ScoringMode.Sunforge}>Sunforge</Highlight> mode compared to{' '}
+        <Highlight mode={ScoringMode.Standard}>Standard</Highlight>. As we can see below, there is a
         quite a high threshold even for the lower ranks, and a linear progression at higher ranks:
       </span>
     ),
@@ -238,7 +239,7 @@ const CARD_VALUES = [
 ]
 
 interface ParameterRankTableProps {
-  mode: GameMode
+  mode: ScoringMode
 }
 
 function ParameterRankTable({ mode }: ParameterRankTableProps): JSX.Element {
@@ -258,7 +259,7 @@ function ParameterRankTable({ mode }: ParameterRankTableProps): JSX.Element {
 
     switch (selectedParam.id) {
       case 'bosses':
-        if (mode === GameMode.Standard) {
+        if (mode === ScoringMode.Standard) {
           return (
             <ExampleBox emoji="👾" mode={mode}>
               <p>
@@ -270,7 +271,7 @@ function ParameterRankTable({ mode }: ParameterRankTableProps): JSX.Element {
             </ExampleBox>
           )
         }
-        if (mode === GameMode.Sunforge) {
+        if (mode === ScoringMode.Sunforge) {
           return (
             <ExampleBox emoji="👾" mode={mode}>
               <p>
@@ -379,7 +380,7 @@ function ParameterRankTable({ mode }: ParameterRankTableProps): JSX.Element {
     if (!selectedParam) return null
 
     const ranksToDisplay =
-      mode === GameMode.Sunforge && selectedParam.ranksSunforge
+      mode === ScoringMode.Sunforge && selectedParam.ranksSunforge
         ? selectedParam.ranksSunforge
         : selectedParam.ranks
 
@@ -391,14 +392,14 @@ function ParameterRankTable({ mode }: ParameterRankTableProps): JSX.Element {
         {selectedParam.description && (
           <p className={cx('parameter-description')}>{selectedParam.description}</p>
         )}
-        {selectedParam.standardDesc && mode === GameMode.Standard && (
+        {selectedParam.standardDesc && mode === ScoringMode.Standard && (
           <p className={cx('parameter-description')}>{selectedParam.standardDesc}</p>
         )}
-        {selectedParam.sunforgeDesc && mode === GameMode.Sunforge && (
+        {selectedParam.sunforgeDesc && mode === ScoringMode.Sunforge && (
           <p className={cx('parameter-description')}>{selectedParam.sunforgeDesc}</p>
         )}
 
-        {selectedParam.id === 'bosses' && mode === GameMode.Standard ? (
+        {selectedParam.id === 'bosses' && mode === ScoringMode.Standard ? (
           <div className={cx('bosses-content')}>
             <table className={cx('difficulty-table')}>
               <thead>

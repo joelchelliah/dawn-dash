@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import Image from '@/shared/components/Image'
 import { createCx } from '@/shared/utils/classnames'
 
-import { GameMode } from '@/scoring/types'
+import { ScoringMode } from '@/scoring/types'
 import ScoringButton from '@/scoring/components/ScoringButton'
 
 import styles from './index.module.scss'
@@ -16,7 +16,7 @@ interface CollapsiblePanelProps {
   collapsible?: boolean
   defaultExpanded?: boolean
   imageUrl?: string
-  mode?: GameMode
+  mode?: ScoringMode
   isLongTitle?: boolean
 }
 

@@ -6,7 +6,7 @@ import { createCx } from '@/shared/utils/classnames'
 import { useBreakpoint } from '@/shared/hooks/useBreakpoint'
 import { CharacterClass } from '@/shared/types/characterClass'
 
-import { GameMode } from '@/scoring/types'
+import { ScoringMode } from '@/scoring/types'
 
 import styles from './index.module.scss'
 
@@ -22,7 +22,7 @@ export interface SelectableItem<T extends string = string> {
 }
 
 interface SelectableScoringInfoProps<T extends string = string> {
-  mode: GameMode
+  mode: ScoringMode
   selectedClass: CharacterClass
   items: SelectableItem<T>[]
   selectedValue: T

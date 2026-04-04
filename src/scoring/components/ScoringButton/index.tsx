@@ -3,7 +3,7 @@ import { memo } from 'react'
 import Button from '@/shared/components/Buttons/Button'
 import { createCx } from '@/shared/utils/classnames'
 
-import { GameMode } from '@/scoring/types'
+import { ScoringMode } from '@/scoring/types'
 
 import styles from './index.module.scss'
 
@@ -12,7 +12,7 @@ const cx = createCx(styles)
 interface ScoringButtonProps {
   children: React.ReactNode
   onClick: () => void
-  mode: GameMode
+  mode: ScoringMode
   isLoading?: boolean
   type?: 'button' | 'submit'
   style?: React.CSSProperties

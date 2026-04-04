@@ -2,7 +2,7 @@ import { ReactNode } from 'react'
 
 import { createCx } from '@/shared/utils/classnames'
 
-import { GameMode } from '@/scoring/types'
+import { ScoringMode } from '@/scoring/types'
 
 import styles from './index.module.scss'
 
@@ -10,7 +10,7 @@ const cx = createCx(styles)
 
 interface ExampleBoxProps {
   emoji: string
-  mode: GameMode
+  mode: ScoringMode
   children: ReactNode
 }
 

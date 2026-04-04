@@ -8,7 +8,7 @@ import {
 import { ClassColorVariant, getClassColor } from '@/shared/utils/classColors'
 import { CharacterClass } from '@/shared/types/characterClass'
 
-import { GameMode } from '../../types'
+import { ScoringMode } from '../../types'
 import CollapsiblePanel from '../CollapsiblePanel'
 
 import styles from './index.module.scss'
@@ -16,65 +16,69 @@ import styles from './index.module.scss'
 const cx = createCx(styles)
 
 interface ScoringGuidePanelProps {
-  selectedMode: GameMode
-  onModeChange: (mode: GameMode) => void
+  selectedMode: ScoringMode
+  onModeChange: (mode: ScoringMode) => void
 }
 
 const gameModeButtons = [
   {
-    mode: GameMode.Standard,
+    mode: ScoringMode.Standard,
     label: 'Standard',
     imageUrl: AdaptiveEdgeImageUrl,
   },
   {
-    mode: GameMode.Sunforge,
+    mode: ScoringMode.Sunforge,
     label: 'Sunforge',
     imageUrl: SunforgeImageUrl,
   },
   {
-    mode: GameMode.WeeklyChallenge,
+    mode: ScoringMode.WeeklyChallenge,
     label: 'The Weekly Challenge',
     imageUrl: ArcaneMissileImageUrl,
   },
 ]
 
-const getButtonColor = (mode: GameMode, isActive: boolean): string => {
+const getButtonColor = (mode: ScoringMode, isActive: boolean, isHover = false): string => {
   switch (mode) {
-    case GameMode.Standard:
+    case ScoringMode.Standard:
       return getClassColor(
-        isActive ? CharacterClass.Warrior : CharacterClass.Neutral,
-        isActive ? ClassColorVariant.Lighter : ClassColorVariant.Default
+        isActive || isHover ? CharacterClass.Warrior : CharacterClass.Neutral,
+        isHover || isActive ? ClassColorVariant.Lighter : ClassColorVariant.Default
       )
-    case GameMode.Sunforge:
+    case ScoringMode.Sunforge:
       return getClassColor(
-        isActive ? CharacterClass.Sunforge : CharacterClass.Neutral,
-        isActive ? ClassColorVariant.Light : ClassColorVariant.Dark
+        isActive || isHover ? CharacterClass.Sunforge : CharacterClass.Neutral,
+        isHover || isActive ? ClassColorVariant.Light : ClassColorVariant.Default
       )
-    case GameMode.WeeklyChallenge:
+    case ScoringMode.WeeklyChallenge:
       return getClassColor(
-        isActive ? CharacterClass.Knight : CharacterClass.Neutral,
-        isActive ? ClassColorVariant.Lighter : ClassColorVariant.Default
+        isActive || isHover ? CharacterClass.Knight : CharacterClass.Neutral,
+        isHover || isActive ? ClassColorVariant.Lighter : ClassColorVariant.Default
       )
+    default:
+      throw new Error(`Unknown game mode: ${mode}`)
   }
 }
 
-const getButtonBorderColor = (mode: GameMode, isActive: boolean): string => {
+const getButtonBorderColor = (mode: ScoringMode, isActive: boolean): string => {
   switch (mode) {
-    case GameMode.Standard:
+    case ScoringMode.Standard:
       return getClassColor(
         isActive ? CharacterClass.Warrior : CharacterClass.Neutral,
         isActive ? ClassColorVariant.Lighter : ClassColorVariant.Dark
       )
-    case GameMode.Sunforge:
+    case ScoringMode.Sunforge:
       return getClassColor(
         isActive ? CharacterClass.Sunforge : CharacterClass.Neutral,
         isActive ? ClassColorVariant.Light : ClassColorVariant.Darker
       )
-    case GameMode.WeeklyChallenge:
+    case ScoringMode.WeeklyChallenge:
       return getClassColor(
         isActive ? CharacterClass.Knight : CharacterClass.Neutral,
         isActive ? ClassColorVariant.Lighter : ClassColorVariant.Dark
       )
+    default:
+      throw new Error(`Unknown game mode: ${mode}`)
   }
 }
 
@@ -96,6 +100,7 @@ function ScoringGuidePanel({ selectedMode, onModeChange }: ScoringGuidePanelProp
               isActive={selectedMode === button.mode}
               onClick={() => onModeChange(button.mode)}
               color={getButtonColor(button.mode, selectedMode === button.mode)}
+              hoverColor={getButtonColor(button.mode, selectedMode === button.mode, true)}
               borderColor={getButtonBorderColor(button.mode, selectedMode === button.mode)}
             />
           ))}

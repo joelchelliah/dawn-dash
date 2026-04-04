@@ -6,7 +6,7 @@ import { AdaptiveEdgeImageUrl, SunforgeImageUrl } from '@/shared/utils/imageUrls
 import GradientLink from '@/shared/components/GradientLink'
 import InfoModal from '@/shared/components/Modals/InfoModal'
 
-import { GameMode } from '@/scoring/types'
+import { ScoringMode } from '@/scoring/types'
 
 import CollapsiblePanel from '../CollapsiblePanel'
 import ExampleBox from '../ExampleBox'
@@ -20,7 +20,7 @@ import styles from './index.module.scss'
 const cx = createCx(styles)
 
 interface InGameScorePanelProps {
-  mode: GameMode
+  mode: ScoringMode
   openByDefault?: boolean
 }
 
@@ -63,8 +63,8 @@ const MAX_SCORES = [
   { difficulty: 'Normal', score: 29440, calc: '(700 + 4 × 2000 + 500) × (1 + 2.2)' },
 ]
 
-function getIntroText(mode: GameMode): JSX.Element {
-  if (mode === GameMode.Standard) {
+function getIntroText(mode: ScoringMode): JSX.Element {
+  if (mode === ScoringMode.Standard) {
     return (
       <>
         <p>
@@ -88,7 +88,7 @@ function getIntroText(mode: GameMode): JSX.Element {
         </p>
       </>
     )
-  } else if (mode === GameMode.Sunforge) {
+  } else if (mode === ScoringMode.Sunforge) {
     return (
       <>
         <p>
@@ -107,8 +107,8 @@ function getIntroText(mode: GameMode): JSX.Element {
           ]}
         />
         <p>
-          Unlike in <Highlight mode={GameMode.Standard}>Standard</Highlight> mode, your score is not
-          directly enhanced by your malignancies, but picking harder malignancies gives you
+          Unlike in <Highlight mode={ScoringMode.Standard}>Standard</Highlight> mode, your score is
+          not directly enhanced by your malignancies, but picking harder malignancies gives you
           additional rerolls, which in turn leads to a higher score!
         </p>
         <p>
@@ -122,15 +122,15 @@ function getIntroText(mode: GameMode): JSX.Element {
 }
 
 function InGameScorePanel({ mode, openByDefault = false }: InGameScorePanelProps): JSX.Element {
-  const title = mode === GameMode.Sunforge ? 'Sunforge score' : 'Standard score'
+  const title = mode === ScoringMode.Sunforge ? 'Sunforge score' : 'Standard score'
   const [isDisclaimerOpen, setIsDisclaimerOpen] = useState(false)
   const introImageSrc =
-    mode === GameMode.Sunforge ? '/scoring/sunforge-intro.webp' : '/scoring/standard-intro.webp'
+    mode === ScoringMode.Sunforge ? '/scoring/sunforge-intro.webp' : '/scoring/standard-intro.webp'
 
   return (
     <CollapsiblePanel
       title={title}
-      imageUrl={mode === GameMode.Sunforge ? SunforgeImageUrl : AdaptiveEdgeImageUrl}
+      imageUrl={mode === ScoringMode.Sunforge ? SunforgeImageUrl : AdaptiveEdgeImageUrl}
       mode={mode}
       collapsible
       defaultExpanded={openByDefault}
@@ -179,7 +179,7 @@ function InGameScorePanel({ mode, openByDefault = false }: InGameScorePanelProps
               <strong>💨 Lethality</strong> gives you <Highlight mode={mode}>500</Highlight> points.
             </>,
             <>
-              {mode === GameMode.Sunforge ? (
+              {mode === ScoringMode.Sunforge ? (
                 <>
                   <strong>💀 Bosses defeated</strong> is scored by kill count (not rank). The
                   maximum is at <Highlight mode={mode}>11,750</Highlight> for killing all 32 bosses.
@@ -249,14 +249,14 @@ function InGameScorePanel({ mode, openByDefault = false }: InGameScorePanelProps
         <p>
           Your in-game <strong>base score</strong> is the sum of your scores in the six parameters
           above.{' '}
-          {mode === GameMode.Standard && (
+          {mode === ScoringMode.Standard && (
             <>
               If you max out everything on <strong>Impossible</strong> difficulty, this gives you a
               base score of <Highlight mode={mode}>14,500</Highlight> (
               <Code>6000 + 4 × 2000 + 500</Code>).
             </>
           )}
-          {mode === GameMode.Sunforge && (
+          {mode === ScoringMode.Sunforge && (
             <>
               Maxing out every single parameter gives you a base score of{' '}
               <Highlight mode={mode}>20,250</Highlight> (<Code>11750 + 4 × 2000 + 500</Code>).
@@ -264,7 +264,7 @@ function InGameScorePanel({ mode, openByDefault = false }: InGameScorePanelProps
           )}
         </p>
 
-        {mode === GameMode.Standard && (
+        {mode === ScoringMode.Standard && (
           <>
             <p>
               This score is then multiplied by your <strong>Malignancy</strong> modifier, which is
@@ -301,7 +301,7 @@ function InGameScorePanel({ mode, openByDefault = false }: InGameScorePanelProps
             </p>
           </>
         )}
-        {mode === GameMode.Sunforge && (
+        {mode === ScoringMode.Sunforge && (
           <>
             <p>
               This score is then multiplied by your <strong>Reroll bonus</strong> modifier, which
@@ -348,7 +348,7 @@ function InGameScorePanel({ mode, openByDefault = false }: InGameScorePanelProps
         )}
       </div>
 
-      {mode === GameMode.Standard && (
+      {mode === ScoringMode.Standard && (
         <ExampleBox emoji="👺" mode={mode}>
           <>
             There is one very niche way of going over the maximum malignancy percentage. If you play
@@ -358,12 +358,12 @@ function InGameScorePanel({ mode, openByDefault = false }: InGameScorePanelProps
         </ExampleBox>
       )}
 
-      {mode === GameMode.Sunforge && (
+      {mode === ScoringMode.Sunforge && (
         <ExampleBox emoji="🎲" mode={mode}>
           <>
             There is also a post-combat reward that says{' '}
-            <strong>"Choose 1 of 3 cards (and gain 1 reroll token)"</strong>. Depending on your
-            luck, you may see this between 0 and 12 times during the run.
+            <strong>&quot;Choose 1 of 3 cards (and gain 1 reroll token)&quot;</strong>. Depending on
+            your luck, you may see this between 0 and 12 times during the run.
           </>
         </ExampleBox>
       )}
