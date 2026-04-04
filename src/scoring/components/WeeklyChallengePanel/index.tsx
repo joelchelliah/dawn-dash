@@ -1,0 +1,116 @@
+import { createCx } from '@/shared/utils/classnames'
+
+import styles from './index.module.scss'
+import CollapsiblePanel from '../CollapsiblePanel'
+import { ArcaneMissileImageUrl } from '@/shared/utils/imageUrls'
+import { GameMode } from '@/scoring/types'
+import IllustratedScoringInfo from '../IllustratedScoringInfo'
+import Highlight from '../Highlight'
+import ScoringList from '../ScoringList'
+import GradientLink from '@/shared/components/GradientLink'
+import ExampleBox from '../ExampleBox'
+
+const cx = createCx(styles)
+
+interface WeeklyChallengePanelProps {}
+
+function WeeklyChallengePanel({}: WeeklyChallengePanelProps): JSX.Element {
+  const mode = GameMode.WeeklyChallenge
+
+  return (
+    <CollapsiblePanel
+      title={'Weekly Challenge Score'}
+      imageUrl={ArcaneMissileImageUrl}
+      mode={mode}
+      collapsible
+      defaultExpanded
+      isLongTitle
+    >
+      <div className={cx('content')}>
+        <p>
+          Your <Highlight mode={mode}>Weekly Challenge</Highlight> score is determined by the
+          following two factors:
+        </p>
+        <ScoringList
+          mode={mode}
+          items={[
+            <>
+              Your entire in-game <Highlight mode={GameMode.Standard}>Standard</Highlight> mode
+              score.
+            </>,
+            <>
+              A third-party <Highlight mode={GameMode.Blightbane}>Blightbane</Highlight> score,
+              awarded by how well you perform in the specific goals of the challenge.
+            </>,
+          ]}
+        />
+        <p>
+          Once your <Highlight mode={mode}>Weekly Challenge</Highlight> run is submitted, the{' '}
+          <Highlight mode={GameMode.Blightbane}>Blightbane</Highlight> score is calculated and added
+          to your <Highlight mode={GameMode.Standard}>Standard</Highlight> score to get the final
+          total score.
+        </p>
+
+        <IllustratedScoringInfo
+          mode={mode}
+          imageSrc={'/scoring/weekly-intro.webp'}
+          imageAlt="In-Game Score Example"
+        >
+          <div className={cx('illustrated-info')}>
+            <p>
+              Details about the current <strong>Weekly Challenge</strong> can be found in the game,
+              as well as on the <strong>Blightbane</strong> website, where you can also browse all
+              past challenges. Here's the challenge from 26/03/2026:{' '}
+              <GradientLink
+                text="Scrappy Scramble"
+                url="https://blightbane.io/challenge/1774551600000"
+              />
+              , where you can see its unique setups, goals and scoring parameters.
+            </p>
+            <p>
+              A <GradientLink text="summary page" url="https://blightbane.io/deck/1774781247585" />{' '}
+              is created for each submitted run, containing:
+            </p>
+            <br />
+            <ScoringList
+              mode={mode}
+              items={[
+                <>
+                  Your <strong>🏆 Total score</strong> (with the Blightbane score shown in green
+                  next to it).
+                </>,
+                <>
+                  A small (incomplete) summary of your in-game{' '}
+                  <Highlight mode={GameMode.Standard}>Standard</Highlight> score.
+                </>,
+                <>Your cards, talents, malignancies and boss fights.</>,
+                <>
+                  A detailed breakdown of how well you did on your{' '}
+                  <Highlight mode={GameMode.Blightbane}>Blightbane</Highlight> score parameters.
+                </>,
+              ]}
+            />
+            <br />
+          </div>
+        </IllustratedScoringInfo>
+        <br />
+        <p>
+          The sections below will cover both the{' '}
+          <Highlight mode={GameMode.Standard}>Standard</Highlight> scoring and{' '}
+          <Highlight mode={GameMode.Blightbane}>Blightbane</Highlight> scoring in full detail.
+        </p>
+
+        <ExampleBox mode={mode} emoji="ℹ️">
+          <p>
+            When starting a Weekly Challenge run, you can provide your Discord username for the game
+            to automatically submit your run to the Blightbane website. Alternatively, you can
+            manually submit your run later via the Weekly channel in the{' '}
+            <strong>Dawncaster Discord</strong>.
+          </p>
+        </ExampleBox>
+      </div>
+    </CollapsiblePanel>
+  )
+}
+
+export default WeeklyChallengePanel

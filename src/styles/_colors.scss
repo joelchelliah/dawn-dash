@@ -151,5 +151,6 @@ $event-node-type-to-color-map: (
 // -- Scoring colors -- //
 $color-scoring-standard: color.adjust($color-banner-3, $lightness: 50%, $alpha: -0.25);
 $color-scoring-sunforge: color.adjust($color-banner-8, $lightness: 30%, $alpha: -0.25);
-$color-scoring-weekly-challenge: color.adjust($color-banner-3, $lightness: 50%, $alpha: -0.25);
+$color-scoring-weekly-challenge: color.adjust($color-banner-4, $lightness: 55%, $alpha: -0.25);
+$color-scoring-blightbane: color.adjust($color-banner-1, $lightness: 30%, $alpha: -0.25);
 // -- -- -- -- -- -- -- //

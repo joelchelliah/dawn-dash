@@ -20,6 +20,8 @@ const getHighlightClass = (mode: GameMode): string => {
       return 'highlight--sunforge'
     case GameMode.WeeklyChallenge:
       return 'highlight--weekly-challenge'
+    case GameMode.Blightbane:
+      return 'highlight--blightbane'
     default:
       return ''
   }

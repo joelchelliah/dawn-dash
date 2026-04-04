@@ -17,6 +17,7 @@ interface CollapsiblePanelProps {
   defaultExpanded?: boolean
   imageUrl?: string
   mode?: GameMode
+  isLongTitle?: boolean
 }
 
 function CollapsiblePanel({
@@ -26,6 +27,7 @@ function CollapsiblePanel({
   defaultExpanded = false,
   imageUrl,
   mode,
+  isLongTitle = false,
 }: CollapsiblePanelProps): JSX.Element {
   const [isExpanded, setIsExpanded] = useState(defaultExpanded || !collapsible)
 
@@ -48,13 +50,24 @@ function CollapsiblePanel({
             [`panel-header--${mode}`]: isExpanded && mode,
           })}
         >
-          <div className={cx('panel-header__title-container')}>
+          <div
+            className={cx('panel-header__title-container', {
+              'panel-header__title-container--clickable': collapsible,
+            })}
+            onClick={toggleExpanded}
+          >
             {imageUrl && (
               <div className={cx('panel-header__image', mode && `panel-header__image--${mode}`)}>
                 <Image src={imageUrl} alt={title as string} width={40} height={40} />
               </div>
             )}
-            <h2 className={cx('panel-header__title')}>{title}</h2>
+            <h2
+              className={cx('panel-header__title', `panel-header__title--${mode}`, {
+                'panel-header__title--long': isLongTitle,
+              })}
+            >
+              {title}
+            </h2>
           </div>
           {collapsible && mode && (
             <ScoringButton onClick={toggleExpanded} mode={mode}>

@@ -15,6 +15,7 @@ import BlightbaneScorePanel from './components/BlightbaneScorePanel'
 import styles from './index.module.scss'
 import { GameMode } from './types'
 import InGameScorePanel from './components/InGameScorePanel'
+import WeeklyChallengePanel from './components/WeeklyChallengePanel'
 
 const cx = createCx(styles)
 
@@ -25,7 +26,6 @@ function useScoringScrollToTop() {
 
 function Scoring(): JSX.Element {
   const { resetToScoring } = useNavigation()
-  const { challengeData, isLoading, isError } = useChallengeData()
   const { showScrollToTopButton, scrollToTop } = useScoringScrollToTop()
   const [selectedMode, setSelectedMode] = useState<GameMode>(GameMode.Standard)
 
@@ -44,28 +44,18 @@ function Scoring(): JSX.Element {
       <div className={cx('content')}>
         <ScoringGuidePanel selectedMode={selectedMode} onModeChange={setSelectedMode} />
 
+        {selectedMode === GameMode.WeeklyChallenge && <WeeklyChallengePanel />}
         <InGameScorePanel
           mode={inGameScoreMode}
           openByDefault={selectedMode !== GameMode.WeeklyChallenge}
-          includeWeeklyInfo={selectedMode === GameMode.WeeklyChallenge}
         />
 
-        {selectedMode === GameMode.WeeklyChallenge && (
-          <BlightbaneScorePanel
-            challengeData={challengeData}
-            isLoading={isLoading}
-            isError={isError}
-          />
-        )}
+        {selectedMode === GameMode.WeeklyChallenge && <BlightbaneScorePanel />}
       </div>
 
       <Footer />
 
-      <ScrollToTopButton
-        show={showScrollToTopButton && !isLoading && !isError}
-        onClick={scrollToTop}
-        alwaysOnTop
-      />
+      <ScrollToTopButton show={showScrollToTopButton} onClick={scrollToTop} alwaysOnTop />
     </div>
   )
 }

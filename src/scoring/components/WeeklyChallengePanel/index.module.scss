@@ -1,0 +1,30 @@
+@use 'index' as *;
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: flex-start;
+
+  @media (max-width: $breakpoint-mobile) {
+    flex-direction: column;
+  }
+
+  p {
+    margin: 0 0 1rem 0;
+    line-height: 1.6;
+    color: $color-primary-base;
+  }
+}
+
+.illustrated-info {
+  display: flex;
+  flex-direction: column;
+  padding: 1.25rem 1rem 0;
+  min-height: 18.375rem;
+
+  @media (max-width: $breakpoint-mobile) {
+    padding-top: 0.75rem;
+    min-height: auto;
+  }
+}

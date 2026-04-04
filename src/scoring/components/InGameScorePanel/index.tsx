@@ -22,7 +22,6 @@ const cx = createCx(styles)
 interface InGameScorePanelProps {
   mode: GameMode
   openByDefault?: boolean
-  includeWeeklyInfo?: boolean
 }
 
 const SCORE_PARAMETERS = [
