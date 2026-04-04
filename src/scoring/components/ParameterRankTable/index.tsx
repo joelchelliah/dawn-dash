@@ -172,8 +172,8 @@ const PARAMETER_DETAILS = [
       { rank: 'V', threshold: 'Over 30 cards', points: 750 },
       { rank: 'IV', threshold: 'Over 19 cards', points: 500 },
       { rank: 'III', threshold: 'Over 9 cards', points: 250 },
-      { rank: 'II', threshold: 'Over 5 cards', points: 100 },
-      { rank: 'I', threshold: '???', points: 50 },
+      { rank: 'II', threshold: 'Over 5 cards', points: 50 },
+      { rank: 'I', threshold: '???', points: '???' },
     ],
   },
   {

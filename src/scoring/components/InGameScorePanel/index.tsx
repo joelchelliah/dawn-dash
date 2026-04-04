@@ -64,8 +64,8 @@ const MAX_SCORES = [
   { difficulty: 'Normal', score: 29440, calc: '(700 + 4 × 2000 + 500) × (1 + 2.2)' },
 ]
 
-function getIntro(mode: GameMode, includeWeeklyInfo: boolean): JSX.Element {
-  if (mode === GameMode.Standard && !includeWeeklyInfo) {
+function getIntroText(mode: GameMode): JSX.Element {
+  if (mode === GameMode.Standard) {
     return (
       <>
         <p>
@@ -89,7 +89,7 @@ function getIntro(mode: GameMode, includeWeeklyInfo: boolean): JSX.Element {
         </p>
       </>
     )
-  } else if (mode === GameMode.Sunforge && !includeWeeklyInfo) {
+  } else if (mode === GameMode.Sunforge) {
     return (
       <>
         <p>
@@ -108,36 +108,25 @@ function getIntro(mode: GameMode, includeWeeklyInfo: boolean): JSX.Element {
           ]}
         />
         <p>
-          Unlike in <Highlight mode={GameMode.Standard}>Standard</Highlight>, your score is not
-          directly enhanced by your enabled malignancies, but picking harder malignancies does give
-          you more rerolls, which in turn leads to a higher score!
+          Unlike in <Highlight mode={GameMode.Standard}>Standard</Highlight> mode, your score is not
+          directly enhanced by your malignancies, but picking harder malignancies gives you
+          additional rerolls, which in turn leads to a higher score!
         </p>
         <p>
           The combined score from your <strong>six scoring parameters</strong>, along with your{' '}
-          <strong>reroll bonus</strong>, gives you your final score. These parameters are:
+          <strong>reroll bonus</strong>, makes up your final score. These parameters are:
         </p>
       </>
     )
-  } else if (mode === GameMode.WeeklyChallenge && includeWeeklyInfo) {
-    return (
-      <p>
-        Your <Highlight mode={mode}>Weekly Challenge</Highlight> score is determined by the sum of
-        your scores in <strong>six different parameters</strong>, multiplied by a{' '}
-        <strong>Malignancy</strong> modifier based on your enabled malignancies. These six
-        parameters are:
-      </p>
-    )
   }
-  throw new Error(`Invalid mode: [${mode}, ${includeWeeklyInfo}]`)
+  throw new Error(`Unsupported mode for in-game score: ${mode}`)
 }
 
-function InGameScorePanel({
-  mode,
-  openByDefault = false,
-  includeWeeklyInfo = false,
-}: InGameScorePanelProps): JSX.Element {
+function InGameScorePanel({ mode, openByDefault = false }: InGameScorePanelProps): JSX.Element {
   const title = mode === GameMode.Sunforge ? 'Sunforge score' : 'Standard score'
   const [isDisclaimerOpen, setIsDisclaimerOpen] = useState(false)
+  const introImageSrc =
+    mode === GameMode.Sunforge ? '/scoring/sunforge-intro.webp' : '/scoring/standard-intro.webp'
 
   return (
     <CollapsiblePanel
@@ -148,11 +137,11 @@ function InGameScorePanel({
       defaultExpanded={openByDefault}
     >
       <div className={cx('content')}>
-        {getIntro(mode, includeWeeklyInfo)}
+        {getIntroText(mode)}
 
         <IllustratedScoringInfo
           mode={mode}
-          imageSrc="/scoring/in-game-score.webp"
+          imageSrc={introImageSrc}
           imageAlt="In-Game Score Example"
         >
           <ul className={cx('score-parameters')}>
@@ -173,7 +162,7 @@ function InGameScorePanel({
           <span className={cx('nobr')}>
             (<strong>I</strong> – <strong>IX</strong>),
           </span>{' '}
-          based on your performance, and you will be given a score corresponding to that rank.
+          based on your performance, and you&apos;ll be given a score corresponding to that rank.
           <br />
           <br />
           <strong>At the maximum rank (IX):</strong>
@@ -191,9 +180,18 @@ function InGameScorePanel({
               <strong>💨 Lethality</strong> gives you <Highlight mode={mode}>500</Highlight> points.
             </>,
             <>
-              <strong>💀 Bosses defeated</strong> depends on your difficulty in addition to the kill
-              count. Maxing out at <Highlight mode={mode}>6000</Highlight> points on Impossible
-              difficulty.
+              {mode === GameMode.Sunforge ? (
+                <>
+                  <strong>💀 Bosses defeated</strong> is scored by kill count (not rank). The
+                  maximum is at <Highlight mode={mode}>11,750</Highlight> for killing all 32 bosses.
+                </>
+              ) : (
+                <>
+                  <strong>💀 Bosses defeated</strong> depends on your difficulty and kill count. A
+                  maximum of <Highlight mode={mode}>6000</Highlight> points is achievable on{' '}
+                  <strong>Impossible</strong> difficulty.
+                </>
+              )}
             </>,
           ]}
         />
@@ -221,12 +219,13 @@ function InGameScorePanel({
         <ParameterRankTable mode={mode} />
 
         <div className={cx('disclaimer')}>
-          📋
+          📋 &nbsp;A small
           <GradientLink
-            text="A disclaimer on the numbers above"
+            text="disclaimer"
             onClick={() => setIsDisclaimerOpen(true)}
             className={cx('disclaimer__link')}
-          />
+          />{' '}
+          on these numbers
         </div>
 
         <InfoModal isOpen={isDisclaimerOpen} onClose={() => setIsDisclaimerOpen(false)}>
@@ -240,8 +239,11 @@ function InGameScorePanel({
           </p>
           <p>
             If you notice any discrepancies or missing information, in either the rank values or any
-            other sections, please let me know on either <strong>Discord</strong> (@joel6801) or via{' '}
-            <strong>GitHub</strong> (see link in the footer) 🙏
+            other sections, please let me know on <strong>Discord</strong> (@joel6801) or via{' '}
+            <strong>GitHub</strong> (see link in the footer).
+            <br />
+            <br />
+            Thanks! 🙏
           </p>
         </InfoModal>
 

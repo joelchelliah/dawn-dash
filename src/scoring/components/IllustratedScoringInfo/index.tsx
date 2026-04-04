@@ -28,8 +28,8 @@ function IllustratedScoringInfo({
         <Image
           src={imageSrc}
           alt={imageAlt}
-          width={302}
-          height={310}
+          width={450}
+          height={450}
           className={cx('illustration-image')}
         />
       </div>

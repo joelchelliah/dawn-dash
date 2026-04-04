@@ -53,10 +53,15 @@
 }
 
 .illustration-image {
-  width: 302px;
+  width: 310px;
   height: 310px;
   border-radius: 0.25rem;
   box-shadow:
     0 8px 24px rgba(0, 0, 0, 0.5),
     0 4px 8px rgba(0, 0, 0, 0.3);
+
+  @media (max-width: $breakpoint-mobile) {
+    width: 100%;
+    height: auto;
+  }
 }
