@@ -12,6 +12,7 @@ import CollapsiblePanel from '../CollapsiblePanel'
 import ExampleBox from '../ExampleBox'
 import Highlight from '../Highlight'
 import IllustratedScoringInfo from '../IllustratedScoringInfo'
+import ParameterInfoList from '../ParameterInfoList'
 import ParameterRankTable from '../ParameterRankTable'
 import ScoringList from '../ScoringList'
 
@@ -143,19 +144,9 @@ function InGameScorePanel({ mode, openByDefault = false }: InGameScorePanelProps
           imageSrc={introImageSrc}
           imageAlt="In-Game Score Example"
         >
-          <ul className={cx('score-parameters')}>
-            {SCORE_PARAMETERS.map(({ label, emoji, description }) => (
-              <li key={label}>
-                <span className={cx('label')}>
-                  {emoji} {label}:
-                </span>{' '}
-                <span className={cx('description')}>{description}</span>
-              </li>
-            ))}
-          </ul>
+          <ParameterInfoList parameters={SCORE_PARAMETERS} />
         </IllustratedScoringInfo>
 
-        <br />
         <p>
           Each parameter is assigned a <strong>rank</strong> from one to nine{' '}
           <span className={cx('nobr')}>
@@ -229,8 +220,8 @@ function InGameScorePanel({ mode, openByDefault = false }: InGameScorePanelProps
 
         <InfoModal isOpen={isDisclaimerOpen} onClose={() => setIsDisclaimerOpen(false)}>
           <p>
-            📋 As of the time of writing, there is no official documentation on the thresholds for
-            the different parameter ranks.
+            📋 There is currently no official documentation on the thresholds for the different
+            parameter ranks.
           </p>
           <p>
             All information shared here is based on personal experience, run summaries from the{' '}
@@ -270,7 +261,7 @@ function InGameScorePanel({ mode, openByDefault = false }: InGameScorePanelProps
               This score is then multiplied by your <strong>Malignancy</strong> modifier, which is
               the sum of all malignancies enabled for the run. As of the time of writing{' '}
               <small>
-                <em>(01.04.2026)</em>
+                <em>(10.04.2026)</em>
               </small>
               , the highest malignancy percentage you can have is <strong>220%</strong>. Going with
               the numbers above, this gives us a Malignancy bonus of{' '}

@@ -59,17 +59,18 @@ function WeeklyChallengePanel(): JSX.Element {
           <div className={cx('illustrated-info')}>
             <p>
               Details about the current <strong>Weekly Challenge</strong> can be found in the game,
-              as well as on the <strong>Blightbane</strong> website, where you can also browse all
-              past challenges. Here&apos;s the challenge from 26/03/2026:{' '}
-              <GradientLink
-                text="Scrappy Scramble"
-                url="https://blightbane.io/challenge/1774551600000"
-              />
-              , where you can see its unique setups, goals and scoring parameters.
+              as well as on the <strong>Blightbane</strong> website, and the{' '}
+              <strong>Discord Weekly channel</strong>.
+              <br />
+              <br />
+              You can browse all current and past challenges{' '}
+              <GradientLink text=" here" url="https://blightbane.io/challenges" />, to see their
+              unique setups, special objectives and scoring parameters.
             </p>
             <p>
-              A <GradientLink text="summary page" url="https://blightbane.io/deck/1774781247585" />{' '}
-              is created for each submitted run, containing:
+              There&apos;s a{' '}
+              <GradientLink text="summary page" url="https://blightbane.io/deck/1774781247585" />{' '}
+              for each submitted run, containing:
             </p>
             <br />
             <ScoringList
@@ -90,10 +91,9 @@ function WeeklyChallengePanel(): JSX.Element {
                 </>,
               ]}
             />
-            <br />
           </div>
         </IllustratedScoringInfo>
-        <br />
+
         <p>
           The two sections below will cover the{' '}
           <Highlight mode={ScoringMode.Standard}>Standard</Highlight> scoring and{' '}

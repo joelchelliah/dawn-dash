@@ -9,7 +9,6 @@ import ScrollToTopButton from '@/shared/components/ScrollToTopButton'
 import { useScrollToTop } from '@/shared/hooks/useScrollToTop'
 import { useBreakpoint } from '@/shared/hooks/useBreakpoint'
 
-import { useChallengeData } from './hooks/useChallengeData'
 import ScoringGuidePanel from './components/ScoringGuidePanel'
 import BlightbaneScorePanel from './components/BlightbaneScorePanel'
 import styles from './index.module.scss'

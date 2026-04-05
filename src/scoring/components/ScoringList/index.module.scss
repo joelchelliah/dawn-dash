@@ -32,4 +32,8 @@
   &--WeeklyChallenge li::before {
     color: color.adjust($color-scoring-weekly-challenge, $alpha: -0.2);
   }
+
+  &--Blightbane li::before {
+    color: $color-scoring-blightbane;
+  }
 }

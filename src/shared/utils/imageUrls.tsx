@@ -48,6 +48,7 @@ export const NeutralImageUrl = `${blightbaneImagesUrl}/neutral.webp`
 
 // Other
 export const HealthImageUrl = `${blightbaneImagesUrl}/health.webp`
+export const BloodImageUrl = `${blightbaneImagesUrl}/blood.webp`
 export const BolgarImageUrl = `${blightbaneImagesUrl}/bolgar.png`
 export const ChestImageUrl = `${blightbaneImagesUrl}/events/opportunity_image.webp`
 

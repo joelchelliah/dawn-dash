@@ -9,7 +9,7 @@
   background-color: $color-base-bg;
   border-radius: 0.25rem;
   padding: 1rem;
-  margin-bottom: -1rem;
+  margin-bottom: 1rem;
   align-self: stretch;
 
   @media (max-width: $breakpoint-mobile) {
@@ -43,6 +43,9 @@
   }
   &--WeeklyChallenge {
     border-color: color.adjust($color-scoring-weekly-challenge, $alpha: -0.35);
+  }
+  &--Blightbane {
+    border-color: color.adjust($color-scoring-blightbane, $alpha: -0.35);
   }
 
   @media (max-width: $breakpoint-mobile) {
