@@ -11,6 +11,8 @@ import Highlight from '../Highlight'
 import SelectableScoringInfo, { SelectableItem } from '../SelectableScoringInfo'
 
 import styles from './index.module.scss'
+import SpoilerText from '../SpoilerText'
+import GradientLink from '@/shared/components/GradientLink'
 
 const cx = createCx(styles)
 
@@ -361,12 +363,15 @@ function ParameterRankTable({ mode }: ParameterRankTableProps): JSX.Element {
 
             <ExampleBox emoji="💍" mode={mode}>
               <p>
-                Let&apos;s say you have 1 gold. How many <strong>Ring of Power</strong> do you need
-                to max out your <strong>Wealth</strong> bonus?
+                If you have 1 gold, how many copies of{' '}
+                <GradientLink text="Ring of Power" url="https://blightbane.io/card/Ring_of_Power" />{' '}
+                do you need to max out your <strong>Wealth</strong> bonus?
               </p>
-              <p>
-                <strong>Answer: 25</strong> (<Code>25 × 4 × 50 + 1 = 5001</Code>)
-              </p>
+              <SpoilerText mode={mode} label="Show answer">
+                The Rings are <strong>Legendary</strong> and <strong>Valuable</strong>, so you will
+                need <Highlight mode={mode}>25</Highlight> copies (
+                <Code>25 × 4 × 50 + 1 = 5001</Code>).
+              </SpoilerText>
             </ExampleBox>
           </>
         )

@@ -15,27 +15,21 @@ interface ScoringButtonProps {
   mode: ScoringMode
   isLoading?: boolean
   type?: 'button' | 'submit'
-  style?: React.CSSProperties
+  className?: string
 }
 
 function ScoringButton({
   children,
   onClick,
   mode,
-  style,
   isLoading = false,
-  type,
+  type = 'button',
+  className,
 }: ScoringButtonProps): JSX.Element {
-  const buttonClassName = cx('scoring-button', `scoring-button--${mode}`)
+  const buttonClassName = cx('scoring-button', `scoring-button--${mode}`, className)
 
   return (
-    <Button
-      onClick={onClick}
-      className={buttonClassName}
-      style={style}
-      isLoading={isLoading}
-      type={type}
-    >
+    <Button onClick={onClick} className={buttonClassName} isLoading={isLoading} type={type}>
       {children}
     </Button>
   )

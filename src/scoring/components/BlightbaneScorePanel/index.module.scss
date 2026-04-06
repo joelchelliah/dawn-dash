@@ -21,12 +21,23 @@
 
   .subheader {
     font-size: font-size('md');
-    font-weight: 600;
+    font-weight: 700;
     margin: 0.875rem 0 0;
 
     @media (max-width: $breakpoint-mobile) {
       font-size: font-size('sm');
       margin: 0.5rem 0 0;
+    }
+  }
+
+  .mini-header {
+    font-size: font-size('sm');
+    font-weight: 800;
+    margin: 0.75rem 0 0;
+
+    @media (max-width: $breakpoint-mobile) {
+      font-size: font-size('xs');
+      margin: 0.25rem 0 0;
     }
   }
 
@@ -39,36 +50,67 @@
     top: 0.125rem;
   }
 
-  .keyword-examples,
-  .icon-keywords {
-    list-style: none;
-    padding-left: 0;
-    margin: 1rem 0;
+  .keyword-example {
+    &__card {
+      display: inline-block;
+      width: 4.5rem;
+      font-weight: 600;
 
-    li {
-      padding: 0.5rem 0.75rem;
-      line-height: 1.4;
-
-      &:nth-child(odd) {
-        background-color: rgba(0, 0, 0, 0.2);
-        border-radius: 4px;
+      @media (max-width: $breakpoint-mobile) {
+        width: auto;
       }
     }
 
-    strong {
-      font-weight: 600;
+    &__emoji {
+      font-size: font-size('xs');
+      margin: 0 0.75rem;
+
+      @media (max-width: $breakpoint-mobile) {
+        margin-left: 0.25rem;
+      }
     }
 
-    em {
-      font-style: italic;
-      color: $color-primary-hover;
+    &__reason {
+      display: inline-block;
+
+      @media (max-width: $breakpoint-mobile) {
+        display: block;
+        margin-left: 0.75rem;
+      }
     }
   }
 
-  .icon-keywords {
-    li {
-      font-family: monospace;
-      font-size: font-size('sm');
+  .icon-keywords-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+    margin: 0 0 1.5rem;
+    width: 100%;
+
+    &__item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      background-color: $color-base-bg;
+      padding: 0.75rem;
+      border-radius: 4px;
+    }
+
+    &__icon {
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8)) drop-shadow(0 0 8px rgba(0, 0, 0, 0.6));
+    }
+
+    &__description {
+      font-size: font-size('xxs');
+      font-style: italic;
+      white-space: nowrap;
+      color: $color-primary-muted;
+      min-width: 6rem;
+      text-align: center;
+    }
+
+    @media (max-width: $breakpoint-mobile) {
+      grid-template-columns: 1fr;
     }
   }
 

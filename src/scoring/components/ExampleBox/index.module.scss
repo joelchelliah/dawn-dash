@@ -15,6 +15,12 @@
   background-color: $color-base-bg;
   border-color: color.adjust($color-scoring-weekly-challenge, $alpha: -0.35);
 }
+
+@mixin blightbane() {
+  background-color: $color-base-bg;
+  border-color: color.adjust($color-scoring-blightbane, $alpha: -0.35);
+}
+
 .example-box {
   position: relative;
   border: 1px solid $color-component-border-dark;
@@ -30,6 +36,9 @@
   }
   &--WeeklyChallenge {
     @include weekly-challenge();
+  }
+  &--Blightbane {
+    @include blightbane();
   }
 }
 
@@ -54,6 +63,9 @@
   }
   &--WeeklyChallenge {
     @include weekly-challenge();
+  }
+  &--Blightbane {
+    @include blightbane();
   }
 
   @media (max-width: $breakpoint-mobile) {

@@ -3,6 +3,7 @@ import {
   AnimaImageUrl,
   BloodImageUrl,
   DexImageUrl,
+  HealthImageUrl,
   HolyImageUrl,
   IntImageUrl,
   NeutralImageUrl,
@@ -22,6 +23,7 @@ import styles from './index.module.scss'
 import ParameterInfoList from '../ParameterInfoList'
 import IllustratedScoringInfo from '../IllustratedScoringInfo'
 import Image from '@/shared/components/Image'
+import SpoilerText from '../SpoilerText'
 
 const cx = createCx(styles)
 
@@ -30,7 +32,7 @@ const RARITY_BASE_POINTS = [
   { rarity: 'Uncommon', points: 75 },
   { rarity: 'Rare', points: 113 },
   { rarity: 'Legendary', points: 170 },
-  { rarity: 'Monster', points: 50, note: '(scored as a common card)' },
+  { rarity: 'Monster', points: 50, note: '(scored as a common, but is actually a lower rarity)' },
 ]
 
 const modeBlightbane = ScoringMode.Blightbane
@@ -96,9 +98,10 @@ const FLAT_SCORE_BONUSES = [
   },
 ]
 
-const renderIcon = (name: string) => {
+const renderIcon = (name: string, large: boolean = false) => {
+  const size = large ? 28 : 16
   const renderImage = (url: string) => (
-    <Image className={cx('game-icon')} src={url} alt={name} height={16} width={16} />
+    <Image className={cx('game-icon')} src={url} alt={name} height={size} width={size} />
   )
 
   switch (name) {
@@ -114,6 +117,8 @@ const renderIcon = (name: string) => {
       return renderImage(NeutralImageUrl)
     case 'BLOOD':
       return renderImage(BloodImageUrl)
+    case 'HEALTH':
+      return renderImage(HealthImageUrl)
     default:
       throw new Error(`Unknown icon: ${name}`)
   }
@@ -121,26 +126,29 @@ const renderIcon = (name: string) => {
 
 const KEYWORD_EXAMPLES = [
   {
-    card: 'Holy War',
+    card: <GradientLink text="Holy War" url="https://blightbane.io/card/Holy_War" />,
+    emoji: '✅',
     reason: (
       <>
-        ✅ &nbsp;Name contains: <Highlight mode={modeBlightbane}>holy</Highlight>.
+        Name contains: <Highlight mode={modeBlightbane}>holy</Highlight>.
       </>
     ),
   },
   {
-    card: 'Battlecry',
+    card: <GradientLink text="Battlecry" url="https://blightbane.io/card/Battlecry" />,
+    emoji: '✅',
     reason: (
       <>
-        ✅ &nbsp;Description contains: <Highlight mode={modeBlightbane}>frenzy</Highlight>.
+        Description contains: <Highlight mode={modeBlightbane}>frenzy</Highlight>.
       </>
     ),
   },
   {
-    card: 'Riptide',
+    card: <GradientLink text="Riptide" url="https://blightbane.io/card/Riptide" />,
+    emoji: '✅',
     reason: (
       <>
-        ✅ &nbsp;Description contains:{' '}
+        Description contains:{' '}
         <strong>
           di<Highlight mode={modeBlightbane}>scar</Highlight>d
         </strong>
@@ -149,28 +157,31 @@ const KEYWORD_EXAMPLES = [
     ),
   },
   {
-    card: 'Renew',
+    card: <GradientLink text="Renew" url="https://blightbane.io/card/Renew" />,
+    emoji: '✅',
     reason: (
       <>
-        ✅ &nbsp;Description contains: {renderIcon('HOLY')}, which is coded as{' '}
+        Description contains: {renderIcon('HOLY')}, which is coded as{' '}
         <Highlight mode={modeBlightbane}>holy</Highlight>.
       </>
     ),
   },
   {
-    card: 'Booty',
+    card: <GradientLink text="Booty" url="https://blightbane.io/card/Booty" />,
+    emoji: '❌',
     reason: (
       <>
-        ❌ &nbsp;Is an equipment type, but no <Highlight mode={modeBlightbane}>equipment</Highlight>{' '}
-        in the card text.
+        Is an equipment type, but no <Highlight mode={modeBlightbane}>equipment</Highlight> in the
+        card text.
       </>
     ),
   },
   {
-    card: 'Revive',
+    card: <GradientLink text="Revive" url="https://blightbane.io/card/Revive" />,
+    emoji: '❌',
     reason: (
       <>
-        ❌ &nbsp;Has {renderIcon('HOLY')} energy cost, but no{' '}
+        Has {renderIcon('HOLY')} energy cost, but no{' '}
         <Highlight mode={modeBlightbane}>holy</Highlight> or {renderIcon('HOLY')} in the card text.
       </>
     ),
@@ -178,28 +189,22 @@ const KEYWORD_EXAMPLES = [
 ]
 
 const ICON_KEYWORDS = [
-  { icon: renderIcon('INT'), keyword: 'int' },
-  { icon: renderIcon('STR'), keyword: 'str' },
-  { icon: renderIcon('DEX'), keyword: 'dex' },
-  { icon: renderIcon('HOLY'), keyword: 'holy' },
-  { icon: renderIcon('NEUTRAL'), keyword: 'neutral' },
-  { icon: '❤️', keyword: 'health' },
+  { icon: renderIcon('INT', true), keyword: 'int', description: 'blue energy' },
+  { icon: renderIcon('STR', true), keyword: 'str', description: 'red energy' },
+  { icon: renderIcon('DEX', true), keyword: 'dex', description: 'green energy' },
+  { icon: renderIcon('HOLY', true), keyword: 'holy', description: 'gold energy' },
+  { icon: renderIcon('NEUTRAL', true), keyword: 'neutral', description: 'neutral energy' },
+  { icon: renderIcon('HEALTH', true), keyword: 'health', description: 'health' },
   {
-    icon: (
-      <>
-        🫟 <small>(void energy icon)</small>
-      </>
-    ),
+    icon: <span style={{ fontSize: '1.75rem' }}>🫟</span>,
     keyword: 'void',
+    description: 'void energy',
   },
-  { icon: renderIcon('BLOOD'), keyword: 'blood' },
+  { icon: renderIcon('BLOOD', true), keyword: 'blood', description: 'blood energy' },
   {
-    icon: (
-      <>
-        🪙 <small>(gold icon)</small>
-      </>
-    ),
+    icon: <span style={{ fontSize: '1.75rem' }}>🪙</span>,
     keyword: 'gold',
+    description: 'gold',
   },
 ]
 
@@ -276,7 +281,7 @@ function BlightbaneScorePanel(): JSX.Element {
           rewards you for maintaining your deck size within a given range.
         </p>
 
-        <h3 className={cx('subheader')}>📝 Keywords bonus</h3>
+        <h4 className={cx('subheader')}>📝 Keywords bonus</h4>
 
         <p>
           There are three different sets of scoring rules for the <strong>keywords bonus</strong>,
@@ -300,10 +305,12 @@ function BlightbaneScorePanel(): JSX.Element {
 
             <ScoringList
               mode={mode}
-              items={KEYWORD_EXAMPLES.map(({ card, reason }) => (
-                <>
-                  <strong>{card}</strong> - {reason}
-                </>
+              items={KEYWORD_EXAMPLES.map(({ card, emoji, reason }) => (
+                <span className={cx('keyword-example')}>
+                  <span className={cx('keyword-example__card')}>{card}</span> -{' '}
+                  <span className={cx('keyword-example__emoji')}>{emoji}</span>{' '}
+                  <span className={cx('keyword-example__reason')}>{reason}</span>
+                </span>
               ))}
             />
           </div>
@@ -321,77 +328,50 @@ function BlightbaneScorePanel(): JSX.Element {
           corresponding text that will trigger the keywords bonus if they match:
         </p>
 
-        <ScoringList
-          mode={mode}
-          items={ICON_KEYWORDS.map(({ icon, keyword }) => (
-            <>
-              {icon} - <Code>{keyword}</Code>
-            </>
+        <div className={cx('icon-keywords-grid')}>
+          {ICON_KEYWORDS.map(({ icon, keyword, description }) => (
+            <div key={keyword} className={cx('icon-keywords-grid__item')}>
+              <span className={cx('icon-keywords-grid__icon')}>{icon}</span>
+              {description && (
+                <span className={cx('icon-keywords-grid__description')}>{description}</span>
+              )}
+              - <Highlight mode={mode}>{keyword}</Highlight>
+            </div>
           ))}
-        />
+        </div>
 
-        <ExampleBox emoji="🤪" mode={mode}>
+        <ExampleBox emoji="🔍" mode={mode}>
           <p>
-            The game uses html tags, like <Code>&lt;nobr&gt;</Code> and <Code>&lt;b&gt;</Code>, for
-            formatting the card texts. These are invisible in the game, but they would still be
-            scored if they were ever used as keywords in a <strong>Weekly Challenge!</strong>
+            Can you see why the card{' '}
+            <GradientLink text="Radiant Burst" url="https://blightbane.io/card/Radiant_Burst" />{' '}
+            matches the keyword <Code>exi</Code>?
+          </p>
+          <p>
+            <strong>Hint:</strong> It also matches <Code>tst</Code> and <Code>rho</Code> for the
+            same reason.
+          </p>
+          <p>
+            <SpoilerText mode={mode} label="Show answer">
+              There are no spaces between the icons in the description, so they read as: &quot;
+              <strong>
+                d<Highlight mode={mode}>exi</Highlight>ntstrholy
+              </strong>
+              &quot;.
+            </SpoilerText>
           </p>
         </ExampleBox>
 
-        <br />
-
-        <br />
-
-        <h4 className={cx('subsection-header')}>✨ Tiny icons still count</h4>
+        <h5 className={cx('mini-header')}>📈 Keyword points scaling</h5>
 
         <p>
-          The keyword-matching rule also applies to the tiny icons you see in the card descriptions.
-          These all have a corresponding text that will also give a bonus if they match one of the
-          weekly keywords:
-        </p>
-
-        <ul className={cx('icon-keywords')}>
-          {ICON_KEYWORDS.map(({ icon, keyword }) => (
-            <li key={keyword}>
-              {icon} - <Code>{keyword}</Code>
-            </li>
-          ))}
-        </ul>
-
-        <p>
-          With that in mind, can you see why the card{' '}
-          <GradientLink text="Radiant Burst" url="https://blightbane.io/card/Radiant_Burst" />{' '}
-          matches the keyword <em>exi</em>?
-        </p>
-
-        <ExampleBox emoji="💡" mode={mode}>
-          <p>
-            <strong>Hint:</strong> It also matches <em>tst</em> and <em>rho</em> for the same reason
-          </p>
-          <p>
-            <strong>Answer:</strong> There are no spaces between the icons in the description, so
-            they read as: d<strong>exi</strong>ntstrholy
-          </p>
-        </ExampleBox>
-
-        <br />
-
-        <h4 className={cx('subsection-header')}>📈 Keyword bonus values and scaling</h4>
-
-        <p>
-          The <strong>first</strong> part of the objective says:
-        </p>
-
-        <ExampleBox emoji="💬" mode={mode}>
-          <p>
-            <em>&quot;+50 Points for cards that have...&quot;</em>
-          </p>
-        </ExampleBox>
-
-        <p>
-          This might be a bit outdated, because it&apos;s not <em>entirely</em> correct anymore. You
-          actually only get 50 base points if it&apos;s a <strong>common card</strong>. For each
-          rarity level you go up, you actually get 50% more base points than the previous one:
+          In addition to scaling with your malignancy, they also scale with the{' '}
+          <strong>rarity</strong> of the matching card. When the objective says:
+          <Code>
+            <Highlight mode={mode}>+50</Highlight> <strong>Points for cards that have...</strong>
+          </Code>
+          , it actually means that you get a base score of <Highlight mode={mode}>50</Highlight> if
+          it&apos;s a <strong>common card</strong>. For each rarity level above common, you get a{' '}
+          <strong>50% higher</strong> base value than the previous one:
         </p>
 
         <ScoringList
@@ -405,59 +385,47 @@ function BlightbaneScorePanel(): JSX.Element {
         />
 
         <p>
-          The <strong>second</strong> part of the objective says:
+          As you can see, you should always prioritize the higher rarity ones when hunting down your
+          keyword bonus cards. A <strong>legendary</strong> is worth over 3 times as much as a{' '}
+          <strong>common</strong>, and will also scale a lot faster with your malignancies!
+        </p>
+        <p>
+          The <strong>keywords bonus</strong> objective usually also includes:
+          <Code>
+            <strong>Half Points for additional copies after the first</strong>
+          </Code>
+          . This means that you will get diminishing returns for each additional copy, and{' '}
+          <strong>not</strong> a flat half for all extra copies. For 3 copies of the same{' '}
+          <strong>legendary</strong> card, that matches a weekly keyword, you will receive a base
+          score of <Highlight mode={mode}>298</Highlight> (<Code>170 + 85 + 43 = 298</Code>) base
+          points.
         </p>
 
-        <ExampleBox emoji="💬" mode={mode}>
+        <ExampleBox emoji="🌀" mode={mode}>
           <p>
-            <em>&quot;Half Points for additional copies after the first.&quot;</em>
+            For most weeks, the 50% score reduction only applies to the first 2 extra copies, giving
+            no score at all for ones beyond. This is a flexible parameter, but it hardly ever
+            changes.
           </p>
         </ExampleBox>
 
-        <p>
-          This actually means that for each additional copy, you get half as much as the previous
-          copy. Not a <em>flat half</em> for all copies! So for 3 copies of the same{' '}
-          <strong>legendary</strong> card, that matches a weekly keyword, you will get 170 + 85 + 43
-          = <Highlight mode={mode}>298</Highlight> base points.
-        </p>
-
-        <p>
-          Each keyword bonus is then multiplied by the malignancy modifier (and rounded up), before
-          being summed together:
-        </p>
-
-        <div className={cx('formula')}>
-          <Code>Total = ∑&#123;keyword bonus × (1 + malignancy modifier)&#125;</Code>
-        </div>
-
-        <ExampleBox emoji="ℹ️" mode={mode}>
-          <p>
-            <strong>Note:</strong> It&apos;s possible to have Weekly Challenges without the 50%
-            reduction to duplicates, but it rarely happens.
-          </p>
-        </ExampleBox>
-
-        <br />
-
-        <h4 className={cx('subsection-header')}>👹 Very niche special rule (WTF?!)</h4>
+        <h5 className={cx('mini-header')}>🫠 A very weird exception</h5>
 
         <p>
           There is one funny exception to the rule about keywords only being in the{' '}
-          <strong>name</strong> or <strong>description</strong>. If the keyword fully matches a type
-          of <strong>rarity</strong> (including the <em>capital first letter</em>), then all cards
-          of that rarity will be counted as score cards for that week: <strong>Monster</strong>,{' '}
-          <strong>Common</strong>, <strong>Uncommon</strong>, <strong>Rare</strong>, or{' '}
-          <strong>Legendary</strong>.
+          <strong>name</strong> or <strong>description</strong>... If the keyword fully matches a
+          type of <strong>rarity</strong> (including the <em>capital first letter</em>), then all
+          cards of that rarity will be counted as score cards for that week:{' '}
+          <strong>Monster</strong>, <strong>Common</strong>, <strong>Uncommon</strong>,{' '}
+          <strong>Rare</strong>, or <strong>Legendary</strong>.
         </p>
 
         <p>
           This doesn&apos;t happen very often anymore, but the rule still exists. Here&apos;s the
-          latest one we had using <strong>Monster</strong> as a keyword:{' '}
-          <GradientLink
-            text="Challenge #1761815906348"
-            url="https://blightbane.io/challenge/1761815906348"
-          />
-          .
+          latest one we had with &quot;<strong>Monster</strong>&quot; as a keyword:{' '}
+          <GradientLink text="Monster Mash" url="https://blightbane.io/challenge/1761815906348" />.
+          As you can see from the submissions, all <strong>Monster rarity</strong> cards were
+          counted as score cards for that week.
         </p>
 
         <br />
