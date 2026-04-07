@@ -7,10 +7,11 @@
 
   .header {
     font-size: font-size('md-plus');
-    font-weight: 600;
+    font-weight: 700;
     margin: 1rem 0 -0.25rem;
     padding-bottom: 0.25rem;
     width: 100%;
+    letter-spacing: 0.025em;
     border-bottom: 1px dotted color.adjust($color-scoring-blightbane, $alpha: -0.5);
 
     @media (max-width: $breakpoint-mobile) {
@@ -20,8 +21,8 @@
   }
 
   .subheader {
-    font-size: font-size('md');
-    font-weight: 700;
+    font-size: font-size('md-plus');
+    font-weight: 600;
     margin: 0.875rem 0 0;
 
     @media (max-width: $breakpoint-mobile) {
@@ -41,7 +42,7 @@
     }
   }
 
-  .keywords-info {
+  .illustrated-info {
     padding: 1rem;
   }
 

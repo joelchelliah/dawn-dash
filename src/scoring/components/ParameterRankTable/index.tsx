@@ -368,9 +368,9 @@ function ParameterRankTable({ mode }: ParameterRankTableProps): JSX.Element {
                 do you need to max out your <strong>Wealth</strong> bonus?
               </p>
               <SpoilerText mode={mode} label="Show answer">
-                The Rings are <strong>Legendary</strong> and <strong>Valuable</strong>, so you will
-                need <Highlight mode={mode}>25</Highlight> copies (
-                <Code>25 × 4 × 50 + 1 = 5001</Code>).
+                <strong>Answer:</strong> The Rings are <strong>Legendary</strong> and{' '}
+                <strong>Valuable</strong>, so you will need <Highlight mode={mode}>25</Highlight>{' '}
+                copies (<Code>25 × 4 × 50 + 1 = 5001</Code>).
               </SpoilerText>
             </ExampleBox>
           </>
