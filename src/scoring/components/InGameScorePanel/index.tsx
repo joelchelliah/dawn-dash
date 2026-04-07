@@ -190,9 +190,9 @@ function InGameScorePanel({ mode, openByDefault = false }: InGameScorePanelProps
           Score growth between ranks is <strong>non-linear</strong>. Meaning that jumping from rank{' '}
           <strong>VIII</strong> (8) to <strong>IX</strong> (9) in one parameter is usually worth a
           lot more than jumping from <strong>I</strong> to <strong>V</strong> in another. Important
-          to keep in mind if you are forced to prioritize one parameter over another. Sadly, most of
-          these parameters are completely invisible to you during the run, so you&apos;ll have to
-          keep track of them on your own.
+          to keep in mind if you are forced to prioritize one parameter over another. Unfortunately,
+          most of these parameters are hidden from you during the run, so you&apos;ll have to keep
+          track of them on your own.
         </p>
 
         <ExampleBox emoji="🧠" mode={mode}>
@@ -258,22 +258,19 @@ function InGameScorePanel({ mode, openByDefault = false }: InGameScorePanelProps
         {mode === ScoringMode.Standard && (
           <>
             <p>
-              This score is then multiplied by your <strong>Malignancy</strong> modifier, which is
-              the sum of all malignancies enabled for the run. As of the time of writing{' '}
-              <small>
-                <em>(10.04.2026)</em>
-              </small>
-              , the highest malignancy percentage you can have is <strong>220%</strong>. Going with
-              the numbers above, this gives us a Malignancy bonus of{' '}
-              <Highlight mode={mode}>31,900</Highlight> (<Code>14500 × 2.2</Code>).
+              This score is then multiplied by your <strong>Malignancy</strong> percentage, which is
+              the sum of all malignancies enabled for the run. The highest malignancy percentage you
+              can have right now is <strong>220%</strong>. Going with the numbers above, this gives
+              us a Malignancy bonus of <Highlight mode={mode}>31,900</Highlight> (
+              <Code>14500 × 2.2</Code>).
             </p>
             <p>
-              Adding that to the base score, puts the highest achievable in-game score for an{' '}
-              <strong>Impossible</strong> run at <Highlight mode={mode}>46,400</Highlight> (
-              <Code>14500 + 31900</Code>)!
+              Adding that to the base score, puts the highest achievable{' '}
+              <Highlight mode={mode}>Standard</Highlight> score for an <strong>Impossible</strong>{' '}
+              run at <Highlight mode={mode}>46,400</Highlight> (<Code>14500 + 31900</Code>)!
             </p>
 
-            <p>Similarily for the other difficulties, the highest achievable scores are:</p>
+            <p>Similarly for the other difficulties, the highest achievable scores are:</p>
 
             <ScoringList
               mode={mode}

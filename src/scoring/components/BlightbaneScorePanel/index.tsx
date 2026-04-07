@@ -225,7 +225,7 @@ function BlightbaneScorePanel(): JSX.Element {
           Your <Highlight mode={mode}>Blightbane</Highlight> score consists of special{' '}
           <strong>Weekly-specific</strong> bonuses that are unique to each week&apos;s challenge.
           Some of these bonuses are improved by your <strong>Malignancy percentage</strong>, while
-          others just add a flat score to your total. We&apos;ll cover each of these bonuses in
+          others just add a fixed score to your total. We&apos;ll cover each of these bonuses in
           detail below.
         </p>
 
@@ -248,7 +248,7 @@ function BlightbaneScorePanel(): JSX.Element {
         <p>
           You&apos;ll need to evaluate each of these on a <em>weekly-by-weekly</em> basis, and
           decide how high you want to prioritize them compared to all the other scoring objectives.
-          Especially considering their flat score values!
+          Especially considering their fixed score values!
         </p>
 
         <h3 className={cx('header')}>🚀 Scalable score bonuses</h3>
@@ -269,15 +269,16 @@ function BlightbaneScorePanel(): JSX.Element {
         />
 
         <p>
-          The first one focuses on tracking down cards matching specific words, while the second one
+          The first rewards you for finding cards matching specific words, while the second one
           rewards you for maintaining your deck size within a given range.
         </p>
 
         <h4 className={cx('subheader')}>📝 Keywords bonus</h4>
 
         <p>
-          There are three different sets of scoring rules for the <strong>keywords bonus</strong>,
-          but two of them are hardly ever used. We'll only be covering the default variant here:
+          The <strong>keywords bonus</strong> scoring rules has a few different variants, but only
+          one of them is used most of the time. We'll only be covering this default variant here,
+          for now:
         </p>
 
         <IllustratedScoringInfo
@@ -311,7 +312,7 @@ function BlightbaneScorePanel(): JSX.Element {
         <p>
           As you can see in the example above, this rule also applies to the tiny{' '}
           <strong>icons</strong> that may appear in the card text. Each icon has a corresponding
-          text that will trigger the keywords bonus if they match:
+          internal code that will trigger the <strong>keywords bonus</strong> when matched:
         </p>
 
         <div className={cx('icon-keywords-grid')}>
@@ -468,7 +469,7 @@ function BlightbaneScorePanel(): JSX.Element {
               window, which is <Highlight mode={mode}>20</Highlight> in this example. Finding the{' '}
               <strong>buffer</strong> might feel less intuitive, but you get it by counting the
               steps from the <strong>target</strong> to either edge of the accuracy range (including
-              the target as well). This gives us:{' '}
+              the target). This gives us:{' '}
               <Code>
                 17 {'->'} 18 {'->'} 19 {'->'} 20 .... = <Highlight mode={mode}>4</Highlight>
               </Code>{' '}
@@ -502,7 +503,7 @@ function BlightbaneScorePanel(): JSX.Element {
         </ExampleBox>
 
         <p>
-          Why does knowing the <strong>buffer</strong> matter? If you&apos;ve already acrued a
+          Why does knowing the <strong>buffer</strong> matter? If you&apos;ve already accrued a
           penalty, then maybe you can fill up the remaining buffer quota with{' '}
           <strong>keyword bonus</strong> cards to help minimize this penalty. Or maybe even put you
           at a <strong>net positive</strong>! Which leads us to...
