@@ -271,9 +271,8 @@ function BlightbaneScorePanel(): JSX.Element {
         </p>
         <h4 className={cx('subheader')}>📝 Keywords bonus</h4>
         <p>
-          The <strong>keywords bonus</strong> scoring rules has a few different variants, but only
-          one of them is used most of the time. We'll only be covering this default variant here,
-          for now:
+          The <strong>keywords bonus</strong> scoring has a few different variants, but only one of
+          them is used most of the time. We'll only be covering this default variant here, for now:
         </p>
         <IllustratedScoringInfo
           mode={mode}
@@ -371,15 +370,14 @@ function BlightbaneScorePanel(): JSX.Element {
           <strong>common</strong>, and will also scale a lot faster with your malignancies!
         </p>
         <p>
-          The <strong>keywords bonus</strong> objective usually also includes:
+          The objective usually also states:
           <Code>
             <strong>Half Points for additional copies after the first</strong>
           </Code>
-          . This means that you&apos;ll get diminishing returns for each additional copy, and{' '}
-          <strong>not</strong> a flat half for all extra copies. For 3 copies of the same{' '}
-          <strong>legendary</strong> card, that matches a weekly keyword, you will receive a base
-          score of <Highlight mode={mode}>298</Highlight> (<Code>170 + 85 + 43 = 298</Code>) base
-          points.
+          , meaning that you&apos;ll get a <strong>50%</strong> score reduction on each additional
+          copy of a card you already have. For 3 copies of the same <strong>legendary</strong> card,
+          that matches a weekly keyword, you will receive a base score of{' '}
+          <Highlight mode={mode}>298</Highlight> (<Code>170 + 85 + 43 = 298</Code>) base points.
         </p>
         <ExampleBox emoji="🌀" mode={mode}>
           <p>

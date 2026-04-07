@@ -107,6 +107,15 @@ function WeeklyChallengePanel(): JSX.Element {
             <strong>Dawncaster Discord</strong> Weekly channel.
           </p>
         </ExampleBox>
+
+        <p>
+          You might also want to check out the ⚔️{' '}
+          <GradientLink text="Brightcandle Arena" url="https://brightcandlearena.fly.dev" />.
+          It&apos;s the official tool for brainstorming, suggesting and managing the{' '}
+          <Highlight mode={mode}>Weekly Challenges</Highlight>, that anyone can use. It also has
+          some good insight into several of the <strong>scoring components</strong> that we will be
+          covering below.
+        </p>
       </div>
     </CollapsiblePanel>
   )
