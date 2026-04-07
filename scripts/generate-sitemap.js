@@ -46,6 +46,12 @@ function generateSitemap() {
       changefreq: 'weekly',
       priority: '0.7',
     },
+    {
+      loc: `${BASE_URL}/scoring`,
+      lastmod: new Date().toISOString().split('T')[0],
+      changefreq: 'weekly',
+      priority: '0.8',
+    },
   ]
 
   // Add all event pages
