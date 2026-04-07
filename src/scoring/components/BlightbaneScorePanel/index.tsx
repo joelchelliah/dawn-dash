@@ -1,3 +1,5 @@
+import Link from 'next/link'
+
 import { createCx } from '@/shared/utils/classnames'
 import {
   AnimaImageUrl,
@@ -228,7 +230,6 @@ function BlightbaneScorePanel(): JSX.Element {
           others just add a fixed score to your total. We&apos;ll cover each of these bonuses in
           detail below.
         </p>
-
         <h3 className={cx('header')}>🎖️ Fixed score bonuses</h3>
         <p>
           These bonuses are added to the total score as-is. Keep in mind that they don&apos;t scale
@@ -236,7 +237,6 @@ function BlightbaneScorePanel(): JSX.Element {
           Here&apos;s a list of all the <strong>fixed score bonuses</strong> you might encounter.
           Most challenges will contain at least two of these:
         </p>
-
         <IllustratedScoringInfo
           mode={mode}
           imageSrc={'/scoring/flat-score.webp'}
@@ -244,13 +244,11 @@ function BlightbaneScorePanel(): JSX.Element {
         >
           <ParameterInfoList parameters={FLAT_SCORE_BONUSES} />
         </IllustratedScoringInfo>
-
         <p>
           You&apos;ll need to evaluate each of these on a <em>weekly-by-weekly</em> basis, and
           decide how high you want to prioritize them compared to all the other scoring objectives.
           Especially considering their fixed score values!
         </p>
-
         <h3 className={cx('header')}>🚀 Scalable score bonuses</h3>
         <p>
           These bonuses scale together with your <strong>Malignancy percentage</strong> (similarly
@@ -267,20 +265,16 @@ function BlightbaneScorePanel(): JSX.Element {
             </>,
           ]}
         />
-
         <p>
           The first rewards you for finding cards matching specific words, while the second one
           rewards you for maintaining your deck size within a given range.
         </p>
-
         <h4 className={cx('subheader')}>📝 Keywords bonus</h4>
-
         <p>
           The <strong>keywords bonus</strong> scoring rules has a few different variants, but only
           one of them is used most of the time. We'll only be covering this default variant here,
           for now:
         </p>
-
         <IllustratedScoringInfo
           mode={mode}
           imageSrc={'/scoring/keyword-score.webp'}
@@ -308,13 +302,11 @@ function BlightbaneScorePanel(): JSX.Element {
             />
           </div>
         </IllustratedScoringInfo>
-
         <p>
           As you can see in the example above, this rule also applies to the tiny{' '}
           <strong>icons</strong> that may appear in the card text. Each icon has a corresponding
           internal code that will trigger the <strong>keywords bonus</strong> when matched:
         </p>
-
         <div className={cx('icon-keywords-grid')}>
           {ICON_KEYWORDS.map(({ icon, keyword, description }) => (
             <div key={keyword} className={cx('icon-keywords-grid__item')}>
@@ -326,14 +318,12 @@ function BlightbaneScorePanel(): JSX.Element {
             </div>
           ))}
         </div>
-
         <p>
           A keyword anywhere in the <strong>name</strong> or <strong>description</strong>{' '}
           (uninterrupted by other characters) is enough. It doesn&apos;t have to be an official
           in-game keyword, or even a real word... Just any string of characters. But matching
           multiple keywords on a single card does <strong>not</strong> stack the bonus.
         </p>
-
         <ExampleBox emoji="🔍" mode={mode}>
           <p>
             Can you see why the card{' '}
@@ -355,9 +345,7 @@ function BlightbaneScorePanel(): JSX.Element {
             </SpoilerText>
           </p>
         </ExampleBox>
-
         <h5 className={cx('mini-header')}>📈 Keyword points scaling</h5>
-
         <p>
           In addition to scaling with your malignancy, they also scale with the{' '}
           <strong>rarity</strong> of the matching card. When the objective says:
@@ -368,7 +356,6 @@ function BlightbaneScorePanel(): JSX.Element {
           it&apos;s a <strong>common card</strong>. For each rarity level above common, you get a{' '}
           <strong>50% higher</strong> base value than the previous one:
         </p>
-
         <ScoringList
           mode={mode}
           items={RARITY_BASE_POINTS.map(({ rarity, points, note }) => (
@@ -378,7 +365,6 @@ function BlightbaneScorePanel(): JSX.Element {
             </>
           ))}
         />
-
         <p>
           As you can see, you should always prioritize the higher rarity ones when hunting down your
           keyword bonus cards. A <strong>legendary</strong> is worth over 3 times as much as a{' '}
@@ -395,7 +381,6 @@ function BlightbaneScorePanel(): JSX.Element {
           score of <Highlight mode={mode}>298</Highlight> (<Code>170 + 85 + 43 = 298</Code>) base
           points.
         </p>
-
         <ExampleBox emoji="🌀" mode={mode}>
           <p>
             For most weeks, the 50% score reduction only applies to the first 2 extra copies, giving
@@ -403,9 +388,45 @@ function BlightbaneScorePanel(): JSX.Element {
             changes.
           </p>
         </ExampleBox>
+        <h5 className={cx('mini-header')}>🕵️‍♂️ Help tracking keywords</h5>
+        <p>
+          Some weeks the keywords can be trickier to notice than others. Especially when hiding
+          inside other words (or icons) like &quot;
+          <strong>
+            di<Highlight mode={mode}>SCAR</Highlight>d
+          </strong>
+          &quot;, &quot;
+          <strong>
+            ingre<Highlight mode={mode}>DIE</Highlight>nt
+          </strong>
+          &quot; or &quot;
+          <strong>
+            <Highlight mode={mode}>HEAL</Highlight>th
+          </strong>
+          &quot; ({renderIcon('HEALTH')}). The{' '}
+          <GradientLink text="Dawn-Dash: Cardex" url="https://dawn-dash.com/cardex" /> was created
+          with the <Highlight mode={ScoringMode.WeeklyChallenge}>Weekly Challenges</Highlight> in
+          mind, and will help you find all cards matching any given list of keywords.
+        </p>
 
-        <h5 className={cx('mini-header')}>🫠 A weird exception</h5>
+        <Link href="/cardex" target="_blank" rel="noopener noreferrer" className={cx('image-link')}>
+          <Image
+            src={'/landing-cardex.webp'}
+            alt="Dawn-dash: Cardex"
+            width={800}
+            height={420}
+            className={cx('centered-image')}
+          />
+        </Link>
 
+        <p>
+          The tool follows the exact same criteria for matching keywords as{' '}
+          <Highlight mode={mode}>Blightbane</Highlight>. There are several filters to help refine
+          your search, or you can just hit the <strong>Optimize for Weekly Challenge</strong> button
+          to get a fine-tuned list of cards for the current week&apos;s challenge!
+        </p>
+
+        <h5 className={cx('mini-header')}>🫠 Exact rarity-matching keywords</h5>
         <p>
           There is one funny exception to the rule about keywords only being in the{' '}
           <strong>name</strong> or <strong>description</strong>... If the keyword fully matches a
@@ -414,7 +435,6 @@ function BlightbaneScorePanel(): JSX.Element {
           <strong>Monster</strong>, <strong>Common</strong>, <strong>Uncommon</strong>,{' '}
           <strong>Rare</strong>, or <strong>Legendary</strong>.
         </p>
-
         <p>
           This doesn&apos;t happen very often anymore, but the rule still exists. Here&apos;s one we
           had with &quot;<strong>Monster</strong>&quot; as a keyword:{' '}
@@ -422,14 +442,11 @@ function BlightbaneScorePanel(): JSX.Element {
           As you can see from the submissions, all <strong>Monster rarity</strong> cards were
           counted as score cards for that week.
         </p>
-
         <h4 className={cx('subheader')}>🎯 Accuracy bonus</h4>
-
         <p>
           More like <strong>Inaccuracy Penalty</strong> bonus... This one will heavily penalize you
           for having too many or too few cards in your deck, if you&apos;re not careful!
         </p>
-
         <IllustratedScoringInfo
           mode={mode}
           imageSrc={'/scoring/accuracy-score.webp'}
@@ -481,7 +498,6 @@ function BlightbaneScorePanel(): JSX.Element {
             </p>
           </div>
         </IllustratedScoringInfo>
-
         <p>
           In the above example, if you end your run with <Highlight mode={mode}>24 - 27</Highlight>{' '}
           cards in your deck, you have passed the <strong>buffer</strong> once and will be penalized{' '}
@@ -492,7 +508,6 @@ function BlightbaneScorePanel(): JSX.Element {
           Passing it a third time drops you down to <Highlight mode={mode}>2100</Highlight> base
           accuracy, and so on...
         </p>
-
         <ExampleBox emoji="☠️" mode={mode}>
           <p>
             The penalty doesn&apos;t stop when you reach <Highlight mode={mode}>0</Highlight>.
@@ -501,16 +516,13 @@ function BlightbaneScorePanel(): JSX.Element {
             <strong>disabled</strong> for the specific challenge, which rarely happens.
           </p>
         </ExampleBox>
-
         <p>
           Why does knowing the <strong>buffer</strong> matter? If you&apos;ve already accrued a
           penalty, then maybe you can fill up the remaining buffer quota with{' '}
           <strong>keyword bonus</strong> cards to help minimize this penalty. Or maybe even put you
           at a <strong>net positive</strong>! Which leads us to...
         </p>
-
         <h5 className={cx('mini-header')}>🔨 Breaking the accuracy window!</h5>
-
         <p>
           There is a strategic element to breaking past the <strong>accuracy window</strong> and
           still coming out ahead, and it all depends on how high the <strong>buffer</strong> value
@@ -518,7 +530,6 @@ function BlightbaneScorePanel(): JSX.Element {
           your next penalty, and thereby collecting enough <strong>keyword bonus</strong> cards to
           offset it!
         </p>
-
         <p>
           Sticking to the previous example with an accuracy bonus of{' '}
           <Highlight mode={mode}>3000</Highlight> and a buffer of{' '}
@@ -530,7 +541,6 @@ function BlightbaneScorePanel(): JSX.Element {
           going like this for as long as you find the right cards, and even finish a run with a{' '}
           <strong>negative accuracy bonus</strong> but still come out with a net positive gain!
         </p>
-
         <ExampleBox emoji="🧐" mode={mode}>
           <p>
             Is it still ok to break the window when the buffer is a strict{' '}
@@ -548,7 +558,6 @@ function BlightbaneScorePanel(): JSX.Element {
             </SpoilerText>
           </p>
         </ExampleBox>
-
         <p>
           In addition, collecting more cards also has a chance of increasing the ranks of the{' '}
           <Highlight mode={ScoringMode.Standard}>Standard</Highlight> mode parameters:{' '}
@@ -556,9 +565,7 @@ function BlightbaneScorePanel(): JSX.Element {
           incentive to break past that accuracy window! Depending on the <strong>rank</strong>, this
           small boost may or may not cover an entire penalty, but it definitely helps.
         </p>
-
         <h3 className={cx('header')}>🧮 Total Blightbane Score</h3>
-
         <p>
           Finally, the <Highlight mode={mode}>Blightbane</Highlight> score is calculated by adding
           together the <strong>fixed score bonus</strong>, the <strong>keywords bonus</strong> and
@@ -566,20 +573,17 @@ function BlightbaneScorePanel(): JSX.Element {
           <strong>malignancy</strong> modifier:{' '}
           <Code>Fixed bonus + (Keywords bonus + Accuracy bonus) × (1 + Malignancy modifier)</Code>
         </p>
-
         <p>
           This value, also shown in <Highlight mode={mode}>green</Highlight> on your submission
           page, is combined with your <Highlight mode={ScoringMode.Standard}>Standard</Highlight>{' '}
           mode score to give you your total{' '}
           <Highlight mode={ScoringMode.WeeklyChallenge}>Weekly Challenge</Highlight> score.
         </p>
-
         <p>
           Note that the <Highlight mode={mode}>Blightbane</Highlight> scoring mode only considers
           cards in your <strong>main decklist</strong>! Cards found anywhere else will be{' '}
           <strong>ignored</strong> by all score bonus components. This includes:
         </p>
-
         <ScoringList
           mode={mode}
           items={[
@@ -594,7 +598,6 @@ function BlightbaneScorePanel(): JSX.Element {
             </>,
           ]}
         />
-
         <p>If you cannot see it in your deck outside of combat, it will not count.</p>
       </div>
     </CollapsiblePanel>

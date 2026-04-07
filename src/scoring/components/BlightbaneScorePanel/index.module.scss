@@ -115,25 +115,36 @@
     }
   }
 
-  .formula {
-    background-color: rgba(0, 0, 0, 0.3);
-    border-left: 3px solid $color-primary-base;
-    padding: 1rem 1.25rem;
-    margin: 1rem 0;
-    border-radius: 4px;
-    font-family: monospace;
-    text-align: center;
-    font-size: font-size('md');
-
-    @media (max-width: $breakpoint-mobile) {
-      font-size: font-size('sm');
-      padding: 0.75rem 1rem;
-    }
-  }
-
   .note {
     font-size: font-size('xs');
     color: $color-primary-muted;
     font-style: italic;
+  }
+
+  .image-link {
+    display: block;
+    max-width: 400px;
+    margin: -0.5rem auto 1rem;
+    cursor: pointer;
+
+    @media (max-width: $breakpoint-mobile) {
+      max-width: 100%;
+      margin-bottom: 0.5rem;
+    }
+  }
+
+  .centered-image {
+    display: block;
+    border-radius: 0.25rem;
+    box-shadow:
+      0 8px 24px rgba(0, 0, 0, 0.5),
+      0 4px 8px rgba(0, 0, 0, 0.3);
+    width: 100%;
+    height: auto;
+    transition: transform 0.3s ease;
+
+    &:hover {
+      transform: scale(1.05);
+    }
   }
 }
