@@ -15,6 +15,7 @@ import styles from './index.module.scss'
 import { ScoringMode } from './types'
 import InGameScorePanel from './components/InGameScorePanel'
 import WeeklyChallengePanel from './components/WeeklyChallengePanel'
+import { useUrlParams } from './hooks/useUrlParams'
 
 const cx = createCx(styles)
 
@@ -27,6 +28,8 @@ function Scoring(): JSX.Element {
   const { resetToScoring } = useNavigation()
   const { showScrollToTopButton, scrollToTop } = useScoringScrollToTop()
   const [selectedMode, setSelectedMode] = useState<ScoringMode>(ScoringMode.Standard)
+
+  useUrlParams(selectedMode, setSelectedMode)
 
   const inGameScoreMode =
     selectedMode === ScoringMode.Sunforge ? ScoringMode.Sunforge : ScoringMode.Standard

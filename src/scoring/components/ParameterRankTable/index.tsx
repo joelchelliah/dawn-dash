@@ -323,7 +323,7 @@ function ParameterRankTable({ mode }: ParameterRankTableProps): JSX.Element {
           <ExampleBox emoji="🛒" mode={mode}>
             <p>
               Getting several copies of the same card will <strong>not</strong> affect this
-              parameter at all! Only disctinct cards are counted.
+              parameter at all! Only distinct cards are counted.
             </p>
           </ExampleBox>
         )
