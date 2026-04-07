@@ -34,7 +34,7 @@ export default function Landing() {
       />
       <div className={cx('content')}>
         <p className={cx('description')}>
-          A collection of useful tools and resources for the RPG cardventure:{' '}
+          A growing collection of useful tools and resources for{' '}
           <GradientLink text="Dawncaster" url="https://dawncaster.wanderlost.games/" />
         </p>
 
@@ -66,6 +66,14 @@ export default function Landing() {
             alt="Eventmaps"
             mobileDescription={LANDING_PAGE_NAV_ITEM_DESCRIPTIONS.eventmapsShort}
             onMouseEnter={() => setHoveredItem('eventmaps')}
+            onMouseLeave={() => setHoveredItem(null)}
+          />
+          <NavItem
+            url="/scoring"
+            imageSrc="/landing-scoring.webp"
+            alt="Scoring"
+            mobileDescription={LANDING_PAGE_NAV_ITEM_DESCRIPTIONS.scoringShort}
+            onMouseEnter={() => setHoveredItem('scoring')}
             onMouseLeave={() => setHoveredItem(null)}
           />
           <NavItem

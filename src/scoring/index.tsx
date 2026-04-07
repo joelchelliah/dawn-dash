@@ -2,7 +2,7 @@ import { useState } from 'react'
 
 import { createCx } from '@/shared/utils/classnames'
 import { useNavigation } from '@/shared/hooks/useNavigation'
-import { DeificLarcenyImageUrl } from '@/shared/utils/imageUrls'
+import { JunkLordUrl } from '@/shared/utils/imageUrls'
 import Footer from '@/shared/components/Footer'
 import Header from '@/shared/components/Header'
 import ScrollToTopButton from '@/shared/components/ScrollToTopButton'
@@ -35,7 +35,7 @@ function Scoring(): JSX.Element {
     <div className={cx('container')}>
       <Header
         onLogoClick={resetToScoring}
-        logoSrc={DeificLarcenyImageUrl}
+        logoSrc={JunkLordUrl}
         title="Scoring"
         subtitle="Dawncaster scoring guide"
         currentPage="scoring"

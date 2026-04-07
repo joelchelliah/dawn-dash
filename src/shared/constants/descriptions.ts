@@ -11,6 +11,10 @@ export const LANDING_PAGE_NAV_ITEM_DESCRIPTIONS = {
     'Fully mapped out event trees of all the events in Dawncaster, letting you explore all the possible branching paths, dialogue options, rewards, and dangers of each event!',
   eventmapsShort:
     'Fully mapped out event trees for all events in Dawncaster, showing all options and rewards for each event!',
+  scoring:
+    'Detailed Dawncaster scoring guides, specifically tailored to each game mode, to help you maximize your scores in Standard mode, Sunforge, and the Weekly Challenges!',
+  scoringShort:
+    'Detailed Dawncaster scoring guides, covering Standard mode, Sunforge, and the Weekly Challenges!',
   speedruns:
     'Speedrun charts, records, and statistics for all game modes and difficulties in Dawncaster, based on player-submitted data from Blightbane.io!',
   speedrunsShort:

@@ -7,7 +7,7 @@ import LoadingDots from '@/shared/components/LoadingDots'
 import { HamburgerIcon, HamburgerMenuIcon, CloseIcon, CloseMenuIcon } from '@/shared/utils/icons'
 import {
   AbracadabraImageUrl,
-  DeificLarcenyImageUrl,
+  JunkLordUrl,
   DashImageUrl,
   EleganceImageUrl,
   InfernalContractUrl,
@@ -195,7 +195,7 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
               className={cx('side-menu__nav-link')}
               onClick={() => handleNavLinkClick('Scoring')}
             >
-              {getNavLinkImage(DeificLarcenyImageUrl, 'Scoring logo')}
+              {getNavLinkImage(JunkLordUrl, 'Scoring logo')}
               {getNavLinkText('Scoring')}
             </Link>
           </div>
@@ -257,9 +257,7 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
 
         <div className={cx('info-divider')} />
 
-        <h3 className={cx('info-title')}>
-          {getNavLinkImage(DeificLarcenyImageUrl, 'Scoring logo')} Scoring
-        </h3>
+        <h3 className={cx('info-title')}>{getNavLinkImage(JunkLordUrl, 'Scoring logo')} Scoring</h3>
 
         <p className={cx('info-last-paragraph')}>
           Detailed <b>Dawncaster</b> scoring guides, specifically tailored for{' '}
