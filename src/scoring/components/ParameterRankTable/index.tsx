@@ -94,7 +94,7 @@ const PARAMETER_DETAILS = [
       <span>
         Determined by the total <strong>damage taken </strong> throughout the entire run. This also
         includes self-inflicted damage and damage taken outside of combat. Loss of max health,
-        either via enemy actions, malignancies, or events, doesn&apos;t count as damage taken.
+        either via enemy actions, malignancies, or events, does not count as damage taken.
         <br />
         <br />
         The max score for this is probably the hardest one to achieve, as it requires you to finish
@@ -301,8 +301,8 @@ function ParameterRankTable({ mode }: ParameterRankTableProps): JSX.Element {
           <ExampleBox emoji="🫀" mode={mode}>
             <p>
               Beware of effects/enchantments that can add <strong>Stagger</strong> or{' '}
-              <strong>Poison</strong> to you before your first turn. This can ruin a perfect
-              Awareness score, even when you are killing everything on turn 1.
+              <strong>Poison</strong> to you before your first turn. This can ruin a perfect{' '}
+              <strong>Awareness</strong> score, even when you are killing everything on turn one.
             </p>
           </ExampleBox>
         )

@@ -220,11 +220,10 @@ function InGameScorePanel({ mode, openByDefault = false }: InGameScorePanelProps
 
         <InfoModal isOpen={isDisclaimerOpen} onClose={() => setIsDisclaimerOpen(false)}>
           <p>
-            📋 There is currently no official documentation on the thresholds for the different
-            parameter ranks.
+            📋 There is currently no official documentation on these parameters and their ranks.
           </p>
           <p>
-            All information shared here is based on personal experience, run summaries from the{' '}
+            All information shown here is based on personal experience, shared runs from the{' '}
             <strong>Dawncaster Discord</strong>, and discussions with other long-time players.
           </p>
           <p>
@@ -339,8 +338,8 @@ function InGameScorePanel({ mode, openByDefault = false }: InGameScorePanelProps
       {mode === ScoringMode.Standard && (
         <ExampleBox emoji="👺" mode={mode}>
           <>
-            There is one very niche way of going over the maximum malignancy percentage. If you play
-            an <strong>Invasions</strong> run, and pick up the <strong>Offer of Pride</strong> while
+            There is one way of going over the maximum malignancy on Standard mode. If you play an{' '}
+            <strong>Invasions</strong> run, and pick up the <strong>Offer of Pride</strong> while
             already having five malignancies, you will be granted a sixth malignancy!
           </>
         </ExampleBox>

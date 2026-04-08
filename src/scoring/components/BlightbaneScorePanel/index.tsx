@@ -13,6 +13,7 @@ import {
 } from '@/shared/utils/imageUrls'
 import GradientLink from '@/shared/components/GradientLink'
 import Code from '@/shared/components/Code'
+import Image from '@/shared/components/Image'
 
 import { ScoringMode } from '@/scoring/types'
 
@@ -20,12 +21,11 @@ import CollapsiblePanel from '../CollapsiblePanel'
 import Highlight from '../Highlight'
 import ScoringList from '../ScoringList'
 import ExampleBox from '../ExampleBox'
-
-import styles from './index.module.scss'
 import ParameterInfoList from '../ParameterInfoList'
 import IllustratedScoringInfo from '../IllustratedScoringInfo'
-import Image from '@/shared/components/Image'
 import SpoilerText from '../SpoilerText'
+
+import styles from './index.module.scss'
 
 const cx = createCx(styles)
 
@@ -100,7 +100,7 @@ const FLAT_SCORE_BONUSES = [
   },
 ]
 
-const renderIcon = (name: string, large: boolean = false) => {
+const renderIcon = (name: string, large = false) => {
   const size = large ? 28 : 16
   const renderImage = (url: string) => (
     <Image className={cx('game-icon')} src={url} alt={name} height={size} width={size} />
@@ -272,7 +272,8 @@ function BlightbaneScorePanel(): JSX.Element {
         <h4 className={cx('subheader')}>📝 Keywords bonus</h4>
         <p>
           The <strong>keywords bonus</strong> scoring has a few different variants, but only one of
-          them is used most of the time. We'll only be covering this default variant here, for now:
+          them is used most of the time. We&apos;ll only be covering this default variant here, for
+          now:
         </p>
         <IllustratedScoringInfo
           mode={mode}
@@ -292,7 +293,7 @@ function BlightbaneScorePanel(): JSX.Element {
             <ScoringList
               mode={mode}
               items={KEYWORD_EXAMPLES.map(({ card, emoji, reason }) => (
-                <span className={cx('keyword-example')}>
+                <span key={card.key} className={cx('keyword-example')}>
                   <span className={cx('keyword-example__card')}>{card}</span> -{' '}
                   <span className={cx('keyword-example__emoji')}>{emoji}</span>{' '}
                   <span className={cx('keyword-example__reason')}>{reason}</span>
@@ -371,7 +372,7 @@ function BlightbaneScorePanel(): JSX.Element {
         </p>
         <p>
           The objective usually also states:
-          <Code>
+          <Code wrap="mobile">
             <strong>Half Points for additional copies after the first</strong>
           </Code>
           , meaning that you&apos;ll get a <strong>50%</strong> score reduction on each additional
@@ -401,10 +402,13 @@ function BlightbaneScorePanel(): JSX.Element {
           <strong>
             <Highlight mode={mode}>HEAL</Highlight>th
           </strong>
-          &quot; ({renderIcon('HEALTH')}). The{' '}
-          <GradientLink text="Dawn-Dash: Cardex" url="https://dawn-dash.com/cardex" /> was created
-          with the <Highlight mode={ScoringMode.WeeklyChallenge}>Weekly Challenges</Highlight> in
-          mind, and will help you find all cards matching any given list of keywords.
+          &quot; ({renderIcon('HEALTH')}).
+        </p>
+        <p>
+          The <GradientLink text="Dawn-Dash: Cardex" url="https://dawn-dash.com/cardex" /> was
+          created with the{' '}
+          <Highlight mode={ScoringMode.WeeklyChallenge}>Weekly Challenges</Highlight> in mind, and
+          will help you find all cards matching any given list of keywords.
         </p>
 
         <Link href="/cardex" target="_blank" rel="noopener noreferrer" className={cx('image-link')}>
@@ -552,7 +556,7 @@ function BlightbaneScorePanel(): JSX.Element {
             <SpoilerText mode={mode} label="Show answer">
               <strong>Answer:</strong> In theory, yes... But quite difficult to achieve, as you will
               need to find 2 distinct <strong>legendaries</strong> per break. High risk of
-              sabotaging your score, if you don't find them!
+              sabotaging your score, if you don&apos;t find them!
             </SpoilerText>
           </p>
         </ExampleBox>
@@ -569,7 +573,9 @@ function BlightbaneScorePanel(): JSX.Element {
           together the <strong>fixed score bonus</strong>, the <strong>keywords bonus</strong> and
           the <strong>accuracy bonus</strong>. The last two components are also scaled by the{' '}
           <strong>malignancy</strong> modifier:{' '}
-          <Code>Fixed bonus + (Keywords bonus + Accuracy bonus) × (1 + Malignancy modifier)</Code>
+          <Code wrap="mobile">
+            Fixed bonus + (Keywords bonus + Accuracy bonus) × (1 + Malignancy modifier)
+          </Code>
         </p>
         <p>
           This value, also shown in <Highlight mode={mode}>green</Highlight> on your submission

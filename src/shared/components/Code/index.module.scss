@@ -15,3 +15,17 @@
     font-size: font-size('xxs');
   }
 }
+
+.wrapAlways {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.wrapMobile {
+  @media (max-width: $breakpoint-mobile) {
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+}
