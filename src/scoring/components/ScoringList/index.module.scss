@@ -22,18 +22,18 @@
   }
 
   &--Standard li::before {
-    color: $color-scoring-standard;
+    color: $color-class-warrior;
   }
 
   &--Sunforge li::before {
-    color: $color-scoring-sunforge;
+    color: $color-class-sunforge;
   }
 
   &--WeeklyChallenge li::before {
-    color: color.adjust($color-scoring-weekly-challenge, $alpha: -0.2);
+    color: $color-class-knight;
   }
 
   &--Blightbane li::before {
-    color: $color-scoring-blightbane;
+    color: $color-class-rogue;
   }
 }

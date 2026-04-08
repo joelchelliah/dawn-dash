@@ -1,27 +1,11 @@
 @use 'index' as *;
 @use 'sass:color' as color;
 
-@mixin border-color($color, $useCase: 'image') {
-  @if $useCase == 'image' {
-    border-color: color.adjust($color, $alpha: -0.15);
-  } @else if $useCase == 'header' {
-    border-bottom-color: color.adjust($color, $alpha: -0.35);
-  }
-}
-
 .panel {
   background: $color-component-bg;
   padding: 1rem;
   border-radius: 0.25rem;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-
-  @media (max-width: $breakpoint-tablet) {
-    padding: 20px;
-  }
-
-  @media (max-width: $breakpoint-mobile) {
-    padding: 15px;
-  }
 }
 
 .panel-header {
@@ -42,19 +26,19 @@
   }
 
   &--Standard.panel-header--expanded {
-    @include border-color($color-scoring-standard, 'header');
+    border-bottom-color: $color-class-warrior-border;
   }
 
   &--Sunforge.panel-header--expanded {
-    @include border-color($color-scoring-sunforge, 'header');
+    border-bottom-color: $color-class-sunforge-border;
   }
 
   &--WeeklyChallenge.panel-header--expanded {
-    @include border-color($color-scoring-weekly-challenge, 'header');
+    border-bottom-color: $color-class-knight-border;
   }
 
   &--Blightbane.panel-header--expanded {
-    @include border-color($color-scoring-blightbane, 'header');
+    border-bottom-color: $color-class-rogue-border;
   }
 
   &__title-container {
@@ -79,19 +63,19 @@
     justify-content: center;
 
     &--Standard {
-      @include border-color($color-scoring-standard, 'image');
+      border-color: $color-class-warrior-border;
     }
 
     &--Sunforge {
-      @include border-color($color-scoring-sunforge, 'image');
+      border-color: $color-class-sunforge-border;
     }
 
     &--WeeklyChallenge {
-      @include border-color($color-scoring-weekly-challenge, 'image');
+      border-color: $color-class-knight-border;
     }
 
     &--Blightbane {
-      @include border-color($color-scoring-blightbane, 'image');
+      border-color: $color-class-rogue-border;
     }
 
     @media (max-width: $breakpoint-mobile) {
@@ -106,34 +90,34 @@
     margin: 0;
 
     &--Standard {
-      color: $color-scoring-standard;
+      color: $color-class-warrior;
 
       &:hover {
-        color: color.adjust($color-scoring-standard, $lightness: 5%);
+        color: $color-class-warrior-hover;
       }
     }
 
     &--Sunforge {
-      color: $color-scoring-sunforge;
+      color: $color-class-sunforge;
 
       &:hover {
-        color: color.adjust($color-scoring-sunforge, $lightness: 30%);
+        color: $color-class-sunforge-hover;
       }
     }
 
     &--WeeklyChallenge {
-      color: $color-scoring-weekly-challenge;
+      color: $color-class-knight;
 
       &:hover {
-        color: color.adjust($color-scoring-weekly-challenge, $lightness: 8%);
+        color: $color-class-knight-hover;
       }
     }
 
     &--Blightbane {
-      color: $color-scoring-blightbane;
+      color: $color-class-rogue;
 
       &:hover {
-        color: color.adjust($color-scoring-blightbane, $lightness: 10%);
+        color: $color-class-rogue-hover;
       }
     }
 

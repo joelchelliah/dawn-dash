@@ -20,18 +20,42 @@
   }
 
   &--Standard {
-    @include scoring-colors($color-scoring-standard);
+    color: $color-class-warrior;
+    border-color: $color-class-warrior-border;
+
+    &:hover {
+      color: $color-class-warrior-hover;
+      border-color: $color-class-warrior-hover;
+    }
   }
 
   &--Sunforge {
-    @include scoring-colors($color-scoring-sunforge);
+    color: $color-class-sunforge;
+    border-color: $color-class-sunforge-border;
+
+    &:hover {
+      color: $color-class-sunforge-hover;
+      border-color: $color-class-sunforge-hover;
+    }
   }
 
   &--WeeklyChallenge {
-    @include scoring-colors($color-scoring-weekly-challenge);
+    color: $color-class-knight;
+    border-color: $color-class-knight-border;
+
+    &:hover {
+      color: $color-class-knight-hover;
+      border-color: $color-class-knight-hover;
+    }
   }
 
   &--Blightbane {
-    @include scoring-colors($color-scoring-blightbane);
+    color: $color-class-rogue;
+    border-color: $color-class-rogue-border;
+
+    &:hover {
+      color: $color-class-rogue-hover;
+      border-color: $color-class-rogue-hover;
+    }
   }
 }

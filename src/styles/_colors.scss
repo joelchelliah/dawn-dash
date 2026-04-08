@@ -76,9 +76,9 @@ $color-class-rogue-border: #4a783e;
 $color-class-seeker: #2f9c83;
 $color-class-seeker-hover: #53bca9;
 $color-class-seeker-border: #297965;
-$color-class-warrior: #cf3131;
+$color-class-warrior: #d13838;
 $color-class-warrior-hover: #ed5b5b;
-$color-class-warrior-border: #951e1e;
+$color-class-warrior-border: #882828;
 $color-class-sunforge: #c09528;
 $color-class-sunforge-hover: #e7b35f;
 $color-class-sunforge-border: #997a39;
@@ -173,11 +173,4 @@ $event-node-type-to-color-map: (
   'end': $color-event-node-end,
   'custom': $color-event-node-custom,
 );
-// -- -- -- -- -- -- -- //
-
-// -- Scoring colors -- //
-$color-scoring-standard: color.adjust($color-banner-3, $lightness: 50%, $alpha: -0.25);
-$color-scoring-sunforge: color.adjust($color-banner-8, $lightness: 30%, $alpha: -0.25);
-$color-scoring-weekly-challenge: color.adjust($color-banner-4, $lightness: 55%, $alpha: -0.25);
-$color-scoring-blightbane: color.adjust($color-banner-1, $lightness: 25%, $alpha: -0.25);
 // -- -- -- -- -- -- -- //

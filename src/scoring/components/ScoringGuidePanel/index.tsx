@@ -2,8 +2,8 @@ import { createCx } from '@/shared/utils/classnames'
 import IllustratedButton from '@/shared/components/Buttons/IllustratedButton'
 import {
   AdaptiveEdgeImageUrl,
-  ArcaneMissileImageUrl,
-  SunforgeImageUrl,
+  AuraOfPurityImageUrl,
+  BigBombImageUrl,
 } from '@/shared/utils/imageUrls'
 import { CharacterClass } from '@/shared/types/characterClass'
 
@@ -29,13 +29,13 @@ const gameModeButtons = [
   {
     mode: ScoringMode.Sunforge,
     label: 'Sunforge',
-    imageUrl: SunforgeImageUrl,
+    imageUrl: AuraOfPurityImageUrl,
     classType: CharacterClass.Sunforge,
   },
   {
     mode: ScoringMode.WeeklyChallenge,
     label: 'The Weekly Challenge',
-    imageUrl: ArcaneMissileImageUrl,
+    imageUrl: BigBombImageUrl,
     classType: CharacterClass.Knight,
   },
 ]

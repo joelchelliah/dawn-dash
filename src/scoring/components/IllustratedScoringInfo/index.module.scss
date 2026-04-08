@@ -36,16 +36,16 @@
   border-radius: 0.25rem;
 
   &--Standard {
-    border-color: color.adjust($color-scoring-standard, $alpha: -0.35);
+    border-color: $color-class-warrior-border;
   }
   &--Sunforge {
-    border-color: color.adjust($color-scoring-sunforge, $alpha: -0.35);
+    border-color: $color-class-sunforge-border;
   }
   &--WeeklyChallenge {
-    border-color: color.adjust($color-scoring-weekly-challenge, $alpha: -0.35);
+    border-color: $color-class-knight-border;
   }
   &--Blightbane {
-    border-color: color.adjust($color-scoring-blightbane, $alpha: -0.35);
+    border-color: $color-class-rogue-border;
   }
 
   @media (max-width: $breakpoint-mobile) {

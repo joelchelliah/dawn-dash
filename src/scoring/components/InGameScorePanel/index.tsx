@@ -2,7 +2,7 @@ import { useState } from 'react'
 
 import Code from '@/shared/components/Code'
 import { createCx } from '@/shared/utils/classnames'
-import { AdaptiveEdgeImageUrl, SunforgeImageUrl } from '@/shared/utils/imageUrls'
+import { AdaptiveEdgeImageUrl, AuraOfPurityImageUrl } from '@/shared/utils/imageUrls'
 import GradientLink from '@/shared/components/GradientLink'
 import InfoModal from '@/shared/components/Modals/InfoModal'
 
@@ -131,7 +131,7 @@ function InGameScorePanel({ mode, openByDefault = false }: InGameScorePanelProps
   return (
     <CollapsiblePanel
       title={title}
-      imageUrl={mode === ScoringMode.Sunforge ? SunforgeImageUrl : AdaptiveEdgeImageUrl}
+      imageUrl={mode === ScoringMode.Sunforge ? AuraOfPurityImageUrl : AdaptiveEdgeImageUrl}
       mode={mode}
       collapsible
       defaultExpanded={openByDefault}

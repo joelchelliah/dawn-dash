@@ -1,10 +1,6 @@
 @use 'index' as *;
 @use 'sass:color' as color;
 
-@mixin border-color($color) {
-  border-color: color.adjust($color, $alpha: -0.35);
-}
-
 .parameter-title {
   font-size: font-size('md');
   font-weight: 700;
@@ -47,13 +43,13 @@
       border-bottom: 1px solid $color-component-border;
 
       &.mode--Standard {
-        @include border-color($color-scoring-standard);
+        border-color: $color-class-warrior-border;
       }
       &.mode--Sunforge {
-        @include border-color($color-scoring-sunforge);
+        border-color: $color-class-sunforge-border;
       }
       &.mode--WeeklyChallenge {
-        @include border-color($color-scoring-weekly-challenge);
+        border-color: $color-class-knight-border;
       }
 
       @media (max-width: $breakpoint-mobile) {
@@ -67,13 +63,13 @@
       border-bottom: 1px dashed $color-component-border-dark;
 
       &.mode--Standard {
-        @include border-color($color-scoring-standard);
+        border-color: $color-class-warrior-border;
       }
       &.mode--Sunforge {
-        @include border-color($color-scoring-sunforge);
+        border-color: $color-class-sunforge-border;
       }
       &.mode--WeeklyChallenge {
-        @include border-color($color-scoring-weekly-challenge);
+        border-color: $color-class-knight-border;
       }
 
       &:nth-child(even) {
@@ -116,13 +112,13 @@
   color: $color-primary-active;
 
   &--Standard {
-    color: color.adjust($color-scoring-standard, $lightness: 10%) !important;
+    color: $color-class-warrior-hover !important;
   }
   &--Sunforge {
-    color: color.adjust($color-scoring-sunforge, $lightness: 15%) !important;
+    color: $color-class-sunforge-hover !important;
   }
   &--WeeklyChallenge {
-    color: $color-scoring-weekly-challenge !important;
+    color: $color-class-knight-hover !important;
   }
 }
 

@@ -1,10 +1,6 @@
 @use 'index' as *;
 @use 'sass:color' as color;
 
-@mixin border-color($color, $alpha: -0.35) {
-  border-color: color.adjust($color, $alpha: $alpha);
-}
-
 .selectable-container {
   margin: -0.5rem 0 0 0;
   background-color: $color-base-bg;
@@ -14,13 +10,13 @@
   align-self: stretch;
 
   &--Standard {
-    @include border-color($color-scoring-standard, -0.5);
+    border-color: $color-class-warrior-border;
   }
   &--Sunforge {
-    @include border-color($color-scoring-sunforge, -0.5);
+    border-color: $color-class-sunforge-border;
   }
   &--WeeklyChallenge {
-    @include border-color($color-scoring-weekly-challenge, -0.5);
+    border-color: $color-class-knight-border;
   }
 }
 
@@ -73,13 +69,13 @@
   border-radius: 0.25rem;
 
   &--Standard {
-    @include border-color($color-scoring-standard);
+    border-color: $color-class-warrior-border;
   }
   &--Sunforge {
-    @include border-color($color-scoring-sunforge);
+    border-color: $color-class-sunforge-border;
   }
   &--WeeklyChallenge {
-    @include border-color($color-scoring-weekly-challenge);
+    border-color: $color-class-knight-border;
   }
 }
 
@@ -107,7 +103,7 @@
   }
 
   &:hover {
-    background-color: $color-button-bg-hover;
+    background-color: $color-component-bg-hover;
 
     .item-label {
       color: $color-primary-hover;
@@ -117,40 +113,40 @@
 
   &--Standard:hover {
     .item-label {
-      color: color.adjust($color-scoring-standard, $lightness: 5%);
+      color: $color-class-warrior-hover;
       font-weight: 600;
     }
   }
 
   &--Sunforge:hover {
     .item-label {
-      color: color.adjust($color-scoring-sunforge, $lightness: 30%);
+      color: $color-class-sunforge-hover;
       font-weight: 600;
     }
   }
 
   &--WeeklyChallenge:hover {
     .item-label {
-      color: color.adjust($color-scoring-weekly-challenge, $lightness: 5%);
+      color: $color-class-knight-hover;
       font-weight: 600;
     }
   }
 
   &--Standard.active {
     .item-label {
-      color: $color-scoring-standard;
+      color: $color-class-warrior;
     }
   }
 
   &--Sunforge.active {
     .item-label {
-      color: $color-scoring-sunforge;
+      color: $color-class-sunforge;
     }
   }
 
   &--WeeklyChallenge.active {
     .item-label {
-      color: $color-scoring-weekly-challenge;
+      color: $color-class-knight;
     }
   }
 

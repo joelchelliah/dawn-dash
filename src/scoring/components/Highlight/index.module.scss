@@ -1,21 +1,21 @@
 @use 'index' as *;
 
 .highlight {
-  font-weight: 600;
+  font-weight: 500;
 
   &--standard {
-    color: $color-scoring-standard;
+    color: $color-class-warrior;
   }
 
   &--sunforge {
-    color: $color-scoring-sunforge;
+    color: $color-class-sunforge;
   }
 
   &--weekly-challenge {
-    color: $color-scoring-weekly-challenge;
+    color: $color-class-knight;
   }
 
   &--blightbane {
-    color: $color-scoring-blightbane;
+    color: $color-class-rogue;
   }
 }

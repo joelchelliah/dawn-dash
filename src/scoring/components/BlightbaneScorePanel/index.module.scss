@@ -12,7 +12,7 @@
     padding-bottom: 0.25rem;
     width: 100%;
     letter-spacing: 0.025em;
-    border-bottom: 1px dotted color.adjust($color-scoring-blightbane, $alpha: -0.5);
+    border-bottom: 1px dotted $color-class-rogue-border;
 
     @media (max-width: $breakpoint-mobile) {
       font-size: font-size('md');

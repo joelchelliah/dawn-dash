@@ -1,5 +1,5 @@
 import { createCx } from '@/shared/utils/classnames'
-import { ArcaneMissileImageUrl } from '@/shared/utils/imageUrls'
+import { BigBombImageUrl } from '@/shared/utils/imageUrls'
 import GradientLink from '@/shared/components/GradientLink'
 
 import { ScoringMode } from '@/scoring/types'
@@ -20,7 +20,7 @@ function WeeklyChallengePanel(): JSX.Element {
   return (
     <CollapsiblePanel
       title={'Weekly Challenge Score'}
-      imageUrl={ArcaneMissileImageUrl}
+      imageUrl={BigBombImageUrl}
       mode={mode}
       collapsible
       defaultExpanded
