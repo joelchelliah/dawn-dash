@@ -23,11 +23,16 @@ export const useNavigation = () => {
     router.replace('/eventmaps')
   }
 
+  const resetToScoring = () => {
+    router.replace('/scoring')
+  }
+
   return {
     resetToLandingPage,
     resetToSpeedruns,
     resetToCardCodex,
     resetToTalentCodex,
     resetToEventCodex,
+    resetToScoring,
   }
 }

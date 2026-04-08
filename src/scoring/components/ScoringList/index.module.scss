@@ -1,0 +1,39 @@
+@use 'index' as *;
+@use 'sass:color' as color;
+
+.scoring-list {
+  list-style: none;
+  padding-left: 1rem;
+  margin: -1.75rem 0 0;
+
+  li {
+    padding: 0.25rem 0;
+    line-height: 1.6;
+
+    &::before {
+      content: '»';
+      color: $color-primary-muted;
+      margin-right: 0.5rem;
+    }
+  }
+
+  @media (max-width: $breakpoint-mobile) {
+    padding-left: 0.5rem;
+  }
+
+  &--Standard li::before {
+    color: $color-class-warrior;
+  }
+
+  &--Sunforge li::before {
+    color: $color-class-sunforge;
+  }
+
+  &--WeeklyChallenge li::before {
+    color: $color-class-knight;
+  }
+
+  &--Blightbane li::before {
+    color: $color-class-rogue;
+  }
+}

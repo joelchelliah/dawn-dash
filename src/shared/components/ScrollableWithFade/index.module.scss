@@ -1,0 +1,25 @@
+@use 'index' as *;
+
+.container {
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: relative;
+
+  &.show-fade::after {
+    content: '';
+    position: sticky;
+    display: block;
+    bottom: -2rem;
+    left: 0;
+    right: 0;
+    height: 12rem;
+    background: linear-gradient(
+      to bottom,
+      transparent 0%,
+      var(--fade-color, $color-component-bg) 95%,
+      var(--fade-color, $color-component-bg) 100%
+    );
+    pointer-events: none;
+    margin-top: -4rem;
+  }
+}

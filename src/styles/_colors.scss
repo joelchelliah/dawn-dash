@@ -1,3 +1,5 @@
+@use 'sass:color';
+
 // -- Gradient colors -- //
 $yellow-base: #cfaa26;
 $yellow-hover: #e4ca5f;
@@ -56,6 +58,33 @@ $color-rarity-rare: #007bff;
 $color-rarity-rare-hover: #32a6ff;
 $color-rarity-legendary: #ffd900;
 $color-rarity-legendary-hover: #fff067;
+// -- -- -- -- -- -- -- //
+
+// -- Class colors -- //
+$color-class-arcanist: #307ec3;
+$color-class-arcanist-hover: #4e9be8;
+$color-class-arcanist-border: #1f5585;
+$color-class-hunter: #cf6737;
+$color-class-hunter-hover: #e1835d;
+$color-class-hunter-border: #994419;
+$color-class-knight: #7f60cd;
+$color-class-knight-hover: #a681ef;
+$color-class-knight-border: #533d91;
+$color-class-rogue: #63a548;
+$color-class-rogue-hover: #8abc75;
+$color-class-rogue-border: #4a783e;
+$color-class-seeker: #2f9c83;
+$color-class-seeker-hover: #53bca9;
+$color-class-seeker-border: #297965;
+$color-class-warrior: #d13838;
+$color-class-warrior-hover: #ed5b5b;
+$color-class-warrior-border: #882828;
+$color-class-sunforge: #c09528;
+$color-class-sunforge-hover: #e7b35f;
+$color-class-sunforge-border: #997a39;
+$color-class-neutral: #bbb;
+$color-class-neutral-hover: #ddd;
+$color-class-neutral-border: #999;
 // -- -- -- -- -- -- -- //
 
 // -- Banner colors -- //

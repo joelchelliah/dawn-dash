@@ -10,15 +10,19 @@ const cx = createCx(styles)
 interface HeaderProps {
   onLogoClick: () => void
   logoSrc: string
-  preTitle?: string
   title: string
   subtitle: string
   currentPage: CurrentPageType
 }
 
-const Header = ({ onLogoClick, logoSrc, preTitle, title, subtitle, currentPage }: HeaderProps) => {
+const Header = ({ onLogoClick, logoSrc, title, subtitle, currentPage }: HeaderProps) => {
+  const preTitle = 'Dawn-Dash'
+  const skipPreTitle = title === preTitle
   const isLandingPage = currentPage === 'landing'
-  const preTitleElement = preTitle ? <span className={cx('pre-title')}>{preTitle}: </span> : null
+
+  const preTitleElement = skipPreTitle ? null : (
+    <span className={cx('pre-title')}>{preTitle}: </span>
+  )
   return (
     <div className={cx('header')}>
       <div className={styles['logo-and-title']} onClick={onLogoClick}>

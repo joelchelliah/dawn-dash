@@ -30,6 +30,7 @@
   transition: opacity 0.4s ease;
   font-weight: 600;
   position: relative;
+  text-wrap: nowrap;
   @include yellowGreenGradient(false);
 
   &:hover {

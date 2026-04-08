@@ -7,6 +7,7 @@ import LoadingDots from '@/shared/components/LoadingDots'
 import { HamburgerIcon, HamburgerMenuIcon, CloseIcon, CloseMenuIcon } from '@/shared/utils/icons'
 import {
   AbracadabraImageUrl,
+  PestilenceDecreeUrl,
   DashImageUrl,
   EleganceImageUrl,
   InfernalContractUrl,
@@ -108,6 +109,9 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
   const eventmapLinkContainerClassNames = cx('side-menu__nav-link-container', {
     'side-menu__nav-link-container--active': currentPage === 'eventmaps',
   })
+  const scoringLinkContainerClassNames = cx('side-menu__nav-link-container', {
+    'side-menu__nav-link-container--active': currentPage === 'scoring',
+  })
 
   const menuIcon = isMobile ? (
     isMenuOpen ? (
@@ -185,6 +189,17 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
             </Link>
           </div>
 
+          <div className={scoringLinkContainerClassNames}>
+            <Link
+              href="/scoring"
+              className={cx('side-menu__nav-link')}
+              onClick={() => handleNavLinkClick('Scoring')}
+            >
+              {getNavLinkImage(PestilenceDecreeUrl, 'Scoring logo')}
+              {getNavLinkText('Scoring')}
+            </Link>
+          </div>
+
           <div className={speedrunsLinkContainerClassNames}>
             <Link
               href="/speedruns"
@@ -205,7 +220,7 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
         </nav>
       </div>
 
-      <InfoModal isOpen={isAboutInfoOpen} onClose={() => setIsAboutInfoOpen(false)}>
+      <InfoModal isOpen={isAboutInfoOpen} onClose={() => setIsAboutInfoOpen(false)} scrollable>
         <h3 className={cx('info-title')}>
           {getNavLinkImage(AbracadabraImageUrl, 'Cardex logo')} Cardex
         </h3>
@@ -238,6 +253,19 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
           Fully mapped out event trees for all events available in <b>Dawncaster</b>. See all
           dialogue options, along with their requirements and rewards, so that you can get the best
           outcome from each event!
+        </p>
+
+        <div className={cx('info-divider')} />
+
+        <h3 className={cx('info-title')}>
+          {getNavLinkImage(PestilenceDecreeUrl, 'Scoring logo')} Scoring
+        </h3>
+
+        <p className={cx('info-last-paragraph')}>
+          Detailed <b>Dawncaster</b> scoring guides, specifically tailored for{' '}
+          <strong>Standard</strong> mode, <strong>Sunforge</strong>, and the{' '}
+          <strong>Weekly Challenges</strong>. Full breakdown of all scoring parameters, and how to
+          maximize each one!
         </p>
 
         <div className={cx('info-divider')} />

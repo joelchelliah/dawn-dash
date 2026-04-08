@@ -1,0 +1,21 @@
+@use 'index' as *;
+
+.highlight {
+  font-weight: 500;
+
+  &--standard {
+    color: $color-class-warrior;
+  }
+
+  &--sunforge {
+    color: $color-class-sunforge;
+  }
+
+  &--weekly-challenge {
+    color: $color-class-knight;
+  }
+
+  &--blightbane {
+    color: $color-class-rogue;
+  }
+}

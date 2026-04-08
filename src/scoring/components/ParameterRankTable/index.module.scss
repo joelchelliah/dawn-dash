@@ -1,0 +1,132 @@
+@use 'index' as *;
+@use 'sass:color' as color;
+
+.parameter-title {
+  font-size: font-size('md');
+  font-weight: 700;
+  margin: 1rem 0 0 0;
+  color: $color-primary-hover;
+}
+
+.parameter-description {
+  margin: 0;
+  line-height: 1.4;
+  color: $color-primary-base;
+}
+
+.bosses-content {
+  margin: 1rem 0;
+}
+
+.difficulty-table,
+.ranks-table,
+.values-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0 0;
+  font-size: font-size('sm');
+
+  @media (max-width: $breakpoint-mobile) {
+    font-size: font-size('xs');
+  }
+
+  thead {
+    background-color: rgba(40, 40, 40, 0.5);
+    border-top-right-radius: 0.25rem;
+    border-top-left-radius: 0.25rem;
+
+    th {
+      padding: 0.75rem;
+      text-align: left;
+      font-weight: 600;
+      color: $color-primary-base;
+      border-bottom: 1px solid $color-component-border;
+
+      &.mode--Standard {
+        border-color: $color-class-warrior-border;
+      }
+      &.mode--Sunforge {
+        border-color: $color-class-sunforge-border;
+      }
+      &.mode--WeeklyChallenge {
+        border-color: $color-class-knight-border;
+      }
+
+      @media (max-width: $breakpoint-mobile) {
+        padding: 0.5rem;
+      }
+    }
+  }
+
+  tbody {
+    tr {
+      border-bottom: 1px dashed $color-component-border-dark;
+
+      &.mode--Standard {
+        border-color: $color-class-warrior-border;
+      }
+      &.mode--Sunforge {
+        border-color: $color-class-sunforge-border;
+      }
+      &.mode--WeeklyChallenge {
+        border-color: $color-class-knight-border;
+      }
+
+      &:nth-child(even) {
+        background-color: rgba(0, 0, 0, 0.2);
+      }
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.025);
+      }
+    }
+
+    td {
+      padding: 0.75rem;
+      color: $color-primary-base;
+
+      @media (max-width: $breakpoint-mobile) {
+        padding: 0.5rem;
+      }
+    }
+  }
+}
+
+.difficulty-name {
+  font-weight: 600;
+  color: $color-primary-active;
+}
+
+.rank {
+  font-weight: 700;
+  color: $color-primary-hover;
+  width: 6rem;
+}
+
+.points {
+  font-weight: 600;
+  color: $color-primary-active;
+
+  &--Standard {
+    color: $color-class-warrior-hover !important;
+  }
+  &--Sunforge {
+    color: $color-class-sunforge-hover !important;
+  }
+  &--WeeklyChallenge {
+    color: $color-class-knight-hover !important;
+  }
+}
+
+.rarity {
+  font-weight: 500;
+}
+
+.value {
+  font-weight: 600;
+  color: $color-primary-active;
+}

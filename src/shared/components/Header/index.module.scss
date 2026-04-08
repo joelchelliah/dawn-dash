@@ -25,7 +25,7 @@
   margin: 0.125rem 0.25rem 0 0;
 
   @media (max-width: $breakpoint-mobile) {
-    font-size: font-size('md');
+    font-size: font-size('sm');
     margin-top: 0;
   }
 }
@@ -39,7 +39,7 @@
   @include yellowGreenGradient(false);
 
   @media (max-width: $breakpoint-mobile) {
-    font-size: font-size('md');
+    font-size: font-size('sm');
     margin-bottom: 0.25rem;
 
     &--long {

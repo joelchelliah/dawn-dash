@@ -1,0 +1,127 @@
+@use 'index' as *;
+@use 'sass:color' as color;
+
+@mixin class-colors($border-color, $hover-color) {
+  border-color: $border-color;
+
+  &.container--active {
+    border-color: $hover-color;
+    box-shadow: 0 0 8px 1px rgba($hover-color, 0.25);
+  }
+}
+
+@mixin label-colors($class-name, $default-color, $hover-color) {
+  .container--#{$class-name} & {
+    color: color.adjust($default-color, $saturation: -10%);
+  }
+
+  .container--#{$class-name}.container--active & {
+    color: color.adjust($hover-color, $lightness: -5%);
+  }
+
+  .container--#{$class-name}:hover & {
+    color: $hover-color;
+  }
+
+  .container--#{$class-name}.container--active:hover & {
+    color: color.adjust($hover-color, $lightness: 10%);
+  }
+}
+
+.container {
+  @extend %flex-center;
+  justify-content: flex-start;
+  flex: 1;
+  padding: 0.375rem;
+  background-color: $color-button-bg;
+  border: 1px dashed $color-component-border;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 6.25rem;
+  white-space: nowrap;
+  gap: 0.5rem;
+
+  &:hover {
+    background-color: $color-button-bg-hover;
+    border-style: solid;
+  }
+
+  &--active {
+    background-color: $color-button-bg-active;
+    border-width: 1px;
+    border-style: solid;
+  }
+
+  // Class-specific color variants
+  &--arcanist {
+    @include class-colors($color-class-arcanist-border, $color-class-arcanist-hover);
+  }
+
+  &--hunter {
+    @include class-colors($color-class-hunter-border, $color-class-hunter-hover);
+  }
+
+  &--knight {
+    @include class-colors($color-class-knight-border, $color-class-knight-hover);
+  }
+
+  &--rogue {
+    @include class-colors($color-class-rogue-border, $color-class-rogue-hover);
+  }
+
+  &--seeker {
+    @include class-colors($color-class-seeker-border, $color-class-seeker-hover);
+  }
+
+  &--warrior {
+    @include class-colors($color-class-warrior-border, $color-class-warrior-hover);
+  }
+
+  &--sunforge {
+    @include class-colors($color-class-sunforge-border, $color-class-sunforge-hover);
+  }
+
+  &--neutral {
+    @include class-colors($color-class-neutral-border, $color-class-neutral-hover);
+  }
+
+  // Medium+ screens: three buttons per row
+  @media (max-width: $breakpoint-tablet-plus) {
+    flex: 1 1 calc(33.33% - 0.5rem);
+
+    &:last-child:nth-child(odd) {
+      max-width: 100%; // This is why we need flex: 1 1 calc...
+    }
+  }
+
+  // Small screens: two buttons per row
+  @media (max-width: $breakpoint-mobile) {
+    flex: 1 1 calc(50% - 0.375rem);
+  }
+}
+
+.icon {
+  vertical-align: middle;
+  margin-right: 0.25rem;
+  border: 1px groove rgb(153, 153, 153);
+  border-radius: 0.25rem;
+  object-fit: cover;
+}
+
+.label {
+  font-weight: 600;
+  font-size: font-size('sm');
+  line-height: 1.5rem;
+  transition: color 0.3s ease;
+
+  // Class-specific label colors
+  @include label-colors('arcanist', $color-class-arcanist, $color-class-arcanist-hover);
+  @include label-colors('hunter', $color-class-hunter, $color-class-hunter-hover);
+  @include label-colors('knight', $color-class-knight, $color-class-knight-hover);
+  @include label-colors('rogue', $color-class-rogue, $color-class-rogue-hover);
+  @include label-colors('seeker', $color-class-seeker, $color-class-seeker-hover);
+  @include label-colors('warrior', $color-class-warrior, $color-class-warrior-hover);
+  @include label-colors('sunforge', $color-class-sunforge, $color-class-sunforge-hover);
+  @include label-colors('neutral', $color-class-neutral, $color-class-neutral-hover);
+}

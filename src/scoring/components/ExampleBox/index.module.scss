@@ -1,0 +1,99 @@
+@use 'index' as *;
+@use 'sass:color' as color;
+
+@mixin standard() {
+  background-color: $color-base-bg;
+  border-color: $color-class-warrior-border;
+}
+
+@mixin sunforge() {
+  background-color: $color-base-bg;
+  border-color: $color-class-sunforge-border;
+}
+
+@mixin weekly-challenge() {
+  background-color: $color-base-bg;
+  border-color: $color-class-knight-border;
+}
+
+@mixin blightbane() {
+  background-color: $color-base-bg;
+  border-color: $color-class-rogue-border;
+}
+
+.example-box {
+  position: relative;
+  border: 1px solid $color-component-border-dark;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin: 0 1rem 1rem 1rem;
+
+  &--Standard {
+    @include standard();
+  }
+  &--Sunforge {
+    @include sunforge();
+  }
+  &--WeeklyChallenge {
+    @include weekly-challenge();
+  }
+  &--Blightbane {
+    @include blightbane();
+  }
+}
+
+.emoji-badge {
+  position: absolute;
+  top: -1rem;
+  left: -1rem;
+  width: 2rem;
+  height: 2rem;
+  background-color: $color-component-bg;
+  border: 1px solid rgba(100, 150, 255, 0.3);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &--Standard {
+    @include standard();
+  }
+  &--Sunforge {
+    @include sunforge();
+  }
+  &--WeeklyChallenge {
+    @include weekly-challenge();
+  }
+  &--Blightbane {
+    @include blightbane();
+  }
+
+  @media (max-width: $breakpoint-mobile) {
+    width: 1.75rem;
+    height: 1.75rem;
+    top: -0.75rem;
+    left: -0.75rem;
+  }
+}
+
+.emoji {
+  font-size: font-size('sm');
+  line-height: 1;
+}
+
+.content {
+  font-size: font-size('xs');
+  line-height: 1.4;
+
+  p {
+    margin: 0.5rem 0;
+
+    &:first-child {
+      margin-top: 0;
+    }
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}

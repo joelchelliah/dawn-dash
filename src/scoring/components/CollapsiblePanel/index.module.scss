@@ -1,0 +1,149 @@
+@use 'index' as *;
+@use 'sass:color' as color;
+
+.panel {
+  background: $color-component-bg;
+  padding: 1rem;
+  border-radius: 0.25rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.25rem;
+
+  &--expanded {
+    margin-bottom: 2.25rem;
+    padding-bottom: 1.25rem;
+    border-bottom: 1px solid;
+
+    @media (max-width: $breakpoint-mobile) {
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+    }
+  }
+
+  &--Standard.panel-header--expanded {
+    border-bottom-color: $color-class-warrior-border;
+  }
+
+  &--Sunforge.panel-header--expanded {
+    border-bottom-color: $color-class-sunforge-border;
+  }
+
+  &--WeeklyChallenge.panel-header--expanded {
+    border-bottom-color: $color-class-knight-border;
+  }
+
+  &--Blightbane.panel-header--expanded {
+    border-bottom-color: $color-class-rogue-border;
+  }
+
+  &__title-container {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+
+    &--clickable {
+      cursor: pointer;
+    }
+  }
+
+  &__image {
+    width: 40px;
+    height: 40px;
+    border: 1px solid;
+    border-radius: 0.25rem;
+    overflow: hidden;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &--Standard {
+      border-color: $color-class-warrior-border;
+    }
+
+    &--Sunforge {
+      border-color: $color-class-sunforge-border;
+    }
+
+    &--WeeklyChallenge {
+      border-color: $color-class-knight-border;
+    }
+
+    &--Blightbane {
+      border-color: $color-class-rogue-border;
+    }
+
+    @media (max-width: $breakpoint-mobile) {
+      width: 32px;
+      height: 32px;
+    }
+  }
+
+  &__title {
+    font-size: font-size('lg');
+    font-weight: 600;
+    margin: 0;
+
+    &--Standard {
+      color: $color-class-warrior;
+
+      &:hover {
+        color: $color-class-warrior-hover;
+      }
+    }
+
+    &--Sunforge {
+      color: $color-class-sunforge;
+
+      &:hover {
+        color: $color-class-sunforge-hover;
+      }
+    }
+
+    &--WeeklyChallenge {
+      color: $color-class-knight;
+
+      &:hover {
+        color: $color-class-knight-hover;
+      }
+    }
+
+    &--Blightbane {
+      color: $color-class-rogue;
+
+      &:hover {
+        color: $color-class-rogue-hover;
+      }
+    }
+
+    @media (max-width: $breakpoint-mobile) {
+      font-size: font-size('md');
+
+      &--long {
+        font-size: font-size('sm');
+      }
+    }
+  }
+}
+
+.panel-title {
+  color: $color-primary-base;
+  font-size: 1.75rem;
+  margin: 0;
+  font-weight: 600;
+
+  @media (max-width: $breakpoint-mobile) {
+    font-size: 1.25rem;
+  }
+}
+
+.panel-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
