@@ -23,8 +23,8 @@ function IllustratedScoringInfo({
   children,
 }: IllustratedScoringInfoProps): JSX.Element {
   return (
-    <div className={cx('illustrated-container')}>
-      <div className={cx('left-column')}>
+    <div className={cx('illustrated-container', `illustrated-container--${mode}`)}>
+      <div className={cx('left-column', `left-column--${mode}`)}>
         <Image
           src={imageSrc}
           alt={imageAlt}

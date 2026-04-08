@@ -1,0 +1,6 @@
+@use 'index' as *;
+@use '../panelShared' as shared;
+
+.content {
+  @include shared.panel-content;
+}

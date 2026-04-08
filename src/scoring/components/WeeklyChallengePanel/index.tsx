@@ -76,12 +76,13 @@ function WeeklyChallengePanel(): JSX.Element {
               mode={mode}
               items={[
                 <>
-                  Your <strong>🏆 Total score</strong> (with the Blightbane score shown in green
-                  next to it).
+                  Your <strong>🏆 Total score</strong> (with the{' '}
+                  <Highlight mode={ScoringMode.Blightbane}>Blightbane</Highlight> score shown in
+                  green next to it).
                 </>,
                 <>
-                  A small (incomplete) summary of your in-game{' '}
-                  <Highlight mode={ScoringMode.Standard}>Standard</Highlight> score.
+                  Some numbers from your <Highlight mode={ScoringMode.Standard}>Standard</Highlight>{' '}
+                  mode score.
                 </>,
                 <>Your cards, talents, malignancies and boss fights.</>,
                 <>
@@ -100,12 +101,13 @@ function WeeklyChallengePanel(): JSX.Element {
         </p>
 
         <p>
-          You might also want to check out ⚔️{' '}
-          <GradientLink text="Brightcandle Arena" url="https://brightcandlearena.fly.dev" />.
-          It&apos;s the official tool for brainstorming, suggesting and managing the{' '}
-          <Highlight mode={mode}>Weekly Challenges</Highlight>, that anyone can use. It also has
-          some good insight into several of the <strong>scoring components</strong> that we will be
-          covering below.
+          You might also want to check out the{' '}
+          <span style={{ whiteSpace: 'nowrap' }}>
+            ⚔️ <GradientLink text="Brightcandle Arena" url="https://brightcandlearena.fly.dev" />
+          </span>
+          , the official tool for brainstorming, suggesting and managing the{' '}
+          <Highlight mode={mode}>Weekly Challenges</Highlight>. It also has some good insight into
+          several of the <strong>scoring components</strong> that we will be covering below.
         </p>
       </div>
     </CollapsiblePanel>

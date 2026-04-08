@@ -219,7 +219,6 @@ function BlightbaneScorePanel(): JSX.Element {
       imageUrl={AnimaImageUrl}
       mode={mode}
       collapsible
-      defaultExpanded
       isLongTitle
     >
       <div className={cx('content')}>
@@ -258,10 +257,12 @@ function BlightbaneScorePanel(): JSX.Element {
           mode={mode}
           items={[
             <>
-              📝 <strong>Keywords</strong> bonus - <em>Card tracking</em>
+              📝 <strong>Keywords</strong> bonus -{' '}
+              <span className={cx('scalable-bonus-description')}>Card tracking</span>
             </>,
             <>
-              🎯 <strong>Accuracy</strong> bonus - <em>Deck size management</em>
+              🎯 <strong>Accuracy</strong> bonus -{' '}
+              <span className={cx('scalable-bonus-description')}>Deck size management</span>
             </>,
           ]}
         />
@@ -284,9 +285,9 @@ function BlightbaneScorePanel(): JSX.Element {
             <p>
               Most challenges will give you a list of <strong>keywords</strong> to look out for. Any
               card in your final deck having one of these words in its <strong>name</strong> or{' '}
-              <strong>description</strong> will award you bonus points, scaled by your malignancy.
-              Any other part of the card (like the <em>card type</em>) will <strong>not</strong>{' '}
-              count. Here are a few examples for the list in the image:
+              <strong>description</strong> will award you bonus points. Any other part of the card
+              (like the <em>card type</em>) will <strong>not</strong> count. Here are a few examples
+              for the keywords in the image:
             </p>
             <br />
 
@@ -303,7 +304,7 @@ function BlightbaneScorePanel(): JSX.Element {
           </div>
         </IllustratedScoringInfo>
         <p>
-          As you can see in the example above, this rule also applies to the tiny{' '}
+          As you can see in the above example, this rule also applies to the tiny{' '}
           <strong>icons</strong> that may appear in the card text. Each icon has a corresponding
           internal code that will trigger the <strong>keywords bonus</strong> when matched:
         </p>
@@ -320,7 +321,7 @@ function BlightbaneScorePanel(): JSX.Element {
         </div>
         <p>
           A keyword anywhere in the <strong>name</strong> or <strong>description</strong>{' '}
-          (uninterrupted by other characters) is enough. It doesn&apos;t have to be an official
+          (uninterrupted by other characters) will score. It doesn&apos;t have to be an official
           in-game keyword, or even a real word... Just any string of characters. But matching
           multiple keywords on a single card does <strong>not</strong> stack the bonus.
         </p>
@@ -347,14 +348,14 @@ function BlightbaneScorePanel(): JSX.Element {
         </ExampleBox>
         <h5 className={cx('mini-header')}>📈 Keyword points scaling</h5>
         <p>
-          In addition to scaling with your <strong>malignancies</strong>, they also scale with the{' '}
-          <strong>rarity</strong> of the matching card. When the objective says:
+          In addition to scaling with your malignancies, this bonus also scales with the{' '}
+          <strong>rarity</strong> of the matching card. The objective says:{' '}
           <Code>
             <Highlight mode={mode}>+50</Highlight> <strong>Points for cards that have...</strong>
           </Code>
-          , it means that you get a base score of <Highlight mode={mode}>50</Highlight> if it&apos;s
+          , meaning that you get a base score of <Highlight mode={mode}>50</Highlight> if it&apos;s
           a <strong>common card</strong>. For each rarity level above common, you get a{' '}
-          <strong>50% higher</strong> base value than the previous one:
+          <strong>50% higher</strong> base value than the one below it:
         </p>
         <ScoringList
           mode={mode}
@@ -366,8 +367,8 @@ function BlightbaneScorePanel(): JSX.Element {
           ))}
         />
         <p>
-          As you can see, you should always prioritize the higher rarity ones when hunting down your
-          keyword bonus cards. A <strong>legendary</strong> is worth over 3 times as much as a{' '}
+          You should always prioritize the higher rarity ones when hunting down your keyword bonus
+          cards. A <strong>legendary</strong> is worth over 3 times as much as a{' '}
           <strong>common</strong>, and will also scale a lot faster with your malignancies!
         </p>
         <p>
@@ -389,8 +390,8 @@ function BlightbaneScorePanel(): JSX.Element {
         </ExampleBox>
         <h5 className={cx('mini-header')}>🕵️‍♂️ Help tracking keywords</h5>
         <p>
-          Some weeks the keywords can be trickier to notice than others. Especially when hiding
-          inside other words (or icons) like &quot;
+          Some weeks the keywords can be trickier to spot than others. Especially when hiding inside
+          other words (or icons) like &quot;
           <strong>
             di<Highlight mode={mode}>SCAR</Highlight>d
           </strong>
@@ -424,14 +425,13 @@ function BlightbaneScorePanel(): JSX.Element {
         <p>
           The tool follows the exact same criteria for matching keywords as{' '}
           <Highlight mode={mode}>Blightbane</Highlight>. There are several filters to help refine
-          your search, or you can just hit the <strong>Optimize for Weekly Challenge</strong> button
-          to get a fine-tuned list of cards for the current week&apos;s challenge!
+          your search, or you can hit the big <strong>Optimize for Weekly Challenge</strong> button
+          to get a list of all cards matching the current challenge&apos;s keywords!
         </p>
 
         <h5 className={cx('mini-header')}>🫠 Exact rarity-matching keywords</h5>
         <p>
-          There is one funny exception to the rule about keywords only being in the{' '}
-          <strong>name</strong> or <strong>description</strong>... If the keyword fully matches a
+          There is one funny exception to the keywords-matching rule. If the keyword fully matches a
           type of <strong>rarity</strong> (including the <em>capital first letter</em>), then all
           cards of that rarity will be counted as score cards for that week:{' '}
           <strong>Monster</strong>, <strong>Common</strong>, <strong>Uncommon</strong>,{' '}
@@ -485,8 +485,8 @@ function BlightbaneScorePanel(): JSX.Element {
 
             <p>
               The <strong>target</strong> is always the <em>middle number</em> in the given accuracy
-              window, which is <Highlight mode={mode}>20</Highlight> in this example. Finding the{' '}
-              <strong>buffer</strong> might feel less intuitive, but you get it by counting the
+              window, which is <Highlight mode={mode}>20</Highlight> in this example. The{' '}
+              <strong>buffer</strong> might feel less intuitive, but you find it by counting the
               steps from the <strong>target</strong> to either edge of the accuracy range (including
               the target). This gives us:{' '}
               <Code>
@@ -501,12 +501,12 @@ function BlightbaneScorePanel(): JSX.Element {
           </div>
         </IllustratedScoringInfo>
         <p>
-          In the above example, if you end your run with <Highlight mode={mode}>24 - 27</Highlight>{' '}
-          cards in your deck, you have passed the <strong>buffer</strong> once and will be penalized{' '}
-          <strong>10%</strong> (<Highlight mode={mode}>300</Highlight>), leaving you with a base
-          accuracy score of <Highlight mode={mode}>2700</Highlight>. Ending your run with{' '}
-          <Highlight mode={mode}>28 - 31</Highlight> cards, you&apos;ve passed the buffer twice,
-          giving you a <strong>20%</strong> (<Highlight mode={mode}>600</Highlight>) penalty.
+          In the example above, if you end your run with <Highlight mode={mode}>24 - 27</Highlight>{' '}
+          cards in your deck, you&apos;ve passed the <strong>buffer</strong> once and will be
+          penalized <strong>10%</strong> (<Highlight mode={mode}>300</Highlight>), leaving you with
+          a base accuracy score of <Highlight mode={mode}>2700</Highlight>. Ending your run with a{' '}
+          <Highlight mode={mode}>28 - 31</Highlight> cards deck, you&apos;ve passed the buffer
+          twice, and are penalized by <strong>20%</strong> (<Highlight mode={mode}>600</Highlight>).
           Passing it a third time drops you down to <Highlight mode={mode}>2100</Highlight>, and so{' '}
           on...
         </p>
@@ -520,7 +520,7 @@ function BlightbaneScorePanel(): JSX.Element {
         </ExampleBox>
         <p>
           Why does knowing the <strong>buffer</strong> matter? If you&apos;ve already accrued a
-          penalty, then maybe you can fill up the remaining buffer quota with{' '}
+          penalty by passing the buffer, then you can fill up the remaining buffer quota with{' '}
           <strong>keyword bonus</strong> cards to help minimize this penalty. Or maybe even put you
           at a <strong>net positive</strong>! Which leads us to...
         </p>
@@ -561,17 +561,17 @@ function BlightbaneScorePanel(): JSX.Element {
           </p>
         </ExampleBox>
         <p>
-          In addition, collecting more cards also has a chance of increasing the ranks of the{' '}
+          In addition, collecting more cards also contributes to increasing the ranks of the{' '}
           <Highlight mode={ScoringMode.Standard}>Standard</Highlight> mode parameters:{' '}
-          <strong>Versatility</strong> and <strong>Wealth</strong>, which also gives you an extra
-          incentive to break past that accuracy window! Depending on the <strong>rank</strong>, this
-          small boost may or may not cover an entire penalty, but it definitely helps.
+          <strong>Versatility</strong> and <strong>Wealth</strong>. Depending on the{' '}
+          <strong>rank</strong>, this boost may or may not cover an entire penalty, but it
+          definitely helps.
         </p>
         <h3 className={cx('header')}>🧮 Total Blightbane Score</h3>
         <p>
           Finally, the <Highlight mode={mode}>Blightbane</Highlight> score is calculated by adding
           together the <strong>fixed score bonus</strong>, the <strong>keywords bonus</strong> and
-          the <strong>accuracy bonus</strong>. The last two components are also scaled by the{' '}
+          the <strong>accuracy bonus</strong>. The last two components are improved by the{' '}
           <strong>malignancy</strong> modifier:{' '}
           <Code wrap="mobile">
             Fixed bonus + (Keywords bonus + Accuracy bonus) × (1 + Malignancy modifier)

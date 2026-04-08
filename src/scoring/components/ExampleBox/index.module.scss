@@ -79,6 +79,10 @@
 .emoji {
   font-size: font-size('sm');
   line-height: 1;
+
+  @media (max-width: $breakpoint-mobile) {
+    font-size: font-size('xs');
+  }
 }
 
 .content {
