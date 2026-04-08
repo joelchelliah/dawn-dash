@@ -1,6 +1,5 @@
 import { memo } from 'react'
 
-import { ClassColorVariant, getClassColor } from '@/shared/utils/classColors'
 import { CharacterClass } from '@/shared/types/characterClass'
 import IllustratedButton from '@/shared/components/Buttons/IllustratedButton'
 
@@ -14,23 +13,13 @@ interface ClassButtonProps {
 
 function ClassButton({ classType, isActive, onClick }: ClassButtonProps) {
   const imageUrl = getClassImageUrl(classType)
-  const color = getClassColor(
-    classType,
-    isActive ? ClassColorVariant.Lighter : ClassColorVariant.Default
-  )
-  const borderColor = getClassColor(
-    classType,
-    isActive ? ClassColorVariant.Lighter : ClassColorVariant.Darker
-  )
 
   return (
     <IllustratedButton
       imageUrl={imageUrl}
-      label={classType}
       isActive={isActive}
       onClick={onClick}
-      color={color}
-      borderColor={borderColor}
+      classType={classType}
       imageAlt={`${classType} icon`}
     />
   )

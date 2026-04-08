@@ -1,6 +1,16 @@
 @use 'index' as *;
 @use 'sass:color' as color;
 
+@mixin scoring-colors($color) {
+  color: color.adjust($color, $alpha: -0.2);
+  border-color: color.adjust($color, $alpha: -0.2);
+
+  &:hover {
+    color: color.adjust($color, $lightness: 5%);
+    border-color: color.adjust($color, $lightness: 5%);
+  }
+}
+
 .scoring-button {
   min-width: 5rem;
   font-size: font-size('xs');
@@ -10,42 +20,18 @@
   }
 
   &--Standard {
-    color: color.adjust($color-scoring-standard, $alpha: -0.2);
-    border-color: color.adjust($color-scoring-standard, $alpha: -0.2);
-
-    &:hover {
-      color: color.adjust($color-scoring-standard, $lightness: 2);
-      border-color: color.adjust($color-scoring-standard, $lightness: 2);
-    }
+    @include scoring-colors($color-scoring-standard);
   }
 
   &--Sunforge {
-    color: color.adjust($color-scoring-sunforge, $alpha: -0.2);
-    border-color: color.adjust($color-scoring-sunforge, $alpha: -0.2);
-
-    &:hover {
-      color: color.adjust($color-scoring-sunforge, $lightness: 2);
-      border-color: color.adjust($color-scoring-sunforge, $lightness: 2);
-    }
+    @include scoring-colors($color-scoring-sunforge);
   }
 
   &--WeeklyChallenge {
-    color: color.adjust($color-scoring-weekly-challenge, $alpha: -0.2);
-    border-color: color.adjust($color-scoring-weekly-challenge, $alpha: -0.2);
-
-    &:hover {
-      color: color.adjust($color-scoring-weekly-challenge, $lightness: 2);
-      border-color: color.adjust($color-scoring-weekly-challenge, $lightness: 2);
-    }
+    @include scoring-colors($color-scoring-weekly-challenge);
   }
 
   &--Blightbane {
-    color: color.adjust($color-scoring-blightbane, $alpha: -0.2);
-    border-color: color.adjust($color-scoring-blightbane, $alpha: -0.2);
-
-    &:hover {
-      color: color.adjust($color-scoring-blightbane, $lightness: 2);
-      border-color: color.adjust($color-scoring-blightbane, $lightness: 2);
-    }
+    @include scoring-colors($color-scoring-blightbane);
   }
 }

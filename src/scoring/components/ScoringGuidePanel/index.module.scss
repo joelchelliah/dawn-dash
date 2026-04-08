@@ -3,8 +3,8 @@
 @use '../panelShared' as shared;
 
 .content {
-  @include shared.panel-content;
   align-items: stretch;
+  @include shared.panel-content;
 
   .notice {
     background-color: $color-base-bg;
@@ -27,6 +27,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 0.75rem;
+  width: 100%;
 
   // Desktop/tablet: buttons take full width (3 buttons per row)
   > * {

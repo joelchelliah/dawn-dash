@@ -3,16 +3,16 @@ import { useState } from 'react'
 import { createCx } from '@/shared/utils/classnames'
 import { CharacterClass } from '@/shared/types/characterClass'
 import Code from '@/shared/components/Code'
+import GradientLink from '@/shared/components/GradientLink'
 
 import { ScoringMode } from '@/scoring/types'
 
 import ExampleBox from '../ExampleBox'
 import Highlight from '../Highlight'
 import SelectableScoringInfo, { SelectableItem } from '../SelectableScoringInfo'
+import SpoilerText from '../SpoilerText'
 
 import styles from './index.module.scss'
-import SpoilerText from '../SpoilerText'
-import GradientLink from '@/shared/components/GradientLink'
 
 const cx = createCx(styles)
 

@@ -109,7 +109,7 @@
       color: $color-scoring-standard;
 
       &:hover {
-        color: color.adjust($color-scoring-standard, $lightness: 8);
+        color: color.adjust($color-scoring-standard, $lightness: 5%);
       }
     }
 
@@ -117,7 +117,7 @@
       color: $color-scoring-sunforge;
 
       &:hover {
-        color: color.adjust($color-scoring-sunforge, $lightness: 30);
+        color: color.adjust($color-scoring-sunforge, $lightness: 30%);
       }
     }
 
@@ -125,7 +125,7 @@
       color: $color-scoring-weekly-challenge;
 
       &:hover {
-        color: color.adjust($color-scoring-weekly-challenge, $lightness: 10);
+        color: color.adjust($color-scoring-weekly-challenge, $lightness: 8%);
       }
     }
 
@@ -133,7 +133,7 @@
       color: $color-scoring-blightbane;
 
       &:hover {
-        color: color.adjust($color-scoring-blightbane, $lightness: 20);
+        color: color.adjust($color-scoring-blightbane, $lightness: 10%);
       }
     }
 

@@ -2,6 +2,7 @@ import { memo } from 'react'
 
 import Image from '@/shared/components/Image'
 import { createCx } from '@/shared/utils/classnames'
+import { CharacterClass } from '@/shared/types/characterClass'
 
 import styles from './index.module.scss'
 
@@ -9,12 +10,10 @@ const cx = createCx(styles)
 
 interface IllustratedButtonProps {
   imageUrl: string
-  label: string
+  label?: string
   isActive: boolean
   onClick: () => void
-  color: string
-  borderColor: string
-  hoverColor?: string
+  classType: CharacterClass
   imageAlt?: string
   imageWidth?: number
   imageHeight?: number
@@ -25,39 +24,26 @@ function IllustratedButton({
   label,
   isActive,
   onClick,
-  color,
-  hoverColor,
-  borderColor,
+  classType,
   imageAlt,
   imageWidth = 36,
   imageHeight = 36,
 }: IllustratedButtonProps) {
   const buttonClassName = cx('container', {
     'container--active': isActive,
+    [`container--${classType.toLowerCase()}`]: true,
   })
 
   return (
-    <button
-      className={buttonClassName}
-      onClick={onClick}
-      style={
-        {
-          borderColor,
-          boxShadow: isActive ? `0 0 8px 1px ${borderColor}40` : undefined,
-          '--hover-color': hoverColor,
-        } as React.CSSProperties
-      }
-    >
+    <button className={buttonClassName} onClick={onClick}>
       <Image
         src={imageUrl}
-        alt={imageAlt || `${label} icon`}
+        alt={imageAlt || `${label ?? classType} icon`}
         className={cx('icon')}
         width={imageWidth}
         height={imageHeight}
       />
-      <span className={cx('label')} style={{ color }}>
-        {label}
-      </span>
+      <span className={cx('label')}>{label ?? classType}</span>
     </button>
   )
 }

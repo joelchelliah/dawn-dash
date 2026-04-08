@@ -1,7 +1,10 @@
 import { useState, ReactNode } from 'react'
+
+import { createCx } from '@/shared/utils/classnames'
+
 import ScoringButton from '@/scoring/components/ScoringButton'
 import { ScoringMode } from '@/scoring/types'
-import { createCx } from '@/shared/utils/classnames'
+
 import styles from './index.module.scss'
 
 const cx = createCx(styles)
