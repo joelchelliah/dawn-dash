@@ -232,10 +232,10 @@ function BlightbaneScorePanel(): JSX.Element {
         </p>
         <h3 className={cx('header')}>🎖️ Fixed score bonuses</h3>
         <p>
-          These bonuses are added to the total score as-is. Keep in mind that they don&apos;t scale
-          with your malignancies, but still tend to be quite generous score-wise (most of the time).
-          Here&apos;s a list of all the <strong>fixed score bonuses</strong> you might encounter.
-          Most challenges will contain at least two of these:
+          These bonuses are added to the total score as-is. They don&apos;t scale with your
+          <strong>malignancies</strong>, but still tend to be quite generous score-wise (most of the
+          time). Here&apos;s a list of all the <strong>fixed score bonuses</strong> you might
+          encounter. Most challenges will contain at least two of these:
         </p>
         <IllustratedScoringInfo
           mode={mode}
@@ -251,8 +251,8 @@ function BlightbaneScorePanel(): JSX.Element {
         </p>
         <h3 className={cx('header')}>🚀 Scalable score bonuses</h3>
         <p>
-          These bonuses scale together with your <strong>Malignancy percentage</strong> (similarly
-          to the <Highlight mode={ScoringMode.Standard}>Standard</Highlight> mode parameters):
+          These bonuses scale together with your <strong>malignancies</strong> (similarly to the{' '}
+          <Highlight mode={ScoringMode.Standard}>Standard</Highlight> mode parameters):
         </p>
         <ScoringList
           mode={mode}
@@ -266,7 +266,7 @@ function BlightbaneScorePanel(): JSX.Element {
           ]}
         />
         <p>
-          The first rewards you for finding cards matching specific words, while the second one
+          The first one rewards you for finding cards matching specific words, while the second one
           rewards you for maintaining your deck size within a given range.
         </p>
         <h4 className={cx('subheader')}>📝 Keywords bonus</h4>
@@ -347,13 +347,13 @@ function BlightbaneScorePanel(): JSX.Element {
         </ExampleBox>
         <h5 className={cx('mini-header')}>📈 Keyword points scaling</h5>
         <p>
-          In addition to scaling with your malignancy, they also scale with the{' '}
+          In addition to scaling with your <strong>malignancies</strong>, they also scale with the{' '}
           <strong>rarity</strong> of the matching card. When the objective says:
           <Code>
             <Highlight mode={mode}>+50</Highlight> <strong>Points for cards that have...</strong>
           </Code>
-          , it actually means that you get a base score of <Highlight mode={mode}>50</Highlight> if
-          it&apos;s a <strong>common card</strong>. For each rarity level above common, you get a{' '}
+          , it means that you get a base score of <Highlight mode={mode}>50</Highlight> if it&apos;s
+          a <strong>common card</strong>. For each rarity level above common, you get a{' '}
           <strong>50% higher</strong> base value than the previous one:
         </p>
         <ScoringList
@@ -377,14 +377,14 @@ function BlightbaneScorePanel(): JSX.Element {
           </Code>
           , meaning that you&apos;ll get a <strong>50%</strong> score reduction on each additional
           copy of a card you already have. For 3 copies of the same <strong>legendary</strong> card,
-          that matches a weekly keyword, you will receive a base score of{' '}
-          <Highlight mode={mode}>298</Highlight> (<Code>170 + 85 + 43 = 298</Code>) base points.
+          that matches a weekly keyword, you will receive a base score of only{' '}
+          <Highlight mode={mode}>298</Highlight> (<Code>170 + 85 + 43 = 298</Code>).
         </p>
         <ExampleBox emoji="🌀" mode={mode}>
           <p>
             For most weeks, the 50% score reduction only applies to the first 2 extra copies, giving
-            no score at all for ones beyond. This is a flexible parameter, but it hardly ever
-            changes.
+            no score at all for any duplicates beyond that. This is a flexible parameter, but it
+            hardly ever changes.
           </p>
         </ExampleBox>
         <h5 className={cx('mini-header')}>🕵️‍♂️ Help tracking keywords</h5>
@@ -446,8 +446,8 @@ function BlightbaneScorePanel(): JSX.Element {
         </p>
         <h4 className={cx('subheader')}>🎯 Accuracy bonus</h4>
         <p>
-          More like <strong>Inaccuracy Penalty</strong> bonus... This one will heavily penalize you
-          for having too many or too few cards in your deck, if you&apos;re not careful!
+          More like <strong>Inaccuracy Penalty</strong>... This one will heavily penalize you for
+          having too many or too few cards in your deck, if you&apos;re not careful!
         </p>
         <IllustratedScoringInfo
           mode={mode}
@@ -456,10 +456,10 @@ function BlightbaneScorePanel(): JSX.Element {
         >
           <div className={cx('illustrated-info')}>
             <p>
-              You start off with a base accuracy score (usually{' '}
-              <Highlight mode={mode}>3000</Highlight>), and the further you stray from the accuracy
-              goal, you are deducted <strong>10%</strong> (<Highlight mode={mode}>300</Highlight>)
-              for each time you pass a hidden <strong>buffer</strong> value.
+              You start off with a base score (usually <Highlight mode={mode}>3000</Highlight>), and
+              the further you stray from the accuracy goal, you are deducted <strong>10%</strong> (
+              <Highlight mode={mode}>300</Highlight>) for each time you pass a hidden{' '}
+              <strong>buffer</strong> value.
             </p>
             <p>
               From the accuracy window in this example (<strong>17 - 23</strong>), we can derive our
@@ -507,14 +507,14 @@ function BlightbaneScorePanel(): JSX.Element {
           accuracy score of <Highlight mode={mode}>2700</Highlight>. Ending your run with{' '}
           <Highlight mode={mode}>28 - 31</Highlight> cards, you&apos;ve passed the buffer twice,
           giving you a <strong>20%</strong> (<Highlight mode={mode}>600</Highlight>) penalty.
-          Passing it a third time drops you down to <Highlight mode={mode}>2100</Highlight> base
-          accuracy, and so on...
+          Passing it a third time drops you down to <Highlight mode={mode}>2100</Highlight>, and so{' '}
+          on...
         </p>
         <ExampleBox emoji="☠️" mode={mode}>
           <p>
             The penalty doesn&apos;t stop when you reach <Highlight mode={mode}>0</Highlight>.
             Passing the <strong>buffer</strong> more than ten times will bring you into the{' '}
-            <strong>negative</strong> territory. Unless negative accuracy scores are{' '}
+            <strong>negative</strong> territory. Unless negative scoring is{' '}
             <strong>disabled</strong> for the specific challenge, which rarely happens.
           </p>
         </ExampleBox>
@@ -541,7 +541,7 @@ function BlightbaneScorePanel(): JSX.Element {
           (<Code>4 × 75</Code>) points, which already cancels out this penalty. Any combination of 4{' '}
           <strong>higher rarity</strong> cards will put you ahead. You could theoretically keep
           going like this for as long as you find the right cards, and even finish a run with a{' '}
-          <strong>negative accuracy bonus</strong> but still come out with a net positive gain!
+          <strong>negative accuracy bonus</strong> but still come out with a net positive gain.
         </p>
         <ExampleBox emoji="🧐" mode={mode}>
           <p>
@@ -584,7 +584,7 @@ function BlightbaneScorePanel(): JSX.Element {
           <Highlight mode={ScoringMode.WeeklyChallenge}>Weekly Challenge</Highlight> score.
         </p>
         <p>
-          Note that the <Highlight mode={mode}>Blightbane</Highlight> scoring mode only considers
+          ⚠️ Note that the <Highlight mode={mode}>Blightbane</Highlight> scoring mode only considers
           cards in your <strong>main decklist</strong>! Cards found anywhere else will be{' '}
           <strong>ignored</strong> by all score bonus components. This includes:
         </p>

@@ -8,7 +8,6 @@ import CollapsiblePanel from '../CollapsiblePanel'
 import IllustratedScoringInfo from '../IllustratedScoringInfo'
 import Highlight from '../Highlight'
 import ScoringList from '../ScoringList'
-import ExampleBox from '../ExampleBox'
 
 import styles from './index.module.scss'
 
@@ -20,6 +19,7 @@ function WeeklyChallengePanel(): JSX.Element {
   return (
     <CollapsiblePanel
       title={'Weekly Challenge Score'}
+      titleShort={'Weekly Challenge'}
       imageUrl={BigBombImageUrl}
       mode={mode}
       collapsible
@@ -35,8 +35,7 @@ function WeeklyChallengePanel(): JSX.Element {
           mode={mode}
           items={[
             <>
-              Your entire in-game <Highlight mode={ScoringMode.Standard}>Standard</Highlight> mode
-              score.
+              Your entire <Highlight mode={ScoringMode.Standard}>Standard</Highlight> mode score.
             </>,
             <>
               A third-party <Highlight mode={ScoringMode.Blightbane}>Blightbane</Highlight> score,
@@ -59,7 +58,7 @@ function WeeklyChallengePanel(): JSX.Element {
           <div className={cx('illustrated-info')}>
             <p>
               Details about the current <strong>Weekly Challenge</strong> can be found in the game,
-              as well as on the <strong>Blightbane</strong> website, and the{' '}
+              on the <strong>Blightbane</strong> website, and in the{' '}
               <strong>Discord Weekly channel</strong>.
               <br />
               <br />
@@ -100,16 +99,8 @@ function WeeklyChallengePanel(): JSX.Element {
           <Highlight mode={ScoringMode.Blightbane}>Blightbane</Highlight> scoring in full detail.
         </p>
 
-        <ExampleBox mode={mode} emoji="ℹ️">
-          <p>
-            You can set your Discord username in the game to automatically submit your Weekly runs
-            to the Blightbane website. Alternatively, you can manually submit your run later via the{' '}
-            <strong>Dawncaster Discord</strong> Weekly channel.
-          </p>
-        </ExampleBox>
-
         <p>
-          You might also want to check out the ⚔️{' '}
+          You might also want to check out ⚔️{' '}
           <GradientLink text="Brightcandle Arena" url="https://brightcandlearena.fly.dev" />.
           It&apos;s the official tool for brainstorming, suggesting and managing the{' '}
           <Highlight mode={mode}>Weekly Challenges</Highlight>, that anyone can use. It also has

@@ -76,7 +76,7 @@ function getIntroText(mode: ScoringMode): JSX.Element {
           mode={mode}
           items={[
             <>
-              How well you perform in <strong>six scoring parameters</strong>.
+              How well you perform in <strong>six specific scoring parameters</strong>.
             </>,
             <>
               The <strong>malignancies</strong> you&apos;ve enabled for the run.
@@ -100,7 +100,7 @@ function getIntroText(mode: ScoringMode): JSX.Element {
           mode={mode}
           items={[
             <>
-              How well you perform in <strong>six scoring parameters</strong>.
+              How well you perform in <strong>six specific scoring parameters</strong>.
             </>,
             <>
               The number of extra <strong>rerolls</strong> you have left at the end of the run.
@@ -110,7 +110,7 @@ function getIntroText(mode: ScoringMode): JSX.Element {
         <p>
           Unlike in <Highlight mode={ScoringMode.Standard}>Standard</Highlight> mode, your score is
           not directly enhanced by your malignancies, but picking harder malignancies gives you
-          additional rerolls, which in turn leads to a higher score!
+          additional <strong>rerolls</strong>, which in turn leads to a higher score!
         </p>
         <p>
           The combined score from your <strong>six scoring parameters</strong>, along with your{' '}
@@ -260,7 +260,7 @@ function InGameScorePanel({ mode, openByDefault = false }: InGameScorePanelProps
               This score is then multiplied by your <strong>Malignancy</strong> percentage, which is
               the sum of all malignancies enabled for the run. The highest malignancy percentage you
               can have right now is <strong>220%</strong>. Going with the numbers above, this gives
-              us a Malignancy bonus of <Highlight mode={mode}>31,900</Highlight> (
+              us a max malignancy bonus of <Highlight mode={mode}>31,900</Highlight> (
               <Code>14500 × 2.2</Code>).
             </p>
             <p>

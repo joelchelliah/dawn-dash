@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 
 import Image from '@/shared/components/Image'
 import { createCx } from '@/shared/utils/classnames'
+import { useBreakpoint } from '@/shared/hooks/useBreakpoint'
 
 import { ScoringMode } from '@/scoring/types'
 import ScoringButton from '@/scoring/components/ScoringButton'
@@ -12,6 +13,7 @@ const cx = createCx(styles)
 
 interface CollapsiblePanelProps {
   title?: React.ReactNode
+  titleShort?: React.ReactNode
   children: React.ReactNode
   collapsible?: boolean
   defaultExpanded?: boolean
@@ -22,6 +24,7 @@ interface CollapsiblePanelProps {
 
 function CollapsiblePanel({
   title,
+  titleShort,
   children,
   collapsible = false,
   defaultExpanded = false,
@@ -30,6 +33,9 @@ function CollapsiblePanel({
   isLongTitle = false,
 }: CollapsiblePanelProps): JSX.Element {
   const [isExpanded, setIsExpanded] = useState(defaultExpanded || !collapsible)
+  const { isMobile } = useBreakpoint()
+
+  const titleToDisplay = isMobile && titleShort ? titleShort : title
 
   const toggleExpanded = () => {
     if (collapsible) {
@@ -43,7 +49,7 @@ function CollapsiblePanel({
 
   return (
     <div className={cx('panel')}>
-      {title && (
+      {titleToDisplay && (
         <div
           className={cx('panel-header', {
             'panel-header--expanded': isExpanded && mode,
@@ -66,7 +72,7 @@ function CollapsiblePanel({
                 'panel-header__title--long': isLongTitle,
               })}
             >
-              {title}
+              {titleToDisplay}
             </h2>
           </div>
           {collapsible && mode && (
