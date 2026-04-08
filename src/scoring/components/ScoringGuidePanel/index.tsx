@@ -46,7 +46,7 @@ function ScoringGuidePanel({ selectedMode, onModeChange }: ScoringGuidePanelProp
       <div className={cx('content')}>
         <p className={cx('notice')}>
           🏆 An in-depth guide to maximizing your score in each game mode of{' '}
-          <strong>Dawncaster</strong>. Select a game mode below to get started!
+          <strong>Dawncaster</strong>. Select a <strong>game mode</strong> below to get started!
         </p>
 
         <div className={cx('buttons')}>

@@ -4,3 +4,17 @@
 .content {
   @include shared.panel-content;
 }
+
+.illustrated-info {
+  padding: 1rem;
+}
+
+.score-description {
+  font-style: italic;
+
+  @media (max-width: $breakpoint-mobile) {
+    display: block;
+    margin-left: 1rem;
+    font-size: font-size('xs');
+  }
+}
