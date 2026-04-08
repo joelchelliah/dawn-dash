@@ -52,9 +52,19 @@ Tailored towards anyone trying to plan out a specific run, or just looking for n
 
 An **Events Codex** tool, featuring fully mapped out event trees, letting you explore all dialogue options, requirements, and rewards!
 
-**Check it out**: [Eventmaps](https://dawn-dash.com/eventmaps) (WIP)
+**Check it out**: [Eventmaps](https://dawn-dash.com/eventmaps)
 
 [![Eventmaps](./public/og-image-eventmaps.png "Click to visit the Eventmaps")](https://dawn-dash.com/eventmaps)
+
+----------
+
+## 🏆 Scoring Guide
+
+A detailed **Scoring guide** for all game modes of Dawncaster. Each section specifically tailored, to help you maximize your scores in Standard mode, Sunforge, and the Weekly Challenges!
+
+**Check it out**: [Scoring](https://dawn-dash.com/scoring)
+
+[![Eventmaps](./public/og-image-scoring.png "Click to visit the Scoring guide")](https://dawn-dash.com/scoring)
 
 ----------
 
