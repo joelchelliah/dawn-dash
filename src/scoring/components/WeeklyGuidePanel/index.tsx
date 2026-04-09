@@ -23,8 +23,8 @@ function WeeklyGuidePanel(): JSX.Element {
       <div className={cx('content')}>
         <p>
           🤖 An auto-generated, super-optimized, score guide for the currently ongoing{' '}
-          <Highlight mode={ScoringMode.WeeklyChallenge}>Weekly Challenge</Highlight>, based on its{' '}
-          <Highlight mode={ScoringMode.Blightbane}>Blightbane</Highlight> bonus objectives.
+          <Highlight mode={ScoringMode.WeeklyChallenge}>Weekly Challenge</Highlight>, covering all
+          the <Highlight mode={ScoringMode.Blightbane}>Blightbane</Highlight> bonus objectives.
         </p>
         <p style={{ textAlign: 'center', width: '100%' }}>
           <strong>Coming soon!</strong>

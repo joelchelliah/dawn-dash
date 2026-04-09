@@ -42,12 +42,20 @@
     }
   }
 
-  .scalable-bonus-description {
+  .list-item-description {
     font-style: italic;
+
+    &::before {
+      content: '- ';
+    }
 
     @media (max-width: $breakpoint-mobile) {
       display: block;
       margin-left: 1rem;
+
+      &::before {
+        content: '';
+      }
     }
   }
 
@@ -125,9 +133,15 @@
     }
   }
 
-  .note {
+  .rarity-note {
     font-size: font-size('xs');
     color: $color-primary-muted;
     font-style: italic;
+
+    @media (max-width: $breakpoint-mobile) {
+      display: block;
+      font-size: font-size('xxs');
+      margin-left: 1rem;
+    }
   }
 }

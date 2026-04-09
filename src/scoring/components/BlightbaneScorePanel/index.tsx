@@ -256,12 +256,12 @@ function BlightbaneScorePanel(): JSX.Element {
           mode={mode}
           items={[
             <>
-              📝 <strong>Keywords</strong> bonus -{' '}
-              <span className={cx('scalable-bonus-description')}>Card tracking</span>
+              📝 <strong>Keywords</strong> bonus{' '}
+              <span className={cx('list-item-description')}>Card tracking</span>
             </>,
             <>
-              🎯 <strong>Accuracy</strong> bonus -{' '}
-              <span className={cx('scalable-bonus-description')}>Deck size management</span>
+              🎯 <strong>Accuracy</strong> bonus{' '}
+              <span className={cx('list-item-description')}>Deck size management</span>
             </>,
           ]}
         />
@@ -361,7 +361,7 @@ function BlightbaneScorePanel(): JSX.Element {
           items={RARITY_BASE_POINTS.map(({ rarity, points, note }) => (
             <>
               <strong>{rarity}</strong> - <Highlight mode={mode}>{points}</Highlight>{' '}
-              {note && <span className={cx('note')}>{note}</span>}
+              {note && <span className={cx('rarity-note')}>{note}</span>}
             </>
           ))}
         />
@@ -469,12 +469,14 @@ function BlightbaneScorePanel(): JSX.Element {
               mode={mode}
               items={[
                 <>
-                  The <strong>target</strong>: <Highlight mode={mode}>20</Highlight> -{' '}
-                  <em>The real accuracy value</em>
+                  The <strong>target</strong>: <Highlight mode={mode}>20</Highlight>{' '}
+                  <span className={cx('list-item-description')}>The real accuracy value</span>
                 </>,
                 <>
-                  The <strong>buffer</strong>: <Highlight mode={mode}>4</Highlight> -{' '}
-                  <em>The (+/-) number of cards before your next penalty</em>
+                  The <strong>buffer</strong>: <Highlight mode={mode}>4</Highlight>{' '}
+                  <span className={cx('list-item-description')}>
+                    The number of cards until your next penalty
+                  </span>
                 </>,
               ]}
             />

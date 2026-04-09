@@ -12,9 +12,29 @@
 .score-description {
   font-style: italic;
 
+  &::before {
+    content: '- ';
+  }
+
   @media (max-width: $breakpoint-mobile) {
     display: block;
     margin-left: 1rem;
     font-size: font-size('xs');
+
+    &::before {
+      content: '';
+    }
+  }
+}
+
+.clickable-image-wrapper {
+  display: block;
+  max-width: 650px;
+  margin: -0.5rem auto 1rem;
+  cursor: pointer;
+
+  @media (max-width: $breakpoint-mobile) {
+    max-width: 100%;
+    margin-bottom: 0.5rem;
   }
 }

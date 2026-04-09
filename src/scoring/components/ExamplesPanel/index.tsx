@@ -1,3 +1,5 @@
+import { useState } from 'react'
+
 import {
   AnimaImageUrl,
   SongOfLoversImageUrl,
@@ -7,6 +9,9 @@ import {
 import { createCx } from '@/shared/utils/classnames'
 import Code from '@/shared/components/Code'
 import GradientLink from '@/shared/components/GradientLink'
+import Modal from '@/shared/components/Modals/Modal'
+import { ClassColorVariant, getClassColor } from '@/shared/utils/classColors'
+import { CharacterClass } from '@/shared/types/characterClass'
 
 import { ScoringMode } from '@/scoring/types'
 
@@ -25,6 +30,8 @@ type ExamplesPanelProps = {
 }
 
 function ExamplesPanel({ mode }: ExamplesPanelProps): JSX.Element {
+  const [isModalOpen, setIsModalOpen] = useState(false)
+
   const getImageUrl = () => {
     if (mode === ScoringMode.Standard) {
       return SongOfSlaughterImageUrl
@@ -55,29 +62,29 @@ function ExamplesPanel({ mode }: ExamplesPanelProps): JSX.Element {
             mode={mode}
             items={[
               <>
-                <strong>💀 Bosses defeated:</strong> <Highlight mode={mode}>6000</Highlight> -{' '}
+                <strong>💀 Bosses defeated:</strong> <Highlight mode={mode}>6000</Highlight>{' '}
                 <span className={cx('score-description')}>
                   All bosses on <strong>Impossible</strong> difficulty.
                 </span>
               </>,
               <>
-                <strong>❤️ Awareness:</strong> <Highlight mode={mode}>750</Highlight> -{' '}
+                <strong>❤️ Awareness:</strong> <Highlight mode={mode}>750</Highlight>{' '}
                 <span className={cx('score-description')}>Less than 100 damage taken.</span>
               </>,
               <>
-                <strong>⚔️ Damage:</strong> <Highlight mode={mode}>2000</Highlight> -{' '}
+                <strong>⚔️ Damage:</strong> <Highlight mode={mode}>2000</Highlight>{' '}
                 <span className={cx('score-description')}>Over 5000 damage dealt.</span>
               </>,
               <>
-                <strong>💨 Lethality:</strong> <Highlight mode={mode}>500</Highlight> -{' '}
+                <strong>💨 Lethality:</strong> <Highlight mode={mode}>500</Highlight>{' '}
                 <span className={cx('score-description')}>Averaged 2 turns per fight.</span>
               </>,
               <>
-                <strong>🃏 Versatility:</strong> <Highlight mode={mode}>500</Highlight> -{' '}
+                <strong>🃏 Versatility:</strong> <Highlight mode={mode}>500</Highlight>{' '}
                 <span className={cx('score-description')}>Over 19 cards in deck.</span>
               </>,
               <>
-                <strong>💰 Wealth:</strong> <Highlight mode={mode}>1250</Highlight> -{' '}
+                <strong>💰 Wealth:</strong> <Highlight mode={mode}>1250</Highlight>{' '}
                 <span className={cx('score-description')}>Over 1500 gold + deck value.</span>
               </>,
             ]}
@@ -115,27 +122,27 @@ function ExamplesPanel({ mode }: ExamplesPanelProps): JSX.Element {
             mode={mode}
             items={[
               <>
-                <strong>💀 Bosses defeated:</strong> <Highlight mode={mode}>11750</Highlight> -{' '}
+                <strong>💀 Bosses defeated:</strong> <Highlight mode={mode}>11750</Highlight>{' '}
                 <span className={cx('score-description')}>All 32 bosses.</span>
               </>,
               <>
-                <strong>❤️ Awareness:</strong> <Highlight mode={mode}>300</Highlight> -{' '}
+                <strong>❤️ Awareness:</strong> <Highlight mode={mode}>300</Highlight>{' '}
                 <span className={cx('score-description')}>Less than 500 damage taken.</span>
               </>,
               <>
-                <strong>⚔️ Damage:</strong> <Highlight mode={mode}>500</Highlight> -{' '}
+                <strong>⚔️ Damage:</strong> <Highlight mode={mode}>500</Highlight>{' '}
                 <span className={cx('score-description')}>Over 100 damage dealt.</span>
               </>,
               <>
-                <strong>💨 Lethality:</strong> <Highlight mode={mode}>450</Highlight> -{' '}
+                <strong>💨 Lethality:</strong> <Highlight mode={mode}>450</Highlight>{' '}
                 <span className={cx('score-description')}>Averaged 3 turns per fight.</span>
               </>,
               <>
-                <strong>🃏 Versatility:</strong> <Highlight mode={mode}>250</Highlight> -{' '}
+                <strong>🃏 Versatility:</strong> <Highlight mode={mode}>250</Highlight>{' '}
                 <span className={cx('score-description')}>Over 9 cards in deck.</span>
               </>,
               <>
-                <strong>💰 Wealth:</strong> <Highlight mode={mode}>350</Highlight> -{' '}
+                <strong>💰 Wealth:</strong> <Highlight mode={mode}>350</Highlight>{' '}
                 <span className={cx('score-description')}>Over 900 gold + deck value.</span>
               </>,
             ]}
@@ -163,21 +170,19 @@ function ExamplesPanel({ mode }: ExamplesPanelProps): JSX.Element {
         <Highlight mode={ScoringMode.Blightbane}>Blightbane</Highlight> bonus objectives for this
         challenge:
       </p>
-      <CenteredImage
-        src="/scoring/weekly-example-rules.webp"
-        alt="Weekly Challenge Rules"
-        width={900}
-        height={350}
-        renderedWidth={650}
-        href="https://blightbane.io/challenge/1768503600000"
-      />
+      <div onClick={() => setIsModalOpen(true)} className={cx('clickable-image-wrapper')}>
+        <CenteredImage
+          src="/scoring/weekly-example-rules.webp"
+          alt="Weekly Challenge Rules"
+          width={900}
+          height={350}
+          renderedWidth={650}
+        />
+      </div>
       <p>
         Here we cover both the <Highlight mode={ScoringMode.Standard}>Standard</Highlight> mode
         scoring and the <Highlight mode={ScoringMode.Blightbane}>Blightbane</Highlight> scoring of
-        the same run. You can also check out the corresponding{' '}
-        <GradientLink text="summary page" url="https://blightbane.io/deck/1768931600277" /> as you
-        follow along with the calculations below. This run has a malignancy level of{' '}
-        <strong>135%</strong>.
+        the same run. This run has a malignancy level of <strong>135%</strong>.
       </p>
       <IllustratedScoringInfo
         mode={ScoringMode.Standard}
@@ -191,32 +196,32 @@ function ExamplesPanel({ mode }: ExamplesPanelProps): JSX.Element {
             items={[
               <>
                 <strong>💀 Bosses defeated:</strong>{' '}
-                <Highlight mode={ScoringMode.Standard}>6000</Highlight> -{' '}
+                <Highlight mode={ScoringMode.Standard}>6000</Highlight>{' '}
                 <span className={cx('score-description')}>
                   All bosses on <strong>Impossible</strong> difficulty.
                 </span>
               </>,
               <>
                 <strong>❤️ Awareness:</strong> <Highlight mode={ScoringMode.Standard}>0</Highlight>{' '}
-                - <span className={cx('score-description')}>Too much damage taken.</span>
+                <span className={cx('score-description')}>Too much damage taken.</span>
               </>,
               <>
                 <strong>⚔️ Damage:</strong> <Highlight mode={ScoringMode.Standard}>2000</Highlight>{' '}
-                - <span className={cx('score-description')}>Over 5000 damage dealt.</span>
+                <span className={cx('score-description')}>Over 5000 damage dealt.</span>
               </>,
               <>
                 <strong>💨 Lethality:</strong>{' '}
-                <Highlight mode={ScoringMode.Standard}>250</Highlight> -{' '}
+                <Highlight mode={ScoringMode.Standard}>250</Highlight>{' '}
                 <span className={cx('score-description')}>Averaged 6 turns per fight.</span>
               </>,
               <>
                 <strong>🃏 Versatility:</strong>{' '}
-                <Highlight mode={ScoringMode.Standard}>250</Highlight> -{' '}
+                <Highlight mode={ScoringMode.Standard}>250</Highlight>{' '}
                 <span className={cx('score-description')}>Over 9 cards in deck.</span>
               </>,
               <>
                 <strong>💰 Wealth:</strong> <Highlight mode={ScoringMode.Standard}>1000</Highlight>{' '}
-                - <span className={cx('score-description')}>Over 1000 gold + deck value.</span>
+                <span className={cx('score-description')}>Over 1000 gold + deck value.</span>
               </>,
             ]}
           />
@@ -322,6 +327,24 @@ function ExamplesPanel({ mode }: ExamplesPanelProps): JSX.Element {
         {mode === ScoringMode.Sunforge && getSunforgeExample()}
         {mode === ScoringMode.WeeklyChallenge && getWeeklyChallengeExample()}
       </div>
+
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        maxWidth={1000}
+        borderColor={getClassColor(CharacterClass.Knight, ClassColorVariant.Dark)}
+      >
+        <>
+          <br />
+          <CenteredImage
+            src="/scoring/weekly-example-rules.webp"
+            alt="Weekly Challenge Rules"
+            width={900}
+            height={350}
+            renderedWidth={900}
+          />
+        </>
+      </Modal>
     </CollapsiblePanel>
   )
 }
