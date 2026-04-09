@@ -1,5 +1,5 @@
 import { handleError } from '@/shared/utils/apiErrorHandling'
-import { isNotNullOrUndefined } from '@/shared/utils/object'
+import { isNonEmptyString, isNotNullOrUndefined } from '@/shared/utils/object'
 import { CharacterClass } from '@/shared/types/characterClass'
 
 import {
@@ -47,10 +47,10 @@ export const fetchLatestChallengeData = async (): Promise<ChallengeData | null> 
     } = challenge
 
     const isSingleSetupAvailable =
-      isNotNullOrUndefined(challengeClass) &&
-      isNotNullOrUndefined(challengeWeapon) &&
-      isNotNullOrUndefined(challengePower) &&
-      isNotNullOrUndefined(challengeCard)
+      isNonEmptyString(challengeClass) &&
+      isNonEmptyString(challengeWeapon) &&
+      isNonEmptyString(challengePower) &&
+      isNonEmptyString(challengeCard)
 
     const allSetups = [
       isSingleSetupAvailable
