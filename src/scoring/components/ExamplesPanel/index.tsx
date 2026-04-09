@@ -1,8 +1,8 @@
 import {
-  AdaptiveEdgeImageUrl,
   AnimaImageUrl,
-  AuraOfPurityImageUrl,
-  BigBombImageUrl,
+  SongOfLoversImageUrl,
+  SongOfSagesImageUrl,
+  SongOfSlaughterImageUrl,
 } from '@/shared/utils/imageUrls'
 import { createCx } from '@/shared/utils/classnames'
 import Code from '@/shared/components/Code'
@@ -25,11 +25,11 @@ type ExamplesPanelProps = {
 function ExamplesPanel({ mode }: ExamplesPanelProps): JSX.Element {
   const getImageUrl = () => {
     if (mode === ScoringMode.Standard) {
-      return AdaptiveEdgeImageUrl
+      return SongOfSlaughterImageUrl
     } else if (mode === ScoringMode.Sunforge) {
-      return AuraOfPurityImageUrl
+      return SongOfSagesImageUrl
     } else if (mode === ScoringMode.WeeklyChallenge) {
-      return BigBombImageUrl
+      return SongOfLoversImageUrl
     }
     return AnimaImageUrl
   }

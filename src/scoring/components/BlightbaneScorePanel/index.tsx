@@ -85,7 +85,7 @@ const FLAT_SCORE_BONUSES = [
     emoji: '🦠',
     description: (
       <>
-        <strong>X</strong> points for choosing the Malignancy «<strong>Malignancy</strong>».
+        <strong>X</strong> points for choosing the malignancy «<strong>Malignancy</strong>».
       </>
     ),
   },
@@ -225,9 +225,9 @@ function BlightbaneScorePanel(): JSX.Element {
         <p>
           Your <Highlight mode={mode}>Blightbane</Highlight> score consists of special{' '}
           <strong>Weekly-specific</strong> bonuses that are unique to each week&apos;s challenge.
-          Some of these bonuses are improved by your <strong>Malignancy percentage</strong>, while
-          others just add a fixed score to your total. We&apos;ll cover each of these bonuses in
-          detail below.
+          Some of these bonuses are improved by your <strong>malignancy level</strong>, while others
+          just add a fixed score to your total. We&apos;ll cover each of these bonuses in detail
+          below.
         </p>
         <h3 className={cx('header')}>🎖️ Fixed score bonuses</h3>
         <p>
@@ -574,7 +574,7 @@ function BlightbaneScorePanel(): JSX.Element {
           the <strong>accuracy bonus</strong>. The last two components are improved by the{' '}
           <strong>malignancy</strong> modifier:{' '}
           <Code wrap="mobile">
-            Fixed bonus + (Keywords bonus + Accuracy bonus) × (1 + Malignancy modifier)
+            Fixed bonus + (Keywords bonus + Accuracy bonus) × (1 + Malignancy level)
           </Code>
         </p>
         <p>

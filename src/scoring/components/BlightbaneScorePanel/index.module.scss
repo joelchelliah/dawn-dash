@@ -85,7 +85,8 @@
 
       @media (max-width: $breakpoint-mobile) {
         display: block;
-        margin-left: 0.75rem;
+        margin-left: 1rem;
+        font-size: font-size('xs');
       }
     }
   }

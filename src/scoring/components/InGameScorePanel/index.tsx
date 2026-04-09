@@ -29,12 +29,12 @@ const SCORE_PARAMETERS = [
   {
     label: 'Bosses defeated',
     emoji: '💀',
-    description: 'Number of bosses killed',
+    description: 'Total number of bosses killed',
   },
   {
     label: 'Damage',
     emoji: '⚔️',
-    description: 'Highest damage dealt in a single action or effect',
+    description: 'Highest damage dealt in a single effect',
   },
   {
     label: 'Awareness',
@@ -54,7 +54,7 @@ const SCORE_PARAMETERS = [
   {
     label: 'Wealth',
     emoji: '💰',
-    description: 'Sum of your gold and your deck value',
+    description: 'Sum of your gold and deck value',
   },
 ]
 
@@ -85,7 +85,7 @@ function getIntroText(mode: ScoringMode): JSX.Element {
         />
         <p>
           The combined score from these <strong>six scoring parameters</strong> are multiplied by
-          your <strong>malignancy modifier</strong> to give your final score. These parameters are:
+          your <strong>malignancy level</strong> to give your final score. These parameters are:
         </p>
       </>
     )
@@ -152,7 +152,7 @@ function InGameScorePanel({ mode, openByDefault = false }: InGameScorePanelProps
           <span className={cx('nobr')}>
             (<strong>I</strong> – <strong>IX</strong>),
           </span>{' '}
-          based on your performance, and you&apos;ll be given a score corresponding to that rank.
+          based on your performance, and gives you a score corresponding to that rank.
           <br />
           <br />
           <strong>At the maximum rank (IX):</strong>
@@ -257,11 +257,10 @@ function InGameScorePanel({ mode, openByDefault = false }: InGameScorePanelProps
         {mode === ScoringMode.Standard && (
           <>
             <p>
-              This score is then multiplied by your <strong>Malignancy</strong> percentage, which is
-              the sum of all malignancies enabled for the run. The highest malignancy percentage you
-              can have right now is <strong>220%</strong>. Going with the numbers above, this gives
-              us a max malignancy bonus of <Highlight mode={mode}>31,900</Highlight> (
-              <Code>14500 × 2.2</Code>).
+              This score is then multiplied by your <strong>malignancy level</strong>, which is the
+              sum of all malignancies enabled for the run. The highest level you can have right now
+              is <strong>220%</strong>. Going with the numbers above, this gives us a max malignancy
+              bonus of <Highlight mode={mode}>31,900</Highlight> (<Code>14500 × 2.2</Code>).
             </p>
             <p>
               Adding that to the base score, puts the highest achievable{' '}
@@ -338,8 +337,8 @@ function InGameScorePanel({ mode, openByDefault = false }: InGameScorePanelProps
       {mode === ScoringMode.Standard && (
         <ExampleBox emoji="👺" mode={mode}>
           <>
-            There is one way of going over the maximum malignancy on Standard mode. If you play an{' '}
-            <strong>Invasions</strong> run, and pick up the <strong>Offer of Pride</strong> while
+            There is one way to go over the maximum malignancy level on Standard mode. If you play
+            an <strong>Invasions</strong> run, and pick up <strong>Offer of Pride</strong> while
             already having five malignancies, you will be granted a sixth malignancy!
           </>
         </ExampleBox>

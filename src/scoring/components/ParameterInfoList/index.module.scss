@@ -40,7 +40,8 @@
     font-style: italic;
 
     @media (max-width: $breakpoint-mobile) {
-      padding-left: 0.25rem;
+      padding-left: 1.25rem;
+      font-size: font-size('xs');
     }
   }
 }
