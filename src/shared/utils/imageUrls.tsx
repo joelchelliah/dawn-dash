@@ -15,6 +15,7 @@ export const DashImageUrl = `${blightbaneImagesUrl}/icons/cardart_4_53.webp`
 export const DiamondMindImageUrl = `${blightbaneImagesUrl}/icons/card_unlocks_16.webp`
 export const EleganceImageUrl = `${blightbaneImagesUrl}/icons/elegance.webp`
 export const ForgeryImageUrl = `${blightbaneImagesUrl}/icons/cardart_3_59.webp`
+export const GrimoireOfThunderImageUrl = `${blightbaneImagesUrl}/icons/grimoire%20of%20thunder_eclypse.webp`
 export const HauntingNightmaresImageUrl = `${blightbaneImagesUrl}/icons/Haunting%20nightmares_infernal.webp`
 export const HealingPotionImageUrl = `${blightbaneImagesUrl}/icons/cardart_3_6.webp`
 export const InfernalContractUrl = `${blightbaneImagesUrl}/icons/cardart_3_10.webp`

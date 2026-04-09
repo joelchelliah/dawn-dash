@@ -17,6 +17,7 @@ import InGameScorePanel from './components/InGameScorePanel'
 import WeeklyChallengePanel from './components/WeeklyChallengePanel'
 import { useUrlParams } from './hooks/useUrlParams'
 import ExamplesPanel from './components/ExamplesPanel'
+import WeeklyGuidePanel from './components/WeeklyGuidePanel'
 
 const cx = createCx(styles)
 
@@ -57,6 +58,8 @@ function Scoring(): JSX.Element {
         {selectedMode === ScoringMode.WeeklyChallenge && <BlightbaneScorePanel />}
 
         <ExamplesPanel mode={selectedMode} />
+
+        {selectedMode === ScoringMode.WeeklyChallenge && <WeeklyGuidePanel />}
       </div>
 
       <Footer />
