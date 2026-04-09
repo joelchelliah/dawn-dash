@@ -130,31 +130,4 @@
     color: $color-primary-muted;
     font-style: italic;
   }
-
-  .image-link {
-    display: block;
-    max-width: 400px;
-    margin: -0.5rem auto 1rem;
-    cursor: pointer;
-
-    @media (max-width: $breakpoint-mobile) {
-      max-width: 100%;
-      margin-bottom: 0.5rem;
-    }
-  }
-
-  .centered-image {
-    display: block;
-    border-radius: 0.25rem;
-    box-shadow:
-      0 8px 24px rgba(0, 0, 0, 0.5),
-      0 4px 8px rgba(0, 0, 0, 0.3);
-    width: 100%;
-    height: auto;
-    transition: transform 0.3s ease;
-
-    &:hover {
-      transform: scale(1.05);
-    }
-  }
 }

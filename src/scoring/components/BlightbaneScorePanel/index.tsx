@@ -1,5 +1,3 @@
-import Link from 'next/link'
-
 import { createCx } from '@/shared/utils/classnames'
 import {
   AnimaImageUrl,
@@ -24,6 +22,7 @@ import ExampleBox from '../ExampleBox'
 import ParameterInfoList from '../ParameterInfoList'
 import IllustratedScoringInfo from '../IllustratedScoringInfo'
 import SpoilerText from '../SpoilerText'
+import CenteredImage from '../CenteredImage'
 
 import styles from './index.module.scss'
 
@@ -390,8 +389,8 @@ function BlightbaneScorePanel(): JSX.Element {
         </ExampleBox>
         <h5 className={cx('mini-header')}>🕵️‍♂️ Help tracking keywords</h5>
         <p>
-          Some weeks the keywords can be trickier to spot than others. Especially when hiding inside
-          other words (or icons) like &quot;
+          Some weeks the keywords can be trickier to spot than others. Especially if they&apos;re
+          unusual words, or are hiding inside other words (and icons) like &quot;
           <strong>
             di<Highlight mode={mode}>SCAR</Highlight>d
           </strong>
@@ -406,27 +405,26 @@ function BlightbaneScorePanel(): JSX.Element {
           &quot; ({renderIcon('HEALTH')}).
         </p>
         <p>
-          The <GradientLink text="Dawn-Dash: Cardex" url="https://dawn-dash.com/cardex" /> was
+          The <GradientLink text="Dawn-Dash: Cardex" url="https://dawn-dash.com/cardex" /> tool was
           created with the{' '}
-          <Highlight mode={ScoringMode.WeeklyChallenge}>Weekly Challenges</Highlight> in mind, and
-          will help you find all cards matching any given list of keywords.
+          <Highlight mode={ScoringMode.WeeklyChallenge}>Weekly Challenges</Highlight> in mind. It{' '}
+          will help you find all cards matching a given list of keywords.
         </p>
 
-        <Link href="/cardex" target="_blank" rel="noopener noreferrer" className={cx('image-link')}>
-          <Image
-            src={'/landing-cardex.webp'}
-            alt="Dawn-dash: Cardex"
-            width={800}
-            height={420}
-            className={cx('centered-image')}
-          />
-        </Link>
+        <CenteredImage
+          src="/landing-cardex.webp"
+          alt="Dawn-dash: Cardex"
+          width={800}
+          height={420}
+          href="/cardex"
+        />
 
         <p>
-          The tool follows the exact same criteria for matching keywords as{' '}
-          <Highlight mode={mode}>Blightbane</Highlight>. There are several filters to help refine
-          your search, or you can hit the big <strong>Optimize for Weekly Challenge</strong> button
-          to get a list of all cards matching the current challenge&apos;s keywords!
+          The <strong>Cardex</strong> follows the exact same criteria for matching keywords as the{' '}
+          <Highlight mode={mode}>Blightbane</Highlight> scorer. It has several filters and options
+          to help refine your search, or you can hit the big{' '}
+          <strong>Optimize for Weekly Challenge</strong> button to get a list of all cards matching
+          the current challenge&apos;s keywords!
         </p>
 
         <h5 className={cx('mini-header')}>🫠 Exact rarity-matching keywords</h5>
