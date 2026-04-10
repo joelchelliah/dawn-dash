@@ -1,12 +1,9 @@
 import { handleError } from '@/shared/utils/apiErrorHandling'
 import { isNonEmptyString, isNotNullOrUndefined } from '@/shared/utils/object'
 import { CharacterClass } from '@/shared/types/characterClass'
+import { AllChallengesApiResponse, ChallengeApiResponse } from '@/shared/types/challengeApi'
 
-import {
-  AllChallengesApiResponse,
-  ChallengeApiResponse,
-  ChallengeData,
-} from '@/codex/types/challenges'
+import { ChallengeData } from '@/codex/types/challenges'
 
 import { Banner, CardSet } from '../types/filters'
 
