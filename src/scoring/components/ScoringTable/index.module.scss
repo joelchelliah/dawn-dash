@@ -1,0 +1,110 @@
+@use 'index' as *;
+@use 'sass:color' as color;
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0 0;
+  font-size: font-size('sm');
+
+  @media (max-width: $breakpoint-mobile) {
+    font-size: font-size('xs');
+  }
+
+  thead {
+    background-color: rgba(40, 40, 40, 0.5);
+    border-top-right-radius: 0.25rem;
+    border-top-left-radius: 0.25rem;
+
+    th {
+      padding: 0.75rem;
+      text-align: left;
+      font-weight: 600;
+      color: $color-primary-base;
+      border-bottom: 1px solid $color-component-border;
+
+      &.mode--Standard {
+        border-color: $color-class-warrior-border;
+      }
+      &.mode--Sunforge {
+        border-color: $color-class-sunforge-border;
+      }
+      &.mode--WeeklyChallenge {
+        border-color: $color-class-knight-border;
+      }
+
+      @media (max-width: $breakpoint-mobile) {
+        padding: 0.5rem;
+      }
+    }
+  }
+
+  tbody {
+    tr {
+      border-bottom: 1px dashed $color-component-border-dark;
+
+      &.mode--Standard {
+        border-color: $color-class-warrior-border;
+      }
+      &.mode--Sunforge {
+        border-color: $color-class-sunforge-border;
+      }
+      &.mode--WeeklyChallenge {
+        border-color: $color-class-knight-border;
+      }
+      &.mode--Blightbane {
+        border-color: $color-class-rogue-border;
+      }
+
+      &:nth-child(even) {
+        background-color: rgba(0, 0, 0, 0.2);
+      }
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.025);
+      }
+    }
+
+    td {
+      padding: 0.75rem;
+      color: $color-primary-base;
+
+      @media (max-width: $breakpoint-mobile) {
+        padding: 0.5rem;
+      }
+    }
+  }
+}
+
+.bold {
+  font-weight: 600;
+  color: $color-primary-active;
+  min-width: 6rem;
+}
+
+.highlighted {
+  font-weight: 600;
+  color: $color-primary-active;
+
+  &--Standard {
+    color: $color-class-warrior-hover !important;
+  }
+  &--Sunforge {
+    color: $color-class-sunforge-hover !important;
+  }
+  &--WeeklyChallenge {
+    color: $color-class-knight-hover !important;
+  }
+  &--Blightbane {
+    color: $color-class-rogue-hover !important;
+  }
+}
+
+.value {
+  font-weight: 600;
+  color: $color-primary-active;
+}

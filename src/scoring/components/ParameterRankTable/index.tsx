@@ -10,6 +10,7 @@ import { ScoringMode } from '@/scoring/types'
 import ExampleBox from '../ExampleBox'
 import Highlight from '../Highlight'
 import SelectableScoringInfo, { SelectableItem } from '../SelectableScoringInfo'
+import ScoringTable from '../ScoringTable'
 import SpoilerText from '../SpoilerText'
 
 import styles from './index.module.scss'
@@ -340,24 +341,15 @@ function ParameterRankTable({ mode }: ParameterRankTableProps): JSX.Element {
               Additionally, if a card has the <strong>Valuable</strong> keyword, its value is
               quadrupled!
             </p>
-            <table className={cx('values-table')}>
-              <thead>
-                <tr>
-                  <th className={cx(`mode--${mode}`)}>Card rarity</th>
-                  <th className={cx(`mode--${mode}`)}>Base value</th>
-                  <th className={cx(`mode--${mode}`)}>&quot;Valuable&quot; value</th>
-                </tr>
-              </thead>
-              <tbody>
-                {CARD_VALUES.map(({ rarity, baseValue, valuableValue }) => (
-                  <tr key={rarity} className={cx(`mode--${mode}`)}>
-                    <td className={cx('rarity')}>{rarity}</td>
-                    <td className={cx('value')}>{baseValue}</td>
-                    <td className={cx('value')}>{valuableValue}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <ScoringTable
+              mode={mode}
+              columns={[
+                { header: 'Card rarity', accessor: 'rarity', className: 'bold' },
+                { header: 'Base value', accessor: 'baseValue', className: 'value' },
+                { header: '"Valuable" value', accessor: 'valuableValue', className: 'value' },
+              ]}
+              data={CARD_VALUES}
+            />
 
             <br />
 
@@ -406,50 +398,31 @@ function ParameterRankTable({ mode }: ParameterRankTableProps): JSX.Element {
 
         {selectedParam.id === 'bosses' && mode === ScoringMode.Standard ? (
           <div className={cx('bosses-content')}>
-            <table className={cx('difficulty-table')}>
-              <thead>
-                <tr>
-                  <th className={cx(`mode--${mode}`)}>Difficulty</th>
-                  <th className={cx(`mode--${mode}`)}>Bosses available</th>
-                  <th className={cx(`mode--${mode}`)}>Points per boss</th>
-                  <th className={cx(`mode--${mode}`)}>Max score</th>
-                </tr>
-              </thead>
-              <tbody>
-                {BOSSES_DIFFICULTY_DATA.map(({ difficulty, bosses, pointsPerBoss, maxPoints }) => (
-                  <tr key={difficulty} className={cx(`mode--${mode}`)}>
-                    <td className={cx('difficulty-name')}>{difficulty}</td>
-                    <td>{bosses}</td>
-                    <td className={cx('value')}>{pointsPerBoss.toLocaleString()}</td>
-                    <td className={cx('points', `points--${mode}`)}>
-                      {maxPoints.toLocaleString()}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <ScoringTable
+              mode={mode}
+              columns={[
+                { header: 'Difficulty', accessor: 'difficulty', className: 'bold' },
+                { header: 'Bosses available', accessor: 'bosses' },
+                { header: 'Points per boss', accessor: 'pointsPerBoss', className: 'value' },
+                {
+                  header: 'Max score',
+                  accessor: 'maxPoints',
+                  className: 'highlighted',
+                },
+              ]}
+              data={BOSSES_DIFFICULTY_DATA}
+            />
           </div>
         ) : ranksToDisplay ? (
-          <table className={cx('ranks-table')}>
-            <thead>
-              <tr>
-                <th className={cx(`mode--${mode}`)}>Rank</th>
-                <th className={cx(`mode--${mode}`)}>Threshold</th>
-                <th className={cx(`mode--${mode}`)}>Score</th>
-              </tr>
-            </thead>
-            <tbody>
-              {ranksToDisplay.map((rank) => (
-                <tr key={rank.rank} className={cx(`mode--${mode}`)}>
-                  <td className={cx('rank')}>{rank.rank}</td>
-                  <td>{rank.threshold}</td>
-                  <td className={cx('points', `points--${mode}`)}>
-                    {rank.points.toLocaleString()}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <ScoringTable
+            mode={mode}
+            columns={[
+              { header: 'Rank', accessor: 'rank', className: 'bold' },
+              { header: 'Threshold', accessor: 'threshold' },
+              { header: 'Score', accessor: 'points', className: 'highlighted' },
+            ]}
+            data={ranksToDisplay}
+          />
         ) : null}
 
         {selectedParam && (
