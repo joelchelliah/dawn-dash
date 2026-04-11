@@ -420,7 +420,6 @@ function BolgarsBlueprintsPanel(): JSX.Element {
       imageUrl={BolgarCreatureImageUrl}
       mode={ScoringMode.Blightbane}
       collapsible
-      defaultExpanded
       isLongTitle
     >
       <div className={cx('content')}>

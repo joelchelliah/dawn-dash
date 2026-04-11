@@ -61,10 +61,12 @@ export const fetchLatestChallengeData = async (): Promise<ChallengeData | null> 
       ...setups,
     ].filter(isNotNullOrUndefined)
 
-    const isBoundless = affixes.some(
+    const isBoundless = (affixes || []).some(
       (malignancy) => malignancy.toLowerCase() === 'boundless spoils'
     )
-    const isDeckedOut = affixes.some((malignancy) => malignancy.toLowerCase() === 'decked out')
+    const isDeckedOut = (affixes || []).some(
+      (malignancy) => malignancy.toLowerCase() === 'decked out'
+    )
     const hasAccessToAllColors = isBoundless || isDeckedOut
 
     const banners = hasAccessToAllColors
