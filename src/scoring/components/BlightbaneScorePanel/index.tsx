@@ -32,7 +32,7 @@ const RARITY_BASE_POINTS = [
   { rarity: 'Common', points: 50 },
   { rarity: 'Uncommon', points: 75 },
   { rarity: 'Rare', points: 113 },
-  { rarity: 'Legendary', points: 170 },
+  { rarity: 'Legendary', points: 169 },
   { rarity: 'Monster', points: 50, note: '(scored as a common, but is actually a lower rarity)' },
 ]
 

@@ -21,7 +21,10 @@ export interface CombinationResult {
   distance: number
 }
 
-export const getCardRarityMultiplier = (rarity: Rarity): number => {
+export const getCardScoreScaledByRarity = (rarity: Rarity, cardBaseValue: number): number =>
+  Math.ceil(cardBaseValue * getCardRarityMultiplier(rarity))
+
+const getCardRarityMultiplier = (rarity: Rarity): number => {
   switch (rarity) {
     case 'Common':
       return 1
@@ -32,80 +35,6 @@ export const getCardRarityMultiplier = (rarity: Rarity): number => {
     case 'Legendary':
       return 1.5 * 1.5 * 1.5
   }
-}
-
-/**
- * Calculate the score for a single card with diminishing returns
- */
-const getCardCopyScore = (baseScore: number, copyNumber: number): number => {
-  if (copyNumber === 1) return baseScore
-
-  return baseScore * Math.pow(0.5, copyNumber - 1)
-}
-
-/**
- * Calculate total score for a combination of distinct and duplicate cards
- * @param rarity - Card rarity
- * @param distinctCards - Number of distinct cards
- * @param duplicates - Number of duplicate (2nd copy) cards
- * @param cardBaseValue - Base value for common cards
- * @param diminishingReturnsLimit - Maximum number of copies that can be scored
- */
-export const calculateCombinationScore = (
-  rarity: Rarity,
-  distinctCards: number,
-  duplicates: number,
-  cardBaseValue: number,
-  diminishingReturnsLimit: number
-): number => {
-  const baseScore = cardBaseValue * getCardRarityMultiplier(rarity)
-  let totalScore = 0
-
-  // Add score for distinct cards (all get full base score)
-  totalScore += distinctCards * baseScore
-
-  // Add score for duplicates with diminishing returns
-  for (let i = 0; i < duplicates; i++) {
-    const copyNumber = 2 // We're only considering 2nd copies for now
-    if (copyNumber <= diminishingReturnsLimit) {
-      totalScore += getCardCopyScore(baseScore, copyNumber)
-    }
-  }
-
-  return Math.round(totalScore)
-}
-
-/**
- * Generate a human-readable description of the card combination
- */
-const generateDescription = (rarity: Rarity, distinctCards: number, duplicates: number): string => {
-  if (duplicates === 0) {
-    return `${distinctCards} distinct ${rarity}`
-  }
-  return `${distinctCards} distinct + ${duplicates} duplicate ${rarity}`
-}
-
-/**
- * Generate the calculation string showing how the score is computed
- * Format: "3 × 68 + 3 × 34" for 3 distinct at 68 each + 3 duplicates at 34 each
- */
-const generateCalculation = (
-  distinctCards: number,
-  duplicates: number,
-  baseScore: number
-): string => {
-  const parts: string[] = []
-
-  if (distinctCards > 0) {
-    parts.push(`${distinctCards} × ${Math.round(baseScore)}`)
-  }
-
-  if (duplicates > 0) {
-    const duplicateScore = Math.round(baseScore * 0.5)
-    parts.push(`${duplicates} × ${duplicateScore}`)
-  }
-
-  return parts.join(' + ')
 }
 
 /**
@@ -122,7 +51,7 @@ export const findCombinationJustAbove = (
   let bestResult: CombinationResult | null = null
 
   for (const rarity of rarities) {
-    const baseScore = cardBaseValue * getCardRarityMultiplier(rarity)
+    const baseScore = Math.ceil(cardBaseValue * getCardRarityMultiplier(rarity))
 
     // Try all combinations of distinct cards + duplicates up to maxCards total
     for (let distinctCards = 0; distinctCards <= maxCards; distinctCards++) {
@@ -147,7 +76,7 @@ export const findCombinationJustAbove = (
                 rarity,
                 distinctCards,
                 duplicates,
-                baseScore: Math.round(baseScore),
+                baseScore: Math.ceil(baseScore),
                 totalScore,
                 description: generateDescription(rarity, distinctCards, duplicates),
                 calculation: generateCalculation(distinctCards, duplicates, baseScore),
@@ -163,4 +92,73 @@ export const findCombinationJustAbove = (
   }
 
   return bestResult
+}
+
+/**
+ * Calculate the score for a single card with diminishing returns
+ */
+const getCardCopyScore = (baseScore: number, copyNumber: number): number => {
+  if (copyNumber === 1) return baseScore
+
+  return baseScore * Math.pow(0.5, copyNumber - 1)
+}
+
+/**
+ * Calculate total score for a combination of distinct and duplicate cards
+ */
+const calculateCombinationScore = (
+  rarity: Rarity,
+  distinctCards: number,
+  duplicates: number,
+  cardBaseValue: number,
+  diminishingReturnsLimit: number
+): number => {
+  const baseScore = Math.ceil(cardBaseValue * getCardRarityMultiplier(rarity))
+  let totalScore = 0
+
+  // Add score for distinct cards (all get full base score)
+  totalScore += distinctCards * baseScore
+
+  // Add score for duplicates with diminishing returns
+  for (let i = 0; i < duplicates; i++) {
+    const copyNumber = 2 // We're only considering 2nd copies for now
+    if (copyNumber <= diminishingReturnsLimit) {
+      totalScore += getCardCopyScore(baseScore, copyNumber)
+    }
+  }
+
+  return Math.ceil(totalScore)
+}
+
+/**
+ * Generate a human-readable description of the card combination
+ */
+const generateDescription = (rarity: Rarity, distinctCards: number, duplicates: number): string => {
+  if (duplicates === 0) {
+    return `${distinctCards} distinct ${rarity}`
+  }
+  return `${distinctCards} distinct + ${duplicates} duplicate ${rarity}`
+}
+
+/**
+ * Generate the calculation string showing how the score is computed
+ * Format: "3 × 68 + 3 × 34" for 3 distinct at 68 each + 3 duplicates at 34 each
+ */
+const generateCalculation = (
+  distinctCards: number,
+  duplicates: number,
+  baseScore: number
+): string => {
+  const parts: string[] = []
+
+  if (distinctCards > 0) {
+    parts.push(`${distinctCards} × ${Math.ceil(baseScore)}`)
+  }
+
+  if (duplicates > 0) {
+    const duplicateScore = Math.ceil(baseScore * 0.5)
+    parts.push(`${duplicates} × ${duplicateScore}`)
+  }
+
+  return parts.join(' + ')
 }

@@ -11,7 +11,10 @@ import InfoModal from '@/shared/components/Modals/InfoModal'
 
 import { ScoringMode, WeeklyChallengeData } from '@/scoring/types'
 import { useWeeklyChallengeData } from '@/scoring/hooks/useWeeklyChallengeData'
-import { findCombinationJustAbove, getCardRarityMultiplier } from '@/scoring/utils/advancedScoring'
+import {
+  findCombinationJustAbove,
+  getCardScoreScaledByRarity,
+} from '@/scoring/utils/advancedScoring'
 
 import Highlight from '../Highlight'
 import CollapsiblePanel from '../CollapsiblePanel'
@@ -158,17 +161,17 @@ function BolgarsBlueprintsPanel(): JSX.Element {
     }
 
     const { cardBaseValue, diminishingReturnsLimit } = scoring
-    const uncommonScore = cardBaseValue * getCardRarityMultiplier('Uncommon')
-    const rareScore = cardBaseValue * getCardRarityMultiplier('Rare')
-    const legendaryScore = cardBaseValue * getCardRarityMultiplier('Legendary')
+    const uncommonScore = getCardScoreScaledByRarity('Uncommon', cardBaseValue)
+    const rareScore = getCardScoreScaledByRarity('Rare', cardBaseValue)
+    const legendaryScore = getCardScoreScaledByRarity('Legendary', cardBaseValue)
 
     const getRow = (rarity: string, base: number) => ({
       rarity,
-      base: Math.round(base),
-      c2: Math.round(base * 0.5),
-      c3: Math.round(base * 0.25),
-      c4: Math.round(base * 0.125),
-      c5: Math.round(base * 0.0625),
+      base: Math.ceil(base),
+      c2: Math.ceil(base * 0.5),
+      c3: Math.ceil(base * 0.25),
+      c4: Math.ceil(base * 0.125),
+      c5: Math.ceil(base * 0.0625),
     })
 
     const scoreTableColumns = [
@@ -200,10 +203,12 @@ function BolgarsBlueprintsPanel(): JSX.Element {
               {scoring.keywords.map((keyword, index) => (
                 <span key={keyword}>
                   <Code>
-                    <strong>{keyword}</strong>
+                    <Highlight mode={ScoringMode.Blightbane} strong>
+                      {keyword}
+                    </Highlight>
                   </Code>
                   {index < scoring.keywords.length - 1 &&
-                    (index === scoring.keywords.length - 2 ? ' and ' : ' , ')}
+                    (index === scoring.keywords.length - 2 ? ' and ' : ', ')}
                 </span>
               ))}
             </>,
@@ -250,8 +255,20 @@ function BolgarsBlueprintsPanel(): JSX.Element {
   const renderAccuracyScoringBonus = ({ scoring }: WeeklyChallengeData) => {
     const { accuracyBaseValue, allowNegativeAccuracy, target, buffer } = scoring
 
-    const getDerivedRange = (offset: number) =>
-      `${target - buffer + 1 + offset * buffer} - ${target + buffer - 1 + offset * buffer}`
+    const getDerivedRange = (offset: number) => {
+      if (offset === 0) {
+        return `${target - buffer + 1} - ${target + buffer - 1}`
+      }
+      if (offset < 0) {
+        const end = target - buffer + 2 + (offset + 1) * buffer
+        const start = end - buffer + 1
+        return `${start} - ${end}`
+      }
+      // offset > 0
+      const start = target + buffer + (offset - 1) * buffer
+      const end = start + buffer - 1
+      return `${start} - ${end}`
+    }
 
     const accuracyTableColumns = [
       { header: 'Cards in deck', accessor: 'cards' as const, className: 'bold' },
@@ -396,17 +413,17 @@ function BolgarsBlueprintsPanel(): JSX.Element {
               <Code>
                 <strong>{justAbove.combination.description}</strong>
               </Code>{' '}
-              <strong>keyword-matching</strong> cards gives you{' '}
+              keywords-matching cards gives you{' '}
               <Highlight mode={ScoringMode.Blightbane} strong>
                 {justAbove.totalScore}
               </Highlight>{' '}
               (<Code>{justAbove.combination.calculation}</Code>
-              ). Aim for similar or stronger combinations of{' '}
+              ). Getting a similar or stronger combinations of{' '}
               <Highlight mode={ScoringMode.Blightbane} strong>
                 {buffer}
               </Highlight>{' '}
-              scoring cards, to guarantee a <strong>net positive score</strong> each time you pass
-              the <strong>buffer</strong>.
+              scoring cards, each time you pass the <strong>buffer</strong>, will guarantee a{' '}
+              <strong>net positive score</strong>.
             </>
           )}
         </p>
