@@ -10,6 +10,7 @@ interface HighlightProps {
   children: React.ReactNode
   mode: ScoringMode
   className?: string
+  strong?: boolean
 }
 
 const getHighlightClass = (mode: ScoringMode): string => {
@@ -27,9 +28,13 @@ const getHighlightClass = (mode: ScoringMode): string => {
   }
 }
 
-function Highlight({ children, mode, className }: HighlightProps): JSX.Element {
+function Highlight({ children, mode, className, strong }: HighlightProps): JSX.Element {
   const highlightClass = getHighlightClass(mode)
-  return <span className={cx('highlight', highlightClass, className)}>{children}</span>
+  return (
+    <span className={cx('highlight', highlightClass, className)}>
+      {strong ? <strong>{children}</strong> : children}
+    </span>
+  )
 }
 
 export default Highlight

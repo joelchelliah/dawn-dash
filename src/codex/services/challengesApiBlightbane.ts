@@ -1,12 +1,9 @@
 import { handleError } from '@/shared/utils/apiErrorHandling'
 import { isNonEmptyString, isNotNullOrUndefined } from '@/shared/utils/object'
 import { CharacterClass } from '@/shared/types/characterClass'
+import { AllChallengesApiResponse, ChallengeApiResponse } from '@/shared/types/challengeApi'
 
-import {
-  AllChallengesApiResponse,
-  ChallengeApiResponse,
-  ChallengeData,
-} from '@/codex/types/challenges'
+import { ChallengeData } from '@/codex/types/challenges'
 
 import { Banner, CardSet } from '../types/filters'
 
@@ -64,10 +61,12 @@ export const fetchLatestChallengeData = async (): Promise<ChallengeData | null> 
       ...setups,
     ].filter(isNotNullOrUndefined)
 
-    const isBoundless = affixes.some(
+    const isBoundless = (affixes || []).some(
       (malignancy) => malignancy.toLowerCase() === 'boundless spoils'
     )
-    const isDeckedOut = affixes.some((malignancy) => malignancy.toLowerCase() === 'decked out')
+    const isDeckedOut = (affixes || []).some(
+      (malignancy) => malignancy.toLowerCase() === 'decked out'
+    )
     const hasAccessToAllColors = isBoundless || isDeckedOut
 
     const banners = hasAccessToAllColors

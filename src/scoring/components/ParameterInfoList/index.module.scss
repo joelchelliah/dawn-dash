@@ -1,9 +1,32 @@
 @use 'index' as *;
+@use 'sass:color' as color;
+
+@mixin dark-border-color($color) {
+  border-color: color.adjust($color, $alpha: -0.25);
+}
 
 .parameter-list {
   list-style: none;
   padding-left: 0;
   margin: 0 auto;
+  border-radius: 0.25rem;
+
+  &--bordered {
+    border: 1px dotted $color-component-border-dark;
+  }
+
+  &--Standard {
+    @include dark-border-color($color-class-warrior-border);
+  }
+  &--Sunforge {
+    @include dark-border-color($color-class-sunforge-border);
+  }
+  &--WeeklyChallenge {
+    @include dark-border-color($color-class-knight-border);
+  }
+  &--Blightbane {
+    @include dark-border-color($color-class-rogue-border);
+  }
 
   @media (max-width: $breakpoint-mobile) {
     width: 100%;
@@ -31,8 +54,25 @@
     min-width: 12rem;
     font-weight: 600;
 
+    &:after {
+      content: ' :';
+    }
+
+    &--fluid {
+      min-width: 0;
+
+      &:after {
+        margin: 0 0.5rem;
+        content: ' -';
+      }
+    }
+
     @media (max-width: $breakpoint-mobile) {
       min-width: 0;
+
+      &:after {
+        content: '';
+      }
     }
   }
 

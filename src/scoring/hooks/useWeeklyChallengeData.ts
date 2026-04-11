@@ -1,16 +1,17 @@
 import { useState, useEffect } from 'react'
 
-import { ChallengeData } from '@/codex/types/challenges'
-import { fetchLatestChallengeData } from '@/codex/services/challengesApiBlightbane'
+import { fetchLatestChallengeData } from '@/scoring/services/weeklyChallengeDataApi'
 
-interface UseChallengeDataReturn {
-  challengeData: ChallengeData | null
+import { WeeklyChallengeData } from '../types'
+
+interface UseWeeklyChallengeData {
+  challengeData: WeeklyChallengeData | null
   isLoading: boolean
   isError: boolean
 }
 
-export function useChallengeData(): UseChallengeDataReturn {
-  const [challengeData, setChallengeData] = useState<ChallengeData | null>(null)
+export function useWeeklyChallengeData(): UseWeeklyChallengeData {
+  const [challengeData, setChallengeData] = useState<WeeklyChallengeData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isError, setIsError] = useState(false)
 
@@ -52,6 +53,6 @@ export function useChallengeData(): UseChallengeDataReturn {
   return {
     challengeData,
     isLoading,
-    isError,
+    isError: !isLoading && (isError || !challengeData || challengeData.isInvalid),
   }
 }

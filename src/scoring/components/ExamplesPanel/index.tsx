@@ -165,7 +165,7 @@ function ExamplesPanel({ mode }: ExamplesPanelProps): JSX.Element {
     <>
       <p>
         A run from the <Highlight mode={ScoringMode.WeeklyChallenge}>Weekly Challenge</Highlight>:{' '}
-        <GradientLink text="Improve Therapy" url="https://blightbane.io/challenge/1768503600000" />{' '}
+        <GradientLink text="Improv Therapy" url="https://blightbane.io/challenge/1768503600000" />{' '}
         will be used for this scoring example. Here are the additional{' '}
         <Highlight mode={ScoringMode.Blightbane}>Blightbane</Highlight> bonus objectives for this
         challenge:
