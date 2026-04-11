@@ -89,11 +89,19 @@
   }
 
   &__name {
-    font-size: font-size('md-plus');
+    font-size: font-size('lg');
     font-weight: 700;
     margin: 0;
     padding: 0;
     color: $color-class-rogue;
+
+    @media (max-width: $breakpoint-mobile) {
+      position: relative;
+      top: -0.25rem;
+      left: -0.5rem;
+      font-size: font-size('md-plus');
+      align-self: center;
+    }
   }
 
   &__intro {
