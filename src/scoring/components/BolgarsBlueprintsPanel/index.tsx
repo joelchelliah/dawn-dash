@@ -426,7 +426,10 @@ function BolgarsBlueprintsPanel(): JSX.Element {
       <div className={cx('content')}>
         <p>
           This is an auto-generated <strong>score guide</strong>, specifically tailored for the
-          ongoing <Highlight mode={ScoringMode.WeeklyChallenge}>Weekly Challenge</Highlight>.
+          ongoing <Highlight mode={ScoringMode.WeeklyChallenge}>Weekly Challenge</Highlight>. You
+          must understand the basics of the{' '}
+          <Highlight mode={ScoringMode.Blightbane}>Blightbane scoring</Highlight> to make the most
+          of this tool.
         </p>
         <p className={cx('warning')}>⚠️ Still a bit experimental. Use with caution!</p>
 
