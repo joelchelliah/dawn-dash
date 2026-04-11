@@ -19,7 +19,7 @@ import styles from './index.module.scss'
 
 const cx = createCx(styles)
 
-const formatDate = (date: string) => format(new Date(date), 'MMM d, yyyy')
+const formatDate = (date: string) => format(new Date(date), 'MMM dd')
 
 const getFixedValueScoringEmoji = (action: string) => {
   switch (action) {
