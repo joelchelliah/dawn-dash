@@ -66,10 +66,10 @@ function KeywordsBonusScoring({ challengeData }: KeywordsBonusScoringProps): JSX
   ]
 
   return (
-    <>
+    <div className={cx('scoring-container')}>
       <p>
-        These bonuses will scale with your <strong>malignancy level</strong> and{' '}
-        <strong>rarity</strong>! The keywords score settings are:
+        This bonus scales with your <strong>malignancy level</strong>! The keywords bonus settings
+        are:
       </p>
       <ScoringList
         mode={ScoringMode.Blightbane}
@@ -115,37 +115,70 @@ function KeywordsBonusScoring({ challengeData }: KeywordsBonusScoringProps): JSX
         mode={ScoringMode.Blightbane}
         columns={scoreTableColumns}
         data={scoreTableData}
-        className={cx('keywords-scoring-table')}
+        className={cx('table')}
       />
       <p>
-        <strong>Hint:</strong> Use the{' '}
+        Example <strong>malignancy level</strong> scaling for a <strong>Legendary</strong> card
+        bonus (
+        <Code>
+          <strong>{legendaryScore}</strong>
+        </Code>
+        ):
+      </p>
+      <ScoringList
+        mode={ScoringMode.Blightbane}
+        items={[
+          <>
+            <strong>+50%:</strong>{' '}
+            <Highlight mode={ScoringMode.Blightbane} strong>
+              {legendaryScore * 1.5}
+            </Highlight>
+          </>,
+          <>
+            <strong>+100%:</strong>{' '}
+            <Highlight mode={ScoringMode.Blightbane} strong>
+              {legendaryScore * 2}
+            </Highlight>
+          </>,
+          <>
+            <strong>+200%:</strong>{' '}
+            <Highlight mode={ScoringMode.Blightbane} strong>
+              {legendaryScore * 3}
+            </Highlight>
+          </>,
+        ]}
+      />
+      <p>
+        <strong>Hint:</strong> The{' '}
         <span className={cx('meta')}>
           <GradientLink text="Dawn-Dash: Cardex" url="https://dawn-dash.com/cardex" />
         </span>{' '}
-        to easily find all cards matching these keywords!
+        can help you find cards matching these keywords!
       </p>
 
       <InfoModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
-        <h3>Keywords bonuses settings</h3>
+        <h4 className={cx('explain-settings-header')}>📝 &nbsp;Keywords bonuses settings</h4>
+
+        <div className={cx('explain-settings-item-header')}>
+          Base value:{' '}
+          <Highlight mode={ScoringMode.Blightbane} strong>
+            {cardBaseValue}
+          </Highlight>
+        </div>
         <p>
-          <div className={cx('explain-settings-item-header')}>
-            Base value:{' '}
-            <Highlight mode={ScoringMode.Blightbane} strong>
-              {cardBaseValue}
-            </Highlight>
-          </div>
           A <strong>Common</strong> card matching the weekly keywords is worth{' '}
           <Highlight mode={ScoringMode.Blightbane}>{cardBaseValue}</Highlight> base points. Each
           rarity level above common is worth <strong>50%</strong> more than the previous one.
         </p>
         <hr className={cx('divider')} />
+
+        <div className={cx('explain-settings-item-header')}>
+          Diminishing returns limit:{' '}
+          <Highlight mode={ScoringMode.Blightbane} strong>
+            {diminishingReturnsLimit}
+          </Highlight>
+        </div>
         <p>
-          <div className={cx('explain-settings-item-header')}>
-            Diminishing returns limit:{' '}
-            <Highlight mode={ScoringMode.Blightbane} strong>
-              {diminishingReturnsLimit}
-            </Highlight>
-          </div>
           Only your first{' '}
           <Highlight mode={ScoringMode.Blightbane}>{diminishingReturnsLimit}</Highlight> copies of
           each matching card are scored, with each additional copy being scored{' '}
@@ -154,7 +187,7 @@ function KeywordsBonusScoring({ challengeData }: KeywordsBonusScoringProps): JSX
           All other copies beyond that are <strong>not</strong> scored.
         </p>
       </InfoModal>
-    </>
+    </div>
   )
 }
 

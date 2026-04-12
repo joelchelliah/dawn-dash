@@ -11,6 +11,7 @@ import ScoringTable from '../ScoringTable'
 import ScoringButton from '../ScoringButton'
 
 import styles from './index.module.scss'
+import Code from '@/shared/components/Code'
 
 const cx = createCx(styles)
 
@@ -90,10 +91,10 @@ function AccuracyBonusScoring({ challengeData }: AccuracyBonusScoringProps): JSX
   ]
 
   return (
-    <>
+    <div className={cx('scoring-container')}>
       <p>
-        This bonus will scale with your <strong>malignancy level</strong>! The accuracy
-        score-related settings are:
+        This bonus scales with your <strong>malignancy level</strong>! The accuracy score-related
+        settings are:
       </p>
       <ScoringList
         mode={ScoringMode.Blightbane}
@@ -135,36 +136,67 @@ function AccuracyBonusScoring({ challengeData }: AccuracyBonusScoringProps): JSX
         mode={ScoringMode.Blightbane}
         columns={accuracyTableColumns}
         data={accuracyTableData}
-        className={cx('accuracy-scoring-table')}
+        className={cx('table')}
+      />
+      <p>
+        Example <strong>malignancy level</strong> scaling for a perfect <strong>accuracy</strong>{' '}
+        bonus (
+        <Code>
+          <strong>{getDerivedRange(0)}</strong>
+        </Code>
+        ):
+      </p>
+      <ScoringList
+        mode={ScoringMode.Blightbane}
+        items={[
+          <>
+            <strong>+50%:</strong>{' '}
+            <Highlight mode={ScoringMode.Blightbane} strong>
+              {accuracyBaseValue * 1.5}
+            </Highlight>
+          </>,
+          <>
+            <strong>+100%:</strong>{' '}
+            <Highlight mode={ScoringMode.Blightbane} strong>
+              {accuracyBaseValue * 2}
+            </Highlight>
+          </>,
+          <>
+            <strong>+200%:</strong>{' '}
+            <Highlight mode={ScoringMode.Blightbane} strong>
+              {accuracyBaseValue * 3}
+            </Highlight>
+          </>,
+        ]}
       />
 
       <InfoModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
-        <h3>Accuracy bonus settings</h3>
+        <h4 className={cx('explain-settings-header')}>🎯 &nbsp;Accuracy bonus settings</h4>
+        <div className={cx('explain-settings-item-header')}>
+          Base value:{' '}
+          <Highlight mode={ScoringMode.Blightbane} strong>
+            {accuracyBaseValue}
+          </Highlight>
+        </div>
         <p>
-          <div className={cx('explain-settings-item-header')}>
-            Base value:{' '}
-            <Highlight mode={ScoringMode.Blightbane} strong>
-              {accuracyBaseValue}
-            </Highlight>
-          </div>
           You start with a <Highlight mode={ScoringMode.Blightbane}>{accuracyBaseValue}</Highlight>{' '}
           base accuracy score, which you will keep if you finish the challenge within the{' '}
           <strong>accuracy window</strong>.
         </p>
         <hr className={cx('divider')} />
+        <div className={cx('explain-settings-item-header')}>
+          Target:{' '}
+          <Highlight mode={ScoringMode.Blightbane} strong>
+            {target}
+          </Highlight>
+        </div>
+        <div className={cx('explain-settings-item-header')}>
+          Buffer:{' '}
+          <Highlight mode={ScoringMode.Blightbane} strong>
+            {buffer}
+          </Highlight>
+        </div>
         <p>
-          <div className={cx('explain-settings-item-header')}>
-            Target:{' '}
-            <Highlight mode={ScoringMode.Blightbane} strong>
-              {target}
-            </Highlight>
-          </div>
-          <div className={cx('explain-settings-item-header')}>
-            Buffer:{' '}
-            <Highlight mode={ScoringMode.Blightbane} strong>
-              {buffer}
-            </Highlight>
-          </div>
           You are penalized by <strong>10%</strong> (
           <Highlight mode={ScoringMode.Blightbane}>{accuracyBaseValue * 0.1}</Highlight>) points for
           every <Highlight mode={ScoringMode.Blightbane}>{buffer}</Highlight> cards you are away
@@ -173,25 +205,29 @@ function AccuracyBonusScoring({ challengeData }: AccuracyBonusScoringProps): JSX
           <br />
           Passing the buffer once will put outside the <strong>
             derived accuracy window:
-          </strong> [{' '}
-          <Highlight mode={ScoringMode.Blightbane} strong>
-            {target - buffer + 1} - {target + buffer - 1}
-          </Highlight>{' '}
-          ].
+          </strong>{' '}
+          <span style={{ whiteSpace: 'nowrap' }}>
+            [{' '}
+            <Highlight mode={ScoringMode.Blightbane} strong>
+              {target - buffer + 1} - {target + buffer - 1}
+            </Highlight>{' '}
+            ]
+          </span>
+          .
         </p>
         <hr className={cx('divider')} />
+        <div className={cx('explain-settings-item-header')}>
+          Allow negative accuracy:{' '}
+          <Highlight mode={ScoringMode.Blightbane} strong>
+            {allowNegativeAccuracy ? 'Yes' : 'No'}
+          </Highlight>
+        </div>
         <p>
-          <div className={cx('explain-settings-item-header')}>
-            Allow negative accuracy:{' '}
-            <Highlight mode={ScoringMode.Blightbane} strong>
-              {allowNegativeAccuracy ? 'Yes' : 'No'}
-            </Highlight>
-          </div>
           If enabled, you can get a negative accuracy score by passing the <strong>buffer</strong>{' '}
           more than ten times.
         </p>
       </InfoModal>
-    </>
+    </div>
   )
 }
 

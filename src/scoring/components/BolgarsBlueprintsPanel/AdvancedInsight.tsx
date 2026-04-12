@@ -4,6 +4,11 @@ import { ScoringMode, WeeklyChallengeData } from '@/scoring/types'
 import { findCombinationJustAbove } from '@/scoring/utils/advancedScoring'
 
 import Highlight from '../Highlight'
+import styles from './index.module.scss'
+
+import { createCx } from '@/shared/utils/classnames'
+
+const cx = createCx(styles)
 
 interface AdvancedInsightProps {
   challengeData: WeeklyChallengeData
@@ -33,7 +38,7 @@ function AdvancedInsight({ challengeData }: AdvancedInsightProps): JSX.Element {
   )
 
   return (
-    <>
+    <div className={cx('scoring-container')}>
       <p>
         To come out ahead after breaking the <strong>accuracy window</strong>, you must collect at
         least{' '}
@@ -51,27 +56,26 @@ function AdvancedInsight({ challengeData }: AdvancedInsightProps): JSX.Element {
         .
       </p>
       <p>
-        A combination of{' '}
+        For a <strong>net positive score</strong>, you need a combo of <em>at least</em>{' '}
         {justAbove && (
           <>
             <Code>
               <strong>{justAbove.combination.description}</strong>
             </Code>{' '}
-            keywords-matching cards gives you{' '}
+            keyword-matching cards. This is worth{' '}
             <Highlight mode={ScoringMode.Blightbane} strong>
               {justAbove.totalScore}
             </Highlight>{' '}
             (<Code>{justAbove.combination.calculation}</Code>
-            ). Getting a similar or stronger combinations of{' '}
+            ). Aim for similar or stronger combinations per{' '}
             <Highlight mode={ScoringMode.Blightbane} strong>
               {buffer}
             </Highlight>{' '}
-            scoring cards, each time you pass the <strong>buffer</strong>, will guarantee a{' '}
-            <strong>net positive score</strong>.
+            cards.
           </>
         )}
       </p>
-    </>
+    </div>
   )
 }
 

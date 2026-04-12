@@ -157,23 +157,21 @@
   margin: 0;
 }
 
-.subheader {
-  font-size: font-size('md-plus');
-  font-weight: 600;
-  margin: 0.875rem 0 0;
+.scoring-container {
+  margin: 0.5rem 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  gap: 1rem;
 
   @media (max-width: $breakpoint-mobile) {
-    font-size: font-size('sm');
-    margin: 0.5rem 0 0;
+    gap: 0.75rem;
   }
 }
 
-.keywords-scoring-table {
+.table {
   margin: 0 0 0.25rem;
-}
-
-.accuracy-scoring-table {
-  margin: 0 0 1.25rem;
 }
 
 .fixed-value-scoring {
@@ -197,6 +195,18 @@
 .explain-settings-button {
   margin: 0 0 0.5rem;
   min-width: 12rem;
+}
+
+.explain-settings-header {
+  font-size: font-size('md-plus');
+  font-weight: 600;
+  margin: 0.875rem 0 1rem;
+
+  @media (max-width: $breakpoint-mobile) {
+    font-size: font-size('sm');
+    font-weight: 800;
+    margin-top: 0;
+  }
 }
 
 .explain-settings-item-header {
