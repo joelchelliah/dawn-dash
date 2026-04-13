@@ -2,6 +2,7 @@ import { useState } from 'react'
 
 import { createCx } from '@/shared/utils/classnames'
 import InfoModal from '@/shared/components/Modals/InfoModal'
+import Code from '@/shared/components/Code'
 
 import { ScoringMode, WeeklyChallengeData } from '@/scoring/types'
 
@@ -11,7 +12,6 @@ import ScoringTable from '../ScoringTable'
 import ScoringButton from '../ScoringButton'
 
 import styles from './index.module.scss'
-import Code from '@/shared/components/Code'
 
 const cx = createCx(styles)
 
@@ -150,21 +150,21 @@ function AccuracyBonusScoring({ challengeData }: AccuracyBonusScoringProps): JSX
         mode={ScoringMode.Blightbane}
         items={[
           <>
-            <strong>+50%:</strong>{' '}
+            <strong>+50% :</strong>{' '}
             <Highlight mode={ScoringMode.Blightbane} strong>
-              {accuracyBaseValue * 1.5}
+              {Math.ceil(accuracyBaseValue * 1.5)}
             </Highlight>
           </>,
           <>
-            <strong>+100%:</strong>{' '}
+            <strong>+100% :</strong>{' '}
             <Highlight mode={ScoringMode.Blightbane} strong>
-              {accuracyBaseValue * 2}
+              {Math.ceil(accuracyBaseValue * 2)}
             </Highlight>
           </>,
           <>
-            <strong>+200%:</strong>{' '}
+            <strong>+200% :</strong>{' '}
             <Highlight mode={ScoringMode.Blightbane} strong>
-              {accuracyBaseValue * 3}
+              {Math.ceil(accuracyBaseValue * 3)}
             </Highlight>
           </>,
         ]}

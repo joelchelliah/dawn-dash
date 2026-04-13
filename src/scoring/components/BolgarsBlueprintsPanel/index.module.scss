@@ -151,6 +151,17 @@
   }
 }
 
+.unavailable {
+  opacity: 0.75;
+  pointer-events: none;
+  cursor: not-allowed;
+  font-style: italic;
+
+  @media (max-width: $breakpoint-mobile) {
+    font-size: font-size('xs');
+  }
+}
+
 .header {
   font-size: font-size('md');
   font-weight: 800;

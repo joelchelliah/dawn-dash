@@ -16,6 +16,9 @@ export const fetchLatestChallengeData = async (): Promise<WeeklyChallengeData | 
     const allChallenges: AllChallengesApiResponse = await response.json()
     const latestChallengeId = allChallenges.challenges[0].uid
 
+    // For debugging:
+    // const latestChallengeId = 1770318000000
+
     const latestChallengeResponse = await fetch(`${BLIGHTBANE_URL}/challenge/${latestChallengeId}`)
 
     if (!latestChallengeResponse.ok) {

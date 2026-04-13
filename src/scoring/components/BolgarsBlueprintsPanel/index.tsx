@@ -75,9 +75,18 @@ const getFixedValueScoringDescription = (action: string, keyword: string, pointL
         </>
       )
     case 'DefeatSpecificBoss':
-      return 'You defeat a specific boss'
+      return (
+        <>
+          For defeating{' '}
+          <GradientLink text={keyword} url={`https://blightbane.io/monster/${keyword}`} />.
+        </>
+      )
     case 'UseSpecificMalignancy':
-      return <>You use a specific malignancy.</>
+      return (
+        <>
+          For using the <strong>{keyword}</strong> malignancy.
+        </>
+      )
     case 'Victory':
       return (
         <>

@@ -100,7 +100,7 @@ function WeeklyChallengePanel(): JSX.Element {
           <Highlight mode={ScoringMode.Blightbane}>Blightbane</Highlight> scoring in full detail.
         </p>
 
-        <p>
+        <p className={cx('follow-up')}>
           You might also want to check out the{' '}
           <span style={{ whiteSpace: 'nowrap' }}>
             ⚔️ <GradientLink text="Brightcandle Arena" url="https://brightcandlearena.fly.dev" />

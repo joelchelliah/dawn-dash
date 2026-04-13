@@ -24,15 +24,40 @@ interface KeywordsBonusScoringProps {
 function KeywordsBonusScoring({ challengeData }: KeywordsBonusScoringProps): JSX.Element {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const { scoring } = challengeData
+  const isScoringAvailable = scoring.calculationType === 'DiminishingReturns'
 
-  if (scoring.calculationType !== 'DiminishingReturns') {
+  if (!isScoringAvailable) {
     return (
-      <p>
-        ⚠️ <strong>Whoops!</strong> The score calculation type for this challenge is &quot;
-        <strong>{scoring.calculationType}</strong>&quot;. This section is not yet supported for that
-        type.
-      </p>
+      <div className={cx('unavailable')}>
+        <p>
+          ⚠️ The score calculation type for this challenge is &quot;
+          <strong>{scoring.calculationType}</strong>&quot;. This section is not yet supported for
+          that type.
+        </p>
+      </div>
     )
+  }
+
+  const listScoringKeywords = () => {
+    if (scoring.keywords.length === 0) {
+      return (
+        <span>
+          <strong>❌</strong>
+        </span>
+      )
+    }
+
+    return scoring.keywords.map((keyword, index) => (
+      <span key={keyword}>
+        <Code>
+          <Highlight mode={ScoringMode.Blightbane} strong>
+            {keyword}
+          </Highlight>
+        </Code>
+        {index < scoring.keywords.length - 1 &&
+          (index === scoring.keywords.length - 2 ? ' and ' : ', ')}
+      </span>
+    ))
   }
 
   const { cardBaseValue, diminishingReturnsLimit } = scoring
@@ -75,24 +100,14 @@ function KeywordsBonusScoring({ challengeData }: KeywordsBonusScoringProps): JSX
         mode={ScoringMode.Blightbane}
         items={[
           <>
-            <strong>Keywords:</strong>{' '}
-            {scoring.keywords.map((keyword, index) => (
-              <span key={keyword}>
-                <Code>
-                  <Highlight mode={ScoringMode.Blightbane} strong>
-                    {keyword}
-                  </Highlight>
-                </Code>
-                {index < scoring.keywords.length - 1 &&
-                  (index === scoring.keywords.length - 2 ? ' and ' : ', ')}
-              </span>
-            ))}
+            <strong>Keywords:</strong> {listScoringKeywords()}
           </>,
           <>
             <strong>Card base value:</strong>{' '}
             <Highlight mode={ScoringMode.Blightbane} strong>
               {scoring.cardBaseValue}
-            </Highlight>
+            </Highlight>{' '}
+            {scoring.cardBaseValue < 0 ? <em>(negative score)</em> : ''}
           </>,
           <>
             <strong>
@@ -129,21 +144,21 @@ function KeywordsBonusScoring({ challengeData }: KeywordsBonusScoringProps): JSX
         mode={ScoringMode.Blightbane}
         items={[
           <>
-            <strong>+50%:</strong>{' '}
+            <strong>+50% :</strong>{' '}
             <Highlight mode={ScoringMode.Blightbane} strong>
-              {legendaryScore * 1.5}
+              {Math.ceil(legendaryScore * 1.5)}
             </Highlight>
           </>,
           <>
-            <strong>+100%:</strong>{' '}
+            <strong>+100% :</strong>{' '}
             <Highlight mode={ScoringMode.Blightbane} strong>
-              {legendaryScore * 2}
+              {Math.ceil(legendaryScore * 2)}
             </Highlight>
           </>,
           <>
-            <strong>+200%:</strong>{' '}
+            <strong>+200% :</strong>{' '}
             <Highlight mode={ScoringMode.Blightbane} strong>
-              {legendaryScore * 3}
+              {Math.ceil(legendaryScore * 3)}
             </Highlight>
           </>,
         ]}
