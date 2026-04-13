@@ -116,7 +116,19 @@ const getFixedValueScoringParameters = ({ scoring }: WeeklyChallengeData) =>
     ),
   }))
 
-function BolgarsBlueprintsPanel(): JSX.Element {
+interface BolgarsBlueprintsPanelProps {
+  isExpanded?: boolean
+  onShow?: () => void
+  onNext?: () => void
+  isLastPanel?: boolean
+}
+
+function BolgarsBlueprintsPanel({
+  isExpanded,
+  onShow,
+  onNext,
+  isLastPanel,
+}: BolgarsBlueprintsPanelProps): JSX.Element {
   const { challengeData, isLoading, isError } = useWeeklyChallengeData()
 
   return (
@@ -126,6 +138,10 @@ function BolgarsBlueprintsPanel(): JSX.Element {
       mode={ScoringMode.Blightbane}
       collapsible
       isLongTitle
+      isExpanded={isExpanded}
+      onShow={onShow}
+      onNext={onNext}
+      isLastPanel={isLastPanel}
     >
       <div className={cx('content')}>
         <p>

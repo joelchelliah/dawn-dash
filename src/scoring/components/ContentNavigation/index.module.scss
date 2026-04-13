@@ -1,0 +1,122 @@
+@use 'index' as *;
+@use 'sass:color' as color;
+
+@mixin selected-link-colors($color, $border-color) {
+  color: color.adjust($color, $saturation: -10%, $lightness: 5%);
+  border-color: $border-color;
+
+  &:hover {
+    color: color.adjust($color, $saturation: 50%, $lightness: 15%);
+    border-color: $color;
+  }
+}
+
+.content-navigation {
+  margin-top: 1rem;
+  padding: 1rem;
+  background-color: $color-base-bg;
+  border-radius: 0.375rem;
+  border: 1px dashed $color-component-border-dark;
+  width: stretch;
+
+  @media (max-width: $breakpoint-mobile) {
+    margin-top: 0.5rem;
+    padding: 0.75rem;
+  }
+}
+
+.title {
+  font-size: font-size('sm');
+  font-weight: 600;
+  margin: -0.25rem 0 0.75rem 0.25rem;
+  color: $color-primary-muted;
+
+  @media (max-width: $breakpoint-mobile) {
+    font-size: font-size('xs');
+    margin: -0.25rem 0 0.5rem 0.5rem;
+  }
+}
+
+.list {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  @media (max-width: $breakpoint-mobile) {
+    flex-direction: column;
+    gap: 0.375rem;
+  }
+}
+
+.item {
+  margin: 0;
+  padding: 0;
+}
+
+.link {
+  display: block;
+  text-align: left;
+  background: transparent;
+  border: 1px dashed $color-component-border-dark;
+  border-radius: 0.25rem;
+  padding: 0.625rem 0.875rem;
+  font-size: font-size('sm');
+  color: $color-primary-base;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  min-width: 12rem;
+
+  &:hover {
+    border-style: dotted;
+    border-color: $color-component-border;
+    background-color: $color-component-bg-hover;
+
+    &.link--Standard {
+      color: $color-class-warrior-hover;
+    }
+
+    &.link--Sunforge {
+      color: $color-class-sunforge-hover;
+    }
+
+    &.link--WeeklyChallenge {
+      color: $color-class-knight-hover;
+    }
+
+    &.link--Blightbane {
+      color: $color-class-rogue-hover;
+    }
+  }
+
+  &--selected {
+    border-style: solid;
+    background-color: $color-component-bg;
+
+    &.link--Standard {
+      @include selected-link-colors($color-class-warrior, $color-class-warrior-border);
+    }
+
+    &.link--Sunforge {
+      @include selected-link-colors($color-class-sunforge, $color-class-sunforge-border);
+    }
+
+    &.link--WeeklyChallenge {
+      @include selected-link-colors($color-class-knight, $color-class-knight-border);
+    }
+
+    &.link--Blightbane {
+      @include selected-link-colors($color-class-rogue, $color-class-rogue-border);
+    }
+  }
+
+  @media (max-width: $breakpoint-mobile) {
+    width: 100%;
+    padding: 0.5rem 0.625rem;
+    font-size: font-size('xs');
+  }
+}

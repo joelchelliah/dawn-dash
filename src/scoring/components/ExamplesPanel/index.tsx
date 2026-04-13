@@ -27,9 +27,19 @@ const cx = createCx(styles)
 
 type ExamplesPanelProps = {
   mode: ScoringMode
+  isExpanded?: boolean
+  onShow?: () => void
+  onNext?: () => void
+  isLastPanel?: boolean
 }
 
-function ExamplesPanel({ mode }: ExamplesPanelProps): JSX.Element {
+function ExamplesPanel({
+  mode,
+  isExpanded,
+  onShow,
+  onNext,
+  isLastPanel,
+}: ExamplesPanelProps): JSX.Element {
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   const getImageUrl = () => {
@@ -321,6 +331,10 @@ function ExamplesPanel({ mode }: ExamplesPanelProps): JSX.Element {
       mode={mode}
       collapsible
       isLongTitle
+      isExpanded={isExpanded}
+      onShow={onShow}
+      onNext={onNext}
+      isLastPanel={isLastPanel}
     >
       <div className={cx('content')}>
         {mode === ScoringMode.Standard && getStandardExample()}

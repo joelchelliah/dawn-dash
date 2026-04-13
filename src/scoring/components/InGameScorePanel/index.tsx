@@ -23,6 +23,10 @@ const cx = createCx(styles)
 interface InGameScorePanelProps {
   mode: ScoringMode
   openByDefault?: boolean
+  isExpanded?: boolean
+  onShow?: () => void
+  onNext?: () => void
+  isLastPanel?: boolean
 }
 
 const SCORE_PARAMETERS = [
@@ -122,7 +126,14 @@ function getIntroText(mode: ScoringMode): JSX.Element {
   throw new Error(`Unsupported mode for in-game score: ${mode}`)
 }
 
-function InGameScorePanel({ mode, openByDefault = false }: InGameScorePanelProps): JSX.Element {
+function InGameScorePanel({
+  mode,
+  openByDefault = false,
+  isExpanded,
+  onShow,
+  onNext,
+  isLastPanel,
+}: InGameScorePanelProps): JSX.Element {
   const title = mode === ScoringMode.Sunforge ? 'Sunforge score' : 'Standard score'
   const [isDisclaimerOpen, setIsDisclaimerOpen] = useState(false)
   const introImageSrc =
@@ -135,6 +146,10 @@ function InGameScorePanel({ mode, openByDefault = false }: InGameScorePanelProps
       mode={mode}
       collapsible
       defaultExpanded={openByDefault}
+      isExpanded={isExpanded}
+      onShow={onShow}
+      onNext={onNext}
+      isLastPanel={isLastPanel}
     >
       <div className={cx('content')}>
         {getIntroText(mode)}

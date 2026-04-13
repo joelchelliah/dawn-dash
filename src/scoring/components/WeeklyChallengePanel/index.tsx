@@ -13,7 +13,19 @@ import styles from './index.module.scss'
 
 const cx = createCx(styles)
 
-function WeeklyChallengePanel(): JSX.Element {
+interface WeeklyChallengePanelProps {
+  isExpanded?: boolean
+  onShow?: () => void
+  onNext?: () => void
+  isLastPanel?: boolean
+}
+
+function WeeklyChallengePanel({
+  isExpanded,
+  onShow,
+  onNext,
+  isLastPanel,
+}: WeeklyChallengePanelProps): JSX.Element {
   const mode = ScoringMode.WeeklyChallenge
 
   return (
@@ -25,6 +37,10 @@ function WeeklyChallengePanel(): JSX.Element {
       collapsible
       defaultExpanded
       isLongTitle
+      isExpanded={isExpanded}
+      onShow={onShow}
+      onNext={onNext}
+      isLastPanel={isLastPanel}
     >
       <div className={cx('content')}>
         <p>

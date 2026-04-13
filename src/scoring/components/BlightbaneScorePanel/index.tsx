@@ -209,7 +209,19 @@ const ICON_KEYWORDS = [
   },
 ]
 
-function BlightbaneScorePanel(): JSX.Element {
+interface BlightbaneScorePanelProps {
+  isExpanded?: boolean
+  onShow?: () => void
+  onNext?: () => void
+  isLastPanel?: boolean
+}
+
+function BlightbaneScorePanel({
+  isExpanded,
+  onShow,
+  onNext,
+  isLastPanel,
+}: BlightbaneScorePanelProps): JSX.Element {
   const mode = ScoringMode.Blightbane
 
   return (
@@ -219,6 +231,10 @@ function BlightbaneScorePanel(): JSX.Element {
       mode={mode}
       collapsible
       isLongTitle
+      isExpanded={isExpanded}
+      onShow={onShow}
+      onNext={onNext}
+      isLastPanel={isLastPanel}
     >
       <div className={cx('content')}>
         <p>

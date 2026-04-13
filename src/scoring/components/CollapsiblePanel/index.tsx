@@ -20,6 +20,10 @@ interface CollapsiblePanelProps {
   imageUrl?: string
   mode?: ScoringMode
   isLongTitle?: boolean
+  isExpanded?: boolean // Controlled state
+  onShow?: () => void // Handler to show/expand this panel
+  onNext?: () => void // Handler for next button
+  isLastPanel?: boolean // Whether this is the last panel in sequence
 }
 
 function CollapsiblePanel({
@@ -31,21 +35,34 @@ function CollapsiblePanel({
   imageUrl,
   mode,
   isLongTitle = false,
+  isExpanded: controlledIsExpanded,
+  onShow,
+  onNext,
+  isLastPanel = false,
 }: CollapsiblePanelProps): JSX.Element {
-  const [isExpanded, setIsExpanded] = useState(defaultExpanded || !collapsible)
+  const [internalIsExpanded, setInternalIsExpanded] = useState(defaultExpanded || !collapsible)
   const { isMobile } = useBreakpoint()
+
+  // Use controlled state if provided, otherwise use internal state
+  const isExpanded = controlledIsExpanded !== undefined ? controlledIsExpanded : internalIsExpanded
 
   const titleToDisplay = isMobile && titleShort ? titleShort : title
 
   const toggleExpanded = () => {
     if (collapsible) {
-      setIsExpanded(!isExpanded)
+      if (onShow) {
+        onShow()
+      } else {
+        setInternalIsExpanded(!internalIsExpanded)
+      }
     }
   }
 
   useEffect(() => {
-    setIsExpanded(defaultExpanded || !collapsible)
-  }, [defaultExpanded, collapsible])
+    if (controlledIsExpanded === undefined) {
+      setInternalIsExpanded(defaultExpanded || !collapsible)
+    }
+  }, [defaultExpanded, collapsible, controlledIsExpanded])
 
   return (
     <div className={cx('panel')}>
@@ -75,9 +92,14 @@ function CollapsiblePanel({
               {titleToDisplay}
             </h2>
           </div>
-          {collapsible && mode && (
+          {collapsible && mode && isExpanded && onNext && !isLastPanel && (
+            <ScoringButton onClick={onNext} mode={mode}>
+              Next
+            </ScoringButton>
+          )}
+          {collapsible && mode && !isExpanded && (
             <ScoringButton onClick={toggleExpanded} mode={mode}>
-              {isExpanded ? 'Hide' : 'Show'}
+              Show
             </ScoringButton>
           )}
         </div>

@@ -5,6 +5,15 @@ export enum ScoringMode {
   Blightbane = 'Blightbane',
 }
 
+export enum ScoringPanelId {
+  StandardScore = 'standard-score',
+  SunforgeScore = 'sunforge-score',
+  WeeklyChallengeScore = 'weekly-challenge-score',
+  BlightbaneScore = 'blightbane-score',
+  ScoringExample = 'scoring-example',
+  BolgarsBlueprints = 'bolgars-blueprints',
+}
+
 export type WeeklyChallengeData = {
   from: string
   image: string

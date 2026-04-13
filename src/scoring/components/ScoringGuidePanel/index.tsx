@@ -7,8 +7,9 @@ import {
 } from '@/shared/utils/imageUrls'
 import { CharacterClass } from '@/shared/types/characterClass'
 
-import { ScoringMode } from '../../types'
+import { ScoringMode, ScoringPanelId } from '../../types'
 import CollapsiblePanel from '../CollapsiblePanel'
+import ContentNavigation from '../ContentNavigation'
 
 import styles from './index.module.scss'
 
@@ -16,7 +17,9 @@ const cx = createCx(styles)
 
 interface ScoringGuidePanelProps {
   selectedMode: ScoringMode
+  selectedPanelId: ScoringPanelId | null
   onModeChange: (mode: ScoringMode) => void
+  onNavigateToSection: (panelId: ScoringPanelId) => void
 }
 
 const gameModeButtons = [
@@ -40,7 +43,12 @@ const gameModeButtons = [
   },
 ]
 
-function ScoringGuidePanel({ selectedMode, onModeChange }: ScoringGuidePanelProps): JSX.Element {
+function ScoringGuidePanel({
+  selectedMode,
+  selectedPanelId,
+  onModeChange,
+  onNavigateToSection,
+}: ScoringGuidePanelProps): JSX.Element {
   return (
     <CollapsiblePanel>
       <div className={cx('content')}>
@@ -61,6 +69,12 @@ function ScoringGuidePanel({ selectedMode, onModeChange }: ScoringGuidePanelProp
             />
           ))}
         </div>
+
+        <ContentNavigation
+          mode={selectedMode}
+          selectedPanelId={selectedPanelId}
+          onNavigate={onNavigateToSection}
+        />
       </div>
     </CollapsiblePanel>
   )
