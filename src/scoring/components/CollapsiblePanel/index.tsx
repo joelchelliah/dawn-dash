@@ -24,6 +24,7 @@ interface CollapsiblePanelProps {
   onShow?: () => void // Handler to show/expand this panel
   onNext?: () => void // Handler for next button
   isLastPanel?: boolean // Whether this is the last panel in sequence
+  panelId?: string // Unique identifier for scrolling
 }
 
 function CollapsiblePanel({
@@ -39,6 +40,7 @@ function CollapsiblePanel({
   onShow,
   onNext,
   isLastPanel = false,
+  panelId,
 }: CollapsiblePanelProps): JSX.Element {
   const [internalIsExpanded, setInternalIsExpanded] = useState(defaultExpanded || !collapsible)
   const { isMobile } = useBreakpoint()
@@ -65,7 +67,7 @@ function CollapsiblePanel({
   }, [defaultExpanded, collapsible, controlledIsExpanded])
 
   return (
-    <div className={cx('panel')}>
+    <div className={cx('panel')} data-panel-id={panelId}>
       {titleToDisplay && (
         <div
           className={cx('panel-header', {

@@ -214,6 +214,7 @@ interface BlightbaneScorePanelProps {
   onShow?: () => void
   onNext?: () => void
   isLastPanel?: boolean
+  panelId?: string
 }
 
 function BlightbaneScorePanel({
@@ -221,6 +222,7 @@ function BlightbaneScorePanel({
   onShow,
   onNext,
   isLastPanel,
+  panelId,
 }: BlightbaneScorePanelProps): JSX.Element {
   const mode = ScoringMode.Blightbane
 
@@ -235,6 +237,7 @@ function BlightbaneScorePanel({
       onShow={onShow}
       onNext={onNext}
       isLastPanel={isLastPanel}
+      panelId={panelId}
     >
       <div className={cx('content')}>
         <p>

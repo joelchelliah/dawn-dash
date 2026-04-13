@@ -31,6 +31,7 @@ type ExamplesPanelProps = {
   onShow?: () => void
   onNext?: () => void
   isLastPanel?: boolean
+  panelId?: string
 }
 
 function ExamplesPanel({
@@ -39,6 +40,7 @@ function ExamplesPanel({
   onShow,
   onNext,
   isLastPanel,
+  panelId,
 }: ExamplesPanelProps): JSX.Element {
   const [isModalOpen, setIsModalOpen] = useState(false)
 
@@ -335,6 +337,7 @@ function ExamplesPanel({
       onShow={onShow}
       onNext={onNext}
       isLastPanel={isLastPanel}
+      panelId={panelId}
     >
       <div className={cx('content')}>
         {mode === ScoringMode.Standard && getStandardExample()}

@@ -121,6 +121,7 @@ interface BolgarsBlueprintsPanelProps {
   onShow?: () => void
   onNext?: () => void
   isLastPanel?: boolean
+  panelId?: string
 }
 
 function BolgarsBlueprintsPanel({
@@ -128,6 +129,7 @@ function BolgarsBlueprintsPanel({
   onShow,
   onNext,
   isLastPanel,
+  panelId,
 }: BolgarsBlueprintsPanelProps): JSX.Element {
   const { challengeData, isLoading, isError } = useWeeklyChallengeData()
 
@@ -142,6 +144,7 @@ function BolgarsBlueprintsPanel({
       onShow={onShow}
       onNext={onNext}
       isLastPanel={isLastPanel}
+      panelId={panelId}
     >
       <div className={cx('content')}>
         <p>

@@ -79,19 +79,17 @@ function Scoring(): JSX.Element {
   const handlePanelToggle = (panelId: ScoringPanelId) => {
     setExpandedPanel(panelId)
 
-    // Calculate scroll offset based on panel index
-    const panelOrder = getPanelOrder(selectedMode)
-    const panelIndex = panelOrder.indexOf(panelId)
+    // Wait for panel to expand, then scroll it into view
+    setTimeout(() => {
+      const panelElement = document.querySelector(`[data-panel-id="${panelId}"]`)
 
-    if (panelIndex !== -1) {
-      // Scroll down by 50px per panel index, with a small delay to let the panel expand
-      setTimeout(() => {
-        window.scrollBy({
-          top: panelIndex * 50,
+      if (panelElement) {
+        panelElement.scrollIntoView({
           behavior: 'smooth',
+          block: 'start',
         })
-      }, 100)
-    }
+      }
+    }, 150)
   }
 
   const getNextPanelHandler = (currentPanelId: ScoringPanelId) => {
@@ -136,6 +134,7 @@ function Scoring(): JSX.Element {
             onShow={() => handlePanelToggle(ScoringPanelId.WeeklyChallengeScore)}
             onNext={getNextPanelHandler(ScoringPanelId.WeeklyChallengeScore)}
             isLastPanel={isLastPanel(ScoringPanelId.WeeklyChallengeScore)}
+            panelId={ScoringPanelId.WeeklyChallengeScore}
           />
         )}
         <InGameScorePanel
@@ -162,6 +161,11 @@ function Scoring(): JSX.Element {
               ? ScoringPanelId.SunforgeScore
               : ScoringPanelId.StandardScore
           )}
+          panelId={
+            inGameScoreMode === ScoringMode.Sunforge
+              ? ScoringPanelId.SunforgeScore
+              : ScoringPanelId.StandardScore
+          }
         />
 
         {selectedMode === ScoringMode.WeeklyChallenge && (
@@ -170,6 +174,7 @@ function Scoring(): JSX.Element {
             onShow={() => handlePanelToggle(ScoringPanelId.BlightbaneScore)}
             onNext={getNextPanelHandler(ScoringPanelId.BlightbaneScore)}
             isLastPanel={isLastPanel(ScoringPanelId.BlightbaneScore)}
+            panelId={ScoringPanelId.BlightbaneScore}
           />
         )}
 
@@ -179,6 +184,7 @@ function Scoring(): JSX.Element {
           onShow={() => handlePanelToggle(ScoringPanelId.ScoringExample)}
           onNext={getNextPanelHandler(ScoringPanelId.ScoringExample)}
           isLastPanel={isLastPanel(ScoringPanelId.ScoringExample)}
+          panelId={ScoringPanelId.ScoringExample}
         />
 
         {selectedMode === ScoringMode.WeeklyChallenge && (
@@ -187,6 +193,7 @@ function Scoring(): JSX.Element {
             onShow={() => handlePanelToggle(ScoringPanelId.BolgarsBlueprints)}
             onNext={getNextPanelHandler(ScoringPanelId.BolgarsBlueprints)}
             isLastPanel={isLastPanel(ScoringPanelId.BolgarsBlueprints)}
+            panelId={ScoringPanelId.BolgarsBlueprints}
           />
         )}
       </div>

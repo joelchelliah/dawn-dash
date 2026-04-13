@@ -18,6 +18,7 @@ interface WeeklyChallengePanelProps {
   onShow?: () => void
   onNext?: () => void
   isLastPanel?: boolean
+  panelId?: string
 }
 
 function WeeklyChallengePanel({
@@ -25,6 +26,7 @@ function WeeklyChallengePanel({
   onShow,
   onNext,
   isLastPanel,
+  panelId,
 }: WeeklyChallengePanelProps): JSX.Element {
   const mode = ScoringMode.WeeklyChallenge
 
@@ -41,6 +43,7 @@ function WeeklyChallengePanel({
       onShow={onShow}
       onNext={onNext}
       isLastPanel={isLastPanel}
+      panelId={panelId}
     >
       <div className={cx('content')}>
         <p>

@@ -27,6 +27,7 @@ interface InGameScorePanelProps {
   onShow?: () => void
   onNext?: () => void
   isLastPanel?: boolean
+  panelId?: string
 }
 
 const SCORE_PARAMETERS = [
@@ -133,6 +134,7 @@ function InGameScorePanel({
   onShow,
   onNext,
   isLastPanel,
+  panelId,
 }: InGameScorePanelProps): JSX.Element {
   const title = mode === ScoringMode.Sunforge ? 'Sunforge score' : 'Standard score'
   const [isDisclaimerOpen, setIsDisclaimerOpen] = useState(false)
@@ -150,6 +152,7 @@ function InGameScorePanel({
       onShow={onShow}
       onNext={onNext}
       isLastPanel={isLastPanel}
+      panelId={panelId}
     >
       <div className={cx('content')}>
         {getIntroText(mode)}
