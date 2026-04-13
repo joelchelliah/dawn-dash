@@ -165,7 +165,11 @@
 .header {
   font-size: font-size('md');
   font-weight: 800;
-  margin: 0;
+  margin: 0 0 -0.5rem;
+
+  @media (max-width: $breakpoint-mobile) {
+    margin: 0 0 -0.75rem;
+  }
 }
 
 .scoring-container {
