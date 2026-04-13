@@ -230,10 +230,9 @@ function BlightbaneScorePanel(): JSX.Element {
         </p>
         <h3 className={cx('header')}>🎖️ Fixed score bonuses</h3>
         <p>
-          These bonuses are added to the total score as-is. They don&apos;t scale with your
+          These bonuses are added to the total score as-is. They don&apos;t scale with your{' '}
           <strong>malignancies</strong>, but still tend to be quite generous score-wise (most of the
-          time). Here&apos;s a list of all the <strong>fixed score bonuses</strong> you might
-          encounter. Most challenges will contain at least two of these:
+          time). Most challenges will contain at least one or two of these:
         </p>
         <IllustratedScoringInfo
           mode={mode}
@@ -370,7 +369,7 @@ function BlightbaneScorePanel(): JSX.Element {
           cards. A <strong>legendary</strong> is worth over 3 times as much as a{' '}
           <strong>common</strong>, and will also scale a lot faster with your malignancies!
         </p>
-        <p>
+        <p className={cx('follow-up')}>
           The objective usually also states:
           <Code wrap="mobile">
             <strong>Half Points for additional copies after the first</strong>
@@ -404,7 +403,7 @@ function BlightbaneScorePanel(): JSX.Element {
           </strong>
           &quot; ({renderIcon('HEALTH')}).
         </p>
-        <p>
+        <p className={cx('follow-up')}>
           The <GradientLink text="Dawn-Dash: Cardex" url="https://dawn-dash.com/cardex" /> tool was
           created with the{' '}
           <Highlight mode={ScoringMode.WeeklyChallenge}>Weekly Challenges</Highlight> in mind. It{' '}
@@ -435,7 +434,7 @@ function BlightbaneScorePanel(): JSX.Element {
           <strong>Monster</strong>, <strong>Common</strong>, <strong>Uncommon</strong>,{' '}
           <strong>Rare</strong>, or <strong>Legendary</strong>.
         </p>
-        <p>
+        <p className={cx('follow-up')}>
           This doesn&apos;t happen very often anymore, but the rule still exists. Here&apos;s one we
           had with &quot;<strong>Monster</strong>&quot; as a keyword:{' '}
           <GradientLink text="Monster Mash" url="https://blightbane.io/challenge/1761815906348" />.
@@ -532,16 +531,16 @@ function BlightbaneScorePanel(): JSX.Element {
           your next penalty, and thereby collecting enough <strong>keyword bonus</strong> cards to
           offset it!
         </p>
-        <p>
-          Sticking to the previous example with an accuracy bonus of{' '}
-          <Highlight mode={mode}>3000</Highlight> and a buffer of{' '}
-          <Highlight mode={mode}>4</Highlight>, you lose <Highlight mode={mode}>300</Highlight>{' '}
-          points for every fourth card (after breaking the window). Picking up 4 distinct{' '}
-          <strong>uncommon</strong> cards give you a base of <Highlight mode={mode}>300</Highlight>{' '}
-          (<Code>4 × 75</Code>) points, which already cancels out this penalty. Any combination of 4{' '}
-          <strong>higher rarity</strong> cards will put you ahead. You could theoretically keep
-          going like this for as long as you find the right cards, and even finish a run with a{' '}
-          <strong>negative accuracy bonus</strong> but still come out with a net positive gain.
+        <p className={cx('follow-up')}>
+          Sticking to the previous example (base score: <Highlight mode={mode}>3000</Highlight> and
+          buffer: <Highlight mode={mode}>4</Highlight>), you lose{' '}
+          <Highlight mode={mode}>300</Highlight> points for every fourth card (after breaking the
+          window). Picking up 4 distinct <strong>uncommon</strong> cards give you a base of{' '}
+          <Highlight mode={mode}>300</Highlight> (<Code>4 × 75</Code>) points, which already cancels
+          out this penalty. Any combination of 4 <strong>higher rarity</strong> cards will put you
+          ahead. You could theoretically keep going like this for as long as you find the right
+          cards, and even finish a run with a <strong>negative accuracy bonus</strong> but still
+          come out with a net positive gain.
         </p>
         <ExampleBox emoji="🧐" mode={mode}>
           <p>
@@ -577,13 +576,13 @@ function BlightbaneScorePanel(): JSX.Element {
             Fixed bonus + (Keywords bonus + Accuracy bonus) × (1 + Malignancy level)
           </Code>
         </p>
-        <p>
+        <p className={cx('follow-up')}>
           This value, also shown in <Highlight mode={mode}>green</Highlight> on your submission
           page, is combined with your <Highlight mode={ScoringMode.Standard}>Standard</Highlight>{' '}
           mode score to give you your total{' '}
           <Highlight mode={ScoringMode.WeeklyChallenge}>Weekly Challenge</Highlight> score.
         </p>
-        <p>
+        <p className={cx('follow-up')}>
           ⚠️ Note that the <Highlight mode={mode}>Blightbane</Highlight> scoring mode only considers
           cards in your <strong>main decklist</strong>! Cards found anywhere else will be{' '}
           <strong>ignored</strong> by all score bonus components. This includes:

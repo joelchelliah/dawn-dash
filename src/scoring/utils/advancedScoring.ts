@@ -70,7 +70,14 @@ export const findCombinationJustAbove = (
         if (totalScore > target) {
           const distance = totalScore - target
 
-          if (!bestResult || distance < bestResult.distance) {
+          // Update if: closer to target, OR same distance but more distinct cards (tiebreaker)
+          const shouldUpdate =
+            !bestResult ||
+            distance < bestResult.distance ||
+            (distance === bestResult.distance &&
+              distinctCards > bestResult.combination.distinctCards)
+
+          if (shouldUpdate) {
             bestResult = {
               combination: {
                 rarity,
@@ -136,6 +143,9 @@ const calculateCombinationScore = (
 const generateDescription = (rarity: Rarity, distinctCards: number, duplicates: number): string => {
   if (duplicates === 0) {
     return `${distinctCards} distinct ${rarity}`
+  }
+  if (distinctCards === 0) {
+    return `${duplicates} duplicate ${rarity}`
   }
   return `${distinctCards} distinct + ${duplicates} duplicate ${rarity}`
 }

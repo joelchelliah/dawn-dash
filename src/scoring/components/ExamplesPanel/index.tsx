@@ -294,7 +294,7 @@ function ExamplesPanel({ mode }: ExamplesPanelProps): JSX.Element {
         can also see on the run&apos;s{' '}
         <GradientLink text="summary page" url="https://blightbane.io/deck/1768931600277" />.
       </p>
-      <p>
+      <p className={cx('follow-up')}>
         At the highest ranks (<strong>VII</strong> and above), the{' '}
         <Highlight mode={ScoringMode.Standard}>Standard</Highlight> mode scoring parameters reward
         you significantly better than the{' '}
@@ -303,7 +303,7 @@ function ExamplesPanel({ mode }: ExamplesPanelProps): JSX.Element {
         Especially for the <em>easier</em> ones (like <strong>⚔️ Damage</strong>,{' '}
         <strong>💨 Lethality</strong> and <strong>💰 Wealth</strong>).
       </p>
-      <p>
+      <p className={cx('follow-up')}>
         In challenges with a high <strong>accuracy buffer</strong> value or a high{' '}
         <strong>keywords bonus</strong> score, it will be more beneficial to prioritize the{' '}
         <Highlight mode={ScoringMode.Blightbane}>Blightbane</Highlight> bonuses over the{' '}

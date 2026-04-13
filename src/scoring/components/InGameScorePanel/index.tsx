@@ -112,7 +112,7 @@ function getIntroText(mode: ScoringMode): JSX.Element {
           not directly enhanced by your malignancies, but picking harder malignancies gives you
           additional <strong>rerolls</strong>, which in turn leads to a higher score!
         </p>
-        <p>
+        <p className={cx('follow-up')}>
           The combined score from your <strong>six scoring parameters</strong>, along with your{' '}
           <strong>reroll bonus</strong>, makes up your final score. These parameters are:
         </p>
@@ -256,19 +256,21 @@ function InGameScorePanel({ mode, openByDefault = false }: InGameScorePanelProps
 
         {mode === ScoringMode.Standard && (
           <>
-            <p>
+            <p className={cx('follow-up')}>
               This score is then multiplied by your <strong>malignancy level</strong>, which is the
               sum of all malignancies enabled for the run. The highest level you can have right now
               is <strong>220%</strong>. Going with the numbers above, this gives us a max malignancy
               bonus of <Highlight mode={mode}>31,900</Highlight> (<Code>14500 × 2.2</Code>).
             </p>
-            <p>
+            <p className={cx('follow-up')}>
               Adding that to the base score, puts the highest achievable{' '}
               <Highlight mode={mode}>Standard</Highlight> score for an <strong>Impossible</strong>{' '}
               run at <Highlight mode={mode}>46,400</Highlight> (<Code>14500 + 31900</Code>)!
             </p>
 
-            <p>Similarly for the other difficulties, the highest achievable scores are:</p>
+            <p className={cx('follow-up')}>
+              Similarly for the other difficulties, the highest achievable scores are:
+            </p>
 
             <ScoringList
               mode={mode}
@@ -289,7 +291,7 @@ function InGameScorePanel({ mode, openByDefault = false }: InGameScorePanelProps
         )}
         {mode === ScoringMode.Sunforge && (
           <>
-            <p>
+            <p className={cx('follow-up')}>
               This score is then multiplied by your <strong>Reroll bonus</strong> modifier, which
               starts off at <strong>0%</strong>, and can be increased up to four times via your{' '}
               <Highlight mode={mode}>Sunforge</Highlight> rewards track. At the maximmum of{' '}
@@ -297,12 +299,12 @@ function InGameScorePanel({ mode, openByDefault = false }: InGameScorePanelProps
               <strong>Reroll bonus score</strong> of <Highlight mode={mode}>24,300</Highlight> (
               <Code>20250 × 0.04 × 30</Code>).
             </p>
-            <p>
+            <p className={cx('follow-up')}>
               Adding that to the base score, puts the total score at{' '}
               <Highlight mode={mode}>44,550</Highlight> (<Code>20250 + 24300</Code>). More than
               double the initial score!
             </p>
-            <p>
+            <p className={cx('follow-up')}>
               In addition to being frugal with your rerolls, there are a number of other ways to
               ensure a high reroll count at the end of the run:
             </p>
