@@ -200,8 +200,7 @@ function BolgarsBlueprintsPanel({
 
             <h3 className={cx('header')}>🎖️ Fixed score bonuses</h3>
             <p>
-              These bonuses will <strong>not</strong> scale with your{' '}
-              <strong>malignancy level</strong>.
+              These do <strong>not</strong> scale with your <strong>malignancy level</strong>.
             </p>
             <ParameterInfoList
               parameters={getFixedValueScoringParameters(challengeData)}
