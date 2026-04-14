@@ -70,6 +70,10 @@ function Scoring(): JSX.Element {
 
   const inGameScoreMode =
     selectedMode === ScoringMode.Sunforge ? ScoringMode.Sunforge : ScoringMode.Standard
+  const inGamePanelId =
+    inGameScoreMode === ScoringMode.Sunforge
+      ? ScoringPanelId.SunforgeScore
+      : ScoringPanelId.StandardScore
 
   // Reset to default panel when mode changes
   useEffect(() => {
@@ -98,6 +102,7 @@ function Scoring(): JSX.Element {
 
     if (currentIndex !== -1 && currentIndex < panelOrder.length - 1) {
       const nextPanelId = panelOrder[currentIndex + 1]
+
       return () => handlePanelToggle(nextPanelId)
     }
 
@@ -107,8 +112,17 @@ function Scoring(): JSX.Element {
   const isLastPanel = (panelId: ScoringPanelId): boolean => {
     const panelOrder = getPanelOrder(selectedMode)
     const currentIndex = panelOrder.indexOf(panelId)
+
     return currentIndex === panelOrder.length - 1
   }
+
+  const getPanelProps = (panelId: ScoringPanelId) => ({
+    isExpanded: expandedPanel === panelId,
+    onShow: () => handlePanelToggle(panelId),
+    onNext: getNextPanelHandler(panelId),
+    isLastPanel: isLastPanel(panelId),
+    panelId,
+  })
 
   return (
     <div className={cx('container')}>
@@ -129,72 +143,18 @@ function Scoring(): JSX.Element {
         />
 
         {selectedMode === ScoringMode.WeeklyChallenge && (
-          <WeeklyChallengePanel
-            isExpanded={expandedPanel === ScoringPanelId.WeeklyChallengeScore}
-            onShow={() => handlePanelToggle(ScoringPanelId.WeeklyChallengeScore)}
-            onNext={getNextPanelHandler(ScoringPanelId.WeeklyChallengeScore)}
-            isLastPanel={isLastPanel(ScoringPanelId.WeeklyChallengeScore)}
-            panelId={ScoringPanelId.WeeklyChallengeScore}
-          />
+          <WeeklyChallengePanel {...getPanelProps(ScoringPanelId.WeeklyChallengeScore)} />
         )}
-        <InGameScorePanel
-          mode={inGameScoreMode}
-          openByDefault={selectedMode !== ScoringMode.WeeklyChallenge}
-          isExpanded={
-            expandedPanel === ScoringPanelId.StandardScore ||
-            expandedPanel === ScoringPanelId.SunforgeScore
-          }
-          onShow={() =>
-            handlePanelToggle(
-              inGameScoreMode === ScoringMode.Sunforge
-                ? ScoringPanelId.SunforgeScore
-                : ScoringPanelId.StandardScore
-            )
-          }
-          onNext={getNextPanelHandler(
-            inGameScoreMode === ScoringMode.Sunforge
-              ? ScoringPanelId.SunforgeScore
-              : ScoringPanelId.StandardScore
-          )}
-          isLastPanel={isLastPanel(
-            inGameScoreMode === ScoringMode.Sunforge
-              ? ScoringPanelId.SunforgeScore
-              : ScoringPanelId.StandardScore
-          )}
-          panelId={
-            inGameScoreMode === ScoringMode.Sunforge
-              ? ScoringPanelId.SunforgeScore
-              : ScoringPanelId.StandardScore
-          }
-        />
+        <InGameScorePanel mode={inGameScoreMode} {...getPanelProps(inGamePanelId)} />
 
         {selectedMode === ScoringMode.WeeklyChallenge && (
-          <BlightbaneScorePanel
-            isExpanded={expandedPanel === ScoringPanelId.BlightbaneScore}
-            onShow={() => handlePanelToggle(ScoringPanelId.BlightbaneScore)}
-            onNext={getNextPanelHandler(ScoringPanelId.BlightbaneScore)}
-            isLastPanel={isLastPanel(ScoringPanelId.BlightbaneScore)}
-            panelId={ScoringPanelId.BlightbaneScore}
-          />
+          <BlightbaneScorePanel {...getPanelProps(ScoringPanelId.BlightbaneScore)} />
         )}
 
-        <ExamplesPanel
-          mode={selectedMode}
-          isExpanded={expandedPanel === ScoringPanelId.ScoringExample}
-          onShow={() => handlePanelToggle(ScoringPanelId.ScoringExample)}
-          onNext={getNextPanelHandler(ScoringPanelId.ScoringExample)}
-          isLastPanel={isLastPanel(ScoringPanelId.ScoringExample)}
-          panelId={ScoringPanelId.ScoringExample}
-        />
+        <ExamplesPanel mode={selectedMode} {...getPanelProps(ScoringPanelId.ScoringExample)} />
 
         {selectedMode === ScoringMode.WeeklyChallenge && (
-          <BolgarsBlueprintsPanel
-            isExpanded={expandedPanel === ScoringPanelId.BolgarsBlueprints}
-            onShow={() => handlePanelToggle(ScoringPanelId.BolgarsBlueprints)}
-            onNext={getNextPanelHandler(ScoringPanelId.BolgarsBlueprints)}
-            isLastPanel={isLastPanel(ScoringPanelId.BolgarsBlueprints)}
-            panelId={ScoringPanelId.BolgarsBlueprints}
-          />
+          <BolgarsBlueprintsPanel {...getPanelProps(ScoringPanelId.BolgarsBlueprints)} />
         )}
       </div>
 
