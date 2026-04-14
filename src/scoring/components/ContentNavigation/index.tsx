@@ -1,3 +1,5 @@
+import { useState } from 'react'
+
 import { createCx } from '@/shared/utils/classnames'
 
 import { ScoringMode, ScoringPanelId } from '@/scoring/types'
@@ -41,10 +43,17 @@ function ContentNavigation({
   selectedPanelId,
   onNavigate,
 }: ContentNavigationProps): JSX.Element {
+  const [clickedId, setClickedId] = useState<ScoringPanelId | null>(null)
   const links = CONTENT_LINKS[mode]
 
   if (links.length === 0) {
     return <></>
+  }
+
+  const handleClick = (panelId: ScoringPanelId) => {
+    setClickedId(panelId)
+    setTimeout(() => setClickedId(null), 300)
+    onNavigate(panelId)
   }
 
   return (
@@ -53,14 +62,16 @@ function ContentNavigation({
       <ul className={cx('list')}>
         {links.map((link) => {
           const isSelected = selectedPanelId === link.id
+          const isClicked = clickedId === link.id
 
           return (
             <li key={link.id} className={cx('item')}>
               <button
                 className={cx('link', `link--${mode}`, {
                   'link--selected': isSelected,
+                  'link--clicked': isClicked,
                 })}
-                onClick={() => onNavigate(link.id)}
+                onClick={() => handleClick(link.id)}
               >
                 {link.label}
               </button>
