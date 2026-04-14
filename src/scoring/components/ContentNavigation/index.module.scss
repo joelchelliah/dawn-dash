@@ -67,11 +67,12 @@
 .item {
   margin: 0;
   padding: 0;
+  position: relative;
 }
 
 .link {
   display: block;
-  text-align: left;
+  text-align: center;
   background: transparent;
   border: 1px dashed $color-component-border-dark;
   border-radius: 0.25rem;
@@ -82,6 +83,8 @@
   transition: all 0.3s ease;
   white-space: nowrap;
   min-width: 12rem;
+  position: relative;
+  overflow: visible;
 
   &:hover {
     border-style: dotted;
@@ -102,6 +105,10 @@
 
     &.link--Blightbane {
       color: $color-class-rogue-hover;
+    }
+
+    .advanced-tag {
+      color: $color-danger-hover;
     }
   }
 
@@ -128,11 +135,37 @@
     &.link--Blightbane {
       @include selected-link-colors($color-class-rogue, $color-class-rogue-border);
     }
+
+    .advanced-tag {
+      color: $color-danger-hover;
+    }
   }
 
   @media (max-width: $breakpoint-mobile) {
     width: 100%;
     padding: 0.5rem 0.625rem;
     font-size: font-size('xs');
+    text-align: left;
+  }
+}
+
+.advanced-tag {
+  position: absolute;
+  bottom: 0.25rem;
+  right: -0.5rem;
+  color: $color-danger-base;
+  font-size: font-size('xs');
+  font-weight: 600;
+  border-radius: 0.25rem;
+  transform: rotate(-20deg);
+  z-index: 10;
+  pointer-events: none;
+  white-space: nowrap;
+
+  @media (max-width: $breakpoint-mobile) {
+    font-size: font-size('xxs');
+    bottom: 0.5rem;
+    right: 0.875rem;
+    transform: none;
   }
 }

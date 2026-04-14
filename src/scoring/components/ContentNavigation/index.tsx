@@ -11,6 +11,7 @@ const cx = createCx(styles)
 interface ContentLink {
   id: ScoringPanelId
   label: string
+  advanced?: boolean
 }
 
 interface ContentNavigationProps {
@@ -33,7 +34,7 @@ const CONTENT_LINKS: Record<ScoringMode, ContentLink[]> = {
     { id: ScoringPanelId.StandardScore, label: 'Standard score' },
     { id: ScoringPanelId.BlightbaneScore, label: 'Blightbane score' },
     { id: ScoringPanelId.ScoringExample, label: 'Scoring example' },
-    { id: ScoringPanelId.BolgarsBlueprints, label: "Bolgar's Blueprints" },
+    { id: ScoringPanelId.BolgarsBlueprints, label: "Bolgar's Blueprints", advanced: true },
   ],
   [ScoringMode.Blightbane]: [],
 }
@@ -60,20 +61,21 @@ function ContentNavigation({
     <div className={cx('content-navigation')}>
       <h3 className={cx('title')}>Content</h3>
       <ul className={cx('list')}>
-        {links.map((link) => {
-          const isSelected = selectedPanelId === link.id
-          const isClicked = clickedId === link.id
+        {links.map(({ id, label, advanced }) => {
+          const isSelected = selectedPanelId === id
+          const isClicked = clickedId === id
 
           return (
-            <li key={link.id} className={cx('item')}>
+            <li key={id} className={cx('item')}>
               <button
                 className={cx('link', `link--${mode}`, {
                   'link--selected': isSelected,
                   'link--clicked': isClicked,
                 })}
-                onClick={() => handleClick(link.id)}
+                onClick={() => handleClick(id)}
               >
-                {link.label}
+                {label}
+                {advanced && <span className={cx('advanced-tag')}>Advanced</span>}
               </button>
             </li>
           )
