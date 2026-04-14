@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 
 import { createCx } from '@/shared/utils/classnames'
 import { CharacterClass } from '@/shared/types/characterClass'
@@ -257,6 +257,34 @@ function ParameterRankTable({ mode }: ParameterRankTableProps): JSX.Element {
     emoji: param.emoji,
   }))
 
+  const cardValueColumns = useMemo(
+    () => [
+      { header: 'Card rarity', accessor: 'rarity' as const, className: 'bold' },
+      { header: 'Base value', accessor: 'baseValue' as const, className: 'value' },
+      { header: '"Valuable" value', accessor: 'valuableValue' as const, className: 'value' },
+    ],
+    []
+  )
+
+  const bossesColumns = useMemo(
+    () => [
+      { header: 'Difficulty', accessor: 'difficulty' as const, className: 'bold' },
+      { header: 'Bosses available', accessor: 'bosses' as const },
+      { header: 'Points per boss', accessor: 'pointsPerBoss' as const, className: 'value' },
+      { header: 'Max score', accessor: 'maxPoints' as const, className: 'highlighted' },
+    ],
+    []
+  )
+
+  const ranksColumns = useMemo(
+    () => [
+      { header: 'Rank', accessor: 'rank' as const, className: 'bold' },
+      { header: 'Threshold', accessor: 'threshold' as const },
+      { header: 'Score', accessor: 'points' as const, className: 'highlighted' },
+    ],
+    []
+  )
+
   const renderParameterBasedInfo = () => {
     if (!selectedParam) return null
 
@@ -341,15 +369,7 @@ function ParameterRankTable({ mode }: ParameterRankTableProps): JSX.Element {
               Additionally, if a card has the <strong>Valuable</strong> keyword, its value is
               quadrupled!
             </p>
-            <ScoringTable
-              mode={mode}
-              columns={[
-                { header: 'Card rarity', accessor: 'rarity', className: 'bold' },
-                { header: 'Base value', accessor: 'baseValue', className: 'value' },
-                { header: '"Valuable" value', accessor: 'valuableValue', className: 'value' },
-              ]}
-              data={CARD_VALUES}
-            />
+            <ScoringTable mode={mode} columns={cardValueColumns} data={CARD_VALUES} />
 
             <br />
 
@@ -398,31 +418,10 @@ function ParameterRankTable({ mode }: ParameterRankTableProps): JSX.Element {
 
         {selectedParam.id === 'bosses' && mode === ScoringMode.Standard ? (
           <div className={cx('bosses-content')}>
-            <ScoringTable
-              mode={mode}
-              columns={[
-                { header: 'Difficulty', accessor: 'difficulty', className: 'bold' },
-                { header: 'Bosses available', accessor: 'bosses' },
-                { header: 'Points per boss', accessor: 'pointsPerBoss', className: 'value' },
-                {
-                  header: 'Max score',
-                  accessor: 'maxPoints',
-                  className: 'highlighted',
-                },
-              ]}
-              data={BOSSES_DIFFICULTY_DATA}
-            />
+            <ScoringTable mode={mode} columns={bossesColumns} data={BOSSES_DIFFICULTY_DATA} />
           </div>
         ) : ranksToDisplay ? (
-          <ScoringTable
-            mode={mode}
-            columns={[
-              { header: 'Rank', accessor: 'rank', className: 'bold' },
-              { header: 'Threshold', accessor: 'threshold' },
-              { header: 'Score', accessor: 'points', className: 'highlighted' },
-            ]}
-            data={ranksToDisplay}
-          />
+          <ScoringTable mode={mode} columns={ranksColumns} data={ranksToDisplay} />
         ) : null}
 
         {selectedParam && (

@@ -37,8 +37,8 @@
     line-height: 1.2;
 
     &:nth-child(odd) {
-      background-color: rgba(0, 0, 0, 0.2);
-      border-radius: 4px;
+      background-color: rgba(0, 0, 0, 0.25);
+      border-radius: 0.25rem;
     }
 
     @media (max-width: $breakpoint-mobile) {

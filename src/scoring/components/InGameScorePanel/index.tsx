@@ -22,7 +22,6 @@ const cx = createCx(styles)
 
 interface InGameScorePanelProps {
   mode: ScoringMode
-  openByDefault?: boolean
   isExpanded?: boolean
   onShow?: () => void
   onNext?: () => void
@@ -129,7 +128,6 @@ function getIntroText(mode: ScoringMode): JSX.Element {
 
 function InGameScorePanel({
   mode,
-  openByDefault = false,
   isExpanded,
   onShow,
   onNext,
@@ -147,7 +145,6 @@ function InGameScorePanel({
       imageUrl={mode === ScoringMode.Sunforge ? AuraOfPurityImageUrl : AdaptiveEdgeImageUrl}
       mode={mode}
       collapsible
-      defaultExpanded={openByDefault}
       isExpanded={isExpanded}
       onShow={onShow}
       onNext={onNext}
