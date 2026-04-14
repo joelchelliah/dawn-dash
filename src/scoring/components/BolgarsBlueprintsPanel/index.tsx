@@ -21,100 +21,107 @@ const cx = createCx(styles)
 
 const formatDate = (date: string) => format(new Date(date), 'MMM dd')
 
-const getFixedValueScoringEmoji = (action: string) => {
-  switch (action) {
-    case 'DeckContainsCard':
-      return '🃏'
-    case 'PointsPerCard':
-      return '🗂️'
-    case 'PointsPerUpgrade':
-      return '🛠️'
-    case 'DefeatSpecificBoss':
-      return '👺'
-    case 'UseSpecificMalignancy':
-      return '🦠'
-    case 'Victory':
-      return '🏆'
-    default:
-      return '❗'
-  }
+type FixedValueAction =
+  | 'DeckContainsCard'
+  | 'PointsPerCard'
+  | 'PointsPerUpgrade'
+  | 'DefeatSpecificBoss'
+  | 'UseSpecificMalignancy'
+  | 'Victory'
+
+interface FixedValueConfig {
+  emoji: string
+  getDescription: (keyword: string, pointLimit: number) => React.ReactNode
 }
 
-const getFixedValueScoringDescription = (action: string, keyword: string, pointLimit: number) => {
-  const pointLimitPostfix =
-    pointLimit > 1 ? (
-      <span className={cx('fixed-value-scoring-point-limit-postfix')}>
-        {' '}
-        (up to max <Highlight mode={ScoringMode.Blightbane}>{pointLimit}</Highlight> points)
-      </span>
-    ) : (
-      ''
-    )
-  switch (action) {
-    case 'DeckContainsCard':
-      return (
-        <>
-          For having a{' '}
-          {<GradientLink text={keyword} url={`https://blightbane.io/card/${keyword}`} />} in your
-          deck.
-        </>
-      )
-    case 'PointsPerCard':
+const FIXED_VALUE_CONFIG: Record<FixedValueAction, FixedValueConfig> = {
+  DeckContainsCard: {
+    emoji: '🃏',
+    getDescription: (keyword) => (
+      <>
+        For having a <GradientLink text={keyword} url={`https://blightbane.io/card/${keyword}`} />{' '}
+        in your deck.
+      </>
+    ),
+  },
+  PointsPerCard: {
+    emoji: '🗂️',
+    getDescription: (keyword, pointLimit) => {
+      const pointLimitPostfix =
+        pointLimit > 1 ? (
+          <span className={cx('fixed-value-scoring-point-limit-postfix')}>
+            {' '}
+            (up to max <Highlight mode={ScoringMode.Blightbane}>{pointLimit}</Highlight> points)
+          </span>
+        ) : (
+          ''
+        )
       return (
         <>
           For each copy of{' '}
-          {<GradientLink text={keyword} url={`https://blightbane.io/card/${keyword}`} />} in your
-          deck
+          <GradientLink text={keyword} url={`https://blightbane.io/card/${keyword}`} /> in your deck
           {pointLimitPostfix}.
         </>
       )
-    case 'PointsPerUpgrade':
-      return (
-        <>
-          For each upgrade on <strong>{keyword}</strong> in your deck.
-        </>
-      )
-    case 'DefeatSpecificBoss':
-      return (
-        <>
-          For defeating{' '}
-          <GradientLink text={keyword} url={`https://blightbane.io/monster/${keyword}`} />.
-        </>
-      )
-    case 'UseSpecificMalignancy':
-      return (
-        <>
-          For using the <strong>{keyword}</strong> malignancy.
-        </>
-      )
-    case 'Victory':
-      return (
-        <>
-          For completing <strong>the final encounter</strong>.
-        </>
-      )
-    default:
-      return `${action} (${keyword})`
-  }
+    },
+  },
+  PointsPerUpgrade: {
+    emoji: '🛠️',
+    getDescription: (keyword) => (
+      <>
+        For each upgrade on <strong>{keyword}</strong> in your deck.
+      </>
+    ),
+  },
+  DefeatSpecificBoss: {
+    emoji: '👺',
+    getDescription: (keyword) => (
+      <>
+        For defeating{' '}
+        <GradientLink text={keyword} url={`https://blightbane.io/monster/${keyword}`} />.
+      </>
+    ),
+  },
+  UseSpecificMalignancy: {
+    emoji: '🦠',
+    getDescription: (keyword) => (
+      <>
+        For using the <strong>{keyword}</strong> malignancy.
+      </>
+    ),
+  },
+  Victory: {
+    emoji: '🏆',
+    getDescription: () => (
+      <>
+        For completing <strong>the final encounter</strong>.
+      </>
+    ),
+  },
 }
 
 const getFixedValueScoringParameters = ({ scoring }: WeeklyChallengeData) =>
-  scoring.fixedValueScoring.map((item) => ({
-    emoji: getFixedValueScoringEmoji(item.action),
-    label: (
-      <>
-        <Highlight mode={ScoringMode.Blightbane} strong>
-          {item.pointValue}
-        </Highlight>{' '}
-        <strong>points</strong>{' '}
-      </>
-    ),
-    description: (
-      <span className={cx('fixed-value-scoring-description')}>
-        {getFixedValueScoringDescription(item.action, item.keyword, item.pointLimit)}
-      </span>
-    ),
-  }))
+  scoring.fixedValueScoring.map((item) => {
+    const config = FIXED_VALUE_CONFIG[item.action as FixedValueAction]
+
+    return {
+      emoji: config?.emoji || '❗',
+      label: (
+        <>
+          <Highlight mode={ScoringMode.Blightbane} strong>
+            {item.pointValue}
+          </Highlight>{' '}
+          <strong>points</strong>{' '}
+        </>
+      ),
+      description: (
+        <span className={cx('fixed-value-scoring-description')}>
+          {config?.getDescription(item.keyword, item.pointLimit) ||
+            `${item.action} (${item.keyword})`}
+        </span>
+      ),
+    }
+  })
 
 interface BolgarsBlueprintsPanelProps {
   isExpanded?: boolean

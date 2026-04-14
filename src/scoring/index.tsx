@@ -21,6 +21,9 @@ import BolgarsBlueprintsPanel from './components/BolgarsBlueprintsPanel'
 
 const cx = createCx(styles)
 
+// Wait for panel to expand, then scroll it into view
+const SCROLL_DELAY = 150
+
 const getDefaultPanelForMode = (mode: ScoringMode): ScoringPanelId => {
   switch (mode) {
     case ScoringMode.Standard:
@@ -83,7 +86,6 @@ function Scoring(): JSX.Element {
   const handlePanelToggle = (panelId: ScoringPanelId) => {
     setExpandedPanel(panelId)
 
-    // Wait for panel to expand, then scroll it into view
     setTimeout(() => {
       const panelElement = document.querySelector(`[data-panel-id="${panelId}"]`)
 
@@ -93,7 +95,7 @@ function Scoring(): JSX.Element {
           block: 'start',
         })
       }
-    }, 150)
+    }, SCROLL_DELAY)
   }
 
   const getNextPanelHandler = (currentPanelId: ScoringPanelId) => {
