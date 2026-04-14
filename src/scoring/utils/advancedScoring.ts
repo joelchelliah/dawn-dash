@@ -172,3 +172,57 @@ const generateCalculation = (
 
   return parts.join(' + ')
 }
+
+export interface FixedVsKeywordsComparison {
+  fixedPoints: number
+  cardName: string
+  outscaledAt: number | null // Malignancy percentage (0-220) where keywords outscale, or null if never
+  outscalingRarity: Rarity | null
+  baseKeywordScore: number // The base keyword score at 0% malignancy
+}
+
+/**
+ * Compare fixed score bonus (from PointsPerCard or DeckContainsCard) against keyword bonus
+ * scaled by malignancy from 0% to 220%.
+ *
+ * Returns the malignancy percentage at which a keyword card first outscales the fixed bonus,
+ * starting with Common rarity and progressing to higher rarities if needed.
+ */
+export const compareFixedVsKeywordsBonus = (
+  fixedPoints: number,
+  cardName: string,
+  cardBaseValue: number
+): FixedVsKeywordsComparison => {
+  const rarities: Rarity[] = ['Common', 'Uncommon', 'Rare', 'Legendary']
+  const maxMalignancy = 220 // 220% is the maximum malignancy
+  const minMalignancy = 0 // 0% is the minimum malignancy
+
+  for (const rarity of rarities) {
+    const baseScore = getCardScoreScaledByRarity(rarity, cardBaseValue)
+
+    // Check each malignancy percentage from 0 to 220
+    for (let malignancy = minMalignancy; malignancy <= maxMalignancy; malignancy++) {
+      // Malignancy formula: baseScore * (1 + malignancy/100)
+      const scaledScore = Math.ceil(baseScore * (1 + malignancy / 100))
+
+      if (scaledScore > fixedPoints) {
+        return {
+          fixedPoints,
+          cardName,
+          outscaledAt: malignancy,
+          outscalingRarity: rarity,
+          baseKeywordScore: baseScore,
+        }
+      }
+    }
+  }
+
+  // If we get here, even Legendary at 220% malignancy doesn't outscale the fixed bonus
+  return {
+    fixedPoints,
+    cardName,
+    outscaledAt: null,
+    outscalingRarity: null,
+    baseKeywordScore: getCardScoreScaledByRarity('Common', cardBaseValue),
+  }
+}

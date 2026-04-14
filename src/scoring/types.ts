@@ -14,6 +14,15 @@ export enum ScoringPanelId {
   BolgarsBlueprints = 'bolgars-blueprints',
 }
 
+export enum FixedValueAction {
+  DeckContainsCard = 'DeckContainsCard',
+  PointsPerCard = 'PointsPerCard',
+  PointsPerUpgrade = 'PointsPerUpgrade',
+  DefeatSpecificBoss = 'DefeatSpecificBoss',
+  UseSpecificMalignancy = 'UseSpecificMalignancy',
+  Victory = 'Victory',
+}
+
 export type WeeklyChallengeData = {
   from: string
   image: string

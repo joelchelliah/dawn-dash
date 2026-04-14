@@ -5,7 +5,7 @@ import { createCx } from '@/shared/utils/classnames'
 import LoadingDots from '@/shared/components/LoadingDots'
 import GradientLink from '@/shared/components/GradientLink'
 
-import { ScoringMode, WeeklyChallengeData } from '@/scoring/types'
+import { FixedValueAction, ScoringMode, WeeklyChallengeData } from '@/scoring/types'
 import { useWeeklyChallengeData } from '@/scoring/hooks/useWeeklyChallengeData'
 
 import Highlight from '../Highlight'
@@ -20,14 +20,6 @@ import styles from './index.module.scss'
 const cx = createCx(styles)
 
 const formatDate = (date: string) => format(new Date(date), 'MMM dd')
-
-type FixedValueAction =
-  | 'DeckContainsCard'
-  | 'PointsPerCard'
-  | 'PointsPerUpgrade'
-  | 'DefeatSpecificBoss'
-  | 'UseSpecificMalignancy'
-  | 'Victory'
 
 interface FixedValueConfig {
   emoji: string
@@ -155,13 +147,11 @@ function BolgarsBlueprintsPanel({
     >
       <div className={cx('content')}>
         <p>
-          This is an auto-generated <strong>score guide</strong>, specifically tailored for the
-          ongoing <Highlight mode={ScoringMode.WeeklyChallenge}>Weekly Challenge</Highlight>. You
-          must understand the basics of the{' '}
-          <Highlight mode={ScoringMode.Blightbane}>Blightbane</Highlight> scoring to make the most
-          of this tool.
+          An auto-generated <strong>score guide</strong>, specifically targeting the current{' '}
+          <Highlight mode={ScoringMode.WeeklyChallenge}>Weekly Challenge</Highlight>. Requires that
+          you have a basic understanding of the{' '}
+          <Highlight mode={ScoringMode.Blightbane}>Blightbane</Highlight> scoring system.
         </p>
-        <p className={cx('warning')}>⚠️ Still a bit experimental. Use with caution!</p>
 
         {isLoading && (
           <div className={cx('loading')}>
@@ -200,7 +190,8 @@ function BolgarsBlueprintsPanel({
 
             <h3 className={cx('header')}>🎖️ Fixed score bonuses</h3>
             <p>
-              These do <strong>not</strong> scale with your <strong>malignancy level</strong>.
+              These bonuses do <strong>not</strong> scale with your{' '}
+              <strong>malignancy level</strong>.
             </p>
             <ParameterInfoList
               parameters={getFixedValueScoringParameters(challengeData)}

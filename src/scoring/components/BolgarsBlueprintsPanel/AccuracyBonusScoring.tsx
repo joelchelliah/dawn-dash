@@ -103,8 +103,7 @@ function AccuracyBonusScoring({ challengeData }: AccuracyBonusScoringProps): JSX
   return (
     <div className={cx('scoring-container')}>
       <p>
-        This bonus scales with your <strong>malignancy level</strong>! The accuracy score-related
-        settings are:
+        This bonus scales with your <strong>malignancy level</strong>.
       </p>
       <ScoringList
         mode={ScoringMode.Blightbane}
@@ -149,8 +148,7 @@ function AccuracyBonusScoring({ challengeData }: AccuracyBonusScoringProps): JSX
         className={cx('table')}
       />
       <p>
-        Example <strong>malignancy level</strong> scaling for a perfect <strong>accuracy</strong>{' '}
-        bonus (
+        <strong>Malignancy</strong>-based scaling for a perfect <strong>accuracy</strong> bonus (
         <Code>
           <strong>{getDerivedAccuracyRange(0)}</strong>
         </Code>

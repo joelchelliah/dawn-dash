@@ -98,8 +98,7 @@ function KeywordsBonusScoring({ challengeData }: KeywordsBonusScoringProps): JSX
   return (
     <div className={cx('scoring-container')}>
       <p>
-        This bonus scales with your <strong>malignancy level</strong>! The keywords bonus settings
-        are:
+        These bonuses scale with your <strong>malignancy level</strong>.
       </p>
       <ScoringList
         mode={ScoringMode.Blightbane}
@@ -138,8 +137,7 @@ function KeywordsBonusScoring({ challengeData }: KeywordsBonusScoringProps): JSX
         className={cx('table')}
       />
       <p>
-        Example <strong>malignancy level</strong> scaling for a <strong>Legendary</strong> card
-        bonus (
+        <strong>Malignancy</strong>-based scaling for a <strong>Legendary</strong> card bonus (
         <Code>
           <strong>{legendaryScore}</strong>
         </Code>
@@ -169,11 +167,10 @@ function KeywordsBonusScoring({ challengeData }: KeywordsBonusScoringProps): JSX
         ]}
       />
       <p>
-        <strong>Hint:</strong> The{' '}
+        <strong>Hint:</strong>{' '}
         <span className={cx('meta')}>
           <GradientLink text="Dawn-Dash: Cardex" url="https://dawn-dash.com/cardex" />
-        </span>{' '}
-        can help you find cards matching these keywords!
+        </span>
       </p>
 
       <InfoModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
