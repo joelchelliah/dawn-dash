@@ -316,11 +316,10 @@ function ExamplesPanel({
         <strong>💨 Lethality</strong> and <strong>💰 Wealth</strong>).
       </p>
       <p className={cx('follow-up')}>
-        In challenges with a high <strong>accuracy buffer</strong> value or a high{' '}
-        <strong>keywords bonus</strong> score, it will be more beneficial to prioritize the{' '}
-        <Highlight mode={ScoringMode.Blightbane}>Blightbane</Highlight> bonuses over the{' '}
-        <Highlight mode={ScoringMode.Standard}>Standard</Highlight> mode parameters. Especially if
-        the challenge offers a safe way to continue increasing your score after breaking past the{' '}
+        In challenges with a high <strong>accuracy buffer</strong> or a high{' '}
+        <strong>keywords bonus</strong> score, it might be more beneficial to prioritize the{' '}
+        <Highlight mode={ScoringMode.Blightbane}>Blightbane</Highlight> bonuses. Especially if the
+        challenge offers a safe way to continue increasing your score after breaking past the{' '}
         <strong>accuracy window</strong>.
       </p>
     </>
