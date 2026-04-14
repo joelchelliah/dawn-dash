@@ -55,13 +55,15 @@ function AdvancedInsight({ challengeData }: AdvancedInsightProps): JSX.Element {
       pointsPerCardScorings.length === 0 && pointsForHavingCardScorings.length === 0
     const subHeader = <h4 className={cx('subheader')}>⚖️ &nbsp;Fixed vs Keywords bonus</h4>
 
-    if (noFixedScoreFromCards) {
+    if (noFixedScoreFromCards && cardBaseValue > 0 && keywords.length > 0) {
       return (
         <>
           {subHeader}
           <p>
-            No <strong>fixed bonus</strong> cards for this challenge. Prioritize the{' '}
-            <strong>keywords bonus</strong> cards.
+            No <strong>fixed bonus</strong> cards for this challenge. Collecting the{' '}
+            <strong>keywords bonus</strong> cards will be your main source of score, in addition to
+            maximizing your <Highlight mode={ScoringMode.Standard}>Standard</Highlight> mode
+            parameters.
           </p>
         </>
       )
@@ -72,8 +74,8 @@ function AdvancedInsight({ challengeData }: AdvancedInsightProps): JSX.Element {
         <>
           {subHeader}
           <p>
-            Negative <strong>keywords bonus</strong> for this challenge. Prioritize the{' '}
-            <strong>fixed bonus</strong> cards, and cards that help maximize your{' '}
+            Avoid those negative <strong>keywords bonus</strong> cards! Prioritize the{' '}
+            <strong>fixed bonus</strong> cards, and cards that can help you maximize your{' '}
             <Highlight mode={ScoringMode.Standard}>Standard</Highlight> score parameters.
           </p>
         </>
@@ -145,7 +147,7 @@ function AdvancedInsight({ challengeData }: AdvancedInsightProps): JSX.Element {
   const renderWindowBreakTips = () => {
     const subHeader = <h4 className={cx('subheader')}>🪟 &nbsp;Accuracy Window</h4>
 
-    if (cardBaseValue < 0 || keywords.length === 0) {
+    if (cardBaseValue < 0 || keywords.length === 0 || true) {
       const reason =
         cardBaseValue < 0 ? (
           <>
@@ -161,7 +163,11 @@ function AdvancedInsight({ challengeData }: AdvancedInsightProps): JSX.Element {
           {subHeader}
           <p>
             {reason}. There is no reliable way to break past the <strong>accuracy window</strong>{' '}
-            and still come out ahead.
+            and still come out ahead. Advancing the ranks of the two related{' '}
+            <Highlight mode={ScoringMode.Standard}>Standard</Highlight> mode parameters (
+            <strong>🃏 Versatility</strong> and <strong>💰 Wealth</strong>), is by itself usually
+            not enough to offset the <strong>accuracy penalty</strong> (unless the window is very
+            wide).
           </p>
         </>
       )
@@ -209,7 +215,7 @@ function AdvancedInsight({ challengeData }: AdvancedInsightProps): JSX.Element {
   return (
     <div className={cx('scoring-container')}>
       <p>
-        Additional insight derived from the above values. (
+        Additional number-crunching based on the above values. (
         <span className={cx('warning')}> 🧪 experimental feature</span> )
       </p>
 

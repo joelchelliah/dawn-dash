@@ -166,12 +166,14 @@ function KeywordsBonusScoring({ challengeData }: KeywordsBonusScoringProps): JSX
           </>,
         ]}
       />
-      <p>
-        <strong>Hint:</strong>{' '}
-        <span className={cx('meta')}>
-          <GradientLink text="Dawn-Dash: Cardex" url="https://dawn-dash.com/cardex" />
-        </span>
-      </p>
+      {cardBaseValue > 0 && keywords.length > 0 && (
+        <p>
+          <strong>Hint:</strong>{' '}
+          <span className={cx('meta')}>
+            <GradientLink text="Dawn-Dash: Cardex" url="https://dawn-dash.com/cardex" />
+          </span>
+        </p>
+      )}
 
       <InfoModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
         <h4 className={cx('explain-settings-header')}>📝 &nbsp;Keywords bonuses settings</h4>
