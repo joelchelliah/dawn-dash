@@ -88,8 +88,8 @@ function getIntroText(mode: ScoringMode): JSX.Element {
           ]}
         />
         <p>
-          The combined score from these <strong>six scoring parameters</strong> are multiplied by
-          your <strong>malignancy level</strong> to give your final score. These parameters are:
+          The combined score from the following <strong>six scoring parameters</strong> are
+          multiplied by your <strong>malignancy level</strong> to give your final score.
         </p>
       </>
     )
@@ -117,8 +117,8 @@ function getIntroText(mode: ScoringMode): JSX.Element {
           additional <strong>rerolls</strong>, which in turn leads to a higher score!
         </p>
         <p className={cx('follow-up')}>
-          The combined score from your <strong>six scoring parameters</strong>, along with your{' '}
-          <strong>reroll bonus</strong>, makes up your final score. These parameters are:
+          The combined score from the following <strong>six scoring parameters</strong>, along with
+          your <strong>reroll bonus</strong>, makes up your final score.
         </p>
       </>
     )
@@ -165,7 +165,7 @@ function InGameScorePanel({
         <p>
           Each parameter is assigned a <strong>rank</strong> from one to nine{' '}
           <span className={cx('nobr')}>
-            (<strong>I</strong> – <strong>IX</strong>),
+            (<strong>I</strong> – <strong>IX</strong>)
           </span>{' '}
           based on your performance, and gives you a score corresponding to that rank.
           <br />
@@ -202,23 +202,23 @@ function InGameScorePanel({
         />
 
         <p>
-          Score growth between ranks is <strong>non-linear</strong>. Meaning that jumping from rank{' '}
-          <strong>VIII</strong> (8) to <strong>IX</strong> (9) in one parameter is usually worth a
-          lot more than jumping from <strong>I</strong> to <strong>V</strong> in another. Important
-          to keep in mind if you are forced to prioritize one parameter over another. Unfortunately,
-          most of these parameters are hidden from you during the run, so you&apos;ll have to keep
-          track of them on your own.
+          Score growth between ranks is <strong>non-linear</strong>. For most parameters, jumping
+          from rank <strong>VIII</strong> (8) to <strong>IX</strong> (9) is usually worth more than
+          jumping from <strong>I</strong> (1) to <strong>V</strong> (5). Useful to keep in mind if
+          you are forced to prioritize one parameter over another. Unfortunately, your standings in
+          these parameters are completely invisible to you during the run, so you&apos;ll have to
+          keep track of them on your own.
         </p>
 
         <ExampleBox emoji="🧠" mode={mode}>
-          Sacrificing a perfect <strong>Awareness</strong> score, just to slightly improve your{' '}
-          <strong>Versatility</strong>, is effectively never worth it! One exception might be{' '}
-          <strong>Lethality</strong>, as it only gives you a measly <strong>500</strong> points at
-          max rank, and also drops very slowly.
+          Sacrificing a perfect <strong>♥️ Awareness</strong> score, just to slightly improve your{' '}
+          <strong>🃏 Versatility</strong>, is effectively never worth it! One exception might be{' '}
+          <strong>💨 Lethality</strong>, as it only gives you a measly <strong>500</strong> points
+          at max rank, and also drops very slowly.
         </ExampleBox>
 
         <p>
-          Here&apos;s a detailed breakdown of each <strong>score parameter</strong>:
+          Here&apos;s a detailed breakdown of each <strong>parameter</strong>:
         </p>
 
         <ParameterRankTable mode={mode} />

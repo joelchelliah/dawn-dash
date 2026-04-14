@@ -66,8 +66,8 @@ const PARAMETER_DETAILS = [
     description: (
       <span>
         Determined by the <strong>highest damage</strong> you do in a single instance. This can
-        either be direct action damage, burning, bleed damage (not triggering damage + bleed), doom,
-        etc. Any single source of damage will do.
+        either be direct damage from an action, burning, bleed damage, doom, etc. Any single source
+        of damage will count.
         <br />
         <br />
         This parameter is ranked the same way for both{' '}
