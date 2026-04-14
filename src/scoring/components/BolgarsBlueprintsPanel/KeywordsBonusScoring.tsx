@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 
 import { createCx } from '@/shared/utils/classnames'
 import Code from '@/shared/components/Code'
@@ -24,43 +24,9 @@ interface KeywordsBonusScoringProps {
 function KeywordsBonusScoring({ challengeData }: KeywordsBonusScoringProps): JSX.Element {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const { scoring } = challengeData
-  const isScoringAvailable = scoring.calculationType === 'DiminishingReturns'
+  const { cardBaseValue, diminishingReturnsLimit, calculationType, keywords } = scoring
+  const isScoringAvailable = calculationType === 'DiminishingReturns'
 
-  if (!isScoringAvailable) {
-    return (
-      <div className={cx('unavailable')}>
-        <p>
-          ⚠️ The score calculation type for this challenge is &quot;
-          <strong>{scoring.calculationType}</strong>&quot;. This section is not yet supported for
-          that type.
-        </p>
-      </div>
-    )
-  }
-
-  const listScoringKeywords = () => {
-    if (scoring.keywords.length === 0) {
-      return (
-        <span>
-          <strong>❌</strong>
-        </span>
-      )
-    }
-
-    return scoring.keywords.map((keyword, index) => (
-      <span key={keyword}>
-        <Code>
-          <Highlight mode={ScoringMode.Blightbane} strong>
-            {keyword}
-          </Highlight>
-        </Code>
-        {index < scoring.keywords.length - 1 &&
-          (index === scoring.keywords.length - 2 ? ' and ' : ', ')}
-      </span>
-    ))
-  }
-
-  const { cardBaseValue, diminishingReturnsLimit } = scoring
   const uncommonScore = getCardScoreScaledByRarity('Uncommon', cardBaseValue)
   const rareScore = getCardScoreScaledByRarity('Rare', cardBaseValue)
   const legendaryScore = getCardScoreScaledByRarity('Legendary', cardBaseValue)
@@ -74,21 +40,60 @@ function KeywordsBonusScoring({ challengeData }: KeywordsBonusScoringProps): JSX
     c5: Math.ceil(base * 0.0625),
   })
 
-  const scoreTableColumns = [
-    { header: 'Card rarity', accessor: 'rarity', className: 'bold' },
-    { header: 'Base score', accessor: 'base', className: 'highlighted' },
-    diminishingReturnsLimit > 1 ? { header: '2nd copy', accessor: 'c2' } : null,
-    diminishingReturnsLimit > 2 ? { header: '3rd copy', accessor: 'c3' } : null,
-    diminishingReturnsLimit > 3 ? { header: '4th copy', accessor: 'c4' } : null,
-    diminishingReturnsLimit > 4 ? { header: '5th copy', accessor: 'c5' } : null,
-  ].filter(Boolean) as ScoringTableColumn<{ [x: string]: unknown }>[]
+  const scoreTableColumns = useMemo(
+    () =>
+      [
+        { header: 'Card rarity', accessor: 'rarity', className: 'bold' },
+        { header: 'Base score', accessor: 'base', className: 'highlighted' },
+        diminishingReturnsLimit > 1 ? { header: '2nd copy', accessor: 'c2' } : null,
+        diminishingReturnsLimit > 2 ? { header: '3rd copy', accessor: 'c3' } : null,
+        diminishingReturnsLimit > 3 ? { header: '4th copy', accessor: 'c4' } : null,
+        diminishingReturnsLimit > 4 ? { header: '5th copy', accessor: 'c5' } : null,
+      ].filter(Boolean) as ScoringTableColumn<{ [x: string]: unknown }>[],
+    [diminishingReturnsLimit]
+  )
 
-  const scoreTableData = [
-    getRow('Common', cardBaseValue),
-    getRow('Uncommon', uncommonScore),
-    getRow('Rare', rareScore),
-    getRow('Legendary', legendaryScore),
-  ]
+  const scoreTableData = useMemo(
+    () => [
+      getRow('Common', cardBaseValue),
+      getRow('Uncommon', uncommonScore),
+      getRow('Rare', rareScore),
+      getRow('Legendary', legendaryScore),
+    ],
+    [cardBaseValue, uncommonScore, rareScore, legendaryScore]
+  )
+
+  if (!isScoringAvailable) {
+    return (
+      <div className={cx('unavailable')}>
+        <p>
+          ⚠️ The score calculation type for this challenge is &quot;
+          <strong>{calculationType}</strong>&quot;. This section is not yet supported for that type.
+        </p>
+      </div>
+    )
+  }
+
+  const listScoringKeywords = () => {
+    if (keywords.length === 0) {
+      return (
+        <span>
+          <strong>❌</strong>
+        </span>
+      )
+    }
+
+    return keywords.map((keyword, index) => (
+      <span key={keyword}>
+        <Code>
+          <Highlight mode={ScoringMode.Blightbane} strong>
+            {keyword}
+          </Highlight>
+        </Code>
+        {index < keywords.length - 1 && (index === keywords.length - 2 ? ' and ' : ', ')}
+      </span>
+    ))
+  }
 
   return (
     <div className={cx('scoring-container')}>
@@ -105,9 +110,9 @@ function KeywordsBonusScoring({ challengeData }: KeywordsBonusScoringProps): JSX
           <>
             <strong>Card base value:</strong>{' '}
             <Highlight mode={ScoringMode.Blightbane} strong>
-              {scoring.cardBaseValue}
+              {cardBaseValue}
             </Highlight>{' '}
-            {scoring.cardBaseValue < 0 ? <em>(negative score)</em> : ''}
+            {cardBaseValue < 0 ? <em>(negative score)</em> : ''}
           </>,
           <>
             <strong>

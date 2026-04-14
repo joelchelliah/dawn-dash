@@ -128,7 +128,7 @@ const calculateCombinationScore = (
 
   // Add score for duplicates with diminishing returns
   for (let i = 0; i < duplicates; i++) {
-    const copyNumber = 2 // We're only considering 2nd copies for now
+    const copyNumber = 2 // We're only considering 2nd copies for now. For more copies the score is too low to be relevant.
     if (copyNumber <= diminishingReturnsLimit) {
       totalScore += getCardCopyScore(baseScore, copyNumber)
     }

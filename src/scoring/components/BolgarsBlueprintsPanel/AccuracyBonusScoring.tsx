@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 
 import { createCx } from '@/shared/utils/classnames'
 import InfoModal from '@/shared/components/Modals/InfoModal'
@@ -24,71 +24,81 @@ function AccuracyBonusScoring({ challengeData }: AccuracyBonusScoringProps): JSX
   const { scoring } = challengeData
   const { accuracyBaseValue, allowNegativeAccuracy, target, buffer } = scoring
 
-  const getDerivedRange = (offset: number) => {
-    if (offset === 0) {
-      return `${target - buffer + 1} - ${target + buffer - 1}`
-    }
-    if (offset < 0) {
-      const end = target - buffer + 2 + (offset + 1) * buffer
-      const start = end - buffer + 1
+  const getDerivedAccuracyRange = useCallback(
+    (offset: number) => {
+      if (offset === 0) {
+        return `${target - buffer + 1} - ${target + buffer - 1}`
+      }
+      if (offset < 0) {
+        const end = target - buffer + 2 + (offset + 1) * buffer
+        const start = end - buffer + 1
+        return `${start} - ${end}`
+      }
+      // offset > 0
+      const start = target + buffer + (offset - 1) * buffer
+      const end = start + buffer - 1
       return `${start} - ${end}`
-    }
-    // offset > 0
-    const start = target + buffer + (offset - 1) * buffer
-    const end = start + buffer - 1
-    return `${start} - ${end}`
-  }
+    },
+    [target, buffer]
+  )
 
-  const accuracyTableColumns = [
-    { header: 'Cards in deck', accessor: 'cards' as const, className: 'bold' },
-    { header: 'Penalty', accessor: 'penalty' as const, className: 'value' },
-    { header: 'Base score', accessor: 'score' as const, className: 'highlighted' },
-  ]
-  const accuracyTableData = [
-    {
-      cards: getDerivedRange(-3),
-      penalty: accuracyBaseValue * 0.3,
-      score: accuracyBaseValue * 0.7,
-    },
-    {
-      cards: getDerivedRange(-2),
-      penalty: accuracyBaseValue * 0.2,
-      score: accuracyBaseValue * 0.8,
-    },
-    {
-      cards: getDerivedRange(-1),
-      penalty: accuracyBaseValue * 0.1,
-      score: accuracyBaseValue * 0.9,
-    },
-    {
-      cards: (
-        <Highlight mode={ScoringMode.Blightbane} strong>
-          {getDerivedRange(0)}
-        </Highlight>
-      ),
-      penalty: (
-        <Highlight mode={ScoringMode.Blightbane} strong>
-          0
-        </Highlight>
-      ),
-      score: accuracyBaseValue,
-    },
-    {
-      cards: getDerivedRange(1),
-      penalty: accuracyBaseValue * 0.1,
-      score: accuracyBaseValue * 0.9,
-    },
-    {
-      cards: getDerivedRange(2),
-      penalty: accuracyBaseValue * 0.2,
-      score: accuracyBaseValue * 0.8,
-    },
-    {
-      cards: getDerivedRange(3),
-      penalty: accuracyBaseValue * 0.3,
-      score: accuracyBaseValue * 0.7,
-    },
-  ]
+  const accuracyTableColumns = useMemo(
+    () => [
+      { header: 'Cards in deck', accessor: 'cards' as const, className: 'bold' },
+      { header: 'Penalty', accessor: 'penalty' as const, className: 'value' },
+      { header: 'Base score', accessor: 'score' as const, className: 'highlighted' },
+    ],
+    []
+  )
+
+  const accuracyTableData = useMemo(
+    () => [
+      {
+        cards: getDerivedAccuracyRange(-3),
+        penalty: accuracyBaseValue * 0.3,
+        score: accuracyBaseValue * 0.7,
+      },
+      {
+        cards: getDerivedAccuracyRange(-2),
+        penalty: accuracyBaseValue * 0.2,
+        score: accuracyBaseValue * 0.8,
+      },
+      {
+        cards: getDerivedAccuracyRange(-1),
+        penalty: accuracyBaseValue * 0.1,
+        score: accuracyBaseValue * 0.9,
+      },
+      {
+        cards: (
+          <Highlight mode={ScoringMode.Blightbane} strong>
+            {getDerivedAccuracyRange(0)}
+          </Highlight>
+        ),
+        penalty: (
+          <Highlight mode={ScoringMode.Blightbane} strong>
+            0
+          </Highlight>
+        ),
+        score: accuracyBaseValue,
+      },
+      {
+        cards: getDerivedAccuracyRange(1),
+        penalty: accuracyBaseValue * 0.1,
+        score: accuracyBaseValue * 0.9,
+      },
+      {
+        cards: getDerivedAccuracyRange(2),
+        penalty: accuracyBaseValue * 0.2,
+        score: accuracyBaseValue * 0.8,
+      },
+      {
+        cards: getDerivedAccuracyRange(3),
+        penalty: accuracyBaseValue * 0.3,
+        score: accuracyBaseValue * 0.7,
+      },
+    ],
+    [accuracyBaseValue, getDerivedAccuracyRange]
+  )
 
   return (
     <div className={cx('scoring-container')}>
@@ -142,7 +152,7 @@ function AccuracyBonusScoring({ challengeData }: AccuracyBonusScoringProps): JSX
         Example <strong>malignancy level</strong> scaling for a perfect <strong>accuracy</strong>{' '}
         bonus (
         <Code>
-          <strong>{getDerivedRange(0)}</strong>
+          <strong>{getDerivedAccuracyRange(0)}</strong>
         </Code>
         ):
       </p>
