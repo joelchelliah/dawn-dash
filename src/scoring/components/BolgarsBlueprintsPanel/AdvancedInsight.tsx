@@ -147,7 +147,7 @@ function AdvancedInsight({ challengeData }: AdvancedInsightProps): JSX.Element {
   const renderWindowBreakTips = () => {
     const subHeader = <h4 className={cx('subheader')}>🪟 &nbsp;Accuracy Window</h4>
 
-    if (cardBaseValue < 0 || keywords.length === 0 || true) {
+    if (cardBaseValue < 0 || keywords.length === 0) {
       const reason =
         cardBaseValue < 0 ? (
           <>
