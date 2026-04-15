@@ -18,6 +18,7 @@ import WeeklyChallengePanel from './components/WeeklyChallengePanel'
 import { useUrlParams } from './hooks/useUrlParams'
 import ExamplesPanel from './components/ExamplesPanel'
 import BolgarsBlueprintsPanel from './components/BolgarsBlueprintsPanel'
+import { useWeeklyChallengeData } from './hooks/useWeeklyChallengeData'
 
 const cx = createCx(styles)
 
@@ -64,6 +65,8 @@ function useScoringScrollToTop() {
 function Scoring(): JSX.Element {
   const { resetToScoring } = useNavigation()
   const { showScrollToTopButton, scrollToTop } = useScoringScrollToTop()
+  const weeklyChallengeData = useWeeklyChallengeData()
+
   const [selectedMode, setSelectedMode] = useState<ScoringMode>(ScoringMode.Standard)
   const [expandedPanel, setExpandedPanel] = useState<ScoringPanelId | null>(
     getDefaultPanelForMode(ScoringMode.Standard)
@@ -156,7 +159,10 @@ function Scoring(): JSX.Element {
         <ExamplesPanel mode={selectedMode} {...getPanelProps(ScoringPanelId.ScoringExample)} />
 
         {selectedMode === ScoringMode.WeeklyChallenge && (
-          <BolgarsBlueprintsPanel {...getPanelProps(ScoringPanelId.BolgarsBlueprints)} />
+          <BolgarsBlueprintsPanel
+            weeklyChallengeData={weeklyChallengeData}
+            {...getPanelProps(ScoringPanelId.BolgarsBlueprints)}
+          />
         )}
       </div>
 

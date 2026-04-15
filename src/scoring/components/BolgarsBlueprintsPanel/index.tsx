@@ -116,6 +116,7 @@ const getFixedValueScoringParameters = ({ scoring }: WeeklyChallengeData) =>
   })
 
 interface BolgarsBlueprintsPanelProps {
+  weeklyChallengeData: ReturnType<typeof useWeeklyChallengeData>
   isExpanded?: boolean
   onShow?: () => void
   onNext?: () => void
@@ -124,13 +125,14 @@ interface BolgarsBlueprintsPanelProps {
 }
 
 function BolgarsBlueprintsPanel({
+  weeklyChallengeData,
   isExpanded,
   onShow,
   onNext,
   isLastPanel,
   panelId,
 }: BolgarsBlueprintsPanelProps): JSX.Element {
-  const { challengeData, isLoading, isError } = useWeeklyChallengeData()
+  const { challengeData, isLoading, isError } = weeklyChallengeData
 
   return (
     <CollapsiblePanel
@@ -153,23 +155,36 @@ function BolgarsBlueprintsPanel({
           <Highlight mode={ScoringMode.Blightbane}>Blightbane</Highlight> scoring system.
         </p>
 
+        <hr className={cx('divider')} />
+
         {isLoading && (
           <div className={cx('loading')}>
-            <LoadingDots text="Loading Weekly Challenge" dotsClassName={cx('loading-dots')} />
+            <LoadingDots
+              text="Loading Weekly Challenge"
+              className={cx('loading-dots-container')}
+              dotsClassName={cx('loading-dots')}
+            />
           </div>
         )}
-        {isError && (
+        {!isLoading && isError && (
           <div className={cx('error')}>
             <span className={cx('error__emoji')}>💀</span>
             <span className={cx('error__text')}>
               Failed to load the current <strong>Weekly Challenge</strong>
-              <span className={cx('error__text')}>. Refresh the page, or try again later.</span>
+              <span className={cx('error__text')}>
+                .{' '}
+                <GradientLink
+                  text="Refresh"
+                  onClick={() => window.location.reload()}
+                  className={cx('error__link')}
+                />{' '}
+                the page, or try again later.
+              </span>
             </span>
           </div>
         )}
         {!isLoading && !isError && challengeData && (
           <>
-            <hr className={cx('divider')} />
             <div className={cx('intro-container')}>
               <div className={cx('intro-container__name')}>⚔️ &nbsp;{challengeData.name}</div>
               <div className={cx('intro-container__intro')}>{challengeData.intro}</div>

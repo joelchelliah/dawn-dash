@@ -2,6 +2,9 @@
 @use '../panelShared' as shared;
 @use 'sass:color' as color;
 
+// To make the triggered scroll go further down even when the page is not ready.
+$additional-loading-and-error-margin: 20rem;
+
 .content {
   @include shared.panel-content;
 }
@@ -16,22 +19,27 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 0.5rem 0 2rem;
+  margin: 0.5rem 0 $additional-loading-and-error-margin;
   color: $color-class-rogue;
   font-weight: 500;
+  font-size: font-size('md');
+}
+
+.loading-dots-container {
+  align-items: center;
+  gap: 1.5rem;
+
+  @media (max-width: $breakpoint-mobile) {
+    flex-direction: column;
+    gap: 2rem;
+  }
 }
 
 .loading-dots {
   color: $color-class-rogue !important;
-  font-size: font-size('xs');
-  margin-left: 0.5rem;
+  font-size: font-size('sm');
   position: relative;
-  top: 0.125rem;
-
-  @media (max-width: $breakpoint-mobile) {
-    font-size: font-size('xxs');
-    margin-left: 0.25rem;
-  }
+  top: 0.25rem;
 }
 
 .error {
@@ -39,6 +47,7 @@
   flex-direction: row;
   align-items: center;
   padding: 1rem;
+  margin: 0.5rem 0 $additional-loading-and-error-margin;
   gap: 0.75rem;
   background: rgba($color-danger-error, 0.2);
   border: 1px dotted rgba($color-danger-error, 0.75);
@@ -51,6 +60,14 @@
   &__text {
     color: $color-primary-muted !important;
     font-weight: 500;
+
+    @media (max-width: $breakpoint-mobile) {
+      font-size: font-size('xs');
+    }
+  }
+
+  &__link {
+    font-size: font-size('sm');
 
     @media (max-width: $breakpoint-mobile) {
       font-size: font-size('xs');
