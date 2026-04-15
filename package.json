@@ -49,7 +49,8 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "sync-events": "node scripts/sync-events.js"
+    "sync-events": "node scripts/sync-events.js",
+    "sync-artwork": "node scripts/fetch-card-artwork-mapping.js"
   },
   "devDependencies": {
     "@types/serviceworker": "^0.0.107",

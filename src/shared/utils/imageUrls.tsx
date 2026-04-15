@@ -59,3 +59,6 @@ export const ChestImageUrl = `${blightbaneImagesUrl}/events/opportunity_image.we
 
 export const EventArtworkImageUrl = (artwork: string) =>
   `${blightbaneImagesUrl}/events/${encodeURIComponent(artwork)}.webp`
+
+export const CardArtworkImageUrl = (artwork: string) =>
+  `${blightbaneImagesUrl}/icons/${encodeURIComponent(artwork)}.webp`

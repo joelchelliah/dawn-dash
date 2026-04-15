@@ -107,6 +107,9 @@ $additional-loading-and-error-margin: 20rem;
     margin: 0;
     padding: 0;
     color: $color-class-rogue;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 
     @media (max-width: $breakpoint-mobile) {
       position: relative;
@@ -117,16 +120,32 @@ $additional-loading-and-error-margin: 20rem;
     }
   }
 
+  &__icon {
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+    border-radius: 0.25rem;
+    border: 1px dotted color.adjust($color-class-rogue-border, $alpha: -0.25);
+
+    @media (max-width: $breakpoint-mobile) {
+      width: 28px;
+      height: 28px;
+    }
+  }
+
   &__intro {
     font-size: font-size('xs');
     margin-left: 0.25rem;
     font-style: italic;
     color: $color-primary-muted;
     flex: 1;
+    position: relative;
+    top: 0.325rem;
 
     @media (max-width: $breakpoint-mobile) {
       font-size: font-size('xxs');
       margin-left: 0;
+      top: 0;
     }
   }
 }

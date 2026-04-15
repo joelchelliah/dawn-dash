@@ -4,9 +4,11 @@ import { BolgarCreatureImageUrl } from '@/shared/utils/imageUrls'
 import { createCx } from '@/shared/utils/classnames'
 import LoadingDots from '@/shared/components/LoadingDots'
 import GradientLink from '@/shared/components/GradientLink'
+import Image from '@/shared/components/Image'
 
 import { FixedValueAction, ScoringMode, WeeklyChallengeData } from '@/scoring/types'
 import { useWeeklyChallengeData } from '@/scoring/hooks/useWeeklyChallengeData'
+import { useCardImageSrc } from '@/scoring/hooks/useCardImageSrc'
 
 import Highlight from '../Highlight'
 import CollapsiblePanel from '../CollapsiblePanel'
@@ -133,6 +135,7 @@ function BolgarsBlueprintsPanel({
   panelId,
 }: BolgarsBlueprintsPanelProps): JSX.Element {
   const { challengeData, isLoading, isError } = weeklyChallengeData
+  const { cardImageSrc, onImageSrcError } = useCardImageSrc(challengeData?.image || '')
 
   return (
     <CollapsiblePanel
@@ -186,7 +189,19 @@ function BolgarsBlueprintsPanel({
         {!isLoading && !isError && challengeData && (
           <>
             <div className={cx('intro-container')}>
-              <div className={cx('intro-container__name')}>⚔️ &nbsp;{challengeData.name}</div>
+              <div className={cx('intro-container__name')}>
+                {cardImageSrc && (
+                  <Image
+                    src={cardImageSrc}
+                    alt={`${challengeData.image} image`}
+                    height={36}
+                    width={36}
+                    className={cx('intro-container__icon')}
+                    onError={onImageSrcError}
+                  />
+                )}
+                {challengeData.name}
+              </div>
               <div className={cx('intro-container__intro')}>{challengeData.intro}</div>
             </div>
             <div className={cx('meta-container')}>
