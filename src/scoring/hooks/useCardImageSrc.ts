@@ -21,7 +21,7 @@ export function useCardImageSrc(cardName: string): {
   useEffect(() => {
     const artwork = getArtworkForCard(cardName)
     setCardImageSrc(artwork ? CardArtworkImageUrl(artwork) : defaultImageSrc)
-  }, [cardName])
+  }, [cardName, defaultImageSrc])
 
   return { cardImageSrc, onImageSrcError }
 }

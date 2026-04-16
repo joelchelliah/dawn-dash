@@ -15,7 +15,7 @@ import Image from '@/shared/components/Image'
 
 import { ScoringMode } from '@/scoring/types'
 
-import CollapsiblePanel from '../CollapsiblePanel'
+import BasePanel from '../BasePanel'
 import Highlight from '../Highlight'
 import ScoringList from '../ScoringList'
 import ExampleBox from '../ExampleBox'
@@ -210,32 +210,31 @@ const ICON_KEYWORDS = [
 ]
 
 interface BlightbaneScorePanelProps {
-  isExpanded?: boolean
-  onShow?: () => void
   onNext?: () => void
+  onPrevious?: () => void
+  isFirstPanel?: boolean
   isLastPanel?: boolean
   panelId?: string
 }
 
 function BlightbaneScorePanel({
-  isExpanded,
-  onShow,
   onNext,
+  onPrevious,
+  isFirstPanel,
   isLastPanel,
   panelId,
 }: BlightbaneScorePanelProps): JSX.Element {
   const mode = ScoringMode.Blightbane
 
   return (
-    <CollapsiblePanel
+    <BasePanel
       title={'Blightbane Score'}
       imageUrl={AnimaImageUrl}
       mode={mode}
-      collapsible
       isLongTitle
-      isExpanded={isExpanded}
-      onShow={onShow}
       onNext={onNext}
+      onPrevious={onPrevious}
+      isFirstPanel={isFirstPanel}
       isLastPanel={isLastPanel}
       panelId={panelId}
     >
@@ -622,7 +621,7 @@ function BlightbaneScorePanel({
         />
         <p>If you cannot see it in your deck outside of combat, it will not count.</p>
       </div>
-    </CollapsiblePanel>
+    </BasePanel>
   )
 }
 

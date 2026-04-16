@@ -4,7 +4,7 @@ import GradientLink from '@/shared/components/GradientLink'
 
 import { ScoringMode } from '@/scoring/types'
 
-import CollapsiblePanel from '../CollapsiblePanel'
+import BasePanel from '../BasePanel'
 import IllustratedScoringInfo from '../IllustratedScoringInfo'
 import Highlight from '../Highlight'
 import ScoringList from '../ScoringList'
@@ -14,34 +14,32 @@ import styles from './index.module.scss'
 const cx = createCx(styles)
 
 interface WeeklyChallengePanelProps {
-  isExpanded?: boolean
-  onShow?: () => void
   onNext?: () => void
+  onPrevious?: () => void
+  isFirstPanel?: boolean
   isLastPanel?: boolean
   panelId?: string
 }
 
 function WeeklyChallengePanel({
-  isExpanded,
-  onShow,
   onNext,
+  onPrevious,
+  isFirstPanel,
   isLastPanel,
   panelId,
 }: WeeklyChallengePanelProps): JSX.Element {
   const mode = ScoringMode.WeeklyChallenge
 
   return (
-    <CollapsiblePanel
+    <BasePanel
       title={'Weekly Challenge Score'}
       titleShort={'Weekly Challenge'}
       imageUrl={BigBombImageUrl}
       mode={mode}
-      collapsible
-      defaultExpanded
       isLongTitle
-      isExpanded={isExpanded}
-      onShow={onShow}
       onNext={onNext}
+      onPrevious={onPrevious}
+      isFirstPanel={isFirstPanel}
       isLastPanel={isLastPanel}
       panelId={panelId}
     >
@@ -129,7 +127,7 @@ function WeeklyChallengePanel({
           several of the <strong>scoring components</strong> that we will be covering below.
         </p>
       </div>
-    </CollapsiblePanel>
+    </BasePanel>
   )
 }
 

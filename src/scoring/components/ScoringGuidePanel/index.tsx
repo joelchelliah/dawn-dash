@@ -8,7 +8,7 @@ import {
 import { CharacterClass } from '@/shared/types/characterClass'
 
 import { ScoringMode, ScoringPanelId } from '../../types'
-import CollapsiblePanel from '../CollapsiblePanel'
+import BasePanel from '../BasePanel'
 import ContentNavigation from '../ContentNavigation'
 
 import styles from './index.module.scss'
@@ -50,7 +50,7 @@ function ScoringGuidePanel({
   onNavigateToSection,
 }: ScoringGuidePanelProps): JSX.Element {
   return (
-    <CollapsiblePanel>
+    <BasePanel>
       <div className={cx('content')}>
         <p className={cx('notice')}>
           🏆 An in-depth guide to maximizing your score in each game mode of{' '}
@@ -76,7 +76,7 @@ function ScoringGuidePanel({
           onNavigate={onNavigateToSection}
         />
       </div>
-    </CollapsiblePanel>
+    </BasePanel>
   )
 }
 

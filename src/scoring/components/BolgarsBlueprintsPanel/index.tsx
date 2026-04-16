@@ -11,7 +11,7 @@ import { useWeeklyChallengeData } from '@/scoring/hooks/useWeeklyChallengeData'
 import { useCardImageSrc } from '@/scoring/hooks/useCardImageSrc'
 
 import Highlight from '../Highlight'
-import CollapsiblePanel from '../CollapsiblePanel'
+import BasePanel from '../BasePanel'
 import ParameterInfoList from '../ParameterInfoList'
 
 import KeywordsBonusScoring from './KeywordsBonusScoring'
@@ -119,18 +119,18 @@ const getFixedValueScoringParameters = ({ scoring }: WeeklyChallengeData) =>
 
 interface BolgarsBlueprintsPanelProps {
   weeklyChallengeData: ReturnType<typeof useWeeklyChallengeData>
-  isExpanded?: boolean
-  onShow?: () => void
   onNext?: () => void
+  onPrevious?: () => void
+  isFirstPanel?: boolean
   isLastPanel?: boolean
   panelId?: string
 }
 
 function BolgarsBlueprintsPanel({
   weeklyChallengeData,
-  isExpanded,
-  onShow,
   onNext,
+  onPrevious,
+  isFirstPanel,
   isLastPanel,
   panelId,
 }: BolgarsBlueprintsPanelProps): JSX.Element {
@@ -138,15 +138,14 @@ function BolgarsBlueprintsPanel({
   const { cardImageSrc, onImageSrcError } = useCardImageSrc(challengeData?.image || '')
 
   return (
-    <CollapsiblePanel
+    <BasePanel
       title={"Bolgar's Blueprints"}
       imageUrl={BolgarCreatureImageUrl}
       mode={ScoringMode.Blightbane}
-      collapsible
       isLongTitle
-      isExpanded={isExpanded}
-      onShow={onShow}
       onNext={onNext}
+      onPrevious={onPrevious}
+      isFirstPanel={isFirstPanel}
       isLastPanel={isLastPanel}
       panelId={panelId}
     >
@@ -245,7 +244,7 @@ function BolgarsBlueprintsPanel({
           </>
         )}
       </div>
-    </CollapsiblePanel>
+    </BasePanel>
   )
 }
 

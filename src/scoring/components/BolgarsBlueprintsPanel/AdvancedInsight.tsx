@@ -14,7 +14,6 @@ import {
 import Highlight from '../Highlight'
 
 import styles from './index.module.scss'
-import { isNotNullOrUndefined } from '@/shared/utils/object'
 
 const cx = createCx(styles)
 

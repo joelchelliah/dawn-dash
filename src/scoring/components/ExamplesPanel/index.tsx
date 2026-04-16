@@ -15,7 +15,7 @@ import { CharacterClass } from '@/shared/types/characterClass'
 
 import { ScoringMode } from '@/scoring/types'
 
-import CollapsiblePanel from '../CollapsiblePanel'
+import BasePanel from '../BasePanel'
 import Highlight from '../Highlight'
 import IllustratedScoringInfo from '../IllustratedScoringInfo'
 import ScoringList from '../ScoringList'
@@ -27,18 +27,18 @@ const cx = createCx(styles)
 
 type ExamplesPanelProps = {
   mode: ScoringMode
-  isExpanded?: boolean
-  onShow?: () => void
   onNext?: () => void
+  onPrevious?: () => void
+  isFirstPanel?: boolean
   isLastPanel?: boolean
   panelId?: string
 }
 
 function ExamplesPanel({
   mode,
-  isExpanded,
-  onShow,
   onNext,
+  onPrevious,
+  isFirstPanel,
   isLastPanel,
   panelId,
 }: ExamplesPanelProps): JSX.Element {
@@ -326,15 +326,14 @@ function ExamplesPanel({
   )
 
   return (
-    <CollapsiblePanel
+    <BasePanel
       title={'Scoring example'}
       imageUrl={getImageUrl()}
       mode={mode}
-      collapsible
       isLongTitle
-      isExpanded={isExpanded}
-      onShow={onShow}
       onNext={onNext}
+      onPrevious={onPrevious}
+      isFirstPanel={isFirstPanel}
       isLastPanel={isLastPanel}
       panelId={panelId}
     >
@@ -361,7 +360,7 @@ function ExamplesPanel({
           />
         </>
       </Modal>
-    </CollapsiblePanel>
+    </BasePanel>
   )
 }
 

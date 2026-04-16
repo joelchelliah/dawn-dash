@@ -8,7 +8,7 @@ import InfoModal from '@/shared/components/Modals/InfoModal'
 
 import { ScoringMode } from '@/scoring/types'
 
-import CollapsiblePanel from '../CollapsiblePanel'
+import BasePanel from '../BasePanel'
 import ExampleBox from '../ExampleBox'
 import Highlight from '../Highlight'
 import IllustratedScoringInfo from '../IllustratedScoringInfo'
@@ -22,9 +22,9 @@ const cx = createCx(styles)
 
 interface InGameScorePanelProps {
   mode: ScoringMode
-  isExpanded?: boolean
-  onShow?: () => void
   onNext?: () => void
+  onPrevious?: () => void
+  isFirstPanel?: boolean
   isLastPanel?: boolean
   panelId?: string
 }
@@ -128,9 +128,9 @@ function getIntroText(mode: ScoringMode): JSX.Element {
 
 function InGameScorePanel({
   mode,
-  isExpanded,
-  onShow,
   onNext,
+  onPrevious,
+  isFirstPanel,
   isLastPanel,
   panelId,
 }: InGameScorePanelProps): JSX.Element {
@@ -140,14 +140,13 @@ function InGameScorePanel({
     mode === ScoringMode.Sunforge ? '/scoring/sunforge-intro.webp' : '/scoring/standard-intro.webp'
 
   return (
-    <CollapsiblePanel
+    <BasePanel
       title={title}
       imageUrl={mode === ScoringMode.Sunforge ? AuraOfPurityImageUrl : AdaptiveEdgeImageUrl}
       mode={mode}
-      collapsible
-      isExpanded={isExpanded}
-      onShow={onShow}
       onNext={onNext}
+      onPrevious={onPrevious}
+      isFirstPanel={isFirstPanel}
       isLastPanel={isLastPanel}
       panelId={panelId}
     >
@@ -370,7 +369,7 @@ function InGameScorePanel({
           </>
         </ExampleBox>
       )}
-    </CollapsiblePanel>
+    </BasePanel>
   )
 }
 

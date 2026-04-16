@@ -1,2 +1,5 @@
 # Data files
 src/codex/data/event-trees.json
+
+# Scoring data files
+src/shared/data/card-artwork.json

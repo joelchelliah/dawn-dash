@@ -22,8 +22,7 @@ import { useWeeklyChallengeData } from './hooks/useWeeklyChallengeData'
 
 const cx = createCx(styles)
 
-// Wait for panel to expand, then scroll it into view
-const SCROLL_DELAY = 150
+const SCROLL_DELAY = 50
 
 const getDefaultPanelForMode = (mode: ScoringMode): ScoringPanelId => {
   switch (mode) {
@@ -68,7 +67,7 @@ function Scoring(): JSX.Element {
   const weeklyChallengeData = useWeeklyChallengeData()
 
   const [selectedMode, setSelectedMode] = useState<ScoringMode>(ScoringMode.Standard)
-  const [expandedPanel, setExpandedPanel] = useState<ScoringPanelId | null>(
+  const [selectedPanel, setSelectedPanel] = useState<ScoringPanelId | null>(
     getDefaultPanelForMode(ScoringMode.Standard)
   )
 
@@ -83,11 +82,11 @@ function Scoring(): JSX.Element {
 
   // Reset to default panel when mode changes
   useEffect(() => {
-    setExpandedPanel(getDefaultPanelForMode(selectedMode))
+    setSelectedPanel(getDefaultPanelForMode(selectedMode))
   }, [selectedMode])
 
   const handlePanelToggle = (panelId: ScoringPanelId) => {
-    setExpandedPanel(panelId)
+    setSelectedPanel(panelId)
 
     setTimeout(() => {
       const panelElement = document.querySelector(`[data-panel-id="${panelId}"]`)
@@ -114,6 +113,26 @@ function Scoring(): JSX.Element {
     return undefined
   }
 
+  const getPreviousPanelHandler = (currentPanelId: ScoringPanelId) => {
+    const panelOrder = getPanelOrder(selectedMode)
+    const currentIndex = panelOrder.indexOf(currentPanelId)
+
+    if (currentIndex > 0) {
+      const previousPanelId = panelOrder[currentIndex - 1]
+
+      return () => handlePanelToggle(previousPanelId)
+    }
+
+    return undefined
+  }
+
+  const isFirstPanel = (panelId: ScoringPanelId): boolean => {
+    const panelOrder = getPanelOrder(selectedMode)
+    const currentIndex = panelOrder.indexOf(panelId)
+
+    return currentIndex === 0
+  }
+
   const isLastPanel = (panelId: ScoringPanelId): boolean => {
     const panelOrder = getPanelOrder(selectedMode)
     const currentIndex = panelOrder.indexOf(panelId)
@@ -122,9 +141,9 @@ function Scoring(): JSX.Element {
   }
 
   const getPanelProps = (panelId: ScoringPanelId) => ({
-    isExpanded: expandedPanel === panelId,
-    onShow: () => handlePanelToggle(panelId),
     onNext: getNextPanelHandler(panelId),
+    onPrevious: getPreviousPanelHandler(panelId),
+    isFirstPanel: isFirstPanel(panelId),
     isLastPanel: isLastPanel(panelId),
     panelId,
   })
@@ -142,7 +161,7 @@ function Scoring(): JSX.Element {
       <div className={cx('content')}>
         <ScoringGuidePanel
           selectedMode={selectedMode}
-          selectedPanelId={expandedPanel}
+          selectedPanelId={selectedPanel}
           onModeChange={setSelectedMode}
           onNavigateToSection={handlePanelToggle}
         />
