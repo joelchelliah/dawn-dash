@@ -206,6 +206,8 @@ $additional-loading-and-error-margin: 20rem;
 
 .subheader {
   font-size: font-size('sm');
+  letter-spacing: 0.025em;
+  opacity: 0.85;
   font-weight: 800;
   margin: 0;
 }
@@ -242,6 +244,14 @@ $additional-loading-and-error-margin: 20rem;
 
   @media (max-width: $breakpoint-mobile) {
     font-size: font-size('xs');
+  }
+}
+
+.insight-paragraph {
+  padding-left: 0.75rem;
+
+  @media (max-width: $breakpoint-mobile) {
+    padding-left: 0.5rem;
   }
 }
 

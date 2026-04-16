@@ -153,9 +153,9 @@ function BolgarsBlueprintsPanel({
       <div className={cx('content')}>
         <p>
           An auto-generated <strong>score guide</strong>, specifically targeting the current{' '}
-          <Highlight mode={ScoringMode.WeeklyChallenge}>Weekly Challenge</Highlight>. Requires that
-          you have a basic understanding of the{' '}
-          <Highlight mode={ScoringMode.Blightbane}>Blightbane</Highlight> scoring system.
+          <Highlight mode={ScoringMode.WeeklyChallenge}>Weekly Challenge</Highlight>. Requires a{' '}
+          basic understanding of the <Highlight mode={ScoringMode.Blightbane}>Blightbane</Highlight>{' '}
+          scoring system.
         </p>
 
         <hr className={cx('divider')} />

@@ -4,6 +4,26 @@
 
 export type Rarity = 'Common' | 'Uncommon' | 'Rare' | 'Legendary'
 
+export interface VersatilityRank {
+  rank: string
+  threshold: number
+  points: number
+}
+
+// Versatility ranks based on number of distinct cards in deck
+// Data from ParameterRankTable component
+export const VERSATILITY_RANKS: VersatilityRank[] = [
+  { rank: 'IX', threshold: 101, points: 2000 },
+  { rank: 'VIII', threshold: 71, points: 1750 },
+  { rank: 'VII', threshold: 59, points: 1500 },
+  { rank: 'VI', threshold: 42, points: 1000 },
+  { rank: 'V', threshold: 31, points: 750 },
+  { rank: 'IV', threshold: 20, points: 500 },
+  { rank: 'III', threshold: 10, points: 250 },
+  { rank: 'II', threshold: 6, points: 50 },
+  { rank: 'I', threshold: 0, points: 0 }, // Fallback rank
+]
+
 export interface CardCombination {
   rarity: Rarity
   distinctCards: number
@@ -173,6 +193,28 @@ const generateCalculation = (
   return parts.join(' + ')
 }
 
+export const calculateCardEquivalentToGivenPoints = (
+  points: number,
+  cardBaseValue: number,
+  isFixedScore: boolean
+): string => {
+  const rarities: Rarity[] = ['Legendary', 'Rare', 'Uncommon', 'Common']
+
+  for (const rarity of rarities) {
+    const baseScore = getCardScoreScaledByRarity(rarity, cardBaseValue)
+    const scoreAtMaxMalignancy = Math.ceil(baseScore * (1 + 220 / 100))
+    const equivalent = points / (isFixedScore ? scoreAtMaxMalignancy : baseScore)
+
+    if (equivalent >= 1 || rarity === 'Common') {
+      // Remove .0 suffix from whole numbers
+      const formatted = equivalent.toFixed(1).replace('.0', '')
+      return `${formatted} ${rarity}`
+    }
+  }
+
+  return '0 Common'
+}
+
 export interface FixedVsKeywordsComparison {
   fixedPoints: number
   cardName: string
@@ -225,4 +267,53 @@ export const compareFixedVsKeywordsBonus = (
     outscalingRarity: null,
     baseKeywordScore: getCardScoreScaledByRarity('Common', cardBaseValue),
   }
+}
+
+/**
+ * Calculate the accuracy window range based on target and buffer values.
+ * Returns a string representation like "17 - 23"
+ */
+export const getAccuracyWindowRange = (target: number, buffer: number): string => {
+  const start = target - buffer + 1
+  const end = target + buffer - 1
+  return `${start} - ${end}`
+}
+
+export interface VersatilityRankResult {
+  rank: string
+  rankBelow: string | undefined
+  threshold: number
+  additionalPoints: number
+  maxCardsInWindow: number
+}
+
+/**
+ * Find the highest versatility rank achievable while staying within the accuracy window.
+ * The accuracy window is [target - buffer + 1, target + buffer - 1].
+ */
+export const findHighestVersatilityRankInRange = (
+  target: number,
+  buffer: number
+): VersatilityRankResult | undefined => {
+  const maxCardsInWindow = target + buffer - 1
+
+  for (let i = 0; i < VERSATILITY_RANKS.length; i++) {
+    const rank = VERSATILITY_RANKS[i]
+    const hasRankBelow = i < VERSATILITY_RANKS.length - 1
+    const additionalPoints = hasRankBelow
+      ? rank.points - VERSATILITY_RANKS[i + 1].points
+      : rank.points
+
+    if (maxCardsInWindow >= rank.threshold) {
+      return {
+        rank: rank.rank,
+        rankBelow: hasRankBelow ? VERSATILITY_RANKS[i + 1].rank : undefined,
+        threshold: rank.threshold,
+        additionalPoints,
+        maxCardsInWindow,
+      }
+    }
+  }
+
+  return undefined
 }
