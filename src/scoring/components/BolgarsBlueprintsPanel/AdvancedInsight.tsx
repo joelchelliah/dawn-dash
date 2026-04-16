@@ -236,7 +236,7 @@ function AdvancedInsight({ challengeData }: AdvancedInsightProps): JSX.Element {
             <Highlight mode={ScoringMode.Blightbane}>
               {justAbove.totalScore - breakTarget}
             </Highlight>{' '}
-            points .
+            points.
           </>
         )}
       </p>

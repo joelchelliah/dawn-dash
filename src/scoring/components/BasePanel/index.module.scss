@@ -10,6 +10,7 @@
 
   @media (max-width: $breakpoint-mobile) {
     padding: 1rem;
+    scroll-margin-top: 4rem;
   }
 }
 
@@ -55,6 +56,12 @@
   &__navigation {
     display: flex;
     gap: 0.75rem;
+  }
+
+  &__navigation-button {
+    @media (max-width: $breakpoint-mobile) {
+      min-width: 2rem !important;
+    }
   }
 
   &__image {

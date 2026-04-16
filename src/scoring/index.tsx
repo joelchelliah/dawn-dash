@@ -22,7 +22,7 @@ import { useWeeklyChallengeData } from './hooks/useWeeklyChallengeData'
 
 const cx = createCx(styles)
 
-const SCROLL_DELAY = 50
+const SCROLL_DELAY = 150
 
 const getDefaultPanelForMode = (mode: ScoringMode): ScoringPanelId => {
   switch (mode) {

@@ -66,13 +66,21 @@ function BasePanel({
           {mode && (onNext || onPrevious) && (
             <div className={cx('panel-header__navigation')}>
               {!isFirstPanel && onPrevious && (
-                <ScoringButton onClick={onPrevious} mode={mode}>
-                  Previous
+                <ScoringButton
+                  onClick={onPrevious}
+                  mode={mode}
+                  className={cx('panel-header__navigation-button')}
+                >
+                  {isMobile ? '«' : 'Previous'}
                 </ScoringButton>
               )}
               {!isLastPanel && onNext && (
-                <ScoringButton onClick={onNext} mode={mode}>
-                  Next
+                <ScoringButton
+                  onClick={onNext}
+                  mode={mode}
+                  className={cx('panel-header__navigation-button')}
+                >
+                  {isMobile ? '»' : 'Next'}
                 </ScoringButton>
               )}
             </div>
