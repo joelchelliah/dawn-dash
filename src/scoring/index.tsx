@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 
 import { createCx } from '@/shared/utils/classnames'
 import { useNavigation } from '@/shared/hooks/useNavigation'
@@ -19,23 +19,9 @@ import { useUrlParams } from './hooks/useUrlParams'
 import ExamplesPanel from './components/ExamplesPanel'
 import BolgarsBlueprintsPanel from './components/BolgarsBlueprintsPanel'
 import { useWeeklyChallengeData } from './hooks/useWeeklyChallengeData'
+import { useSelectedPanel } from './hooks/useSelectedPanel'
 
 const cx = createCx(styles)
-
-const SCROLL_DELAY = 150
-
-const getDefaultPanelForMode = (mode: ScoringMode): ScoringPanelId => {
-  switch (mode) {
-    case ScoringMode.Standard:
-      return ScoringPanelId.StandardScore
-    case ScoringMode.Sunforge:
-      return ScoringPanelId.SunforgeScore
-    case ScoringMode.WeeklyChallenge:
-      return ScoringPanelId.WeeklyChallengeScore
-    default:
-      return ScoringPanelId.StandardScore
-  }
-}
 
 const getPanelOrder = (mode: ScoringMode): ScoringPanelId[] => {
   switch (mode) {
@@ -65,11 +51,8 @@ function Scoring(): JSX.Element {
   const { resetToScoring } = useNavigation()
   const { showScrollToTopButton, scrollToTop } = useScoringScrollToTop()
   const weeklyChallengeData = useWeeklyChallengeData()
-
   const [selectedMode, setSelectedMode] = useState<ScoringMode>(ScoringMode.Standard)
-  const [selectedPanel, setSelectedPanel] = useState<ScoringPanelId | null>(
-    getDefaultPanelForMode(ScoringMode.Standard)
-  )
+  const { selectedPanel, onSelectPanel } = useSelectedPanel(selectedMode)
 
   useUrlParams(selectedMode, setSelectedMode)
 
@@ -80,26 +63,6 @@ function Scoring(): JSX.Element {
       ? ScoringPanelId.SunforgeScore
       : ScoringPanelId.StandardScore
 
-  // Reset to default panel when mode changes
-  useEffect(() => {
-    setSelectedPanel(getDefaultPanelForMode(selectedMode))
-  }, [selectedMode])
-
-  const handlePanelToggle = (panelId: ScoringPanelId) => {
-    setSelectedPanel(panelId)
-
-    setTimeout(() => {
-      const panelElement = document.querySelector(`[data-panel-id="${panelId}"]`)
-
-      if (panelElement) {
-        panelElement.scrollIntoView({
-          behavior: 'smooth',
-          block: 'start',
-        })
-      }
-    }, SCROLL_DELAY)
-  }
-
   const getNextPanelHandler = (currentPanelId: ScoringPanelId) => {
     const panelOrder = getPanelOrder(selectedMode)
     const currentIndex = panelOrder.indexOf(currentPanelId)
@@ -107,7 +70,7 @@ function Scoring(): JSX.Element {
     if (currentIndex !== -1 && currentIndex < panelOrder.length - 1) {
       const nextPanelId = panelOrder[currentIndex + 1]
 
-      return () => handlePanelToggle(nextPanelId)
+      return () => onSelectPanel(nextPanelId)
     }
 
     return undefined
@@ -120,7 +83,7 @@ function Scoring(): JSX.Element {
     if (currentIndex > 0) {
       const previousPanelId = panelOrder[currentIndex - 1]
 
-      return () => handlePanelToggle(previousPanelId)
+      return () => onSelectPanel(previousPanelId)
     }
 
     return undefined
@@ -163,7 +126,7 @@ function Scoring(): JSX.Element {
           selectedMode={selectedMode}
           selectedPanelId={selectedPanel}
           onModeChange={setSelectedMode}
-          onNavigateToSection={handlePanelToggle}
+          onNavigateToSection={onSelectPanel}
         />
 
         {selectedMode === ScoringMode.WeeklyChallenge && (
