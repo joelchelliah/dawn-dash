@@ -91,11 +91,7 @@ function AdvancedInsight({ challengeData }: AdvancedInsightProps): JSX.Element {
 
     const maxRankTips = (
       <p className={cx('insight-paragraph')}>
-        The additional{' '}
-        <Highlight mode={ScoringMode.Blightbane} strong>
-          500
-        </Highlight>{' '}
-        points for advancing from rank{' '}
+        Advancing from rank{' '}
         <Highlight mode={ScoringMode.Blightbane} strong>
           VIII
         </Highlight>{' '}
@@ -103,8 +99,8 @@ function AdvancedInsight({ challengeData }: AdvancedInsightProps): JSX.Element {
         <Highlight mode={ScoringMode.Blightbane} strong>
           XI
         </Highlight>{' '}
-        in <strong>Damage</strong>, <strong>Awareness</strong> or <strong>Wealth</strong> parameter,
-        is worth{' '}
+        in the <strong>Damage</strong>, <strong>Awareness</strong> and <strong>Wealth</strong>{' '}
+        parameters (<Highlight mode={ScoringMode.Blightbane}>500</Highlight>), are each worth{' '}
         <Code>
           <strong>{equivalent}</strong>
         </Code>{' '}
@@ -158,7 +154,7 @@ function AdvancedInsight({ challengeData }: AdvancedInsightProps): JSX.Element {
                 never gets outscaled by a <strong>keyword</strong> card. At max (
                 <Highlight mode={ScoringMode.Blightbane}>220%</Highlight>){' '}
                 <strong>malignancy</strong>, this is worth{' '}
-                <Code wrap="mobile">
+                <Code>
                   <strong>{equivalent}</strong>
                 </Code>{' '}
                 <strong>keyword</strong> card(s).
@@ -246,7 +242,7 @@ function AdvancedInsight({ challengeData }: AdvancedInsightProps): JSX.Element {
   return (
     <div className={cx('scoring-container')}>
       <p>
-        Additional number-crunching based on the above values.{' '}
+        Some additional number-crunching.{' '}
         <span className={cx('warning')}>Experimental feature!</span>
       </p>
 
