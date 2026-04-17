@@ -153,3 +153,28 @@
     width: auto;
   }
 }
+
+.notification-message {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  &__icon {
+    font-size: font-size('md');
+    margin-right: 0.25rem;
+  }
+
+  &__text {
+    font-size: font-size('xs');
+  }
+
+  @media (max-width: $breakpoint-mobile) {
+    &__icon {
+      font-size: font-size('sm');
+    }
+
+    &__text {
+      font-size: font-size('xxs');
+    }
+  }
+}

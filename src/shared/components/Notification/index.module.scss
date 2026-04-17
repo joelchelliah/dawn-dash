@@ -45,6 +45,10 @@
   color: $color-primary-base;
   font-size: font-size('sm');
   line-height: 1.4;
+
+  @media (max-width: $breakpoint-mobile) {
+    font-size: font-size('xs');
+  }
 }
 
 .close-button {

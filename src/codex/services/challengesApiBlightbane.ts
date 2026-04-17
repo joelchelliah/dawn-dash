@@ -43,6 +43,23 @@ export const fetchLatestChallengeData = async (): Promise<ChallengeData | null> 
       card: challengeCard,
     } = challenge
 
+    const keywords =
+      scoringParams.cardBaseValue > 0 ? new Set(scoringParams.keywords) : new Set<string>()
+    const specialKeywords = new Set(
+      scoringParams.miscPointsRules
+        .filter(
+          (rule) =>
+            ['DeckContainsCard', 'PointsPerCard'].includes(rule.action) && rule.pointValue > 0
+        )
+        .map((rule) => rule.keyword)
+    )
+
+    const hadNegativeKeywords =
+      scoringParams.cardBaseValue < 0 ||
+      scoringParams.miscPointsRules.some(
+        (rule) => ['DeckContainsCard', 'PointsPerCard'].includes(rule.action) && rule.pointValue < 0
+      )
+
     const isSingleSetupAvailable =
       isNonEmptyString(challengeClass) &&
       isNonEmptyString(challengeWeapon) &&
@@ -78,12 +95,9 @@ export const fetchLatestChallengeData = async (): Promise<ChallengeData | null> 
     return {
       id: latestChallengeId,
       name,
-      keywords: new Set(scoringParams.keywords),
-      specialKeywords: new Set(
-        scoringParams.miscPointsRules
-          .filter((rule) => rule.action === 'DeckContainsCard')
-          .map((rule) => rule.keyword)
-      ),
+      keywords,
+      specialKeywords,
+      hadNegativeKeywords,
       banners,
       cardSets: new Set(cardSets as CardSet[]),
     }

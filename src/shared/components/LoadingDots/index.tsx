@@ -11,12 +11,7 @@ interface LoadingDotsProps {
   dotsClassName?: string
 }
 
-function LoadingDots({
-  text = 'Loading',
-  color = '#bbb',
-  className,
-  dotsClassName,
-}: LoadingDotsProps) {
+function LoadingDots({ text, color = '#bbb', className, dotsClassName }: LoadingDotsProps) {
   return (
     <div className={cx('container', className)}>
       {text}{' '}

@@ -226,6 +226,7 @@ export type WeeklyChallengeFilterData = {
   name: string
   keywords: Set<string>
   specialKeywords: Set<string>
+  hadNegativeKeywords: boolean
   cardSets: Set<CardSet>
   banners: Set<Banner>
 }

@@ -16,6 +16,7 @@ export function useWeeklyChallengeFilterData() {
         name: data.name,
         keywords: data.keywords,
         specialKeywords: data.specialKeywords,
+        hadNegativeKeywords: data.hadNegativeKeywords,
         cardSets: data.cardSets,
         banners: data.banners,
       }
