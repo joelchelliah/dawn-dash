@@ -7,6 +7,7 @@ export const mapAndSortCardsResponse = (cards: CardApiResponse[]): CardData[] =>
       ...card,
       blightbane_id: card.id,
       expansion: getActualExpansion(card),
+      color: getActualColor(card),
     }))
   )
 
@@ -44,6 +45,12 @@ const getActualExpansion = (card: CardApiResponse | CardData): number => {
   if (ACTUALLY_SYNTHESIS_CARDS.includes(card.name)) return 8
 
   return card.expansion
+}
+
+const getActualColor = (card: CardApiResponse): number => {
+  if (card.name === 'Infernal Racket') return 9 // Black banner
+
+  return card.color
 }
 
 const ACTUALLY_CORE_CARDS = [
