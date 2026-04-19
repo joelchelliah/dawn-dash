@@ -12,7 +12,7 @@ export default function ScoringPage() {
   const description =
     'Detailed Dawncaster scoring guides, specifically tailored to help you maximize your scores in Standard mode, Sunforge, and the Weekly Challenges!'
   const ogDescription =
-    'Detailed Dawncaster scoring guides, specifically tailored for Standard mode, Sunforge, and the Weekly Challenges!'
+    'Detailed Dawncaster scoring guides, for Standard mode, Sunforge, and the Weekly Challenges!'
 
   const image = 'https://www.dawn-dash.com/og-image-scoring.png'
   const url = 'https://www.dawn-dash.com/scoring'

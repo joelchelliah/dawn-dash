@@ -12,7 +12,7 @@ export const LANDING_PAGE_NAV_ITEM_DESCRIPTIONS = {
   eventmapsShort:
     'Fully mapped out event trees for all events in Dawncaster, showing all options and rewards for each event!',
   scoring:
-    'Detailed Dawncaster scoring guides, specifically tailored to each game mode, to help you maximize your scores in Standard mode, Sunforge, and the Weekly Challenges!',
+    'Detailed Dawncaster scoring guides, specifically tailored to each game mode, to help you maximize your scores in Standard, Sunforge, and the Weekly Challenges!',
   scoringShort:
     'Detailed Dawncaster scoring guides, covering Standard mode, Sunforge, and the Weekly Challenges!',
   speedruns:
