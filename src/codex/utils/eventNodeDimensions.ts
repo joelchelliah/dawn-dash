@@ -11,7 +11,7 @@ import {
 import { TEXT, INNER_BOX, NODE, NODE_BOX } from '@/codex/constants/eventTreeValues'
 import { LevelOfDetail } from '@/codex/constants/eventSearchValues'
 
-import { measureEventTextWidth, wrapEventText } from './eventTextWidthEstimation'
+import { measureEventTextWidth, wrapEventText } from './eventTextMeasurer'
 import { getCachedDimensions, buildDimensionCache as buildCache } from './eventNodeDimensionCache'
 import { isEmojiOnlyNode } from './eventTreeHelper'
 

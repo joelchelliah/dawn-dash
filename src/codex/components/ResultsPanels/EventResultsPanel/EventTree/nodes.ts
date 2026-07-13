@@ -18,7 +18,7 @@ import {
 import { TEXT, INNER_BOX, NODE_BOX } from '@/codex/constants/eventTreeValues'
 import { LevelOfDetail } from '@/codex/constants/eventSearchValues'
 import { findNodeById } from '@/codex/utils/eventTreeHelper'
-import { wrapEventText } from '@/codex/utils/eventTextWidthEstimation'
+import { wrapEventText } from '@/codex/utils/eventTextMeasurer'
 
 import styles from './index.module.scss'
 

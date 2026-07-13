@@ -7,7 +7,7 @@ import { HierarchicalTalentTreeNode } from '@/codex/types/talents'
 import { getMatchingKeywordsText } from '@/codex/utils/talentTreeHelper'
 import { getNodeHeight } from '@/codex/utils/talentNodeDimensions'
 import { TalentRenderingContext } from '@/codex/utils/talentNodeDimensionCache'
-import { wrapTalentText } from '@/codex/utils/talentTextWidthEstimation'
+import { wrapTalentText } from '@/codex/utils/talentTextMeasurer'
 import { NODE } from '@/codex/constants/talentTreeValues'
 
 import styles from './index.module.scss'

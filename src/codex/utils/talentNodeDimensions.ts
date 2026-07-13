@@ -3,7 +3,7 @@ import { isNotNullOrUndefined } from '@/shared/utils/object'
 import { HierarchicalTalentTreeNode, TalentTreeNodeType } from '@/codex/types/talents'
 import { NODE, REQUIREMENT_NODE } from '@/codex/constants/talentTreeValues'
 
-import { wrapTalentText } from './talentTextWidthEstimation'
+import { wrapTalentText } from './talentTextMeasurer'
 import {
   getCachedDimensions,
   buildDimensionCache as buildCache,
