@@ -3,7 +3,7 @@ import { useState } from 'react'
 import Image from '@/shared/components/Image'
 import { createCx } from '@/shared/utils/classnames'
 import { DashImageUrl, HauntingNightmaresImageUrl } from '@/shared/utils/imageUrls'
-import { LANDING_PAGE_NAV_ITEM_DESCRIPTIONS } from '@/shared/constants/descriptions'
+import { TOOL_REGISTRY } from '@/shared/config/toolRegistry'
 import Footer from '@/shared/components/Footer'
 import { useNavigation } from '@/shared/hooks/useNavigation'
 import Header from '@/shared/components/Header'
@@ -19,9 +19,7 @@ const cx = createCx(styles)
 export default function Landing() {
   const { resetToLandingPage } = useNavigation()
   const { isMobile } = useBreakpoint()
-  const [hoveredItem, setHoveredItem] = useState<
-    keyof typeof LANDING_PAGE_NAV_ITEM_DESCRIPTIONS | null
-  >(null)
+  const [hoveredItem, setHoveredItem] = useState<string | null>(null)
 
   return (
     <div className={cx('container')}>
@@ -43,47 +41,18 @@ export default function Landing() {
         </div>
 
         <nav className={cx('nav')}>
-          <NavItem
-            url="/cardex"
-            imageSrc="/landing-cardex.webp"
-            alt="Cardex"
-            mobileDescription={LANDING_PAGE_NAV_ITEM_DESCRIPTIONS.cardexShort}
-            onMouseEnter={() => setHoveredItem('cardex')}
-            onMouseLeave={() => setHoveredItem(null)}
-            priority
-          />
-          <NavItem
-            url="/skilldex"
-            imageSrc="/landing-skilldex.webp"
-            alt="Skilldex"
-            mobileDescription={LANDING_PAGE_NAV_ITEM_DESCRIPTIONS.skilldexShort}
-            onMouseEnter={() => setHoveredItem('skilldex')}
-            onMouseLeave={() => setHoveredItem(null)}
-          />
-          <NavItem
-            url="/eventmaps"
-            imageSrc="/landing-eventmaps.webp"
-            alt="Eventmaps"
-            mobileDescription={LANDING_PAGE_NAV_ITEM_DESCRIPTIONS.eventmapsShort}
-            onMouseEnter={() => setHoveredItem('eventmaps')}
-            onMouseLeave={() => setHoveredItem(null)}
-          />
-          <NavItem
-            url="/scoring"
-            imageSrc="/landing-scoring.webp"
-            alt="Scoring"
-            mobileDescription={LANDING_PAGE_NAV_ITEM_DESCRIPTIONS.scoringShort}
-            onMouseEnter={() => setHoveredItem('scoring')}
-            onMouseLeave={() => setHoveredItem(null)}
-          />
-          <NavItem
-            url="/speedruns"
-            imageSrc="/landing-speedruns.webp"
-            alt="Speedruns"
-            mobileDescription={LANDING_PAGE_NAV_ITEM_DESCRIPTIONS.speedrunsShort}
-            onMouseEnter={() => setHoveredItem('speedruns')}
-            onMouseLeave={() => setHoveredItem(null)}
-          />
+          {TOOL_REGISTRY.map((tool, index) => (
+            <NavItem
+              key={tool.id}
+              url={tool.path}
+              imageSrc={tool.landingImage}
+              alt={tool.title}
+              mobileDescription={tool.shortDescription}
+              onMouseEnter={() => setHoveredItem(tool.id)}
+              onMouseLeave={() => setHoveredItem(null)}
+              priority={index === 0}
+            />
+          ))}
         </nav>
 
         {!hoveredItem && !isMobile && (
@@ -106,7 +75,7 @@ export default function Landing() {
         >
           {hoveredItem && (
             <p className={cx('nav-description-text')}>
-              {LANDING_PAGE_NAV_ITEM_DESCRIPTIONS[hoveredItem]}
+              {TOOL_REGISTRY.find((tool) => tool.id === hoveredItem)?.description}
             </p>
           )}
         </div>

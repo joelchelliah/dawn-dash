@@ -30,7 +30,7 @@ function useEventsScrollToTop() {
 }
 
 function Events(): JSX.Element {
-  const { resetToEventCodex } = useNavigation()
+  const { navigateTo } = useNavigation()
   const { showScrollToTopButton, scrollToTop } = useEventsScrollToTop()
   const [selectedEventIndex, setSelectedEventIndex] = useState(ALL_EVENTS_INDEX)
   const [showInvalidNotification, setShowInvalidNotification] = useState(false)
@@ -69,7 +69,7 @@ function Events(): JSX.Element {
   return (
     <div className={cx('container')}>
       <Header
-        onLogoClick={resetToEventCodex}
+        onLogoClick={() => navigateTo('eventmaps')}
         logoSrc={MapOfHuesImageUrl}
         title="Eventmaps"
         subtitle="Dawncaster event-trees"

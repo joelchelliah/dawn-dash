@@ -31,7 +31,7 @@ function useSkillsScrollToTop() {
 }
 
 function Skills(): JSX.Element {
-  const { resetToTalentCodex } = useNavigation()
+  const { navigateTo } = useNavigation()
   const useTalentDataHook = useTalentData()
   const { talentTree, isLoading, isError, progress } = useTalentDataHook
 
@@ -41,7 +41,7 @@ function Skills(): JSX.Element {
   return (
     <div className={cx('container')}>
       <Header
-        onLogoClick={resetToTalentCodex}
+        onLogoClick={() => navigateTo('skilldex')}
         logoSrc={EleganceImageUrl}
         title="Skilldex"
         subtitle="Dawncaster talents codex"

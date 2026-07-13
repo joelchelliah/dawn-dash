@@ -1,7 +1,3 @@
-export type CurrentPageType =
-  | 'landing'
-  | 'speedruns'
-  | 'cardex'
-  | 'skilldex'
-  | 'eventmaps'
-  | 'scoring'
+import { TOOL_REGISTRY } from '@/shared/config/toolRegistry'
+
+export type CurrentPageType = 'landing' | (typeof TOOL_REGISTRY)[number]['id']

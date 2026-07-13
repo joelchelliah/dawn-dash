@@ -1,5 +1,7 @@
 import { useRouter } from 'next/router'
 
+import { getTool } from '@/shared/config/toolRegistry'
+
 export const useNavigation = () => {
   const router = useRouter()
 
@@ -7,32 +9,16 @@ export const useNavigation = () => {
     router.replace('/')
   }
 
-  const resetToSpeedruns = (selectedClass: string, difficulty: string) => {
-    router.replace(`/speedruns?class=${selectedClass}&difficulty=${difficulty}`)
-  }
+  const navigateTo = (toolId: string, query?: Record<string, string>) => {
+    const tool = getTool(toolId)
+    if (!tool) return
 
-  const resetToCardCodex = () => {
-    router.replace('/cardex')
-  }
-
-  const resetToTalentCodex = () => {
-    router.replace('/skilldex')
-  }
-
-  const resetToEventCodex = () => {
-    router.replace('/eventmaps')
-  }
-
-  const resetToScoring = () => {
-    router.replace('/scoring')
+    const queryString = query ? `?${new URLSearchParams(query).toString()}` : ''
+    router.replace(`${tool.path}${queryString}`)
   }
 
   return {
     resetToLandingPage,
-    resetToSpeedruns,
-    resetToCardCodex,
-    resetToTalentCodex,
-    resetToEventCodex,
-    resetToScoring,
+    navigateTo,
   }
 }

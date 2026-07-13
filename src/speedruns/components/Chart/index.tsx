@@ -84,7 +84,7 @@ function Chart({ selectedClass, controls, onPlayerClick }: ChartProps) {
   const playerColors = useRef<Record<string, string>>({})
   const [chartData, setChartData] = useState<ChartJS | null>(null)
   const { isMobileAndPortrait, isMobileAndLandscape } = useDeviceOrientation()
-  const { resetToSpeedruns } = useNavigation()
+  const { navigateTo } = useNavigation()
 
   // Combine useTransition with debouncing to prevent flickering
   const [isPending, startTransition] = useTransition()
@@ -287,7 +287,7 @@ function Chart({ selectedClass, controls, onPlayerClick }: ChartProps) {
           selectedClass={selectedClass}
           message="No runs found for the selected filters!"
           buttonText="Reset filters"
-          onClick={() => resetToSpeedruns(selectedClass, difficulty)}
+          onClick={() => navigateTo('speedruns', { class: selectedClass, difficulty })}
         />
         {!isError && !isLoading && (
           <div

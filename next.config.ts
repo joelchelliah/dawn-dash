@@ -2,6 +2,8 @@ import path from 'path'
 
 import withPWA from 'next-pwa'
 
+import { TOOL_REGISTRY } from './src/shared/config/toolRegistry'
+
 const nextConfig = {
   reactStrictMode: true,
   images: {
@@ -24,23 +26,14 @@ const nextConfig = {
     includePaths: [path.join(__dirname, 'src/styles')],
   },
   async redirects() {
-    return [
-      {
-        source: '/codex/cards',
-        destination: '/cardex',
-        permanent: true,
-      },
-      {
-        source: '/codex/skills',
-        destination: '/skilldex',
-        permanent: true,
-      },
-      {
-        source: '/codex/events',
-        destination: '/eventmaps',
-        permanent: true,
-      },
-    ]
+    return TOOL_REGISTRY.flatMap(
+      (tool) =>
+        tool.legacyPaths?.map((source) => ({
+          source,
+          destination: tool.path,
+          permanent: true,
+        })) ?? []
+    )
   },
   webpack: (config) => {
     config.resolve.alias = {

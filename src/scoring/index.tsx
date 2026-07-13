@@ -48,7 +48,7 @@ function useScoringScrollToTop() {
 }
 
 function Scoring(): JSX.Element {
-  const { resetToScoring } = useNavigation()
+  const { navigateTo } = useNavigation()
   const { showScrollToTopButton, scrollToTop } = useScoringScrollToTop()
   const weeklyChallengeData = useWeeklyChallengeData()
   const [selectedMode, setSelectedMode] = useState<ScoringMode>(ScoringMode.Standard)
@@ -114,7 +114,7 @@ function Scoring(): JSX.Element {
   return (
     <div className={cx('container')}>
       <Header
-        onLogoClick={resetToScoring}
+        onLogoClick={() => navigateTo('scoring')}
         logoSrc={PestilenceDecreeUrl}
         title="Scoring"
         subtitle="Dawncaster scoring guide"

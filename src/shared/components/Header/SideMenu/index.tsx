@@ -5,21 +5,14 @@ import Link from 'next/link'
 import Image from '@/shared/components/Image'
 import LoadingDots from '@/shared/components/LoadingDots'
 import { HamburgerIcon, HamburgerMenuIcon, CloseIcon, CloseMenuIcon } from '@/shared/utils/icons'
-import {
-  AbracadabraImageUrl,
-  PestilenceDecreeUrl,
-  DashImageUrl,
-  EleganceImageUrl,
-  InfernalContractUrl,
-  MapOfHuesImageUrl,
-  RushedForgeryImageUrl,
-} from '@/shared/utils/imageUrls'
+import { InfernalContractUrl, RushedForgeryImageUrl } from '@/shared/utils/imageUrls'
 import { createCx } from '@/shared/utils/classnames'
 import GradientLink from '@/shared/components/GradientLink'
 import InfoModal from '@/shared/components/Modals/InfoModal'
 import { useBreakpoint } from '@/shared/hooks/useBreakpoint'
 import { ClassColorVariant, getClassColor } from '@/shared/utils/classColors'
 import { CharacterClass } from '@/shared/types/characterClass'
+import { TOOL_REGISTRY, getTool } from '@/shared/config/toolRegistry'
 
 import { CurrentPageType } from '../types'
 
@@ -62,6 +55,17 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
     )
   }
 
+  const getInfoTitle = (toolId: string) => {
+    const tool = getTool(toolId)
+    if (!tool) return null
+
+    return (
+      <h3 className={cx('info-title')}>
+        {getNavLinkImage(tool.navIcon, `${tool.title} logo`)} {tool.title}
+      </h3>
+    )
+  }
+
   const loadingColor = getClassColor(CharacterClass.Rogue, ClassColorVariant.Dark)
 
   const getNavLinkText = (name: string) =>
@@ -97,21 +101,6 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
       'side-menu__nav-link-container--active': currentPage === 'landing',
     }
   )
-  const speedrunsLinkContainerClassNames = cx('side-menu__nav-link-container', {
-    'side-menu__nav-link-container--active': currentPage === 'speedruns',
-  })
-  const cardexLinkContainerClassNames = cx('side-menu__nav-link-container', {
-    'side-menu__nav-link-container--active': currentPage === 'cardex',
-  })
-  const skilldexLinkContainerClassNames = cx('side-menu__nav-link-container', {
-    'side-menu__nav-link-container--active': currentPage === 'skilldex',
-  })
-  const eventmapLinkContainerClassNames = cx('side-menu__nav-link-container', {
-    'side-menu__nav-link-container--active': currentPage === 'eventmaps',
-  })
-  const scoringLinkContainerClassNames = cx('side-menu__nav-link-container', {
-    'side-menu__nav-link-container--active': currentPage === 'scoring',
-  })
 
   const menuIcon = isMobile ? (
     isMenuOpen ? (
@@ -156,60 +145,23 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
             </Link>
           </div>
 
-          <div className={cardexLinkContainerClassNames}>
-            <Link
-              href="/cardex"
-              className={cx('side-menu__nav-link')}
-              onClick={() => handleNavLinkClick('Cardex')}
+          {TOOL_REGISTRY.map((tool) => (
+            <div
+              key={tool.id}
+              className={cx('side-menu__nav-link-container', {
+                'side-menu__nav-link-container--active': currentPage === tool.id,
+              })}
             >
-              {getNavLinkImage(AbracadabraImageUrl, 'Cardex logo')}
-              {getNavLinkText('Cardex')}
-            </Link>
-          </div>
-
-          <div className={skilldexLinkContainerClassNames}>
-            <Link
-              href="/skilldex"
-              className={cx('side-menu__nav-link')}
-              onClick={() => handleNavLinkClick('Skilldex')}
-            >
-              {getNavLinkImage(EleganceImageUrl, 'Skilldex logo')}
-              {getNavLinkText('Skilldex')}
-            </Link>
-          </div>
-
-          <div className={eventmapLinkContainerClassNames}>
-            <Link
-              href="/eventmaps"
-              className={cx('side-menu__nav-link')}
-              onClick={() => handleNavLinkClick('Eventmaps')}
-            >
-              {getNavLinkImage(MapOfHuesImageUrl, 'Eventmaps logo')}
-              {getNavLinkText('Eventmaps')}
-            </Link>
-          </div>
-
-          <div className={scoringLinkContainerClassNames}>
-            <Link
-              href="/scoring"
-              className={cx('side-menu__nav-link')}
-              onClick={() => handleNavLinkClick('Scoring')}
-            >
-              {getNavLinkImage(PestilenceDecreeUrl, 'Scoring logo')}
-              {getNavLinkText('Scoring')}
-            </Link>
-          </div>
-
-          <div className={speedrunsLinkContainerClassNames}>
-            <Link
-              href="/speedruns"
-              className={cx('side-menu__nav-link')}
-              onClick={() => handleNavLinkClick('Speedruns')}
-            >
-              {getNavLinkImage(DashImageUrl, 'Speedruns logo')}
-              {getNavLinkText('Speedruns')}
-            </Link>
-          </div>
+              <Link
+                href={tool.path}
+                className={cx('side-menu__nav-link')}
+                onClick={() => handleNavLinkClick(tool.title)}
+              >
+                {getNavLinkImage(tool.navIcon, `${tool.title} logo`)}
+                {getNavLinkText(tool.title)}
+              </Link>
+            </div>
+          ))}
 
           <div className={cx('side-menu__nav-link-container')}>
             <button className={cx('side-menu__nav-link')} onClick={() => setIsAboutInfoOpen(true)}>
@@ -221,9 +173,7 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
       </div>
 
       <InfoModal isOpen={isAboutInfoOpen} onClose={() => setIsAboutInfoOpen(false)} scrollable>
-        <h3 className={cx('info-title')}>
-          {getNavLinkImage(AbracadabraImageUrl, 'Cardex logo')} Cardex
-        </h3>
+        {getInfoTitle('cardex')}
 
         <p className={cx('info-last-paragraph')}>
           A codex and multi-search tool for all the cards available in <b>Dawncaster</b>. Has
@@ -233,9 +183,7 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
 
         <div className={cx('info-divider')} />
 
-        <h3 className={cx('info-title')}>
-          {getNavLinkImage(EleganceImageUrl, 'Skilldex logo')} Skilldex
-        </h3>
+        {getInfoTitle('skilldex')}
 
         <p className={cx('info-last-paragraph')}>
           A codex and talent-tree vizualisation of all the talents and infernal offers available in{' '}
@@ -245,9 +193,7 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
 
         <div className={cx('info-divider')} />
 
-        <h3 className={cx('info-title')}>
-          {getNavLinkImage(MapOfHuesImageUrl, 'Eventmaps logo')} Eventmaps
-        </h3>
+        {getInfoTitle('eventmaps')}
 
         <p className={cx('info-last-paragraph')}>
           Fully mapped out event trees for all events available in <b>Dawncaster</b>. See all
@@ -257,9 +203,7 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
 
         <div className={cx('info-divider')} />
 
-        <h3 className={cx('info-title')}>
-          {getNavLinkImage(PestilenceDecreeUrl, 'Scoring logo')} Scoring
-        </h3>
+        {getInfoTitle('scoring')}
 
         <p className={cx('info-last-paragraph')}>
           Detailed <b>Dawncaster</b> scoring guides, for <strong>Standard</strong> mode,{' '}
@@ -269,9 +213,7 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
 
         <div className={cx('info-divider')} />
 
-        <h3 className={cx('info-title')}>
-          {getNavLinkImage(DashImageUrl, 'Speedruns logo')} Speedruns
-        </h3>
+        {getInfoTitle('speedruns')}
 
         <p>
           <b>Dawncaster</b> speedrun charts for all game modes and difficulties, based on

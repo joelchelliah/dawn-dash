@@ -31,7 +31,7 @@ function useCardsScrollToTop() {
 }
 
 function Cards(): JSX.Element {
-  const { resetToCardCodex } = useNavigation()
+  const { navigateTo } = useNavigation()
   const useCardDataHook = useCardData()
   const { cardData, isLoading, isError, progress } = useCardDataHook
 
@@ -41,7 +41,7 @@ function Cards(): JSX.Element {
   return (
     <div className={cx('container')}>
       <Header
-        onLogoClick={resetToCardCodex}
+        onLogoClick={() => navigateTo('cardex')}
         logoSrc={AbracadabraImageUrl}
         title="Cardex"
         subtitle="Dawncaster cards codex"

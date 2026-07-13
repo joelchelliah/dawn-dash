@@ -37,7 +37,7 @@ function Speedruns(): JSX.Element {
   const [selectedClass, setSelectedClass] = useState<CharacterClass>(initialClass)
   const [selectedPlayer, setSelectedPlayer] = useState('')
   const [selectedTimestamp, setSelectedTimestamp] = useState<number | undefined>()
-  const { resetToSpeedruns } = useNavigation()
+  const { navigateTo } = useNavigation()
 
   const controls = useChartControlState(selectedClass, initialDifficulty)
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -59,7 +59,9 @@ function Speedruns(): JSX.Element {
   return (
     <div className={cx('container')}>
       <Header
-        onLogoClick={() => resetToSpeedruns(selectedClass, controls.difficulty)}
+        onLogoClick={() =>
+          navigateTo('speedruns', { class: selectedClass, difficulty: controls.difficulty })
+        }
         logoSrc={DashImageUrl}
         title="Speedruns"
         subtitle="Dawncaster speedrun charts"
