@@ -13,7 +13,7 @@ Each spec is self-contained and implementation-ready. Unless stated otherwise, s
 
 ---
 
-## Spec 1 — Central tool/page registry (extensibility)
+## Spec 1 — Central tool/page registry (extensibility) — ✅ COMPLETED
 
 **Impact: Very high** — adding a new tool today requires touching ~9 files; this reduces it to 2 (the registry entry + the page component). It also becomes the single source of truth that Specs 2, and several smaller cleanups, consume.
 **Effort: Medium**
@@ -70,7 +70,7 @@ Populate it by lifting the existing values verbatim from the files listed above 
 
 ---
 
-## Spec 2 — Shared `PageHead` component (kills ~40 duplicated lines per page)
+## Spec 2 — Shared `PageHead` component (kills ~40 duplicated lines per page) — ✅ COMPLETED
 
 **Impact: High** — 5 pages each repeat ~20 meta tags; SEO changes currently require 5 synchronized edits. Depends on Spec 1.
 **Effort: Low**

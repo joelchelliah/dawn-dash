@@ -1,7 +1,11 @@
 import Head from 'next/head'
 
+import { getTool } from '@/shared/config/toolRegistry'
+
 import { ChoiceNode, DialogueNode, Event } from '@/codex/types/events'
 import { useEventImageSrc } from '@/codex/hooks/useEventImageSrc'
+
+const BASE_URL = 'https://www.dawn-dash.com'
 
 interface EventmapHeadProps {
   event?: Event | null
@@ -15,23 +19,23 @@ export function EventmapHead({ event, eventUrlParam }: EventmapHeadProps = {}) {
   const { eventImageSrc } = useEventImageSrc(event?.artwork || '')
   const hasEventArtwork = !!event?.artwork && event.artwork.trim().length > 0
 
-  const ogTitle = isEventPage ? `🗺 Eventmap - ${eventName}` : '🗺 Eventmaps'
-  const tabTitle = isEventPage ? `${eventName} | Eventmap | Dawn-Dash` : 'Eventmaps | Dawn-Dash'
+  const tool = getTool('eventmaps')
+  if (!tool) return null
+
+  const toolUrl = `${BASE_URL}${tool.path}`
+
+  const ogTitle = isEventPage ? `🗺 Eventmap - ${eventName}` : tool.ogTitle
+  const tabTitle = isEventPage ? `${eventName} | Eventmap | Dawn-Dash` : `${tool.title} | Dawn-Dash`
   const title = `Dawn-Dash: ${ogTitle}`
 
   const description = isEventPage
     ? `View the complete event tree for «${eventName}», with all branching paths.`
-    : 'Interactive Dawncaster events codex, with fully mapped out branches and options, to help you get the best outcome from each event!'
-  const ogDescription = isEventPage
-    ? `${eventDisplayText}`
-    : 'Explore all Dawncaster events, as fully mapped out event trees, including all dialogue options, requirements and rewards!'
+    : tool.metaDescription
+  const ogDescription = isEventPage ? `${eventDisplayText}` : tool.ogDescription
 
-  const image = hasEventArtwork ? eventImageSrc : 'https://www.dawn-dash.com/og-image-eventmaps.png'
-  const url =
-    isEventPage && eventUrlParam
-      ? `https://www.dawn-dash.com/eventmaps/${eventUrlParam}`
-      : 'https://www.dawn-dash.com/eventmaps'
-  const squareLogo = 'https://www.dawn-dash.com/logo-eventmaps.png'
+  const image = hasEventArtwork ? eventImageSrc : tool.ogImage
+  const url = isEventPage && eventUrlParam ? `${toolUrl}/${eventUrlParam}` : toolUrl
+  const squareLogo = tool.logoImage
 
   return (
     <Head>
@@ -49,7 +53,7 @@ export function EventmapHead({ event, eventUrlParam }: EventmapHeadProps = {}) {
       <meta property="og:url" content={url} />
 
       {/* The url shown in Discord */}
-      <meta property="og:site_name" content="dawn-dash.com/eventmaps" />
+      <meta property="og:site_name" content={`dawn-dash.com${tool.path}`} />
 
       <meta name="twitter:title" content={title} />
       <meta name="twitter:description" content={description} />
@@ -85,13 +89,13 @@ export function EventmapHead({ event, eventUrlParam }: EventmapHeadProps = {}) {
                   '@type': 'ListItem',
                   position: 1,
                   name: 'Dawn-Dash',
-                  item: 'https://www.dawn-dash.com',
+                  item: BASE_URL,
                 },
                 {
                   '@type': 'ListItem',
                   position: 2,
-                  name: 'Eventmaps',
-                  item: 'https://www.dawn-dash.com/eventmaps',
+                  name: tool.title,
+                  item: toolUrl,
                 },
                 {
                   '@type': 'ListItem',
