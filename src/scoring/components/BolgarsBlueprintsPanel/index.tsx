@@ -61,11 +61,24 @@ const FIXED_VALUE_CONFIG: Record<FixedValueAction, FixedValueConfig> = {
   },
   PointsPerUpgrade: {
     emoji: '🛠️',
-    getDescription: (keyword) => (
-      <>
-        For each upgrade on <strong>{keyword}</strong> in your deck.
-      </>
-    ),
+    getDescription: (keyword, pointLimit) => {
+      const pointLimitPostfix =
+        pointLimit > 1 ? (
+          <span className={cx('fixed-value-scoring-point-limit-postfix')}>
+            {' '}
+            (up to max <Highlight mode={ScoringMode.Blightbane}>{pointLimit}</Highlight> points)
+          </span>
+        ) : (
+          ''
+        )
+      return (
+        <>
+          For each upgrade on{' '}
+          <GradientLink text={keyword} url={`https://blightbane.io/card/${keyword}`} /> in your deck{' '}
+          {pointLimitPostfix}.
+        </>
+      )
+    },
   },
   DefeatSpecificBoss: {
     emoji: '👺',
