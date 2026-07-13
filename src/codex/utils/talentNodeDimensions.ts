@@ -9,7 +9,7 @@ import {
 import { NODE, REQUIREMENT_NODE } from '@/codex/constants/talentTreeValues'
 
 import { wrapTalentText } from './talentTextMeasurer'
-import { createDimensionCache } from './tree/nodeDimensionCache'
+import { createNodeDimensionEngine } from './tree/nodeDimensions'
 import { getMatchingKeywordsText } from './talentTreeHelper'
 
 /**
@@ -146,18 +146,17 @@ export const getNodeHalfWidth = (node: HierarchicalTalentTreeNode) => {
   }
 }
 
-interface TalentDimensionKey {
-  node: HierarchicalTalentTreeNode
-  context: TalentRenderingContext
-}
-
 /**
  * Talents are cached by their characteristics (name, requirements, rendering settings),
  * since the same talent can appear in multiple trees and will always have the same
  * dimensions given the same rendering context. The cache persists across tree changes.
  */
-const dimensionCache = createDimensionCache<TalentDimensionKey, TalentNodeHeight>(
-  ({ node, context }) => {
+const dimensionEngine = createNodeDimensionEngine<
+  HierarchicalTalentTreeNode,
+  TalentRenderingContext,
+  TalentNodeHeight
+>({
+  makeKey: (node, context) => {
     const specialRequirements = [
       ...node.otherRequirements,
       ...node.talentRequirements,
@@ -170,13 +169,16 @@ const dimensionCache = createDimensionCache<TalentDimensionKey, TalentNodeHeight
       getMatchingKeywordsText(node, context.parsedKeywords).length > 0
 
     return `${node.name}:req-${specialRequirements}:description-${context.shouldShowDescription}:card-set-${showCardSet}:keywords-${showKeywordsSection}:blightbane-${context.shouldShowBlightbaneLink}`
-  }
-)
+  },
+  getChildren: (node) => node.children,
+  prepopulateMode: 'check-each-node',
+})
 
 export const getNodeHeight = (
   node: HierarchicalTalentTreeNode,
   context: TalentRenderingContext
-): TalentNodeHeight => dimensionCache.get({ node, context }) ?? _getNodeHeight(node, context)
+): TalentNodeHeight =>
+  dimensionEngine.getDimensions(node, context, (n) => _getNodeHeight(n, context))
 
 /**
  * Pre-populates the cache with heights for all nodes in a talent tree.
@@ -187,13 +189,5 @@ export const cacheAllNodeDimensions = (
   rootNode: HierarchicalTalentTreeNode,
   context: TalentRenderingContext
 ): void => {
-  const cacheNodeRecursive = (node: HierarchicalTalentTreeNode) => {
-    const key = { node, context }
-    if (!dimensionCache.has(key)) {
-      dimensionCache.set(key, _getNodeHeight(node, context))
-    }
-    node.children?.forEach(cacheNodeRecursive)
-  }
-
-  cacheNodeRecursive(rootNode)
+  dimensionEngine.cacheAll(rootNode, context, (node) => _getNodeHeight(node, context))
 }
