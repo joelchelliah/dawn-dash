@@ -10,12 +10,8 @@ import { useDraggable } from '@/shared/hooks/useDraggable'
 import { useBreakpoint } from '@/shared/hooks/useBreakpoint'
 
 import { Event, EventTreeNode } from '@/codex/types/events'
-import {
-  calculateTreeBounds,
-  buildNodeMap,
-  isEmojiOnlyNode,
-  hasCustomNodeType,
-} from '@/codex/utils/eventTreeHelper'
+import { isEmojiOnlyNode, hasCustomNodeType } from '@/codex/utils/eventTreeHelper'
+import { buildNodeMap, calculateTreeBounds } from '@/codex/utils/tree/treeHelper'
 import {
   getNodeDimensions,
   cacheAllNodeDimensions,
@@ -81,7 +77,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
     select(svgRef.current).selectAll('*').remove()
 
     const root = hierarchy(event.rootNode, (d) => d.children)
-    const nodeMap = buildNodeMap(root as HierarchyPointNode<EventTreeNode>)
+    const nodeMap = buildNodeMap(root, (node) => node.id)
 
     cacheAllNodeDimensions(nodeMap, event, showLoopingIndicator, levelOfDetail, showContinuesTags)
 
@@ -118,14 +114,7 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
       showContinuesTags
     )
 
-    const bounds = calculateTreeBounds(
-      nodeMap,
-      root,
-      event,
-      showLoopingIndicator,
-      levelOfDetail,
-      showContinuesTags
-    )
+    const bounds = calculateTreeBounds(root, (node) => getDimensions(node.data))
     const calculatedWidth = bounds.width + TREE.HORIZONTAL_PADDING * 2
     const verticalPadding = TREE.VERTICAL_PADDING_BY_LEVEL_OF_DETAIL[levelOfDetail]
 

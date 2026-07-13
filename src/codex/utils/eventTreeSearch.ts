@@ -6,6 +6,7 @@ import {
   isRequirementsNode,
   isTextNode,
 } from './eventNodeDimensions'
+import { findNodeInTree } from './tree/treeHelper'
 
 /**
  * Searches an event tree for text that appears anywhere in:
@@ -25,8 +26,11 @@ export const searchEventTree = (event: Event, searchText: string): boolean => {
     return true
   }
 
-  // Recursive function to search through tree nodes
-  const searchNode = (node: EventTreeNode): boolean => {
+  if (event.alias?.toLowerCase().includes(lowerSearch)) {
+    return true
+  }
+
+  const matchesSearch = (node: EventTreeNode): boolean => {
     // Search text
     if (isTextNode(node) && node.text?.toLowerCase().includes(lowerSearch)) {
       return true
@@ -49,25 +53,11 @@ export const searchEventTree = (event: Event, searchText: string): boolean => {
     }
 
     // Search effects
-    if (
+    return (
       isEffectsNode(node) &&
-      node.effects?.some((eff) => eff.toLowerCase().includes(lowerSearch))
-    ) {
-      return true
-    }
-
-    // Search alias
-    if (event.alias?.toLowerCase().includes(lowerSearch)) {
-      return true
-    }
-
-    // Recursively search children
-    if (node.children && node.children.length > 0) {
-      return node.children.some((child) => searchNode(child))
-    }
-
-    return false
+      Boolean(node.effects?.some((eff) => eff.toLowerCase().includes(lowerSearch)))
+    )
   }
 
-  return searchNode(event.rootNode)
+  return findNodeInTree(event.rootNode, (node) => node.children, matchesSearch) !== null
 }
