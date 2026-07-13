@@ -122,8 +122,8 @@ There is also `src/codex/utils/canvasTextMeasurement.ts` which overlaps with bot
 
 ### Change (in order; each step keeps both features working)
 
-1. **Text width estimation** — create `src/codex/utils/tree/textWidthEstimation.ts` exposing one estimator parameterized by font config (`{ fontSize, fontFamily, approxPixelsPerChar, variants? }`). Port the superset of behavior (event's font variants). Delete both old files; update imports. This is the smallest, safest step — do it first.
-2. **Dimension cache** — create `src/codex/utils/tree/nodeDimensionCache.ts`: a factory `createDimensionCache<K>(makeKey: (k: K) => string)` returning `{ get, set, clear }`. Instantiate once per feature. Delete both old cache files.
+1. **Text width estimation** — ✅ COMPLETED — create `src/codex/utils/tree/textWidthEstimation.ts` exposing one estimator parameterized by font config (`{ fontSize, fontFamily, approxPixelsPerChar, variants? }`). Port the superset of behavior (event's font variants). Delete both old files; update imports. This is the smallest, safest step — do it first.
+2. **Dimension cache** — ✅ COMPLETED — create `src/codex/utils/tree/nodeDimensionCache.ts`: a factory `createDimensionCache<K>(makeKey: (k: K) => string)` returning `{ get, set, clear }`. Instantiate once per feature. Delete both old cache files.
 3. **Dimensions** — create `src/codex/utils/tree/nodeDimensions.ts` with a factory that takes feature-specific `measureHeight/measureWidth` callbacks and wires in the cache from step 2. The feature files shrink to just their business logic (talent: requirements/card sets; event: effects/choices).
 4. **Tree helpers** — move `buildNodeMap`, `calculateTreeBounds`, `findNodeById` into `src/codex/utils/tree/treeHelper.ts` (generic over node type). Keep feature-specific helpers where they are.
 5. **(Optional, only if steps 1–4 went cleanly)** Extract the shared SVG render skeleton from `TalentTree/index.tsx` and `EventTree/index.tsx` (container setup, zoom transform, render-pass orchestration) into a shared module, leaving node/link/badge drawing feature-specific.

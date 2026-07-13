@@ -3,10 +3,9 @@ import { Selection } from 'd3-selection'
 import { createCx } from '@/shared/utils/classnames'
 import { isNotNullOrUndefined } from '@/shared/utils/object'
 
-import { HierarchicalTalentTreeNode } from '@/codex/types/talents'
+import { HierarchicalTalentTreeNode, TalentRenderingContext } from '@/codex/types/talents'
 import { getMatchingKeywordsText } from '@/codex/utils/talentTreeHelper'
 import { getNodeHeight } from '@/codex/utils/talentNodeDimensions'
-import { TalentRenderingContext } from '@/codex/utils/talentNodeDimensionCache'
 import { wrapTalentText } from '@/codex/utils/talentTextMeasurer'
 import { NODE } from '@/codex/constants/talentTreeValues'
 

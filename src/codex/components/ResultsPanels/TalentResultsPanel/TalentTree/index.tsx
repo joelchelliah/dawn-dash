@@ -10,6 +10,7 @@ import {
   TalentTree as TalentTreeType,
   TalentTreeNodeType,
   HierarchicalTalentTreeNode,
+  TalentRenderingContext,
 } from '@/codex/types/talents'
 import {
   calculateTalentTreeBounds,
@@ -17,7 +18,6 @@ import {
   getNodeInTree,
 } from '@/codex/utils/talentTreeHelper'
 import { cacheAllNodeDimensions, getNodeHeight } from '@/codex/utils/talentNodeDimensions'
-import { TalentRenderingContext } from '@/codex/utils/talentNodeDimensionCache'
 import { NODE, TREE } from '@/codex/constants/talentTreeValues'
 import { buildHierarchicalTreeFromTalentTree } from '@/codex/utils/talentTreeBuilder'
 import { useExpandableNodes } from '@/codex/hooks/useExpandableNodes'

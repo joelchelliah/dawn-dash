@@ -16,13 +16,16 @@ import {
   isEmojiOnlyNode,
   hasCustomNodeType,
 } from '@/codex/utils/eventTreeHelper'
-import { getNodeDimensions, cacheAllNodeDimensions } from '@/codex/utils/eventNodeDimensions'
+import {
+  getNodeDimensions,
+  cacheAllNodeDimensions,
+  clearEventCache,
+} from '@/codex/utils/eventNodeDimensions'
 import {
   adjustHorizontalNodeSpacing,
   adjustVerticalNodeSpacing,
   centerRootNodeHorizontally,
 } from '@/codex/utils/eventTreeSpacing'
-import { clearEventCache } from '@/codex/utils/eventNodeDimensionCache'
 import { NODE, TREE, NODE_BOX } from '@/codex/constants/eventTreeValues'
 import { ZoomLevel } from '@/codex/constants/zoomValues'
 import {

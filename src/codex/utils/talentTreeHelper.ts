@@ -35,11 +35,11 @@ import {
   HierarchicalTalentTreeNode,
   TalentTreeNodeType,
   TalentTreeTalentNode,
+  TalentRenderingContext,
 } from '../types/talents'
 import { NODE, REQUIREMENT_NODE } from '../constants/talentTreeValues'
 
 import { getNodeHeight } from './talentNodeDimensions'
-import { TalentRenderingContext } from './talentNodeDimensionCache'
 
 const colorGrey = getClassColor(CharacterClass.Neutral, ClassColorVariant.Default)
 const colorRed = getClassColor(CharacterClass.Warrior, ClassColorVariant.Default)

@@ -12,13 +12,66 @@ import { TEXT, INNER_BOX, NODE, NODE_BOX } from '@/codex/constants/eventTreeValu
 import { LevelOfDetail } from '@/codex/constants/eventSearchValues'
 
 import { measureEventTextWidth, wrapEventText } from './eventTextMeasurer'
-import { getCachedDimensions, buildDimensionCache as buildCache } from './eventNodeDimensionCache'
+import { createDimensionCache } from './tree/nodeDimensionCache'
 import { isEmojiOnlyNode } from './eventTreeHelper'
 
 /**
  * Node lookup map type for O(1) access to nodes by ID
  */
 export type NodeMap = Map<number, EventTreeNode>
+
+// ============================================================================
+// Dimension Cache
+// ============================================================================
+
+interface EventDimensionKey {
+  eventName: string
+  nodeId: number
+  showLoopingIndicator: boolean
+  levelOfDetail: LevelOfDetail
+  showContinuesTags: boolean
+}
+
+interface EventNodeDimensions {
+  width: number
+  height: number
+}
+
+/**
+ * Dimensions are cached per event + node + rendering settings, so switching between
+ * rendering modes doesn't recalculate. The cache is cleared per event when the
+ * component unmounts or the event changes (see clearEventCache).
+ */
+const dimensionCache = createDimensionCache<EventDimensionKey, EventNodeDimensions>(
+  ({ eventName, nodeId, showLoopingIndicator, levelOfDetail, showContinuesTags }) =>
+    `${eventName}:${nodeId}:looping-${showLoopingIndicator}:level-${levelOfDetail}:continues-${showContinuesTags}`
+)
+
+// Track the currently cached event (for DEV warnings)
+let cachedEventName: string | null = null
+
+const getCachedDimensions = (key: EventDimensionKey): EventNodeDimensions | undefined => {
+  const cached = dimensionCache.get(key)
+
+  // Warn in DEV if cache miss for the currently cached event
+  if (!cached && cachedEventName === key.eventName && process.env.NODE_ENV === 'development') {
+    // eslint-disable-next-line no-console
+    console.warn(
+      `[DimensionCache] Cache miss for node ${key.nodeId} in event "${key.eventName}". ` +
+        `Cache was built but this node wasn't found! 😱`
+    )
+  }
+
+  return cached
+}
+
+export const clearEventCache = (eventName: string): void => {
+  dimensionCache.clearByKeyPrefix(`${eventName}:`)
+
+  if (cachedEventName === eventName) {
+    cachedEventName = null
+  }
+}
 
 // ============================================================================
 // Type Guards and Helpers
@@ -337,13 +390,13 @@ export const getNodeDimensions = (
   levelOfDetail: LevelOfDetail,
   showContinuesTags: boolean
 ): [number, number] => {
-  const cached = getCachedDimensions(
-    event.name,
-    node.id,
+  const cached = getCachedDimensions({
+    eventName: event.name,
+    nodeId: node.id,
     showLoopingIndicator,
     levelOfDetail,
-    showContinuesTags
-  )
+    showContinuesTags,
+  })
   const nodeWidth =
     cached?.width ??
     _getNodeWidth(nodeMap, node, showLoopingIndicator, levelOfDetail, showContinuesTags)
@@ -365,8 +418,13 @@ export const getNodeWidth = (
   levelOfDetail: LevelOfDetail,
   showContinuesTags: boolean
 ): number =>
-  getCachedDimensions(event.name, node.id, showLoopingIndicator, levelOfDetail, showContinuesTags)
-    ?.width ?? _getNodeWidth(nodeMap, node, showLoopingIndicator, levelOfDetail, showContinuesTags)
+  getCachedDimensions({
+    eventName: event.name,
+    nodeId: node.id,
+    showLoopingIndicator,
+    levelOfDetail,
+    showContinuesTags,
+  })?.width ?? _getNodeWidth(nodeMap, node, showLoopingIndicator, levelOfDetail, showContinuesTags)
 
 /**
  * Get node height with caching support
@@ -379,11 +437,18 @@ export const getNodeHeight = (
   levelOfDetail: LevelOfDetail,
   showContinuesTags: boolean
 ): number =>
-  getCachedDimensions(event.name, node.id, showLoopingIndicator, levelOfDetail, showContinuesTags)
-    ?.height ?? _getNodeHeight(node, width, showLoopingIndicator, levelOfDetail, showContinuesTags)
+  getCachedDimensions({
+    eventName: event.name,
+    nodeId: node.id,
+    showLoopingIndicator,
+    levelOfDetail,
+    showContinuesTags,
+  })?.height ?? _getNodeHeight(node, width, showLoopingIndicator, levelOfDetail, showContinuesTags)
 
 /**
- * Cache all node dimensions for better performance
+ * Pre-populates the cache with dimensions for all nodes in an event tree.
+ * Skips recalculation entirely if the root node is already cached for
+ * this exact configuration (all nodes are cached together).
  */
 export const cacheAllNodeDimensions = (
   nodeMap: NodeMap,
@@ -392,15 +457,43 @@ export const cacheAllNodeDimensions = (
   levelOfDetail: LevelOfDetail,
   showContinuesTags: boolean
 ): void => {
-  buildCache(
-    nodeMap,
-    event,
+  if (!event.rootNode) return
+
+  const makeKey = (node: EventTreeNode) => ({
+    eventName: event.name,
+    nodeId: node.id,
     showLoopingIndicator,
     levelOfDetail,
     showContinuesTags,
-    _getNodeWidth,
-    _getNodeHeight
-  )
+  })
+
+  if (dimensionCache.has(makeKey(event.rootNode))) return
+
+  const cacheNodeRecursive = (node: EventTreeNode) => {
+    const width = _getNodeWidth(
+      nodeMap,
+      node,
+      showLoopingIndicator,
+      levelOfDetail,
+      showContinuesTags
+    )
+    const height = _getNodeHeight(
+      node,
+      width,
+      showLoopingIndicator,
+      levelOfDetail,
+      showContinuesTags
+    )
+
+    dimensionCache.set(makeKey(node), { width, height })
+
+    node.children?.forEach(cacheNodeRecursive)
+  }
+
+  cacheNodeRecursive(event.rootNode)
+
+  // Track this as the currently cached event
+  cachedEventName = event.name
 }
 
 /**

@@ -96,3 +96,16 @@ export interface HierarchicalTalentTreeNode {
   // Other niche requirements
   otherRequirements: string[]
 }
+
+// The rendering settings that talent node dimensions depend on
+export interface TalentRenderingContext {
+  shouldShowDescription: boolean
+  shouldShowCardSet: (index?: number) => boolean
+  shouldShowBlightbaneLink: boolean
+  parsedKeywords: string[]
+}
+
+export interface TalentNodeHeight {
+  height: number
+  contentHeight: number
+}

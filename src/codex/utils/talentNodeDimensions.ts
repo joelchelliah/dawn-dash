@@ -1,15 +1,15 @@
 import { isNotNullOrUndefined } from '@/shared/utils/object'
 
-import { HierarchicalTalentTreeNode, TalentTreeNodeType } from '@/codex/types/talents'
+import {
+  HierarchicalTalentTreeNode,
+  TalentTreeNodeType,
+  TalentRenderingContext,
+  TalentNodeHeight,
+} from '@/codex/types/talents'
 import { NODE, REQUIREMENT_NODE } from '@/codex/constants/talentTreeValues'
 
 import { wrapTalentText } from './talentTextMeasurer'
-import {
-  getCachedDimensions,
-  buildDimensionCache as buildCache,
-  TalentRenderingContext,
-  TalentNodeHeight,
-} from './talentNodeDimensionCache'
+import { createDimensionCache } from './tree/nodeDimensionCache'
 import { getMatchingKeywordsText } from './talentTreeHelper'
 
 /**
@@ -146,35 +146,54 @@ export const getNodeHalfWidth = (node: HierarchicalTalentTreeNode) => {
   }
 }
 
+interface TalentDimensionKey {
+  node: HierarchicalTalentTreeNode
+  context: TalentRenderingContext
+}
+
+/**
+ * Talents are cached by their characteristics (name, requirements, rendering settings),
+ * since the same talent can appear in multiple trees and will always have the same
+ * dimensions given the same rendering context. The cache persists across tree changes.
+ */
+const dimensionCache = createDimensionCache<TalentDimensionKey, TalentNodeHeight>(
+  ({ node, context }) => {
+    const specialRequirements = [
+      ...node.otherRequirements,
+      ...node.talentRequirements,
+      ...node.classOrEnergyRequirements,
+    ].join(',')
+    const showCardSet = context.shouldShowCardSet(node.cardSetIndex)
+    // Keywords section is shown if BOTH showKeywords filter is on AND this node has matching keywords
+    const showKeywordsSection =
+      context.parsedKeywords.length > 0 &&
+      getMatchingKeywordsText(node, context.parsedKeywords).length > 0
+
+    return `${node.name}:req-${specialRequirements}:description-${context.shouldShowDescription}:card-set-${showCardSet}:keywords-${showKeywordsSection}:blightbane-${context.shouldShowBlightbaneLink}`
+  }
+)
+
 export const getNodeHeight = (
   node: HierarchicalTalentTreeNode,
   context: TalentRenderingContext
-): TalentNodeHeight => {
-  const specialRequirements = [
-    ...node.otherRequirements,
-    ...node.talentRequirements,
-    ...node.classOrEnergyRequirements,
-  ].join(',')
-  const showKeywordsSection =
-    context.parsedKeywords.length > 0 &&
-    getMatchingKeywordsText(node, context.parsedKeywords).length > 0
-  const showCardSet = context.shouldShowCardSet(node.cardSetIndex)
+): TalentNodeHeight => dimensionCache.get({ node, context }) ?? _getNodeHeight(node, context)
 
-  const cached = getCachedDimensions(
-    node.name,
-    specialRequirements,
-    context.shouldShowDescription,
-    showCardSet,
-    showKeywordsSection,
-    context.shouldShowBlightbaneLink
-  )
-
-  return cached ?? _getNodeHeight(node, context)
-}
-
+/**
+ * Pre-populates the cache with heights for all nodes in a talent tree.
+ * Only calculates heights if they don't already exist for the given settings.
+ * Width is not cached since it's always static.
+ */
 export const cacheAllNodeDimensions = (
   rootNode: HierarchicalTalentTreeNode,
   context: TalentRenderingContext
 ): void => {
-  buildCache(rootNode, context, _getNodeHeight)
+  const cacheNodeRecursive = (node: HierarchicalTalentTreeNode) => {
+    const key = { node, context }
+    if (!dimensionCache.has(key)) {
+      dimensionCache.set(key, _getNodeHeight(node, context))
+    }
+    node.children?.forEach(cacheNodeRecursive)
+  }
+
+  cacheNodeRecursive(rootNode)
 }
