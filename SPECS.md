@@ -101,7 +101,7 @@ Replace each page's `<Head>` block with `<PageHead toolId="..." />`. Diff the re
 
 ---
 
-## Spec 3 — Unify duplicated talent-tree / event-tree infrastructure
+## Spec 3 — Unify duplicated talent-tree / event-tree infrastructure — ✅ COMPLETED (steps 1–4; step 5 skipped)
 
 **Impact: High** — the single largest source of duplication (~1,000+ redundant lines). Every bug fix currently must be applied twice, and it demonstrably drifts (the two text-width estimators already diverge).
 **Effort: High — do this in the sub-steps listed; each sub-step ships independently.**
@@ -126,7 +126,7 @@ There is also `src/codex/utils/canvasTextMeasurement.ts` which overlaps with bot
 2. **Dimension cache** — ✅ COMPLETED — create `src/codex/utils/tree/nodeDimensionCache.ts`: a factory `createDimensionCache<K>(makeKey: (k: K) => string)` returning `{ get, set, clear }`. Instantiate once per feature. Delete both old cache files.
 3. **Dimensions** — ✅ COMPLETED — create `src/codex/utils/tree/nodeDimensions.ts` with a factory that takes feature-specific `measureHeight/measureWidth` callbacks and wires in the cache from step 2. The feature files shrink to just their business logic (talent: requirements/card sets; event: effects/choices).
 4. **Tree helpers** — ✅ COMPLETED — move `buildNodeMap`, `calculateTreeBounds`, `findNodeById` into `src/codex/utils/tree/treeHelper.ts` (generic over node type). Keep feature-specific helpers where they are.
-5. **(Optional, only if steps 1–4 went cleanly)** Extract the shared SVG render skeleton from `TalentTree/index.tsx` and `EventTree/index.tsx` (container setup, zoom transform, render-pass orchestration) into a shared module, leaving node/link/badge drawing feature-specific.
+5. **⏭️ SKIPPED** — extract the shared SVG render skeleton from `TalentTree/index.tsx` and `EventTree/index.tsx`. Assessed after steps 1–4 landed: the remaining overlap is too small and the divergence too real to justify the abstraction — see "Explicitly considered and rejected" below. Re-evaluate a much smaller extraction after Spec 6 (note added there).
 
 ### Acceptance criteria
 
@@ -137,7 +137,7 @@ There is also `src/codex/utils/canvasTextMeasurement.ts` which overlaps with bot
 
 ---
 
-## Spec 4 — Decompose `eventTreeSpacing.ts` (1,221-line layout monolith)
+## Spec 4 — Decompose `eventTreeSpacing.ts` (1,221-line layout monolith) — ✅ COMPLETED (unit tests skipped by request; verified visually)
 
 **Impact: High** — the file is effectively unmaintainable and untested, and it's where layout bugs will land. Independent of Spec 3 but pairs well with it.
 **Effort: Medium**
@@ -167,6 +167,8 @@ There is also `src/codex/utils/canvasTextMeasurement.ts` which overlaps with bot
 - Event Maps render identically before/after (spot-check 2–3 complex events).
 - No single file in the new folder exceeds ~350 lines.
 - New tests pass; `npm run verify` passes.
+
+**Follow-up:** the decomposition revealed that the repair-pass architecture itself is the complexity driver — see Spec 19 for replacing the horizontal passes with `d3-flextree`.
 
 ---
 
@@ -232,6 +234,15 @@ export const createTreeFilterEngine = <TNode>(opts: {
 - Changing zoom level does not re-run dimension caching or spacing passes (verify by temporarily adding a counter/log during development, removed before finishing).
 - Interaction behavior (expand/collapse, links, tooltips) unchanged.
 - `npm run verify` passes.
+
+### Follow-up check (after this spec lands)
+
+Spec 3 step 5 (shared SVG render skeleton) was skipped as overengineering, but once this spec splits layout from rendering, re-check whether two *small* extractions fall out naturally:
+
+1. A ~20-line `setupTreeSvg(svg, { width, height, zoomScale, offsetX, offsetY, preserveAspectRatio })` helper in `src/codex/utils/tree/` covering the identical clear + size/viewBox + `scale() translate()` group setup in both tree components (note: `preserveAspectRatio` differs — `xMinYMin` vs `xMidYMin`).
+2. Move `createGlowFilter` into `src/codex/utils/tree/` — it is duplicated byte-for-byte in `TalentTree/talentNodes.ts` and `EventTree/nodes.ts` (the glow *rect* drawing stays feature-specific).
+
+Only do these if they simplify the post-split code; do not force a shared render-pass orchestrator.
 
 ---
 
@@ -471,8 +482,50 @@ Optionally add a modest `coverageThreshold` to `jest.config.ts` once the above l
 
 ---
 
+## Spec 19 — Replace the hand-rolled horizontal spacing passes with `d3-flextree`
+
+**Impact: High for maintainability** — deletes ~450 lines of the most intricate logic in the codebase and eliminates the "may not converge" failure mode entirely.
+**Effort: Medium — the code change is small; the work is visual QA across many events.**
+**Follow-up to Spec 4; pairs naturally with Spec 6** (layout becomes a pure function call, which is exactly the seam Spec 6 opens).
+
+### Problem
+
+The spacing engine in `src/codex/utils/eventTreeSpacing/` (decomposed in Spec 4) is a greedy top-down layout followed by repair passes: `centerChildrenUnderParents` places children optimistically, `resolveOverlaps` patches the collisions that causes, `tightenGaps` removes the excess air that `resolveOverlaps`'s recentering causes, and `centerMultiParentChildren` runs twice because tightening breaks its invariant. Each pass exists to undo damage from the previous one — which is why the passes iterate, need sweep caps (`MAX_*_SWEEPS = 10`), and can fail to converge (the `console.error` warnings).
+
+This is the problem the Reingold–Tilford family of algorithms solves properly: lay out **bottom-up**, packing each subtree against its sibling's contour, then center parents over their finished children. One deterministic sweep; overlaps are impossible by construction; there is no air to tighten and no convergence concept. d3's built-in `tree()` doesn't do this only because it assumes uniform node size — the exact gap the spacing engine fills by hand.
+
+### Change
+
+1. Add [`d3-flextree`](https://github.com/Klortho/d3-flextree) (d3-hierarchy-compatible; `nodeSize` is a function per node). In `EventTree`, replace the `tree()` layout + `adjustHorizontalNodeSpacing` call with `flextree({ nodeSize: (d) => [width(d) + minGap, VERTICAL_SPACING_DEFAULT] })` (~30-line adapter; verify whether flextree's `x` is the node center or left edge and adjust).
+2. Delete from `eventTreeSpacing/`: `passes/centerChildrenUnderParents.ts`, `passes/resolveOverlaps.ts`, `passes/tightenGaps.ts`, the sweep-cap constants and `logging.ts`, and the now-unused `grouping.ts` helpers (`buildParentGroups`, `getAllChildrenForParentGroup`). Net: roughly 450 lines removed.
+3. **Keep**: `passes/centerMultiParentChildren.ts` (run once, after flextree) plus the `geometry.ts`/`grouping.ts` code it uses — refChildren make the data a DAG, and no tree algorithm handles multi-parent constraints; this is the essential complexity. Also keep `adjustVerticalNodeSpacing` and `centerRootNodeHorizontally` unchanged (flextree only owns horizontal placement; use a constant vertical `nodeSize` so rows stay depth-aligned).
+4. Update the folder README to describe the new two-step pipeline (flextree → multi-parent centering).
+
+### Benefits
+
+- ~450 lines of incidental complexity replaced by a library whose whole job is variable-width tidy layout; what remains (multi-parent centering) is the genuinely irreducible part.
+- The convergence caps and their production `console.error` warnings disappear — layout becomes deterministic with guaranteed-no-overlap output.
+- Contour packing generally produces tighter, better-balanced trees than greedy-plus-repair.
+- Layout becomes a pure function call, simplifying Spec 6's layout/render split.
+
+### Caveats (assessed July 2026)
+
+- **Output will be similar, not pixel-identical** — every tree shifts a little, so this needs visual QA across a broad sample of events (refChildren-heavy, looping paths, compact + detailed modes), not a before/after diff of two screenshots.
+- **Behavioral nuance to watch**: today, parents sharing a refChild get pulled toward it as a group (`resolveOverlaps`'s recentering step); with flextree only the child moves toward its parents (`centerMultiParentChildren`). Usually visually equivalent, but check refChildren-heavy events specifically.
+- **`d3-flextree` is stable but dormant** (pure algorithm, no DOM dependency; unmaintained for years). Acceptable for pure math, but noted.
+- Optional cheap experiment before committing to this spec: delete the *first* `centerMultiParentChildren` run and keep only the final one — if refChildren-heavy events look unchanged, one pass invocation goes away for free regardless of whether flextree lands.
+
+### Acceptance criteria
+
+- Event Maps render without overlaps and visually as-good-or-better across a broad spot-check (including refChildren/looping events, all levels of detail and zoom).
+- `passes/centerChildrenUnderParents.ts`, `passes/resolveOverlaps.ts`, `passes/tightenGaps.ts`, and the sweep-cap machinery are gone.
+- `npm run verify` passes.
+
+---
+
 ## Explicitly considered and rejected
 
+- **Spec 3 step 5 — shared SVG render skeleton for TalentTree/EventTree** — assessed after steps 1–4 completed (July 2026). The genuinely identical code is only ~25–35 lines (SVG clear, zoomed-vs-viewBox sizing, zoom transform group), and even that differs in details (`preserveAspectRatio` values). Everything that makes the two effects look similar is different in substance: layout (d3 `separation()` by node height vs. flat separation + multi-pass spacing engine), zoom (stateless depth multiplier vs. stateful container-measuring calculator), and render passes (links/nodes/indicators/expansion-buttons vs. three link types/glow rects/content/six badge passes/cleanup/scroll-centering). A shared orchestrator would be a callback framework with exactly two divergent clients — more surface area than the duplication it removes. It would also cut across the layout/render seam Spec 6 needs to open. Two micro-extractions remain worth checking after Spec 6 (see the follow-up note there).
 - **`.env.local` secret exposure** — investigated; `.env.local` is gitignored (`.gitignore:16`) and has never been committed (`git log --all -- .env.local` is empty). The Supabase anon key is also public-by-design (`NEXT_PUBLIC_*`). No action needed.
 - **useSpeedrunData race condition** — the hook already guards against stale responses via `prevCacheKeyRef` checks in `onSuccess`. The pattern is unusual but correct; Spec 7 adds the missing `onError` handling instead.
 - **Full data-driven scoring CMS / generic rendering framework** — the scoring feature is content-heavy by nature; a full rewrite has poor cost/benefit. Spec 14 targets only mechanical duplication.
@@ -487,6 +540,6 @@ Quick wins first to build confidence, then the big refactors:
 3. Spec 1 → Spec 2 (registry, then PageHead).
 4. Spec 7 (error handling) and Spec 10 (buttons).
 5. Spec 5 (filter engine), Spec 6 (layout/render split).
-6. Spec 3 (tree unification, step by step) → Spec 4 (spacing decomposition).
+6. ~~Spec 3 (tree unification, step by step)~~ (done) → ~~Spec 4 (spacing decomposition)~~ (done) → Spec 19 (flextree swap; ideally alongside Spec 6).
 7. Spec 14, 16, 17.
 8. Spec 15 (docs/AI workflow — do Part A early if preferred; it's independent) and Spec 18 (ongoing).
