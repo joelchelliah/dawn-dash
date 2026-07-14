@@ -39,7 +39,7 @@ module.exports = {
     '@typescript-eslint/explicit-module-boundary-types': 'off',
     '@typescript-eslint/no-explicit-any': 'warn',
     '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
-    '@typescript-eslint/no-var-requires': 'error',
+    '@typescript-eslint/no-require-imports': 'error',
 
     // Import Rules
     'import/prefer-default-export': 'off',

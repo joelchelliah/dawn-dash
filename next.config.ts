@@ -47,7 +47,10 @@ const nextConfig = {
   },
 }
 
-const wpaConfig = withPWA({
+// next-pwa is curried: withPWA(pluginOptions) returns a wrapper that must be
+// applied to the Next config — spreading the wrapper into an object silently
+// drops the plugin entirely (no service worker gets built).
+export default withPWA({
   dest: 'public',
   runtimeCaching: [
     {
@@ -66,9 +69,4 @@ const wpaConfig = withPWA({
     },
   ],
   disable: process.env.NODE_ENV === 'development',
-})
-
-export default {
-  ...nextConfig,
-  ...wpaConfig,
-}
+})(nextConfig)

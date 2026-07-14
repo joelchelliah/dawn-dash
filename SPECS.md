@@ -277,10 +277,19 @@ Both micro-extractions landed in `src/codex/utils/tree/svgHelper.ts`:
 
 ---
 
-## Spec 8 — Dependency updates (tiered)
+## Spec 8 — Dependency updates (tiered) — ✅ COMPLETED (Tiers A + B; final visual check pending)
+
+> **Notes:** All Tier A and Tier B updates landed; `npm outdated` now shows only the Spec 20 cluster (React 19 / Next 16 / ESLint 9+ and their paired plugins). Deviations and findings:
+> (1) `eslint-config-next@15` bundles `eslint-plugin-react-hooks@5`, which conflicted with the project's direct v4 copy — the direct dep was bumped to `^5.2.0` so both dedupe to one plugin instance (lint passes with v5's stricter rules unchanged). `eslint-config-next` is pinned `~15.3.9` to stay on the Next 15.3.x line per this spec.
+> (2) `@typescript-eslint` v8 removed `no-var-requires` → replaced with `no-require-imports` in `.eslintrc.js`; v8's `no-unused-vars` also checks catch params by default, which flagged one unused `catch (error)` in `useWeeklyChallengeData.ts` (now `catch {}`).
+> (3) `web-vitals` was deleted, not upgraded — nothing imports it; `reportWebVitals` in `pages/_app.tsx` uses Next's built-in metric pipeline (`NextWebVitalsMetric` from `next/app`) and keeps working without the package.
+> (4) **Pre-existing bug found and fixed:** `next.config.ts` spread `withPWA(options)` (a curried *function*) into the exported config object, which silently dropped the plugin — no service worker had been built since ~July 2025; `public/sw.js` was a stale committed artifact. Now correctly applied as `withPWA(options)(nextConfig)`; the build emits `[PWA]` output and regenerates `sw.js`/`workbox-*.js` again. This *is* a user-visible behavior restoration (clients get a fresh service worker).
+> (5) New `sass` deprecated the Sass `if()` function → the three usages in `src/styles/_gradients.scss` were rewritten as `@if/@else` (identical compiled CSS); build is warning-free.
+> (6) New `prettier` reformatted one union type in `src/codex/types/events.ts` (formatting only).
+> Visual checklist for manual verification: speedrun charts (time axes via `chartjs-adapter-date-fns` + date-fns 4), "last updated" relative times (`useFromNow`), sliders (react-aria), PWA install/offline, Vercel Analytics events arriving, gradient text colors (hover + base).
 
 **Impact: Medium-high** — several packages are years behind; a few combinations are genuinely inconsistent today.
-**Effort: Tier A low, Tier B medium, Tier C is a decision for later**
+**Effort: Tier A low, Tier B medium** (the former Tier C is now Spec 20 — a decision for later)
 
 Current state (from `npm outdated`, July 2026) — apply in tiers, running `npm run verify` + `npm run build` after each tier:
 
@@ -297,15 +306,14 @@ Current state (from `npm outdated`, July 2026) — apply in tiers, running `npm 
 5. **`web-vitals` 2→5** — check how it's used (likely only in a reporting stub from CRA days); if unused, delete the dependency and the stub instead of upgrading.
 6. **`@vercel/analytics` 1→2, `@vercel/speed-insights` 1→2** — check changelogs; imports are typically unchanged.
 
-### Tier C — flag, but treat as separate decisions (do NOT do as part of this spec)
+### Tier C — moved to Spec 20
 
-- **React 19 + Next 16 + eslint 9/10 flat config** — a coordinated migration; worth planning but out of scope here.
-- **`next-pwa` 5.6** — effectively unmaintained (bundles workbox 6, babel-loader 8). When moving to Next 16, replace with `@serwist/next` (the maintained successor) and port the runtime-caching config from `next.config.ts`. Until then, leave it.
+The React 19 / Next 16 / ESLint flat-config migration is a separate decision, not part of this spec — see **Spec 20** at the bottom of this file.
 
 ### Acceptance criteria
 
 - `npm run verify` and `npm run build` pass after each tier.
-- `npm outdated` shows no remaining Tier A/B entries.
+- `npm outdated` shows no remaining Tier A/B entries (Spec 20 items may remain).
 - Manual smoke test: charts render with time axes, PWA still builds, tests pass.
 
 ---
@@ -527,20 +535,38 @@ This is the problem the Reingold–Tilford family of algorithms solves properly:
 
 ---
 
+## Spec 20 — React 19 + Next 16 + ESLint flat-config migration (deferred — do not start until needed)
+
+**Impact: Low today** — nothing in the codebase requires React 19 or Next 16 features.
+**Effort: High — a coordinated migration, not an incremental update.**
+**Formerly Spec 8 Tier C.**
+
+Deliberately deferred: do not start this until the project actually needs functionality from newer React or Next versions (or a hard external forcing function appears, e.g. a security fix only shipped for Next 16, or a required dependency dropping React 18 support). Until then, staying on React 18 + Next 15 has no cost.
+
+When it is picked up, migrate as one coordinated unit:
+
+- **React 19 + Next 16** — follow both official codemods/upgrade guides; expect `@types/react`/`@types/react-dom` 19 fallout across components.
+- **ESLint 9/10 flat config** — `eslint-config-next@16` pairs with Next 16 and requires flat config; migrate `.eslintrc.js` → `eslint.config.js`, and re-check `@typescript-eslint`, `eslint-plugin-react-hooks`, and the prettier/import plugins for flat-config-compatible versions.
+- **`next-pwa` 5.6 → `@serwist/next`** — `next-pwa` is effectively unmaintained (bundles workbox 6, babel-loader 8) and is the likeliest hard blocker under Next 16. Replace with `@serwist/next` (the maintained successor) and port the runtime-caching config from `next.config.ts` (Blightbane image CacheFirst strategy, 10-day expiry).
+
+**Acceptance (when eventually done):** all five tools render and behave identically; PWA install + offline caching still work; `npm run verify` and `npm run build` pass; `npm outdated` is clean.
+
+---
+
 ## Explicitly considered and rejected
 
 - **Spec 3 step 5 — shared SVG render skeleton for TalentTree/EventTree** — assessed after steps 1–4 completed (July 2026). The genuinely identical code is only ~25–35 lines (SVG clear, zoomed-vs-viewBox sizing, zoom transform group), and even that differs in details (`preserveAspectRatio` values). Everything that makes the two effects look similar is different in substance: layout (d3 `separation()` by node height vs. flat separation + multi-pass spacing engine), zoom (stateless depth multiplier vs. stateful container-measuring calculator), and render passes (links/nodes/indicators/expansion-buttons vs. three link types/glow rects/content/six badge passes/cleanup/scroll-centering). A shared orchestrator would be a callback framework with exactly two divergent clients — more surface area than the duplication it removes. It would also cut across the layout/render seam Spec 6 needs to open. Two micro-extractions remain worth checking after Spec 6 (see the follow-up note there).
 - **`.env.local` secret exposure** — investigated; `.env.local` is gitignored (`.gitignore:16`) and has never been committed (`git log --all -- .env.local` is empty). The Supabase anon key is also public-by-design (`NEXT_PUBLIC_*`). No action needed.
 - **useSpeedrunData race condition** — the hook already guards against stale responses via `prevCacheKeyRef` checks in `onSuccess`. The pattern is unusual but correct; Spec 7 adds the missing `onError` handling instead.
 - **Full data-driven scoring CMS / generic rendering framework** — the scoring feature is content-heavy by nature; a full rewrite has poor cost/benefit. Spec 14 targets only mechanical duplication.
-- **React 19 / Next 16 migration** — deferred to a dedicated future spec (see Spec 8 Tier C).
+- **React 19 / Next 16 migration** — deferred until functionality from newer React/Next is actually needed (see Spec 20).
 
 ## Suggested implementation order for a Sonnet agent
 
 Quick wins first to build confidence, then the big refactors:
 
 1. Spec 9 (trivial), Spec 11 (trivial), Spec 12, Spec 13 — small, isolated, verifiable.
-2. Spec 8 Tier A, then Tier B — get the toolchain current before large refactors.
+2. ~~Spec 8 Tier A, then Tier B~~ (done) — toolchain is current.
 3. Spec 1 → Spec 2 (registry, then PageHead).
 4. ~~Spec 7 (error handling)~~ (done) and Spec 10 (buttons).
 5. ~~Spec 5 (filter engine)~~ (done), ~~Spec 6 (layout/render split)~~ (done).

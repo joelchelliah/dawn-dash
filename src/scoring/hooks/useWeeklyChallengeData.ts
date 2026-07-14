@@ -32,7 +32,7 @@ export function useWeeklyChallengeData(): UseWeeklyChallengeData {
             setIsError(true)
           }
         }
-      } catch (error) {
+      } catch {
         if (isMounted) {
           setIsError(true)
         }

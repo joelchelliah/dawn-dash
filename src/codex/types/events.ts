@@ -12,12 +12,7 @@ export interface Event {
 }
 
 export type EventTreeNode =
-  | DialogueNode
-  | ChoiceNode
-  | EndNode
-  | CombatNode
-  | SpecialNode
-  | ResultNode
+  DialogueNode | ChoiceNode | EndNode | CombatNode | SpecialNode | ResultNode
 
 export interface DialogueNode extends BaseNode {
   type: 'dialogue'

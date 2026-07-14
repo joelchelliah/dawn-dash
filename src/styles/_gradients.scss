@@ -2,7 +2,11 @@
 
 @mixin yellowGreenGradient($hover) {
   // Fallback
-  color: if($hover, colors.$color-primary-hover, colors.$color-primary-base);
+  @if $hover {
+    color: colors.$color-primary-hover;
+  } @else {
+    color: colors.$color-primary-base;
+  }
 
   @supports (-webkit-background-clip: text) or (background-clip: text) {
     @include yellowGreenGradientBackground($hover);
@@ -13,11 +17,13 @@
 }
 
 @mixin yellowGreenGradientBackground($hover: false) {
-  background: linear-gradient(
-    45deg,
-    if($hover, colors.$yellow-hover, colors.$yellow-base),
-    if($hover, colors.$green-hover, colors.$green-base)
-  );
+  $gradient-start: colors.$yellow-base;
+  $gradient-end: colors.$green-base;
+  @if $hover {
+    $gradient-start: colors.$yellow-hover;
+    $gradient-end: colors.$green-hover;
+  }
+  background: linear-gradient(45deg, $gradient-start, $gradient-end);
 }
 
 @mixin yellowGreenGradientIcon($hover, $hover-scale: 1.25) {
