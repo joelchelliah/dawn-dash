@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { memo, useEffect, useMemo, useRef } from 'react'
 
 import { select } from 'd3-selection'
 import { hierarchy, tree, HierarchyPointNode } from 'd3-hierarchy'
@@ -22,6 +22,7 @@ import {
   adjustVerticalNodeSpacing,
   centerRootNodeHorizontally,
 } from '@/codex/utils/eventTreeSpacing'
+import { setupTreeSvg, createGlowFilter } from '@/codex/utils/tree/svgHelper'
 import { NODE, TREE, NODE_BOX } from '@/codex/constants/eventTreeValues'
 import { ZoomLevel } from '@/codex/constants/zoomValues'
 import {
@@ -30,7 +31,6 @@ import {
   LevelOfDetail,
 } from '@/codex/constants/eventSearchValues'
 import { useEventImageSrc } from '@/codex/hooks/useEventImageSrc'
-import { UseAllEventSearchFilters } from '@/codex/hooks/useSearchFilters/useAllEventSearchFilters'
 
 import { drawLinks, drawRefChildrenLinks, drawLoopBackLinks } from './links'
 import {
@@ -42,20 +42,30 @@ import {
   drawSpecialBadge,
 } from './badges'
 import { useEventTreeZoom } from './useEventTreeZoom'
-import { createGlowFilter, renderNodeContent } from './nodes'
+import { renderNodeContent } from './nodes'
 import styles from './index.module.scss'
 
 const cx = createCx(styles)
 
 interface EventTreeProps {
   event: Event
-  useSearchFilters: UseAllEventSearchFilters
+  zoomLevel: ZoomLevel
+  levelOfDetail: LevelOfDetail
+  loopingPathMode: LoopingPathMode
+  navigationMode: TreeNavigationMode
+  showContinuesTags: boolean
   onAllEventsClick: () => void
 }
 
-function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps): JSX.Element {
-  const { zoomLevel, levelOfDetail, loopingPathMode, navigationMode, showContinuesTags } =
-    useSearchFilters
+function EventTree({
+  event,
+  zoomLevel,
+  levelOfDetail,
+  loopingPathMode,
+  navigationMode,
+  showContinuesTags,
+  onAllEventsClick,
+}: EventTreeProps): JSX.Element {
   const svgRef = useRef<SVGSVGElement>(null)
   const scrollWrapperRef = useRef<HTMLDivElement>(null)
 
@@ -67,14 +77,13 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
   // Force scroll mode on mobile (touch scrolling works like dragging on mobile)
   const isDragMode = !isMobile && navigationMode === TreeNavigationMode.DRAG
 
-  useEffect(() => {
-    if (!svgRef.current || !event.rootNode || !scrollWrapperRef.current) return
+  const showLoopingIndicator = loopingPathMode === LoopingPathMode.INDICATOR
 
-    const showLoopingIndicator = loopingPathMode === LoopingPathMode.INDICATOR
-    const isCompact = levelOfDetail === LevelOfDetail.COMPACT
-
-    // Clear previous visualization
-    select(svgRef.current).selectAll('*').remove()
+  // Layout computation: node dimensions, tree layout, and the spacing passes.
+  // Deliberately independent of zoomLevel, so zooming only re-renders (below)
+  // without re-running dimension caching or the spacing engine.
+  const layout = useMemo(() => {
+    if (!event.rootNode) return null
 
     const root = hierarchy(event.rootNode, (d) => d.children)
     const nodeMap = buildNodeMap(root, (node) => node.id)
@@ -121,6 +130,35 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
     const svgWidth = Math.max(calculatedWidth, TREE.MIN_SVG_WIDTH)
     const svgHeight = bounds.height + verticalPadding * 2
 
+    const offsetX = -bounds.minX + TREE.HORIZONTAL_PADDING
+
+    centerRootNodeHorizontally(root as HierarchyPointNode<EventTreeNode>, svgWidth, offsetX)
+
+    // Center the tree vertically
+    const offsetY = -bounds.minY + verticalPadding
+
+    return { root, nodeMap, getDimensions, svgWidth, svgHeight, offsetX, offsetY }
+  }, [event, showLoopingIndicator, levelOfDetail, showContinuesTags])
+
+  // Clear the dimension cache when the component unmounts or the event changes.
+  // (The cache is keyed on event + rendering settings, so entries for other
+  // settings of the same event stay valid and can be reused.)
+  useEffect(() => {
+    return () => {
+      clearEventCache(event.name)
+    }
+  }, [event.name])
+
+  // Render effect: draws the precomputed layout at the current zoom level
+  useEffect(() => {
+    if (!svgRef.current || !layout || !scrollWrapperRef.current) return
+
+    const { root, nodeMap, getDimensions, svgWidth, svgHeight, offsetX, offsetY } = layout
+    const isCompact = levelOfDetail === LevelOfDetail.COMPACT
+
+    // Clear previous visualization
+    select(svgRef.current).selectAll('*').remove()
+
     const zoomScale = zoomCalculator.calculate({
       eventName: event.name,
       zoomLevel,
@@ -130,42 +168,16 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
       containerHeight: scrollWrapperRef.current.clientHeight,
     })
 
-    const offsetX = -bounds.minX + TREE.HORIZONTAL_PADDING
-
-    centerRootNodeHorizontally(root as HierarchyPointNode<EventTreeNode>, svgWidth, offsetX)
-
-    // Center the tree vertically
-    const offsetY = -bounds.minY + verticalPadding
-
-    const svg = select(svgRef.current)
-
-    if (zoomScale) {
-      // When zoomed: remove viewBox, set explicit scaled dimensions
-      svg
-        .attr('width', svgWidth * zoomScale)
-        .attr('height', svgHeight * zoomScale)
-        .attr('viewBox', null)
-        .attr('preserveAspectRatio', null)
-    } else {
-      // Use viewBox to make everything fit
-      svg
-        .attr('width', svgWidth)
-        .attr('height', svgHeight)
-        .attr('viewBox', `0 0 ${svgWidth} ${svgHeight}`)
-        .attr('preserveAspectRatio', 'xMidYMin meet')
-    }
-
-    // Define arrow marker - we'll create individual markers for each link
-    const defs = svg.append('defs')
+    const { defs, contentGroup: g } = setupTreeSvg(svgRef.current, {
+      width: svgWidth,
+      height: svgHeight,
+      zoomScale,
+      offsetX,
+      offsetY,
+      preserveAspectRatio: 'xMidYMin meet',
+    })
 
     createGlowFilter(defs, 'event-glow')
-
-    // Apply zoom scale to the content group
-    // When scaling, we need to apply scale first, then translate by the scaled offset
-    const zoomTransformScale = zoomScale ?? 1
-    const g = svg
-      .append('g')
-      .attr('transform', `scale(${zoomTransformScale}) translate(${offsetX}, ${offsetY})`)
 
     const drawLinksParam = {
       g,
@@ -273,14 +285,16 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
       // Center horizontally: (scrollWidth - clientWidth) / 2
       wrapper.scrollLeft = (wrapper.scrollWidth - wrapper.clientWidth) / 2
     }
-
-    // Cleanup: clear dimension cache when component unmounts or event changes
-    return () => {
-      clearEventCache(event.name)
-    }
-    // NOTE: zoomCalculator is a stable dependency, so we don't need to include it here
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [event, zoomLevel, loopingPathMode, levelOfDetail, showContinuesTags])
+  }, [
+    layout,
+    zoomLevel,
+    loopingPathMode,
+    showLoopingIndicator,
+    levelOfDetail,
+    showContinuesTags,
+    event,
+    zoomCalculator,
+  ])
 
   return (
     <div className={cx('container')}>
@@ -336,4 +350,4 @@ function EventTree({ event, useSearchFilters, onAllEventsClick }: EventTreeProps
   )
 }
 
-export default EventTree
+export default memo(EventTree)

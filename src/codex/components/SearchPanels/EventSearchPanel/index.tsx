@@ -64,7 +64,7 @@ const getLoopingPathModeLabel = (mode: LoopingPathMode): string =>
 const getNavigationModeLabel = (mode: TreeNavigationMode): string =>
   mode === TreeNavigationMode.DRAG
     ? `🖐${wideSpace}By clicking and dragging`
-    : `↕️${wideSpace}By scrolling (both directions)`
+    : `↕️${wideSpace}By scrolling (all directions)`
 
 const EventSearchPanel = ({
   selectedEventIndex,

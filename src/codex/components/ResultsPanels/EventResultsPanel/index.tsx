@@ -1,3 +1,5 @@
+import { useCallback } from 'react'
+
 import { createCx } from '@/shared/utils/classnames'
 import GradientLink from '@/shared/components/GradientLink'
 import GradientDivider from '@/shared/components/GradientDivider'
@@ -41,17 +43,31 @@ const EventResultsPanel = ({
   const eventName = selectedEvent?.name ?? 'UNNAMED-EVENT'
   const blightbaneLink = selectedEvent?.blightbaneLink ?? 'MISSING-BLIGHTBANE-URL'
 
-  const { filterText, setFilterText } = useSearchFilters
+  const {
+    filterText,
+    setFilterText,
+    zoomLevel,
+    levelOfDetail,
+    loopingPathMode,
+    navigationMode,
+    showContinuesTags,
+  } = useSearchFilters
   const showEventList = selectedEventIndex === ALL_EVENTS_INDEX || filteredEvents.length === 0
   const isNavigating = pendingEventIndex !== null && pendingEventIndex !== selectedEventIndex
   const loadingColor = getClassColor(CharacterClass.Rogue, ClassColorVariant.Dark)
+
+  const handleAllEventsClick = useCallback(() => onEventChange(ALL_EVENTS_INDEX), [onEventChange])
 
   const renderEventTree = (event: Event) => (
     <>
       <EventTree
         event={event}
-        useSearchFilters={useSearchFilters}
-        onAllEventsClick={() => onEventChange(ALL_EVENTS_INDEX)}
+        zoomLevel={zoomLevel}
+        levelOfDetail={levelOfDetail}
+        loopingPathMode={loopingPathMode}
+        navigationMode={navigationMode}
+        showContinuesTags={showContinuesTags}
+        onAllEventsClick={handleAllEventsClick}
       />
       <br />
       <br />

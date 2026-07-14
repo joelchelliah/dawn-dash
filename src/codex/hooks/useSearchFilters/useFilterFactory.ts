@@ -57,17 +57,17 @@ export function createFilterHook({
       [selectedIndices]
     )
 
-    const getValueFromIndex = indexToValueMap
-      ? (index: number) => {
-          return indexToValueMap[index] ?? defaultFilterValue ?? ''
-        }
-      : () => ''
+    // Stable references so components receiving these as props can be memoized
+    const getValueFromIndex = useCallback(
+      (index: number) =>
+        indexToValueMap ? (indexToValueMap[index] ?? defaultFilterValue ?? '') : '',
+      [defaultFilterValue]
+    )
 
-    const getValueToString = valueToStringMap
-      ? (filter: string) => {
-          return valueToStringMap[filter] || ''
-        }
-      : () => ''
+    const getValueToString = useCallback(
+      (filter: string) => (valueToStringMap ? valueToStringMap[filter] || '' : ''),
+      []
+    )
 
     const handleFilterToggle = (filter: string) => {
       // 'ALL' is selected:

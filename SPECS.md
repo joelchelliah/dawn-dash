@@ -214,7 +214,9 @@ export const createTreeFilterEngine = <TNode>(opts: {
 
 ---
 
-## Spec 6 — Separate tree layout from rendering; memoize expensive renders
+## Spec 6 — Separate tree layout from rendering; memoize expensive renders — ✅ COMPLETED (incl. both follow-up extractions; final visual check pending)
+
+> **Verification:** layout/render split confirmed via a temporary instrumented test (removed after running): zoom changes (Cover → 100 → 150) trigger zero additional calls to `cacheAllNodeDimensions` / `adjustHorizontalNodeSpacing` / `adjustVerticalNodeSpacing` in both trees, while layout inputs (level of detail, formatting toggles) still re-run layout. Also done along the way: `getValueFromIndex`/`getValueToString` in `useFilterFactory` wrapped in `useCallback` (they were recreated every render, which would have defeated `React.memo`), and the event dimension cache is now only cleared on event change/unmount instead of on every settings change (cache keys already include all rendering settings, so toggling settings back and forth now reuses cached dimensions).
 
 **Impact: Medium-high** — zoom changes currently re-run full layout (including the multi-pass spacing engine) instead of just re-rendering.
 **Effort: Low-medium**
@@ -237,14 +239,12 @@ export const createTreeFilterEngine = <TNode>(opts: {
 - Interaction behavior (expand/collapse, links, tooltips) unchanged.
 - `npm run verify` passes.
 
-### Follow-up check (after this spec lands)
+### Follow-up check (after this spec lands) — ✅ both done
 
-Spec 3 step 5 (shared SVG render skeleton) was skipped as overengineering, but once this spec splits layout from rendering, re-check whether two *small* extractions fall out naturally:
+Both micro-extractions landed in `src/codex/utils/tree/svgHelper.ts`:
 
-1. A ~20-line `setupTreeSvg(svg, { width, height, zoomScale, offsetX, offsetY, preserveAspectRatio })` helper in `src/codex/utils/tree/` covering the identical clear + size/viewBox + `scale() translate()` group setup in both tree components (note: `preserveAspectRatio` differs — `xMinYMin` vs `xMidYMin`).
-2. Move `createGlowFilter` into `src/codex/utils/tree/` — it is duplicated byte-for-byte in `TalentTree/talentNodes.ts` and `EventTree/nodes.ts` (the glow *rect* drawing stays feature-specific).
-
-Only do these if they simplify the post-split code; do not force a shared render-pass orchestrator.
+1. `setupTreeSvg(svgElement, { width, height, zoomScale, offsetX, offsetY, preserveAspectRatio })` — replaced the identical size/viewBox + `scale() translate()` group setup in both tree components (~25 lines each → 1 call). The SVG *clear* stayed in the components: the event tree must clear before measuring its container for zoom calculations, so ordering is caller-controlled.
+2. `createGlowFilter` moved there too (was duplicated byte-for-byte); glow *rect* drawing stays feature-specific.
 
 ---
 
@@ -541,7 +541,7 @@ Quick wins first to build confidence, then the big refactors:
 2. Spec 8 Tier A, then Tier B — get the toolchain current before large refactors.
 3. Spec 1 → Spec 2 (registry, then PageHead).
 4. Spec 7 (error handling) and Spec 10 (buttons).
-5. Spec 5 (filter engine), Spec 6 (layout/render split).
+5. ~~Spec 5 (filter engine)~~ (done), ~~Spec 6 (layout/render split)~~ (done).
 6. ~~Spec 3 (tree unification, step by step)~~ (done) → ~~Spec 4 (spacing decomposition)~~ (done) → Spec 19 (flextree swap; ideally alongside Spec 6).
 7. Spec 14, 16, 17.
 8. Spec 15 (docs/AI workflow — do Part A early if preferred; it's independent) and Spec 18 (ongoing).

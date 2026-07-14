@@ -28,9 +28,17 @@ const TalentResultsPanel = ({ useSearchFilters }: TalentResultsPanelProps) => {
   const [showTalentsWithoutKeywords, setShowTalentsWithoutKeywords] = useState(false)
   const [zoomLevel, setZoomLevel] = useState<ZoomLevel>(ZoomLevel.COVER)
   const { isMobile } = useBreakpoint()
-  const { parsedKeywords, matchingTalentTree, useFormattingFilters } = useSearchFilters
-  const { shouldExpandNodes } = useFormattingFilters
-  const useChildrenExpansion = useExpandableNodes(shouldExpandNodes)
+  const { parsedKeywords, matchingTalentTree, useFormattingFilters, useCardSetFilters } =
+    useSearchFilters
+  const { isCardSetIndexSelected, getCardSetNameFromIndex } = useCardSetFilters
+  const {
+    shouldExpandNodes,
+    shouldShowDescription,
+    shouldShowCardSet,
+    shouldShowKeywords,
+    shouldShowBlightbaneLink,
+  } = useFormattingFilters
+  const { isNodeExpanded, toggleNodeExpansion } = useExpandableNodes(shouldExpandNodes)
   const showStickyZoom = useStickyZoom(0, 1300)
 
   // We want the sticky zoom to move to the top once the user scrolls down a bit.
@@ -99,8 +107,15 @@ const TalentResultsPanel = ({ useSearchFilters }: TalentResultsPanelProps) => {
 
         <TalentTree
           talentTree={matchingTalentTree}
-          useSearchFilters={useSearchFilters}
-          useChildrenExpansion={useChildrenExpansion}
+          parsedKeywords={parsedKeywords}
+          shouldShowDescription={shouldShowDescription}
+          shouldShowCardSet={shouldShowCardSet}
+          shouldShowKeywords={shouldShowKeywords}
+          shouldShowBlightbaneLink={shouldShowBlightbaneLink}
+          isCardSetIndexSelected={isCardSetIndexSelected}
+          getCardSetNameFromIndex={getCardSetNameFromIndex}
+          areChildrenExpanded={isNodeExpanded}
+          toggleChildrenExpansion={toggleNodeExpansion}
           zoomLevel={zoomLevel}
         />
       </div>

@@ -26,20 +26,6 @@ const cx = createCx(styles)
 
 type NodeElement = Selection<SVGGElement, unknown, null, undefined>
 
-export function createGlowFilter(
-  defs: Selection<SVGDefsElement, unknown, null, undefined>,
-  filterId: string
-): void {
-  const blurAmount = '4'
-  const filter = defs.append('filter').attr('id', filterId)
-
-  filter.append('feGaussianBlur').attr('stdDeviation', blurAmount).attr('result', 'coloredBlur')
-
-  const merge = filter.append('feMerge')
-  merge.append('feMergeNode').attr('in', 'coloredBlur')
-  merge.append('feMergeNode').attr('in', 'SourceGraphic')
-}
-
 interface NodeContentParams {
   getDimensions: (node: EventTreeNode) => [number, number]
   root: HierarchyPointNode<EventTreeNode>

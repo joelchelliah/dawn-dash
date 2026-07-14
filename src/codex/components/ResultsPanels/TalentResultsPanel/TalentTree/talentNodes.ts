@@ -27,23 +27,6 @@ const DEBUG_RECTANGLES = {
 }
 
 /**
- * Creates a glow filter for talent nodes
- */
-export function createGlowFilter(
-  defs: Selection<SVGDefsElement, unknown, null, undefined>,
-  filterId: string
-): void {
-  const blurAmount = '4'
-  const filter = defs.append('filter').attr('id', filterId)
-
-  filter.append('feGaussianBlur').attr('stdDeviation', blurAmount).attr('result', 'coloredBlur')
-
-  const merge = filter.append('feMerge')
-  merge.append('feMergeNode').attr('in', 'coloredBlur')
-  merge.append('feMergeNode').attr('in', 'SourceGraphic')
-}
-
-/**
  * Renders the main talent card node (background, borders, content)
  */
 export function renderTalentNode(

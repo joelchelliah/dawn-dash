@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { memo, useEffect, useMemo, useRef } from 'react'
 
 import { select } from 'd3-selection'
 import { hierarchy, tree } from 'd3-hierarchy'
@@ -18,15 +18,14 @@ import {
   getNodeInTree,
 } from '@/codex/utils/talentTreeHelper'
 import { cacheAllNodeDimensions, getNodeHeight } from '@/codex/utils/talentNodeDimensions'
+import { setupTreeSvg, createGlowFilter } from '@/codex/utils/tree/svgHelper'
 import { NODE, TREE } from '@/codex/constants/talentTreeValues'
 import { buildHierarchicalTreeFromTalentTree } from '@/codex/utils/talentTreeBuilder'
-import { useExpandableNodes } from '@/codex/hooks/useExpandableNodes'
-import { useAllTalentSearchFilters } from '@/codex/hooks/useSearchFilters'
 import { ZoomLevel } from '@/codex/constants/zoomValues'
 
 import { drawLinks, getLinksWithNewRequirements } from './links'
 import { renderRequirementNode, renderRequirementIndicators } from './requirementNodes'
-import { renderTalentNode, createGlowFilter } from './talentNodes'
+import { renderTalentNode } from './talentNodes'
 import { renderExpansionButton } from './expansionButtons'
 import styles from './index.module.scss'
 
@@ -34,31 +33,39 @@ const cx = createCx(styles)
 
 interface TalentTreeProps {
   talentTree: TalentTreeType | undefined
-  useSearchFilters: ReturnType<typeof useAllTalentSearchFilters>
-  useChildrenExpansion: ReturnType<typeof useExpandableNodes>
+  parsedKeywords: string[]
+  shouldShowDescription: boolean
+  shouldShowCardSet: boolean
+  shouldShowKeywords: boolean
+  shouldShowBlightbaneLink: boolean
+  isCardSetIndexSelected: (index: number) => boolean
+  getCardSetNameFromIndex: (index: number) => string
+  areChildrenExpanded: (nodeName: string) => boolean
+  toggleChildrenExpansion: (nodeName: string) => void
   zoomLevel: ZoomLevel
 }
 
-export default function TalentTree({
+function TalentTree({
   talentTree,
-  useSearchFilters,
-  useChildrenExpansion,
+  parsedKeywords,
+  shouldShowDescription,
+  shouldShowCardSet,
+  shouldShowKeywords,
+  shouldShowBlightbaneLink,
+  isCardSetIndexSelected,
+  getCardSetNameFromIndex,
+  areChildrenExpanded,
+  toggleChildrenExpansion,
   zoomLevel,
 }: TalentTreeProps) {
   const svgRef = useRef<SVGSVGElement>(null)
   const scrollWrapperRef = useRef<HTMLDivElement>(null)
-  const { parsedKeywords, useFormattingFilters, useCardSetFilters } = useSearchFilters
-  const { isCardSetIndexSelected, getCardSetNameFromIndex } = useCardSetFilters
-  const { shouldShowDescription, shouldShowCardSet, shouldShowKeywords, shouldShowBlightbaneLink } =
-    useFormattingFilters
-  const { toggleNodeExpansion: toggleChildrenExpansion, isNodeExpanded: areChildrenExpanded } =
-    useChildrenExpansion
 
-  useEffect(() => {
-    if (!svgRef.current || !talentTree || !scrollWrapperRef.current) return
-
-    // Clear previous visualization
-    select(svgRef.current).selectAll('*').remove()
+  // Layout computation: everything that positions and sizes the tree.
+  // Deliberately independent of zoomLevel, so zooming only re-renders (below)
+  // without re-running dimension caching or the tree layout.
+  const layout = useMemo(() => {
+    if (!talentTree) return null
 
     const fullTree = buildHierarchicalTreeFromTalentTree(talentTree)
 
@@ -93,9 +100,6 @@ export default function TalentTree({
       parsedKeywords: shouldShowKeywords ? parsedKeywords : [],
     }
 
-    const getCardSetName = (index?: number) =>
-      shouldShowCardSet && index !== undefined ? getCardSetNameFromIndex(index) : undefined
-
     // Pre-cache all node dimensions for performance
     cacheAllNodeDimensions(filteredTree, renderingContext)
 
@@ -118,11 +122,45 @@ export default function TalentTree({
 
     const bounds = calculateTalentTreeBounds(treeData, renderingContext)
 
-    const allNodes = treeData.descendants()
-    const maxDepth = Math.max(...allNodes.map((d) => d.depth))
+    const maxDepth = Math.max(...treeData.descendants().map((d) => d.depth))
 
     const svgWidth = bounds.width + TREE.PADDING.LEFT + TREE.PADDING.RIGHT
     const svgHeight = bounds.height + TREE.PADDING.VERTICAL * 2
+    const offsetX = TREE.PADDING.LEFT - bounds.minY
+    const offsetY = TREE.PADDING.VERTICAL - bounds.minX
+
+    return { fullTree, treeData, renderingContext, maxDepth, svgWidth, svgHeight, offsetX, offsetY }
+  }, [
+    talentTree,
+    parsedKeywords,
+    shouldShowDescription,
+    shouldShowCardSet,
+    shouldShowKeywords,
+    shouldShowBlightbaneLink,
+    isCardSetIndexSelected,
+    areChildrenExpanded,
+  ])
+
+  // Render effect: draws the precomputed layout at the current zoom level
+  useEffect(() => {
+    if (!svgRef.current || !layout || !scrollWrapperRef.current) return
+
+    const {
+      fullTree,
+      treeData,
+      renderingContext,
+      maxDepth,
+      svgWidth,
+      svgHeight,
+      offsetX,
+      offsetY,
+    } = layout
+
+    // Clear previous visualization
+    select(svgRef.current).selectAll('*').remove()
+
+    const getCardSetName = (index?: number) =>
+      shouldShowCardSet && index !== undefined ? getCardSetNameFromIndex(index) : undefined
 
     // Calculate zoom scale for numbered zoom levels.
     // With a depth multiplier so deeper trees don't zoom in as much.
@@ -134,35 +172,14 @@ export default function TalentTree({
 
     const zoomScale = getZoomScale()
 
-    const mainSvg = select(svgRef.current)
-
-    if (zoomScale) {
-      // When zoomed: remove viewBox, set explicit scaled dimensions
-      mainSvg
-        .attr('width', svgWidth * zoomScale)
-        .attr('height', svgHeight * zoomScale)
-        .attr('viewBox', null)
-        .attr('preserveAspectRatio', null)
-    } else {
-      // Use viewBox to make everything fit
-      mainSvg
-        .attr('width', svgWidth)
-        .attr('height', svgHeight)
-        .attr('viewBox', `0 0 ${svgWidth} ${svgHeight}`)
-        .attr('preserveAspectRatio', 'xMinYMin meet')
-    }
-
-    const defs = mainSvg.append('defs')
-
-    // Apply zoom scale to the content group
-    // When scaling, we need to apply scale first, then translate by the scaled offset
-    const zoomTransformScale = zoomScale ?? 1
-    const offsetX = TREE.PADDING.LEFT - bounds.minY
-    const offsetY = TREE.PADDING.VERTICAL - bounds.minX
-
-    const svg = mainSvg
-      .append('g')
-      .attr('transform', `scale(${zoomTransformScale}) translate(${offsetX}, ${offsetY})`)
+    const { defs, contentGroup: svg } = setupTreeSvg(svgRef.current, {
+      width: svgWidth,
+      height: svgHeight,
+      zoomScale,
+      offsetX,
+      offsetY,
+      preserveAspectRatio: 'xMinYMin meet',
+    })
 
     drawLinks({ svg, treeData })
 
@@ -229,7 +246,8 @@ export default function TalentTree({
       )
     })
   }, [
-    talentTree,
+    layout,
+    zoomLevel,
     shouldShowDescription,
     shouldShowCardSet,
     shouldShowKeywords,
@@ -237,9 +255,7 @@ export default function TalentTree({
     parsedKeywords,
     areChildrenExpanded,
     toggleChildrenExpansion,
-    isCardSetIndexSelected,
     getCardSetNameFromIndex,
-    zoomLevel,
   ])
 
   return (
@@ -258,3 +274,5 @@ export default function TalentTree({
     </div>
   )
 }
+
+export default memo(TalentTree)
