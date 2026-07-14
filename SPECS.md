@@ -172,7 +172,9 @@ There is also `src/codex/utils/canvasTextMeasurement.ts` which overlaps with bot
 
 ---
 
-## Spec 5 — Shared filter engine for the search-filter hooks
+## Spec 5 — Shared filter engine for the search-filter hooks — ✅ COMPLETED (with deviations; verified via a differential test old-vs-new; final visual check pending)
+
+> **Deviations (by request):** the generic `treeFilterEngine.ts` was initially built as spec'd, then collapsed into concrete talent functions (`talentTreeFilter.ts`) — with only one consumer (cards are a flat list, not a tree), the generic interface added indirection without value, and its synthetic-tree unit tests were too abstract to document real behavior. Engine unit tests were dropped for the same reason. Everything else landed: single-`useMemo` recompute in both hooks, O(n²) equality helpers deleted, stable filter callbacks, unchanged public return shapes.
 
 **Impact: High** — `useAllTalentSearchFilters.ts` (532 lines) and `useAllCardSearchFilters.ts` (287 lines) duplicate the same orchestration, have a 10-entry `useEffect` dependency array, and re-traverse the whole tree on any filter change.
 **Effort: Medium**

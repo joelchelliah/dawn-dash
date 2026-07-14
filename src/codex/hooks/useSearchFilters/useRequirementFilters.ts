@@ -1,3 +1,5 @@
+import { useCallback } from 'react'
+
 import {
   RequirementFilterOption,
   Requirement,
@@ -80,8 +82,12 @@ export const useRequirementFilters = (
   const { filters, handleFilterToggle, getValueToString, resetFilters } =
     useBaseRequirementFilters(cachedFilters)
 
-  const isRequirementSelected = (options: RequirementFilterOption[]) =>
-    options.some((option) => filters[option])
+  // Stable reference (only changes when the filter state changes) so that
+  // downstream filtering can be memoized on it
+  const isRequirementSelected = useCallback(
+    (options: RequirementFilterOption[]) => options.some((option) => filters[option]),
+    [filters]
+  )
 
   return {
     requirementFilters: filters,

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 
 import { isNotNullOrUndefined } from '@/shared/utils/object'
 
@@ -32,21 +32,30 @@ export function createFilterHook({
 
     const [filters, setFilters] = useState<Record<string, boolean>>(initialFilters)
 
-    const selectedIndices = indexMap
-      ? Object.keys(filters)
-          .filter((key) => filters[key])
-          .flatMap((filter) => {
-            const indices = indexMap[filter]
-            // Special case for card sets that have multiple indices
-            return isNotNullOrUndefined(indices)
-              ? Array.isArray(indices)
-                ? indices
-                : [indices]
-              : []
-          })
-      : []
+    const selectedIndices = useMemo(
+      () =>
+        indexMap
+          ? Object.keys(filters)
+              .filter((key) => filters[key])
+              .flatMap((filter) => {
+                const indices = indexMap[filter]
+                // Special case for card sets that have multiple indices
+                return isNotNullOrUndefined(indices)
+                  ? Array.isArray(indices)
+                    ? indices
+                    : [indices]
+                  : []
+              })
+          : [],
+      [filters]
+    )
 
-    const isIndexSelected = (index: number) => selectedIndices.includes(index)
+    // Stable reference (only changes when the filter state changes) so that
+    // downstream filtering can be memoized on it
+    const isIndexSelected = useCallback(
+      (index: number) => selectedIndices.includes(index),
+      [selectedIndices]
+    )
 
     const getValueFromIndex = indexToValueMap
       ? (index: number) => {

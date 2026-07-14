@@ -1,6 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
-
-import { isArrayEqual } from '@/shared/utils/lists'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 
 import { WeeklyChallengeFilterData } from '@/codex/types/filters'
 import {
@@ -58,7 +56,6 @@ export const useAllCardSearchFilters = (
     parsedKeywords,
     resetParsedKeywords,
   } = useKeywords(cachedFilters?.keywords)
-  const [matchingCards, setMatchingCards] = useState<CardData[]>([])
 
   const untrackedUseCardSetFilters = useCardSetFilters(cachedFilters?.cardSets)
   const untrackedUseRarityFilters = useRarityFilters(cachedFilters?.rarities)
@@ -243,15 +240,10 @@ export const useAllCardSearchFilters = (
     ]
   )
 
-  useEffect(() => {
-    if (cardData) {
-      const filteredCards = cardData.filter(isMatchingCard)
-
-      if (!isArrayEqual(filteredCards, matchingCards, 'name')) {
-        setMatchingCards(filteredCards)
-      }
-    }
-  }, [cardData, isMatchingCard, matchingCards])
+  const matchingCards = useMemo(
+    () => (cardData ? cardData.filter(isMatchingCard) : []),
+    [cardData, isMatchingCard]
+  )
   // --------------------------------------------------
   // --------------------------------------------------
 
