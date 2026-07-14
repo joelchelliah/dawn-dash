@@ -248,7 +248,9 @@ Both micro-extractions landed in `src/codex/utils/tree/svgHelper.ts`:
 
 ---
 
-## Spec 7 — Standardize data-layer error handling and cache write feedback
+## Spec 7 — Standardize data-layer error handling and cache write feedback — ✅ COMPLETED (final visual check pending)
+
+> **Notes:** All changes landed as spec'd, plus: (1) the two challenge fetchers (`challengesApiBlightbane.ts`, `scoring/services/weeklyChallengeDataApi.ts`) also silently returned `null` on failure — converted to throw-on-error like the rest; both consumers already handled errors, and `useWeeklyChallengeFilterData`'s `isFilterDataError` was previously unreachable on fetch failure (SWR saw a *successful* `null`). (2) The hooks' `isLoading`/`isLoadingInBackground` now exclude the error case — previously `isRefreshing` was never cleared on fetch error, so all three panels showed an infinite spinner instead of their error message (the error UI was gated behind `!isLoading`), and `CodexLastUpdated`'s "Error syncing" state was unreachable. (3) Fixed a latent bug in `cardsApiBlightbane.ts`: the progress timer was never cleared when `fetch` threw (now cleared in `finally`). (4) Created the minimal `src/shared/utils/logger.ts` exactly as Spec 12 defines it, since this spec's hooks log through it — Spec 12's codebase-wide console sweep remains to be done. The spec'd unit tests (`handleError`, `saveToCache`, `useCardData` hook-level) were written and used to verify all paths during development (fetch failure → visible error state; success → data cached + indicator cleared; cache-write failure → indicator kept + error logged), then removed by request — no permanent tests kept.
 
 **Impact: Medium-high** — silent/inconsistent failures cause "stale data shown as fresh" and impossible debugging.
 **Effort: Low-medium**
@@ -373,7 +375,7 @@ Production console noise and inconsistent logging:
 
 ### Change
 
-1. Create `src/shared/utils/logger.ts` with `logger.debug/warn/error`; `debug`/`warn` no-op outside development, `error` always logs.
+1. Create `src/shared/utils/logger.ts` with `logger.debug/warn/error`; `debug`/`warn` no-op outside development, `error` always logs. *(Already created by Spec 7 — this step is done.)*
 2. Replace all direct `console.*` calls in `src/` with the logger (the ESLint `no-console` warning already nudges this).
 3. In `ErrorBoundary.componentDidCatch`, additionally report via Vercel Analytics' `track()` (from `@vercel/analytics`) with the error name/message, wrapped in try/catch so reporting can never crash the boundary.
 
@@ -540,7 +542,7 @@ Quick wins first to build confidence, then the big refactors:
 1. Spec 9 (trivial), Spec 11 (trivial), Spec 12, Spec 13 — small, isolated, verifiable.
 2. Spec 8 Tier A, then Tier B — get the toolchain current before large refactors.
 3. Spec 1 → Spec 2 (registry, then PageHead).
-4. Spec 7 (error handling) and Spec 10 (buttons).
+4. ~~Spec 7 (error handling)~~ (done) and Spec 10 (buttons).
 5. ~~Spec 5 (filter engine)~~ (done), ~~Spec 6 (layout/render split)~~ (done).
 6. ~~Spec 3 (tree unification, step by step)~~ (done) → ~~Spec 4 (spacing decomposition)~~ (done) → Spec 19 (flextree swap; ideally alongside Spec 6).
 7. Spec 14, 16, 17.

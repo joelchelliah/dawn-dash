@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import useSWR from 'swr'
 
 import { isNotNullOrUndefined } from '@/shared/utils/object'
+import { logger } from '@/shared/utils/logger'
 
 import { fetchTalents } from '@/codex/services/talentsApiSupabase'
 import {
@@ -47,17 +48,24 @@ export function useTalentData(): UseTalentData {
       refreshInterval: 0,
       onSuccess: (newData) => {
         setLocalData(newData)
-        cacheTalentTree(newData)
-        setIsRefreshing(false)
+        const cacheResult = cacheTalentTree(newData)
+        if (cacheResult.success) {
+          setIsRefreshing(false)
+        } else {
+          logger.error('Failed to cache talent data:', cacheResult.error)
+        }
         setProgress(100)
+      },
+      onError: (fetchError) => {
+        logger.error('Error fetching talent data:', fetchError)
       },
     }
   )
 
   return {
     talentTree: localData || data,
-    isLoading: (isLoading || isRefreshing) && !localData,
-    isLoadingInBackground: Boolean((isLoading || isRefreshing) && localData),
+    isLoading: (isLoading || isRefreshing) && !localData && !error,
+    isLoadingInBackground: Boolean((isLoading || isRefreshing) && localData && !error),
     isError: error && !localData,
     isErrorInBackground: Boolean(error && localData),
     lastUpdated: getCachedTalentTreeTimestamp(),

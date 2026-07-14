@@ -16,18 +16,17 @@ export const fetchCards = async (onProgress: (progress: number) => void): Promis
   const options = 'search=&rarity=&category=&type=&banner=&exp='
   const url = `${BLIGHTBANE_URL}/cards-codex?${options}`
 
-  try {
-    const progressTimer = setInterval(() => {
-      if (currentProgress < 95) {
-        if (currentProgress < 40) currentProgress += PROGRESS_INCREMENT_3x
-        if (currentProgress < 60) currentProgress += PROGRESS_INCREMENT_2x
-        currentProgress += PROGRESS_INCREMENT_1x
-        onProgress(currentProgress)
-      }
-    }, PROGRESS_INTERVAL)
+  const progressTimer = setInterval(() => {
+    if (currentProgress < 95) {
+      if (currentProgress < 40) currentProgress += PROGRESS_INCREMENT_3x
+      if (currentProgress < 60) currentProgress += PROGRESS_INCREMENT_2x
+      currentProgress += PROGRESS_INCREMENT_1x
+      onProgress(currentProgress)
+    }
+  }, PROGRESS_INTERVAL)
 
+  try {
     const response = await fetch(url)
-    clearInterval(progressTimer)
 
     if (!response.ok) {
       throw new Error(`HTTP error: ${response.status}`)
@@ -48,6 +47,8 @@ export const fetchCards = async (onProgress: (progress: number) => void): Promis
     return sortedUniqueCards
   } catch (error) {
     handleError(error, 'Error fetching cards from Blightbane')
-    return []
+    throw error
+  } finally {
+    clearInterval(progressTimer)
   }
 }

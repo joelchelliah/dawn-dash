@@ -26,8 +26,7 @@ export const fetchSpeedruns = async (
     const response = await axios.get<[SpeedRunApiResponse]>(url)
 
     if (!response.data?.[0]) {
-      console.error('Invalid API response structure:', response.data)
-      return []
+      throw new Error('Invalid API response structure')
     }
 
     const category = Object.keys(response.data[0])[0] as SpeedRunCategory

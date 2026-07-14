@@ -50,7 +50,7 @@ function Cards(): JSX.Element {
 
       <div className={cx('content')}>
         <CodexLoadingMessage isVisible={isLoading} progress={progress} codexType="card" />
-        <CodexErrorMessage isVisible={isError && !isLoading} />
+        <CodexErrorMessage isVisible={isError && !isLoading} codexType="card" />
         {!isError && !isLoading && (
           <>
             <CardSearchPanel

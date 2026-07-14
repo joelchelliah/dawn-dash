@@ -9,7 +9,7 @@ import { Banner, CardSet } from '../types/filters'
 
 const BLIGHTBANE_URL = 'https://blightbane.io/api'
 
-export const fetchLatestChallengeData = async (): Promise<ChallengeData | null> => {
+export const fetchLatestChallengeData = async (): Promise<ChallengeData> => {
   try {
     const response = await fetch(`${BLIGHTBANE_URL}/allchallenges`)
 
@@ -103,7 +103,7 @@ export const fetchLatestChallengeData = async (): Promise<ChallengeData | null> 
     }
   } catch (error) {
     handleError(error, 'Error fetching latest challenge from Blightbane')
-    return null
+    throw error
   }
 }
 

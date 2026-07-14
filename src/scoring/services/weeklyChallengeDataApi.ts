@@ -5,7 +5,7 @@ import { WeeklyChallengeData } from '../types'
 
 const BLIGHTBANE_URL = 'https://blightbane.io/api'
 
-export const fetchLatestChallengeData = async (): Promise<WeeklyChallengeData | null> => {
+export const fetchLatestChallengeData = async (): Promise<WeeklyChallengeData> => {
   try {
     const response = await fetch(`${BLIGHTBANE_URL}/allchallenges`)
 
@@ -59,6 +59,6 @@ export const fetchLatestChallengeData = async (): Promise<WeeklyChallengeData | 
     }
   } catch (error) {
     handleError(error, 'Error fetching latest challenge from Blightbane')
-    return null
+    throw error
   }
 }

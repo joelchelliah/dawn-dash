@@ -3,6 +3,7 @@ import { useEffect, useState, useRef } from 'react'
 import useSWR from 'swr'
 
 import { CharacterClass } from '@/shared/types/characterClass'
+import { logger } from '@/shared/utils/logger'
 
 import { fetchSpeedruns } from '../services/speedrunsApi'
 import { Difficulty, SpeedRunData } from '../types/speedRun'
@@ -61,17 +62,24 @@ export function useSpeedrunData(type: CharacterClass, difficulty: Difficulty) {
         // Only update if this is still the active request
         if (prevCacheKeyRef.current === cacheKey) {
           setLocalData(newData)
-          cacheSpeedrunData(cacheKey, newData)
-          setIsRefreshing(false)
+          const cacheResult = cacheSpeedrunData(cacheKey, newData)
+          if (cacheResult.success) {
+            setIsRefreshing(false)
+          } else {
+            logger.error('Failed to cache speedrun data:', cacheResult.error)
+          }
         }
+      },
+      onError: (fetchError) => {
+        logger.error('Error fetching speedrun data:', fetchError)
       },
     }
   )
 
   return {
     speedrunData: localData || data,
-    isLoading: (isLoading || isRefreshing) && !localData,
-    isLoadingInBackground: Boolean((isLoading || isRefreshing) && localData),
+    isLoading: (isLoading || isRefreshing) && !localData && !error,
+    isLoadingInBackground: Boolean((isLoading || isRefreshing) && localData && !error),
     isError: error && !localData,
     lastUpdated: getCachedSpeedrunDataTimestamp(cacheKey),
     refresh: () => setIsRefreshing(true),

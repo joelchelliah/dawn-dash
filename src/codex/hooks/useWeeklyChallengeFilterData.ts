@@ -5,7 +5,7 @@ import { ChallengeData } from '@/codex/types/challenges'
 import { WeeklyChallengeFilterData } from '@/codex/types/filters'
 
 export function useWeeklyChallengeFilterData() {
-  const { data, error, isLoading, isValidating, mutate } = useSWR<ChallengeData | null>(
+  const { data, error, isLoading, isValidating, mutate } = useSWR<ChallengeData>(
     'weekly-challenge-filter-data',
     fetchLatestChallengeData
   )

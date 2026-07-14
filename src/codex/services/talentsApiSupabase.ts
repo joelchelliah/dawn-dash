@@ -23,12 +23,10 @@ export const fetchTalents = async (onProgress: (progress: number) => void): Prom
         .range(offset, offset + SUPABASE_MAX_PAGE_SIZE - 1)
 
       if (error) {
-        console.error('Supabase error:', error)
         throw error
       }
 
       if (!talents) {
-        console.error('No talents returned from Supabase')
         throw new Error('No talents returned from Supabase')
       }
 

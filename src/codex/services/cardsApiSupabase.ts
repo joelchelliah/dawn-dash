@@ -28,13 +28,11 @@ export const fetchCards = async (onProgress: (progress: number) => void): Promis
         .range(offset, offset + SUPABASE_MAX_PAGE_SIZE - 1)
 
       if (error) {
-        console.error('Supabase error:', error)
         throw error
       }
 
       if (!cards) {
-        console.warn('No cards returned from Supabase')
-        return []
+        throw new Error('No cards returned from Supabase')
       }
 
       allCards = [...allCards, ...cards]

@@ -8,8 +8,13 @@ const emptyCacheState = {
 
 const isClient = typeof window !== 'undefined'
 
-export function saveToCache<T>(cacheKey: string, data: T): void {
-  if (!isClient) return
+export interface CacheWriteResult {
+  success: boolean
+  error?: Error
+}
+
+export function saveToCache<T>(cacheKey: string, data: T): CacheWriteResult {
+  if (!isClient) return { success: true }
 
   try {
     const cache = {
@@ -17,8 +22,12 @@ export function saveToCache<T>(cacheKey: string, data: T): void {
       timestamp: Date.now(),
     }
     localStorage.setItem(cacheKey, JSON.stringify(cache))
+    return { success: true }
   } catch (error) {
-    console.warn('Failed to save to cache:', error)
+    return {
+      success: false,
+      error: error instanceof Error ? error : new Error(String(error)),
+    }
   }
 }
 

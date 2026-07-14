@@ -50,7 +50,7 @@ function Skills(): JSX.Element {
 
       <div className={cx('content')}>
         <CodexLoadingMessage isVisible={isLoading} progress={progress} codexType="talent" />
-        <CodexErrorMessage isVisible={isError && !isLoading} />
+        <CodexErrorMessage isVisible={isError && !isLoading} codexType="talent" />
         {!isError && !isLoading && (
           <>
             <TalentSearchPanel
