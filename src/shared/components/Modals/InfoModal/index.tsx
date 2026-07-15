@@ -1,19 +1,22 @@
 import GradientButton from '@/shared/components/Buttons/GradientButton'
-import Modal from '@/shared/components/Modals/Modal'
+import Modal, { ModalProps } from '@/shared/components/Modals/Modal'
 
 import styles from './index.module.scss'
 
-interface InfoModalProps {
+interface InfoModalProps extends Omit<ModalProps, 'footer'> {
   additionalText?: string
-  children: React.ReactNode
-  isOpen: boolean
-  onClose: () => void
-  scrollable?: boolean
 }
 
-function InfoModal({ additionalText, children, isOpen, onClose, scrollable }: InfoModalProps) {
+function InfoModal({ additionalText, children, ...modalProps }: InfoModalProps) {
   return (
-    <Modal isOpen={isOpen} onClose={onClose} scrollable={scrollable}>
+    <Modal
+      {...modalProps}
+      footer={
+        <GradientButton bold className={styles['close-button']} onClick={modalProps.onClose}>
+          Got it!
+        </GradientButton>
+      }
+    >
       {children}
       {additionalText && (
         <div>
@@ -21,9 +24,6 @@ function InfoModal({ additionalText, children, isOpen, onClose, scrollable }: In
           {additionalText}
         </div>
       )}
-      <GradientButton bold className={styles['close-button']} onClick={onClose}>
-        Got it!
-      </GradientButton>
     </Modal>
   )
 }

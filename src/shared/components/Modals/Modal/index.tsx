@@ -6,13 +6,16 @@ import styles from './index.module.scss'
 
 const cx = createCx(styles)
 
-interface ModalProps {
+export interface ModalProps {
   children: React.ReactNode
   borderColor?: string
   isOpen: boolean
   onClose: () => void
   maxWidth?: number
   scrollable?: boolean
+  // Rendered after children, inside the (possibly scrollable) content container,
+  // so it scrolls with the content rather than being pinned below it
+  footer?: React.ReactNode
 }
 
 function Modal({
@@ -22,6 +25,7 @@ function Modal({
   onClose,
   maxWidth,
   scrollable,
+  footer,
 }: ModalProps): JSX.Element | null {
   if (!isOpen) return null
 
@@ -39,9 +43,13 @@ function Modal({
         {scrollable ? (
           <ScrollableWithFade className={cx('content', 'content--scrollable')}>
             {children}
+            {footer}
           </ScrollableWithFade>
         ) : (
-          <div className={cx('content')}>{children}</div>
+          <div className={cx('content')}>
+            {children}
+            {footer}
+          </div>
         )}
       </div>
     </div>

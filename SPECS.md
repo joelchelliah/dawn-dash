@@ -485,7 +485,9 @@ Production console noise and inconsistent logging:
 
 ---
 
-## Spec 17 — Consolidate `Modal` / `InfoModal`
+## Spec 17 — Consolidate `Modal` / `InfoModal` — ✅ COMPLETED (option (a); final visual check pending)
+
+> **Notes:** All claims verified true before implementing (InfoModal hid `borderColor`/`maxWidth` and hardcoded the "Got it!" button), with the honest caveat that none of the 6 InfoModal call sites actually needed the hidden props — this was API hygiene/future-proofing, not an active problem; performance impact is zero. Landed as option (a): `Modal` gained `footer?: ReactNode`, and `InfoModal` is now a preset extending `Omit<ModalProps, 'footer'>` that forwards all Modal props and passes the button as footer (`additionalText` stays InfoModal-specific). One deliberate rendering decision: `footer` renders **inside** the (possibly scrollable) content container, after children — previously the button was part of Modal's children, so in scrollable modals (SideMenu About) it scrolls with the content; a footer pinned outside the scroll area would have changed rendering. DOM output is unchanged at every call site.
 
 **Impact: Low**
 **Effort: Low**
@@ -593,5 +595,5 @@ Quick wins first to build confidence, then the big refactors:
 4. ~~Spec 7 (error handling)~~ (done) and ~~Spec 10 (buttons)~~ (done).
 5. ~~Spec 5 (filter engine)~~ (done), ~~Spec 6 (layout/render split)~~ (done).
 6. ~~Spec 3 (tree unification, step by step)~~ (done) → ~~Spec 4 (spacing decomposition)~~ (done) → Spec 19 (flextree swap; ideally alongside Spec 6).
-7. ~~Spec 14~~ (done), ~~Spec 16~~ (done), 17.
+7. ~~Spec 14~~ (done), ~~Spec 16~~ (done), ~~Spec 17~~ (done).
 8. ~~Spec 15 (docs/AI workflow)~~ (done) and Spec 18 (ongoing).
