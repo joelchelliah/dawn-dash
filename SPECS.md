@@ -443,7 +443,9 @@ Production console noise and inconsistent logging:
 
 ---
 
-## Spec 15 — Documentation accuracy (`CLAUDE.md`) + AI-workflow improvements
+## Spec 15 — Documentation accuracy (`CLAUDE.md`) + AI-workflow improvements — ✅ COMPLETED (Part B items 2 & 4 skipped by request)
+
+> **Notes:** All Part A claims were verified before implementing; two were stale: (3) the speedruns cache-duration line was already fixed by Spec 9, and beyond the spec's list the rewrite fixed further drift found during verification — speedrun charts are **Chart.js**, not "D3.js charts" (D3 is only used for the codex trees); `/src/codex/cards/` and `/src/codex/skills/` directories don't exist (codex is one feature dir with `cards.tsx`/`skills.tsx`/`events.tsx` entries); RTL is 16.x not 13.4; stale component/hook/util lists (missing IllustratedButton, PageHead, Select, ScrollableWithFade, Code, Image, useDraggable, logger/lists/object/textHelper; `imageUrls.tsx` → `.ts`); and no mention of the Spec 1–4 infrastructure (toolRegistry, PageHead, `utils/tree/`, `eventTreeSpacing/`). The rewrite also documents the two sync-ownership paths (edge functions own cards/talents; local scripts own events/artwork; speedruns fetched live), `deno.json`'s sole purpose, and `npm run verify` as the required pre-done check. Part B: feature `CLAUDE.md` files added for `src/codex/`, `src/speedruns/`, `src/scoring/` (architecture, key files, invariants like the intentional 10-min speedruns TTL and the visual-verification convention for trees), and `.claude/skills/{verify-changes,add-new-tool}/SKILL.md` committed — the add-new-tool checklist includes `scripts/generate-sitemap.js`, which the registry does not feed. **Skipped by request:** item 2 (docs/specs/ workflow — overhead for a single-developer project) and item 4 (testing guidance — tests may be removed from the project entirely).
 
 **Impact: Medium for humans, high for AI-assisted development** — the project is developed with Claude, and its primary context file is wrong in several places, which degrades every future AI session.
 **Effort: Low**
@@ -590,4 +592,4 @@ Quick wins first to build confidence, then the big refactors:
 5. ~~Spec 5 (filter engine)~~ (done), ~~Spec 6 (layout/render split)~~ (done).
 6. ~~Spec 3 (tree unification, step by step)~~ (done) → ~~Spec 4 (spacing decomposition)~~ (done) → Spec 19 (flextree swap; ideally alongside Spec 6).
 7. ~~Spec 14~~ (done), 16, 17.
-8. Spec 15 (docs/AI workflow — do Part A early if preferred; it's independent) and Spec 18 (ongoing).
+8. ~~Spec 15 (docs/AI workflow)~~ (done) and Spec 18 (ongoing).
