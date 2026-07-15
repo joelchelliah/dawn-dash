@@ -7,7 +7,7 @@ export const useScrollToTop = (thresholdPixels: number) => {
   const scrollingRef = useRef(false)
 
   const updateShowButtonBasedOnScrollPosition = useCallback(() => {
-    if (scrollingRef.current || typeof window === 'undefined') return
+    if (scrollingRef.current) return
 
     const scrollY = window.scrollY
 
@@ -15,7 +15,7 @@ export const useScrollToTop = (thresholdPixels: number) => {
   }, [thresholdPixels])
 
   const scrollToTop = useCallback(() => {
-    if (scrollingRef.current || typeof window === 'undefined') return
+    if (scrollingRef.current) return
 
     scrollingRef.current = true
 

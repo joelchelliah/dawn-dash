@@ -405,7 +405,9 @@ Production console noise and inconsistent logging:
 
 ---
 
-## Spec 13 — Small verified hook fixes (bundle)
+## Spec 13 — Small verified hook fixes (bundle) — ✅ COMPLETED
+
+> **Notes:** Items 1–3 landed as spec'd; item 4 was **already done** — both `useBreakpoint.ts` and `_breakpoints.scss` already carry the cross-referencing "NB: Values should match …" drift-guard comments the spec asks for, so no change was made. Details: (1) `useFromNow` now uses a self-rescheduling `setTimeout` (not a fixed `setInterval`) so the cadence adapts *as the timestamp ages* across the minute/hour boundaries, plus the `setFromNow(prev => …)` guard. One claim nuance: React already bails out when the new state string equals the old (strings compare by value), so consumers weren't literally re-rendering every second — the real waste was the interval firing and recomputing `formatDistanceToNow` each second, which the fix removes. (2) `useDeviceOrientation`: `isLandscape`'s `useState(checkIsLandscape())` initializer had the same hydration risk as the render-time `isMobile` — both now start `false` and are set in the mount effect; the `typeof window/navigator` guards became unnecessary (checks only run inside the effect). (3) `useScrollToTop` keeps the single effect guard; the callback guards were dead (click handler / scroll listener / rAF can't run server-side). Verified via temporary Jest tests (removed after passing, per project convention): adaptive tick cadence at second/minute/hour ages incl. boundary crossings, no consumer re-render on unchanged label, first client render of `useDeviceOrientation` matches SSR output (`isMobile === false`) with the real value applied after mount. `npm run verify` + `npm run build` pass.
 
 **Impact: Medium** — real correctness/perf issues, each tiny.
 **Effort: Low**
@@ -579,7 +581,7 @@ When it is picked up, migrate as one coordinated unit:
 
 Quick wins first to build confidence, then the big refactors:
 
-1. ~~Spec 9 (trivial)~~ (done), ~~Spec 11 (trivial)~~ (done), ~~Spec 12~~ (done), Spec 13 — small, isolated, verifiable.
+1. ~~Spec 9 (trivial)~~ (done), ~~Spec 11 (trivial)~~ (done), ~~Spec 12~~ (done), ~~Spec 13~~ (done) — small, isolated, verifiable.
 2. ~~Spec 8 Tier A, then Tier B~~ (done) — toolchain is current.
 3. Spec 1 → Spec 2 (registry, then PageHead).
 4. ~~Spec 7 (error handling)~~ (done) and ~~Spec 10 (buttons)~~ (done).
