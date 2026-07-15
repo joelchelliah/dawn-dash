@@ -4,7 +4,12 @@ import Link from 'next/link'
 
 import Image from '@/shared/components/Image'
 import LoadingDots from '@/shared/components/LoadingDots'
-import { HamburgerIcon, HamburgerMenuIcon, CloseIcon, CloseMenuIcon } from '@/shared/utils/icons'
+import {
+  HamburgerIcon,
+  HamburgerMenuIcon,
+  CloseIcon,
+  CloseMenuIcon,
+} from '@/shared/components/Icons'
 import { InfernalContractUrl, RushedForgeryImageUrl } from '@/shared/utils/imageUrls'
 import { createCx } from '@/shared/utils/classnames'
 import GradientLink from '@/shared/components/GradientLink'

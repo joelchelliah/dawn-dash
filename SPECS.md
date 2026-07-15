@@ -472,7 +472,9 @@ Production console noise and inconsistent logging:
 
 ---
 
-## Spec 16 — Split `icons.tsx` for tree-shaking
+## Spec 16 — Split `icons.tsx` for tree-shaking — ✅ COMPLETED (final visual check pending)
+
+> **Notes:** All claims verified before implementing: the file was exactly 399 lines with 18 exports — but only 17 are SVG icon components; `DropdownArrowIconUrl` is a helper returning a CSS `url(...)` data-URI string (used by `Select` as a background-image). It moved into the folder as a plain `.ts` file so the old module could be deleted cleanly. Landed: `src/shared/components/Icons/` with one file per icon (content copied verbatim), shared `IconProps` in `types.ts`, and a barrel `index.ts` with named re-exports; all 9 import sites updated mechanically; `src/shared/utils/icons.tsx` deleted. Bundle check: `next build` route output is **byte-identical** before/after (every Size and First Load JS value unchanged) — expected, since all imports were already named imports of tiny components; the win is organizational plus tree-shaking readiness for future partial consumers. `npm run verify` + `npm run build` pass.
 
 **Impact: Low-medium**
 **Effort: Low**
@@ -591,5 +593,5 @@ Quick wins first to build confidence, then the big refactors:
 4. ~~Spec 7 (error handling)~~ (done) and ~~Spec 10 (buttons)~~ (done).
 5. ~~Spec 5 (filter engine)~~ (done), ~~Spec 6 (layout/render split)~~ (done).
 6. ~~Spec 3 (tree unification, step by step)~~ (done) → ~~Spec 4 (spacing decomposition)~~ (done) → Spec 19 (flextree swap; ideally alongside Spec 6).
-7. ~~Spec 14~~ (done), 16, 17.
+7. ~~Spec 14~~ (done), ~~Spec 16~~ (done), 17.
 8. ~~Spec 15 (docs/AI workflow)~~ (done) and Spec 18 (ongoing).

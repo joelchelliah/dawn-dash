@@ -1,7 +1,7 @@
 import { memo } from 'react'
 
 import { createCx } from '@/shared/utils/classnames'
-import { DropdownArrowIconUrl } from '@/shared/utils/icons'
+import { DropdownArrowIconUrl } from '@/shared/components/Icons'
 import { ClassColorVariant, getClassColor } from '@/shared/utils/classColors'
 import { CharacterClass } from '@/shared/types/characterClass'
 

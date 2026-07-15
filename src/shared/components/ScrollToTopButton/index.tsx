@@ -1,5 +1,5 @@
 import { createCx } from '@/shared/utils/classnames'
-import { ArrowIcon } from '@/shared/utils/icons'
+import { ArrowIcon } from '@/shared/components/Icons'
 
 import styles from './index.module.scss'
 

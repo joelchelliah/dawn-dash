@@ -9,7 +9,7 @@ import {
   SkullIcon,
   CrossIcon,
   PawIcon,
-} from '@/shared/utils/icons'
+} from '@/shared/components/Icons'
 import { createCx } from '@/shared/utils/classnames'
 
 import { UseAllCardSearchFilters } from '@/codex/hooks/useSearchFilters'

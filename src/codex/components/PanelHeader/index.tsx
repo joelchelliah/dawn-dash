@@ -1,4 +1,4 @@
-import { MagnifyingGlassIcon, StackedCardsIcon } from '@/shared/utils/icons'
+import { MagnifyingGlassIcon, StackedCardsIcon } from '@/shared/components/Icons'
 import GradientDivider from '@/shared/components/GradientDivider'
 import { createCx } from '@/shared/utils/classnames'
 

@@ -9,7 +9,7 @@ import {
   SingleStarIcon,
   SkullIcon,
   TripleStarsIcon,
-} from '@/shared/utils/icons'
+} from '@/shared/components/Icons'
 import GradientButton from '@/shared/components/Buttons/GradientButton'
 import ButtonRow from '@/shared/components/Buttons/ButtonRow'
 import Notification from '@/shared/components/Notification'

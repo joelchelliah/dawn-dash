@@ -4,7 +4,7 @@ import { createCx } from '@/shared/utils/classnames'
 import GradientButton from '@/shared/components/Buttons/GradientButton'
 import GradientLink from '@/shared/components/GradientLink'
 import InfoModal from '@/shared/components/Modals/InfoModal'
-import { QuestionIcon } from '@/shared/utils/icons'
+import { QuestionIcon } from '@/shared/components/Icons'
 
 import styles from './index.module.scss'
 
