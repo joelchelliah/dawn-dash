@@ -18,11 +18,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 **`npm run verify` is the required check before any change (AI-generated changes included) is considered done.** For changes touching `pages/`, `next.config.ts`, or data hooks, also run `npm run build`.
 
 ### Testing
-- `npm test` - Run Jest tests
+- `npm test` - Run Jest tests (uses `--passWithNoTests`; zero test files is the expected steady state)
 - `npm run test:watch` - Run Jest in watch mode
 - `npm run test:coverage` - Run tests with coverage report
-- **Test framework**: Jest 30 with React Testing Library 16
-- **Test files**: 2 test suites (`src/codex/utils/cardHelper.test.ts`, `src/codex/utils/cardsResponseMapper.test.ts`)
+- **Test framework**: Jest 30 with React Testing Library 16 (kept configured for temporary development tests)
+- **Testing policy: no permanent tests.** Tests are written only as temporary aids *during* development to verify a change, then **deleted before the work is considered done**. Do not add permanent test files unless the user explicitly requests them. Visual/rendering code (e.g. the codex trees) is verified by manual before/after comparison in the dev server instead.
 
 ## Project Architecture
 

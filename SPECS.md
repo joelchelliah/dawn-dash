@@ -9,7 +9,7 @@ Each spec is self-contained and implementation-ready. Unless stated otherwise, s
 - Do not change user-visible behavior unless the spec explicitly says so. These are refactors, fixes, and upgrades — the site should look and behave identically except where noted.
 - Follow existing conventions: SCSS modules (`index.module.scss`), `createCx()` from `@/shared/utils/classnames`, path aliases (`@/shared/*`, `@/codex/*`, `@/speedruns/*`), Prettier (single quotes, no semicolons, 100 char width).
 - Line numbers below are approximate — re-locate code by the identifiers given if lines have drifted.
-- Add or update unit tests for any pure logic you touch (Jest 30 + React Testing Library are configured).
+- **No permanent tests.** Tests written to verify a spec during development are temporary — delete them once development is finished. Do not leave new test files behind unless explicitly requested (see the withdrawn Spec 18).
 
 ---
 
@@ -498,7 +498,9 @@ Production console noise and inconsistent logging:
 
 ---
 
-## Spec 18 — Expand test coverage for critical pure logic
+## Spec 18 — Expand test coverage for critical pure logic — ❌ WITHDRAWN
+
+> **Withdrawn (July 2026):** decision reversed — the project keeps **no permanent tests**. Tests are written only as temporary aids during development and deleted once development is finished (this was already the working convention for Specs 4–14). The two pre-existing permanent suites (`src/codex/utils/cardHelper.test.ts`, `cardsResponseMapper.test.ts`) were removed; `npm test` now runs with `--passWithNoTests` so `npm run verify` stays green with zero test files. Jest + React Testing Library remain configured for temporary development tests. The original spec text is kept below as a decision record only — do not implement it.
 
 **Impact: Low-medium standalone, but multiplies the safety of every other spec — consider doing the relevant tests *within* each spec above.**
 **Effort: Medium (spread out)**
@@ -596,4 +598,4 @@ Quick wins first to build confidence, then the big refactors:
 5. ~~Spec 5 (filter engine)~~ (done), ~~Spec 6 (layout/render split)~~ (done).
 6. ~~Spec 3 (tree unification, step by step)~~ (done) → ~~Spec 4 (spacing decomposition)~~ (done) → Spec 19 (flextree swap; ideally alongside Spec 6).
 7. ~~Spec 14~~ (done), ~~Spec 16~~ (done), ~~Spec 17~~ (done).
-8. ~~Spec 15 (docs/AI workflow)~~ (done) and Spec 18 (ongoing).
+8. ~~Spec 15 (docs/AI workflow)~~ (done) and ~~Spec 18~~ (withdrawn — no permanent tests).

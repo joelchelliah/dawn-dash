@@ -25,5 +25,5 @@ Applies to changes in `src/styles/`, any `*.module.scss`, `src/codex/utils/tree/
 
 ## Notes
 
-- Tests written to verify a change during development are temporary: delete them once they've served their purpose, unless permanent tests were explicitly requested.
+- **The repo keeps no permanent tests.** Tests written to verify a change during development are temporary: delete them once they've served their purpose, unless permanent tests were explicitly requested. `npm test` uses `--passWithNoTests`, so zero test files is the expected end state.
 - Report failures honestly with output; never mark a change done with a failing check.

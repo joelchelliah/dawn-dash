@@ -41,7 +41,7 @@
     "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx,json,css,scss}\"",
     "type-check": "tsc --noEmit",
     "verify": "npm run format:check && npm run lint && npm run type-check && npm run test",
-    "test": "jest",
+    "test": "jest --passWithNoTests",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "sync-events": "node scripts/sync-events.js",
