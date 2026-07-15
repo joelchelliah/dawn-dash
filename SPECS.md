@@ -421,7 +421,9 @@ Production console noise and inconsistent logging:
 
 ---
 
-## Spec 14 — Scoring feature: extract constants and reduce hardcoded repetition
+## Spec 14 — Scoring feature: extract constants and reduce hardcoded repetition — ✅ COMPLETED (verified via before/after HTML diff; final visual check pending)
+
+> **Notes:** The `220` claims all verified (only line numbers had drifted slightly). Landed: (1) `src/scoring/constants/scoring.ts` with `MAX_MALIGNANCY_PERCENT = 220` plus the other repeated game numbers found: `RARITY_SCORE_MULTIPLIER = 1.5`, `DUPLICATE_SCORE_MULTIPLIER = 0.5`, `ACCURACY_PENALTY_RATE = 0.1`; all logic usages replaced (`advancedScoring.ts`, `KeywordsBonusScoring` copy table, `AccuracyBonusScoring` penalties, `AdvancedInsight` break target) and the two prose spots now interpolate the constant. (2) Mechanical dedup: the ⚠️ unsupported-calculation-type block (was duplicated in `KeywordsBonusScoring` + `AdvancedInsight`) → `UnsupportedCalculationType`; the +50/+100/+200% scaling list (duplicated in `KeywordsBonusScoring` + `AccuracyBonusScoring`) → `MalignancyScalingList`; the 7 near-identical accuracy-table rows are now generated from offsets; `ExamplesPanel`'s three copies of the 6-parameter score list moved verbatim into typed data arrays + one renderer (~75 lines of JSX removed); `AccuracyBonusScoring` now reuses `getAccuracyWindowRange` instead of two inline copies of the same formula. `BlightbaneScorePanel` and `ParameterRankTable` were already data-driven (`FLAT_SCORE_BONUSES`, `PARAMETER_DETAILS`, etc.) — no change needed there. **Verification (temp tests, removed after):** a differential snapshot of all `advancedScoring` functions over a grid of inputs, and a jsdom render of every touched component (all modes + both unsupported-type branches) — rendered HTML is byte-identical before/after. **Found along the way:** `jest.config.ts` maps SCSS modules to `identity-obj-proxy`, which is not installed — pure-util tests never hit it, but any component test will fail until it's added as a devDependency (left as is; flagging for Spec 18).
 
 **Impact: Medium** — the scoring feature is ~2,000 lines of prose-heavy panels with duplicated structure and magic numbers.
 **Effort: Medium**
@@ -587,5 +589,5 @@ Quick wins first to build confidence, then the big refactors:
 4. ~~Spec 7 (error handling)~~ (done) and ~~Spec 10 (buttons)~~ (done).
 5. ~~Spec 5 (filter engine)~~ (done), ~~Spec 6 (layout/render split)~~ (done).
 6. ~~Spec 3 (tree unification, step by step)~~ (done) → ~~Spec 4 (spacing decomposition)~~ (done) → Spec 19 (flextree swap; ideally alongside Spec 6).
-7. Spec 14, 16, 17.
+7. ~~Spec 14~~ (done), 16, 17.
 8. Spec 15 (docs/AI workflow — do Part A early if preferred; it's independent) and Spec 18 (ongoing).

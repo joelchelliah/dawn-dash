@@ -7,12 +7,15 @@ import InfoModal from '@/shared/components/Modals/InfoModal'
 
 import { ScoringMode, WeeklyChallengeData } from '@/scoring/types'
 import { getCardScoreScaledByRarity } from '@/scoring/utils/advancedScoring'
+import { DUPLICATE_SCORE_MULTIPLIER } from '@/scoring/constants/scoring'
 
 import Highlight from '../Highlight'
 import ScoringList from '../ScoringList'
 import ScoringTable, { ScoringTableColumn } from '../ScoringTable'
 import ScoringButton from '../ScoringButton'
 
+import MalignancyScalingList from './MalignancyScalingList'
+import UnsupportedCalculationType from './UnsupportedCalculationType'
 import styles from './index.module.scss'
 
 const cx = createCx(styles)
@@ -34,10 +37,10 @@ function KeywordsBonusScoring({ challengeData }: KeywordsBonusScoringProps): JSX
   const getRow = (rarity: string, base: number) => ({
     rarity,
     base: Math.ceil(base),
-    c2: Math.ceil(base * 0.5),
-    c3: Math.ceil(base * 0.25),
-    c4: Math.ceil(base * 0.125),
-    c5: Math.ceil(base * 0.0625),
+    c2: Math.ceil(base * DUPLICATE_SCORE_MULTIPLIER),
+    c3: Math.ceil(base * DUPLICATE_SCORE_MULTIPLIER ** 2),
+    c4: Math.ceil(base * DUPLICATE_SCORE_MULTIPLIER ** 3),
+    c5: Math.ceil(base * DUPLICATE_SCORE_MULTIPLIER ** 4),
   })
 
   const scoreTableColumns = useMemo(
@@ -64,14 +67,7 @@ function KeywordsBonusScoring({ challengeData }: KeywordsBonusScoringProps): JSX
   )
 
   if (!isScoringAvailable) {
-    return (
-      <div className={cx('unavailable')}>
-        <p>
-          ⚠️ The score calculation type for this challenge is &quot;
-          <strong>{calculationType}</strong>&quot;. This section is not yet supported for that type.
-        </p>
-      </div>
-    )
+    return <UnsupportedCalculationType calculationType={calculationType} />
   }
 
   const listScoringKeywords = () => {
@@ -140,26 +136,7 @@ function KeywordsBonusScoring({ challengeData }: KeywordsBonusScoringProps): JSX
         </Code>
         ):
       </p>
-      <ScoringList mode={ScoringMode.Blightbane}>
-        <li>
-          <strong>+50% :</strong>{' '}
-          <Highlight mode={ScoringMode.Blightbane} strong>
-            {Math.ceil(legendaryScore * 1.5)}
-          </Highlight>
-        </li>
-        <li>
-          <strong>+100% :</strong>{' '}
-          <Highlight mode={ScoringMode.Blightbane} strong>
-            {Math.ceil(legendaryScore * 2)}
-          </Highlight>
-        </li>
-        <li>
-          <strong>+200% :</strong>{' '}
-          <Highlight mode={ScoringMode.Blightbane} strong>
-            {Math.ceil(legendaryScore * 3)}
-          </Highlight>
-        </li>
-      </ScoringList>
+      <MalignancyScalingList baseValue={legendaryScore} />
       {cardBaseValue > 0 && keywords.length > 0 && (
         <p>
           <strong>Hint:</strong>{' '}

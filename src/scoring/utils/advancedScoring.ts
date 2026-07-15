@@ -2,6 +2,12 @@
  * Utilities for finding optimal card combinations for Weekly Challenge scoring
  */
 
+import {
+  DUPLICATE_SCORE_MULTIPLIER,
+  MAX_MALIGNANCY_PERCENT,
+  RARITY_SCORE_MULTIPLIER,
+} from '@/scoring/constants/scoring'
+
 export type Rarity = 'Common' | 'Uncommon' | 'Rare' | 'Legendary'
 
 export interface VersatilityRank {
@@ -49,11 +55,11 @@ const getCardRarityMultiplier = (rarity: Rarity): number => {
     case 'Common':
       return 1
     case 'Uncommon':
-      return 1.5
+      return RARITY_SCORE_MULTIPLIER
     case 'Rare':
-      return 1.5 * 1.5
+      return RARITY_SCORE_MULTIPLIER ** 2
     case 'Legendary':
-      return 1.5 * 1.5 * 1.5
+      return RARITY_SCORE_MULTIPLIER ** 3
   }
 }
 
@@ -127,7 +133,7 @@ export const findCombinationJustAbove = (
 const getCardCopyScore = (baseScore: number, copyNumber: number): number => {
   if (copyNumber === 1) return baseScore
 
-  return baseScore * Math.pow(0.5, copyNumber - 1)
+  return baseScore * Math.pow(DUPLICATE_SCORE_MULTIPLIER, copyNumber - 1)
 }
 
 /**
@@ -186,7 +192,7 @@ const generateCalculation = (
   }
 
   if (duplicates > 0) {
-    const duplicateScore = Math.ceil(baseScore * 0.5)
+    const duplicateScore = Math.ceil(baseScore * DUPLICATE_SCORE_MULTIPLIER)
     parts.push(`${duplicates} × ${duplicateScore}`)
   }
 
@@ -202,7 +208,7 @@ export const calculateCardEquivalentToGivenPoints = (
 
   for (const rarity of rarities) {
     const baseScore = getCardScoreScaledByRarity(rarity, cardBaseValue)
-    const scoreAtMaxMalignancy = Math.ceil(baseScore * (1 + 220 / 100))
+    const scoreAtMaxMalignancy = Math.ceil(baseScore * (1 + MAX_MALIGNANCY_PERCENT / 100))
     const equivalent = points / (isFixedScore ? scoreAtMaxMalignancy : baseScore)
 
     if (equivalent >= 1 || rarity === 'Common') {
@@ -218,14 +224,14 @@ export const calculateCardEquivalentToGivenPoints = (
 export interface FixedVsKeywordsComparison {
   fixedPoints: number
   cardName: string
-  outscaledAt: number | null // Malignancy percentage (0-220) where keywords outscale, or null if never
+  outscaledAt: number | null // Malignancy percentage (0 to MAX_MALIGNANCY_PERCENT) where keywords outscale, or null if never
   outscalingRarity: Rarity | null
   baseKeywordScore: number // The base keyword score at 0% malignancy
 }
 
 /**
  * Compare fixed score bonus (from PointsPerCard or DeckContainsCard) against keyword bonus
- * scaled by malignancy from 0% to 220%.
+ * scaled by malignancy from 0% up to the maximum malignancy level.
  *
  * Returns the malignancy percentage at which a keyword card first outscales the fixed bonus,
  * starting with Common rarity and progressing to higher rarities if needed.
@@ -236,14 +242,13 @@ export const compareFixedVsKeywordsBonus = (
   cardBaseValue: number
 ): FixedVsKeywordsComparison => {
   const rarities: Rarity[] = ['Common', 'Uncommon', 'Rare', 'Legendary']
-  const maxMalignancy = 220 // 220% is the maximum malignancy
   const minMalignancy = 0 // 0% is the minimum malignancy
 
   for (const rarity of rarities) {
     const baseScore = getCardScoreScaledByRarity(rarity, cardBaseValue)
 
-    // Check each malignancy percentage from 0 to 220
-    for (let malignancy = minMalignancy; malignancy <= maxMalignancy; malignancy++) {
+    // Check each malignancy percentage from the minimum up to the maximum
+    for (let malignancy = minMalignancy; malignancy <= MAX_MALIGNANCY_PERCENT; malignancy++) {
       // Malignancy formula: baseScore * (1 + malignancy/100)
       const scaledScore = Math.ceil(baseScore * (1 + malignancy / 100))
 
@@ -259,7 +264,7 @@ export const compareFixedVsKeywordsBonus = (
     }
   }
 
-  // If we get here, even Legendary at 220% malignancy doesn't outscale the fixed bonus
+  // If we get here, even Legendary at max malignancy doesn't outscale the fixed bonus
   return {
     fixedPoints,
     cardName,

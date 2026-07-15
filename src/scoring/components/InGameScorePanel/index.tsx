@@ -7,6 +7,7 @@ import GradientLink from '@/shared/components/GradientLink'
 import InfoModal from '@/shared/components/Modals/InfoModal'
 
 import { ScoringMode } from '@/scoring/types'
+import { MAX_MALIGNANCY_PERCENT } from '@/scoring/constants/scoring'
 
 import BasePanel from '../BasePanel'
 import ExampleBox from '../ExampleBox'
@@ -263,8 +264,9 @@ function InGameScorePanel({
             <p className={cx('follow-up')}>
               This score is then multiplied by your <strong>malignancy level</strong>, which is the
               sum of all malignancies enabled for the run. The highest level you can have right now
-              is <strong>220%</strong>. Going with the numbers above, this gives us a max malignancy
-              bonus of <Highlight mode={mode}>31,900</Highlight> (<Code>14500 × 2.2</Code>).
+              is <strong>{MAX_MALIGNANCY_PERCENT}%</strong>. Going with the numbers above, this
+              gives us a max malignancy bonus of <Highlight mode={mode}>31,900</Highlight> (
+              <Code>14500 × 2.2</Code>).
             </p>
             <p className={cx('follow-up')}>
               Adding that to the base score, puts the highest achievable{' '}

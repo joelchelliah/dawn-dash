@@ -10,9 +10,11 @@ import {
   findHighestVersatilityRankInRange,
   getAccuracyWindowRange,
 } from '@/scoring/utils/advancedScoring'
+import { ACCURACY_PENALTY_RATE, MAX_MALIGNANCY_PERCENT } from '@/scoring/constants/scoring'
 
 import Highlight from '../Highlight'
 
+import UnsupportedCalculationType from './UnsupportedCalculationType'
 import styles from './index.module.scss'
 
 const cx = createCx(styles)
@@ -35,17 +37,10 @@ function AdvancedInsight({ challengeData }: AdvancedInsightProps): JSX.Element {
   } = scoring
 
   if (calculationType !== 'DiminishingReturns') {
-    return (
-      <div className={cx('unavailable')}>
-        <p>
-          ⚠️ The score calculation type for this challenge is &quot;
-          <strong>{calculationType}</strong>&quot;. This section is not yet supported for that type.
-        </p>
-      </div>
-    )
+    return <UnsupportedCalculationType calculationType={calculationType} />
   }
 
-  const breakTarget = accuracyBaseValue * 0.1
+  const breakTarget = accuracyBaseValue * ACCURACY_PENALTY_RATE
   const pointsPerCardScorings = fixedValueScoring.filter(
     (scoring) => scoring.action === FixedValueAction.PointsPerCard
   )
@@ -155,7 +150,7 @@ function AdvancedInsight({ challengeData }: AdvancedInsightProps): JSX.Element {
                   url={`https://blightbane.io/card/${comparison.cardName}`}
                 />{' '}
                 never gets outscaled by a <strong>keyword</strong> card. At max (
-                <Highlight mode={ScoringMode.Blightbane}>220%</Highlight>){' '}
+                <Highlight mode={ScoringMode.Blightbane}>{MAX_MALIGNANCY_PERCENT}%</Highlight>){' '}
                 <strong>malignancy</strong>, this is worth{' '}
                 <Code>
                   <strong>{equivalent}</strong>

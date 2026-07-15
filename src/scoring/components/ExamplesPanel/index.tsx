@@ -25,6 +25,66 @@ import styles from './index.module.scss'
 
 const cx = createCx(styles)
 
+interface ExampleParameterScore {
+  label: string
+  score: number
+  description: React.ReactNode
+}
+
+const STANDARD_EXAMPLE_SCORES: ExampleParameterScore[] = [
+  {
+    label: '💀 Bosses defeated',
+    score: 6000,
+    description: (
+      <>
+        All bosses on <strong>Impossible</strong> difficulty.
+      </>
+    ),
+  },
+  { label: '❤️ Awareness', score: 750, description: 'Less than 100 damage taken.' },
+  { label: '⚔️ Damage', score: 2000, description: 'Over 5000 damage dealt.' },
+  { label: '💨 Lethality', score: 500, description: 'Averaged 2 turns per fight.' },
+  { label: '🃏 Versatility', score: 500, description: 'Over 19 cards in deck.' },
+  { label: '💰 Wealth', score: 1250, description: 'Over 1500 gold + deck value.' },
+]
+
+const SUNFORGE_EXAMPLE_SCORES: ExampleParameterScore[] = [
+  { label: '💀 Bosses defeated', score: 11750, description: 'All 32 bosses.' },
+  { label: '❤️ Awareness', score: 300, description: 'Less than 500 damage taken.' },
+  { label: '⚔️ Damage', score: 500, description: 'Over 100 damage dealt.' },
+  { label: '💨 Lethality', score: 450, description: 'Averaged 3 turns per fight.' },
+  { label: '🃏 Versatility', score: 250, description: 'Over 9 cards in deck.' },
+  { label: '💰 Wealth', score: 350, description: 'Over 900 gold + deck value.' },
+]
+
+const WEEKLY_STANDARD_EXAMPLE_SCORES: ExampleParameterScore[] = [
+  {
+    label: '💀 Bosses defeated',
+    score: 6000,
+    description: (
+      <>
+        All bosses on <strong>Impossible</strong> difficulty.
+      </>
+    ),
+  },
+  { label: '❤️ Awareness', score: 0, description: 'Too much damage taken.' },
+  { label: '⚔️ Damage', score: 2000, description: 'Over 5000 damage dealt.' },
+  { label: '💨 Lethality', score: 250, description: 'Averaged 6 turns per fight.' },
+  { label: '🃏 Versatility', score: 250, description: 'Over 9 cards in deck.' },
+  { label: '💰 Wealth', score: 1000, description: 'Over 1000 gold + deck value.' },
+]
+
+const renderParameterScoreList = (mode: ScoringMode, scores: ExampleParameterScore[]) => (
+  <ScoringList mode={mode}>
+    {scores.map(({ label, score, description }) => (
+      <li key={label}>
+        <strong>{label}:</strong> <Highlight mode={mode}>{score}</Highlight>{' '}
+        <span className={cx('score-description')}>{description}</span>
+      </li>
+    ))}
+  </ScoringList>
+)
+
 type ExamplesPanelProps = {
   mode: ScoringMode
   onNext?: () => void
@@ -70,34 +130,7 @@ function ExamplesPanel({
       >
         <div className={cx('illustrated-info')}>
           <br />
-          <ScoringList mode={mode}>
-            <li>
-              <strong>💀 Bosses defeated:</strong> <Highlight mode={mode}>6000</Highlight>{' '}
-              <span className={cx('score-description')}>
-                All bosses on <strong>Impossible</strong> difficulty.
-              </span>
-            </li>
-            <li>
-              <strong>❤️ Awareness:</strong> <Highlight mode={mode}>750</Highlight>{' '}
-              <span className={cx('score-description')}>Less than 100 damage taken.</span>
-            </li>
-            <li>
-              <strong>⚔️ Damage:</strong> <Highlight mode={mode}>2000</Highlight>{' '}
-              <span className={cx('score-description')}>Over 5000 damage dealt.</span>
-            </li>
-            <li>
-              <strong>💨 Lethality:</strong> <Highlight mode={mode}>500</Highlight>{' '}
-              <span className={cx('score-description')}>Averaged 2 turns per fight.</span>
-            </li>
-            <li>
-              <strong>🃏 Versatility:</strong> <Highlight mode={mode}>500</Highlight>{' '}
-              <span className={cx('score-description')}>Over 19 cards in deck.</span>
-            </li>
-            <li>
-              <strong>💰 Wealth:</strong> <Highlight mode={mode}>1250</Highlight>{' '}
-              <span className={cx('score-description')}>Over 1500 gold + deck value.</span>
-            </li>
-          </ScoringList>
+          {renderParameterScoreList(mode, STANDARD_EXAMPLE_SCORES)}
           <br />
           <p>
             This adds up to <Highlight mode={mode}>11,000</Highlight>.
@@ -127,32 +160,7 @@ function ExamplesPanel({
       >
         <div className={cx('illustrated-info')}>
           <br />
-          <ScoringList mode={mode}>
-            <li>
-              <strong>💀 Bosses defeated:</strong> <Highlight mode={mode}>11750</Highlight>{' '}
-              <span className={cx('score-description')}>All 32 bosses.</span>
-            </li>
-            <li>
-              <strong>❤️ Awareness:</strong> <Highlight mode={mode}>300</Highlight>{' '}
-              <span className={cx('score-description')}>Less than 500 damage taken.</span>
-            </li>
-            <li>
-              <strong>⚔️ Damage:</strong> <Highlight mode={mode}>500</Highlight>{' '}
-              <span className={cx('score-description')}>Over 100 damage dealt.</span>
-            </li>
-            <li>
-              <strong>💨 Lethality:</strong> <Highlight mode={mode}>450</Highlight>{' '}
-              <span className={cx('score-description')}>Averaged 3 turns per fight.</span>
-            </li>
-            <li>
-              <strong>🃏 Versatility:</strong> <Highlight mode={mode}>250</Highlight>{' '}
-              <span className={cx('score-description')}>Over 9 cards in deck.</span>
-            </li>
-            <li>
-              <strong>💰 Wealth:</strong> <Highlight mode={mode}>350</Highlight>{' '}
-              <span className={cx('score-description')}>Over 900 gold + deck value.</span>
-            </li>
-          </ScoringList>
+          {renderParameterScoreList(mode, SUNFORGE_EXAMPLE_SCORES)}
           <br />
           <p>
             This adds up to <Highlight mode={mode}>13,600</Highlight>.
@@ -197,36 +205,7 @@ function ExamplesPanel({
       >
         <div className={cx('illustrated-info')}>
           <br />
-          <ScoringList mode={ScoringMode.Standard}>
-            <li>
-              <strong>💀 Bosses defeated:</strong>{' '}
-              <Highlight mode={ScoringMode.Standard}>6000</Highlight>{' '}
-              <span className={cx('score-description')}>
-                All bosses on <strong>Impossible</strong> difficulty.
-              </span>
-            </li>
-            <li>
-              <strong>❤️ Awareness:</strong> <Highlight mode={ScoringMode.Standard}>0</Highlight>{' '}
-              <span className={cx('score-description')}>Too much damage taken.</span>
-            </li>
-            <li>
-              <strong>⚔️ Damage:</strong> <Highlight mode={ScoringMode.Standard}>2000</Highlight>{' '}
-              <span className={cx('score-description')}>Over 5000 damage dealt.</span>
-            </li>
-            <li>
-              <strong>💨 Lethality:</strong> <Highlight mode={ScoringMode.Standard}>250</Highlight>{' '}
-              <span className={cx('score-description')}>Averaged 6 turns per fight.</span>
-            </li>
-            <li>
-              <strong>🃏 Versatility:</strong>{' '}
-              <Highlight mode={ScoringMode.Standard}>250</Highlight>{' '}
-              <span className={cx('score-description')}>Over 9 cards in deck.</span>
-            </li>
-            <li>
-              <strong>💰 Wealth:</strong> <Highlight mode={ScoringMode.Standard}>1000</Highlight>{' '}
-              <span className={cx('score-description')}>Over 1000 gold + deck value.</span>
-            </li>
-          </ScoringList>
+          {renderParameterScoreList(ScoringMode.Standard, WEEKLY_STANDARD_EXAMPLE_SCORES)}
           <br />
           <p>
             This adds up to <Highlight mode={ScoringMode.Standard}>9,500</Highlight>.

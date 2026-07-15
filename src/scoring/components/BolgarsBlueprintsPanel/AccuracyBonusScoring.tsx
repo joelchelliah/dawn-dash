@@ -5,12 +5,15 @@ import InfoModal from '@/shared/components/Modals/InfoModal'
 import Code from '@/shared/components/Code'
 
 import { ScoringMode, WeeklyChallengeData } from '@/scoring/types'
+import { getAccuracyWindowRange } from '@/scoring/utils/advancedScoring'
+import { ACCURACY_PENALTY_RATE } from '@/scoring/constants/scoring'
 
 import Highlight from '../Highlight'
 import ScoringList from '../ScoringList'
 import ScoringTable from '../ScoringTable'
 import ScoringButton from '../ScoringButton'
 
+import MalignancyScalingList from './MalignancyScalingList'
 import styles from './index.module.scss'
 
 const cx = createCx(styles)
@@ -27,7 +30,7 @@ function AccuracyBonusScoring({ challengeData }: AccuracyBonusScoringProps): JSX
   const getDerivedAccuracyRange = useCallback(
     (offset: number) => {
       if (offset === 0) {
-        return `${target - buffer + 1} - ${target + buffer - 1}`
+        return getAccuracyWindowRange(target, buffer)
       }
       if (offset < 0) {
         const end = target - buffer + 2 + (offset + 1) * buffer
@@ -52,51 +55,31 @@ function AccuracyBonusScoring({ challengeData }: AccuracyBonusScoringProps): JSX
   )
 
   const accuracyTableData = useMemo(
-    () => [
-      {
-        cards: getDerivedAccuracyRange(-3),
-        penalty: accuracyBaseValue * 0.3,
-        score: accuracyBaseValue * 0.7,
-      },
-      {
-        cards: getDerivedAccuracyRange(-2),
-        penalty: accuracyBaseValue * 0.2,
-        score: accuracyBaseValue * 0.8,
-      },
-      {
-        cards: getDerivedAccuracyRange(-1),
-        penalty: accuracyBaseValue * 0.1,
-        score: accuracyBaseValue * 0.9,
-      },
-      {
-        cards: (
-          <Highlight mode={ScoringMode.Blightbane} strong>
-            {getDerivedAccuracyRange(0)}
-          </Highlight>
-        ),
-        penalty: (
-          <Highlight mode={ScoringMode.Blightbane} strong>
-            0
-          </Highlight>
-        ),
-        score: accuracyBaseValue,
-      },
-      {
-        cards: getDerivedAccuracyRange(1),
-        penalty: accuracyBaseValue * 0.1,
-        score: accuracyBaseValue * 0.9,
-      },
-      {
-        cards: getDerivedAccuracyRange(2),
-        penalty: accuracyBaseValue * 0.2,
-        score: accuracyBaseValue * 0.8,
-      },
-      {
-        cards: getDerivedAccuracyRange(3),
-        penalty: accuracyBaseValue * 0.3,
-        score: accuracyBaseValue * 0.7,
-      },
-    ],
+    () =>
+      [-3, -2, -1, 0, 1, 2, 3].map((offset) => {
+        if (offset === 0) {
+          return {
+            cards: (
+              <Highlight mode={ScoringMode.Blightbane} strong>
+                {getDerivedAccuracyRange(0)}
+              </Highlight>
+            ),
+            penalty: (
+              <Highlight mode={ScoringMode.Blightbane} strong>
+                0
+              </Highlight>
+            ),
+            score: accuracyBaseValue,
+          }
+        }
+
+        const penaltyRate = ACCURACY_PENALTY_RATE * Math.abs(offset)
+        return {
+          cards: getDerivedAccuracyRange(offset),
+          penalty: accuracyBaseValue * penaltyRate,
+          score: accuracyBaseValue * (1 - penaltyRate),
+        }
+      }),
     [accuracyBaseValue, getDerivedAccuracyRange]
   )
 
@@ -151,26 +134,7 @@ function AccuracyBonusScoring({ challengeData }: AccuracyBonusScoringProps): JSX
         </Code>
         ):
       </p>
-      <ScoringList mode={ScoringMode.Blightbane}>
-        <li>
-          <strong>+50% :</strong>{' '}
-          <Highlight mode={ScoringMode.Blightbane} strong>
-            {Math.ceil(accuracyBaseValue * 1.5)}
-          </Highlight>
-        </li>
-        <li>
-          <strong>+100% :</strong>{' '}
-          <Highlight mode={ScoringMode.Blightbane} strong>
-            {Math.ceil(accuracyBaseValue * 2)}
-          </Highlight>
-        </li>
-        <li>
-          <strong>+200% :</strong>{' '}
-          <Highlight mode={ScoringMode.Blightbane} strong>
-            {Math.ceil(accuracyBaseValue * 3)}
-          </Highlight>
-        </li>
-      </ScoringList>
+      <MalignancyScalingList baseValue={accuracyBaseValue} />
 
       <InfoModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
         <h4 className={cx('explain-settings-header')}>🎯 &nbsp;Accuracy bonus settings</h4>
@@ -200,10 +164,12 @@ function AccuracyBonusScoring({ challengeData }: AccuracyBonusScoringProps): JSX
         </div>
         <p>
           You are penalized by <strong>10%</strong> (
-          <Highlight mode={ScoringMode.Blightbane}>{accuracyBaseValue * 0.1}</Highlight>) points for
-          every <Highlight mode={ScoringMode.Blightbane}>{buffer}</Highlight> cards you are away
-          from the target (<Highlight mode={ScoringMode.Blightbane}>{target}</Highlight>). Either
-          above or below the target.
+          <Highlight mode={ScoringMode.Blightbane}>
+            {accuracyBaseValue * ACCURACY_PENALTY_RATE}
+          </Highlight>
+          ) points for every <Highlight mode={ScoringMode.Blightbane}>{buffer}</Highlight> cards you
+          are away from the target (<Highlight mode={ScoringMode.Blightbane}>{target}</Highlight>).
+          Either above or below the target.
           <br />
           Passing the buffer once will put outside the <strong>
             derived accuracy window:
@@ -211,7 +177,7 @@ function AccuracyBonusScoring({ challengeData }: AccuracyBonusScoringProps): JSX
           <span style={{ whiteSpace: 'nowrap' }}>
             [{' '}
             <Highlight mode={ScoringMode.Blightbane} strong>
-              {target - buffer + 1} - {target + buffer - 1}
+              {getAccuracyWindowRange(target, buffer)}
             </Highlight>{' '}
             ]
           </span>
