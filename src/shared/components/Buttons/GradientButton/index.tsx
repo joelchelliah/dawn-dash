@@ -3,15 +3,14 @@ import { memo, useState } from 'react'
 import { createCx } from '@/shared/utils/classnames'
 import Button from '@/shared/components/Buttons/Button'
 
+import { BaseButtonProps } from '../types'
+
 import styles from './index.module.scss'
 
 const cx = createCx(styles)
 
-interface GradientButtonProps {
-  children: React.ReactNode
-  onClick: () => void
+interface GradientButtonProps extends BaseButtonProps {
   isLoading?: boolean
-  className?: string
   subtle?: boolean
   bold?: boolean
   showClickAnimation?: boolean
@@ -25,6 +24,9 @@ function GradientButton({
   subtle,
   bold,
   showClickAnimation = false,
+  disabled,
+  type = 'button',
+  ariaLabel,
 }: GradientButtonProps): JSX.Element {
   const [isAnimating, setIsAnimating] = useState(false)
 
@@ -46,7 +48,14 @@ function GradientButton({
   })
 
   return (
-    <Button className={buttonClassName} onClick={handleClick} type="button" isLoading={isLoading}>
+    <Button
+      className={buttonClassName}
+      onClick={handleClick}
+      type={type}
+      isLoading={isLoading}
+      disabled={disabled}
+      ariaLabel={ariaLabel}
+    >
       {children}
     </Button>
   )

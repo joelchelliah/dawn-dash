@@ -10,7 +10,7 @@ import { getSubclassColor } from '@/speedruns/utils/colors'
 import { isAnonymousPlayer } from '@/speedruns/utils/players'
 import { SpeedRunSubclass } from '@/speedruns/types/speedRun'
 
-import PrimaryButton from '../Buttons/PrimaryButton'
+import ClassColorButton from '../Buttons/ClassColorButton'
 import ClassModal from '../ClassModal'
 
 import styles from './index.module.scss'
@@ -83,9 +83,9 @@ function BlightbaneModal({
 
       <ButtonRow>
         <Button onClick={onClose}>Nah</Button>
-        <PrimaryButton selectedClass={playerClass} onClick={onConfirm}>
+        <ClassColorButton variant="primary" selectedClass={playerClass} onClick={onConfirm}>
           Yeah!
-        </PrimaryButton>
+        </ClassColorButton>
       </ButtonRow>
     </ClassModal>
   )

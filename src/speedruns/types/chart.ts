@@ -58,4 +58,5 @@ export interface ChartControlState {
   setZoomLevel: (value: number) => void
   submissionWindow: SubmissionWindow
   setSubmissionWindow: (value: SubmissionWindow) => void
+  resetToDefaults: () => void
 }

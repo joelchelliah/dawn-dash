@@ -1,0 +1,22 @@
+@use 'index' as *;
+
+.class-color-button {
+  color: var(--color);
+
+  &--primary {
+    &:hover {
+      color: $color-primary-hover;
+      background: var(--hover-bg-color) !important;
+    }
+  }
+
+  &--secondary {
+    border: 1px dashed var(--color);
+
+    &:hover {
+      color: var(--hover-color) !important;
+      background: transparent !important;
+      border-color: var(--hover-color) !important;
+    }
+  }
+}

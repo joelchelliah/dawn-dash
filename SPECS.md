@@ -318,7 +318,9 @@ The React 19 / Next 16 / ESLint flat-config migration is a separate decision, no
 
 ---
 
-## Spec 9 — Fix speedruns cache-duration mismatch and document intent
+## Spec 9 — Fix speedruns cache-duration mismatch and document intent — ✅ COMPLETED
+
+> **Notes:** Kept the 10-minute TTL (intentional — leaderboard data receives new runs continuously, unlike codex data that only changes with game updates) and added a comment in `speedrunsStore.ts` saying so. Fixed both inaccurate `CLAUDE.md` lines: the "24-hour cache for speedruns" claim, and the cache-key list — which was doubly stale (`speedrun-...` vs actual `speedruns_v4_...` prefix; `codex_talents_filters_v2` vs actual `_v3`). The keys are now documented as pointers to the store files instead of literal values, so future version bumps can't re-create the drift. The cache-key strings were already constants co-located with their stores — no code change needed there.
 
 **Impact: Medium** — verified real inconsistency between docs and code.
 **Effort: Trivial**
@@ -331,7 +333,9 @@ Decide the intended value (10 minutes is plausible for frequently-updated leader
 
 ---
 
-## Spec 10 — Consolidate button components
+## Spec 10 — Consolidate button components — ✅ COMPLETED
+
+> **Notes:** The problem statement was partially stale: `PrimaryButton`/`SecondaryButton` were already thin styled wrappers over the shared `Button` (the spec's preferred end state) — what they duplicated was *each other* (identical structure, only class-color variants differed), and they are **not** visually interchangeable with `GradientButton` (class-colored theming vs gradients), so the replace-with-GradientButton option was out. Landed: (1) `src/shared/components/Buttons/types.ts` with `BaseButtonProps` as spec'd; `Button`, `GradientButton`, and `IllustratedButton` (via `Omit<..., 'children'>`) now extend it — purely additive props (`disabled`, `ariaLabel`, `type` where missing), all wired through, no behavior change for existing call sites. (2) Primary/Secondary merged into one `src/speedruns/components/Buttons/ClassColorButton` with `variant: 'primary' | 'secondary'` (both SCSS blocks kept verbatim in one module); all 6 usages across 4 call sites updated; old components deleted. Verified: no `PrimaryButton`/`SecondaryButton` references remain; `npm run verify` + `npm run build` pass.
 
 **Impact: Medium**
 **Effort: Low**
@@ -565,10 +569,10 @@ When it is picked up, migrate as one coordinated unit:
 
 Quick wins first to build confidence, then the big refactors:
 
-1. Spec 9 (trivial), Spec 11 (trivial), Spec 12, Spec 13 — small, isolated, verifiable.
+1. ~~Spec 9 (trivial)~~ (done), Spec 11 (trivial), Spec 12, Spec 13 — small, isolated, verifiable.
 2. ~~Spec 8 Tier A, then Tier B~~ (done) — toolchain is current.
 3. Spec 1 → Spec 2 (registry, then PageHead).
-4. ~~Spec 7 (error handling)~~ (done) and Spec 10 (buttons).
+4. ~~Spec 7 (error handling)~~ (done) and ~~Spec 10 (buttons)~~ (done).
 5. ~~Spec 5 (filter engine)~~ (done), ~~Spec 6 (layout/render split)~~ (done).
 6. ~~Spec 3 (tree unification, step by step)~~ (done) → ~~Spec 4 (spacing decomposition)~~ (done) → Spec 19 (flextree swap; ideally alongside Spec 6).
 7. Spec 14, 16, 17.

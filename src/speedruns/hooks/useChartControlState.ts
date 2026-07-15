@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo, useRef } from 'react'
+import { useCallback, useEffect, useState, useMemo, useRef } from 'react'
 
 import { CharacterClass } from '@/shared/types/characterClass'
 
@@ -39,6 +39,16 @@ export function useChartControlState(
   // Use difficulty from URL params as initial default
   const [difficulty, setDifficulty] = useState(selectedDifficulty)
 
+  // Resets all controls except difficulty, which is owned by the URL/class selection
+  const resetToDefaults = useCallback(() => {
+    setSubclass(subclassDefault)
+    setPlayerLimit(PLAYER_LIMIT_DEFAULT)
+    setMaxDuration(maxDurationDefault)
+    setZoomLevel(ZOOM_LEVEL_DEFAULT)
+    setSubmissionWindow(SUBMISSION_WINDOW_DEFAULT)
+    setViewMode(viewModeDefault)
+  }, [maxDurationDefault, subclassDefault, viewModeDefault])
+
   useEffect(() => {
     if (isInitialMount.current) {
       isInitialMount.current = false
@@ -49,17 +59,12 @@ export function useChartControlState(
     previousClass.current = selectedClass
 
     if (isSunforge !== wasSunforge) {
-      setSubclass(subclassDefault)
-      setPlayerLimit(PLAYER_LIMIT_DEFAULT)
-      setMaxDuration(maxDurationDefault)
-      setZoomLevel(ZOOM_LEVEL_DEFAULT)
-      setSubmissionWindow(SUBMISSION_WINDOW_DEFAULT)
-      setViewMode(viewModeDefault)
+      resetToDefaults()
 
       // When class changes, always reset difficulty to DEFAULT regardless of URL params
       setDifficulty(DIFFICULTY_DEFAULT)
     }
-  }, [maxDurationDefault, selectedClass, isSunforge, subclassDefault, viewModeDefault])
+  }, [selectedClass, isSunforge, resetToDefaults])
 
   return useMemo(
     () => ({
@@ -77,7 +82,17 @@ export function useChartControlState(
       setSubmissionWindow,
       subclass,
       setSubclass,
+      resetToDefaults,
     }),
-    [maxDuration, zoomLevel, viewMode, playerLimit, difficulty, submissionWindow, subclass]
+    [
+      maxDuration,
+      zoomLevel,
+      viewMode,
+      playerLimit,
+      difficulty,
+      submissionWindow,
+      subclass,
+      resetToDefaults,
+    ]
   )
 }

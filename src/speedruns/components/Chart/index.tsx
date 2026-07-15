@@ -287,7 +287,10 @@ function Chart({ selectedClass, controls, onPlayerClick }: ChartProps) {
           selectedClass={selectedClass}
           message="No runs found for the selected filters!"
           buttonText="Reset filters"
-          onClick={() => navigateTo('speedruns', { class: selectedClass, difficulty })}
+          onClick={() => {
+            controls.resetToDefaults()
+            navigateTo('speedruns', { class: selectedClass, difficulty })
+          }}
         />
         {!isError && !isLoading && (
           <div

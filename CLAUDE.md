@@ -85,11 +85,11 @@ This is a Next.js application for Dawncaster game data visualization with three 
 ### Data Layer
 - **SWR** for client-side data fetching and caching with automatic deduplication
 - **Supabase** for cards/talents data with real-time capabilities
-- **localStorage caching** with expiry times and staleness detection (24-hour cache for speedruns)
+- **localStorage caching** with expiry times and staleness detection (10-minute cache for speedrun leaderboard data, 24-hour cache for codex card/talent data)
 - **Custom hooks** (`useCardData`, `useTalentData`, `useSpeedrunData`) abstract data fetching with progress callbacks
 - **Zustand-style stores** for client-side state management (filter state persisted to localStorage)
 - **Progress tracking** - Real-time progress callbacks during large data fetches
-- **Cache keys**: `speedrun-${class}-${difficulty}`, `codex_cards_v2`, `codex_talents_filters_v2`
+- **Cache keys**: versioned constants co-located with each store — see `src/speedruns/utils/speedrunsStore.ts` (`speedruns_<version>_<class>-<difficulty>`), `src/codex/utils/codexCardsStore.ts`, `codexTalentsStore.ts`, and `codexFilterStore.ts`
 
 ### PWA & Performance
 - **Progressive Web App** with `next-pwa` package

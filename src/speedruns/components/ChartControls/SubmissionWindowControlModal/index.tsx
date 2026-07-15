@@ -16,8 +16,7 @@ import { isGameVersionRange, isLastXDays } from '@/speedruns/utils/gameVersion'
 import DoubleThumbSlider from '@/speedruns/components/Sliders/DoubleThumbSlider'
 import SingleThumbSlider from '@/speedruns/components/Sliders/SingleThumbSlider'
 
-import PrimaryButton from '../../Buttons/PrimaryButton'
-import SecondaryButton from '../../Buttons/SecondaryButton'
+import ClassColorButton from '../../Buttons/ClassColorButton'
 import ClassModal from '../../ClassModal'
 import ControlRadioButton from '../ControlRadioButton'
 
@@ -214,13 +213,13 @@ function SubmissionWindowModal({
         </ControlRadioButton>
 
         <ButtonRow>
-          <SecondaryButton onClick={handleReset} selectedClass={selectedClass}>
+          <ClassColorButton variant="secondary" onClick={handleReset} selectedClass={selectedClass}>
             Reset
-          </SecondaryButton>
+          </ClassColorButton>
           <Button onClick={onClose}>Cancel</Button>
-          <PrimaryButton onClick={handleApply} selectedClass={selectedClass}>
+          <ClassColorButton variant="primary" onClick={handleApply} selectedClass={selectedClass}>
             Apply
-          </PrimaryButton>
+          </ClassColorButton>
         </ButtonRow>
       </div>
     </ClassModal>

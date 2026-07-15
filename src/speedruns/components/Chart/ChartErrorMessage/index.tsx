@@ -2,7 +2,7 @@ import { createCx } from '@/shared/utils/classnames'
 import { ClassColorVariant, getClassColor } from '@/shared/utils/classColors'
 import { CharacterClass } from '@/shared/types/characterClass'
 
-import PrimaryButton from '../../Buttons/PrimaryButton'
+import ClassColorButton from '../../Buttons/ClassColorButton'
 
 import styles from './index.module.scss'
 
@@ -32,9 +32,9 @@ function ChartErrorMessage({
     <div className={cx('error-message')} style={errorMessageStyle}>
       {message}
       {onClick && (
-        <PrimaryButton selectedClass={selectedClass} onClick={onClick}>
+        <ClassColorButton variant="primary" selectedClass={selectedClass} onClick={onClick}>
           {buttonText || 'Okay!'}
-        </PrimaryButton>
+        </ClassColorButton>
       )}
     </div>
   )

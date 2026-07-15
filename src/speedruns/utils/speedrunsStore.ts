@@ -4,6 +4,8 @@ import { SpeedRunData } from '../types/speedRun'
 
 const CACHE_VERSION = 'v4'
 const CACHE_KEY_PREFIX = `speedruns_${CACHE_VERSION}`
+// Deliberately much shorter than the 24h codex caches: leaderboard data receives
+// new runs continuously, while card/talent data only changes with game updates.
 const CACHE_DURATION = 10 * 60 * 1000 // 10 minutes
 
 export function cacheSpeedrunData(key: string, data: SpeedRunData[]): CacheWriteResult {

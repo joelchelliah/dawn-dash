@@ -9,7 +9,7 @@ import { CharacterClass } from '@/shared/types/characterClass'
 import { VIEW_MODE_LABELS } from '@/speedruns/constants/chartControlValues'
 import { ViewMode } from '@/speedruns/types/chart'
 
-import PrimaryButton from '../../Buttons/PrimaryButton'
+import ClassColorButton from '../../Buttons/ClassColorButton'
 import ClassModal from '../../ClassModal'
 import ControlRadioButton from '../ControlRadioButton'
 
@@ -113,9 +113,9 @@ function ViewModeModal({
         </div>
         <ButtonRow>
           <Button onClick={onClose}>Cancel</Button>
-          <PrimaryButton onClick={handleApply} selectedClass={selectedClass}>
+          <ClassColorButton variant="primary" onClick={handleApply} selectedClass={selectedClass}>
             Apply
-          </PrimaryButton>
+          </ClassColorButton>
         </ButtonRow>
       </div>
     </ClassModal>
