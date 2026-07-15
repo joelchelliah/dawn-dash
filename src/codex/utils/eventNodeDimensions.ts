@@ -1,3 +1,5 @@
+import { logger } from '@/shared/utils/logger'
+
 import {
   EventTreeNode,
   DialogueNode,
@@ -63,9 +65,8 @@ const getCachedDimensions = (
   const cached = dimensionEngine.getCached(node, context)
 
   // Warn in DEV if cache miss for the currently cached event
-  if (!cached && cachedEventName === context.event.name && process.env.NODE_ENV === 'development') {
-    // eslint-disable-next-line no-console
-    console.warn(
+  if (!cached && cachedEventName === context.event.name) {
+    logger.warn(
       `[DimensionCache] Cache miss for node ${node.id} in event "${context.event.name}". ` +
         `Cache was built but this node wasn't found! 😱`
     )

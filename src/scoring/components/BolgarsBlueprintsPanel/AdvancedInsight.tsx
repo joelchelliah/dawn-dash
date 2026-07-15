@@ -141,7 +141,10 @@ function AdvancedInsight({ challengeData }: AdvancedInsightProps): JSX.Element {
               true
             )
             return (
-              <p key={index} className={cx('insight-paragraph', { 'follow-up': index > 0 })}>
+              <p
+                key={`${comparison.cardName}-${comparison.fixedPoints}`}
+                className={cx('insight-paragraph', { 'follow-up': index > 0 })}
+              >
                 The{' '}
                 <Highlight mode={ScoringMode.Blightbane} strong>
                   {comparison.fixedPoints}
@@ -177,7 +180,10 @@ function AdvancedInsight({ challengeData }: AdvancedInsightProps): JSX.Element {
               </>
             )
           return (
-            <p key={index} className={cx('insight-paragraph', { 'follow-up': index > 0 })}>
+            <p
+              key={`${comparison.cardName}-${comparison.fixedPoints}`}
+              className={cx('insight-paragraph', { 'follow-up': index > 0 })}
+            >
               The{' '}
               <Highlight mode={ScoringMode.Blightbane} strong>
                 {comparison.fixedPoints}

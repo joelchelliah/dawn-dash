@@ -1,4 +1,5 @@
 import { isNotNullOrUndefined } from '@/shared/utils/object'
+import { logger } from '@/shared/utils/logger'
 
 import {
   TalentData,
@@ -79,7 +80,7 @@ export const mapTalentsDataToTalentTree = (unparsedTalents: TalentData[]): Talen
     const hasTalentRequirementsFromEventMatrix = talentRequirementsFromEventMatrix.length > 0
 
     if (hasTalentRequirementsFromEventMatrix && talent.requires_talents.length > 0) {
-      console.warn(
+      logger.warn(
         `💀  Talent ${talent.name} has both inherent talent requirements and event requirements! We don't support this yet!`
       )
     }

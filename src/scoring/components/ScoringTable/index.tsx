@@ -37,8 +37,8 @@ function ScoringTable<T extends Record<string, unknown>>({
     <table className={cx('table', className)}>
       <thead>
         <tr>
-          {columns.map((column, index) => (
-            <th key={index} className={cx(`mode--${mode}`)}>
+          {columns.map((column) => (
+            <th key={column.header} className={cx(`mode--${mode}`)}>
               {column.header}
             </th>
           ))}
@@ -47,8 +47,11 @@ function ScoringTable<T extends Record<string, unknown>>({
       <tbody>
         {data.map((row, rowIndex) => (
           <tr key={rowIndex} className={cx(`mode--${mode}`)}>
-            {columns.map((column, colIndex) => (
-              <td key={colIndex} className={cx(column.className, `${column.className}--${mode}`)}>
+            {columns.map((column) => (
+              <td
+                key={column.header}
+                className={cx(column.className, `${column.className}--${mode}`)}
+              >
                 {getCellContent(row, column) as React.ReactNode}
               </td>
             ))}

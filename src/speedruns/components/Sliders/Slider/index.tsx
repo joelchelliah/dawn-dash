@@ -91,12 +91,12 @@ function Slider({
         }}
       >
         <div className={cx('track-fill')} style={fillStyle} />
-        {Array.from({ length: doubleThumbs ? 2 : 1 }).map((_, index) => (
+        {(doubleThumbs ? [0, 1] : [0]).map((thumbIndex) => (
           <Thumb
-            key={index}
+            key={thumbIndex}
             state={state}
             trackRef={trackRef}
-            index={index}
+            index={thumbIndex}
             energyIcon={energyIcon}
           />
         ))}

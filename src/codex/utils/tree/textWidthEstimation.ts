@@ -14,6 +14,8 @@
  * than maxWidth is never split.
  */
 
+import { logger } from '@/shared/utils/logger'
+
 const DEFAULT_FONT_FAMILY =
   '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
 
@@ -69,8 +71,7 @@ const getCanvasContext = (): CanvasRenderingContext2D | null => {
     canvasContext = canvas.getContext('2d')
     return canvasContext
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.warn('Failed to create canvas context for text measurement:', error)
+    logger.warn('Failed to create canvas context for text measurement:', error)
     return null
   }
 }
@@ -116,8 +117,7 @@ export const createTextMeasurer = <V extends string = never>(
     try {
       return ctx.measureText(text).width
     } catch (error) {
-      // eslint-disable-next-line no-console
-      console.warn('Failed to measure text:', error)
+      logger.warn('Failed to measure text:', error)
       return null
     }
   }

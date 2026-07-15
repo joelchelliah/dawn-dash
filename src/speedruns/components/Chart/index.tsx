@@ -15,6 +15,7 @@ import {
 import 'chartjs-adapter-date-fns'
 
 import { createCx } from '@/shared/utils/classnames'
+import { logger } from '@/shared/utils/logger'
 import { useDeviceOrientation } from '@/shared/hooks/useDeviceOrientation'
 import { useNavigation } from '@/shared/hooks/useNavigation'
 import { ClassColorVariant, getClassColor, lighten } from '@/shared/utils/classColors'
@@ -154,7 +155,7 @@ function Chart({ selectedClass, controls, onPlayerClick }: ChartProps) {
   const createChart = useCallback(
     (speedruns: SpeedRunData[]) => {
       if (!chartRef.current) {
-        console.warn('No chart ref available!')
+        logger.warn('No chart ref available!')
         return
       }
 
@@ -179,7 +180,7 @@ function Chart({ selectedClass, controls, onPlayerClick }: ChartProps) {
       const datasets = createDatasets(playerHistory, allRecordPoints)
 
       if (datasets.length === 0) {
-        console.warn('No valid data to display')
+        logger.warn('No valid data to display')
         return
       }
 

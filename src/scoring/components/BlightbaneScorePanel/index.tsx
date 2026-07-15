@@ -269,19 +269,16 @@ function BlightbaneScorePanel({
           These bonuses scale together with your <strong>malignancies</strong> (similarly to the{' '}
           <Highlight mode={ScoringMode.Standard}>Standard</Highlight> mode parameters):
         </p>
-        <ScoringList
-          mode={mode}
-          items={[
-            <>
-              📝 <strong>Keywords</strong> bonus{' '}
-              <span className={cx('list-item-description')}>Card tracking</span>
-            </>,
-            <>
-              🎯 <strong>Accuracy</strong> bonus{' '}
-              <span className={cx('list-item-description')}>Deck size management</span>
-            </>,
-          ]}
-        />
+        <ScoringList mode={mode}>
+          <li>
+            📝 <strong>Keywords</strong> bonus{' '}
+            <span className={cx('list-item-description')}>Card tracking</span>
+          </li>
+          <li>
+            🎯 <strong>Accuracy</strong> bonus{' '}
+            <span className={cx('list-item-description')}>Deck size management</span>
+          </li>
+        </ScoringList>
         <p>
           The first one rewards you for finding cards matching specific words, while the second one
           rewards you for maintaining your deck size within a given range.
@@ -307,16 +304,17 @@ function BlightbaneScorePanel({
             </p>
             <br />
 
-            <ScoringList
-              mode={mode}
-              items={KEYWORD_EXAMPLES.map(({ card, emoji, reason }) => (
-                <span key={card.key} className={cx('keyword-example')}>
-                  <span className={cx('keyword-example__card')}>{card}</span> -{' '}
-                  <span className={cx('keyword-example__emoji')}>{emoji}</span>{' '}
-                  <span className={cx('keyword-example__reason')}>{reason}</span>
-                </span>
+            <ScoringList mode={mode}>
+              {KEYWORD_EXAMPLES.map(({ card, emoji, reason }) => (
+                <li key={card.props.text}>
+                  <span className={cx('keyword-example')}>
+                    <span className={cx('keyword-example__card')}>{card}</span> -{' '}
+                    <span className={cx('keyword-example__emoji')}>{emoji}</span>{' '}
+                    <span className={cx('keyword-example__reason')}>{reason}</span>
+                  </span>
+                </li>
               ))}
-            />
+            </ScoringList>
           </div>
         </IllustratedScoringInfo>
         <p>
@@ -373,15 +371,14 @@ function BlightbaneScorePanel({
           a <strong>common card</strong>. For each rarity level above common, you get a{' '}
           <strong>50% higher</strong> base value than the one below it:
         </p>
-        <ScoringList
-          mode={mode}
-          items={RARITY_BASE_POINTS.map(({ rarity, points, note }) => (
-            <>
+        <ScoringList mode={mode}>
+          {RARITY_BASE_POINTS.map(({ rarity, points, note }) => (
+            <li key={rarity}>
               <strong>{rarity}</strong> - <Highlight mode={mode}>{points}</Highlight>{' '}
               {note && <span className={cx('rarity-note')}>{note}</span>}
-            </>
+            </li>
           ))}
-        />
+        </ScoringList>
         <p>
           You should always prioritize the higher rarity ones when hunting down your keyword bonus
           cards. A <strong>legendary</strong> is worth over 3 times as much as a{' '}
@@ -482,21 +479,18 @@ function BlightbaneScorePanel({
             </p>
             <br />
 
-            <ScoringList
-              mode={mode}
-              items={[
-                <>
-                  The <strong>target</strong>: <Highlight mode={mode}>20</Highlight>{' '}
-                  <span className={cx('list-item-description')}>The real accuracy value</span>
-                </>,
-                <>
-                  The <strong>buffer</strong>: <Highlight mode={mode}>4</Highlight>{' '}
-                  <span className={cx('list-item-description')}>
-                    The number of cards until your next penalty
-                  </span>
-                </>,
-              ]}
-            />
+            <ScoringList mode={mode}>
+              <li>
+                The <strong>target</strong>: <Highlight mode={mode}>20</Highlight>{' '}
+                <span className={cx('list-item-description')}>The real accuracy value</span>
+              </li>
+              <li>
+                The <strong>buffer</strong>: <Highlight mode={mode}>4</Highlight>{' '}
+                <span className={cx('list-item-description')}>
+                  The number of cards until your next penalty
+                </span>
+              </li>
+            </ScoringList>
 
             <br />
 
@@ -605,20 +599,17 @@ function BlightbaneScorePanel({
           cards in your <strong>main decklist</strong>! Cards found anywhere else will be{' '}
           <strong>ignored</strong> by all score bonus components. This includes:
         </p>
-        <ScoringList
-          mode={mode}
-          items={[
-            <>
-              <strong>Imbued</strong> cards.
-            </>,
-            <>
-              Cards in your <strong>Companion deck</strong>.
-            </>,
-            <>
-              Cards in your <strong>Scrap deck</strong>.
-            </>,
-          ]}
-        />
+        <ScoringList mode={mode}>
+          <li>
+            <strong>Imbued</strong> cards.
+          </li>
+          <li>
+            Cards in your <strong>Companion deck</strong>.
+          </li>
+          <li>
+            Cards in your <strong>Scrap deck</strong>.
+          </li>
+        </ScoringList>
         <p>If you cannot see it in your deck outside of combat, it will not count.</p>
       </div>
     </BasePanel>

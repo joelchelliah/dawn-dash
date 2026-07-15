@@ -48,18 +48,15 @@ function WeeklyChallengePanel({
           Your <Highlight mode={mode}>Weekly Challenge</Highlight> score is determined by the
           following two factors:
         </p>
-        <ScoringList
-          mode={mode}
-          items={[
-            <>
-              Your entire <Highlight mode={ScoringMode.Standard}>Standard</Highlight> mode score.
-            </>,
-            <>
-              A third-party <Highlight mode={ScoringMode.Blightbane}>Blightbane</Highlight> score,
-              awarded by how well you perform in the specific goals of the challenge.
-            </>,
-          ]}
-        />
+        <ScoringList mode={mode}>
+          <li>
+            Your entire <Highlight mode={ScoringMode.Standard}>Standard</Highlight> mode score.
+          </li>
+          <li>
+            A third-party <Highlight mode={ScoringMode.Blightbane}>Blightbane</Highlight> score,
+            awarded by how well you perform in the specific goals of the challenge.
+          </li>
+        </ScoringList>
         <p>
           Once your <Highlight mode={mode}>Weekly Challenge</Highlight> run is submitted, the{' '}
           <Highlight mode={ScoringMode.Blightbane}>Blightbane</Highlight> score is calculated and
@@ -89,25 +86,22 @@ function WeeklyChallengePanel({
               for each submitted run, containing:
             </p>
             <br />
-            <ScoringList
-              mode={mode}
-              items={[
-                <>
-                  Your <strong>🏆 Total score</strong> (with the{' '}
-                  <Highlight mode={ScoringMode.Blightbane}>Blightbane</Highlight> score shown in
-                  green next to it).
-                </>,
-                <>
-                  Some numbers from your <Highlight mode={ScoringMode.Standard}>Standard</Highlight>{' '}
-                  mode score.
-                </>,
-                <>Your cards, talents, malignancies and boss fights.</>,
-                <>
-                  A detailed breakdown of how well you did on your{' '}
-                  <Highlight mode={ScoringMode.Blightbane}>Blightbane</Highlight> score parameters.
-                </>,
-              ]}
-            />
+            <ScoringList mode={mode}>
+              <li>
+                Your <strong>🏆 Total score</strong> (with the{' '}
+                <Highlight mode={ScoringMode.Blightbane}>Blightbane</Highlight> score shown in green
+                next to it).
+              </li>
+              <li>
+                Some numbers from your <Highlight mode={ScoringMode.Standard}>Standard</Highlight>{' '}
+                mode score.
+              </li>
+              <>Your cards, talents, malignancies and boss fights.</>,
+              <li>
+                A detailed breakdown of how well you did on your{' '}
+                <Highlight mode={ScoringMode.Blightbane}>Blightbane</Highlight> score parameters.
+              </li>
+            </ScoringList>
           </div>
         </IllustratedScoringInfo>
 

@@ -10,6 +10,7 @@ export interface Parameter {
   label: React.ReactNode
   emoji: string
   description: React.ReactNode
+  key?: string // required when label is not a plain string
 }
 
 interface ParameterInfoListProps {
@@ -33,8 +34,8 @@ function ParameterInfoList({
         'parameter-list--bordered': bordered,
       })}
     >
-      {parameters.map(({ label, emoji, description }, index) => (
-        <li key={`${label}-${index}`}>
+      {parameters.map(({ label, emoji, description, key }) => (
+        <li key={key ?? String(label)}>
           <span className={cx('label', { 'label--fluid': fluidLabels })}>
             {emoji} {label}
           </span>{' '}

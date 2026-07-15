@@ -100,29 +100,26 @@ function KeywordsBonusScoring({ challengeData }: KeywordsBonusScoringProps): JSX
       <p>
         These bonuses scale with your <strong>malignancy level</strong>.
       </p>
-      <ScoringList
-        mode={ScoringMode.Blightbane}
-        items={[
-          <>
-            <strong>Keywords:</strong> {listScoringKeywords()}
-          </>,
-          <>
-            <strong>Card base value:</strong>{' '}
+      <ScoringList mode={ScoringMode.Blightbane}>
+        <li>
+          <strong>Keywords:</strong> {listScoringKeywords()}
+        </li>
+        <li>
+          <strong>Card base value:</strong>{' '}
+          <Highlight mode={ScoringMode.Blightbane} strong>
+            {cardBaseValue}
+          </Highlight>{' '}
+          {cardBaseValue < 0 ? <em>(negative score)</em> : ''}
+        </li>
+        <li>
+          <strong>
+            Diminishing returns limit:{' '}
             <Highlight mode={ScoringMode.Blightbane} strong>
-              {cardBaseValue}
-            </Highlight>{' '}
-            {cardBaseValue < 0 ? <em>(negative score)</em> : ''}
-          </>,
-          <>
-            <strong>
-              Diminishing returns limit:{' '}
-              <Highlight mode={ScoringMode.Blightbane} strong>
-                {diminishingReturnsLimit}
-              </Highlight>
-            </strong>
-          </>,
-        ]}
-      />
+              {diminishingReturnsLimit}
+            </Highlight>
+          </strong>
+        </li>
+      </ScoringList>
       <ScoringButton
         mode={ScoringMode.Blightbane}
         onClick={() => setIsModalOpen(true)}
@@ -143,29 +140,26 @@ function KeywordsBonusScoring({ challengeData }: KeywordsBonusScoringProps): JSX
         </Code>
         ):
       </p>
-      <ScoringList
-        mode={ScoringMode.Blightbane}
-        items={[
-          <>
-            <strong>+50% :</strong>{' '}
-            <Highlight mode={ScoringMode.Blightbane} strong>
-              {Math.ceil(legendaryScore * 1.5)}
-            </Highlight>
-          </>,
-          <>
-            <strong>+100% :</strong>{' '}
-            <Highlight mode={ScoringMode.Blightbane} strong>
-              {Math.ceil(legendaryScore * 2)}
-            </Highlight>
-          </>,
-          <>
-            <strong>+200% :</strong>{' '}
-            <Highlight mode={ScoringMode.Blightbane} strong>
-              {Math.ceil(legendaryScore * 3)}
-            </Highlight>
-          </>,
-        ]}
-      />
+      <ScoringList mode={ScoringMode.Blightbane}>
+        <li>
+          <strong>+50% :</strong>{' '}
+          <Highlight mode={ScoringMode.Blightbane} strong>
+            {Math.ceil(legendaryScore * 1.5)}
+          </Highlight>
+        </li>
+        <li>
+          <strong>+100% :</strong>{' '}
+          <Highlight mode={ScoringMode.Blightbane} strong>
+            {Math.ceil(legendaryScore * 2)}
+          </Highlight>
+        </li>
+        <li>
+          <strong>+200% :</strong>{' '}
+          <Highlight mode={ScoringMode.Blightbane} strong>
+            {Math.ceil(legendaryScore * 3)}
+          </Highlight>
+        </li>
+      </ScoringList>
       {cardBaseValue > 0 && keywords.length > 0 && (
         <p>
           <strong>Hint:</strong>{' '}

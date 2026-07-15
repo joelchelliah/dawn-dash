@@ -88,13 +88,13 @@ function EventList({
         {renderEventCountText()}
       </h3>
 
-      {sortedTypes.map(({ index, events }) => (
-        <div key={index} className={cx('event-type-group')}>
-          <h4 className={cx('event-type-subheader')}>{eventTypeMapper(index)}</h4>
+      {sortedTypes.map(({ index: typeIndex, events }) => (
+        <div key={typeIndex} className={cx('event-type-group')}>
+          <h4 className={cx('event-type-subheader')}>{eventTypeMapper(typeIndex)}</h4>
           <div className={cx('event-list')}>
-            {events.map((event, index) => (
+            {events.map((event) => (
               <EventListItem
-                key={`${event.name}-${index}`}
+                key={event.name}
                 event={event}
                 allEvents={allEvents}
                 onEventSelect={onEventSelect}

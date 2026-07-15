@@ -70,37 +70,34 @@ function ExamplesPanel({
       >
         <div className={cx('illustrated-info')}>
           <br />
-          <ScoringList
-            mode={mode}
-            items={[
-              <>
-                <strong>💀 Bosses defeated:</strong> <Highlight mode={mode}>6000</Highlight>{' '}
-                <span className={cx('score-description')}>
-                  All bosses on <strong>Impossible</strong> difficulty.
-                </span>
-              </>,
-              <>
-                <strong>❤️ Awareness:</strong> <Highlight mode={mode}>750</Highlight>{' '}
-                <span className={cx('score-description')}>Less than 100 damage taken.</span>
-              </>,
-              <>
-                <strong>⚔️ Damage:</strong> <Highlight mode={mode}>2000</Highlight>{' '}
-                <span className={cx('score-description')}>Over 5000 damage dealt.</span>
-              </>,
-              <>
-                <strong>💨 Lethality:</strong> <Highlight mode={mode}>500</Highlight>{' '}
-                <span className={cx('score-description')}>Averaged 2 turns per fight.</span>
-              </>,
-              <>
-                <strong>🃏 Versatility:</strong> <Highlight mode={mode}>500</Highlight>{' '}
-                <span className={cx('score-description')}>Over 19 cards in deck.</span>
-              </>,
-              <>
-                <strong>💰 Wealth:</strong> <Highlight mode={mode}>1250</Highlight>{' '}
-                <span className={cx('score-description')}>Over 1500 gold + deck value.</span>
-              </>,
-            ]}
-          />
+          <ScoringList mode={mode}>
+            <li>
+              <strong>💀 Bosses defeated:</strong> <Highlight mode={mode}>6000</Highlight>{' '}
+              <span className={cx('score-description')}>
+                All bosses on <strong>Impossible</strong> difficulty.
+              </span>
+            </li>
+            <li>
+              <strong>❤️ Awareness:</strong> <Highlight mode={mode}>750</Highlight>{' '}
+              <span className={cx('score-description')}>Less than 100 damage taken.</span>
+            </li>
+            <li>
+              <strong>⚔️ Damage:</strong> <Highlight mode={mode}>2000</Highlight>{' '}
+              <span className={cx('score-description')}>Over 5000 damage dealt.</span>
+            </li>
+            <li>
+              <strong>💨 Lethality:</strong> <Highlight mode={mode}>500</Highlight>{' '}
+              <span className={cx('score-description')}>Averaged 2 turns per fight.</span>
+            </li>
+            <li>
+              <strong>🃏 Versatility:</strong> <Highlight mode={mode}>500</Highlight>{' '}
+              <span className={cx('score-description')}>Over 19 cards in deck.</span>
+            </li>
+            <li>
+              <strong>💰 Wealth:</strong> <Highlight mode={mode}>1250</Highlight>{' '}
+              <span className={cx('score-description')}>Over 1500 gold + deck value.</span>
+            </li>
+          </ScoringList>
           <br />
           <p>
             This adds up to <Highlight mode={mode}>11,000</Highlight>.
@@ -130,35 +127,32 @@ function ExamplesPanel({
       >
         <div className={cx('illustrated-info')}>
           <br />
-          <ScoringList
-            mode={mode}
-            items={[
-              <>
-                <strong>💀 Bosses defeated:</strong> <Highlight mode={mode}>11750</Highlight>{' '}
-                <span className={cx('score-description')}>All 32 bosses.</span>
-              </>,
-              <>
-                <strong>❤️ Awareness:</strong> <Highlight mode={mode}>300</Highlight>{' '}
-                <span className={cx('score-description')}>Less than 500 damage taken.</span>
-              </>,
-              <>
-                <strong>⚔️ Damage:</strong> <Highlight mode={mode}>500</Highlight>{' '}
-                <span className={cx('score-description')}>Over 100 damage dealt.</span>
-              </>,
-              <>
-                <strong>💨 Lethality:</strong> <Highlight mode={mode}>450</Highlight>{' '}
-                <span className={cx('score-description')}>Averaged 3 turns per fight.</span>
-              </>,
-              <>
-                <strong>🃏 Versatility:</strong> <Highlight mode={mode}>250</Highlight>{' '}
-                <span className={cx('score-description')}>Over 9 cards in deck.</span>
-              </>,
-              <>
-                <strong>💰 Wealth:</strong> <Highlight mode={mode}>350</Highlight>{' '}
-                <span className={cx('score-description')}>Over 900 gold + deck value.</span>
-              </>,
-            ]}
-          />
+          <ScoringList mode={mode}>
+            <li>
+              <strong>💀 Bosses defeated:</strong> <Highlight mode={mode}>11750</Highlight>{' '}
+              <span className={cx('score-description')}>All 32 bosses.</span>
+            </li>
+            <li>
+              <strong>❤️ Awareness:</strong> <Highlight mode={mode}>300</Highlight>{' '}
+              <span className={cx('score-description')}>Less than 500 damage taken.</span>
+            </li>
+            <li>
+              <strong>⚔️ Damage:</strong> <Highlight mode={mode}>500</Highlight>{' '}
+              <span className={cx('score-description')}>Over 100 damage dealt.</span>
+            </li>
+            <li>
+              <strong>💨 Lethality:</strong> <Highlight mode={mode}>450</Highlight>{' '}
+              <span className={cx('score-description')}>Averaged 3 turns per fight.</span>
+            </li>
+            <li>
+              <strong>🃏 Versatility:</strong> <Highlight mode={mode}>250</Highlight>{' '}
+              <span className={cx('score-description')}>Over 9 cards in deck.</span>
+            </li>
+            <li>
+              <strong>💰 Wealth:</strong> <Highlight mode={mode}>350</Highlight>{' '}
+              <span className={cx('score-description')}>Over 900 gold + deck value.</span>
+            </li>
+          </ScoringList>
           <br />
           <p>
             This adds up to <Highlight mode={mode}>13,600</Highlight>.
@@ -203,40 +197,36 @@ function ExamplesPanel({
       >
         <div className={cx('illustrated-info')}>
           <br />
-          <ScoringList
-            mode={ScoringMode.Standard}
-            items={[
-              <>
-                <strong>💀 Bosses defeated:</strong>{' '}
-                <Highlight mode={ScoringMode.Standard}>6000</Highlight>{' '}
-                <span className={cx('score-description')}>
-                  All bosses on <strong>Impossible</strong> difficulty.
-                </span>
-              </>,
-              <>
-                <strong>❤️ Awareness:</strong> <Highlight mode={ScoringMode.Standard}>0</Highlight>{' '}
-                <span className={cx('score-description')}>Too much damage taken.</span>
-              </>,
-              <>
-                <strong>⚔️ Damage:</strong> <Highlight mode={ScoringMode.Standard}>2000</Highlight>{' '}
-                <span className={cx('score-description')}>Over 5000 damage dealt.</span>
-              </>,
-              <>
-                <strong>💨 Lethality:</strong>{' '}
-                <Highlight mode={ScoringMode.Standard}>250</Highlight>{' '}
-                <span className={cx('score-description')}>Averaged 6 turns per fight.</span>
-              </>,
-              <>
-                <strong>🃏 Versatility:</strong>{' '}
-                <Highlight mode={ScoringMode.Standard}>250</Highlight>{' '}
-                <span className={cx('score-description')}>Over 9 cards in deck.</span>
-              </>,
-              <>
-                <strong>💰 Wealth:</strong> <Highlight mode={ScoringMode.Standard}>1000</Highlight>{' '}
-                <span className={cx('score-description')}>Over 1000 gold + deck value.</span>
-              </>,
-            ]}
-          />
+          <ScoringList mode={ScoringMode.Standard}>
+            <li>
+              <strong>💀 Bosses defeated:</strong>{' '}
+              <Highlight mode={ScoringMode.Standard}>6000</Highlight>{' '}
+              <span className={cx('score-description')}>
+                All bosses on <strong>Impossible</strong> difficulty.
+              </span>
+            </li>
+            <li>
+              <strong>❤️ Awareness:</strong> <Highlight mode={ScoringMode.Standard}>0</Highlight>{' '}
+              <span className={cx('score-description')}>Too much damage taken.</span>
+            </li>
+            <li>
+              <strong>⚔️ Damage:</strong> <Highlight mode={ScoringMode.Standard}>2000</Highlight>{' '}
+              <span className={cx('score-description')}>Over 5000 damage dealt.</span>
+            </li>
+            <li>
+              <strong>💨 Lethality:</strong> <Highlight mode={ScoringMode.Standard}>250</Highlight>{' '}
+              <span className={cx('score-description')}>Averaged 6 turns per fight.</span>
+            </li>
+            <li>
+              <strong>🃏 Versatility:</strong>{' '}
+              <Highlight mode={ScoringMode.Standard}>250</Highlight>{' '}
+              <span className={cx('score-description')}>Over 9 cards in deck.</span>
+            </li>
+            <li>
+              <strong>💰 Wealth:</strong> <Highlight mode={ScoringMode.Standard}>1000</Highlight>{' '}
+              <span className={cx('score-description')}>Over 1000 gold + deck value.</span>
+            </li>
+          </ScoringList>
           <br />
           <p>
             This adds up to <Highlight mode={ScoringMode.Standard}>9,500</Highlight>.
@@ -260,25 +250,22 @@ function ExamplesPanel({
             <strong>🎖️ Fixed score bonuses</strong> for:
           </p>
           <br />
-          <ScoringList
-            mode={ScoringMode.Blightbane}
-            items={[
-              <>
-                Having <strong>Moonclaws</strong> (
-                <Highlight mode={ScoringMode.Blightbane}>4 × 500</Highlight>),{' '}
-                <strong>Master of Forms</strong> (
-                <Highlight mode={ScoringMode.Blightbane}>750</Highlight>), and{' '}
-                <strong>Harmony</strong> (<Highlight mode={ScoringMode.Blightbane}>750</Highlight>).
-              </>,
-              <>
-                Using the <strong>Eternal Hunger</strong> malignancy (
-                <Highlight mode={ScoringMode.Blightbane}>3000</Highlight>).
-              </>,
-              <>
-                Completing the run (<Highlight mode={ScoringMode.Blightbane}>2000</Highlight>).
-              </>,
-            ]}
-          />
+          <ScoringList mode={ScoringMode.Blightbane}>
+            <li>
+              Having <strong>Moonclaws</strong> (
+              <Highlight mode={ScoringMode.Blightbane}>4 × 500</Highlight>),{' '}
+              <strong>Master of Forms</strong> (
+              <Highlight mode={ScoringMode.Blightbane}>750</Highlight>), and{' '}
+              <strong>Harmony</strong> (<Highlight mode={ScoringMode.Blightbane}>750</Highlight>).
+            </li>
+            <li>
+              Using the <strong>Eternal Hunger</strong> malignancy (
+              <Highlight mode={ScoringMode.Blightbane}>3000</Highlight>).
+            </li>
+            <li>
+              Completing the run (<Highlight mode={ScoringMode.Blightbane}>2000</Highlight>).
+            </li>
+          </ScoringList>
           <br />
           <p>
             <strong>📝 Keywords bonus</strong>, scaled by both <strong>malignancy</strong> and{' '}

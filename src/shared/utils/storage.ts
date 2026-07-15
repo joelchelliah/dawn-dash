@@ -1,5 +1,7 @@
 import { CachedData } from '../types/cache'
 
+import { logger } from './logger'
+
 const emptyCacheState = {
   data: null,
   isStale: true,
@@ -48,7 +50,7 @@ export function getFromCache<T>(cacheKey: string, cacheDuration: number | null):
       timestamp,
     }
   } catch (error) {
-    console.warn('Failed to read from cache:', error)
+    logger.warn('Failed to read from cache:', error)
     return emptyCacheState
   }
 }

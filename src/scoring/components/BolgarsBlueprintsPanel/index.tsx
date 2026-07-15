@@ -112,6 +112,7 @@ const getFixedValueScoringParameters = ({ scoring }: WeeklyChallengeData) =>
     const config = FIXED_VALUE_CONFIG[item.action as FixedValueAction]
 
     return {
+      key: `${item.action}-${item.keyword}-${item.pointValue}`,
       emoji: config?.emoji || '❗',
       label: (
         <>

@@ -1,8 +1,11 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react'
 
+import { track } from '@vercel/analytics'
+
 import Image from '@/shared/components/Image'
 import { createCx } from '@/shared/utils/classnames'
 import { DantelionImageUrl } from '@/shared/utils/imageUrls'
+import { logger } from '@/shared/utils/logger'
 
 import GradientButton from '../Buttons/GradientButton'
 
@@ -33,7 +36,16 @@ class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('ErrorBoundary caught an error:', error, errorInfo)
+    logger.error('ErrorBoundary caught an error:', error, errorInfo)
+
+    try {
+      track('error-boundary', {
+        component: this.props.componentName,
+        error: `${error.name}: ${error.message}`,
+      })
+    } catch {
+      // Reporting must never crash the boundary itself
+    }
 
     if (this.props.onError) {
       this.props.onError(error, errorInfo)

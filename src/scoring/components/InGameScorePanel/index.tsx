@@ -76,17 +76,14 @@ function getIntroText(mode: ScoringMode): JSX.Element {
           Your <Highlight mode={mode}>Standard</Highlight> mode score is determined by the following
           two factors:
         </p>
-        <ScoringList
-          mode={mode}
-          items={[
-            <>
-              How well you perform in <strong>six specific scoring parameters</strong>.
-            </>,
-            <>
-              The <strong>malignancies</strong> you&apos;ve enabled for the run.
-            </>,
-          ]}
-        />
+        <ScoringList mode={mode}>
+          <li>
+            How well you perform in <strong>six specific scoring parameters</strong>.
+          </li>
+          <li>
+            The <strong>malignancies</strong> you&apos;ve enabled for the run.
+          </li>
+        </ScoringList>
         <p>
           The combined score from the following <strong>six scoring parameters</strong> are
           multiplied by your <strong>malignancy level</strong> to give your final score.
@@ -100,17 +97,14 @@ function getIntroText(mode: ScoringMode): JSX.Element {
           Your <Highlight mode={mode}>Sunforge</Highlight> score is determined by the following two
           factors:
         </p>
-        <ScoringList
-          mode={mode}
-          items={[
-            <>
-              How well you perform in <strong>six specific scoring parameters</strong>.
-            </>,
-            <>
-              The number of extra <strong>rerolls</strong> you have left at the end of the run.
-            </>,
-          ]}
-        />
+        <ScoringList mode={mode}>
+          <li>
+            How well you perform in <strong>six specific scoring parameters</strong>.
+          </li>
+          <li>
+            The number of extra <strong>rerolls</strong> you have left at the end of the run.
+          </li>
+        </ScoringList>
         <p>
           Unlike in <Highlight mode={ScoringMode.Standard}>Standard</Highlight> mode, your score is
           not directly enhanced by your malignancies, but picking harder malignancies gives you
@@ -172,33 +166,29 @@ function InGameScorePanel({
           <strong>At the maximum rank (IX):</strong>
         </p>
 
-        <ScoringList
-          mode={mode}
-          items={[
-            <>
-              <strong>⚔️ Damage, ❤️ Awareness, 🃏 Versatility,</strong> and{' '}
-              <strong>💰 Wealth</strong> give you <Highlight mode={mode}>2000</Highlight> points
-              each.
-            </>,
-            <>
-              <strong>💨 Lethality</strong> gives you <Highlight mode={mode}>500</Highlight> points.
-            </>,
-            <>
-              {mode === ScoringMode.Sunforge ? (
-                <>
-                  <strong>💀 Bosses defeated</strong> is scored by kill count (not rank). The
-                  maximum is at <Highlight mode={mode}>11,750</Highlight> for killing all 32 bosses.
-                </>
-              ) : (
-                <>
-                  <strong>💀 Bosses defeated</strong> depends on your difficulty and kill count. A
-                  maximum of <Highlight mode={mode}>6000</Highlight> points is achievable on{' '}
-                  <strong>Impossible</strong> difficulty.
-                </>
-              )}
-            </>,
-          ]}
-        />
+        <ScoringList mode={mode}>
+          <li>
+            <strong>⚔️ Damage, ❤️ Awareness, 🃏 Versatility,</strong> and <strong>💰 Wealth</strong>{' '}
+            give you <Highlight mode={mode}>2000</Highlight> points each.
+          </li>
+          <li>
+            <strong>💨 Lethality</strong> gives you <Highlight mode={mode}>500</Highlight> points.
+          </li>
+          <li>
+            {mode === ScoringMode.Sunforge ? (
+              <>
+                <strong>💀 Bosses defeated</strong> is scored by kill count (not rank). The maximum
+                is at <Highlight mode={mode}>11,750</Highlight> for killing all 32 bosses.
+              </>
+            ) : (
+              <>
+                <strong>💀 Bosses defeated</strong> depends on your difficulty and kill count. A
+                maximum of <Highlight mode={mode}>6000</Highlight> points is achievable on{' '}
+                <strong>Impossible</strong> difficulty.
+              </>
+            )}
+          </li>
+        </ScoringList>
 
         <p>
           Score growth between ranks is <strong>non-linear</strong>. For most parameters, jumping
@@ -286,16 +276,15 @@ function InGameScorePanel({
               Similarly for the other difficulties, the highest achievable scores are:
             </p>
 
-            <ScoringList
-              mode={mode}
-              items={MAX_SCORES.map(({ difficulty, score, calc }) => (
-                <>
+            <ScoringList mode={mode}>
+              {MAX_SCORES.map(({ difficulty, score, calc }) => (
+                <li key={difficulty}>
                   <strong>{difficulty}</strong>:{' '}
                   <Highlight mode={mode}>{score.toLocaleString()}</Highlight> ({<Code>{calc}</Code>}
                   )
-                </>
+                </li>
               ))}
-            />
+            </ScoringList>
 
             <p>
               These numbers will of course vary over time, as the game introduces new malignancies,
@@ -322,25 +311,21 @@ function InGameScorePanel({
               In addition to being frugal with your rerolls, there are a number of other ways to
               ensure a high reroll count at the end of the run:
             </p>
-            <ScoringList
-              mode={mode}
-              items={[
-                <>
-                  Enabling harder malignancies. The hardest ones, like <strong>Rotting</strong>,
-                  give you 5 extra rerolls!
-                </>,
-                <>
-                  Enabling more <strong>Cardsets</strong>. Each one gives you an extra reroll.
-                </>,
-                <>
-                  Use (or avoid) the <strong>Free rerolls</strong> options. Depends on your
-                  playstyle.
-                </>,
-                <>
-                  Choose <strong>extra rerolls</strong> as rewards after combat whenever possible.
-                </>,
-              ]}
-            />
+            <ScoringList mode={mode}>
+              <li>
+                Enabling harder malignancies. The hardest ones, like <strong>Rotting</strong>, give
+                you 5 extra rerolls!
+              </li>
+              <li>
+                Enabling more <strong>Cardsets</strong>. Each one gives you an extra reroll.
+              </li>
+              <li>
+                Use (or avoid) the <strong>Free rerolls</strong> options. Depends on your playstyle.
+              </li>
+              <li>
+                Choose <strong>extra rerolls</strong> as rewards after combat whenever possible.
+              </li>
+            </ScoringList>
 
             <p>
               The tricky bit is figuring out how few rerolls you can get away with using, and still

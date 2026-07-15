@@ -105,35 +105,32 @@ function AccuracyBonusScoring({ challengeData }: AccuracyBonusScoringProps): JSX
       <p>
         This bonus scales with your <strong>malignancy level</strong>.
       </p>
-      <ScoringList
-        mode={ScoringMode.Blightbane}
-        items={[
-          <>
-            <strong>Accuracy base value:</strong>{' '}
-            <Highlight mode={ScoringMode.Blightbane} strong>
-              {accuracyBaseValue}
-            </Highlight>
-          </>,
-          <>
-            <strong>Allow negative accuracy:</strong>{' '}
-            <Highlight mode={ScoringMode.Blightbane} strong>
-              {allowNegativeAccuracy ? 'Yes' : 'No'}
-            </Highlight>
-          </>,
-          <>
-            <strong>Target:</strong>{' '}
-            <Highlight mode={ScoringMode.Blightbane} strong>
-              {target}
-            </Highlight>
-          </>,
-          <>
-            <strong>Buffer:</strong>{' '}
-            <Highlight mode={ScoringMode.Blightbane} strong>
-              {buffer}
-            </Highlight>
-          </>,
-        ]}
-      />
+      <ScoringList mode={ScoringMode.Blightbane}>
+        <li>
+          <strong>Accuracy base value:</strong>{' '}
+          <Highlight mode={ScoringMode.Blightbane} strong>
+            {accuracyBaseValue}
+          </Highlight>
+        </li>
+        <li>
+          <strong>Allow negative accuracy:</strong>{' '}
+          <Highlight mode={ScoringMode.Blightbane} strong>
+            {allowNegativeAccuracy ? 'Yes' : 'No'}
+          </Highlight>
+        </li>
+        <li>
+          <strong>Target:</strong>{' '}
+          <Highlight mode={ScoringMode.Blightbane} strong>
+            {target}
+          </Highlight>
+        </li>
+        <li>
+          <strong>Buffer:</strong>{' '}
+          <Highlight mode={ScoringMode.Blightbane} strong>
+            {buffer}
+          </Highlight>
+        </li>
+      </ScoringList>
       <ScoringButton
         mode={ScoringMode.Blightbane}
         onClick={() => setIsModalOpen(true)}
@@ -154,29 +151,26 @@ function AccuracyBonusScoring({ challengeData }: AccuracyBonusScoringProps): JSX
         </Code>
         ):
       </p>
-      <ScoringList
-        mode={ScoringMode.Blightbane}
-        items={[
-          <>
-            <strong>+50% :</strong>{' '}
-            <Highlight mode={ScoringMode.Blightbane} strong>
-              {Math.ceil(accuracyBaseValue * 1.5)}
-            </Highlight>
-          </>,
-          <>
-            <strong>+100% :</strong>{' '}
-            <Highlight mode={ScoringMode.Blightbane} strong>
-              {Math.ceil(accuracyBaseValue * 2)}
-            </Highlight>
-          </>,
-          <>
-            <strong>+200% :</strong>{' '}
-            <Highlight mode={ScoringMode.Blightbane} strong>
-              {Math.ceil(accuracyBaseValue * 3)}
-            </Highlight>
-          </>,
-        ]}
-      />
+      <ScoringList mode={ScoringMode.Blightbane}>
+        <li>
+          <strong>+50% :</strong>{' '}
+          <Highlight mode={ScoringMode.Blightbane} strong>
+            {Math.ceil(accuracyBaseValue * 1.5)}
+          </Highlight>
+        </li>
+        <li>
+          <strong>+100% :</strong>{' '}
+          <Highlight mode={ScoringMode.Blightbane} strong>
+            {Math.ceil(accuracyBaseValue * 2)}
+          </Highlight>
+        </li>
+        <li>
+          <strong>+200% :</strong>{' '}
+          <Highlight mode={ScoringMode.Blightbane} strong>
+            {Math.ceil(accuracyBaseValue * 3)}
+          </Highlight>
+        </li>
+      </ScoringList>
 
       <InfoModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
         <h4 className={cx('explain-settings-header')}>🎯 &nbsp;Accuracy bonus settings</h4>

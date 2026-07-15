@@ -354,7 +354,15 @@ Decide the intended value (10 minutes is plausible for frequently-updated leader
 
 ---
 
-## Spec 11 — Fix unstable React list keys
+## Spec 11 — Fix unstable React list keys — ✅ COMPLETED
+
+> **Notes:** All listed occurrences verified and fixed; details on the non-obvious ones:
+> (1) **EventList** — the outer `key={index}` was actually the group's event-type id (destructured as `index`, shadowed by the inner map's `index`); renamed to `typeIndex` for clarity. Item key is now `event.name` — checked `src/codex/data/event-trees.json`: no duplicate names (183 events), so the key is safe even under filtering.
+> (2) **ParameterInfoList** — the old key was `` `${label}-${index}` `` where `label` can be JSX, i.e. effectively `[object Object]-N` (index-based). Now keys by `label`, with an optional `key` field on `Parameter` for JSX labels; the one JSX-label producer (`getFixedValueScoringParameters`) supplies `action-keyword-pointValue`.
+> (3) **ScoringList** — its `items: JSX.Element[]` prop offered no content to derive keys from, so it was converted to a children-based component (callers render `<li>` directly). The ~17 static prose lists are no longer mapped arrays and need no keys at all; the three data-driven usages (`MAX_SCORES`, `KEYWORD_EXAMPLES`, `RARITY_BASE_POINTS`) map to `<li>`s keyed by `difficulty`/`card.key`/`rarity`. Rendered DOM is unchanged.
+> (4) **ScoringTable** — `<th>`/`<td>` now keyed by `column.header` (verified unique per table). Row keys remain positional (`rowIndex`): rows are generic `Record<string, unknown>` data with no id, the tables are static, and the spec only flagged the column keys.
+> (5) **Slider** — thumbs keyed by thumb index, which is the domain identity here (it's also the `index` prop passed to `Thumb`), not an incidental list position.
+> (6) **AdvancedInsight** — comparisons keyed by `cardName-fixedPoints`.
 
 **Impact: Medium** — latent reconciliation bugs when lists reorder/filter.
 **Effort: Trivial**
@@ -371,7 +379,9 @@ For each: use a stable identifier from the data (name, label, mode). For truly s
 
 ---
 
-## Spec 12 — Environment-guarded logger; remove stray console output
+## Spec 12 — Environment-guarded logger; remove stray console output — ✅ COMPLETED
+
+> **Notes:** The problem list had drifted (earlier specs already resolved parts of it): the `codexCardsStore`/`codexTalentsStore` warns were gone (Spec 7), `eventNodeDimensionCache.ts` became `eventNodeDimensions.ts` (Spec 3), and the spacing `console.error` had moved to `eventTreeSpacing/logging.ts` (Spec 4). Beyond the listed sites, the sweep also found and converted `src/codex/utils/tree/textWidthEstimation.ts` (2 warns) and `src/speedruns/components/Chart/index.tsx` (2 warns). Decisions: `logMaxSweepsWarning` uses `logger.warn`, so the max-iterations message is now dev-only — silencing it in production was the stated goal; layout still completes when it fires. `ErrorBoundary` logs via `logger.error` (still always logs) and reports `track('error-boundary', { component, error: name+message })` wrapped in try/catch. Acceptance grep verified: `console.*` appears only in `logger.ts`.
 
 **Impact: Medium**
 **Effort: Low**
@@ -569,7 +579,7 @@ When it is picked up, migrate as one coordinated unit:
 
 Quick wins first to build confidence, then the big refactors:
 
-1. ~~Spec 9 (trivial)~~ (done), Spec 11 (trivial), Spec 12, Spec 13 — small, isolated, verifiable.
+1. ~~Spec 9 (trivial)~~ (done), ~~Spec 11 (trivial)~~ (done), ~~Spec 12~~ (done), Spec 13 — small, isolated, verifiable.
 2. ~~Spec 8 Tier A, then Tier B~~ (done) — toolchain is current.
 3. Spec 1 → Spec 2 (registry, then PageHead).
 4. ~~Spec 7 (error handling)~~ (done) and ~~Spec 10 (buttons)~~ (done).
