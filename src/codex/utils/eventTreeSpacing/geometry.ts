@@ -27,17 +27,6 @@ export const calculateAverageX = (nodes: TreeNode[]): number =>
   nodes.reduce((sum, n) => sum + (n.x ?? 0), 0) / nodes.length
 
 /**
- * Calculate the horizontal gap between two adjacent nodes: the distance from
- * the right edge of the left node to the left edge of the right node.
- * Negative when the nodes overlap.
- */
-export const calculateGapBetweenNodes = (
-  ctx: SpacingContext,
-  leftNode: TreeNode,
-  rightNode: TreeNode
-): number => getNodeLeftEdgeX(ctx, rightNode) - getNodeRightEdgeX(ctx, leftNode)
-
-/**
  * Shift a node and its entire subtree horizontally by the given offset
  */
 export const shiftSubtreeX = (node: TreeNode, offset: number): void => {
@@ -63,6 +52,9 @@ export const shiftSubtreeY = (node: TreeNode, offset: number): void => {
  * to the closest obstacle among ALL nodes in the tree at that depth. The
  * tightest level wins. Returns at most `initialMaxShift`, and 0 if any level
  * is already overlapping.
+ *
+ * `excludedNodes` are ignored as obstacles — pass the nodes that move together
+ * with `node`, so members of the same moving group don't clamp each other.
  */
 export const calculateMaxShiftForNode = (
   ctx: SpacingContext,
@@ -70,7 +62,8 @@ export const calculateMaxShiftForNode = (
   initialMaxShift: number,
   direction: ShiftDirection,
   depth: number,
-  nodesByDepth: TreeNode[][]
+  nodesByDepth: TreeNode[][],
+  excludedNodes?: Set<TreeNode>
 ): number => {
   let maxShift = initialMaxShift
 
@@ -99,7 +92,8 @@ export const calculateMaxShiftForNode = (
       ctx,
       boundaryEdge,
       direction,
-      nodesByDepth[checkDepth] || []
+      nodesByDepth[checkDepth] || [],
+      excludedNodes
     )
 
     if (closestObstacleEdge !== null) {
@@ -121,6 +115,39 @@ export const calculateMaxShiftForNode = (
 }
 
 /**
+ * Calculate how far a set of nodes that move together — WITHOUT their subtrees
+ * — can shift in the given direction before any of them would come within
+ * minHorizontalGap of a node in the same row outside the moving set.
+ * Returns at most `initialMaxShift`, and 0 if already overlapping.
+ */
+export const calculateMaxShiftForRowNodes = (
+  ctx: SpacingContext,
+  movingNodes: TreeNode[],
+  initialMaxShift: number,
+  direction: ShiftDirection,
+  rowNodes: TreeNode[]
+): number => {
+  const excluded = new Set(movingNodes)
+  let maxShift = initialMaxShift
+
+  for (const node of movingNodes) {
+    const edge = direction === 'right' ? getNodeRightEdgeX(ctx, node) : getNodeLeftEdgeX(ctx, node)
+    const closestObstacleEdge = findClosestObstacleEdge(ctx, edge, direction, rowNodes, excluded)
+    if (closestObstacleEdge === null) continue
+
+    const gap =
+      direction === 'right'
+        ? closestObstacleEdge - edge - ctx.minHorizontalGap
+        : edge - closestObstacleEdge - ctx.minHorizontalGap
+
+    if (gap < 0) return 0
+    maxShift = Math.min(maxShift, gap)
+  }
+
+  return maxShift
+}
+
+/**
  * Find the facing edge of the closest node strictly beyond `x` in the shift
  * direction (left edge of nodes to the right, right edge of nodes to the
  * left), or null if there is no node in that direction.
@@ -129,12 +156,14 @@ const findClosestObstacleEdge = (
   ctx: SpacingContext,
   x: number,
   direction: ShiftDirection,
-  nodesAtDepth: TreeNode[]
+  nodesAtDepth: TreeNode[],
+  excludedNodes?: Set<TreeNode>
 ): number | null => {
   let closestEdge: number | null = null
   let minDistance = Infinity
 
   nodesAtDepth.forEach((node) => {
+    if (excludedNodes?.has(node)) return
     const edge = direction === 'right' ? getNodeLeftEdgeX(ctx, node) : getNodeRightEdgeX(ctx, node)
     const distance = direction === 'right' ? edge - x : x - edge
 

@@ -1,7 +1,7 @@
 import { memo, useEffect, useMemo, useRef } from 'react'
 
 import { select } from 'd3-selection'
-import { hierarchy, tree, HierarchyPointNode } from 'd3-hierarchy'
+import { hierarchy, HierarchyPointNode } from 'd3-hierarchy'
 
 import Image from '@/shared/components/Image'
 import { createCx } from '@/shared/utils/classnames'
@@ -23,7 +23,7 @@ import {
   centerRootNodeHorizontally,
 } from '@/codex/utils/eventTreeSpacing'
 import { setupTreeSvg, createGlowFilter } from '@/codex/utils/tree/svgHelper'
-import { NODE, TREE, NODE_BOX } from '@/codex/constants/eventTreeValues'
+import { TREE, NODE_BOX } from '@/codex/constants/eventTreeValues'
 import { ZoomLevel } from '@/codex/constants/zoomValues'
 import {
   LoopingPathMode,
@@ -100,15 +100,11 @@ function EventTree({
         showContinuesTags
       )
 
-    const treeLayout = tree<EventTreeNode>()
-      .nodeSize([NODE.HORIZONTAL_SPACING_DEFAULT, NODE.VERTICAL_SPACING_DEFAULT])
-      .separation(() => 1)
-
-    treeLayout(root)
-
+    // flextree computes all node positions (variable-width tidy layout +
+    // multi-parent centering); no d3 tree() pre-layout is needed.
     adjustHorizontalNodeSpacing(
       nodeMap,
-      root as HierarchyPointNode<EventTreeNode>,
+      root,
       event,
       showLoopingIndicator,
       levelOfDetail,

@@ -1,45 +1,44 @@
-import { HierarchyPointNode } from 'd3-hierarchy'
+import { HierarchyNode, HierarchyPointNode } from 'd3-hierarchy'
+import { flextree } from 'd3-flextree'
 
 import { Event, EventTreeNode } from '@/codex/types/events'
+import { NODE } from '@/codex/constants/eventTreeValues'
 import { LevelOfDetail } from '@/codex/constants/eventSearchValues'
 
 import { type NodeMap } from '../eventNodeDimensions'
 
-import { createSpacingContext } from './context'
+import { createSpacingContext, getWidth, type TreeNode } from './context'
 import { groupNodesByDepth } from './grouping'
-import { centerChildrenUnderParents } from './passes/centerChildrenUnderParents'
 import { centerMultiParentChildren } from './passes/centerMultiParentChildren'
-import { resolveOverlaps } from './passes/resolveOverlaps'
-import { tightenGaps } from './passes/tightenGaps'
+import { centerParentsOverSharedChildren } from './passes/centerParentsOverSharedChildren'
 import { applyVerticalSpacing } from './verticalSpacing'
 
 export { centerRootNodeHorizontally } from './rootCentering'
 
 /**
- * Adjust horizontal spacing to prevent node overlaps when nodes have different
- * widths. Runs the passes described in README.md, in order:
+ * Compute horizontal node positions (and initial vertical row positions) for
+ * the event tree. Two steps, described in README.md:
  *
- * 1. centerChildrenUnderParents — position children centered under each parent
- *    (ignoring overlaps)
- * 2. centerMultiParentChildren — center children with multiple parents
- *    (direct + refChildren) under the average of all their parents
- * 3. resolveOverlaps — push apart overlapping siblings/cousins and recenter
- *    parent groups over shared children
- * 4. tightenGaps — remove excess spacing between sibling subtrees, middle-out
- * 5. centerMultiParentChildren again — tightening can drag shared nodes
- *    off-center
+ * 1. flextree — a Reingold–Tilford tidy layout that supports variable node
+ *    widths: subtrees are packed bottom-up against each other's contours, so
+ *    sibling/cousin overlaps are impossible by construction and parents end up
+ *    centered over their children. Each node's slot is its width plus the
+ *    minimum gap, giving adjacent nodes at least minHorizontalGap of air.
+ * 2. centerMultiParentChildren — flextree only knows the direct-child tree;
+ *    sibling groups that are also refChildren of other parents are recentered
+ *    (moving as one group) under the average of ALL their parents, clamped so
+ *    no overlap can be introduced.
+ * 3. centerParentsOverSharedChildren — when step 2 was clamped (the children's
+ *    subtrees have no room to slide), the parents move over the children
+ *    instead, closing the remaining offset from the other side.
  *
- * NOTE: Events with nodes that are both direct children of one parent AND
- * refChildren of multiple other parents can cause iterative drift in the
- * overlap-resolution and gap-tightening passes. The horizontal spacing logic
- * doesn't properly handle the case where a node's position is controlled by
- * one parent but it's also referenced by others. Such events should be
- * blacklisted from refChildren creation in parse-event-trees.js
- * (see REF_CHILDREN_BLACKLIST).
+ * The constant vertical slot size keeps every row at y = depth *
+ * VERTICAL_SPACING_DEFAULT; adjustVerticalNodeSpacing then spreads rows apart
+ * where node heights demand it.
  */
 export const adjustHorizontalNodeSpacing = (
   nodeMap: NodeMap,
-  root: HierarchyPointNode<EventTreeNode>,
+  root: HierarchyNode<EventTreeNode>,
   event: Event,
   showLoopingIndicator: boolean,
   levelOfDetail: LevelOfDetail,
@@ -52,13 +51,19 @@ export const adjustHorizontalNodeSpacing = (
     levelOfDetail,
     showContinuesTags
   )
-  const nodesByDepth = groupNodesByDepth(root)
 
-  centerChildrenUnderParents(ctx, nodesByDepth)
+  const layout = flextree<EventTreeNode>({
+    nodeSize: (node) => [
+      getWidth(ctx, node as TreeNode) + ctx.minHorizontalGap,
+      NODE.VERTICAL_SPACING_DEFAULT,
+    ],
+  })
+  layout(root)
+
+  const pointRoot = root as HierarchyPointNode<EventTreeNode>
+  const nodesByDepth = groupNodesByDepth(pointRoot)
   centerMultiParentChildren(ctx, nodesByDepth)
-  resolveOverlaps(ctx, nodesByDepth)
-  tightenGaps(ctx, nodesByDepth)
-  centerMultiParentChildren(ctx, nodesByDepth)
+  centerParentsOverSharedChildren(ctx, nodesByDepth)
 }
 
 /**

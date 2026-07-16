@@ -43,14 +43,6 @@ export const groupNodesByParent = (nodes: TreeNode[]): Map<TreeNode, TreeNode[]>
 }
 
 /**
- * Find a node by ID within an array of nodes
- */
-export const findNodeById = (nodes: TreeNode[] | undefined, id: number): TreeNode | undefined => {
-  if (!nodes) return undefined
-  return nodes.find((node) => node.data.id === id)
-}
-
-/**
  * Build a map of child ID to all parents (direct + refChildren) that reference it
  */
 export const buildChildToAllParentsMap = (parentsAtDepth: TreeNode[]): Map<number, TreeNode[]> => {
@@ -115,9 +107,21 @@ export const groupSiblingsByParentSet = (
 }
 
 /**
- * Groups parents that share any children (direct or refChildren).
- * Parents that reference the same child node should be grouped together
- * so they can be centered as a unit while maintaining their relative spacing.
+ * Find a node by ID within an array of nodes
+ */
+const findNodeById = (nodes: TreeNode[] | undefined, id: number): TreeNode | undefined => {
+  if (!nodes) return undefined
+  return nodes.find((node) => node.data.id === id)
+}
+
+/**
+ * Groups parents that share any children (direct or refChildren), so they can
+ * be recentered as a unit while maintaining their relative spacing.
+ *
+ * Unlike the pre-flextree spacing engine, parents that don't share children are
+ * NOT returned as single-member groups — flextree already centers a parent over
+ * its direct children, so only parents genuinely sharing children need group
+ * treatment.
  */
 export const buildParentGroups = (
   parents: TreeNode[],
@@ -163,16 +167,6 @@ export const buildParentGroups = (
           })
         }
       }
-    }
-  })
-
-  // Add single-parent nodes as individual groups (parents that don't share children)
-  parents.forEach((parent) => {
-    if (
-      !parentToGroupIndex.has(parent) &&
-      (parent.children?.length || parent.data.refChildren?.length)
-    ) {
-      groups.push([parent])
     }
   })
 
