@@ -8605,45 +8605,6 @@
                                           "numContinues": 1,
                                           "children": [
                                             {
-                                              "id": 6,
-                                              "type": "choice",
-                                              "choiceLabel": "Attack!",
-                                              "children": [
-                                                {
-                                                  "id": 16365,
-                                                  "text": "\"Fool! You're no better than these Wildscar weaklings, and will die like the rest of them!\"",
-                                                  "type": "dialogue",
-                                                  "numContinues": 0,
-                                                  "children": [
-                                                    {
-                                                      "id": 7,
-                                                      "type": "choice",
-                                                      "choiceLabel": "Fight!",
-                                                      "children": [
-                                                        {
-                                                          "id": 16364,
-                                                          "text": "",
-                                                          "type": "combat",
-                                                          "effects": [
-                                                            "COMBAT: Battleseer Hildune"
-                                                          ],
-                                                          "children": [
-                                                            {
-                                                              "id": 26247,
-                                                              "type": "special",
-                                                              "effects": [
-                                                                "GOTO EVENT: Battleseer Hildune Death"
-                                                              ]
-                                                            }
-                                                          ]
-                                                        }
-                                                      ]
-                                                    }
-                                                  ]
-                                                }
-                                              ]
-                                            },
-                                            {
                                               "id": 8,
                                               "type": "choice",
                                               "choiceLabel": "Call out to the figure",
@@ -8851,7 +8812,7 @@
                                                                           ],
                                                                           "children": [
                                                                             {
-                                                                              "id": 26248,
+                                                                              "id": 26247,
                                                                               "type": "special",
                                                                               "effects": [
                                                                                 "GOTO EVENT: Battleseer Hildune Death"
@@ -8885,7 +8846,7 @@
                                                                   ],
                                                                   "children": [
                                                                     {
-                                                                      "id": 26249,
+                                                                      "id": 26248,
                                                                       "type": "special",
                                                                       "effects": [
                                                                         "GOTO EVENT: Battleseer Hildune Death"
@@ -8941,7 +8902,7 @@
                                                                           ],
                                                                           "children": [
                                                                             {
-                                                                              "id": 26250,
+                                                                              "id": 26249,
                                                                               "type": "special",
                                                                               "effects": [
                                                                                 "GOTO EVENT: Battleseer Hildune Death"
@@ -8975,7 +8936,7 @@
                                                                   ],
                                                                   "children": [
                                                                     {
-                                                                      "id": 26251,
+                                                                      "id": 26250,
                                                                       "type": "special",
                                                                       "effects": [
                                                                         "GOTO EVENT: Battleseer Hildune Death"
@@ -8983,6 +8944,30 @@
                                                                     }
                                                                   ]
                                                                 }
+                                                              ]
+                                                            }
+                                                          ]
+                                                        }
+                                                      ]
+                                                    },
+                                                    {
+                                                      "id": 67,
+                                                      "type": "choice",
+                                                      "choiceLabel": "I'd rather just kill you!",
+                                                      "children": [
+                                                        {
+                                                          "id": 16418,
+                                                          "text": "\"Such bravado! My patron has bigger plans for this realm and us Wildscars, plans you won't be a part of of!\"",
+                                                          "type": "combat",
+                                                          "effects": [
+                                                            "COMBAT: Battleseer Hildune"
+                                                          ],
+                                                          "children": [
+                                                            {
+                                                              "id": 26251,
+                                                              "type": "special",
+                                                              "effects": [
+                                                                "GOTO EVENT: Battleseer Hildune Death"
                                                               ]
                                                             }
                                                           ]
@@ -9092,30 +9077,6 @@
                                                           ]
                                                         }
                                                       ]
-                                                    },
-                                                    {
-                                                      "id": 67,
-                                                      "type": "choice",
-                                                      "choiceLabel": "I'd rather just kill you!",
-                                                      "children": [
-                                                        {
-                                                          "id": 16418,
-                                                          "text": "\"Such bravado! My patron has bigger plans for this realm and us Wildscars, plans you won't be a part of of!\"",
-                                                          "type": "combat",
-                                                          "effects": [
-                                                            "COMBAT: Battleseer Hildune"
-                                                          ],
-                                                          "children": [
-                                                            {
-                                                              "id": 26252,
-                                                              "type": "special",
-                                                              "effects": [
-                                                                "GOTO EVENT: Battleseer Hildune Death"
-                                                              ]
-                                                            }
-                                                          ]
-                                                        }
-                                                      ]
                                                     }
                                                   ]
                                                 }
@@ -9136,6 +9097,14 @@
                                                   "numContinues": 0,
                                                   "children": [
                                                     {
+                                                      "id": 73,
+                                                      "type": "choice",
+                                                      "choiceLabel": "What is that 'larger power'?",
+                                                      "refChildren": [
+                                                        16417
+                                                      ]
+                                                    },
+                                                    {
                                                       "id": 70,
                                                       "type": "choice",
                                                       "choiceLabel": "What is going on?",
@@ -9145,7 +9114,11 @@
                                                           "text": "\"Did you really stumble in here without being aware of our little family feud? The strong culling our weak mewlings who would have us chained to this forsaken place.\" \"And who are you, outsider?\" the seer's eyes turn to you as her head rotates in an unnatural angle. \"Are you just another tool? Or is there more about you than meets the eye, hmmm?\"",
                                                           "type": "dialogue",
                                                           "numContinues": 1,
-                                                          "ref": 16392
+                                                          "refChildren": [
+                                                            10,
+                                                            30,
+                                                            38
+                                                          ]
                                                         }
                                                       ]
                                                     },
@@ -9159,15 +9132,13 @@
                                                           "text": "\"Oh but you do, [[class]]. Once we ascend back to our rightful place, everyone will be asked to take a side.\" \"And who are you, outsider?\" the seer's eyes turn to you as her head rotates in an unnatural angle. \"Are you just another tool? Or is there more about you than meets the eye, hmmm?\"",
                                                           "type": "dialogue",
                                                           "numContinues": 1,
-                                                          "ref": 16410
+                                                          "refChildren": [
+                                                            40,
+                                                            50,
+                                                            58
+                                                          ]
                                                         }
                                                       ]
-                                                    },
-                                                    {
-                                                      "id": 73,
-                                                      "type": "choice",
-                                                      "choiceLabel": "What is that 'larger power'?",
-                                                      "ref": 59
                                                     },
                                                     {
                                                       "id": 81,
@@ -9183,7 +9154,7 @@
                                                           ],
                                                           "children": [
                                                             {
-                                                              "id": 26253,
+                                                              "id": 26252,
                                                               "type": "special",
                                                               "effects": [
                                                                 "GOTO EVENT: Battleseer Hildune Death"
@@ -9210,7 +9181,12 @@
                                                   "text": "\"And such a lovely funeral it was,\" the woman grins, baring jagged teeth. \"HILDUNE! You- you are...\" \"Dead? Oh yes, don't believe everything you hear, dear. From what I've 'gathered', you even had a hand in it. Poison too, such a disgraceful manner,\" she adds with a taunting smile. \"Lies!\" \"Of course, my dear. You still refuse to see beyond your own two feet! Like your idiot brother and your weak father. Tools of something far, far larger. A new time for the Wildscars - no longer the watchdogs of a world that doesn't care about us!\" \"And who are you, outsider?\" the seer's eyes turn to you as her head rotates in an unnatural angle. \"Are you just another tool? Or is there more about you than meets the eye, hmmm?\"",
                                                   "type": "dialogue",
                                                   "numContinues": 5,
-                                                  "ref": 16419
+                                                  "refChildren": [
+                                                    9,
+                                                    39,
+                                                    59,
+                                                    67
+                                                  ]
                                                 }
                                               ]
                                             },
@@ -9227,7 +9203,51 @@
                                                   "text": "\"And who are you, outsider?\" the seer's eyes turn to you as her head rotates in an unnatural angle. \"Are you just another tool? Or is there more about you than meets the eye, hmmm?\"",
                                                   "type": "dialogue",
                                                   "numContinues": 0,
-                                                  "ref": 16430
+                                                  "refChildren": [
+                                                    70,
+                                                    72,
+                                                    73,
+                                                    81
+                                                  ]
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "id": 6,
+                                              "type": "choice",
+                                              "choiceLabel": "Attack!",
+                                              "children": [
+                                                {
+                                                  "id": 16365,
+                                                  "text": "\"Fool! You're no better than these Wildscar weaklings, and will die like the rest of them!\"",
+                                                  "type": "dialogue",
+                                                  "numContinues": 0,
+                                                  "children": [
+                                                    {
+                                                      "id": 7,
+                                                      "type": "choice",
+                                                      "choiceLabel": "Fight!",
+                                                      "children": [
+                                                        {
+                                                          "id": 16364,
+                                                          "text": "",
+                                                          "type": "combat",
+                                                          "effects": [
+                                                            "COMBAT: Battleseer Hildune"
+                                                          ],
+                                                          "children": [
+                                                            {
+                                                              "id": 26253,
+                                                              "type": "special",
+                                                              "effects": [
+                                                                "GOTO EVENT: Battleseer Hildune Death"
+                                                              ]
+                                                            }
+                                                          ]
+                                                        }
+                                                      ]
+                                                    }
+                                                  ]
                                                 }
                                               ]
                                             }
@@ -9253,7 +9273,9 @@
                                               "id": 87,
                                               "type": "choice",
                                               "choiceLabel": "Attack!",
-                                              "ref": 6
+                                              "refChildren": [
+                                                16365
+                                              ]
                                             },
                                             {
                                               "id": 90,
@@ -9268,7 +9290,12 @@
                                                   "text": "\"And such a lovely funeral it was,\" the woman grins, baring jagged teeth. \"HILDUNE! You- you are...\" \"Dead? Oh yes, don't believe everything you hear, dear. From what I've 'gathered', you even had a hand in it. Poison too, such a disgraceful manner,\" she adds with a taunting smile. \"Lies!\" \"Of course, my dear. You still refuse to see beyond your own two feet! Like your idiot brother and your weak father. Tools of something far, far larger. A new time for the Wildscars - no longer the watchdogs of a world that doesn't care about us!\" \"And who are you, outsider?\" the seer's eyes turn to you as her head rotates in an unnatural angle. \"Are you just another tool? Or is there more about you than meets the eye, hmmm?\"",
                                                   "type": "dialogue",
                                                   "numContinues": 5,
-                                                  "ref": 16419
+                                                  "refChildren": [
+                                                    9,
+                                                    39,
+                                                    59,
+                                                    67
+                                                  ]
                                                 }
                                               ]
                                             },
@@ -9285,7 +9312,12 @@
                                                   "text": "\"And who are you, outsider?\" the seer's eyes turn to you as her head rotates in an unnatural angle. \"Are you just another tool? Or is there more about you than meets the eye, hmmm?\"",
                                                   "type": "dialogue",
                                                   "numContinues": 0,
-                                                  "ref": 16430
+                                                  "refChildren": [
+                                                    70,
+                                                    72,
+                                                    73,
+                                                    81
+                                                  ]
                                                 }
                                               ]
                                             },
@@ -9302,7 +9334,12 @@
                                                   "text": "\"And such a lovely funeral it was,\" the woman grins, baring jagged teeth. \"HILDUNE! You- you are...\" \"Dead? Oh yes, don't believe everything you hear, dear. From what I've 'gathered', you even had a hand in it. Poison too, such a disgraceful manner,\" she adds with a taunting smile. \"Lies!\" \"Of course, my dear. You still refuse to see beyond your own two feet! Like your idiot brother and your weak father. Tools of something far, far larger. A new time for the Wildscars - no longer the watchdogs of a world that doesn't care about us!\" \"And who are you, outsider?\" the seer's eyes turn to you as her head rotates in an unnatural angle. \"Are you just another tool? Or is there more about you than meets the eye, hmmm?\"",
                                                   "type": "dialogue",
                                                   "numContinues": 5,
-                                                  "ref": 16419
+                                                  "refChildren": [
+                                                    9,
+                                                    39,
+                                                    59,
+                                                    67
+                                                  ]
                                                 }
                                               ]
                                             },
@@ -9319,7 +9356,12 @@
                                                   "text": "\"And who are you, outsider?\" the seer's eyes turn to you as her head rotates in an unnatural angle. \"Are you just another tool? Or is there more about you than meets the eye, hmmm?\"",
                                                   "type": "dialogue",
                                                   "numContinues": 0,
-                                                  "ref": 16430
+                                                  "refChildren": [
+                                                    70,
+                                                    72,
+                                                    73,
+                                                    81
+                                                  ]
                                                 }
                                               ]
                                             }
@@ -9364,7 +9406,13 @@
                                           "text": "\"Something isn't right here,\" the huntress whispers, noting the desecrated graves as you move deeper into the beating heart of the sacred site. \"This is where we buried Hildune, but it looked nothing like this at the time...\" Atop a large pile of bodies in the centre of the icy chamber, the fragile form of a woman appears.",
                                           "type": "dialogue",
                                           "numContinues": 1,
-                                          "ref": 16433
+                                          "refChildren": [
+                                            6,
+                                            8,
+                                            68,
+                                            83,
+                                            85
+                                          ]
                                         }
                                       ]
                                     },
@@ -9381,7 +9429,13 @@
                                           "text": "Atop a large pile of bodies in the centre of the icy chamber, the fragile form of a woman appears.",
                                           "type": "dialogue",
                                           "numContinues": 0,
-                                          "ref": 16440
+                                          "refChildren": [
+                                            87,
+                                            90,
+                                            92,
+                                            94,
+                                            96
+                                          ]
                                         }
                                       ]
                                     }
@@ -9582,6 +9636,68 @@
                       "type": "dialogue",
                       "numContinues": 2,
                       "children": [
+                        {
+                          "id": 2505,
+                          "type": "choice",
+                          "choiceLabel": "Try to jump the distance",
+                          "requirements": [
+                            "strength:=1"
+                          ],
+                          "children": [
+                            {
+                              "id": 16486,
+                              "text": "With all your strength, you fling yourself forward. Extending your arm as far as it can go, you try to latch on to whatever is within reach only to feel your grip slipping, unable to find purchase on the icy walls!",
+                              "type": "dialogue",
+                              "effects": [
+                                "DAMAGE: 10"
+                              ],
+                              "children": [
+                                {
+                                  "id": 3975,
+                                  "text": "You feel your footing slipping, with nothing tangible holding you back. You slide down the icy surface, only to end up right where you started... At the bottom of the steps the chamber splits into two passageways.",
+                                  "type": "dialogue",
+                                  "ref": 16567
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "id": 3977,
+                          "type": "choice",
+                          "choiceLabel": "Try to jump the distance",
+                          "requirements": [
+                            "strength:=0"
+                          ],
+                          "children": [
+                            {
+                              "id": 16487,
+                              "text": "With all your strength, you fling yourself forward. Extending your arm as far as it can go, you try to latch on to whatever is within reach only to feel your grip slipping, unable to find purchase on the icy walls! You feel your footing slipping, with nothing tangible holding you back. You slide down the icy surface, only to end up right where you started... At the bottom of the steps the chamber splits into two passageways.",
+                              "type": "dialogue",
+                              "effects": [
+                                "DAMAGE: 10"
+                              ],
+                              "numContinues": 2,
+                              "refChildren": [
+                                3975
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "id": 3978,
+                          "type": "choice",
+                          "choiceLabel": "Turn back",
+                          "children": [
+                            {
+                              "id": 16488,
+                              "text": "At the bottom of the steps the chamber splits into two passageways.",
+                              "type": "dialogue",
+                              "numContinues": 0,
+                              "ref": 16567
+                            }
+                          ]
+                        },
                         {
                           "id": 139,
                           "type": "choice",
@@ -9869,66 +9985,6 @@
                               ]
                             }
                           ]
-                        },
-                        {
-                          "id": 2505,
-                          "type": "choice",
-                          "choiceLabel": "Try to jump the distance",
-                          "requirements": [
-                            "strength:=1"
-                          ],
-                          "children": [
-                            {
-                              "id": 16486,
-                              "text": "With all your strength, you fling yourself forward. Extending your arm as far as it can go, you try to latch on to whatever is within reach only to feel your grip slipping, unable to find purchase on the icy walls!",
-                              "type": "dialogue",
-                              "effects": [
-                                "DAMAGE: 10"
-                              ],
-                              "children": [
-                                {
-                                  "id": 3975,
-                                  "text": "You feel your footing slipping, with nothing tangible holding you back. You slide down the icy surface, only to end up right where you started... At the bottom of the steps the chamber splits into two passageways.",
-                                  "type": "dialogue",
-                                  "ref": 16567
-                                }
-                              ]
-                            }
-                          ]
-                        },
-                        {
-                          "id": 3977,
-                          "type": "choice",
-                          "choiceLabel": "Try to jump the distance",
-                          "requirements": [
-                            "strength:=0"
-                          ],
-                          "children": [
-                            {
-                              "id": 16487,
-                              "text": "With all your strength, you fling yourself forward. Extending your arm as far as it can go, you try to latch on to whatever is within reach only to feel your grip slipping, unable to find purchase on the icy walls! You feel your footing slipping, with nothing tangible holding you back. You slide down the icy surface, only to end up right where you started... At the bottom of the steps the chamber splits into two passageways.",
-                              "type": "dialogue",
-                              "effects": [
-                                "DAMAGE: 10"
-                              ],
-                              "numContinues": 2,
-                              "ref": 16486
-                            }
-                          ]
-                        },
-                        {
-                          "id": 3978,
-                          "type": "choice",
-                          "choiceLabel": "Turn back",
-                          "children": [
-                            {
-                              "id": 16488,
-                              "text": "At the bottom of the steps the chamber splits into two passageways.",
-                              "type": "dialogue",
-                              "numContinues": 0,
-                              "ref": 16567
-                            }
-                          ]
                         }
                       ]
                     }
@@ -10061,7 +10117,9 @@
                                         "DAMAGE: 10"
                                       ],
                                       "numContinues": 2,
-                                      "ref": 16510
+                                      "refChildren": [
+                                        7118
+                                      ]
                                     }
                                   ]
                                 },
@@ -10130,7 +10188,9 @@
                                                 "DAMAGE: 10"
                                               ],
                                               "numContinues": 4,
-                                              "ref": 16499
+                                              "refChildren": [
+                                                5874
+                                              ]
                                             }
                                           ]
                                         }
@@ -10163,7 +10223,9 @@
                                         "DAMAGE: 10"
                                       ],
                                       "numContinues": 2,
-                                      "ref": 16510
+                                      "refChildren": [
+                                        7118
+                                      ]
                                     }
                                   ]
                                 },
@@ -10183,7 +10245,9 @@
                                         "DAMAGE: 10"
                                       ],
                                       "numContinues": 2,
-                                      "ref": 16510
+                                      "refChildren": [
+                                        7118
+                                      ]
                                     }
                                   ]
                                 },
@@ -10230,7 +10294,9 @@
                           "requirements": [
                             "accesstoholy"
                           ],
-                          "ref": 139
+                          "refChildren": [
+                            16476
+                          ]
                         },
                         {
                           "id": 10350,
@@ -10239,7 +10305,9 @@
                           "requirements": [
                             "strength:2"
                           ],
-                          "ref": 1694
+                          "refChildren": [
+                            16485
+                          ]
                         },
                         {
                           "id": 10974,
@@ -10283,7 +10351,9 @@
                                 "DAMAGE: 10"
                               ],
                               "numContinues": 2,
-                              "ref": 16559
+                              "refChildren": [
+                                12444
+                              ]
                             }
                           ]
                         },
@@ -15226,11 +15296,11 @@
         {
           "id": 1,
           "type": "choice",
-          "choiceLabel": "Focus on the Alchemist",
+          "choiceLabel": "Focus on the Succubus",
           "children": [
             {
               "id": 18047,
-              "text": "Focus on the Alchemist (fill in the lore for this.) final words",
+              "text": "Focus on the Succubus (fill in the lore for this.) final words",
               "type": "end"
             }
           ]
@@ -15238,11 +15308,11 @@
         {
           "id": 2,
           "type": "choice",
-          "choiceLabel": "Focus on the Consul",
+          "choiceLabel": "Focus on the Blacksmith",
           "children": [
             {
               "id": 18048,
-              "text": "Focus on the Consul (fill in the lore for this.) final words",
+              "text": "Focus on the Blacksmith (fill in the lore for this.) final words",
               "type": "end"
             }
           ]
@@ -15250,11 +15320,11 @@
         {
           "id": 3,
           "type": "choice",
-          "choiceLabel": "Focus on the Collector",
+          "choiceLabel": "Focus on the Alchemist",
           "children": [
             {
               "id": 18049,
-              "text": "Focus on the Collector (fill in the lore for this.) final words",
+              "text": "Focus on the Alchemist (fill in the lore for this.) final words",
               "type": "end"
             }
           ]
@@ -15884,6 +15954,33 @@
                                           "numContinues": 0,
                                           "children": [
                                             {
+                                              "id": 70,
+                                              "type": "choice",
+                                              "choiceLabel": "Open the other crates",
+                                              "children": [
+                                                {
+                                                  "id": 18210,
+                                                  "text": "The other crates contain an assortment of various trinkets and unremarkable items - more in line with the usual trade the Emporium is known for throughout the realm. \"A most disturbing find, [[class]], we can't approve of breaking Emporium regulations, but this was certainly... unexpected.",
+                                                  "type": "end",
+                                                  "effects": [
+                                                    "GOLD: 25"
+                                                  ]
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "id": 71,
+                                              "type": "choice",
+                                              "choiceLabel": "Leave",
+                                              "children": [
+                                                {
+                                                  "id": 18211,
+                                                  "text": "",
+                                                  "type": "end"
+                                                }
+                                              ]
+                                            },
+                                            {
                                               "id": 58,
                                               "type": "choice",
                                               "choiceLabel": "Inspect the corpse",
@@ -15894,6 +15991,33 @@
                                                   "type": "dialogue",
                                                   "numContinues": 0,
                                                   "children": [
+                                                    {
+                                                      "id": 62,
+                                                      "type": "choice",
+                                                      "choiceLabel": "Open the other crates",
+                                                      "children": [
+                                                        {
+                                                          "id": 18201,
+                                                          "text": "The other crates contain an assortment of various trinkets and unremarkable items - more in line with the usual trade the Emporium is known for throughout the realm. \"A most disturbing find, [[class]], we can't approve of breaking Emporium regulations, but this was certainly... unexpected.",
+                                                          "type": "end",
+                                                          "effects": [
+                                                            "GOLD: 25"
+                                                          ]
+                                                        }
+                                                      ]
+                                                    },
+                                                    {
+                                                      "id": 63,
+                                                      "type": "choice",
+                                                      "choiceLabel": "Leave",
+                                                      "children": [
+                                                        {
+                                                          "id": 18202,
+                                                          "text": "",
+                                                          "type": "end"
+                                                        }
+                                                      ]
+                                                    },
                                                     {
                                                       "id": 59,
                                                       "type": "choice",
@@ -15933,33 +16057,6 @@
                                                               ]
                                                             }
                                                           ]
-                                                        }
-                                                      ]
-                                                    },
-                                                    {
-                                                      "id": 62,
-                                                      "type": "choice",
-                                                      "choiceLabel": "Open the other crates",
-                                                      "children": [
-                                                        {
-                                                          "id": 18201,
-                                                          "text": "The other crates contain an assortment of various trinkets and unremarkable items - more in line with the usual trade the Emporium is known for throughout the realm. \"A most disturbing find, [[class]], we can't approve of breaking Emporium regulations, but this was certainly... unexpected.",
-                                                          "type": "end",
-                                                          "effects": [
-                                                            "GOLD: 25"
-                                                          ]
-                                                        }
-                                                      ]
-                                                    },
-                                                    {
-                                                      "id": 63,
-                                                      "type": "choice",
-                                                      "choiceLabel": "Leave",
-                                                      "children": [
-                                                        {
-                                                          "id": 18202,
-                                                          "text": "",
-                                                          "type": "end"
                                                         }
                                                       ]
                                                     }
@@ -16050,33 +16147,6 @@
                                                   ]
                                                 }
                                               ]
-                                            },
-                                            {
-                                              "id": 70,
-                                              "type": "choice",
-                                              "choiceLabel": "Open the other crates",
-                                              "children": [
-                                                {
-                                                  "id": 18210,
-                                                  "text": "The other crates contain an assortment of various trinkets and unremarkable items - more in line with the usual trade the Emporium is known for throughout the realm. \"A most disturbing find, [[class]], we can't approve of breaking Emporium regulations, but this was certainly... unexpected.",
-                                                  "type": "end",
-                                                  "effects": [
-                                                    "GOLD: 25"
-                                                  ]
-                                                }
-                                              ]
-                                            },
-                                            {
-                                              "id": 71,
-                                              "type": "choice",
-                                              "choiceLabel": "Leave",
-                                              "children": [
-                                                {
-                                                  "id": 18211,
-                                                  "text": "",
-                                                  "type": "end"
-                                                }
-                                              ]
                                             }
                                           ]
                                         }
@@ -16094,6 +16164,41 @@
                                           "numContinues": 0,
                                           "children": [
                                             {
+                                              "id": 79,
+                                              "type": "choice",
+                                              "choiceLabel": "What about these chains?",
+                                              "refChildren": [
+                                                18209
+                                              ]
+                                            },
+                                            {
+                                              "id": 85,
+                                              "type": "choice",
+                                              "choiceLabel": "Open the other crates",
+                                              "children": [
+                                                {
+                                                  "id": 18225,
+                                                  "text": "The other crates contain an assortment of various trinkets and unremarkable items - more in line with the usual trade the Emporium is known for throughout the realm. \"A most disturbing find, [[class]], we can't approve of breaking Emporium regulations, but this was certainly... unexpected.",
+                                                  "type": "end",
+                                                  "effects": [
+                                                    "GOLD: 25"
+                                                  ]
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "id": 86,
+                                              "type": "choice",
+                                              "choiceLabel": "Leave",
+                                              "children": [
+                                                {
+                                                  "id": 18226,
+                                                  "text": "",
+                                                  "type": "end"
+                                                }
+                                              ]
+                                            },
+                                            {
                                               "id": 73,
                                               "type": "choice",
                                               "choiceLabel": "What happened here?",
@@ -16108,7 +16213,9 @@
                                                       "id": 74,
                                                       "type": "choice",
                                                       "choiceLabel": "What about these chains?",
-                                                      "ref": 59
+                                                      "refChildren": [
+                                                        18200
+                                                      ]
                                                     },
                                                     {
                                                       "id": 77,
@@ -16140,39 +16247,6 @@
                                                   ]
                                                 }
                                               ]
-                                            },
-                                            {
-                                              "id": 79,
-                                              "type": "choice",
-                                              "choiceLabel": "What about these chains?",
-                                              "ref": 64
-                                            },
-                                            {
-                                              "id": 85,
-                                              "type": "choice",
-                                              "choiceLabel": "Open the other crates",
-                                              "children": [
-                                                {
-                                                  "id": 18225,
-                                                  "text": "The other crates contain an assortment of various trinkets and unremarkable items - more in line with the usual trade the Emporium is known for throughout the realm. \"A most disturbing find, [[class]], we can't approve of breaking Emporium regulations, but this was certainly... unexpected.",
-                                                  "type": "end",
-                                                  "effects": [
-                                                    "GOLD: 25"
-                                                  ]
-                                                }
-                                              ]
-                                            },
-                                            {
-                                              "id": 86,
-                                              "type": "choice",
-                                              "choiceLabel": "Leave",
-                                              "children": [
-                                                {
-                                                  "id": 18226,
-                                                  "text": "",
-                                                  "type": "end"
-                                                }
-                                              ]
                                             }
                                           ]
                                         }
@@ -16193,13 +16267,17 @@
                                               "id": 88,
                                               "type": "choice",
                                               "choiceLabel": "What happened here?",
-                                              "ref": 73
+                                              "refChildren": [
+                                                18218
+                                              ]
                                             },
                                             {
                                               "id": 94,
                                               "type": "choice",
                                               "choiceLabel": "Inspect the corpse",
-                                              "ref": 58
+                                              "refChildren": [
+                                                18203
+                                              ]
                                             },
                                             {
                                               "id": 100,
@@ -30526,7 +30604,12 @@
                         "REMOVECARDFROMDECK: surge of intellect"
                       ],
                       "numContinues": 2,
-                      "ref": 24975
+                      "refChildren": [
+                        30,
+                        31,
+                        32,
+                        33
+                      ]
                     }
                   ]
                 },
@@ -30610,7 +30693,12 @@
                         "SCREENSHAKE: 0"
                       ],
                       "numContinues": 2,
-                      "ref": 24975
+                      "refChildren": [
+                        30,
+                        31,
+                        32,
+                        33
+                      ]
                     }
                   ]
                 },

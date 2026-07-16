@@ -164,8 +164,8 @@ const OPTIMIZATION_PASS_CONFIG = {
   // Convert certain refs (sibling/simple cousin) into `refChildren` for nicer visualization.
   CONVERT_SIBLING_AND_COUSIN_REFS_TO_REF_CHILDREN_ENABLED: true,
   // Some complex trees get weird horizontal spacing issues when this pass reorders parents
-  COUSIN_REF_BLACKLIST: ['Frozen Heart', 'Vesparin Vault'],
-  COMPLEX_COUSIN_REF_BLACKLIST: ['Mysterious Crates', 'Suspended Cage'],
+  COUSIN_REF_BLACKLIST: [],
+  COMPLEX_COUSIN_REF_BLACKLIST: [],
 
   // Validate refs (detect refs pointing to missing nodes) and log warnings.
   CHECK_INVALID_REFS_ENABLED: true,
