@@ -801,14 +801,8 @@ function buildTreeFromStory(story, ctx, path) {
 
     // Calculate match percentage (0-100)
     // This is: (number of hub choices found in node) / (total hub choices) * 100
+    // (threshold validity is checked once at startup by config-validation.js)
     const matchPercentage = (matchCount / snapshot.choiceLabels.size) * 100
-
-    // Warn if threshold is > 100 (will never match)
-    if (snapshot.threshold > 100) {
-      console.warn(
-        `  ⚠️  Event "${eventName}": hubChoiceMatchThreshold (${snapshot.threshold}%) is > 100%, will never match`
-      )
-    }
 
     // Only log when match threshold is met (to reduce noise)
     if (matchPercentage >= snapshot.threshold) {

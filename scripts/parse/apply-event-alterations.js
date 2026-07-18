@@ -11,10 +11,16 @@
  * - Updating a single child node (updateChild) - only if node has exactly 1 child
  * - Removing nodes from the tree (removeNode)
  */
-function applyEventAlterations(rootNode, alterations, generateNodeId) {
+function applyEventAlterations(rootNode, alterations, generateNodeId, warnings = []) {
   if (!rootNode || !alterations || alterations.length === 0) return 0
 
   let appliedCount = 0
+
+  // Log immediately AND collect, so the caller can print an end-of-run summary
+  const warn = (message) => {
+    warnings.push(message)
+    console.warn(`  ⚠️  ${message}`)
+  }
 
   for (const alteration of alterations) {
     const {
@@ -30,7 +36,7 @@ function applyEventAlterations(rootNode, alterations, generateNodeId) {
 
     // Validate that we have a find method
     if (!find) {
-      console.warn(`  ⚠️  Alteration missing "find" field: ${JSON.stringify(alteration)}`)
+      warn(`Alteration missing "find" field: ${JSON.stringify(alteration)}`)
       continue
     }
 
@@ -40,7 +46,7 @@ function applyEventAlterations(rootNode, alterations, generateNodeId) {
 
     // Validate find is an object
     if (typeof find !== 'object' || find === null) {
-      console.warn(`  ⚠️  Alteration "find" must be an object: ${JSON.stringify(alteration)}`)
+      warn(`Alteration "find" must be an object: ${JSON.stringify(alteration)}`)
       continue
     }
 
@@ -77,7 +83,7 @@ function applyEventAlterations(rootNode, alterations, generateNodeId) {
       matchingNodes = findNodesByRequirement(rootNode, find.requirement)
       searchDescription = `requirement: "${find.requirement}"`
     } else {
-      console.warn(`  ⚠️  Alteration has invalid find record: ${JSON.stringify(find)}`)
+      warn(`Alteration has invalid find record: ${JSON.stringify(find)}`)
       continue
     }
 
@@ -90,7 +96,7 @@ function applyEventAlterations(rootNode, alterations, generateNodeId) {
     }
 
     if (matchingNodes.length === 0) {
-      console.warn(`  ⚠️  No nodes found matching: ${searchDescription}`)
+      warn(`No nodes found matching: ${searchDescription}`)
       continue
     }
 
@@ -102,7 +108,7 @@ function applyEventAlterations(rootNode, alterations, generateNodeId) {
         if (removed) {
           appliedCount++
         } else {
-          console.warn(`  ⚠️  Failed to remove node ${match.id} from tree`)
+          warn(`Failed to remove node ${match.id} from tree`)
         }
       }
       continue // Skip other operations if we're removing the node
@@ -131,8 +137,8 @@ function applyEventAlterations(rootNode, alterations, generateNodeId) {
             if (targetNodeId !== undefined) {
               node.ref = targetNodeId
             } else {
-              console.warn(
-                `  ⚠️  refSource ${refSource} not found in refTargetMap for alteration in node ${node.id}`
+              warn(
+                `refSource ${refSource} not found in refTargetMap for alteration in node ${node.id}`
               )
             }
           }
@@ -145,8 +151,8 @@ function applyEventAlterations(rootNode, alterations, generateNodeId) {
             if (targetNode) {
               node.ref = targetNode.id
             } else {
-              console.warn(
-                `  ⚠️  refCreate "${refCreate}" did not find a matching node without a ref for node ${node.id}`
+              warn(
+                `refCreate "${refCreate}" did not find a matching node without a ref for node ${node.id}`
               )
             }
           }
@@ -214,8 +220,8 @@ function applyEventAlterations(rootNode, alterations, generateNodeId) {
 
         // Error if more than 1 child
         if (node.children.length > 1) {
-          console.error(
-            `  ❌ updateChild skipped for node ${node.id}: has ${node.children.length} children (expected exactly 1)`
+          warn(
+            `updateChild skipped for node ${node.id}: has ${node.children.length} children (expected exactly 1)`
           )
           continue
         }
@@ -262,8 +268,8 @@ function applyEventAlterations(rootNode, alterations, generateNodeId) {
           if (targetNode) {
             child.ref = targetNode.id
           } else {
-            console.warn(
-              `  ⚠️  refCreate "${updateChild.refCreate}" did not find a matching node without a ref for child of node ${node.id}`
+            warn(
+              `refCreate "${updateChild.refCreate}" did not find a matching node without a ref for child of node ${node.id}`
             )
           }
         }
@@ -323,8 +329,8 @@ function applyEventAlterations(rootNode, alterations, generateNodeId) {
           if (targetNode) {
             node.ref = targetNode.id
           } else {
-            console.warn(
-              `  ⚠️  refCreate "${modifyNode.refCreate}" did not find a matching node without a ref for node ${node.id}`
+            warn(
+              `refCreate "${modifyNode.refCreate}" did not find a matching node without a ref for node ${node.id}`
             )
           }
         }
@@ -336,8 +342,8 @@ function applyEventAlterations(rootNode, alterations, generateNodeId) {
           if (targetNode) {
             node.ref = targetNode.id
           } else {
-            console.warn(
-              `  ⚠️  refCreateStartsWith "${modifyNode.refCreateStartsWith}" did not find a matching node for node ${node.id}`
+            warn(
+              `refCreateStartsWith "${modifyNode.refCreateStartsWith}" did not find a matching node for node ${node.id}`
             )
           }
         }
@@ -366,8 +372,8 @@ function applyEventAlterations(rootNode, alterations, generateNodeId) {
             if (targetNodeId !== undefined) {
               childNode.ref = targetNodeId
             } else {
-              console.warn(
-                `  ⚠️  refSource ${refSource} not found in refTargetMap for alteration in node ${childNode.id}`
+              warn(
+                `refSource ${refSource} not found in refTargetMap for alteration in node ${childNode.id}`
               )
             }
           }
@@ -380,8 +386,8 @@ function applyEventAlterations(rootNode, alterations, generateNodeId) {
             if (targetNode) {
               childNode.ref = targetNode.id
             } else {
-              console.warn(
-                `  ⚠️  refCreate "${refCreate}" did not find a matching node without a ref for node ${childNode.id}`
+              warn(
+                `refCreate "${refCreate}" did not find a matching node without a ref for node ${childNode.id}`
               )
             }
           }

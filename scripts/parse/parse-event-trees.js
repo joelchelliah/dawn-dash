@@ -36,6 +36,7 @@ const EVENTS_FILE = path.join(__dirname, '../data/events.json')
 const OUTPUT_FILE = path.join(__dirname, '../../src/codex/data/event-trees.json')
 const EVENT_ALTERATIONS = require('./event-alterations.js')
 const { DEFAULT_NODE_BLACKLIST, OPTIMIZATION_PASS_CONFIG } = require('./configs.js')
+const { validateEventConfigs } = require('./config-validation.js')
 const { applyEventAlterations } = require('./apply-event-alterations.js')
 const { validateEventTreesChanges } = require('./parse-validation.js')
 const { separateChoicesFromEffects } = require('./node-splitting.js')
@@ -349,17 +350,23 @@ const PIPELINE = [
     name: 'applyEventAlterations',
     enabled: () => OPTIMIZATION_PASS_CONFIG.APPLY_EVENT_ALTERATIONS_ENABLED,
     banner: '🔧 Applying event alterations...',
-    run: (eventTrees) => {
+    run: (eventTrees, context) => {
+      let totalApplied = 0
+      const warnings = []
       try {
         if (EVENT_ALTERATIONS && Array.isArray(EVENT_ALTERATIONS)) {
           eventTrees.forEach((tree) => {
             const eventAlterations = EVENT_ALTERATIONS.find((a) => a.name === tree.name)
             if (eventAlterations) {
+              const perEventWarnings = []
               const appliedCount = applyEventAlterations(
                 tree.rootNode,
                 eventAlterations.alterations,
-                generateNodeId
+                generateNodeId,
+                perEventWarnings
               )
+              totalApplied += appliedCount
+              perEventWarnings.forEach((warning) => warnings.push(`"${tree.name}": ${warning}`))
               if (appliedCount > 0 && tree.name === debugConfig.eventName) {
                 console.log(`  - "${tree.name}": applied ${appliedCount} alteration(s)`)
               }
@@ -369,8 +376,12 @@ const PIPELINE = [
           console.log(`  No event alterations module found`)
         }
       } catch (error) {
+        warnings.push(`Error applying event alterations: ${error.message}`)
         console.warn(`  ⚠️  Error applying event alterations: ${error.message}`)
       }
+      console.log(`  Applied ${totalApplied} alteration(s)`)
+      context.stats.alterationsApplied = totalApplied
+      context.stats.alterationWarnings = warnings
     },
   },
   {
@@ -412,6 +423,15 @@ async function processEvents() {
 
   console.log('📖 Reading events file...')
   const events = JSON.parse(fs.readFileSync(EVENTS_FILE, 'utf-8'))
+
+  // Fail fast if any per-event config entry doesn't resolve to a real, parseable event
+  // (config entries are keyed by display name, so compute those first)
+  const parseableEventNames = new Set(
+    events
+      .filter((event) => event.text)
+      .map((event) => determineNameAndAlias(event.name, event.caption).displayName)
+  )
+  validateEventConfigs(parseableEventNames)
 
   console.log(`\n🔍 Processing ${events.length} events...\n`)
 
@@ -512,6 +532,16 @@ async function processEvents() {
   console.log(
     `\n  Final node count: ${finalTotalNodes} (was ${context.stats.nodesBeforeDedupe ?? finalTotalNodes})`
   )
+
+  // End-of-run summary of the per-event special-casing, so a degraded run (alterations
+  // whose "find" no longer matches anything) is visible without scrolling back
+  const alterationWarnings = context.stats.alterationWarnings || []
+  console.log(
+    `\n🔧 Event alterations: ${context.stats.alterationsApplied ?? 0} applied, ${alterationWarnings.length} warning(s)`
+  )
+  if (alterationWarnings.length > 0) {
+    alterationWarnings.forEach((warning) => console.log(`  ⚠️  ${warning}`))
+  }
 
   // --only mode: merge the re-parsed event(s) into the existing output instead of replacing it
   let outputTrees = eventTrees

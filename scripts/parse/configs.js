@@ -169,9 +169,30 @@ const CONFIG = {
   NODE_BUDGET: 30000, // Max nodes to create per event
 }
 
+// Known non-deterministic content, ignored by output validation (parse-validation.js).
+// These events roll random content DURING story exploration, so their text/choiceLabel
+// values can differ between two runs of the parser with identical code and input.
+// Keyed by event name; values are text/choiceLabel prefixes to mask during comparison.
+const VALIDATION_IGNORE_RULES = {
+  // The skeleton sits against a "nearby wall" vs "nearby signpost"
+  'Fallen Soldier': ['A skeleton in highly oxidised'],
+  // The "Focus on the ..." choice labels shuffle between runs
+  'Mirror Shard': [
+    'Focus on the Blacksmith',
+    'Focus on the Forger',
+    'Focus on the Succubus',
+    'Focus on the Alchemist',
+    'Focus on the Collector',
+    'Focus on the Consul',
+    'Focus on the Necromancer',
+    'Focus on the Priestess',
+  ],
+}
+
 module.exports = {
   DEFAULT_NODE_BLACKLIST,
   OPTIMIZATION_PASS_CONFIG,
   CONFIG,
   RANDOM_KEYWORD,
+  VALIDATION_IGNORE_RULES,
 }

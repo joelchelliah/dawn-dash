@@ -191,9 +191,19 @@ parser is "tweak config → re-run → inspect one event".
 
 ---
 
-## 6. Validate configuration and alterations against reality at startup
+## 6. Validate configuration and alterations against reality at startup — ✅ COMPLETED
 
 **Impact: 🟡 Medium-High (correctness) · Effort: 🟢 Low**
+
+> Implementation notes: `config-validation.js` (`validateEventConfigs`) runs in
+> `processEvents()` right after loading `events.json` and computing display names, and
+> **hard-fails** (throw → exit 1) on any unresolved entry. It checks all name-keyed config
+> sources — the four listed below plus the cousin-ref/dedup blacklists and the new
+> `VALIDATION_IGNORE_RULES` (spec 7) — and validates `hubChoiceMatchThreshold` ∈ (0, 100]
+> at startup (the per-call warning in `checkHubChoiceMatch` was removed).
+> `applyEventAlterations` now collects its warnings into a caller-provided array, and the
+> run ends with a `🔧 Event alterations: N applied, M warning(s)` summary that lists them.
+> A healthy run prints `✅ Config validation: all N per-event config entries resolve`.
 
 All special-casing is keyed by exact event-name strings scattered across
 `DIALOGUE_MENU_EVENTS`, `PATH_CONVERGENCE`, `DEFAULT_NODE_BLACKLIST`,
@@ -214,9 +224,22 @@ doesn't. Also:
 
 ---
 
-## 7. Make output validation structural instead of line-diff based
+## 7. Make output validation structural instead of line-diff based — ✅ COMPLETED
 
 **Impact: 🟡 Medium (correctness of the safety net) · Effort: 🟡 Medium**
+
+> Implementation notes: `parse-validation.js` was rewritten as proposed (same
+> `validateEventTreesChanges(options)` API). Ref descriptors are
+> `target{path=root.i.j…, text=…, choiceLabel=…}`, computed from *masked* values so the
+> nondeterminism rules apply to targets too. The ignore rules moved to
+> `VALIDATION_IGNORE_RULES` in `configs.js`, now **scoped per event** (Fallen Soldier /
+> Mirror Shard) instead of global — and spec 6's startup check validates their keys.
+> Failing events are reported with the first differing node path and both values; added and
+> removed events are reported too. Verified with synthetic mutation tests: uniform id
+> renumbering → invisible; a text change, a ref retargeted to a different valid node, a
+> subtree collapsed into a ref, and added/removed events → all caught; masked noise (and
+> only within its own event) → ignored. The line-mapping machinery and the temp-file
+> `git diff --no-index` invocation are gone; the `"failig"` typo died with them.
 
 `parse-validation.js` shells out to `git diff` on a ~32,000-line pretty-printed JSON file and
 walks diff hunks with a line-number bookkeeping loop, a 50-line `recentLines` ring buffer, and a
@@ -420,7 +443,8 @@ How we check that a change didn't meaningfully alter the generated trees. The ex
 `validateEventTreesChanges()` in `parse-validation.js` is the backbone: it reports per-event
 "meaningful diff" while ignoring the known run-to-run noise.
 
-**Known non-deterministic surface** (already encoded as ignore rules in `parse-validation.js`):
+**Known non-deterministic surface** (encoded as per-event ignore rules in
+`VALIDATION_IGNORE_RULES` in `configs.js`, applied by `parse-validation.js`):
 
 - `id` / `ref` / `refChildren` numeric values — traversal-order dependent, renumber every run
 - Random Ink content that executes during story exploration: the `"Focus on the ..."`
@@ -441,11 +465,12 @@ How we check that a change didn't meaningfully alter the generated trees. The ex
 4. After a verified step, re-commit the regenerated output so the next step diffs against a clean
    baseline.
 
-**Known blind spot until spec 7 lands:** the current validator ignores *all* `ref` changes
-(necessarily, since ids renumber). A ref that moves to a different target node, or a subtree
-collapsing into a ref, can therefore pass validation unseen. This is acceptable for the pure
-refactors, but specs 4 and 8 mutate exactly this ref structure — so spec 7's target-descriptor
-comparison should land **before** them.
+**Former blind spot, closed by spec 7:** the old line-diff validator ignored *all* `ref`
+changes (necessarily, since ids renumber), so a ref moving to a different target node, or a
+subtree collapsing into a ref, could pass validation unseen. The structural validator compares
+refs by *target descriptor* (path + text/choiceLabel), so id renumbering stays invisible while
+target changes are caught — specs 4 and 8, which mutate exactly this ref structure, are now
+covered.
 
 **Nondeterminism audit (cheap, one-off):** run the parser twice back-to-back with no code
 changes and diff the two outputs. That empirically enumerates the full non-deterministic surface

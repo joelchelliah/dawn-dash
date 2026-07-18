@@ -1,120 +1,155 @@
 /* eslint-disable */
+/**
+ * Structural validation of event-trees.json changes.
+ *
+ * Compares the freshly generated output against a baseline (git HEAD or a snapshot file)
+ * as *structures*, not text lines:
+ *
+ * 1. Both files are parsed and every tree is deep-normalized:
+ *    - `id` fields are stripped (node ids legitimately renumber every run)
+ *    - each `ref` / `refChildren` value is replaced with a DESCRIPTOR of its target node
+ *      (masked text/choiceLabel + path from the root) instead of the numeric id
+ *    - known non-deterministic text (VALIDATION_IGNORE_RULES in configs.js) is masked
+ * 2. The normalized trees are deep-compared per event.
+ *
+ * The target descriptors are the key correctness property: id renumbering stays invisible,
+ * but a ref that silently starts pointing at a DIFFERENT target node — or a real subtree
+ * collapsing into a ref — shows up as a failing event.
+ */
 const { execSync } = require('child_process')
 const fs = require('fs')
-const os = require('os')
 const path = require('path')
 
+const { VALIDATION_IGNORE_RULES } = require('./configs.js')
+
+const MASKED_VALUE = '«nondeterministic»'
+
 /**
- * Builds a map of line number -> event name for event-trees.json content.
- * @param {string} content - File content
- * @returns {Map<number, string>}
+ * Mask text/choiceLabel values that are known to differ between runs for this event
  */
-function buildLineToEventMap(content) {
-  const lines = content.split('\n')
-  const map = new Map()
-  const nameLineMatches = []
-
-  for (let i = 0; i < lines.length; i++) {
-    const match = lines[i].match(/^\s*"name"\s*:\s*"([^"]+)"/)
-    if (match) {
-      nameLineMatches.push({ line: i + 1, name: match[1] })
-    }
-  }
-
-  for (let j = 0; j < nameLineMatches.length; j++) {
-    const start = j === 0 ? 1 : nameLineMatches[j].line - 1
-    const end = j < nameLineMatches.length - 1 ? nameLineMatches[j + 1].line - 2 : lines.length
-    const eventName = nameLineMatches[j].name
-    for (let lineNum = start; lineNum <= end; lineNum++) {
-      map.set(lineNum, eventName)
-    }
-  }
-  return map
+function maskValue(value, ignoredPrefixes) {
+  if (typeof value !== 'string') return value
+  return ignoredPrefixes.some((prefix) => value.startsWith(prefix)) ? MASKED_VALUE : value
 }
 
 /**
- * Checks if a line should be ignored based on validation rules.
- * @param {string} content - The line content (without diff prefix)
- * @param {string[]} recentLines - Recent lines from the diff for context checking
+ * Deep-normalize one event tree for comparison (see module doc for the rules)
  */
-function shouldIgnoreLine(content, recentLines = []) {
-  // Ignore id field changes (id, ref, refChildren)
-  if (/^\s*"(id|ref|refChildren)"\s*:\s*/.test(content.trim())) {
-    return true
-  }
-  // Ignore numeric ID lines that appear to be in refChildren arrays
-  if (/^\s*\d+\s*,?\s*$/.test(content.trim())) {
-    for (let j = recentLines.length - 1; j >= 0 && j >= recentLines.length - 30; j--) {
-      const recentLine = recentLines[j]
-      const recentContent =
-        recentLine.startsWith('+') || recentLine.startsWith('-') || recentLine.startsWith(' ')
-          ? recentLine.substring(1)
-          : recentLine
-      if (recentContent.includes('"refChildren"')) {
-        return true
-      }
-      if (/^\s*\]/.test(recentContent.trim()) && !recentContent.includes('"refChildren"')) {
-        let foundRefChildren = false
-        for (let k = j - 1; k >= 0 && k >= j - 20; k--) {
-          const checkLine = recentLines[k]
-          const checkContent =
-            checkLine.startsWith('+') || checkLine.startsWith('-') || checkLine.startsWith(' ')
-              ? checkLine.substring(1)
-              : checkLine
-          if (checkContent.includes('"refChildren"')) {
-            foundRefChildren = true
-            break
-          }
-        }
-        if (!foundRefChildren) {
-          break
-        }
-      }
-    }
-  }
-  // Ignore specific text line
-  if (content.includes('"text": "A skeleton in highly oxidised')) return true
-  // Ignore changes to text or choiceLabel fields starting with specific strings
-  const ignoredPrefixes = [
-    'Focus on the Blacksmith',
-    'Focus on the Forger',
-    'Focus on the Succubus',
-    'Focus on the Alchemist',
-    'Focus on the Collector',
-    'Focus on the Consul',
-    'Focus on the Necromancer',
-    'Focus on the Priestess',
-  ]
-  const textMatch = content.match(/^\s*"text"\s*:\s*"([^"]+)"/)
-  const choiceLabelMatch = content.match(/^\s*"choiceLabel"\s*:\s*"([^"]+)"/)
-  if (textMatch || choiceLabelMatch) {
-    const value = (textMatch || choiceLabelMatch)[1]
-    if (ignoredPrefixes.some((prefix) => value.startsWith(prefix))) return true
-  }
-  return false
-}
-
-/**
- * Produce a unified diff between two files using git diff --no-index.
- * git exits with code 1 when the files differ, so we read the diff from the "error".
- */
-function diffFiles(baselineFile, currentFile) {
-  try {
-    return execSync(
-      `git -c color.diff=never diff --no-ext-diff --no-index -- "${baselineFile}" "${currentFile}"`,
-      { encoding: 'utf-8', maxBuffer: 64 * 1024 * 1024 }
+function normalizeTree(rootNode, ignoredPrefixes) {
+  // First traversal: describe every node by its (masked) content and path from the root,
+  // so refs can be compared by what they POINT AT instead of by numeric id
+  const descriptorsById = new Map()
+  const describe = (node, nodePath) => {
+    if (!node) return
+    const text = maskValue(node.text, ignoredPrefixes)
+    const choiceLabel = maskValue(node.choiceLabel, ignoredPrefixes)
+    descriptorsById.set(
+      node.id,
+      `target{path=${nodePath}, text=${JSON.stringify(text ?? null)}, choiceLabel=${JSON.stringify(choiceLabel ?? null)}}`
     )
-  } catch (error) {
-    if (error.status === 1 && typeof error.stdout === 'string') {
-      return error.stdout
-    }
-    throw error
+    ;(node.children || []).forEach((child, i) => describe(child, `${nodePath}.${i}`))
   }
+  describe(rootNode, 'root')
+
+  const describeTarget = (id) => descriptorsById.get(id) || 'target{MISSING}'
+
+  // Second traversal: build the normalized clone
+  const normalize = (node) => {
+    if (!node) return node
+    const normalized = {}
+    for (const key of Object.keys(node)) {
+      if (key === 'id') continue
+      else if (key === 'ref') normalized.ref = describeTarget(node.ref)
+      else if (key === 'refChildren') normalized.refChildren = node.refChildren.map(describeTarget)
+      else if (key === 'children') normalized.children = node.children.map(normalize)
+      else if (key === 'text' || key === 'choiceLabel')
+        normalized[key] = maskValue(node[key], ignoredPrefixes)
+      else normalized[key] = node[key]
+    }
+    return normalized
+  }
+  return normalize(rootNode)
 }
 
 /**
- * Outputs names of events that have non-ignored diff lines.
- * Compares baseline vs current event-trees.json, ignores id/ref/refChildren changes.
+ * Normalize a whole event entry (top-level fields + tree)
+ */
+function normalizeEvent(event) {
+  const ignoredPrefixes = VALIDATION_IGNORE_RULES[event.name] || []
+  const { rootNode, ...rest } = event
+  return { ...rest, rootNode: normalizeTree(rootNode, ignoredPrefixes) }
+}
+
+/**
+ * Deep-compare two normalized values; returns a description of the first
+ * difference found (with its path), or null if they are identical.
+ */
+function findFirstDifference(a, b, currentPath = '') {
+  if (a === b) return null
+  if (a === null || b === null || typeof a !== typeof b || Array.isArray(a) !== Array.isArray(b)) {
+    return { path: currentPath, baseline: a, current: b }
+  }
+  if (Array.isArray(a)) {
+    if (a.length !== b.length) {
+      return { path: `${currentPath}.length`, baseline: a.length, current: b.length }
+    }
+    for (let i = 0; i < a.length; i++) {
+      const diff = findFirstDifference(a[i], b[i], `${currentPath}[${i}]`)
+      if (diff) return diff
+    }
+    return null
+  }
+  if (typeof a === 'object') {
+    const keys = [...new Set([...Object.keys(a), ...Object.keys(b)])].sort()
+    for (const key of keys) {
+      const diff = findFirstDifference(a[key], b[key], currentPath ? `${currentPath}.${key}` : key)
+      if (diff) return diff
+    }
+    return null
+  }
+  return { path: currentPath, baseline: a, current: b }
+}
+
+function formatDiffValue(value) {
+  if (value === undefined) return '<absent>'
+  const json = JSON.stringify(value)
+  return json.length > 120 ? `${json.slice(0, 120)}…` : json
+}
+
+/**
+ * Compare baseline vs current event-trees content and report per-event differences.
+ * Returns the failing events as [{ name, detail }].
+ */
+function compareEventTrees(baselineTrees, currentTrees) {
+  const baselineByName = new Map(baselineTrees.map((event) => [event.name, event]))
+  const currentByName = new Map(currentTrees.map((event) => [event.name, event]))
+  const failures = []
+
+  for (const name of baselineByName.keys()) {
+    if (!currentByName.has(name)) failures.push({ name, detail: 'event removed' })
+  }
+  for (const name of currentByName.keys()) {
+    if (!baselineByName.has(name)) failures.push({ name, detail: 'event added' })
+  }
+
+  for (const [name, baselineEvent] of baselineByName) {
+    const currentEvent = currentByName.get(name)
+    if (!currentEvent) continue
+    const diff = findFirstDifference(normalizeEvent(baselineEvent), normalizeEvent(currentEvent))
+    if (diff) {
+      failures.push({
+        name,
+        detail: `${diff.path}: ${formatDiffValue(diff.baseline)} → ${formatDiffValue(diff.current)}`,
+      })
+    }
+  }
+
+  return failures.sort((a, b) => a.name.localeCompare(b.name))
+}
+
+/**
+ * Validates the generated event-trees.json against a baseline and reports which
+ * events changed meaningfully (structural comparison, see module doc).
  *
  * @param {Object} [options]
  * @param {string} [options.currentPath] - File to validate (default: the canonical output file).
@@ -131,113 +166,31 @@ function validateEventTreesChanges(options = {}) {
     const currentContent = fs.readFileSync(currentPath, 'utf-8')
 
     // Resolve the baseline: an explicit snapshot file, or the committed version of the output
-    let committedContent
-    let baselineFileForDiff
+    let baselineContent
     if (options.baselinePath) {
-      committedContent = fs.readFileSync(options.baselinePath, 'utf-8')
-      baselineFileForDiff = options.baselinePath
+      baselineContent = fs.readFileSync(options.baselinePath, 'utf-8')
       console.log(`\nValidating against baseline: ${options.baselinePath}`)
     } else {
-      committedContent = execSync(`git show HEAD:${relativePath}`, {
+      baselineContent = execSync(`git show HEAD:${relativePath}`, {
         encoding: 'utf-8',
         cwd: process.cwd(),
         maxBuffer: 64 * 1024 * 1024,
       })
-      // git diff --no-index needs two files on disk, so materialize the HEAD version
-      baselineFileForDiff = path.join(os.tmpdir(), `event-trees-baseline-${process.pid}.json`)
-      fs.writeFileSync(baselineFileForDiff, committedContent, 'utf-8')
     }
 
-    if (committedContent === currentContent) {
+    if (baselineContent === currentContent) {
       console.log('No changes detected in event-trees.json')
       return
     }
 
-    const diff = diffFiles(baselineFileForDiff, currentPath)
+    const failures = compareEventTrees(JSON.parse(baselineContent), JSON.parse(currentContent))
 
-    if (!diff.trim()) {
-      console.log('No changes detected in event-trees.json')
-      return
-    }
-
-    const currentLineToEvent = buildLineToEventMap(currentContent)
-    const committedLineToEvent = buildLineToEventMap(committedContent)
-
-    const lines = diff.split('\n')
-    const affectedEvents = new Set()
-    let oldLineNumber = null
-    let newLineNumber = null
-    const recentLines = []
-
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i]
-
-      if (line.startsWith('---') || line.startsWith('+++') || line.startsWith('\\')) {
-        continue
-      }
-
-      if (line.startsWith('@@')) {
-        const match = line.match(/^@@ -(\d+),\d+ \+(\d+),\d+ @@/)
-        if (match) {
-          oldLineNumber = parseInt(match[1], 10) - 1
-          newLineNumber = parseInt(match[2], 10) - 1
-          recentLines.length = 0
-        }
-        continue
-      }
-
-      if (oldLineNumber === null || newLineNumber === null) continue
-
-      recentLines.push(line)
-      if (recentLines.length > 50) recentLines.shift()
-
-      if (line.startsWith('-') && !line.startsWith('---')) {
-        const nextLine = i + 1 < lines.length ? lines[i + 1] : ''
-        const isModification = nextLine.startsWith('+') && !nextLine.startsWith('+++')
-
-        if (!isModification) {
-          const content = line.substring(1)
-          if (!shouldIgnoreLine(content, recentLines)) {
-            const event = committedLineToEvent.get(oldLineNumber + 1)
-            if (event) affectedEvents.add(event)
-          }
-        }
-        oldLineNumber++
-      }
-
-      if (line.startsWith('+') && !line.startsWith('+++')) {
-        const content = line.substring(1)
-        const prevLine = i > 0 ? lines[i - 1] : ''
-        const isModification = prevLine.startsWith('-') && !prevLine.startsWith('---')
-
-        if (isModification) {
-          const removedContent = prevLine.substring(1)
-          const oldShouldIgnore = shouldIgnoreLine(removedContent, recentLines)
-          const newShouldIgnore = shouldIgnoreLine(content, recentLines)
-          if (!oldShouldIgnore || !newShouldIgnore) {
-            const oldEvent = committedLineToEvent.get(oldLineNumber)
-            const newEvent = currentLineToEvent.get(newLineNumber + 1)
-            if (oldEvent) affectedEvents.add(oldEvent)
-            if (newEvent) affectedEvents.add(newEvent)
-          }
-        } else {
-          if (!shouldIgnoreLine(content, recentLines)) {
-            const event = currentLineToEvent.get(newLineNumber + 1)
-            if (event) affectedEvents.add(event)
-          }
-        }
-        newLineNumber++
-      }
-
-      if (line.startsWith(' ')) {
-        oldLineNumber++
-        newLineNumber++
-      }
-    }
-
-    if (affectedEvents.size > 0) {
-      console.log(`❌ ${affectedEvents.size} Events failing validation:`)
-      ;[...affectedEvents].sort().forEach((name) => console.log(`  - ${name}`))
+    if (failures.length > 0) {
+      console.log(`❌ ${failures.length} events failing validation:`)
+      failures.forEach(({ name, detail }) => {
+        console.log(`  - ${name}`)
+        console.log(`      ${detail}`)
+      })
     } else {
       console.log('✅ No events failing validation')
     }

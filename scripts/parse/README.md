@@ -50,9 +50,19 @@ and restoring story state to explore every choice.
 | `post-processing-hub-pattern-optimization.js` | Config-free BFS detection of dialogue-menu hubs |
 | `apply-event-alterations.js` | Engine for manual per-event fixes |
 | `event-alterations.js` | The manual fixes themselves (data) |
-| `configs.js` | Pass toggles + per-event special-casing (hub events, blacklists) |
-| `parse-validation.js` | Output diff validation against git HEAD or a `--baseline` snapshot |
+| `configs.js` | Pass toggles + per-event special-casing (hub events, blacklists, validation ignore rules) |
+| `config-validation.js` | Startup check: every per-event config entry resolves to a real event |
+| `parse-validation.js` | Structural output validation against git HEAD or a `--baseline` snapshot |
 | `debug.js` | Shared `--debug <event>` state read by all modules |
+
+## Step 0: Config validation (`config-validation.js`)
+
+All special-casing (`DIALOGUE_MENU_EVENTS`, blacklists, `event-alterations.js`, validation
+ignore rules) is keyed by exact event-name strings. Before any parsing starts, every configured
+name is checked against the actual events data (and `hubChoiceMatchThreshold` against its valid
+range); an entry that doesn't resolve — an upstream rename or a typo — fails the run loudly
+instead of silently not applying. The end of the run also prints a summary of applied event
+alterations, including any whose `find` matched nothing.
 
 ## Step 1: Tree building (`tree-building.js`)
 
@@ -147,9 +157,14 @@ ref:  a jump link back/across            refChildren: converging lines
 ## Step 3: Output & validation
 
 The trees are written pretty-printed to `src/codex/data/event-trees.json` (never hand-edit it),
-then `parse-validation.js` diffs the result against git HEAD (or `--baseline <file>`) and reports
-which **events** changed meaningfully — ignoring node-id renumbering and the two known
-nondeterministic spots (see below).
+then `parse-validation.js` compares the result **structurally** against git HEAD (or
+`--baseline <file>`) and reports which **events** changed meaningfully. Both versions are
+deep-normalized before comparison: `id` fields are stripped, each `ref`/`refChildren` value is
+replaced with a descriptor of its *target node* (path from root + text/choiceLabel), and the
+known nondeterministic text (see below) is masked per event. Node-id renumbering is therefore
+invisible, but a ref that silently starts pointing at a different target node — or a subtree
+collapsing into a ref — is caught. Failing events are reported with the path of the first
+differing node.
 
 ## Running it
 
@@ -173,7 +188,8 @@ Typical iteration loop when fixing one event:
 ## Known nondeterminism
 
 Two events roll random content *during* story exploration, so their text can differ per run
-(both are covered by the validator's ignore rules):
+(both are covered by the validator's ignore rules — `VALIDATION_IGNORE_RULES` in `configs.js`,
+scoped per event):
 
 - **Fallen Soldier** — the skeleton sits against a "nearby wall" vs "nearby signpost"
 - **Mirror Shard** — the "Focus on the …" choice labels shuffle
