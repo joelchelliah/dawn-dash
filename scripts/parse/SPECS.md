@@ -3,6 +3,8 @@
 Improvement specs for `scripts/parse/` (and the small parts of `scripts/` it depends on),
 ordered by importance. Each spec is independent unless noted.
 
+For an overview of how the pipeline works end to end, see [README.md](./README.md).
+
 **Impact** = how much it improves correctness / maintainability / performance / extensibility.
 **Effort** = estimated work including re-verifying output (a run of `parse-event-trees.js` +
 `validateEventTreesChanges()` showing no unexplained diffs in `event-trees.json`).
@@ -11,9 +13,15 @@ Legend: 🔴 High · 🟡 Medium · 🟢 Low
 
 ---
 
-## 1. Split `parse-event-trees.js` into focused modules
+## 1. Split `parse-event-trees.js` into focused modules — ✅ COMPLETED
 
 **Impact: 🔴 High (maintainability, readability) · Effort: 🟡 Medium**
+
+> Implementation notes: the entry point stays `parse-event-trees.js` (instead of the proposed
+> `index.js`) so `sync-events.js` and the documented commands keep working. Two modules were
+> added beyond the proposed layout: `debug.js` (shared `--debug` state, replaces the module-level
+> `DEBUG_EVENT_NAME` constant across modules) and `misc-passes.js` (checkInvalidRefs,
+> replaceCardIdsInNode, filterDefaultNodes).
 
 The main file is ~3,100 lines and mixes at least five separate concerns:
 
@@ -44,9 +52,16 @@ This is a prerequisite that makes most of the specs below cheaper and safer to d
 
 ---
 
-## 2. Replace the hand-rolled pipeline in `processEvents()` with a declarative pass registry
+## 2. Replace the hand-rolled pipeline in `processEvents()` with a declarative pass registry — ✅ COMPLETED
 
 **Impact: 🔴 High (extensibility, readability) · Effort: 🟡 Medium**
+
+> Implementation notes: the `PIPELINE` registry lives in `parse-event-trees.js`; each entry is
+> `{ name, enabled?, banner?, run(eventTrees, context) }` and every pass gets a
+> `debugCheckEventPipelineState` check after it. The execution-order comment in `configs.js` now
+> points at the registry. One deliberate ordering change: the card/talent id→name mapping is
+> fetched *before* the pipeline runs (it used to happen between two passes) — output-identical,
+> since only the final `replaceCardIds` pass consumes it.
 
 `processEvents()` currently repeats the same boilerplate ~11 times: check an `..._ENABLED` flag,
 `console.log` a banner, loop over `eventTrees`, aggregate stats, log per-event details behind

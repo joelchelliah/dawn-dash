@@ -97,18 +97,8 @@ const OPTIMIZATION_PASS_CONFIG = {
   PATH_CONVERGENCE_DEDUP_MIN_CHOICES: 3, // Only apply to nodes with at least this many choices
 
   // === POST-PROCESSING PIPELINE ===
-  // Execution order (optimized for semantic-first, then structural optimization):
-  // 1. FILTER_DEFAULT_NODES
-  // 2. SEPARATE_CHOICES_FROM_EFFECTS
-  // 3. PROMOTE_SHALLOW_DIALOGUE_MENU_HUB (depends on #2)
-  // 4. POST_PROCESSING_HUB_PATTERN_OPTIMIZATION (semantic hub detection runs before structural dedup)
-  // 5. DEDUPLICATE_SUBTREES (structural dedup after semantic passes)
-  // 6. NORMALIZE_REFS_POINTING_TO_CHOICE_NODES
-  // 7. NORMALIZE_REFS_POINTING_TO_COMBAT_NODES
-  // 8. CONVERT_SIBLING_AND_COUSIN_REFS_TO_REF_CHILDREN
-  // 9. APPLY_EVENT_ALTERATIONS
-  // 10. CHECK_INVALID_REFS
-  // 11. CLEAN_UP_RANDOM_VALUES
+  // Execution order is defined by the PIPELINE registry in parse-event-trees.js —
+  // these flags only toggle individual passes on/off.
   //
   // Remove nodes with `choiceLabel === 'default'` or `text === 'default'`
   // See DEFAULT_NODE_BLACKLIST for events that should be filtered.
