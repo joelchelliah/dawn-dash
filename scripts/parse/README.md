@@ -178,6 +178,10 @@ Two events roll random content *during* story exploration, so their text can dif
 - **Fallen Soldier** — the skeleton sits against a "nearby wall" vs "nearby signpost"
 - **Mirror Shard** — the "Focus on the …" choice labels shuffle
 
-Node ids also renumber freely between runs (and `--only` runs number post-processing ids
-differently than full runs) — structurally meaningless and ignored by validation. Verification
-workflow for code changes lives in [SPECS.md](./SPECS.md) under "Verification strategy".
+Node ids also renumber freely between runs — structurally meaningless and ignored by
+validation. Root cause: the id counter is not reset after the last parsed event
+(the ids it allocates include exploration nodes that get discarded, a count that can vary
+with the story's random rolls), so all post-processing-generated ids can shift by a small
+uniform offset per run. `--only` runs number post-processing ids differently than full runs
+for the same reason. Verification workflow for code changes lives in
+[SPECS.md](./SPECS.md) under "Verification strategy".

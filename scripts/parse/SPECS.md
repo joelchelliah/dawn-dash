@@ -94,9 +94,19 @@ don't have one).
 
 ---
 
-## 3. Eliminate module-level mutable state; pass a per-event parse context
+## 3. Eliminate module-level mutable state; pass a per-event parse context — ✅ COMPLETED
 
 **Impact: 🔴 High (correctness risk, testability) · Effort: 🟡 Medium**
+
+> Implementation notes: `parseInkStory` now builds a per-event `ctx` (eventName, static
+> analysis results, `nodesCreated`, `pathConvergenceStates`, `hubSnapshot`) and
+> `buildTreeFromStory(story, ctx, path)` takes per-branch state as a `path` object —
+> 12 positional params → 3. The unused `ancestorTexts` was dropped. Two deliberate
+> exceptions stay module-level: the node-id counter (in `tree-utils.js` — post-processing
+> passes continue allocating from it after parsing, by design) and
+> `dialogueMenuHubIdsByEventName` (a cross-event debug registry read between pipeline
+> passes). Verified with a ref-target-aware structural comparison across all 183 events:
+> only Mirror Shard (known random noise) differed from the pre-change baseline.
 
 Tree building relies on five module-level mutable variables (`nodeIdCounter`,
 `totalNodesInCurrentEvent`, `pathConvergenceStates`, `hubChoiceSnapshots`,
@@ -442,12 +452,18 @@ changes and diff the two outputs. That empirically enumerates the full non-deter
 and confirms the documented ignore rules still cover all of it — worth doing once before the
 refactor starts, and again if the game data updates significantly.
 
-> Audit result (2026-07-18): two consecutive runs differed in exactly two events —
-> **Fallen Soldier** (oxidised-skeleton text: "nearby wall" vs "nearby signpost") and
-> **Mirror Shard** ("Focus on the ..." label shuffling). Both are covered by the existing
-> ignore rules; the validator reports zero events. Additionally, `--only` re-parses produce
-> different node ids than full runs (post-processing ids come from a counter shared across
-> all events in a full run) — structurally identical, and invisible to the validator.
+> Audit result (2026-07-18): the non-deterministic surface has **three** classes, all covered
+> by the validator's ignore rules:
+> 1. **Fallen Soldier** — oxidised-skeleton text ("nearby wall" vs "nearby signpost")
+> 2. **Mirror Shard** — "Focus on the ..." label shuffling
+> 3. **Post-processing id shifts** — the id counter is not reset after the last parsed event,
+>    and the number of ids that event allocates (including discarded exploration nodes) varies
+>    with random rolls; when it does, every post-processing-generated id shifts by a uniform
+>    offset, producing byte diffs in ~46 events with zero structural change. This class did
+>    NOT show up in the first two-run audit (the counts happened to match) and was only
+>    discovered during spec 3 verification — byte-level comparison is therefore not a reliable
+>    pass/fail signal on its own; use the validator or a ref-target-aware structural diff.
+>    (`--only` re-parses shift post-processing ids for the same reason.)
 
 ---
 

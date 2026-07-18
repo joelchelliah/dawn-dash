@@ -24,11 +24,11 @@ const {
 } = require('./random-support.js')
 const { createNode, generateNodeId, resetNodeIdCounter } = require('./tree-utils.js')
 
-// Per-event tree-building state (reset in parseInkStory)
-let totalNodesInCurrentEvent = 0
-let pathConvergenceStates = new Map() // Track path convergence for early dedup (text + choices)
-let hubChoiceSnapshots = new Map() // Track hub choice snapshots: eventName -> { hubNodeId, choiceLabels: Set, threshold }
-let dialogueMenuHubIdsByEventName = new Map() // eventName -> hubNodeId (for debugging post-processing)
+// Cross-event debug registry (NOT per-event state): eventName -> hubNodeId.
+// Deliberately accumulates across events — the entry point reads it between
+// post-processing passes to report on the --debug event's hub node.
+// All per-event mutable state lives in the ctx object created in parseInkStory.
+let dialogueMenuHubIdsByEventName = new Map()
 
 /**
  * Detect knot definitions in Ink JSON.
@@ -269,11 +269,8 @@ function traverseForFunctionCalls(node, functionCalls) {
  */
 function parseInkStory(inkJsonString, eventName) {
   try {
-    // Reset counters for each event
+    // Node ids restart at 0 for each event
     resetNodeIdCounter()
-    totalNodesInCurrentEvent = 0
-    pathConvergenceStates = new Map()
-    hubChoiceSnapshots = new Map()
 
     // Parse ink JSON once for all analysis
     const inkJson = JSON.parse(inkJsonString)
@@ -337,21 +334,27 @@ function parseInkStory(inkJsonString, eventName) {
 
     const story = new Story(inkJsonString)
 
-    // Build tree by exploring all possible paths
-    const rootNode = buildTreeFromStory(
-      story,
+    // Per-event parse context: static analysis results plus mutable tree-building state.
+    // Everything buildTreeFromStory needs that isn't specific to the current branch lives here.
+    const ctx = {
       eventName,
-      new Set(),
-      new Map(),
-      0,
-      '',
-      [],
-      new Map(),
       randomVars,
       functionDefinitions,
       functionCalls,
-      knots
-    )
+      knots,
+      nodesCreated: 0, // counted against CONFIG.NODE_BUDGET
+      pathConvergenceStates: new Map(), // Track path convergence for early dedup (text + choices)
+      hubSnapshot: null, // Hub choice snapshot: { hubNodeId, choiceLabels: Set, threshold }
+    }
+
+    // Build tree by exploring all possible paths
+    const rootNode = buildTreeFromStory(story, ctx, {
+      depth: 0,
+      pathHash: '',
+      visitedStates: new Set(),
+      stateToNodeId: new Map(),
+      pathTextToNodeId: new Map(),
+    })
 
     if (!rootNode) {
       console.warn(`  ⚠️  Event "${eventName}" produced empty tree`)
@@ -359,7 +362,7 @@ function parseInkStory(inkJsonString, eventName) {
     }
 
     // Check if we hit the node limit
-    if (totalNodesInCurrentEvent >= CONFIG.NODE_BUDGET) {
+    if (ctx.nodesCreated >= CONFIG.NODE_BUDGET) {
       console.warn(`  ⚠️  Event "${eventName}" hit node limit - tree may be incomplete`)
     }
 
@@ -381,27 +384,24 @@ function parseInkStory(inkJsonString, eventName) {
  * When detected, creates a ref node pointing to the original occurrence.
  *
  * Post-processing structural deduplication will find remaining identical subtrees.
+ *
+ * @param {Object} story - The inkjs Story instance
+ * @param {Object} ctx - Per-event parse context (created in parseInkStory): eventName,
+ *                       static analysis results, and mutable per-event state
+ *                       (nodesCreated, pathConvergenceStates, hubSnapshot)
+ * @param {Object} path - Per-branch state: { depth, pathHash, visitedStates,
+ *                        stateToNodeId, pathTextToNodeId }
  */
-function buildTreeFromStory(
-  story,
-  eventName,
-  visitedStates = new Set(),
-  stateToNodeId = new Map(),
-  depth = 0,
-  pathHash = '',
-  ancestorTexts = [],
-  pathTextToNodeId = new Map(),
-  randomVars = new Map(),
-  functionDefinitions = new Map(),
-  functionCalls = new Map(),
-  knots = new Map()
-) {
+function buildTreeFromStory(story, ctx, path) {
+  const { eventName, randomVars, functionDefinitions, functionCalls, knots } = ctx
+  const { depth, pathHash, visitedStates, stateToNodeId, pathTextToNodeId } = path
+
   // Prevent infinite loops and excessive depth (check this early before collecting text)
   if (depth > CONFIG.MAX_DEPTH) {
     console.warn(
       `  ⚠️  Event "${eventName}" reached max depth (${CONFIG.MAX_DEPTH}) - truncating branch`
     )
-    totalNodesInCurrentEvent++
+    ctx.nodesCreated++
     return createNode({
       id: generateNodeId(),
       text: '[Max depth reached]',
@@ -475,7 +475,7 @@ function buildTreeFromStory(
     }
 
     const originalNodeId = pathTextToNodeId.get(cleanedText)
-    totalNodesInCurrentEvent++
+    ctx.nodesCreated++
     return createNode({
       id: generateNodeId(),
       text: cleanedText,
@@ -500,7 +500,7 @@ function buildTreeFromStory(
       console.log(`placing a ref marker on node: ${cleanedText}`)
     }
     const originalNodeId = stateToNodeId.get(currentStateHash)
-    totalNodesInCurrentEvent++
+    ctx.nodesCreated++
     // Create ref node with all details preserved except children
     return createNode({
       id: generateNodeId(),
@@ -514,7 +514,7 @@ function buildTreeFromStory(
 
   // Check node limit to prevent infinite exploration
   // We check this AFTER collecting text/choices so we can log useful info
-  if (totalNodesInCurrentEvent >= CONFIG.NODE_BUDGET) {
+  if (ctx.nodesCreated >= CONFIG.NODE_BUDGET) {
     const preview = cleanedText ? cleanedText.substring(0, 50) : '(no text)'
     const choiceCount = choices.length
     console.warn(
@@ -531,9 +531,6 @@ function buildTreeFromStory(
   const newStateToNodeId = new Map(stateToNodeId)
   // pathTextToNodeId is cloned per branch - used for cycle detection on the current root-to-leaf path.
   const newPathTextToNodeId = new Map(pathTextToNodeId)
-
-  // Track ancestor texts (unused but kept for potential future use)
-  const newAncestorTexts = cleanedText ? [...ancestorTexts, cleanedText] : ancestorTexts
 
   // SPECIAL CASE: Check for branching commands BEFORE other early returns
   // Branching commands (like COLLECTOR) trigger exploration of knot definitions
@@ -558,7 +555,7 @@ function buildTreeFromStory(
         }
       })
 
-      totalNodesInCurrentEvent++
+      ctx.nodesCreated++
       // Return the branching point node with all knot branches as children
       return createNode({
         id: generateNodeId(),
@@ -587,7 +584,7 @@ function buildTreeFromStory(
 
     // If combat was split (postcombat child was created), return the split structure
     if (combatSplitResult.finalChildren && combatSplitResult.finalChildren.length > 0) {
-      totalNodesInCurrentEvent += 2 // Combat node + postcombat child
+      ctx.nodesCreated += 2 // Combat node + postcombat child
       return createNode({
         id: generateNodeId(),
         text: combatSplitResult.finalText,
@@ -602,7 +599,7 @@ function buildTreeFromStory(
     // If it's a combat or end node, keep it
     if (type === 'combat') {
       // Combat-only event (like Ambush with >>>>COMBAT:random)
-      totalNodesInCurrentEvent++
+      ctx.nodesCreated++
       return createNode({
         id: generateNodeId(),
         text: undefined,
@@ -613,7 +610,7 @@ function buildTreeFromStory(
 
     // If we have effects but no text/choices, this is an effects-only end node
     if (effects && effects.length > 0) {
-      totalNodesInCurrentEvent++
+      ctx.nodesCreated++
       return createNode({
         id: generateNodeId(),
         text: undefined,
@@ -626,7 +623,7 @@ function buildTreeFromStory(
     // create an empty end node instead of returning null
     // This ensures choices that lead to immediate endings are still represented in the tree
 
-    totalNodesInCurrentEvent++
+    ctx.nodesCreated++
     return createNode({
       id: generateNodeId(),
       text: undefined,
@@ -635,7 +632,7 @@ function buildTreeFromStory(
   }
 
   const nodeId = generateNodeId()
-  totalNodesInCurrentEvent++
+  ctx.nodesCreated++
 
   // Store this node ID for choice+path-based loop detection
   if (OPTIMIZATION_PASS_CONFIG.CHOICE_AND_PATH_LOOP_DETECTION_ENABLED) {
@@ -685,7 +682,7 @@ function buildTreeFromStory(
       if (
         dialogueMenuConfig.hubChoiceMatchThreshold &&
         choices.length > 0 &&
-        !hubChoiceSnapshots.has(eventName)
+        ctx.hubSnapshot === null
       ) {
         const hubChoiceLabels = new Set()
         for (const choice of choices) {
@@ -700,11 +697,11 @@ function buildTreeFromStory(
         }
 
         if (hubChoiceLabels.size > 0) {
-          hubChoiceSnapshots.set(eventName, {
+          ctx.hubSnapshot = {
             hubNodeId: nodeId,
             choiceLabels: hubChoiceLabels,
             threshold: dialogueMenuConfig.hubChoiceMatchThreshold,
-          })
+          }
           if (eventName === debugConfig.eventName) {
             console.log(
               `  🔍 Captured hub snapshot at nodeId=${nodeId}: ${hubChoiceLabels.size} choices: [${Array.from(hubChoiceLabels).join(', ')}]`
@@ -745,9 +742,9 @@ function buildTreeFromStory(
     convergenceSignature = `${cleanedText}::${choiceLabels}`
 
     // Check if we've seen this exact node state before (same text + same choices available)
-    if (pathConvergenceStates.has(convergenceSignature)) {
-      const originalNodeId = pathConvergenceStates.get(convergenceSignature)
-      totalNodesInCurrentEvent++
+    if (ctx.pathConvergenceStates.has(convergenceSignature)) {
+      const originalNodeId = ctx.pathConvergenceStates.get(convergenceSignature)
+      ctx.nodesCreated++
 
       // Create ref node pointing to the first occurrence of this node state
       return createNode({
@@ -779,7 +776,7 @@ function buildTreeFromStory(
   // Helper function to check if a node's children match the hub choice snapshot
   // Returns the hub node ID if match threshold is met, null otherwise
   function checkHubChoiceMatch(nodeChildren) {
-    const snapshot = hubChoiceSnapshots.get(eventName)
+    const snapshot = ctx.hubSnapshot
     if (!snapshot || !nodeChildren || nodeChildren.length === 0) {
       return null
     }
@@ -908,20 +905,13 @@ function buildTreeFromStory(
       if (childMatchesExit) {
         // Child matches exit pattern - restore state and build normally
         story.state.LoadJson(stateAfterChoice)
-        const childNode = buildTreeFromStory(
-          story,
-          eventName,
-          newVisitedStates,
-          newStateToNodeId,
-          depth + 1,
+        const childNode = buildTreeFromStory(story, ctx, {
+          depth: depth + 1,
           pathHash,
-          newAncestorTexts,
-          newPathTextToNodeId,
-          randomVars,
-          functionDefinitions,
-          functionCalls,
-          knots
-        )
+          visitedStates: newVisitedStates,
+          stateToNodeId: newStateToNodeId,
+          pathTextToNodeId: newPathTextToNodeId,
+        })
 
         if (childNode) {
           return {
@@ -931,7 +921,7 @@ function buildTreeFromStory(
         }
       } else {
         // Child doesn't match exit pattern - create ref node immediately
-        totalNodesInCurrentEvent++
+        ctx.nodesCreated++
         return {
           node: createNode({
             id: generateNodeId(),
@@ -950,20 +940,13 @@ function buildTreeFromStory(
 
     // Build normally (either not a hub, or matches exit pattern)
     story.state.LoadJson(storyState)
-    const childNode = buildTreeFromStory(
-      story,
-      eventName,
-      newVisitedStates,
-      newStateToNodeId,
-      depth + 1,
+    const childNode = buildTreeFromStory(story, ctx, {
+      depth: depth + 1,
       pathHash,
-      newAncestorTexts,
-      newPathTextToNodeId,
-      randomVars,
-      functionDefinitions,
-      functionCalls,
-      knots
-    )
+      visitedStates: newVisitedStates,
+      stateToNodeId: newStateToNodeId,
+      pathTextToNodeId: newPathTextToNodeId,
+    })
 
     if (childNode) {
       return {
@@ -1041,7 +1024,7 @@ function buildTreeFromStory(
     }
 
     // Get hub node ID from snapshot for recursive processing
-    const snapshot = hubChoiceSnapshots.get(eventName)
+    const snapshot = ctx.hubSnapshot
     const hubNodeId = snapshot ? snapshot.hubNodeId : null
 
     // Skip processing if this is the hub node itself (hub node should not be processed here)
@@ -1136,7 +1119,7 @@ function buildTreeFromStory(
       finalChildren = dialogueSplitResult.finalChildren
       finalEffects = dialogueSplitResult.finalEffects
       finalNumContinues = dialogueSplitResult.finalNumContinues
-      totalNodesInCurrentEvent++
+      ctx.nodesCreated++
     }
   }
 
@@ -1159,7 +1142,7 @@ function buildTreeFromStory(
       finalText = combatSplitResult.finalText // Use split result directly, even if undefined
       finalChildren = combatSplitResult.finalChildren
       finalEffects = combatSplitResult.finalEffects
-      totalNodesInCurrentEvent++
+      ctx.nodesCreated++
     }
   }
 
@@ -1167,7 +1150,7 @@ function buildTreeFromStory(
   // This checks if this node's children match the hub snapshot
   // Only check nodes built AFTER the hub (nodeId > hubNodeId) to avoid checking pre-hub nodes
   // IMPORTANT: Check this BEFORE storing PATH_CONVERGENCE signature to avoid storing nodes that become refs
-  const snapshot = hubChoiceSnapshots.get(eventName)
+  const snapshot = ctx.hubSnapshot
   if (
     snapshot &&
     finalChildren.length > 0 &&
@@ -1197,7 +1180,7 @@ function buildTreeFromStory(
   // 2. We don't store signatures for nodes that became hub refs
   // Only store if we actually have children (to avoid matching incomplete nodes)
   if (convergenceSignature && finalChildren.length > 0) {
-    pathConvergenceStates.set(convergenceSignature, nodeId)
+    ctx.pathConvergenceStates.set(convergenceSignature, nodeId)
   }
 
   const safeText = type === 'combat' && !finalText ? undefined : finalText || 'default'
