@@ -1,6 +1,7 @@
 /* eslint-disable */
 const { execSync } = require('child_process')
 const fs = require('fs')
+const os = require('os')
 const path = require('path')
 
 /**
@@ -94,31 +95,70 @@ function shouldIgnoreLine(content, recentLines = []) {
 }
 
 /**
- * Outputs names of events that have non-ignored diff lines.
- * Compares committed vs current event-trees.json, ignores id/ref/refChildren changes.
+ * Produce a unified diff between two files using git diff --no-index.
+ * git exits with code 1 when the files differ, so we read the diff from the "error".
  */
-function validateEventTreesChanges() {
+function diffFiles(baselineFile, currentFile) {
+  try {
+    return execSync(
+      `git -c color.diff=never diff --no-ext-diff --no-index -- "${baselineFile}" "${currentFile}"`,
+      { encoding: 'utf-8', maxBuffer: 64 * 1024 * 1024 }
+    )
+  } catch (error) {
+    if (error.status === 1 && typeof error.stdout === 'string') {
+      return error.stdout
+    }
+    throw error
+  }
+}
+
+/**
+ * Outputs names of events that have non-ignored diff lines.
+ * Compares baseline vs current event-trees.json, ignores id/ref/refChildren changes.
+ *
+ * @param {Object} [options]
+ * @param {string} [options.currentPath] - File to validate (default: the canonical output file).
+ *                                         Used by --dry-run, which writes to a temp file.
+ * @param {string} [options.baselinePath] - Snapshot file to compare against (default: git HEAD
+ *                                          version of the canonical output file).
+ */
+function validateEventTreesChanges(options = {}) {
   const filePath = path.join(__dirname, '../../src/codex/data/event-trees.json')
   const relativePath = path.relative(process.cwd(), filePath)
+  const currentPath = options.currentPath || filePath
 
   try {
-    const diff = execSync(`git -c color.diff=never diff --no-ext-diff HEAD -- "${relativePath}"`, {
-      encoding: 'utf-8',
-      cwd: process.cwd(),
-      maxBuffer: 10 * 1024 * 1024,
-    })
+    const currentContent = fs.readFileSync(currentPath, 'utf-8')
+
+    // Resolve the baseline: an explicit snapshot file, or the committed version of the output
+    let committedContent
+    let baselineFileForDiff
+    if (options.baselinePath) {
+      committedContent = fs.readFileSync(options.baselinePath, 'utf-8')
+      baselineFileForDiff = options.baselinePath
+      console.log(`\nValidating against baseline: ${options.baselinePath}`)
+    } else {
+      committedContent = execSync(`git show HEAD:${relativePath}`, {
+        encoding: 'utf-8',
+        cwd: process.cwd(),
+        maxBuffer: 64 * 1024 * 1024,
+      })
+      // git diff --no-index needs two files on disk, so materialize the HEAD version
+      baselineFileForDiff = path.join(os.tmpdir(), `event-trees-baseline-${process.pid}.json`)
+      fs.writeFileSync(baselineFileForDiff, committedContent, 'utf-8')
+    }
+
+    if (committedContent === currentContent) {
+      console.log('No changes detected in event-trees.json')
+      return
+    }
+
+    const diff = diffFiles(baselineFileForDiff, currentPath)
 
     if (!diff.trim()) {
       console.log('No changes detected in event-trees.json')
       return
     }
-
-    const currentContent = fs.readFileSync(filePath, 'utf-8')
-    const committedContent = execSync(`git show HEAD:${relativePath}`, {
-      encoding: 'utf-8',
-      cwd: process.cwd(),
-      maxBuffer: 10 * 1024 * 1024,
-    })
 
     const currentLineToEvent = buildLineToEventMap(currentContent)
     const committedLineToEvent = buildLineToEventMap(committedContent)
@@ -196,7 +236,7 @@ function validateEventTreesChanges() {
     }
 
     if (affectedEvents.size > 0) {
-      console.log(`❌ ${affectedEvents.size} Events failig validation:`)
+      console.log(`❌ ${affectedEvents.size} Events failing validation:`)
       ;[...affectedEvents].sort().forEach((name) => console.log(`  - ${name}`))
     } else {
       console.log('✅ No events failing validation')

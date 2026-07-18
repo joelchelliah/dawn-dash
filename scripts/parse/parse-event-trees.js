@@ -1,5 +1,6 @@
 /* eslint-disable */
 const fs = require('fs')
+const os = require('os')
 const path = require('path')
 const { Story } = require('inkjs')
 const { buildIdToNameMapping } = require('../shared/card-data.js')
@@ -43,9 +44,42 @@ const {
   normalizeKeywordTags,
 } = require('./random-support.js')
 
-// Enables detailed logging for a specific event, when provided.
-// const DEBUG_EVENT_NAME = 'Frozen Heart'
-const DEBUG_EVENT_NAME = ''
+/**
+ * CLI flags:
+ *   --debug "<event name>"   Enable detailed logging for a specific event
+ *   --only "<event name>"    Parse just this event and merge it into the existing output file
+ *   --dry-run                Parse + validate, but don't write the output file
+ *   --baseline <file>        Validate against this snapshot file instead of git HEAD
+ */
+function parseCliArgs(argv) {
+  const args = { debugEventName: '', only: null, dryRun: false, baseline: null }
+  for (let i = 0; i < argv.length; i++) {
+    const arg = argv[i]
+    if (arg === '--debug') {
+      args.debugEventName = argv[++i] || ''
+    } else if (arg === '--only') {
+      args.only = argv[++i] || null
+    } else if (arg === '--dry-run') {
+      args.dryRun = true
+    } else if (arg === '--baseline') {
+      args.baseline = argv[++i] || null
+    } else {
+      console.error(`❌ Unknown argument: ${arg}`)
+      console.error('Usage: node parse-event-trees.js [--debug <event>] [--only <event>] [--dry-run] [--baseline <file>]')
+      process.exit(1)
+    }
+  }
+  if (args.baseline && !fs.existsSync(args.baseline)) {
+    console.error(`❌ Baseline file not found: ${args.baseline}`)
+    process.exit(1)
+  }
+  return args
+}
+
+const CLI_ARGS = parseCliArgs(process.argv.slice(2))
+
+// Enables detailed logging for a specific event, when provided (via --debug "<event name>").
+const DEBUG_EVENT_NAME = CLI_ARGS.debugEventName
 
 let nodeIdCounter = 0
 let totalNodesInCurrentEvent = 0
@@ -1886,6 +1920,11 @@ async function processEvents() {
     const { displayName, alias } = determineNameAndAlias(name, caption)
     const blightbaneLink = `https://www.blightbane.io/event/${name.replaceAll(' ', '_')}`
 
+    // --only mode: skip everything except the requested event (match display name or raw name)
+    if (CLI_ARGS.only && displayName !== CLI_ARGS.only && name !== CLI_ARGS.only) {
+      continue
+    }
+
     if (!text) {
       if (displayName === DEBUG_EVENT_NAME) {
         console.log(`  ⊘  [${i + 1}/${events.length}] Skipping "${displayName}" (no text content)`)
@@ -1927,6 +1966,11 @@ async function processEvents() {
     } else {
       errorCount++
     }
+  }
+
+  if (CLI_ARGS.only && eventTrees.length === 0) {
+    console.error(`❌ --only "${CLI_ARGS.only}" did not match any parseable event`)
+    process.exit(1)
   }
 
   console.log(`\n📊 Results:`)
@@ -2149,9 +2193,21 @@ async function processEvents() {
   const finalTotalNodes = eventTrees.reduce((sum, tree) => sum + countNodes(tree.rootNode), 0)
   console.log(`\n  Final node count: ${finalTotalNodes} (was ${nodesBeforeDedupe})`)
 
-  // Re-write output with deduplicated nodes
-  console.log(`\n💾 Re-writing to ${OUTPUT_FILE}...`)
-  fs.writeFileSync(OUTPUT_FILE, JSON.stringify(eventTrees, null, 2), 'utf-8')
+  // --only mode: merge the re-parsed event(s) into the existing output instead of replacing it
+  let outputTrees = eventTrees
+  if (CLI_ARGS.only) {
+    outputTrees = mergeTreesIntoExistingOutput(eventTrees)
+  }
+
+  // Write output (to a temp file in --dry-run mode, so validation can still diff it)
+  const writtenFilePath = CLI_ARGS.dryRun
+    ? path.join(os.tmpdir(), `event-trees-dry-run-${process.pid}.json`)
+    : OUTPUT_FILE
+  if (CLI_ARGS.dryRun) {
+    console.log(`\n🧪 Dry run: writing to temp file instead of ${OUTPUT_FILE}`)
+  }
+  console.log(`\n💾 Re-writing to ${writtenFilePath}...`)
+  fs.writeFileSync(writtenFilePath, JSON.stringify(outputTrees, null, 2), 'utf-8')
 
   console.log('\n✨ Done!')
 
@@ -2159,6 +2215,36 @@ async function processEvents() {
   const endTime = Date.now()
   const elapsedSeconds = ((endTime - startTime) / 1000).toFixed(2)
   console.log(`⏱️  Total parsing time: ${elapsedSeconds}s`)
+
+  return { writtenFilePath }
+}
+
+/**
+ * Merge freshly parsed trees into the existing output file (used by --only).
+ * Replaces entries with the same name, appends new ones, and keeps the
+ * alphabetical-by-name ordering the full pipeline produces.
+ */
+function mergeTreesIntoExistingOutput(eventTrees) {
+  if (!fs.existsSync(OUTPUT_FILE)) {
+    console.warn(`  ⚠️  ${OUTPUT_FILE} does not exist yet - writing only the parsed event(s)`)
+    return eventTrees
+  }
+
+  const existingTrees = JSON.parse(fs.readFileSync(OUTPUT_FILE, 'utf-8'))
+  const parsedByName = new Map(eventTrees.map((tree) => [tree.name, tree]))
+
+  const merged = existingTrees.map((tree) => parsedByName.get(tree.name) || tree)
+  const existingNames = new Set(existingTrees.map((tree) => tree.name))
+  eventTrees.forEach((tree) => {
+    if (!existingNames.has(tree.name)) merged.push(tree)
+  })
+  merged.sort((a, b) => a.name.localeCompare(b.name))
+
+  const replacedCount = eventTrees.length - merged.filter((t) => !existingNames.has(t.name)).length
+  console.log(
+    `\n🔀 Merging into existing output: ${replacedCount} replaced, ${eventTrees.length - replacedCount} added (${merged.length} total)`
+  )
+  return merged
 }
 
 /**
@@ -3091,8 +3177,11 @@ function deduplicateAllTrees(eventTrees, maxIterations = 1) {
 // Run the script
 ;(async () => {
   try {
-    await processEvents()
-    validateEventTreesChanges()
+    const { writtenFilePath } = await processEvents()
+    validateEventTreesChanges({
+      currentPath: writtenFilePath,
+      baselinePath: CLI_ARGS.baseline,
+    })
   } catch (error) {
     console.error('❌ Fatal error:', error)
     console.error(error.stack)
