@@ -580,9 +580,53 @@ pass (pass 11, `HOIST_PURE_STAND_IN_REF_NODES_ENABLED`) deletes it and points th
 
 ---
 
-## 17. Merge duplicate combat nodes (post-alteration dedup)
+## 17. Merge duplicate combat nodes (post-alteration dedup) — ✅ COMPLETED
 
 **Impact: 🟢 Low-Medium (visualization) · Effort: 🟢 Low-Medium**
+
+> Implementation notes: implemented as TWO passes right after `applyEventAlterations`,
+> because the merge should happen as high as possible — at the duplicated *choice*
+> wrapper, not the combat node under it (first attempt merged at combat level and left
+> stand-in combat ref nodes under still-duplicated choices):
+>
+> 1. `deduplicateAllTreesPostAlterations` (pass 13, toggle
+>    `DEDUPLICATE_SUBTREES_POST_ALTERATIONS_ENABLED`) simply runs pass 7's
+>    `deduplicateAllTrees` again. Why pass 7 missed these: it runs before the
+>    alterations, when each duplicated chain is `choice → combat leaf` = 2 nodes,
+>    below `DEDUPLICATE_SUBTREES_MIN_SUBTREE_SIZE` (3); the boss-transition `GOTO EVENT`
+>    child added in pass 12 grows the chains to 3 nodes, so the re-run merges them at
+>    the choice level. Made safe to run post-refChildren (all no-ops for the pass-7 run,
+>    where no refChildren exist yet): the external-ref prune guard now also protects
+>    refChildren targets, root refChildren are always compared (they'd survive on the
+>    ref node), and nodes carrying refChildren are never merge candidates (a node must
+>    never hold both ref and refChildren).
+> 2. `mergeDuplicateCombatNodes` (pass 14, toggle `MERGE_DUPLICATE_COMBAT_NODES_ENABLED`,
+>    in deduplication.js) catches what the re-run can't: copies behind non-identical
+>    choice wrappers whose chains stay below the size gate (The Defiled Sanctum Start's
+>    two differently-labeled Fight choices). Identity is exact on EVERY field including
+>    requirements/effects (a combat node's effects are the fight, so no root-field
+>    exemption like pass 7) plus structurally identical children; deeper copies become
+>    `ref` jump links to the shallowest (BFS-first) copy, with pass 7's guards (skip
+>    `«random»` text, don't prune externally-referenced descendants, track pruned ids,
+>    loop until stable). Childless copies are deliberately NOT merged (Count Vesparin's
+>    three identical combat leaves stay expanded): merging exists to remove redundant
+>    subtrees, and a leaf has none — a merge there would only add a jump-link arrow.
+>
+> The copies all sit at different depths from their originals, so none would qualify for
+> pass 10's sibling/cousin refChildren conversion — jump links are the right shape and
+> passes 10/11 don't need re-running. The three resolve-during-implementation points:
+> pass 9 runs earlier so it can't undo the new refs (and these are boss-transition combat
+> nodes, not split wrappers, so its "don't ref a combat wrapper" intent doesn't apply);
+> distant copies stay as jump links per the above; and refs pointing at combat/choice
+> nodes already existed in the output (Heart of the Temple, Possessed Priestess; 47
+> choice refs), so no new rendering shape is created.
+>
+> Result: of the 18 predicted copies, the 16 that carried a redundant subtree are gone —
+> 16 dedup merges (incl. a bonus one: Frozen Heart's two "Attempt to remove the ice"
+> puzzle branches, made identical by the CARDPUZZLE replaceNode alteration) + 1
+> combat-level merge; Count Vesparin's 2 leaf copies stay by design. 3874 → 3838 nodes,
+> zero invalid refs, validator reports exactly the 7 changed events, every diff site
+> reviewed via a normalized structural diff vs HEAD.
 
 Spotted while visually verifying spec 4/16 output (Frozen Heart): events that get boss
 transitions via `event-alterations.js` render several identical combat nodes — same text,

@@ -69,7 +69,7 @@ const {
   normalizeRefsPointingToCombatNodes,
   promoteShallowDialogueMenuHub,
 } = require('./ref-normalization.js')
-const { deduplicateAllTrees } = require('./deduplication.js')
+const { deduplicateAllTrees, mergeDuplicateCombatNodes } = require('./deduplication.js')
 const {
   convertSiblingAndCousinRefsToRefChildren,
   hoistPureStandInRefNodes,
@@ -403,6 +403,43 @@ const PIPELINE = [
       console.log(`  Applied ${totalApplied} alteration(s)`)
       context.stats.alterationsApplied = totalApplied
       context.stats.alterationWarnings = warnings
+    },
+  },
+  {
+    // Second structural dedup: alterations can grow previously-too-small subtrees past
+    // the size gate (e.g. identical choice → combat → GOTO chains from boss transitions),
+    // so run the same dedup again on the altered trees.
+    name: 'deduplicateAllTreesPostAlterations',
+    enabled: () => OPTIMIZATION_PASS_CONFIG.DEDUPLICATE_SUBTREES_POST_ALTERATIONS_ENABLED,
+    banner: '🔄 Deduplicating subtrees again (post-alterations)...',
+    run: (eventTrees) => {
+      const { totalDuplicates, totalNodesRemoved, eventsWithDedupe } =
+        deduplicateAllTrees(eventTrees)
+      console.log(`  Replaced ${totalDuplicates} duplicate subtrees`)
+      console.log(`  Reduced node count by ${totalNodesRemoved}`)
+      if (eventsWithDedupe.length > 0) {
+        console.log(
+          `  Events: ${eventsWithDedupe.map(({ name, duplicates }) => `"${name}" (${duplicates})`).join(', ')}`
+        )
+      }
+    },
+  },
+  {
+    // Boss-transition alterations add identical "GOTO EVENT" children to every copy of a
+    // combat node; collapse into ref jump links what the dedup above can't catch:
+    // copies whose choice wrappers differ (childless copies are left alone).
+    name: 'mergeDuplicateCombatNodes',
+    enabled: () => OPTIMIZATION_PASS_CONFIG.MERGE_DUPLICATE_COMBAT_NODES_ENABLED,
+    banner: '🔁 Merging duplicate combat nodes...',
+    run: (eventTrees) => {
+      const { totalMerges, eventsWithMerges } = mergeDuplicateCombatNodes(eventTrees)
+      console.log(`  Merged ${totalMerges} duplicate combat node(s)`)
+      if (eventsWithMerges.length > 0 && debugConfig.eventName.length > 0) {
+        console.log(`\n  Events with merges:`)
+        eventsWithMerges.forEach(({ name, merges }) => {
+          console.log(`    - "${name}": ${merges} combat node(s) merged`)
+        })
+      }
     },
   },
   {

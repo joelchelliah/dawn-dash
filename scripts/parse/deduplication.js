@@ -4,6 +4,9 @@
  * Replaces structurally identical subtrees with refs, preferring shallow originals.
  * Runs AFTER the semantic hub-optimization passes so dialogue-menu patterns are
  * handled semantically first, then structural dedup cleans up remaining duplicates.
+ * A second run happens after applyEventAlterations: alterations can grow
+ * previously-too-small subtrees past the size gate (e.g. boss transitions turn each
+ * duplicated `choice → combat` pair into an eligible `choice → combat → GOTO` chain).
  *
  * Two subtrees are duplicates when they RENDER the same, i.e. they are equal modulo ref
  * resolution: a ref node stands for its target, so a subtree containing "ref → X" is a
@@ -105,18 +108,25 @@ function deduplicateEventTree(rootNode) {
   }
 
   // Narrow safety guard:
-  // Avoid deduping a subtree if doing so would prune away a node that is referenced by a ref
-  // from OUTSIDE that subtree. (Refs from inside the subtree would be deleted too, so they
-  // don't count as "must stay reachable" for this specific prune.)
+  // Avoid deduping a subtree if doing so would prune away a node that is referenced by a
+  // ref/refChildren from OUTSIDE that subtree. (Refs from inside the subtree would be
+  // deleted too, so they don't count as "must stay reachable" for this specific prune.)
   //
   // This is much less invasive than "protect all ancestors of all ref targets" and avoids
   // broad side effects in other events.
   const referrersByTargetId = new Map() // targetId -> Array<referrerId>
+  function recordReferrer(targetId, referrerId) {
+    const arr = referrersByTargetId.get(targetId) || []
+    arr.push(referrerId)
+    referrersByTargetId.set(targetId, arr)
+  }
   for (const node of allNodes) {
-    if (node?.id !== undefined && node.ref !== undefined) {
-      const arr = referrersByTargetId.get(node.ref) || []
-      arr.push(node.id)
-      referrersByTargetId.set(node.ref, arr)
+    if (node?.id === undefined) continue
+    if (node.ref !== undefined) {
+      recordReferrer(node.ref, node.id)
+    }
+    if (node.refChildren) {
+      node.refChildren.forEach((targetId) => recordReferrer(targetId, node.id))
     }
   }
 
@@ -220,13 +230,16 @@ function deduplicateEventTree(rootNode) {
     if ((b.text ?? null) !== (a.text ?? null)) return false
     if ((b.choiceLabel ?? null) !== (a.choiceLabel ?? null)) return false
     if ((b.type ?? null) !== (a.type ?? null)) return false
+    // refChildren are compared even at the root (unlike the exempt fields below): the
+    // merge keeps the candidate's own refChildren on the ref node, so differing
+    // refChildren would render different converging lines than the original's.
+    if (JSON.stringify(b.refChildren ?? null) !== JSON.stringify(a.refChildren ?? null))
+      return false
     if (!isRoot) {
       if (JSON.stringify(b.requirements ?? null) !== JSON.stringify(a.requirements ?? null))
         return false
       if (JSON.stringify(b.effects ?? null) !== JSON.stringify(a.effects ?? null)) return false
       if ((b.numContinues ?? null) !== (a.numContinues ?? null)) return false
-      if (JSON.stringify(b.refChildren ?? null) !== JSON.stringify(a.refChildren ?? null))
-        return false
     }
 
     // NOTE: ref can be 0, so don't use truthy checks here.
@@ -259,6 +272,10 @@ function deduplicateEventTree(rootNode) {
     if (!node.children || node.children.length === 0) continue
     // NOTE: ref can be 0, so don't use truthy checks here.
     if (node.ref !== undefined) continue // Skip nodes that are already references
+    // Skip nodes carrying refChildren: merging sets `ref`, and a node must never hold
+    // both (only relevant for the post-alteration run — pass 10 hasn't created any
+    // refChildren when the main dedup pass runs)
+    if (node.refChildren !== undefined) continue
 
     const { size } = infoByNode.get(node)
 
@@ -364,6 +381,144 @@ function deduplicateAllTrees(eventTrees) {
   return { totalDuplicates, totalNodesRemoved, eventsWithDedupe, passesRun }
 }
 
+/**
+ * Serialize a node's own rendered fields plus its full descendant structure, ignoring
+ * `id` everywhere. ref/refChildren values are included as-is: they are node ids, so two
+ * subtrees only match when their refs point at the exact same targets (conservative).
+ */
+function serializeSubtreeIgnoringIds(node) {
+  return JSON.stringify([
+    node.text ?? null,
+    node.choiceLabel ?? null,
+    node.type ?? null,
+    node.requirements ?? null,
+    node.effects ?? null,
+    node.numContinues ?? null,
+    node.ref ?? null,
+    node.refChildren ?? null,
+    (node.children || []).map(serializeSubtreeIgnoringIds),
+  ])
+}
+
+/**
+ * Merge duplicate combat nodes within one tree (post-alteration dedup).
+ *
+ * Events that get boss transitions via event-alterations.js end up with several identical
+ * combat nodes — same text and `COMBAT: …` effect, each with an identical `GOTO EVENT: …`
+ * child. The post-alteration dedup re-run merges most of them at the choice-wrapper level,
+ * but misses copies behind NON-identical choice wrappers, whose own chains stay below
+ * DEDUPLICATE_SUBTREES_MIN_SUBTREE_SIZE.
+ *
+ * So this pass collapses combat nodes that are identical on every field INCLUDING
+ * requirements/effects (a combat node's effects are the fight — no root-field exemption
+ * like the main dedup pass) and structurally identical children, into plain `ref` jump
+ * links to the shallowest copy. Jump links (not refChildren) are the right shape here:
+ * the copies live in far-apart branches at different depths, exactly the distant-target
+ * case the cousin blacklists exist for.
+ *
+ * Childless combat copies are deliberately left alone: merging exists to remove redundant
+ * subtrees, and a leaf has none — a merge there would only add a jump-link arrow.
+ */
+function mergeDuplicateCombatNodesInTree(rootNode) {
+  let mergesCount = 0
+
+  // Repeat until stable: merging a combat node inside another combat subtree can make
+  // that ancestor identical to a copy elsewhere.
+  while (true) {
+    // BFS so the shallowest copy is recorded as the original
+    const queue = [rootNode]
+    const allNodes = []
+    while (queue.length > 0) {
+      const node = queue.shift()
+      if (!node) continue
+      allNodes.push(node)
+      if (node.children) queue.push(...node.children)
+    }
+
+    // Ids referenced by any ref/refChildren — pruning a duplicate's children must not
+    // delete someone's ref target (referrers inside the pruned subtree would be deleted
+    // too, so skipping those is only overly conservative, never wrong)
+    const referencedIds = new Set()
+    for (const node of allNodes) {
+      if (node.ref !== undefined) referencedIds.add(node.ref)
+      if (node.refChildren) node.refChildren.forEach((id) => referencedIds.add(id))
+    }
+
+    function subtreeContainsReferencedDescendant(node) {
+      const stack = [...(node.children || [])]
+      while (stack.length > 0) {
+        const descendant = stack.pop()
+        if (!descendant) continue
+        if (referencedIds.has(descendant.id)) return true
+        if (descendant.children) stack.push(...descendant.children)
+      }
+      return false
+    }
+
+    const originalByKey = new Map()
+    const removedNodeIds = new Set() // nodes pruned by a merge earlier in this round
+    let mergedThisRound = false
+
+    for (const node of allNodes) {
+      if (removedNodeIds.has(node.id)) continue // inside an already-pruned subtree
+      if (node.type !== 'combat') continue
+      // Leaves have no subtree to remove — merging would only add an arrow
+      if (!node.children || node.children.length === 0) continue
+      // NOTE: ref can be 0, so don't use truthy checks here.
+      if (node.ref !== undefined) continue
+      // Don't merge copies that only differ by an unrolled random value
+      if (node.text && node.text.includes(RANDOM_KEYWORD)) continue
+
+      const key = serializeSubtreeIgnoringIds(node)
+      const originalNode = originalByKey.get(key)
+      if (!originalNode) {
+        originalByKey.set(key, node)
+        continue
+      }
+
+      if (subtreeContainsReferencedDescendant(node)) continue
+
+      // Mark the pruned descendants so they're skipped for the rest of this round
+      const pruneStack = [...(node.children || [])]
+      while (pruneStack.length > 0) {
+        const pruned = pruneStack.pop()
+        if (!pruned) continue
+        removedNodeIds.add(pruned.id)
+        if (pruned.children) pruneStack.push(...pruned.children)
+      }
+
+      node.ref = originalNode.id
+      delete node.children
+      mergesCount++
+      mergedThisRound = true
+    }
+
+    if (!mergedThisRound) break
+  }
+
+  return mergesCount
+}
+
+/**
+ * Merge duplicate combat nodes across all event trees
+ */
+function mergeDuplicateCombatNodes(eventTrees) {
+  let totalMerges = 0
+  const eventsWithMerges = []
+
+  eventTrees.forEach((tree) => {
+    if (!tree.rootNode) return
+    const merges = mergeDuplicateCombatNodesInTree(tree.rootNode)
+    if (merges > 0) {
+      eventsWithMerges.push({ name: tree.name, merges })
+      totalMerges += merges
+    }
+  })
+
+  return { totalMerges, eventsWithMerges }
+}
+
 module.exports = {
   deduplicateAllTrees,
+  mergeDuplicateCombatNodes,
 }

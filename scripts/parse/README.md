@@ -21,7 +21,7 @@ scripts/data/events.json         (each event's `text` = a compiled Ink story)
         │
         │  scripts/parse/parse-event-trees.js          <── THIS FOLDER
         │  1. tree building: replay every story path with the inkjs runtime
-        │  2. post-processing: the PIPELINE pass registry (15 passes)
+        │  2. post-processing: the PIPELINE pass registry (17 passes)
         │  3. validation: diff output vs baseline, ignore known noise
         ▼
 src/codex/data/event-trees.json  (183 trees, ~4k nodes, statically imported)
@@ -44,7 +44,7 @@ and restoring story state to explore every choice.
 | `node-splitting.js` | Effect extraction (`>>>>COMMAND`), text cleaning, combat/dialogue/choice splitting |
 | `random-support.js` | Random value detection (`RANDOM(min, max)`) and normalization to `«random»` |
 | `ref-normalization.js` | Rewrite refs to point at the "right" node after structural passes move content |
-| `deduplication.js` | Structural subtree dedup (rendering-equivalent subtrees → refs; exact hashing + ref-resolving equivalence) |
+| `deduplication.js` | Structural subtree dedup (rendering-equivalent subtrees → refs; exact hashing + ref-resolving equivalence; run both mid-pipeline and again post-alterations), plus the duplicate-combat-node merge |
 | `ref-children.js` | Sibling/cousin refs → `refChildren` (renders as converging lines) |
 | `misc-passes.js` | Invalid-ref check, card-id replacement, default-node filtering |
 | `post-processing-hub-pattern-optimization.js` | Config-free BFS detection of dialogue-menu hubs |
@@ -136,9 +136,11 @@ Current order:
 | 10 | `convertSiblingAndCousinRefsToRefChildren` | Nearby refs → `refChildren` + sibling reordering |
 | 11 | `hoistPureStandInRefNodes` | Stand-in refChildren nodes that are pure copies of their target (and only children) are deleted; the parent's converging line goes directly to the original |
 | 12 | `applyEventAlterations` | Manual per-event fixes (puzzles, boss-death transitions, …) |
-| 13 | `checkInvalidRefs` | Sanity check: every ref points at an existing node |
-| 14 | `cleanUpRandomValues` | "You gain 12 gold" → "You gain «random» gold" where rolled |
-| 15 | `replaceCardIds` | Leftover numeric `[cardid=123]` → card names |
+| 13 | `deduplicateAllTreesPostAlterations` | Pass 7 again: alterations can grow previously-too-small subtrees past the dedup size gate (boss transitions turn each duplicated `choice → combat` pair into an eligible 3-node chain), so identical chains collapse at the choice level |
+| 14 | `mergeDuplicateCombatNodes` | Duplicate combat nodes pass 13 can't catch (copies behind non-identical choice wrappers, whose chains stay below the size gate) → `ref` jump links to the shallowest copy; identical on ALL fields incl. requirements/effects, since a combat node's effects are the fight. Childless copies stay — merging a leaf removes no nodes |
+| 15 | `checkInvalidRefs` | Sanity check: every ref points at an existing node |
+| 16 | `cleanUpRandomValues` | "You gain 12 gold" → "You gain «random» gold" where rolled |
+| 17 | `replaceCardIds` | Leftover numeric `[cardid=123]` → card names |
 
 Why choice separation (pass 3) matters for rendering — before and after:
 

@@ -104,6 +104,19 @@ const OPTIMIZATION_PASS_CONFIG = {
   // line directly at the original node instead.
   HOIST_PURE_STAND_IN_REF_NODES_ENABLED: true,
 
+  // Run structural dedup a second time AFTER event alterations: alterations can grow
+  // previously-too-small subtrees past DEDUPLICATE_SUBTREES_MIN_SUBTREE_SIZE (e.g. boss
+  // transitions add a "GOTO EVENT: ..." child to every copy of a combat node, turning
+  // each duplicated choice → combat pair into an eligible 3-node chain), which the main
+  // dedup pass (running earlier) can't see. New duplicates become `ref` jump links.
+  DEDUPLICATE_SUBTREES_POST_ALTERATIONS_ENABLED: true,
+
+  // Merge duplicate combat nodes AFTER the post-alteration dedup: catches the copies that
+  // pass can't, i.e. combat copies reached via non-identical choice wrappers whose own
+  // subtrees stay below the dedup size gate. Deeper identical copies become `ref` jump
+  // links. Childless copies are left alone — merging a leaf removes no nodes.
+  MERGE_DUPLICATE_COMBAT_NODES_ENABLED: false,
+
   // Validate refs (detect refs pointing to missing nodes) and log warnings.
   CHECK_INVALID_REFS_ENABLED: true,
 
