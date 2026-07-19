@@ -71,4 +71,15 @@ module.exports = {
     'no-unused-expressions': 'error',
     'no-unused-vars': 'off', // Using TypeScript's no-unused-vars instead
   },
+  overrides: [
+    {
+      // Node CLI scripts (data pipeline): CommonJS require() and console logging are
+      // the norm there — everything else is linted like the app code.
+      files: ['scripts/**/*.js'],
+      rules: {
+        'no-console': 'off',
+        '@typescript-eslint/no-require-imports': 'off',
+      },
+    },
+  ],
 }

@@ -1,4 +1,3 @@
-/* eslint-disable */
 /**
  * Node Splitting and Normalization Utilities
  *
@@ -10,6 +9,7 @@
  * 2. Dialogue Splitting: Splits dialogue nodes when effects appear mid-sequence
  * 3. Choice Separation: Separates choice nodes from their outcome/effect nodes
  */
+const { SPECIAL_KEYWORD_EFFECT_VALUES } = require('./event-overrides.js')
 
 /**
  * Extract effects (game commands) from text and clean the text
@@ -110,14 +110,9 @@ function extractEffects(text, functionDefinitions = new Map(), functionCalls = n
  * Resolve ADDKEYWORD effect value, handling variable references and placeholders
  */
 function resolveSpecialKeywordEffects(value, functionDefinitions, functionCalls) {
-  // See Shrine of Trickery
-  if (value === 'a keyword') {
-    return ['ADDKEYWORD: random']
-  }
-
-  // See Shrine of Trickery
-  if (value === 'chaos') {
-    return ['ADDKEYWORD: random', 'ADDKEYWORD: random', 'ADDTYPE: Corruption', 'SWAPCOST: blood']
+  // Non-literal keyword values (see SPECIAL_KEYWORD_EFFECT_VALUES in event-overrides.js)
+  if (SPECIAL_KEYWORD_EFFECT_VALUES[value]) {
+    return [...SPECIAL_KEYWORD_EFFECT_VALUES[value]]
   }
 
   // See Shrine of Trickery

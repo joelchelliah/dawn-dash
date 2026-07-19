@@ -1,4 +1,3 @@
-/* eslint-disable */
 /**
  * Structural subtree deduplication (post-processing).
  *
@@ -266,7 +265,11 @@ function deduplicateEventTree(rootNode) {
     // Check if this subtree is large enough to deduplicate
     if (size < OPTIMIZATION_PASS_CONFIG.DEDUPLICATE_SUBTREES_MIN_SUBTREE_SIZE) continue
 
-    const groupKey = JSON.stringify([node.text ?? null, node.choiceLabel ?? null, node.type ?? null])
+    const groupKey = JSON.stringify([
+      node.text ?? null,
+      node.choiceLabel ?? null,
+      node.type ?? null,
+    ])
     let group = originalsByGroupKey.get(groupKey)
     if (!group) {
       group = []
@@ -310,7 +313,6 @@ function deduplicateEventTree(rootNode) {
 
   return { duplicatesFound, nodesRemoved }
 }
-
 
 /**
  * Post-processing: Deduplicate structurally identical subtrees across all event trees

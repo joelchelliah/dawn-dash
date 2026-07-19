@@ -336,9 +336,21 @@ grows again is worth it.
 
 ---
 
-## 9. Stop cloning tracking Maps/Sets on every recursion step
+## 9. Stop cloning tracking Maps/Sets on every recursion step — ✅ COMPLETED
 
 **Impact: 🟡 Medium (performance/memory) · Effort: 🟢 Low-Medium**
+
+> Implementation notes: the three collections are registered just before the
+> children-exploration loop and removed right after it (the only recursion happens inside
+> that loop, so moving registration later than the old clone point is unobservable — in
+> particular, leaves no longer register at all, which nothing can see). Two backtracking
+> subtleties: `visitedStates.delete` only runs when this call inserted the hash (with
+> choice+path detection disabled, an ancestor's entry could otherwise be removed), and
+> `pathTextToNodeId` restores the *previous* value instead of deleting (registration
+> doesn't check node type while the cycle check does, so a non-dialogue node can shadow
+> an ancestor's dialogue entry). Verified zero-diff. Full-parse time dropped ~37s → ~24s
+> under identical conditions; runs now complete in ~6s (the remainder was Blightbane API
+> latency, since removed from the loop by spec 15's mapping cache).
 
 Every call to `buildTreeFromStory` clones three collections:
 
@@ -362,9 +374,17 @@ approach and not worth fighting.
 
 ---
 
-## 10. Normalize child text consistently in the early-ref path
+## 10. Normalize child text consistently in the early-ref path — ✅ COMPLETED
 
 **Impact: 🟡 Medium (correctness) · Effort: 🟢 Low**
+
+> Implementation notes: `collectStoryText(story, ctx)` in tree-building.js returns
+> `{ text, continueCount, numContinues }` and is used by both the main text-collection
+> loop and `getChildTextFromStory` — normalization (random effects + keyword tags) and
+> the numContinues rule now live in exactly one place. Runtime errors mid-story keep the
+> partial text and warn (the child path's silent `catch` is gone — see spec 11). Output
+> was verified zero-diff: the inconsistency was latent in the current game data, so no
+> visual verification was needed.
 
 The main text-collection loop in `buildTreeFromStory` applies `normalizeRandomEffectsInLine()`
 and `normalizeKeywordTags()` to every line. The `getChildTextFromStory()` helper (used by the
@@ -379,9 +399,17 @@ Fix: extract one `collectStoryText(story, randomVars)` helper used by both call 
 
 ---
 
-## 11. Stop swallowing errors silently
+## 11. Stop swallowing errors silently — ✅ COMPLETED
 
 **Impact: 🟡 Medium (debuggability) · Effort: 🟢 Low**
+
+> Implementation notes: `recordParseFailure(category, eventName, error)` and
+> `printParseFailureSummary()` live in debug.js. The three static-analysis catch blocks
+> (`parseFunctionDefinitions`, `detectFunctionCalls`, `detectRandomVariables`) record
+> per-category/per-event failures; the entry point prints the summary at the end of the
+> run (a healthy run prints nothing). Full error + stack prints immediately when
+> `--debug` matches the event. `getChildTextFromStory`'s silent catch was subsumed by
+> spec 10's `collectStoryText`, which warns inline like the main path always did.
 
 Several `catch` blocks discard errors entirely: `parseFunctionDefinitions`,
 `detectFunctionCalls`, `detectRandomVariables`, `getChildTextFromStory` (`// Handle gracefully`).
@@ -395,9 +423,23 @@ events: ...`). Full stack traces only when `--debug` matches (spec 5).
 
 ---
 
-## 12. Consolidate all per-event special-casing into one config module
+## 12. Consolidate all per-event special-casing into one config module — ✅ COMPLETED
 
 **Impact: 🟡 Medium (maintainability, discoverability) · Effort: 🟢 Low-Medium**
+
+> Implementation notes: `event-overrides.js` now holds every per-event structure:
+> `DIALOGUE_MENU_EVENTS`, `PATH_CONVERGENCE`, `DEFAULT_NODE_BLACKLIST`, the hub and
+> cousin-ref blacklists, `VALIDATION_IGNORE_RULES` (from parse-validation via configs),
+> `EVENT_NAME_ALIASES` (was the inline `aliasMap`), `DEPRECATED_EVENTS` (was in
+> extract-events.js), and `SPECIAL_KEYWORD_EFFECT_VALUES` (was hardcoded Shrine of
+> Trickery values in node-splitting.js). `event-alterations.js` keeps the manual fixes
+> (size) and is re-exported as `EVENT_ALTERATIONS`. configs.js keeps only pass toggles
+> and non-per-event knobs, spreading the per-event structures into
+> `OPTIMIZATION_PASS_CONFIG` so pass code is unchanged. Spec 6's startup validation now
+> sources everything from event-overrides.js and additionally checks aliases and
+> deprecated events (26 → 30 validated entries). `branchingCommands = ['COLLECTOR']`
+> stays in tree-building.js — it's a game-mechanic constant, not per-event.
+> Verified zero-diff.
 
 Per-event knowledge currently lives in six places:
 
@@ -417,9 +459,24 @@ This also gives spec 6's validation a single list to check.
 
 ---
 
-## 13. Type the tree-node shape once and lint the scripts
+## 13. Type the tree-node shape once and lint the scripts — ✅ COMPLETED
 
 **Impact: 🟡 Medium (maintenance, correctness) · Effort: 🟡 Medium**
+
+> Implementation notes: options 1 + 2 were taken (option 3, TS conversion, was not).
+> The node shape is the `ParseNode` typedef in tree-utils.js — deliberately a *superset*
+> of the app's `EventTreeNode` union, because parser nodes temporarily carry field
+> combinations the discriminated union forbids; its `type` field imports the app's
+> `EventNodeType`, so renderer/parser drift in node types is caught. tree-utils.js is
+> fully `// @ts-check`-checked; tree-building.js and misc-passes.js reference the typedef
+> on their main functions (other files can opt in with a `// @ts-check` header later).
+> `tsconfig.scripts.json` (allowJs, per-file opt-in checking) is chained into
+> `npm run type-check`. All blanket `/* eslint-disable */` headers were removed and
+> replaced by a `scripts/**/*.js` override in .eslintrc.js turning off only `no-console`
+> and `@typescript-eslint/no-require-imports`; `npm run lint` and prettier
+> (`npm run format`/`format:check`) now cover `scripts/`. Real findings fixed along the
+> way: dead `extractJsonParseData` in fetch-events-data-from-blightbane.js, several
+> unused variables, one `prefer-const`, import ordering.
 
 The node shape (`id/text/type/choiceLabel/requirements/effects/numContinues/ref/refChildren/children`)
 is defined properly in `src/codex/types/events.ts` but is only implicit in the scripts — and every
@@ -452,11 +509,31 @@ Caveat: **measure before doing this.** The script already prints total parsing t
 run is comfortably fast (< ~30s), spec 5's `--only` flag solves the iteration-speed problem more
 cheaply and this spec can be skipped indefinitely.
 
+> Measured (2026-07-19, after specs 9 + 15): a full run takes **~6 seconds** (was ~37s
+> before spec 9's backtracking change and spec 15's card-mapping cache). Per the caveat
+> above, this spec can be skipped indefinitely.
+
 ---
 
-## 15. Small cleanups (batch these opportunistically)
+## 15. Small cleanups (batch these opportunistically) — ✅ COMPLETED
 
 **Impact: 🟢 Low · Effort: 🟢 Low**
+
+> Implementation notes per item, in order: (1) the in-body `require` was already gone
+> (fixed by spec 1). (2) The id→name mapping is cached to
+> `scripts/data/card-id-mapping.json` (gitignored): `buildIdToNameMapping()` writes it on
+> every live fetch (extract step), and the parse step reads it via
+> `readOrFetchIdToNameMapping()` with a live-fetch fallback — the parse step is now
+> runnable offline and no longer bound to API latency. (3) `CARD_ID_COMMANDS` lives in
+> `scripts/shared/card-data.js`; `INLINE_CARD_ID_COMMANDS` (without AREAEFFECT) is the
+> extract-time subset, preserving the previous behavior where AREAEFFECT ids are only
+> resolved in the parse step's effects. (4) `replaceCardIdsInNode` uses module-level
+> precompiled `CARD_ID_EFFECT_PATTERNS`. (5) Dedup blacklist was already removed by
+> spec 4. (6) The monkey-patch is now `suppressInkjsVersionWarning()` with an explanatory
+> comment (inkjs still has no v21 release). (7) `determineNodeType`'s `'choice'`-for-empty-text
+> is documented as a provisional value at its definition. (8) Typo already died with
+> spec 7. (9) `resolveTransitiveRefs` uses one `buildNodeMapForTree` map instead of a
+> full-tree BFS per lookup. All verified zero-diff.
 
 - `extractChoiceMetadata` calls `require('./node-splitting.js')` **inside the function body** on
   every invocation (hot path). Move to top-level imports.
@@ -541,7 +618,7 @@ How we check that a change didn't meaningfully alter the generated trees. The ex
 "meaningful diff" while ignoring the known run-to-run noise.
 
 **Known non-deterministic surface** (encoded as per-event ignore rules in
-`VALIDATION_IGNORE_RULES` in `configs.js`, applied by `parse-validation.js`):
+`VALIDATION_IGNORE_RULES` in `event-overrides.js`, applied by `parse-validation.js`):
 
 - `id` / `ref` / `refChildren` numeric values — traversal-order dependent, renumber every run
 - Random Ink content that executes during story exploration: the `"Focus on the ..."`

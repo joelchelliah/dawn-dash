@@ -1,4 +1,3 @@
-/* eslint-disable */
 /**
  * Random Value Support Utilities
  *
@@ -14,6 +13,7 @@
  */
 
 const { RANDOM_KEYWORD } = require('./configs.js')
+const { recordParseFailure } = require('./debug.js')
 
 // ============================================================================
 // 1. RANDOM VARIABLE DETECTION
@@ -28,9 +28,10 @@ const { RANDOM_KEYWORD } = require('./configs.js')
  * Multiple ranges per variable are supported (e.g., for branching paths with different random ranges)
  *
  * @param {string} inkJsonString - Stringified Ink JSON to parse
+ * @param {string} eventName - Event name (for failure reporting)
  * @returns {Map<string, Array<{min: number, max: number}>>} Map of variable names to their random ranges
  */
-function detectRandomVariables(inkJsonString) {
+function detectRandomVariables(inkJsonString, eventName) {
   const randomVars = new Map()
 
   try {
@@ -79,7 +80,8 @@ function detectRandomVariables(inkJsonString) {
 
     traverse(inkJson)
   } catch (error) {
-    // Silently fail if JSON parsing fails
+    // Non-fatal: random values would show as concrete rolls for this event
+    recordParseFailure('random-variable detection', eventName, error)
   }
 
   return randomVars

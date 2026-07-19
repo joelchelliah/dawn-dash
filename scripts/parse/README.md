@@ -50,19 +50,26 @@ and restoring story state to explore every choice.
 | `post-processing-hub-pattern-optimization.js` | Config-free BFS detection of dialogue-menu hubs |
 | `apply-event-alterations.js` | Engine for manual per-event fixes |
 | `event-alterations.js` | The manual fixes themselves (data) |
-| `configs.js` | Pass toggles + per-event special-casing (hub events, blacklists, validation ignore rules) |
+| `event-overrides.js` | ALL per-event special-casing in one place (hub events, blacklists, aliases, deprecated events, validation ignore rules; re-exports the alterations) |
+| `configs.js` | Pass toggles + non-per-event tuning knobs |
 | `config-validation.js` | Startup check: every per-event config entry resolves to a real event |
 | `parse-validation.js` | Structural output validation against git HEAD or a `--baseline` snapshot |
-| `debug.js` | Shared `--debug <event>` state read by all modules |
+| `debug.js` | Shared `--debug <event>` state + non-fatal parse-failure registry (summary printed at end of run) |
+
+The scripts are linted and type-checked as part of `npm run verify`: the node shape the
+parser produces is the `ParseNode` JSDoc typedef in `tree-utils.js` (a superset of the
+app's `EventTreeNode` in `src/codex/types/events.ts`), checked via `tsconfig.scripts.json`.
 
 ## Step 0: Config validation (`config-validation.js`)
 
-All special-casing (`DIALOGUE_MENU_EVENTS`, blacklists, `event-alterations.js`, validation
-ignore rules) is keyed by exact event-name strings. Before any parsing starts, every configured
-name is checked against the actual events data (and `hubChoiceMatchThreshold` against its valid
-range); an entry that doesn't resolve — an upstream rename or a typo — fails the run loudly
-instead of silently not applying. The end of the run also prints a summary of applied event
-alterations, including any whose `find` matched nothing.
+All per-event special-casing lives in `event-overrides.js` (with the manual tree fixes in
+`event-alterations.js`) and is keyed by exact event-name strings. Before any parsing starts,
+every configured name — hub events, blacklists, aliases, deprecated events, validation ignore
+rules, alterations — is checked against the actual events data (and `hubChoiceMatchThreshold`
+against its valid range); an entry that doesn't resolve — an upstream rename or a typo — fails
+the run loudly instead of silently not applying. The end of the run also prints a summary of
+applied event alterations (including any whose `find` matched nothing) and of non-fatal parse
+failures recorded during tree building (degraded random-var/function detection).
 
 ## Step 1: Tree building (`tree-building.js`)
 
@@ -91,8 +98,8 @@ nodes** — a node that says "this continues at node N" instead of re-expanding 
 
 - **Text-loop detection** — same dialogue text seen earlier on this root-to-leaf path → cycle
 - **Choice+path loop detection** — same choice set at the same Ink path → merchant/shop loop
-- **Dialogue-menu hub detection** — whitelisted events (`DIALOGUE_MENU_EVENTS` in `configs.js`)
-  get menu children collapsed into refs back to the hub
+- **Dialogue-menu hub detection** — whitelisted events (`DIALOGUE_MENU_EVENTS` in
+  `event-overrides.js`) get menu children collapsed into refs back to the hub
 - **Path convergence** — two routes reaching an identical node share one subtree
 
 ```
@@ -173,7 +180,9 @@ differing node.
 # Full pipeline (fetch + extract + parse)
 node scripts/sync-events.js
 
-# Parse step only (needs scripts/data/events.json; fetches card names from the API)
+# Parse step only (needs scripts/data/events.json; card/talent names come from the
+# cached scripts/data/card-id-mapping.json written by extract-events.js, so this runs
+# offline — falls back to a live API fetch when the cache is missing)
 node scripts/parse/parse-event-trees.js
 
 # Flags (also forwarded by sync-events.js to the parse step):
@@ -189,8 +198,8 @@ Typical iteration loop when fixing one event:
 ## Known nondeterminism
 
 Two events roll random content *during* story exploration, so their text can differ per run
-(both are covered by the validator's ignore rules — `VALIDATION_IGNORE_RULES` in `configs.js`,
-scoped per event):
+(both are covered by the validator's ignore rules — `VALIDATION_IGNORE_RULES` in
+`event-overrides.js`, scoped per event):
 
 - **Fallen Soldier** — the skeleton sits against a "nearby wall" vs "nearby signpost"
 - **Mirror Shard** — the "Focus on the …" choice labels shuffle

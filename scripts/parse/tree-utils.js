@@ -1,13 +1,40 @@
-/* eslint-disable */
+// @ts-check
 /**
  * Shared tree primitives for the event-tree parsing pipeline:
  * node creation, node-id generation, and generic tree traversal helpers.
+ *
+ * This module also defines the ParseNode typedef — the single JSDoc definition of the
+ * node shape the parser produces. It is deliberately a SUPERSET of the app's
+ * EventTreeNode union (src/codex/types/events.ts): during parsing a node may
+ * temporarily carry any combination of fields (e.g. a dialogue node still holding its
+ * choiceLabel before separateChoicesFromEffects splits it into two nodes). The `type`
+ * field reuses the app's EventNodeType, so a renamed/added node type shows up here.
+ */
+
+/**
+ * @typedef {import('../../src/codex/types/events').EventNodeType} EventNodeType
+ */
+
+/**
+ * The parser's working node shape (see module doc).
+ * @typedef {Object} ParseNode
+ * @property {number} id
+ * @property {string} [text]
+ * @property {EventNodeType} type
+ * @property {string} [choiceLabel]
+ * @property {string[]} [requirements]
+ * @property {string[]} [effects]
+ * @property {number} [numContinues]
+ * @property {number} [ref] - id of the node this node is a reference/jump-link to
+ * @property {number[]} [refChildren] - ids of nodes rendered as converging lines
+ * @property {ParseNode[]} [children]
  */
 
 let nodeIdCounter = 0
 
 /**
  * Generate a unique node ID (integer, unique per event)
+ * @returns {number}
  */
 function generateNodeId() {
   return nodeIdCounter++
@@ -25,6 +52,9 @@ function resetNodeIdCounter() {
  *
  * Field order: id, text, type, choiceLabel, requirements, effects, numContinues, ref, children
  * Optional fields are only included if they have values.
+ *
+ * @param {Partial<ParseNode>} fields - id and type are expected by every caller
+ * @returns {ParseNode}
  */
 function createNode({
   id,
@@ -38,11 +68,12 @@ function createNode({
   children,
 }) {
   const isDefault = choiceLabel === 'default'
-  const node = {
+  // Built up field-by-field below; the cast covers the optional fields added conditionally
+  const node = /** @type {ParseNode} */ ({
     id,
     text,
     type,
-  }
+  })
 
   if (choiceLabel !== undefined) {
     node.choiceLabel = choiceLabel
@@ -75,12 +106,14 @@ function createNode({
   return node
 }
 
-
 /**
  * Build a map of node ID to node for a tree
+ * @param {ParseNode} rootNode
+ * @returns {Map<number, ParseNode>}
  */
 function buildNodeMapForTree(rootNode) {
   const nodeMap = new Map()
+  /** @param {ParseNode} node */
   function buildNodeMap(node) {
     if (!node) return
     nodeMap.set(node.id, node)
@@ -95,9 +128,14 @@ function buildNodeMapForTree(rootNode) {
 /**
  * Find all invalid refs in a tree (refs pointing to non-existent nodes)
  * Each entry includes nodeId, refTarget, and identity (text or choiceLabel) for comparison.
+ * @param {ParseNode} rootNode
+ * @param {Map<number, ParseNode>} nodeMap
+ * @returns {Array<{ nodeId: number, refTarget: number, identity: string }>}
  */
 function findInvalidRefsInTree(rootNode, nodeMap) {
+  /** @type {Array<{ nodeId: number, refTarget: number, identity: string }>} */
   const invalidRefs = []
+  /** @param {ParseNode} node */
   function checkRefs(node) {
     if (!node) return
     if (node.ref !== undefined && !nodeMap.has(node.ref)) {
@@ -112,9 +150,10 @@ function findInvalidRefsInTree(rootNode, nodeMap) {
   return invalidRefs
 }
 
-
 /**
  * Count total nodes in a tree
+ * @param {ParseNode} node
+ * @returns {number}
  */
 function countNodes(node) {
   if (!node) return 0
@@ -127,6 +166,9 @@ function countNodes(node) {
 
 /**
  * Get maximum depth of a tree
+ * @param {ParseNode} node
+ * @param {number} [currentDepth]
+ * @returns {number}
  */
 function getMaxDepth(node, currentDepth = 0) {
   if (!node) return currentDepth

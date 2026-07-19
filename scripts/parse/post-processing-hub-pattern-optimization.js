@@ -1,5 +1,3 @@
-/* eslint-disable */
-
 /**
  * Auto-detection of dialogue menu hub patterns via post-processing
  *
@@ -11,6 +9,7 @@
  */
 
 const { OPTIMIZATION_PASS_CONFIG } = require('./configs.js')
+const { buildNodeMapForTree } = require('./tree-utils.js')
 
 /**
  * Extract choice tokens from a node's children.
@@ -83,10 +82,8 @@ function detectAndOptimizeDialogueMenuHubs(eventTrees, DEBUG_EVENT_NAME = '') {
     const confirmedHubs = new Map() // nodeId -> { node, choiceSet, matchingNodes, depth }
 
     const queue = [{ node: tree.rootNode, depth: 0 }]
-    let nodesProcessed = 0
 
     while (queue.length > 0) {
-      nodesProcessed++
       const { node, depth } = queue.shift()
 
       if (!node) continue
@@ -195,31 +192,22 @@ function detectAndOptimizeDialogueMenuHubs(eventTrees, DEBUG_EVENT_NAME = '') {
 
       // Phase 3: Resolve transitive refs (refs pointing to nodes that are now refs themselves)
       // This fixes cases where node A → B → C, ensuring A points directly to C
+      // (node map built once, AFTER phase 2's ref creation mutated the tree)
+      const nodeMap = buildNodeMapForTree(tree.rootNode)
       const resolveTransitiveRefs = (node, visited = new Set()) => {
         if (!node || visited.has(node.id)) return
         visited.add(node.id)
 
         if (node.ref !== undefined) {
-          // Find the target node to check if it's also a ref
-          const findNodeById = (id) => {
-            const queue = [tree.rootNode]
-            while (queue.length > 0) {
-              const current = queue.shift()
-              if (!current) continue
-              if (current.id === id) return current
-              if (current.children) queue.push(...current.children)
-            }
-            return null
-          }
-
-          const targetNode = findNodeById(node.ref)
+          // Check if the target node is also a ref
+          const targetNode = nodeMap.get(node.ref)
           if (targetNode && targetNode.ref !== undefined) {
             // Target is also a ref, follow the chain to the final target
             let finalTarget = targetNode
             const chainVisited = new Set()
             while (finalTarget.ref !== undefined && !chainVisited.has(finalTarget.id)) {
               chainVisited.add(finalTarget.id)
-              const nextTarget = findNodeById(finalTarget.ref)
+              const nextTarget = nodeMap.get(finalTarget.ref)
               if (!nextTarget) break
               finalTarget = nextTarget
             }

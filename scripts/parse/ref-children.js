@@ -1,4 +1,3 @@
-/* eslint-disable */
 /**
  * Convert sibling and cousin refs into `refChildren` for nicer visualization.
  *
@@ -565,7 +564,6 @@ function convertSiblingAndCousinRefsToRefChildren(eventTrees) {
 
   return { totalConversions, eventsWithConversions }
 }
-
 
 module.exports = {
   convertSiblingAndCousinRefsToRefChildren,

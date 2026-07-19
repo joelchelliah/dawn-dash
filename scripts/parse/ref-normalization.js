@@ -1,4 +1,3 @@
-/* eslint-disable */
 /**
  * Post-processing passes that rewrite refs to point at the "right" node after
  * structural passes (choice separation, combat splitting) have moved content around:

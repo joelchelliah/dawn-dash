@@ -1,4 +1,3 @@
-/* eslint-disable */
 /**
  * Entry point for parsing Ink JSON from events into hierarchical tree structures.
  *
@@ -23,19 +22,31 @@ const fs = require('fs')
 const os = require('os')
 const path = require('path')
 
-const { buildIdToNameMapping } = require('../shared/card-data.js')
+const { readOrFetchIdToNameMapping } = require('../shared/card-data.js')
 
-// Suppress inkjs version warnings (our events are v21, inkjs supports v20 but works fine)
-const originalWarn = console.warn
-console.warn = (...args) => {
-  if (args[0]?.includes('Version of ink')) return
-  originalWarn.apply(console, args)
+/**
+ * Suppress the inkjs ink-version warning, which is otherwise printed once per parsed
+ * event (hundreds of lines): our events are compiled as ink v21, inkjs (pinned in
+ * package.json) supports v20 but handles them fine. Remove this once an inkjs release
+ * supports v21. All other console.warn calls pass through untouched.
+ */
+function suppressInkjsVersionWarning() {
+  const originalWarn = console.warn
+  console.warn = (...args) => {
+    if (args[0]?.includes('Version of ink')) return
+    originalWarn.apply(console, args)
+  }
 }
+suppressInkjsVersionWarning()
 
 const EVENTS_FILE = path.join(__dirname, '../data/events.json')
 const OUTPUT_FILE = path.join(__dirname, '../../src/codex/data/event-trees.json')
-const EVENT_ALTERATIONS = require('./event-alterations.js')
-const { DEFAULT_NODE_BLACKLIST, OPTIMIZATION_PASS_CONFIG } = require('./configs.js')
+const { OPTIMIZATION_PASS_CONFIG } = require('./configs.js')
+const {
+  DEFAULT_NODE_BLACKLIST,
+  EVENT_NAME_ALIASES,
+  EVENT_ALTERATIONS,
+} = require('./event-overrides.js')
 const { validateEventConfigs } = require('./config-validation.js')
 const { applyEventAlterations } = require('./apply-event-alterations.js')
 const { validateEventTreesChanges } = require('./parse-validation.js')
@@ -44,7 +55,7 @@ const {
   cleanUpRandomValues,
   normalizeAddKeywordRandomChoiceLabels,
 } = require('./random-support.js')
-const { debugConfig } = require('./debug.js')
+const { debugConfig, printParseFailureSummary } = require('./debug.js')
 const { parseInkStory, dialogueMenuHubIdsByEventName } = require('./tree-building.js')
 const {
   createNode,
@@ -89,7 +100,9 @@ function parseCliArgs(argv) {
       args.baseline = argv[++i] || null
     } else {
       console.error(`❌ Unknown argument: ${arg}`)
-      console.error('Usage: node parse-event-trees.js [--debug <event>] [--only <event>] [--dry-run] [--baseline <file>]')
+      console.error(
+        'Usage: node parse-event-trees.js [--debug <event>] [--only <event>] [--dry-run] [--baseline <file>]'
+      )
       process.exit(1)
     }
   }
@@ -167,11 +180,7 @@ function determineNameAndAlias(name, caption) {
     return { displayName: caption, alias: null }
   }
   if (nameReadable && !captionReadable) {
-    const aliasMap = {
-      'Heart of the Temple': 'Heart of Fire',
-    }
-
-    return { displayName: name, alias: aliasMap[name] || null }
+    return { displayName: name, alias: EVENT_NAME_ALIASES[name] || null }
   }
   return { displayName: caption || name, alias: null }
 }
@@ -326,8 +335,7 @@ const PIPELINE = [
   },
   {
     name: 'convertSiblingAndCousinRefsToRefChildren',
-    enabled: () =>
-      OPTIMIZATION_PASS_CONFIG.CONVERT_SIBLING_AND_COUSIN_REFS_TO_REF_CHILDREN_ENABLED,
+    enabled: () => OPTIMIZATION_PASS_CONFIG.CONVERT_SIBLING_AND_COUSIN_REFS_TO_REF_CHILDREN_ENABLED,
     banner: '🔗 Converting sibling and SIMPLE cousin refs to refChildren...',
     run: (eventTrees) => {
       const { totalConversions, eventsWithConversions } =
@@ -524,9 +532,10 @@ async function processEvents() {
   console.log(`  🌳 Total nodes across all trees: ${totalNodes}`)
   debugCheckEventPipelineState(eventTrees, 'after parse (pre-sort)')
 
-  // Fetch card/talent id->name mapping (used by the replaceCardIds pass)
-  console.log('\n🃏 Fetching card/talent data for ID replacement...')
-  const idToName = await buildIdToNameMapping()
+  // Card/talent id->name mapping (used by the replaceCardIds pass): read from the
+  // cache written by extract-events.js, falling back to a live API fetch
+  console.log('\n🃏 Loading card/talent data for ID replacement...')
+  const idToName = await readOrFetchIdToNameMapping()
 
   // Run the post-processing pipeline
   const context = { idToName, stats: {} }
@@ -555,6 +564,10 @@ async function processEvents() {
   if (alterationWarnings.length > 0) {
     alterationWarnings.forEach((warning) => console.log(`  ⚠️  ${warning}`))
   }
+
+  // Summary of non-fatal parse failures recorded during tree building (spec 11):
+  // a healthy run prints nothing here
+  printParseFailureSummary()
 
   // --only mode: merge the re-parsed event(s) into the existing output instead of replacing it
   let outputTrees = eventTrees

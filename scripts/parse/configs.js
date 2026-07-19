@@ -1,58 +1,18 @@
-/* eslint-disable */
-
-// Special-case events with dialogue menu patterns (ask questions in any order)
-// For these events, we detect when we're at a dialogue menu hub node (menuHubPattern)
-// and create refs from all children back to the hub, except for nodes matching menuExitPatterns.
-//
-// WHY WE NEED THIS:
-// Without this early detection, Rathael's factorial explosion (9! = 362,880 orderings)
-// would cause us to hit node budget limits during tree generation and create an
-// incomplete tree. This early ref creation keeps the tree small enough to finish building.
-//
-// hubChoiceMatchThreshold (optional):
-// - When OMITTED: Immediate ref creation mode
-//   * Children that don't match menuExitPatterns are converted to refs IMMEDIATELY,
-//     before building their subtrees. This prevents deep building and avoids hitting
-//     node limits, but requires that all meaningful content appears at the hub level.
-//   * Example: Rathael - all dialogue choices lead directly back to the hub, so
-//     immediate refs work perfectly.
-//
-// - When PROVIDED: Delayed hub detection mode
-//   * Children are built normally (full subtrees) to preserve intermediate content
-//     (e.g., room descriptions in Rotting Residence). After building, we check if a
-//     node's children match >= hubChoiceMatchThreshold% of the hub's original choices.
-//     If matched, that node becomes a ref back to the hub.
-//   * This allows preserving meaningful content (like room descriptions) that appears
-//     between the hub choice and the return to hub, while still collapsing the loop.
-//   * Example: Rotting Residence - choosing "Go to the Kitchen" shows a room description
-//     before returning to the hub, so we need to build that path fully first.
-//   * Note: This mode builds deeper trees, so may require higher node budgets.
-const DIALOGUE_MENU_EVENTS = {
-  'Frozen Heart': {
-    menuHubPattern: 'A rhythmic pulse fills the cave',
-    menuExitPatterns: ['Take the left tunnel', 'Take the right tunnel'],
-    // NOTE: Should actually be 0 (0/3 choices). But unfortunately that breaks the detection logic...
-    hubChoiceMatchThreshold: 30, // choices: 1/3
-    passWhenOnlyExitPatternsAvailable: true,
-  },
-  'Rathael the Slain Death': {
-    menuHubPattern: 'A chance to tangle with one of these',
-    menuExitPatterns: ['Fight: Confront the Seraph'],
-    // This is not really necessary for Rathael, but just including it for completeness
-    // Slows down the tree building process a lot though...
-    // hubChoiceMatchThreshold: 85, // choices: 7/8
-  },
-  'Suspended Cage': {
-    menuHubPattern: 'Quickly pry open the lock',
-    menuExitPatterns: ['Leave'],
-    hubChoiceMatchThreshold: 60, // choices: 2/3
-  },
-}
-
-// For the events in this list, we should not include nodes that have the
-// choiceLabel === 'default' OR text === 'default'
-// Skip those nodes along with their entire subtree.
-const DEFAULT_NODE_BLACKLIST = ['A Familiar Face']
+/**
+ * Pass toggles and tuning knobs for the parse pipeline.
+ *
+ * Per-event special-casing (dialogue-menu hubs, blacklists, validation ignore rules,
+ * aliases, manual alterations, ...) lives in event-overrides.js; the relevant
+ * structures are spread into OPTIMIZATION_PASS_CONFIG below so passes can keep
+ * reading everything from one config object.
+ */
+const {
+  DIALOGUE_MENU_EVENTS,
+  PATH_CONVERGENCE,
+  POST_PROCESSING_HUB_PATTERN_OPTIMIZATION_BLACKLIST,
+  COUSIN_REF_BLACKLIST,
+  COMPLEX_COUSIN_REF_BLACKLIST,
+} = require('./event-overrides.js')
 
 const RANDOM_KEYWORD = '«random»'
 
@@ -74,26 +34,16 @@ const OPTIMIZATION_PASS_CONFIG = {
   // - Creates refs to prevent merchant/shop loops where choices repeat.
   CHOICE_AND_PATH_LOOP_DETECTION_ENABLED: true,
 
-  // Dialogue menu hub detection (whitelisted via DIALOGUE_MENU_EVENTS):
+  // Dialogue menu hub detection (whitelisted via DIALOGUE_MENU_EVENTS in event-overrides.js):
   // - Detects "dialogue menu" hubs and collapses loops by inserting refs.
   // - With hubChoiceMatchThreshold: delayed hub return detection (build child, then ref it).
   // - Without hubChoiceMatchThreshold: immediate ref creation mode (faster, smaller trees).
   DIALOGUE_MENU_EVENTS: DIALOGUE_MENU_EVENTS,
 
-  // Path convergence early dedup (whitelisted via PATH_CONVERGENCE):
+  // Path convergence early dedup (whitelisted via PATH_CONVERGENCE in event-overrides.js):
   // - If we reach the same node state (text + choices) via different routes, create a ref.
   // - Depth-first early dedup
-  // - skipPatterns: text patterns to exclude from path convergence (let post-processing handle them)
-  PATH_CONVERGENCE: {
-    'Frozen Heart': {
-      skipPatterns: [
-        'You make your way up to the peak, only to reveal a final challenge',
-        'A large chasm greets you on the other side',
-        'A masterful illusion',
-        'The simple chamber presents two obvious choices',
-      ],
-    },
-  },
+  PATH_CONVERGENCE: PATH_CONVERGENCE,
   PATH_CONVERGENCE_DEDUP_MIN_CHOICES: 3, // Only apply to nodes with at least this many choices
 
   // === POST-PROCESSING PIPELINE ===
@@ -101,7 +51,7 @@ const OPTIMIZATION_PASS_CONFIG = {
   // these flags only toggle individual passes on/off.
   //
   // Remove nodes with `choiceLabel === 'default'` or `text === 'default'`
-  // See DEFAULT_NODE_BLACKLIST for events that should be filtered.
+  // See DEFAULT_NODE_BLACKLIST (event-overrides.js) for events that should be filtered.
   FILTER_DEFAULT_NODES_ENABLED: true,
 
   // Split mixed nodes into: choice wrapper -> outcome node (effects/text/children).
@@ -122,13 +72,9 @@ const OPTIMIZATION_PASS_CONFIG = {
   // Minimum number of choice children for hub candidates
   POST_PROCESSING_HUB_PATTERN_OPTIMIZATION_MIN_CHOICES: 3,
 
-  // All events get optimization EXCEPT those in this blacklist (known false positives)
-  POST_PROCESSING_HUB_PATTERN_OPTIMIZATION_BLACKLIST: [
-    'Frozen Heart', // FALSE POSITIVE: "You mean the amulet?" - huntress/NOT huntress choices have same direct children texts
-    'Mysterious Crates', // FALSE POSITIVE: 2 choices match hub pattern but are completely different subtrees
-    'Suspended Cage', // FALSE POSITIVE: Truth -> Imperfection -> Darkness false match
-    'The Deal', // FALSE POSITIVE: 2 potions are taken after another, but this creates a false match on the second potion
-  ],
+  // Known false positives excluded from hub-pattern optimization (event-overrides.js)
+  POST_PROCESSING_HUB_PATTERN_OPTIMIZATION_BLACKLIST:
+    POST_PROCESSING_HUB_PATTERN_OPTIMIZATION_BLACKLIST,
 
   // Structural subtree deduplication (breadth-first):
   // - Replaces structurally identical subtrees with refs, preferring shallow originals.
@@ -149,9 +95,9 @@ const OPTIMIZATION_PASS_CONFIG = {
 
   // Convert certain refs (sibling/simple cousin) into `refChildren` for nicer visualization.
   CONVERT_SIBLING_AND_COUSIN_REFS_TO_REF_CHILDREN_ENABLED: true,
-  // Some complex trees get weird horizontal spacing issues when this pass reorders parents
-  COUSIN_REF_BLACKLIST: [],
-  COMPLEX_COUSIN_REF_BLACKLIST: [],
+  // Layout-problem escape hatches for that pass (event-overrides.js)
+  COUSIN_REF_BLACKLIST: COUSIN_REF_BLACKLIST,
+  COMPLEX_COUSIN_REF_BLACKLIST: COMPLEX_COUSIN_REF_BLACKLIST,
 
   // Delete refChildren stand-in nodes that are pure copies of their target (identical on
   // every rendered field) and their parent's only child: the parent points its converging
@@ -170,30 +116,8 @@ const CONFIG = {
   NODE_BUDGET: 30000, // Max nodes to create per event
 }
 
-// Known non-deterministic content, ignored by output validation (parse-validation.js).
-// These events roll random content DURING story exploration, so their text/choiceLabel
-// values can differ between two runs of the parser with identical code and input.
-// Keyed by event name; values are text/choiceLabel prefixes to mask during comparison.
-const VALIDATION_IGNORE_RULES = {
-  // The skeleton sits against a "nearby wall" vs "nearby signpost"
-  'Fallen Soldier': ['A skeleton in highly oxidised'],
-  // The "Focus on the ..." choice labels shuffle between runs
-  'Mirror Shard': [
-    'Focus on the Blacksmith',
-    'Focus on the Forger',
-    'Focus on the Succubus',
-    'Focus on the Alchemist',
-    'Focus on the Collector',
-    'Focus on the Consul',
-    'Focus on the Necromancer',
-    'Focus on the Priestess',
-  ],
-}
-
 module.exports = {
-  DEFAULT_NODE_BLACKLIST,
   OPTIMIZATION_PASS_CONFIG,
   CONFIG,
   RANDOM_KEYWORD,
-  VALIDATION_IGNORE_RULES,
 }

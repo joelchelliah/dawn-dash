@@ -1,4 +1,3 @@
-/* eslint-disable */
 /**
  * Ink story -> hierarchical event tree building.
  *
@@ -6,10 +5,12 @@
  * with several inline optimization passes (loop detection, early deduplication,
  * dialogue-menu hub detection) to keep exploration bounded.
  */
+
+/** @typedef {import('./tree-utils.js').ParseNode} ParseNode */
 const { Story } = require('inkjs')
 
 const { OPTIMIZATION_PASS_CONFIG, CONFIG, RANDOM_KEYWORD } = require('./configs.js')
-const { debugConfig } = require('./debug.js')
+const { debugConfig, recordParseFailure } = require('./debug.js')
 const {
   splitCombatNode,
   splitDialogueOnEffects,
@@ -28,7 +29,7 @@ const { createNode, generateNodeId, resetNodeIdCounter } = require('./tree-utils
 // Deliberately accumulates across events — the entry point reads it between
 // post-processing passes to report on the --debug event's hub node.
 // All per-event mutable state lives in the ctx object created in parseInkStory.
-let dialogueMenuHubIdsByEventName = new Map()
+const dialogueMenuHubIdsByEventName = new Map()
 
 /**
  * Detect knot definitions in Ink JSON.
@@ -144,7 +145,7 @@ function detectBranchingCommand(effects) {
  * Returns a map of function names to their possible return values
  * Example: { "random": ["Recall", "Figmented", "Reliable", "Firecast", "Chain", "Memorized"] }
  */
-function parseFunctionDefinitions(inkJson) {
+function parseFunctionDefinitions(inkJson, eventName) {
   const functions = new Map()
 
   try {
@@ -169,7 +170,8 @@ function parseFunctionDefinitions(inkJson) {
       }
     }
   } catch (error) {
-    // Silently fail if parsing fails
+    // Non-fatal: random keyword rewards would degrade for this event
+    recordParseFailure('function-definition parsing', eventName, error)
   }
 
   return functions
@@ -215,7 +217,7 @@ function extractReturnValues(node, returnValues = []) {
  * Returns a map of variable names to their function name
  * Example: { "cardOne": "random", "cardTwo": "random", "cardThree": "random" }
  */
-function detectFunctionCalls(inkJson) {
+function detectFunctionCalls(inkJson, eventName) {
   const functionCalls = new Map()
 
   try {
@@ -224,7 +226,8 @@ function detectFunctionCalls(inkJson) {
       traverseForFunctionCalls(inkJson.root[0], functionCalls)
     }
   } catch (error) {
-    // Silently fail if parsing fails
+    // Non-fatal: ADDKEYWORD resolution would degrade for this event
+    recordParseFailure('function-call detection', eventName, error)
   }
 
   return functionCalls
@@ -263,9 +266,47 @@ function traverseForFunctionCalls(node, functionCalls) {
   }
 }
 
+/**
+ * Continue the story as far as it goes and collect its text, normalized identically
+ * for every caller: random GOLD/DAMAGE commands become "COMMAND:random [min - max]"
+ * (so extractEffects produces the right effect; the cleanUpRandomValues post-pass fixes
+ * "N gold" / "N damage" in text) and [kw:keyword] tags become capitalized keyword names.
+ *
+ * numContinues is the number of player clicks needed (continueCount - 1), because the
+ * first Continue() call shows the initial text automatically.
+ *
+ * Runtime errors mid-story are reported and the text collected so far is kept.
+ *
+ * @returns {{ text: string, continueCount: number, numContinues: number }}
+ */
+function collectStoryText(story, ctx) {
+  let text = ''
+  let continueCount = 0
+
+  try {
+    // Preserve newlines for proper command extraction
+    while (story.canContinue) {
+      const line = story.Continue()
+      continueCount++
+      if (line && line.trim()) {
+        let normalizedLine = normalizeRandomEffectsInLine(line, ctx.randomVars)
+        normalizedLine = normalizeKeywordTags(normalizedLine)
+        text += (text ? '\n' : '') + normalizedLine.trim()
+      }
+    }
+  } catch (error) {
+    // Some stories have runtime errors - handle gracefully
+    console.warn(`⚠️  Runtime error in "${ctx.eventName}": ${error.message}`)
+  }
+
+  return { text, continueCount, numContinues: Math.max(0, continueCount - 1) }
+}
 
 /**
  * Parse a single Ink story and build a hierarchical tree by exploring all paths
+ * @param {string} inkJsonString - The event's compiled Ink story JSON
+ * @param {string} eventName - Display name of the event (logging, per-event config)
+ * @returns {ParseNode | null} The root node, or null when parsing fails
  */
 function parseInkStory(inkJsonString, eventName) {
   try {
@@ -276,11 +317,11 @@ function parseInkStory(inkJsonString, eventName) {
     const inkJson = JSON.parse(inkJsonString)
 
     // Detect random variables before executing the story
-    const randomVars = detectRandomVariables(inkJsonString)
+    const randomVars = detectRandomVariables(inkJsonString, eventName)
 
     // Parse function definitions and detect function calls
-    const functionDefinitions = parseFunctionDefinitions(inkJson)
-    const functionCalls = detectFunctionCalls(inkJson)
+    const functionDefinitions = parseFunctionDefinitions(inkJson, eventName)
+    const functionCalls = detectFunctionCalls(inkJson, eventName)
 
     // Detect knot definitions (for events with dynamic branching like COLLECTOR)
     const knots = detectKnotDefinitions(inkJson)
@@ -391,6 +432,7 @@ function parseInkStory(inkJsonString, eventName) {
  *                       (nodesCreated, pathConvergenceStates, hubSnapshot)
  * @param {Object} path - Per-branch state: { depth, pathHash, visitedStates,
  *                        stateToNodeId, pathTextToNodeId }
+ * @returns {ParseNode | null} The subtree for the story's current position
  */
 function buildTreeFromStory(story, ctx, path) {
   const { eventName, randomVars, functionDefinitions, functionCalls, knots } = ctx
@@ -411,32 +453,7 @@ function buildTreeFromStory(story, ctx, path) {
 
   // Collect all text from the current segment FIRST
   // We need this before loop detection so we can check for text-based loops
-  let text = ''
-  let continueCount = 0
-
-  try {
-    // Continue the story until we hit choices or the end
-    // Preserve newlines for proper command extraction
-    while (story.canContinue) {
-      let line = story.Continue()
-      continueCount++
-      if (line && line.trim()) {
-        // Normalize random GOLD/DAMAGE commands to "COMMAND: random [min - max]"
-        // so extractEffects produces the right effect; cleanUpRandomValues post-pass fixes "N gold" / "N damage" in text
-        let normalizedLine = normalizeRandomEffectsInLine(line, randomVars)
-        // Normalize keyword tags like [kw:reliable] -> Reliable
-        normalizedLine = normalizeKeywordTags(normalizedLine)
-        text += (text ? '\n' : '') + normalizedLine.trim()
-      }
-    }
-  } catch (error) {
-    // Some stories have runtime errors - handle gracefully
-    console.warn(`⚠️  Runtime error in "${eventName}": ${error.message}`)
-  }
-
-  // numContinues is the number of player clicks needed (continueCount - 1)
-  // because the first Continue() call shows the initial text automatically
-  const numContinues = Math.max(0, continueCount - 1)
+  const { text, continueCount, numContinues } = collectStoryText(story, ctx)
 
   // Get current choices (i.e: child nodes) in the story.
   const choices = story.currentChoices || []
@@ -524,13 +541,6 @@ function buildTreeFromStory(story, ctx, path) {
     console.warn(`      Choices: ${choiceCount}`)
     return null
   }
-
-  // Clone tracking maps for this branch to maintain separate state per path
-  const newVisitedStates = new Set(visitedStates)
-  newVisitedStates.add(currentStateHash)
-  const newStateToNodeId = new Map(stateToNodeId)
-  // pathTextToNodeId is cloned per branch - used for cycle detection on the current root-to-leaf path.
-  const newPathTextToNodeId = new Map(pathTextToNodeId)
 
   // SPECIAL CASE: Check for branching commands BEFORE other early returns
   // Branching commands (like COLLECTOR) trigger exploration of knot definitions
@@ -633,21 +643,6 @@ function buildTreeFromStory(story, ctx, path) {
 
   const nodeId = generateNodeId()
   ctx.nodesCreated++
-
-  // Store this node ID for choice+path-based loop detection
-  if (OPTIMIZATION_PASS_CONFIG.CHOICE_AND_PATH_LOOP_DETECTION_ENABLED) {
-    newStateToNodeId.set(currentStateHash, nodeId)
-  }
-
-  // Register in path-scoped map immediately (no child sig needed - just tracks the current path for cycle detection)
-  if (
-    OPTIMIZATION_PASS_CONFIG.TEXT_LOOP_DETECTION_ENABLED &&
-    cleanedText &&
-    cleanedText.length >= textLoopMinLength &&
-    !textLoopIgnorePatterns.some((p) => cleanedText.includes(p))
-  ) {
-    newPathTextToNodeId.set(cleanedText, nodeId)
-  }
 
   // If there are no choices, this is a leaf node
   if (choices.length === 0) {
@@ -842,30 +837,14 @@ function buildTreeFromStory(story, ctx, path) {
   }
 
   // Helper function to get child's text by continuing the story
+  // (same collection + normalization as the main path, via collectStoryText)
   function getChildTextFromStory(story) {
-    let childText = ''
-    let childEffects = []
-    let childNumContinues = 0
-    try {
-      let continueCount = 0
-      while (story.canContinue) {
-        const line = story.Continue()
-        continueCount++
-        if (line && line.trim()) {
-          childText += (childText ? '\n' : '') + line.trim()
-        }
-      }
-      childNumContinues = Math.max(0, continueCount - 1)
-      const { effects: extractedEffects, cleanedText: cleanedChildText } = extractEffects(
-        childText,
-        functionDefinitions,
-        functionCalls
-      )
-      childEffects = extractedEffects
-      childText = cleanedChildText
-    } catch (error) {
-      // Handle gracefully
-    }
+    const { text: rawChildText, numContinues: childNumContinues } = collectStoryText(story, ctx)
+    const { effects: childEffects, cleanedText: childText } = extractEffects(
+      rawChildText,
+      functionDefinitions,
+      functionCalls
+    )
     return { childText, childEffects, childNumContinues }
   }
 
@@ -902,9 +881,9 @@ function buildTreeFromStory(story, ctx, path) {
         const childNode = buildTreeFromStory(story, ctx, {
           depth: depth + 1,
           pathHash,
-          visitedStates: newVisitedStates,
-          stateToNodeId: newStateToNodeId,
-          pathTextToNodeId: newPathTextToNodeId,
+          visitedStates,
+          stateToNodeId,
+          pathTextToNodeId,
         })
 
         if (childNode) {
@@ -937,9 +916,9 @@ function buildTreeFromStory(story, ctx, path) {
     const childNode = buildTreeFromStory(story, ctx, {
       depth: depth + 1,
       pathHash,
-      visitedStates: newVisitedStates,
-      stateToNodeId: newStateToNodeId,
-      pathTextToNodeId: newPathTextToNodeId,
+      visitedStates,
+      stateToNodeId,
+      pathTextToNodeId,
     })
 
     if (childNode) {
@@ -1056,6 +1035,35 @@ function buildTreeFromStory(story, ctx, path) {
     })
   }
 
+  // PATH-SCOPED TRACKING VIA BACKTRACKING (instead of cloning):
+  // visitedStates / stateToNodeId / pathTextToNodeId are strictly path-scoped and only
+  // read inside the recursion below, so instead of cloning all three per recursion step
+  // (O(pathLength) copying per node), we register this node's entries before exploring
+  // children and remove them again after the loop — same semantics, zero copies.
+  // pathTextToNodeId may shadow an ancestor's entry (registration doesn't check node
+  // type, the cycle check does), so the previous value is restored on backtrack.
+  const insertedVisitedState = !visitedStates.has(currentStateHash)
+  if (insertedVisitedState) {
+    visitedStates.add(currentStateHash)
+  }
+
+  // Store this node ID for choice+path-based loop detection
+  const insertedStateToNodeId = OPTIMIZATION_PASS_CONFIG.CHOICE_AND_PATH_LOOP_DETECTION_ENABLED
+  if (insertedStateToNodeId) {
+    stateToNodeId.set(currentStateHash, nodeId)
+  }
+
+  // Register in path-scoped map (tracks the current root-to-leaf path for cycle detection)
+  const insertedPathText =
+    OPTIMIZATION_PASS_CONFIG.TEXT_LOOP_DETECTION_ENABLED &&
+    cleanedText &&
+    cleanedText.length >= textLoopMinLength &&
+    !textLoopIgnorePatterns.some((p) => cleanedText.includes(p))
+  const previousPathTextNodeId = insertedPathText ? pathTextToNodeId.get(cleanedText) : undefined
+  if (insertedPathText) {
+    pathTextToNodeId.set(cleanedText, nodeId)
+  }
+
   for (let i = 0; i < choices.length; i++) {
     const choice = choices[i]
     const { requirements, cleanedText: choiceText } = extractChoiceMetadata(choice.text)
@@ -1084,6 +1092,21 @@ function buildTreeFromStory(story, ctx, path) {
     story.state.LoadJson(savedState)
   }
 
+  // Backtrack: remove this node's path-scoped entries now that all children are built
+  if (insertedVisitedState) {
+    visitedStates.delete(currentStateHash)
+  }
+  if (insertedStateToNodeId) {
+    stateToNodeId.delete(currentStateHash)
+  }
+  if (insertedPathText) {
+    if (previousPathTextNodeId !== undefined) {
+      pathTextToNodeId.set(cleanedText, previousPathTextNodeId)
+    } else {
+      pathTextToNodeId.delete(cleanedText)
+    }
+  }
+
   // POST-EFFECT DIALOGUE SEPARATION & POSTCOMBAT/AFTERCOMBAT SEPARATION
   // Use helper functions from node-splitting.js
   // These functions split on the ORIGINAL text to find effect markers, but return cleaned text
@@ -1092,7 +1115,7 @@ function buildTreeFromStory(story, ctx, path) {
   let finalText = cleanedText
   let finalChildren = children
   let finalEffects = effects
-  let finalNumContinues = Math.max(0, continueCount - 1)
+  let finalNumContinues = numContinues
 
   // Try dialogue splitting first (for mid-dialogue effects)
   if (type === 'dialogue' && text && effects.length > 0 && continueCount > 1) {
@@ -1235,6 +1258,11 @@ function extractChoiceMetadata(choiceText) {
  * - 'special': Type for special game mechanics (e.g., CARDPUZZLE)
  *              that require external handling.
  *  - 'result': Direct children of special nodes containing the result.
+ *
+ * NOTE: empty text returns 'choice' as a *provisional* type — at this point the node is
+ * just a bare choice wrapper with no dialogue of its own. Most call-site paths overwrite
+ * it later (leaf handling turns it into 'end', splitting passes assign the real type);
+ * it is not the final 'choice' node type that separateChoicesFromEffects produces.
  */
 function determineNodeType(text, isLeaf) {
   if (!text) return 'choice'
@@ -1251,7 +1279,6 @@ function determineNodeType(text, isLeaf) {
   // Otherwise it's dialogue
   return 'dialogue'
 }
-
 
 module.exports = {
   parseInkStory,

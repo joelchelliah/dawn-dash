@@ -1,10 +1,13 @@
-/* eslint-disable */
 /**
  * Small standalone post-processing passes:
  * - checkInvalidRefs: report refs pointing to non-existent nodes (logging only)
  * - replaceCardIdsInNode: replace numeric card/talent IDs with names in text/labels/effects
  * - filterDefaultNodes: drop 'default' nodes (and their subtrees) for blacklisted events
  */
+
+/** @typedef {import('./tree-utils.js').ParseNode} ParseNode */
+const { CARD_ID_COMMANDS } = require('../shared/card-data.js')
+
 const { debugConfig } = require('./debug.js')
 const { buildNodeMapForTree, findInvalidRefsInTree } = require('./tree-utils.js')
 
@@ -38,7 +41,7 @@ function checkInvalidRefs(eventTrees) {
     )
     console.warn('  Events:', eventsWithInvalidRefs.map((e) => e.name).join(', '))
     console.log('\n  Invalid refs by event (identity = choiceLabel or text):')
-    eventsWithInvalidRefs.forEach(({ name, invalidRefs, examples }) => {
+    eventsWithInvalidRefs.forEach(({ name, examples }) => {
       console.log(`    "${name}":`)
       examples.forEach(({ nodeId, refTarget, identity }) => {
         const short = identity.length > 80 ? identity.slice(0, 77) + '...' : identity
@@ -72,17 +75,18 @@ function checkInvalidRefs(eventTrees) {
   }
 }
 
+// Effect patterns for commands that take card/talent IDs as values
+// (precompiled once - replaceEffect runs for every effect string in every tree)
+const CARD_ID_EFFECT_PATTERNS = CARD_ID_COMMANDS.map((cmd) => ({
+  cmd,
+  re: new RegExp(`^(${cmd}):\\s*(\\d+)$`, 'i'),
+}))
 
-// Commands that take card/talent IDs as values (replace numeric ID with name)
-const CARD_ID_COMMANDS = [
-  'AREAEFFECT',
-  'ADDCARD',
-  'REMOVECARD',
-  'IMBUECARD',
-  'ADDTALENT',
-  'REMOVETALENT',
-]
-
+/**
+ * @param {ParseNode} node
+ * @param {Record<number, string>} idToName
+ * @param {{ replaced: number }} [stats]
+ */
 function replaceCardIdsInNode(node, idToName, stats = { replaced: 0 }) {
   if (!node) return stats
 
@@ -100,8 +104,7 @@ function replaceCardIdsInNode(node, idToName, stats = { replaced: 0 }) {
 
   const replaceEffect = (effect) => {
     if (typeof effect !== 'string') return effect
-    for (const cmd of CARD_ID_COMMANDS) {
-      const re = new RegExp(`^(${cmd}):\\s*(\\d+)$`, 'i')
+    for (const { cmd, re } of CARD_ID_EFFECT_PATTERNS) {
       const m = effect.match(re)
       if (m) {
         const name = idToName[Number(m[2])]
@@ -127,10 +130,10 @@ function replaceCardIdsInNode(node, idToName, stats = { replaced: 0 }) {
   return stats
 }
 
-
 /**
  * Filter out nodes with 'default' text or choiceLabel for specific events
  * Removes the node and its entire subtree
+ * @param {ParseNode} node
  */
 function filterDefaultNodes(node) {
   if (!node || !node.children) return
@@ -156,7 +159,6 @@ function filterDefaultNodes(node) {
 
   node.children = filteredChildren
 }
-
 
 module.exports = {
   checkInvalidRefs,

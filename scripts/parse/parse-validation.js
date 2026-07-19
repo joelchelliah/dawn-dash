@@ -1,4 +1,3 @@
-/* eslint-disable */
 /**
  * Structural validation of event-trees.json changes.
  *
@@ -9,7 +8,7 @@
  *    - `id` fields are stripped (node ids legitimately renumber every run)
  *    - each `ref` / `refChildren` value is replaced with a DESCRIPTOR of its target node
  *      (masked text/choiceLabel + path from the root) instead of the numeric id
- *    - known non-deterministic text (VALIDATION_IGNORE_RULES in configs.js) is masked
+ *    - known non-deterministic text (VALIDATION_IGNORE_RULES in event-overrides.js) is masked
  * 2. The normalized trees are deep-compared per event.
  *
  * The target descriptors are the key correctness property: id renumbering stays invisible,
@@ -20,7 +19,7 @@ const { execSync } = require('child_process')
 const fs = require('fs')
 const path = require('path')
 
-const { VALIDATION_IGNORE_RULES } = require('./configs.js')
+const { VALIDATION_IGNORE_RULES } = require('./event-overrides.js')
 
 const MASKED_VALUE = '«nondeterministic»'
 
