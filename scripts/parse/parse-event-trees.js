@@ -59,7 +59,10 @@ const {
   promoteShallowDialogueMenuHub,
 } = require('./ref-normalization.js')
 const { deduplicateAllTrees } = require('./deduplication.js')
-const { convertSiblingAndCousinRefsToRefChildren } = require('./ref-children.js')
+const {
+  convertSiblingAndCousinRefsToRefChildren,
+  hoistPureStandInRefNodes,
+} = require('./ref-children.js')
 const { checkInvalidRefs, replaceCardIdsInNode, filterDefaultNodes } = require('./misc-passes.js')
 const {
   detectAndOptimizeDialogueMenuHubs,
@@ -268,25 +271,18 @@ const PIPELINE = [
   {
     // Structural deduplication of identical subtrees (runs AFTER hub optimization passes)
     name: 'deduplicateAllTrees',
-    enabled: () => OPTIMIZATION_PASS_CONFIG.DEDUPLICATE_SUBTREES_NUM_ITERATIONS > 0,
+    enabled: () => OPTIMIZATION_PASS_CONFIG.DEDUPLICATE_SUBTREES_ENABLED,
     run: (eventTrees, context) => {
       context.stats.nodesBeforeDedupe = eventTrees.reduce(
         (sum, tree) => sum + countNodes(tree.rootNode),
         0
       )
-      const iterations = Math.max(0, OPTIMIZATION_PASS_CONFIG.DEDUPLICATE_SUBTREES_NUM_ITERATIONS)
-      console.log(
-        `\n🔄 Deduplicating subtrees... (${iterations} pass${iterations === 1 ? '' : 'es'})`
-      )
-      const { totalDuplicates, totalNodesRemoved, eventsWithDedupe, iterationsRun } =
-        deduplicateAllTrees(eventTrees, iterations)
+      console.log(`\n🔄 Deduplicating subtrees...`)
+      const { totalDuplicates, totalNodesRemoved, eventsWithDedupe, passesRun } =
+        deduplicateAllTrees(eventTrees)
       console.log(`  Replaced ${totalDuplicates} duplicate subtrees`)
       console.log(`  Reduced node count by ${totalNodesRemoved}`)
-      if (iterationsRun !== iterations) {
-        console.log(
-          `  Stopped early after ${iterationsRun} pass${iterationsRun === 1 ? '' : 'es'} (no more nodes pruned)`
-        )
-      }
+      console.log(`  Converged after ${passesRun} pass${passesRun === 1 ? '' : 'es'}`)
 
       if (eventsWithDedupe.length > 0 && debugConfig.eventName.length > 0) {
         console.log(`\n  Events with deduplication:`)
@@ -341,6 +337,23 @@ const PIPELINE = [
         console.log(`\n  Events with conversions:`)
         eventsWithConversions.forEach(({ name, conversions }) => {
           console.log(`    - "${name}": ${conversions} sibling refs converted`)
+        })
+      }
+    },
+  },
+  {
+    // Delete pure stand-in refChildren nodes (identical copy of the target, only child):
+    // the parent's converging line goes directly to the original node instead.
+    name: 'hoistPureStandInRefNodes',
+    enabled: () => OPTIMIZATION_PASS_CONFIG.HOIST_PURE_STAND_IN_REF_NODES_ENABLED,
+    banner: '🪝 Hoisting pure stand-in refChildren nodes...',
+    run: (eventTrees) => {
+      const { totalHoists, eventsWithHoists } = hoistPureStandInRefNodes(eventTrees)
+      console.log(`  Hoisted ${totalHoists} stand-in node(s)`)
+      if (eventsWithHoists.length > 0 && debugConfig.eventName.length > 0) {
+        console.log(`\n  Events with hoists:`)
+        eventsWithHoists.forEach(({ name, hoists }) => {
+          console.log(`    - "${name}": ${hoists} stand-in(s) hoisted`)
         })
       }
     },

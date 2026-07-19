@@ -139,9 +139,42 @@ Notes:
 
 ---
 
-## 4. Replace depth-limited structural dedup with bottom-up subtree hashing
+## 4. Replace depth-limited structural dedup with bottom-up subtree hashing — ✅ COMPLETED
 
 **Impact: 🔴 High (correctness + performance) · Effort: 🟡 Medium**
+
+> Implementation notes: duplicate detection is *rendering equivalence*, not literal tree
+> equality — build-time loop detection routinely produces one expanded copy of a subtree
+> and sibling copies made of refs INTO it, which must merge (e.g. Trapped In Amber's two
+> paths to the same demon dialogue). Two mechanisms compose:
+> 1. Exact bottom-up hash-consing (interning): a node's key contains its children's
+>    already-interned ids, so equal ids are *provably* identical subtrees — used as the
+>    fast path, no collision case to handle.
+> 2. `nodesEquivalent`, a cycle-safe ref-resolving structural comparison (graph
+>    bisimulation, coinductive pair-memo): a ref node is equivalent to the expansion it
+>    points at (self-copy refs continue at the target's children, continuation refs at
+>    the target itself). Candidates are grouped by root text/choiceLabel/type and checked
+>    pairwise against recorded originals, with the hash as a per-pair short-circuit.
+>
+> The merge exempts the candidate root's own requirements/effects/numContinues — those
+> survive on the ref node and are rendered there (requirements are path-dependent: two
+> copies of the same shared future can be gated differently). Deeper nodes are exact on
+> ALL fields, including numContinues, which the old signature never compared even though
+> the renderer shows it as "⏭️ Continues: N". `NUM_ITERATIONS` was replaced by looping
+> until a pass removes nothing; `SIGNATURE_DEPTH`, the empty `EVENT_BLACKLIST`, and
+> `getDescendantCountAtDepth` are gone, and `DEDUPLICATE_SUBTREES_ENABLED` is the new
+> toggle. The pass now also skips descendants of already-collapsed subtrees — the old
+> stats ("447 duplicates / 3176 nodes removed") were inflated by re-processing
+> unreachable nodes; the honest figures are 107 / 1011.
+>
+> Verified with spec 7's structural validator: 11 events changed, each reviewed.
+> Mysterious Crates (+23 nodes) restores genuinely different content the old pass falsely
+> merged (its depth-3 signature never saw the difference). The other 10 all shrink:
+> equivalence-based merges the old pass missed (Count Vesparin, Damsel in Distress,
+> Emberwyld Heights Finish, Entwined Statue, Frozen Heart, Heart of the Temple, Noxlight
+> Swamp Finish, Suspended Cage, The Boneyard, The Defiled Sanctum Start) — typically a
+> duplicated intermediate node whose children were only ref stubs into the expanded copy,
+> now collapsed to a single ref. Net: 3928 → 3909 nodes, zero invalid refs.
 
 `deduplicateEventTree` has two structural weaknesses:
 
@@ -272,9 +305,19 @@ normalization, rather than hardcoded strings in the diff walker. Also fixes the
 
 ---
 
-## 8. Merge the three cousin-ref conversion functions
+## 8. Merge the three cousin-ref conversion functions — ✅ COMPLETED
 
 **Impact: 🟡 Medium (maintainability) · Effort: 🟡 Medium**
+
+> Implementation notes: extracted `buildParentAndNodeMaps` and
+> `findCommonSiblingAncestor`, plus one shared `findConvertibleCousinRefs` scan whose
+> entries carry single-child flags; the two cousin converters became strategy functions
+> filtering that one scan (mutually exclusive filters, so no ref converts twice). One
+> up-front scan is safe because conversions never change parentage — only sibling order
+> and `ref` → `refChildren`. The sibling converter was kept as its own traversal (it
+> shared no code with the cousin pair; the ~120 duplicated lines were between the two
+> cousin functions). Pure refactor: validated zero-diff against a pre-change snapshot,
+> same 84 conversions.
 
 `convertCousinRefsInTree` and `convertNonSingleChildCousinRefsInTree` duplicate ~120 lines
 verbatim: the `buildMaps` parent/node map builder and the entire "walk up both ancestor chains to
@@ -434,6 +477,60 @@ cheaply and this spec can be skipped indefinitely.
 - The `resolveTransitiveRefs` helper in `post-processing-hub-pattern-optimization.js` does a
   full-tree BFS (`findNodeById`) per ref lookup — use the node map that already exists in that
   scope (subsumed by spec 1's `tree-utils.js`).
+
+---
+
+## 16. Hoist pure stand-in ref nodes — ✅ COMPLETED
+
+**Impact: 🟢 Low-Medium (visualization) · Effort: 🟢 Low**
+
+Follow-up from verifying spec 4 (requested during review of Damsel in Distress).
+Deduplication leaves each duplicate as a stand-in node carrying the link (a tree node has
+exactly one parent, so the second occurrence must exist to hold the ref), and pass 10
+converts nearby links to `refChildren`. When such a stand-in is a *pure copy* of the node
+it stands for — identical text/type/choiceLabel/requirements/effects/numContinues — and is
+its parent's only child, the stand-in is redundant: the new `hoistPureStandInRefNodes`
+pass (pass 11, `HOIST_PURE_STAND_IN_REF_NODES_ENABLED`) deletes it and points the parent's
+`refChildren` directly at the original node, so the converging line skips the duplicate.
+
+> Implementation notes: only `refChildren` stand-ins are hoisted — `ref` (jump-link)
+> stand-ins stay, since converging lines to distant targets are the layout problem the
+> cousin blacklists exist for. Guards: the stand-in must not be referenced by any other
+> ref/refChildren, all its refChildren targets must share one parent (the original), and
+> the pass loops until stable to catch chains. Removed 35 stand-in nodes across 20 events.
+> Choice nodes with `refChildren` already existed (30 in the previous output), so this
+> creates no new rendering shape.
+
+---
+
+## 17. Merge duplicate combat nodes (post-alteration dedup)
+
+**Impact: 🟢 Low-Medium (visualization) · Effort: 🟢 Low-Medium**
+
+Spotted while visually verifying spec 4/16 output (Frozen Heart): events that get boss
+transitions via `event-alterations.js` render several identical combat nodes — same text,
+same `COMBAT: …` effect, each with an identical `GOTO EVENT: … Death` child (Frozen Heart
+has 5 redundant "Such bravado!" / Battleseer Hildune copies). As of the spec 4 output,
+18 such redundant copies exist across 8 events (Frozen Heart, Abandoned Village, The
+Silent Reliquary Start, Count Vesparin, The Chieftain, and the three Sanctum Starts).
+
+Why deduplication misses them: at dedup time (pass 7) these combat nodes are **leaves** —
+their `GOTO EVENT` child is only added by `applyEventAlterations` (pass 12) — and leaves
+are never dedup candidates (nor would size 2 pass `DEDUPLICATE_SUBTREES_MIN_SUBTREE_SIZE`).
+
+Proposed: a small merge step after `applyEventAlterations` that collapses identical combat
+subtrees (same text/requirements/effects and structurally identical children) into
+refs/`refChildren` to the shallowest copy, like the dialogue-node treatment from specs 4
+and 16. Things to resolve during implementation:
+
+- `normalizeRefsPointingToCombatNodes` (pass 9) deliberately rewrites refs aimed at
+  *split* combat nodes to their postcombat dialogue child. It runs earlier, so it won't
+  undo the new refs, but the design intent ("don't ref a combat wrapper") should be
+  checked against this case — the boss-transition combat nodes are not split wrappers.
+- Whether a jump-link `ref` or converging `refChildren` looks right likely depends on
+  distance, same as pass 10's sibling/cousin rules; distant copies (Frozen Heart's are in
+  far-apart branches) may want to stay as jump links.
+- Renderer handling of refs pointing at combat nodes needs a visual check.
 
 ---
 

@@ -29,10 +29,6 @@ function collectConfiguredEventNames() {
     },
     { source: 'configs.js COUSIN_REF_BLACKLIST', names: cfg.COUSIN_REF_BLACKLIST },
     { source: 'configs.js COMPLEX_COUSIN_REF_BLACKLIST', names: cfg.COMPLEX_COUSIN_REF_BLACKLIST },
-    {
-      source: 'configs.js DEDUPLICATE_SUBTREES_EVENT_BLACKLIST',
-      names: cfg.DEDUPLICATE_SUBTREES_EVENT_BLACKLIST,
-    },
     { source: 'configs.js VALIDATION_IGNORE_RULES', names: Object.keys(VALIDATION_IGNORE_RULES) },
     { source: 'event-alterations.js', names: EVENT_ALTERATIONS.map((a) => a.name) },
   ]

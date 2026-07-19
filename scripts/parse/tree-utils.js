@@ -136,20 +136,6 @@ function getMaxDepth(node, currentDepth = 0) {
   return Math.max(...node.children.map((child) => getMaxDepth(child, currentDepth + 1)))
 }
 
-/**
- * Get descendant count at a specific depth for a node
- * @param {Object} node - The node to check
- * @param {number} depth - How many levels down to count (1 = children, 2 = grandchildren, etc.)
- * @returns {number} Count of descendants at the specified depth
- */
-function getDescendantCountAtDepth(node, depth) {
-  if (depth <= 0 || !node.children || node.children.length === 0) return 0
-  if (depth === 1) return node.children.length
-  // For depth > 1, sum up descendants at that depth from all children
-  return node.children.reduce((sum, child) => sum + getDescendantCountAtDepth(child, depth - 1), 0)
-}
-
-
 module.exports = {
   generateNodeId,
   resetNodeIdCounter,
@@ -158,5 +144,4 @@ module.exports = {
   findInvalidRefsInTree,
   countNodes,
   getMaxDepth,
-  getDescendantCountAtDepth,
 }

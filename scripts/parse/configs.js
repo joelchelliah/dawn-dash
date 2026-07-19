@@ -133,15 +133,11 @@ const OPTIMIZATION_PASS_CONFIG = {
   // Structural subtree deduplication (breadth-first):
   // - Replaces structurally identical subtrees with refs, preferring shallow originals.
   // - Runs AFTER hub optimization passes to let semantic detection handle dialogue patterns first.
-  // - Multiple iterations catch cascading duplicates that appear after first-pass deduplication.
-  DEDUPLICATE_SUBTREES_NUM_ITERATIONS: 2,
+  // - Identity is exact (bottom-up subtree hashing, all depths); passes repeat until no
+  //   more duplicates are found, since a collapsed duplicate can make its ancestor match
+  //   a subtree that already contained an equivalent ref.
+  DEDUPLICATE_SUBTREES_ENABLED: true,
   DEDUPLICATE_SUBTREES_MIN_SUBTREE_SIZE: 3, // Only dedupe if subtree has at least this many nodes
-  // How many levels deep to include in the signature for deduplication comparison.
-  // Depth 1 = immediate children only, 2 = children + grandchildren, 3 = + great-grandchildren, etc.
-  // Higher values catch more structural differences but have minimal performance impact.
-  DEDUPLICATE_SUBTREES_SIGNATURE_DEPTH: 3,
-  // TODO: This can probably be removed now?
-  DEDUPLICATE_SUBTREES_EVENT_BLACKLIST: [],
 
   // Rewrite refs so non-choice nodes never target a choice wrapper node.
   // E.g. a dialogue node's ref shouldn't point to a choice wrapper node, but rather the outcome node.
@@ -156,6 +152,11 @@ const OPTIMIZATION_PASS_CONFIG = {
   // Some complex trees get weird horizontal spacing issues when this pass reorders parents
   COUSIN_REF_BLACKLIST: [],
   COMPLEX_COUSIN_REF_BLACKLIST: [],
+
+  // Delete refChildren stand-in nodes that are pure copies of their target (identical on
+  // every rendered field) and their parent's only child: the parent points its converging
+  // line directly at the original node instead.
+  HOIST_PURE_STAND_IN_REF_NODES_ENABLED: true,
 
   // Validate refs (detect refs pointing to missing nodes) and log warnings.
   CHECK_INVALID_REFS_ENABLED: true,

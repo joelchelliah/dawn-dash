@@ -21,7 +21,7 @@ scripts/data/events.json         (each event's `text` = a compiled Ink story)
         │
         │  scripts/parse/parse-event-trees.js          <── THIS FOLDER
         │  1. tree building: replay every story path with the inkjs runtime
-        │  2. post-processing: the PIPELINE pass registry (14 passes)
+        │  2. post-processing: the PIPELINE pass registry (15 passes)
         │  3. validation: diff output vs baseline, ignore known noise
         ▼
 src/codex/data/event-trees.json  (183 trees, ~4k nodes, statically imported)
@@ -44,7 +44,7 @@ and restoring story state to explore every choice.
 | `node-splitting.js` | Effect extraction (`>>>>COMMAND`), text cleaning, combat/dialogue/choice splitting |
 | `random-support.js` | Random value detection (`RANDOM(min, max)`) and normalization to `«random»` |
 | `ref-normalization.js` | Rewrite refs to point at the "right" node after structural passes move content |
-| `deduplication.js` | Structural subtree dedup (identical subtrees → refs) |
+| `deduplication.js` | Structural subtree dedup (rendering-equivalent subtrees → refs; exact hashing + ref-resolving equivalence) |
 | `ref-children.js` | Sibling/cousin refs → `refChildren` (renders as converging lines) |
 | `misc-passes.js` | Invalid-ref check, card-id replacement, default-node filtering |
 | `post-processing-hub-pattern-optimization.js` | Config-free BFS detection of dialogue-menu hubs |
@@ -123,14 +123,15 @@ Current order:
 | 4 | `normalizeAddKeywordRandomChoiceLabels` | Labels showing one rolled keyword → "Add «random»" |
 | 5 | `promoteShallowDialogueMenuHub` | Make the shallowest hub copy canonical, rewire refs to it |
 | 6 | `detectAndOptimizeDialogueMenuHubs` | Config-free BFS hub detection for loops the inline pass missed |
-| 7 | `deduplicateAllTrees` | Identical subtrees anywhere → refs to the shallowest occurrence |
+| 7 | `deduplicateAllTrees` | Rendering-equivalent subtrees anywhere → refs to the shallowest occurrence. Equivalence resolves refs (a ref stub matches the expansion it points at) via a cycle-safe comparison, fast-pathed by exact bottom-up subtree hashing; the duplicate's own requirements/effects/numContinues may differ (they survive on the ref node); repeats until no pass finds anything |
 | 8 | `normalizeRefsPointingToChoiceNodes` | Refs to choice wrappers → the outcome node instead |
 | 9 | `normalizeRefsPointingToCombatNodes` | Refs to split combat nodes → the postcombat dialogue child |
 | 10 | `convertSiblingAndCousinRefsToRefChildren` | Nearby refs → `refChildren` + sibling reordering |
-| 11 | `applyEventAlterations` | Manual per-event fixes (puzzles, boss-death transitions, …) |
-| 12 | `checkInvalidRefs` | Sanity check: every ref points at an existing node |
-| 13 | `cleanUpRandomValues` | "You gain 12 gold" → "You gain «random» gold" where rolled |
-| 14 | `replaceCardIds` | Leftover numeric `[cardid=123]` → card names |
+| 11 | `hoistPureStandInRefNodes` | Stand-in refChildren nodes that are pure copies of their target (and only children) are deleted; the parent's converging line goes directly to the original |
+| 12 | `applyEventAlterations` | Manual per-event fixes (puzzles, boss-death transitions, …) |
+| 13 | `checkInvalidRefs` | Sanity check: every ref points at an existing node |
+| 14 | `cleanUpRandomValues` | "You gain 12 gold" → "You gain «random» gold" where rolled |
+| 15 | `replaceCardIds` | Leftover numeric `[cardid=123]` → card names |
 
 Why choice separation (pass 3) matters for rendering — before and after:
 
