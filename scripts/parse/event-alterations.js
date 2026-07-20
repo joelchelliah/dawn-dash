@@ -37,6 +37,7 @@
  *   - type: 'end' - Change the node type
  *   - refCreate: 'text' - Create a ref to a node matching this text/choiceLabel
  *   - refCreateStartsWith: 'text' - Create a ref to first node whose text/choiceLabel starts with
+ *   - moveToEnd: true - Reposition the node to be the last child of its parent
  *
  * Creating refs within alterations (refTarget/refSource):
  * Since alterations run after all optimizations, node IDs are unpredictable.
@@ -45,6 +46,8 @@
  * - refSource: Will be converted to ref: <node_id> pointing to the refTarget node (e.g., refSource: 1)
  * - refCreate: Will be converted to ref: <node_id> pointing to the node that matches this text,
  *              in either text or choiceLabel, and has no ref of its own (it's the original node).
+ * - refChildrenCreate: Same lookup as refCreate, but sets refChildren: [<node_id>] instead of
+ *                      ref: <node_id> (the node stands in for the target's children, not itself).
  *
  * Node structure fields:
  * - type: Node type ("dialogue", "choice", "combat", "end", "special")
@@ -416,6 +419,22 @@ module.exports = [
       {
         find: { requirement: 'COLLECTOR: g-0' },
         removeNode: true,
+      },
+      // Move Legendary last so the new Valuable node (added right after, below) renders next to it
+      {
+        find: { requirement: 'COLLECTOR: Legendary' },
+        modifyNode: {
+          moveToEnd: true,
+        },
+      },
+      // Valuable rarity shares the same reward as Legendary
+      {
+        find: { textOrLabel: 'Hand over a card' },
+        addChild: {
+          type: 'result',
+          requirements: ['COLLECTOR: Valuable'],
+          refChildrenCreate: '"Marvelous! What a gem',
+        },
       },
     ],
   },

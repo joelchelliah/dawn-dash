@@ -144,12 +144,16 @@ function applyEventAlterations(rootNode, alterations, generateNodeId, warnings =
           }
 
           // Resolve refCreate nodes to actual refs (search the entire tree)
-          for (const { node, refCreate } of refCreateNodes) {
+          for (const { node, refCreate, asRefChildren } of refCreateNodes) {
             const candidates = findNodesByTextOrChoiceLabel(rootNode, refCreate)
             // Find the first candidate that doesn't have a ref (it's the original node)
             const targetNode = candidates.find((candidate) => candidate.ref === undefined)
             if (targetNode) {
-              node.ref = targetNode.id
+              if (asRefChildren) {
+                node.refChildren = [targetNode.id]
+              } else {
+                node.ref = targetNode.id
+              }
             } else {
               warn(
                 `refCreate "${refCreate}" did not find a matching node without a ref for node ${node.id}`
@@ -198,10 +202,16 @@ function applyEventAlterations(rootNode, alterations, generateNodeId, warnings =
           const targetId = refTargetMap[refSource]
           if (targetId !== undefined) n.ref = targetId
         }
-        for (const { node: n, refCreate } of refCreateNodes) {
+        for (const { node: n, refCreate, asRefChildren } of refCreateNodes) {
           const candidates = findNodesByTextOrChoiceLabel(rootNode, refCreate)
           const target = candidates.find((c) => c.ref === undefined)
-          if (target) n.ref = target.id
+          if (target) {
+            if (asRefChildren) {
+              n.refChildren = [target.id]
+            } else {
+              n.ref = target.id
+            }
+          }
         }
 
         match.children = newChildren
@@ -348,6 +358,14 @@ function applyEventAlterations(rootNode, alterations, generateNodeId, warnings =
           }
         }
 
+        // Handle moveToEnd: reposition this node to be the last child of its parent
+        if (modifyNode.moveToEnd) {
+          const moved = moveNodeToEndOfParent(rootNode, node.id)
+          if (!moved) {
+            warn(`moveToEnd: could not find parent of node ${node.id} to reposition it`)
+          }
+        }
+
         appliedCount++
       }
     }
@@ -379,12 +397,16 @@ function applyEventAlterations(rootNode, alterations, generateNodeId, warnings =
           }
 
           // Resolve refCreate nodes to actual refs (search the entire tree)
-          for (const { node: childNode, refCreate } of refCreateNodes) {
+          for (const { node: childNode, refCreate, asRefChildren } of refCreateNodes) {
             const candidates = findNodesByTextOrChoiceLabel(rootNode, refCreate)
             // Find the first candidate that doesn't have a ref (it's the original node)
             const targetNode = candidates.find((candidate) => candidate.ref === undefined)
             if (targetNode) {
-              childNode.ref = targetNode.id
+              if (asRefChildren) {
+                childNode.refChildren = [targetNode.id]
+              } else {
+                childNode.ref = targetNode.id
+              }
             } else {
               warn(
                 `refCreate "${refCreate}" did not find a matching node without a ref for node ${childNode.id}`
@@ -423,6 +445,29 @@ function removeNodeFromParent(node, nodeIdToRemove) {
   // Recursively search in children
   for (const child of node.children) {
     if (removeNodeFromParent(child, nodeIdToRemove)) {
+      return true
+    }
+  }
+
+  return false
+}
+
+/**
+ * Move a node to be the last child of its parent's children array.
+ * Returns true if the node was found and repositioned, false otherwise.
+ */
+function moveNodeToEndOfParent(node, nodeIdToMove) {
+  if (!node || !node.children) return false
+
+  const childIndex = node.children.findIndex((child) => child.id === nodeIdToMove)
+  if (childIndex !== -1) {
+    const [child] = node.children.splice(childIndex, 1)
+    node.children.push(child)
+    return true
+  }
+
+  for (const child of node.children) {
+    if (moveNodeToEndOfParent(child, nodeIdToMove)) {
       return true
     }
   }
@@ -684,6 +729,12 @@ function createNodeFromAlterationSpec(
   // Handle refCreate: mark this node for later ref resolution by searching the tree
   if (spec.refCreate !== undefined) {
     refCreateNodes.push({ node, refCreate: spec.refCreate })
+  }
+
+  // Handle refChildrenCreate: mark this node for later refChildren resolution by searching
+  // the tree for a node matching the text/choiceLabel, then pointing refChildren at its id
+  if (spec.refChildrenCreate !== undefined) {
+    refCreateNodes.push({ node, refCreate: spec.refChildrenCreate, asRefChildren: true })
   }
 
   // Recursively create children

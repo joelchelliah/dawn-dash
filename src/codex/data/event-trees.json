@@ -4043,7 +4043,7 @@
           "choiceLabel": "What do you want?",
           "children": [
             {
-              "id": 14696,
+              "id": 53,
               "text": "\"It is very simple really. You hand over one of your precious cards. I assess its actual value and reward you accordingly. It is something we in the business like to call a 'trade'.\"",
               "type": "dialogue",
               "ref": 0
@@ -4108,23 +4108,6 @@
                   "effects": [
                     "ADDCARD: Goldstrike",
                     "HEALPERCENTAGE: 100"
-                  ]
-                }
-              ]
-            },
-            {
-              "id": 34,
-              "type": "result",
-              "requirements": [
-                "COLLECTOR: Legendary"
-              ],
-              "children": [
-                {
-                  "id": 33,
-                  "text": "\"Marvelous! What a gem you’ve found! I can only repay this with this Elixir I found not too long ago. It is rumored to unlock some untapped potential deep within you. Take it, take it! Well earned my friend.\"",
-                  "type": "end",
-                  "effects": [
-                    "ADDTALENT: random"
                   ]
                 }
               ]
@@ -4214,6 +4197,33 @@
                   ]
                 }
               ]
+            },
+            {
+              "id": 34,
+              "type": "result",
+              "requirements": [
+                "COLLECTOR: Legendary"
+              ],
+              "children": [
+                {
+                  "id": 33,
+                  "text": "\"Marvelous! What a gem you’ve found! I can only repay this with this Elixir I found not too long ago. It is rumored to unlock some untapped potential deep within you. Take it, take it! Well earned my friend.\"",
+                  "type": "end",
+                  "effects": [
+                    "ADDTALENT: random"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": 55,
+              "type": "result",
+              "requirements": [
+                "COLLECTOR: Valuable"
+              ],
+              "refChildren": [
+                33
+              ]
             }
           ]
         },
@@ -4223,7 +4233,7 @@
           "choiceLabel": "Leave: No thanks",
           "children": [
             {
-              "id": 14697,
+              "id": 54,
               "text": "",
               "type": "end"
             }
