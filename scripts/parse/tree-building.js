@@ -22,6 +22,7 @@ const {
   normalizeRandomEffectsInLine,
   normalizeEffectsArray,
   normalizeKeywordTags,
+  getRandomRanges,
 } = require('./random-support.js')
 const { createNode, generateNodeId, resetNodeIdCounter } = require('./tree-utils.js')
 
@@ -76,16 +77,43 @@ function detectKnotDefinitions(inkJson) {
 }
 
 /**
- * Parse knot content directly from Ink JSON structure
- * Returns a node representing the knot's outcome
+ * Recursively walk a knot body's raw Ink JSON, accumulating narrative text and
+ * effect commands the same way the main story-text collection loop would, but without
+ * an inkjs runtime to execute it (these knots are only ever reached via an external
+ * game-engine trigger naming them, e.g. COLLECTOR/CARDPUZZLE, not by any in-story divert).
+ *
+ * Understood element shapes, beyond plain strings:
+ * - nested arrays: Ink's stitch/conditional-block containers, walked in order
+ * - `{"#": ...}` / `{"#f": ...}` / `{"#n": ...}`: metadata tags, skipped
+ * - `{"temp=": name}`: local variable declaration, skipped (nothing to render)
+ * - `{"VAR?": name}`: a variable read. Resolved against `randomVars` when known; when
+ *   the read has no statically-known source (e.g. a tunnel/function parameter set by
+ *   whatever called this knot), recorded as an unresolved read via recordParseFailure
+ *   and rendered as the literal `<name>` placeholder rather than silently dropped
+ * - `{"VAR=": name}`: a variable assignment, recorded directly as a `SET name = <value>`
+ *   effect (value is the most recently resolved `VAR?` read, or `?` if none preceded it) —
+ *   not routed through extractEffects, since `SET` is a synthetic marker, not a real
+ *   `>>>>COMMAND` the game engine understands
+ * - `{"->": ...}`: a divert, skipped (the target is either explored via its own
+ *   detectBranchingCommand entry or is out of scope for this knot's rendered outcome)
+ *
+ * Any other object/array shape encountered is unrecognized and is recorded via
+ * recordParseFailure so future drift (a new Ink bytecode shape) is visible instead of
+ * silently producing garbled or truncated text.
+ *
+ * @param {Array} knotBody
+ * @param {Map} randomVars
+ * @param {string} eventName
+ * @returns {ParseNode | null} A node representing the knot's outcome
  */
-function parseKnotContentManually(knotBody, randomVars = new Map()) {
+function parseKnotContentManually(knotBody, randomVars = new Map(), eventName = '') {
   if (!Array.isArray(knotBody)) return null
 
   let text = ''
+  let lastResolvedRead = null
+  const assignmentEffects = []
 
-  // Walk through knot body elements
-  for (const element of knotBody) {
+  function walk(element) {
     if (typeof element === 'string') {
       // Remove ^ prefix if present (Ink text marker)
       const cleaned = element.startsWith('^') ? element.substring(1) : element
@@ -97,19 +125,75 @@ function parseKnotContentManually(knotBody, randomVars = new Map()) {
       } else if (cleaned === '\n' || element === '\n') {
         // Preserve newlines from original Ink
         text += '\n'
+      } else if (cleaned === 'ev' || cleaned === '/ev' || cleaned === 'end' || cleaned === 'done') {
+        // Ink stack-machine markers with no narrative content of their own
       } else if (cleaned) {
         // Regular text content
         text += cleaned
       }
+      return
     }
-    // Skip other Ink control structures (objects, arrays, etc.)
+
+    if (Array.isArray(element)) {
+      element.forEach(walk)
+      return
+    }
+
+    if (element && typeof element === 'object') {
+      const keys = Object.keys(element)
+
+      if (keys.some((k) => k === '#' || k === '#f' || k === '#n' || k === '->')) {
+        return
+      }
+
+      if ('temp=' in element) {
+        return
+      }
+
+      if ('VAR?' in element) {
+        const varName = element['VAR?']
+        const ranges = getRandomRanges(randomVars, varName)
+        if (ranges && ranges.length > 0) {
+          lastResolvedRead = `random [${ranges.map((r) => `${r.min} - ${r.max}`).join(', ')}]`
+        } else {
+          recordParseFailure(
+            'unresolved knot variable read',
+            eventName,
+            new Error(`"${varName}" has no statically-known value in this knot`)
+          )
+          lastResolvedRead = `<${varName}>`
+        }
+        return
+      }
+
+      if ('VAR=' in element) {
+        const varName = element['VAR=']
+        assignmentEffects.push(`SET ${varName} = ${lastResolvedRead ?? '?'}`)
+        lastResolvedRead = null
+        return
+      }
+
+      recordParseFailure(
+        'unrecognized knot element',
+        eventName,
+        new Error(`unrecognized object shape: ${JSON.stringify(element)}`)
+      )
+      return
+    }
   }
 
+  knotBody.forEach(walk)
+
   // Use existing extractEffects to parse the text
-  const { effects: extractedEffects, cleanedText } = extractEffects(text)
+  const { effects: extractedEffects, cleanedText } = extractEffects(
+    text,
+    undefined,
+    undefined,
+    eventName
+  )
 
   // Normalize GOLD/DAMAGE effects to "COMMAND: random [min - max]" when value is in a random range (cleanUpRandomValues post-pass will fix text)
-  const effects = normalizeEffectsArray(extractedEffects, randomVars)
+  const effects = normalizeEffectsArray([...extractedEffects, ...assignmentEffects], randomVars)
 
   return createNode({
     id: generateNodeId(),
@@ -120,14 +204,19 @@ function parseKnotContentManually(knotBody, randomVars = new Map()) {
 }
 
 /**
- * Check if effects contain branching commands that trigger knot exploration
- * Returns the branching command name if found, null otherwise
+ * Check if effects contain a bare (valueless) branching command that triggers exploring
+ * ALL of an event's orphan knots as sibling branches — the COLLECTOR/CARDPUZZLE shape:
+ * an external game-engine trigger names one of several orphan knots dynamically, and
+ * since we can't know which one it'll pick, we render all of them as conditional
+ * `result` branches (see `explorAllKnotsAsBranches` at the call site).
+ *
+ * Returns the branching command name if found, null otherwise.
  */
 function detectBranchingCommand(effects) {
   if (!effects || effects.length === 0) return null
 
   // Known branching commands that trigger dynamic knot selection
-  const branchingCommands = ['COLLECTOR']
+  const branchingCommands = ['COLLECTOR', 'CARDPUZZLE']
 
   for (const effect of effects) {
     for (const cmd of branchingCommands) {
@@ -135,6 +224,24 @@ function detectBranchingCommand(effects) {
         return cmd
       }
     }
+  }
+
+  return null
+}
+
+/**
+ * Check if effects contain a `STORYFUNCTION: <knotName>:<arg>` command — unlike
+ * COLLECTOR/CARDPUZZLE, this doesn't select between alternative outcomes; it names a
+ * single knot to run for its side effect (a variable assignment) and continue normally
+ * with the current node's own choices (there's nothing to branch on). Returns the knot
+ * name if found, null otherwise.
+ */
+function detectStoryFunctionCommand(effects) {
+  if (!effects || effects.length === 0) return null
+
+  for (const effect of effects) {
+    const match = effect.match(/^STORYFUNCTION:\s*(\S+?)(?::|$)/i)
+    if (match) return match[1]
   }
 
   return null
@@ -553,10 +660,24 @@ function buildTreeFromStory(story, ctx, path) {
     const branchingCommand = detectBranchingCommand(effects)
 
     if (branchingCommand && knots.size > 0) {
-      // This is a dynamic branching point - explore all knots as conditional branches
+      // COLLECTOR explores every orphan knot (the external trigger can pick any of
+      // them). CARDPUZZLE names a single puzzle, but has no value identifying it in
+      // the compiled Ink (it's always a bare command) — by convention its outcome
+      // knots are named "puzzlesuccess"/"puzzlefail", so only those two are explored;
+      // exploring all of `knots` here would also pull in unrelated knots reached
+      // normally elsewhere in the same event (e.g. Frozen Heart's "exit"/"meeting").
+      const knotsToExplore =
+        branchingCommand === 'CARDPUZZLE'
+          ? new Map(
+              ['puzzlesuccess', 'puzzlefail']
+                .filter((name) => knots.has(name))
+                .map((name) => [name, knots.get(name)])
+            )
+          : knots
+
       const knotBranches = []
-      knots.forEach((knotBody, knotName) => {
-        const knotNode = parseKnotContentManually(knotBody, randomVars)
+      knotsToExplore.forEach((knotBody, knotName) => {
+        const knotNode = parseKnotContentManually(knotBody, randomVars, eventName)
         if (knotNode) {
           // Wrap in a result node to show it's a conditional branch of the special node
           knotBranches.push(
@@ -579,6 +700,22 @@ function buildTreeFromStory(story, ctx, path) {
         effects,
         children: knotBranches,
       })
+    }
+  }
+
+  // SPECIAL CASE: STORYFUNCTION names a knot to run for its side effect (a variable
+  // assignment) and does NOT branch — the node continues normally with its own
+  // choices/text. Merge the knot's effect(s) into this node's effects so the assignment
+  // is visible instead of the stale global-declaration default staying displayed forever.
+  const storyFunctionKnotName = detectStoryFunctionCommand(effects)
+  if (storyFunctionKnotName && knots.has(storyFunctionKnotName)) {
+    const knotNode = parseKnotContentManually(
+      knots.get(storyFunctionKnotName),
+      randomVars,
+      eventName
+    )
+    if (knotNode?.effects?.length) {
+      effects.push(...knotNode.effects)
     }
   }
 

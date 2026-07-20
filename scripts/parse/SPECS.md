@@ -655,9 +655,62 @@ and 16. Things to resolve during implementation:
 
 ---
 
-## 18. Generalize branching-command detection beyond `COLLECTOR`
+## 18. Generalize branching-command detection beyond `COLLECTOR` — ✅ COMPLETED
 
 **Impact: 🟡 Medium (correctness) · Effort: 🟡 Medium**
+
+> Implementation notes: `CARDPUZZLE` was added to `detectBranchingCommand`'s
+> `branchingCommands` list (leaf-only, same as `COLLECTOR`), but with one deliberate
+> difference: since a full scan showed `root[2]` also contains knots reached by
+> *normal* diverts elsewhere in the same event (Frozen Heart's `open_chest`/`left`/
+> `right`/`exit`/`meeting`), exploring ALL of `knots` (as COLLECTOR does) would wrongly
+> pull in unrelated content. `CARDPUZZLE` instead explores only the two knots named by
+> convention — `puzzlesuccess`/`puzzlefail` — filtered from `knots` at the call site.
+> `STORYFUNCTION` was NOT added to `branchingCommands`: per the spec's own analysis
+> ("there's nothing to branch on — the fix is just to run it"), it's handled by a
+> separate `detectStoryFunctionCommand` check that runs regardless of `choices.length`
+> (Enchanter 1's case fires with real choices present, unlike COLLECTOR/CARDPUZZLE's
+> leaf-only trigger) and merges the named knot's resulting effects into the *current*
+> node's effects rather than spawning a sibling branch.
+>
+> `Shrine of Radiance`'s `SELECTCARD:false` (found by the same grep sweep that
+> confirmed only 3 events use these commands) turned out to be a false alarm on
+> inspection: its `c-1` knot is a real choice-divert target reached by normal ink-runtime
+> traversal, not an orphan knot — already handled correctly by the existing effect
+> pipeline with no code change needed.
+>
+> Frozen Heart's hand-written `CARDPUZZLE` `replaceNode` alteration (event-alterations.js)
+> is deleted: the real `puzzlesuccess`/`puzzlefail` knot content now comes through
+> automatically, shorter and more accurate than the old manually-transcribed text, and
+> correctly deduped (the event has two CARDPUZZLE call sites; pass 7 merges them into a
+> ref, same as any other duplicate subtree). But a knot's own body ends with a divert
+> (`puzzlesuccess` → `open_chest`, `puzzlefail` → the dialogue-menu hub) that
+> `parseKnotContentManually` deliberately doesn't follow — it renders the knot's own
+> content, not the wider story graph — so without the divert, the two outcomes rendered
+> as dead-end leaves with no continuation, a real regression caught during visual review.
+> Fixed with two small `modifyNode: { type: 'dialogue', refCreate }` alterations (matching
+> by exact leaf text, not `replaceNode`) that ref each outcome to the tree node its
+> knot's divert actually targets: `puzzlesuccess` → the node containing `open_chest`'s
+> content (which the "smash the ice" physical-attempt path also converges on),
+> `puzzlefail` → the hub. The `type: 'dialogue'` override matters: `parseKnotContentManually`
+> always builds `type: 'end'` nodes (correctly, for knots that really do end there, like
+> Collector's), but these two are no longer terminal once ref'd — `end` would render
+> with no visible indication it continues, since the renderer only shows a node's
+> continuation state (numContinues / implicitly, via type) for `type: 'dialogue'`, and
+> other refCreate sites in this same file already pair `type: 'dialogue'` with `refCreate`
+> by the same convention. This is a smaller, more honest use of the alterations file than
+> before: it bridges a divert the parser intentionally doesn't walk, rather than
+> hand-transcribing outcome text the parser now produces correctly on its own.
+>
+> Enchanter 1's `enchantmentCost` now shows as `SET enchantmentCost = <newCost>` in its
+> effects instead of silently displaying the stale 100-gold global-declaration default —
+> see spec 19 for why the concrete new value can't be resolved (it comes from outside
+> Ink entirely).
+>
+> Verified via `validateEventTreesChanges()`: exactly 3 events differ (Collector,
+> Enchanter, Frozen Heart — all reviewed manually, incl. a live before/after check in the
+> Eventmaps dev server), 3838 total nodes both before and after this fix (refs add no
+> nodes), zero invalid refs, `npm run verify` clean.
 
 `detectBranchingCommand` (`tree-building.js`) hardcodes `branchingCommands = ['COLLECTOR']` as the
 only signal that a node's effects should trigger exploring all of an event's orphan knots (knot
@@ -694,9 +747,50 @@ Enchanter 1's stale-value bug. Depends on spec 19 to actually walk non-flat knot
 
 ---
 
-## 19. Make `parseKnotContentManually` handle non-flat knot bodies
+## 19. Make `parseKnotContentManually` handle non-flat knot bodies — ✅ COMPLETED
 
 **Impact: 🟡 Medium (correctness) · Effort: 🟡 Medium**
+
+> Implementation notes: took option (b) — kept the manual walker (a full recursive
+> re-traversal via the real primitives was unnecessary for the three cases in scope)
+> but made it recurse into nested arrays and understand the Ink stack-machine object
+> shapes it previously skipped silently: `{"temp=": name}` (local declaration, no-op),
+> `{"VAR?": name}` (a read — resolved against `randomVars` when the name matches a
+> detected `RANDOM(min,max)` variable, otherwise recorded via `recordParseFailure` as an
+> `'unresolved knot variable read'` and rendered as a `<name>` placeholder), `{"VAR=":
+> name}` (an assignment — recorded directly as a `SET name = <value>` effect using the
+> most recently resolved read, NOT routed through `extractEffects`/`KNOWN_COMMANDS`
+> since `SET` is a synthetic marker, not a real `>>>>COMMAND`), and `{"#": ...}` /
+> `{"#f": ...}` / `{"#n": ...}` / `{"->": ...}` (tags/diverts, skipped as before). Bare
+> stack markers (`"ev"`, `"/ev"`, `"end"`, `"done"`) appearing as un-prefixed strings are
+> now also explicitly skipped — the old code appended them as literal text.
+>
+> `Enchanter 1`'s `changeCost` knot (`{"temp=":"newCost"}, "ev", {"VAR?":"newCost"},
+> "/ev", {"VAR=":"enchantmentCost","re":true}`) confirmed the spec's own diagnosis:
+> `newCost` is a temp read with no local assignment before it — it's the value the
+> external `STORYFUNCTION:changeCost:imbueCost` caller passes in, which isn't
+> discoverable anywhere in the compiled Ink (the `imbueCost` command argument doesn't
+> appear as an Ink variable/global either). So the concrete new cost genuinely can't be
+> known statically; the honest output is `SET enchantmentCost = <newCost>` (an
+> `'unresolved knot variable read'` failure is recorded, printed in the end-of-run
+> summary), not a fabricated number. The inkjs-interpolated choice label text (e.g.
+> `"100 Gold: Imbue an Enchantment"`) still shows the stale default — fixing that would
+> require actually executing the knot in the real inkjs runtime, out of scope for the
+> manual-walker approach this spec deliberately chose.
+>
+> Bug fix found along the way, in scope of "stop silently mangling non-flat bodies":
+> `Collector`'s knots (previously assumed fully flat) end with a bare `"end"` stack
+> marker that the old code appended as literal text — every one of its outcome texts
+> had a spurious trailing `" end"` in the current output (e.g. `"...mighty artifact,
+> [[class]]! end"`), now correctly stripped.
+>
+> Verified with the two Enchanter/Frozen Heart/Collector diffs reviewed above (spec 18)
+> plus a full 183-event run: no other event uses `parseKnotContentManually` today
+> (confirmed by grep — only knots reached via `detectBranchingCommand`/
+> `detectStoryFunctionCommand` are ever passed to it), so no other event's output
+> changed. `GoldenIdol`'s `take` knot (the embedded 4-choice menu the spec flagged as a
+> starker risk) is reached via a normal Ink divert, not this function, so it is
+> unaffected — real traversal already handles it correctly.
 
 `parseKnotContentManually` (`tree-building.js`) is a hand-rolled walker over a knot's raw JSON
 array that only understands plain strings (accumulated as text, with `>>>>`/`>>>` command

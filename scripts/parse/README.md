@@ -75,8 +75,15 @@ failures recorded during tree building (degraded random-var/function detection).
 
 Before playing a story, a few static scans of the raw Ink JSON collect what the runtime won't
 tell us: random variable ranges (`VAR gold = RANDOM(5, 15)`), function definitions and their
-possible return values (random keyword rewards), and *knot* definitions (named sections that
-commands like `COLLECTOR` jump to dynamically).
+possible return values (random keyword rewards), and *knot* definitions (named sections with
+no in-story divert pointing at them — only reachable via an external game-engine trigger
+naming the knot to run). `COLLECTOR`/`CARDPUZZLE` name a knot dynamically at runtime, so every
+candidate knot is explored as a conditional branch (all of them for `COLLECTOR`; just the
+`puzzlesuccess`/`puzzlefail` pair, by naming convention, for `CARDPUZZLE`, since a knot's raw
+JSON gives no other way to tell which candidates actually belong to it). `STORYFUNCTION` names
+one knot to run for its side effect (a variable assignment) rather than branching on it.
+Since none of this is reachable through normal `story.Continue()`/`ChooseChoiceIndex` playback,
+a knot's raw JSON is walked directly by `parseKnotContentManually` instead.
 
 Then `buildTreeFromStory()` explores every path:
 
@@ -135,7 +142,7 @@ Current order:
 | 9 | `normalizeRefsPointingToCombatNodes` | Refs to split combat nodes → the postcombat dialogue child |
 | 10 | `convertSiblingAndCousinRefsToRefChildren` | Nearby refs → `refChildren` + sibling reordering |
 | 11 | `hoistPureStandInRefNodes` | Stand-in refChildren nodes that are pure copies of their target (and only children) are deleted; the parent's converging line goes directly to the original |
-| 12 | `applyEventAlterations` | Manual per-event fixes (puzzles, boss-death transitions, …) |
+| 12 | `applyEventAlterations` | Manual per-event fixes (boss-death transitions, door/room structure, …) |
 | 13 | `deduplicateAllTreesPostAlterations` | Pass 7 again: alterations can grow previously-too-small subtrees past the dedup size gate (boss transitions turn each duplicated `choice → combat` pair into an eligible 3-node chain), so identical chains collapse at the choice level |
 | 14 | `mergeDuplicateCombatNodes` | Duplicate combat nodes pass 13 can't catch (copies behind non-identical choice wrappers, whose chains stay below the size gate) → `ref` jump links to the shallowest copy; identical on ALL fields incl. requirements/effects, since a combat node's effects are the fight. Childless copies stay — merging a leaf removes no nodes |
 | 15 | `checkInvalidRefs` | Sanity check: every ref points at an existing node |

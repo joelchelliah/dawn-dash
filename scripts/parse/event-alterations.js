@@ -96,40 +96,30 @@ module.exports = [
     name: 'Frozen Heart',
     alterations: [
       {
-        find: { effect: 'CARDPUZZLE' },
-        // Replace with a special node that has puzzle success/failure branches
-        replaceNode: {
-          type: 'special',
-          text: '',
-          numContinues: 0,
-          effects: ['SELECTCARD', 'CARDPUZZLE'],
-          children: [
-            {
-              type: 'result',
-              requirements: ['puzzlesuccess'],
-              children: [
-                {
-                  type: 'dialogue',
-                  text: "Using one of your abilities, the ice fades quickly! Only the sizzling steam of the broken prison of ice now stands between you and the chest's contents. The chest pulses with a radiant heat, but is cool to the touch. In turn, the hum within the cavern rises to a deafening level.",
-                  numContinues: 2,
-                  refCreate: 'You smash at the ice repeatedly',
-                },
-              ],
-            },
-            {
-              type: 'result',
-              requirements: ['puzzlefail'],
-              children: [
-                {
-                  type: 'dialogue',
-                  text: 'Try as you might, you find no solution to breaking the ice around the strange chest. With no other option left, you descend the icy walls back to your starting point. At the bottom of the steps the chamber splits into two passageways.',
-                  numContinues: 1,
-                  // This will be converted to ref: <actual_node_id_of_matching_node>
-                  refCreate: 'A rhythmic pulse fills the cave',
-                },
-              ],
-            },
-          ],
+        // The CARDPUZZLE knots' own bodies end with a divert (`{"->": "open_chest"}`) that
+        // parseKnotContentManually deliberately doesn't follow (it renders a knot's own
+        // content, not the wider story) — bridge that gap here so the puzzle-success
+        // outcome still continues into the actual chest-opening content, same as the
+        // "smash the ice" physical path it converges with in the raw Ink.
+        find: {
+          textOrLabel:
+            "Using one of your abilities, the ice fades quickly! Only the sizzling steam of the broken prison of ice now stands between you and the chest's contents.",
+        },
+        modifyNode: {
+          type: 'dialogue',
+          refCreate: 'The chest pulses with a radiant heat',
+        },
+      },
+      {
+        // Same gap for puzzle-failure: its knot diverts to `0.cave_entrance.cavechoices`,
+        // i.e. back to the dialogue-menu hub.
+        find: {
+          textOrLabel:
+            'Try as you might, you find no solution to breaking the ice around the strange chest. With no other option left, you descend the icy walls back to your starting point.',
+        },
+        modifyNode: {
+          type: 'dialogue',
+          refCreate: 'A rhythmic pulse fills the cave',
         },
       },
       {

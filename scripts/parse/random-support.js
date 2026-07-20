@@ -400,6 +400,7 @@ module.exports = {
   normalizeNumericEffectInLine,
   normalizeEffectsArray,
   normalizeKeywordTags,
+  getRandomRanges,
 
   // Post-processing passes
   cleanUpRandomValues,
