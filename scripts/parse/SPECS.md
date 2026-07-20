@@ -655,6 +655,222 @@ and 16. Things to resolve during implementation:
 
 ---
 
+## 18. Generalize branching-command detection beyond `COLLECTOR`
+
+**Impact: 🟡 Medium (correctness) · Effort: 🟡 Medium**
+
+`detectBranchingCommand` (`tree-building.js`) hardcodes `branchingCommands = ['COLLECTOR']` as the
+only signal that a node's effects should trigger exploring all of an event's orphan knots (knot
+bodies in `root[2]` / the `root[0]` trailing object that are never reached by any Ink divert,
+choice pointer, or function call — only by an external game-engine trigger naming the knot to run).
+A full scan of all 183 events' compiled Ink for orphan knots (knots present in `root[2]`/trailing-object
+but never targeted by any `->`, `*`, or `f()` in the same event) found exactly **three** such
+"external selector" commands, of which only one is handled:
+
+| Command | Event | Orphan knot(s) | Currently handled? |
+|---|---|---|---|
+| `COLLECTOR` | Collector | `Drakkan, Asteran, GoldenIdol, Legendary, Corruption, Common, Uncommon, Monster, Rare, Epic` | Yes — `detectBranchingCommand` |
+| `STORYFUNCTION:changeCost:imbueCost` | Enchanter 1 | `changeCost` | **No** |
+| `SELECTCARD` / `CARDPUZZLE` | Frozen Heart | `puzzlesuccess`, `puzzlefail` | Only via a hand-written `event-alterations.js` `replaceNode` that copy-pastes the puzzle-outcome text — not via generic detection |
+
+`Enchanter 1`'s gap is a **silent wrong-value bug**, not a missing branch: the tree shows
+`enchantmentCost`'s Ink global-declaration default (100 gold) as if it were final, when the
+`changeCost` knot (`~ enchantmentCost = newCost`) is meant to recompute it dynamically. Since
+`changeCost` has no choices, there's nothing to branch on — the fix is just to run it (see spec
+19 for why the current knot walker can't).
+
+`Frozen Heart`'s puzzle content already renders correctly today (via the manual alteration), but
+only because someone noticed the empty tree and hand-reconstructed the two outcomes by reading
+the raw knot bodies. The next event that reuses this pattern will silently produce an incomplete
+tree until someone repeats that manual archaeology.
+
+Proposed: extend `detectBranchingCommand`'s `branchingCommands` list to include `STORYFUNCTION`
+and `SELECTCARD`/`CARDPUZZLE`, and generalize the knot-selection logic so any orphan knot
+referenced by one of these commands' value (or, for `CARDPUZZLE`, the sibling `puzzlesuccess`/
+`puzzlefail` knots by naming convention) is explored the same way `COLLECTOR`'s knots are —
+each becomes a `result`-type child with a requirement string naming the command/target. This
+would let Frozen Heart's alteration be deleted (verify via spec's zero-diff comparison) and fix
+Enchanter 1's stale-value bug. Depends on spec 19 to actually walk non-flat knot bodies correctly.
+
+---
+
+## 19. Make `parseKnotContentManually` handle non-flat knot bodies
+
+**Impact: 🟡 Medium (correctness) · Effort: 🟡 Medium**
+
+`parseKnotContentManually` (`tree-building.js`) is a hand-rolled walker over a knot's raw JSON
+array that only understands plain strings (accumulated as text, with `>>>>`/`>>>` command
+detection) and literal `\n` — every other element (nested arrays, conditionals, choice bodies,
+Ink stack-machine bytecode like `{"VAR?":...}`/`{"VAR=":...}`/`{"temp=":...}`) is silently
+skipped per the comment "Skip other Ink control structures (objects, arrays, etc.)".
+
+This is currently invisible because the only knots ever passed through it (Collector's ten
+`root[2]` knots) happen to be flat narrative text + `#`-tagged metadata. It stops being invisible
+the moment a knot with real structure is walked. Concretely, `Enchanter 1`'s `changeCost` knot —
+which spec 18 proposes exploring — is:
+
+```json
+[
+  {"temp=": "newCost"},
+  "ev", {"VAR?": "newCost"}, "/ev",
+  {"VAR=": "enchantmentCost", "re": true},
+  {"#f": 1}
+]
+```
+
+Simulating the current walker on this body produces `text: "ev/ev"` and zero effects — the
+entire "assign `enchantmentCost := newCost`" semantics is lost, not degraded. `GoldenIdol`'s
+`take` knot (reached via normal divert today, so not walked by this function) shows the same
+risk more starkly: a full embedded 4-choice menu with sub-bodies and further diverts, which
+would only ever yield leading narration text if it were ever routed through
+`parseKnotContentManually` instead of the real traversal.
+
+Proposed: either (a) replace `parseKnotContentManually` with a recursive walk that treats the
+knot body as a nested container and reuses the existing choice/divert extraction primitives
+already used for the main story text collection, or (b) for the narrower cases spec 18 actually
+needs (Collector's flat knots, Enchanter 1's variable assignment, Frozen Heart's puzzle-outcome
+text), keep the walker but add explicit handling for `{"VAR?": name}` (resolve against the
+already-detected `randomVars`/global-decl defaults, same as `normalizeRandomEffectsInLine` does
+for the main path) and `{"VAR=": name}` (record the assignment as an effect, e.g. "SET
+enchantmentCost = newCost"), with a loud warning (via `recordParseFailure`, per spec 11's
+pattern) whenever the walker encounters an object shape it doesn't recognize, so future drift is
+visible instead of silently producing garbled text.
+
+---
+
+## 20. Explore Ink cycle/sequence (`seq`) alternatives instead of only the runtime's default pick
+
+**Impact: 🟡 Medium (completeness) · Effort: 🟡 Medium-High**
+
+Ink's cycle-alternative syntax (`{~ + | + | + }` compiling to a `["ev","visit",N,"seq", ...]`
+bytecode container with `s0..sN` sub-bodies, dispatched by an internal per-container visit
+counter modulo N) is structurally distinct from the `RANDOM(min, max)` pattern `random-support.js`
+already detects (`["ev", min, max, "rnd", "/ev", {"VAR=": name}]`), and is **not detected by any
+current code path**. A full-file scan found exactly three events using it:
+
+- **`TheCardGame`** — the `random` function (called 3×/playthrough for `cardOne`/`cardTwo`/
+  `cardThree`) is a 6-value cycle over card ids. Because the linear playthrough only calls it 3
+  times, indices `s3`/`s4`/`s5` (3 of 6 possible outcome texts — "Action begets action...",
+  "So be it...", "The skeleton grins gleefully...") **can never appear in the tree**, confirmed
+  by running the parser.
+- **`ArmsDealer`** — the opening line's "leans against a nearby ___" is a 4-value cycle
+  (`stone`/`wall`/`tree trunk`/`signpost`). Only `s3` ("signpost") ever appears in the parsed
+  output; the other 3 flavor variants are absent from the tree entirely.
+- **`Shrine of Trickery`** — same 6-value cycle shape, but happens to work today: its payload is
+  string return values that coincidentally match the existing `extractReturnValues` pattern used
+  for `ADDKEYWORD` random-list resolution, so all 6 values surface via
+  `ADDKEYWORD: random [...]`. This is a lucky accident of the payload type, not a working
+  detection of the `seq` construct — it doesn't generalize to `TheCardGame`'s numeric-id payload
+  feeding prose branching. (A related "once" variant, Ink's `{~ ... | ...}` MIN/stopping
+  alternative — visible in `Weeping Woods Start` — happens to have both its values surfaced today
+  via unrelated dialogue-hub re-visitation, again not by deliberate design.)
+
+Proposed: detect the `["ev","visit",N,"seq", ...]` bytecode shape the same way `randomVars` are
+detected today (a static pre-execution scan over the raw Ink JSON, in `random-support.js` or a
+sibling module), collect each container's `s0..sN` sub-bodies, and treat a node whose command
+value resolves to one of these cycle containers the same way `COLLECTOR` knots are treated (spec
+18): explore every `sN` branch as a sibling alternative rather than only the one index the
+single deterministic playthrough happens to land on. `Shrine of Trickery`'s existing (coincidental)
+handling should keep working — this is additive — but its choice-label-ordering quirk (labels
+assigned by literal `s0..s5` traversal order, not by which index the real `cardOne`/`cardTwo`/
+`cardThree` calls actually land on first) is worth fixing at the same time since both live in the
+same code path.
+
+---
+
+## 21. Explore LIST-typed variable branches (`Shard of Mirrors`)
+
+**Impact: 🟢 Low (single event) · Effort: 🟡 Medium**
+
+`Shard of Mirrors` is the only event in the dataset using Ink's `LIST` type (`listDefs`
+non-empty): two LIST globals (`sPresentCharacters1`/`2`) represent which companion characters are
+present in the current game run, populated by the external game engine before the event runs —
+their Ink-side defaults are empty. The event's `KNOT_BRANCH_WAITING` knot gates 8 companion-story
+branches (`blacksmith_story`, `alchemist_story`, `priestess_story`, `consul_story`,
+`forger_story`, `succubus_story`, `collector_story`, `necromancer_story`) behind equality checks
+against these LIST variables, and the "Focus on the X" choices offered are themselves built from
+the same never-initialized variables. Because the parser only ever sees the empty-default state,
+**none of the 8 companion-story branches is reachable**, and the 3 "Focus on the X" choices that
+do appear in the output are an artifact of default-init behavior, not a representative sample.
+
+This is lower priority than specs 18-20 (one event, and the 8 branches are currently just
+placeholder text — "(fill in the lore for this.)" — not real content yet), but worth tracking
+since the branches are structurally real and will presumably get real content eventually.
+
+Proposed: a small special-case (similar in spirit to `DIALOGUE_MENU_EVENTS`/`PATH_CONVERGENCE` in
+`event-overrides.js`) that, for this one event, re-runs exploration once per companion value (or
+statically walks all 8 `KNOT_BRANCH_WAITING` branches directly from the raw Ink JSON, bypassing
+the runtime the same way knot exploration already does), producing all 8 companion branches as
+siblings instead of none. Given the low current content value, this can reasonably wait until the
+companion-story text is actually written.
+
+---
+
+## 22. Harden `extractEffects` against bare-colon commands, and validate unrecognized commands
+
+**Impact: 🟢 Low (currently dormant) · Effort: 🟢 Low**
+
+Two related, lower-severity hardening items surfaced while auditing command extraction:
+
+1. **Bare-colon commands are silently dropped, not degraded.** `extractEffects`'s per-command
+   regex `/^([A-Za-z_]+)(?::(.+))?$/i` requires at least one character after a colon if a colon is
+   present, so `"DAMAGE:"` (empty value) fails to match entirely and the whole command vanishes
+   with no effect and no warning — `extractEffects('>>>>DAMAGE:\ntext')` returns `{ effects: [],
+   cleanedText: 'text' }`. This pattern (`GOLD:`, `DAMAGE:`, `AREAEFFECT:`, etc., with the value
+   being an unresolved `{"VAR?": name}` read) appears in ~20 events' **raw, pre-execution** Ink
+   JSON, but is confirmed harmless today: inkjs resolves the variable read into a literal number
+   before `collectStoryText` ever sees the line during normal traversal. The one place it's a live
+   risk is inside `parseKnotContentManually` (spec 19), which walks raw un-executed JSON and does
+   *not* resolve `VAR?` reads — today's Collector knots don't happen to trigger it, but spec 18/19's
+   generalized knot exploration could. Fix: make the regex accept (and log) an empty value instead
+   of silently failing to match, e.g. `/^([A-Za-z_]+)(?::(.*))?$/i` with a guard so an empty value
+   doesn't produce `"COMMAND: "` in the output.
+2. **85 of ~90 distinct commands get zero semantic validation.** Only `COMBAT`/`DIRECTCOMBAT`/
+   `ADDKEYWORD` are special-cased in `extractEffects`, plus `ADDCARD`/`ADDTALENT`/`AREAEFFECT`/
+   `REMOVECARD`/`IMBUECARD` via `CARD_ID_COMMANDS` elsewhere; every other command (`GOLD`,
+   `QUESTFLAG`, `SCREENSHAKE`, `NEXTAREA`, `SETCLASS`, ... — 85 distinct names found) falls
+   through to a generic `"COMMAND: value"` string with no validation at all. This is fine for
+   rendering (unrecognized commands still display), but means a typo'd or renamed upstream command
+   is accepted silently with no signal, unlike spec 6's config-name validation. Low priority: this
+   is a hygiene/observability gap, not a correctness bug, since nothing currently depends on these
+   values being validated. If ever addressed, route it through the same `recordParseFailure`/
+   summary-at-end-of-run mechanism spec 11 established, rather than a hard failure.
+
+(Two related hypotheses were investigated and ruled out: the command-body character-class regex
+does **not** truncate any value in the current dataset — exhaustively checked, zero disallowed
+characters found inside any command token — and `>>>` vs `>>>>` is confirmed pure authoring
+inconsistency with no semantic difference, already handled by the existing `>>>>?` optional-arrow
+pattern.)
+
+---
+
+## 23. Document "Shard of Strife"'s unreachable content (informational, no parser change)
+
+**Impact: 🟢 Low (data hygiene, not a parser bug) · Effort: 🟢 Low**
+
+Not a parser gap — flagged here only because it surfaced during this audit and is easy to
+misdiagnose as one later. `Shard of Strife` ("Reflective Shard")'s compiled Ink contains a 5-way
+"Focus on the {Blacksmith, Alchemist, Merchant, Enchanter, Priest}" choice menu plus a companion
+`enemies` knot with named alternatives per character — structurally similar to (but distinct
+from) `Shard of Mirrors`'s genuinely-nondeterministic "Focus on the ..." mechanism. Direct
+exhaustive path replay via the raw inkjs runtime (bypassing the parser entirely, trying every
+choice index at every branch from a fresh story) confirms this menu and the `enemies` knot are
+**unreachable under any choice sequence** — the only paths the story ever offers lead to "Focus on
+the Dawnbringer" or an immediate "Skip", both of which terminate before the menu is ever shown.
+The parser is correctly reproducing what the runtime actually plays; the menu appears to be
+vestigial content from an earlier version of the event.
+
+Two low-cost follow-ups, neither urgent:
+- If the team ever wants to audit for orphaned/dead authored content generally, this is a
+  concrete example worth keeping a note of.
+- `Shard of Strife` currently has zero entries in `DIALOGUE_MENU_EVENTS`, `VALIDATION_IGNORE_RULES`,
+  `POST_PROCESSING_HUB_PATTERN_OPTIMIZATION_BLACKLIST`, or `event-alterations.js` — harmless today
+  since the dead branch is never explored, but worth a second look (same nondeterminism treatment
+  as `Mirror Shard`, or an alteration to surface the dead branch for documentation purposes) if the
+  upstream game data is ever updated in a way that makes it reachable.
+
+---
+
 ## Verification strategy
 
 How we check that a change didn't meaningfully alter the generated trees. The existing
@@ -723,3 +939,22 @@ refactor starts, and again if the game data updates significantly.
    spec 7's ref-target-aware comparison. Validate diffs event-by-event.
 6. **Specs 9–13, 15** in any order, opportunistically.
 7. **Spec 14** only if measurement says it's needed.
+8. **Spec 22 (bare-colon hardening + command validation)** — cheapest of the new content-gap
+   specs, no exploration-logic changes, and item 1 (bare-colon regex fix) is a prerequisite
+   safety net before spec 19 starts walking more knot bodies through the same code path.
+9. **Spec 19 (fix `parseKnotContentManually`)** before **spec 18 (generalize branching-command
+   detection)** — spec 18's whole point is to explore more, and different-shaped, knot bodies
+   (Enchanter 1's variable-assignment knot, Frozen Heart's puzzle knots) through this walker, so
+   the walker needs to stop silently mangling non-flat bodies first. Verify spec 18 by confirming
+   Frozen Heart's existing hand-written alteration becomes unnecessary (delete it, re-run, expect
+   a zero-diff) and that Enchanter 1's `enchantmentCost` now reflects the computed value.
+10. **Spec 20 (cycle/`seq` alternatives)** — independent of specs 18/19 (a different bytecode
+    shape, detected the same way `randomVars` are today), but naturally grouped with them as
+    "explore more of the branches the runtime's single playthrough would otherwise hide."
+    Validate by confirming `TheCardGame` and `ArmsDealer` gain their missing flavor-text branches
+    and `Shrine of Trickery`'s existing output is unchanged.
+11. **Spec 21 (`Shard of Mirrors` LIST branches)** — lowest priority of the exploration specs
+    (single event, placeholder content); reasonable to defer until the companion-story text is
+    actually written upstream.
+12. **Spec 23 (document `Shard of Strife`)** — no code change, do whenever convenient; not
+    blocked on anything above.
