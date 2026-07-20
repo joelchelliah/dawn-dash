@@ -236,7 +236,12 @@ const PIPELINE = [
     run: (eventTrees) => {
       let totalSeparated = 0
       eventTrees.forEach((tree) => {
-        totalSeparated += separateChoicesFromEffects(tree.rootNode, createNode, generateNodeId)
+        totalSeparated += separateChoicesFromEffects(
+          tree.rootNode,
+          createNode,
+          generateNodeId,
+          tree.name
+        )
       })
       console.log(`  Separated ${totalSeparated} choice-effect pairs`)
     },

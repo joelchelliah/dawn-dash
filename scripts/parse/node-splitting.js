@@ -9,7 +9,107 @@
  * 2. Dialogue Splitting: Splits dialogue nodes when effects appear mid-sequence
  * 3. Choice Separation: Separates choice nodes from their outcome/effect nodes
  */
+const { CARD_ID_COMMANDS } = require('../shared/card-data.js')
+
 const { SPECIAL_KEYWORD_EFFECT_VALUES } = require('./event-overrides.js')
+const { recordParseFailure } = require('./debug.js')
+
+/**
+ * All `>>>>COMMAND` names seen across the current event data (audited 2026-07-20). An
+ * unrecognized command isn't a hard error — it still renders as "COMMAND: value" — but
+ * it's exactly the kind of silent drift (a typo, an upstream rename) spec 6's config-name
+ * validation guards against elsewhere, so it's worth surfacing via recordParseFailure.
+ */
+const KNOWN_COMMANDS = new Set([
+  ...CARD_ID_COMMANDS,
+  'ADDCARDBYKEYWORD',
+  'ADDCARDBYRARITY',
+  'ADDCURSE',
+  'ADDEVENTS',
+  'ADDKEYWORD',
+  'ADDREVELATION',
+  'ADDSURGE',
+  'ADDTOVAULT',
+  'ADDUPGRADEDCARD',
+  'ANIMA',
+  'AREASPECIAL',
+  'BANDITCARD',
+  'BLOODCARD',
+  'BUYCARDBYCATEGORY',
+  'CAMPFIRE',
+  'CARDPUZZLE',
+  'CARDREDUCECOST',
+  'CHECKSEALS',
+  'CLEANSE',
+  'COLLECTOR',
+  'COMBAT',
+  'COMPLETEQUEST',
+  'COPYCARD',
+  'CORRUPTCARD',
+  'DAMAGE',
+  'DECOLOR',
+  'DELVEFROMANY',
+  'DELVEFROMKEYWORD',
+  'DELVEFROMRARITY',
+  'DIRECTCOMBAT',
+  'DISMISSCOMPANION',
+  'ENCHANTERIMBUE',
+  'ENDRUN',
+  'EVENT',
+  'GOLD',
+  'GOTOAREA',
+  'HEAL',
+  'HEALPERCENTAGE',
+  'IMBUESELECTION',
+  'LUCK',
+  'MAXHEALTH',
+  'MEMORIZE',
+  'MERCHANT',
+  'MERCHANTDISCOUNT',
+  'NEXTAREA',
+  'NEXTCARD',
+  'NEXTSTATUS',
+  'PERSISTENT',
+  'PLACEONTOP',
+  'QUESTFLAG',
+  'RANDOMIZEENERGY',
+  'RANDOMIZEUPGRADES',
+  'RELIABLE',
+  'RELOADEVENTS',
+  'REMOVEAREAEFFECT',
+  'REMOVECARDFROMDECK',
+  'REMOVECHOSENCARD',
+  'REMOVEEVENT',
+  'REMOVEIMBUE',
+  'REMOVEQUESTFLAG',
+  'REMOVERANDOMCARD',
+  'REMOVETARGETBASIC',
+  'RESETWEAPONPOWER',
+  'SCREENSHAKE',
+  'SELECTCARD',
+  'SETANIMA',
+  'SETAREABACKGROUND',
+  'SETBACKGROUND',
+  'SETBACKGROUNDMUSIC',
+  'SETCLASS',
+  'SETQUESTPROGRESS',
+  'SOULS',
+  'STARTTUTORIAL',
+  'STORYFUNCTION',
+  'SWAPENERGY',
+  'SWAPUPGRADES',
+  'TAKEFROMVAULT',
+  'TRADE',
+  'TRANSPOSE',
+  'UPGRADE',
+  'UPGRADEALLBASICS',
+  'UPGRADEALLBYTYPE',
+  'UPGRADEALLOFTYPE',
+  'UPGRADERANDOMBASIC',
+  'UPGRADERANDOMCARDBYRARITY',
+  'VICTORY',
+  'WEAPONPOWER',
+])
 
 /**
  * Extract effects (game commands) from text and clean the text
@@ -22,9 +122,19 @@ const { SPECIAL_KEYWORD_EFFECT_VALUES } = require('./event-overrides.js')
  * - "DAMAGE:10; The statue accepts" → DAMAGE effect + "The statue accepts" as text
  * - "GOLD:5;ADDCARD:Shield" → Two effects: GOLD and ADDCARD (no space = chained commands)
  *
+ * A command whose colon is followed by nothing (e.g. "DAMAGE:" with an unresolved `{"VAR?":...}`
+ * read left behind by a raw, un-executed knot walk) is accepted as a valueless command — recorded
+ * via recordParseFailure so it's visible instead of silently vanishing — rather than emitting a
+ * dangling "COMMAND: " in the output.
+ *
  * @returns {Object} { effects: string[], cleanedText: string }
  */
-function extractEffects(text, functionDefinitions = new Map(), functionCalls = new Map()) {
+function extractEffects(
+  text,
+  functionDefinitions = new Map(),
+  functionCalls = new Map(),
+  eventName = ''
+) {
   if (!text) return { effects: [], cleanedText: '' }
 
   const effects = []
@@ -68,11 +178,28 @@ function extractEffects(text, functionDefinitions = new Map(), functionCalls = n
       cmd = cmd.replace(/^>>>+/, '').trim()
       if (!cmd) return
 
-      const match = cmd.match(/^([A-Za-z_]+)(?::(.+))?$/i)
+      const match = cmd.match(/^([A-Za-z_]+)(?::(.*))?$/i)
       if (!match) return
 
       const command = match[1].toUpperCase()
-      const value = match[2] ? match[2].trim() : null
+      const hasColon = match[2] !== undefined
+      const value = hasColon ? match[2].trim() : null
+
+      if (hasColon && !value) {
+        recordParseFailure(
+          'bare-colon command',
+          eventName,
+          new Error(`"${command}:" had no value after the colon`)
+        )
+      }
+
+      if (!KNOWN_COMMANDS.has(command)) {
+        recordParseFailure(
+          'unrecognized command',
+          eventName,
+          new Error(`"${command}" is not in KNOWN_COMMANDS`)
+        )
+      }
 
       let newEffects
       if (value) {
@@ -206,7 +333,10 @@ function splitCombatNode(text, type, effects, children, createNode, generateNode
   // Find the COMBAT command in the original text
   // Match COMBAT: with optional leading >>>> (2-4 > characters) or >>> (3 > characters)
   // The pattern [^\n]* matches everything up to but not including the newline
-  const combatMatch = text.match(/(>>>+)?COMBAT:[^\n\r]*/i)
+  // Negative lookbehind excludes DIRECTCOMBAT: (a distinct command, handled the same way by
+  // extractEffects, but whose "COMBAT:" suffix would otherwise match here too, leaving a
+  // dangling "DIRECT" in what this function treats as pre-combat text)
+  const combatMatch = text.match(/(>>>+)?(?<!DIRECT)COMBAT:[^\n\r]*/i)
 
   if (!combatMatch) {
     if (DEBUG) console.log('  [splitCombatNode] No COMBAT command found in text')
@@ -234,14 +364,16 @@ function splitCombatNode(text, type, effects, children, createNode, generateNode
   const { effects: postCombatEffects, cleanedText: cleanedPostCombatText } = extractEffects(
     postCombatText,
     context.functionDefinitions,
-    context.functionCalls
+    context.functionCalls,
+    context.eventName
   )
 
   // Clean the pre-combat text
   const { cleanedText: cleanedPreCombatText } = extractEffects(
     preCombatText,
     context.functionDefinitions,
-    context.functionCalls
+    context.functionCalls,
+    context.eventName
   )
 
   // If there's postcombat text, create a dialogue child node
@@ -348,14 +480,16 @@ function splitDialogueOnEffects(
     const { effects: effectsBeforePost, cleanedText: cleanedTextBeforePost } = extractEffects(
       textWithEffect,
       context.functionDefinitions,
-      context.functionCalls
+      context.functionCalls,
+      context.eventName
     )
 
     // Extract post-effect text
     const { effects: postEffects, cleanedText: cleanedPostEffectText } = extractEffects(
       textAfterEffectCommand,
       context.functionDefinitions,
-      context.functionCalls
+      context.functionCalls,
+      context.eventName
     )
 
     // Calculate numContinues for each part
@@ -412,9 +546,10 @@ function splitDialogueOnEffects(
  * @param {Object} node - The node to process
  * @param {Function} createNode - Function to create new nodes with consistent field ordering
  * @param {Function} generateNodeId - Function to generate unique node IDs
+ * @param {string} eventName - Name of the event being processed (for parse-failure logging)
  * @returns {number} Number of nodes separated
  */
-function separateChoicesFromEffects(node, createNode, generateNodeId) {
+function separateChoicesFromEffects(node, createNode, generateNodeId, eventName = '') {
   if (!node) return 0
 
   let separatedCount = 0
@@ -427,7 +562,7 @@ function separateChoicesFromEffects(node, createNode, generateNodeId) {
       const child = node.children[i]
 
       // Recursively process this child's children
-      separatedCount += separateChoicesFromEffects(child, createNode, generateNodeId)
+      separatedCount += separateChoicesFromEffects(child, createNode, generateNodeId, eventName)
 
       // Check if this child needs to be split
       const hasChoiceLabel = child.choiceLabel && child.choiceLabel.trim()
@@ -482,7 +617,8 @@ function separateChoicesFromEffects(node, createNode, generateNodeId) {
           const { effects: extractedEffects, cleanedText } = extractEffects(
             child.text,
             new Map(),
-            new Map()
+            new Map(),
+            eventName
           )
           outcomeText = cleanedText || cleanText(child.text)
           // Merge extracted effects with existing effects

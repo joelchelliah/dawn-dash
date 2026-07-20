@@ -468,7 +468,12 @@ function buildTreeFromStory(story, ctx, path) {
   const type = determineNodeType(text, choices.length === 0)
 
   // Extract effects from the beginning of text, then clean the rest
-  const { effects, cleanedText } = extractEffects(text, functionDefinitions, functionCalls)
+  const { effects, cleanedText } = extractEffects(
+    text,
+    functionDefinitions,
+    functionCalls,
+    ctx.eventName
+  )
 
   // LOOP DETECTION & EARLY DEDUPLICATION:
   // Multiple strategies detect patterns during tree building and create ref nodes
@@ -589,7 +594,7 @@ function buildTreeFromStory(story, ctx, path) {
       [], // children (leaf nodes have no children yet)
       createNode,
       generateNodeId,
-      { functionDefinitions, functionCalls }
+      { functionDefinitions, functionCalls, eventName: ctx.eventName }
     )
 
     // If combat was split (postcombat child was created), return the split structure
@@ -1127,7 +1132,7 @@ function buildTreeFromStory(story, ctx, path) {
       children,
       createNode,
       generateNodeId,
-      { functionDefinitions, functionCalls }
+      { functionDefinitions, functionCalls, eventName: ctx.eventName }
     )
 
     // If dialogue was split, use the result
@@ -1151,7 +1156,7 @@ function buildTreeFromStory(story, ctx, path) {
       finalChildren,
       createNode,
       generateNodeId,
-      { functionDefinitions, functionCalls }
+      { functionDefinitions, functionCalls, eventName: ctx.eventName }
     )
 
     // If combat was split (children changed), use the result

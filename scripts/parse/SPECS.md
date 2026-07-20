@@ -806,9 +806,35 @@ companion-story text is actually written.
 
 ---
 
-## 22. Harden `extractEffects` against bare-colon commands, and validate unrecognized commands
+## 22. Harden `extractEffects` against bare-colon commands, and validate unrecognized commands — ✅ COMPLETED
 
 **Impact: 🟢 Low (currently dormant) · Effort: 🟢 Low**
+
+> Implementation notes: both items route through `recordParseFailure`/`printParseFailureSummary`
+> (spec 11's pattern), so a healthy run still prints nothing. Item 1: the per-command regex is
+> `/^([A-Za-z_]+)(?::(.*))?$/i` (was `(.+)`), and a colon with nothing after it now records a
+> `'bare-colon command'` failure instead of dropping the whole command; `eventName` is threaded
+> into `extractEffects` (new 4th param, default `''`) and through all five call sites —
+> `splitCombatNode`/`splitDialogueOnEffects` via `context.eventName` (from `ctx.eventName`, spec
+> 3's per-event context), the main `buildTreeFromStory` text-collection call directly from `ctx`,
+> and `separateChoicesFromEffects`'s child-text re-extraction via a new trailing parameter
+> threaded through its recursion (from `tree.name` at the pipeline call site). Item 2: a
+> `KNOWN_COMMANDS` set in `node-splitting.js` (93 entries — the `CARD_ID_COMMANDS` from
+> `card-data.js` plus every other command name found in a full scan of `scripts/data/events.json`,
+> both `>>>>`-prefixed and chained after `;`) is checked per command, recording an `'unrecognized
+> command'` failure on a miss; deliberately not a hard failure, since unrecognized commands still
+> render fine as `"COMMAND: value"`.
+>
+> Building the inventory this way (grep it, don't guess it) surfaced a real, independent bug:
+> `splitCombatNode`'s `combatMatch` regex (`COMBAT:` with no left boundary) matched the `COMBAT:`
+> substring inside `DIRECTCOMBAT:` (the only event using it, Mimic), leaving a dangling
+> `">>>>DIRECT"` in what the function treats as pre-combat text — invisible in output only because
+> `cleanText`'s fallback strips leftover `>>>>` markup. Fixed with a `(?<!DIRECT)` negative
+> lookbehind alongside the two items above, since it's the same class of issue (an unanchored
+> command regex) and was found *by* this spec's new validation, not a separate one. Verified: a
+> clean run now prints no parse-failure summary at all (all 93 commands recognized, no bare colons
+> in current data, Mimic's output byte-identical pre/post the regex fix), and
+> `validateEventTreesChanges()` reports zero events — pure hardening, no behavior change.
 
 Two related, lower-severity hardening items surfaced while auditing command extraction:
 
