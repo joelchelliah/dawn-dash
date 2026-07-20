@@ -832,9 +832,57 @@ visible instead of silently producing garbled text.
 
 ---
 
-## 20. Explore Ink cycle/sequence (`seq`) alternatives instead of only the runtime's default pick
+## 20. Explore Ink cycle/sequence (`seq`) alternatives instead of only the runtime's default pick — ⏭️ SKIPPED
 
 **Impact: 🟡 Medium (completeness) · Effort: 🟡 Medium-High**
+
+> Attempted and reverted (2026-07-20): the spec's own premise about `TheCardGame` turned
+> out to be wrong, discovered via visual review after implementing. Full trace below so a
+> future attempt doesn't repeat the same mistake.
+>
+> The attempt: extend `extractReturnValues` (tree-building.js) to also recognize the
+> **numeric**-return bytecode shape (`["ev",<number>,"/ev","~ret"]`) alongside the existing
+> **string**-return one, then generalize `resolveSpecialKeywordEffects` (node-splitting.js,
+> `ADDKEYWORD`-only) to also apply to `AREAEFFECT`, so a value matching one of the called
+> function's known return values would render as `AREAEFFECT: random [id, id, ...]` (with
+> `replaceCardIdsInNode` extended to resolve each id in that list to a name). This produced
+> output that was byte-identical to `TheCardGame`'s hand-transcribed `event-alterations.js`
+> entry when checked via `--only`/`--dry-run` on that event in isolation — the entry was
+> deleted and the full 183-event run validated clean except for the intended `TheCardGame`
+> diff. **This isolated check was the mistake**: it never rendered the actual page.
+>
+> Visual review (loading `/eventmaps/the_cardgame` in the dev server) showed badly broken
+> output: 3 real choices, each labeled `[cardid=...]` (unresolved) and each carrying an
+> `AREAEFFECT: random [all 6 cards]` effect on its single, specific outcome text. The real
+> structure, found by reading the raw Ink JSON at the "Pick your fate" node: **3 real
+> runtime choices** (3 face-down cards dealt from the pool), each already bound to one
+> specific card via `cardOne`/`cardTwo`/`cardThree = random()` (called once each, before
+> the choice menu is shown), then an `if/else if` chain on `chosenCard` (not `seq`) picks
+> that choice's one matching outcome. So the `seq`/`random()` function's 6 return values
+> describe "which cards can be in the pool", not "what this specific choice could lead
+> to" — each of the 3 choices only ever reaches **one** of the 6 texts, never all 6. The
+> new `resolveFunctionCallEffects` logic couldn't distinguish those two situations: it
+> fired on any `AREAEFFECT` value that matched *some* return value of *some* called
+> function, regardless of which specific choice branch it was attached to, so it wrongly
+> attached all 6 alternatives to each of the 3 individual leaves instead of collapsing the
+> whole 3-choice structure into one shared random-pick node the way the manual alteration
+> did. The old alteration wasn't a stopgap for a parser gap in the way spec 18/19's targets
+> were — it's encoding a genuine semantic collapse (3 sequential draws from a shared pool
+> → 1 canonical "pick 1 of 6" representation) that the generic pass has no signal for.
+>
+> Reverted in full: `tree-building.js`, `node-splitting.js`, `misc-passes.js` back to their
+> pre-change state (`git checkout`), `TheCardGame`'s `event-alterations.js` entry restored,
+> `event-trees.json` regenerated from the reverted code (`validateEventTreesChanges()`
+> reports zero events changed). **Lesson for next attempt: verify a `seq`/cycle event's
+> actual choice structure (grep the raw Ink JSON around the call site, not just the
+> function body) before assuming "N return values" means "N sibling branches at this
+> node" — and load the actual page before considering any structural pipeline change to
+> this event done, not just a `--dry-run` diff.**
+>
+> `Shrine of Trickery`'s case is different enough that a future attempt could still target
+> it alone: unlike `TheCardGame`, its `ADDKEYWORD: random` call sites already correctly
+> represent "any of these 6 could apply here" (verified unaffected by this revert — it
+> never depended on the reverted code).
 
 Ink's cycle-alternative syntax (`{~ + | + | + }` compiling to a `["ev","visit",N,"seq", ...]`
 bytecode container with `s0..sN` sub-bodies, dispatched by an internal per-container visit
@@ -843,10 +891,17 @@ already detects (`["ev", min, max, "rnd", "/ev", {"VAR=": name}]`), and is **not
 current code path**. A full-file scan found exactly three events using it:
 
 - **`TheCardGame`** — the `random` function (called 3×/playthrough for `cardOne`/`cardTwo`/
-  `cardThree`) is a 6-value cycle over card ids. Because the linear playthrough only calls it 3
-  times, indices `s3`/`s4`/`s5` (3 of 6 possible outcome texts — "Action begets action...",
-  "So be it...", "The skeleton grins gleefully...") **can never appear in the tree**, confirmed
-  by running the parser.
+  `cardThree`) is a 6-value cycle over card ids, used to deal 3 face-down cards from a shared
+  pool of 6 before the "Pick your fate" choice is shown; each of the 3 real choices resolves
+  to exactly one specific card via an `if/else if` chain on `chosenCard`, not a `seq` dispatch
+  at that point. Because the linear playthrough only calls `random()` 3 times, indices
+  `s3`/`s4`/`s5` (3 of 6 possible cards) can never be among the pool for a given parse run —
+  confirmed by running the parser. **Not simply "6 outcomes at one branch point"** — see the
+  attempt notes above for why that framing led to a broken implementation. A correct fix
+  would need to recognize the 3-choices-from-a-shared-pool shape specifically (e.g. by
+  noticing multiple sibling choices whose `AREAEFFECT` values all trace back to the same
+  called function, then collapsing them into one canonical random-pick representation like
+  the existing manual alteration does), not just "does this value match a known return list".
 - **`ArmsDealer`** — the opening line's "leans against a nearby ___" is a 4-value cycle
   (`stone`/`wall`/`tree trunk`/`signpost`). Only `s3` ("signpost") ever appears in the parsed
   output; the other 3 flavor variants are absent from the tree entirely.
@@ -855,24 +910,31 @@ current code path**. A full-file scan found exactly three events using it:
   for `ADDKEYWORD` random-list resolution, so all 6 values surface via
   `ADDKEYWORD: random [...]`. This is a lucky accident of the payload type, not a working
   detection of the `seq` construct — it doesn't generalize to `TheCardGame`'s numeric-id payload
-  feeding prose branching. (A related "once" variant, Ink's `{~ ... | ...}` MIN/stopping
-  alternative — visible in `Weeping Woods Start` — happens to have both its values surfaced today
-  via unrelated dialogue-hub re-visitation, again not by deliberate design.)
+  feeding prose branching. Unlike `TheCardGame`, here the `ADDKEYWORD` really is attached to a
+  single node representing "any of these 6 applies", so the existing behavior is actually
+  correct, not just coincidentally output-identical. (A related "once" variant, Ink's
+  `{~ ... | ...}` MIN/stopping alternative — visible in `Weeping Woods Start` — happens to have
+  both its values surfaced today via unrelated dialogue-hub re-visitation, again not by
+  deliberate design.)
 
 Proposed: detect the `["ev","visit",N,"seq", ...]` bytecode shape the same way `randomVars` are
 detected today (a static pre-execution scan over the raw Ink JSON, in `random-support.js` or a
-sibling module), collect each container's `s0..sN` sub-bodies, and treat a node whose command
-value resolves to one of these cycle containers the same way `COLLECTOR` knots are treated (spec
-18): explore every `sN` branch as a sibling alternative rather than only the one index the
-single deterministic playthrough happens to land on. `Shrine of Trickery`'s existing (coincidental)
-handling should keep working — this is additive — but its choice-label-ordering quirk (labels
-assigned by literal `s0..s5` traversal order, not by which index the real `cardOne`/`cardTwo`/
-`cardThree` calls actually land on first) is worth fixing at the same time since both live in the
-same code path.
+sibling module), collect each container's `s0..sN` sub-bodies. **Before generalizing any
+resolution logic** (e.g. the `ADDKEYWORD`-only special case in `resolveSpecialKeywordEffects`),
+check whether the call site is "one node, N possible outcomes" (safe to render as
+`random [...]` on that one node — `Shrine of Trickery`'s shape) or "N choices, each already
+bound to one of the cycle's values before the choice is shown" (`TheCardGame`'s shape, which
+needs the choices collapsed together, not each one exploded to all N outcomes). `ArmsDealer`'s
+inline mid-sentence case is a third shape again (see spec discussion above and in the README's
+"Known nondeterminism" section) — closer to `RANDOM(min,max)` value substitution than to
+either of the above. **Whatever is implemented, verify by loading the actual Eventmaps page
+for every affected event, not just a structural `--dry-run` diff** — the diff can't tell you
+whether the rendered shape makes semantic sense, only whether it matches (or doesn't match) a
+prior baseline.
 
 ---
 
-## 21. Explore LIST-typed variable branches (`Shard of Mirrors`)
+## 21. Explore LIST-typed variable branches (`Shard of Mirrors`) — ⏭️ SKIPPED
 
 **Impact: 🟢 Low (single event) · Effort: 🟡 Medium**
 
@@ -964,7 +1026,7 @@ pattern.)
 
 ---
 
-## 23. Document "Shard of Strife"'s unreachable content (informational, no parser change)
+## 23. Document "Shard of Strife"'s unreachable content (informational, no parser change) — ⏭️ SKIPPED
 
 **Impact: 🟢 Low (data hygiene, not a parser bug) · Effort: 🟢 Low**
 
@@ -993,56 +1055,9 @@ Two low-cost follow-ups, neither urgent:
 
 ## Verification strategy
 
-How we check that a change didn't meaningfully alter the generated trees. The existing
-`validateEventTreesChanges()` in `parse-validation.js` is the backbone: it reports per-event
-"meaningful diff" while ignoring the known run-to-run noise.
-
-**Known non-deterministic surface** (encoded as per-event ignore rules in
-`VALIDATION_IGNORE_RULES` in `event-overrides.js`, applied by `parse-validation.js`):
-
-- `id` / `ref` / `refChildren` numeric values — traversal-order dependent, renumber every run
-- Random Ink content that executes during story exploration: the `"Focus on the ..."`
-  text/choiceLabel variants and the `"A skeleton in highly oxidised..."` text line
-- External: card/talent names come from a live Blightbane API fetch at parse time, so upstream
-  data changes can alter output independently of our code
-
-**Per-change workflow:**
-
-1. **Before starting a spec**: regenerate `event-trees.json` with the *current* script and commit
-   it, so the baseline reflects what today's code actually produces (including current API data).
-   With spec 5's `--baseline <file>` flag, a saved snapshot file replaces the commit step.
-2. Make the change, re-run `node scripts/parse/parse-event-trees.js`.
-3. `validateEventTreesChanges()` must report **zero** events for pure refactors
-   (specs 1, 2, 3, 5, 9, 15). For behavior-changing specs (4, 6, 7, 8, 10), review every reported
-   event deliberately and spot-check it in the Eventmaps dev server (per the repo's
-   visual-verification policy).
-4. After a verified step, re-commit the regenerated output so the next step diffs against a clean
-   baseline.
-
-**Former blind spot, closed by spec 7:** the old line-diff validator ignored *all* `ref`
-changes (necessarily, since ids renumber), so a ref moving to a different target node, or a
-subtree collapsing into a ref, could pass validation unseen. The structural validator compares
-refs by *target descriptor* (path + text/choiceLabel), so id renumbering stays invisible while
-target changes are caught — specs 4 and 8, which mutate exactly this ref structure, are now
-covered.
-
-**Nondeterminism audit (cheap, one-off):** run the parser twice back-to-back with no code
-changes and diff the two outputs. That empirically enumerates the full non-deterministic surface
-and confirms the documented ignore rules still cover all of it — worth doing once before the
-refactor starts, and again if the game data updates significantly.
-
-> Audit result (2026-07-18): the non-deterministic surface has **three** classes, all covered
-> by the validator's ignore rules:
-> 1. **Fallen Soldier** — oxidised-skeleton text ("nearby wall" vs "nearby signpost")
-> 2. **Mirror Shard** — "Focus on the ..." label shuffling
-> 3. **Post-processing id shifts** — the id counter is not reset after the last parsed event,
->    and the number of ids that event allocates (including discarded exploration nodes) varies
->    with random rolls; when it does, every post-processing-generated id shifts by a uniform
->    offset, producing byte diffs in ~46 events with zero structural change. This class did
->    NOT show up in the first two-run audit (the counts happened to match) and was only
->    discovered during spec 3 verification — byte-level comparison is therefore not a reliable
->    pass/fail signal on its own; use the validator or a ref-target-aware structural diff.
->    (`--only` re-parses shift post-processing ids for the same reason.)
+Moved to the [README](./README.md#verification-strategy) — it's operating procedure for any
+future change to this parser, not a proposal, so it lives with the rest of the durable
+pipeline documentation rather than in this punch-list.
 
 ---
 
