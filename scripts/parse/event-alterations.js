@@ -4,6 +4,10 @@
  * Manual fixes and enhancements for event trees that are difficult to parse automatically.
  * Applied AFTER all optimization passes (deduplication, refChildren conversion, etc.)
  *
+ * Every node added or edited here is automatically tagged `altered: true` in the output —
+ * no need to (and no way to) set it from an alteration spec. Only the shallowest altered
+ * node of a subtree is tagged; its descendants inherit the meaning.
+ *
  * SUPPORTED FIELDS:
  *
  * Finding nodes:

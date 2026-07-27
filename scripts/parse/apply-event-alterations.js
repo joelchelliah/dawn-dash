@@ -10,6 +10,12 @@
  * - Replacing children of nodes (replaceChildren)
  * - Updating a single child node (updateChild) - only if node has exactly 1 child
  * - Removing nodes from the tree (removeNode)
+ *
+ * Every node added or edited by an alteration is tagged with `altered: true`, so the
+ * renderer can tell manually-fixed content apart from purely parsed content. The tag is
+ * only set on the SHALLOWEST altered node: descendants of an altered node (whether created
+ * as part of the same spec, or already in the tree under a node an earlier alteration
+ * tagged) inherit the meaning and stay untagged.
  */
 function applyEventAlterations(rootNode, alterations, generateNodeId, warnings = []) {
   if (!rootNode || !alterations || alterations.length === 0) return 0
@@ -164,6 +170,11 @@ function applyEventAlterations(rootNode, alterations, generateNodeId, warnings =
           // Replace all properties of the matched node with the new node
           Object.keys(match).forEach((key) => delete match[key])
           Object.assign(match, newNode)
+          // newNode is tagged as a top-level created node; drop the tag again if an
+          // ancestor already carries it
+          if (hasAlteredAncestor(rootNode, match.id)) {
+            delete match.altered
+          }
           appliedCount++
         }
       }
@@ -215,6 +226,11 @@ function applyEventAlterations(rootNode, alterations, generateNodeId, warnings =
         }
 
         match.children = newChildren
+        // Each new child was created top-level and is tagged; drop the tag where the
+        // matched node (or one of its ancestors) already carries it
+        if (match.altered || hasAlteredAncestor(rootNode, match.id)) {
+          newChildren.forEach((child) => delete child.altered)
+        }
         appliedCount++
       }
       continue
@@ -284,6 +300,7 @@ function applyEventAlterations(rootNode, alterations, generateNodeId, warnings =
           }
         }
 
+        markAltered(rootNode, child)
         appliedCount++
       }
     }
@@ -302,6 +319,7 @@ function applyEventAlterations(rootNode, alterations, generateNodeId, warnings =
           } else {
             node.requirements = newRequirements
           }
+          markAltered(rootNode, node)
           appliedCount++
         }
       }
@@ -366,6 +384,7 @@ function applyEventAlterations(rootNode, alterations, generateNodeId, warnings =
           }
         }
 
+        markAltered(rootNode, node)
         appliedCount++
       }
     }
@@ -418,6 +437,11 @@ function applyEventAlterations(rootNode, alterations, generateNodeId, warnings =
             node.children = []
           }
           node.children.push(newChild)
+          // newChild was created top-level and is tagged; drop the tag when the parent
+          // (or one of its ancestors) already carries it
+          if (node.altered || hasAlteredAncestor(rootNode, node.id)) {
+            delete newChild.altered
+          }
           appliedCount++
         }
       }
@@ -425,6 +449,47 @@ function applyEventAlterations(rootNode, alterations, generateNodeId, warnings =
   }
 
   return appliedCount
+}
+
+/**
+ * Mark a node that an alteration edited as altered.
+ *
+ * Skipped when an ancestor is already tagged: the tag marks the shallowest altered node,
+ * and everything below it is understood to be altered too. Nodes created by an alteration
+ * are tagged at creation time (see createNodeFromAlterationSpec), not here.
+ */
+function markAltered(rootNode, node) {
+  if (node.altered) return
+  if (hasAlteredAncestor(rootNode, node.id)) return
+  node.altered = true
+}
+
+/**
+ * Whether any node on the path from rootNode down to (but excluding) nodeId is tagged
+ * `altered`. Walks children only, so ref/refChildren jump links are not treated as
+ * ancestry — a ref into altered content doesn't make the referencing node altered.
+ */
+function hasAlteredAncestor(rootNode, nodeId) {
+  if (!rootNode || !rootNode.children) return false
+
+  for (const child of rootNode.children) {
+    if (child.id === nodeId) return Boolean(rootNode.altered)
+    if (containsNode(child, nodeId)) {
+      return Boolean(rootNode.altered) || hasAlteredAncestor(child, nodeId)
+    }
+  }
+
+  return false
+}
+
+/**
+ * Whether nodeId is this node or anywhere in its children subtree
+ */
+function containsNode(node, nodeId) {
+  if (!node) return false
+  if (node.id === nodeId) return true
+  if (!node.children) return false
+  return node.children.some((child) => containsNode(child, nodeId))
 }
 
 /**
@@ -659,6 +724,9 @@ function findNodesByRequirement(node, requirementToFind) {
  * @param {Object} refTargetMap - Map of refTarget numbers to actual node IDs
  * @param {Array} refSourceNodes - Array to collect nodes that need refSource resolution
  * @param {Array} refCreateNodes - Array to collect nodes that need refCreate resolution
+ * @param {Function} generateNodeId
+ * @param {boolean} [isTopLevel] - true for the node the alteration inserts, false for its
+ *   descendants: only the top-level node is tagged `altered` (see module doc)
  * @returns {Object} The created node
  */
 function createNodeFromAlterationSpec(
@@ -666,7 +734,8 @@ function createNodeFromAlterationSpec(
   refTargetMap = {},
   refSourceNodes = [],
   refCreateNodes = [],
-  generateNodeId
+  generateNodeId,
+  isTopLevel = true
 ) {
   if (!spec || !spec.type) {
     console.warn(`  ⚠️  Invalid node spec: missing type`)
@@ -676,6 +745,12 @@ function createNodeFromAlterationSpec(
   const node = {
     id: generateNodeId(),
     type: spec.type,
+  }
+
+  // Only the top-level created node carries the tag; children created from this spec are
+  // descendants of an altered node and inherit the meaning (see module doc).
+  if (isTopLevel) {
+    node.altered = true
   }
 
   if (spec.text !== undefined) {
@@ -746,7 +821,8 @@ function createNodeFromAlterationSpec(
           refTargetMap,
           refSourceNodes,
           refCreateNodes,
-          generateNodeId
+          generateNodeId,
+          false
         )
       )
       .filter((child) => child !== null)

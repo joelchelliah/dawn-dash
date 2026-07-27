@@ -216,6 +216,7 @@ export interface EventCodexSearchFilterCache {
   navigationMode: string
   levelOfDetail: string
   showContinuesTags: boolean
+  showAlteredBadges?: boolean
   lastUpdated: number
 }
 

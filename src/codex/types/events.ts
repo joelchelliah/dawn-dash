@@ -56,4 +56,7 @@ interface BaseNode {
   children?: EventTreeNode[]
   ref?: number
   refChildren?: number[]
+  // Set on nodes added or edited by a manual event alteration during parsing. Only the
+  // shallowest altered node is tagged — everything below it is altered by implication.
+  altered?: boolean
 }

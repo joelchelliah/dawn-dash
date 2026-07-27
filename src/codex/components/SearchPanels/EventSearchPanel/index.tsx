@@ -87,6 +87,8 @@ const EventSearchPanel = ({
     setLevelOfDetail,
     showContinuesTags,
     setShowContinuesTags,
+    showAlteredBadges,
+    setShowAlteredBadges,
     resetFilters,
   } = useSearchFilters
 
@@ -163,12 +165,11 @@ const EventSearchPanel = ({
     if (isReloadingMap) {
       return <LoadingDots color={loadingColor} className={cx('info-message-loading')} />
     }
-    const textPrefix = isMobile ? 'Something wrong?' : 'Did something go wrong?'
+
     return (
       <div className={cx('info-message')}>
-        <span className={cx('info-message__emoji')}>ℹ️</span>
+        <span className={cx('info-message__emoji')}>✏️</span>
         <span className={cx('info-message__text')}>
-          {textPrefix}{' '}
           <GradientLink
             text="Redraw the map"
             onClick={handleRedrawMap}
@@ -271,9 +272,18 @@ const EventSearchPanel = ({
             <div className={cx('control-wrapper', 'control-wrapper--checkbox')}>
               <Checkbox
                 name="show-continues-tags"
-                checkboxLabel="Show «Continues» tags"
+                checkboxLabel="⏭️ Show «Continues» tags"
                 checked={showContinuesTags}
                 onChange={() => setShowContinuesTags(!showContinuesTags)}
+                type="formatting-event"
+              />
+            </div>
+            <div className={cx('control-wrapper', 'control-wrapper--checkbox')}>
+              <Checkbox
+                name="show-altered-badges"
+                checkboxLabel={'🛠️ Mark altered content'}
+                checked={showAlteredBadges}
+                onChange={() => setShowAlteredBadges(!showAlteredBadges)}
                 type="formatting-event"
               />
             </div>

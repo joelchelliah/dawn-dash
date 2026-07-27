@@ -142,7 +142,7 @@ Current order:
 | 9 | `normalizeRefsPointingToCombatNodes` | Refs to split combat nodes → the postcombat dialogue child |
 | 10 | `convertSiblingAndCousinRefsToRefChildren` | Nearby refs → `refChildren` + sibling reordering |
 | 11 | `hoistPureStandInRefNodes` | Stand-in refChildren nodes that are pure copies of their target (and only children) are deleted; the parent's converging line goes directly to the original |
-| 12 | `applyEventAlterations` | Manual per-event fixes (boss-death transitions, door/room structure, …) |
+| 12 | `applyEventAlterations` | Manual per-event fixes (boss-death transitions, door/room structure, …). Every added/edited node is tagged `altered: true`, on the shallowest altered node only — descendants inherit the meaning |
 | 13 | `deduplicateAllTreesPostAlterations` | Pass 7 again: alterations can grow previously-too-small subtrees past the dedup size gate (boss transitions turn each duplicated `choice → combat` pair into an eligible 3-node chain), so identical chains collapse at the choice level |
 | 14 | `mergeDuplicateCombatNodes` | Duplicate combat nodes pass 13 can't catch (copies behind non-identical choice wrappers, whose chains stay below the size gate) → `ref` jump links to the shallowest copy; identical on ALL fields incl. requirements/effects, since a combat node's effects are the fight. Childless copies stay — merging a leaf removes no nodes |
 | 15 | `checkInvalidRefs` | Sanity check: every ref points at an existing node |

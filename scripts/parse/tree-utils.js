@@ -27,6 +27,8 @@
  * @property {number} [numContinues]
  * @property {number} [ref] - id of the node this node is a reference/jump-link to
  * @property {number[]} [refChildren] - ids of nodes rendered as converging lines
+ * @property {boolean} [altered] - set by applyEventAlterations on the shallowest node an
+ *   alteration added or edited (descendants inherit the meaning and stay untagged)
  * @property {ParseNode[]} [children]
  */
 
