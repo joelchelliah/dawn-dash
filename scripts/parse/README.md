@@ -122,6 +122,31 @@ Randomness is normalized as it's encountered: a rolled `GOLD:12` becomes
 `GOLD: random [5 - 15]` using the detected ranges, so the tree describes the *distribution*,
 not one playthrough's dice.
 
+### `>>>` vs `>>>>` command markers
+
+Both marker forms appear in the game's Ink. The distinction is the game's own, and per the
+developers' pseudocode:
+
+> the `>>>` is telling the game's parser to read what is next
+> and either directly continue if it's `>>>>` or pause if it's `>>>`
+
+So the fourth `>` is a **playback-timing** flag for the game engine — whether the engine runs
+straight on after handling the command (`>>>>`) or halts and waits, typically for the player to
+acknowledge something (`>>>`).
+
+**For our parser the distinction is irrelevant, and deliberately so.** We build a static map of
+every path, not a playback timeline, so "continue vs pause" has no representation in the output.
+Every marker regex accordingly matches both forms via `>>>>?` (three `>` plus an optional
+fourth) — see `commandSequencePattern` in `node-splitting.js:147`, `cleanText` at line 271, the
+combat matcher at line 339 (`(>>>+)?`), and `cmd.replace(/^>>>+/, '')` at line 178. `>>>GOLD:50`
+and `>>>>GOLD:50` both extract to `GOLD: 50` with empty leftover text.
+
+Because both forms are treated identically, **bracket count is never the cause of a parsing
+problem** — if a command's value is being mangled, look at the value's character class in
+`commandSequencePattern`, not at how many `>` it has. (Worked example: `>>>TRADE:&&malignancies&&+3`
+loses its value because `&` isn't in that character class, so the match stops at the first `&`.
+The same happens with four brackets.)
+
 ## Step 2: The post-processing pipeline
 
 Raw trees are correct but not presentation-ready. The `PIPELINE` registry in
