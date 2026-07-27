@@ -7752,7 +7752,7 @@
     "artwork": "opportunity_image",
     "rootNode": {
       "id": 0,
-      "text": "A skeleton in highly oxidised yet impressive armor sits against a nearby stone. As you walk past, an ivory hand suddenly grasps at your weapon. \"Pleeeeeeease\" a hollow howl escapes from the undead's broken jaw...",
+      "text": "A skeleton in highly oxidised yet impressive armor sits against a nearby tree trunk. As you walk past, an ivory hand suddenly grasps at your weapon. \"Pleeeeeeease\" a hollow howl escapes from the undead's broken jaw...",
       "type": "dialogue",
       "numContinues": 0,
       "children": [
@@ -15554,11 +15554,11 @@
         {
           "id": 1,
           "type": "choice",
-          "choiceLabel": "Focus on the Consul",
+          "choiceLabel": "Focus on the Priestess",
           "children": [
             {
               "id": 58575,
-              "text": "Focus on the Consul (fill in the lore for this.) final words",
+              "text": "Focus on the Priestess (fill in the lore for this.) final words",
               "type": "end"
             }
           ]
@@ -15566,11 +15566,11 @@
         {
           "id": 2,
           "type": "choice",
-          "choiceLabel": "Focus on the Collector",
+          "choiceLabel": "Focus on the Necromancer",
           "children": [
             {
               "id": 58576,
-              "text": "Focus on the Collector (fill in the lore for this.) final words",
+              "text": "Focus on the Necromancer (fill in the lore for this.) final words",
               "type": "end"
             }
           ]
@@ -15578,11 +15578,11 @@
         {
           "id": 3,
           "type": "choice",
-          "choiceLabel": "Focus on the Alchemist",
+          "choiceLabel": "Focus on the Consul",
           "children": [
             {
               "id": 58577,
-              "text": "Focus on the Alchemist (fill in the lore for this.) final words",
+              "text": "Focus on the Consul (fill in the lore for this.) final words",
               "type": "end"
             }
           ]
@@ -32138,14 +32138,14 @@
           "children": [
             {
               "id": 68453,
-              "text": "\"Then take this kindness with you: I offer you <talent=617304> - or, if you would rather, an enchantment bound forever to your soul. The Dreamwell remembers those who tend to its keeper.\"",
+              "text": "\"Then take this kindness with you: I offer you Clarity of Mind - or, if you would rather, an enchantment bound forever to your soul. The Dreamwell remembers those who tend to its keeper.\"",
               "type": "dialogue",
               "numContinues": 0,
               "children": [
                 {
                   "id": 2277,
                   "type": "choice",
-                  "choiceLabel": "Talent: Gain <talent=617304>",
+                  "choiceLabel": "Talent: Gain Clarity of Mind",
                   "children": [
                     {
                       "id": 68451,

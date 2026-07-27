@@ -16,6 +16,7 @@ scripts/data/dump.txt            (minified JS bundle)
         │  scripts/extract-events.js
         │  - find JSON.parse('[...]') blobs, keep objects with event types
         │  - dedupe by caption+text, resolve card/talent ids -> names
+        │    (both `ADDTALENT:123` commands and inline `<talent=123>` prose tokens)
         │  - flag DEPRECATED_EVENTS (so changing that list needs THIS step re-run,
         │    not just the parse step below)
         ▼

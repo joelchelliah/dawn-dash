@@ -1,7 +1,11 @@
 const fs = require('fs')
 const path = require('path')
 
-const { buildIdToNameMapping, INLINE_CARD_ID_COMMANDS } = require('./shared/card-data.js')
+const {
+  buildIdToNameMapping,
+  INLINE_CARD_ID_COMMANDS,
+  inlineCardIdTokenRegex,
+} = require('./shared/card-data.js')
 const { DEPRECATED_EVENTS } = require('./parse/event-overrides.js')
 
 /**
@@ -139,6 +143,15 @@ async function extractEvents() {
         return name ? `${command}:${name}` : `${command}:${missingName(numId)}`
       }
     )
+
+    // Replace angle-bracket card/talent references in narrative text and choice labels
+    // (<talent=617304> -> Clarity of Mind); these are prose, so only the name remains
+    selectedEvent.text = selectedEvent.text.replace(inlineCardIdTokenRegex(), (match, id) => {
+      const numId = parseInt(id, 10)
+      const name = idToName[numId]
+      if (!name) unresolvedIds.add(numId)
+      return name || missingName(numId)
+    })
 
     // Mark as deprecated if caption matches the blacklist
     const caption = selectedEvent.caption || selectedEvent.name || ''

@@ -3,6 +3,7 @@
  * - the id -> name mapping fetched from the Blightbane API (with a local file cache,
  *   so the parse step can run offline and doesn't re-fetch within one sync run)
  * - the list of commands whose value is a numeric card/talent id
+ * - the inline `<talent=123>` / `<card=123>` prose-token pattern
  */
 const fs = require('fs')
 const https = require('https')
@@ -29,6 +30,10 @@ const CARD_ID_COMMANDS = [
   'REMOVETALENT',
 ]
 const INLINE_CARD_ID_COMMANDS = CARD_ID_COMMANDS.filter((cmd) => cmd !== 'AREAEFFECT')
+
+// Angle-bracket card/talent references embedded in narrative text and choice labels
+// (e.g. "I offer you <talent=617304>").
+const inlineCardIdTokenRegex = () => /<(?:card|talent)=(\d+)>/g
 
 function fetchJson(url) {
   return new Promise((resolve, reject) => {
@@ -89,4 +94,5 @@ module.exports = {
   readOrFetchIdToNameMapping,
   CARD_ID_COMMANDS,
   INLINE_CARD_ID_COMMANDS,
+  inlineCardIdTokenRegex,
 }

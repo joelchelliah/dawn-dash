@@ -15,10 +15,14 @@ const { SPECIAL_KEYWORD_EFFECT_VALUES } = require('./event-overrides.js')
 const { recordParseFailure } = require('./debug.js')
 
 /**
- * All `>>>>COMMAND` names seen across the current event data (audited 2026-07-20). An
- * unrecognized command isn't a hard error — it still renders as "COMMAND: value" — but
+ * All `>>>>COMMAND` names seen across the current event data (audited 2026-07-20; DELVEFROMANYPROPERTY,
+ * IMBUE, NATHALIMERCHANT and RANDOMEVENT added 2026-07-27 with the Nexus of Nightmares sync).
+ * An unrecognized command isn't a hard error — it still renders as "COMMAND: value" — but
  * it's exactly the kind of silent drift (a typo, an upstream rename) spec 6's config-name
  * validation guards against elsewhere, so it's worth surfacing via recordParseFailure.
+ *
+ * Registering a command only silences that warning; it does not change how the command
+ * renders, so the entries above stay in the tree exactly as they were.
  */
 const KNOWN_COMMANDS = new Set([
   ...CARD_ID_COMMANDS,
@@ -49,6 +53,7 @@ const KNOWN_COMMANDS = new Set([
   'DAMAGE',
   'DECOLOR',
   'DELVEFROMANY',
+  'DELVEFROMANYPROPERTY',
   'DELVEFROMKEYWORD',
   'DELVEFROMRARITY',
   'DIRECTCOMBAT',
@@ -60,18 +65,21 @@ const KNOWN_COMMANDS = new Set([
   'GOTOAREA',
   'HEAL',
   'HEALPERCENTAGE',
+  'IMBUE',
   'IMBUESELECTION',
   'LUCK',
   'MAXHEALTH',
   'MEMORIZE',
   'MERCHANT',
   'MERCHANTDISCOUNT',
+  'NATHALIMERCHANT',
   'NEXTAREA',
   'NEXTCARD',
   'NEXTSTATUS',
   'PERSISTENT',
   'PLACEONTOP',
   'QUESTFLAG',
+  'RANDOMEVENT',
   'RANDOMIZEENERGY',
   'RANDOMIZEUPGRADES',
   'RELIABLE',

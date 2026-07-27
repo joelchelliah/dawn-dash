@@ -24,7 +24,7 @@ back-and-forth:
 | # | Item | Size | Blocked by |
 |---|---|---|---|
 | 1 | [Strange Light — mark as deprecated](#1-strange-light--mark-as-deprecated--completed) | ~~one line~~ + re-extract | ✅ COMPLETED |
-| 2 | [Vaelmorin — unresolved `<talent=617304>`](#2-vaelmorin--unresolved-talent617304-in-text) | small | — |
+| 2 | [Vaelmorin — unresolved `<talent=617304>`](#2-vaelmorin--unresolved-talent617304-in-text--completed) | ~~small~~ + re-extract | ✅ COMPLETED |
 | 3 | [Dreampod — `&&malignancies&&+3` codeword](#3-dreampod--malignancies3-codeword-in-text) | small | needs a game-side answer |
 | 4 | [The Nexus — `setpicks:nexuscompanions`](#4-the-nexus--setpicksnexuscompanions-hides-7-branches) | medium | — |
 | 5 | [Broken Vault — node-budget blowout](#5-broken-vault--node-budget-blowout-do-this-last) | large | — |
@@ -92,7 +92,89 @@ beyond the "wall"/"signpost" pair the README's audit note lists; consistent with
 
 ---
 
-## 2. Vaelmorin — unresolved `<talent=617304>` in text
+## 2. Vaelmorin — unresolved `<talent=617304>` in text ✅ COMPLETED
+
+**Status:** done, implemented as the fix sketch below recommended — in `extract-events.js`,
+alongside `INLINE_CARD_ID_COMMAND_REGEX`, so the token is resolved in the raw Ink before
+parsing and both the narrative text and the choice label come out clean.
+
+The pattern lives next to the command list it parallels, in
+[`shared/card-data.js`](../shared/card-data.js):
+
+```js
+// a getter, not a const: a /g regex carries lastIndex, so a shared object would make
+// any future .test()/.exec() use stateful across events
+const inlineCardIdTokenRegex = () => /<(?:card|talent)=(\d+)>/g
+```
+
+`extract-events.js` applies it right after the command replacement, resolving to the bare
+name (these tokens are prose, not effects — there's no command to preserve) and feeding
+misses into the **same `unresolvedIds` set**, so a genuinely unknown id still surfaces as
+`MISSING NAME [id: N]` rather than passing through silently. Both `card` and `talent` are
+matched even though only `talent` occurs today — one alternation, no speculative structure.
+
+### ⚠️ Like item 1, this needed the extract step re-run
+
+`extract-events.js` bakes the resolved text into `scripts/data/events.json`; the parse step
+only reads it. So `--only "Vaelmorin…"` alone would have reported no change:
+
+```bash
+node scripts/extract-events.js            # ← required
+node scripts/parse/parse-event-trees.js
+```
+
+Extraction always fetches the Blightbane API live, so `events.json` was snapshotted first and
+diffed after: **exactly one line changed** (the Vaelmorin event), both tokens → `Clarity of Mind`.
+No upstream API drift. Note `scripts/data/` is gitignored, so this snapshot has to be taken by
+hand — there's no `git diff` fallback.
+
+### Verified
+
+- Structural validator, full run: **`Vaelmorin, the Ancient Death` the only event with a
+  meaningful diff**, and only the intended one:
+  `choiceLabel: "Talent: Gain <talent=617304>" → "Talent: Gain Clarity of Mind"`
+  (the narrative-text node changed too, but it sits inside an unchanged-shape subtree)
+- `grep -c '<talent=\|<card=' src/codex/data/event-trees.json` → **0**
+- Both originally-broken nodes now read `Clarity of Mind`; the sibling `ADDTALENT: Clarity of
+  Mind` effect on the same node is unchanged, as expected
+- Unresolved card/talent ids at extraction: **0**
+- `npm run verify` clean
+
+### Follow-up: the whole `unrecognized command` warning class cleared ✅
+
+Vaelmorin also emitted a non-fatal `unrecognized command` warning, **unrelated** to the token
+syntax and pre-existing:
+
+```
+"IMBUE" is not in KNOWN_COMMANDS      (node-splitting.js:200)
+```
+
+The `c-8` branch is a bare `>>>IMBUE` (no value) — the sole occurrence in the dataset. It was
+already rendering correctly as the effect `"IMBUE"`; the missing registry entry only meant the
+command wasn't *recognised*, which is precisely the upstream-drift signal `KNOWN_COMMANDS`
+exists to raise.
+
+Enumerating the rest of the class turned up three more, each a real, safe command from the same
+content drop. **All four are now registered** in
+[`node-splitting.js`](./node-splitting.js):
+
+| Command | Event(s) | Renders as |
+|---|---|---|
+| `IMBUE` | `Vaelmorin, the Ancient Death` | effect `IMBUE` |
+| `NATHALIMERCHANT` | `Nathali`, `Nathali Brightcandle` | effect `NATHALIMERCHANT` |
+| `RANDOMEVENT` | `Dreampod` | effect `RANDOMEVENT` |
+| `DELVEFROMANYPROPERTY` | `Vault Door` | effect `DELVEFROMANYPROPERTY` |
+
+**These are registry entries only.** Registering a command silences the warning and nothing
+else — each one already appeared in the tree and still appears there unchanged. The
+`unrecognized command` failure class is now **empty**; the remaining non-fatal warnings are
+`unresolved knot variable read` (`Enchanter`, `The Nexus` — item 4) and `bare-colon command`
+(`Dreampod` — item 3).
+
+---
+
+<details>
+<summary>Original diagnosis (kept for the record)</summary>
 
 **Status:** cause confirmed. **This is a parser gap, not missing database data.**
 
@@ -134,6 +216,8 @@ emits `MISSING NAME [id: N]`. Currently 0 occurrences — make sure a genuinely 
 
 **Verify:** both occurrences read `Clarity of Mind`; `grep -c '<talent=' src/codex/data/event-trees.json`
 returns 0.
+
+</details>
 
 ---
 
@@ -462,3 +546,8 @@ events, all three statues render consistently, and the tree contains the full va
 - **Non-fatal parse warnings** for `Enchanter`, `The Nexus`, `Nathali`, `Nathali Brightcandle`,
   `Dreampod`, `Vault Door`, `Vaelmorin, the Ancient Death` — these overlap with items 2–4 above
   and should be re-checked once those are fixed, rather than tracked separately.
+  **Partly resolved:** the `unrecognized command` half of these is gone — all four commands are
+  now registered in `KNOWN_COMMANDS` (see item 2's follow-up), which clears `Nathali`,
+  `Nathali Brightcandle`, `Vault Door` and `Vaelmorin` entirely. Still open: `unresolved knot
+  variable read` (`Enchanter`, `The Nexus` — item 4) and `bare-colon command` (`Dreampod` —
+  item 3).
