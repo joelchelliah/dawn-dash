@@ -19,7 +19,8 @@ Issues found after syncing the **Nexus of Nightmares** content drop (Blightbane 
 ## Items
 
 Suggested order — cheapest and most certain first, Broken Vault last since it needs the most
-back-and-forth:
+back-and-forth. (In the event Broken Vault turned out to be a one-entry fix — see item 5 —
+so only item 4 remains.)
 
 | # | Item | Size | Blocked by |
 |---|---|---|---|
@@ -27,7 +28,7 @@ back-and-forth:
 | 2 | [Vaelmorin — unresolved `<talent=617304>`](#2-vaelmorin--unresolved-talent617304-in-text--completed) | ~~small~~ + re-extract | ✅ COMPLETED |
 | 3 | [Dreampod — `&&malignancies&&+3` codeword](#3-dreampod--malignancies3-codeword-in-text--completed) | ~~small~~ | ✅ COMPLETED |
 | 4 | [The Nexus — `setpicks:nexuscompanions`](#4-the-nexus--setpicksnexuscompanions-hides-7-branches) | medium | — |
-| 5 | [Broken Vault — node-budget blowout](#5-broken-vault--node-budget-blowout-do-this-last) | large | — |
+| 5 | [Broken Vault — node-budget blowout](#5-broken-vault--node-budget-blowout-do-this-last--completed) | ~~large~~ | ✅ COMPLETED |
 
 Re-run after each: `node scripts/parse/parse-event-trees.js --only "<event>" --debug "<event>" --dry-run`,
 then drop `--dry-run`, then `npm run verify`.
@@ -506,7 +507,11 @@ shape); this is content the runtime produces perfectly the instant the gate open
 
 - **Watch for explosion.** 7 branches with services/merchant sub-menus is the shape that blows
   `NODE_BUDGET` — `vesparin*` alone is 5 containers. Have a `DIALOGUE_MENU_EVENTS` entry ready.
-  Worth doing *after* Broken Vault, since that work builds exactly this intuition.
+  Item 5 (now done) is the worked precedent: the hub to configure is the **innermost**
+  any-order menu, and bounding it lets outer loops resolve through the ordinary machinery
+  without their own entry. Note that in immediate-ref mode a non-exit child is reffed *before*
+  its subtree is built, so any choice carrying its own text must be listed in
+  `menuExitPatterns` or that text is silently lost.
 - **Open question (same one as item 3):** does real gameplay ever offer all 7 at once, or only
   recruited companions? For a static map that shows every path with its requirement, showing all
   7 is right either way — but worth a Discord check.
@@ -516,7 +521,83 @@ the Julius / `NATHALIMERCHANT` / `MERCHANT` content appears; no node-limit warni
 
 ---
 
-## 5. Broken Vault — node-budget blowout (do this last)
+## 5. Broken Vault — node-budget blowout (do this last) ✅ COMPLETED
+
+**Status:** done, and it turned out to be the *cheapest* item on the list, not the largest — a
+single `DIALOGUE_MENU_EVENTS` entry, no iteration needed:
+
+```js
+'Broken Vault': {
+  menuHubPattern: 'Three wardens loom over the cell',
+  menuExitPatterns: ['Look at the position of the statues', 'Step back'],
+},
+```
+
+Immediate-ref mode (no `hubChoiceMatchThreshold`) — like Rathael, and unlike Rotting Residence,
+every statue choice returns straight to the hub with no intermediate content to preserve.
+
+### Results
+
+| | Before | After |
+|---|---|---|
+| Node-limit warnings | blown at depth 11…1 | none |
+| Refs created | 3,833,377 (21 hubs) | 51,662 (13 hubs) |
+| Invalid refs (whole file) | 2 | **0** |
+| Nodes in tree | 19 (truncated) | 41 (complete) |
+| Parse time for the event | 5.80s | 0.59s |
+
+### Why the statue menu was the right hub, and the outer menu fixed itself
+
+The event has **two** nested menus. The obvious one is the three statues, examinable in any
+order — that's the `menuHubPattern`. But collapsing it also resolved the *outer* menu
+("You step between the statues", node 7008, 5 choices: statues / slab / registry / Nathali /
+leave), whose children now all ref cleanly back to it. Only the inner hub needed configuring;
+bounding the factorial explosion let the outer loop resolve through the ordinary machinery.
+
+### Both exit patterns were needed, for different reasons
+
+- **`Step back`** — the plain "leave this menu" exit, as expected.
+- **`Look at the position of the statues`** — filed below as "can be a simple ref", but it must
+  be an **exit pattern**. It is not a bare ref: it carries two paragraphs of its own text (the
+  wardens' eyes shifting toward the threshold) *before* returning. In immediate-ref mode a
+  non-exit child is converted to a ref **before its subtree is built**, so leaving it out would
+  have silently discarded that text. Both correctly ref back to the **outer** menu (7008), not
+  the statue hub — which matches the story: both take you back out among the wardens.
+
+### The "21 hub patterns" question — answered
+
+The old run's 21 hubs weren't misdetection. Hub-pattern optimization is *post-processing*
+(pass 6); the 3.8M refs were created during **tree building**, which had already blown
+`NODE_BUDGET` and truncated. Post-processing was doing its job on wreckage. The inline
+`DIALOGUE_MENU_EVENTS` detection is the only thing that runs early enough to matter. **No
+blacklist changes were needed** — `POST_PROCESSING_HUB_PATTERN_OPTIMIZATION_BLACKLIST` and
+`COUSIN_REF_BLACKLIST` were checked and are correctly silent on this event.
+
+### Verified
+
+- Full run: **`Broken Vault` the only event with a meaningful diff**
+  (`rootNode.children.length: 1 → 2` — the truncated tree had lost the `Leave` branch entirely)
+- `checkInvalidRefs`: **0 invalid refs across all 201 events** (the file's only 2 are gone)
+- Full `event-trees.json` line diff filtered: **every** changed line is an `id`/`ref`/
+  `refChildren` number — the documented uniform id-shift noise class, nothing else moved
+- Remaining non-fatal warnings: only `unresolved knot variable read` (`Enchanter`, `The Nexus`
+  — item 4). The node-limit and invalid-ref warnings are gone.
+- `npm run verify` clean
+
+### Two leftovers, deliberately not "fixed"
+
+1. **Three nodes still read `text: "default"`** (the `Step back` / `Step away from the slab` /
+   `Step away` outcomes). `DEFAULT_NODE_BLACKLIST` looks like the fix but is **wrong here**:
+   `filterDefaultNodes` drops the node *together with its whole subtree*, and each of these
+   nodes carries the `ref` back to the outer menu. Blacklisting would delete the loop-back
+   lines — trading a cosmetic artifact for a structural one. Left as-is pending a visual check.
+2. **`Leave this place` shows only the `questflag:nathali` ending.** The Ink has two mutually
+   exclusive endings (`[?questflag:nathali]` / `[?!questflag:nathali]`); only one is reachable
+   because the path commits to the nathali branch upstream. Pre-existing branch structure,
+   unrelated to this change.
+
+<details>
+<summary>Original diagnosis (kept for the record)</summary>
 
 **Status:** diagnosed, not started. Agreed approach: **solve it the way Rathael was solved.**
 
@@ -589,6 +670,8 @@ node scripts/parse/parse-event-trees.js --only "Broken Vault" --debug "Broken Va
 **Done when:** no node-limit warnings, `checkInvalidRefs` reports 0 invalid refs across all
 events, all three statues render consistently, and the tree contains the full vault content
 (the current 19 nodes are certainly a fraction of it).
+
+</details>
 
 ---
 

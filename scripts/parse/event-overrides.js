@@ -47,6 +47,10 @@ const DIALOGUE_MENU_EVENTS = {
     hubChoiceMatchThreshold: 30, // choices: 1/3
     passWhenOnlyExitPatternsAvailable: true,
   },
+  'Broken Vault': {
+    menuHubPattern: 'Three wardens loom over the cell',
+    menuExitPatterns: ['Look at the position of the statues', 'Step back'],
+  },
   'Rathael the Slain Death': {
     menuHubPattern: 'A chance to tangle with one of these',
     menuExitPatterns: ['Fight: Confront the Seraph'],
