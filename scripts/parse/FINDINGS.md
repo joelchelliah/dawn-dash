@@ -1,15 +1,29 @@
 # Parsing findings — Nexus of Nightmares sync
 
-Open issues found after syncing the **Nexus of Nightmares** content drop (Blightbane bundle
-`v0.22.18`, 183 → 201 events). Each item is independent; work through them one at a time and
-delete the section once it's done.
+Issues found after syncing the **Nexus of Nightmares** content drop (Blightbane bundle
+`v0.22.18`, 183 → 201 events). Each item is independent; work through them one at a time.
+
+## Working conventions
+
+- **Mark a finished item `COMPLETED`** — keep the section, don't delete it. Put the marker in
+  the heading and replace the section's `**Status:**` line with what was actually done
+  (including anything that turned out differently from the plan below it). The finished
+  sections are the record of how this sync was worked through.
+- **If a change contradicts [README.md](./README.md), update the README in the same change.**
+  That file documents the pipeline's behaviour — pass order and count, the module map, the
+  known-nondeterminism list, the verification workflow, `configs.js` knobs. A change that
+  makes any of it wrong isn't done until the README matches. The same goes for a finding
+  below that turns out to be mistaken: correct it rather than leaving it to mislead the next
+  reader.
+
+## Items
 
 Suggested order — cheapest and most certain first, Broken Vault last since it needs the most
 back-and-forth:
 
 | # | Item | Size | Blocked by |
 |---|---|---|---|
-| 1 | [Strange Light — mark as deprecated](#1-strange-light--mark-as-deprecated) | one line | — |
+| 1 | [Strange Light — mark as deprecated](#1-strange-light--mark-as-deprecated--completed) | ~~one line~~ + re-extract | ✅ COMPLETED |
 | 2 | [Vaelmorin — unresolved `<talent=617304>`](#2-vaelmorin--unresolved-talent617304-in-text) | small | — |
 | 3 | [Dreampod — `&&malignancies&&+3` codeword](#3-dreampod--malignancies3-codeword-in-text) | small | needs a game-side answer |
 | 4 | [The Nexus — `setpicks:nexuscompanions`](#4-the-nexus--setpicksnexuscompanions-hides-7-branches) | medium | — |
@@ -18,31 +32,63 @@ back-and-forth:
 Re-run after each: `node scripts/parse/parse-event-trees.js --only "<event>" --debug "<event>" --dry-run`,
 then drop `--dry-run`, then `npm run verify`.
 
+⚠️ That's enough only for changes inside `scripts/parse/`. If the change touches something
+`extract-events.js` reads — `DEPRECATED_EVENTS` is the one in `event-overrides.js` — run
+`node scripts/extract-events.js` first, or the parse step will report no change at all
+(see item 1).
+
 ---
 
-## 1. Strange Light — mark as deprecated
+## 1. Strange Light — mark as deprecated ✅ COMPLETED
 
-**Status:** ready to do, no investigation needed.
-
-`Strange Light` is no longer in the game and should be marked the same way as the existing
-deprecated events.
-
-**Fix** — add it to `DEPRECATED_EVENTS` in [`event-overrides.js:126`](./event-overrides.js):
+**Status:** done. `'Strange Light'` added to `DEPRECATED_EVENTS` in
+[`event-overrides.js:126`](./event-overrides.js):
 
 ```js
 const DEPRECATED_EVENTS = ['Mirror Shard', 'Robed Figure', 'Iron Gates', 'Strange Light']
 ```
 
-That's the whole change. The flag flows through on its own:
-`extract-events.js:145` sets `deprecated = true` on the extracted event →
-`parse-event-trees.js:547` copies it onto the tree → `EventTree.deprecated?: boolean`
-(`src/codex/types/events.ts:10`) is already consumed by the app.
+The flag then flows through on its own: `extract-events.js:145` sets `deprecated = true` on the
+extracted event → `parse-event-trees.js:547` copies it onto the tree →
+`EventTree.deprecated?: boolean` (`src/codex/types/events.ts:10`) is already consumed by the app
+(`EventTree/index.tsx:324`), so no app-side change was needed.
 
 `config-validation.js:40` validates the name against the events data, so a typo fails the run
 loudly. The name must match the caption exactly: `Strange Light`.
 
-**Verify:** `deprecated: true` appears on the tree in `event-trees.json`, and the event renders
-with the deprecated treatment in Eventmaps like `Mirror Shard` does.
+### ⚠️ It was not a one-line change: re-run extraction, not just the parse step
+
+This item was filed as "one line," but the one line alone changes nothing. **`DEPRECATED_EVENTS`
+is consumed by `extract-events.js`, not by the parse step.** The flag is baked into
+`scripts/data/events.json` during extraction, and the parser only *copies* it from there. So:
+
+```bash
+node scripts/extract-events.js            # ← required; bakes deprecated:true into events.json
+node scripts/parse/parse-event-trees.js
+```
+
+The re-run command in the preamble above (`parse-event-trees.js --only "<event>"`) would have
+silently produced no change at all. **Any future edit to `DEPRECATED_EVENTS` — or to anything
+else `extract-events.js` reads — needs the extract step re-run first.**
+
+Note `extract-events.js` always fetches the Blightbane API live (only the parse step uses the
+cached mapping), so it can pull in unrelated upstream name changes. Snapshot
+`scripts/data/events.json` first and diff after, to confirm the only change is the one intended.
+Here the diff was exactly `deprecated: true` on Strange Light — no API drift.
+
+### Verified
+
+- Structural validator, full run: **Strange Light the only event with a meaningful diff**, and
+  only `deprecated: <absent> → true`
+- 4 deprecated trees now (Iron Gates, Mirror Shard, Robed Figure, Strange Light); 201 total
+- Renders with the deprecated treatment in Eventmaps like `Mirror Shard` does (manually confirmed)
+- `npm run verify` clean; `npm run build` prerenders all 201 event pages
+
+The committed `event-trees.json` diff also contained the two known nondeterministic events
+(Fallen Soldier's skeleton text, Mirror Shard's label order) — expected noise, correctly ignored
+by the validator. Fallen Soldier rolled a **"nearby stone"** variant this run, a third value
+beyond the "wall"/"signpost" pair the README's audit note lists; consistent with the 4-value
+`seq` construct of spec 20, and the ignore rule's prefix match covers it either way.
 
 ---
 

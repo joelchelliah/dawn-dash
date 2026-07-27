@@ -16,6 +16,8 @@ scripts/data/dump.txt            (minified JS bundle)
         │  scripts/extract-events.js
         │  - find JSON.parse('[...]') blobs, keep objects with event types
         │  - dedupe by caption+text, resolve card/talent ids -> names
+        │  - flag DEPRECATED_EVENTS (so changing that list needs THIS step re-run,
+        │    not just the parse step below)
         ▼
 scripts/data/events.json         (each event's `text` = a compiled Ink story)
         │
@@ -24,7 +26,7 @@ scripts/data/events.json         (each event's `text` = a compiled Ink story)
         │  2. post-processing: the PIPELINE pass registry (17 passes)
         │  3. validation: diff output vs baseline, ignore known noise
         ▼
-src/codex/data/event-trees.json  (183 trees, ~4k nodes, statically imported)
+src/codex/data/event-trees.json  (201 trees, ~4.2k nodes, statically imported)
         │
         ▼
 Eventmaps (src/codex/) renders each tree with d3-flextree
@@ -248,7 +250,8 @@ the game data updates significantly.
 
 > Audit result (2026-07-18): the non-deterministic surface has **three** classes, all covered
 > by the validator's ignore rules:
-> 1. **Fallen Soldier** — oxidised-skeleton text ("nearby wall" vs "nearby signpost")
+> 1. **Fallen Soldier** — oxidised-skeleton text ("nearby wall" / "nearby signpost" /
+>    "nearby stone"; 4 values exist, see spec 20 — the audit only happened to roll two of them)
 > 2. **Mirror Shard** — "Focus on the ..." label shuffling
 > 3. **Post-processing id shifts** — the id counter is not reset after the last parsed event,
 >    and the number of ids that event allocates (including discarded exploration nodes) varies
@@ -280,16 +283,24 @@ node scripts/parse/parse-event-trees.js --baseline snapshot.json   # validate ag
 Typical iteration loop when fixing one event:
 `--only "<event>" --debug "<event>" --dry-run`, then drop `--dry-run` once it looks right.
 
+That loop only covers changes to *this* folder. `event-overrides.js` also exports
+`DEPRECATED_EVENTS`, which is read by `extract-events.js` — a change to it takes effect only
+after `node scripts/extract-events.js` re-writes `scripts/data/events.json`, since the parse step
+just copies the flag from there. That step always fetches the Blightbane API live, so snapshot
+`events.json` first and diff after to keep unrelated upstream changes out of the commit.
+
 ## Known nondeterminism
 
 Two events roll random content *during* story exploration, so their text can differ per run
 (both are covered by the validator's ignore rules — `VALIDATION_IGNORE_RULES` in
 `event-overrides.js`, scoped per event):
 
-- **Fallen Soldier** (Ink event name `ArmsDealer`) — the skeleton sits against a "nearby wall"
-  vs "nearby signpost". Root cause: an inline Ink cycle-alternative (`seq`) construct picking
-  one of 4 flavor-text values mid-sentence, not yet detected by any code path — see spec 20
-  in [SPECS.md](./SPECS.md) for the full diagnosis and why it's out of scope for now
+- **Fallen Soldier** (Ink event name `ArmsDealer`) — the skeleton sits against a "nearby wall",
+  "nearby signpost" or "nearby stone". Root cause: an inline Ink cycle-alternative (`seq`)
+  construct picking one of 4 flavor-text values mid-sentence, not yet detected by any code path
+  — see spec 20 in [SPECS.md](./SPECS.md) for the full diagnosis and why it's out of scope for
+  now. Any of the 4 can show up in a run; the ignore rule matches on the line's prefix, so it
+  covers all of them
 - **Mirror Shard** — the "Focus on the …" choice labels shuffle
 
 Node ids also renumber freely between runs — structurally meaningless and ignored by

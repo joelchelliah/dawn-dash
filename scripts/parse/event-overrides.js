@@ -123,7 +123,7 @@ const EVENT_NAME_ALIASES = {
 
 // Events marked deprecated during extraction (extract-events.js), keyed by caption.
 // They are still parsed and rendered, but flagged in the output data.
-const DEPRECATED_EVENTS = ['Mirror Shard', 'Robed Figure', 'Iron Gates']
+const DEPRECATED_EVENTS = ['Mirror Shard', 'Robed Figure', 'Iron Gates', 'Strange Light']
 
 // ADDKEYWORD command values that are not literal keyword names and can't be resolved
 // via the event's Ink function definitions (see Shrine of Trickery). Maps the raw
