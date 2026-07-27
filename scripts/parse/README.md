@@ -147,8 +147,21 @@ and `>>>>GOLD:50` both extract to `GOLD: 50` with empty leftover text.
 Because both forms are treated identically, **bracket count is never the cause of a parsing
 problem** — if a command's value is being mangled, look at the value's character class in
 `commandSequencePattern`, not at how many `>` it has. (Worked example: `>>>TRADE:&&malignancies&&+3`
-loses its value because `&` isn't in that character class, so the match stops at the first `&`.
-The same happens with four brackets.)
+used to lose its value because `&` wasn't in that character class, so the match stopped at the
+first `&` and the rest fell through into the node's text. Adding `&` and `+` to the class fixed
+it — with four brackets it had behaved identically.)
+
+### Counter-reference values (`&&counter&&±N`)
+
+The game wraps a runtime counter reference in `&&`, so `TRADE:&&malignancies&&+3` means "trade
+for (number of malignancies) + 3" — confirmed with the developers as a formatting convention, not
+a parser bug. `resolveCounterReferenceValue` in `node-splitting.js` rewrites it to the readable
+effect `TRADE: [malignancies] + 3`.
+
+`&&malignancies&&+3` in Dreampod is the **only** occurrence in the dataset, so this is a narrow
+single-pattern rewrite rather than a general `&&…&&` mini-language. A value that doesn't match the
+shape passes through untouched, so a second, differently-shaped counter surfaces as a raw value
+instead of being silently mangled.
 
 ## Step 2: The post-processing pipeline
 

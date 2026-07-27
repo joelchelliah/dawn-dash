@@ -25,7 +25,7 @@ back-and-forth:
 |---|---|---|---|
 | 1 | [Strange Light — mark as deprecated](#1-strange-light--mark-as-deprecated--completed) | ~~one line~~ + re-extract | ✅ COMPLETED |
 | 2 | [Vaelmorin — unresolved `<talent=617304>`](#2-vaelmorin--unresolved-talent617304-in-text--completed) | ~~small~~ + re-extract | ✅ COMPLETED |
-| 3 | [Dreampod — `&&malignancies&&+3` codeword](#3-dreampod--malignancies3-codeword-in-text) | small | needs a game-side answer |
+| 3 | [Dreampod — `&&malignancies&&+3` codeword](#3-dreampod--malignancies3-codeword-in-text--completed) | ~~small~~ | ✅ COMPLETED |
 | 4 | [The Nexus — `setpicks:nexuscompanions`](#4-the-nexus--setpicksnexuscompanions-hides-7-branches) | medium | — |
 | 5 | [Broken Vault — node-budget blowout](#5-broken-vault--node-budget-blowout-do-this-last) | large | — |
 
@@ -221,7 +221,65 @@ returns 0.
 
 ---
 
-## 3. Dreampod — `&&malignancies&&+3` codeword in text
+## 3. Dreampod — `&&malignancies&&+3` codeword in text ✅ COMPLETED
+
+**Status:** done. The dev confirmed `&&` is just a new formatting convention wrapping a runtime
+counter reference — `TRADE:&&malignancies&&+3` means **"TRADE: number of malignancies + 3"**. So
+there was no game-side unknown left to block on, and no need for the `&&…&&` mini-language the
+fix sketch below worried about.
+
+Implemented in [`node-splitting.js`](./node-splitting.js) as the sketch recommended, in two parts:
+
+1. **`&` and `+` added to the `commandSequencePattern` character class** (and to the `cleanText`
+   fallback regex, which had the same gap) so the value survives extraction instead of the match
+   stopping at the first `&`.
+2. **`resolveCounterReferenceValue`** — a narrow rewrite applied in `extractEffects`'s `default`
+   branch, bracketing the counter name and spacing the offset:
+
+```js
+const match = value.match(/^&&([A-Za-z_]+)&&([+-])(\d+)$/)
+if (!match) return value        // unmatched shapes pass through as raw values
+// → "[malignancies] + 3"
+```
+
+Per the single-consumer rule this stays a **single-pattern rewrite**, not a general `&&…&&`
+parser. A differently-shaped counter passes through untouched, so it surfaces as a visible raw
+value rather than being silently mangled.
+
+The node now renders as an effect chip with an **empty text body** — previously the codeword *was*
+the entire text body:
+
+```
+▸ Place a card in the pod                     ▸ Place a card in the pod
+    &&malignancies&&+3   EFFECTS=["TRADE"]  →     EFFECTS=["TRADE: [malignancies] + 3"]
+```
+
+The bracketed counter name is kept verbatim, so the wording is a one-line tweak in
+`resolveCounterReferenceValue` if it needs adjusting.
+
+### Verified
+
+Widening the character class is global, so this was validated with a **full run**, not `--only`:
+
+- Structural validator: **`Dreampod` the only event with a meaningful diff**, and only
+  `effects[0]: "TRADE" → "TRADE: [malignancies] + 3"`
+- `grep -c '&&' src/codex/data/event-trees.json` → **0**
+- The `bare-colon command` parse failure for `Dreampod` is **gone** (`TRADE:` now has a value).
+  Remaining non-fatal warnings: only `unresolved knot variable read` (`Enchanter`, `The Nexus` —
+  item 4)
+- Full `event-trees.json` diff inspected line by line: the intended change plus **only** the three
+  documented noise classes — Fallen Soldier's skeleton text, Mirror Shard's label shuffle, and the
+  uniform post-processing id shift. Nothing else across the 201 events moved, confirming the wider
+  character class is inert everywhere else (`&`/`+` abuts a command value in exactly one place in
+  the dataset)
+- `npm run verify` clean
+
+Fallen Soldier rolled a **"nearby tree trunk"** variant this run — a *fourth* value beyond the
+wall/signpost/stone the README's audit note lists, consistent with spec 20's 4-value `seq`
+construct. The ignore rule's prefix match covers it.
+
+<details>
+<summary>Original diagnosis (kept for the record)</summary>
 
 **Status:** mechanism identified; needs a decision on how to render it.
 
@@ -290,6 +348,8 @@ too, so `&&malignancies&&+3` needs both.
 **Related:** per the repo's "avoid generic abstractions with a single consumer" rule — with one
 occurrence, prefer a narrow concrete handler over a general `&&…&&` mini-language until a second
 case shows up.
+
+</details>
 
 ---
 
@@ -546,8 +606,8 @@ events, all three statues render consistently, and the tree contains the full va
 - **Non-fatal parse warnings** for `Enchanter`, `The Nexus`, `Nathali`, `Nathali Brightcandle`,
   `Dreampod`, `Vault Door`, `Vaelmorin, the Ancient Death` — these overlap with items 2–4 above
   and should be re-checked once those are fixed, rather than tracked separately.
-  **Partly resolved:** the `unrecognized command` half of these is gone — all four commands are
-  now registered in `KNOWN_COMMANDS` (see item 2's follow-up), which clears `Nathali`,
-  `Nathali Brightcandle`, `Vault Door` and `Vaelmorin` entirely. Still open: `unresolved knot
-  variable read` (`Enchanter`, `The Nexus` — item 4) and `bare-colon command` (`Dreampod` —
-  item 3).
+  **Mostly resolved:** the `unrecognized command` half is gone — all four commands are now
+  registered in `KNOWN_COMMANDS` (see item 2's follow-up), which clears `Nathali`,
+  `Nathali Brightcandle`, `Vault Door` and `Vaelmorin` entirely. The `bare-colon command` warning
+  for `Dreampod` is gone too, fixed with item 3. **Still open:** only `unresolved knot variable
+  read` (`Enchanter`, `The Nexus` — item 4).
