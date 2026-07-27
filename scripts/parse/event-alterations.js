@@ -1,10 +1,12 @@
-/* eslint-disable */
-
 /**
  * Event Alterations
  *
  * Manual fixes and enhancements for event trees that are difficult to parse automatically.
  * Applied AFTER all optimization passes (deduplication, refChildren conversion, etc.)
+ *
+ * Every node added or edited here is automatically tagged `altered: true` in the output —
+ * no need to (and no way to) set it from an alteration spec. Only the shallowest altered
+ * node of a subtree is tagged; its descendants inherit the meaning.
  *
  * SUPPORTED FIELDS:
  *
@@ -24,6 +26,9 @@
  * Modifying nodes:
  * - addRequirements: Add requirements to matched nodes
  * - addChild: Add a new child node to matched nodes
+ * - addSibling: Insert a new node directly after the matched node in its parent's children.
+ *   Use refChildrenFromMatchedNode: true to set refChildren to the matched node's own child ids,
+ *   so the sibling converges onto the same children instead of owning a copy of them.
  * - replaceNode: Replace the entire matched node with a new node structure
  * - replaceChildren: Replace matched node's children with new nodes (array of node specs).
  *   Use refChildrenFromFirstSibling: true on a child to set refChildren to first sibling's child ids.
@@ -39,6 +44,7 @@
  *   - type: 'end' - Change the node type
  *   - refCreate: 'text' - Create a ref to a node matching this text/choiceLabel
  *   - refCreateStartsWith: 'text' - Create a ref to first node whose text/choiceLabel starts with
+ *   - moveToEnd: true - Reposition the node to be the last child of its parent
  *
  * Creating refs within alterations (refTarget/refSource):
  * Since alterations run after all optimizations, node IDs are unpredictable.
@@ -47,6 +53,8 @@
  * - refSource: Will be converted to ref: <node_id> pointing to the refTarget node (e.g., refSource: 1)
  * - refCreate: Will be converted to ref: <node_id> pointing to the node that matches this text,
  *              in either text or choiceLabel, and has no ref of its own (it's the original node).
+ * - refChildrenCreate: Same lookup as refCreate, but sets refChildren: [<node_id>] instead of
+ *                      ref: <node_id> (the node stands in for the target's children, not itself).
  *
  * Node structure fields:
  * - type: Node type ("dialogue", "choice", "combat", "end", "special")
@@ -93,45 +101,60 @@ function addGotoEventChild(gotoEvent) {
   }
 }
 
+/**
+ * Helper for events where a `talent:devotion` choice is also reachable with holy access.
+ *
+ * The game gates the choice on either condition, but the Ink story only ever offers the
+ * talent variant during exploration, so the alternative never shows up in the parsed tree.
+ * Adds a twin choice right next to the original — same label, `accesstoholy` instead of the
+ * talent — whose refChildren converge onto the original's children rather than duplicating them.
+ */
+function createAccessToHolyTwinChoice(eventName, choiceLabel) {
+  return {
+    name: eventName,
+    alterations: [
+      {
+        find: { textOrLabel: choiceLabel, requirement: 'talent:devotion' },
+        addSibling: {
+          type: 'choice',
+          choiceLabel,
+          requirements: ['accesstoholy'],
+          refChildrenFromMatchedNode: true,
+        },
+      },
+    ],
+  }
+}
+
 module.exports = [
   {
     name: 'Frozen Heart',
     alterations: [
       {
-        find: { effect: 'CARDPUZZLE' },
-        // Replace with a special node that has puzzle success/failure branches
-        replaceNode: {
-          type: 'special',
-          text: '',
-          numContinues: 0,
-          effects: ['SELECTCARD', 'CARDPUZZLE'],
-          children: [
-            {
-              type: 'result',
-              requirements: ['puzzlesuccess'],
-              children: [
-                {
-                  type: 'dialogue',
-                  text: "Using one of your abilities, the ice fades quickly! Only the sizzling steam of the broken prison of ice now stands between you and the chest's contents. The chest pulses with a radiant heat, but is cool to the touch. In turn, the hum within the cavern rises to a deafening level.",
-                  numContinues: 2,
-                  refCreate: 'You smash at the ice repeatedly',
-                },
-              ],
-            },
-            {
-              type: 'result',
-              requirements: ['puzzlefail'],
-              children: [
-                {
-                  type: 'dialogue',
-                  text: 'Try as you might, you find no solution to breaking the ice around the strange chest. With no other option left, you descend the icy walls back to your starting point. At the bottom of the steps the chamber splits into two passageways.',
-                  numContinues: 1,
-                  // This will be converted to ref: <actual_node_id_of_matching_node>
-                  refCreate: 'A rhythmic pulse fills the cave',
-                },
-              ],
-            },
-          ],
+        // The CARDPUZZLE knots' own bodies end with a divert (`{"->": "open_chest"}`) that
+        // parseKnotContentManually deliberately doesn't follow (it renders a knot's own
+        // content, not the wider story) — bridge that gap here so the puzzle-success
+        // outcome still continues into the actual chest-opening content, same as the
+        // "smash the ice" physical path it converges with in the raw Ink.
+        find: {
+          textOrLabel:
+            "Using one of your abilities, the ice fades quickly! Only the sizzling steam of the broken prison of ice now stands between you and the chest's contents.",
+        },
+        modifyNode: {
+          type: 'dialogue',
+          refCreate: 'The chest pulses with a radiant heat',
+        },
+      },
+      {
+        // Same gap for puzzle-failure: its knot diverts to `0.cave_entrance.cavechoices`,
+        // i.e. back to the dialogue-menu hub.
+        find: {
+          textOrLabel:
+            'Try as you might, you find no solution to breaking the ice around the strange chest. With no other option left, you descend the icy walls back to your starting point.',
+        },
+        modifyNode: {
+          type: 'dialogue',
+          refCreate: 'A rhythmic pulse fills the cave',
         },
       },
       {
@@ -429,6 +452,16 @@ module.exports = [
         find: { requirement: 'COLLECTOR: g-0' },
         removeNode: true,
       },
+      // Valuable rarity shares the same reward as Legendary, so it goes right next to it
+      // and converges onto Legendary's outcome instead of duplicating it
+      {
+        find: { requirement: 'COLLECTOR: Legendary' },
+        addSibling: {
+          type: 'result',
+          requirements: ['COLLECTOR: Valuable'],
+          refChildrenFromMatchedNode: true,
+        },
+      },
     ],
   },
   {
@@ -515,6 +548,9 @@ module.exports = [
       },
     ],
   },
+  createAccessToHolyTwinChoice('Lost Soul', 'Devotion: Cleanse the soul'),
+  createAccessToHolyTwinChoice('Fallen Soldier', 'Rest your hand on the battered skull'),
+  createAccessToHolyTwinChoice('Windy Hillock', 'Find solace in prayer.'),
   {
     name: 'Obsidian Garden Finish',
     alterations: [

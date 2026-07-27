@@ -1,7 +1,8 @@
-/* eslint-disable */
 const fs = require('fs')
 const path = require('path')
-const { buildIdToNameMapping } = require('./shared/card-data.js')
+
+const { buildIdToNameMapping, INLINE_CARD_ID_COMMANDS } = require('./shared/card-data.js')
+const { DEPRECATED_EVENTS } = require('./parse/event-overrides.js')
 
 /**
  * Script to extract all event objects from the minified Blightbane bundle dump.
@@ -15,7 +16,10 @@ const OUTPUT_FILE = path.join(__dirname, './data/events.json')
 // All event-related types
 const EVENT_TYPES = [0, 1, 2, 3, 4, 5, 8, 10, 99]
 
-const DEPRECATED_EVENTS = ['Mirror Shard', 'Robed Figure', 'Iron Gates']
+const INLINE_CARD_ID_COMMAND_REGEX = new RegExp(
+  `(${INLINE_CARD_ID_COMMANDS.join('|')}):(\\d+)`,
+  'g'
+)
 
 async function extractEvents() {
   console.log('Fetching card and talent data from Blightbane API...')
@@ -55,7 +59,7 @@ async function extractEvents() {
           console.log(`Found ${foundEvents.length} events in this batch`)
         }
       }
-    } catch (e) {
+    } catch {
       // Skip invalid JSON
       continue
     }
@@ -95,7 +99,7 @@ async function extractEvents() {
   const uniqueEvents = []
   let duplicateCount = 0
 
-  for (const [key, eventGroup] of eventsByKey.entries()) {
+  for (const eventGroup of eventsByKey.values()) {
     let selectedEvent = eventGroup[0]
 
     // If there are duplicates, select the one with type 0, else keep first
@@ -127,7 +131,7 @@ async function extractEvents() {
 
     // Replace numeric IDs in card/talent commands (ADDCARD:123, ADDTALENT:456, etc.)
     selectedEvent.text = selectedEvent.text.replace(
-      /(ADDCARD|REMOVECARD|IMBUECARD|ADDTALENT|REMOVETALENT):(\d+)/g,
+      INLINE_CARD_ID_COMMAND_REGEX,
       (match, command, id) => {
         const numId = parseInt(id, 10)
         const name = idToName[numId]

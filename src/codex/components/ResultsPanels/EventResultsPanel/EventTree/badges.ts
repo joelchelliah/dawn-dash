@@ -13,6 +13,37 @@ import styles from './badges.module.scss'
 
 const cx = createCx(styles)
 
+// Resting offset of the altered badge to the right of the node's center. Acts as a floor:
+// a node with a center badge shifts further right to clear it (see minX below).
+const ALTERED_BADGE_INSET = 26
+
+// How far the altered badge is lifted above the node's top edge. Below the badge radius
+// it overlaps the node; above it, the badge floats clear.
+const ALTERED_BADGE_LIFT = 26
+
+// Emoji-only nodes render as just the center badge with no text beneath, so the box is
+// small and round — the altered badge needs its own offsets to sit well against it.
+// These are absolute (no center-badge clearance applied), so the inset can be any value,
+// including 0 for dead-center or negative to sit left of center.
+const ALTERED_BADGE_INSET_EMOJI_ONLY = 22
+const ALTERED_BADGE_LIFT_EMOJI_ONLY = 50
+
+// Altered badge radii, mirroring .altered-badge-circle in badges.module.scss
+const ALTERED_BADGE_RADIUS = 13
+const ALTERED_BADGE_RADIUS_COMPACT = 11
+
+// Node-type badge radii, mirroring .node-type-badge-circle in badges.module.scss
+const NODE_TYPE_BADGE_RADIUS = 17
+const NODE_TYPE_BADGE_RADIUS_LARGE = 21
+const NODE_TYPE_BADGE_RADIUS_EXTRA_LARGE = 26
+
+// Gap kept between the center node-type badge and the altered badge when they share a node
+const ALTERED_BADGE_GAP = 4
+
+// Node types that get a center badge (i.e. have a drawNodeTypeBadge caller below).
+// A node of any other type — a choice node — leaves the center free.
+const NODE_TYPES_WITH_CENTER_BADGE = new Set(['dialogue', 'end', 'combat', 'special', 'result'])
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 interface DrawBadgesParam {
   g: any
@@ -91,6 +122,115 @@ export function drawLoopBackLinkBadges({
     'loop-back-end-badge',
     'loop-back-badge'
   )
+}
+
+/**
+ * Which size variant the center node-type badge uses on this node.
+ * Shared by drawNodeTypeBadge (which applies it) and drawAlteredBadges (which needs the
+ * resulting radius to know how far to shift clear of it), so the two can't drift apart.
+ */
+function getNodeTypeBadgeSize(
+  node: any,
+  isCompact: boolean,
+  showContinuesTags: boolean,
+  showLoopingIndicator: boolean
+): { showLargeBadge: boolean; showExtraLargeBadge: boolean; radius: number } {
+  const isRootNode = node.depth === 0
+  const showLargeBadge = isCompact
+  const showExtraLargeBadge = isCompact
+    ? isRootNode
+    : isEmojiOnlyNode(node.data, isCompact, showContinuesTags, showLoopingIndicator) || isRootNode
+
+  // extra-large wins: it's the last class in the cx() call, so it overrides large
+  const radius = showExtraLargeBadge
+    ? NODE_TYPE_BADGE_RADIUS_EXTRA_LARGE
+    : showLargeBadge
+      ? NODE_TYPE_BADGE_RADIUS_LARGE
+      : NODE_TYPE_BADGE_RADIUS
+
+  return { showLargeBadge, showExtraLargeBadge, radius }
+}
+
+/**
+ * Badge (ℹ️) marking nodes whose content was manually altered during parsing.
+ *
+ * Sits near the node's top edge, right of center. On nodes that also carry a center
+ * node-type badge it shifts further right to clear it; choice nodes have no center badge,
+ * so the badge stays closer in. Emoji-only nodes (badge, no text beneath) have their own
+ * offsets, since the node box there is small and round.
+ */
+export function drawAlteredBadges({
+  g,
+  root,
+  nodeMap,
+  event,
+  showLoopingIndicator,
+  levelOfDetail,
+  showContinuesTags,
+}: DrawBadgesParam) {
+  const alteredNodes = root.descendants().filter((d: any) => d.data.altered === true)
+  const isCompact = levelOfDetail === LevelOfDetail.COMPACT
+
+  alteredNodes.forEach((node: any) => {
+    const [, nodeHeight] = getNodeDimensions(
+      nodeMap,
+      node.data,
+      event,
+      showLoopingIndicator,
+      levelOfDetail,
+      showContinuesTags
+    )
+
+    // Nodes rendered as just the center badge (no text beneath) get their own offsets;
+    // everything else uses the defaults, compact or not.
+    const isEmojiOnly = isEmojiOnlyNode(
+      node.data,
+      isCompact,
+      showContinuesTags,
+      showLoopingIndicator
+    )
+    const inset = isEmojiOnly ? ALTERED_BADGE_INSET_EMOJI_ONLY : ALTERED_BADGE_INSET
+    const lift = isEmojiOnly ? ALTERED_BADGE_LIFT_EMOJI_ONLY : ALTERED_BADGE_LIFT
+
+    // On a node with a center node-type badge, push right far enough to clear it — but
+    // only for the default case, where the badge sits alongside the center badge at the
+    // same height. Emoji-only nodes place the badge by their own offsets alone (the lift
+    // carries it clear of the center badge vertically), so the inset stays absolute and
+    // can move the badge anywhere, including left of center.
+    const hasCenterBadge = NODE_TYPES_WITH_CENTER_BADGE.has(node.data.type)
+    const centerBadgeRadius = hasCenterBadge
+      ? getNodeTypeBadgeSize(node, isCompact, showContinuesTags, showLoopingIndicator).radius
+      : 0
+    const alteredBadgeRadius = isCompact ? ALTERED_BADGE_RADIUS_COMPACT : ALTERED_BADGE_RADIUS
+    const minX = centerBadgeRadius + ALTERED_BADGE_GAP + alteredBadgeRadius
+
+    const x = node.x + (isEmojiOnly ? inset : Math.max(inset, minX))
+    const y = node.y - nodeHeight / 2 - lift
+
+    const badge = g
+      .append('g')
+      .attr('class', cx('altered-badge'))
+      .attr('transform', `translate(${x},${y})`)
+
+    badge.append('circle').attr(
+      'class',
+      cx('altered-badge-circle', {
+        ['altered-badge-circle--small']: isCompact,
+      })
+    )
+
+    badge
+      .append('text')
+      .attr(
+        'class',
+        cx('altered-badge-emoji', {
+          ['altered-badge-emoji--small']: isCompact,
+        })
+      )
+      .attr('text-anchor', 'middle')
+      .attr('dominant-baseline', 'central')
+      .text('🛠️')
+  })
 }
 
 export function drawDialogueBadge(params: DrawBadgesParam) {
@@ -215,10 +355,12 @@ function drawNodeTypeBadge({
     const specificNodeType = hasCustomNodeType(node.data) ? 'custom' : nodeType
     const specificEmoji = getCustomNodeEmoji(node.data) ?? emoji
 
-    const showLargeBadge = isCompact
-    const showExtraLargeBadge = isCompact
-      ? isRootNode
-      : isEmojiOnlyNode(node.data, isCompact, showContinuesTags, showLoopingIndicator) || isRootNode
+    const { showLargeBadge, showExtraLargeBadge } = getNodeTypeBadgeSize(
+      node,
+      isCompact,
+      showContinuesTags,
+      showLoopingIndicator
+    )
 
     badge.append('circle').attr(
       'class',

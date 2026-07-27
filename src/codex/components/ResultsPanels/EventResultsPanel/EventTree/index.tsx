@@ -40,6 +40,7 @@ import {
   drawCombatBadge,
   drawResultBadge,
   drawSpecialBadge,
+  drawAlteredBadges,
 } from './badges'
 import { useEventTreeZoom } from './useEventTreeZoom'
 import { renderNodeContent } from './nodes'
@@ -54,6 +55,7 @@ interface EventTreeProps {
   loopingPathMode: LoopingPathMode
   navigationMode: TreeNavigationMode
   showContinuesTags: boolean
+  showAlteredBadges: boolean
   onAllEventsClick: () => void
 }
 
@@ -64,6 +66,7 @@ function EventTree({
   loopingPathMode,
   navigationMode,
   showContinuesTags,
+  showAlteredBadges,
   onAllEventsClick,
 }: EventTreeProps): JSX.Element {
   const svgRef = useRef<SVGSVGElement>(null)
@@ -275,6 +278,11 @@ function EventTree({
       drawLoopBackLinkBadges(drawBadgesParam)
     }
 
+    // Drawn last so it layers above a loop-back badge on the same corner
+    if (showAlteredBadges) {
+      drawAlteredBadges(drawBadgesParam)
+    }
+
     // Center the scroll horizontally when zoomed
     if (zoomScale && scrollWrapperRef.current) {
       const wrapper = scrollWrapperRef.current
@@ -288,6 +296,7 @@ function EventTree({
     showLoopingIndicator,
     levelOfDetail,
     showContinuesTags,
+    showAlteredBadges,
     event,
     zoomCalculator,
   ])

@@ -34,6 +34,8 @@ export interface UseAllEventSearchFilters {
   setLevelOfDetail: (level: LevelOfDetail) => void
   showContinuesTags: boolean
   setShowContinuesTags: (show: boolean) => void
+  showAlteredBadges: boolean
+  setShowAlteredBadges: (show: boolean) => void
   resetFilters: (callback?: () => void) => void
 }
 
@@ -49,6 +51,7 @@ export const useAllEventSearchFilters = (): UseAllEventSearchFilters => {
   )
   const [levelOfDetail, setLevelOfDetailUntracked] = useState<LevelOfDetail>(LevelOfDetail.BALANCED)
   const [showContinuesTags, setShowContinuesTagsUntracked] = useState<boolean>(true)
+  const [showAlteredBadges, setShowAlteredBadgesUntracked] = useState<boolean>(false)
 
   // Load from localStorage after hydration to avoid SSR mismatch
   useEffect(() => {
@@ -68,6 +71,9 @@ export const useAllEventSearchFilters = (): UseAllEventSearchFilters => {
     if (isNotNullOrUndefined(cachedFilters?.showContinuesTags)) {
       setShowContinuesTagsUntracked(cachedFilters.showContinuesTags)
     }
+    if (isNotNullOrUndefined(cachedFilters?.showAlteredBadges)) {
+      setShowAlteredBadgesUntracked(cachedFilters.showAlteredBadges)
+    }
   }, [])
 
   // --------------------------------------------------
@@ -80,6 +86,7 @@ export const useAllEventSearchFilters = (): UseAllEventSearchFilters => {
   const trackedSetNavigationMode = createTrackedSetter(setNavigationModeUntracked)
   const trackedSetLevelOfDetail = createTrackedSetter(setLevelOfDetailUntracked)
   const trackedSetShowContinuesTags = createTrackedSetter(setShowContinuesTagsUntracked)
+  const trackedSetShowAlteredBadges = createTrackedSetter(setShowAlteredBadgesUntracked)
 
   // --------------------------------------------------
   // ------------- Reset functionality ----------------
@@ -94,6 +101,7 @@ export const useAllEventSearchFilters = (): UseAllEventSearchFilters => {
         trackedSetNavigationMode(TreeNavigationMode.DRAG)
         trackedSetLevelOfDetail(LevelOfDetail.BALANCED)
         trackedSetShowContinuesTags(true)
+        trackedSetShowAlteredBadges(false)
       })
       // Clear any pending debounced cache write
       // and immediately save to cache (don't wait for debounced effect)
@@ -107,6 +115,7 @@ export const useAllEventSearchFilters = (): UseAllEventSearchFilters => {
         navigationMode: TreeNavigationMode.DRAG,
         levelOfDetail: LevelOfDetail.BALANCED,
         showContinuesTags: true,
+        showAlteredBadges: false,
         lastUpdated: Date.now(),
       })
       if (callback) {
@@ -120,6 +129,7 @@ export const useAllEventSearchFilters = (): UseAllEventSearchFilters => {
       trackedSetNavigationMode,
       trackedSetLevelOfDetail,
       trackedSetShowContinuesTags,
+      trackedSetShowAlteredBadges,
     ]
   )
 
@@ -142,6 +152,7 @@ export const useAllEventSearchFilters = (): UseAllEventSearchFilters => {
         navigationMode,
         levelOfDetail,
         showContinuesTags,
+        showAlteredBadges,
         lastUpdated: Date.now(),
       })
     }, 1000)
@@ -157,6 +168,7 @@ export const useAllEventSearchFilters = (): UseAllEventSearchFilters => {
     navigationMode,
     levelOfDetail,
     showContinuesTags,
+    showAlteredBadges,
     hasUserChangedFilter,
   ])
 
@@ -179,6 +191,8 @@ export const useAllEventSearchFilters = (): UseAllEventSearchFilters => {
     setLevelOfDetail: trackedSetLevelOfDetail,
     showContinuesTags,
     setShowContinuesTags: trackedSetShowContinuesTags,
+    showAlteredBadges,
+    setShowAlteredBadges: trackedSetShowAlteredBadges,
     resetFilters,
   }
 }

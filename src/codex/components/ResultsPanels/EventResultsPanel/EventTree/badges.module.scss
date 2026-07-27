@@ -1,9 +1,22 @@
 @use 'index' as *;
 @use 'sass:color';
 
-.loop-back-badge-circle {
+// Shared shape of the small corner badges (loop-back, altered). Each class supplies its
+// own fill/stroke. A mixin rather than a placeholder: the `&--small` suffix has to expand
+// against the including class, which @extend can't do.
+// Keep the radii in sync with the *_RADIUS constants in badges.ts, which use them to space
+// the altered badge clear of the center node-type badge.
+@mixin badge-circle {
   stroke-width: 2px;
   r: 13px;
+
+  &--small {
+    r: 11px;
+  }
+}
+
+.loop-back-badge-circle {
+  @include badge-circle;
 
   @each $type, $color in $event-node-type-to-color-map {
     &--#{$type} {
@@ -11,12 +24,25 @@
       stroke: color.mix($color-component-bg, $color, 30%);
     }
   }
-  &--small {
-    r: 11px;
-  }
 }
 
 .loop-back-badge-emoji {
+  font-size: font-size('xs');
+  pointer-events: none;
+
+  &--small {
+    font-size: font-size('xxs');
+  }
+}
+
+.altered-badge-circle {
+  @include badge-circle;
+
+  fill: color.mix($color-component-bg, $green-base, 60%);
+  stroke: color.mix($color-component-bg, $green-base, 5%);
+}
+
+.altered-badge-emoji {
   font-size: font-size('xs');
   pointer-events: none;
 

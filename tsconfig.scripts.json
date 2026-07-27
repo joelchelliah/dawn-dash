@@ -1,0 +1,20 @@
+{
+  // Type-checks the Node data-pipeline scripts (run via `npm run type-check`).
+  // Separate from the app tsconfig: the scripts are CommonJS JS checked via JSDoc.
+  // Files opt in to full checking with a `// @ts-check` header (tree-utils.js defines
+  // the ParseNode typedef other modules import); files without it are only parsed.
+  "compilerOptions": {
+    "target": "es2020",
+    "lib": ["es2020"],
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "allowJs": true,
+    "checkJs": false,
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": false,
+    "types": ["node"]
+  },
+  "include": ["scripts/**/*.js", "src/codex/types/events.ts"]
+}

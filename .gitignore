@@ -25,6 +25,7 @@ yarn-error.log*
 .vscode
 
 # Generated files
+scripts/data/card-id-mapping.json
 scripts/data/dump.txt
 scripts/data/dump.txt.backup
 scripts/data/event-trees.json

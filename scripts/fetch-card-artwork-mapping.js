@@ -46,7 +46,9 @@ async function main() {
     console.log('Parsing JSON response...')
     const artworkData = JSON.parse(response)
 
-    console.log(`Received ${Array.isArray(artworkData) ? artworkData.length : Object.keys(artworkData).length} artwork entries`)
+    console.log(
+      `Received ${Array.isArray(artworkData) ? artworkData.length : Object.keys(artworkData).length} artwork entries`
+    )
 
     // Ensure output directory exists
     const outputDir = path.dirname(OUTPUT_FILE)

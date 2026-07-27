@@ -26,19 +26,22 @@ const scripts = [
   {
     name: 'Parse event trees',
     path: path.join(__dirname, 'parse/parse-event-trees.js'),
+    // CLI flags passed to sync-events.js (--debug, --only, --dry-run, --baseline)
+    // are forwarded to the parse step only
+    forwardArgs: true,
   },
 ]
 
 /**
  * Run a script and return a promise that resolves/rejects based on exit code
  */
-function runScript(scriptPath, scriptName) {
+function runScript(scriptPath, scriptName, args = []) {
   return new Promise((resolve, reject) => {
     console.log(`\n${'='.repeat(80)}`)
     console.log(`📝 Running: ${scriptName}`)
     console.log(`${'='.repeat(80)}\n`)
 
-    const child = spawn('node', [scriptPath], {
+    const child = spawn('node', [scriptPath, ...args], {
       stdio: 'inherit',
       cwd: path.dirname(scriptPath),
     })
@@ -66,8 +69,8 @@ async function runPipeline() {
 
   try {
     for (let i = 0; i < scripts.length; i++) {
-      const { name, path: scriptPath } = scripts[i]
-      await runScript(scriptPath, name)
+      const { name, path: scriptPath, forwardArgs } = scripts[i]
+      await runScript(scriptPath, name, forwardArgs ? process.argv.slice(2) : [])
     }
 
     const duration = ((Date.now() - startTime) / 1000).toFixed(2)

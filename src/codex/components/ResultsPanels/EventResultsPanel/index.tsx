@@ -51,6 +51,7 @@ const EventResultsPanel = ({
     loopingPathMode,
     navigationMode,
     showContinuesTags,
+    showAlteredBadges,
   } = useSearchFilters
   const showEventList = selectedEventIndex === ALL_EVENTS_INDEX || filteredEvents.length === 0
   const isNavigating = pendingEventIndex !== null && pendingEventIndex !== selectedEventIndex
@@ -67,6 +68,7 @@ const EventResultsPanel = ({
         loopingPathMode={loopingPathMode}
         navigationMode={navigationMode}
         showContinuesTags={showContinuesTags}
+        showAlteredBadges={showAlteredBadges}
         onAllEventsClick={handleAllEventsClick}
       />
       <br />

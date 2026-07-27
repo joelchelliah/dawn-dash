@@ -6,21 +6,35 @@
  * - Finding nodes by requirement (findByRequirement)
  * - Updating nodes (e.g., adding requirements)
  * - Adding new child nodes (addChild)
+ * - Adding a sibling right after the matched node (addSibling)
  * - Replacing entire nodes (replaceNode)
  * - Replacing children of nodes (replaceChildren)
  * - Updating a single child node (updateChild) - only if node has exactly 1 child
  * - Removing nodes from the tree (removeNode)
+ *
+ * Every node added or edited by an alteration is tagged with `altered: true`, so the
+ * renderer can tell manually-fixed content apart from purely parsed content. The tag is
+ * only set on the SHALLOWEST altered node: descendants of an altered node (whether created
+ * as part of the same spec, or already in the tree under a node an earlier alteration
+ * tagged) inherit the meaning and stay untagged.
  */
-function applyEventAlterations(rootNode, alterations, generateNodeId) {
+function applyEventAlterations(rootNode, alterations, generateNodeId, warnings = []) {
   if (!rootNode || !alterations || alterations.length === 0) return 0
 
   let appliedCount = 0
+
+  // Log immediately AND collect, so the caller can print an end-of-run summary
+  const warn = (message) => {
+    warnings.push(message)
+    console.warn(`  ⚠️  ${message}`)
+  }
 
   for (const alteration of alterations) {
     const {
       find,
       addRequirements,
       addChild,
+      addSibling,
       replaceNode,
       replaceChildren,
       modifyNode,
@@ -30,7 +44,7 @@ function applyEventAlterations(rootNode, alterations, generateNodeId) {
 
     // Validate that we have a find method
     if (!find) {
-      console.warn(`  ⚠️  Alteration missing "find" field: ${JSON.stringify(alteration)}`)
+      warn(`Alteration missing "find" field: ${JSON.stringify(alteration)}`)
       continue
     }
 
@@ -40,7 +54,7 @@ function applyEventAlterations(rootNode, alterations, generateNodeId) {
 
     // Validate find is an object
     if (typeof find !== 'object' || find === null) {
-      console.warn(`  ⚠️  Alteration "find" must be an object: ${JSON.stringify(alteration)}`)
+      warn(`Alteration "find" must be an object: ${JSON.stringify(alteration)}`)
       continue
     }
 
@@ -77,7 +91,7 @@ function applyEventAlterations(rootNode, alterations, generateNodeId) {
       matchingNodes = findNodesByRequirement(rootNode, find.requirement)
       searchDescription = `requirement: "${find.requirement}"`
     } else {
-      console.warn(`  ⚠️  Alteration has invalid find record: ${JSON.stringify(find)}`)
+      warn(`Alteration has invalid find record: ${JSON.stringify(find)}`)
       continue
     }
 
@@ -90,7 +104,7 @@ function applyEventAlterations(rootNode, alterations, generateNodeId) {
     }
 
     if (matchingNodes.length === 0) {
-      console.warn(`  ⚠️  No nodes found matching: ${searchDescription}`)
+      warn(`No nodes found matching: ${searchDescription}`)
       continue
     }
 
@@ -102,7 +116,7 @@ function applyEventAlterations(rootNode, alterations, generateNodeId) {
         if (removed) {
           appliedCount++
         } else {
-          console.warn(`  ⚠️  Failed to remove node ${match.id} from tree`)
+          warn(`Failed to remove node ${match.id} from tree`)
         }
       }
       continue // Skip other operations if we're removing the node
@@ -131,22 +145,26 @@ function applyEventAlterations(rootNode, alterations, generateNodeId) {
             if (targetNodeId !== undefined) {
               node.ref = targetNodeId
             } else {
-              console.warn(
-                `  ⚠️  refSource ${refSource} not found in refTargetMap for alteration in node ${node.id}`
+              warn(
+                `refSource ${refSource} not found in refTargetMap for alteration in node ${node.id}`
               )
             }
           }
 
           // Resolve refCreate nodes to actual refs (search the entire tree)
-          for (const { node, refCreate } of refCreateNodes) {
+          for (const { node, refCreate, asRefChildren } of refCreateNodes) {
             const candidates = findNodesByTextOrChoiceLabel(rootNode, refCreate)
             // Find the first candidate that doesn't have a ref (it's the original node)
             const targetNode = candidates.find((candidate) => candidate.ref === undefined)
             if (targetNode) {
-              node.ref = targetNode.id
+              if (asRefChildren) {
+                node.refChildren = [targetNode.id]
+              } else {
+                node.ref = targetNode.id
+              }
             } else {
-              console.warn(
-                `  ⚠️  refCreate "${refCreate}" did not find a matching node without a ref for node ${node.id}`
+              warn(
+                `refCreate "${refCreate}" did not find a matching node without a ref for node ${node.id}`
               )
             }
           }
@@ -154,6 +172,11 @@ function applyEventAlterations(rootNode, alterations, generateNodeId) {
           // Replace all properties of the matched node with the new node
           Object.keys(match).forEach((key) => delete match[key])
           Object.assign(match, newNode)
+          // newNode is tagged as a top-level created node; drop the tag again if an
+          // ancestor already carries it
+          if (hasAlteredAncestor(rootNode, match.id)) {
+            delete match.altered
+          }
           appliedCount++
         }
       }
@@ -192,13 +215,24 @@ function applyEventAlterations(rootNode, alterations, generateNodeId) {
           const targetId = refTargetMap[refSource]
           if (targetId !== undefined) n.ref = targetId
         }
-        for (const { node: n, refCreate } of refCreateNodes) {
+        for (const { node: n, refCreate, asRefChildren } of refCreateNodes) {
           const candidates = findNodesByTextOrChoiceLabel(rootNode, refCreate)
           const target = candidates.find((c) => c.ref === undefined)
-          if (target) n.ref = target.id
+          if (target) {
+            if (asRefChildren) {
+              n.refChildren = [target.id]
+            } else {
+              n.ref = target.id
+            }
+          }
         }
 
         match.children = newChildren
+        // Each new child was created top-level and is tagged; drop the tag where the
+        // matched node (or one of its ancestors) already carries it
+        if (match.altered || hasAlteredAncestor(rootNode, match.id)) {
+          newChildren.forEach((child) => delete child.altered)
+        }
         appliedCount++
       }
       continue
@@ -214,8 +248,8 @@ function applyEventAlterations(rootNode, alterations, generateNodeId) {
 
         // Error if more than 1 child
         if (node.children.length > 1) {
-          console.error(
-            `  ❌ updateChild skipped for node ${node.id}: has ${node.children.length} children (expected exactly 1)`
+          warn(
+            `updateChild skipped for node ${node.id}: has ${node.children.length} children (expected exactly 1)`
           )
           continue
         }
@@ -262,12 +296,13 @@ function applyEventAlterations(rootNode, alterations, generateNodeId) {
           if (targetNode) {
             child.ref = targetNode.id
           } else {
-            console.warn(
-              `  ⚠️  refCreate "${updateChild.refCreate}" did not find a matching node without a ref for child of node ${node.id}`
+            warn(
+              `refCreate "${updateChild.refCreate}" did not find a matching node without a ref for child of node ${node.id}`
             )
           }
         }
 
+        markAltered(rootNode, child)
         appliedCount++
       }
     }
@@ -286,6 +321,7 @@ function applyEventAlterations(rootNode, alterations, generateNodeId) {
           } else {
             node.requirements = newRequirements
           }
+          markAltered(rootNode, node)
           appliedCount++
         }
       }
@@ -323,8 +359,8 @@ function applyEventAlterations(rootNode, alterations, generateNodeId) {
           if (targetNode) {
             node.ref = targetNode.id
           } else {
-            console.warn(
-              `  ⚠️  refCreate "${modifyNode.refCreate}" did not find a matching node without a ref for node ${node.id}`
+            warn(
+              `refCreate "${modifyNode.refCreate}" did not find a matching node without a ref for node ${node.id}`
             )
           }
         }
@@ -336,12 +372,21 @@ function applyEventAlterations(rootNode, alterations, generateNodeId) {
           if (targetNode) {
             node.ref = targetNode.id
           } else {
-            console.warn(
-              `  ⚠️  refCreateStartsWith "${modifyNode.refCreateStartsWith}" did not find a matching node for node ${node.id}`
+            warn(
+              `refCreateStartsWith "${modifyNode.refCreateStartsWith}" did not find a matching node for node ${node.id}`
             )
           }
         }
 
+        // Handle moveToEnd: reposition this node to be the last child of its parent
+        if (modifyNode.moveToEnd) {
+          const moved = moveNodeToEndOfParent(rootNode, node.id)
+          if (!moved) {
+            warn(`moveToEnd: could not find parent of node ${node.id} to reposition it`)
+          }
+        }
+
+        markAltered(rootNode, node)
         appliedCount++
       }
     }
@@ -360,43 +405,161 @@ function applyEventAlterations(rootNode, alterations, generateNodeId) {
           generateNodeId
         )
         if (newChild) {
-          // Resolve refSource nodes to actual refs (within the alteration)
-          for (const { node: childNode, refSource } of refSourceNodes) {
-            const targetNodeId = refTargetMap[refSource]
-            if (targetNodeId !== undefined) {
-              childNode.ref = targetNodeId
-            } else {
-              console.warn(
-                `  ⚠️  refSource ${refSource} not found in refTargetMap for alteration in node ${childNode.id}`
-              )
-            }
-          }
-
-          // Resolve refCreate nodes to actual refs (search the entire tree)
-          for (const { node: childNode, refCreate } of refCreateNodes) {
-            const candidates = findNodesByTextOrChoiceLabel(rootNode, refCreate)
-            // Find the first candidate that doesn't have a ref (it's the original node)
-            const targetNode = candidates.find((candidate) => candidate.ref === undefined)
-            if (targetNode) {
-              childNode.ref = targetNode.id
-            } else {
-              console.warn(
-                `  ⚠️  refCreate "${refCreate}" did not find a matching node without a ref for node ${childNode.id}`
-              )
-            }
-          }
+          resolveRefs(rootNode, refTargetMap, refSourceNodes, refCreateNodes, warn)
 
           if (!node.children) {
             node.children = []
           }
           node.children.push(newChild)
+          // newChild was created top-level and is tagged; drop the tag when the parent
+          // (or one of its ancestors) already carries it
+          if (node.altered || hasAlteredAncestor(rootNode, node.id)) {
+            delete newChild.altered
+          }
           appliedCount++
         }
+      }
+    }
+
+    // Add a sibling directly after the matched node
+    if (addSibling) {
+      for (const node of matchingNodes) {
+        const parent = findParentOfNode(rootNode, node.id)
+        if (!parent) {
+          warn(`addSibling: could not find parent of node ${node.id}`)
+          continue
+        }
+
+        const refTargetMap = {}
+        const refSourceNodes = []
+        const refCreateNodes = []
+        const newSibling = createNodeFromAlterationSpec(
+          addSibling,
+          refTargetMap,
+          refSourceNodes,
+          refCreateNodes,
+          generateNodeId
+        )
+        if (!newSibling) continue
+
+        resolveRefs(rootNode, refTargetMap, refSourceNodes, refCreateNodes, warn)
+
+        // Stand in for the matched node's children instead of owning a copy of them:
+        // the sibling gets converging lines to the very same child nodes.
+        if (addSibling.refChildrenFromMatchedNode) {
+          const childIds = (node.children || []).map((child) => child.id)
+          if (childIds.length === 0) {
+            warn(`addSibling: matched node ${node.id} has no children to reference`)
+            continue
+          }
+          newSibling.refChildren = childIds
+        }
+
+        const index = parent.children.findIndex((child) => child.id === node.id)
+        parent.children.splice(index + 1, 0, newSibling)
+        // newSibling was created top-level and is tagged; drop the tag when the parent
+        // (or one of its ancestors) already carries it
+        if (parent.altered || hasAlteredAncestor(rootNode, parent.id)) {
+          delete newSibling.altered
+        }
+        appliedCount++
       }
     }
   }
 
   return appliedCount
+}
+
+/**
+ * Resolve the refSource/refCreate/refChildrenCreate placeholders collected while creating
+ * nodes from an alteration spec into real node ids:
+ * - refSource: points at a refTarget node created by the same spec
+ * - refCreate / refChildrenCreate: points at the original (ref-less) node in the tree whose
+ *   text or choiceLabel matches
+ */
+function resolveRefs(rootNode, refTargetMap, refSourceNodes, refCreateNodes, warn) {
+  for (const { node, refSource } of refSourceNodes) {
+    const targetNodeId = refTargetMap[refSource]
+    if (targetNodeId !== undefined) {
+      node.ref = targetNodeId
+    } else {
+      warn(`refSource ${refSource} not found in refTargetMap for alteration in node ${node.id}`)
+    }
+  }
+
+  for (const { node, refCreate, asRefChildren } of refCreateNodes) {
+    const candidates = findNodesByTextOrChoiceLabel(rootNode, refCreate)
+    // Find the first candidate that doesn't have a ref (it's the original node)
+    const targetNode = candidates.find((candidate) => candidate.ref === undefined)
+    if (targetNode) {
+      if (asRefChildren) {
+        node.refChildren = [targetNode.id]
+      } else {
+        node.ref = targetNode.id
+      }
+    } else {
+      warn(
+        `refCreate "${refCreate}" did not find a matching node without a ref for node ${node.id}`
+      )
+    }
+  }
+}
+
+/**
+ * Find the node whose children array contains nodeId
+ */
+function findParentOfNode(node, nodeId) {
+  if (!node || !node.children) return null
+
+  if (node.children.some((child) => child.id === nodeId)) return node
+
+  for (const child of node.children) {
+    const parent = findParentOfNode(child, nodeId)
+    if (parent) return parent
+  }
+
+  return null
+}
+
+/**
+ * Mark a node that an alteration edited as altered.
+ *
+ * Skipped when an ancestor is already tagged: the tag marks the shallowest altered node,
+ * and everything below it is understood to be altered too. Nodes created by an alteration
+ * are tagged at creation time (see createNodeFromAlterationSpec), not here.
+ */
+function markAltered(rootNode, node) {
+  if (node.altered) return
+  if (hasAlteredAncestor(rootNode, node.id)) return
+  node.altered = true
+}
+
+/**
+ * Whether any node on the path from rootNode down to (but excluding) nodeId is tagged
+ * `altered`. Walks children only, so ref/refChildren jump links are not treated as
+ * ancestry — a ref into altered content doesn't make the referencing node altered.
+ */
+function hasAlteredAncestor(rootNode, nodeId) {
+  if (!rootNode || !rootNode.children) return false
+
+  for (const child of rootNode.children) {
+    if (child.id === nodeId) return Boolean(rootNode.altered)
+    if (containsNode(child, nodeId)) {
+      return Boolean(rootNode.altered) || hasAlteredAncestor(child, nodeId)
+    }
+  }
+
+  return false
+}
+
+/**
+ * Whether nodeId is this node or anywhere in its children subtree
+ */
+function containsNode(node, nodeId) {
+  if (!node) return false
+  if (node.id === nodeId) return true
+  if (!node.children) return false
+  return node.children.some((child) => containsNode(child, nodeId))
 }
 
 /**
@@ -417,6 +580,29 @@ function removeNodeFromParent(node, nodeIdToRemove) {
   // Recursively search in children
   for (const child of node.children) {
     if (removeNodeFromParent(child, nodeIdToRemove)) {
+      return true
+    }
+  }
+
+  return false
+}
+
+/**
+ * Move a node to be the last child of its parent's children array.
+ * Returns true if the node was found and repositioned, false otherwise.
+ */
+function moveNodeToEndOfParent(node, nodeIdToMove) {
+  if (!node || !node.children) return false
+
+  const childIndex = node.children.findIndex((child) => child.id === nodeIdToMove)
+  if (childIndex !== -1) {
+    const [child] = node.children.splice(childIndex, 1)
+    node.children.push(child)
+    return true
+  }
+
+  for (const child of node.children) {
+    if (moveNodeToEndOfParent(child, nodeIdToMove)) {
       return true
     }
   }
@@ -608,6 +794,9 @@ function findNodesByRequirement(node, requirementToFind) {
  * @param {Object} refTargetMap - Map of refTarget numbers to actual node IDs
  * @param {Array} refSourceNodes - Array to collect nodes that need refSource resolution
  * @param {Array} refCreateNodes - Array to collect nodes that need refCreate resolution
+ * @param {Function} generateNodeId
+ * @param {boolean} [isTopLevel] - true for the node the alteration inserts, false for its
+ *   descendants: only the top-level node is tagged `altered` (see module doc)
  * @returns {Object} The created node
  */
 function createNodeFromAlterationSpec(
@@ -615,7 +804,8 @@ function createNodeFromAlterationSpec(
   refTargetMap = {},
   refSourceNodes = [],
   refCreateNodes = [],
-  generateNodeId
+  generateNodeId,
+  isTopLevel = true
 ) {
   if (!spec || !spec.type) {
     console.warn(`  ⚠️  Invalid node spec: missing type`)
@@ -625,6 +815,12 @@ function createNodeFromAlterationSpec(
   const node = {
     id: generateNodeId(),
     type: spec.type,
+  }
+
+  // Only the top-level created node carries the tag; children created from this spec are
+  // descendants of an altered node and inherit the meaning (see module doc).
+  if (isTopLevel) {
+    node.altered = true
   }
 
   if (spec.text !== undefined) {
@@ -680,6 +876,12 @@ function createNodeFromAlterationSpec(
     refCreateNodes.push({ node, refCreate: spec.refCreate })
   }
 
+  // Handle refChildrenCreate: mark this node for later refChildren resolution by searching
+  // the tree for a node matching the text/choiceLabel, then pointing refChildren at its id
+  if (spec.refChildrenCreate !== undefined) {
+    refCreateNodes.push({ node, refCreate: spec.refChildrenCreate, asRefChildren: true })
+  }
+
   // Recursively create children
   if (spec.children && Array.isArray(spec.children)) {
     node.children = spec.children
@@ -689,7 +891,8 @@ function createNodeFromAlterationSpec(
           refTargetMap,
           refSourceNodes,
           refCreateNodes,
-          generateNodeId
+          generateNodeId,
+          false
         )
       )
       .filter((child) => child !== null)

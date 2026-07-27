@@ -66,36 +66,6 @@ function extractBundleUrl(html) {
 }
 
 /**
- * Extracts all JSON.parse() calls from the JavaScript bundle
- */
-function extractJsonParseData(jsCode) {
-  // Match JSON.parse('...') or JSON.parse("...")
-  // This regex handles escaped quotes and nested content
-  const jsonParseRegex = /JSON\.parse\s*\(\s*(['"`])((?:(?!\1).|\\\1)*)\1\s*\)/g
-  const results = []
-  let match
-
-  while ((match = jsonParseRegex.exec(jsCode)) !== null) {
-    const quote = match[1]
-    const jsonString = match[2]
-
-    try {
-      // Unescape the string (handle \\", \\', etc.)
-      const unescaped = jsonString.replace(/\\"/g, '"').replace(/\\'/g, "'").replace(/\\\\/g, '\\')
-
-      // Validate it's actually JSON
-      JSON.parse(unescaped)
-      results.push({ quote, content: unescaped })
-    } catch (e) {
-      // Skip invalid JSON
-      console.warn('Skipping invalid JSON.parse() call')
-    }
-  }
-
-  return results
-}
-
-/**
  * Finds variable assignments with JSON.parse() calls
  */
 function extractVariableAssignments(jsCode) {
@@ -118,7 +88,6 @@ function extractVariableAssignments(jsCode) {
 
     // Find the matching closing quote and parenthesis
     const quote = jsCode[startPos]
-    const depth = 0
     let escaped = false
     let i = startPos + 1
     let jsonContent = ''
