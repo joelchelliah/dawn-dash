@@ -26,6 +26,9 @@
  * Modifying nodes:
  * - addRequirements: Add requirements to matched nodes
  * - addChild: Add a new child node to matched nodes
+ * - addSibling: Insert a new node directly after the matched node in its parent's children.
+ *   Use refChildrenFromMatchedNode: true to set refChildren to the matched node's own child ids,
+ *   so the sibling converges onto the same children instead of owning a copy of them.
  * - replaceNode: Replace the entire matched node with a new node structure
  * - replaceChildren: Replace matched node's children with new nodes (array of node specs).
  *   Use refChildrenFromFirstSibling: true on a child to set refChildren to first sibling's child ids.
@@ -95,6 +98,31 @@ function addGotoEventChild(gotoEvent) {
       type: 'special',
       effects: [`GOTO EVENT: ${gotoEvent}`],
     },
+  }
+}
+
+/**
+ * Helper for events where a `talent:devotion` choice is also reachable with holy access.
+ *
+ * The game gates the choice on either condition, but the Ink story only ever offers the
+ * talent variant during exploration, so the alternative never shows up in the parsed tree.
+ * Adds a twin choice right next to the original — same label, `accesstoholy` instead of the
+ * talent — whose refChildren converge onto the original's children rather than duplicating them.
+ */
+function createAccessToHolyTwinChoice(eventName, choiceLabel) {
+  return {
+    name: eventName,
+    alterations: [
+      {
+        find: { textOrLabel: choiceLabel, requirement: 'talent:devotion' },
+        addSibling: {
+          type: 'choice',
+          choiceLabel,
+          requirements: ['accesstoholy'],
+          refChildrenFromMatchedNode: true,
+        },
+      },
+    ],
   }
 }
 
@@ -424,20 +452,14 @@ module.exports = [
         find: { requirement: 'COLLECTOR: g-0' },
         removeNode: true,
       },
-      // Move Legendary last so the new Valuable node (added right after, below) renders next to it
+      // Valuable rarity shares the same reward as Legendary, so it goes right next to it
+      // and converges onto Legendary's outcome instead of duplicating it
       {
         find: { requirement: 'COLLECTOR: Legendary' },
-        modifyNode: {
-          moveToEnd: true,
-        },
-      },
-      // Valuable rarity shares the same reward as Legendary
-      {
-        find: { textOrLabel: 'Hand over a card' },
-        addChild: {
+        addSibling: {
           type: 'result',
           requirements: ['COLLECTOR: Valuable'],
-          refChildrenCreate: '"Marvelous! What a gem',
+          refChildrenFromMatchedNode: true,
         },
       },
     ],
@@ -526,6 +548,9 @@ module.exports = [
       },
     ],
   },
+  createAccessToHolyTwinChoice('Lost Soul', 'Devotion: Cleanse the soul'),
+  createAccessToHolyTwinChoice('Fallen Soldier', 'Rest your hand on the battered skull'),
+  createAccessToHolyTwinChoice('Windy Hillock', 'Find solace in prayer.'),
   {
     name: 'Obsidian Garden Finish',
     alterations: [
