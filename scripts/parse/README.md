@@ -343,9 +343,6 @@ Two events roll random content *during* story exploration, so their text can dif
 - **Fallen Soldier** (Ink event name `ArmsDealer`) — the skeleton sits against a "nearby wall",
   "nearby signpost" or "nearby stone". Root cause: an inline Ink cycle-alternative (`seq`)
   construct picking one of 4 flavor-text values mid-sentence, not yet detected by any code path
-  — see spec 20 in [SPECS.md](./SPECS.md) for the full diagnosis and why it's out of scope for
-  now. Any of the 4 can show up in a run; the ignore rule matches on the line's prefix, so it
-  covers all of them
 - **Mirror Shard** — the "Focus on the …" choice labels shuffle
 
 Node ids also renumber freely between runs — structurally meaningless and ignored by

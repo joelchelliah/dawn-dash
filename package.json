@@ -46,6 +46,8 @@
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "sync-events": "node scripts/sync-events.js",
+    "sync-talents-preflight": "node scripts/sync-talents-preflight.js",
+    "backup-talents": "node scripts/backup-talents.js",
     "sync-artwork": "node scripts/fetch-card-artwork-mapping.js"
   },
   "devDependencies": {

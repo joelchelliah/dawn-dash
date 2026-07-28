@@ -28,33 +28,47 @@ const NON_COLLECTIBLE_CATEGORIES_FOR_MONSTER_EXPANSION = [
 
 const NON_COLLECTIBLE_CARDS = [
   'Pacified',
+  'Alignment',
+  'Bloodbank',
+  'Vexing Echo 1',
+  'Vexing Echo 2',
 
+  // Ascensions
   'Ascension I',
   'Ascension II',
   'Ascension III',
 
+  // Hymns
   'Hymn of Penance I',
   'Hymn of Penance II',
   'Hymn of Penance III',
-
   'Hymn of Power I',
   'Hymn of Power II',
   'Hymn of Power III',
-
   'Hymn of Vitality I',
   'Hymn of Vitality II',
   'Hymn of Vitality III',
-
   'Hymn of Light I',
   'Hymn of Light II',
   'Hymn of Light III',
+  'Hymn of Conviction I',
+  'Hymn of Conviction II',
+  'Hymn of Conviction III',
+  'Hymn of Mercy I',
+  'Hymn of Mercy II',
+  'Hymn of Mercy III',
 
-  'The Dawnbringer',
+  // Domains
+  "Ammit's Domain",
+  "Baku's Domain",
+  "Nue's Domain",
 
+  // Elite Magic
   'Elite Lightning Bolt',
   'Elite Fireball',
   'Elite Frostbolt',
 
+  // Imp Offers
   'Imp Offer 1',
   'Imp Offer 2',
   'Imp Offer 3',
@@ -63,6 +77,7 @@ const NON_COLLECTIBLE_CARDS = [
   'Imp Offer 6',
   'Offer of Doom',
 
+  // Battlespear
   'Battlespear C',
   'Battlespear D',
   'Battlespear E',
@@ -70,31 +85,79 @@ const NON_COLLECTIBLE_CARDS = [
   'Battlespear L',
   'Battlespear U',
 
+  // Lost Lagoon
   'City of Gold',
   'Font of Youth',
   'Sunken Forge',
   'Wasteland',
 
-  'Alignment',
-  'Bloodbank',
-  'Vexing Echo 1',
-  'Vexing Echo 2',
-
+  // Pirate Ink
   'Pirate Ink I',
   'Pirate Ink II',
   'Pirate Ink III',
   'Pirate Ink IV',
   'Pirate Ink V',
 
+  // Larceny
   'Larceny INT',
   'Larceny STR',
   'Larceny DEX',
   'Larceny HOLY',
 
+  // Doing your part
   'Colonel',
   'Lieutenant',
   'Private',
   'Sergeant',
+
+  // Compel
+  'Compel 1',
+  'Compel 2',
+
+  // Treaties
+  'Treaty of Joy',
+  'Treaty of Insight',
+  'Treaty of Might',
+  'Treaty of Peace',
+  'Treaty of Mercy',
+
+  // Agile Mind
+  'Agile',
+  'Mind',
+
+  // Hypnosis
+  'Hypnosis 1',
+  'Hypnosis 2',
+
+  // Runes
+  'Frenzied',
+  'Plated',
+  'Tempered',
+  'Charged',
+  'Blunt',
+  'Lethal',
+  'Sharp',
+  'Twinned',
+  'Fluid',
+  'Magebane',
+  'Blessed',
+
+  // That card that does one of these things
+  'Haste',
+  'Slow',
+  'Draw',
+
+  // NPCs
+  'Blacksmith',
+  'The Dawnbringer',
+  'Alchemist',
+  'Enchanter',
+  'Collector',
+  'Illusionist',
+  'Succubus',
+  'Merchant',
+  'Priest',
+  'Huntress',
 ]
 
 export const hasMonsterExpansion = (card: CardData) => card.expansion === 0
