@@ -13,10 +13,11 @@
  * - Removing nodes from the tree (removeNode)
  *
  * Every node added or edited by an alteration is tagged with `altered: true`, so the
- * renderer can tell manually-fixed content apart from purely parsed content. The tag is
+ * renderer can tell content that isn't purely parsed apart from content that is. The tag is
  * only set on the SHALLOWEST altered node: descendants of an altered node (whether created
  * as part of the same spec, or already in the tree under a node an earlier alteration
  * tagged) inherit the meaning and stay untagged.
+
  */
 function applyEventAlterations(rootNode, alterations, generateNodeId, warnings = []) {
   if (!rootNode || !alterations || alterations.length === 0) return 0

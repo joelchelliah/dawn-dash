@@ -8,6 +8,8 @@
  */
 const {
   DIALOGUE_MENU_EVENTS,
+  INK_VARIABLE_OVERRIDES,
+  ENGINE_ADJUSTED_COST_VARIABLES,
   PATH_CONVERGENCE,
   DEFAULT_NODE_BLACKLIST,
   POST_PROCESSING_HUB_PATTERN_OPTIMIZATION_BLACKLIST,
@@ -27,6 +29,11 @@ function collectConfiguredEventNames() {
   const src = (name) => `event-overrides.js ${name}`
   return [
     { source: src('DIALOGUE_MENU_EVENTS'), names: Object.keys(DIALOGUE_MENU_EVENTS) },
+    { source: src('INK_VARIABLE_OVERRIDES'), names: Object.keys(INK_VARIABLE_OVERRIDES) },
+    {
+      source: src('ENGINE_ADJUSTED_COST_VARIABLES'),
+      names: Object.keys(ENGINE_ADJUSTED_COST_VARIABLES),
+    },
     { source: src('PATH_CONVERGENCE'), names: Object.keys(PATH_CONVERGENCE) },
     { source: src('DEFAULT_NODE_BLACKLIST'), names: DEFAULT_NODE_BLACKLIST },
     {

@@ -56,7 +56,7 @@ interface BaseNode {
   children?: EventTreeNode[]
   ref?: number
   refChildren?: number[]
-  // Set on nodes added or edited by a manual event alteration during parsing. Only the
-  // shallowest altered node is tagged — everything below it is altered by implication.
+  // Set during parsing on nodes whose content isn't purely what the Ink story produced.
+  // Node was additionally altered based on external knowledge.
   altered?: boolean
 }

@@ -410,6 +410,39 @@ function collectStoryText(story, ctx) {
 }
 
 /**
+ * Force this event's configured Ink globals (INK_VARIABLE_OVERRIDES) before exploration.
+ *
+ * Must run before the first Continue(): the value has to be in place by the time the
+ * runtime evaluates the choice conditions that read it. Applying it here is enough — the
+ * overridden variables are ones the *game engine* sets, so nothing inside the Ink assigns
+ * them during playback and the value survives the whole exploration. (The Nexus's
+ * `setpicks` function would assign `picks`, but it is only ever invoked through the
+ * external STORYFUNCTION command, which inkjs never executes.)
+ *
+ * An override naming a variable the story doesn't declare is a hard error: it means the
+ * upstream Ink was renamed or restructured, and silently doing nothing would put us right
+ * back to the hidden-branches bug the override exists to fix.
+ */
+function applyInkVariableOverrides(story, eventName) {
+  const overrides = OPTIMIZATION_PASS_CONFIG.INK_VARIABLE_OVERRIDES[eventName]
+  if (!overrides) return
+
+  Object.entries(overrides).forEach(([varName, value]) => {
+    if (story.variablesState[varName] === undefined) {
+      throw new Error(
+        `INK_VARIABLE_OVERRIDES: "${eventName}" has no Ink variable "${varName}" — ` +
+          `the story was likely renamed or restructured upstream. Update the override in event-overrides.js.`
+      )
+    }
+    story.variablesState[varName] = value
+
+    if (eventName === debugConfig.eventName) {
+      console.log(`  🔧 Ink variable override: ${varName} = ${JSON.stringify(value)}`)
+    }
+  })
+}
+
+/**
  * Parse a single Ink story and build a hierarchical tree by exploring all paths
  * @param {string} inkJsonString - The event's compiled Ink story JSON
  * @param {string} eventName - Display name of the event (logging, per-event config)
@@ -482,6 +515,8 @@ function parseInkStory(inkJsonString, eventName) {
 
     const story = new Story(inkJsonString)
 
+    applyInkVariableOverrides(story, eventName)
+
     // Per-event parse context: static analysis results plus mutable tree-building state.
     // Everything buildTreeFromStory needs that isn't specific to the current branch lives here.
     const ctx = {
@@ -493,6 +528,7 @@ function parseInkStory(inkJsonString, eventName) {
       nodesCreated: 0, // counted against CONFIG.NODE_BUDGET
       pathConvergenceStates: new Map(), // Track path convergence for early dedup (text + choices)
       hubSnapshot: null, // Hub choice snapshot: { hubNodeId, choiceLabels: Set, threshold }
+      menuReturn: null, // Textless-menu return detection: { hubNodeId, choiceLabels: Set }
     }
 
     // Build tree by exploring all possible paths
@@ -814,6 +850,24 @@ function buildTreeFromStory(story, ctx, path) {
         dialogueMenuHubIdsByEventName.set(eventName, nodeId)
       }
 
+      // For events with menuReturnDetection, remember the hub's full choice set so a
+      // later, textless return to this same menu can be recognised by its choices alone
+      // (see isMenuReturnNode). Captured from the FIRST hub node, which is the only one
+      // that still offers every option.
+      if (dialogueMenuConfig.menuReturnDetection && choices.length > 0 && !ctx.menuReturn) {
+        ctx.menuReturn = {
+          hubNodeId: nodeId,
+          choiceLabels: new Set(
+            choices.map((c) => extractChoiceMetadata(c.text).cleanedText).filter(Boolean)
+          ),
+        }
+        if (eventName === debugConfig.eventName) {
+          console.log(
+            `  🔍 Captured menu-return choice set at nodeId=${nodeId}: [${Array.from(ctx.menuReturn.choiceLabels).join(', ')}]`
+          )
+        }
+      }
+
       // For events with hubChoiceMatchThreshold, capture snapshot of hub choices
       // Only capture from the FIRST hub node we encounter (don't overwrite existing snapshot)
       if (
@@ -847,6 +901,35 @@ function buildTreeFromStory(story, ctx, path) {
         }
       }
     }
+  }
+
+  // EARLY DEDUPLICATION: MENU RETURN DETECTION
+  // Some any-order menus are re-entered with NO text of their own and no stable Ink path,
+  // so neither menuHubPattern (text), text-loop detection nor choice+path detection can
+  // see the loop — only the choice set identifies the menu. Each visit also removes the
+  // option just taken, so a return is a strict, shrinking SUBSET of the hub's choices.
+  //
+  // Reffing here (before children are built) is what actually bounds the factorial: the
+  // hub's own children are built in full, and every subsequent return collapses to a ref.
+  if (
+    ctx.menuReturn &&
+    nodeId !== ctx.menuReturn.hubNodeId &&
+    !cleanedText &&
+    choices.length > 0 &&
+    choices.length < ctx.menuReturn.choiceLabels.size &&
+    choices.every((c) => ctx.menuReturn.choiceLabels.has(extractChoiceMetadata(c.text).cleanedText))
+  ) {
+    if (eventName === debugConfig.eventName) {
+      console.log(`- MENU RETURN detected at nodeId=${nodeId} -> ref ${ctx.menuReturn.hubNodeId}`)
+    }
+    return createNode({
+      id: nodeId,
+      text: cleanedText,
+      type,
+      effects,
+      numContinues,
+      ref: ctx.menuReturn.hubNodeId,
+    })
   }
 
   // EARLY DEDUPLICATION: PATH CONVERGENCE DETECTION

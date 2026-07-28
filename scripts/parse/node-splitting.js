@@ -15,10 +15,14 @@ const { SPECIAL_KEYWORD_EFFECT_VALUES } = require('./event-overrides.js')
 const { recordParseFailure } = require('./debug.js')
 
 /**
- * All `>>>>COMMAND` names seen across the current event data (audited 2026-07-20). An
- * unrecognized command isn't a hard error — it still renders as "COMMAND: value" — but
+ * All `>>>>COMMAND` names seen across the current event data (audited 2026-07-20; DELVEFROMANYPROPERTY,
+ * IMBUE, NATHALIMERCHANT and RANDOMEVENT added 2026-07-27 with the Nexus of Nightmares sync).
+ * An unrecognized command isn't a hard error — it still renders as "COMMAND: value" — but
  * it's exactly the kind of silent drift (a typo, an upstream rename) spec 6's config-name
  * validation guards against elsewhere, so it's worth surfacing via recordParseFailure.
+ *
+ * Registering a command only silences that warning; it does not change how the command
+ * renders, so the entries above stay in the tree exactly as they were.
  */
 const KNOWN_COMMANDS = new Set([
   ...CARD_ID_COMMANDS,
@@ -49,6 +53,7 @@ const KNOWN_COMMANDS = new Set([
   'DAMAGE',
   'DECOLOR',
   'DELVEFROMANY',
+  'DELVEFROMANYPROPERTY',
   'DELVEFROMKEYWORD',
   'DELVEFROMRARITY',
   'DIRECTCOMBAT',
@@ -60,18 +65,21 @@ const KNOWN_COMMANDS = new Set([
   'GOTOAREA',
   'HEAL',
   'HEALPERCENTAGE',
+  'IMBUE',
   'IMBUESELECTION',
   'LUCK',
   'MAXHEALTH',
   'MEMORIZE',
   'MERCHANT',
   'MERCHANTDISCOUNT',
+  'NATHALIMERCHANT',
   'NEXTAREA',
   'NEXTCARD',
   'NEXTSTATUS',
   'PERSISTENT',
   'PLACEONTOP',
   'QUESTFLAG',
+  'RANDOMEVENT',
   'RANDOMIZEENERGY',
   'RANDOMIZEUPGRADES',
   'RELIABLE',
@@ -142,9 +150,12 @@ function extractEffects(
 
   // Extract entire command sequences: >>>>COMMAND1:value1;COMMAND2:value2;COMMAND3
   // Pattern matches commands until it hits a character outside the allowed set (like punctuation)
-  // Character class structure: letters, digits, underscore, colon, semicolon, quotes, brackets, parens, space, tab, slash, hyphen
+  // Character class structure: letters, digits, underscore, colon, semicolon, quotes, brackets, parens, space, tab, slash, hyphen, ampersand, plus
   // NOTE: Order matters to avoid unintended ranges (e.g., \t\/\- not \t\-\/ which would create ASCII range)
-  const commandSequencePattern = />>>>?[A-Za-z0-9_:;'\[\]\(\) \t\/\-]+/gi
+  // `&` and `+` are here solely for the counter-reference value `TRADE:&&malignancies&&+3`
+  // (see resolveCounterReferenceValue); without them the match stops at the first `&` and the
+  // value falls through into the node's text as a raw codeword.
+  const commandSequencePattern = />>>>?[A-Za-z0-9_:;'\[\]\(\) \t\/\-&+]+/gi
 
   cleaned = cleaned.replace(commandSequencePattern, (commandSequence) => {
     let proseAfterCommand = ''
@@ -212,7 +223,7 @@ function extractEffects(
             newEffects = resolveSpecialKeywordEffects(value, functionDefinitions, functionCalls)
             break
           default:
-            newEffects = [`${command}: ${value}`]
+            newEffects = [`${command}: ${resolveCounterReferenceValue(value)}`]
         }
       } else {
         newEffects = [command]
@@ -231,6 +242,25 @@ function extractEffects(
   const cleanedText = cleanText(cleaned)
 
   return { effects, cleanedText }
+}
+
+/**
+ * Rewrite a `&&counter&&±N` command value into readable prose.
+ *
+ * The game wraps a runtime counter reference in `&&`, so `TRADE:&&malignancies&&+3` means
+ * "trade for (number of malignancies) + 3".
+ *
+ * The counter name is bracketed verbatim and the offset spaced out ("&&malignancies&&+3" → "[malignancies] + 3").
+ * Anything that doesn't match the shape is passed through untouched, so a second,
+ * differently-shaped counter would show up as a raw value rather than being silently mangled.
+ */
+function resolveCounterReferenceValue(value) {
+  const match = value.match(/^&&([A-Za-z_]+)&&([+-])(\d+)$/)
+  if (!match) return value
+
+  const [, counter, sign, amount] = match
+
+  return `[${counter}] ${sign} ${amount}`
 }
 
 /**
@@ -268,7 +298,7 @@ function cleanText(text) {
   // This handles edge cases where commands appear in text that wasn't fully processed by extractEffects
   // Pattern: matches command sequences until hitting: newline, quote, space (after optional semicolon), or end
   // Examples: ">>>>DAMAGE:10; text" → "text",  "\n>>>>GOLD:50\ntext" → "\ntext"
-  cleaned = cleaned.replace(/>>>>?[A-Za-z0-9_:;'\[\]\(\)\t\-\/]+;?(?=\n|"| |$)/gi, '')
+  cleaned = cleaned.replace(/>>>>?[A-Za-z0-9_:;'\[\]\(\)\t\-\/&+]+;?(?=\n|"| |$)/gi, '')
 
   // Remove color tags
   cleaned = cleaned.replace(/<color=[^>]+>/gi, '').replace(/<\/color[^>]*>/gi, '')

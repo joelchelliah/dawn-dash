@@ -8,6 +8,7 @@
  */
 const {
   DIALOGUE_MENU_EVENTS,
+  INK_VARIABLE_OVERRIDES,
   PATH_CONVERGENCE,
   POST_PROCESSING_HUB_PATTERN_OPTIMIZATION_BLACKLIST,
   COUSIN_REF_BLACKLIST,
@@ -39,6 +40,10 @@ const OPTIMIZATION_PASS_CONFIG = {
   // - With hubChoiceMatchThreshold: delayed hub return detection (build child, then ref it).
   // - Without hubChoiceMatchThreshold: immediate ref creation mode (faster, smaller trees).
   DIALOGUE_MENU_EVENTS: DIALOGUE_MENU_EVENTS,
+
+  // Ink globals forced before exploration (event-overrides.js), for variables the game
+  // engine sets and that gate which choices the runtime offers. See The Nexus / `picks`.
+  INK_VARIABLE_OVERRIDES: INK_VARIABLE_OVERRIDES,
 
   // Path convergence early dedup (whitelisted via PATH_CONVERGENCE in event-overrides.js):
   // - If we reach the same node state (text + choices) via different routes, create a ref.

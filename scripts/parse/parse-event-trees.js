@@ -46,6 +46,7 @@ const {
   DEFAULT_NODE_BLACKLIST,
   EVENT_NAME_ALIASES,
   EVENT_ALTERATIONS,
+  ENGINE_ADJUSTED_COST_VARIABLES,
 } = require('./event-overrides.js')
 const { validateEventConfigs } = require('./config-validation.js')
 const { applyEventAlterations } = require('./apply-event-alterations.js')
@@ -74,7 +75,12 @@ const {
   convertSiblingAndCousinRefsToRefChildren,
   hoistPureStandInRefNodes,
 } = require('./ref-children.js')
-const { checkInvalidRefs, replaceCardIdsInNode, filterDefaultNodes } = require('./misc-passes.js')
+const {
+  checkInvalidRefs,
+  replaceCardIdsInNode,
+  filterDefaultNodes,
+  replaceEngineAdjustedCosts,
+} = require('./misc-passes.js')
 const {
   detectAndOptimizeDialogueMenuHubs,
 } = require('./post-processing-hub-pattern-optimization.js')
@@ -462,6 +468,22 @@ const PIPELINE = [
       if (updated > 0) {
         console.log(`\n🎲 Cleaned up random gold/damage in text: ${updated} node(s)`)
       }
+    },
+  },
+  {
+    // Costs the game engine reassigns at runtime (see ENGINE_ADJUSTED_COST_VARIABLES):
+    // the number inkjs rendered is only the story's declared starting value.
+    name: 'replaceEngineAdjustedCosts',
+    banner: '💰 Rewriting engine-adjusted cost values...',
+    run: (eventTrees) => {
+      const stats = { rewritten: 0 }
+      eventTrees.forEach((tree) => {
+        const costVariables = ENGINE_ADJUSTED_COST_VARIABLES[tree.name]
+        if (costVariables && tree.rootNode) {
+          replaceEngineAdjustedCosts(tree.rootNode, costVariables, stats)
+        }
+      })
+      console.log(`  Rewrote ${stats.rewritten} engine-adjusted cost value(s)`)
     },
   },
   {
