@@ -17,7 +17,8 @@ const NON_COLLECTIBLE_CATEGORIES = [
   16, // Ingredients
   19, // Offerings
 ]
-const NON_COLLECTIBLE_CATEGORIES_FOR_MONSTER_EXPANSION = [
+// Categories that are only non-collectible within the nil (unset) expansion
+const NON_COLLECTIBLE_CATEGORIES_FOR_NIL_EXPANSION = [
   1, // Items
   4, // Enchantments
   11, // Revelations
@@ -160,23 +161,28 @@ const NON_COLLECTIBLE_CARDS = [
   'Huntress',
 ]
 
-export const hasMonsterExpansion = (card: CardData) => card.expansion === 0
+/*
+ * Expansion 0 is the game's nil/unset bucket —
+ * It contains a mix of regular and monster cards, as well as non-collectible cards.
+ */
+export const hasNilExpansion = (card: CardData) => card.expansion === 0
+
 export const hasMonsterRarity = (card: CardData) => card.rarity === 4
 export const hasMonsterBanner = (card: CardData) => card.color === 11
 export const isAnimalCompanionCard = (card: CardData) => card.name.endsWith('(Companion)')
 
-export const isNonCollectibleRegularCard = (card: CardData) =>
-  !hasMonsterExpansion(card) &&
-  (NON_COLLECTIBLE_CATEGORIES.includes(card.category) ||
-    NON_COLLECTIBLE_CARDS.some((cardName) => cardName.toLowerCase() === card.name.toLowerCase()))
+export const isMonsterCard = (card: CardData) => hasMonsterBanner(card) || hasMonsterRarity(card)
 
-export const isNonCollectibleMonsterCard = (card: CardData) =>
-  hasMonsterExpansion(card) &&
-  (NON_COLLECTIBLE_CATEGORIES_FOR_MONSTER_EXPANSION.includes(card.category) ||
-    NON_COLLECTIBLE_CARDS.some((cardName) => cardName.toLowerCase() === card.name.toLowerCase()))
-
+/*
+ * The two category lists are disjoint and mutually exclusive: a category counts as
+ * non-collectible either in the nil expansion or outside it, never both. The name
+ * blacklist applies regardless of expansion.
+ */
 export const isNonCollectible = (card: CardData) =>
-  isNonCollectibleRegularCard(card) || isNonCollectibleMonsterCard(card)
+  NON_COLLECTIBLE_CARDS.some((cardName) => cardName.toLowerCase() === card.name.toLowerCase()) ||
+  (hasNilExpansion(card)
+    ? NON_COLLECTIBLE_CATEGORIES_FOR_NIL_EXPANSION.includes(card.category)
+    : NON_COLLECTIBLE_CATEGORIES.includes(card.category))
 
 export const parseCardDescription = (description: string, iconClassName?: string) => {
   const parsedDescription = description
