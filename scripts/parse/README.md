@@ -24,7 +24,7 @@ scripts/data/events.json         (each event's `text` = a compiled Ink story)
         │
         │  scripts/parse/parse-event-trees.js          <── THIS FOLDER
         │  1. tree building: replay every story path with the inkjs runtime
-        │  2. post-processing: the PIPELINE pass registry (17 passes)
+        │  2. post-processing: the PIPELINE pass registry (18 passes)
         │  3. validation: diff output vs baseline, ignore known noise
         ▼
 src/codex/data/event-trees.json  (201 trees, ~4.2k nodes, statically imported)
@@ -53,7 +53,7 @@ and restoring story state to explore every choice.
 | `post-processing-hub-pattern-optimization.js` | Config-free BFS detection of dialogue-menu hubs |
 | `apply-event-alterations.js` | Engine for manual per-event fixes |
 | `event-alterations.js` | The manual fixes themselves (data) |
-| `event-overrides.js` | ALL per-event special-casing in one place (hub events, blacklists, aliases, deprecated events, validation ignore rules; re-exports the alterations) |
+| `event-overrides.js` | ALL per-event special-casing in one place (hub events, Ink variable overrides, blacklists, aliases, deprecated events, validation ignore rules; re-exports the alterations) |
 | `configs.js` | Pass toggles + non-per-event tuning knobs |
 | `config-validation.js` | Startup check: every per-event config entry resolves to a real event |
 | `parse-validation.js` | Structural output validation against git HEAD or a `--baseline` snapshot |
@@ -67,8 +67,8 @@ app's `EventTreeNode` in `src/codex/types/events.ts`), checked via `tsconfig.scr
 
 All per-event special-casing lives in `event-overrides.js` (with the manual tree fixes in
 `event-alterations.js`) and is keyed by exact event-name strings. Before any parsing starts,
-every configured name — hub events, blacklists, aliases, deprecated events, validation ignore
-rules, alterations — is checked against the actual events data (and `hubChoiceMatchThreshold`
+every configured name — hub events, Ink variable overrides, blacklists, aliases, deprecated
+events, validation ignore rules, alterations — is checked against the actual events data (and `hubChoiceMatchThreshold`
 against its valid range); an entry that doesn't resolve — an upstream rename or a typo — fails
 the run loudly instead of silently not applying. The end of the run also prints a summary of
 applied event alterations (including any whose `find` matched nothing) and of non-fatal parse
@@ -87,6 +87,31 @@ JSON gives no other way to tell which candidates actually belong to it). `STORYF
 one knot to run for its side effect (a variable assignment) rather than branching on it.
 Since none of this is reachable through normal `story.Continue()`/`ChooseChoiceIndex` playback,
 a knot's raw JSON is walked directly by `parseKnotContentManually` instead.
+
+### Engine-set variables (`INK_VARIABLE_OVERRIDES`)
+
+A few Ink globals are set by the *game engine*, not by the story, and gate which choices the
+runtime offers. inkjs can't know their value, so it evaluates the gate against the `global decl`
+default and silently hides every branch behind it. `INK_VARIABLE_OVERRIDES` in
+`event-overrides.js` forces such a variable to a fixed value right after the `Story` is
+constructed (before the first `Continue()`), and an override naming a variable the story doesn't
+declare is a hard error rather than a silent no-op.
+
+The Nexus is the only case: its root runs `STORYFUNCTION:setpicks:nexuscompanions`, where
+`nexuscompanions` is an engine-resolved token expanding to the companions the player actually
+recruited. `setpicks` is an Ink function but is only ever *called* through that external command,
+which inkjs never executes — so `picks` keeps its default of `""` and all 7 "Turn to \<companion\>"
+choices (which test it with Ink's `?` substring operator) stay hidden, along with the ~15
+containers behind them. Forcing `picks` to a string containing all 7 tokens opens every gate,
+which is the right output for a static map that shows every path together with its requirement.
+
+A related case is a variable the engine *reassigns* rather than gates on. The engine calls
+`STORYFUNCTION:changeCost:imbueCost`, and `changeCost` assigns its parameter to a global — but
+since inkjs never runs that external call, the parameter read is unresolvable (surfacing as the
+non-fatal `unresolved knot variable read` warning) and the global keeps its declared default.
+That default is then interpolated into everything the player sees, so a stale value is wrong in
+several places at once. `ENGINE_ADJUSTED_COST_VARIABLES` + the `replaceEngineAdjustedCosts` pass
+(#17) rewrite those sites — see the pipeline table below.
 
 Then `buildTreeFromStory()` explores every path:
 
@@ -110,6 +135,11 @@ nodes** — a node that says "this continues at node N" instead of re-expanding 
 - **Choice+path loop detection** — same choice set at the same Ink path → merchant/shop loop
 - **Dialogue-menu hub detection** — whitelisted events (`DIALOGUE_MENU_EVENTS` in
   `event-overrides.js`) get menu children collapsed into refs back to the hub
+- **Menu-return detection** (`menuReturnDetection`) — for menus re-entered with *no text*
+  and no stable Ink path, where none of the above can see the loop. The hub's full choice
+  set is captured on first visit; a later textless node whose choices are a strict subset
+  of it is the same menu again (each visit removes the option just taken) → ref back to the
+  hub. Opt-in per event; see The Nexus
 - **Path convergence** — two routes reaching an identical node share one subtree
 
 ```
@@ -183,12 +213,13 @@ Current order:
 | 9 | `normalizeRefsPointingToCombatNodes` | Refs to split combat nodes → the postcombat dialogue child |
 | 10 | `convertSiblingAndCousinRefsToRefChildren` | Nearby refs → `refChildren` + sibling reordering |
 | 11 | `hoistPureStandInRefNodes` | Stand-in refChildren nodes that are pure copies of their target (and only children) are deleted; the parent's converging line goes directly to the original |
-| 12 | `applyEventAlterations` | Manual per-event fixes (boss-death transitions, door/room structure, …). Every added/edited node is tagged `altered: true`, on the shallowest altered node only — descendants inherit the meaning |
+| 12 | `applyEventAlterations` | Manual per-event fixes (boss-death transitions, door/room structure, …). Every added/edited node is tagged `altered: true`, on the shallowest altered node only — descendants inherit the meaning. Not the only pass that sets the tag; see #17 |
 | 13 | `deduplicateAllTreesPostAlterations` | Pass 7 again: alterations can grow previously-too-small subtrees past the dedup size gate (boss transitions turn each duplicated `choice → combat` pair into an eligible 3-node chain), so identical chains collapse at the choice level |
 | 14 | `mergeDuplicateCombatNodes` | Duplicate combat nodes pass 13 can't catch (copies behind non-identical choice wrappers, whose chains stay below the size gate) → `ref` jump links to the shallowest copy; identical on ALL fields incl. requirements/effects, since a combat node's effects are the fight. Childless copies stay — merging a leaf removes no nodes |
 | 15 | `checkInvalidRefs` | Sanity check: every ref points at an existing node |
 | 16 | `cleanUpRandomValues` | "You gain 12 gold" → "You gain «random» gold" where rolled |
-| 17 | `replaceCardIds` | Leftover numeric `[cardid=123]` → card names |
+| 17 | `replaceEngineAdjustedCosts` | Costs the game engine reassigns at runtime → `<?>` + the real escalation series, so the story's declared default stops reading as a fixed price. Tags the choice/outcome nodes it rewrites `altered: true` (not the node whose internal `SET` placeholder it tidies) |
+| 18 | `replaceCardIds` | Leftover numeric `[cardid=123]` → card names |
 
 Why choice separation (pass 3) matters for rendering — before and after:
 

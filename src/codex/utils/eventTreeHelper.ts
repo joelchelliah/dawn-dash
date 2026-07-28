@@ -67,7 +67,7 @@ export const getCustomNodeEmoji = (node: EventTreeNode): string | undefined => {
 
   if (effects.includes('MERCHANT')) return '🛍️'
   if (effects.includes('BUYCARDBYCATEGORY: potion')) return '🍷'
-  if (effects.includes('ENCHANTERIMBUE')) return '🎗️'
+  if (effects.includes('IMBUE') || effects.includes('ENCHANTERIMBUE')) return '🎗️'
   if (effects.includes('TAKEFROMVAULT') || effects.includes('ADDTOVAULT')) return '📦'
 
   // Custom emoji but keep existing node type

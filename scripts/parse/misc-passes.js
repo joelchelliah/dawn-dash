@@ -160,8 +160,123 @@ function filterDefaultNodes(node) {
   node.children = filteredChildren
 }
 
+/**
+ * Rewrite cost values the game engine reassigns at runtime, so the tree stops presenting
+ * the story's `global decl` starting value as if it were a fixed price.
+ *
+ * Driven by ENGINE_ADJUSTED_COST_VARIABLES (event-overrides.js), which gives the variable's
+ * real in-game escalation. For `enchantmentCost` ({ start: 100, step: 50 }) one variable
+ * feeds four rendered sites, all rewritten here so they can't disagree with each other:
+ *
+ *   choiceLabel   "100 Gold: Imbue an Enchantment"  -> "<?> Gold: Imbue an Enchantment"
+ *   requirements  "gold:100"                        -> "gold: <?> [100, 150, 200, ...]"
+ *   effects       "GOLD: -100"                      -> "GOLD: -<?>"
+ *   effects       "SET enchantmentCost = <newCost>" -> "SET enchantmentCost = <?>"
+ *
+ * The requirement carries the series because it's the one place with room to explain the
+ * number; the rest just say `<?>` so no single figure reads as authoritative.
+ *
+ * The two nodes whose player-facing cost changed (the choice node and its outcome node) are
+ * tagged `altered: true`, so the renderer's badge marks them as not-purely-parsed. The
+ * dialogue node holding `SET <var> = <?>` is left untagged: it only tidies an internal
+ * placeholder, and never showed the player a number in the first place.
+ *
+ * Scoping is the whole difficulty here, in two directions:
+ *
+ * - By VARIABLE, not by number. The events price several services at the same 100 gold from
+ *   variables nothing reassigns (the Count's `copycost` "100 Gold: Copy a card."), and those
+ *   are real fixed prices that must keep their number. Matching on "100" alone blanks them
+ *   too. The `SET <var> = <placeholder>` rewrite is likewise pinned to the configured
+ *   variable, so an unrelated unresolved assignment (`SET picks = <p>`) is left alone.
+ * - By NODE. Choice separation splits the choice wrapper (label + requirements) from the
+ *   outcome node (the `GOLD: -N` deduction), so the two halves are rewritten in different
+ *   places and can't be matched together. `anchorsNode` re-links them: only a node that
+ *   itself mentions the service, or whose parent choice label does, is eligible.
+ *
+ * `start` is what inkjs rendered (the declared default), so only that exact number is
+ * rewritten. If upstream changes the default the pass stops matching rather than corrupting
+ * a real value, and the caller's "0 rewrites" is the signal to re-check the config.
+ */
+function replaceEngineAdjustedCosts(node, costVariables, stats, parentAnchored = false) {
+  if (!node) return
+
+  Object.entries(costVariables).forEach(([variableName, { start, step, labelPattern }]) => {
+    const series = `[${start}, ${start + step}, ${start + 2 * step}, etc...]`
+
+    // Does this node belong to the service the cost variable prices? The label carries the
+    // service name; the outcome node inherits eligibility from its parent choice wrapper.
+    const labelMatches = node.choiceLabel?.includes(labelPattern) ?? false
+    const anchorsNode = labelMatches || parentAnchored
+
+    // Whether the cost this node shows the player was rewritten (see `altered` below)
+    let rewroteCostForPlayer = false
+
+    if (anchorsNode && node.choiceLabel) {
+      // "100 Gold: ..." -> "<?> Gold: ..." (\b so a longer number like 1100 can't match)
+      const updated = node.choiceLabel.replace(new RegExp(`\\b${start}(?= Gold:)`, 'g'), '<?>')
+      if (updated !== node.choiceLabel) {
+        node.choiceLabel = updated
+        stats.rewritten++
+        rewroteCostForPlayer = true
+      }
+    }
+
+    if (anchorsNode && node.requirements) {
+      node.requirements = node.requirements.map((requirement) => {
+        const updated = requirement.replace(
+          new RegExp(`^gold:\\s*${start}$`),
+          `gold: <?> ${series}`
+        )
+        if (updated !== requirement) {
+          stats.rewritten++
+          rewroteCostForPlayer = true
+        }
+        return updated
+      })
+    }
+
+    if (node.effects) {
+      node.effects = node.effects.map((effect) => {
+        // The unresolved assignment placeholder is keyed by variable name, so it applies
+        // wherever it appears; the gold deduction needs the service anchor.
+        let updated = effect.replace(new RegExp(`^(SET ${variableName} = )<\\w+>$`), '$1<?>')
+        if (updated !== effect) stats.rewritten++
+
+        if (anchorsNode) {
+          const withCost = updated.replace(new RegExp(`^GOLD:\\s*-${start}$`), 'GOLD: -<?>')
+          if (withCost !== updated) {
+            stats.rewritten++
+            rewroteCostForPlayer = true
+            updated = withCost
+          }
+        }
+        return updated
+      })
+    }
+
+    // Tag the nodes whose displayed COST we replaced — the choice node and its outcome node
+    // — so the renderer's "altered content" badge flags them as not-purely-parsed, the same
+    // as manual event alterations. Deliberately not tagged on the dialogue node carrying
+    // `SET <var> = <?>`: that only tidies an internal placeholder the player never had a
+    // number for, so there is nothing there to warn a reader about.
+    if (rewroteCostForPlayer) {
+      node.altered = true
+    }
+
+    ;(node.children || []).forEach((child) =>
+      replaceEngineAdjustedCosts(
+        child,
+        { [variableName]: { start, step, labelPattern } },
+        stats,
+        anchorsNode
+      )
+    )
+  })
+}
+
 module.exports = {
   checkInvalidRefs,
   replaceCardIdsInNode,
   filterDefaultNodes,
+  replaceEngineAdjustedCosts,
 }

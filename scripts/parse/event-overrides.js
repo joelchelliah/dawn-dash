@@ -51,6 +51,36 @@ const DIALOGUE_MENU_EVENTS = {
     menuHubPattern: 'Three wardens loom over the cell',
     menuExitPatterns: ['Look at the position of the statues', 'Step back'],
   },
+  // The Nexus's companion menu is only reachable because of the `picks` override in
+  // INK_VARIABLE_OVERRIDES below — without it none of these choices exist at all.
+  //
+  // Each companion can be visited in any order, and every companion's "Leave: No thank
+  // you." returns to the hub with the visited one removed, so naive exploration walks all
+  // 7! orderings. Immediate-ref mode (no hubChoiceMatchThreshold), like Rathael and Broken
+  // Vault: the return to the hub carries no text of its own, so nothing is lost by reffing.
+  //
+  // Every companion is an exit pattern, which reads backwards but is required: in
+  // immediate-ref mode a NON-exit child is turned into a ref *before* its subtree is
+  // built, and each "Turn to <companion>" choice owns real content (their dialogue, reply
+  // options and service sub-menu). Listing them keeps that content.
+  //
+  // menuExitPatterns alone would still explode, because the return to the menu emits no
+  // text and has no stable Ink path — menuHubPattern can't re-detect it. menuReturnDetection
+  // recognises the return by its choice set instead (see tree-building.js).
+  'The Nexus': {
+    menuHubPattern: 'A dream drifts up past your face',
+    menuExitPatterns: [
+      'Turn to Viola',
+      'Turn to Theresa',
+      'Turn to Serena',
+      'Turn to the Count',
+      'Turn to Bolgar',
+      'Turn to Nathali',
+      'Turn to Julius',
+      'Leave: We have lingered here long enough.',
+    ],
+    menuReturnDetection: true,
+  },
   'Rathael the Slain Death': {
     menuHubPattern: 'A chance to tangle with one of these',
     menuExitPatterns: ['Fight: Confront the Seraph'],
@@ -62,6 +92,77 @@ const DIALOGUE_MENU_EVENTS = {
     menuHubPattern: 'Quickly pry open the lock',
     menuExitPatterns: ['Leave'],
     hubChoiceMatchThreshold: 60, // choices: 2/3
+  },
+}
+
+// Ink global variables forced to a fixed value before story exploration starts
+// (applied by tree-building.js right after the Story is constructed, so the value is in
+// place before the first Continue()).
+//
+// WHY THIS EXISTS:
+// Some variables are set by the *game engine*, not by the Ink story, and gate which
+// choices the runtime offers. inkjs can't know their value, so it evaluates the gate
+// against the `global decl` default and silently hides every branch behind it.
+//
+// The Nexus is the only such case: its root runs `STORYFUNCTION:setpicks:nexuscompanions`,
+// where `nexuscompanions` is an engine-resolved token expanding to the companions the
+// player actually recruited. `setpicks` is an Ink function, but it is only ever *called*
+// through that external command — inkjs never executes it — so `picks` keeps its
+// `global decl` default of "". All 7 "Turn to <companion>" choices test it with Ink's
+// substring operator (`picks ? "priest"` etc.), so an empty value hides all of them plus
+// the ~15 containers behind them.
+//
+// Setting `picks` to a string containing all 7 tokens opens every gate, which is the right
+// output for a static map that shows every path together with its requirement — each
+// choice label is already prefixed `questflag:priest;…`, so the existing requirement
+// parsing annotates them automatically.
+//
+// Kept as a concrete per-event override rather than a general variable-gating framework:
+// `setpicks` occurs exactly once in the dataset (the other STORYFUNCTION calls are
+// `changeCost`, which gate nothing).
+const INK_VARIABLE_OVERRIDES = {
+  'The Nexus': {
+    // Substring-tested by the 7 companion choices in the `lookaround` container.
+    // Separator is arbitrary — `?` is a plain substring test, not a list operation.
+    picks: 'priest alchemist succubus illusionist enchanter nathali merchant',
+  },
+}
+
+// Ink cost variables the GAME ENGINE reassigns at runtime, so the number inkjs renders is
+// only the story's `global decl` starting value and can be wrong in play.
+//
+// The engine calls `STORYFUNCTION:changeCost:<engineValue>`, and `changeCost` is an Ink
+// function that assigns its parameter to a global. inkjs never executes that call (it's an
+// external command), so the parameter read resolves to nothing — the parser emits the
+// `<newCost>` placeholder — and the global keeps its declared default.
+//
+// The catch is that the default is then interpolated into everything the player sees. For
+// `enchantmentCost` a single variable feeds FOUR sites, so a stale value is wrong in four
+// places at once:
+//   1. the choice label     "100 Gold: Imbue an Enchantment"
+//   2. the gold requirement "gold:100"
+//   3. the deduction effect "GOLD: -100"
+//   4. the assignment       "SET enchantmentCost = <newCost>"
+//
+// `escalation` describes how the value actually moves in game (confirmed with the
+// developers): imbuing starts at 100 gold and each use raises it by 50. Rendering the
+// series is more truthful than a lone "100", which reads as a fixed price.
+//
+// Scoped to the named variable on purpose: both events read several other cost variables
+// (memorizeCost, healCost, cleanseCost, ...) that nothing reassigns, and those keep their
+// real numbers.
+const ENGINE_ADJUSTED_COST_VARIABLES = {
+  'The Nexus': {
+    // labelPattern identifies the priced service, so the rewrite can't spill onto other
+    // services that happen to also cost 100 (e.g. the Count's "100 Gold: Copy a card.",
+    // which is a genuinely fixed price from a different, never-reassigned variable).
+    enchantmentCost: { start: 100, step: 50, labelPattern: 'Imbue an Enchantment' },
+  },
+  Enchanter: {
+    // labelPattern identifies the priced service, so the rewrite can't spill onto other
+    // services that happen to also cost 100 (e.g. the Count's "100 Gold: Copy a card.",
+    // which is a genuinely fixed price from a different, never-reassigned variable).
+    enchantmentCost: { start: 100, step: 50, labelPattern: 'Imbue an Enchantment' },
   },
 }
 
@@ -143,6 +244,8 @@ const EVENT_ALTERATIONS = require('./event-alterations.js')
 
 module.exports = {
   DIALOGUE_MENU_EVENTS,
+  INK_VARIABLE_OVERRIDES,
+  ENGINE_ADJUSTED_COST_VARIABLES,
   PATH_CONVERGENCE,
   DEFAULT_NODE_BLACKLIST,
   POST_PROCESSING_HUB_PATTERN_OPTIMIZATION_BLACKLIST,

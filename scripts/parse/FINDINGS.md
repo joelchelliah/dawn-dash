@@ -20,15 +20,16 @@ Issues found after syncing the **Nexus of Nightmares** content drop (Blightbane 
 
 Suggested order — cheapest and most certain first, Broken Vault last since it needs the most
 back-and-forth. (In the event Broken Vault turned out to be a one-entry fix — see item 5 —
-so only item 4 remains.)
+and item 4 became the largest of the five. **All items are now complete.**)
 
 | # | Item | Size | Blocked by |
 |---|---|---|---|
 | 1 | [Strange Light — mark as deprecated](#1-strange-light--mark-as-deprecated--completed) | ~~one line~~ + re-extract | ✅ COMPLETED |
 | 2 | [Vaelmorin — unresolved `<talent=617304>`](#2-vaelmorin--unresolved-talent617304-in-text--completed) | ~~small~~ + re-extract | ✅ COMPLETED |
 | 3 | [Dreampod — `&&malignancies&&+3` codeword](#3-dreampod--malignancies3-codeword-in-text--completed) | ~~small~~ | ✅ COMPLETED |
-| 4 | [The Nexus — `setpicks:nexuscompanions`](#4-the-nexus--setpicksnexuscompanions-hides-7-branches) | medium | — |
+| 4 | [The Nexus — `setpicks:nexuscompanions`](#4-the-nexus--setpicksnexuscompanions-hides-7-branches--completed) | ~~medium~~ | ✅ COMPLETED |
 | 5 | [Broken Vault — node-budget blowout](#5-broken-vault--node-budget-blowout-do-this-last--completed) | ~~large~~ | ✅ COMPLETED |
+| 6 | [Imbue cost shown as a fixed 100 gold](#6-imbue-cost-shown-as-a-fixed-100-gold--completed) | small | ✅ COMPLETED |
 
 Re-run after each: `node scripts/parse/parse-event-trees.js --only "<event>" --debug "<event>" --dry-run`,
 then drop `--dry-run`, then `npm run verify`.
@@ -354,7 +355,103 @@ case shows up.
 
 ---
 
-## 4. The Nexus — `setpicks:nexuscompanions` hides 7 branches
+## 4. The Nexus — `setpicks:nexuscompanions` hides 7 branches ✅ COMPLETED
+
+**Status:** done. The `picks` hardcode was the right call and the diagnosis below held up —
+but unlocking the branches was only half the work. It took **two** mechanisms, because the
+content it exposes is an any-order menu that immediately blows up:
+
+1. **`INK_VARIABLE_OVERRIDES`** (`event-overrides.js`) — forces `picks` to a string containing
+   all 7 companion tokens, applied by `applyInkVariableOverrides` in `tree-building.js` right
+   after the `Story` is constructed. Registered in `config-validation.js`, and an override
+   naming a variable the story doesn't declare throws rather than silently doing nothing.
+2. **`menuReturnDetection`** (new `DIALOGUE_MENU_EVENTS` flag) — bounds the resulting 7!
+   explosion. See "The part the plan missed" below; this was the bulk of the work.
+
+### Two corrections to the plan below
+
+- **Placement was simpler than expected.** The fix sketch says the override must be applied
+  *after* `setpicks` has run and "reasserted after `STORYFUNCTION` effects are processed",
+  based on the observation that setting it before the first `Continue()` doesn't work. That
+  is **not** what happens — setting it once at construction is sufficient and survives the
+  whole exploration. Reason: `setpicks` is only ever *invoked* through the external
+  `STORYFUNCTION` command, which **inkjs never executes**. Nothing in the Ink assigns `picks`
+  during playback, so no reassertion hook is needed.
+- **The "Caveats" warning about explosion was correct, and was the real work.** A
+  `DIALOGUE_MENU_EVENTS` entry alone was *not* enough, contrary to "have one ready".
+
+### The part the plan missed: the menu is textless
+
+With `picks` set, the 7 branches appear — and exploration immediately walks all 7! orderings
+(depth 32, node budget blown). The `lookaround` menu is an any-order hub, so it needs the
+usual hub collapsing. But **none of the existing detectors can see it**:
+
+| Detector | Keys on | Why it fails here |
+|---|---|---|
+| `menuHubPattern` | node text | the return to the menu emits **empty text** |
+| Text-loop detection | repeated text | same — there is no text to repeat |
+| Choice+path loop detection | Ink path string | `currentPathString` is `null` at the menu |
+| `hubChoiceMatchThreshold` | children of a built node | see below |
+
+`hubChoiceMatchThreshold` looked like the answer but can't work: it converts a node to a ref
+only *after* its subtree is built, and node ids are allocated depth-first as nodes complete,
+so the **innermost** returns (with 1–3 companions left) are evaluated first and matched at
+~43%, while the outer hops that actually needed collapsing were already fully expanded. A high
+threshold (80) just blew the node budget outright.
+
+What uniquely identifies this menu is its **choice set**. Each visit removes the option just
+taken, so a return is always a strict, shrinking *subset* of the hub's choices:
+
+```
+hub:    Viola, Theresa, Serena, Count, Bolgar, Nathali, Julius, Leave
+return:        Theresa, Serena, Count, Bolgar, Nathali, Julius, Leave   (after Viola)
+```
+
+`menuReturnDetection` captures the hub's full choice set on first visit and refs any later
+textless node whose choices are a non-empty strict subset of it — **before** building its
+children, which is what actually bounds the factorial. It is opt-in per event and inert
+everywhere else.
+
+All 7 companions are also listed in `menuExitPatterns`, which reads backwards but is required:
+in immediate-ref mode a *non*-exit child becomes a ref before its subtree is built, and each
+"Turn to \<companion\>" choice owns real content (dialogue, reply options, service sub-menu).
+
+### Results
+
+| | Before | After |
+|---|---|---|
+| Nodes in tree | 7 | 104 |
+| Root children | 1 (`Skip` branch lost) | 2 |
+| Companion branches | 0 | 7, each with quest-flag requirement |
+| Node-limit warnings | — (hidden content) | none |
+| Parse time for the event | 5.47s | 0.10s |
+
+### Verified
+
+- Full run: **`The Nexus` the only event with a meaningful diff**
+  (`rootNode.children[0].children[0].children.length: 1 → 8`)
+- Every changed line in `event-trees.json` outside The Nexus is an `id`/`ref`/`refChildren`
+  number — the documented uniform id-shift noise class. Node counts for the other 200 events
+  are unchanged; no events added or removed
+- `checkInvalidRefs`: **0 invalid refs** across all 201 events
+- All 7 companions render as flat siblings under the hub with their `questflag:` requirements;
+  each service sub-menu carries its effects (`GOLD`, `CLEANSE`, `MEMORIZE`, `ADDTOVAULT`, …);
+  `NATHALIMERCHANT` and `MERCHANT` are both present; every `Leave: No thank you.` refs back
+  to the hub
+- `npm run verify` clean; `npm run build` prerenders all 201 event pages
+
+### Leftovers, deliberately not fixed
+
+- The root node still shows the effect `SET picks = <p>` (pre-existing, in the committed
+  baseline unchanged; the `picks` value is engine-resolved and genuinely unknowable here).
+- The `unresolved knot variable read` warning for `newCost` remains — but the *user-visible*
+  consequence of it is now fixed; see item 6.
+- **Open question, unchanged:** does real gameplay ever offer all 7 companions at once, or only
+  recruited ones? For a static map showing every path with its requirement, showing all 7 is
+  right either way — still worth a Discord check.
+
+<details>
+<summary>Original diagnosis (kept for the record — accurate except as corrected above)</summary>
 
 **Status:** investigated, **and the fix is empirically verified** (see "Proof" below).
 **Approach: extend the parser with a `picks` hardcode — not event-alterations, and not the
@@ -519,6 +616,8 @@ shape); this is content the runtime produces perfectly the instant the gate open
 **Verify:** `Look around` gains 7 companion choices, each showing its quest-flag requirement;
 the Julius / `NATHALIMERCHANT` / `MERCHANT` content appears; no node-limit warnings.
 
+</details>
+
 ---
 
 ## 5. Broken Vault — node-budget blowout (do this last) ✅ COMPLETED
@@ -675,6 +774,63 @@ events, all three statues render consistently, and the tree contains the full va
 
 ---
 
+## 6. Imbue cost shown as a fixed 100 gold ✅ COMPLETED
+
+**Status:** done. Found while explaining item 4's leftover `newCost` warning — the warning was
+cosmetic, but what it pointed at was not.
+
+`enchantmentCost` is set by the game engine via `STORYFUNCTION:changeCost:imbueCost`. inkjs
+never executes that external call, so the variable keeps its `global decl` default of 100 —
+and the Ink interpolates that one variable into **four** rendered sites, so a stale value was
+wrong in four places at once:
+
+| Site | Before | After |
+|---|---|---|
+| choice label | `100 Gold: Imbue an Enchantment` | `<?> Gold: Imbue an Enchantment` |
+| requirement | `gold:100` | `gold: <?> [100, 150, 200, etc...]` |
+| deduction effect | `GOLD: -100` | `GOLD: -<?>` |
+| assignment effect | `SET enchantmentCost = <newCost>` | `SET enchantmentCost = <?>` |
+
+**Per the game's actual behaviour** (from the repo owner): imbuing starts at 100 gold and rises
+by 50 with each use. So 100 wasn't wrong so much as incomplete — it's the *first* price in a
+series, displayed as if it were the only one. The requirement carries the series because it has
+room to explain; the other three say `<?>` so no single figure reads as authoritative.
+
+Implemented as `ENGINE_ADJUSTED_COST_VARIABLES` (`event-overrides.js`) + the
+`replaceEngineAdjustedCosts` pass (pipeline #17, `misc-passes.js`). Affects **both** events with
+this call — `The Nexus` and `Enchanter`.
+
+### Two scoping traps, both hit during implementation
+
+A first cut matched on the *number*, which was wrong twice over — caught by inspecting output,
+not by any check:
+
+1. **Other services also cost 100.** The Count's `100 Gold: Copy a card.` is priced from
+   `copycost`, which nothing reassigns — a genuinely fixed price that got blanked. The rewrite
+   is now anchored by `labelPattern` ('Imbue an Enchantment') to the service the variable prices.
+2. **`SET <var> = <placeholder>` is a general shape.** A variable-agnostic rule also rewrote the
+   unrelated `SET picks = <p>` on the Nexus root. It's now pinned to the configured variable name.
+
+There's also a node-level split to bridge: choice separation puts the label/requirements on the
+choice wrapper and `GOLD: -100` on the outcome node, so the pass passes eligibility down from
+parent to child (`anchorsNode`) rather than matching each node in isolation.
+
+### Verified
+
+- Full run: `The Nexus` and `Enchanter` the only events with a structural diff (plus the two
+  documented nondeterministic ones, Fallen Soldier and Mirror Shard)
+- Exactly **8** `<?>` occurrences in the output — 4 sites × 2 events, no spill
+- `100 Gold: Copy a card.` and `SET picks = <p>` confirmed untouched
+- 0 invalid refs; `npm run verify` clean; `npm run build` prerenders all 201 pages
+
+### Caveat
+
+The `[100, 150, 200, etc...]` series is game knowledge supplied by the repo owner, not derived
+from the Ink — `imbueCost` appears in the dataset only as an argument *name*, never as a value.
+If the escalation ever changes, the `{ start, step }` config is the single place to update.
+
+---
+
 ## Not issues (checked, no action)
 
 - **`Grove of the Dying Star Finish`** — showed as added + removed. Just an upstream **rename**
@@ -693,4 +849,8 @@ events, all three statues render consistently, and the tree contains the full va
   registered in `KNOWN_COMMANDS` (see item 2's follow-up), which clears `Nathali`,
   `Nathali Brightcandle`, `Vault Door` and `Vaelmorin` entirely. The `bare-colon command` warning
   for `Dreampod` is gone too, fixed with item 3. **Still open:** only `unresolved knot variable
-  read` (`Enchanter`, `The Nexus` — item 4).
+  read` (`Enchanter`, `The Nexus`). Item 4 did **not** clear this one — it is a separate,
+  pre-existing gap in the generic knot-variable rendering path (`changeCost`'s `newCost`
+  parameter), not part of the `picks` gating bug. The warning itself remains (inkjs genuinely
+  can't resolve an engine-supplied parameter), but its user-visible consequence is fixed in
+  item 6.
