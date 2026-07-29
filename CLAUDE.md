@@ -54,6 +54,7 @@ Each feature directory has its own `CLAUDE.md` with architecture details and inv
 - Buttons: Button, GradientButton, IllustratedButton, ButtonRow — all extend `BaseButtonProps` from `Buttons/types.ts`
 - Modals: Modal, InfoModal
 - UI elements: LoadingDots, ScrollToTopButton, GradientDivider, GradientLink, ScrollableWithFade, Select, Code, Image
+- `Sliders/Thumb` — the draggable energy-orb thumb shared by the speedruns sliders and the codex zoom slider; takes an `orientation` prop because the CSS centering axis differs between horizontal and vertical tracks
 - Notifications: Notification (toast-style with auto-dismiss and progress bar)
 
 **Custom Hooks**:
@@ -72,6 +73,7 @@ Each feature directory has its own `CLAUDE.md` with architecture details and inv
 - `logger.ts` - `logger.debug/warn` no-op outside development, `logger.error` always logs. **Never call `console.*` directly** (ESLint `no-console` enforces this)
 - `icons.tsx` - SVG icon components library
 - `imageUrls.ts` - centralized Blightbane asset URLs
+- `energyImages.ts` - `getEnergyImageUrl(CharacterClass)` → energy orb asset. Speedruns wraps this in its own `utils/images.ts` to also handle the speedruns-only `SpeedRunSubclass` members (`All`, `Hybrid`); `shared/` must not import speedruns types
 - `lists.ts`, `object.ts`, `textHelper.ts` - small pure helpers
 
 **Global Styles**: SCSS design system in `/src/styles/` with colors, gradients, animations, typography

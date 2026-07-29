@@ -6,10 +6,9 @@ import { SliderState } from '@react-stately/slider'
 import { createCx } from '@/shared/utils/classnames'
 import { ClassColorVariant, getClassColor } from '@/shared/utils/classColors'
 import { CharacterClass } from '@/shared/types/characterClass'
+import Thumb from '@/shared/components/Sliders/Thumb'
 
 import { getEnergyImageUrl } from '@/speedruns/utils/images'
-
-import Thumb from '../Thumb'
 
 import styles from './index.module.scss'
 

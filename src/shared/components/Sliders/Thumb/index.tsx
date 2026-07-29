@@ -16,9 +16,10 @@ interface ThumbProps {
   trackRef: React.RefObject<HTMLDivElement>
   index: number
   energyIcon: string
+  orientation?: 'horizontal' | 'vertical'
 }
 
-function Thumb({ state, trackRef, index, energyIcon }: ThumbProps) {
+function Thumb({ state, trackRef, index, energyIcon, orientation = 'horizontal' }: ThumbProps) {
   const inputRef = useRef(null)
   const { thumbProps, inputProps } = useSliderThumb(
     {
@@ -34,7 +35,7 @@ function Thumb({ state, trackRef, index, energyIcon }: ThumbProps) {
   } as React.CSSProperties
 
   return (
-    <div {...thumbProps} className={cx('thumb')} style={thumbStyle}>
+    <div {...thumbProps} className={cx('thumb', `thumb--${orientation}`)} style={thumbStyle}>
       <VisuallyHidden>
         <input ref={inputRef} {...mergeProps(inputProps)} />
       </VisuallyHidden>
