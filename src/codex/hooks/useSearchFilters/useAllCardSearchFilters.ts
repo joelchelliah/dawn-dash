@@ -3,11 +3,11 @@ import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { WeeklyChallengeFilterData } from '@/codex/types/filters'
 import {
   hasMonsterBanner,
-  hasMonsterExpansion,
+  hasNilExpansion,
   hasMonsterRarity,
   isAnimalCompanionCard,
-  isNonCollectibleMonsterCard,
-  isNonCollectibleRegularCard,
+  isMonsterCard,
+  isNonCollectible,
 } from '@/codex/utils/cardHelper'
 import { CardData } from '@/codex/types/cards'
 import {
@@ -196,8 +196,11 @@ export const useAllCardSearchFilters = (
 
   const isMatchingCard = useCallback(
     (card: CardData) => {
-      const passesExpansionFilter = hasMonsterExpansion(card)
-        ? shouldIncludeMonsterCards
+      // The nil expansion has no card set checkbox of its own, so its cards need an escape
+      // hatch. Only actual monster cards (by banner or rarity) are gated on the monster
+      // checkbox — other nil expansion cards pass this dimension freely.
+      const passesExpansionFilter = hasNilExpansion(card)
+        ? !isMonsterCard(card) || shouldIncludeMonsterCards
         : isCardSetIndexSelected(card.expansion)
       const passesRarityFilter = hasMonsterRarity(card)
         ? shouldIncludeMonsterCards
@@ -210,15 +213,9 @@ export const useAllCardSearchFilters = (
         ? shouldIncludeAnimalCompanionCards
         : true
 
-      const passesCollectibilityFilter = (() => {
-        if (isNonCollectibleRegularCard(card)) {
-          return shouldIncludeNonCollectibleCards
-        }
-        if (isNonCollectibleMonsterCard(card)) {
-          return shouldIncludeNonCollectibleCards && shouldIncludeMonsterCards
-        }
-        return true
-      })()
+      const passesCollectibilityFilter = isNonCollectible(card)
+        ? shouldIncludeNonCollectibleCards
+        : true
 
       return (
         passesExpansionFilter &&

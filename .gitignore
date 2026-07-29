@@ -35,6 +35,9 @@ scripts/data/events.json.backup
 # Supabase
 supabase/.temp
 supabase/.branches
+# Timestamped dumps from `npm run backup-talents` (the checked-in
+# supabase/seed-data.sql is still tracked)
+supabase/backups
 
 # Next.js
 .next

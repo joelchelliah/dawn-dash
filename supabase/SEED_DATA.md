@@ -1,203 +1,139 @@
-# How to Create New Seed Data
+# Seed Data / Database Backups
 
-This guide explains how to create a complete backup of the production database for both disaster recovery and local development.
+`supabase/seed-data.sql` is a complete dump of the production `Talents`, `Cards`, and `metadata`
+tables. It serves two purposes: seeding a local Supabase for development, and restoring
+production in a disaster.
+
+> **Creating a backup is scripted — you don't need to follow any manual steps.**
+>
+> ```bash
+> npm run backup-talents -- <db-password>
+> ```
+>
+> [`scripts/backup-talents.js`](../scripts/backup-talents.js) runs `pg_dump`, strips the
+> `\restrict` lines, prepends the DROP block, and appends the role grants — the whole pipeline
+> that used to be done by hand here. See
+> [supabase/functions/README.md](./functions/README.md#what-npm-run-backup-talents-does) for its
+> options.
+>
+> This file now covers only what the script doesn't do: **verifying** a dump and **importing**
+> one. The manual `pg_dump`/`sed` recipe it replaced is in git history if you ever need it.
 
 ## Prerequisites
 
-- **Database password**: Get the production database password from Supabase dashboard
-- **Database host**: Available in Supabase project settings > Database > Connection string
+- **Database password**: the Postgres password, from your password manager.
+  If lost, reset it under Supabase Project Settings → Database.
+- **`pg_dump` / `psql`**: `brew install postgresql`
 
-## Steps
+> **Note:** the direct `db.<project-ref>.supabase.co` host this guide used to document no longer
+> resolves — Supabase retired direct IPv4 connections. Use the pooler connection string from the
+> dashboard (Project Settings → Database → Connection pooling), where the username is
+> `postgres.<project-ref>` rather than plain `postgres`. The backup script reads this
+> automatically from `supabase/.temp/pooler-url`.
 
-### 1. Create the Database Dump
-
-Run the following command, replacing `YOUR_PASSWORD` with the actual database password:
+## Creating a new backup
 
 ```bash
-pg_dump --table='"Talents"' --table='"Cards"' --table='metadata' --no-owner --no-privileges "postgresql://postgres:YOUR_PASSWORD@db.ffclklevsquhuuzepxsf.supabase.co:5432/postgres" > supabase/seed-data-new.sql
+# Writes a timestamped file to supabase/backups/ (gitignored).
+# The checked-in seed-data.sql is left alone.
+npm run backup-talents -- <db-password>
 ```
 
-### 2. Clean Up the Dump
+### Verifying the dump
 
-Remove the `\restrict` and `\unrestrict` lines, and add DROP statements:
+The script already does most of this for you: it refuses to write a dump with zero `Talents`
+rows, reports the row counts, and **compares the dump's shape against the checked-in
+`seed-data.sql`** — flagging missing tables, columns that disappeared, and row counts that
+dropped by more than 10%. Read that output first; the checks below are for going deeper.
 
 ```bash
-# First, remove the restrict/unrestrict lines
-sed '/\\restrict/d; /\\unrestrict/d' supabase/seed-data-new.sql > supabase/seed-data-temp.sql
+BACKUP=supabase/backups/<the-file-it-just-wrote>.sql
 
-# Now add DROP statements at the beginning (after the SET commands, before CREATE TABLE)
-# Find the line with "SET row_security = off;"
-LINE=$(grep -n "SET row_security = off;" supabase/seed-data-temp.sql | cut -d: -f1)
-
-# Insert DROP statements after that line
-sed -i '' "${LINE}a\\
-\\
-DROP POLICY IF EXISTS \"Enable read access for all users\" ON public.\"Talents\";\\
-DROP POLICY IF EXISTS \"Enable read access for all users\" ON public.\"Cards\";\\
-DROP POLICY IF EXISTS \"Allow all access to metadata\" ON public.metadata;\\
-DROP INDEX IF EXISTS public.\"Talents_expansion_idx\";\\
-DROP INDEX IF EXISTS public.\"Talents_color_idx\";\\
-DROP INDEX IF EXISTS public.\"Cards_expansion_idx\";\\
-DROP INDEX IF EXISTS public.\"Cards_color_idx\";\\
-DROP INDEX IF EXISTS public.\"Cards_name_idx\";\\
-ALTER TABLE IF EXISTS ONLY public.metadata DROP CONSTRAINT IF EXISTS metadata_pkey;\\
-ALTER TABLE IF EXISTS ONLY public.\"Talents\" DROP CONSTRAINT IF EXISTS \"Talents_pkey\";\\
-ALTER TABLE IF EXISTS ONLY public.\"Talents\" DROP CONSTRAINT IF EXISTS \"Talents_id_key\";\\
-ALTER TABLE IF EXISTS ONLY public.\"Cards\" DROP CONSTRAINT IF EXISTS \"Cards_pkey\";\\
-ALTER TABLE IF EXISTS ONLY public.\"Cards\" DROP CONSTRAINT IF EXISTS \"Cards_id_key\";\\
-DROP TABLE IF EXISTS public.metadata;\\
-DROP TABLE IF EXISTS public.\"Talents\";\\
-DROP TABLE IF EXISTS public.\"Cards\";
-" supabase/seed-data-temp.sql
+# Full column-level diff of one table, if the script flagged something
+diff <(grep -A 20 'CREATE TABLE public."Talents"' supabase/seed-data.sql) \
+     <(grep -A 20 'CREATE TABLE public."Talents"' "$BACKUP")
 ```
 
-**Why DROP statements are needed:**
-When importing the seed data, the tables might already exist. The DROP statements ensure a clean slate by removing existing tables, indexes, and constraints before recreating them.
-
-### 3. Add Permissions to the Dump
-
-Add Supabase role permissions to the end of the dump (before the "dump complete" comment):
+Other spot checks:
 
 ```bash
-# Add permissions after the ROW LEVEL SECURITY section
-sed -i '' '/PostgreSQL database dump complete/i\
---\
--- Grant permissions to Supabase roles\
---\
-\
-GRANT USAGE ON SCHEMA public TO postgres, anon, authenticated, service_role;\
-GRANT ALL ON ALL TABLES IN SCHEMA public TO postgres, anon, authenticated, service_role;\
-GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO postgres, anon, authenticated, service_role;\
-\
-ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO postgres, anon, authenticated, service_role;\
-ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO postgres, anon, authenticated, service_role;\
-\
-' supabase/seed-data-temp.sql
+# Should list CREATE TABLE for Cards, Talents, and metadata
+grep "^CREATE TABLE" "$BACKUP"
+
+# Should be empty — these break psql imports
+grep '\\restrict\|\\unrestrict' "$BACKUP"
+
+# Schema sanity check
+grep "event_requirement_matrix" "$BACKUP" | head -2
+
+# Permissions must be present, or the anon role can't read the restored tables
+grep "GRANT USAGE ON SCHEMA" "$BACKUP"
 ```
 
-**Why this is needed:**
-The `--no-privileges` flag excludes permission grants. Without these, your application (using the `anon` or `authenticated` role) won't have access to the tables.
+### Testing it against a local Supabase
 
-### 4. Verify the Cleaned Dump
-
-Check that the cleaned file looks correct:
+Do this before promoting a dump to `seed-data.sql`:
 
 ```bash
-# Should show CREATE TABLE statements for Cards, Talents, and metadata
-grep "^CREATE TABLE" supabase/seed-data-temp.sql
-
-# Should show no restrict/unrestrict lines (no output expected)
-grep "\\restrict\|\\unrestrict" supabase/seed-data-temp.sql
-
-# Verify event_requirement_matrix column exists in Talents schema
-grep "event_requirement_matrix" supabase/seed-data-temp.sql | head -2
-
-# Verify permissions were added
-grep "GRANT USAGE ON SCHEMA" supabase/seed-data-temp.sql
-
-# Count data rows
-echo -n "Talents: " && grep -A 10000 'COPY public."Talents"' supabase/seed-data-temp.sql | grep -c "^[0-9]"
-echo -n "Cards: " && grep -A 10000 'COPY public."Cards"' supabase/seed-data-temp.sql | grep -c "^[0-9]"
-```
-
-### 5. Test the New Backup
-
-Before replacing the old seed data, test that it works correctly:
-
-```bash
-# Stop local Supabase if running
 npx supabase stop
-
-# Start fresh
 npx supabase start
 
-# Import the NEW backup
-psql "postgresql://postgres:postgres@localhost:54322/postgres" -f supabase/seed-data-temp.sql
+psql "postgresql://postgres:postgres@localhost:54322/postgres" -f "$BACKUP"
 
-# Verify data was imported correctly
-psql "postgresql://postgres:postgres@localhost:54322/postgres" -c "SELECT COUNT(*) as talents_count FROM \"Talents\";"
-psql "postgresql://postgres:postgres@localhost:54322/postgres" -c "SELECT COUNT(*) as cards_count FROM \"Cards\";"
+psql "postgresql://postgres:postgres@localhost:54322/postgres" \
+  -c 'SELECT COUNT(*) FROM "Talents";' \
+  -c 'SELECT COUNT(*) FROM "Cards";'
 ```
 
-**Expected results:**
-- Talents count: ~376
-- Cards count: ~1740
+Expected as of the last update: **~385 talents**, **~1740 cards**. Then `npm run dev` and check
+that `/cardex` and `/skilldex` render.
 
-**Test the application:**
+### Promoting it to the seed data
+
+Once verified, move the file you tested into place — don't re-run the script, so that the bytes
+you verified are the bytes you commit:
+
 ```bash
-# Start the dev server
-npm run dev
-
-# Navigate to http://localhost:3000/codex
-# Verify talents and cards display correctly
+mv "$BACKUP" supabase/seed-data.sql
 ```
 
-If everything works correctly, proceed to step 6. If there are issues, investigate before replacing the old backup.
+(`npm run backup-talents -- <password> --out supabase/seed-data.sql` writes there directly, but
+that gives you an untested dump in the working tree.)
 
-### 6. Replace the Old Seed Data
+## Using a backup
 
-Once verified and tested, replace the old seed data and clean up temporary files:
-
-```bash
-# Replace the old seed data with the cleaned version
-mv supabase/seed-data-temp.sql supabase/seed-data.sql
-
-# Remove the temporary dump file
-rm supabase/seed-data-new.sql
-```
-
-The updated [seed-data.sql](seed-data.sql) is now ready to use for both local development and disaster recovery!
-
-## What This Seed Data Includes
-
-- **Complete table schemas**: CREATE TABLE statements with all columns, constraints, and sequences
-- **Talents table**: All talent/skill data from production (376+ rows)
-- **Cards table**: All card data from production (1740+ rows) - **NEW: included for disaster recovery**
-- **metadata table**: Schema preserved (data is empty but gets populated during sync)
-- **Format**: PostgreSQL COPY format for efficient loading
-- **Indexes and constraints**: Primary keys, unique constraints, and indexes
-- **Permissions**: Supabase role permissions (postgres, anon, authenticated, service_role)
-
-## What's Excluded
-
-- **Auth tables**: Not needed for local development
-- **Ownership information**: Excluded via `--no-owner` flag
-
-## How to Use This Backup
-
-### For Local Development
-
-After starting Supabase, import the seed data:
+### For local development
 
 ```bash
-# Start local Supabase
 npx supabase start
-
-# Import the seed data
 psql "postgresql://postgres:postgres@localhost:54322/postgres" -f supabase/seed-data.sql
 ```
 
-**Note:** `supabase db reset` alone is not sufficient - you must run the psql command to import the data.
+**Note:** `supabase db reset` alone is not sufficient — you must run the `psql` import too.
 
-### For Production Disaster Recovery
+### For production disaster recovery
 
-⚠️ **DANGER: This will DELETE all production data!** Only use in emergency:
+> ⚠️ **DANGER: this DROPs and recreates the production tables, deleting all current data**
+> — including any manual talent post-processing done since the backup. Emergency use only.
 
 ```bash
-# Replace YOUR_PASSWORD with actual production database password
-psql "postgresql://postgres:YOUR_PASSWORD@db.ffclklevsquhuuzepxsf.supabase.co:5432/postgres" \
-  < supabase/seed-data.sql
+psql "<pooler-connection-string>" < supabase/seed-data.sql
 ```
 
-This will:
-1. Drop all existing tables (Talents, Cards, metadata)
-2. Recreate the schemas
-3. Import all data from the backup
-4. Restore indexes, constraints, and permissions
+It drops `Talents`/`Cards`/`metadata`, recreates the schemas, imports the data, and restores
+indexes, constraints, and permissions.
 
-## Important Notes
+## What the dump contains
 
-- This dump includes **both schema and data**, so it will DROP and recreate the tables
-- **Suitable for disaster recovery**: This backup can restore both Talents and Cards tables if production fails
-- If you add new columns to production tables, they will automatically be included in future dumps
-- The `\restrict` and `\unrestrict` lines are Supabase-specific and must be removed for local imports
+- **Schemas**: `CREATE TABLE` with all columns, constraints, and sequences
+- **`Talents`**: all rows, including the manually post-processed requirement fields —
+  this is the _only_ source of truth for that work (see
+  [functions/README.md](./functions/README.md))
+- **`Cards`**: all rows
+- **`metadata`**: schema only in practice; the table is empty
+- **Indexes, constraints, and Supabase role permissions** (`postgres`, `anon`,
+  `authenticated`, `service_role`)
+
+Excluded: auth tables (not needed locally) and ownership info (`--no-owner`).
+
+New columns added to production are picked up automatically by future dumps.

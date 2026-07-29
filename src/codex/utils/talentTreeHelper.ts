@@ -230,11 +230,11 @@ export const getNodeInTree = (
   )
 
 export const isTalentOffer = (talent: TalentTreeTalentNode) =>
-  hasTalentMonsterExpansion(talent) && hasTalentOfferPrefix(talent)
+  hasTalentNilExpansion(talent) && hasTalentOfferPrefix(talent)
 
 export const isTalentInAnyEvents = (talent: TalentTreeTalentNode) => talent.events.length > 0
 
-const hasTalentMonsterExpansion = (talent: TalentTreeTalentNode) => talent.expansion === 0
+const hasTalentNilExpansion = (talent: TalentTreeTalentNode) => talent.expansion === 0
 
 const hasTalentOfferPrefix = (talent: TalentTreeTalentNode) => talent.name.startsWith('Offer of')
 

@@ -65,7 +65,7 @@ export const getCustomNodeEmoji = (node: EventTreeNode): string | undefined => {
     'random [The Blood Moon, The Final Star, The Hangman, The Hourglass, The Pale Mask, The Wheel]'
   const ManorMusic = ['Mazurka', 'Viennese', 'Waltz']
 
-  if (effects.includes('MERCHANT')) return '🛍️'
+  if (effects.includes('MERCHANT') || effects.includes('NATHALIMERCHANT')) return '🛍️'
   if (effects.includes('BUYCARDBYCATEGORY: potion')) return '🍷'
   if (effects.includes('IMBUE') || effects.includes('ENCHANTERIMBUE')) return '🎗️'
   if (effects.includes('TAKEFROMVAULT') || effects.includes('ADDTOVAULT')) return '📦'
@@ -89,7 +89,9 @@ export const hasCustomNodeType = (node: EventTreeNode): boolean => {
 
   return (
     effects.includes('MERCHANT') ||
+    effects.includes('NATHALIMERCHANT') ||
     effects.includes('BUYCARDBYCATEGORY: potion') ||
+    effects.includes('IMBUE') ||
     effects.includes('ENCHANTERIMBUE') ||
     effects.includes('TAKEFROMVAULT') ||
     effects.includes('ADDTOVAULT')

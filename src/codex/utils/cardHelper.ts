@@ -9,111 +9,112 @@ import {
 import { CardData } from '@/codex/types/cards'
 
 const NON_COLLECTIBLE_CATEGORIES = [
-  3, // Conjurations
   6, // Summons
   7, // Performances
   8, // Forms
   13, // Attunements
-  16, // Ingredients
   19, // Offerings
 ]
-const NON_COLLECTIBLE_CATEGORIES_FOR_MONSTER_EXPANSION = [
+// Categories that are only non-collectible within the nil (unset) expansion
+const NON_COLLECTIBLE_CATEGORIES_FOR_NIL_EXPANSION = [
   1, // Items
   4, // Enchantments
+  6, // Summons
+  7, // Performances
+  8, // Forms
+  9, // Hymn
   11, // Revelations
   12, // Affixes
+  13, // Attunements
   14, // Equipment effects
+  15, // Code
   17, // Paths II and III
+  18, // Location
+  19, // Offerings
+  20, // Mantra
+  21, // Adaptations
 ]
 
 const NON_COLLECTIBLE_CARDS = [
-  'Pacified',
+  'Alignment',
+  'Bloodbank',
+  'Vexing Echo 1',
+  'Vexing Echo 2',
 
-  'Ascension I',
-  'Ascension II',
-  'Ascension III',
-
-  'Hymn of Penance I',
-  'Hymn of Penance II',
-  'Hymn of Penance III',
-
-  'Hymn of Power I',
-  'Hymn of Power II',
-  'Hymn of Power III',
-
-  'Hymn of Vitality I',
-  'Hymn of Vitality II',
-  'Hymn of Vitality III',
-
-  'Hymn of Light I',
-  'Hymn of Light II',
-  'Hymn of Light III',
-
-  'The Dawnbringer',
-
-  'Elite Lightning Bolt',
-  'Elite Fireball',
-  'Elite Frostbolt',
-
+  // Imp Offers
   'Imp Offer 1',
   'Imp Offer 2',
   'Imp Offer 3',
   'Imp Offer 4',
   'Imp Offer 5',
   'Imp Offer 6',
-  'Offer of Doom',
 
-  'Battlespear C',
-  'Battlespear D',
-  'Battlespear E',
-  'Battlespear H',
-  'Battlespear L',
-  'Battlespear U',
-
+  // Lost Lagoon
   'City of Gold',
   'Font of Youth',
   'Sunken Forge',
   'Wasteland',
 
-  'Alignment',
-  'Bloodbank',
-  'Vexing Echo 1',
-  'Vexing Echo 2',
-
+  // Pirate Ink
   'Pirate Ink I',
   'Pirate Ink II',
   'Pirate Ink III',
   'Pirate Ink IV',
   'Pirate Ink V',
 
+  // Larceny
   'Larceny INT',
   'Larceny STR',
   'Larceny DEX',
   'Larceny HOLY',
 
-  'Colonel',
-  'Lieutenant',
-  'Private',
-  'Sergeant',
+  // Compel
+  'Compel 1',
+  'Compel 2',
+
+  // Treaties
+  'Treaty of Joy',
+  'Treaty of Insight',
+  'Treaty of Might',
+  'Treaty of Peace',
+  'Treaty of Mercy',
+
+  // Agile Mind
+  'Agile',
+  'Mind',
+
+  // Hypnosis
+  'Hypnosis 1',
+  'Hypnosis 2',
+
+  // That card that does one of these things
+  'Haste',
+  'Slow',
+  'Draw',
 ]
 
-export const hasMonsterExpansion = (card: CardData) => card.expansion === 0
+/*
+ * Expansion 0 is the game's nil/unset bucket —
+ * It contains a mix of regular and monster cards, as well as non-collectible cards.
+ */
+export const hasNilExpansion = (card: CardData) => card.expansion === 0
+
 export const hasMonsterRarity = (card: CardData) => card.rarity === 4
 export const hasMonsterBanner = (card: CardData) => card.color === 11
 export const isAnimalCompanionCard = (card: CardData) => card.name.endsWith('(Companion)')
 
-export const isNonCollectibleRegularCard = (card: CardData) =>
-  !hasMonsterExpansion(card) &&
-  (NON_COLLECTIBLE_CATEGORIES.includes(card.category) ||
-    NON_COLLECTIBLE_CARDS.some((cardName) => cardName.toLowerCase() === card.name.toLowerCase()))
+export const isMonsterCard = (card: CardData) => hasMonsterBanner(card) || hasMonsterRarity(card)
 
-export const isNonCollectibleMonsterCard = (card: CardData) =>
-  hasMonsterExpansion(card) &&
-  (NON_COLLECTIBLE_CATEGORIES_FOR_MONSTER_EXPANSION.includes(card.category) ||
-    NON_COLLECTIBLE_CARDS.some((cardName) => cardName.toLowerCase() === card.name.toLowerCase()))
-
+/*
+ * The two category lists are disjoint and mutually exclusive: a category counts as
+ * non-collectible either in the nil expansion or outside it, never both. The name
+ * blacklist applies regardless of expansion.
+ */
 export const isNonCollectible = (card: CardData) =>
-  isNonCollectibleRegularCard(card) || isNonCollectibleMonsterCard(card)
+  NON_COLLECTIBLE_CARDS.some((cardName) => cardName.toLowerCase() === card.name.toLowerCase()) ||
+  (hasNilExpansion(card)
+    ? NON_COLLECTIBLE_CATEGORIES_FOR_NIL_EXPANSION.includes(card.category)
+    : NON_COLLECTIBLE_CATEGORIES.includes(card.category))
 
 export const parseCardDescription = (description: string, iconClassName?: string) => {
   const parsedDescription = description
