@@ -9,65 +9,37 @@ import {
 import { CardData } from '@/codex/types/cards'
 
 const NON_COLLECTIBLE_CATEGORIES = [
-  3, // Conjurations
   6, // Summons
   7, // Performances
   8, // Forms
   13, // Attunements
-  16, // Ingredients
   19, // Offerings
 ]
 // Categories that are only non-collectible within the nil (unset) expansion
 const NON_COLLECTIBLE_CATEGORIES_FOR_NIL_EXPANSION = [
   1, // Items
   4, // Enchantments
+  6, // Summons
+  7, // Performances
+  8, // Forms
+  9, // Hymn
   11, // Revelations
   12, // Affixes
+  13, // Attunements
   14, // Equipment effects
+  15, // Code
   17, // Paths II and III
+  18, // Location
+  19, // Offerings
+  20, // Mantra
+  21, // Adaptations
 ]
 
 const NON_COLLECTIBLE_CARDS = [
-  'Pacified',
   'Alignment',
   'Bloodbank',
   'Vexing Echo 1',
   'Vexing Echo 2',
-
-  // Ascensions
-  'Ascension I',
-  'Ascension II',
-  'Ascension III',
-
-  // Hymns
-  'Hymn of Penance I',
-  'Hymn of Penance II',
-  'Hymn of Penance III',
-  'Hymn of Power I',
-  'Hymn of Power II',
-  'Hymn of Power III',
-  'Hymn of Vitality I',
-  'Hymn of Vitality II',
-  'Hymn of Vitality III',
-  'Hymn of Light I',
-  'Hymn of Light II',
-  'Hymn of Light III',
-  'Hymn of Conviction I',
-  'Hymn of Conviction II',
-  'Hymn of Conviction III',
-  'Hymn of Mercy I',
-  'Hymn of Mercy II',
-  'Hymn of Mercy III',
-
-  // Domains
-  "Ammit's Domain",
-  "Baku's Domain",
-  "Nue's Domain",
-
-  // Elite Magic
-  'Elite Lightning Bolt',
-  'Elite Fireball',
-  'Elite Frostbolt',
 
   // Imp Offers
   'Imp Offer 1',
@@ -76,15 +48,6 @@ const NON_COLLECTIBLE_CARDS = [
   'Imp Offer 4',
   'Imp Offer 5',
   'Imp Offer 6',
-  'Offer of Doom',
-
-  // Battlespear
-  'Battlespear C',
-  'Battlespear D',
-  'Battlespear E',
-  'Battlespear H',
-  'Battlespear L',
-  'Battlespear U',
 
   // Lost Lagoon
   'City of Gold',
@@ -105,12 +68,6 @@ const NON_COLLECTIBLE_CARDS = [
   'Larceny DEX',
   'Larceny HOLY',
 
-  // Doing your part
-  'Colonel',
-  'Lieutenant',
-  'Private',
-  'Sergeant',
-
   // Compel
   'Compel 1',
   'Compel 2',
@@ -130,35 +87,10 @@ const NON_COLLECTIBLE_CARDS = [
   'Hypnosis 1',
   'Hypnosis 2',
 
-  // Runes
-  'Frenzied',
-  'Plated',
-  'Tempered',
-  'Charged',
-  'Blunt',
-  'Lethal',
-  'Sharp',
-  'Twinned',
-  'Fluid',
-  'Magebane',
-  'Blessed',
-
   // That card that does one of these things
   'Haste',
   'Slow',
   'Draw',
-
-  // NPCs
-  'Blacksmith',
-  'The Dawnbringer',
-  'Alchemist',
-  'Enchanter',
-  'Collector',
-  'Illusionist',
-  'Succubus',
-  'Merchant',
-  'Priest',
-  'Huntress',
 ]
 
 /*
