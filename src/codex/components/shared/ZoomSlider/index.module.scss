@@ -38,6 +38,12 @@ $vertical-track-spacing: 0.875rem;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
     pointer-events: none;
     user-select: none;
+
+    // The colour here is hardcoded (unlike the label, which takes an inline
+    // class colour), so disabling has to be handled explicitly.
+    &--disabled {
+      opacity: 0.42;
+    }
   }
 
   &__group {
@@ -144,6 +150,12 @@ $vertical-track-spacing: 0.875rem;
       text-align: center;
       color: $color-primary-muted;
       text-shadow: none;
+
+      // Already a muted colour rather than white-on-track, so it needs less
+      // dimming than the horizontal variant to read as disabled.
+      &--disabled {
+        opacity: 0.5;
+      }
     }
 
     .zoom-slider__track {

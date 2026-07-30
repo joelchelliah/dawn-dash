@@ -156,7 +156,10 @@ const ZoomSlider = ({
               paints on top where the two overlap. The vertical track is far too
               narrow to hold this text, so it renders below the group instead. */}
           {!isVertical && (
-            <span className={cx('zoom-slider__value')} aria-hidden="true">
+            <span
+              className={cx('zoom-slider__value', { 'zoom-slider__value--disabled': disabled })}
+              aria-hidden="true"
+            >
               {zoomValueLabel}
             </span>
           )}
@@ -175,7 +178,10 @@ const ZoomSlider = ({
       {/* Vertical only: below the track, since the narrow vertical track can't
           hold the text. Height isn't at a premium in the floaty container. */}
       {isVertical && (
-        <span className={cx('zoom-slider__value')} aria-hidden="true">
+        <span
+          className={cx('zoom-slider__value', { 'zoom-slider__value--disabled': disabled })}
+          aria-hidden="true"
+        >
           {zoomValueLabel}
         </span>
       )}
