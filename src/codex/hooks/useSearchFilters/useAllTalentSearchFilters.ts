@@ -6,7 +6,7 @@ import {
   getCachedTalentCodexSearchFilters,
 } from '@/codex/utils/codexFilterStore'
 
-import { useCardSetFilters } from './useCardSetFilters'
+import { useTalentCardSetFilters } from './useCardSetFilters'
 import { useTierFilters } from './useTierFilters'
 import { useKeywords } from './useKeywords'
 import { useFilterTracking } from './useFilterTracking'
@@ -19,7 +19,7 @@ export interface UseAllTalentSearchFilters {
   setKeywords: (keywords: string) => void
   parsedKeywords: string[]
   matchingTalentTree: TalentTree | undefined
-  useCardSetFilters: ReturnType<typeof useCardSetFilters>
+  useCardSetFilters: ReturnType<typeof useTalentCardSetFilters>
   useRequirementFilters: ReturnType<typeof useRequirementFilters>
   useTierFilters: ReturnType<typeof useTierFilters>
   useFormattingFilters: ReturnType<typeof useFormattingTalentFilters>
@@ -37,7 +37,7 @@ export const useAllTalentSearchFilters = (
     resetParsedKeywords,
   } = useKeywords(cachedFilters?.keywords)
 
-  const untrackedUseCardSetFilters = useCardSetFilters(cachedFilters?.cardSets)
+  const untrackedUseCardSetFilters = useTalentCardSetFilters(cachedFilters?.cardSets)
   const untrackedUseRequirementFilters = useRequirementFilters(cachedFilters?.requirements)
   const untrackedUseTierFilters = useTierFilters(cachedFilters?.tiers)
   const untrackedUseFormattingFilters = useFormattingTalentFilters(cachedFilters?.formatting)

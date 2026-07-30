@@ -40,6 +40,7 @@ const NON_COLLECTIBLE_CARDS = [
   'Bloodbank',
   'Vexing Echo 1',
   'Vexing Echo 2',
+  'Pacified',
 
   // Imp Offers
   'Imp Offer 1',
@@ -87,6 +88,10 @@ const NON_COLLECTIBLE_CARDS = [
   'Hypnosis 1',
   'Hypnosis 2',
 
+  // Typhon's Cunning
+  "Typhon's Cunning II",
+  "Typhon's Cunning III",
+
   // That card that does one of these things
   'Haste',
   'Slow',
@@ -94,16 +99,19 @@ const NON_COLLECTIBLE_CARDS = [
 ]
 
 /*
- * Expansion 0 is the game's nil/unset bucket —
- * It contains a mix of regular and monster cards, as well as non-collectible cards.
+ * Marker appended to the 'Core' label for cards and talents from the nil (0) expansion,
  */
-export const hasNilExpansion = (card: CardData) => card.expansion === 0
+export const NIL_EXPANSION_MARKER = '°'
 
 export const hasMonsterRarity = (card: CardData) => card.rarity === 4
 export const hasMonsterBanner = (card: CardData) => card.color === 11
 export const isAnimalCompanionCard = (card: CardData) => card.name.endsWith('(Companion)')
 
-export const isMonsterCard = (card: CardData) => hasMonsterBanner(card) || hasMonsterRarity(card)
+/*
+ * Expansion 0 is the game's nil/unset bucket. Only used for picking the right category list
+ * below — nil expansion cards are otherwise treated as Core cards, see `useCardSetFilters`.
+ */
+const hasNilExpansion = (card: CardData) => card.expansion === 0
 
 /*
  * The two category lists are disjoint and mutually exclusive: a category counts as

@@ -69,7 +69,12 @@ function WeeklyChallengeButton({
 
   return (
     <div className={cx('container')}>
-      <GradientButton onClick={handleClick} isLoading={isLoading} className={buttonClassName}>
+      <GradientButton
+        onClick={handleClick}
+        isLoading={isLoading}
+        className={buttonClassName}
+        hasStyledContent
+      >
         <div className={contentClassName}>{content}</div>
       </GradientButton>
       {challengeName && challengeId && (

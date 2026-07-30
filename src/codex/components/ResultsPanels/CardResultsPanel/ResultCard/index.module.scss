@@ -282,6 +282,20 @@
       font-size: font-size('xxs');
       width: 8rem;
     }
+
+    // Nil (0) expansion marker, shown after the 'Core' label.
+    &__nil {
+      display: inline;
+      margin-left: 0.0625rem;
+      font-size: font-size('sm');
+      font-weight: bold;
+      color: $color-danger-base;
+      opacity: 0.85;
+
+      @media (max-width: $breakpoint-mobile) {
+        font-size: font-size('xs');
+      }
+    }
   }
 
   &__description {

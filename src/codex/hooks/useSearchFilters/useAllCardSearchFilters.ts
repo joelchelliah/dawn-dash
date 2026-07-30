@@ -3,10 +3,8 @@ import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { WeeklyChallengeFilterData } from '@/codex/types/filters'
 import {
   hasMonsterBanner,
-  hasNilExpansion,
   hasMonsterRarity,
   isAnimalCompanionCard,
-  isMonsterCard,
   isNonCollectible,
 } from '@/codex/utils/cardHelper'
 import { CardData } from '@/codex/types/cards'
@@ -196,12 +194,8 @@ export const useAllCardSearchFilters = (
 
   const isMatchingCard = useCallback(
     (card: CardData) => {
-      // The nil expansion has no card set checkbox of its own, so its cards need an escape
-      // hatch. Only actual monster cards (by banner or rarity) are gated on the monster
-      // checkbox — other nil expansion cards pass this dimension freely.
-      const passesExpansionFilter = hasNilExpansion(card)
-        ? !isMonsterCard(card) || shouldIncludeMonsterCards
-        : isCardSetIndexSelected(card.expansion)
+      // Note: Nil expansion cards are selected by the Core checkbox — see `useCardSetFilters`.
+      const passesExpansionFilter = isCardSetIndexSelected(card.expansion)
       const passesRarityFilter = hasMonsterRarity(card)
         ? shouldIncludeMonsterCards
         : isRarityIndexSelected(card.rarity)

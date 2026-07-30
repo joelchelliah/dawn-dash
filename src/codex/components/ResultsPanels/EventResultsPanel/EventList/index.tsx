@@ -65,7 +65,7 @@ function EventList({
 
   const sortedTypes = Object.values(eventsByType).sort((a, b) => a.index - b.index)
   const filterPlaceholder = isMobile
-    ? 'Filter by any text occurring in the event'
+    ? 'Filter by any text in the event'
     : 'Filter by any text occurring anywhere in the event'
 
   return (

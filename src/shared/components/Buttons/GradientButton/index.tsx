@@ -14,6 +14,15 @@ interface GradientButtonProps extends BaseButtonProps {
   subtle?: boolean
   bold?: boolean
   showClickAnimation?: boolean
+  /*
+   * Set this when the children style their own text (e.g. with a gradient of their own).
+   *
+   * The gradient text styling uses `background-clip: text`, which makes the button paint the
+   * text of its children using its own background. If the children already paint themselves,
+   * the text ends up rendered twice — once per coordinate space, which is visible as a ghost
+   * copy whenever either element is animated or transformed.
+   */
+  hasStyledContent?: boolean
 }
 
 function GradientButton({
@@ -24,6 +33,7 @@ function GradientButton({
   subtle,
   bold,
   showClickAnimation = false,
+  hasStyledContent = false,
   disabled,
   type = 'button',
   ariaLabel,
@@ -41,8 +51,8 @@ function GradientButton({
   }
 
   const buttonClassName = cx('gradient-button', className, {
-    'gradient-button--colored': !subtle && !isLoading,
-    'gradient-button--subtle': subtle && !isLoading,
+    'gradient-button--colored': !subtle && !isLoading && !hasStyledContent,
+    'gradient-button--subtle': subtle && !isLoading && !hasStyledContent,
     'gradient-button--bold': bold,
     'gradient-button--pulse': isAnimating,
   })
