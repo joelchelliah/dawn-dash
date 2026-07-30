@@ -24,7 +24,7 @@ import {
 } from '@/codex/utils/eventTreeSpacing'
 import { setupTreeSvg, createGlowFilter } from '@/codex/utils/tree/svgHelper'
 import { TREE, NODE_BOX } from '@/codex/constants/eventTreeValues'
-import { ZoomLevel } from '@/codex/constants/zoomValues'
+import { ZoomLevel, COVER } from '@/codex/constants/zoomValues'
 import {
   LoopingPathMode,
   TreeNavigationMode,
@@ -340,14 +340,14 @@ function EventTree({
         className={cx('event-tree-scroll-wrapper', {
           'event-tree-scroll-wrapper--dragging': isDragMode && isDragging,
           'event-tree-scroll-wrapper--drag-mode': isDragMode,
-          'event-tree-scroll-wrapper--cover-zoom': zoomLevel === ZoomLevel.COVER,
+          'event-tree-scroll-wrapper--cover-zoom': zoomLevel === COVER,
         })}
         {...(isDragMode ? handlers : {})}
       >
         <svg
           ref={svgRef}
           className={cx('event-tree', {
-            'event-tree--zoomed': zoomLevel !== ZoomLevel.COVER,
+            'event-tree--zoomed': zoomLevel !== COVER,
           })}
         />
       </div>

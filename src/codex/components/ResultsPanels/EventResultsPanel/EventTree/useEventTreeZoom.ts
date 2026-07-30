@@ -1,6 +1,6 @@
 import { useRef } from 'react'
 
-import { ZoomLevel, MAX_ZOOM_LEVEL } from '@/codex/constants/zoomValues'
+import { ZoomLevel, COVER, MAX_ZOOM_LEVEL } from '@/codex/constants/zoomValues'
 
 interface CoverScaleCache {
   eventId: string
@@ -38,7 +38,7 @@ class ZoomCalculator {
     if (containerWidth === 0 || containerHeight === 0) return undefined
 
     // When in Cover mode, calculate and cache coverScale
-    if (zoomLevel === ZoomLevel.COVER) {
+    if (zoomLevel === COVER) {
       this.cache = {
         eventId: eventName,
         coverScale: Math.min(containerWidth / svgWidth, containerHeight / svgHeight),

@@ -21,7 +21,7 @@ import { cacheAllNodeDimensions, getNodeHeight } from '@/codex/utils/talentNodeD
 import { setupTreeSvg, createGlowFilter } from '@/codex/utils/tree/svgHelper'
 import { NODE, TREE } from '@/codex/constants/talentTreeValues'
 import { buildHierarchicalTreeFromTalentTree } from '@/codex/utils/talentTreeBuilder'
-import { ZoomLevel } from '@/codex/constants/zoomValues'
+import { ZoomLevel, COVER } from '@/codex/constants/zoomValues'
 
 import { drawLinks, getLinksWithNewRequirements } from './links'
 import { renderRequirementNode, renderRequirementIndicators } from './requirementNodes'
@@ -165,9 +165,9 @@ function TalentTree({
     // Calculate zoom scale for numbered zoom levels.
     // With a depth multiplier so deeper trees don't zoom in as much.
     const getZoomScale = (): number | undefined => {
-      if (zoomLevel === ZoomLevel.COVER) return undefined
+      if (zoomLevel === COVER) return undefined
       const depthMultiplier = 1 / Math.pow(maxDepth, 0.25)
-      return (parseInt(zoomLevel.toString()) / 100) * depthMultiplier
+      return (zoomLevel / 100) * depthMultiplier
     }
 
     const zoomScale = getZoomScale()
@@ -262,13 +262,13 @@ function TalentTree({
     <div
       ref={scrollWrapperRef}
       className={cx('talent-tree-scroll-wrapper', {
-        'talent-tree-scroll-wrapper--cover-zoom': zoomLevel === ZoomLevel.COVER,
+        'talent-tree-scroll-wrapper--cover-zoom': zoomLevel === COVER,
       })}
     >
       <svg
         ref={svgRef}
         className={cx('talent-tree', {
-          'talent-tree--zoomed': zoomLevel !== ZoomLevel.COVER,
+          'talent-tree--zoomed': zoomLevel !== COVER,
         })}
       />
     </div>

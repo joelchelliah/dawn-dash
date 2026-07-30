@@ -1,4 +1,5 @@
 import { CharacterClass } from '@/shared/types/characterClass'
+import { getEnergyImageUrl as getClassEnergyImageUrl } from '@/shared/utils/energyImages'
 
 import { SpeedRunSubclass } from '../types/speedRun'
 import {
@@ -9,13 +10,6 @@ import {
   SeekerImageUrl,
   WarriorImageUrl,
   SunforgeImageUrl,
-  IntImageUrl,
-  DexStrImageUrl,
-  IntStrImageUrl,
-  DexImageUrl,
-  DexIntImageUrl,
-  StrImageUrl,
-  HolyImageUrl,
   NeutralImageUrl,
 } from '../../shared/utils/imageUrls'
 
@@ -38,31 +32,19 @@ export function getClassImageUrl(classType: CharacterClass) {
   }
 }
 
+/**
+ * Speedruns-specific wrapper around the shared energy image lookup.
+ *
+ * Handles the subclasses that only exist here (All, Hybrid) and delegates
+ * everything else to the shared function. The two enums share identical string
+ * values for the six overlapping classes, so the cast is safe.
+ */
 export function getEnergyImageUrl(classType: CharacterClass | SpeedRunSubclass) {
   switch (classType) {
-    case CharacterClass.Arcanist:
-    case SpeedRunSubclass.Arcanist:
-      return IntImageUrl
-    case CharacterClass.Hunter:
-    case SpeedRunSubclass.Hunter:
-      return DexStrImageUrl
-    case CharacterClass.Knight:
-    case SpeedRunSubclass.Knight:
-      return IntStrImageUrl
-    case CharacterClass.Rogue:
-    case SpeedRunSubclass.Rogue:
-      return DexImageUrl
-    case CharacterClass.Seeker:
-    case SpeedRunSubclass.Seeker:
-      return DexIntImageUrl
-    case CharacterClass.Warrior:
-    case SpeedRunSubclass.Warrior:
-      return StrImageUrl
-    case CharacterClass.Sunforge:
-      return HolyImageUrl
+    case SpeedRunSubclass.All:
     case SpeedRunSubclass.Hybrid:
       return NeutralImageUrl
     default:
-      return NeutralImageUrl
+      return getClassEnergyImageUrl(classType as CharacterClass)
   }
 }

@@ -8,8 +8,8 @@ import { useBreakpoint } from '@/shared/hooks/useBreakpoint'
 import { TalentTreeNode, TalentTreeNodeType } from '@/codex/types/talents'
 import { UseAllTalentSearchFilters } from '@/codex/hooks/useSearchFilters'
 import { useExpandableNodes } from '@/codex/hooks/useExpandableNodes'
-import { ZoomLevel } from '@/codex/constants/zoomValues'
-import StickyZoomSelect from '@/codex/components/shared/StickyZoomSelect'
+import { ZoomLevel, COVER } from '@/codex/constants/zoomValues'
+import StickyZoomSlider from '@/codex/components/shared/StickyZoomSlider'
 import { useStickyZoom } from '@/codex/hooks/useStickyZoom'
 
 import PanelHeader from '../../PanelHeader'
@@ -26,7 +26,7 @@ const cx = createCx(styles)
 
 const TalentResultsPanel = ({ useSearchFilters }: TalentResultsPanelProps) => {
   const [showTalentsWithoutKeywords, setShowTalentsWithoutKeywords] = useState(false)
-  const [zoomLevel, setZoomLevel] = useState<ZoomLevel>(ZoomLevel.COVER)
+  const [zoomLevel, setZoomLevel] = useState<ZoomLevel>(COVER)
   const { isMobile } = useBreakpoint()
   const { parsedKeywords, matchingTalentTree, useFormattingFilters, useCardSetFilters } =
     useSearchFilters
@@ -89,7 +89,7 @@ const TalentResultsPanel = ({ useSearchFilters }: TalentResultsPanelProps) => {
       setShowTalentsWithoutKeywords(false)
     }
     // Reset zoom to Cover when keywords change
-    setZoomLevel(ZoomLevel.COVER)
+    setZoomLevel(COVER)
   }, [parsedKeywords])
 
   const renderMatchingTalents = () => {
@@ -130,7 +130,7 @@ const TalentResultsPanel = ({ useSearchFilters }: TalentResultsPanelProps) => {
       <PanelHeader type="TalentResults" />
 
       {showZoomControl && (
-        <StickyZoomSelect
+        <StickyZoomSlider
           position={isMobile ? 'left' : 'right'}
           className={cx('results-panel__sticky-zoom')}
           selectedClass={CharacterClass.Rogue}
