@@ -1,320 +1,288 @@
-# Cardex spec — Monster banner & rarity checkboxes, NIL-expansion rename
+# Cardex spec — Fold the nil expansion into Core
 
 Status: **planned, not implemented.**
 
 ## Problem
 
-Cardex currently treats "is this a monster card?" as a single boolean derived from
-`expansion === 0`, exposed as one `Include monster cards` checkbox in the Extras group.
-
-That conflation is wrong in two ways:
-
-1. **Expansion 0 is not "the monster expansion".** It is Blightbane's *nil / unset* expansion
-   bucket. Genuinely non-monster cards land there (Monolith, Pacified, the Battlespears, Pirate
-   Inks, …), which is why `cardsResponseMapper.ts` maintains hand-written `ACTUALLY_*_CARDS` lists
-   to move them out. Commit `7923c9b` said this out loud — *"There are some cards in the monster
-   expansion (0) that are not really monster cards"* — and introduced a
-   `NOT_REALLY_MONSTER_CARDS` blacklist plus an `isReallyMonsterCard` helper to compensate.
-   Commit `3cc3eba` deleted both, moving the exceptions into `getActualExpansion`.
-2. **Monster-ness is really three independent data axes**, and only one of them has a UI control:
-
-   | Axis | Value | Filter group | Has a checkbox today? |
-   | --- | --- | --- | --- |
-   | Banner | `color === 11` | Banners | ❌ no — escape-hatched |
-   | Rarity | `rarity === 4` | Rarities | ❌ no — escape-hatched |
-   | Expansion | `expansion === 0` | Card sets | ❌ no — escape-hatched |
-
-   Because none of the three has a checkbox, `useAllCardSearchFilters` needs three escape hatches
-   that all funnel into the same `shouldIncludeMonsterCards` flag
-   ([useAllCardSearchFilters.ts:199-207](hooks/useSearchFilters/useAllCardSearchFilters.ts#L199-L207)).
+Blightbane's expansion `0` is a nil/unset bucket. Cardex currently has no card-set checkbox for it,
+so `passesExpansionFilter` needs a special case to keep those cards from being permanently invisible
+([useAllCardSearchFilters.ts:199-204](hooks/useSearchFilters/useAllCardSearchFilters.ts#L199-L204)),
+and `ACTUALLY_CORE_CARDS` in [utils/cardsResponseMapper.ts](utils/cardsResponseMapper.ts) hand-moves
+a list of nil cards into Core one name at a time.
 
 ## Decision
 
-**Banner and rarity become real filter dimensions; nil expansion stops being a monster signal.**
+**Nil-expansion cards are shown under the existing `Core` checkbox.**
 
-- Add a **Monster** checkbox to the Banners group (color `11`).
-- Add a **Monster** checkbox to the Rarities group (rarity `4`).
-- Remove the `Include monster cards` extra filter entirely.
-- Nil-expansion cards are **visible by default** — they are no longer gated on anything. Monster
-  visibility is decided solely by the two new checkboxes.
-- Rename all `*_MONSTER_EXPANSION` / `hasMonsterExpansion` naming to `*_NIL_EXPANSION` /
-  `hasNilExpansion`, since expansion 0 means "unset", not "monster".
-- Merge `isNonCollectibleRegularCard` + `isNonCollectibleMonsterCard` into a single
-  `isNonCollectible`.
+The rationale is player-facing, not API-facing: *the nil expansion does not exist to the player.*
+Every nil-expansion card is always in the game — and so is every Core card (both of its indices).
+The player can freely toggle every other expansion per run, but never Core. Nil and Core are
+therefore the same category of thing from the player's seat: always on, never a choice. Merging them
+is the honest representation.
 
-### Why banner is the better signal
+### Where the remap lives — the Cardex filter hook (option B)
 
-`color === 11` is already a first-class banner everywhere *except* the filter UI:
+`useCardSetFilters` maps index `0` to Core in the **Cardex path only**. The shared `indexMap` /
+`indexToValueMap` in [useCardSetFilters.ts](hooks/useSearchFilters/useCardSetFilters.ts) stay free of
+index `0`.
 
-- `$color-banner-11: #300` and its `$banner-index-to-color-map` entry already exist in
-  [_colors.scss:100-113](../styles/_colors.scss#L100-L113).
-- `CardResultsPanel` already groups results by `card.color`, so color-11 groups already render.
-- Only `$banner-name-to-color-map` lacks a `Monster` entry — because no checkbox exists to name.
+The alternative — remapping `0 → 1` inside `getActualExpansion` — was rejected: it erases
+`card.expansion === 0` downstream, which the nil annotation (see below) needs. Option B keeps the raw
+value intact without adding a field to `CardData`.
 
-Meanwhile `color` receives almost no hand-maintained correction (one case, `Infernal Racket → 9`),
-versus ~30 names across `getActualExpansion`'s four lists.
+### ⚠️ Index 0 must NOT go into the shared `indexMap`
 
-## Non-goals
+`useCardSetFilters` is consumed by **both** `useAllCardSearchFilters` and
+`useAllTalentSearchFilters`, and talents use expansion 0 with an unrelated meaning —
+[talentsResponseMapper.ts:32](utils/talentsResponseMapper.ts#L32) *assigns* it to mark **event-only**
+talents (`expansion: isEventOnlyTalent(talent) ? 0 : talent.expansion`). `isOffer` and `isRootTalent`
+also key off `expansion === 0` as a structural marker.
 
-- **Not** replacing `getActualExpansion`'s `ACTUALLY_*_CARDS` lists with a banner-driven rule.
-  That is a plausible follow-up (see [Follow-up](#follow-up)) but needs API data first.
-- **Not** changing what the two `NON_COLLECTIBLE_*` category lists contain.
+Putting `0` in the shared map would break Skilldex at
+[TalentTree/index.tsx:97-98](components/ResultsPanels/TalentResultsPanel/TalentTree/index.tsx#L97-L98):
 
-## Behavioral decisions
+```ts
+shouldShowCardSet: (index?: number) =>
+  shouldShowCardSet && index !== undefined && isCardSetIndexSelected(index),
+```
 
-| Question | Decision |
-| --- | --- |
-| Monster in Banners' `Select all` | **Included**, like any other banner |
-| Weekly challenge behavior | Monster banner is **always enabled**, regardless of challenge data |
-| Monster banner default | **Off** (matches today's `IncludeMonsterCards: false`) |
-| Monster rarity default | **Off** |
-| Rarities' `Select all` | N/A — the rarity group has no `SharedFilterOption`; do not add one |
-| Nil-expansion / rarity-4 escape hatches | **Removed.** Banner + rarity checkboxes decide |
-| `isNonCollectible*` | **Merged into one function** |
+Event talents render a **blank** card set today precisely because `isCardSetIndexSelected(0)` is
+`false` — no `indexMap` entry claims index 0. Wire 0 into Core and that flips to `true`, so every
+event talent would newly render **"Core"** — factually wrong, and because these labels feed the D3
+text-width estimation in [utils/tree/](utils/tree/), it would also change talent node dimensions and
+shift tree layout.
 
-### ⚠️ The two category lists are disjoint — do not naively union them
+## Skilldex must be completely unaffected
 
-`NON_COLLECTIBLE_CATEGORIES` = `3, 6, 7, 8, 13, 16, 19`
-`NON_COLLECTIBLE_CATEGORIES_FOR_NIL_EXPANSION` = `1, 4, 11, 12, 14, 17`
+This is a hard requirement. Two things protect it, and both must hold:
 
-**Overlap: none.** Categories 1 (Items), 4 (Enchantments), 12 (Affixes) etc. are non-collectible
-*only* in nil expansion. Unioning the lists would mark **every Item and Enchantment in the game**
-non-collectible — a large, visible regression.
+1. **Filtering** — event talents are already immune *by construction*. `createSectionPredicates` in
+   [talentTreeFilter.ts:109-115](hooks/useSearchFilters/talentTreeFilter.ts#L109-L115) only consults
+   `isCardSetIndexSelected` in the `regular` section; the `event`, `card`, `offer`, and `unavailable`
+   sections never check expansion. That is why deselecting every expansion (Core included) still
+   shows all event talents — and it stays true regardless of what index 0 maps to.
+2. **Labelling** — guaranteed only by keeping index `0` out of the shared maps, per the warning
+   above.
 
-**Therefore:** the two category lists are selected between with an if/else on nil expansion, since
-they are mutually exclusive by construction. The name list applies universally.
+Confirm during verification that no talent in the `regular` section has `expansion === 0`; if one
+did, it would newly appear/disappear with the Core checkbox.
+
+## Withdrawn from the previous spec
+
+The earlier version of this spec proposed a Monster banner checkbox, a Monster rarity checkbox, and
+an `Unset` card-set checkbox. **All withdrawn.**
+
+- **Monster banner + rarity checkboxes** — premised on the now-fixed expansion-0 conflation. With
+  expansion 0 out of the picture, `color === 11` and `rarity === 4` are not independent axes; they
+  are two encodings of the same fact, and `isMonsterCard` already ORs them. Two checkboxes would ask
+  a question the data doesn't pose ("monsters-by-banner but not by-rarity?") and would produce
+  confusing partial results. They would also make monster cards look like a first-class category
+  alongside Core/Catalyst/Eclypse, and get swept in by the Banners `Select all` — flooding results
+  with enemy abilities. Monster cards are not player-collectible content; one opt-in
+  `Include monster cards` extra, sitting beside `Include non-collectible cards` and
+  `Include animal companion cards`, states their status correctly.
+- **`Unset` card-set checkbox** — its motivation was the double-gate bug (already fixed) plus
+  uniformity. This spec achieves the uniformity instead, without exposing a raw API concept to
+  players.
+- **`Mark expansionless cards as core` extra checkbox** — considered and dropped. Only someone who
+  knows expansion 0 exists in the API would ever untick it, and supporting the off state means
+  keeping the `passesExpansionFilter` special case permanently plus a second label code path. The
+  nil annotation below covers the same debugging need at no interaction cost.
+- **`$banner-name-to-color-map` Monster entry** — not needed. `$banner-index-to-color-map` already
+  covers color 11 and is what renders result colors.
+
+The banner-driven `getActualExpansion` follow-up is **still open** — see [Follow-up](#follow-up).
+
+## Nil annotation in the card set column
+
+So the nil expansion stays visible at a glance without a checkbox, `ResultCard` renders nil-expansion
+cards as `Core (0)`, with the `(0)` in a smaller font.
+
+- Cardex-only, at the single JSX site
+  [ResultCard/index.tsx:153-157](components/ResultsPanels/CardResultsPanel/ResultCard/index.tsx#L153-L157).
+- **Do not** put `(0)` inside `getCardSetNameFromIndex`'s return value — it would leak into the
+  Skilldex SVG node labels and shift tree layout.
+
+```tsx
+{shouldShowCardSet && (
+  <span className={cx('result-card__card-set')}>
+    {getCardSetNameFromIndex(card.expansion) ?? '-'}
+    {card.expansion === 0 && <span className={cx('result-card__card-set__nil')}>(0)</span>}
+  </span>
+)}
+```
+
+`(0)` is a raw API index with no in-game meaning, so it reads as a debugging affordance rather than
+player information. Alternatives at the same clutter cost, if it looks wrong in place: `Core *`
+(reads as "footnote" to anyone) or `Core (unset)` (self-describing but longest).
+
+**Watch the column width.** `&__card-set` at
+[ResultCard/index.module.scss:272-285](components/ResultsPanels/CardResultsPanel/ResultCard/index.module.scss#L272-L285)
+is a fixed `width: 8rem` with `@include text-truncate` and right alignment. `Core (0)` is comfortably
+shorter than existing labels like `Metamorphosis` and `Metaprogress`, so truncation is unlikely — but
+the `(0)` sits in its own nested span, so confirm it does not wrap to a second line or disturb the
+right alignment, on mobile especially (where the font drops to `xxs` but the width stays `8rem`).
+
+## Cache version
+
+**No bump needed.** The set of filter *keys* and their defaults are unchanged — `Core` keeps its key
+and its `true` default; only the index→selection mapping changes. `createFilterHook` rehydrates by
+key (`if (key in defaultFilters)`), so existing caches restore correctly.
+
+`CARDS_CACHE_VERSION` stays `'v1'` and `TALENTS_CACHE_VERSION` stays `'v3'`
+([utils/codexFilterStore.ts:9,20](utils/codexFilterStore.ts#L9-L20)).
+
+---
+
+## Tasks, in order of operation
+
+> **After each numbered task: stop and notify the user.** They will manually verify **both Cardex and
+> Skilldex** visually in the dev server before the next task starts, so we catch any drift
+> immediately rather than at the end. Do not batch tasks together.
+>
+> **Docs are part of each task.** If a task changes logic described in
+> [CLAUDE.md](../../CLAUDE.md), [src/codex/CLAUDE.md](CLAUDE.md), or any `README.md` (notably
+> [utils/eventTreeSpacing/README.md](utils/eventTreeSpacing/README.md)), update those files in the
+> same task so the docs never describe stale logic.
+
+### 1. Map index 0 to Core in the Cardex path only
+
+- [ ] [hooks/useSearchFilters/useCardSetFilters.ts](hooks/useSearchFilters/useCardSetFilters.ts) —
+      leave the shared `indexMap` and `indexToValueMap` **unchanged** (no index `0`). Add the nil→Core
+      remap in the `useCardSetFilters` wrapper so it applies to Cardex but not to the talent path:
+      wrap `isIndexSelected` as `(index) => isIndexSelected(index === 0 ? 1 : index)` and wrap
+      `getValueFromIndex` the same way.
+- [ ] Check how `useAllTalentSearchFilters` and `TalentResultsPanel` obtain these functions — both
+      currently call `useCardSetFilters`. If they share the same wrapper, the wrapped versions must
+      **not** be the ones handed to the talent path; expose the unwrapped functions for talents (a
+      separate export, or an argument to the hook). Getting this seam right is the whole task.
+- [ ] Verify `isCardSetIndexSelected(0)` is still `false` on the Skilldex side.
+
+**Verification focus:** Cardex — nil cards (Monolith, Pacified) appear under Core and disappear when
+Core is unticked. Skilldex — event talents still show a blank card set, and still all appear with
+every expansion deselected.
+
+### 2. Drop the `passesExpansionFilter` special case
+
+- [ ] [hooks/useSearchFilters/useAllCardSearchFilters.ts](hooks/useSearchFilters/useAllCardSearchFilters.ts) —
+      replace the `hasNilExpansion(card) ? … : …` branch with plain
+      `const passesExpansionFilter = isCardSetIndexSelected(card.expansion)`.
+- [ ] Leave the monster rarity/banner branches exactly as they are — they are gated on the
+      `Include monster cards` extra and stay that way.
+- [ ] Remove `hasNilExpansion` from the import if it is no longer used in this file.
+
+**Verification focus:** with `Include monster cards` off, nil-expansion monster cards stay hidden
+(they now fail the rarity/banner check rather than the expansion check). Non-collectible behavior
+unchanged for both nil and regular cards.
+
+### 3. Add the `Core (0)` annotation
+
+- [ ] [components/ResultsPanels/CardResultsPanel/ResultCard/index.tsx](components/ResultsPanels/CardResultsPanel/ResultCard/index.tsx) —
+      render the smaller-font `(0)` suffix for `card.expansion === 0`, per the snippet above.
+- [ ] [components/ResultsPanels/CardResultsPanel/ResultCard/index.module.scss](components/ResultsPanels/CardResultsPanel/ResultCard/index.module.scss) —
+      add the nested `&__nil` rule (smaller `font-size`, likely muted color).
+- [ ] Confirm the nested span does not wrap or break right alignment in the 8rem column, desktop and
+      mobile. Width itself is not a concern — `Metamorphosis` is already longer.
+
+**Verification focus:** this is the one purely visual task — compare before/after in the dev server
+and decide whether `(0)` looks right or one of the alternatives reads better. Skilldex node labels
+must be pixel-identical (no `(0)` anywhere, no layout shift).
+
+### 4. Audit `ACTUALLY_CORE_CARDS`
+
+- [ ] [utils/cardsResponseMapper.ts](utils/cardsResponseMapper.ts) — for each name in
+      `ACTUALLY_CORE_CARDS`, check its raw API expansion. Entries that are raw `0` existed only to
+      move nil→Core by hand and are now redundant: **remove them**. Entries in a genuinely wrong
+      *non-nil* expansion must **stay**.
+- [ ] Removing an entry changes what the column shows: it becomes `Core (0)` instead of plain `Core`.
+      That is intended and is the point of the annotation — confirm it looks correct.
+- [ ] If the list empties completely, drop the list and its `getActualExpansion` branch.
+
+**Verification focus:** every name previously in the list still shows under Core in Cardex — some now
+annotated `(0)`. None disappear.
+
+### 5. Narrow `hasNilExpansion`
+
+- [ ] [utils/cardHelper.ts](utils/cardHelper.ts) — after task 2, `hasNilExpansion` has no callers in
+      the filter path; its only remaining use is the category if/else inside `isNonCollectible`, where
+      it means "raw expansion 0". Rename it to say that (e.g. `hasUnsetExpansion`) and stop exporting
+      it if nothing outside the file needs it.
+- [ ] Do **not** touch the `isNonCollectible` if/else structure — see the warning below.
+- [ ] `isMonsterCard`, `hasMonsterBanner`, `hasMonsterRarity` keep their names and behavior.
+
+**Verification focus:** pure rename, no behavior change. Spot-check that non-collectible filtering is
+identical in Cardex.
+
+### 6. Final verification and docs sweep
+
+- [ ] `npm run verify` (required per [CLAUDE.md](../../CLAUDE.md)) — format:check, lint, type-check,
+      test.
+- [ ] `npm run build` — this touches data hooks.
+- [ ] Re-read [CLAUDE.md](../../CLAUDE.md) and [src/codex/CLAUDE.md](CLAUDE.md) end to end and confirm
+      nothing describes the old nil-expansion handling. Update if it does.
+- [ ] Delete any temporary test files written along the way (repo policy: no permanent tests).
+- [ ] Walk the full checklist below.
+
+---
+
+## ⚠️ Do not touch: the disjoint category lists in `isNonCollectible`
+
+`NON_COLLECTIBLE_CATEGORIES` and `NON_COLLECTIBLE_CATEGORIES_FOR_NIL_EXPANSION` overlap in several
+categories (6, 7, 8, 13, 19) but the nil list additionally contains 1 (Items), 4 (Enchantments),
+12 (Affixes) and others that are non-collectible *only* in nil expansion. Unioning the lists would
+mark **every Item and Enchantment in the game** non-collectible — a large, visible regression.
+
+The if/else form in [utils/cardHelper.ts:113-117](utils/cardHelper.ts#L113-L117) is required:
 
 ```ts
 export const isNonCollectible = (card: CardData) =>
-  NON_COLLECTIBLE_CARDS.some((name) => name.toLowerCase() === card.name.toLowerCase()) ||
+  NON_COLLECTIBLE_CARDS.some((cardName) => cardName.toLowerCase() === card.name.toLowerCase()) ||
   (hasNilExpansion(card)
     ? NON_COLLECTIBLE_CATEGORIES_FOR_NIL_EXPANSION.includes(card.category)
     : NON_COLLECTIBLE_CATEGORIES.includes(card.category))
 ```
 
-This is behavior-preserving: the old pair of functions was already an if/else in disguise — the
-regular branch was guarded by `!hasNilExpansion` and the nil branch by `hasNilExpansion`, mutually
-exclusive and ORed together.
+> **Do not** flatten to `CATEGORIES.includes(...) || (hasNilExpansion(card) && NIL_CATEGORIES.includes(...))`.
+> That drops the implicit `!hasNilExpansion` guard on the regular list, so a nil-expansion card in a
+> shared category would change classification.
 
-> **Do not** flatten this to `CATEGORIES.includes(...) || (hasNilExpansion(card) && NIL_CATEGORIES.includes(...))`.
-> That drops the `!hasNilExpansion` guard on the regular list, so a nil-expansion card in category
-> 3/6/7/8/13/16/19 would newly count as non-collectible. The if/else form is required.
+Note this is the one place that still needs the raw `expansion === 0` test — task 5 renames the
+helper but must keep the structure.
 
-**Already implemented** as a pre-release quickfix — see [Shipped early](#shipped-early-quickfix).
+## Verification checklist
 
----
+Per [../../CLAUDE.md](../../CLAUDE.md), `npm run verify` is required; this touches data hooks so also
+run `npm run build`. No permanent tests — verify in the dev server.
 
-## Shipped early (quickfix)
+**Cardex:**
 
-Phase 1 and the collectibility decoupling landed before the release, to fix a live bug: **non-monster
-non-collectible cards in the nil expansion required *both* `Include monster cards` and
-`Include non-collectible cards` to be visible.** Two independent couplings caused it, which is why it
-was hard to locate — fixing either alone left the other blocking.
+- [ ] Nil-expansion non-monster cards (Monolith, Pacified) show under Core, annotated `Core (0)`
+- [ ] Unticking Core hides them; ticking Core shows them
+- [ ] `Select all` / `None` in Card sets behave sensibly with nil cards
+- [ ] The card set column never shows `-` for a card that has a real expansion
+- [ ] `Core (0)` renders on one line, right-aligned like other labels — desktop and mobile
+- [ ] `Include monster cards` still gates monster cards (banner 11 / rarity 4), default off
+- [ ] **Regression:** with monster cards off, Items / Enchantments / Affixes from regular expansions
+      are still shown (disjoint category lists not unioned)
+- [ ] **Regression:** `Include non-collectible cards` behaves as before for both nil and regular
+      non-collectibles
+- [ ] Weekly challenge still sets card set + banner filters correctly
+- [ ] Reload and confirm cached filters restore correctly on the existing `v1` key
 
-Done:
+**Skilldex — must be byte-for-byte unchanged in behavior:**
 
-- [x] `hasMonsterExpansion` → `hasNilExpansion`,
-      `NON_COLLECTIBLE_CATEGORIES_FOR_MONSTER_EXPANSION` → `NON_COLLECTIBLE_CATEGORIES_FOR_NIL_EXPANSION`
-- [x] Added `isMonsterCard = hasMonsterBanner(card) || hasMonsterRarity(card)` to
-      [utils/cardHelper.ts](utils/cardHelper.ts) — the banner/rarity-based monster signal that
-      replaces expansion 0. Either axis alone is sufficient.
-- [x] Merged `isNonCollectibleRegularCard` + `isNonCollectibleMonsterCard` into a single
-      `isNonCollectible` using the if/else form above
-- [x] **Coupling A** — `passesExpansionFilter` no longer gates *all* nil-expansion cards on the
-      monster checkbox, only real monster cards:
-      `hasNilExpansion(card) ? !isMonsterCard(card) || shouldIncludeMonsterCards : ...`
-- [x] **Coupling B** — dropped the redundant `&& shouldIncludeMonsterCards` double gate from
-      `passesCollectibilityFilter`
-- [x] `npm run verify` + `npm run build` pass
-
-`hasMonsterRarity` / `hasMonsterBanner` keep their names — those genuinely *are* monster signals;
-only `expansion` was the misnomer.
-
-**Still gated on the monster checkbox via escape hatches** (lines for rarity 4 and color 11 in
-`isMatchingCard` are unchanged) — phases 2–4 replace those with real checkboxes.
-
-## Phase 2 — Monster banner checkbox
-
-- [ ] [types/filters.ts](types/filters.ts) — add `Monster = 'Monster'` to `BannerFilterOption`
-- [ ] [hooks/useSearchFilters/useBannerFilters.ts](hooks/useSearchFilters/useBannerFilters.ts)
-  - `defaultBannerFilters`: `[BannerFilterOption.Monster]: false`
-  - `bannerIndexMap`: `[BannerFilterOption.Monster]: 11`
-- [ ] [../styles/_colors.scss](../styles/_colors.scss) — add `'Monster': $color-banner-11` to
-      `$banner-name-to-color-map`. The `$color-banner-11` variable already exists; no new color needed.
-- [ ] Verify the generated class `checkbox-label--banner--Monster` picks up the color
-      (derived from the filter name in [Checkbox/index.tsx:36-39](components/SearchPanels/shared/FilterGroup/Checkbox/index.tsx#L36-L39)).
-      `#300` is very dark — check contrast against the Black banner (`#111`) and adjust
-      `$color-banner-11` if the two are hard to tell apart.
-- [ ] Optional: give the Monster banner a `SkullIcon` label. Requires passing a new
-      `getBannerFilterLabel` to the Banners `FilterGroup` — it currently passes **no**
-      `getFilterLabel` ([CardSearchPanel/index.tsx:243-249](components/SearchPanels/CardSearchPanel/index.tsx#L243-L249)).
-      Reuse the icon + `filter-icon--monster` class from `getExtraFilterLabel`, which is being
-      deleted in phase 3.
-
-### Weekly challenge: always enable the Monster banner
-
-[useAllCardSearchFilters.ts:139-150](hooks/useSearchFilters/useAllCardSearchFilters.ts#L139-L150)
-calls `enableBannerFilters(Array.from(filterData.banners))`, which enables only the banners the
-challenge lists. Monster must be forced on:
-
-```ts
-enableBannerFilters([...Array.from(filterData.banners), BannerFilterOption.Monster])
-```
-
-Check `enableFilters` in [useFilterFactory.ts](hooks/useSearchFilters/useFilterFactory.ts) — confirm
-it *enables* the listed values (and disables the rest) rather than replacing wholesale in a way that
-drops `Select all`/`None` bookkeeping.
-
-## Phase 3 — Monster rarity checkbox
-
-- [ ] [types/filters.ts](types/filters.ts) — add `Monster = 'Monster'` to `RarityFilterOption`
-- [ ] [hooks/useSearchFilters/useRarityFilters.ts](hooks/useSearchFilters/useRarityFilters.ts)
-  - `defaultFilters`: `[RarityFilterOption.Monster]: false`
-    (note existing defaults are **not** all-true: `Uncommon` and `Common` default to `false`)
-  - `indexMap`: `[RarityFilterOption.Monster]: 4`
-- [ ] Do **not** add `SharedFilterOption` to `Rarity` — the group deliberately has no Select all/none
-- [ ] [components/SearchPanels/CardSearchPanel/index.tsx](components/SearchPanels/CardSearchPanel/index.tsx) —
-      add a `RarityFilterOption.Monster` case to `getRarityFilterLabel`, which currently `switch`es
-      with a `default` that renders **Common**. Without a case, Monster renders as "Common".
-      Use `SkullIcon` + `filter-icon--monster`.
-
-## Phase 4 — Remove the extra filter and the escape hatches
-
-- [ ] [types/filters.ts](types/filters.ts) — delete `IncludeMonsterCards` from `ExtraCardFilterOption`
-- [ ] [hooks/useSearchFilters/useExtraCardFilters.ts](hooks/useSearchFilters/useExtraCardFilters.ts) —
-      delete its `defaultFilters` entry, `valueToStringMap` entry, and the
-      `shouldIncludeMonsterCards` derivation + return field
-- [ ] [components/SearchPanels/CardSearchPanel/index.tsx](components/SearchPanels/CardSearchPanel/index.tsx) —
-      delete the `IncludeMonsterCards` case from `getExtraFilterLabel`
-- [ ] [hooks/useSearchFilters/useAllCardSearchFilters.ts](hooks/useSearchFilters/useAllCardSearchFilters.ts) —
-      remove `shouldIncludeMonsterCards` from the destructure and from `isMatchingCard`'s dep array,
-      and rewrite the filter body:
-
-```ts
-// Nil expansion and monster rarity/banner are now ordinary filter dimensions.
-// Nil-expansion cards are visible by default; monster visibility is decided by
-// the Monster banner and Monster rarity checkboxes.
-const passesExpansionFilter = hasNilExpansion(card) || isCardSetIndexSelected(card.expansion)
-const passesRarityFilter = isRarityIndexSelected(card.rarity)
-const passesBannerFilter = isBannerIndexSelected(card.color)
-
-const passesAnimalCompanionFilter = isAnimalCompanionCard(card)
-  ? shouldIncludeAnimalCompanionCards
-  : true
-
-const passesCollectibilityFilter = isNonCollectible(card) ? shouldIncludeNonCollectibleCards : true
-```
-
-`isRarityIndexSelected(4)` and `isBannerIndexSelected(11)` now resolve against real checkboxes, so
-no escape hatch is needed. `hasNilExpansion` short-circuits because expansion 0 has no card-set
-checkbox — leave that one in place or nil-expansion cards would be permanently hidden.
-
-- [x] ~~Merge the two `isNonCollectible*` functions~~ — done in the quickfix
-- [ ] [utils/cardHelper.ts](utils/cardHelper.ts) — `isMonsterCard` becomes unused by
-      `isMatchingCard` once the escape hatches go (banner/rarity are checked directly). Keep it
-      anyway: it is the honest definition of a monster card and is worth having for the follow-up
-      below. Verify nothing else needs it before considering removal.
-
-## Phase 5 — Consider an "Unset" checkbox in the Card sets group
-
-**Motivation:** the nil expansion was deliberately hidden from the UI to keep the Card sets group
-simple, but handling it invisibly has cost more than it saved. It is the direct cause of the
-double-gate bug fixed in the quickfix, and even after phases 1–4 it remains the one dimension with
-no checkbox — so `passesExpansionFilter` still needs a special case
-(`hasNilExpansion(card) || isCardSetIndexSelected(card.expansion)`) purely to keep those cards from
-being permanently invisible. Giving nil a checkbox makes all three axes uniform and lets the last
-escape hatch go:
-
-```ts
-const passesExpansionFilter = isCardSetIndexSelected(card.expansion) // index 0 now mapped
-```
-
-### ⚠️ This group is shared with Skilldex, and talents use expansion 0 differently
-
-[useCardSetFilters.ts](hooks/useSearchFilters/useCardSetFilters.ts) is consumed by **both**
-`useAllCardSearchFilters` and `useAllTalentSearchFilters`, and `allCardSets` is rendered by both
-`CardSearchPanel` and `TalentSearchPanel`. A new option therefore appears in the Skilldex panel too.
-
-Talents **do** use expansion 0, but with an unrelated meaning —
-[talentsResponseMapper.ts](utils/talentsResponseMapper.ts) *assigns* it deliberately:
-
-- `expansion: isEventOnlyTalent(talent) ? 0 : talent.expansion` (line 32) — 0 marks **event-only**
-  talents
-- `isOffer` = `expansion === 0 && name.startsWith('Offer of')`
-- `isRootTalent` excludes `expansion === 0` — so labelling it in the UI could imply it is a normal
-  card set when the tree logic treats it as a structural marker
-
-So "nil expansion" means *unset* for cards and *event-only* for talents. **Recommendation:** do not
-put a shared label on it. Either give the option a card-only label and exclude it from
-`TalentSearchPanel`'s `filters` prop, or split the shared hook so each tool names index 0 in its own
-terms. Confirm with a Skilldex spot-check either way.
-
-### Checklist
-
-- [ ] Decide the label. `Unset` is accurate; `Other`/`Uncategorized` may read better to players who
-      never see raw expansion ids. Avoid "Monster" — that is precisely the conflation being undone.
-- [ ] [types/filters.ts](types/filters.ts) — add to `CardSetFilterOption`
-- [ ] [hooks/useSearchFilters/useCardSetFilters.ts](hooks/useSearchFilters/useCardSetFilters.ts)
-  - `indexMap`: `[...]: [0]` (note this map is `Record<string, number[]>` — arrays, and `Core` already
-    maps to `[1, 4]`, so multi-index precedent exists)
-  - `indexToValueMap`: `[0]: <the new option>` — without this, `getCardSetNameFromIndex(0)` falls back
-    to the `'-'` default passed at `useBaseCardSetFilters(cachedFilters, '-')` and the card set column
-    in `ResultCard` shows a dash
-  - `defaultCardSetFilterValueMap`: default **off**, to preserve today's behavior for existing users
-- [ ] Note the interaction with `Select all`: the card set group *does* have `SharedFilterOption`, so
-      `Select all` will tick Unset too (same decision as the Monster banner)
-- [ ] Weekly challenge: `enableCardSetFilters(Array.from(filterData.cardSets))` will not enable Unset
-      unless forced. Decide whether nil-expansion cards should count toward a weekly challenge —
-      likely **no**, in which case leave it alone and document why
-- [ ] [hooks/useSearchFilters/useAllCardSearchFilters.ts](hooks/useSearchFilters/useAllCardSearchFilters.ts) —
-      drop the `hasNilExpansion` special case from `passesExpansionFilter`
-- [ ] `hasNilExpansion` then has no callers in the filter path. It stays needed by `isNonCollectible`
-      for the category if/else, so keep it.
-- [ ] Verify a nil-expansion card's card set column renders the new name, not `-`
-
-## Cache version bump (applies to phases 2–5)
-
-- [ ] [utils/codexFilterStore.ts](utils/codexFilterStore.ts) — bump `CARDS_CACHE_VERSION` from
-      `'v1'` to `'v2'`. One bump covers whichever of these phases ship together; bump again only if
-      Phase 5 lands in a *later* release than phases 2–4.
-
-`createFilterHook` guards with `if (key in defaultFilters)`, so a stale cached
-`IncludeMonsterCards` key is *dropped* rather than crashing — but the new `Monster` banner and
-rarity keys would be absent from old caches and silently fall back to their defaults, giving
-returning users a half-migrated filter set. Bumping the version discards cleanly.
-
-Note the talent panel reads the *same* card set filters from a separate cache
-(`TALENTS_CACHE_VERSION`, currently `'v3'`). If Phase 5 adds a shared card set option, that key needs
-a bump too.
-
-## Verification
-
-Per [../../CLAUDE.md](../../CLAUDE.md), `npm run verify` is required. This touches data hooks, so
-also run `npm run build`. No permanent tests — verify in the dev server:
-
-- [ ] Monster banner checkbox renders in the Banners group with a distinguishable dark-red color
-- [ ] Monster rarity checkbox renders in the Rarities group and does **not** say "Common"
-- [ ] Both default to off on a fresh visit (clear `localStorage` first)
-- [ ] Banners `Select all` ticks Monster too
-- [ ] Weekly challenge enables the Monster banner even though challenge data omits it
-- [ ] Ticking Monster banner shows color-11 cards; unticking hides them
-- [ ] Ticking Monster rarity shows rarity-4 cards; unticking hides them
-- [ ] **Regression check:** with all monster checkboxes off, Items / Enchantments / Affixes from
-      regular expansions are still shown (i.e. the disjoint category lists were not unioned)
-- [ ] **Regression check:** `Include non-collectible cards` still behaves as before for both
-      regular and nil-expansion non-collectibles
-- [ ] Nil-expansion non-monster cards (Monolith, Pacified) appear without needing any monster
-      checkbox — this is the intended behavior change
-- [ ] **Phase 5 only:** the Unset checkbox appears in Card sets, defaults off, and toggles
-      nil-expansion cards; the card set column shows its name rather than `-`
-- [ ] **Phase 5 only:** check the Skilldex panel — the new option either behaves sensibly there or is
-      excluded from that panel
-- [ ] Reload and confirm filters persist under the new cache key
+- [ ] Event talents show a **blank** card set, not `Core`, not `Core (0)`
+- [ ] Deselecting **every** expansion including Core still shows all event talents
+- [ ] Offers and unavailable talents unaffected
+- [ ] Talent tree layout is visually identical — no node width or spacing shift at any zoom level
+- [ ] Regular talents still filter by expansion exactly as before
+- [ ] No talent in the `regular` section turns out to have `expansion === 0`
 
 ## Follow-up
 
-Once the above lands, revisit whether banner can *drive* `getActualExpansion` and shrink the
-hand-maintained lists in [utils/cardsResponseMapper.ts:56-84](utils/cardsResponseMapper.ts#L56-L84).
+Revisit whether banner can *drive* `getActualExpansion` and shrink the hand-maintained lists in
+[utils/cardsResponseMapper.ts:58-86](utils/cardsResponseMapper.ts#L58-L86). Task 4 already trims
+`ACTUALLY_CORE_CARDS`; this would go further.
 
 The decisive data check, against the Blightbane API or the Supabase `Cards` table:
 
@@ -323,6 +291,6 @@ The decisive data check, against the Blightbane API or the Supabase `Cards` tabl
 - Whether the known false positives (Monolith, Pacified, Battlespear\*) are color 11
 
 If `color === 11` cleanly separates real monster cards, `getActualExpansion` could reduce to
-`if (hasMonsterBanner(card)) return 0`, replacing `ACTUALLY_MONSTER_CARDS` and much of
-`ACTUALLY_CORE_CARDS`. If it does not, the lists stay and banner remains a UI-only dimension —
-which is fine, since phases 1–4 stand on their own either way.
+`if (hasMonsterBanner(card)) return 0`, replacing `ACTUALLY_MONSTER_CARDS` and much of what remains of
+`ACTUALLY_CORE_CARDS`. If it does not, the lists stay and banner remains a UI-only dimension — which
+is fine, since the tasks above stand on their own either way.

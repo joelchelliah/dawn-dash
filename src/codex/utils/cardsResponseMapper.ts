@@ -48,7 +48,9 @@ const getActualExpansion = (card: CardApiResponse | CardData): number => {
 }
 
 const getActualColor = (card: CardApiResponse): number => {
-  if (card.name === 'Infernal Racket') return 9 // Black banner
+  // Blightbane shows it as monster banner, but game treats it as black banner.
+  // Showing as black banner here to match the game's treatment.
+  if (card.name === 'Infernal Racket') return 9
 
   return card.color
 }

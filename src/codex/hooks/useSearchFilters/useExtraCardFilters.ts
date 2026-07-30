@@ -9,9 +9,9 @@ const defaultFilters = {
 }
 
 const valueToStringMap = {
-  [ExtraCardFilterOption.IncludeMonsterCards]: 'Include monster cards',
-  [ExtraCardFilterOption.IncludeAnimalCompanionCards]: 'Include animal companion cards',
-  [ExtraCardFilterOption.IncludeNonCollectibleCards]: 'Include non-collectible cards',
+  [ExtraCardFilterOption.IncludeMonsterCards]: 'Include Monster cards',
+  [ExtraCardFilterOption.IncludeAnimalCompanionCards]: 'Include Animal Companion cards',
+  [ExtraCardFilterOption.IncludeNonCollectibleCards]: 'Include Non-collectible cards',
 }
 
 export const allExtraCardFilters = ExtraCard.getAll()
