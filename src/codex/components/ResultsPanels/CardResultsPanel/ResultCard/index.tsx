@@ -153,6 +153,8 @@ const ResultCard = ({ card, useSearchFilters, showCardsWithoutKeywords }: Result
         {shouldShowCardSet && (
           <span className={cx('result-card__card-set')}>
             {getCardSetNameFromIndex(card.expansion) ?? '-'}
+            {/* Marks cards from the nil (0) expansion, which are shown as Core cards */}
+            {card.expansion === 0 && <span className={cx('result-card__card-set__nil')}>°</span>}
           </span>
         )}
       </div>

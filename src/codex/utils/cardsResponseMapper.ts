@@ -37,10 +37,13 @@ const removeDeprecatedCards = <T extends CardApiResponse | CardData>(cards: T[])
  * Better mapping of card expansions so that they make more sense in the search results.
  * This is needed because some conjured or non-collectible cards seem to be placed in
  * expansions that feel unintuitive.
+ *
+ * Note that cards in the nil (0) expansion are NOT corrected here. They are shown under the
+ * Core checkbox instead, since they are always in the game just like Core cards.
+ * See `toCardSetIndex` in `useCardSetFilters`.
  */
 const getActualExpansion = (card: CardApiResponse | CardData): number => {
   if (ACTUALLY_MONSTER_CARDS.includes(card.name)) return 0
-  if (ACTUALLY_CORE_CARDS.includes(card.name)) return 1
   if (ACTUALLY_ECLYPSE_CARDS.includes(card.name)) return 7
   if (ACTUALLY_SYNTHESIS_CARDS.includes(card.name)) return 8
 
@@ -55,16 +58,6 @@ const getActualColor = (card: CardApiResponse): number => {
   return card.color
 }
 
-const ACTUALLY_CORE_CARDS = [
-  'Elite Prayer',
-  'Monolith',
-  'Antimage Bomb',
-  'Big Bomb',
-  'Concussive Bomb',
-  'Soulfire Bomb',
-  'Cryo Bomb',
-  'Pacified',
-]
 const ACTUALLY_ECLYPSE_CARDS = [
   'Battlespear C',
   'Battlespear D',

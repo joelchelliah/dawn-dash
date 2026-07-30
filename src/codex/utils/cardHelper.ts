@@ -40,6 +40,7 @@ const NON_COLLECTIBLE_CARDS = [
   'Bloodbank',
   'Vexing Echo 1',
   'Vexing Echo 2',
+  'Pacified',
 
   // Imp Offers
   'Imp Offer 1',

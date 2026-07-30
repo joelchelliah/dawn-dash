@@ -96,25 +96,25 @@ The banner-driven `getActualExpansion` follow-up is **still open** — see [Foll
 ## Nil annotation in the card set column
 
 So the nil expansion stays visible at a glance without a checkbox, `ResultCard` renders nil-expansion
-cards as `Core (0)`, with the `(0)` in a smaller font.
+cards as `Core**`, with the `**` in its own styled span.
 
 - Cardex-only, at the single JSX site
   [ResultCard/index.tsx:153-157](components/ResultsPanels/CardResultsPanel/ResultCard/index.tsx#L153-L157).
-- **Do not** put `(0)` inside `getCardSetNameFromIndex`'s return value — it would leak into the
+- **Do not** put the marker inside `getCardSetNameFromIndex`'s return value — it would leak into the
   Skilldex SVG node labels and shift tree layout.
 
 ```tsx
 {shouldShowCardSet && (
   <span className={cx('result-card__card-set')}>
     {getCardSetNameFromIndex(card.expansion) ?? '-'}
-    {card.expansion === 0 && <span className={cx('result-card__card-set__nil')}>(0)</span>}
+    {card.expansion === 0 && <span className={cx('result-card__card-set__nil')}>**</span>}
   </span>
 )}
 ```
 
-`(0)` is a raw API index with no in-game meaning, so it reads as a debugging affordance rather than
-player information. Alternatives at the same clutter cost, if it looks wrong in place: `Core *`
-(reads as "footnote" to anyone) or `Core (unset)` (self-describing but longest).
+`**` reads as a footnote marker to any reader, without exposing a raw API index. The styling is
+deliberately a separate span so weight, color and size can be tuned independently of the label —
+start subtle and adjust in the dev server.
 
 **Watch the column width.** `&__card-set` at
 [ResultCard/index.module.scss:272-285](components/ResultsPanels/CardResultsPanel/ResultCard/index.module.scss#L272-L285)
@@ -145,61 +145,69 @@ key (`if (key in defaultFilters)`), so existing caches restore correctly.
 > [utils/eventTreeSpacing/README.md](utils/eventTreeSpacing/README.md)), update those files in the
 > same task so the docs never describe stale logic.
 
-### 1. Map index 0 to Core in the Cardex path only
+### 1. Map index 0 to Core in the Cardex path only — ✅ COMPLETED
 
-- [ ] [hooks/useSearchFilters/useCardSetFilters.ts](hooks/useSearchFilters/useCardSetFilters.ts) —
-      leave the shared `indexMap` and `indexToValueMap` **unchanged** (no index `0`). Add the nil→Core
-      remap in the `useCardSetFilters` wrapper so it applies to Cardex but not to the talent path:
-      wrap `isIndexSelected` as `(index) => isIndexSelected(index === 0 ? 1 : index)` and wrap
-      `getValueFromIndex` the same way.
-- [ ] Check how `useAllTalentSearchFilters` and `TalentResultsPanel` obtain these functions — both
-      currently call `useCardSetFilters`. If they share the same wrapper, the wrapped versions must
-      **not** be the ones handed to the talent path; expose the unwrapped functions for talents (a
-      separate export, or an argument to the hook). Getting this seam right is the whole task.
-- [ ] Verify `isCardSetIndexSelected(0)` is still `false` on the Skilldex side.
+- [x] [hooks/useSearchFilters/useCardSetFilters.ts](hooks/useSearchFilters/useCardSetFilters.ts) —
+      shared `indexMap` and `indexToValueMap` left unchanged (no index `0`). Added `toCardSetIndex`
+      (`0 → 1`) and applied it inside `useCardSetFilters` to both `isIndexSelected` and
+      `getValueFromIndex`, each wrapped in `useCallback` to keep the stable references the memoized
+      filtering relies on.
+- [x] Seam resolved with a **separate export**: `useTalentCardSetFilters` returns the base functions
+      unwrapped. Each tool calls its own hook exactly once
+      ([useAllCardSearchFilters.ts:60](hooks/useSearchFilters/useAllCardSearchFilters.ts#L60),
+      [useAllTalentSearchFilters.ts:40](hooks/useSearchFilters/useAllTalentSearchFilters.ts#L40)) and
+      every downstream consumer receives the result as a prop, so no other call sites needed changing.
+      `allCardSets` stays shared.
+- [x] Confirmed `isCardSetIndexSelected(0)` is still `false` on the Skilldex side.
+- [x] Confirmed no talent in the `regular` sections has `expansion === 0`: `isRootTalent`
+      ([talentsResponseMapper.ts:241-246](utils/talentsResponseMapper.ts#L241-L246)) excludes
+      `expansion !== 0`, and all 11 `ACTUALLY_EVENT_ONLY_TALENTS` have event requirements so they land
+      in `eventNodes`.
 
-**Verification focus:** Cardex — nil cards (Monolith, Pacified) appear under Core and disappear when
-Core is unticked. Skilldex — event talents still show a blank card set, and still all appear with
-every expansion deselected.
+**Verified:** nil cards appear under Core with a `Core` label; Skilldex event talents still blank and
+still visible with every expansion deselected; talent tree unchanged.
 
-### 2. Drop the `passesExpansionFilter` special case
+### 2. Drop the `passesExpansionFilter` special case — ✅ COMPLETED
 
-- [ ] [hooks/useSearchFilters/useAllCardSearchFilters.ts](hooks/useSearchFilters/useAllCardSearchFilters.ts) —
-      replace the `hasNilExpansion(card) ? … : …` branch with plain
-      `const passesExpansionFilter = isCardSetIndexSelected(card.expansion)`.
-- [ ] Leave the monster rarity/banner branches exactly as they are — they are gated on the
-      `Include monster cards` extra and stay that way.
-- [ ] Remove `hasNilExpansion` from the import if it is no longer used in this file.
+- [x] [hooks/useSearchFilters/useAllCardSearchFilters.ts](hooks/useSearchFilters/useAllCardSearchFilters.ts) —
+      now plain `const passesExpansionFilter = isCardSetIndexSelected(card.expansion)`.
+- [x] Monster rarity/banner branches untouched. The `useCallback` dep array is unchanged —
+      `shouldIncludeMonsterCards` is still needed by those two branches.
+- [x] Dropped the now-unused `hasNilExpansion` **and** `isMonsterCard` imports.
+- [x] `npm run verify` + `npm run build` pass.
 
-**Verification focus:** with `Include monster cards` off, nil-expansion monster cards stay hidden
-(they now fail the rarity/banner check rather than the expansion check). Non-collectible behavior
-unchanged for both nil and regular cards.
+**Verified:** unticking Core (or `None`) now hides nil cards; monster cards still hidden with only
+Core ticked, now via the rarity/banner gate rather than the deleted nil branch.
 
-### 3. Add the `Core (0)` annotation
+> **Note for task 5:** `isMonsterCard` now has **zero callers** — the deleted branch was its only
+> consumer. Decide there whether to keep it as documentation or remove it.
 
-- [ ] [components/ResultsPanels/CardResultsPanel/ResultCard/index.tsx](components/ResultsPanels/CardResultsPanel/ResultCard/index.tsx) —
-      render the smaller-font `(0)` suffix for `card.expansion === 0`, per the snippet above.
-- [ ] [components/ResultsPanels/CardResultsPanel/ResultCard/index.module.scss](components/ResultsPanels/CardResultsPanel/ResultCard/index.module.scss) —
-      add the nested `&__nil` rule (smaller `font-size`, likely muted color).
-- [ ] Confirm the nested span does not wrap or break right alignment in the 8rem column, desktop and
-      mobile. Width itself is not a concern — `Metamorphosis` is already longer.
+### 3. Add the nil annotation — ✅ COMPLETED
 
-**Verification focus:** this is the one purely visual task — compare before/after in the dev server
-and decide whether `(0)` looks right or one of the alternatives reads better. Skilldex node labels
-must be pixel-identical (no `(0)` anywhere, no layout shift).
+- [x] [components/ResultsPanels/CardResultsPanel/ResultCard/index.tsx](components/ResultsPanels/CardResultsPanel/ResultCard/index.tsx) —
+      renders a marker in its own span for `card.expansion === 0`. Settled on **`°`** (degree sign)
+      after trying `**`.
+- [x] [components/ResultsPanels/CardResultsPanel/ResultCard/index.module.scss](components/ResultsPanels/CardResultsPanel/ResultCard/index.module.scss) —
+      nested `&__nil` rule: `font-size('sm')` (`xs` on mobile), bold, `$color-danger-base` at `0.85`
+      opacity.
+- [x] No wrapping or alignment issues in the 8rem column.
 
-### 4. Audit `ACTUALLY_CORE_CARDS`
+**Verified:** nil cards show `Core°`; regular Core cards show plain `Core`; Skilldex unaffected.
 
-- [ ] [utils/cardsResponseMapper.ts](utils/cardsResponseMapper.ts) — for each name in
-      `ACTUALLY_CORE_CARDS`, check its raw API expansion. Entries that are raw `0` existed only to
-      move nil→Core by hand and are now redundant: **remove them**. Entries in a genuinely wrong
-      *non-nil* expansion must **stay**.
-- [ ] Removing an entry changes what the column shows: it becomes `Core (0)` instead of plain `Core`.
-      That is intended and is the point of the annotation — confirm it looks correct.
-- [ ] If the list empties completely, drop the list and its `getActualExpansion` branch.
+### 4. Remove `ACTUALLY_CORE_CARDS` — ✅ COMPLETED
 
-**Verification focus:** every name previously in the list still shows under Core in Cardex — some now
-annotated `(0)`. None disappear.
+- [x] [utils/cardsResponseMapper.ts](utils/cardsResponseMapper.ts) — the entire list was nil→Core by
+      hand, which `toCardSetIndex` now does. Deleted the list **and** its `getActualExpansion` branch.
+      Every name in it (Elite Prayer, Monolith, the five Bombs, Pacified) was confirmed nil during
+      tasks 1–3 verification: they rendered `Core` + marker, which only happens via the remap.
+- [x] `ACTUALLY_MONSTER_CARDS`, `ACTUALLY_ECLYPSE_CARDS` and `ACTUALLY_SYNTHESIS_CARDS` **stay** —
+      those move cards between genuinely wrong non-nil expansions.
+- [x] Added a note on `getActualExpansion` pointing at `toCardSetIndex` for nil handling.
+
+**Verification focus:** every name previously in the list still shows under Core — now annotated `°`
+instead of plain `Core`, since nothing rewrites their expansion to 1 anymore. None should disappear.
+Note **Pacified** additionally needs `Include non-collectible cards` ticked (it was added to
+`NON_COLLECTIBLE_CARDS` separately).
 
 ### 5. Narrow `hasNilExpansion`
 
