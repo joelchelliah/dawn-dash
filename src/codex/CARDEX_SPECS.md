@@ -123,14 +123,28 @@ shorter than existing labels like `Metamorphosis` and `Metaprogress`, so truncat
 the `(0)` sits in its own nested span, so confirm it does not wrap to a second line or disturb the
 right alignment, on mobile especially (where the font drops to `xxs` but the width stays `8rem`).
 
-## Cache version
+## Cache versions — no bumps
 
-**No bump needed.** The set of filter *keys* and their defaults are unchanged — `Core` keeps its key
-and its `true` default; only the index→selection mapping changes. `createFilterHook` rehydrates by
-key (`if (key in defaultFilters)`), so existing caches restore correctly.
+Two separate caches are involved. **Neither is bumped.**
 
-`CARDS_CACHE_VERSION` stays `'v1'` and `TALENTS_CACHE_VERSION` stays `'v3'`
-([utils/codexFilterStore.ts:9,20](utils/codexFilterStore.ts#L9-L20)).
+**Filter cache** ([utils/codexFilterStore.ts](utils/codexFilterStore.ts)) — the set of filter *keys*
+and their defaults are unchanged: `Core` keeps its key and its `true` default; only the
+index→selection mapping changes. `createFilterHook` rehydrates by key
+(`if (key in defaultFilters)`), so existing caches restore correctly. `CARDS_CACHE_VERSION` stays
+`'v1'`, `TALENTS_CACHE_VERSION` stays `'v3'`.
+
+**Card data cache** ([utils/codexCardsStore.ts](utils/codexCardsStore.ts), `'v2'`, 24h TTL) — this
+one *is* affected, because `getActualExpansion` runs at map time, not render time. Removing
+`ACTUALLY_CORE_CARDS` (task 4) changes the mapped `expansion` for 8 cards, so a returning user's
+cached data keeps the old value until it expires or they hit **Resync data**.
+
+Deliberately **not** bumped: the only visible difference during the stale window is that those 8 cards
+show plain `Core` instead of `Core°` — a missing footnote marker, not a rendering failure. Not worth
+invalidating every user's card cache for. It self-heals within 24 hours.
+
+> Worth knowing while developing: after any change to `getActualExpansion` or `getActualColor`, hit
+> **Resync data** or clear `codex_cards_v2` — otherwise you are looking at cards mapped by the old
+> code and will misread the result.
 
 ---
 
@@ -198,28 +212,67 @@ Core ticked, now via the rarity/banner gate rather than the deleted nil branch.
 
 - [x] [utils/cardsResponseMapper.ts](utils/cardsResponseMapper.ts) — the entire list was nil→Core by
       hand, which `toCardSetIndex` now does. Deleted the list **and** its `getActualExpansion` branch.
-      Every name in it (Elite Prayer, Monolith, the five Bombs, Pacified) was confirmed nil during
-      tasks 1–3 verification: they rendered `Core` + marker, which only happens via the remap.
+      Confirmed against the Blightbane API that these are genuinely nil expansion cards (Monolith and
+      Cryo Bomb checked directly), so rewriting them to `1` was actively *hiding* the nil origin that
+      the `°` marker exists to surface. Deleting the list is what makes them label correctly.
 - [x] `ACTUALLY_MONSTER_CARDS`, `ACTUALLY_ECLYPSE_CARDS` and `ACTUALLY_SYNTHESIS_CARDS` **stay** —
       those move cards between genuinely wrong non-nil expansions.
 - [x] Added a note on `getActualExpansion` pointing at `toCardSetIndex` for nil handling.
 
-**Verification focus:** every name previously in the list still shows under Core — now annotated `°`
-instead of plain `Core`, since nothing rewrites their expansion to 1 anymore. None should disappear.
-Note **Pacified** additionally needs `Include non-collectible cards` ticked (it was added to
-`NON_COLLECTIBLE_CARDS` separately).
+**Verified:** all 8 names still show under Core, now annotated `Core°` since nothing rewrites their
+expansion to 1 anymore. None disappeared.
 
-### 5. Narrow `hasNilExpansion`
+> ⚠️ **This needed a forced "Resync data" to show up** — the 24h card data cache still held the
+> old mapped expansions. See [Cache versions](#cache-versions--no-bumps). **Pacified** additionally
+> needs `Include non-collectible cards` ticked (it was added to `NON_COLLECTIBLE_CARDS` separately).
 
-- [ ] [utils/cardHelper.ts](utils/cardHelper.ts) — after task 2, `hasNilExpansion` has no callers in
-      the filter path; its only remaining use is the category if/else inside `isNonCollectible`, where
-      it means "raw expansion 0". Rename it to say that (e.g. `hasUnsetExpansion`) and stop exporting
-      it if nothing outside the file needs it.
-- [ ] Do **not** touch the `isNonCollectible` if/else structure — see the warning below.
-- [ ] `isMonsterCard`, `hasMonsterBanner`, `hasMonsterRarity` keep their names and behavior.
+### 4b. Label nil expansion talents as Core too — ✅ COMPLETED
 
-**Verification focus:** pure rename, no behavior change. Spot-check that non-collectible filtering is
-identical in Cardex.
+Added mid-sequence after reviewing Skilldex: it is *correct* that event talents, offers and the two
+nil unavailable talents are in the nil expansion, so they should say `Core°` like cards do. The only
+requirement was that they must **not** disappear when Core is unticked.
+
+- [x] **Shared marker** — `NIL_EXPANSION_MARKER = '°'` in [utils/cardHelper.ts](utils/cardHelper.ts),
+      used by both tools. Rendering cannot be shared (Cardex renders an HTML span, Skilldex a D3 SVG
+      `<text>`), so Cardex keeps its styled span and Skilldex concatenates the marker into the label
+      string in the existing label color.
+- [x] **[useCardSetFilters.ts](hooks/useSearchFilters/useCardSetFilters.ts)** — split restructured
+      along the axis that actually differs. A private `useSharedCardSetFilters` owns the nil→Core
+      **name** remap for both tools; only the **selection** differs (`useCardSetFilters` wraps
+      `isIndexSelected`, `useTalentCardSetFilters` does not).
+- [x] **[TalentTree/index.tsx](components/ResultsPanels/TalentResultsPanel/TalentTree/index.tsx)** —
+      `shouldShowCardSet` no longer consults `isCardSetIndexSelected`. That check was redundant for
+      regular talents (unticked-set talents are already filtered out by the `regular` predicate) and
+      was the *only* thing blanking the label for the nil sections.
+- [x] Removed the now-dead `isCardSetIndexSelected` prop from `TalentTreeProps`, the destructure, the
+      layout memo deps (ESLint flagged it as unnecessary), and the parent's JSX + destructure in
+      [TalentResultsPanel/index.tsx](components/ResultsPanels/TalentResultsPanel/index.tsx). Bonus:
+      toggling card set checkboxes no longer re-runs the talent layout.
+
+**Verified:** event talents, offers and nil unavailable talents show `Core°` and stay visible with
+Core unticked; real Core unavailable talents still show plain `Core`; regular talents unchanged.
+
+> **Layout note:** the marker itself costs nothing — the card set row contributes a *fixed*
+> `NODE.CARD_SET.HEIGHT` and node width is static
+> ([talentNodeDimensions.ts:82-83](utils/talentNodeDimensions.ts#L82-L83)). The tree does shift, but
+> because nil-section nodes gained a card set row they previously lacked. The dimension cache key
+> includes `card-set-${showCardSet}`, so cached dimensions invalidate correctly.
+
+### 5. Narrow `hasNilExpansion` — ✅ COMPLETED
+
+- [x] [utils/cardHelper.ts](utils/cardHelper.ts) — `hasNilExpansion` is now **private** (no longer
+      exported) and moved directly above its single caller, with a comment explaining its narrow role.
+      Kept the name rather than renaming to `hasUnsetExpansion`: it is private, adjacent to its only
+      use, and consistent with `NON_COLLECTIBLE_CATEGORIES_FOR_NIL_EXPANSION`.
+- [x] `isNonCollectible` if/else structure untouched — see the warning below.
+- [x] **Deleted `isMonsterCard`.** It had zero callers after task 2. The spec previously said to keep
+      it for the follow-up, but the follow-up needs `hasMonsterBanner` (which exists and is used), so
+      it was just dead code. One line to restore if ever needed.
+- [x] `hasMonsterBanner` and `hasMonsterRarity` keep their names and behavior — still used by
+      `isMatchingCard`'s rarity and banner branches.
+
+**Verification focus:** no behavior change. Spot-check that non-collectible filtering is identical in
+Cardex.
 
 ### 6. Final verification and docs sweep
 
@@ -240,7 +293,7 @@ categories (6, 7, 8, 13, 19) but the nil list additionally contains 1 (Items), 4
 12 (Affixes) and others that are non-collectible *only* in nil expansion. Unioning the lists would
 mark **every Item and Enchantment in the game** non-collectible — a large, visible regression.
 
-The if/else form in [utils/cardHelper.ts:113-117](utils/cardHelper.ts#L113-L117) is required:
+The if/else form in [utils/cardHelper.ts](utils/cardHelper.ts) is required:
 
 ```ts
 export const isNonCollectible = (card: CardData) =>
