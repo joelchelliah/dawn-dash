@@ -43,7 +43,6 @@ $transition-duration: 0.5s;
 
   &--success {
     animation: success-button-pulse $transition-duration ease-in-out;
-    @include yellowGreenGradient(true);
     @include superFancyBorder($padding-button-vertical, $padding-button-horizontal);
   }
 
