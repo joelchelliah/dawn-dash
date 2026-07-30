@@ -76,7 +76,7 @@ This rename ripples through `useAllEventSearchFilters`, both tree components, `T
 
 ## Steps, in execution order
 
-### 1. Move `getEnergyImageUrl` to shared
+### 1. Move `getEnergyImageUrl` to shared — COMPLETED
 
 The image URLs it returns already live in `@/shared/utils/imageUrls` — `src/speedruns/utils/images.ts`
 imports them from there. The only speedruns-specific part is the `SpeedRunSubclass` half of the union.
@@ -89,7 +89,7 @@ imports them from there. The only speedruns-specific part is the `SpeedRunSubcla
 Keeping the wrapper avoids dragging the speedruns-only `SpeedRunSubclass` type into `shared/`, which
 would be a layering violation (`shared/` must not know about `speedruns/`).
 
-### 2. Move `Thumb` to shared — and make it orientation-aware
+### 2. Move `Thumb` to shared — and make it orientation-aware — COMPLETED
 
 `src/speedruns/components/Sliders/Thumb/` → `src/shared/components/Sliders/Thumb/`. The component
 file already takes `energyIcon` as a plain string prop and has zero speedruns imports — pure
@@ -111,18 +111,35 @@ So `Thumb` needs an `orientation` prop (or a modifier class) that swaps the cent
 Keep it minimal, and confirm the speedruns thumb renders **identically** afterward (including hover
 scale-up and active scale-down).
 
+**As implemented — one correction to the above.** react-aria sets
+`transform: translate(-50%, -50%)` **inline** on the thumb in *both* orientations (verified by probing
+the library, not from docs). Inline styles beat the stylesheet, so the base `transform` rule needs
+`!important` too — not just `:hover`/`:active`. A consequence worth knowing: the original horizontal
+`-52%` nudge was silently never applying except on hover/active, where `!important` was already
+present. Both orientations now carry `!important` on all three transform rules.
+
 The speedruns horizontal `Slider` **stays in speedruns** — it is horizontal-only (track `height`,
 fill `width`, marks positioned by `left`) and carries text mark labels with mobile -45° rotation.
 Generalizing it for one new consumer isn't worth the coupling.
 
-### 3. New `ZoomSlider` component
+### 3. New `ZoomSlider` component — COMPLETED
 
 `src/codex/components/shared/ZoomSlider/`. Wires `@react-aria/slider` + `@react-stately/slider`
 directly (~30 lines, both already dependencies) rather than reusing the speedruns `Slider`.
 
 - `orientation: 'horizontal' | 'vertical'`
-- Live number label above the track, driven by local pending state
-- Unlabeled tick dots at each stop
+- **As implemented:** a static "Zoom" label *above* the track and the live value *below* it in a
+  smaller font (`font-size: xxs`), not a single number above. The value has a reserved `min-width`
+  because "Cover" and "100%" have different text widths and would otherwise resize the whole control
+  as you drag.
+- Unlabeled tick dots at each stop, **inset from both track ends by half a tick diameter**
+  (`TICK_INSET`) — centered on the ends they half-protrude past the rounded caps and read as a second
+  bar behind the track. `overflow: hidden` on the track is *not* an option: the thumb is a child of the
+  track and far larger than it, so it would be clipped.
+- Vertical orientation puts Cover at the bottom and the max at the top. react-aria already does this
+  (at the minimum value it emits `top: 100%`), so `getThumbPercent` — which is orientation-agnostic —
+  feeds a fill anchored at `bottom: 0` growing upward, and ticks offset from `bottom`. Don't "invert"
+  the mapping; that desynchronises the fill from the thumb.
 - Commit `zoomLevel` on pointer-up only (see Background)
 - `aria-label` for the slider — the `Select` it replaces had a real `label="Zoom"`, so the slider must
   not end up an unlabeled control
@@ -133,19 +150,24 @@ directly (~30 lines, both already dependencies) rather than reusing the speedrun
 
 Do the `ZoomLevel` enum → plain type conversion in this step, since `ZoomSlider` is its first consumer.
 
+**Gotcha, hit during implementation:** `COVER` must be declared `as const`, not annotated
+`: ZoomLevel`. With the annotation its type is the full `'cover' | number` union, so `zoomLevel === COVER`
+narrows nothing and every `zoomLevel / 100` fails to typecheck.
+
 **Keyboard stepping:** `useSliderThumb` provides arrow-key stepping for free, and each press commits
 immediately — so holding an arrow key redraws per step, bypassing commit-on-release. **Accept this
 initially**; key-repeat is far slower than a drag. Revisit only if it feels janky, and if so debounce
 keyboard commits the same way the deferred wheel handler will.
 
-### 4. `StickyZoomSelect` → `StickyZoomSlider`
+### 4. `StickyZoomSelect` → `StickyZoomSlider` — COMPLETED
 
 `src/codex/components/shared/StickyZoomSelect/` → `StickyZoomSlider/`, rendering a **vertical**
 `ZoomSlider` in place of the `Select`. Keep the existing fixed-position box, `fadeInFromRight` /
 `fadeInFromLeft` animations, and `position` prop.
 
 - Eventmaps: `position="right"` (unchanged), Sunforge energy orb (`HolyImageUrl`) — matches its yellowish tint
-- Skilldex: `position="left"` (unchanged), Rogue energy orb (`DexImageUrl`) — matches its greenish tint
+- Skilldex: Rogue energy orb (`DexImageUrl`) — matches its greenish tint. Its `position` is
+  **`isMobile ? 'left' : 'right'`**, not statically left as first assumed here; left unchanged.
 
 Both tools switch together so their floaty controls don't diverge.
 
@@ -158,10 +180,13 @@ fades in. A vertical slider is taller than the select it replaces, so **both mar
 need re-tuning**. It's a global CSS variable rather than component-local state; leave that as-is unless
 it actually blocks the change.
 
+**Outcome:** no re-tuning was needed — the existing `6rem` / `-2rem` values worked with the taller
+vertical slider, verified on desktop and in Chrome responsive view.
+
 **Don't harmonize the thresholds.** Eventmaps uses `useStickyZoom(250, 300)`, Skilldex uses
 `useStickyZoom(0, 1300)`. They differ because the two pages scroll very differently — out of scope.
 
-### 5. Header slider + layout
+### 5. Header slider + layout — COMPLETED
 
 Replace the zoom `Select` in `EventSearchPanel` with a horizontal `ZoomSlider`, in place in the
 `.controls` row. `.controls` is already `display: flex` + `flex-wrap: wrap` + `gap: 1rem`, so:
@@ -180,19 +205,28 @@ vertically aligns it with the event select and the `align-items: flex-end` butto
 number label must occupy the same vertical slot so the row doesn't jump — render a label row of the
 same height with the live value in it.
 
+**As implemented:** the horizontal variant puts "Zoom" and the live value on a shared top line, with
+the track on a second line. The DOM is *identical* to the vertical variant — the difference is CSS
+`order` + `flex-basis` — so there is only one markup path to maintain. Mobile also needed
+`min-width: 0` alongside `flex-basis: 100%`, to release the `11rem` desktop minimum. The value keeps
+its reserved `min-width` here too, so "Cover" → "100%" can't shift the row.
+
 Skilldex's zoom state is plain `useState` in `TalentResultsPanel` (Eventmaps' lives in
 `useAllEventSearchFilters`); Skilldex has no header zoom control, only the sticky one.
 
-### 6. Update docs
+### 6. Update docs — COMPLETED
 
 If any step changes behavior or structure described in an existing `CLAUDE.md` or `README.md`, update
 it in the same pass. Known candidates:
 
-- `src/codex/CLAUDE.md` — the layout/render split invariant mentions zoom; the zoom control is now a
-  slider, and the commit-on-release rule belongs alongside that invariant
-- `src/speedruns/CLAUDE.md` — if the `Thumb`/`getEnergyImageUrl` moves affect anything it documents
-- Root `CLAUDE.md` — shared component/utility inventories now include `Sliders/Thumb` and `energyImages`
-- `src/codex/utils/eventTreeSpacing/README.md` — check, though no change is expected
+- `src/codex/CLAUDE.md` — **done**: added `components/shared/ZoomSlider/` to key files, strengthened the
+  layout/render invariant to forbid adding `zoomLevel` to the layout memos, and added the
+  commit-on-drag-end and `ZOOM_STOPS` invariants
+- `src/speedruns/CLAUDE.md` — **checked, no change needed**: it never mentioned sliders, `Thumb`, or
+  `utils/images.ts`
+- Root `CLAUDE.md` — **done**: added `Sliders/Thumb` to shared components and `energyImages.ts` to
+  shared utilities
+- `src/codex/utils/eventTreeSpacing/README.md` — **checked, no change needed** (untouched by this work)
 
 ### 7. Verification
 

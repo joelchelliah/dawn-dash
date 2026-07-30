@@ -8,7 +8,7 @@ import {
   cacheEventCodexSearchFilters,
   getCachedEventCodexSearchFilters,
 } from '@/codex/utils/codexFilterStore'
-import { ZoomLevel } from '@/codex/constants/zoomValues'
+import { ZoomLevel, COVER } from '@/codex/constants/zoomValues'
 import {
   LoopingPathMode,
   TreeNavigationMode,
@@ -40,7 +40,7 @@ export interface UseAllEventSearchFilters {
 }
 
 export const useAllEventSearchFilters = (): UseAllEventSearchFilters => {
-  const [zoomLevel, setZoomLevel] = useState<ZoomLevel>(ZoomLevel.COVER)
+  const [zoomLevel, setZoomLevel] = useState<ZoomLevel>(COVER)
   const { filterText, setFilterText, deferredFilterText } = useEventFilterText()
   const [showAdvancedOptions, setShowAdvancedOptionsUntracked] = useState<boolean>(false)
   const [loopingPathMode, setLoopingPathModeUntracked] = useState<LoopingPathMode>(
@@ -94,7 +94,7 @@ export const useAllEventSearchFilters = (): UseAllEventSearchFilters => {
   const resetFilters = useCallback(
     (callback?: () => void) => {
       flushSync(() => {
-        setZoomLevel(ZoomLevel.COVER)
+        setZoomLevel(COVER)
         setFilterText('')
         trackedSetShowAdvancedOptions(false)
         trackedSetLoopingPathMode(LoopingPathMode.LINK)

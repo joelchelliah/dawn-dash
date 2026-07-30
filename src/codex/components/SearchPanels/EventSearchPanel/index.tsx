@@ -12,7 +12,7 @@ import { useBreakpoint } from '@/shared/hooks/useBreakpoint'
 
 import eventTreesData from '@/codex/data/event-trees.json'
 import { Event } from '@/codex/types/events'
-import { ZOOM_LEVELS, ZoomLevel, ZOOM_LABEL_MAP } from '@/codex/constants/zoomValues'
+import { COVER } from '@/codex/constants/zoomValues'
 import {
   LoopingPathMode,
   LOOPING_PATH_MODES,
@@ -24,7 +24,8 @@ import {
 } from '@/codex/constants/eventSearchValues'
 import { UseAllEventSearchFilters } from '@/codex/hooks/useSearchFilters/useAllEventSearchFilters'
 import { useStickyZoom } from '@/codex/hooks/useStickyZoom'
-import StickyZoomSelect from '@/codex/components/shared/StickyZoomSelect'
+import StickyZoomSlider from '@/codex/components/shared/StickyZoomSlider'
+import ZoomSlider from '@/codex/components/shared/ZoomSlider'
 import Checkbox from '@/codex/components/SearchPanels/shared/FilterGroup/Checkbox'
 
 import PanelHeader from '../../PanelHeader'
@@ -120,11 +121,6 @@ const EventSearchPanel = ({
     })),
   ]
 
-  const zoomOptions = ZOOM_LEVELS.map((zoom) => ({
-    value: zoom,
-    label: ZOOM_LABEL_MAP[zoom],
-  }))
-
   const levelOfDetailOptions = LEVEL_OF_DETAIL_OPTIONS.map((level) => ({
     value: level,
     label: getLevelOfDetailLabel(level),
@@ -147,7 +143,7 @@ const EventSearchPanel = ({
 
   // Force Cover mode when switching events to ensure clean coverScale calculation
   useEffect(() => {
-    setZoomLevel(ZoomLevel.COVER)
+    setZoomLevel(COVER)
   }, [selectedEventIndex, setZoomLevel])
 
   const handleResetClick = () => {
@@ -198,13 +194,10 @@ const EventSearchPanel = ({
         </div>
 
         <div className={cx('control-wrapper', 'control-wrapper--zoom')}>
-          <Select
-            id="zoom-select"
+          <ZoomSlider
             selectedClass={selectedClass}
-            label="Zoom"
-            options={zoomOptions}
-            value={zoomLevel}
-            onChange={setZoomLevel}
+            zoomLevel={zoomLevel}
+            setZoomLevel={setZoomLevel}
             disabled={filteredEvents.length === 0 || selectedEventIndex === ALL_EVENTS_INDEX}
           />
         </div>
@@ -295,7 +288,7 @@ const EventSearchPanel = ({
       )}
 
       {showStickyZoom && !isAllEventsSelected && (
-        <StickyZoomSelect
+        <StickyZoomSlider
           selectedClass={selectedClass}
           zoomLevel={zoomLevel}
           setZoomLevel={setZoomLevel}

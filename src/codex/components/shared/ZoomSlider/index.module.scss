@@ -1,0 +1,172 @@
+@use 'index' as *;
+
+// Diameter of the stop dots. If you change this, also update TICK_INSET in
+// index.tsx to half the new value, or the end dots will drift off the track.
+$tick-size: 0.25rem;
+
+// HORIZONTAL (Eventmaps search panel).
+$horizontal-track-thickness: 1.25rem;
+$horizontal-thumb-size: $horizontal-track-thickness * 1.375;
+
+// VERTICAL (floaty sticky container).
+$vertical-track-thickness: 0.5rem;
+$vertical-track-length: 7rem;
+$vertical-track-length-mobile: 5.5rem;
+$vertical-track-spacing: 0.875rem;
+
+.zoom-slider {
+  display: flex;
+
+  &__label {
+    font-size: font-size('xs');
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  // White with a shadow because it sits over two different backgrounds — the
+  // class-colored fill and the darker unfilled track — and must stay legible on
+  // both. `pointer-events: none` keeps it from swallowing drags that start on
+  // top of the text. Each orientation positions it (see below).
+  &__value {
+    position: absolute;
+    z-index: 1;
+    font-size: font-size('xxs');
+    font-weight: 700;
+    white-space: nowrap;
+    color: #fff;
+    opacity: 0.85;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+    pointer-events: none;
+    user-select: none;
+  }
+
+  &__group {
+    display: flex;
+  }
+
+  // No `overflow: hidden` here — the thumb is a child of the track and is much
+  // larger than it, so clipping would cut the thumb off. The end ticks are
+  // instead inset by half their diameter (TICK_INSET in index.tsx) so they can't
+  // poke past the rounded caps and read as a second bar behind the track.
+  &__track {
+    position: relative;
+    background: var(--track-color);
+    border-radius: 1rem;
+  }
+
+  &__track-fill {
+    position: absolute;
+    background: var(--fill-color);
+    border-radius: 1rem;
+  }
+
+  &__tick {
+    position: absolute;
+    width: $tick-size;
+    height: $tick-size;
+    background: var(--tick-color);
+    border-radius: 50%;
+  }
+
+  // Horizontal: "Zoom" centered above the track, live value overlaid on the
+  // track itself, so the control stays two rows tall however thick the track is.
+  &--horizontal {
+    flex-direction: column;
+    align-items: center;
+
+    // Overrides the shared Thumb's default diameter for this slider only —
+    // inherits down to the thumb, and leaves the speedruns sliders alone.
+    --thumb-size: #{$horizontal-thumb-size};
+
+    // The trailing `0` is deliberate — do not make this padding symmetric.
+    // This slider is the TALLEST item in the search panel's control row, so its
+    // height sets the entire row's height. Top padding is
+    // the gap between the "Zoom" label and the bar; the bar sits flush with the
+    // bottom of the control on purpose.
+    .zoom-slider__group {
+      width: 100%;
+      align-items: center;
+      padding: 0.625rem 0.6875rem 0;
+
+      @media (max-width: $breakpoint-mobile) {
+        padding: 0.25rem 0.6875rem;
+      }
+    }
+
+    .zoom-slider__track {
+      width: 100%;
+      height: $horizontal-track-thickness;
+    }
+
+    // Centered on the track. There's plenty of width here for the text.
+    .zoom-slider__value {
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .zoom-slider__track-fill {
+      top: 0;
+      left: 0;
+      height: 100%;
+    }
+
+    .zoom-slider__tick {
+      top: 50%;
+      transform: translate(-50%, -50%);
+    }
+  }
+
+  // Vertical: "Zoom" label on top, track in the middle, value centered just
+  // below the track. Used in the floaty sticky container.
+  //
+  // The value is NOT overlaid here: the track is only $vertical-track-thickness
+  // wide, far too narrow for "Cover" to sit on top of it. Vertical height isn't
+  // at a premium in the floaty container anyway — the horizontal header row is
+  // what needed the compaction, hence the two independent thickness variables.
+  &--vertical {
+    flex-direction: column;
+    align-items: center;
+
+    .zoom-slider__group {
+      justify-content: center;
+      // Keeps the thumb from crowding the label at the top of the track
+      padding: $vertical-track-spacing 0.5rem;
+    }
+
+    // Static (not absolute) here, so it flows below the track as a normal row
+    // instead of being positioned inside it. Takes the label's muted colour
+    // since it sits on the container background, not on the track. The reserved
+    // width stops "Cover" → "100%" from resizing the floaty container.
+    .zoom-slider__value {
+      position: static;
+      min-width: 3rem;
+      text-align: center;
+      color: $color-primary-muted;
+      text-shadow: none;
+    }
+
+    .zoom-slider__track {
+      width: $vertical-track-thickness;
+      height: $vertical-track-length;
+    }
+
+    // Fill grows upward from the bottom, so Cover sits at the bottom of the track
+    .zoom-slider__track-fill {
+      bottom: 0;
+      left: 0;
+      width: 100%;
+    }
+
+    .zoom-slider__tick {
+      left: 50%;
+      transform: translate(-50%, 50%);
+    }
+
+    @media (max-width: $breakpoint-mobile) {
+      .zoom-slider__track {
+        height: $vertical-track-length-mobile;
+      }
+    }
+  }
+}

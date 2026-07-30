@@ -1,9 +1,12 @@
-$thumb-size: 1.375rem;
+// Default orb diameter. Exposed as a CSS custom property rather than a Sass
+// variable so a consumer can override it per-slider by setting `--thumb-size`
+// on (or above) the thumb — see ZoomSlider. Speedruns sets nothing and gets this.
+$thumb-size-default: 1.375rem;
 
 .thumb {
   position: absolute;
-  width: $thumb-size;
-  height: $thumb-size;
+  width: var(--thumb-size, #{$thumb-size-default});
+  height: var(--thumb-size, #{$thumb-size-default});
   background-image: var(--energy-icon);
   background-size: contain;
   background-position: center;
@@ -11,12 +14,14 @@ $thumb-size: 1.375rem;
   border-radius: 50%;
   cursor: pointer;
 
-  // The centering axis depends on orientation: react-aria positions the thumb
-  // via `left` when horizontal and `top` when vertical, so the stylesheet must
-  // center on the other axis. The 52% is an optical nudge against the track.
+  // react-aria sets `transform: translate(-50%, -50%)` inline on the thumb in
+  // BOTH orientations, plus `left` when horizontal / `top` when vertical. Inline
+  // styles win over the stylesheet, so every transform here needs `!important`
+  // — including the base rule. The 52% is an optical nudge against the track,
+  // applied on the axis react-aria isn't positioning.
   &--horizontal {
     top: 50%;
-    transform: translate(-50%, -52%);
+    transform: translate(-50%, -52%) !important;
 
     &:hover {
       transform: translate(-50%, -52%) scale(1.2) !important;
@@ -29,7 +34,7 @@ $thumb-size: 1.375rem;
 
   &--vertical {
     left: 50%;
-    transform: translate(-52%, -50%);
+    transform: translate(-52%, -50%) !important;
 
     &:hover {
       transform: translate(-52%, -50%) scale(1.2) !important;
