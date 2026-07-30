@@ -18,6 +18,7 @@ import {
   getNodeInTree,
 } from '@/codex/utils/talentTreeHelper'
 import { cacheAllNodeDimensions, getNodeHeight } from '@/codex/utils/talentNodeDimensions'
+import { NIL_EXPANSION_MARKER } from '@/codex/utils/cardHelper'
 import { setupTreeSvg, createGlowFilter } from '@/codex/utils/tree/svgHelper'
 import { NODE, TREE } from '@/codex/constants/talentTreeValues'
 import { buildHierarchicalTreeFromTalentTree } from '@/codex/utils/talentTreeBuilder'
@@ -38,7 +39,6 @@ interface TalentTreeProps {
   shouldShowCardSet: boolean
   shouldShowKeywords: boolean
   shouldShowBlightbaneLink: boolean
-  isCardSetIndexSelected: (index: number) => boolean
   getCardSetNameFromIndex: (index: number) => string
   areChildrenExpanded: (nodeName: string) => boolean
   toggleChildrenExpansion: (nodeName: string) => void
@@ -52,7 +52,6 @@ function TalentTree({
   shouldShowCardSet,
   shouldShowKeywords,
   shouldShowBlightbaneLink,
-  isCardSetIndexSelected,
   getCardSetNameFromIndex,
   areChildrenExpanded,
   toggleChildrenExpansion,
@@ -94,8 +93,10 @@ function TalentTree({
     // Create rendering context for dimension calculations
     const renderingContext: TalentRenderingContext = {
       shouldShowDescription,
-      shouldShowCardSet: (index?: number) =>
-        shouldShowCardSet && index !== undefined && isCardSetIndexSelected(index),
+      // Not gated on the card set filters: talents whose card set is unticked are already
+      // filtered out of the tree, while nil expansion talents are filtered by
+      // their own sections and should show their card set regardless.
+      shouldShowCardSet: (index?: number) => shouldShowCardSet && index !== undefined,
       shouldShowBlightbaneLink,
       parsedKeywords: shouldShowKeywords ? parsedKeywords : [],
     }
@@ -137,7 +138,6 @@ function TalentTree({
     shouldShowCardSet,
     shouldShowKeywords,
     shouldShowBlightbaneLink,
-    isCardSetIndexSelected,
     areChildrenExpanded,
   ])
 
@@ -159,8 +159,13 @@ function TalentTree({
     // Clear previous visualization
     select(svgRef.current).selectAll('*').remove()
 
-    const getCardSetName = (index?: number) =>
-      shouldShowCardSet && index !== undefined ? getCardSetNameFromIndex(index) : undefined
+    // Nil (0) expansion talents are labelled as Core, with a marker — same as in Cardex.
+    const getCardSetName = (index?: number) => {
+      if (!shouldShowCardSet || index === undefined) return undefined
+
+      const name = getCardSetNameFromIndex(index)
+      return index === 0 ? `${name}${NIL_EXPANSION_MARKER}` : name
+    }
 
     // Calculate zoom scale for numbered zoom levels.
     // With a depth multiplier so deeper trees don't zoom in as much.

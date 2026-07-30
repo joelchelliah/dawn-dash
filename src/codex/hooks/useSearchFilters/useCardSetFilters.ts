@@ -53,15 +53,15 @@ const useBaseCardSetFilters = createFilterHook({
 })
 
 /*
- * Cards in the nil (0) expansion are treated as Core cards.
+ * Nil (0) expansion cards and talents are labelled as Core, because they are always in the game.
  *
- * This remap is deliberately NOT in the shared `indexMap`, because talents use expansion 0 to
- *  mark event-only talents! See `useTalentCardSetFilters` below.
+ * This remap is deliberately NOT in the shared `indexMap`, since that would also make index 0
+ * *selectable* via the Core checkbox — which is only correct for cards. See the two hooks below.
  */
 const CORE_INDEX = 1
 const toCardSetIndex = (index: number) => (index === 0 ? CORE_INDEX : index)
 
-export const useCardSetFilters = (cachedFilters?: CardCodexSearchFilterCache['cardSets']) => {
+const useSharedCardSetFilters = (cachedFilters?: CardCodexSearchFilterCache['cardSets']) => {
   const {
     filters,
     isIndexSelected,
@@ -71,10 +71,7 @@ export const useCardSetFilters = (cachedFilters?: CardCodexSearchFilterCache['ca
     resetFilters,
   } = useBaseCardSetFilters(cachedFilters, '-')
 
-  const isCardSetIndexSelected = useCallback(
-    (index: number) => isIndexSelected(toCardSetIndex(index)),
-    [isIndexSelected]
-  )
+  // Both tools label nil expansion as Core.
   const getCardSetNameFromIndex = useCallback(
     (index: number) => getValueFromIndex(toCardSetIndex(index)),
     [getValueFromIndex]
@@ -82,7 +79,7 @@ export const useCardSetFilters = (cachedFilters?: CardCodexSearchFilterCache['ca
 
   return {
     cardSetFilters: filters,
-    isCardSetIndexSelected,
+    isIndexSelected,
     getCardSetNameFromIndex,
     handleCardSetFilterToggle: handleFilterToggle,
     enableCardSetFilters: enableFilters,
@@ -91,26 +88,28 @@ export const useCardSetFilters = (cachedFilters?: CardCodexSearchFilterCache['ca
 }
 
 /*
- * Talent variant: index 0 is NOT remapped to Core.
+ * Cardex: nil expansion cards are *selected* by the Core checkbox, so unticking Core hides them.
+ */
+export const useCardSetFilters = (cachedFilters?: CardCodexSearchFilterCache['cardSets']) => {
+  const { isIndexSelected, ...rest } = useSharedCardSetFilters(cachedFilters)
+
+  const isCardSetIndexSelected = useCallback(
+    (index: number) => isIndexSelected(toCardSetIndex(index)),
+    [isIndexSelected]
+  )
+
+  return { ...rest, isCardSetIndexSelected }
+}
+
+/*
+ * Skilldex: nil expansion talents are NOT *selected* by the Core checkbox.
  *
- * Talents use expansion 0 as a structural marker for event-only talents, so `isIndexSelected(0)`
- * must stay false.
+ * Talents use expansion 0 as a structural marker for event-only talents, offers and some
+ * unavailable talents. Those are filtered by their own tree sections rather than by card set, and
+ * must stay visible even when Core is unticked — so `isIndexSelected(0)` must stay false here.
  */
 export const useTalentCardSetFilters = (cachedFilters?: CardCodexSearchFilterCache['cardSets']) => {
-  const {
-    filters,
-    isIndexSelected,
-    getValueFromIndex,
-    handleFilterToggle,
-    enableFilters,
-    resetFilters,
-  } = useBaseCardSetFilters(cachedFilters, '-')
-  return {
-    cardSetFilters: filters,
-    isCardSetIndexSelected: isIndexSelected,
-    getCardSetNameFromIndex: getValueFromIndex,
-    handleCardSetFilterToggle: handleFilterToggle,
-    enableCardSetFilters: enableFilters,
-    resetCardSetFilters: resetFilters,
-  }
+  const { isIndexSelected, ...rest } = useSharedCardSetFilters(cachedFilters)
+
+  return { ...rest, isCardSetIndexSelected: isIndexSelected }
 }

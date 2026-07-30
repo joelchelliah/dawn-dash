@@ -18,6 +18,7 @@ import {
   isNonCollectible,
   parseCardDescription,
   isAnimalCompanionCard,
+  NIL_EXPANSION_MARKER,
 } from '@/codex/utils/cardHelper'
 
 import styles from './index.module.scss'
@@ -154,7 +155,9 @@ const ResultCard = ({ card, useSearchFilters, showCardsWithoutKeywords }: Result
           <span className={cx('result-card__card-set')}>
             {getCardSetNameFromIndex(card.expansion) ?? '-'}
             {/* Marks cards from the nil (0) expansion, which are shown as Core cards */}
-            {card.expansion === 0 && <span className={cx('result-card__card-set__nil')}>°</span>}
+            {card.expansion === 0 && (
+              <span className={cx('result-card__card-set__nil')}>{NIL_EXPANSION_MARKER}</span>
+            )}
           </span>
         )}
       </div>

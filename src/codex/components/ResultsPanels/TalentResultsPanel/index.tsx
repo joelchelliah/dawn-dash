@@ -30,7 +30,7 @@ const TalentResultsPanel = ({ useSearchFilters }: TalentResultsPanelProps) => {
   const { isMobile } = useBreakpoint()
   const { parsedKeywords, matchingTalentTree, useFormattingFilters, useCardSetFilters } =
     useSearchFilters
-  const { isCardSetIndexSelected, getCardSetNameFromIndex } = useCardSetFilters
+  const { getCardSetNameFromIndex } = useCardSetFilters
   const {
     shouldExpandNodes,
     shouldShowDescription,
@@ -112,7 +112,6 @@ const TalentResultsPanel = ({ useSearchFilters }: TalentResultsPanelProps) => {
           shouldShowCardSet={shouldShowCardSet}
           shouldShowKeywords={shouldShowKeywords}
           shouldShowBlightbaneLink={shouldShowBlightbaneLink}
-          isCardSetIndexSelected={isCardSetIndexSelected}
           getCardSetNameFromIndex={getCardSetNameFromIndex}
           areChildrenExpanded={isNodeExpanded}
           toggleChildrenExpansion={toggleNodeExpansion}
