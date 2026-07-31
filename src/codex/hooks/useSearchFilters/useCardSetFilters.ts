@@ -53,7 +53,7 @@ const useBaseCardSetFilters = createFilterHook({
 })
 
 /*
- * Nil (0) expansion cards and talents are labelled as Core, because they are always in the game.
+ * Nil (0) expansion cards are labelled as Core, because they are always in the game.
  *
  * This remap is deliberately NOT in the shared `indexMap`, since that would also make index 0
  * *selectable* via the Core checkbox — which is only correct for cards. See the two hooks below.
@@ -69,9 +69,10 @@ const useSharedCardSetFilters = (cachedFilters?: CardCodexSearchFilterCache['car
     handleFilterToggle,
     enableFilters,
     resetFilters,
-  } = useBaseCardSetFilters(cachedFilters, '-')
+  } = useBaseCardSetFilters(cachedFilters)
 
-  // Both tools label nil expansion as Core.
+  // Names nil expansion as Core. Only Cardex renders this — `TalentTree` skips index 0
+  // entirely, since talents use expansion 0 as a structural marker.
   const getCardSetNameFromIndex = useCallback(
     (index: number) => getValueFromIndex(toCardSetIndex(index)),
     [getValueFromIndex]

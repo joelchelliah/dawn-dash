@@ -20,7 +20,7 @@ export function createFilterHook({
   indexToValueMap?: Record<number, string>
   valueToStringMap?: Record<string, string>
 }) {
-  return (cachedFilters: Record<string, boolean> | undefined, defaultFilterValue?: string) => {
+  return (cachedFilters: Record<string, boolean> | undefined) => {
     const initialFilters = { ...defaultFilters }
     if (cachedFilters) {
       Object.keys(cachedFilters).forEach((key) => {
@@ -59,9 +59,8 @@ export function createFilterHook({
 
     // Stable references so components receiving these as props can be memoized
     const getValueFromIndex = useCallback(
-      (index: number) =>
-        indexToValueMap ? (indexToValueMap[index] ?? defaultFilterValue ?? '') : '',
-      [defaultFilterValue]
+      (index: number) => (indexToValueMap ? (indexToValueMap[index] ?? '') : ''),
+      []
     )
 
     const getValueToString = useCallback(

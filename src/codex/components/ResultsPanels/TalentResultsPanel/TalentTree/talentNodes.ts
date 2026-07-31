@@ -103,7 +103,7 @@ export function renderTalentNode(
 
   if (shouldShowCardSet) {
     const cardSetName = getCardSetName(data.cardSetIndex)
-    if (cardSetName && cardSetName !== '-') {
+    if (cardSetName) {
       renderCardSets(nodeElement, -halfNodeHeight, cardSetName, tier)
     }
   }

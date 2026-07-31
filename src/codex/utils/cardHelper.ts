@@ -98,11 +98,6 @@ const NON_COLLECTIBLE_CARDS = [
   'Draw',
 ]
 
-/*
- * Marker appended to the 'Core' label for cards and talents from the nil (0) expansion,
- */
-export const NIL_EXPANSION_MARKER = '°'
-
 export const hasMonsterRarity = (card: CardData) => card.rarity === 4
 export const hasMonsterBanner = (card: CardData) => card.color === 11
 export const isAnimalCompanionCard = (card: CardData) => card.name.endsWith('(Companion)')
