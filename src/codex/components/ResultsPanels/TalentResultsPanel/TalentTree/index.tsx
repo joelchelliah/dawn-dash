@@ -38,7 +38,7 @@ const cx = createCx(styles)
  * out of the tree. Nil (0) expansion is excluded because talents use it as a structural marker
  * for event-only talents, offers and some unavailable talents — not as a real card set.
  */
-const hasCardSet = (shouldShowCardSet: boolean, index?: number): index is number =>
+const hasValidCardSet = (shouldShowCardSet: boolean, index?: number): index is number =>
   shouldShowCardSet && index !== undefined && index !== 0
 
 interface TalentTreeProps {
@@ -102,7 +102,7 @@ function TalentTree({
     // Create rendering context for dimension calculations
     const renderingContext: TalentRenderingContext = {
       shouldShowDescription,
-      shouldShowCardSet: (index?: number) => hasCardSet(shouldShowCardSet, index),
+      shouldShowCardSet: (index?: number) => hasValidCardSet(shouldShowCardSet, index),
       shouldShowBlightbaneLink,
       parsedKeywords: shouldShowKeywords ? parsedKeywords : [],
     }
@@ -166,7 +166,7 @@ function TalentTree({
     select(svgRef.current).selectAll('*').remove()
 
     const getCardSetName = (index?: number) =>
-      hasCardSet(shouldShowCardSet, index) ? getCardSetNameFromIndex(index) : undefined
+      hasValidCardSet(shouldShowCardSet, index) ? getCardSetNameFromIndex(index) : undefined
 
     // Calculate zoom scale for numbered zoom levels.
     // With a depth multiplier so deeper trees don't zoom in as much.
