@@ -64,6 +64,7 @@ Each feature directory has its own `CLAUDE.md` with architecture details and inv
 - `useFromNow()` - relative time formatting with adaptive update interval
 - `useDeviceOrientation()` - portrait/landscape + mobile detection (state set on mount to avoid hydration mismatch)
 - `useDraggable()` - drag-to-scroll behavior
+- `useCardImageSrc(cardName, fallbackImageSrc?)` - resolves a card/talent name to its Blightbane artwork URL via a module-scope `Map` built from `src/shared/data/card-artwork.json`. The optional fallback is what unresolved names return; it defaults to `PestilenceDecreeUrl` for scoring, and Cardex passes `null` to get a placeholder square instead
 
 **Utilities**:
 - `classnames.ts` - `createCx()` wrapper for SCSS modules

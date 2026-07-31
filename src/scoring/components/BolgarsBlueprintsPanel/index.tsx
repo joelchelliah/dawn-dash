@@ -5,10 +5,10 @@ import { createCx } from '@/shared/utils/classnames'
 import LoadingDots from '@/shared/components/LoadingDots'
 import GradientLink from '@/shared/components/GradientLink'
 import Image from '@/shared/components/Image'
+import { useCardImageSrc } from '@/shared/hooks/useCardImageSrc'
 
 import { FixedValueAction, ScoringMode, WeeklyChallengeData } from '@/scoring/types'
 import { useWeeklyChallengeData } from '@/scoring/hooks/useWeeklyChallengeData'
-import { useCardImageSrc } from '@/scoring/hooks/useCardImageSrc'
 
 import Highlight from '../Highlight'
 import BasePanel from '../BasePanel'
