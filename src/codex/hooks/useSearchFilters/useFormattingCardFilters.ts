@@ -7,7 +7,6 @@ import {
 import { createFilterHook } from './useFilterFactory'
 
 const defaultFilters = {
-  [FormattingCardFilterOption.ShowRarity]: true,
   [FormattingCardFilterOption.ShowDescription]: false,
   [FormattingCardFilterOption.ShowKeywords]: true,
   [FormattingCardFilterOption.ShowCardSet]: true,
@@ -16,7 +15,6 @@ const defaultFilters = {
 }
 
 const valueToStringMap = {
-  [FormattingCard.ShowRarity]: 'Show card rarity',
   [FormattingCard.ShowDescription]: 'Show card description',
   [FormattingCard.ShowKeywords]: 'Show matching keywords',
   [FormattingCard.ShowCardSet]: 'Show card set',
@@ -37,7 +35,6 @@ export const useFormattingCardFilters = (
 ) => {
   const { filters, handleFilterToggle, getValueToString, resetFilters } =
     useBaseFilters(cachedFilters)
-  const shouldShowRarity = filters[FormattingCard.ShowRarity]
   const shouldShowDescription = filters[FormattingCard.ShowDescription]
   const shouldShowKeywords = filters[FormattingCard.ShowKeywords]
   const shouldShowCardSet = filters[FormattingCard.ShowCardSet]
@@ -49,7 +46,6 @@ export const useFormattingCardFilters = (
     handleFormattingFilterToggle: handleFilterToggle,
     getFormattingFilterName: getValueToString,
     resetFormattingFilters: resetFilters,
-    shouldShowRarity,
     shouldShowDescription,
     shouldShowKeywords,
     shouldShowCardSet,

@@ -42,7 +42,6 @@ const ResultCard = ({ card, useSearchFilters, showCardsWithoutKeywords }: Result
   const { shouldIncludeNonCollectibleCards, shouldIncludeAnimalCompanionCards } =
     useExtraCardFilters
   const {
-    shouldShowRarity,
     shouldShowDescription,
     shouldShowKeywords,
     shouldShowCardSet,
@@ -84,23 +83,15 @@ const ResultCard = ({ card, useSearchFilters, showCardsWithoutKeywords }: Result
     [4]: <SkullIcon className={cx('result-card__rarity__icon--monster')} />,
   }
 
+  const hasSpecialIcons = isNonCollectible(card) || isAnimalCompanionCard(card)
+
   const descriptionClassName = cx('result-card__description', {
-    'result-card__description--rarity_margin':
-      shouldShowRarity && !(isNonCollectible(card) || isAnimalCompanionCard(card)),
-    'result-card__description--special-icons_margin':
-      !shouldShowRarity && (isNonCollectible(card) || isAnimalCompanionCard(card)),
-    'result-card__description--rarity_and_special_icons_margin':
-      shouldShowRarity && (isNonCollectible(card) || isAnimalCompanionCard(card)),
+    'result-card__description--special-icons_margin': hasSpecialIcons,
     'result-card__description--struck': isStruck,
     'result-card__description--hidden': shouldHideTrackedCards && isStruck,
   })
   const blightbaneLinkClassName = cx('result-card__blightbane-link', {
-    'result-card__blightbane-link--rarity_margin':
-      shouldShowRarity && !(isNonCollectible(card) || isAnimalCompanionCard(card)),
-    'result-card__blightbane-link--special-icons_margin':
-      !shouldShowRarity && (isNonCollectible(card) || isAnimalCompanionCard(card)),
-    'result-card__blightbane-link--rarity_and_special_icons_margin':
-      shouldShowRarity && (isNonCollectible(card) || isAnimalCompanionCard(card)),
+    'result-card__blightbane-link--special-icons_margin': hasSpecialIcons,
   })
 
   const blightbaneLink = `https://www.blightbane.io/card/${card.name.replaceAll(' ', '_')}`
@@ -140,11 +131,9 @@ const ResultCard = ({ card, useSearchFilters, showCardsWithoutKeywords }: Result
   return (
     <div className={cardContainerClassName} key={card.name}>
       <div className={cardClassName} onClick={() => toggleCardStrike(card)}>
-        {shouldShowRarity && (
-          <span className={cx('result-card__rarity')}>
-            {indexToRarityIconMap[card.rarity as keyof typeof indexToRarityIconMap]}
-          </span>
-        )}
+        <span className={cx('result-card__rarity')}>
+          {indexToRarityIconMap[card.rarity as keyof typeof indexToRarityIconMap]}
+        </span>
         {renderSpecialIcons()}
         <span className={cx('result-card__name')}>{card.name}</span>
         {shouldShowKeywords && !showCardsWithoutKeywords && (
