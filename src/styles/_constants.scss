@@ -7,6 +7,12 @@ $chart-legend-width: 13.75rem;
 $control-min-width: 8rem;
 $control-max-width: 25rem;
 
+// Cardex result card artwork. Shared because CardIcons positions its icons against the artwork's
+// edges. Keep in sync with ARTWORK_SIZE / ARTWORK_SIZE_MOBILE in CardArtwork.tsx.
+// Hard ceiling of 70px: the source webps are 70x70, so anything larger upscales.
+$card-artwork-size: 48px;
+$card-artwork-size-mobile: 40px;
+
 // Component separators
 $padding-component: 0.875rem;
 

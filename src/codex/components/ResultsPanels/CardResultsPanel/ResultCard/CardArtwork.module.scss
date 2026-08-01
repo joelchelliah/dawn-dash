@@ -1,9 +1,9 @@
 @use 'index' as *;
 
-// Keep in sync with `ARTWORK_SIZE` / `ARTWORK_SIZE_MOBILE` in CardArtwork.tsx, which reserve the
-// layout box. Hard ceiling of 70px: the source webps are 70x70, so anything larger upscales.
-$artwork-size: 48px;
-$artwork-size-mobile: 40px;
+// Sizes come from `$card-artwork-size` in styles/_constants.scss, since CardIcons positions its
+// icons against these edges too. Keep those in sync with the constants in CardArtwork.tsx.
+$artwork-size: $card-artwork-size;
+$artwork-size-mobile: $card-artwork-size-mobile;
 
 // How far the rarity colour bleeds out around the thumbnail.
 $artwork-glow-blur: 0.375rem;

@@ -28,11 +28,15 @@
   align-items: center;
   gap: 0.5rem;
   border-bottom: 1px dashed $color-component-border;
-  padding-bottom: 0.25rem;
+  padding: 0.25rem 0;
   cursor: pointer;
 
   @media (max-width: $breakpoint-mobile) {
     gap: 0.25rem;
+  }
+
+  &:first-child {
+    padding-top: 0;
   }
 
   &:last-child {
