@@ -67,34 +67,29 @@ const ResultCard = ({ card, useSearchFilters, showCardsWithoutKeywords }: Result
   )
   const isStruck = isCardStruck(card)
 
-  const cardContainerClassName = cx('result-card-container', {
-    'result-card-container--struck': isStruck,
-    'result-card-container--full-match': isFullMatch,
-    'result-card-container--hidden': shouldHideTrackedCards && isStruck,
-  })
-  const cardClassName = cx('result-card', {
+  const cardContainerClassName = cx('result-card', {
     'result-card--struck': isStruck,
+    'result-card--full-match': isFullMatch,
     'result-card--hidden': shouldHideTrackedCards && isStruck,
+  })
+  const cardClassName = cx('result-card__title-row', {
+    'result-card__title-row--struck': isStruck,
+    'result-card__title-row--hidden': shouldHideTrackedCards && isStruck,
   })
 
   const indexToRarityIconMap = {
-    [0]: <CircleIcon className={cx('result-card__rarity__icon--common')} />,
-    [1]: <SingleStarIcon className={cx('result-card__rarity__icon--uncommon')} />,
-    [2]: <DoubleStarsIcon className={cx('result-card__rarity__icon--rare')} />,
-    [3]: <TripleStarsIcon className={cx('result-card__rarity__icon--legendary')} />,
-    [4]: <SkullIcon className={cx('result-card__rarity__icon--monster')} />,
+    [0]: <CircleIcon className={cx('result-card__rarity-icon--common')} />,
+    [1]: <SingleStarIcon className={cx('result-card__rarity-icon--uncommon')} />,
+    [2]: <DoubleStarsIcon className={cx('result-card__rarity-icon--rare')} />,
+    [3]: <TripleStarsIcon className={cx('result-card__rarity-icon--legendary')} />,
+    [4]: <SkullIcon className={cx('result-card__rarity-icon--monster')} />,
   }
 
-  const hasSpecialIcons = isNonCollectible(card) || isAnimalCompanionCard(card)
-
   const descriptionClassName = cx('result-card__description', {
-    'result-card__description--special-icons_margin': hasSpecialIcons,
     'result-card__description--struck': isStruck,
     'result-card__description--hidden': shouldHideTrackedCards && isStruck,
   })
-  const blightbaneLinkClassName = cx('result-card__blightbane-link', {
-    'result-card__blightbane-link--special-icons_margin': hasSpecialIcons,
-  })
+  const blightbaneLinkClassName = cx('result-card__blightbane-link')
 
   const blightbaneLink = `https://www.blightbane.io/card/${card.name.replaceAll(' ', '_')}`
 
@@ -135,12 +130,14 @@ const ResultCard = ({ card, useSearchFilters, showCardsWithoutKeywords }: Result
   return (
     <div className={cardContainerClassName} key={card.name} onClick={() => toggleCardStrike(card)}>
       {shouldShowCardArt && <CardArtwork card={card} />}
+      {/* Sibling of the content column, not part of the title row, so the icons centre against
+          the whole row's height the way the artwork does. */}
+      <span className={cx('result-card__icons')}>
+        {indexToRarityIconMap[card.rarity as keyof typeof indexToRarityIconMap]}
+        {renderSpecialIcons()}
+      </span>
       <div className={cx('result-card__content')}>
         <div className={cardClassName}>
-          <span className={cx('result-card__rarity')}>
-            {indexToRarityIconMap[card.rarity as keyof typeof indexToRarityIconMap]}
-          </span>
-          {renderSpecialIcons()}
           <span className={cx('result-card__name')}>{card.name}</span>
           {shouldShowKeywords && !showCardsWithoutKeywords && (
             <span className={cx('result-card__keywords')}>{matchingKeywordsText}</span>

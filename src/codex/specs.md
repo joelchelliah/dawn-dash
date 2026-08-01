@@ -44,6 +44,11 @@ rather than by tests — that only works if the comparison happens at each step.
 Task 1 has no visible effect on its own beyond the new checkbox appearing in **Results formatting** —
 confirm the checkbox renders and toggles, then move on.
 
+### Keep comments short and concise
+
+Comment the non-obvious *why*, in a line or two. Don't restate what the code says, don't narrate the
+history of a change, and don't write a paragraph where a clause will do.
+
 ### Update the docs when behaviour changes
 
 If a change touches anything documented in a `CLAUDE.md` or `README.md`, update that file **as part of
@@ -176,7 +181,7 @@ three.
 - `ResultCard` is `memo()`'d but receives the whole `useSearchFilters` object, so memoization is
   already ineffective here. Don't try to fix that as part of this change; just don't make it worse.
 
-### 4. Move the special icons below the rarity icon
+### 4. Move the special icons below the rarity icon — ✅ COMPLETED
 
 Still in `ResultCard` + its SCSS. Per the decision above this is unconditional.
 
