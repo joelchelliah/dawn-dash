@@ -20,6 +20,7 @@ import {
   isAnimalCompanionCard,
 } from '@/codex/utils/cardHelper'
 
+import CardArtwork from './CardArtwork'
 import styles from './index.module.scss'
 
 interface ResultCardProps {
@@ -45,6 +46,7 @@ const ResultCard = ({ card, useSearchFilters, showCardsWithoutKeywords }: Result
     shouldShowDescription,
     shouldShowKeywords,
     shouldShowCardSet,
+    shouldShowCardArt,
     shouldShowBlightbaneLink,
     shouldHideTrackedCards,
   } = useFormattingFilters
@@ -128,41 +130,50 @@ const ResultCard = ({ card, useSearchFilters, showCardsWithoutKeywords }: Result
     return null
   }
 
+  // The strike toggle lives on the container so one handler covers the artwork column, the title
+  // row and the description.
   return (
-    <div className={cardContainerClassName} key={card.name}>
-      <div className={cardClassName} onClick={() => toggleCardStrike(card)}>
-        <span className={cx('result-card__rarity')}>
-          {indexToRarityIconMap[card.rarity as keyof typeof indexToRarityIconMap]}
-        </span>
-        {renderSpecialIcons()}
-        <span className={cx('result-card__name')}>{card.name}</span>
-        {shouldShowKeywords && !showCardsWithoutKeywords && (
-          <span className={cx('result-card__keywords')}>{matchingKeywordsText}</span>
+    <div className={cardContainerClassName} key={card.name} onClick={() => toggleCardStrike(card)}>
+      {shouldShowCardArt && <CardArtwork card={card} />}
+      <div className={cx('result-card__content')}>
+        <div className={cardClassName}>
+          <span className={cx('result-card__rarity')}>
+            {indexToRarityIconMap[card.rarity as keyof typeof indexToRarityIconMap]}
+          </span>
+          {renderSpecialIcons()}
+          <span className={cx('result-card__name')}>{card.name}</span>
+          {shouldShowKeywords && !showCardsWithoutKeywords && (
+            <span className={cx('result-card__keywords')}>{matchingKeywordsText}</span>
+          )}
+          {shouldShowCardSet && (
+            <span className={cx('result-card__card-set')}>
+              {getCardSetNameFromIndex(card.expansion)}
+              {/* Marks cards from the nil (0) expansion, which are shown as Core cards */}
+              {card.expansion === 0 && <span className={cx('result-card__card-set__nil')}>°</span>}
+            </span>
+          )}
+        </div>
+        {shouldShowDescription && (
+          <div
+            className={descriptionClassName}
+            dangerouslySetInnerHTML={{
+              __html: parseCardDescription(card.description, cx('result-card__description__icon')),
+            }}
+          />
         )}
-        {shouldShowCardSet && (
-          <span className={cx('result-card__card-set')}>
-            {getCardSetNameFromIndex(card.expansion)}
-            {/* Marks cards from the nil (0) expansion, which are shown as Core cards */}
-            {card.expansion === 0 && <span className={cx('result-card__card-set__nil')}>°</span>}
+        {shouldShowBlightbaneLink && (
+          <span
+            className={cx('result-card__blightbane-link-wrapper')}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <GradientLink
+              text="See full description on Blightbane"
+              url={blightbaneLink}
+              className={blightbaneLinkClassName}
+            />
           </span>
         )}
       </div>
-      {shouldShowDescription && (
-        <div
-          className={descriptionClassName}
-          onClick={() => toggleCardStrike(card)}
-          dangerouslySetInnerHTML={{
-            __html: parseCardDescription(card.description, cx('result-card__description__icon')),
-          }}
-        />
-      )}
-      {shouldShowBlightbaneLink && (
-        <GradientLink
-          text="See full description on Blightbane"
-          url={blightbaneLink}
-          className={blightbaneLinkClassName}
-        />
-      )}
     </div>
   )
 }

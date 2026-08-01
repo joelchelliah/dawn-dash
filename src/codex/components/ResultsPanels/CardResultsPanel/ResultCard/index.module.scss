@@ -31,9 +31,12 @@
 
 .result-card-container {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
   border-bottom: 1px dashed $color-component-border;
   padding-bottom: 0.25rem;
+  cursor: pointer;
 
   &:last-child {
     border-bottom: none;
@@ -92,6 +95,15 @@
   margin: -0.3125rem 0;
   cursor: pointer;
   min-height: 1.25rem;
+
+  // The title row, description and Blightbane link stack vertically beside the artwork column.
+  // `min-width: 0` lets the truncating children inside actually shrink instead of overflowing.
+  &__content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+  }
 
   &--struck {
     text-decoration: line-through;
@@ -312,6 +324,11 @@
       height: 0.5625rem;
       opacity: 0.875;
     }
+  }
+
+  // Stops a link click from also toggling the card strike handler on the container.
+  &__blightbane-link-wrapper {
+    width: fit-content;
   }
 
   &__blightbane-link {
