@@ -14,6 +14,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `npm run format:check` - Check code formatting without writing changes
 - `npm run type-check` - Run TypeScript type checking
 - `npm run verify` - Run format:check, lint, type-check, and test together
+- `npm run icon-viewbox -- <IconName>` - Inspect an icon's viewBox fill and print candidate viewBoxes for making it look bigger/smaller (see `Icons/` under Shared Infrastructure)
 
 **`npm run verify` is the required check before any change (AI-generated changes included) is considered done.** For changes touching `pages/`, `next.config.ts`, or data hooks, also run `npm run build`.
 
@@ -56,6 +57,7 @@ Each feature directory has its own `CLAUDE.md` with architecture details and inv
 - UI elements: LoadingDots, ScrollToTopButton, GradientDivider, GradientLink, ScrollableWithFade, Select, Code, Image
 - `Sliders/Thumb` — the draggable energy-orb thumb shared by the speedruns sliders and the codex zoom slider; takes an `orientation` prop because the CSS centering axis differs between horizontal and vertical tracks
 - Notifications: Notification (toast-style with auto-dismiss and progress bar)
+- `Icons/` — one component per SVG icon, each taking only `className` and `onClick`, so **size and colour are set entirely in CSS**. An icon's apparent size depends on its *fill* (how much of the viewBox is ink rather than margin), which varies a lot between icons — so equal CSS sizes do not look equal. To make an icon look bigger or smaller, crop or widen its `viewBox` rather than fighting it with CSS: run `npm run icon-viewbox -- <IconName>` for its current fill and a table of candidate viewBoxes. These components are shared (result cards *and* search-panel filters), so a viewBox change affects every consumer — use a stylesheet's `svg { width/height }` when only one place should change.
 
 **Custom Hooks**:
 - `useNavigation()` - registry-driven `navigateTo(toolId, query?)` + `resetToLandingPage()`
@@ -72,7 +74,6 @@ Each feature directory has its own `CLAUDE.md` with architecture details and inv
 - `storage.ts` - localStorage wrapper with cache duration and staleness detection; `saveToCache` returns `{ success, error? }`
 - `apiErrorHandling.ts` - `handleError` normalizes any unknown error (Axios, Error, other) into a structured `ApiErrorInfo`
 - `logger.ts` - `logger.debug/warn` no-op outside development, `logger.error` always logs. **Never call `console.*` directly** (ESLint `no-console` enforces this)
-- `icons.tsx` - SVG icon components library
 - `imageUrls.ts` - centralized Blightbane asset URLs
 - `energyImages.ts` - `getEnergyImageUrl(CharacterClass)` → energy orb asset. Speedruns wraps this in its own `utils/images.ts` to also handle the speedruns-only `SpeedRunSubclass` members (`All`, `Hybrid`); `shared/` must not import speedruns types
 - `lists.ts`, `object.ts`, `textHelper.ts` - small pure helpers

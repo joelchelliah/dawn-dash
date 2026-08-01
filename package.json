@@ -48,7 +48,8 @@
     "sync-events": "node scripts/sync-events.js",
     "sync-talents-preflight": "node scripts/sync-talents-preflight.js",
     "backup-talents": "node scripts/backup-talents.js",
-    "sync-artwork": "node scripts/fetch-card-artwork-mapping.js"
+    "sync-artwork": "node scripts/fetch-card-artwork-mapping.js",
+    "icon-viewbox": "node scripts/icon-viewbox.js"
   },
   "devDependencies": {
     "@testing-library/dom": "^10.4.1",
