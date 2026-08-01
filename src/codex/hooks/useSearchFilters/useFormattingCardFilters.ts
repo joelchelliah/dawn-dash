@@ -8,7 +8,7 @@ import { createFilterHook } from './useFilterFactory'
 
 const defaultFilters = {
   [FormattingCardFilterOption.ShowCardArt]: true,
-  [FormattingCardFilterOption.ShowDescription]: false,
+  [FormattingCardFilterOption.ShowDescription]: true,
   [FormattingCardFilterOption.ShowKeywords]: true,
   [FormattingCardFilterOption.ShowCardSet]: true,
   [FormattingCardFilterOption.ShowBlightbaneLink]: false,

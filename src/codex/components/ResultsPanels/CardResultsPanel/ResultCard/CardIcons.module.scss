@@ -5,7 +5,7 @@
 // How far the stack slides over the artwork. Has to cancel the row's gap (0.5rem desktop,
 // 0.25rem mobile) before any overlap starts.
 $overlap: 1.25rem;
-$overlap-mobile: 1rem;
+$overlap-mobile: 1.125rem;
 
 // Shrinks the icons and the plate behind them while overlapping. 1 = unchanged.
 $overlap-scale: 0.8;
@@ -150,13 +150,6 @@ $overlap-icon-pill-offset: -4px;
   svg {
     width: 1rem;
     height: 1rem;
-  }
-
-  @media (max-width: $breakpoint-mobile) {
-    svg {
-      width: 0.875rem;
-      height: 0.875rem;
-    }
   }
 }
 

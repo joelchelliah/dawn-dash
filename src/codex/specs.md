@@ -202,7 +202,7 @@ Still in `ResultCard` + its SCSS. Per the decision above this is unconditional.
   — decide whether the paw+cross pair stays side-by-side on mobile (probably yes, vertical space is
   tighter there) and keep that behaviour explicit.
 
-### 5. Styling: rarity-coloured border and layout
+### 5. Styling: rarity-coloured border and layout — ✅ COMPLETED
 
 `ResultCard/index.module.scss`.
 
@@ -226,7 +226,7 @@ Still in `ResultCard` + its SCSS. Per the decision above this is unconditional.
   read correctly with a thumbnail in the row — the gradient is painted on the container the artwork
   now lives in.
 
-### 6. Tune the size visually
+### 6. Tune the size visually — ✅ COMPLETED (48px desktop / 40px mobile)
 
 Run `npm run dev` and iterate on the one SCSS size variable until the thumbnail roughly matches the
 height of a row with both title and description shown. Compare against:
@@ -240,7 +240,7 @@ height of a row with both title and description shown. Compare against:
 
 Per the codex convention this is verified by before/after comparison in the dev server, not tests.
 
-### 7. Image loading and caching
+### 7. Image loading and caching — ✅ COMPLETED
 
 **Measured facts about the source images** (checked against `blightbane.io`, 2026-07-31 — re-measure
 if this spec sits unimplemented for long):
@@ -256,7 +256,7 @@ if this spec sits unimplemented for long):
 These numbers drive every decision below. ~2.2KB over a warm global CDN is a cheap fetch; the work
 here is about not *breaking* that, rather than optimising it.
 
-**7a. Raise the service-worker cache ceiling — the one real problem.**
+**7a. Raise the service-worker cache ceiling — the one real problem.** — ✅ COMPLETED
 
 `next.config.ts` caches `blightbane.io/images/**` `CacheFirst` with `maxEntries: 100`. A Cardex
 result set easily exceeds 100 images, so card art would evict itself *and* evict the class, energy,
@@ -268,7 +268,7 @@ Give card art headroom — either raise `maxEntries` well past a plausible resul
 separate entry is tidier: it stops a big Cardex session from evicting event artwork. Touching
 `next.config.ts` requires `npm run build`.
 
-**7b. Reserve the square; do not add a spinner.**
+**7b. Reserve the square; do not add a spinner.** — ✅ COMPLETED (static rarity-tinted placeholder, no spinner)
 
 Fixed `width`/`height` on `next/image` already reserves layout space, so rows never reflow as images
 arrive. That reflow-prevention is the genuine UX win — keep it.
@@ -283,8 +283,8 @@ flat `$color-component-border` square. Deliberately **not** a spinner per row:
 If measurement in 7d shows genuinely slow loads (slow connection, cold CDN), revisit — a CSS-only
 shimmer on the placeholder is the next step, still not a spinner.
 
-**7c. Do not self-host the artwork.** Considered and rejected; the reasoning is recorded so it isn't
-re-litigated:
+**7c. Do not self-host the artwork.** — ✅ N/A (nothing to implement). Considered and rejected; the
+reasoning is recorded so it isn't re-litigated:
 
 - 2418 files × ~2.2KB ≈ **5.3MB** added to the repo and every deploy (`public/` is 21MB today, so
   ~+25%).
@@ -295,7 +295,12 @@ re-litigated:
 - The theoretical win (same-origin, so `next/image` could optimize and we'd own `Cache-Control`) is
   negligible on a file that is already 2.2KB of 70×70 webp. There is nothing left to compress.
 
-**7d. Measure, then confirm the default.**
+**7d. Measure, then confirm the default.** — ✅ COMPLETED
+
+**Result:** verified against `npm run build && npm start`. Cache Storage shows the `card-artwork`
+bucket filling **incrementally while scrolling**, which also confirms `next/image` lazy loading:
+off-screen rows are not fetched up front. Scrolling stayed smooth, so the **default stays `true`**
+(no need for the off-by-default fallback in task 1).
 
 - Search broadly (or use **Show all cards matching only the filters**) and check the network waterfall
   and scroll smoothness with art on.
@@ -306,7 +311,10 @@ re-litigated:
 - Throttle to a slow connection once, to sanity-check the placeholder decision in 7b.
 - If the numbers are bad despite 7a, flip the default to `false` in task 1 and record why here.
 
-**7e. Load ordering — check, but expect to change nothing.**
+**7e. Load ordering — check, but expect to change nothing.** — ✅ COMPLETED (nothing changed)
+
+**Result:** as predicted, no `fetchPriority`/`loading="eager"` added. Lazy loading covers it; the
+row index that those props would require was never needed.
 
 Lazy loading means off-screen rows aren't requested at all, which is most of what "visible first"
 needs. Two caveats to verify in the waterfall rather than assume:
