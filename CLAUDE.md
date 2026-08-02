@@ -2,6 +2,48 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Working Style
+
+- **Progress cadence**: before the first tool call, say in one sentence what you are about to do. While working, post an update only when you find something important or change direction — not per file or per step.
+- **Suggestions**: if the request looks mistaken or a better approach exists, say so in a single sentence prefixed with `💡 [SUGGESTION]`, then continue with the task as asked.
+- **Written deliverables**: match a document's length to its substance. No filler sections, redundant summaries, or boilerplate — this file and the per-feature `CLAUDE.md` files included.
+- **Long tasks**: for multi-session or long-running work, keep a short running state file in the session scratchpad (not in the repo — the working tree stays clean) and re-read it after a context refresh, along with `git log`/`git status`, before acting.
+- **Long documents**: when analyzing or summarizing a large document (roughly >20k tokens — e.g. `src/codex/specs-*.md`, `event-trees.json`), quote the relevant lines before drawing conclusions from them rather than working from recall.
+
+## Writing a spec
+
+Specs live next to the feature they describe, as `src/<feature>/specs-<topic>.md`. Before writing one,
+read the root `CLAUDE.md`, the feature's own `CLAUDE.md`, and any `README.md` under the directories the
+work will touch — the invariants recorded there are usually the reason a task is harder than it looks,
+and a spec that contradicts one is worth catching before any code is written, not after.
+
+Every spec gets a **"How to work through this spec"** section, placed before the task list, covering:
+
+- **What to read first.** Name the root `CLAUDE.md`, the feature's own `CLAUDE.md`, and any `README.md`
+  covering the directories the tasks touch — with the specific invariants that constrain this work, so
+  they're visible without opening every file. Implementation often starts in a fresh context that has
+  none of the discussion behind the spec, so the spec has to point at its own background rather than
+  assume it.
+- **Where to stop.** State whether tasks may be chained or must pause for confirmation, and say *why*
+  for this particular spec — e.g. several tasks restructuring the same DOM and stylesheet, where a
+  mistake in an early task gets buried under later ones. If tasks pause: finish the task, get it into
+  a state the user can look at (`npm run dev`), say what changed and what specifically to look at, and
+  wait. Call out any task with no visible effect of its own so it isn't mistaken for a broken step.
+- **How it gets verified.** Visually in the dev server, via `npm run verify`, `npm run build`, or
+  `npm run check-sw` — name the actual check. For visual verification, name the states to compare
+  (expanded/collapsed, zoom levels, mobile/desktop), since "looks fine" on one state routinely misses
+  the others.
+- **Which docs change with the work.** List the specific files and sections the tasks will
+  invalidate, with the reason each is affected — grep for whatever the spec touches rather than
+  guessing. Note any new invariant worth recording once implemented, and say that a change
+  contradicting a documented invariant gets raised with the user rather than quietly rewritten.
+- **Comment style.** The non-obvious *why*, in a line or two. No restating the code, no narrating the
+  history of a change.
+
+Also state up front any **decisions already made** so they aren't re-litigated mid-implementation, and
+mark anything deliberately left to trial and error in the browser as exactly that. Order tasks
+operationally — the sequence they should be built in, not a topical grouping.
+
 ## Development Commands
 
 ### Core Development
