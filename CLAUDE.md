@@ -15,6 +15,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `npm run type-check` - Run TypeScript type checking
 - `npm run verify` - Run format:check, lint, type-check, and test together
 - `npm run icon-viewbox -- <IconName>` - Inspect an icon's viewBox fill and print candidate viewBoxes for making it look bigger/smaller (see `Icons/` under Shared Infrastructure)
+- `npm run check-sw` - Fail if the built service worker precaches a URL that will 404. **Run after `npm run build` whenever `next.config.ts` or the PWA setup changes** — Workbox precaching is atomic, so one bad entry silently disables the entire worker including all runtime caching
 
 **`npm run verify` is the required check before any change (AI-generated changes included) is considered done.** For changes touching `pages/`, `next.config.ts`, or data hooks, also run `npm run build`.
 
@@ -98,7 +99,7 @@ Each feature directory has its own `CLAUDE.md` with architecture details and inv
 - **Speedrun data** is not synced — it is fetched live from the Blightbane API at runtime
 
 ### PWA & Performance
-- **Progressive Web App** with `next-pwa` (applied as `withPWA(options)(nextConfig)` in `next.config.ts`)
+- **Progressive Web App** with `next-pwa` (applied as `withPWA(options)(nextConfig)` in `next.config.ts`). **`next-pwa` 5.6.0 is the latest release and dates from 2022**, well before Next 15 — its peer range (`next >=9.0.0`) means nothing warns about the mismatch. It precached a Next 15 build file that 404s (`dynamic-css-manifest.json`), and because Workbox precaching is atomic that silently disabled the whole service worker, `runtimeCaching` included. Hence the `buildExcludes` entry — don't remove it. A broken worker looks identical to a working one outside DevTools, so **verify service-worker changes against `npm run build && npm start`** and check the caches actually fill. Replacement options are scoped in `src/codex/specs-next-pwa-replacement.md`.
 - **Service worker** with CacheFirst strategy for Blightbane images (10-day cache expiry), split across **two** `runtimeCaching` buckets: `card-artwork` for `/images/icons/**` (1500 entries, ~3.2MB — sized for Cardex result sets, which easily exceed 100 images) and `external-images` for everything else (100 entries: classes, energy orbs, events). The specific pattern must stay **first**, since Workbox uses the first match. Keeping them separate is what stops a large Cardex session from evicting the rest of the site's images.
 - **Offline support** via localStorage + service worker caching
 - **Dynamic imports** with `next/dynamic` for code splitting (each tool page lazy-loads its feature component)

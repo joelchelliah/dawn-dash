@@ -344,7 +344,24 @@ reorder or shrink the priority band.
 ~64px will look soft, and above 70px it upscales outright. That comfortably covers the ~48px
 title+description target, but it is a hard ceiling — don't tune past it.
 
-### 8. Verify
+### 8. Verify — ✅ COMPLETED
+
+`npm run verify` passes and `npm run build` succeeds. Service-worker behaviour was verified against
+`npm run build && npm start` (not `npm run dev`, where `next-pwa` is disabled): the worker installs
+cleanly, and the `card-artwork` bucket fills incrementally while scrolling — which also confirms
+`next/image` lazy loading. The new `ShowCardArt` key persists through `codexFilterStore` across a
+reload without disturbing existing cached filters.
+
+**Uncovered while verifying — read this before task 9:** the service worker was not installing at all
+in production, and had probably not been since the Next 15 upgrade. `next-pwa` 5.6.0 precached
+`_next/dynamic-css-manifest.json`, a Next 15 build file that exists on disk but 404s over HTTP;
+because precaching is atomic, that single 404 aborted the install and silently disabled every
+`runtimeCaching` rule. So the caching this spec relies on was inert before task 7a, and the
+`external-images` bucket documented in the root `CLAUDE.md` had likely never worked in production
+either. Fixed here with `buildExcludes`, but the root cause is a stale dependency — see
+`specs-next-pwa-replacement.md`. **Task 9 assumes a working service worker**, since talent trees
+would share the `/images/icons/` cache bucket; re-verify it installs before relying on cache
+behaviour there.
 
 `npm run verify`. The `next.config.ts` change in task 7a also requires `npm run build`. Then the
 visual pass from tasks 6–7, plus a reload to confirm the new filter key persists through
