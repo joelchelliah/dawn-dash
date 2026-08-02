@@ -46,31 +46,27 @@ export const useAllTalentSearchFilters = (
   // --------------------------------------------------
   const { hasUserChangedFilter, createTrackedFilter, createTrackedSetter } = useFilterTracking()
 
-  const TRACKED_FILTER_HANDLER = {
-    cardSet: 'handleCardSetFilterToggle' as const,
-    requirement: 'handleRequirementFilterToggle' as const,
-    tier: 'handleTierFilterToggle' as const,
-    formatting: 'handleFormattingFilterToggle' as const,
+  const TRACKED_FILTER_HANDLERS = {
+    cardSet: ['handleCardSetFilterToggle', 'resetCardSetFilters'] as const,
+    requirement: ['handleRequirementFilterToggle', 'resetRequirementFilters'] as const,
+    tier: ['handleTierFilterToggle', 'resetTierFilters'] as const,
+    formatting: ['handleFormattingFilterToggle', 'resetFormattingFilters'] as const,
   } as const
 
   const trackedSetKeywords = createTrackedSetter(setKeywordsUntracked)
 
-  const trackedUseCardSetFilters = createTrackedFilter(
-    untrackedUseCardSetFilters,
-    TRACKED_FILTER_HANDLER.cardSet
-  )
-  const trackedUseRequirementFilters = createTrackedFilter(
-    untrackedUseRequirementFilters,
-    TRACKED_FILTER_HANDLER.requirement
-  )
-  const trackedUseTierFilters = createTrackedFilter(
-    untrackedUseTierFilters,
-    TRACKED_FILTER_HANDLER.tier
-  )
-  const trackedUseFormattingFilters = createTrackedFilter(
-    untrackedUseFormattingFilters,
-    TRACKED_FILTER_HANDLER.formatting
-  )
+  const trackedUseCardSetFilters = createTrackedFilter(untrackedUseCardSetFilters, [
+    ...TRACKED_FILTER_HANDLERS.cardSet,
+  ])
+  const trackedUseRequirementFilters = createTrackedFilter(untrackedUseRequirementFilters, [
+    ...TRACKED_FILTER_HANDLERS.requirement,
+  ])
+  const trackedUseTierFilters = createTrackedFilter(untrackedUseTierFilters, [
+    ...TRACKED_FILTER_HANDLERS.tier,
+  ])
+  const trackedUseFormattingFilters = createTrackedFilter(untrackedUseFormattingFilters, [
+    ...TRACKED_FILTER_HANDLERS.formatting,
+  ])
   // --------------------------------------------------
   // --------------------------------------------------
 

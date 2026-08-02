@@ -23,7 +23,7 @@ const useBaseFilters = createFilterHook({
 })
 
 export const useExtraCardFilters = (cachedFilters?: CardCodexSearchFilterCache['extras']) => {
-  const { filters, handleFilterToggle, getValueToString, resetFilters } =
+  const { filters, handleFilterToggle, getValueToString, enableFilters, resetFilters } =
     useBaseFilters(cachedFilters)
   const shouldIncludeMonsterCards = filters[ExtraCardFilterOption.IncludeMonsterCards]
   const shouldIncludeAnimalCompanionCards =
@@ -34,6 +34,7 @@ export const useExtraCardFilters = (cachedFilters?: CardCodexSearchFilterCache['
     extraCardFilters: filters,
     handleExtraCardFilterToggle: handleFilterToggle,
     getExtraCardFilterName: getValueToString,
+    enableExtraCardFilters: enableFilters,
     resetExtraCardFilters: resetFilters,
     shouldIncludeMonsterCards,
     shouldIncludeAnimalCompanionCards,
