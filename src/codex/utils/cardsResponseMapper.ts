@@ -14,11 +14,17 @@ export const mapAndSortCardsResponse = (cards: CardApiResponse[]): CardData[] =>
 export const mapAndSortCardsData = (cards: CardData[]) =>
   sortAndRemoveDuplicates(removeDeprecatedCards(cards))
 
+// Rarity 4 (Monster) is numerically the highest but is the *lowest* actual rarity, so sorting
+// on the raw value floats monster cards above legendaries in the monster banner.
+const getRarityRank = (rarity: number): number => (rarity === 4 ? -1 : rarity)
+
 const sortAndRemoveDuplicates = (cards: CardData[]) =>
   cards
     .sort((a, b) => {
       if (a.color !== b.color) return a.color - b.color
-      if (a.rarity !== b.rarity) return b.rarity - a.rarity
+
+      const rarityRankDiff = getRarityRank(b.rarity) - getRarityRank(a.rarity)
+      if (rarityRankDiff !== 0) return rarityRankDiff
 
       return a.name.localeCompare(b.name)
     })
