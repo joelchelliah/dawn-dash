@@ -369,7 +369,7 @@ visual pass from tasks 6–7, plus a reload to confirm the new filter key persis
 effect in a production build (`next-pwa` is `disable`d in development), so verify the cache behaviour
 against `npm run build && npm start`, not `npm run dev`.
 
-### 9. Scope the same feature for Skilldex — then write its own spec
+### 9. Scope the same feature for Skilldex — ✅ COMPLETED (see tasks 10–16 below)
 
 **Do not implement this as part of the Cardex work.** This task is a research-and-design step whose
 deliverable is a *new spec document* (e.g. `specs-skilldex-talent-art.md`), agreed with the user
@@ -440,11 +440,129 @@ Points to resolve, roughly in order of how much they could sink the design:
 Per the codex convention, whatever lands here is verified **visually** — before/after in the dev
 server across expanded/collapsed nodes and every zoom stop — not with tests.
 
+**Scoping done (2026-08-02).** Tasks 10–16 below are the result. One assumption above turned out to
+be wrong and is corrected there: **`EventTree` renders no SVG images at all** — the shared `Image`
+import belongs to `EventList`, the React sidebar. There is no existing SVG-image pattern in this
+codebase to copy.
+
 ---
 
-## Open question for later
+## Skilldex: "Show talent art"
 
-Overlapping the rarity icon onto the artwork (instead of, or in addition to, the coloured border)
-was considered and deferred. Once the border version is on screen it'll be easier to judge whether
-the separate rarity column still earns its space, or whether the icon should move onto a corner of
-the art and free up ~2rem of row width. Revisit then, not now.
+Same feature for Skilldex: a `Show talent art` toggle that draws a **full-width horizontal strip** of
+the talent's artwork between the name and the description.
+
+### Decisions already made
+
+Settled with the user during scoping — implement as stated, don't re-litigate:
+
+| Question | Decision |
+| --- | --- |
+| Crop | **Full-width strip, centre crop.** Spans the node's whole 200px width via `preserveAspectRatio="xMidYMid slice"`. Most of the 70×70 source is discarded; the middle is where the subject usually is. |
+| Placement | Between the name separator and the description, i.e. inserted into the existing `yPos` chain after `yPosAfterName`. |
+| Description hidden | **Still show the artwork.** One rule, one code path — the toggle alone decides. |
+| Missing artwork | **Reserve the strip and draw a flat placeholder.** Node height must not depend on whether the mapping resolves, so the dimension engine never has to consult it. |
+| Default | **Off**, unlike Cardex. A talent tree renders every node at once with no lazy-loading safety net (task 13) — opt-in until measured. |
+
+### Why this is harder than the Cardex side
+
+Skilldex nodes are **SVG drawn by D3**, not DOM rendered by React. `next/image` is unavailable, so
+lazy loading, `onError` and the placeholder all need SVG equivalents. And node height is **computed
+in one file and drawn in another**, so every change has to land in both.
+
+### 10. Add the `ShowTalentArt` filter option
+
+Mirrors task 1 exactly.
+
+- `src/codex/types/filters.ts` — add `ShowTalentArt` to `FormattingTalentFilterOption`.
+- `src/codex/hooks/useSearchFilters/useFormattingTalentFilters.ts` — add the default (**`false`**,
+  see the decision table), `'Show talent art'` to `valueToStringMap`, and derive + return
+  `shouldShowTalentArt`.
+- **No `codexFilterStore.ts` version bump** — same reasoning as task 1.
+
+The checkbox appears automatically from `FormattingTalent.getAll()`. Verify visually; nothing else
+should change yet.
+
+### 11. Resolve talent artwork with the shared hook
+
+The lookup is already solved — `@/shared/hooks/useCardImageSrc` (task 2) works unchanged for talents,
+because Blightbane treats talents as cards and their art lives in the same `/images/icons/`
+namespace. Coverage was measured at **100% of 385 talents, zero `artwork: null`**.
+
+The problem is that `useCardImageSrc` is a **React hook** and the tree is drawn by D3 outside React's
+render. So this task is about getting a URL into a D3 callback, not about the mapping:
+
+- Export a plain function alongside the hook — e.g. `getCardImageSrc(name)` — and have the hook call
+  it. The renderer then resolves URLs synchronously per node with no hook involved.
+- Do **not** duplicate the `Map`. It is module-scope in `useCardImageSrc` precisely so it is built
+  once; a second copy in the codex would double the memory and can drift.
+- **Never transform the talent name into a filename.** The mapping is load-bearing:
+  `"Typhon's Cunning"` → `"Thyphon’s cunning_eclypse-miniset"` has a typo, a curly apostrophe,
+  a lowercased word and a set suffix. Exact-string `Map` lookup only — normalising quotes breaks it.
+
+### 12. Render the strip in the node
+
+`TalentTree/talentNodes.ts` + `constants/talentTreeValues.ts` + `utils/talentNodeDimensions.ts`.
+
+**The two-files-must-agree trap.** `_getNodeHeight` sums section heights; `renderTalentNode` walks a
+parallel `yPos` chain (`yPosAfterName` → `yPosAfterAdditionalRequirements` → `yPosAfterDescription`).
+They are independent code paths over the same layout. Adding a section to one and not the other makes
+nodes reserve space they never draw, or draw over their own content — the same failure the nil
+card-set invariant warns about.
+
+- Add `NODE.ARTWORK` to `talentTreeValues.ts`: `HEIGHT` (start ~28) and `VERTICAL_MARGIN`.
+- Add the contribution to `_getNodeHeight`, gated only on the new toggle.
+- Insert into the render chain after the name separator, before additional requirements, and thread
+  the new offset through every downstream `yPos`.
+- Draw with `<image>` + `preserveAspectRatio="xMidYMid slice"` and a `clipPath` to the strip
+  rectangle — `slice` scales to cover and overflows, so without the clip it paints over the node.
+- The strip is full-bleed to the node's 200px width, so it should sit **under** the node border
+  rather than overlapping it; check paint order against the existing `rect`s.
+
+### 13. Loading, count and the missing-art placeholder
+
+Cardex got lazy loading free from `next/image`. **SVG `<image>` has no such thing** — every node in
+the tree fetches immediately on render, which is the main risk in this feature.
+
+- Measure the real numbers first: how many talent nodes does the largest tree render at once? At
+  ~2.2KB each the bytes are trivial, but the *request count* is not, and unlike Cardex there is no
+  viewport culling.
+- Talents share artwork with cards, so the `card-artwork` bucket from task 7a (1500 entries) already
+  covers both tools. Confirm the combined count still fits rather than assuming.
+- Missing art draws a **flat placeholder**, per the decision table. Keeping the reserved height
+  unconditional is what lets `_getNodeHeight` stay ignorant of the mapping — do not let layout depend
+  on whether a URL resolved.
+- **The 200-HTTP caveat still applies**: `blightbane.io` serves a valid placeholder webp instead of
+  404ing, so a wrong artwork value cannot be detected at request time. All miss detection is at the
+  mapping level. Don't add retry logic.
+
+### 14. Cache key and layout memo
+
+Per the codex invariant, node-dimension caches are keyed by **all** rendering settings.
+
+- Add the toggle to `makeKey` in `talentNodeDimensions.ts`. Without it, toggling artwork returns
+  stale cached heights and nodes render at the wrong size.
+- Add it to `TalentRenderingContext` and to the layout memo's deps in `TalentTree/index.tsx`.
+- **Do not add anything zoom-related to the layout memo** — that separation is what keeps zooming off
+  the dimension-caching path.
+
+### 15. Zoom
+
+Zooming re-renders without re-laying-out. Confirm the artwork scales with its node and does **not**
+re-fetch or re-measure per zoom step — check the network panel while stepping through every zoom
+stop, including `cover`.
+
+### 16. Verify
+
+`npm run verify`, then the visual pass: expanded and collapsed nodes, every zoom stop, description on
+and off, a tree with many nodes, and mobile. Per the codex convention this is verified **visually**,
+not with tests.
+
+If task 13's measurements are bad, say so and leave the default off rather than shipping a tree that
+fires hundreds of requests on open.
+
+### Deferred
+
+**Eventmaps.** Out of scope. `EventTree` renders no SVG images today, so there is no shared pattern
+to extend — and if Skilldex ends up with a reusable `<image>`+`clipPath` helper, that is the point to
+reconsider, not before.
