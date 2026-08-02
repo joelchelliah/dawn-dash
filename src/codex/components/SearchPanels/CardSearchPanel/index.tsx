@@ -22,7 +22,6 @@ import { allBanners } from '@/codex/hooks/useSearchFilters/useBannerFilters'
 import { allExtraCardFilters } from '@/codex/hooks/useSearchFilters/useExtraCardFilters'
 import { allCardSets } from '@/codex/hooks/useSearchFilters/useCardSetFilters'
 import { UseCardData } from '@/codex/hooks/useCardData'
-import { isAnimalCompanionCard } from '@/codex/utils/cardHelper'
 
 import CodexLastUpdated from '../../CodexLastUpdated'
 import PanelHeader from '../../PanelHeader'
@@ -34,6 +33,9 @@ import styles from './index.module.scss'
 
 const cx = createCx(styles)
 
+// Rarities used as challenge keywords, when capitalized, score every card of that rarity, rather than matching on text
+const rarityKeywords = ['Monster', 'Common', 'Uncommon', 'Rare', 'Legendary']
+
 interface CardSearchPanelProps {
   useSearchFilters: UseAllCardSearchFilters
   useCardData: UseCardData
@@ -42,9 +44,7 @@ interface CardSearchPanelProps {
 const CardSearchPanel = ({ useSearchFilters, useCardData }: CardSearchPanelProps) => {
   const {
     keywords,
-    parsedKeywords,
     setKeywords,
-    matchingCards,
     useCardSetFilters,
     useRarityFilters,
     useBannerFilters,
@@ -61,12 +61,8 @@ const CardSearchPanel = ({ useSearchFilters, useCardData }: CardSearchPanelProps
   const { cardSetFilters, handleCardSetFilterToggle } = useCardSetFilters
   const { rarityFilters, handleRarityFilterToggle } = useRarityFilters
   const { bannerFilters, handleBannerFilterToggle } = useBannerFilters
-  const {
-    extraCardFilters,
-    handleExtraCardFilterToggle,
-    getExtraCardFilterName,
-    shouldIncludeAnimalCompanionCards,
-  } = useExtraCardFilters
+  const { extraCardFilters, handleExtraCardFilterToggle, getExtraCardFilterName } =
+    useExtraCardFilters
   const { formattingFilters, handleFormattingFilterToggle, getFormattingFilterName } =
     useFormattingFilters
   const { struckCards } = useCardStrike
@@ -109,19 +105,19 @@ const CardSearchPanel = ({ useSearchFilters, useCardData }: CardSearchPanelProps
       </div>
     </div>
   )
+  // The notifications describe the *optimized* search, so anything the optimization changes has to
+  // be read from its return value.
   const handleWeeklyChallengeClick = () => {
-    setFiltersFromWeeklyChallengeData()
+    const optimization = setFiltersFromWeeklyChallengeData()
+    if (!optimization) return
+
     if (struckCards.length > 0) {
       setNotificationMessage(untrackedCardsNotificationMessage)
       setShowNotification(true)
-    } else if (
-      ['Common', 'Uncommon', 'Rare', 'Legendary', 'Monster'].some((rarity) =>
-        parsedKeywords.includes(rarity)
-      )
-    ) {
+    } else if (rarityKeywords.some((rarity) => optimization.parsedKeywords.includes(rarity))) {
       setNotificationMessage(specialKeywordRulesNotificationMessage)
       setShowNotification(true)
-    } else if (shouldIncludeAnimalCompanionCards && matchingCards.some(isAnimalCompanionCard)) {
+    } else if (optimization.hasAnimalCompanionMatch) {
       setNotificationMessage(animalCompanionNotificationMessage)
       setShowNotification(true)
     } else if (weeklyChallengeData?.hadNegativeKeywords) {

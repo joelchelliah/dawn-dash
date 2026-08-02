@@ -15,14 +15,19 @@ import {
 
 import { useWeeklyChallengeFilterData } from '../useWeeklyChallengeFilterData'
 
-import { useCardSetFilters } from './useCardSetFilters'
-import { useRarityFilters } from './useRarityFilters'
-import { useBannerFilters } from './useBannerFilters'
+import { isCardSetIndexInSelection, useCardSetFilters } from './useCardSetFilters'
+import { allRarities, useRarityFilters } from './useRarityFilters'
+import { isBannerIndexInSelection, useBannerFilters } from './useBannerFilters'
 import { useExtraCardFilters } from './useExtraCardFilters'
 import { useFormattingCardFilters } from './useFormattingCardFilters'
 import { useCardStrike } from './useCardStrike'
 import { useKeywords } from './useKeywords'
 import { useFilterTracking } from './useFilterTracking'
+
+export interface WeeklyChallengeOptimization {
+  parsedKeywords: string[]
+  hasAnimalCompanionMatch: boolean
+}
 
 export interface UseAllCardSearchFilters {
   keywords: string
@@ -37,7 +42,7 @@ export interface UseAllCardSearchFilters {
   useCardStrike: ReturnType<typeof useCardStrike>
   resetFilters: () => void
   resetStruckCards: () => void
-  setFiltersFromWeeklyChallengeData: () => void
+  setFiltersFromWeeklyChallengeData: () => WeeklyChallengeOptimization | null
   weeklyChallengeData: WeeklyChallengeFilterData | null
   isWeelyChallengeLoading: boolean
   isWeeklyChallengeError: boolean
@@ -69,7 +74,7 @@ export const useAllCardSearchFilters = (
 
   const TRACKED_FILTER_HANDLERS = {
     cardSet: ['handleCardSetFilterToggle', 'enableCardSetFilters', 'resetCardSetFilters'] as const,
-    rarity: ['handleRarityFilterToggle', 'resetRarityFilters'] as const,
+    rarity: ['handleRarityFilterToggle', 'enableRarityFilters', 'resetRarityFilters'] as const,
     banner: ['handleBannerFilterToggle', 'enableBannerFilters', 'resetBannerFilters'] as const,
     extraCard: [
       'handleExtraCardFilterToggle',
@@ -105,7 +110,8 @@ export const useAllCardSearchFilters = (
 
   const { cardSetFilters, isCardSetIndexSelected, enableCardSetFilters, resetCardSetFilters } =
     trackedUseCardSetFilters
-  const { rarityFilters, isRarityIndexSelected, resetRarityFilters } = trackedUseRarityFilters
+  const { rarityFilters, isRarityIndexSelected, enableRarityFilters, resetRarityFilters } =
+    trackedUseRarityFilters
   const { bannerFilters, isBannerIndexSelected, enableBannerFilters, resetBannerFilters } =
     trackedUseBannerFilters
   const {
@@ -137,24 +143,50 @@ export const useAllCardSearchFilters = (
   // Bulk-sets several filters at once, so every setter it calls has to be a tracked one
   // (see `TRACKED_FILTER_HANDLERS`) — otherwise the optimization applies visibly but never
   // reaches the filter cache, and reverts on the next page load.
-  const setFiltersFromWeeklyChallengeData = () => {
-    if (filterData && !isFilterDataError) {
-      trackedSetKeywords(
-        Array.from(
-          new Set([...Array.from(filterData.keywords), ...Array.from(filterData.specialKeywords)])
-        ).join(', ')
-      )
+  //
+  // Returns what it applied.
+  // inspect the optimized result must read it from the return value, NOT from `parsedKeywords` and `matchingCards`.
+  const setFiltersFromWeeklyChallengeData = (): WeeklyChallengeOptimization | null => {
+    if (!filterData || isFilterDataError) return null
 
-      enableCardSetFilters(Array.from(filterData.cardSets))
-      enableBannerFilters(Array.from(filterData.banners))
+    const newParsedKeywords = Array.from(
+      new Set([...Array.from(filterData.keywords), ...Array.from(filterData.specialKeywords)])
+    )
+    const newCardSets = Array.from(filterData.cardSets)
+    const newBanners = Array.from(filterData.banners)
 
-      // Non-collectible cards can never show up in a weekly challenge, for now...
-      enableExtraCardFilters(
-        Object.keys(extraCardFilters).filter(
-          (filter) =>
-            filter !== ExtraCardFilterOption.IncludeNonCollectibleCards && extraCardFilters[filter]
-        )
+    trackedSetKeywords(newParsedKeywords.join(', '))
+
+    enableCardSetFilters(newCardSets)
+    enableBannerFilters(newBanners)
+    enableRarityFilters(allRarities)
+
+    // Non-collectible cards can never show up in a weekly challenge, for now...
+    enableExtraCardFilters(
+      Object.keys(extraCardFilters).filter(
+        (filter) =>
+          filter !== ExtraCardFilterOption.IncludeNonCollectibleCards && extraCardFilters[filter]
       )
+    )
+
+    return {
+      parsedKeywords: newParsedKeywords,
+      hasAnimalCompanionMatch:
+        shouldIncludeAnimalCompanionCards &&
+        (cardData ?? []).some(
+          (card) =>
+            isAnimalCompanionCard(card) &&
+            isCardMatching(card, {
+              parsedKeywords: newParsedKeywords,
+              isCardSetSelected: (index) => isCardSetIndexInSelection(index, newCardSets),
+              isBannerSelected: (index) => isBannerIndexInSelection(index, newBanners),
+              // Every rarity was just enabled above
+              isRaritySelected: () => true,
+              shouldIncludeMonsterCards,
+              shouldIncludeAnimalCompanionCards,
+              shouldIncludeNonCollectibleCards: false,
+            })
+        ),
     }
   }
 
@@ -204,33 +236,16 @@ export const useAllCardSearchFilters = (
   // --------------------------------------------------
 
   const isMatchingCard = useCallback(
-    (card: CardData) => {
-      // Note: Nil expansion cards are selected by the Core checkbox — see `useCardSetFilters`.
-      const passesExpansionFilter = isCardSetIndexSelected(card.expansion)
-      const passesRarityFilter = hasMonsterRarity(card)
-        ? shouldIncludeMonsterCards
-        : isRarityIndexSelected(card.rarity)
-      const passesBannerFilter = hasMonsterBanner(card)
-        ? shouldIncludeMonsterCards
-        : isBannerIndexSelected(card.color)
-
-      const passesAnimalCompanionFilter = isAnimalCompanionCard(card)
-        ? shouldIncludeAnimalCompanionCards
-        : true
-
-      const passesCollectibilityFilter = isNonCollectible(card)
-        ? shouldIncludeNonCollectibleCards
-        : true
-
-      return (
-        passesExpansionFilter &&
-        passesRarityFilter &&
-        passesBannerFilter &&
-        passesAnimalCompanionFilter &&
-        passesCollectibilityFilter &&
-        isNameOrDescriptionIncluded(card, parsedKeywords)
-      )
-    },
+    (card: CardData) =>
+      isCardMatching(card, {
+        parsedKeywords,
+        isCardSetSelected: isCardSetIndexSelected,
+        isBannerSelected: isBannerIndexSelected,
+        isRaritySelected: isRarityIndexSelected,
+        shouldIncludeMonsterCards,
+        shouldIncludeAnimalCompanionCards,
+        shouldIncludeNonCollectibleCards,
+      }),
     [
       shouldIncludeMonsterCards,
       isCardSetIndexSelected,
@@ -267,6 +282,59 @@ export const useAllCardSearchFilters = (
     isWeelyChallengeLoading: isFilterDataLoading,
     isWeeklyChallengeError: isFilterDataError,
   }
+}
+
+interface CardMatchingFilters {
+  parsedKeywords: string[]
+  isCardSetSelected: (index: number) => boolean
+  isBannerSelected: (index: number) => boolean
+  isRaritySelected: (index: number) => boolean
+  shouldIncludeMonsterCards: boolean
+  shouldIncludeAnimalCompanionCards: boolean
+  shouldIncludeNonCollectibleCards: boolean
+}
+
+/*
+ * The card matching rules, taking every filter as an argument rather than closing over hook state,
+ * so the same rules can be applied to filters that have not been committed to state yet.
+ */
+const isCardMatching = (
+  card: CardData,
+  {
+    parsedKeywords,
+    isCardSetSelected,
+    isBannerSelected,
+    isRaritySelected,
+    shouldIncludeMonsterCards,
+    shouldIncludeAnimalCompanionCards,
+    shouldIncludeNonCollectibleCards,
+  }: CardMatchingFilters
+): boolean => {
+  // Note: Nil expansion cards are selected by the Core checkbox — see `useCardSetFilters`.
+  const passesExpansionFilter = isCardSetSelected(card.expansion)
+  const passesRarityFilter = hasMonsterRarity(card)
+    ? shouldIncludeMonsterCards
+    : isRaritySelected(card.rarity)
+  const passesBannerFilter = hasMonsterBanner(card)
+    ? shouldIncludeMonsterCards
+    : isBannerSelected(card.color)
+
+  const passesAnimalCompanionFilter = isAnimalCompanionCard(card)
+    ? shouldIncludeAnimalCompanionCards
+    : true
+
+  const passesCollectibilityFilter = isNonCollectible(card)
+    ? shouldIncludeNonCollectibleCards
+    : true
+
+  return (
+    passesExpansionFilter &&
+    passesRarityFilter &&
+    passesBannerFilter &&
+    passesAnimalCompanionFilter &&
+    passesCollectibilityFilter &&
+    isNameOrDescriptionIncluded(card, parsedKeywords)
+  )
 }
 
 const isNameOrDescriptionIncluded = (

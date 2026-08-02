@@ -25,13 +25,14 @@ const useBaseRarityFilters = createFilterHook({
 })
 
 export const useRarityFilters = (cachedFilters?: CardCodexSearchFilterCache['rarities']) => {
-  const { filters, isIndexSelected, handleFilterToggle, resetFilters } =
+  const { filters, isIndexSelected, handleFilterToggle, enableFilters, resetFilters } =
     useBaseRarityFilters(cachedFilters)
 
   return {
     rarityFilters: filters,
     isRarityIndexSelected: isIndexSelected,
     handleRarityFilterToggle: handleFilterToggle,
+    enableRarityFilters: enableFilters,
     resetRarityFilters: resetFilters,
   }
 }
