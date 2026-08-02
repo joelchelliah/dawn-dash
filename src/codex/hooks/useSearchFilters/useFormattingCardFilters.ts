@@ -7,7 +7,8 @@ import {
 import { createFilterHook } from './useFilterFactory'
 
 const defaultFilters = {
-  [FormattingCardFilterOption.ShowDescription]: false,
+  [FormattingCardFilterOption.ShowCardArt]: true,
+  [FormattingCardFilterOption.ShowDescription]: true,
   [FormattingCardFilterOption.ShowKeywords]: true,
   [FormattingCardFilterOption.ShowCardSet]: true,
   [FormattingCardFilterOption.ShowBlightbaneLink]: false,
@@ -15,6 +16,7 @@ const defaultFilters = {
 }
 
 const valueToStringMap = {
+  [FormattingCard.ShowCardArt]: 'Show card art',
   [FormattingCard.ShowDescription]: 'Show card description',
   [FormattingCard.ShowKeywords]: 'Show matching keywords',
   [FormattingCard.ShowCardSet]: 'Show card set',
@@ -38,6 +40,7 @@ export const useFormattingCardFilters = (
   const shouldShowDescription = filters[FormattingCard.ShowDescription]
   const shouldShowKeywords = filters[FormattingCard.ShowKeywords]
   const shouldShowCardSet = filters[FormattingCard.ShowCardSet]
+  const shouldShowCardArt = filters[FormattingCard.ShowCardArt]
   const shouldShowBlightbaneLink = filters[FormattingCard.ShowBlightbaneLink]
   const shouldHideTrackedCards = filters[FormattingCard.HideTrackedCards]
 
@@ -49,6 +52,7 @@ export const useFormattingCardFilters = (
     shouldShowDescription,
     shouldShowKeywords,
     shouldShowCardSet,
+    shouldShowCardArt,
     shouldShowBlightbaneLink,
     shouldHideTrackedCards,
   }

@@ -1,12 +1,13 @@
 import { IconProps } from './types'
 
+// To tweak: side = 16 / fill, then x = 12 - side/2 and y = 11.5 - side/2.
 export function PawIcon({ className = '', onClick }: IconProps): JSX.Element {
   return (
     <svg
       className={className}
       width="24"
       height="24"
-      viewBox="0 0 24 24"
+      viewBox="	2 1.5 20 20"
       fill="currentColor"
       xmlns="http://www.w3.org/2000/svg"
       onClick={onClick}

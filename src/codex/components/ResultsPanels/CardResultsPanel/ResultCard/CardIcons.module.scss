@@ -1,0 +1,221 @@
+@use 'sass:list';
+@use 'sass:map';
+@use 'index' as *;
+
+// How far the stack slides over the artwork. Has to cancel the row's gap (0.5rem desktop,
+// 0.25rem mobile) before any overlap starts.
+$overlap: 1.25rem;
+$overlap-mobile: 1.125rem;
+
+// Shrinks the icons and the plate behind them while overlapping. 1 = unchanged.
+$overlap-scale: 0.8;
+
+$column-width: 1.5rem;
+
+$rarity-sizes: (
+  'common': (
+    14px,
+    14px,
+  ),
+  'uncommon': (
+    22px,
+    22px,
+  ),
+  'rare': (
+    20px,
+    18px,
+  ),
+  'legendary': (
+    20px,
+    22px,
+  ),
+  'monster': (
+    18px,
+    18px,
+  ),
+);
+
+$rarity-colours: (
+  'common': $color-rarity-common,
+  'uncommon': $color-rarity-uncommon,
+  'rare': $color-rarity-rare,
+  'legendary': $color-rarity-legendary,
+  'monster': $color-danger-special-card,
+);
+
+// In px so it can be combined with the artwork sizes when positioning the icons on its corners.
+$overlap-icon-plate-size: 24px;
+$overlap-icon-plate-colour: rgba(0, 0, 0, 0.75);
+
+// While overlapping, the icons are *centred on* the artwork's top-right and bottom-right corners.
+//
+// `$overlap-icon-inset` pulls both icons back inward from the corners.
+$overlap-icon-inset: 4px;
+
+// The paw + cross pill tuning.
+$overlap-icon-pill-glyph: 12px;
+$overlap-icon-pill-gap: 0px;
+$overlap-icon-pill-padding: 4px;
+$overlap-icon-pill-width: 2 * $overlap-icon-pill-glyph + $overlap-icon-pill-gap + 2 *
+  $overlap-icon-pill-padding;
+$overlap-icon-pill-overhang: ($overlap-icon-pill-width - $overlap-icon-plate-size) * 0.5;
+
+// Nudges the pill off its center.
+$overlap-icon-pill-offset: -4px;
+
+@mixin icon-drop-shadow {
+  filter: drop-shadow(0.125rem 0.125rem 0.0625rem rgba(0, 0, 0, 0.9));
+}
+
+@mixin overlap-icon-plate {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: $overlap-icon-plate-size;
+  height: $overlap-icon-plate-size;
+  border-radius: 50%;
+  background-color: $overlap-icon-plate-colour;
+}
+
+.card-icons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  min-width: $column-width;
+  margin: 0.375rem 0;
+
+  // Each icon carries its own circular plate here, so the container itself stays transparent.
+  // The column overshoots the artwork by one plate so the plates end up centred on its corners;
+  // the negative vertical margin keeps that overshoot from growing the row.
+  &--overlapping {
+    position: relative;
+    z-index: 1;
+    justify-content: space-between;
+    gap: 0;
+    height: $card-artwork-size + $overlap-icon-plate-size - 2 * $overlap-icon-inset;
+    min-width: $overlap-icon-plate-size;
+    margin-top: -0.5 * $overlap-icon-plate-size;
+    margin-bottom: -0.5 * $overlap-icon-plate-size;
+    margin-left: -$overlap;
+    margin-right: 0;
+
+    @media (max-width: $breakpoint-mobile) {
+      height: $card-artwork-size-mobile + $overlap-icon-plate-size - 2 * $overlap-icon-inset;
+      margin-left: -$overlap-mobile;
+    }
+  }
+}
+
+.card-icons__rarity {
+  color: $color-rarity-common;
+  flex-shrink: 0;
+
+  @each $name, $size in $rarity-sizes {
+    &--#{$name} {
+      @extend .card-icons__rarity;
+      width: list.nth($size, 1);
+      height: list.nth($size, 2);
+      color: map.get($rarity-colours, $name);
+    }
+  }
+}
+
+.card-icons__special-icon-base {
+  display: flex;
+  justify-content: center;
+
+  svg {
+    position: relative;
+    color: $color-danger-special-card;
+  }
+}
+
+.card-icons__non-collectible-and-animal-companion {
+  @extend .card-icons__special-icon-base;
+  flex-direction: row;
+  // These three feed $overlap-icon-pill-width, which keeps the pill centred while overlapping.
+  gap: $overlap-icon-pill-gap;
+
+  svg {
+    width: $overlap-icon-pill-glyph;
+    height: $overlap-icon-pill-glyph;
+  }
+}
+
+.card-icons__non-collectible {
+  @extend .card-icons__special-icon-base;
+
+  svg {
+    width: 1rem;
+    height: 1rem;
+  }
+}
+
+.card-icons__animal-companion {
+  @extend .card-icons__special-icon-base;
+
+  svg {
+    width: 1rem;
+    height: 1rem;
+  }
+}
+
+.card-icons:not(.card-icons--overlapping) {
+  .card-icons__rarity,
+  .card-icons__non-collectible svg,
+  .card-icons__animal-companion svg,
+  .card-icons__non-collectible-and-animal-companion svg {
+    @include icon-drop-shadow;
+  }
+}
+
+.card-icons--overlapping {
+  @each $name, $size in $rarity-sizes {
+    .card-icons__rarity--#{$name} {
+      width: list.nth($size, 1) * $overlap-scale;
+      height: list.nth($size, 2) * $overlap-scale;
+    }
+  }
+
+  // Plates go on the wrappers, not the svgs: it keeps the circle independent of each glyph's
+  // dimensions, and lets the paw + cross pair share one circle instead of getting two.
+  .card-icons__rarity-wrapper,
+  .card-icons__non-collectible,
+  .card-icons__animal-companion,
+  .card-icons__non-collectible-and-animal-companion {
+    @include overlap-icon-plate;
+  }
+
+  // The paw + cross pair is wider than one glyph, so it gets a pill rather than a clipped circle.
+  // The column is only one plate wide, so the pill's extra width would otherwise push it off to
+  // the right; equal negative margins let it overhang both sides and stay centred on the corner.
+  .card-icons__non-collectible-and-animal-companion {
+    width: auto;
+    padding: 0 $overlap-icon-pill-padding;
+    border-radius: $overlap-icon-plate-size;
+    margin-left: -$overlap-icon-pill-overhang;
+    margin-right: -$overlap-icon-pill-overhang;
+    // Separate from the margins so nudging it left/right can't disturb the centring above.
+    transform: translateX($overlap-icon-pill-offset);
+  }
+
+  // Most cards have no special icons. The rarity icon should stay on the top-right corner rather
+  // than drift to the middle, so push the leftover column space below it.
+  .card-icons__rarity-wrapper:only-child {
+    margin-bottom: auto;
+  }
+
+  .card-icons__rarity--legendary {
+    position: relative;
+    // Optical correction to make the triple star look more centered
+    top: -1px;
+  }
+
+  .card-icons__non-collectible svg,
+  .card-icons__animal-companion svg,
+  .card-icons__non-collectible-and-animal-companion svg {
+    transform: scale($overlap-scale);
+  }
+}

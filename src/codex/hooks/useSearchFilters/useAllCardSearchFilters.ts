@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 
-import { WeeklyChallengeFilterData } from '@/codex/types/filters'
+import { ExtraCardFilterOption, WeeklyChallengeFilterData } from '@/codex/types/filters'
 import {
   hasMonsterBanner,
   hasMonsterRarity,
@@ -67,41 +67,39 @@ export const useAllCardSearchFilters = (
   // --------------------------------------------------
   const { hasUserChangedFilter, createTrackedFilter, createTrackedSetter } = useFilterTracking()
 
-  const TRACKED_FILTER_HANDLER = {
-    cardSet: 'handleCardSetFilterToggle' as const,
-    rarity: 'handleRarityFilterToggle' as const,
-    banner: 'handleBannerFilterToggle' as const,
-    extraCard: 'handleExtraCardFilterToggle' as const,
-    formatting: 'handleFormattingFilterToggle' as const,
-    cardStrike: 'toggleCardStrike' as const,
+  const TRACKED_FILTER_HANDLERS = {
+    cardSet: ['handleCardSetFilterToggle', 'enableCardSetFilters', 'resetCardSetFilters'] as const,
+    rarity: ['handleRarityFilterToggle', 'resetRarityFilters'] as const,
+    banner: ['handleBannerFilterToggle', 'enableBannerFilters', 'resetBannerFilters'] as const,
+    extraCard: [
+      'handleExtraCardFilterToggle',
+      'enableExtraCardFilters',
+      'resetExtraCardFilters',
+    ] as const,
+    formatting: ['handleFormattingFilterToggle', 'resetFormattingFilters'] as const,
+    cardStrike: ['toggleCardStrike', 'undoLastTrackedCard', 'resetStruckCards'] as const,
   } as const
 
   const trackedSetKeywords = createTrackedSetter(setKeywordsUntracked)
 
-  const trackedUseCardSetFilters = createTrackedFilter(
-    untrackedUseCardSetFilters,
-    TRACKED_FILTER_HANDLER.cardSet
-  )
-  const trackedUseRarityFilters = createTrackedFilter(
-    untrackedUseRarityFilters,
-    TRACKED_FILTER_HANDLER.rarity
-  )
-  const trackedUseBannerFilters = createTrackedFilter(
-    untrackedUseBannerFilters,
-    TRACKED_FILTER_HANDLER.banner
-  )
-  const trackedUseExtraCardFilters = createTrackedFilter(
-    untrackedUseExtraCardFilters,
-    TRACKED_FILTER_HANDLER.extraCard
-  )
-  const trackedUseFormattingFilters = createTrackedFilter(
-    untrackedUseFormattingFilters,
-    TRACKED_FILTER_HANDLER.formatting
-  )
-  const trackedUseCardStrike = createTrackedFilter(
-    untrackedUseCardStrike,
-    TRACKED_FILTER_HANDLER.cardStrike
-  )
+  const trackedUseCardSetFilters = createTrackedFilter(untrackedUseCardSetFilters, [
+    ...TRACKED_FILTER_HANDLERS.cardSet,
+  ])
+  const trackedUseRarityFilters = createTrackedFilter(untrackedUseRarityFilters, [
+    ...TRACKED_FILTER_HANDLERS.rarity,
+  ])
+  const trackedUseBannerFilters = createTrackedFilter(untrackedUseBannerFilters, [
+    ...TRACKED_FILTER_HANDLERS.banner,
+  ])
+  const trackedUseExtraCardFilters = createTrackedFilter(untrackedUseExtraCardFilters, [
+    ...TRACKED_FILTER_HANDLERS.extraCard,
+  ])
+  const trackedUseFormattingFilters = createTrackedFilter(untrackedUseFormattingFilters, [
+    ...TRACKED_FILTER_HANDLERS.formatting,
+  ])
+  const trackedUseCardStrike = createTrackedFilter(untrackedUseCardStrike, [
+    ...TRACKED_FILTER_HANDLERS.cardStrike,
+  ])
   // --------------------------------------------------
   // --------------------------------------------------
 
@@ -115,11 +113,13 @@ export const useAllCardSearchFilters = (
     shouldIncludeMonsterCards,
     shouldIncludeAnimalCompanionCards,
     shouldIncludeNonCollectibleCards,
+    enableExtraCardFilters,
     resetExtraCardFilters,
   } = trackedUseExtraCardFilters
   const { formattingFilters, resetFormattingFilters } = trackedUseFormattingFilters
   const { struckCards, resetStruckCards } = trackedUseCardStrike
 
+  // Same tracking requirement as `setFiltersFromWeeklyChallengeData` below
   const resetFilters = () => {
     trackedSetKeywords('')
     resetParsedKeywords()
@@ -134,6 +134,9 @@ export const useAllCardSearchFilters = (
   // --------------- Weekly Challenge! ----------------
   // --------------------------------------------------
 
+  // Bulk-sets several filters at once, so every setter it calls has to be a tracked one
+  // (see `TRACKED_FILTER_HANDLERS`) — otherwise the optimization applies visibly but never
+  // reaches the filter cache, and reverts on the next page load.
   const setFiltersFromWeeklyChallengeData = () => {
     if (filterData && !isFilterDataError) {
       trackedSetKeywords(
@@ -144,6 +147,14 @@ export const useAllCardSearchFilters = (
 
       enableCardSetFilters(Array.from(filterData.cardSets))
       enableBannerFilters(Array.from(filterData.banners))
+
+      // Non-collectible cards can never show up in a weekly challenge, for now...
+      enableExtraCardFilters(
+        Object.keys(extraCardFilters).filter(
+          (filter) =>
+            filter !== ExtraCardFilterOption.IncludeNonCollectibleCards && extraCardFilters[filter]
+        )
+      )
     }
   }
 

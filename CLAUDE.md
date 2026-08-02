@@ -2,6 +2,48 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Working Style
+
+- **Progress cadence**: before the first tool call, say in one sentence what you are about to do. While working, post an update only when you find something important or change direction — not per file or per step.
+- **Suggestions**: if the request looks mistaken or a better approach exists, say so in a single sentence prefixed with `💡 [SUGGESTION]`, then continue with the task as asked.
+- **Written deliverables**: match a document's length to its substance. No filler sections, redundant summaries, or boilerplate — this file and the per-feature `CLAUDE.md` files included.
+- **Long tasks**: for multi-session or long-running work, keep a short running state file in the session scratchpad (not in the repo — the working tree stays clean) and re-read it after a context refresh, along with `git log`/`git status`, before acting.
+- **Long documents**: when analyzing or summarizing a large document (roughly >20k tokens — e.g. `src/codex/specs-*.md`, `event-trees.json`), quote the relevant lines before drawing conclusions from them rather than working from recall.
+
+## Writing a spec
+
+Specs live next to the feature they describe, as `src/<feature>/specs-<topic>.md`. Before writing one,
+read the root `CLAUDE.md`, the feature's own `CLAUDE.md`, and any `README.md` under the directories the
+work will touch — the invariants recorded there are usually the reason a task is harder than it looks,
+and a spec that contradicts one is worth catching before any code is written, not after.
+
+Every spec gets a **"How to work through this spec"** section, placed before the task list, covering:
+
+- **What to read first.** Name the root `CLAUDE.md`, the feature's own `CLAUDE.md`, and any `README.md`
+  covering the directories the tasks touch — with the specific invariants that constrain this work, so
+  they're visible without opening every file. Implementation often starts in a fresh context that has
+  none of the discussion behind the spec, so the spec has to point at its own background rather than
+  assume it.
+- **Where to stop.** State whether tasks may be chained or must pause for confirmation, and say *why*
+  for this particular spec — e.g. several tasks restructuring the same DOM and stylesheet, where a
+  mistake in an early task gets buried under later ones. If tasks pause: finish the task, get it into
+  a state the user can look at (`npm run dev`), say what changed and what specifically to look at, and
+  wait. Call out any task with no visible effect of its own so it isn't mistaken for a broken step.
+- **How it gets verified.** Visually in the dev server, via `npm run verify`, `npm run build`, or
+  `npm run check-sw` — name the actual check. For visual verification, name the states to compare
+  (expanded/collapsed, zoom levels, mobile/desktop), since "looks fine" on one state routinely misses
+  the others.
+- **Which docs change with the work.** List the specific files and sections the tasks will
+  invalidate, with the reason each is affected — grep for whatever the spec touches rather than
+  guessing. Note any new invariant worth recording once implemented, and say that a change
+  contradicting a documented invariant gets raised with the user rather than quietly rewritten.
+- **Comment style.** The non-obvious *why*, in a line or two. No restating the code, no narrating the
+  history of a change.
+
+Also state up front any **decisions already made** so they aren't re-litigated mid-implementation, and
+mark anything deliberately left to trial and error in the browser as exactly that. Order tasks
+operationally — the sequence they should be built in, not a topical grouping.
+
 ## Development Commands
 
 ### Core Development
@@ -14,6 +56,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `npm run format:check` - Check code formatting without writing changes
 - `npm run type-check` - Run TypeScript type checking
 - `npm run verify` - Run format:check, lint, type-check, and test together
+- `npm run icon-viewbox -- <IconName>` - Inspect an icon's viewBox fill and print candidate viewBoxes for making it look bigger/smaller (see `Icons/` under Shared Infrastructure)
+- `npm run check-sw` - Fail if the built service worker precaches a URL that will 404. **Run after `npm run build` whenever `next.config.ts` or the PWA setup changes** — Workbox precaching is atomic, so one bad entry silently disables the entire worker including all runtime caching
 
 **`npm run verify` is the required check before any change (AI-generated changes included) is considered done.** For changes touching `pages/`, `next.config.ts`, or data hooks, also run `npm run build`.
 
@@ -56,6 +100,7 @@ Each feature directory has its own `CLAUDE.md` with architecture details and inv
 - UI elements: LoadingDots, ScrollToTopButton, GradientDivider, GradientLink, ScrollableWithFade, Select, Code, Image
 - `Sliders/Thumb` — the draggable energy-orb thumb shared by the speedruns sliders and the codex zoom slider; takes an `orientation` prop because the CSS centering axis differs between horizontal and vertical tracks
 - Notifications: Notification (toast-style with auto-dismiss and progress bar)
+- `Icons/` — one component per SVG icon, each taking only `className` and `onClick`, so **size and colour are set entirely in CSS**. An icon's apparent size depends on its *fill* (how much of the viewBox is ink rather than margin), which varies a lot between icons — so equal CSS sizes do not look equal. To make an icon look bigger or smaller, crop or widen its `viewBox` rather than fighting it with CSS: run `npm run icon-viewbox -- <IconName>` for its current fill and a table of candidate viewBoxes. These components are shared (result cards *and* search-panel filters), so a viewBox change affects every consumer — use a stylesheet's `svg { width/height }` when only one place should change.
 
 **Custom Hooks**:
 - `useNavigation()` - registry-driven `navigateTo(toolId, query?)` + `resetToLandingPage()`
@@ -64,6 +109,7 @@ Each feature directory has its own `CLAUDE.md` with architecture details and inv
 - `useFromNow()` - relative time formatting with adaptive update interval
 - `useDeviceOrientation()` - portrait/landscape + mobile detection (state set on mount to avoid hydration mismatch)
 - `useDraggable()` - drag-to-scroll behavior
+- `useCardImageSrc(cardName, fallbackImageSrc?)` - resolves a card/talent name to its Blightbane artwork URL via a module-scope `Map` built from `src/shared/data/card-artwork.json`. The optional fallback is what unresolved names return; it defaults to `PestilenceDecreeUrl` for scoring, and Cardex passes `null` to get a placeholder square instead
 
 **Utilities**:
 - `classnames.ts` - `createCx()` wrapper for SCSS modules
@@ -71,7 +117,6 @@ Each feature directory has its own `CLAUDE.md` with architecture details and inv
 - `storage.ts` - localStorage wrapper with cache duration and staleness detection; `saveToCache` returns `{ success, error? }`
 - `apiErrorHandling.ts` - `handleError` normalizes any unknown error (Axios, Error, other) into a structured `ApiErrorInfo`
 - `logger.ts` - `logger.debug/warn` no-op outside development, `logger.error` always logs. **Never call `console.*` directly** (ESLint `no-console` enforces this)
-- `icons.tsx` - SVG icon components library
 - `imageUrls.ts` - centralized Blightbane asset URLs
 - `energyImages.ts` - `getEnergyImageUrl(CharacterClass)` → energy orb asset. Speedruns wraps this in its own `utils/images.ts` to also handle the speedruns-only `SpeedRunSubclass` members (`All`, `Hybrid`); `shared/` must not import speedruns types
 - `lists.ts`, `object.ts`, `textHelper.ts` - small pure helpers
@@ -96,8 +141,8 @@ Each feature directory has its own `CLAUDE.md` with architecture details and inv
 - **Speedrun data** is not synced — it is fetched live from the Blightbane API at runtime
 
 ### PWA & Performance
-- **Progressive Web App** with `next-pwa` (applied as `withPWA(options)(nextConfig)` in `next.config.ts`)
-- **Service worker** with CacheFirst strategy for Blightbane images (10-day cache expiry)
+- **Progressive Web App** with `next-pwa` (applied as `withPWA(options)(nextConfig)` in `next.config.ts`). **`next-pwa` 5.6.0 is the latest release and dates from 2022**, well before Next 15 — its peer range (`next >=9.0.0`) means nothing warns about the mismatch. It precached a Next 15 build file that 404s (`dynamic-css-manifest.json`), and because Workbox precaching is atomic that silently disabled the whole service worker, `runtimeCaching` included. Hence the `buildExcludes` entry — don't remove it. A broken worker looks identical to a working one outside DevTools, so **verify service-worker changes against `npm run build && npm start`** and check the caches actually fill. Replacement options are scoped in `src/codex/specs-next-pwa-replacement.md`.
+- **Service worker** with CacheFirst strategy for Blightbane images (10-day cache expiry), split across **two** `runtimeCaching` buckets: `card-artwork` for `/images/icons/**` (1500 entries, ~3.2MB — sized for Cardex result sets, which easily exceed 100 images) and `external-images` for everything else (100 entries: classes, energy orbs, events). The specific pattern must stay **first**, since Workbox uses the first match. Keeping them separate is what stops a large Cardex session from evicting the rest of the site's images.
 - **Offline support** via localStorage + service worker caching
 - **Dynamic imports** with `next/dynamic` for code splitting (each tool page lazy-loads its feature component)
 - **Image optimization** via `next/image` with remote patterns for Blightbane assets

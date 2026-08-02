@@ -1,25 +1,14 @@
 import { memo, useMemo } from 'react'
 
 import GradientLink from '@/shared/components/GradientLink'
-import {
-  CircleIcon,
-  SingleStarIcon,
-  DoubleStarsIcon,
-  TripleStarsIcon,
-  SkullIcon,
-  CrossIcon,
-  PawIcon,
-} from '@/shared/components/Icons'
 import { createCx } from '@/shared/utils/classnames'
 
 import { UseAllCardSearchFilters } from '@/codex/hooks/useSearchFilters'
 import { CardData } from '@/codex/types/cards'
-import {
-  isNonCollectible,
-  parseCardDescription,
-  isAnimalCompanionCard,
-} from '@/codex/utils/cardHelper'
+import { parseCardDescription } from '@/codex/utils/cardHelper'
 
+import CardArtwork from './CardArtwork'
+import CardIcons from './CardIcons'
 import styles from './index.module.scss'
 
 interface ResultCardProps {
@@ -45,6 +34,7 @@ const ResultCard = ({ card, useSearchFilters, showCardsWithoutKeywords }: Result
     shouldShowDescription,
     shouldShowKeywords,
     shouldShowCardSet,
+    shouldShowCardArt,
     shouldShowBlightbaneLink,
     shouldHideTrackedCards,
   } = useFormattingFilters
@@ -65,104 +55,104 @@ const ResultCard = ({ card, useSearchFilters, showCardsWithoutKeywords }: Result
   )
   const isStruck = isCardStruck(card)
 
-  const cardContainerClassName = cx('result-card-container', {
-    'result-card-container--struck': isStruck,
-    'result-card-container--full-match': isFullMatch,
-    'result-card-container--hidden': shouldHideTrackedCards && isStruck,
-  })
-  const cardClassName = cx('result-card', {
+  const cardContainerClassName = cx('result-card', {
     'result-card--struck': isStruck,
+    'result-card--full-match': isFullMatch,
     'result-card--hidden': shouldHideTrackedCards && isStruck,
   })
+  const cardClassName = cx('result-card__title-row', {
+    'result-card__title-row--struck': isStruck,
+    'result-card__title-row--hidden': shouldHideTrackedCards && isStruck,
+  })
 
-  const indexToRarityIconMap = {
-    [0]: <CircleIcon className={cx('result-card__rarity__icon--common')} />,
-    [1]: <SingleStarIcon className={cx('result-card__rarity__icon--uncommon')} />,
-    [2]: <DoubleStarsIcon className={cx('result-card__rarity__icon--rare')} />,
-    [3]: <TripleStarsIcon className={cx('result-card__rarity__icon--legendary')} />,
-    [4]: <SkullIcon className={cx('result-card__rarity__icon--monster')} />,
-  }
+  // Note: These two are not mutually exclusive. After clicking "show cards without keywords", you can still toggle the checkbox state regardless.
+  // In this case, this should have no effect on the rest of the elements.
+  const isShowingKeywords = shouldShowKeywords && !showCardsWithoutKeywords
 
-  const hasSpecialIcons = isNonCollectible(card) || isAnimalCompanionCard(card)
+  // When description is disabled, there are 2 elements we can show under the name: keywords and Blightbane link.
+  // We want to adjust the size of the name based on whether we're showing one or none of these elements.
+  const isShowingOneAdditionalNonDescElement =
+    (!isShowingKeywords && shouldShowBlightbaneLink) ||
+    (isShowingKeywords && !shouldShowBlightbaneLink)
+  const isShowingNoAdditionalNonDescElements = !isShowingKeywords && !shouldShowBlightbaneLink
+
+  const nameClassName = cx('result-card__name', {
+    'result-card__name--enlarged': !shouldShowDescription && isShowingOneAdditionalNonDescElement,
+    'result-card__name--enlarged-more':
+      !shouldShowDescription && isShowingNoAdditionalNonDescElements,
+  })
+
+  // Without a description the keywords get their own row instead of competing with the name for
+  // width. Then they need their own struck/hidden states.
+  const shouldShowKeywordsOnSeparateRow = isShowingKeywords && !shouldShowDescription
+  const keywordsSeparateRowClassName = cx(
+    'result-card__keywords',
+    'result-card__keywords--own-row',
+    {
+      'result-card__keywords--struck': isStruck,
+      'result-card__keywords--hidden': shouldHideTrackedCards && isStruck,
+    }
+  )
 
   const descriptionClassName = cx('result-card__description', {
-    'result-card__description--special-icons_margin': hasSpecialIcons,
     'result-card__description--struck': isStruck,
     'result-card__description--hidden': shouldHideTrackedCards && isStruck,
   })
-  const blightbaneLinkClassName = cx('result-card__blightbane-link', {
-    'result-card__blightbane-link--special-icons_margin': hasSpecialIcons,
-  })
+  const blightbaneLinkClassName = cx('result-card__blightbane-link')
 
   const blightbaneLink = `https://www.blightbane.io/card/${card.name.replaceAll(' ', '_')}`
 
-  const renderSpecialIcons = () => {
-    const hasNonCollectible = shouldIncludeNonCollectibleCards && isNonCollectible(card)
-    const hasAnimalCompanion = shouldIncludeAnimalCompanionCards && isAnimalCompanionCard(card)
-
-    if (hasNonCollectible && hasAnimalCompanion) {
-      return (
-        <span className={cx('result-card__non-collectible-and-animal-companion')}>
-          <PawIcon />
-          <CrossIcon />
-        </span>
-      )
-    }
-
-    if (hasAnimalCompanion) {
-      return (
-        <span className={cx('result-card__animal-companion')}>
-          <PawIcon />
-        </span>
-      )
-    }
-
-    if (hasNonCollectible) {
-      return (
-        <span className={cx('result-card__non-collectible')}>
-          <CrossIcon />
-        </span>
-      )
-    }
-
-    return null
-  }
-
+  // The strike toggle lives on the container so one handler covers the artwork column, the title
+  // row and the description.
   return (
-    <div className={cardContainerClassName} key={card.name}>
-      <div className={cardClassName} onClick={() => toggleCardStrike(card)}>
-        <span className={cx('result-card__rarity')}>
-          {indexToRarityIconMap[card.rarity as keyof typeof indexToRarityIconMap]}
-        </span>
-        {renderSpecialIcons()}
-        <span className={cx('result-card__name')}>{card.name}</span>
-        {shouldShowKeywords && !showCardsWithoutKeywords && (
-          <span className={cx('result-card__keywords')}>{matchingKeywordsText}</span>
+    <div className={cardContainerClassName} key={card.name} onClick={() => toggleCardStrike(card)}>
+      {shouldShowCardArt && <CardArtwork card={card} />}
+      {/* Sibling of the content column, not part of the title row, so the icons centre against
+          the whole row's height the way the artwork does. */}
+      <CardIcons
+        card={card}
+        shouldIncludeNonCollectibleCards={shouldIncludeNonCollectibleCards}
+        shouldIncludeAnimalCompanionCards={shouldIncludeAnimalCompanionCards}
+        shouldOverlapWithCardArt={shouldShowCardArt}
+      />
+      <div className={cx('result-card__content')}>
+        <div className={cardClassName}>
+          <span className={nameClassName}>{card.name}</span>
+          {isShowingKeywords && !shouldShowKeywordsOnSeparateRow && (
+            <span className={cx('result-card__keywords')}>{matchingKeywordsText}</span>
+          )}
+          {shouldShowCardSet && (
+            <span className={cx('result-card__card-set')}>
+              {getCardSetNameFromIndex(card.expansion)}
+              {/* Marks cards from the nil (0) expansion, which are shown as Core cards */}
+              {card.expansion === 0 && <span className={cx('result-card__card-set__nil')}>°</span>}
+            </span>
+          )}
+        </div>
+        {shouldShowKeywordsOnSeparateRow && (
+          <span className={keywordsSeparateRowClassName}>{matchingKeywordsText}</span>
         )}
-        {shouldShowCardSet && (
-          <span className={cx('result-card__card-set')}>
-            {getCardSetNameFromIndex(card.expansion)}
-            {/* Marks cards from the nil (0) expansion, which are shown as Core cards */}
-            {card.expansion === 0 && <span className={cx('result-card__card-set__nil')}>°</span>}
+        {shouldShowDescription && (
+          <div
+            className={descriptionClassName}
+            dangerouslySetInnerHTML={{
+              __html: parseCardDescription(card.description, cx('result-card__description__icon')),
+            }}
+          />
+        )}
+        {shouldShowBlightbaneLink && (
+          <span
+            className={cx('result-card__blightbane-link-wrapper')}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <GradientLink
+              text="See full description on Blightbane"
+              url={blightbaneLink}
+              className={blightbaneLinkClassName}
+            />
           </span>
         )}
       </div>
-      {shouldShowDescription && (
-        <div
-          className={descriptionClassName}
-          onClick={() => toggleCardStrike(card)}
-          dangerouslySetInnerHTML={{
-            __html: parseCardDescription(card.description, cx('result-card__description__icon')),
-          }}
-        />
-      )}
-      {shouldShowBlightbaneLink && (
-        <GradientLink
-          text="See full description on Blightbane"
-          url={blightbaneLink}
-          className={blightbaneLinkClassName}
-        />
-      )}
     </div>
   )
 }

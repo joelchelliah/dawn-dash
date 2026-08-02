@@ -156,6 +156,7 @@ export const ExtraTalent = {
 // -------------------- Formatting Card --------------------
 
 export enum FormattingCardFilterOption {
+  ShowCardArt = 'ShowCardArt',
   ShowDescription = 'ShowDescription',
   ShowKeywords = 'ShowKeywords',
   ShowCardSet = 'ShowCardSet',

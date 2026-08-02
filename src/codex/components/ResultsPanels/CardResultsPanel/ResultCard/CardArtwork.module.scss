@@ -1,0 +1,54 @@
+@use 'index' as *;
+
+// Sizes come from `$card-artwork-size` in styles/_constants.scss, since CardIcons positions its
+// icons against these edges too. Keep those in sync with the constants in CardArtwork.tsx.
+$artwork-size: $card-artwork-size;
+$artwork-size-mobile: $card-artwork-size-mobile;
+
+// How far the rarity colour bleeds out around the thumbnail.
+$artwork-glow-blur: 0.375rem;
+$artwork-glow-spread: 0.0625rem;
+$artwork-glow-opacity: 45%;
+
+// Rarity-tinted artwork thumbnail. Also serves as the placeholder square while the image loads.
+.card-artwork {
+  --rarity-colour: #{$color-component-border};
+
+  flex-shrink: 0;
+  width: $artwork-size;
+  height: $artwork-size;
+  margin: 0.5rem 0;
+  object-fit: cover;
+
+  @media (max-width: $breakpoint-mobile) {
+    width: $artwork-size-mobile;
+    height: $artwork-size-mobile;
+  }
+  border-radius: 0.25rem;
+  border: 1px solid var(--rarity-colour);
+  background-color: rgba(255, 255, 255, 0.1);
+
+  // Zero offset so the colour bleeds evenly in every direction.
+  box-shadow: 0 0 $artwork-glow-blur $artwork-glow-spread
+    color-mix(in srgb, var(--rarity-colour) $artwork-glow-opacity, transparent);
+
+  &--common {
+    --rarity-colour: #{$color-rarity-common};
+  }
+
+  &--uncommon {
+    --rarity-colour: #{$color-rarity-uncommon};
+  }
+
+  &--rare {
+    --rarity-colour: #{$color-rarity-rare};
+  }
+
+  &--legendary {
+    --rarity-colour: #{$color-rarity-legendary};
+  }
+
+  &--monster {
+    --rarity-colour: #{$color-danger-special-card};
+  }
+}

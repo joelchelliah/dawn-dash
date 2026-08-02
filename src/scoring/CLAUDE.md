@@ -11,3 +11,4 @@ Prose-heavy scoring guide panels per game mode (Standard, Sunforge, Weekly Chall
 ## Invariants
 - The guide content is deliberately hand-written prose stored verbatim in data arrays — when refactoring structure, move content, don't rewrite it. A full data-driven/CMS rewrite was explicitly rejected.
 - Scoring pages are static content: verify changes with a before/after render comparison of each touched panel.
+- **`BolgarsBlueprintsPanel` must keep the default `PestilenceDecreeUrl` fallback from the shared `useCardImageSrc`** (`@/shared/hooks/`). It passes `challengeData.image` — a Weekly Challenge API field, *not* necessarily a card name — so failing to resolve an artwork entry is a normal occurrence here, and the panel needs a real image to fall back to. Cardex passes `null` to the same hook because it wants a placeholder square instead; that divergence is intentional, not an inconsistency to unify.
