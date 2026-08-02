@@ -229,19 +229,19 @@ const CardSearchPanel = ({ useSearchFilters, useCardData }: CardSearchPanelProps
             onFilterToggle={handleCardSetFilterToggle}
           />
           <FilterGroup
+            title="Banners"
+            filters={allBanners}
+            selectedFilters={bannerFilters}
+            type="banner"
+            onFilterToggle={handleBannerFilterToggle}
+          />
+          <FilterGroup
             title="Rarities"
             filters={allRarities}
             selectedFilters={rarityFilters}
             type="rarity"
             onFilterToggle={handleRarityFilterToggle}
             getFilterLabel={getRarityFilterLabel}
-          />
-          <FilterGroup
-            title="Banners"
-            filters={allBanners}
-            selectedFilters={bannerFilters}
-            type="banner"
-            onFilterToggle={handleBannerFilterToggle}
           />
           <FilterGroup
             title="Extras"
