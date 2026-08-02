@@ -65,6 +65,35 @@ const ResultCard = ({ card, useSearchFilters, showCardsWithoutKeywords }: Result
     'result-card__title-row--hidden': shouldHideTrackedCards && isStruck,
   })
 
+  // Note: These two are not mutually exclusive. After clicking "show cards without keywords", you can still toggle the checkbox state regardless.
+  // In this case, this should have no effect on the rest of the elements.
+  const isShowingKeywords = shouldShowKeywords && !showCardsWithoutKeywords
+
+  // When description is disabled, there are 2 elements we can show under the name: keywords and Blightbane link.
+  // We want to adjust the size of the name based on whether we're showing one or none of these elements.
+  const isShowingOneAdditionalNonDescElement =
+    (!isShowingKeywords && shouldShowBlightbaneLink) ||
+    (isShowingKeywords && !shouldShowBlightbaneLink)
+  const isShowingNoAdditionalNonDescElements = !isShowingKeywords && !shouldShowBlightbaneLink
+
+  const nameClassName = cx('result-card__name', {
+    'result-card__name--enlarged': !shouldShowDescription && isShowingOneAdditionalNonDescElement,
+    'result-card__name--enlarged-more':
+      !shouldShowDescription && isShowingNoAdditionalNonDescElements,
+  })
+
+  // Without a description the keywords get their own row instead of competing with the name for
+  // width. Then they need their own struck/hidden states.
+  const shouldShowKeywordsOnSeparateRow = isShowingKeywords && !shouldShowDescription
+  const keywordsSeparateRowClassName = cx(
+    'result-card__keywords',
+    'result-card__keywords--own-row',
+    {
+      'result-card__keywords--struck': isStruck,
+      'result-card__keywords--hidden': shouldHideTrackedCards && isStruck,
+    }
+  )
+
   const descriptionClassName = cx('result-card__description', {
     'result-card__description--struck': isStruck,
     'result-card__description--hidden': shouldHideTrackedCards && isStruck,
@@ -88,8 +117,8 @@ const ResultCard = ({ card, useSearchFilters, showCardsWithoutKeywords }: Result
       />
       <div className={cx('result-card__content')}>
         <div className={cardClassName}>
-          <span className={cx('result-card__name')}>{card.name}</span>
-          {shouldShowKeywords && !showCardsWithoutKeywords && (
+          <span className={nameClassName}>{card.name}</span>
+          {isShowingKeywords && !shouldShowKeywordsOnSeparateRow && (
             <span className={cx('result-card__keywords')}>{matchingKeywordsText}</span>
           )}
           {shouldShowCardSet && (
@@ -100,6 +129,9 @@ const ResultCard = ({ card, useSearchFilters, showCardsWithoutKeywords }: Result
             </span>
           )}
         </div>
+        {shouldShowKeywordsOnSeparateRow && (
+          <span className={keywordsSeparateRowClassName}>{matchingKeywordsText}</span>
+        )}
         {shouldShowDescription && (
           <div
             className={descriptionClassName}

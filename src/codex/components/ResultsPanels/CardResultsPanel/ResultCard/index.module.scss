@@ -122,6 +122,24 @@
   @media (max-width: $breakpoint-mobile) {
     font-size: font-size('xxs');
   }
+
+  &--enlarged {
+    font-size: font-size('sm');
+    width: 12rem;
+
+    @media (max-width: $breakpoint-mobile) {
+      font-size: font-size('xs');
+    }
+  }
+
+  &--enlarged-more {
+    font-size: font-size('md');
+    width: 14rem;
+
+    @media (max-width: $breakpoint-mobile) {
+      font-size: font-size('sm');
+    }
+  }
 }
 
 .result-card__keywords {
@@ -135,6 +153,23 @@
   @media (max-width: $breakpoint-mobile) {
     font-size: font-size('xxs');
     width: 8rem;
+  }
+
+  // On its own row when description is disabled.
+  &--own-row {
+    width: auto;
+    max-width: 100%;
+    margin-left: 0;
+    margin-bottom: 0.25rem;
+    font-size: font-size('xxs');
+  }
+
+  &--struck {
+    text-decoration: line-through;
+  }
+
+  &--hidden {
+    display: none;
   }
 }
 
