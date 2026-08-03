@@ -181,6 +181,7 @@
   margin-left: auto;
   margin-right: 0.5rem;
   text-align: right;
+  font-weight: 500;
 
   @media (max-width: $breakpoint-mobile) {
     font-size: font-size('xxs');
@@ -199,6 +200,23 @@
     @media (max-width: $breakpoint-mobile) {
       font-size: font-size('xs');
     }
+  }
+}
+
+// Placement is provisional — see the TODO in ResultCard. `margin-left: auto` only kicks in when the
+// card set is hidden; otherwise the card set already claims the free space and this trails it.
+.result-card__card-type {
+  display: inline-block;
+  color: $color-primary-dark;
+  width: 6rem;
+  @include text-truncate;
+  margin-left: auto;
+  margin-right: 0.5rem;
+  text-align: right;
+
+  @media (max-width: $breakpoint-mobile) {
+    font-size: font-size('xxs');
+    width: 4.5rem;
   }
 }
 

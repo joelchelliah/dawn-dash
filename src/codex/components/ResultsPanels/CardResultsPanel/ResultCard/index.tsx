@@ -23,17 +23,20 @@ const ResultCard = ({ card, useSearchFilters, showCardsWithoutKeywords }: Result
   const {
     parsedKeywords,
     useCardSetFilters,
+    useCardTypeFilters,
     useExtraCardFilters,
     useFormattingFilters,
     useCardStrike,
   } = useSearchFilters
   const { getCardSetNameFromIndex } = useCardSetFilters
+  const { getCardTypeNameFromIndex } = useCardTypeFilters
   const { shouldIncludeNonCollectibleCards, shouldIncludeAnimalCompanionCards } =
     useExtraCardFilters
   const {
     shouldShowDescription,
     shouldShowKeywords,
     shouldShowCardSet,
+    shouldShowCardType,
     shouldShowCardArt,
     shouldShowBlightbaneLink,
     shouldHideTrackedCards,
@@ -126,6 +129,12 @@ const ResultCard = ({ card, useSearchFilters, showCardsWithoutKeywords }: Result
               {getCardSetNameFromIndex(card.expansion)}
               {/* Marks cards from the nil (0) expansion, which are shown as Core cards */}
               {card.expansion === 0 && <span className={cx('result-card__card-set__nil')}>°</span>}
+            </span>
+          )}
+          {/* TODO: Placement not decided yet — currently trails the card set on the title row. */}
+          {shouldShowCardType && (
+            <span className={cx('result-card__card-type')}>
+              {getCardTypeNameFromIndex(card.type)}
             </span>
           )}
         </div>

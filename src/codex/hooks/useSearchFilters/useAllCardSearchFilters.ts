@@ -4,6 +4,7 @@ import { ExtraCardFilterOption, WeeklyChallengeFilterData } from '@/codex/types/
 import {
   hasMonsterBanner,
   hasMonsterRarity,
+  hasMonsterType,
   isAnimalCompanionCard,
   isNonCollectible,
 } from '@/codex/utils/cardHelper'
@@ -18,6 +19,7 @@ import { useWeeklyChallengeFilterData } from '../useWeeklyChallengeFilterData'
 import { isCardSetIndexInSelection, useCardSetFilters } from './useCardSetFilters'
 import { allRarities, useRarityFilters } from './useRarityFilters'
 import { isBannerIndexInSelection, useBannerFilters } from './useBannerFilters'
+import { allCardTypes, useCardTypeFilters } from './useCardTypeFilters'
 import { useExtraCardFilters } from './useExtraCardFilters'
 import { useFormattingCardFilters } from './useFormattingCardFilters'
 import { useCardStrike } from './useCardStrike'
@@ -37,6 +39,7 @@ export interface UseAllCardSearchFilters {
   useCardSetFilters: ReturnType<typeof useCardSetFilters>
   useRarityFilters: ReturnType<typeof useRarityFilters>
   useBannerFilters: ReturnType<typeof useBannerFilters>
+  useCardTypeFilters: ReturnType<typeof useCardTypeFilters>
   useExtraCardFilters: ReturnType<typeof useExtraCardFilters>
   useFormattingFilters: ReturnType<typeof useFormattingCardFilters>
   useCardStrike: ReturnType<typeof useCardStrike>
@@ -63,6 +66,7 @@ export const useAllCardSearchFilters = (
   const untrackedUseCardSetFilters = useCardSetFilters(cachedFilters?.cardSets)
   const untrackedUseRarityFilters = useRarityFilters(cachedFilters?.rarities)
   const untrackedUseBannerFilters = useBannerFilters(cachedFilters?.banners)
+  const untrackedUseCardTypeFilters = useCardTypeFilters(cachedFilters?.cardTypes)
   const untrackedUseExtraCardFilters = useExtraCardFilters(cachedFilters?.extras)
   const untrackedUseFormattingFilters = useFormattingCardFilters(cachedFilters?.formatting)
   const untrackedUseCardStrike = useCardStrike(cachedFilters?.struckCards)
@@ -76,6 +80,11 @@ export const useAllCardSearchFilters = (
     cardSet: ['handleCardSetFilterToggle', 'enableCardSetFilters', 'resetCardSetFilters'] as const,
     rarity: ['handleRarityFilterToggle', 'enableRarityFilters', 'resetRarityFilters'] as const,
     banner: ['handleBannerFilterToggle', 'enableBannerFilters', 'resetBannerFilters'] as const,
+    cardType: [
+      'handleCardTypeFilterToggle',
+      'enableCardTypeFilters',
+      'resetCardTypeFilters',
+    ] as const,
     extraCard: [
       'handleExtraCardFilterToggle',
       'enableExtraCardFilters',
@@ -96,6 +105,9 @@ export const useAllCardSearchFilters = (
   const trackedUseBannerFilters = createTrackedFilter(untrackedUseBannerFilters, [
     ...TRACKED_FILTER_HANDLERS.banner,
   ])
+  const trackedUseCardTypeFilters = createTrackedFilter(untrackedUseCardTypeFilters, [
+    ...TRACKED_FILTER_HANDLERS.cardType,
+  ])
   const trackedUseExtraCardFilters = createTrackedFilter(untrackedUseExtraCardFilters, [
     ...TRACKED_FILTER_HANDLERS.extraCard,
   ])
@@ -114,6 +126,8 @@ export const useAllCardSearchFilters = (
     trackedUseRarityFilters
   const { bannerFilters, isBannerIndexSelected, enableBannerFilters, resetBannerFilters } =
     trackedUseBannerFilters
+  const { cardTypeFilters, isCardTypeIndexSelected, enableCardTypeFilters, resetCardTypeFilters } =
+    trackedUseCardTypeFilters
   const {
     extraCardFilters,
     shouldIncludeMonsterCards,
@@ -132,6 +146,7 @@ export const useAllCardSearchFilters = (
     resetCardSetFilters()
     resetRarityFilters()
     resetBannerFilters()
+    resetCardTypeFilters()
     resetExtraCardFilters()
     resetFormattingFilters()
   }
@@ -160,6 +175,7 @@ export const useAllCardSearchFilters = (
     enableCardSetFilters(newCardSets)
     enableBannerFilters(newBanners)
     enableRarityFilters(allRarities)
+    enableCardTypeFilters(allCardTypes)
 
     // Non-collectible cards can never show up in a weekly challenge, for now...
     enableExtraCardFilters(
@@ -180,8 +196,8 @@ export const useAllCardSearchFilters = (
               parsedKeywords: newParsedKeywords,
               isCardSetSelected: (index) => isCardSetIndexInSelection(index, newCardSets),
               isBannerSelected: (index) => isBannerIndexInSelection(index, newBanners),
-              // Every rarity was just enabled above
               isRaritySelected: () => true,
+              isCardTypeSelected: () => true,
               shouldIncludeMonsterCards,
               shouldIncludeAnimalCompanionCards,
               shouldIncludeNonCollectibleCards: false,
@@ -208,6 +224,7 @@ export const useAllCardSearchFilters = (
         cardSets: cardSetFilters,
         rarities: rarityFilters,
         banners: bannerFilters,
+        cardTypes: cardTypeFilters,
         extras: extraCardFilters,
         formatting: formattingFilters,
         struckCards,
@@ -223,6 +240,7 @@ export const useAllCardSearchFilters = (
   }, [
     bannerFilters,
     cardSetFilters,
+    cardTypeFilters,
     extraCardFilters,
     formattingFilters,
     hasUserChangedFilter,
@@ -242,6 +260,7 @@ export const useAllCardSearchFilters = (
         isCardSetSelected: isCardSetIndexSelected,
         isBannerSelected: isBannerIndexSelected,
         isRaritySelected: isRarityIndexSelected,
+        isCardTypeSelected: isCardTypeIndexSelected,
         shouldIncludeMonsterCards,
         shouldIncludeAnimalCompanionCards,
         shouldIncludeNonCollectibleCards,
@@ -251,6 +270,7 @@ export const useAllCardSearchFilters = (
       isCardSetIndexSelected,
       isRarityIndexSelected,
       isBannerIndexSelected,
+      isCardTypeIndexSelected,
       shouldIncludeAnimalCompanionCards,
       shouldIncludeNonCollectibleCards,
       parsedKeywords,
@@ -272,6 +292,7 @@ export const useAllCardSearchFilters = (
     useCardSetFilters: trackedUseCardSetFilters,
     useRarityFilters: trackedUseRarityFilters,
     useBannerFilters: trackedUseBannerFilters,
+    useCardTypeFilters: trackedUseCardTypeFilters,
     useExtraCardFilters: trackedUseExtraCardFilters,
     useFormattingFilters: trackedUseFormattingFilters,
     useCardStrike: trackedUseCardStrike,
@@ -289,6 +310,7 @@ interface CardMatchingFilters {
   isCardSetSelected: (index: number) => boolean
   isBannerSelected: (index: number) => boolean
   isRaritySelected: (index: number) => boolean
+  isCardTypeSelected: (index: number) => boolean
   shouldIncludeMonsterCards: boolean
   shouldIncludeAnimalCompanionCards: boolean
   shouldIncludeNonCollectibleCards: boolean
@@ -305,6 +327,7 @@ const isCardMatching = (
     isCardSetSelected,
     isBannerSelected,
     isRaritySelected,
+    isCardTypeSelected,
     shouldIncludeMonsterCards,
     shouldIncludeAnimalCompanionCards,
     shouldIncludeNonCollectibleCards,
@@ -318,6 +341,9 @@ const isCardMatching = (
   const passesBannerFilter = hasMonsterBanner(card)
     ? shouldIncludeMonsterCards
     : isBannerSelected(card.color)
+  const passesCardTypeFilter = hasMonsterType(card)
+    ? shouldIncludeMonsterCards
+    : isCardTypeSelected(card.type)
 
   const passesAnimalCompanionFilter = isAnimalCompanionCard(card)
     ? shouldIncludeAnimalCompanionCards
@@ -331,6 +357,7 @@ const isCardMatching = (
     passesExpansionFilter &&
     passesRarityFilter &&
     passesBannerFilter &&
+    passesCardTypeFilter &&
     passesAnimalCompanionFilter &&
     passesCollectibilityFilter &&
     isNameOrDescriptionIncluded(card, parsedKeywords)
