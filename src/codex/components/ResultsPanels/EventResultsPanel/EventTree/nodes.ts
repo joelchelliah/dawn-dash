@@ -172,6 +172,14 @@ function renderTextNodeContent(
     nodeHasText
   )
 
+  // `calculateNodeHeight` must agree on both the order and this margin.
+  const { height: reqBoxHeight } =
+    data.type === 'dialogue' || data.type === 'end'
+      ? calculateRequirementsBoxDimensions(data, false)
+      : { height: 0 }
+  const reqBoxMargin = reqBoxHeight > 0 && nodeHasText ? INNER_BOX.LISTINGS_BOTTOM_MARGIN : 0
+  const reqBoxTotalHeight = reqBoxHeight + reqBoxMargin
+
   const { height: continueIndicatorHeight, margin: continueIndicatorMargin } =
     calculateIndicatorDimensions(
       'continue',
@@ -201,7 +209,8 @@ function renderTextNodeContent(
     currentNodeWidth,
     currentNodeHeight,
     otherNodeContentHeight,
-    levelOfDetail
+    levelOfDetail,
+    reqBoxTotalHeight
   )
 
   if (effectsBoxHeight > 0) {
@@ -216,6 +225,14 @@ function renderTextNodeContent(
       loopIndicatorHeight
 
     renderEffectsBox(node, effects, currentNodeWidth, effectsBoxY, effectsBoxHeight, isCompact)
+  }
+
+  if (reqBoxHeight > 0) {
+    const requirements =
+      (data.type === 'dialogue' || data.type === 'end' ? data.requirements : []) ?? []
+    const requirementsBoxY = -currentNodeHeight / 2 + NODE_BOX.VERTICAL_PADDING
+
+    renderRequirementsBox(node, requirements, currentNodeWidth, reqBoxHeight, requirementsBoxY)
   }
 
   if (continueIndicatorHeight > 0) {
@@ -372,7 +389,8 @@ function renderNodeText(
   currentNodeWidth: number,
   currentNodeHeight: number,
   otherNodeContentHeight: number,
-  levelOfDetail: LevelOfDetail
+  levelOfDetail: LevelOfDetail,
+  contentAboveTextHeight = 0
 ): void {
   const isCompact = levelOfDetail === LevelOfDetail.COMPACT
   const nodeHasText = !isCompact && hasText(data)
@@ -382,8 +400,15 @@ function renderNodeText(
   const nodeType = data.type
   const emojiMargin = getEmojiMargin(data, levelOfDetail)
 
-  const textAreaHeight = currentNodeHeight - NODE_BOX.VERTICAL_PADDING * 2 - otherNodeContentHeight
-  const textAreaCenter = -currentNodeHeight / 2 + NODE_BOX.VERTICAL_PADDING + textAreaHeight / 2
+  // `otherNodeContentHeight` is everything stacked BELOW the text; `contentAboveTextHeight` is the
+  // requirements box above it, which shifts the text's area down by its full height.
+  const textAreaHeight =
+    currentNodeHeight -
+    NODE_BOX.VERTICAL_PADDING * 2 -
+    otherNodeContentHeight -
+    contentAboveTextHeight
+  const textAreaCenter =
+    -currentNodeHeight / 2 + NODE_BOX.VERTICAL_PADDING + contentAboveTextHeight + textAreaHeight / 2
 
   const maxTextWidth = currentNodeWidth - TEXT.HORIZONTAL_PADDING * 2
   const wrappedLines = wrapEventText(

@@ -24,7 +24,7 @@ scripts/data/events.json         (each event's `text` = a compiled Ink story)
         │
         │  scripts/parse/parse-event-trees.js          <── THIS FOLDER
         │  1. tree building: replay every story path with the inkjs runtime
-        │  2. post-processing: the PIPELINE pass registry (18 passes)
+        │  2. post-processing: the PIPELINE pass registry (19 passes)
         │  3. validation: diff output vs baseline, ignore known noise
         ▼
 src/codex/data/event-trees.json  (201 trees, ~4.2k nodes, statically imported)
@@ -44,7 +44,7 @@ and restoring story state to explore every choice.
 | `parse-event-trees.js` | Entry point: CLI flags, parse loop, the `PIPELINE` pass registry, output writing |
 | `tree-building.js` | Ink story exploration → raw tree (`parseInkStory`, `buildTreeFromStory`) |
 | `tree-utils.js` | Node creation, node-id counter, generic tree helpers (`countNodes`, node maps) |
-| `node-splitting.js` | Effect extraction (`>>>>COMMAND`), text cleaning, combat/dialogue/choice splitting |
+| `node-splitting.js` | Effect extraction (`>>>>COMMAND`), text cleaning, combat/dialogue/choice/conditional-variant splitting |
 | `random-support.js` | Random value detection (`RANDOM(min, max)`) and normalization to `«random»` |
 | `ref-normalization.js` | Rewrite refs to point at the "right" node after structural passes move content |
 | `deduplication.js` | Structural subtree dedup (rendering-equivalent subtrees → refs; exact hashing + ref-resolving equivalence; run both mid-pipeline and again post-alterations), plus the duplicate-combat-node merge |
@@ -111,7 +111,7 @@ since inkjs never runs that external call, the parameter read is unresolvable (s
 non-fatal `unresolved knot variable read` warning) and the global keeps its declared default.
 That default is then interpolated into everything the player sees, so a stale value is wrong in
 several places at once. `ENGINE_ADJUSTED_COST_VARIABLES` + the `replaceEngineAdjustedCosts` pass
-(#17) rewrite those sites — see the pipeline table below.
+(#18) rewrite those sites — see the pipeline table below.
 
 Then `buildTreeFromStory()` explores every path:
 
@@ -151,6 +151,19 @@ Without refs (explodes):              With refs:
                                          └── Leave
 ```
 
+### `text: "default"` is deliberate, not a parse failure
+
+A node whose Ink content is a bare divert — no prose of its own, just "go back to the options
+menu" — gets `text: "default"` as a placeholder (`tree-building.js`, the `safeText` assignments).
+Shrine of Night's "Say nothing" is one: its Ink container is only the relative divert `.^.^.^.^`
+back to the root's choice list. The Eventmaps renderer understands the placeholder and displays
+these nodes correctly, so **a `"default"` node in the output is expected** and shouldn't be
+"fixed" by making the parser drop it.
+
+`filterDefaultNodes` (pass 2) *does* delete them, but only for events in `DEFAULT_NODE_BLACKLIST`
+(`event-overrides.js`) where the branch is genuinely unreachable rather than just textless — the
+pass is opt-in per event for exactly that reason.
+
 Randomness is normalized as it's encountered: a rolled `GOLD:12` becomes
 `GOLD: random [5 - 15]` using the detected ranges, so the tree describes the *distribution*,
 not one playthrough's dice.
@@ -180,6 +193,84 @@ problem** — if a command's value is being mangled, look at the value's charact
 used to lose its value because `&` wasn't in that character class, so the match stopped at the
 first `&` and the rest fell through into the node's text. Adding `&` and `+` to the class fixed
 it — with four brackets it had behaved identically.)
+
+### Conditional text variants (`[?condition]`)
+
+The game marks a line whose display depends on runtime state with `[?condition]` —
+`[?questflag:nathali]`, `[?!questflag:nathali]`, or a compound
+`[?testresult:sealed;questflag:nathali]` (all conditions must hold). The engine shows **exactly
+one** of a run of such lines, but inkjs can't know the state and emits every variant into the same
+node — so stripping the markers and keeping all the prose concatenates mutually exclusive outcomes
+into one passage (Shrine of Absence's three `LIGHTLESSTEST` results read as one contradictory
+paragraph).
+
+`splitTextOnConditionalVariants` + `splitNodeOnConditionalVariants` (`node-splitting.js`) give each
+variant its own child node carrying its condition as a **requirement**, reusing the `NOT ` prefix
+convention from choice requirements. The rules, and the reason each is not the obvious choice:
+
+- **Leading text** stays on the parent, and **the parent's real children stay its children**, as
+  siblings of the variants. Copying them onto each variant puts them behind a requirement they
+  don't have, and dedup then collapses the copies — losing choices outright.
+- **When those children are choices**, the variants are alternative *intro* prose for the menu
+  (Alchemist's shopkeeper greetings, Spot in the Shade's arrival lines): one greeting is read, then
+  the same menu is picked from. Each variant becomes an additional parent of the shared choice set
+  via `refChildren`. As terminal leaves instead, every greeting reads as a dead end while the menu
+  hangs off the parent as unrelated siblings.
+- **Trailing text** after the last marked line is an epilogue appended to every variant, *unless*:
+  - the marked line carries `[continue]` **and prose of its own** — then it continues that variant.
+    Both halves matter: a `[continue]` marker holding only a command (Alchemist) must not claim the
+    line below it, or you get a duplicate variant holding prose that isn't conditional at all.
+  - the marked lines are competing alternatives for one slot rather than barks on a shared scene
+    (`marksAlternativesForOneSlot`) — then it becomes its own sibling, the fallback for whoever
+    matched none of them. The tell is a conditional line **setting a quest flag its own siblings are
+    gated on**: recording "the intro has been shown" only means anything if the marked and unmarked
+    lines fill the same slot. Alchemist is the only such event (audited across all 203, 2026-08-03);
+    everywhere else trailing prose is the scene continuing for everyone.
+- **A command on a conditional line moves to that variant** and comes off the node's own effects —
+  it only fires under that line's condition. On the node it would read as applying to everyone,
+  including players who matched no marker, and as being checked by the very children it gates. A
+  command on a *prose-less* conditional line attaches to the variant sharing its condition; one
+  matching no variant stays on the node rather than being dropped.
+- Variant and parent text go through `extractEffects`, not `cleanText`, or a command sharing the
+  line leaks its value in as prose (`>>>>ADDTALENT:Clarity of Mind` → a node reading `"of Mind"`).
+- A marker with **empty prose** is dropped; **fewer than 2** content-carrying variants is a
+  conditional aside, not a branch, and is left inline.
+
+The fallback sibling gets **no requirements from the parser**. Its real condition is the negation of
+all the others, but the Ink never states it — and `[?…]` is the game engine's mini-language, not Ink
+syntax, so deriving the negation needs boolean simplification over opaque game-state strings.
+Where that inference is worth making it belongs in `event-alterations.js`, which tags the node
+`altered: true`; see the Alchemist entry, whose added `NOT` requirements also drop its link to the
+contradicting choice for free (pass 15 filters `refChildren` against contradictions, and runs after
+alterations).
+
+Three call sites in `tree-building.js` need the split, because leaf nodes and cycle-ref nodes return
+early before the main splitting section: a leaf can hold several outcomes, and a ref node's variants
+all jump back to the same target so each carries its own copy of the ref.
+`detectAndOptimizeDialogueMenuHubs` also has to keep variant children when it collapses a repeated
+menu — Absence's Investigate branch has the root's choice set but its own companion barks.
+
+#### Engine tests → `special` + `result`
+
+`>>>LIGHTLESSTEST` names no knot but *does* branch: the engine runs a test and reports which outcome
+it picked back through `[?testresult:<outcome>]` conditionals. Same "engine picks one of N outcomes"
+semantics as `COLLECTOR`/`CARDPUZZLE`, so it gets the same `special` → `result` structure.
+`ENGINE_TEST_COMMANDS` maps such a command to the flag its outcomes are keyed on; unlike
+`detectBranchingCommand` the outcomes are conditional lines in the same container, not separate
+knots, so they can't be found by walking knot definitions.
+
+Variants are **grouped by outcome**, not mapped one-to-one: a compound condition adds a further
+condition to an outcome rather than naming a new one, so Absence's `sealed` and
+`sealed;questflag:nathali` are one outcome plus a companion remark — three outcomes, not five. (The
+absence of a negated `!questflag` sibling is how this ink distinguishes that from genuine either/or.)
+Within a result the unconditional prose comes first and each conditional addition hangs off it as a
+child carrying its own condition; `ResultNode` has no `text` field, so prose always lives in
+children.
+
+This depends on dialogue/end nodes rendering a requirements box (`isRequirementsNode` in
+`src/codex/utils/eventNodeDimensions.ts`) — without it the remark's condition is in the data but
+invisible in the tree. And like `COLLECTOR`/`CARDPUZZLE`, an engine-test `special` node keeps its own
+`choiceLabel`: `separateChoicesFromEffects` deliberately skips `special` nodes.
 
 ### Counter-reference values (`&&counter&&±N`)
 
@@ -213,13 +304,14 @@ Current order:
 | 9 | `normalizeRefsPointingToCombatNodes` | Refs to split combat nodes → the postcombat dialogue child |
 | 10 | `convertSiblingAndCousinRefsToRefChildren` | Nearby refs → `refChildren` + sibling reordering |
 | 11 | `hoistPureStandInRefNodes` | Stand-in refChildren nodes that are pure copies of their target (and only children) are deleted; the parent's converging line goes directly to the original |
-| 12 | `applyEventAlterations` | Manual per-event fixes (boss-death transitions, door/room structure, …). Every added/edited node is tagged `altered: true`, on the shallowest altered node only — descendants inherit the meaning. Not the only pass that sets the tag; see #17 |
+| 12 | `applyEventAlterations` | Manual per-event fixes (boss-death transitions, door/room structure, …). Every added/edited node is tagged `altered: true`, on the shallowest altered node only — descendants inherit the meaning. Not the only pass that sets the tag; see #18 |
 | 13 | `deduplicateAllTreesPostAlterations` | Pass 7 again: alterations can grow previously-too-small subtrees past the dedup size gate (boss transitions turn each duplicated `choice → combat` pair into an eligible 3-node chain), so identical chains collapse at the choice level |
 | 14 | `mergeDuplicateCombatNodes` | Duplicate combat nodes pass 13 can't catch (copies behind non-identical choice wrappers, whose chains stay below the size gate) → `ref` jump links to the shallowest copy; identical on ALL fields incl. requirements/effects, since a combat node's effects are the fight. Childless copies stay — merging a leaf removes no nodes |
-| 15 | `checkInvalidRefs` | Sanity check: every ref points at an existing node |
-| 16 | `cleanUpRandomValues` | "You gain 12 gold" → "You gain «random» gold" where rolled |
-| 17 | `replaceEngineAdjustedCosts` | Costs the game engine reassigns at runtime → `<?>` + the real escalation series, so the story's declared default stops reading as a fixed price. Tags the choice/outcome nodes it rewrites `altered: true` (not the node whose internal `SET` placeholder it tidies) |
-| 18 | `replaceCardIds` | Leftover numeric `[cardid=123]` → card names |
+| 15 | `linkConditionalVariantsToSharedChoices` | Conditional-variant intro prose → `refChildren` on its parent's choice nodes. **Must stay last of the structural passes**: it reads sibling ids, and every pass above still renumbers or replaces nodes — resolving these ids during tree building produced `refChildren` pointing at nodes that no longer existed (Brightcandle Inn, Vaelmorin, Shrine of Absence). A marked variant whose menu a later pass collapsed drops the marker and keeps the `ref` it already carries |
+| 16 | `checkInvalidRefs` | Sanity check: every ref points at an existing node |
+| 17 | `cleanUpRandomValues` | "You gain 12 gold" → "You gain «random» gold" where rolled |
+| 18 | `replaceEngineAdjustedCosts` | Costs the game engine reassigns at runtime → `<?>` + the real escalation series, so the story's declared default stops reading as a fixed price. Tags the choice/outcome nodes it rewrites `altered: true` (not the node whose internal `SET` placeholder it tidies) |
+| 19 | `replaceCardIds` | Leftover numeric `[cardid=123]` → card names |
 
 Why choice separation (pass 3) matters for rendering — before and after:
 

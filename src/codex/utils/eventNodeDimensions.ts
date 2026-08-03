@@ -6,8 +6,7 @@ import {
   EndNode,
   CombatNode,
   SpecialNode,
-  ChoiceNode,
-  ResultNode,
+  RequirementsNode,
   Event,
 } from '@/codex/types/events'
 import { TEXT, INNER_BOX, NODE, NODE_BOX } from '@/codex/constants/eventTreeValues'
@@ -116,10 +115,15 @@ export const isEffectsNode = (
 }
 
 /**
- * Type guard for nodes that can have requirements
+ * Type guard for nodes that can have requirements.
  */
-export const isRequirementsNode = (node: EventTreeNode): node is ChoiceNode | ResultNode => {
-  return node.type === 'choice' || node.type === 'result'
+export const isRequirementsNode = (node: EventTreeNode): node is RequirementsNode => {
+  return (
+    node.type === 'choice' ||
+    node.type === 'result' ||
+    node.type === 'dialogue' ||
+    node.type === 'end'
+  )
 }
 
 /**
@@ -262,7 +266,7 @@ export const calculateEffectsBoxDimensions = (
  * Returns both the height of the requirements box and the margin to add above it.
  */
 export const calculateRequirementsBoxDimensions = (
-  node: ChoiceNode | ResultNode,
+  node: RequirementsNode,
   followsText: boolean
 ): { height: number; margin: number } => {
   const requirements = node.requirements || []
@@ -520,7 +524,9 @@ const _getNodeWidth = (
     ? (node as DialogueNode | EndNode | CombatNode | SpecialNode).text
     : ''
   if (dialogueText && !isCompact) {
-    const dialogueTextWidth = measureWithPadding(dialogueText, totalTextPadding)
+    // Special nodes render their text at the larger, bolder `special` size
+    const variant = node.type === 'special' ? 'special' : undefined
+    const dialogueTextWidth = measureWithPadding(dialogueText, totalTextPadding, variant)
     width = Math.max(width, clampNodeWidth(dialogueTextWidth, isCompact))
   }
 
@@ -627,6 +633,15 @@ const _getNodeHeight = (
       textDimensions.hasText
     )
 
+    // Dialogue/end nodes can be gated by a `[?condition]` conditional in the Ink. This box sits
+    // ABOVE the text (it states the passage's precondition), so `followsText` is false and the gap
+    // goes BELOW it.
+    const { height: reqBoxHeight } = isRequirementsNode(node)
+      ? calculateRequirementsBoxDimensions(node, false)
+      : { height: 0 }
+    const reqBoxMargin =
+      reqBoxHeight > 0 && textDimensions.hasText ? INNER_BOX.LISTINGS_BOTTOM_MARGIN : 0
+
     const { height: continueIndicatorHeight, margin: continueIndicatorMargin } =
       node.type === 'dialogue'
         ? calculateIndicatorDimensions(
@@ -649,6 +664,8 @@ const _getNodeHeight = (
       textDimensions.height +
       effectsBoxMargin +
       effectsBoxHeight +
+      reqBoxMargin +
+      reqBoxHeight +
       continueIndicatorMargin +
       continueIndicatorHeight +
       loopIndicatorHeight +

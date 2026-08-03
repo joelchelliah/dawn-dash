@@ -14,11 +14,14 @@ export interface Event {
 export type EventTreeNode =
   DialogueNode | ChoiceNode | EndNode | CombatNode | SpecialNode | ResultNode
 
+export type RequirementsNode = ChoiceNode | ResultNode | DialogueNode | EndNode
+
 export interface DialogueNode extends BaseNode {
   type: 'dialogue'
   text: string
   effects?: string[]
   numContinues?: number
+  requirements?: string[]
 }
 
 export interface ChoiceNode extends BaseNode {
@@ -31,6 +34,7 @@ export interface EndNode extends BaseNode {
   type: 'end'
   text?: string
   effects?: string[]
+  requirements?: string[]
 }
 
 export interface CombatNode extends BaseNode {

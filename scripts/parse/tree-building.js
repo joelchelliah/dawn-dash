@@ -14,6 +14,7 @@ const { debugConfig, recordParseFailure } = require('./debug.js')
 const {
   splitCombatNode,
   splitDialogueOnEffects,
+  splitNodeOnConditionalVariants,
   extractEffects,
   cleanText,
 } = require('./node-splitting.js')
@@ -641,6 +642,33 @@ function buildTreeFromStory(story, ctx, path) {
 
     const originalNodeId = pathTextToNodeId.get(cleanedText)
     ctx.nodesCreated++
+
+    // A cycle ref keeps no children, but conditional variants are this node's own text rather
+    // than a continuation, so they'd be lost with it. Every variant leads back to the same place,
+    // so each carries its own copy of the ref — see splitNodeOnConditionalVariants.
+    const conditionalSplitResult = splitNodeOnConditionalVariants(
+      text,
+      type,
+      [],
+      createNode,
+      generateNodeId,
+      originalNodeId,
+      effects
+    )
+
+    if (conditionalSplitResult) {
+      ctx.nodesCreated += conditionalSplitResult.finalChildren.length
+
+      return createNode({
+        id: generateNodeId(),
+        text: conditionalSplitResult.finalText,
+        type: type,
+        effects: conditionalSplitResult.finalEffects,
+        numContinues: conditionalSplitResult.finalNumContinues,
+        children: conditionalSplitResult.finalChildren,
+      })
+    }
+
     return createNode({
       id: generateNodeId(),
       text: cleanedText,
@@ -824,10 +852,40 @@ function buildTreeFromStory(story, ctx, path) {
 
   // If there are no choices, this is a leaf node
   if (choices.length === 0) {
+    const leafType = type === 'dialogue' ? 'end' : type
+
+    // A leaf can still hold several mutually exclusive `[?condition]` outcomes — Shrine of
+    // Absence's LIGHTLESSTEST ends the event with one of sealed/worthy/purged. Split here too,
+    // since this early return never reaches the splitting section further down.
+    const conditionalSplitResult = splitNodeOnConditionalVariants(
+      text,
+      leafType,
+      [],
+      createNode,
+      generateNodeId,
+      undefined,
+      effects
+    )
+
+    if (conditionalSplitResult) {
+      ctx.nodesCreated += conditionalSplitResult.finalChildren.length
+
+      // numContinues counted the continues of ALL variants (which the game never plays
+      // together), so it no longer describes this node once the prose has moved to the children.
+      return createNode({
+        id: nodeId,
+        text: conditionalSplitResult.finalText,
+        type: conditionalSplitResult.finalType || 'dialogue',
+        effects: conditionalSplitResult.finalEffects || effects,
+        numContinues: conditionalSplitResult.finalNumContinues,
+        children: conditionalSplitResult.finalChildren,
+      })
+    }
+
     return createNode({
       id: nodeId,
       text: cleanedText || '[End]',
-      type: type === 'dialogue' ? 'end' : type,
+      type: leafType,
       effects,
       numContinues,
     })
@@ -1342,8 +1400,45 @@ function buildTreeFromStory(story, ctx, path) {
   let finalEffects = effects
   let finalNumContinues = numContinues
 
+  // CONDITIONAL VARIANT SPLITTING
+  // Runs before the effect/combat splits below because it needs the RAW text: cleanText strips
+  // `[?condition]` markers, and `cleanedText` (finalText's starting value) has already lost them.
+  // The variants are mutually exclusive, so this has to happen before anything merges them.
+  let splitOnConditionalVariants = false
+  let finalType = type
+  if (text) {
+    const conditionalSplitResult = splitNodeOnConditionalVariants(
+      text,
+      type,
+      finalChildren,
+      createNode,
+      generateNodeId,
+      undefined,
+      effects
+    )
+
+    if (conditionalSplitResult) {
+      finalText = conditionalSplitResult.finalText
+      finalChildren = conditionalSplitResult.finalChildren
+      finalNumContinues = conditionalSplitResult.finalNumContinues
+      finalType = conditionalSplitResult.finalType || type
+      finalEffects = conditionalSplitResult.finalEffects || effects
+      ctx.nodesCreated += conditionalSplitResult.finalChildren.length
+      splitOnConditionalVariants = true
+    }
+  }
+
   // Try dialogue splitting first (for mid-dialogue effects)
-  if (type === 'dialogue' && text && effects.length > 0 && continueCount > 1) {
+  // Skipped after a conditional split: that pass already moved the post-effect prose into the
+  // variant children, and this one would rebuild children from the pre-split `children`,
+  // dropping the variants.
+  if (
+    !splitOnConditionalVariants &&
+    type === 'dialogue' &&
+    text &&
+    effects.length > 0 &&
+    continueCount > 1
+  ) {
     const dialogueSplitResult = splitDialogueOnEffects(
       text,
       type,
@@ -1431,7 +1526,7 @@ function buildTreeFromStory(story, ctx, path) {
   return createNode({
     id: nodeId,
     text: safeText,
-    type,
+    type: finalType,
     effects: finalEffects,
     numContinues: finalNumContinues,
     children: finalChildren,

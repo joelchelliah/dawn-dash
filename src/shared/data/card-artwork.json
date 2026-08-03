@@ -2831,7 +2831,7 @@
   },
   {
     "name": "Cometstrike",
-    "artwork": null,
+    "artwork": "non_selandris_meteorStrike",
     "category": 0
   },
   {
@@ -3352,11 +3352,6 @@
   {
     "name": "Cutlass",
     "artwork": "Cutlass",
-    "category": 5
-  },
-  {
-    "name": "Cutlass_OLD",
-    "artwork": "cutlass",
     "category": 5
   },
   {
@@ -6840,11 +6835,6 @@
     "category": 0
   },
   {
-    "name": "Holy Surge",
-    "artwork": "non_holySurge",
-    "category": 0
-  },
-  {
     "name": "Holy War",
     "artwork": "holy war_eclypse",
     "category": 0
@@ -7818,6 +7808,11 @@
     "name": "Lightless Retribution",
     "artwork": null,
     "category": 4
+  },
+  {
+    "name": "Lightless Sentry",
+    "artwork": "non_moonvault_phalanxWarden",
+    "category": 10
   },
   {
     "name": "Lightless Ward",
@@ -13210,6 +13205,11 @@
     "category": 0
   },
   {
+    "name": "Surge of Faith",
+    "artwork": "non_holySurge",
+    "category": 0
+  },
+  {
     "name": "Surge of Intellect",
     "artwork": "cardart_3_22",
     "category": 0
@@ -15216,7 +15216,7 @@
   },
   {
     "name": "Whirling Nexus",
-    "artwork": null,
+    "artwork": "non_dreamwell_whirlingTerror",
     "category": 4
   },
   {

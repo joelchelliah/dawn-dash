@@ -41,6 +41,8 @@
  *   - removeText: true - Remove the text field
  *   - removeNumContinues: true - Remove the numContinues field
  *   - removeChildren: true - Remove the children field
+ *   - removeRefChildrenTo: ['label'] - Drop only the refChildren links whose target's
+ *     text/choiceLabel matches one of these, keeping the rest
  *   - type: 'end' - Change the node type
  *   - refCreate: 'text' - Create a ref to a node matching this text/choiceLabel
  *   - refCreateStartsWith: 'text' - Create a ref to first node whose text/choiceLabel starts with
@@ -127,6 +129,18 @@ function createAccessToHolyTwinChoice(eventName, choiceLabel) {
 }
 
 module.exports = [
+  {
+    name: 'Alchemist',
+    alterations: [
+      {
+        // This also removes the greeting's link to the `talent:stormscarred` "Buy a potion":
+        // `linkConditionalVariantsToSharedChoices` runs AFTER this pass and filters each variant's
+        // refChildren against contradicting requirements.
+        find: { textStartsWith: 'Well hello there, adventurer' },
+        addRequirements: ['NOT questflag:stormscarredintro', 'NOT talent:stormscarred'],
+      },
+    ],
+  },
   {
     name: 'Frozen Heart',
     alterations: [

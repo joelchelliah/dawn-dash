@@ -183,9 +183,26 @@ function detectAndOptimizeDialogueMenuHubs(eventTrees, DEBUG_EVENT_NAME = '') {
 
         // Replace duplicates with refs
         nodesToReplace.forEach(({ node }) => {
-          // Remove children and create ref
-          delete node.children
-          node.ref = canonicalHub.node.id
+          // Conditional-variant children (see splitNodeOnConditionalVariants) are this node's own
+          // mutually exclusive prose, not part of the repeated menu, so they must survive the
+          // collapse — the ref moves onto each of them, since every variant returns to the hub.
+          // Shrine of Absence's Investigate branch is the case: its choice set matches the root
+          // menu, but the Viola/Serena barks only exist here.
+          const variantChildren = (node.children || []).filter(
+            (child) => child.requirements && child.choiceLabel === undefined && child.text
+          )
+
+          if (variantChildren.length > 0) {
+            node.children = variantChildren
+            variantChildren.forEach((child) => {
+              child.ref = canonicalHub.node.id
+              // A variant that jumps back to the hub continues the story rather than ending it
+              child.type = 'dialogue'
+            })
+          } else {
+            delete node.children
+            node.ref = canonicalHub.node.id
+          }
           refsCreatedForEvent++
         })
       })

@@ -52,7 +52,8 @@ function resetNodeIdCounter() {
 /**
  * Create a node with consistent field ordering
  *
- * Field order: id, text, type, choiceLabel, requirements, effects, numContinues, ref, children
+ * Field order: id, text, type, choiceLabel, requirements, effects, numContinues, ref,
+ * refChildren, children
  * Optional fields are only included if they have values.
  *
  * @param {Partial<ParseNode>} fields - id and type are expected by every caller
@@ -67,6 +68,7 @@ function createNode({
   effects,
   numContinues,
   ref,
+  refChildren,
   children,
 }) {
   const isDefault = choiceLabel === 'default'
@@ -99,6 +101,11 @@ function createNode({
   // Add ref field if this is a reference node
   if (ref !== undefined) {
     node.ref = ref
+  }
+
+  // Shared children this node is an additional parent of (renders as converging lines)
+  if (refChildren !== undefined && refChildren.length > 0) {
+    node.refChildren = refChildren
   }
 
   if (children !== undefined && children.length > 0) {

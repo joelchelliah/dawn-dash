@@ -87,8 +87,11 @@ export const INNER_BOX = {
   // Vertical padding for listings ('Requirements' and 'Effects')
   LISTINGS_VERTICAL_PADDING: 6,
 
-  // Gap between main node text and listing boxes (Requirements, Effects)
+  // Gap between main node text and Effects
   LISTINGS_TOP_MARGIN: 8,
+
+  // Gap between Requirements and main node text
+  LISTINGS_BOTTOM_MARGIN: 2,
 
   // Gap between listing header ('Requires:', 'Effects:') and first item
   LISTINGS_HEADER_GAP: 6,

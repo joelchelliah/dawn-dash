@@ -51,7 +51,10 @@ const {
 const { validateEventConfigs } = require('./config-validation.js')
 const { applyEventAlterations } = require('./apply-event-alterations.js')
 const { validateEventTreesChanges } = require('./parse-validation.js')
-const { separateChoicesFromEffects } = require('./node-splitting.js')
+const {
+  separateChoicesFromEffects,
+  linkConditionalVariantsToSharedChoices,
+} = require('./node-splitting.js')
 const {
   cleanUpRandomValues,
   normalizeAddKeywordRandomChoiceLabels,
@@ -451,6 +454,20 @@ const PIPELINE = [
           console.log(`    - "${name}": ${merges} combat node(s) merged`)
         })
       }
+    },
+  },
+  {
+    // Conditional-variant intro prose (Alchemist's greetings) shares its parent's choice menu.
+    // Deliberately last of the structural passes: it reads sibling ids, which everything above
+    // still renumbers and replaces.
+    name: 'linkConditionalVariantsToSharedChoices',
+    banner: '🔗 Linking conditional variants to their shared choices...',
+    run: (eventTrees) => {
+      let totalLinks = 0
+      eventTrees.forEach((tree) => {
+        totalLinks += linkConditionalVariantsToSharedChoices(tree.rootNode)
+      })
+      console.log(`  Linked ${totalLinks} conditional variant(s) to a shared choice set`)
     },
   },
   {

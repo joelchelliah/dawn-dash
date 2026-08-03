@@ -16,7 +16,11 @@ const { recordParseFailure } = require('./debug.js')
 
 /**
  * All `>>>>COMMAND` names seen across the current event data (audited 2026-07-20; DELVEFROMANYPROPERTY,
- * IMBUE, NATHALIMERCHANT and RANDOMEVENT added 2026-07-27 with the Nexus of Nightmares sync).
+ * IMBUE, NATHALIMERCHANT and RANDOMEVENT added 2026-07-27 with the Nexus of Nightmares sync;
+ * LIGHTLESSTEST, VEILCARD and UNVEILCARD added 2026-08-03 with the Shrine of Night / Shrine of
+ * Absence sync — none of them names a knot; VEILCARD/UNVEILCARD only produce an effect label,
+ * while LIGHTLESSTEST branches via inline `[?testresult:…]` conditionals, see
+ * ENGINE_TEST_COMMANDS).
  * An unrecognized command isn't a hard error — it still renders as "COMMAND: value" — but
  * it's exactly the kind of silent drift (a typo, an upstream rename) spec 6's config-name
  * validation guards against elsewhere, so it's worth surfacing via recordParseFailure.
@@ -67,6 +71,7 @@ const KNOWN_COMMANDS = new Set([
   'HEALPERCENTAGE',
   'IMBUE',
   'IMBUESELECTION',
+  'LIGHTLESSTEST',
   'LUCK',
   'MAXHEALTH',
   'MEMORIZE',
@@ -113,8 +118,10 @@ const KNOWN_COMMANDS = new Set([
   'UPGRADEALLBASICS',
   'UPGRADEALLBYTYPE',
   'UPGRADEALLOFTYPE',
+  'UNVEILCARD',
   'UPGRADERANDOMBASIC',
   'UPGRADERANDOMCARDBYRARITY',
+  'VEILCARD',
   'VICTORY',
   'WEAPONPOWER',
 ])
@@ -242,6 +249,230 @@ function extractEffects(
   const cleanedText = cleanText(cleaned)
 
   return { effects, cleanedText }
+}
+
+/**
+ * Split a node's text on `[?condition]` conditional markers into one variant per condition.
+ *
+ * The game shows exactly ONE of a run of `[?…]` lines, picked from runtime state the Ink
+ * runtime can't know (quest flags, and the result of an engine-side test like LIGHTLESSTEST).
+ * inkjs therefore emits every variant into the same node, and `cleanText` used to strip the
+ * markers and keep the prose — concatenating mutually exclusive outcomes into one passage.
+ * Shrine of Absence was the clearest symptom: its three `testresult` outcomes (sealed /
+ * worthy / purged) read as a single contradictory paragraph.
+ *
+ * So each marked line becomes its own child carrying the condition as a requirement, using
+ * the same `NOT `-prefix convention as choice requirements (see extractChoiceMetadata in
+ * tree-building.js). Unmarked text keeps its place: text before the first marker stays on the
+ * parent, and text *after* the last marked line is shared epilogue, so it is appended to every
+ * variant rather than being stranded on one of them.
+ *
+ * A `[?cond]` line whose prose is empty (Spot in the Shade's `[?questflag:quit][continue]`,
+ * LostSoul's bare `[?questflag:priest]`) carries no content to branch on, so it is dropped
+ * rather than becoming an empty child.
+ *
+ * @param {string} text - Raw (uncleaned) node text, still containing `[?…]` markers
+ * @returns {Object|null} { parentText, variants: [{ requirements, text }], epilogue } or null when
+ *   the text has fewer than 2 content-carrying conditional variants (nothing to branch)
+ */
+function splitTextOnConditionalVariants(text) {
+  if (!text || !text.includes('[?')) return null
+
+  // A marker owns everything up to the next marker or the end of the line it started on.
+  // Markers always begin a line in the observed data, so line-splitting is the reliable unit.
+  const lines = text.split('\n')
+
+  const leadingLines = []
+  const variants = []
+  const trailingLines = []
+  // Effects from a prose-less conditional line whose condition matches no variant — kept on the
+  // node rather than silently dropped
+  const orphanedEffects = []
+
+  let openVariant = null
+
+  const closeOpenVariant = () => {
+    if (!openVariant) return
+
+    // extractEffects rather than cleanText: a variant line can carry a command whose value would
+    // otherwise leak in as prose (Alchemist 1's ">>>QUESTFLAG:stormscarredintro").
+    const { effects: variantEffects, cleanedText: variantText } = extractEffects(
+      openVariant.lines.join('\n')
+    )
+
+    if (variantText) {
+      variants.push({
+        requirements: openVariant.requirements,
+        text: variantText,
+        effects: variantEffects,
+      })
+    } else if (variantEffects.length > 0) {
+      // A conditional line with a command but NO prose (Alchemist 1's
+      // "[?talent:stormscarred;!questflag:stormscarredintro][continue]>>>QUESTFLAG:stormscarredintro")
+      // has nothing to branch on, but its effect still only fires under its own condition — so it
+      // belongs to the variant sharing that condition, not to the whole node. Left on the node, the
+      // flag reads as set for everyone, including players who matched no marker at all, and as being
+      // checked by the very children it gates.
+      const sameConditionVariant = variants.find(
+        (variant) => variant.requirements.join(';') === openVariant.requirements.join(';')
+      )
+
+      if (sameConditionVariant) {
+        sameConditionVariant.effects = [...sameConditionVariant.effects, ...variantEffects]
+      } else {
+        orphanedEffects.push(...variantEffects)
+      }
+    }
+    // Otherwise the marker carries neither prose nor effects (Spot in the Shade's bare
+    // "[?questflag:quit][continue]", LostSoul's bare marker) — nothing to record
+    openVariant = null
+  }
+
+  for (const line of lines) {
+    const match = line.match(/^\s*\[\?([^\]]+)\]([\s\S]*)$/)
+
+    if (match) {
+      closeOpenVariant()
+
+      const ownLine = match[2]
+
+      openVariant = {
+        requirements: parseConditionalRequirements(match[1]),
+        lines: [ownLine],
+        // `[continue]` tells the game engine to pause on this line and then continue into what
+        // follows, so a following unmarked line is part of this variant rather than shared
+        // epilogue — but only when the marked line actually carries prose of its own. Alchemist 1's
+        // "[?…][continue]>>>QUESTFLAG:stormscarredintro" is a bare flag-setting command, and the
+        // greeting on the next line is the unconditional default for everyone, not that variant's
+        // text. Claiming it produced two variants with identical requirements, one holding prose
+        // that isn't conditional at all.
+        claimsFollowingLines:
+          /\[continue\]/.test(ownLine) && extractEffects(ownLine).cleanedText.length > 0,
+      }
+      continue
+    }
+
+    if (openVariant && openVariant.claimsFollowingLines) {
+      openVariant.lines.push(line)
+    } else if (variants.length > 0 || openVariant) {
+      closeOpenVariant()
+      trailingLines.push(line)
+    } else {
+      leadingLines.push(line)
+    }
+  }
+  closeOpenVariant()
+
+  // One variant is a conditional aside, not a branch — leave it inline as before
+  if (variants.length < 2) return null
+
+  // The leading lines are raw, so a `>>>>COMMAND:value` there is still intact. Its effects were
+  // already extracted by the caller's extractEffects, but cleanText only strips a command's
+  // *bracketed* form — so run the leading text through extractEffects and discard the duplicate
+  // effects, keeping just the prose. Otherwise a multi-word value leaks in as text: Vaelmorin's
+  // ">>>>ADDTALENT:Clarity of Mind" left the parent reading "of Mind".
+  const { cleanedText: parentText } = extractEffects(leadingLines.join('\n'))
+  const trailingText = extractEffects(trailingLines.join('\n')).cleanedText
+
+  // Trailing prose is normally a shared epilogue — the scene continuing for everyone, as in Shrine
+  // of Absence's "The alcove seals itself…" or Vaelmorin's "That charge I take up again…".
+  //
+  // But when the marked lines set a quest flag their own conditions gate on, they are alternatives
+  // for one slot rather than barks layered onto a shared scene, and the unmarked line is the
+  // remaining alternative — the greeting for whoever matched none of them. Appending it to every
+  // variant then reads as a double greeting ("Welcome back handsome… Well hello there, adventurer…").
+  //
+  // It becomes its own sibling with NO requirements: the conditions under which it shows are the
+  // negation of all the others, but the Ink never states that, and `[?…]` is the game engine's own
+  // mini-language rather than Ink syntax — so there is nothing here that says "default" outright.
+  // Alchemist 1 is the only event in the dataset whose conditional lines set a flag they are gated
+  // on (audited across all 203 events, 2026-08-03), so this stays a narrow rule.
+  // Effects the variants claimed have to be removed from the node's own list, or the same command
+  // shows up twice — once on the node and once on the variant that actually gates it
+  const claimedEffects = variants.flatMap((variant) => variant.effects || [])
+
+  if (trailingText && marksAlternativesForOneSlot(text)) {
+    variants.push({ requirements: [], text: trailingText, effects: [] })
+
+    return {
+      parentText,
+      parentNumContinues: Math.max(0, countTextLines(parentText) - 1),
+      variants,
+      epilogue: '',
+      claimedEffects,
+      orphanedEffects,
+    }
+  }
+
+  return {
+    parentText,
+    // Same "one continue between consecutive lines" rule as splitDialogueOnEffects
+    parentNumContinues: Math.max(0, countTextLines(parentText) - 1),
+    variants,
+    epilogue: trailingText,
+    claimedEffects,
+    orphanedEffects,
+  }
+}
+
+/**
+ * Whether a block's `[?…]` lines are competing alternatives for a single slot rather than barks
+ * layered onto a scene that continues for everyone.
+ *
+ * The tell is a conditional line that sets a quest flag its own siblings' conditions are gated on:
+ * Alchemist 1's `[?talent:stormscarred;!questflag:stormscarredintro][continue]`
+ * `>>>QUESTFLAG:stormscarredintro` records "the intro has been shown", which only means anything if
+ * the marked greetings and the unmarked one are alternatives filling the same slot.
+ *
+ * Nothing in the compiled Ink states this outright, so this is inference from the flag bookkeeping,
+ * not a documented rule — hence the deliberately narrow signal.
+ */
+function marksAlternativesForOneSlot(text) {
+  const gatedFlags = new Set()
+
+  for (const marker of text.matchAll(/\[\?([^\]]+)\]/g)) {
+    for (const condition of marker[1].split(';')) {
+      const flag = condition.replace(/^!/, '').match(/^questflag:(.+)$/)
+      if (flag) gatedFlags.add(flag[1])
+    }
+  }
+
+  if (gatedFlags.size === 0) return false
+
+  // A QUESTFLAG command on a conditional line, setting one of the flags those lines gate on
+  for (const line of text.split('\n')) {
+    if (!line.trim().startsWith('[?')) continue
+
+    for (const command of line.matchAll(/>>>>?QUESTFLAG:([A-Za-z0-9_]+)/gi)) {
+      if (gatedFlags.has(command[1])) return true
+    }
+  }
+
+  return false
+}
+
+/**
+ * Count the content-carrying lines of a text block (blank lines don't cost a continue)
+ */
+function countTextLines(text) {
+  if (!text) return 0
+
+  return text.split('\n').filter((line) => line.trim()).length
+}
+
+/**
+ * Parse a conditional marker's condition string into requirement strings.
+ *
+ * A marker can carry several semicolon-separated conditions that must ALL hold
+ * ("[?testresult:sealed;questflag:nathali]" — the sealed outcome, as commented on by Nathali),
+ * and each may be negated with `!` ("[?!questflag:nathali]"), matching choice-label syntax.
+ */
+function parseConditionalRequirements(conditionString) {
+  return conditionString
+    .split(';')
+    .map((condition) => condition.trim())
+    .filter(Boolean)
+    .map((condition) => (condition.startsWith('!') ? 'NOT ' + condition.substring(1) : condition))
 }
 
 /**
@@ -557,6 +788,302 @@ function splitDialogueOnEffects(
   }
 }
 
+/**
+ * Split a dialogue/end node whose text holds several `[?condition]` variants into
+ * one child per variant, each carrying its condition as a requirement.
+ *
+ * The variants are mutually exclusive outcomes, so the node's original children (and its
+ * effects, which produced the outcome — LIGHTLESSTEST is the test whose result is branched on)
+ * stay with the parent, and each variant becomes a leaf carrying only its own prose. When the
+ * parent has children, the variants sit between parent and children as a fan-out whose branches
+ * reconverge, mirroring how the game plays exactly one of them before continuing.
+ *
+ * See splitTextOnConditionalVariants for the text-level rules.
+ *
+ * @param {string} text - Raw text containing conditional markers
+ * @param {string} type - Node type
+ * @param {Array} children - Original children of the node
+ * @param {Function} createNode
+ * @param {Function} generateNodeId
+ * @param {number} [ref] - Cycle-ref target to put on each variant, when the node being split is
+ *   itself a ref node (its variants all lead back to the same place)
+ * @param {string[]} [effects] - The node's effects, checked for an engine-test command that makes
+ *   these variants its reported outcomes (see ENGINE_TEST_COMMANDS)
+ * @returns {Object|null} { finalText, finalType?, finalNumContinues, finalChildren } or null when
+ *   no split applies. `finalType` is set only when the node becomes a `special` branching point.
+ */
+function splitNodeOnConditionalVariants(
+  text,
+  type,
+  children,
+  createNode,
+  generateNodeId,
+  ref,
+  effects
+) {
+  if (type !== 'dialogue' && type !== 'end') return null
+
+  const split = splitTextOnConditionalVariants(text)
+  if (!split) return null
+
+  // An engine-side test picking between outcomes is the COLLECTOR/CARDPUZZLE shape, so it gets the
+  // same `special` → `result` structure (see detectBranchingCommand in tree-building.js). That's
+  // also the only rendering path that draws a requirements box on a non-choice node, so it's what
+  // makes "why this outcome?" visible in the tree.
+  const engineTest = detectEngineTestCommand(effects)
+
+  if (engineTest) {
+    return {
+      finalText: engineTest,
+      finalType: 'special',
+      finalNumContinues: undefined,
+      finalChildren: buildEngineTestResultNodes(split, engineTest, createNode, generateNodeId),
+    }
+  }
+
+  // When the split node has choices of its own, the variants are alternative *intro* prose for
+  // them (Alchemist 1's three shopkeeper greetings, Spot in the Shade's two arrival lines): the
+  // player reads one greeting and then picks from the same menu. Each variant is therefore an
+  // additional parent of that shared choice set, marked here and resolved to `refChildren` by
+  // `linkConditionalVariantsToSharedChoices` once the pipeline's structural passes have settled —
+  // capturing the child ids at this point would leave them stale, since dedup and hub collapse
+  // still renumber and replace nodes after tree building.
+  //
+  // Copying the choices onto every variant instead would put them behind a requirement they don't
+  // have — and dedup then collapses the copies, losing choices outright. Leaving the variants as
+  // terminal leaves made each greeting look like a dead end while the menu hung off the parent as
+  // unrelated siblings.
+  const choiceChildren = children || []
+  const leadsToSharedChoices = choiceChildren.some((child) => child.choiceLabel !== undefined)
+
+  const variantNodes = split.variants.map((variant) => {
+    const variantText = split.epilogue ? `${variant.text} ${split.epilogue}` : variant.text
+
+    const variantNode = createNode({
+      id: generateNodeId(),
+      text: variantText,
+      type: ref !== undefined || leadsToSharedChoices ? 'dialogue' : 'end',
+      requirements: variant.requirements,
+      effects: variant.effects,
+      ref,
+    })
+
+    if (leadsToSharedChoices) {
+      variantNode.sharesParentChoices = true
+    }
+
+    return variantNode
+  })
+
+  // A command on a conditional line only fires under that line's condition, so it moves to the
+  // variant and comes off the node's own list — see closeOpenVariant in
+  // splitTextOnConditionalVariants. Anything the variants didn't claim stays on the node.
+  const remainingEffects = (effects || []).filter(
+    (effect) => !split.claimedEffects.includes(effect)
+  )
+
+  return {
+    finalText: split.parentText || undefined,
+    finalNumContinues: split.parentNumContinues,
+    finalEffects: [...remainingEffects, ...split.orphanedEffects],
+    finalChildren: [...variantNodes, ...choiceChildren],
+  }
+}
+
+/**
+ * Resolve the `sharesParentChoices` markers left by splitNodeOnConditionalVariants into
+ * `refChildren` pointing at their parent's actual choice nodes.
+ *
+ * Runs as a late pipeline pass because the ids have to be read *after* dedup, hub collapse and the
+ * other structural passes finish moving nodes around — the same markers resolved during tree
+ * building produced refChildren pointing at nodes that no longer existed.
+ *
+ * A marked variant whose parent has no choice children left (a later pass collapsed the menu, as
+ * in Shrine of Absence's Investigate branch where the whole node became a loop ref) simply drops
+ * the marker: the `ref` it already carries describes where it goes.
+ *
+ * A choice whose requirements *contradict* the variant's is unreachable from it and is left out of
+ * the link — see requirementsContradict.
+ *
+ * @returns {number} how many variants were linked
+ */
+function linkConditionalVariantsToSharedChoices(node) {
+  if (!node) return 0
+
+  let linkedCount = 0
+
+  const children = node.children || []
+  const choiceChildren = children.filter((child) => child.choiceLabel !== undefined)
+  const markedVariants = children.filter((child) => child.sharesParentChoices)
+
+  const reachableChoicesFor = (variant) =>
+    choiceChildren.filter(
+      (choice) => !requirementsContradict(variant.requirements, choice.requirements)
+    )
+
+  for (const variant of markedVariants) {
+    delete variant.sharesParentChoices
+
+    const reachableChoices = reachableChoicesFor(variant)
+    if (reachableChoices.length === 0) continue
+
+    variant.refChildren = reachableChoices.map((choice) => choice.id)
+    linkedCount++
+  }
+
+  // Every path into the menu goes through a greeting, so the choices must stop being the split
+  // node's own children — otherwise it draws its own set of lines to them alongside the greetings',
+  // as if the menu were reachable without reading one. They move under one greeting to stay in the
+  // hierarchy (the layout needs one real parent to position them); the rest reach them through
+  // `refChildren`, which renders identically.
+  //
+  // The owner has to be a greeting that can reach EVERY choice, since direct children aren't
+  // filtered by the contradiction check — picking one that excludes a choice would show it that
+  // choice anyway. If no greeting qualifies, they all keep ref links and the choices stay put.
+  const owner = markedVariants.find(
+    (variant) => reachableChoicesFor(variant).length === choiceChildren.length
+  )
+
+  if (owner && choiceChildren.length > 0) {
+    owner.children = [...(owner.children || []), ...choiceChildren]
+    node.children = children.filter((child) => child.choiceLabel === undefined)
+
+    // The owner reaches its choices as real children now, so the ref links would be duplicates
+    const ownerChoiceIds = new Set(choiceChildren.map((choice) => choice.id))
+    const remainingRefs = (owner.refChildren || []).filter((id) => !ownerChoiceIds.has(id))
+    if (remainingRefs.length > 0) {
+      owner.refChildren = remainingRefs
+    } else {
+      delete owner.refChildren
+    }
+  }
+
+  for (const child of node.children || []) {
+    linkedCount += linkConditionalVariantsToSharedChoices(child)
+  }
+
+  return linkedCount
+}
+
+/**
+ * Whether two requirement lists can never hold at the same time, because one negates a condition
+ * the other asserts (`talent:stormscarred` vs `NOT talent:stormscarred`).
+ *
+ * Deliberately only catches this exact same-key negation. Requirements are opaque game-state
+ * strings, so anything subtler — that `gold:20` and `gold:35` are both satisfiable, or whether
+ * two different quest flags can co-occur — isn't decidable here, and guessing would drop links
+ * that are actually reachable. A direct negation pair is unambiguous: Alchemist's two "Buy a
+ * potion" choices are gated `talent:stormscarred` / `!talent:stormscarred`, so the game shows
+ * exactly one, and the `talent:stormscarred` greeting can only ever reach the first.
+ */
+function requirementsContradict(requirementsA, requirementsB) {
+  if (!requirementsA || !requirementsB) return false
+
+  const parse = (requirement) =>
+    requirement.startsWith('NOT ')
+      ? { key: requirement.slice(4), negated: true }
+      : { key: requirement, negated: false }
+
+  const parsedA = requirementsA.map(parse)
+
+  return requirementsB
+    .map(parse)
+    .some((b) => parsedA.some((a) => a.key === b.key && a.negated !== b.negated))
+}
+
+/**
+ * Commands whose outcome the game engine decides and reports back through a `[?<flag>:<value>]`
+ * conditional, mapped to the flag their outcomes are keyed on.
+ *
+ * These are the inline-conditional counterpart to COLLECTOR/CARDPUZZLE (see
+ * detectBranchingCommand in tree-building.js): same "engine picks one of N outcomes" semantics,
+ * but the outcomes are conditional *lines in the same container* rather than separate knots, so
+ * they can't be found by walking knot definitions.
+ */
+const ENGINE_TEST_COMMANDS = { LIGHTLESSTEST: 'testresult' }
+
+/**
+ * Return the engine-test command name present in a node's effects, or null.
+ */
+function detectEngineTestCommand(effects) {
+  if (!effects || effects.length === 0) return null
+
+  for (const effect of effects) {
+    // Engine tests are bare, valueless commands ("LIGHTLESSTEST", not "LIGHTLESSTEST: x")
+    const command = effect.toUpperCase().trim()
+    if (ENGINE_TEST_COMMANDS[command]) return command
+  }
+
+  return null
+}
+
+/**
+ * Build the `result` children of an engine-test `special` node — one per distinct outcome, in the
+ * same `COMMAND: value` requirement format the COLLECTOR/CARDPUZZLE branches use.
+ *
+ * Variants are grouped by their test outcome rather than mapped one-to-one, because a compound
+ * condition adds a *further* condition to an outcome instead of naming a new one: Shrine of
+ * Absence's `[?testresult:sealed;questflag:nathali]` is the sealed outcome plus a companion remark
+ * shown only when Nathali is in the party. The game prints both lines (there is no negated
+ * `!questflag` sibling, which is how this ink writes genuine either/or), so the remark continues
+ * the base prose rather than replacing it — and the test has three outcomes, not five.
+ *
+ * Within an outcome, the unconditional prose comes first and each conditional addition hangs off it
+ * as a child carrying its own condition, so no prose is duplicated. Those conditions are visible
+ * because dialogue/end nodes render a requirements box too (see `isRequirementsNode`).
+ *
+ * `ResultNode` carries no text of its own, so the prose always lives in child nodes.
+ */
+function buildEngineTestResultNodes(split, engineTest, createNode, generateNodeId) {
+  const outcomeFlag = ENGINE_TEST_COMMANDS[engineTest]
+  const isOutcomeCondition = (requirement) => requirement.startsWith(`${outcomeFlag}:`)
+
+  const formatOutcome = (condition) => `${engineTest}: ${condition.slice(outcomeFlag.length + 1)}`
+
+  // Preserves first-seen outcome order, which is the order the story lists them in
+  const outcomeGroups = new Map()
+
+  for (const variant of split.variants) {
+    const outcomeConditions = variant.requirements.filter(isOutcomeCondition)
+    const outcomeKey = outcomeConditions.join(';')
+
+    if (!outcomeGroups.has(outcomeKey)) {
+      outcomeGroups.set(outcomeKey, { outcomeConditions, lines: [] })
+    }
+    outcomeGroups.get(outcomeKey).lines.push({
+      text: variant.text,
+      extraConditions: variant.requirements.filter((r) => !isOutcomeCondition(r)),
+    })
+  }
+
+  return [...outcomeGroups.values()].map(({ outcomeConditions, lines }) => {
+    // The epilogue closes the outcome, so it belongs on the deepest (last) line of the chain
+    const proseNodes = lines.map((line, index) => {
+      const isLastLine = index === lines.length - 1
+      const text = isLastLine && split.epilogue ? `${line.text} ${split.epilogue}` : line.text
+
+      return createNode({
+        id: generateNodeId(),
+        text,
+        type: isLastLine ? 'end' : 'dialogue',
+        requirements: line.extraConditions,
+      })
+    })
+
+    // Chain the lines so a conditional addition hangs off the prose it follows
+    for (let i = proseNodes.length - 1; i > 0; i--) {
+      proseNodes[i - 1].children = [proseNodes[i]]
+    }
+
+    return createNode({
+      id: generateNodeId(),
+      type: 'result',
+      requirements: outcomeConditions.map(formatOutcome),
+      children: [proseNodes[0]],
+    })
+  })
+}
+
 // ============================================================================
 // 3. CHOICE SEPARATION
 // ============================================================================
@@ -692,6 +1219,8 @@ module.exports = {
   // Core splitting functions
   splitCombatNode,
   splitDialogueOnEffects,
+  splitNodeOnConditionalVariants,
+  linkConditionalVariantsToSharedChoices,
   separateChoicesFromEffects,
 
   // Helper utilities (exported for testing/reuse)
