@@ -1,3 +1,5 @@
+import { useCallback } from 'react'
+
 import {
   CardCodexSearchFilterCache,
   CardType,
@@ -26,17 +28,33 @@ const indexMap: Record<string, number> = {
   [CardTypeFilterOption.Divine]: 4,
   // Skipping 5 (Move) — never used in the game
   [CardTypeFilterOption.Corruption]: 6,
-  // Skipping 7 (Monster) — covered by the "Include Monster cards" checkbox
+  // Skipping 7 (Monster) — Weird set of cards... Ignored. Monster cards are already handled by the "Include Monster cards" checkbox.
 }
 
-/*
- * Index 7 (Monster) has no checkbox but still needs a display name,
- * since monster cards do show up in the results.
- */
 const indexToValueMap: Record<number, string> = {
   ...Object.fromEntries(Object.entries(indexMap).map(([value, index]) => [index, value])),
   7: 'Monster',
 }
+
+const indexToEmojiMap: Record<number, string> = {
+  0: '⚔️',
+  1: '🔮',
+  2: '🏹',
+  3: '🛠️',
+  4: '☀️',
+  6: '🌙',
+  7: '👹',
+}
+
+/*
+ * The checkboxes are keyed by filter name, the result cards by type index, so the emoji is reachable
+ * both ways. Unmapped keys give '' — which is what keeps `Select all`/`Select none` emoji-free.
+ */
+const valueToEmojiMap: Record<string, string> = Object.fromEntries(
+  Object.entries(indexMap).map(([value, index]) => [value, indexToEmojiMap[index] ?? ''])
+)
+
+export const getCardTypeEmojiFromName = (filter: string): string => valueToEmojiMap[filter] ?? ''
 
 export const allCardTypes: CardType[] = CardType.getAll()
 
@@ -57,10 +75,14 @@ export const useCardTypeFilters = (cachedFilters?: CardCodexSearchFilterCache['c
     resetFilters,
   } = useBaseCardTypeFilters(cachedFilters)
 
+  // Stable reference, like the factory's own getters, so `ResultCard` stays memoizable
+  const getCardTypeEmojiFromIndex = useCallback((index: number) => indexToEmojiMap[index] ?? '', [])
+
   return {
     cardTypeFilters: filters,
     isCardTypeIndexSelected: isIndexSelected,
     getCardTypeNameFromIndex: getValueFromIndex,
+    getCardTypeEmojiFromIndex,
     handleCardTypeFilterToggle: handleFilterToggle,
     enableCardTypeFilters: enableFilters,
     resetCardTypeFilters: resetFilters,

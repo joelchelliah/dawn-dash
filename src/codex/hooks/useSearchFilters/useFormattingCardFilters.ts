@@ -11,7 +11,7 @@ const defaultFilters = {
   [FormattingCardFilterOption.ShowDescription]: true,
   [FormattingCardFilterOption.ShowKeywords]: true,
   [FormattingCardFilterOption.ShowCardSet]: true,
-  [FormattingCardFilterOption.ShowCardType]: false,
+  [FormattingCardFilterOption.ShowCardType]: true,
   [FormattingCardFilterOption.ShowBlightbaneLink]: false,
   [FormattingCardFilterOption.HideTrackedCards]: false,
 }

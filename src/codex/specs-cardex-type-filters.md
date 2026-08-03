@@ -16,11 +16,11 @@ it all at once.
 | --- | --- |
 | Filter options (Melee…Corruption) + `CardType` value object | `types/filters.ts` |
 | `ShowCardType` formatting option, `cardTypes` on the filter cache | `types/filters.ts` |
-| `hasMonsterType` predicate | `utils/cardHelper.ts` |
 | Filter hook (state, index predicate, Select all/none, bulk enable, reset) | `hooks/useSearchFilters/useCardTypeFilters.ts` |
+| Type emoji: `indexToEmojiMap` + both accessors | `hooks/useSearchFilters/useCardTypeFilters.ts` |
 | Wiring: tracking, caching, reset, weekly optimization, card matching | `hooks/useSearchFilters/useAllCardSearchFilters.ts` |
 | `shouldShowCardType` flag + label | `hooks/useSearchFilters/useFormattingCardFilters.ts` |
-| `Type` checkbox group in the search panel | `components/SearchPanels/CardSearchPanel/index.tsx` |
+| `Type` checkbox group + emoji labels in the search panel | `components/SearchPanels/CardSearchPanel/index.tsx` |
 | `card-type` checkbox layout | `components/SearchPanels/shared/FilterGroup/Checkbox/index.module.scss` |
 | **Provisional** render in the result card | `components/ResultsPanels/CardResultsPanel/ResultCard/index.tsx` + its `.module.scss` |
 
@@ -50,31 +50,30 @@ Do not re-litigate these; they are settled.
 - Checkboxes look like the plain (card-set/requirement) ones, **not** the coloured banner/tier ones.
   Colouring them is a separate idea, out of scope here.
 - `Show card type` defaults to **false** — it is new and additive, and the title row is already busy.
-- **Type 7 (Monster) gets no checkbox.** Monster cards are governed by *Include Monster cards* in
-  Extras, exactly as monster rarity (4) and monster banner (11) already are: `hasMonsterType` joins
-  `hasMonsterRarity`/`hasMonsterBanner` in `cardHelper.ts`, and index 7 is absent from both the enum
-  and `indexMap`. It **is** kept in `indexToValueMap` as `'Monster'` — monster cards still appear in
-  results when the Extras checkbox is on, and would otherwise render an empty span with *Show card
-  type* enabled, since `getValueFromIndex` returns `''` for unmapped indices.
+- **Type 7 gets no checkbox.** It is kept in `indexToValueMap` as `'Monster'`, so those cards render
+  a label rather than an empty span with *Show card type* enabled (`getValueFromIndex` returns `''`
+  for unmapped indices). ⚠️ **Task 1 disproved the reasoning originally recorded here** — type 7 is
+  *not* a card-wide monster marker and `hasMonsterType` is gone. See *Task 1 findings* below; the
+  no-checkbox decision still stands, but for a different reason.
 - **Index 5 (Move) gets no checkbox.** The type is never used in the game, so a checkbox could only
   ever be dead UI. Unlike Monster it needs no `indexToValueMap` entry — no card carries the index.
 
-Type indices, from a sweep of the Blightbane API across all banners × expansions 0–7 (distinct card
-counts, for orientation only — do not treat as authoritative):
+Type indices, counted over the **full** `cards-codex` response (2716 cards) — the exact payload
+Cardex fetches, so these counts include monster-bannered cards:
 
 | Index | Type | Cards | Examples |
 | --- | --- | --- | --- |
-| 0 | Melee | 158 | Assassinate, Cranium Blow, Garrote, Plague Strike |
-| 1 | Magic | 113 | Cloudkill, Charged Blade, Afterburn, Call the Storm |
-| 2 | Ranged | 49 | Quickshot, Aimed Shot, Poison Arrow, Double Tap |
-| 3 | Utility | 866 | Agile, Alchemist, Arcane Ward, Emerald Prism |
-| 4 | Divine | 157 | Confession, Renew, Radiant Recovery, Singular Focus |
+| 0 | Melee | 402 | Assassinate, Cranium Blow, Garrote, Plague Strike |
+| 1 | Magic | 215 | Cloudkill, Charged Blade, Afterburn, Call the Storm |
+| 2 | Ranged | 84 | Quickshot, Aimed Shot, Poison Arrow, Double Tap |
+| 3 | Utility | 1635 | Agile, Alchemist, Arcane Ward, Emerald Prism |
+| 4 | Divine | 219 | Confession, Renew, Radiant Recovery, Singular Focus |
 | 5 | Move | 0 | no checkbox — never used in the game |
-| 6 | Corruption | 98 | Snare, Bloodmoney, Ransom, Shakedown |
-| 7 | Monster | 0 | no checkbox — folded into *Include Monster cards* |
+| 6 | Corruption | 151 | Snare, Bloodmoney, Ransom, Shakedown |
 
-That sweep reaches only the regular banners, so it returns zero type-7 cards even though monster cards
-exist. **The Monster folding is therefore still unverified against real data** — see task 1.
+An earlier sweep restricted to the regular banners reported far lower counts and **zero** type-7
+cards, which is what produced the mistaken "type 7 = Monster" premise. Type 7 has 10 cards; it is
+listed under *Task 1 findings* rather than in this table, since it is not a filterable type here.
 
 ## How to work through this spec
 
@@ -129,26 +128,95 @@ provisional-placement `TODO`s (one in `ResultCard/index.tsx` above the card-type
 
 ### 1. Check the Type group's layout, and verify the Monster folding
 
-Two things, both in the browser; neither should need much code.
+**Monster folding: COMPLETED — it was broken, and is now fixed.**
 
-**Layout.** `checkbox-label--card-type` currently only overrides mobile (`50%` width), inheriting the
-default `33.33%` desktop column — the same rule `--requirement` uses. Six types plus
-`Select all`/`Select none` is eight checkboxes, so at three columns the final row is short by one, and
-at two columns (mobile) it divides evenly. The labels differ in width (Melee … Corruption). Adjust the
-width rule **only** if the real labels wrap, truncate, or leave an awkward gap — an even grid is not
-worth a bespoke rule on its own.
+**Layout: still open** — needs the user's dev server. `checkbox-label--card-type` currently only
+overrides mobile (`50%` width), inheriting the default `33.33%` desktop column — the same rule
+`--requirement` uses. Six types plus `Select all`/`Select none` is eight checkboxes, so at three
+columns the final row is short by one, and at two columns (mobile) it divides evenly. The labels
+differ in width (Melee … Corruption). Adjust the width rule **only** if the real labels wrap,
+truncate, or leave an awkward gap — an even grid is not worth a bespoke rule on its own.
 
-**Monster folding.** This is the part no automated check covers, and the API sweep above could not
-confirm it. In the browser, with monster-bannered cards in the results:
+#### Task 1 findings
 
-- *Include Monster cards* **off** → no monster card appears, regardless of which Type checkboxes are
-  ticked (including all of them).
-- *Include Monster cards* **on** → monster cards appear even with **every** Type checkbox unticked
-  (use `Select none`).
-- With *Show card type* on, a monster card's type reads **Monster**, not blank.
+The folding was verified against the live `cards-codex` payload (2716 cards) rather than by eye, since
+the question is a data question. Cross-tabulating the three monster signals, with banner counted
+**after** the `Infernal Racket` → black remap in `getActualColor`:
 
-If any of those three fails, the bug is in `passesCardTypeFilter` in `useAllCardSearchFilters.ts` or
-in `indexToValueMap` in `useCardTypeFilters.ts`.
+| `rarity === 4` | `color === 11` | `type === 7` | Cards |
+| --- | --- | --- | --- |
+| no | no | no | 1712 |
+| no | no | **yes** | 1 (`Infernal Racket`) |
+| no | **yes** | no | 9 |
+| no | **yes** | **yes** | 1 |
+| **yes** | **yes** | no | 985 |
+| **yes** | **yes** | **yes** | 8 |
+
+So ~1003 monster cards exist, but **only 10 carry type 7** — the other 994 carry an ordinary type
+(216 Melee, 96 Magic, 31 Ranged, 590 Utility, 25 Divine, 36 Corruption). **Type 7 is not the monster
+type.** It is a rare type that mostly co-occurs with the monster banner.
+
+That broke the second assertion. Rarity 4 and banner 11 are absent from their groups' `indexMap`s, so
+for a monster card those filters have nothing to say and the deferral is total. The Type group is
+different: its `indexMap` covers 0,1,2,3,4,6 — exactly the types 994 monster cards have — so monster
+cards *are* addressable by Type checkboxes. With *Include Monster cards* on and `Select none`,
+`hasMonsterType` was false for those 994, so they fell through to `isCardTypeSelected(card.type)` and
+the Type group vetoed cards the user had explicitly opted into: **10 of 1003 monster cards appeared
+instead of all 1003.** The other direction never leaked, because the rarity and banner lines still
+catch every monster card — which is why this was invisible outside that one filter combination.
+
+**The fix:** `passesCardTypeFilter` now defers on the card *being a monster card*
+(`hasMonsterRarity(card) || hasMonsterBanner(card)`), matching what the other two lines mean.
+`hasMonsterType` had no remaining caller and was deleted from `cardHelper.ts`, since "type 7 means
+monster" was the false premise itself.
+
+Re-verified over the same payload: 0 monster cards leak with the Extras checkbox off, all 1003 appear
+with it on plus `Select none`, and ticking a single type still yields 0 wrong-type cards.
+
+**Type 7 decisions (confirmed with the user):** no checkbox — 9 of the 10 cards are monster cards
+already governed by *Include Monster cards*, leaving a 1-card population that would be dead UI — and
+`indexToValueMap` keeps `7: 'Monster'` so the result card still renders a label.
+
+**One loose end, deliberately left alone.** `Infernal Racket` is type 7 but `getActualColor` remaps it
+to the black banner because the game treats it as a normal card. It is therefore *not* a monster card
+under the new predicate, so it is now filterable by the Type checkboxes — but no checkbox maps to
+index 7, so **no Type selection can show it** while every other collectible card is reachable. With
+*Show card type* on it also reads "Monster" despite its black banner. Both are single-card cosmetic
+oddities on a card the game itself treats inconsistently; raise them again only if a second such card
+appears.
+
+### 1b. Type emoji (DONE for the checkboxes, provisional in the result card)
+
+Each type has an emoji, from `indexToEmojiMap` in `useCardTypeFilters.ts`:
+⚔️ Melee · 🔮 Magic · 🏹 Ranged · 🛠️ Utility · ☀️ Divine · 🖤 Corruption · 👹 type 7.
+
+The map is keyed by **index**, but the checkboxes are keyed by filter **name**, so the emoji is
+reachable both ways and neither caller rebuilds the mapping:
+
+- `getCardTypeEmojiFromName(filter)` — a module-level export (not on the hook), since
+  `CardSearchPanel` builds its labels outside any hook result. `valueToEmojiMap` derives from
+  `indexMap`, so `Select all`/`Select none` are absent and fall through to `''` — which is exactly
+  what `getCardTypeFilterLabel` tests to render them as plain labels.
+- `getCardTypeEmojiFromIndex(index)` — on the hook, `useCallback`-wrapped to match the factory's own
+  getters, so `ResultCard`'s `memo` still holds.
+
+**Checkboxes: settled.** Emoji prepended to the label via `getFilterLabel`, the same hook the Rarities
+and Extras groups already use. Spacing comes from `.filter-emoji` (`0.375rem`, a shade tighter than
+`.filter-icon`'s `0.5rem`), sized one step below the label text because the emoji glyphs read heavier
+than the outline icons at equal size.
+
+**Result card: emoji-only, but the placement is still task 2's question.** The type now renders as
+*just* the emoji — no text — with the name on a `title` attribute so it stays identifiable on hover.
+It still sits where the provisional text sat (trailing the card set on the title row) and the `TODO`s
+still stand; **task 2 is unchanged and still open.** What the emoji does change is the weighing:
+
+- The old text span reserved a fixed `6rem` (`4.5rem` mobile) with truncation. One glyph needs
+  neither, so the rule is now width-less and `flex-shrink: 0` — it no longer competes with the card
+  name for title-row width, which was the main objection to leaving it on the title row.
+- That weakens the case for the *own row* option (vertical space for one glyph) and largely collapses
+  the distinction between *merged with the card set* and leaving it where it is.
+- The *icon in `CardIcons`* option is now closer to a straight swap: emoji instead of six new SVG
+  components, no `viewBox` work, and that column already centres against the full row height.
 
 ### 2. Decide where the card type shows in a result card
 
@@ -156,8 +224,11 @@ in `indexToValueMap` in `useCardTypeFilters.ts`.
 asked for the *Show card type* checkbox before deciding where the type should appear.
 
 Current state is an explicit placeholder: the type renders as a `<span>` trailing the card set on the
-title row, styled as a narrower card set (`result-card__card-type`), with `TODO`s marking it
-provisional. It is readable, but it is not a design.
+title row, with `TODO`s marking it provisional. It is readable, but it is not a design.
+
+⚠️ **Read task 1b first** — the span now holds a single emoji rather than text, which removes its
+fixed width and therefore most of the width pressure the options below were weighed against. The
+options are still the options; the trade-offs shifted.
 
 The constraint: `result-card__card-set` uses `margin-left: auto` to push itself to the right edge, and
 the type span does the same. When **both** are shown they queue at the right and compete for a title

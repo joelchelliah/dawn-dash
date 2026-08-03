@@ -19,7 +19,10 @@ import { UseAllCardSearchFilters } from '@/codex/hooks/useSearchFilters'
 import { allFormattingCardFilters } from '@/codex/hooks/useSearchFilters/useFormattingCardFilters'
 import { allRarities } from '@/codex/hooks/useSearchFilters/useRarityFilters'
 import { allBanners } from '@/codex/hooks/useSearchFilters/useBannerFilters'
-import { allCardTypes } from '@/codex/hooks/useSearchFilters/useCardTypeFilters'
+import {
+  allCardTypes,
+  getCardTypeEmojiFromName,
+} from '@/codex/hooks/useSearchFilters/useCardTypeFilters'
 import { allExtraCardFilters } from '@/codex/hooks/useSearchFilters/useExtraCardFilters'
 import { allCardSets } from '@/codex/hooks/useSearchFilters/useCardSetFilters'
 import { UseCardData } from '@/codex/hooks/useCardData'
@@ -167,6 +170,18 @@ const CardSearchPanel = ({ useSearchFilters, useCardData }: CardSearchPanelProps
     }
   }
 
+  const getCardTypeFilterLabel = (filter: string) => {
+    const emoji = getCardTypeEmojiFromName(filter)
+    if (!emoji) return <span className={cx('filter-label')}>{filter}</span>
+
+    return (
+      <span className={cx('filter-label')}>
+        <span className={cx('filter-emoji')}>{emoji}</span>
+        {filter}
+      </span>
+    )
+  }
+
   const getExtraFilterLabel = (filter: string) => {
     const name = getExtraCardFilterName(filter)
 
@@ -252,6 +267,7 @@ const CardSearchPanel = ({ useSearchFilters, useCardData }: CardSearchPanelProps
             selectedFilters={cardTypeFilters}
             type="card-type"
             onFilterToggle={handleCardTypeFilterToggle}
+            getFilterLabel={getCardTypeFilterLabel}
           />
           <FilterGroup
             title="Extras"

@@ -205,18 +205,17 @@
 
 // Placement is provisional — see the TODO in ResultCard. `margin-left: auto` only kicks in when the
 // card set is hidden; otherwise the card set already claims the free space and this trails it.
+// One emoji, so no fixed width or truncation: unlike the card set it never needs to reserve space.
 .result-card__card-type {
   display: inline-block;
-  color: $color-primary-dark;
-  width: 6rem;
-  @include text-truncate;
+  flex-shrink: 0;
   margin-left: auto;
   margin-right: 0.5rem;
-  text-align: right;
+  font-size: font-size('xs');
+  line-height: 1;
 
   @media (max-width: $breakpoint-mobile) {
     font-size: font-size('xxs');
-    width: 4.5rem;
   }
 }
 

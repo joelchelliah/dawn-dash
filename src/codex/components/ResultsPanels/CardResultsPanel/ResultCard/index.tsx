@@ -29,7 +29,7 @@ const ResultCard = ({ card, useSearchFilters, showCardsWithoutKeywords }: Result
     useCardStrike,
   } = useSearchFilters
   const { getCardSetNameFromIndex } = useCardSetFilters
-  const { getCardTypeNameFromIndex } = useCardTypeFilters
+  const { getCardTypeNameFromIndex, getCardTypeEmojiFromIndex } = useCardTypeFilters
   const { shouldIncludeNonCollectibleCards, shouldIncludeAnimalCompanionCards } =
     useExtraCardFilters
   const {
@@ -131,10 +131,14 @@ const ResultCard = ({ card, useSearchFilters, showCardsWithoutKeywords }: Result
               {card.expansion === 0 && <span className={cx('result-card__card-set__nil')}>°</span>}
             </span>
           )}
-          {/* TODO: Placement not decided yet — currently trails the card set on the title row. */}
+          {/* TODO: Placement not decided yet — the emoji trails the card set on the title row for
+              now. Task 2 in `specs-cardex-type-filters.md` settles where it actually belongs. */}
           {shouldShowCardType && (
-            <span className={cx('result-card__card-type')}>
-              {getCardTypeNameFromIndex(card.type)}
+            <span
+              className={cx('result-card__card-type')}
+              title={getCardTypeNameFromIndex(card.type)}
+            >
+              {getCardTypeEmojiFromIndex(card.type)}
             </span>
           )}
         </div>
