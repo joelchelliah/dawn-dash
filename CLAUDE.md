@@ -9,6 +9,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Written deliverables**: match a document's length to its substance. No filler sections, redundant summaries, or boilerplate — this file and the per-feature `CLAUDE.md` files included.
 - **Long tasks**: for multi-session or long-running work, keep a short running state file in the session scratchpad (not in the repo — the working tree stays clean) and re-read it after a context refresh, along with `git log`/`git status`, before acting.
 - **Long documents**: when analyzing or summarizing a large document (roughly >20k tokens — e.g. `src/codex/specs-*.md`, `event-trees.json`), quote the relevant lines before drawing conclusions from them rather than working from recall.
+- **The dev server is the user's to run**: never start `npm run dev` yourself, in the foreground or the background. The user typically already has one running, so a second either dies on the busy port or outlives the session as an orphan holding port 3000. When a change needs looking at, say it's ready and name the pages and states to check, then wait. `npm run verify`, `npm run build`, and `npm run check-sw` are yours to run as usual.
 
 ## Writing a spec
 
@@ -27,9 +28,10 @@ Every spec gets a **"How to work through this spec"** section, placed before the
 - **Where to stop.** State whether tasks may be chained or must pause for confirmation, and say *why*
   for this particular spec — e.g. several tasks restructuring the same DOM and stylesheet, where a
   mistake in an early task gets buried under later ones. If tasks pause: finish the task, get it into
-  a state the user can look at (`npm run dev`), say what changed and what specifically to look at, and
-  wait. Call out any task with no visible effect of its own so it isn't mistaken for a broken step.
-- **How it gets verified.** Visually in the dev server, via `npm run verify`, `npm run build`, or
+  a state the user can look at, say what changed and what specifically to look at, and wait — **the
+  user spins up the dev server, not the agent** (see Working Style). Call out any task with no visible
+  effect of its own so it isn't mistaken for a broken step.
+- **How it gets verified.** Visually in the user's dev server, via `npm run verify`, `npm run build`, or
   `npm run check-sw` — name the actual check. For visual verification, name the states to compare
   (expanded/collapsed, zoom levels, mobile/desktop), since "looks fine" on one state routinely misses
   the others.
@@ -66,7 +68,7 @@ operationally — the sequence they should be built in, not a topical grouping.
 - `npm run test:watch` - Run Jest in watch mode
 - `npm run test:coverage` - Run tests with coverage report
 - **Test framework**: Jest 30 with React Testing Library 16 (kept configured for temporary development tests)
-- **Testing policy: no permanent tests.** Tests are written only as temporary aids *during* development to verify a change, then **deleted before the work is considered done**. Do not add permanent test files unless the user explicitly requests them. Visual/rendering code (e.g. the codex trees) is verified by manual before/after comparison in the dev server instead.
+- **Testing policy: no permanent tests.** Tests are written only as temporary aids *during* development to verify a change, then **deleted before the work is considered done**. Do not add permanent test files unless the user explicitly requests them. Visual/rendering code (e.g. the codex trees) is verified by manual before/after comparison in the user's dev server instead.
 
 ## Project Architecture
 

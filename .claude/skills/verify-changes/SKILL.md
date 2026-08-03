@@ -19,7 +19,7 @@ Data hooks means `useCardData`, `useTalentData`, `useSpeedrunData`, `useWeeklyCh
 
 Applies to changes in `src/styles/`, any `*.module.scss`, `src/codex/utils/tree/`, `src/codex/utils/eventTreeSpacing/`, `*NodeDimensions*`, `*TextMeasurer*`, or the `TalentTree`/`EventTree` components.
 
-- Start `npm run dev` and open the affected pages.
+- **The user runs the dev server, not you.** Do not start `npm run dev` yourself — the user usually already has one running, and a second one either fails on the busy port or leaves an orphaned server behind. Say the change is ready to look at and name the affected pages, then wait for the user to check them.
 - Compare against the pre-change rendering (screenshot or a second checkout/stash if needed).
 - For tree-layout changes, spot-check 2–3 complex events / expanded talent trees, including expanded/collapsed nodes and multiple zoom levels — small layouts can look fine while large ones regress.
 
