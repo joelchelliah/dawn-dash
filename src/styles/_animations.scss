@@ -212,3 +212,16 @@
     transform: scale(0.95) translateX(-1px);
   }
 }
+
+/*
+ * A small sideways there-and-back nudge, for hover feedback on *text*.
+ */
+@keyframes tinyNudgeRight {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  40% {
+    transform: translateX(4px);
+  }
+}
