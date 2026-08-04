@@ -262,7 +262,7 @@ const CardSearchPanel = ({ useSearchFilters, useCardData }: CardSearchPanelProps
             getFilterLabel={getRarityFilterLabel}
           />
           <FilterGroup
-            title="Type"
+            title="Types"
             filters={allCardTypes}
             selectedFilters={cardTypeFilters}
             type="card-type"
