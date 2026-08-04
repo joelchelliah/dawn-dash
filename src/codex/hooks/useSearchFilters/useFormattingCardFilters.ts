@@ -11,6 +11,7 @@ const defaultFilters = {
   [FormattingCardFilterOption.ShowDescription]: true,
   [FormattingCardFilterOption.ShowKeywords]: true,
   [FormattingCardFilterOption.ShowCardSet]: true,
+  [FormattingCardFilterOption.ShowCardType]: true,
   [FormattingCardFilterOption.ShowBlightbaneLink]: false,
   [FormattingCardFilterOption.HideTrackedCards]: false,
 }
@@ -20,6 +21,7 @@ const valueToStringMap = {
   [FormattingCard.ShowDescription]: 'Show card description',
   [FormattingCard.ShowKeywords]: 'Show matching keywords',
   [FormattingCard.ShowCardSet]: 'Show card set',
+  [FormattingCard.ShowCardType]: 'Show card type',
   [FormattingCard.ShowBlightbaneLink]: 'Show Blightbane link',
   [FormattingCard.HideTrackedCards]: 'Hide tracked cards',
 }
@@ -40,6 +42,7 @@ export const useFormattingCardFilters = (
   const shouldShowDescription = filters[FormattingCard.ShowDescription]
   const shouldShowKeywords = filters[FormattingCard.ShowKeywords]
   const shouldShowCardSet = filters[FormattingCard.ShowCardSet]
+  const shouldShowCardType = filters[FormattingCard.ShowCardType]
   const shouldShowCardArt = filters[FormattingCard.ShowCardArt]
   const shouldShowBlightbaneLink = filters[FormattingCard.ShowBlightbaneLink]
   const shouldHideTrackedCards = filters[FormattingCard.HideTrackedCards]
@@ -52,6 +55,7 @@ export const useFormattingCardFilters = (
     shouldShowDescription,
     shouldShowKeywords,
     shouldShowCardSet,
+    shouldShowCardType,
     shouldShowCardArt,
     shouldShowBlightbaneLink,
     shouldHideTrackedCards,

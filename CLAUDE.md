@@ -30,7 +30,9 @@ Every spec gets a **"How to work through this spec"** section, placed before the
   mistake in an early task gets buried under later ones. If tasks pause: finish the task, get it into
   a state the user can look at, say what changed and what specifically to look at, and wait — **the
   user spins up the dev server, not the agent** (see Working Style). Call out any task with no visible
-  effect of its own so it isn't mistaken for a broken step.
+  effect of its own so it isn't mistaken for a broken step. **Mark the finished task `COMPLETED` in the
+  spec before asking the user to verify it** — the spec is the shared record of progress, so a fresh
+  context picking the work up later can tell what is already done from the spec alone.
 - **How it gets verified.** Visually in the user's dev server, via `npm run verify`, `npm run build`, or
   `npm run check-sw` — name the actual check. For visual verification, name the states to compare
   (expanded/collapsed, zoom levels, mobile/desktop), since "looks fine" on one state routinely misses

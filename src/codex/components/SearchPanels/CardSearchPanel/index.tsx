@@ -19,6 +19,10 @@ import { UseAllCardSearchFilters } from '@/codex/hooks/useSearchFilters'
 import { allFormattingCardFilters } from '@/codex/hooks/useSearchFilters/useFormattingCardFilters'
 import { allRarities } from '@/codex/hooks/useSearchFilters/useRarityFilters'
 import { allBanners } from '@/codex/hooks/useSearchFilters/useBannerFilters'
+import {
+  allCardTypes,
+  getCardTypeEmojiFromName,
+} from '@/codex/hooks/useSearchFilters/useCardTypeFilters'
 import { allExtraCardFilters } from '@/codex/hooks/useSearchFilters/useExtraCardFilters'
 import { allCardSets } from '@/codex/hooks/useSearchFilters/useCardSetFilters'
 import { UseCardData } from '@/codex/hooks/useCardData'
@@ -34,7 +38,7 @@ import styles from './index.module.scss'
 const cx = createCx(styles)
 
 // Rarities used as challenge keywords, when capitalized, score every card of that rarity, rather than matching on text
-const rarityKeywords = ['Monster', 'Common', 'Uncommon', 'Rare', 'Legendary']
+const RARITY_KEYWORDS = ['Monster', 'Common', 'Uncommon', 'Rare', 'Legendary']
 
 interface CardSearchPanelProps {
   useSearchFilters: UseAllCardSearchFilters
@@ -48,6 +52,7 @@ const CardSearchPanel = ({ useSearchFilters, useCardData }: CardSearchPanelProps
     useCardSetFilters,
     useRarityFilters,
     useBannerFilters,
+    useCardTypeFilters,
     useExtraCardFilters,
     useFormattingFilters,
     useCardStrike,
@@ -61,6 +66,7 @@ const CardSearchPanel = ({ useSearchFilters, useCardData }: CardSearchPanelProps
   const { cardSetFilters, handleCardSetFilterToggle } = useCardSetFilters
   const { rarityFilters, handleRarityFilterToggle } = useRarityFilters
   const { bannerFilters, handleBannerFilterToggle } = useBannerFilters
+  const { cardTypeFilters, handleCardTypeFilterToggle } = useCardTypeFilters
   const { extraCardFilters, handleExtraCardFilterToggle, getExtraCardFilterName } =
     useExtraCardFilters
   const { formattingFilters, handleFormattingFilterToggle, getFormattingFilterName } =
@@ -114,7 +120,7 @@ const CardSearchPanel = ({ useSearchFilters, useCardData }: CardSearchPanelProps
     if (struckCards.length > 0) {
       setNotificationMessage(untrackedCardsNotificationMessage)
       setShowNotification(true)
-    } else if (rarityKeywords.some((rarity) => optimization.parsedKeywords.includes(rarity))) {
+    } else if (RARITY_KEYWORDS.some((rarity) => optimization.parsedKeywords.includes(rarity))) {
       setNotificationMessage(specialKeywordRulesNotificationMessage)
       setShowNotification(true)
     } else if (optimization.hasAnimalCompanionMatch) {
@@ -162,6 +168,18 @@ const CardSearchPanel = ({ useSearchFilters, useCardData }: CardSearchPanelProps
           </span>
         )
     }
+  }
+
+  const getCardTypeFilterLabel = (filter: string) => {
+    const emoji = getCardTypeEmojiFromName(filter)
+    if (!emoji) return <span className={cx('filter-label')}>{filter}</span>
+
+    return (
+      <span className={cx('filter-label')}>
+        <span className={cx('filter-emoji')}>{emoji}</span>
+        {filter}
+      </span>
+    )
   }
 
   const getExtraFilterLabel = (filter: string) => {
@@ -229,6 +247,13 @@ const CardSearchPanel = ({ useSearchFilters, useCardData }: CardSearchPanelProps
             onFilterToggle={handleCardSetFilterToggle}
           />
           <FilterGroup
+            title="Banners"
+            filters={allBanners}
+            selectedFilters={bannerFilters}
+            type="banner"
+            onFilterToggle={handleBannerFilterToggle}
+          />
+          <FilterGroup
             title="Rarities"
             filters={allRarities}
             selectedFilters={rarityFilters}
@@ -237,11 +262,12 @@ const CardSearchPanel = ({ useSearchFilters, useCardData }: CardSearchPanelProps
             getFilterLabel={getRarityFilterLabel}
           />
           <FilterGroup
-            title="Banners"
-            filters={allBanners}
-            selectedFilters={bannerFilters}
-            type="banner"
-            onFilterToggle={handleBannerFilterToggle}
+            title="Types"
+            filters={allCardTypes}
+            selectedFilters={cardTypeFilters}
+            type="card-type"
+            onFilterToggle={handleCardTypeFilterToggle}
+            getFilterLabel={getCardTypeFilterLabel}
           />
           <FilterGroup
             title="Extras"

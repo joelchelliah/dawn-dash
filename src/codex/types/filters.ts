@@ -1,4 +1,5 @@
-export type FilterTypeCard = 'card-set' | 'rarity' | 'banner' | 'extra' | 'formatting-card'
+export type FilterTypeCard =
+  'card-set' | 'rarity' | 'banner' | 'card-type' | 'extra' | 'formatting-card'
 
 export type FilterTypeTalent = 'card-set' | 'requirement' | 'tier' | 'extra' | 'formatting-talent'
 
@@ -39,6 +40,8 @@ export enum RarityFilterOption {
   Rare = 'Rare',
   Uncommon = 'Uncommon',
   Common = 'Common',
+  // Monster rarity is deliberately absent
+  // Monster cards are governed by the "Include Monster cards" checkbox
 }
 
 export type Rarity = RarityFilterOption
@@ -46,6 +49,31 @@ export type Rarity = RarityFilterOption
 export const Rarity = {
   ...RarityFilterOption,
   getAll: (): Rarity[] => [...Object.values(RarityFilterOption)],
+}
+
+// -------------------- Card Type --------------------
+
+export enum CardTypeFilterOption {
+  Melee = 'Melee',
+  Magic = 'Magic',
+  Ranged = 'Ranged',
+  Utility = 'Utility',
+  Divine = 'Divine',
+  // Move type is deliberately absent — never used in the game
+  Corruption = 'Corruption',
+  // Monster type is deliberately absent
+  // Monster cards are governed by the "Include Monster cards" checkbox
+}
+
+export type CardType = CardTypeFilterOption | SharedFilterOption
+
+export const CardType = {
+  ...CardTypeFilterOption,
+  ...SharedFilterOption,
+  getAll: (): CardType[] => [
+    ...Object.values(CardTypeFilterOption),
+    ...Object.values(SharedFilterOption),
+  ],
 }
 
 // ------------------ Requirements ------------------
@@ -111,6 +139,8 @@ export enum BannerFilterOption {
   Gold = 'Gold',
   Black = 'Black',
   Orange = 'Orange',
+  // Monster banner is deliberately absent
+  // Monster cards are governed by the "Include Monster cards" checkbox
 }
 
 export type Banner = BannerFilterOption | SharedFilterOption
@@ -160,6 +190,7 @@ export enum FormattingCardFilterOption {
   ShowDescription = 'ShowDescription',
   ShowKeywords = 'ShowKeywords',
   ShowCardSet = 'ShowCardSet',
+  ShowCardType = 'ShowCardType',
   ShowBlightbaneLink = 'ShowBlightbaneLink',
   HideTrackedCards = 'HideTrackedCards',
 }
@@ -195,6 +226,7 @@ export interface CardCodexSearchFilterCache {
   cardSets: Record<string, boolean>
   rarities: Record<string, boolean>
   banners: Record<string, boolean>
+  cardTypes: Record<string, boolean>
   extras: Record<string, boolean>
   formatting: Record<string, boolean>
   struckCards: string[]

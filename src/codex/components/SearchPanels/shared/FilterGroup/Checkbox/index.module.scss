@@ -63,6 +63,13 @@ $checkmark-size: 0.625rem;
     }
   }
 
+  &--card-type {
+    @media (max-width: $breakpoint-mobile) {
+      width: calc(50% - 0.5rem);
+      min-width: 0;
+    }
+  }
+
   &--banner {
     margin: 0.125rem 0;
     padding: 0.3125rem 0.25rem;

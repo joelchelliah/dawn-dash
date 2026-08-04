@@ -44,13 +44,13 @@ $rarity-colours: (
 );
 
 // In px so it can be combined with the artwork sizes when positioning the icons on its corners.
-$overlap-icon-plate-size: 24px;
+$overlap-icon-plate-size: 22px;
 $overlap-icon-plate-colour: rgba(0, 0, 0, 0.75);
 
 // While overlapping, the icons are *centred on* the artwork's top-right and bottom-right corners.
 //
 // `$overlap-icon-inset` pulls both icons back inward from the corners.
-$overlap-icon-inset: 4px;
+$overlap-icon-inset: 2px;
 
 // The paw + cross pill tuning.
 $overlap-icon-pill-glyph: 12px;
@@ -76,6 +76,9 @@ $overlap-icon-pill-offset: -4px;
   height: $overlap-icon-plate-size;
   border-radius: 50%;
   background-color: $overlap-icon-plate-colour;
+  // `color-mix` so that we can have an opacity on the plate border.
+  border: 1px solid
+    color-mix(in srgb, var(--rarity-colour, #{$color-component-border}) 60%, transparent);
 }
 
 .card-icons {
@@ -85,6 +88,14 @@ $overlap-icon-pill-offset: -4px;
   gap: 0.25rem;
   min-width: $column-width;
   margin: 0.375rem 0;
+
+  // Feeds the plate borders in `overlap-icon-plate`. Declared on the column because the rarity class
+  // sits on the glyph, which is too deep for the plate wrappers to key off.
+  @each $name, $colour in $rarity-colours {
+    &--#{$name} {
+      --rarity-colour: #{$colour};
+    }
+  }
 
   // Each icon carries its own circular plate here, so the container itself stays transparent.
   // The column overshoots the artwork by one plate so the plates end up centred on its corners;
@@ -106,6 +117,15 @@ $overlap-icon-pill-offset: -4px;
       margin-left: -$overlap-mobile;
     }
   }
+
+  // Hover feedback, driven from the row. `.result-card-hoverable` is an unhashed marker class that
+  // `ResultCard` adds alongside its own hashed one.
+  //
+  // On the column, not the icons: the rarity glyphs and the paw/cross pill already use `transform`
+  // while overlapping, and a second one on the same element would replace it rather than compose.
+  :global(.result-card-hoverable):hover & {
+    animation: tinySqueeze 0.25s ease-out;
+  }
 }
 
 .card-icons__rarity {
@@ -119,6 +139,12 @@ $overlap-icon-pill-offset: -4px;
       height: list.nth($size, 2);
       color: map.get($rarity-colours, $name);
     }
+  }
+
+  // Optical corrections to make the icons look more centered within their containers.
+  &--legendary {
+    position: relative;
+    top: -1px;
   }
 }
 
@@ -205,12 +231,6 @@ $overlap-icon-pill-offset: -4px;
   // than drift to the middle, so push the leftover column space below it.
   .card-icons__rarity-wrapper:only-child {
     margin-bottom: auto;
-  }
-
-  .card-icons__rarity--legendary {
-    position: relative;
-    // Optical correction to make the triple star look more centered
-    top: -1px;
   }
 
   .card-icons__non-collectible svg,

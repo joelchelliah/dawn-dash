@@ -1,6 +1,7 @@
 import { memo, useMemo } from 'react'
 
 import GradientLink from '@/shared/components/GradientLink'
+import { useBreakpoint } from '@/shared/hooks/useBreakpoint'
 import { createCx } from '@/shared/utils/classnames'
 
 import { UseAllCardSearchFilters } from '@/codex/hooks/useSearchFilters'
@@ -9,6 +10,7 @@ import { parseCardDescription } from '@/codex/utils/cardHelper'
 
 import CardArtwork from './CardArtwork'
 import CardIcons from './CardIcons'
+import CardMetadata from './CardMetadata'
 import styles from './index.module.scss'
 
 interface ResultCardProps {
@@ -23,22 +25,26 @@ const ResultCard = ({ card, useSearchFilters, showCardsWithoutKeywords }: Result
   const {
     parsedKeywords,
     useCardSetFilters,
+    useCardTypeFilters,
     useExtraCardFilters,
     useFormattingFilters,
     useCardStrike,
   } = useSearchFilters
   const { getCardSetNameFromIndex } = useCardSetFilters
+  const { getCardTypeNameFromIndex, getCardTypeEmojiFromIndex } = useCardTypeFilters
   const { shouldIncludeNonCollectibleCards, shouldIncludeAnimalCompanionCards } =
     useExtraCardFilters
   const {
     shouldShowDescription,
     shouldShowKeywords,
     shouldShowCardSet,
+    shouldShowCardType,
     shouldShowCardArt,
     shouldShowBlightbaneLink,
     shouldHideTrackedCards,
   } = useFormattingFilters
   const { isCardStruck, toggleCardStrike } = useCardStrike
+  const { isMobile } = useBreakpoint()
 
   const matchingKeywordsText = useMemo(() => {
     const matches = parsedKeywords.filter(
@@ -55,11 +61,14 @@ const ResultCard = ({ card, useSearchFilters, showCardsWithoutKeywords }: Result
   )
   const isStruck = isCardStruck(card)
 
-  const cardContainerClassName = cx('result-card', {
+  // `result-card-hoverable` is deliberately unhashed (see the `:global` rules in CardArtwork /
+  // CardIcons): those live in their own CSS modules and cannot see this module's hashed class names,
+  // so the hover-driven hop needs one shared, stable hook to key off.
+  const cardContainerClassName = `${cx('result-card', {
     'result-card--struck': isStruck,
     'result-card--full-match': isFullMatch,
     'result-card--hidden': shouldHideTrackedCards && isStruck,
-  })
+  })} result-card-hoverable`
   const cardClassName = cx('result-card__title-row', {
     'result-card__title-row--struck': isStruck,
     'result-card__title-row--hidden': shouldHideTrackedCards && isStruck,
@@ -82,9 +91,7 @@ const ResultCard = ({ card, useSearchFilters, showCardsWithoutKeywords }: Result
       !shouldShowDescription && isShowingNoAdditionalNonDescElements,
   })
 
-  // Without a description the keywords get their own row instead of competing with the name for
-  // width. Then they need their own struck/hidden states.
-  const shouldShowKeywordsOnSeparateRow = isShowingKeywords && !shouldShowDescription
+  const shouldShowKeywordsOnSeparateRow = isShowingKeywords && (!shouldShowDescription || isMobile)
   const keywordsSeparateRowClassName = cx(
     'result-card__keywords',
     'result-card__keywords--own-row',
@@ -121,13 +128,14 @@ const ResultCard = ({ card, useSearchFilters, showCardsWithoutKeywords }: Result
           {isShowingKeywords && !shouldShowKeywordsOnSeparateRow && (
             <span className={cx('result-card__keywords')}>{matchingKeywordsText}</span>
           )}
-          {shouldShowCardSet && (
-            <span className={cx('result-card__card-set')}>
-              {getCardSetNameFromIndex(card.expansion)}
-              {/* Marks cards from the nil (0) expansion, which are shown as Core cards */}
-              {card.expansion === 0 && <span className={cx('result-card__card-set__nil')}>°</span>}
-            </span>
-          )}
+          <CardMetadata
+            card={card}
+            shouldShowCardSet={shouldShowCardSet}
+            shouldShowCardType={shouldShowCardType}
+            getCardSetNameFromIndex={getCardSetNameFromIndex}
+            getCardTypeNameFromIndex={getCardTypeNameFromIndex}
+            getCardTypeEmojiFromIndex={getCardTypeEmojiFromIndex}
+          />
         </div>
         {shouldShowKeywordsOnSeparateRow && (
           <span className={keywordsSeparateRowClassName}>{matchingKeywordsText}</span>

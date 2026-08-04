@@ -173,3 +173,27 @@
     transform: translateX(2px) rotate(5deg);
   }
 }
+
+/*
+ * A single small pop/squeeze, for hover feedback: scales up, then settles back.
+ * Apply to a *container* rather than a glyph wherever the glyph already carries its own `transform`
+ */
+@keyframes tinyPop {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.1);
+  }
+}
+@keyframes tinySqueeze {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  40% {
+    // The translate here only makes sense for the Cardex rarity icons. If we reuse this animation elsewhere it should be more generic.
+    transform: scale(0.95) translateX(-1px);
+  }
+}

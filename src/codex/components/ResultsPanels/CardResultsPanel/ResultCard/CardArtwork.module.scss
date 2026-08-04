@@ -10,6 +10,11 @@ $artwork-glow-blur: 0.375rem;
 $artwork-glow-spread: 0.0625rem;
 $artwork-glow-opacity: 45%;
 
+// Same glow, intensified while the row is hovered.
+$artwork-glow-blur-hover: 0.5rem;
+$artwork-glow-spread-hover: 0.125rem;
+$artwork-glow-opacity-hover: 85%;
+
 // Rarity-tinted artwork thumbnail. Also serves as the placeholder square while the image loads.
 .card-artwork {
   --rarity-colour: #{$color-component-border};
@@ -31,6 +36,9 @@ $artwork-glow-opacity: 45%;
   // Zero offset so the colour bleeds evenly in every direction.
   box-shadow: 0 0 $artwork-glow-blur $artwork-glow-spread
     color-mix(in srgb, var(--rarity-colour) $artwork-glow-opacity, transparent);
+  // Only the glow transitions — `transform` is left alone so the hover pop animation keeps control
+  // of it. The ease-out ramp makes the glow swell with the pop rather than snapping on.
+  transition: box-shadow 0.25s ease-out;
 
   &--common {
     --rarity-colour: #{$color-rarity-common};
@@ -50,5 +58,16 @@ $artwork-glow-opacity: 45%;
 
   &--monster {
     --rarity-colour: #{$color-danger-special-card};
+  }
+
+  // Hover feedback, driven from the row. `.result-card-hoverable` is an unhashed marker class that
+  // `ResultCard` adds alongside its own hashed one.
+  //
+  // The glow brightens on the same trigger as the pop, so the thumbnail swells and lights up
+  // together instead of scaling against a static shadow.
+  :global(.result-card-hoverable):hover & {
+    animation: tinyPop 0.4s ease-out;
+    box-shadow: 0 0 $artwork-glow-blur-hover $artwork-glow-spread-hover
+      color-mix(in srgb, var(--rarity-colour) $artwork-glow-opacity-hover, transparent);
   }
 }
