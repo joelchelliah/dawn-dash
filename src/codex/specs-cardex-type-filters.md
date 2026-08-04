@@ -3,12 +3,13 @@
 Cardex gained a **Type** filter group (search panel, between *Rarities* and *Extras*) filtering cards
 on the Blightbane `type` field, plus a *Show card type* results-formatting checkbox.
 
-**Status: the filter itself is done and working.** `npm run verify` passes. What remains is a layout
-pass over the new checkbox group, one open design question about where the type belongs in a result
-card, and one deliberate deferral around weekly challenges. All three are described in *Tasks*.
+**Status: everything in this spec is COMPLETED.** `npm run verify` passes. Tasks 1, 1b, 2 and 3 are all
+closed — see each for what was decided and, for task 1, the bug it turned up. The one thing knowingly
+left open is cosmetic: the metadata pill's vertical alignment against the card name, which the user is
+tweaking by eye (see task 2).
 
-The work is on `feature/cardex-type-filters`, staged but **not committed** — `git diff --cached` shows
-it all at once.
+The work is on `feature/cardex-type-filters`. The filter group and its wiring are committed
+(`21f36b2`); the task 1–3 work on top of it is not yet.
 
 ## What already exists
 
@@ -22,7 +23,8 @@ it all at once.
 | `shouldShowCardType` flag + label | `hooks/useSearchFilters/useFormattingCardFilters.ts` |
 | `Type` checkbox group + emoji labels in the search panel | `components/SearchPanels/CardSearchPanel/index.tsx` |
 | `card-type` checkbox layout | `components/SearchPanels/shared/FilterGroup/Checkbox/index.module.scss` |
-| **Provisional** render in the result card | `components/ResultsPanels/CardResultsPanel/ResultCard/index.tsx` + its `.module.scss` |
+| Metadata pill (type emoji + card set) in the result row | `components/ResultsPanels/CardResultsPanel/ResultCard/CardMetadata.tsx` + its `.module.scss` |
+| Keywords forced to their own row on mobile | `components/ResultsPanels/CardResultsPanel/ResultCard/index.tsx` |
 
 Paths are relative to `src/codex/`.
 
@@ -31,7 +33,9 @@ Behaviour as implemented:
 - Six types, **all defaulting to true**; `Select all` on and `Select none` off by default. Built on
   `createFilterHook`, so the group behaves like Banners — nothing bespoke.
 - Filtering is `isCardTypeSelected(card.type)` ANDed with the other filters in `isCardMatching`,
-  **except** type 7 (Monster), which defers to `shouldIncludeMonsterCards`.
+  **except** for monster cards (`hasMonsterRarity || hasMonsterBanner`), which defer to
+  `shouldIncludeMonsterCards`. This originally keyed on type 7 instead — see *Task 1 findings* for why
+  that was wrong.
 - Weekly-challenge optimization calls `enableCardTypeFilters(allCardTypes)`, mirroring
   `enableRarityFilters(allRarities)`, so every type is switched on.
 - Caching goes through `cardTypes` on `CardCodexSearchFilterCache`, with all three mutators listed in
@@ -48,7 +52,8 @@ Do not re-litigate these; they are settled.
 
 - The group is titled **Type** and sits between *Rarities* and *Extras*.
 - Checkboxes look like the plain (card-set/requirement) ones, **not** the coloured banner/tier ones.
-  Colouring them is a separate idea, out of scope here.
+  Colouring them is a separate idea, out of scope here. They do carry a type emoji — added later, see
+  task 1b.
 - `Show card type` defaults to **false** — it is new and additive, and the title row is already busy.
 - **Type 7 gets no checkbox.** It is kept in `indexToValueMap` as `'Monster'`, so those cards render
   a label rather than an empty span with *Show card type* enabled (`getValueFromIndex` returns `''`
@@ -92,50 +97,62 @@ work:
   belongs there — and after changing it you must force a **Resync data** (or clear `codex_cards_v2`)
   or you are looking at cards mapped by the old code.
 
-**Where to stop.** **Pause after task 1** and get confirmation before starting task 2. Task 1 is a
-look-and-adjust pass over the search panel; task 2 restructures the result-card title row. Chaining
-them means judging a new result-card layout while the panel beside it is still being tuned, and either
-mistake is easier to spot alone. Task 3 is a question to answer, not code to write — see its wording.
+**Where to stop.** No longer applies — all tasks are closed. Kept for the record: the original
+instruction was to pause after task 1 so a new result-card layout was not judged while the panel beside
+it was still being tuned. That held; tasks 1, 1b and 2 were each confirmed by the user before the next
+began, and task 2 in particular went through three layouts that way.
 
-**How it gets verified.** `npm run verify` after every task; no `npm run build` needed unless a task
-starts touching `pages/` or a data hook, which none of them should. Both tasks 1 and 2 are primarily
-**visual**, so run `npm run dev`, open `/cardex`, enter a keyword or click *Show all cards matching
-only the filters*, and compare these states — "looks fine" in one routinely misses the others:
+**How it gets verified.** `npm run verify` after every task — it passes. No `npm run build` was needed:
+nothing here touches `pages/` or a data hook. The layout work is **visual**, so it was checked in the
+user's dev server on `/cardex` across these states:
 
 - **card art on and off** (*Show card art*)
-- **card set shown and hidden** (*Show card set*) — the card set and card type compete for the same
-  free space on the title row, so hiding one changes where the other lands
+- **card set shown and hidden** (*Show card set*) — with both halves of the pill, only one, or neither,
+  since the pill changes shape and drops its divider
 - **card type on and off** (*Show card type*, default off — turn it on)
-- **mobile width** — the title row is the tightest part of this layout and only mobile exposes it
+- **mobile width** — the tightest case, and the one that rejected two of task 2's layouts
+- **descriptions on and off, on mobile** — the two paths into `--own-row` keywords must agree
 
-**Which docs change with the work.** `src/codex/CLAUDE.md` has no per-filter listing, so task 1
-invalidates nothing there. Two invariants are worth *adding* once settled:
+The Monster-folding fix was **not** verified visually. It is a data question, so it was checked by
+simulating `isCardMatching` over the live `cards-codex` payload (2716 cards) — see *Task 1 findings*.
+That is the right tool for it: the failure was a specific filter combination over ~1000 cards, which
+eyeballing a result list would plausibly have missed.
 
-- The **Monster-folding rule** — monster rarity, monster banner *and* monster type all route through
-  the single *Include Monster cards* checkbox, and none of the three appears in its own filter group.
-  Nothing in the code makes that three-way pairing discoverable; a fourth monster-ish field would
-  otherwise get its own checkbox by default.
-- Whatever **placement rule** task 2 settles on, if it is load-bearing (e.g. "card type and card set
-  never share the title row").
+**Which docs change with the work.** `src/codex/CLAUDE.md` has no per-filter listing, so nothing there
+was invalidated. Two invariants were **added** to it (both DONE), chosen because neither is faster to
+work out from the code than to read:
+
+- The **Monster-folding rule**, in its corrected form — monster cards are rarity 4 / banner 11, *not*
+  type 7, and any filter group whose `indexMap` can address them must defer to *Include Monster cards*.
+  The code shows *that* the type filter checks rarity and banner; it cannot show that type 7 looks like
+  a monster marker and isn't. That trap is the whole reason the entry exists.
+- The **name-shrink dependency** — `.result-card__name`'s `flex-shrink: 1` + `min-width: 0` are what
+  keep the pill at the row's right edge. Two innocuous-looking properties whose purpose is invisible in
+  place, so deleting them reads as safe cleanup.
+
+Deliberately **not** added: the emoji accessors, the pill's structure, and its font sizing. All three
+are plain from the code and would just be restating it.
+
+⚠️ For the record: the Monster-folding bullet as *originally* written in this section named monster
+**type** as the third signal routing through the Extras checkbox. That was the false premise task 1
+disproved. It was raised with the user and corrected, not silently rewritten — per the rule below.
 
 A change that contradicts a documented invariant gets raised with the user, not quietly rewritten.
 
 **Comment style.** The non-obvious *why*, in a line or two — no restating the code. The two
-provisional-placement `TODO`s (one in `ResultCard/index.tsx` above the card-type span, one above
-`.result-card__card-type` in its stylesheet) exist to be **deleted by task 2**.
+provisional-placement `TODO`s were deleted by task 2, as planned.
 
 ## Tasks
 
-### 1. Check the Type group's layout, and verify the Monster folding
+### 1. The Type group's layout, and the Monster folding — COMPLETED
 
-**Monster folding: COMPLETED — it was broken, and is now fixed.**
+**Monster folding: it was broken, and is now fixed.** See *Task 1 findings*.
 
-**Layout: still open** — needs the user's dev server. `checkbox-label--card-type` currently only
-overrides mobile (`50%` width), inheriting the default `33.33%` desktop column — the same rule
-`--requirement` uses. Six types plus `Select all`/`Select none` is eight checkboxes, so at three
-columns the final row is short by one, and at two columns (mobile) it divides evenly. The labels
-differ in width (Melee … Corruption). Adjust the width rule **only** if the real labels wrap,
-truncate, or leave an awkward gap — an even grid is not worth a bespoke rule on its own.
+**Layout: no change needed.** `checkbox-label--card-type` keeps the default `33.33%` desktop column and
+its mobile `50%` override — the same rule `--requirement` uses. Six types plus `Select all`/`Select none`
+is eight checkboxes, so the last desktop row is short by one and mobile divides evenly. Checked in the
+browser with the real labels (Melee … Corruption) plus their emoji: nothing wraps or truncates, so the
+uneven final row was left alone rather than given a bespoke width rule.
 
 #### Task 1 findings
 
@@ -185,10 +202,11 @@ index 7, so **no Type selection can show it** while every other collectible card
 oddities on a card the game itself treats inconsistently; raise them again only if a second such card
 appears.
 
-### 1b. Type emoji (DONE for the checkboxes, provisional in the result card)
+### 1b. Type emoji — COMPLETED
 
 Each type has an emoji, from `indexToEmojiMap` in `useCardTypeFilters.ts`:
-⚔️ Melee · 🔮 Magic · 🏹 Ranged · 🛠️ Utility · ☀️ Divine · 🖤 Corruption · 👹 type 7.
+⚔️ Melee · 🔮 Magic · 🏹 Ranged · 🛠️ Utility · ☀️ Divine · 🌙 Corruption · 👹 type 7.
+(The map is the source of truth — these are listed for orientation and the user tunes them by eye.)
 
 The map is keyed by **index**, but the checkboxes are keyed by filter **name**, so the emoji is
 reachable both ways and neither caller rebuilds the mapping:
@@ -205,59 +223,61 @@ and Extras groups already use. Spacing comes from `.filter-emoji` (`0.375rem`, a
 `.filter-icon`'s `0.5rem`), sized one step below the label text because the emoji glyphs read heavier
 than the outline icons at equal size.
 
-**Result card: emoji-only, but the placement is still task 2's question.** The type now renders as
-*just* the emoji — no text — with the name on a `title` attribute so it stays identifiable on hover.
-It still sits where the provisional text sat (trailing the card set on the title row) and the `TODO`s
-still stand; **task 2 is unchanged and still open.** What the emoji does change is the weighing:
+**Result card: emoji-only.** The type renders as *just* the emoji — no text — with the name on a
+`title` attribute so it stays identifiable on hover. Dropping the text is what made the *merged with
+the card set* option in task 2 viable: a glyph plus a set name fits one pill, two text labels would
+not have.
 
-- The old text span reserved a fixed `6rem` (`4.5rem` mobile) with truncation. One glyph needs
-  neither, so the rule is now width-less and `flex-shrink: 0` — it no longer competes with the card
-  name for title-row width, which was the main objection to leaving it on the title row.
-- That weakens the case for the *own row* option (vertical space for one glyph) and largely collapses
-  the distinction between *merged with the card set* and leaving it where it is.
-- The *icon in `CardIcons`* option is now closer to a straight swap: emoji instead of six new SVG
-  components, no `viewBox` work, and that column already centres against the full row height.
+### 2. Where the card type shows in a result card — COMPLETED
 
-### 2. Decide where the card type shows in a result card
+**Settled: merged with the card set into a `CardMetadata` pill on the title row.** Both provisional
+`TODO`s are deleted. The route there is worth recording, because two intermediate layouts were built
+and rejected on the way and neither should be re-proposed.
 
-**This is the one genuinely open design question, and it is the reason this spec exists.** The user
-asked for the *Show card type* checkbox before deciding where the type should appear.
+**What was built:** a new `CardMetadata` component — a sibling of `CardArtwork`/`CardIcons` — rendering
+`(type emoji │ card set)` as one backplated pill, `margin-left: auto` to the right edge of the title
+row. A 1px divider element renders only when both halves are shown, so a one-sided pill has no stray
+rule. `flex-shrink: 0` keeps the pill intact and makes the card name absorb any squeeze; the pill holds
+a closed list of seven set names, so its width is bounded. `border-radius` equals its height, the same
+round-ends idiom as the icon pill in `CardIcons`.
 
-Current state is an explicit placeholder: the type renders as a `<span>` trailing the card set on the
-title row, with `TODO`s marking it provisional. It is readable, but it is not a design.
+**Rejected on the way, with reasons:**
 
-⚠️ **Read task 1b first** — the span now holds a single emoji rather than text, which removes its
-fixed width and therefore most of the width pressure the options below were weighed against. The
-options are still the options; the trade-offs shifted.
+1. *Vertical stack as a fourth row column* (`[artwork][icons][content][metadata]`, set above type).
+   Looked fine on desktop, bad on mobile: the card set carried a fixed `8rem`/`6rem` width inherited
+   from the title row, which ate description space the whole time — including on the many rows where
+   the set name is just `Core`.
+2. *Same stack with the fixed width dropped* (`width: auto`). Reclaimed 2–3.5rem on short set names but
+   did nothing for long ones (`Metamorphosis`), and made the column edge ragged per row. Not enough.
 
-The constraint: `result-card__card-set` uses `margin-left: auto` to push itself to the right edge, and
-the type span does the same. When **both** are shown they queue at the right and compete for a title
-row that also holds the card name and — when descriptions are off — the matching-keywords text. The
-name has three width variants (`--enlarged`, `--enlarged-more`) that already react to which other
-elements are visible, so adding a permanent competitor there has knock-on effects.
+The pill fixes both because one horizontal unit is narrower than two stacked elements *and* gives the
+row a single right-hand anchor instead of two elements competing for `margin-left: auto`.
 
-Options worth weighing:
+**Mobile keywords moved with it.** The title row now carries name + keywords + pill, which does not fit
+a phone. `shouldShowKeywordsOnSeparateRow` gained `|| isMobile` (via `useBreakpoint`), reusing the
+existing `--own-row` path and its struck/hidden variants rather than adding markup. So the keywords are
+on their own row when the description is off **or** on mobile.
 
-- **Its own row** under the title, the way keywords get one when descriptions are off (see
-  `shouldShowKeywordsOnSeparateRow` and `--own-row`). Costs vertical space per card.
-- **Merged with the card set** into one right-aligned cell (`Melee · Eclypse`), so the row gains no
-  new competitor for width. Needs a decision about what shows when only one of the two is enabled.
-- **An icon** in `CardIcons` instead of text — that column already centres against the full row
-  height, so it costs no title-row width at all. Needs one icon per type (six), and per the root
-  `CLAUDE.md`, apparent icon size depends on viewBox fill, so equal CSS sizes will not look equal;
-  `npm run icon-viewbox -- <IconName>` helps. Also note those icon components are shared with the
-  search-panel filters, so a viewBox change affects both.
+**Knock-on change to the card name.** `.result-card__name` had a hard `width: 10rem` (up to `14rem`
+enlarged). Against a non-shrinking pill that overflowed the row or pushed the pill off the edge on
+narrow widths, so it gained `flex-shrink: 1` + `min-width: 0` — the widths are now preferred sizes that
+truncate under pressure, not fixed ones. This is load-bearing for the pill staying at the edge.
 
-Whichever is chosen: delete both provisional `TODO` comments, and verify across the four states listed
-under *How it gets verified*.
+**Vertical alignment: settled with a nudge** (`position: relative; top: 0.0625rem`). The pill's text
+sat slightly high against the card name because the pill centres its own children — so it has no
+baseline of its own and `align-self: baseline` is a **no-op** on it; what reads as misalignment is the
+border and padding offsetting the text inside an already-centred box. The alternative was
+`align-items: baseline` on the pill, which additionally needs an explicit height on the divider (it
+currently relies on `align-self: stretch`). The nudge won as the contained option. Don't "fix" it back
+to a baseline rule without also handling the divider.
 
-### 3. Confirm whether type belongs in weekly-challenge optimization
+### 3. Whether type belongs in weekly-challenge optimization — COMPLETED
 
-**Answer the question before writing code** — it is a game-rules question, so ask the user if unsure.
+**Confirmed with the user: no. Card type never constrains what scores in a weekly challenge**, so
+enabling all types is correct and no code change is needed. `setFiltersFromWeeklyChallengeData` keeps
+its `enableCardTypeFilters(allCardTypes)` call and its `isCardTypeSelected: () => true`.
 
-The optimization currently enables **all** types, mirroring how it enables all rarities. That is
-correct as long as card type never constrains what scores in a weekly challenge. If some challenges
-*are* type-scoped, the shape of the fix is:
+Kept below only as the shape of the fix **if** a type-scoped challenge ever appears:
 
 1. add a `cardTypes: Set<CardType>` to `WeeklyChallengeFilterData` in `types/filters.ts`,
 2. populate it in `hooks/useWeeklyChallengeFilterData.ts`,

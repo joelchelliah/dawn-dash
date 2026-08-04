@@ -21,7 +21,7 @@
   margin: 0.125rem 0.5rem 0.375rem 0;
 }
 
-// The whole result row: [artwork][icons][content].
+// The whole result row: [artwork][icons][content][metadata].
 .result-card {
   display: flex;
   flex-direction: row;
@@ -96,7 +96,7 @@
   min-width: 0;
 }
 
-// Card name, keywords and card set.
+// Card name, keywords, and the metadata pill at the right edge.
 .result-card__title-row {
   display: flex;
   flex-direction: row;
@@ -117,6 +117,8 @@
 .result-card__name {
   display: inline-block;
   width: 10rem;
+  flex-shrink: 1;
+  min-width: 0;
   @include text-truncate;
 
   @media (max-width: $breakpoint-mobile) {
@@ -155,7 +157,7 @@
     width: 8rem;
   }
 
-  // On its own row when description is disabled.
+  // On its own row when: The description is disabled, OR on mobile.
   &--own-row {
     width: auto;
     max-width: 100%;
@@ -170,52 +172,6 @@
 
   &--hidden {
     display: none;
-  }
-}
-
-.result-card__card-set {
-  display: inline-block;
-  color: $color-primary-dark;
-  width: 8rem;
-  @include text-truncate;
-  margin-left: auto;
-  margin-right: 0.5rem;
-  text-align: right;
-  font-weight: 500;
-
-  @media (max-width: $breakpoint-mobile) {
-    font-size: font-size('xxs');
-    width: 6rem;
-  }
-
-  // Nil (0) expansion marker, shown after the 'Core' label.
-  &__nil {
-    display: inline;
-    margin-left: 0.0625rem;
-    font-size: font-size('sm');
-    font-weight: bold;
-    color: $color-danger-base;
-    opacity: 0.85;
-
-    @media (max-width: $breakpoint-mobile) {
-      font-size: font-size('xs');
-    }
-  }
-}
-
-// Placement is provisional — see the TODO in ResultCard. `margin-left: auto` only kicks in when the
-// card set is hidden; otherwise the card set already claims the free space and this trails it.
-// One emoji, so no fixed width or truncation: unlike the card set it never needs to reserve space.
-.result-card__card-type {
-  display: inline-block;
-  flex-shrink: 0;
-  margin-left: auto;
-  margin-right: 0.5rem;
-  font-size: font-size('xs');
-  line-height: 1;
-
-  @media (max-width: $breakpoint-mobile) {
-    font-size: font-size('xxs');
   }
 }
 

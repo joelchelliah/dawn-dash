@@ -1,6 +1,7 @@
 import { memo, useMemo } from 'react'
 
 import GradientLink from '@/shared/components/GradientLink'
+import { useBreakpoint } from '@/shared/hooks/useBreakpoint'
 import { createCx } from '@/shared/utils/classnames'
 
 import { UseAllCardSearchFilters } from '@/codex/hooks/useSearchFilters'
@@ -9,6 +10,7 @@ import { parseCardDescription } from '@/codex/utils/cardHelper'
 
 import CardArtwork from './CardArtwork'
 import CardIcons from './CardIcons'
+import CardMetadata from './CardMetadata'
 import styles from './index.module.scss'
 
 interface ResultCardProps {
@@ -42,6 +44,7 @@ const ResultCard = ({ card, useSearchFilters, showCardsWithoutKeywords }: Result
     shouldHideTrackedCards,
   } = useFormattingFilters
   const { isCardStruck, toggleCardStrike } = useCardStrike
+  const { isMobile } = useBreakpoint()
 
   const matchingKeywordsText = useMemo(() => {
     const matches = parsedKeywords.filter(
@@ -85,9 +88,7 @@ const ResultCard = ({ card, useSearchFilters, showCardsWithoutKeywords }: Result
       !shouldShowDescription && isShowingNoAdditionalNonDescElements,
   })
 
-  // Without a description the keywords get their own row instead of competing with the name for
-  // width. Then they need their own struck/hidden states.
-  const shouldShowKeywordsOnSeparateRow = isShowingKeywords && !shouldShowDescription
+  const shouldShowKeywordsOnSeparateRow = isShowingKeywords && (!shouldShowDescription || isMobile)
   const keywordsSeparateRowClassName = cx(
     'result-card__keywords',
     'result-card__keywords--own-row',
@@ -124,23 +125,14 @@ const ResultCard = ({ card, useSearchFilters, showCardsWithoutKeywords }: Result
           {isShowingKeywords && !shouldShowKeywordsOnSeparateRow && (
             <span className={cx('result-card__keywords')}>{matchingKeywordsText}</span>
           )}
-          {shouldShowCardSet && (
-            <span className={cx('result-card__card-set')}>
-              {getCardSetNameFromIndex(card.expansion)}
-              {/* Marks cards from the nil (0) expansion, which are shown as Core cards */}
-              {card.expansion === 0 && <span className={cx('result-card__card-set__nil')}>°</span>}
-            </span>
-          )}
-          {/* TODO: Placement not decided yet — the emoji trails the card set on the title row for
-              now. Task 2 in `specs-cardex-type-filters.md` settles where it actually belongs. */}
-          {shouldShowCardType && (
-            <span
-              className={cx('result-card__card-type')}
-              title={getCardTypeNameFromIndex(card.type)}
-            >
-              {getCardTypeEmojiFromIndex(card.type)}
-            </span>
-          )}
+          <CardMetadata
+            card={card}
+            shouldShowCardSet={shouldShowCardSet}
+            shouldShowCardType={shouldShowCardType}
+            getCardSetNameFromIndex={getCardSetNameFromIndex}
+            getCardTypeNameFromIndex={getCardTypeNameFromIndex}
+            getCardTypeEmojiFromIndex={getCardTypeEmojiFromIndex}
+          />
         </div>
         {shouldShowKeywordsOnSeparateRow && (
           <span className={keywordsSeparateRowClassName}>{matchingKeywordsText}</span>

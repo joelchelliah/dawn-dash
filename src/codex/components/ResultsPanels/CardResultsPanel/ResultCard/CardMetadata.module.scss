@@ -1,0 +1,61 @@
+@use 'index' as *;
+
+$pill-height: 1.25rem;
+$pill-height-mobile: 1.125rem;
+
+.card-metadata {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 0.375rem;
+  height: $pill-height;
+  margin-left: auto;
+  margin-right: 0.5rem;
+  padding: 0 0.5rem;
+  border: 1px solid $color-component-border-dark;
+  border-radius: $pill-height;
+  background-color: rgba(0, 0, 0, 0.5);
+
+  // A small nudge to align the text inside the pill with the card name.
+  position: relative;
+  top: 0.0625rem;
+
+  @media (max-width: $breakpoint-mobile) {
+    height: $pill-height-mobile;
+    border-radius: $pill-height-mobile;
+    gap: 0.1875rem;
+    padding: 0 0.375rem;
+  }
+}
+
+// Thin rule between the two halves, only rendered when both are shown.
+.card-metadata__divider {
+  width: 1px;
+  align-self: stretch;
+  margin: 0.25rem 0;
+  background-color: $color-component-border-dark;
+}
+
+.card-metadata__card-set {
+  display: inline-block;
+  color: $color-primary-dark;
+  white-space: nowrap;
+  font-weight: 500;
+  font-size: font-size('xxs');
+
+  &__nil {
+    display: inline;
+    margin-left: 0.0625rem;
+    font-size: font-size('xxs');
+    font-weight: bold;
+    color: $color-danger-base;
+    opacity: 0.85;
+  }
+}
+
+.card-metadata__card-type {
+  display: inline-block;
+  line-height: 1;
+  font-size: font-size('xxs');
+}
