@@ -54,20 +54,29 @@ const CardResultsPanel = ({ useSearchFilters }: CardResultsPanelProps) => {
           className={cx('results-container__info')}
         />
 
-        {Object.entries(cardsByBanner).map(([banner, cards]) => (
-          <div key={banner} className={cx('results-cards')}>
-            <div className={cx(`results-cards__banner--${banner}`)}>
-              {cards.map((card) => (
-                <ResultCard
-                  key={card.name}
-                  card={card}
-                  useSearchFilters={useSearchFilters}
-                  showCardsWithoutKeywords={showCardsWithoutKeywords}
-                />
-              ))}
+        {Object.entries(cardsByBanner).map(([banner, cards], groupIndex, groups) => {
+          // Row index across *all* groups, so the stagger keeps running from one banner into the
+          // next instead of restarting per group (which a CSS `nth-child` delay would do).
+          const precedingCards = groups
+            .slice(0, groupIndex)
+            .reduce((total, [, groupCards]) => total + groupCards.length, 0)
+
+          return (
+            <div key={banner} className={cx('results-cards')}>
+              <div className={cx(`results-cards__banner--${banner}`)}>
+                {cards.map((card, cardIndex) => (
+                  <ResultCard
+                    key={card.name}
+                    card={card}
+                    useSearchFilters={useSearchFilters}
+                    showCardsWithoutKeywords={showCardsWithoutKeywords}
+                    entryIndex={precedingCards + cardIndex}
+                  />
+                ))}
+              </div>
             </div>
-          </div>
-        ))}
+          )
+        })}
       </div>
     )
   }

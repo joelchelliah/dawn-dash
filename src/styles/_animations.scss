@@ -154,6 +154,21 @@
   }
 }
 
+/*
+ * Result rows landing after a new search. The rise has to be big enough to read as movement — at a
+ * few px it looks like the rows are just flickering on.
+ */
+@keyframes resultRowIn {
+  from {
+    opacity: 0;
+    transform: translateY(1.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @keyframes horizontalShake {
   0%,
   100% {

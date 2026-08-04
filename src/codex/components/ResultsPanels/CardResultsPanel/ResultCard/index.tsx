@@ -17,11 +17,25 @@ interface ResultCardProps {
   card: CardData
   useSearchFilters: UseAllCardSearchFilters
   showCardsWithoutKeywords: boolean
+  entryIndex: number
 }
 
 const cx = createCx(styles)
 
-const ResultCard = ({ card, useSearchFilters, showCardsWithoutKeywords }: ResultCardProps) => {
+// How much later each row starts its entry animation, and the row after which they all start at
+// once. Without a ceiling the 400th row of a large result set would wait 400 steps to appear.
+//
+// The stagger has to be a decent fraction of the row's own duration or
+// neighbouring rows animate almost in unison and the cascade is invisible.
+const ENTRY_STAGGER_MS = 60
+const ENTRY_STAGGER_MAX_ROWS = 12
+
+const ResultCard = ({
+  card,
+  useSearchFilters,
+  showCardsWithoutKeywords,
+  entryIndex,
+}: ResultCardProps) => {
   const {
     parsedKeywords,
     useCardSetFilters,
@@ -109,10 +123,23 @@ const ResultCard = ({ card, useSearchFilters, showCardsWithoutKeywords }: Result
 
   const blightbaneLink = `https://www.blightbane.io/card/${card.name.replaceAll(' ', '_')}`
 
+  // Staggered entry after a new search. The results container is keyed on the parsed keywords, so a
+  // new search remounts every row and re-runs this — no JS needed to retrigger it.
+  //
+  // Two values because full-match rows run a second animation (the shine): a single value would
+  // apply to both and hold the shine back by the row's stagger. The `0s` is the shine's.
+  const entryDelayMs = Math.min(entryIndex, ENTRY_STAGGER_MAX_ROWS) * ENTRY_STAGGER_MS
+  const animationDelay = `${entryDelayMs}ms, 0s`
+
   // The strike toggle lives on the container so one handler covers the artwork column, the title
   // row and the description.
   return (
-    <div className={cardContainerClassName} key={card.name} onClick={() => toggleCardStrike(card)}>
+    <div
+      className={cardContainerClassName}
+      key={card.name}
+      onClick={() => toggleCardStrike(card)}
+      style={{ animationDelay }}
+    >
       {shouldShowCardArt && <CardArtwork card={card} />}
       {/* Sibling of the content column, not part of the title row, so the icons centre against
           the whole row's height the way the artwork does. */}
