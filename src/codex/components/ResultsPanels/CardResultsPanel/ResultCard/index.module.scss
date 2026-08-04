@@ -27,9 +27,17 @@
   flex-direction: row;
   align-items: center;
   gap: 0.5rem;
-  border-bottom: 1px dashed $color-component-border;
   padding: 0.25rem 0;
   cursor: pointer;
+  // The row divider
+  background-image: linear-gradient(
+    to right,
+    rgba($color-component-border, 0.85) 0%,
+    rgba($color-component-border, 0) 100%
+  );
+  background-repeat: no-repeat;
+  background-position: bottom left;
+  background-size: 100% 1px;
 
   @media (max-width: $breakpoint-mobile) {
     gap: 0.25rem;
@@ -40,7 +48,7 @@
   }
 
   &:last-child {
-    border-bottom: none;
+    background-image: none;
   }
 
   &--struck {
@@ -56,17 +64,36 @@
   &--full-match {
     @include cardOverlayPositioningFix;
     position: relative;
-    background: linear-gradient(
-      45deg,
-      rgba(155, 255, 255, 0) 0%,
-      rgba(255, 55, 255, 0.05) 20%,
-      rgba(255, 255, 155, 0.15) 40%,
-      rgba(255, 55, 255, 0.05) 60%,
-      rgba(155, 255, 255, 0) 80%,
-      rgba(155, 255, 255, 0) 100%
-    );
-    background-size: 600% 400%;
-    animation: card-shine-shift 4s linear infinite;
+    // Two layers: the animated shine, then the row divider re-declared.
+    //
+    // The tile scrolls right-to-left, so the shine's *higher* stops are the ones entering from the
+    // right. They used to ramp up over 20% and fade out over 40%, which read as "appears suddenly,
+    // leaves gently" — the two ramps are now symmetric.
+    background-image:
+      linear-gradient(
+        45deg,
+        rgba(155, 255, 255, 0) 0%,
+        rgba(255, 55, 255, 0.03) 10%,
+        rgba(255, 55, 255, 0.08) 22%,
+        rgba(255, 255, 155, 0.15) 40%,
+        rgba(255, 55, 255, 0.08) 58%,
+        rgba(255, 55, 255, 0.03) 70%,
+        rgba(155, 255, 255, 0) 80%,
+        rgba(155, 255, 255, 0) 100%
+      ),
+      linear-gradient(
+        to right,
+        rgba($color-component-border, 0.9) 0%,
+        rgba($color-component-border, 0) 100%
+      );
+    background-repeat: repeat, no-repeat;
+    background-position:
+      0% 0%,
+      bottom left;
+    background-size:
+      600% 400%,
+      100% 1px;
+    animation: card-shine-shift 2.4s linear infinite;
   }
 
   &:hover {
@@ -119,6 +146,7 @@
   width: 10rem;
   flex-shrink: 1;
   min-width: 0;
+  font-weight: 600;
   @include text-truncate;
 
   @media (max-width: $breakpoint-mobile) {
@@ -213,9 +241,13 @@
 
 @keyframes card-shine-shift {
   0% {
-    background-position: 0% 0%;
+    background-position:
+      0% 0%,
+      bottom left;
   }
   100% {
-    background-position: 200% 200%;
+    background-position:
+      120% 0%,
+      bottom left;
   }
 }

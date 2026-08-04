@@ -61,11 +61,14 @@ const ResultCard = ({ card, useSearchFilters, showCardsWithoutKeywords }: Result
   )
   const isStruck = isCardStruck(card)
 
-  const cardContainerClassName = cx('result-card', {
+  // `result-card-hoverable` is deliberately unhashed (see the `:global` rules in CardArtwork /
+  // CardIcons): those live in their own CSS modules and cannot see this module's hashed class names,
+  // so the hover-driven hop needs one shared, stable hook to key off.
+  const cardContainerClassName = `${cx('result-card', {
     'result-card--struck': isStruck,
     'result-card--full-match': isFullMatch,
     'result-card--hidden': shouldHideTrackedCards && isStruck,
-  })
+  })} result-card-hoverable`
   const cardClassName = cx('result-card__title-row', {
     'result-card__title-row--struck': isStruck,
     'result-card__title-row--hidden': shouldHideTrackedCards && isStruck,

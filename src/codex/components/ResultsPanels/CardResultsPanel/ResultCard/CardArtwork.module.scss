@@ -51,4 +51,10 @@ $artwork-glow-opacity: 45%;
   &--monster {
     --rarity-colour: #{$color-danger-special-card};
   }
+
+  // Hover feedback, driven from the row. `.result-card-hoverable` is an unhashed marker class that
+  // `ResultCard` adds alongside its own hashed one.
+  :global(.result-card-hoverable):hover & {
+    animation: tinyPop 0.4s ease-out;
+  }
 }

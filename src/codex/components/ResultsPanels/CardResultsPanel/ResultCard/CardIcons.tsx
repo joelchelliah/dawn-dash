@@ -24,6 +24,18 @@ const indexToRarityIconMap = {
   [4]: <SkullIcon className={cx('card-icons__rarity--monster')} />,
 }
 
+/*
+ * Sets `--rarity-colour` on the column so every plate's border inherits it — the rarity class itself
+ * sits on the glyph, which is too deep for the plates to key off. Mirrors `CardArtwork`'s border.
+ */
+const indexToRarityClassMap = {
+  [0]: 'card-icons--common',
+  [1]: 'card-icons--uncommon',
+  [2]: 'card-icons--rare',
+  [3]: 'card-icons--legendary',
+  [4]: 'card-icons--monster',
+}
+
 interface CardIconsProps {
   card: CardData
   shouldIncludeNonCollectibleCards: boolean
@@ -71,9 +83,13 @@ const CardIcons = ({
 
   return (
     <span
-      className={cx('card-icons', {
-        'card-icons--overlapping': shouldOverlapWithCardArt,
-      })}
+      className={cx(
+        'card-icons',
+        indexToRarityClassMap[card.rarity as keyof typeof indexToRarityClassMap],
+        {
+          'card-icons--overlapping': shouldOverlapWithCardArt,
+        }
+      )}
     >
       {/* Wrapper carries the circular plate while overlapping; the svg keeps its own size. */}
       <span className={cx('card-icons__rarity-wrapper')}>
