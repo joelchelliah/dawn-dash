@@ -7,14 +7,18 @@ import {
 import { createFilterHook } from './useFilterFactory'
 
 const defaultFilters = {
+  // Off by default, unlike Cardex: a tree renders every node at once, and SVG <image>
+  // has no lazy loading, so artwork is opt-in here.
+  [FormattingTalentFilterOption.ShowTalentArt]: false,
   [FormattingTalentFilterOption.ShowDescription]: true,
-  [FormattingTalentFilterOption.ShowCardSet]: false,
+  [FormattingTalentFilterOption.ShowCardSet]: true,
   [FormattingTalentFilterOption.ShowKeywords]: false,
   [FormattingTalentFilterOption.ShowBlightbaneLink]: false,
   [FormattingTalentFilterOption.ExpandAllNodes]: true,
 }
 
 const valueToStringMap = {
+  [FormattingTalentFilterOption.ShowTalentArt]: 'Show talent art',
   [FormattingTalentFilterOption.ShowDescription]: 'Show talent description',
   [FormattingTalentFilterOption.ShowCardSet]: 'Show card set',
   [FormattingTalentFilterOption.ShowKeywords]: 'Show matching keywords',
@@ -35,6 +39,7 @@ export const useFormattingTalentFilters = (
 ) => {
   const { filters, handleFilterToggle, getValueToString, resetFilters } =
     useBaseFilters(cachedFilters)
+  const shouldShowTalentArt = filters[FormattingTalent.ShowTalentArt]
   const shouldShowDescription = filters[FormattingTalent.ShowDescription]
   const shouldShowCardSet = filters[FormattingTalent.ShowCardSet]
   const shouldShowKeywords = filters[FormattingTalent.ShowKeywords]
@@ -46,6 +51,7 @@ export const useFormattingTalentFilters = (
     handleFormattingFilterToggle: handleFilterToggle,
     getFormattingFilterName: getValueToString,
     resetFormattingFilters: resetFilters,
+    shouldShowTalentArt,
     shouldShowDescription,
     shouldShowCardSet,
     shouldShowKeywords,

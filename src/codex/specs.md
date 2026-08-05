@@ -470,9 +470,14 @@ Skilldex nodes are **SVG drawn by D3**, not DOM rendered by React. `next/image` 
 lazy loading, `onError` and the placeholder all need SVG equivalents. And node height is **computed
 in one file and drawn in another**, so every change has to land in both.
 
-### 10. Add the `ShowTalentArt` filter option
+### 10. Add the `ShowTalentArt` filter option — ✅ COMPLETED
 
 Mirrors task 1 exactly.
+
+**As implemented:** `ShowTalentArt` placed **first** in the enum (as Cardex did), so the panel reads
+talent art → description → card set → keywords → Blightbane link → expand all nodes. No changes needed
+to `TalentSearchPanel` (it renders `allFormattingTalentFilters`) or to `TRACKED_FILTER_HANDLERS` (the
+existing `handleFormattingFilterToggle` already covers the new key).
 
 - `src/codex/types/filters.ts` — add `ShowTalentArt` to `FormattingTalentFilterOption`.
 - `src/codex/hooks/useSearchFilters/useFormattingTalentFilters.ts` — add the default (**`false`**,
