@@ -2,7 +2,7 @@ import { Selection } from 'd3-selection'
 
 import { createCx } from '@/shared/utils/classnames'
 import { isNotNullOrUndefined } from '@/shared/utils/object'
-import { getCardImageSrc } from '@/shared/hooks/useCardImageSrc'
+import { getCardImageSrc, TALENT_ARTWORK_CATEGORY } from '@/shared/hooks/useCardImageSrc'
 
 import { HierarchicalTalentTreeNode, TalentRenderingContext } from '@/codex/types/talents'
 import { getMatchingKeywordsText } from '@/codex/utils/talentTreeHelper'
@@ -268,7 +268,8 @@ function renderTalentArtwork(
   const y = -height / 2
   const width = height * NODE.ARTWORK.WIDTH_SCALE
 
-  const imageSrc = getCardImageSrc(data.name, null)
+  // Talent category: some names carry different art as a card and as a talent.
+  const imageSrc = getCardImageSrc(data.name, null, TALENT_ARTWORK_CATEGORY)
 
   if (!imageSrc) {
     nameGroup
