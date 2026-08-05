@@ -9,7 +9,7 @@ import { createFilterHook } from './useFilterFactory'
 const defaultFilters = {
   // Off by default, unlike Cardex: a tree renders every node at once, and SVG <image>
   // has no lazy loading, so artwork is opt-in here.
-  [FormattingTalentFilterOption.ShowTalentArt]: false,
+  [FormattingTalentFilterOption.ShowTalentArt]: true,
   [FormattingTalentFilterOption.ShowDescription]: true,
   [FormattingTalentFilterOption.ShowCardSet]: true,
   [FormattingTalentFilterOption.ShowKeywords]: false,

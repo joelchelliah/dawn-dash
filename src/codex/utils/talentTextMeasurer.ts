@@ -40,10 +40,26 @@ const parseTalentText = (text: string): string => {
   return result
 }
 
-const talentTextMeasurer = createTextMeasurer({
+/**
+ * Font variants for the talent name, which is weight 600 and changes size with the
+ * description/name-length state.
+ */
+export type TalentNameVariant = 'name' | 'nameCollapsed' | 'nameCollapsedLong'
+
+const talentTextMeasurer = createTextMeasurer<TalentNameVariant>({
   variants: {
     // xxs (12px, normal weight)
     default: { weight: 'normal', sizePx: 12, approxCharWidths: { base: 6.4, uppercase: 8.2 } },
+    // xxs (12px, weight 600)
+    name: { weight: '600', sizePx: 12, approxCharWidths: { base: 6.7, uppercase: 8.5 } },
+    // sm (16px, weight 600)
+    nameCollapsed: { weight: '600', sizePx: 16, approxCharWidths: { base: 8.9, uppercase: 11.3 } },
+    // xs (14px, weight 600)
+    nameCollapsedLong: {
+      weight: '600',
+      sizePx: 14,
+      approxCharWidths: { base: 7.8, uppercase: 9.9 },
+    },
   },
   approxSpaceWidth: 3,
   approxEmojiWidth: 14, // Emojis are typically wider than regular characters at 12px font size
@@ -52,6 +68,24 @@ const talentTextMeasurer = createTextMeasurer({
 
 export const measureTalentTextWidth = (text: string): number =>
   talentTextMeasurer.measureTextWidth(text)
+
+export const measureTalentNameWidth = (text: string, variant: TalentNameVariant): number =>
+  talentTextMeasurer.measureTextWidth(text, variant)
+
+export const truncateTalentName = (
+  text: string,
+  maxWidth: number,
+  variant: TalentNameVariant
+): string => {
+  if (measureTalentNameWidth(text, variant) <= maxWidth) return text
+
+  let truncated = text
+  while (truncated.length > 1 && measureTalentNameWidth(`${truncated}…`, variant) > maxWidth) {
+    truncated = truncated.slice(0, -1)
+  }
+
+  return `${truncated.trimEnd()}…`
+}
 
 export const wrapTalentText = (text: string, maxWidth: number): string[] =>
   talentTextMeasurer.wrapText(text, maxWidth)

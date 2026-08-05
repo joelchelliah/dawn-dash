@@ -33,6 +33,7 @@ const TalentResultsPanel = ({ useSearchFilters }: TalentResultsPanelProps) => {
   const { getCardSetNameFromIndex } = useCardSetFilters
   const {
     shouldExpandNodes,
+    shouldShowTalentArt,
     shouldShowDescription,
     shouldShowCardSet,
     shouldShowKeywords,
@@ -108,6 +109,7 @@ const TalentResultsPanel = ({ useSearchFilters }: TalentResultsPanelProps) => {
         <TalentTree
           talentTree={matchingTalentTree}
           parsedKeywords={parsedKeywords}
+          shouldShowTalentArt={shouldShowTalentArt}
           shouldShowDescription={shouldShowDescription}
           shouldShowCardSet={shouldShowCardSet}
           shouldShowKeywords={shouldShowKeywords}

@@ -2,11 +2,16 @@ import { Selection } from 'd3-selection'
 
 import { createCx } from '@/shared/utils/classnames'
 import { isNotNullOrUndefined } from '@/shared/utils/object'
+import { getCardImageSrc } from '@/shared/hooks/useCardImageSrc'
 
 import { HierarchicalTalentTreeNode, TalentRenderingContext } from '@/codex/types/talents'
 import { getMatchingKeywordsText } from '@/codex/utils/talentTreeHelper'
-import { getNodeHeight } from '@/codex/utils/talentNodeDimensions'
-import { wrapTalentText } from '@/codex/utils/talentTextMeasurer'
+import { getNameRowHeight, getNodeHeight } from '@/codex/utils/talentNodeDimensions'
+import {
+  truncateTalentName,
+  wrapTalentText,
+  type TalentNameVariant,
+} from '@/codex/utils/talentTextMeasurer'
 import { NODE } from '@/codex/constants/talentTreeValues'
 
 import styles from './index.module.scss'
@@ -15,6 +20,12 @@ const cx = createCx(styles)
 
 type NodeElement = Selection<SVGGElement, unknown, null, undefined>
 type SectionGroup = Selection<SVGGElement, unknown, null, undefined>
+
+/** Which of the flush-left artwork's corners must follow the node's rounded corners */
+interface ArtworkCorners {
+  roundTopLeft: boolean
+  roundBottomLeft: boolean
+}
 
 // Debug rectangles to visualize component boundaries
 const DEBUG_RECTANGLES = {
@@ -33,6 +44,7 @@ export function renderTalentNode(
   nodeElement: NodeElement,
   data: HierarchicalTalentTreeNode,
   renderingContext: TalentRenderingContext,
+  shouldShowTalentArt: boolean,
   shouldShowDescription: boolean,
   shouldShowCardSet: boolean,
   shouldShowKeywords: boolean,
@@ -41,8 +53,7 @@ export function renderTalentNode(
   getCardSetName: (index?: number) => string | undefined
 ): void {
   const tier = data.tier || 0
-  const { height: nameHeight, margin: nameMargin } = getNameDimensions(shouldShowDescription)
-  const totalNameHeight = nameHeight + 2 * nameMargin
+  const totalNameHeight = getNameRowHeight(shouldShowDescription, shouldShowTalentArt)
 
   const additionalRequirements = [...data.otherRequirements, ...data.talentRequirements].filter(
     isNotNullOrUndefined
@@ -108,7 +119,13 @@ export function renderTalentNode(
     }
   }
 
-  renderTalentName(nodeElement, data, -halfNodeHeight, shouldShowDescription)
+  const isNameRowAtNodeBottom =
+    !shouldShowDescription && !shouldShowBlightbaneLink && additionalRequirements.length === 0
+
+  renderTalentName(nodeElement, data, -halfNodeHeight, shouldShowDescription, shouldShowTalentArt, {
+    roundTopLeft: true,
+    roundBottomLeft: isNameRowAtNodeBottom,
+  })
 
   if (additionalRequirements.length > 0) {
     renderTalentAdditionalRequirements(
@@ -164,26 +181,65 @@ function renderTalentName(
   nodeElement: NodeElement,
   data: HierarchicalTalentTreeNode,
   originY: number,
-  shouldShowDescription: boolean
+  shouldShowDescription: boolean,
+  shouldShowTalentArt: boolean,
+  artworkCorners: ArtworkCorners
 ): void {
-  const { height: nameHeight, margin: nameMargin } = getNameDimensions(shouldShowDescription)
+  const { height: nameHeight } = getNameDimensions(shouldShowDescription)
   const halfNameHeight = nameHeight / 2
+  const rowHeight = getNameRowHeight(shouldShowDescription, shouldShowTalentArt)
+  // Margin is whatever the row has left over around the text — grows with the artwork's
+  // extra height, keeping the name vertically centred in the taller row.
+  const rowMargin = (rowHeight - nameHeight) / 2
   const nameGroup = appendSectionGroup(
     nodeElement,
-    originY + halfNameHeight + nameMargin,
+    originY + halfNameHeight + rowMargin,
     halfNameHeight,
-    nameMargin,
-    nameHeight + 2 * nameMargin,
+    rowMargin,
+    rowHeight,
     'name'
   )
 
   // For names too long to have larger fonts when collapsed
   const isNameReallyLong = data.name.length > NODE.NAME.REALLY_LONG_THRESHOLD
 
+  const nameVariant: TalentNameVariant = shouldShowDescription
+    ? 'name'
+    : isNameReallyLong
+      ? 'nameCollapsedLong'
+      : 'nameCollapsed'
+
+  // With artwork, the icon is flush to the node's left edge and the name is centred in the
+  // space left over to its right — so the name's centre is not the node's centre.
+  let nameCenterX = 0
+  let nameText = data.name
+
+  if (shouldShowTalentArt) {
+    // Inset by half the border: SVG strokes straddle the edge, so the node's visible border
+    // extends outside `-halfNodeWidth` and would otherwise cover the artwork's left column.
+    const halfBorder = NODE.BORDER_WIDTH / 2
+    const artHeight = rowHeight - NODE.BORDER_WIDTH
+    const halfNodeWidth = NODE.WIDTH / 2
+    const artLeftEdge = -halfNodeWidth + halfBorder
+
+    const squareRightEdge = artLeftEdge + artHeight
+    const availableWidth = halfNodeWidth - NODE.ARTWORK.GAP - squareRightEdge
+    nameCenterX = squareRightEdge + availableWidth / 2
+
+    nameText = truncateTalentName(
+      data.name,
+      availableWidth * NODE.ARTWORK.NAME_MAX_WIDTH_RATIO,
+      nameVariant
+    )
+
+    renderTalentArtwork(nameGroup, data, artLeftEdge, artHeight, artworkCorners)
+  }
+
   nameGroup
     .append('text')
+    .attr('x', nameCenterX)
     .attr('y', halfNameHeight)
-    .text(data.name)
+    .text(nameText)
     .attr(
       'class',
       cx('talent-node-name', {
@@ -191,6 +247,116 @@ function renderTalentName(
         'talent-node-name--collapsed-long-name': !shouldShowDescription && isNameReallyLong,
       })
     )
+}
+
+/**
+ * Renders the artwork flush with the node's left edge.
+ *
+ * The image is drawn at the wider window's size with `slice`, which scales it to cover and
+ * centres the overflow, so only the middle horizontal band shows.
+ *
+ * A gradient mask fades the right edge out, letting wide art recede under a long name rather
+ * than colliding with it.
+ */
+function renderTalentArtwork(
+  nameGroup: SectionGroup,
+  data: HierarchicalTalentTreeNode,
+  x: number,
+  height: number,
+  corners: ArtworkCorners
+): void {
+  const y = -height / 2
+  const width = height * NODE.ARTWORK.WIDTH_SCALE
+
+  const imageSrc = getCardImageSrc(data.name, null)
+
+  if (!imageSrc) {
+    nameGroup
+      .append('path')
+      .attr('d', roundedLeftEdgePath(x, y, height, height, corners))
+      .attr('class', cx('talent-node-artwork-placeholder'))
+    return
+  }
+
+  const nodeId = toSvgId(data.name)
+  const clipId = `talent-artwork-clip-${nodeId}`
+  const maskId = `talent-artwork-mask-${nodeId}`
+
+  nameGroup
+    .append('clipPath')
+    .attr('id', clipId)
+    .append('path')
+    .attr('d', roundedLeftEdgePath(x, y, width, height, corners))
+
+  const mask = nameGroup.append('mask').attr('id', maskId)
+  const gradientId = `talent-artwork-fade-${nodeId}`
+
+  // Gradient runs across the fade band only, so the rest of the artwork stays fully opaque.
+  const fadeWidth = Math.min(NODE.ARTWORK.FADE_WIDTH, width)
+  const gradient = mask
+    .append('linearGradient')
+    .attr('id', gradientId)
+    .attr('gradientUnits', 'userSpaceOnUse')
+    .attr('x1', x + width - fadeWidth)
+    .attr('y1', 0)
+    .attr('x2', x + width)
+    .attr('y2', 0)
+  gradient.append('stop').attr('offset', '0%').attr('stop-color', 'white')
+  gradient.append('stop').attr('offset', '100%').attr('stop-color', 'black')
+
+  mask
+    .append('rect')
+    .attr('x', x)
+    .attr('y', y)
+    .attr('width', width)
+    .attr('height', height)
+    .attr('fill', `url(#${gradientId})`)
+
+  nameGroup
+    .append('image')
+    .attr('href', imageSrc)
+    .attr('x', x)
+    .attr('y', y)
+    .attr('width', width)
+    .attr('height', height)
+    .attr('preserveAspectRatio', 'xMidYMid slice')
+    .attr('clip-path', `url(#${clipId})`)
+    .attr('mask', `url(#${maskId})`)
+    .attr('class', cx('talent-node-artwork'))
+}
+
+/**
+ * Path for a rectangle whose left corners are optionally rounded with the node's corner radius,
+ * so flush-left artwork follows the node's outline.
+ */
+function roundedLeftEdgePath(
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  { roundTopLeft, roundBottomLeft }: ArtworkCorners
+): string {
+  // Clamped against both axes so a short or narrow box can't use an oversized radius.
+  const r = Math.min(NODE.CORNER_RADIUS, height / 2, width)
+  const right = x + width
+  const bottom = y + height
+
+  // Traced clockwise from the top-left, so each arc curves in the direction of travel.
+  return [
+    roundTopLeft ? `M ${x + r} ${y}` : `M ${x} ${y}`,
+    `L ${right} ${y}`,
+    `L ${right} ${bottom}`,
+    roundBottomLeft
+      ? `L ${x + r} ${bottom} A ${r} ${r} 0 0 1 ${x} ${bottom - r}`
+      : `L ${x} ${bottom}`,
+    roundTopLeft ? `L ${x} ${y + r} A ${r} ${r} 0 0 1 ${x + r} ${y}` : `L ${x} ${y}`,
+    'Z',
+  ].join(' ')
+}
+
+/** Talent names carry spaces, apostrophes and commas — none of which are safe in an SVG id. */
+function toSvgId(name: string): string {
+  return name.replace(/[^a-zA-Z0-9]/g, '-')
 }
 
 function getNameDimensions(shouldShowDescription: boolean): {

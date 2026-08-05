@@ -515,7 +515,28 @@ render. So this task is about getting a URL into a D3 callback, not about the ma
   `"Typhon's Cunning"` → `"Thyphon’s cunning_eclypse-miniset"` has a typo, a curly apostrophe,
   a lowercased word and a set suffix. Exact-string `Map` lookup only — normalising quotes breaks it.
 
-### 12. Render the strip in the node
+### 12. Render the strip in the node — ✅ COMPLETED (pending visual tuning of HEIGHT)
+
+**As implemented:** `NODE.ARTWORK = { HEIGHT: 28, VERTICAL_MARGIN: 6 }`. Both paths derive the same
+40px total from those constants — `_getNodeHeight` adds it to **`contentHeight`** (the strip is inside
+the node rect, like name/description, not an outer section like card set/keywords), and
+`renderTalentNode` adds it as `yPosAfterArtwork` between `yPosAfterName` and
+`yPosAfterAdditionalRequirements`, with the downstream chain threaded through it.
+
+Two things pulled forward from later tasks because leaving them out would have made this task's own
+visual check meaningless: the `art-${shouldShowTalentArt}` segment of `makeKey` and the
+`shouldShowTalentArt` entries in both the layout memo and render effect deps (task 14) — toggling
+would otherwise return stale cached heights.
+
+Notes on the render: each node gets its **own** `clipPath` id (`toSvgId` strips the spaces,
+apostrophes and commas in talent names), since a shared id would clip every node to the first node's
+box. The strip is interior to the node — between name and description — so it never meets the node
+rect's `rx: 8px` corners, and the paint-order concern about the border doesn't arise; it's appended
+after the main rect regardless. `getCardImageSrc(data.name, null)` passes `null` so an unresolved
+talent draws the placeholder rect alone rather than Pestilent Decree art.
+
+New invariant recorded in `src/codex/CLAUDE.md` (reserved height must not depend on the mapping; the
+`slice` + per-node `clipPath` pairing).
 
 `TalentTree/talentNodes.ts` + `constants/talentTreeValues.ts` + `utils/talentNodeDimensions.ts`.
 

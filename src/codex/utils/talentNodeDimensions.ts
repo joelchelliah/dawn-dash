@@ -62,6 +62,22 @@ export const hasAdditionalRequirements = (node: HierarchicalTalentTreeNode): boo
 // ============================================================================
 
 /**
+ * Total height of the name row, including its margins.
+ *
+ * Shared by the dimension engine and the renderer so the two can't disagree: the artwork icon
+ * fills this row, so showing artwork grows it (and the art with it).
+ */
+export const getNameRowHeight = (
+  shouldShowDescription: boolean,
+  shouldShowTalentArt: boolean
+): number => {
+  const nameHeight = shouldShowDescription ? NODE.NAME.HEIGHT : NODE.NAME.HEIGHT_NO_DESCRIPTION
+  const extraHeight = shouldShowTalentArt ? NODE.ARTWORK.EXTRA_ROW_HEIGHT : 0
+
+  return nameHeight + 2 * NODE.NAME.VERTICAL_MARGIN + extraHeight
+}
+
+/**
  * Calculate dynamic node height based on talent node content.
  */
 const _getNodeHeight = (
@@ -84,9 +100,7 @@ const _getNodeHeight = (
     }
 
     // Name height
-    let contentHeight = isDescriptionHidden
-      ? NODE.NAME.HEIGHT_NO_DESCRIPTION + 2 * NODE.NAME.VERTICAL_MARGIN
-      : NODE.NAME.HEIGHT + 2 * NODE.NAME.VERTICAL_MARGIN
+    let contentHeight = getNameRowHeight(context.shouldShowDescription, context.shouldShowTalentArt)
 
     // Additional requirements height
     if (hasAdditionalRequirements(node)) {
@@ -168,7 +182,7 @@ const dimensionEngine = createNodeDimensionEngine<
       context.parsedKeywords.length > 0 &&
       getMatchingKeywordsText(node, context.parsedKeywords).length > 0
 
-    return `${node.name}:req-${specialRequirements}:description-${context.shouldShowDescription}:card-set-${showCardSet}:keywords-${showKeywordsSection}:blightbane-${context.shouldShowBlightbaneLink}`
+    return `${node.name}:req-${specialRequirements}:description-${context.shouldShowDescription}:card-set-${showCardSet}:keywords-${showKeywordsSection}:blightbane-${context.shouldShowBlightbaneLink}:art-${context.shouldShowTalentArt}`
   },
   getChildren: (node) => node.children,
   prepopulateMode: 'check-each-node',
