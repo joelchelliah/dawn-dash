@@ -16,6 +16,20 @@ const artworkByCardName = (cardArtworkData as Array<{ name: string; artwork: str
   }, new Map<string, string>())
 
 /**
+ * Resolves a card or talent name to its Blightbane artwork URL via `card-artwork.json`.
+ *
+ * Returns `fallbackImageSrc` when the name doesn't resolve.
+ */
+export function getCardImageSrc(
+  cardName: string,
+  fallbackImageSrc: string | null = PestilenceDecreeUrl
+): string | null {
+  const artwork = artworkByCardName.get(cardName)
+
+  return artwork ? CardArtworkImageUrl(artwork) : fallbackImageSrc
+}
+
+/**
  * Resolves a card name to its Blightbane artwork URL via `card-artwork.json`.
  *
  * `fallbackImageSrc` is used when the name doesn't resolve, and on a failed request.
@@ -30,19 +44,16 @@ export function useCardImageSrc(
   cardImageSrc: string | null
   onImageSrcError: () => void
 } {
-  const [cardImageSrc, setCardImageSrc] = useState<string | null>(() => {
-    const artwork = artworkByCardName.get(cardName)
-
-    return artwork ? CardArtworkImageUrl(artwork) : fallbackImageSrc
-  })
+  const [cardImageSrc, setCardImageSrc] = useState<string | null>(() =>
+    getCardImageSrc(cardName, fallbackImageSrc)
+  )
 
   const onImageSrcError = () => {
     setCardImageSrc(fallbackImageSrc)
   }
 
   useEffect(() => {
-    const artwork = artworkByCardName.get(cardName)
-    setCardImageSrc(artwork ? CardArtworkImageUrl(artwork) : fallbackImageSrc)
+    setCardImageSrc(getCardImageSrc(cardName, fallbackImageSrc))
   }, [cardName, fallbackImageSrc])
 
   return { cardImageSrc, onImageSrcError }

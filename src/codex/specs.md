@@ -488,7 +488,17 @@ existing `handleFormattingFilterToggle` already covers the new key).
 The checkbox appears automatically from `FormattingTalent.getAll()`. Verify visually; nothing else
 should change yet.
 
-### 11. Resolve talent artwork with the shared hook
+### 11. Resolve talent artwork with the shared hook — ✅ COMPLETED
+
+**As implemented:** `getCardImageSrc(cardName, fallbackImageSrc?)` exported from
+`@/shared/hooks/useCardImageSrc`, with `useCardImageSrc` delegating to it for both its initial state
+and its effect — one `Map`, one lookup path, no duplication. Signature and default fallback
+(`PestilenceDecreeUrl`) match the hook, so scoring is untouched; Skilldex will pass its own fallback
+in task 12/13. Verified the spec's worked example against the real JSON:
+`"Typhon's Cunning"` → `"Thyphon’s cunning_eclypse-miniset"`.
+
+Docs updated in the same task: the root `CLAUDE.md` *Custom Hooks* entry now names the plain function,
+and the codex artwork invariant now covers talents and says which tool uses which export.
 
 The lookup is already solved — `@/shared/hooks/useCardImageSrc` (task 2) works unchanged for talents,
 because Blightbane treats talents as cards and their art lives in the same `/images/icons/`

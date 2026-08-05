@@ -113,7 +113,7 @@ Each feature directory has its own `CLAUDE.md` with architecture details and inv
 - `useFromNow()` - relative time formatting with adaptive update interval
 - `useDeviceOrientation()` - portrait/landscape + mobile detection (state set on mount to avoid hydration mismatch)
 - `useDraggable()` - drag-to-scroll behavior
-- `useCardImageSrc(cardName, fallbackImageSrc?)` - resolves a card/talent name to its Blightbane artwork URL via a module-scope `Map` built from `src/shared/data/card-artwork.json`. The optional fallback is what unresolved names return; it defaults to `PestilenceDecreeUrl` for scoring, and Cardex passes `null` to get a placeholder square instead
+- `useCardImageSrc(cardName, fallbackImageSrc?)` - resolves a card/talent name to its Blightbane artwork URL via a module-scope `Map` built from `src/shared/data/card-artwork.json`. The optional fallback is what unresolved names return; it defaults to `PestilenceDecreeUrl` for scoring, and Cardex passes `null` to get a placeholder square instead. The same module exports `getCardImageSrc(name, fallback?)` — the plain function the hook delegates to, for callers outside React's render (Skilldex draws its nodes with D3). Both share the one module-scope `Map`; never build a second copy
 
 **Utilities**:
 - `classnames.ts` - `createCx()` wrapper for SCSS modules
