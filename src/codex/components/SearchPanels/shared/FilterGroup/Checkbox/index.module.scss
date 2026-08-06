@@ -81,7 +81,7 @@ $checkmark-size: 0.625rem;
     margin: 0.125rem 0;
     padding: 0.3125rem 0.25rem;
 
-    @include applyColorAndRainTexture($tier-name-to-color-map, 0.2, 0.3);
+    @include applyColorAndRainTexture($tier-name-to-color-map, 0.25, 0.4);
   }
 
   &--extra {
