@@ -1893,8 +1893,15 @@ COPY public."Talents" (id, name, description, expansion, tier, blightbane_id, fl
 1626	Angelic Form	<b>Ascend</b> once at the start of combat.	3	6	984176	Your devotion has been noticed, and rewarded thusly.	{}	{22989}	{}	{}	{INT,STR}	2025-05-03 17:45:54.161651+00	t	[]	{}
 1432	Earthshaker	Whenever you summon a unique <b>Totem</b>, deal damage and gain <b>HEALTH</b> equal to your level ([[myLevel]]).	6	1	522206		{}	{}	{}	{}	{DEX,STR}	2025-05-03 17:45:54.161651+00	t	[]	{}
 1429	Devotion	Gain access to Holy cards. Add a <b>Prayer Card</b> to your deck.	1	1	22989	Some believe the gods have left the Realms, some believe their absence is merely the calm before the storm.	{"Priest, Prayer"}	{}	{984176,736248,254723,641565,924616,531590,586945,110050,462439}	{}	{}	2025-05-03 17:45:54.161651+00	t	[]	{"Sacred Tome"}
+1761	Clarity of Mind	The first card you draw each turn costs no energy.	0	6	617304	The waters of the Dreamwell wash the noise from your thoughts, leaving only what matters.	{"Vaelmorin, the Ancient Death"}	{}	{}	{}	{}	2026-07-28 17:08:09.213+00	t	[]	{}
 1758	Scrappy	Gain access to a Scrap Pile and add a <b>Junkyard</b> to your deck.	8	1	1275421		{}	{}	{}	{}	{DEX2}	2026-03-15 19:07:42.327+00	t	[]	{}
 1757	Arboreal Forms	Whenever you <B>Shift</b>, shift into Treeforms instead of Beastforms.<b>Start of Combat:</b> Conjure a <b>Beastform</b>.	4	2	2512122	The Order of the Silk Leaf takes its inspiration from Aethos' most ancient inhabitants.	{}	{}	{}	{}	{DEX,INT}	2026-03-15 19:07:40.4+00	t	[]	{}
+1759	Adaptive Arsenal	Add 1 <b>Adaptation Slot</b> to each <b>Melee</b> or <b>Divine</b> <b>Basic Attack</b> in your deck. Can be taken multiple times.	8	1	771205	A true fighter shapes every strike to the moment.	{}	{}	{771206}	{Warrior,Knight}	{}	2026-07-28 17:08:08.676+00	t	[]	{}
+1760	Anarchist	Whenever you create a <b>Bomb</b>, create a random variant of a Bomb instead.	5	2	618472	"No, no, no. Listen. That's a B-flat detonation at best. I asked for a D minor. Do I look like I want the town square to sound like someone slammed a cupboard?"	{}	{}	{}	{Rogue,Warrior}	{}	2026-07-28 17:08:08.687+00	t	[]	{}
+1762	Dreamsight	Gain +1 reroll on talent choices whenever you level up.	0	1	617305	Dreams drift a step ahead of the waking world. Those who learn to read them see the future coming.	{"Nathali Brightcandle"}	{}	{}	{}	{}	2026-07-28 17:08:09.124+00	t	[]	{}
+1764	Mortification	Foes affected by a <b>Deep Wound</b> can't gain HEALTH.	3	2	6403785		{}	{}	{}	{Warrior,Hunter}	{STR}	2026-07-28 17:08:09.823+00	t	[]	{}
+1763	Mental Fortress	Cards can no longer be added to your deck. This includes rewards and cards created during combat.	1	5	4200001	A mind that admits no new thought becomes a room without doors. Perfectly preserved, and perfectly unable to leave.	{}	{}	{}	{}	{}	2026-07-28 17:08:09.928+00	t	[]	{}
+1765	Radiant Attunement	Whenever you play a <b>Melee</b> or <b>Divine</b> <b>Basic Attack</b>, <b>Adapt</b> it based on the energy spent.	8	2	771206	The energy you pour into a blow reshapes it in your hand.	{}	{771205}	{}	{}	{}	2026-07-28 17:08:10.372+00	t	[]	{}
 \.
 
 
@@ -1917,7 +1924,7 @@ SELECT pg_catalog.setval('public."Cards_id_seq"', 2722, true);
 -- Name: Talents_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public."Talents_id_seq"', 1758, true);
+SELECT pg_catalog.setval('public."Talents_id_seq"', 1765, true);
 
 
 --
