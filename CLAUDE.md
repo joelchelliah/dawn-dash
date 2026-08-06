@@ -80,7 +80,7 @@ This is a Next.js application (dawn-dash.com) for Dawncaster game data visualiza
 - **Next.js 15** (pages router) with React 18, TypeScript, and SCSS modules
 - **`/pages`**: thin page components — one per tool, plus `pages/eventmaps/[event].tsx` for per-event pages
 - **`/src`**: application logic organized by feature: `landing/`, `speedruns/`, `codex/` (Cardex + Skilldex + Eventmaps), `scoring/`, `shared/`
-- **Supabase backend**: database and edge functions for cards/talents data synchronization
+- **Supabase backend**: database and edge functions for **talents** data. Cards are *not* read from Supabase — Cardex fetches them live from the Blightbane API (see Data Layer)
 
 ### Tool Registry
 `src/shared/config/toolRegistry.ts` is the single source of truth for each tool's identity: path, title, descriptions, meta/OG copy, images, nav icon, and legacy redirect paths. It is consumed by the landing page, the header side menu, `useNavigation`, `PageHead`, and `next.config.ts` (generated redirects). Adding a new tool requires only a registry entry + a `pages/` file (see the `add-new-tool` skill in `.claude/skills/`), plus a URL entry in `scripts/generate-sitemap.js`.
@@ -90,8 +90,8 @@ This is a Next.js application (dawn-dash.com) for Dawncaster game data visualiza
 Each feature directory has its own `CLAUDE.md` with architecture details and invariants — read it before changing that feature.
 
 1. **Speedruns** (`/speedruns`, `src/speedruns/`) — interactive Chart.js charts of speedrun data from the external Blightbane API, with class/difficulty/time controls
-2. **Cardex** (`/cardex`, `src/codex/`) — multi-keyword card search and advanced filtering, plus card tracking for weekly challenges; data in Supabase
-3. **Skilldex** (`/skilldex`, `src/codex/`) — interactive talent-tree visualizer (D3 hierarchy) with prerequisite tracking and requirement filters; data in Supabase
+2. **Cardex** (`/cardex`, `src/codex/`) — multi-keyword card search and advanced filtering, plus card tracking for weekly challenges; card data fetched live from the Blightbane API
+3. **Skilldex** (`/skilldex`, `src/codex/`) — interactive talent-tree visualizer (D3 hierarchy) with prerequisite tracking and requirement filters; talent data from Supabase
 4. **Eventmaps** (`/eventmaps`, `src/codex/`) — fully mapped event trees (branches, requirements, rewards) rendered from static `src/codex/data/event-trees.json`
 5. **Scoring** (`/scoring`, `src/scoring/`) — prose-heavy scoring guides per game mode plus real score-calculation logic (`advancedScoring.ts`)
 
@@ -113,7 +113,7 @@ Each feature directory has its own `CLAUDE.md` with architecture details and inv
 - `useFromNow()` - relative time formatting with adaptive update interval
 - `useDeviceOrientation()` - portrait/landscape + mobile detection (state set on mount to avoid hydration mismatch)
 - `useDraggable()` - drag-to-scroll behavior
-- `useCardImageSrc(cardName, fallbackImageSrc?)` - resolves a card/talent name to its Blightbane artwork URL via a module-scope `Map` built from `src/shared/data/card-artwork.json`. The optional fallback is what unresolved names return; it defaults to `PestilenceDecreeUrl` for scoring, and Cardex passes `null` to get a placeholder square instead
+- `useCardImageSrc(cardName, fallbackImageSrc?)` - resolves a card/talent name to its Blightbane artwork URL via a module-scope `Map` built from `src/shared/data/card-artwork.json`. The optional fallback is what unresolved names return; it defaults to `PestilenceDecreeUrl` for scoring, and Cardex passes `null` to get a placeholder square instead. Both the hook and the plain `getCardImageSrc(name, fallback?, category?)` it delegates to take an optional `category`, which disambiguates names whose artwork differs per category (Skilldex passes the exported `TALENT_ARTWORK_CATEGORY`); the lookup falls back to name-only. The plain function exists for callers outside React's render — Skilldex draws its nodes with D3. Both lookups use module-scope `Map`s built once at import; never build another copy
 
 **Utilities**:
 - `classnames.ts` - `createCx()` wrapper for SCSS modules
@@ -135,12 +135,12 @@ Each feature directory has its own `CLAUDE.md` with architecture details and inv
 ### Data Layer
 - **SWR** for client-side data fetching with `onSuccess`/`onError` handling; fetch failures surface visible error states in the panels
 - **Service contracts**: all API fetchers **throw** on failure — never return `[]` or partial data silently
-- **Custom hooks** (`useCardData`, `useTalentData`, `useSpeedrunData`) abstract data fetching with progress callbacks
+- **Custom hooks** (`useCardData`, `useTalentData`, `useSpeedrunData`) abstract data fetching with progress callbacks. **Each hook's source differs**: `useCardData` → `cardsApiBlightbane.ts` (live Blightbane API), `useTalentData` → `talentsApiSupabase.ts` (Supabase — the only Supabase read in the app), `useSpeedrunData` → Blightbane. `src/codex/services/cardsApiSupabase.ts` is **unused legacy** from when Cardex read the Supabase `Cards` table
 - **localStorage caching** with staleness detection: 10-minute TTL for speedrun leaderboard data (intentionally short — new runs arrive continuously), 24-hour TTL for codex card/talent data
 - **Stores are plain localStorage wrapper modules** (not subscription/Zustand stores): versioned cache keys are co-located with each store — `src/speedruns/utils/speedrunsStore.ts`, `src/codex/utils/codexCardsStore.ts`, `codexTalentsStore.ts`, `codexFilterStore.ts`
 
 ### Data Synchronization (two ownership paths)
-- **Supabase Edge Functions** (`supabase/functions/`, Deno) own the **cards and talents** data: `sync-cards` and `sync-talents` pull from the Blightbane API into the Supabase `Cards`/`Talents` tables; `talents-name` is a public read-only endpoint. Deploy with `npx supabase functions deploy <name>`. The root `deno.json` exists **solely** for these edge functions.
+- **Supabase Edge Functions** (`supabase/functions/`, Deno) own the **talents** data: `sync-talents` pulls from the Blightbane API into the Supabase `Talents` table; `talents-name` is a public read-only endpoint. `sync-cards` and the `Cards` table still exist but are **dormant** — Cardex stopped reading from Supabase and fetches cards live from Blightbane instead, so nothing consumes what `sync-cards` writes. Deploy with `npx supabase functions deploy <name>`. The root `deno.json` exists **solely** for these edge functions.
 - **Local Node scripts** (`scripts/`) own the **events and artwork** data: `sync-events.js` runs the event pipeline (fetch from Blightbane → extract → parse into `src/codex/data/event-trees.json`); `fetch-card-artwork-mapping.js` writes `src/shared/data/card-artwork.json`; `generate-sitemap.js` builds `public/sitemap.xml` from the event data (tool URLs are hardcoded in it)
 - **Speedrun data** is not synced — it is fetched live from the Blightbane API at runtime
 

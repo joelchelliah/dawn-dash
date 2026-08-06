@@ -205,6 +205,7 @@ export const FormattingCard = {
 // -------------------- Formatting Talent --------------------
 
 export enum FormattingTalentFilterOption {
+  ShowTalentArt = 'ShowTalentArt',
   ShowDescription = 'ShowDescriptions',
   ShowCardSet = 'ShowCardSet',
   ShowKeywords = 'ShowKeywords',

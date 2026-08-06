@@ -45,6 +45,8 @@ npx supabase start
 
 **ℹ️ Note:** The first time you run this, it will download Docker images (may take a few minutes).
 
+**ℹ️ Note:** Only **Skilldex** reads from Supabase (the `Talents` table). Cardex, Eventmaps, Speedruns and Scoring don't — Cardex and Speedruns fetch live from the Blightbane API and Eventmaps reads a static JSON file, so those four work without a local Supabase running.
+
 ### 3. Import Database Schema and Data
 
 Import the database schema and sample data using psql:

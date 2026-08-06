@@ -31,7 +31,7 @@ const CardArtwork = ({ card }: CardArtworkProps) => {
    * Passing `null` as the fallback opts out of the hook's `PestilenceDecreeUrl` default: an
    * unresolved card renders the rarity-tinted placeholder square.
    */
-  const { cardImageSrc, onImageSrcError } = useCardImageSrc(card.name, null)
+  const { cardImageSrc, onImageSrcError } = useCardImageSrc(card.name, null, card.category)
   const { isMobile } = useBreakpoint()
 
   const className = cx(

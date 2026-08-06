@@ -44,6 +44,7 @@ const hasValidCardSet = (shouldShowCardSet: boolean, index?: number): index is n
 interface TalentTreeProps {
   talentTree: TalentTreeType | undefined
   parsedKeywords: string[]
+  shouldShowTalentArt: boolean
   shouldShowDescription: boolean
   shouldShowCardSet: boolean
   shouldShowKeywords: boolean
@@ -57,6 +58,7 @@ interface TalentTreeProps {
 function TalentTree({
   talentTree,
   parsedKeywords,
+  shouldShowTalentArt,
   shouldShowDescription,
   shouldShowCardSet,
   shouldShowKeywords,
@@ -101,6 +103,7 @@ function TalentTree({
 
     // Create rendering context for dimension calculations
     const renderingContext: TalentRenderingContext = {
+      shouldShowTalentArt,
       shouldShowDescription,
       shouldShowCardSet: (index?: number) => hasValidCardSet(shouldShowCardSet, index),
       shouldShowBlightbaneLink,
@@ -140,6 +143,7 @@ function TalentTree({
   }, [
     talentTree,
     parsedKeywords,
+    shouldShowTalentArt,
     shouldShowDescription,
     shouldShowCardSet,
     shouldShowKeywords,
@@ -214,6 +218,7 @@ function TalentTree({
           nodeElement,
           data,
           renderingContext,
+          shouldShowTalentArt,
           shouldShowDescription,
           shouldShowCardSet,
           shouldShowKeywords,
@@ -254,6 +259,7 @@ function TalentTree({
   }, [
     layout,
     zoomLevel,
+    shouldShowTalentArt,
     shouldShowDescription,
     shouldShowCardSet,
     shouldShowKeywords,

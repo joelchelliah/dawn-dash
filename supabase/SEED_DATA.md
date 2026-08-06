@@ -4,6 +4,10 @@
 tables. It serves two purposes: seeding a local Supabase for development, and restoring
 production in a disaster.
 
+> **Only `Talents` is live data.** Skilldex is the sole reader of Supabase; Cardex fetches cards
+> straight from the Blightbane API, so the `Cards` table is dormant and dumped only for
+> completeness.
+
 > **Creating a backup is scripted — you don't need to follow any manual steps.**
 >
 > ```bash

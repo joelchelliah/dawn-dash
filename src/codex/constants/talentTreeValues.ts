@@ -48,6 +48,42 @@ export const NODE = {
     REALLY_LONG_THRESHOLD: 24,
   },
 
+  /** Artwork-specific constants. */
+  ARTWORK: {
+    /** Gap between the artwork and the name text, and the name's inset from the right edge */
+    GAP: 8,
+    /**
+     * Extra height added to the name row when artwork is shown, giving the art more focus.
+     */
+    EXTRA_ROW_HEIGHT: 12,
+    /**
+     * How much wider the visible artwork is than it is tall, using up horizontal space the
+     * square source would otherwise waste. The image is scaled to cover this wider window and
+     * clipped to it, so only the middle horizontal band of the art shows.
+     */
+    WIDTH_SCALE: 1.75,
+    /**
+     * Width of the fade-to-transparent at the artwork's right edge.
+     */
+    FADE_WIDTH: 30,
+    /**
+     * Max width for the name before it's truncated with an ellipsis, as a fraction of the
+     * space left over beside a *square* artwork. Widening via WIDTH_SCALE deliberately does not
+     * shrink this — the name holds its place and the fade handles the overlap.
+     */
+    NAME_MAX_WIDTH_RATIO: 0.95,
+  },
+
+  /** Corner radius of the node rectangle — must match `.talent-node`'s `rx`/`ry` in the stylesheet */
+  CORNER_RADIUS: 8,
+
+  /**
+   * Border width of the node rectangle — must match `.talent-node`'s `stroke-width`.
+   * SVG strokes straddle the edge, so flush content starts half a stroke inside the node's
+   * nominal bounds to avoid sitting under the border.
+   */
+  BORDER_WIDTH: 2,
+
   /** Additional requirements-specific constants */
   ADDITIONAL_REQUIREMENTS: {
     HEIGHT: 14,

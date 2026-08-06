@@ -99,6 +99,7 @@ export interface HierarchicalTalentTreeNode {
 
 // The rendering settings that talent node dimensions depend on
 export interface TalentRenderingContext {
+  shouldShowTalentArt: boolean
   shouldShowDescription: boolean
   shouldShowCardSet: (index?: number) => boolean
   shouldShowBlightbaneLink: boolean

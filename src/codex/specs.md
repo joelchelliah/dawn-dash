@@ -462,7 +462,7 @@ Settled with the user during scoping — implement as stated, don't re-litigate:
 | Placement | Between the name separator and the description, i.e. inserted into the existing `yPos` chain after `yPosAfterName`. |
 | Description hidden | **Still show the artwork.** One rule, one code path — the toggle alone decides. |
 | Missing artwork | **Reserve the strip and draw a flat placeholder.** Node height must not depend on whether the mapping resolves, so the dimension engine never has to consult it. |
-| Default | **Off**, unlike Cardex. A talent tree renders every node at once with no lazy-loading safety net (task 13) — opt-in until measured. |
+| Default | Was **off** pending measurement (no lazy-loading safety net in SVG). **Measured in task 13 and flipped to `on`** — see task 10. |
 
 ### Why this is harder than the Cardex side
 
@@ -470,20 +470,49 @@ Skilldex nodes are **SVG drawn by D3**, not DOM rendered by React. `next/image` 
 lazy loading, `onError` and the placeholder all need SVG equivalents. And node height is **computed
 in one file and drawn in another**, so every change has to land in both.
 
-### 10. Add the `ShowTalentArt` filter option
+### 10. Add the `ShowTalentArt` filter option — ✅ COMPLETED
 
 Mirrors task 1 exactly.
 
+**As implemented:** `ShowTalentArt` placed **first** in the enum (as Cardex did), so the panel reads
+talent art → description → card set → keywords → Blightbane link → expand all nodes. No changes needed
+to `TalentSearchPanel` (it renders `allFormattingTalentFilters`) or to `TRACKED_FILTER_HANDLERS` (the
+existing `handleFormattingFilterToggle` already covers the new key).
+
 - `src/codex/types/filters.ts` — add `ShowTalentArt` to `FormattingTalentFilterOption`.
-- `src/codex/hooks/useSearchFilters/useFormattingTalentFilters.ts` — add the default (**`false`**,
-  see the decision table), `'Show talent art'` to `valueToStringMap`, and derive + return
-  `shouldShowTalentArt`.
+- `src/codex/hooks/useSearchFilters/useFormattingTalentFilters.ts` — add the default,
+  `'Show talent art'` to `valueToStringMap`, and derive + return `shouldShowTalentArt`.
 - **No `codexFilterStore.ts` version bump** — same reasoning as task 1.
 
 The checkbox appears automatically from `FormattingTalent.getAll()`. Verify visually; nothing else
 should change yet.
 
-### 11. Resolve talent artwork with the shared hook
+**Default flipped to `true` (2026-08-05)**, superseding the decision table's "Off, unlike Cardex".
+That default was provisional on task 13's measurement, which has now been done: rendering *every*
+tree with all nodes expanded showed all artwork instantly, no lag and no visible loading. See task 13.
+
+### 11. Resolve talent artwork with the shared hook — ✅ COMPLETED
+
+**As implemented:** `getCardImageSrc(cardName, fallbackImageSrc?)` exported from
+`@/shared/hooks/useCardImageSrc`, with `useCardImageSrc` delegating to it for both its initial state
+and its effect — one `Map`, one lookup path, no duplication. Signature and default fallback
+(`PestilenceDecreeUrl`) match the hook, so scoring is untouched; Skilldex will pass its own fallback
+in task 12/13. Verified the spec's worked example against the real JSON:
+`"Typhon's Cunning"` → `"Thyphon’s cunning_eclypse-miniset"`.
+
+Docs updated in the same task: the root `CLAUDE.md` *Custom Hooks* entry now names the plain function,
+and the codex artwork invariant now covers talents and says which tool uses which export.
+
+**Amended (2026-08-05) — the two tools do *not* share one lookup after all.** The `category` field
+disambiguates names that carry different artwork as a card and as a talent: **category 10 is the
+talent variant** (386 entries vs the ~385 known talents). 33 names have two or more non-null
+artworks — `"Bulwark"` is `abilityart_1_59` as a card but `cardart_5_23` as a talent — so
+`getCardImageSrc` gained a `preferTalentArtwork` flag selecting between two prebuilt maps, and
+`talentNodes.ts` passes `true`. Precedence is **non-null first, then category**; each map falls back
+to the other tool's artwork rather than missing, because 19 of those 33 names have no category-10
+entry at all. Verified: all 386 category-10 entries resolve to their own artwork, 11 names now differ
+between the tools, and **Cardex's resolutions were unchanged for all 3045 names** (the old
+first-non-null-wins already happened to pick the non-talent entry).
 
 The lookup is already solved — `@/shared/hooks/useCardImageSrc` (task 2) works unchanged for talents,
 because Blightbane treats talents as cards and their art lives in the same `/images/icons/`
@@ -500,7 +529,69 @@ render. So this task is about getting a URL into a D3 callback, not about the ma
   `"Typhon's Cunning"` → `"Thyphon’s cunning_eclypse-miniset"` has a typo, a curly apostrophe,
   a lowercased word and a set suffix. Exact-string `Map` lookup only — normalising quotes breaks it.
 
-### 12. Render the strip in the node
+### 12. Render the artwork in the node — ✅ COMPLETED
+
+**The design changed twice during implementation. What shipped is not a strip below the name — it is
+a widened, faded artwork flush with the node's left edge, inside the name row.** The original plan is
+kept below for context; the reasons it was abandoned are worth not rediscovering:
+
+1. **Full-width strip (abandoned).** A 200px-wide strip is a **2.9× upscale** of the 70×70 source and
+   looked visibly pixelated. Confirmed there is no higher-resolution source: `images/cards/`,
+   `images/large/`, `images/full/`, `images/icons_large/`, `images/cards_full/` and `.png` all return
+   the same 3826-byte placeholder with HTTP 200 (a deliberately bogus filename does too), and the
+   `.png` is the same 70×70 at 4× the bytes. This also means the strip violated task 7e's own "70px is
+   a hard ceiling" note. Shrinking the height wouldn't have helped — the *width* forced the upscale.
+2. **Square icon beside the name (superseded).** Crisp, but left the widened name row looking airy,
+   and a square can't use the horizontal space the taller row creates.
+3. **Widened + faded artwork (shipped).** Visible window is `WIDTH_SCALE` times as wide as the row
+   height, with the square source scaled to cover it (`slice`) so only its middle horizontal band
+   shows. Trades vertical crop for horizontal coverage rather than resolution — at `WIDTH_SCALE: 1.75`
+   there is effectively no upscale.
+
+**As implemented:**
+
+- `NODE.ARTWORK` — four tunable dials, all settled by eye in the dev server: `GAP: 8`,
+  `EXTRA_ROW_HEIGHT: 12`, `WIDTH_SCALE: 1.75`, `FADE_WIDTH: 30`, plus `NAME_MAX_WIDTH_RATIO: 0.95`.
+  Also added `NODE.CORNER_RADIUS: 8` and `NODE.BORDER_WIDTH: 2`, which **mirror `.talent-node`'s
+  `rx`/`ry` and `stroke-width`** — nothing type-checks that pairing, so both sides carry a comment.
+- **Artwork does change node height**, via `EXTRA_ROW_HEIGHT` added to the name row. The row-height
+  formula is therefore extracted into one exported `getNameRowHeight(shouldShowDescription,
+  shouldShowTalentArt)` in `talentNodeDimensions.ts`, used by **both** `_getNodeHeight` and
+  `renderTalentNode` — the two-files-must-agree trap solved by not writing the sum twice.
+- **Flush on three edges, so it clips to the node's corners.** `roundedLeftEdgePath` builds the shape
+  by hand (not `rx`/`ry`): only the *left* corners round, and only when the name row is the node's
+  first/last row. The bottom-left case is live — with description, Blightbane link **and** additional
+  requirements all absent, the name row *is* the whole node. Corner flags are computed in
+  `renderTalentNode`, the only place that knows what sits below the name row.
+- **Inset by half the border width.** SVG strokes straddle the edge, so the node's visible border
+  extends outside its nominal bounds; content flush to `-halfNodeWidth` sits *under* it. Two
+  alignment bugs came from missing this and from centring the artwork on the name's *baseline*
+  instead of the row's centre — the group origin is already the row centre.
+- **The name's layout deliberately ignores `WIDTH_SCALE`.** It is centred in the space beside a
+  *square* artwork, so widening never moves the text; the wider art passes underneath and a
+  `<linearGradient>` mask fades it out first. Recentring against the widened art would squeeze long
+  names and push them off-centre.
+- **Positioning beside the name required measuring it.** SVG `text` with `text-anchor: middle` reports
+  no width, so a guessed offset silently overlapped the glyphs (the first attempt's bug).
+  `talentTextMeasurer.ts` gained variants for the name's three font states (`name` /
+  `nameCollapsed` / `nameCollapsedLong`) plus `truncateTalentName`, since SVG has no
+  `text-overflow: ellipsis`. **Those variants must track `.talent-node-name`'s fonts in the
+  stylesheet.**
+- **Name readability**: `paint-order: stroke` with a black stroke on `.talent-node-name`, not
+  `filter: drop-shadow()` — a large tree draws hundreds of names, and a per-element blur filter is far
+  more expensive than an outline (which also stays crisper at 12px). Unconditional, so it helps
+  against tier-tinted backgrounds too.
+- `getCardImageSrc(data.name, null)` passes `null` so an unresolved talent draws the flat placeholder
+  rather than Pestilent Decree art. The placeholder is deliberately **not** masked — a faded flat rect
+  reads as a rendering glitch where a crisp one reads as "no art".
+- Per-node ids for the `clipPath`, `mask` and `linearGradient` (`toSvgId` strips spaces, apostrophes
+  and commas): a shared id would apply the first node's geometry to every node.
+- Task 14 was pulled forward — see that task.
+
+Three invariants recorded in `src/codex/CLAUDE.md`: the derived sizing + shared `getNameRowHeight`,
+the corner-radius/border-width coupling to the stylesheet, and the must-measure-the-name rule.
+
+**Original plan, for context:**
 
 `TalentTree/talentNodes.ts` + `constants/talentTreeValues.ts` + `utils/talentNodeDimensions.ts`.
 
@@ -519,7 +610,28 @@ card-set invariant warns about.
 - The strip is full-bleed to the node's 200px width, so it should sit **under** the node border
   rather than overlapping it; check paint order against the existing `rect`s.
 
-### 13. Loading, count and the missing-art placeholder
+### 13. Loading, count and the missing-art placeholder — ✅ COMPLETED
+
+**Result (2026-08-05): the risk did not materialise, and the default is now `true`.** Rendering
+*every* tree with all nodes expanded showed all artwork instantly — no lag, no visible loading. Why
+it holds up despite there being no lazy loading:
+
+- The art is ~2.2KB webp, HTTP/2-multiplexed to a single Cloudflare-backed origin.
+- **Talents share artwork files with cards**, so a user who has browsed Cardex already has warm
+  entries — and both tools share the one `card-artwork` bucket.
+
+**Cache headroom, measured rather than assumed:** `card-artwork.json` holds 3102 entries, 3078 with
+artwork, resolving to **2418 unique files** across both tools — against the bucket's `maxEntries:
+1500`. So the bucket *cannot* hold everything, and never could; this predates talent art. It is
+acceptable: Workbox evicts LRU **within** the bucket, an evicted entry costs one ~2.2KB refetch, and
+talents add at most 385 files to a pool already sized for Cardex. Critically, talent art cannot evict
+the class/energy/event images — those live in the separate 100-entry `external-images` bucket, which
+is exactly what task 7a's split was for.
+
+**Caveat on the measurement:** this was done in the dev server, where `next-pwa` is **disabled** — so
+it exercised the *uncached* path (no service worker at all) and was still fast. That is the
+reassuring direction to be wrong in, but it means the service-worker behaviour for talents has not
+been observed in production; see task 16.
 
 Cardex got lazy loading free from `next/image`. **SVG `<image>` has no such thing** — every node in
 the tree fetches immediately on render, which is the main risk in this feature.
@@ -536,7 +648,13 @@ the tree fetches immediately on render, which is the main risk in this feature.
   404ing, so a wrong artwork value cannot be detected at request time. All miss detection is at the
   mapping level. Don't add retry logic.
 
-### 14. Cache key and layout memo
+### 14. Cache key and layout memo — ✅ COMPLETED
+
+**Done during task 12**, because without it toggling the checkbox returns stale cached heights — which
+would have made task 12's own visual check meaningless. All three landed: the
+`art-${shouldShowTalentArt}` segment in `makeKey`, `shouldShowTalentArt` on
+`TalentRenderingContext`, and the flag in **both** the layout memo's deps and the render effect's.
+Nothing zoom-related was added to the layout memo.
 
 Per the codex invariant, node-dimension caches are keyed by **all** rendering settings.
 

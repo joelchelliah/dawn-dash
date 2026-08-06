@@ -1,7 +1,11 @@
 # Supabase Edge Functions
 
-Deno functions that own the **cards and talents** data in Supabase. (Events and artwork are
+Deno functions that own the **talents** data in Supabase. (Events and artwork are
 owned by local Node scripts in [`scripts/`](../../scripts) instead — different pipeline.)
+
+**Talents are the only Supabase data the app actually reads** — Skilldex is its sole consumer.
+Cardex fetches cards live from the Blightbane API, so the `Cards` table and `sync-cards` below
+are dormant: nothing in the frontend reads what that function writes.
 
 | Function                         | Purpose                                                   | Status                            |
 | -------------------------------- | --------------------------------------------------------- | --------------------------------- |
