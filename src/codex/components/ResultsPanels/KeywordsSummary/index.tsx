@@ -1,9 +1,10 @@
-import { Fragment, useState } from 'react'
+import { useState } from 'react'
 
 import { createCx } from '@/shared/utils/classnames'
 import GradientLink from '@/shared/components/GradientLink'
 
 import { useCardStrike } from '../../../hooks/useSearchFilters/useCardStrike'
+import KeywordPills from '../../SearchPanels/shared/KeywordPills'
 
 import styles from './index.module.scss'
 
@@ -29,7 +30,6 @@ const KeywordsSummary = ({
   resultType = 'result',
 }: KeywordsSummaryProps) => {
   const [undoTrackedAnimationKey, setUndoTrackedAnimationKey] = useState(0)
-  const hasParsedKeywords = parsedKeywords.length > 0
 
   const handleUndoLastTrackedCard = () => {
     if (useCardStrike?.undoLastTrackedCard) {
@@ -116,23 +116,7 @@ const KeywordsSummary = ({
   return (
     <div className={className}>
       {renderMatchesCountText()}
-      <div className={cx('keywords-summary')}>
-        {hasParsedKeywords && '[ '}
-        {parsedKeywords.map((keyword, index) => {
-          const fullMatch = matches.some((match) => match.toLowerCase() === keyword.toLowerCase())
-          const className = cx({
-            'keywords-summary__full-match': fullMatch,
-          })
-
-          return (
-            <Fragment key={keyword}>
-              <span className={className}>{keyword}</span>
-              <span>{index < parsedKeywords.length - 1 && ', '}</span>
-            </Fragment>
-          )
-        })}
-        {hasParsedKeywords && ` ]`}
-      </div>
+      <KeywordPills parsedKeywords={parsedKeywords} matches={matches} />
       <div className={cx('keywords-tracked')}>{renderStruckCountText()}</div>
     </div>
   )

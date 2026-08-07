@@ -1,11 +1,10 @@
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState } from 'react'
 
 import GradientButton from '@/shared/components/Buttons/GradientButton'
 import { createCx } from '@/shared/utils/classnames'
 import { CharacterClass } from '@/shared/types/characterClass'
 import { useBreakpoint } from '@/shared/hooks/useBreakpoint'
 
-import { TalentTreeNode, TalentTreeNodeType } from '@/codex/types/talents'
 import { UseAllTalentSearchFilters } from '@/codex/hooks/useSearchFilters'
 import { useExpandableNodes } from '@/codex/hooks/useExpandableNodes'
 import { ZoomLevel, COVER } from '@/codex/constants/zoomValues'
@@ -28,8 +27,13 @@ const TalentResultsPanel = ({ useSearchFilters }: TalentResultsPanelProps) => {
   const [showTalentsWithoutKeywords, setShowTalentsWithoutKeywords] = useState(false)
   const [zoomLevel, setZoomLevel] = useState<ZoomLevel>(COVER)
   const { isMobile } = useBreakpoint()
-  const { parsedKeywords, matchingTalentTree, useFormattingFilters, useCardSetFilters } =
-    useSearchFilters
+  const {
+    parsedKeywords,
+    matchingTalentTree,
+    matchingTalentNames,
+    useFormattingFilters,
+    useCardSetFilters,
+  } = useSearchFilters
   const { getCardSetNameFromIndex } = useCardSetFilters
   const {
     shouldExpandNodes,
@@ -53,37 +57,6 @@ const TalentResultsPanel = ({ useSearchFilters }: TalentResultsPanelProps) => {
     window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
-
-  const matchingTalentNames = useMemo(() => {
-    if (!matchingTalentTree) return []
-
-    function collectTalentNames(nodes: TalentTreeNode[]): string[] {
-      const namesSet = new Set<string>()
-
-      function traverse(nodes: TalentTreeNode[]) {
-        for (const node of nodes) {
-          if (node.type === TalentTreeNodeType.TALENT) {
-            namesSet.add(node.name)
-            traverse(node.children)
-          } else {
-            traverse(node.children)
-          }
-        }
-      }
-
-      traverse(nodes)
-      return Array.from(namesSet)
-    }
-
-    return collectTalentNames([
-      ...(matchingTalentTree.noReqNode.children ?? []),
-      ...(matchingTalentTree.energyNodes ?? []),
-      ...(matchingTalentTree.classNodes ?? []),
-      ...(matchingTalentTree.eventNodes.flatMap((node) => node.children) ?? []),
-      ...(matchingTalentTree.offerNode.children ?? []),
-      ...(matchingTalentTree.unavailableNode.children ?? []),
-    ])
-  }, [matchingTalentTree])
 
   useEffect(() => {
     if (parsedKeywords.length > 0) {

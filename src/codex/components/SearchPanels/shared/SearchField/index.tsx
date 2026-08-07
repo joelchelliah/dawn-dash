@@ -4,6 +4,8 @@ import { CharacterClass } from '@/shared/types/characterClass'
 import { ClassColorVariant, getClassColor } from '@/shared/utils/classColors'
 import { createCx } from '@/shared/utils/classnames'
 
+import KeywordPills from '../KeywordPills'
+
 import styles from './index.module.scss'
 
 const cx = createCx(styles)
@@ -15,6 +17,8 @@ interface SearchFieldProps {
   label?: string
   placeholder?: string
   selectedClass?: CharacterClass
+  parsedKeywords?: string[]
+  matches?: string[]
 }
 
 function getStylesByMode(mode: 'keywords' | 'text', selectedClass?: CharacterClass) {
@@ -40,6 +44,8 @@ const SearchField = ({
   label,
   placeholder,
   selectedClass,
+  parsedKeywords,
+  matches,
 }: SearchFieldProps) => {
   const [isClient, setIsClient] = useState(false)
 
@@ -75,6 +81,15 @@ const SearchField = ({
           />
         )}
       </div>
+
+      {parsedKeywords && (
+        <KeywordPills
+          parsedKeywords={parsedKeywords}
+          matches={matches ?? []}
+          setKeywords={setKeywords}
+          reserveSpaceWhenEmpty
+        />
+      )}
     </>
   )
 }

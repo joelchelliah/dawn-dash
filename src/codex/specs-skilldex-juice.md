@@ -166,7 +166,25 @@ the layout transform. Don't restate what the code does.
 
 Task 1 and Task 2 are the pill work and are independent of Task 3; either block can go first.
 
-### Task 1 — Keyword pills below the search field — STATUS: TODO
+### Task 1 — Keyword pills below the search field — STATUS: COMPLETED
+
+**As built**: a shared `SearchPanels/shared/KeywordPills` component, rendered by `SearchField` when
+it is given `parsedKeywords`. The pills are **opt-in via props rather than the `mode` flag** —
+Eventmaps passes neither `parsedKeywords` nor `matches`, so it is untouched without needing to know
+pills exist. Both Cardex and Skilldex pass them, per the decision that both get pills.
+
+`matchingTalentNames` moved from `TalentResultsPanel` into `useAllTalentSearchFilters`: the search
+panel needs the same value to mark full-match pills, and one traversal serves both panels. Cardex
+already exposed `matchingCards`, so its panel memoizes the name extraction (the set can run to
+thousands of cards).
+
+**The pills render in both places.** `KeywordsSummary`'s plain `[ a, b, c ]` text (and its
+`.keywords-summary` styles) is replaced by the same component in a **read-only** variant, so the
+"Found 4 talents matching:" line still lists what matched. Read-only is signalled by omitting
+`setKeywords` — no `×`, transparent background, muted colour, since the editable copy already sits
+next to the input the user typed into. `reserveSpaceWhenEmpty` is likewise opt-in and set only by the
+search panel: reserving height stops the filter groups jumping on the first keystroke, but in the
+results panel the row should simply not be there when there are no keywords.
 
 A row of removable pills directly under the search input, replacing the plain `[ a, b, c ]` text that
 `KeywordsSummary` currently renders above the tree.

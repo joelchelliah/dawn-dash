@@ -10,17 +10,6 @@
   color: $color-primary-muted;
 }
 
-.keywords-summary {
-  font-size: font-size('xxs');
-  color: $color-primary-muted;
-  margin-top: 0.25rem;
-
-  &__full-match {
-    font-weight: bold;
-    color: rgba($color-rarity-legendary, 0.5);
-  }
-}
-
 .keywords-tracked {
   font-size: font-size('xxs');
   color: $color-primary-dark;
