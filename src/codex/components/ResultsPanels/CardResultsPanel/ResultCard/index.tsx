@@ -7,6 +7,7 @@ import { createCx } from '@/shared/utils/classnames'
 import { UseAllCardSearchFilters } from '@/codex/hooks/useSearchFilters'
 import { CardData } from '@/codex/types/cards'
 import { parseCardDescription } from '@/codex/utils/cardHelper'
+import KeywordPills from '@/codex/components/SearchPanels/shared/KeywordPills'
 
 import CardArtwork from './CardArtwork'
 import CardIcons from './CardIcons'
@@ -29,6 +30,11 @@ const cx = createCx(styles)
 // neighbouring rows animate almost in unison and the cascade is invisible.
 const ENTRY_STAGGER_MS = 60
 const ENTRY_STAGGER_MAX_ROWS = 12
+
+// Roughly how much room the keyword pills may take, in characters — see `maxPillCharacters`.
+const MAX_KEYWORD_CHARACTERS_INLINE = 75
+const MAX_KEYWORD_CHARACTERS_OWN_ROW = 95
+const MAX_KEYWORD_CHARACTERS_OWN_MOBILE = 35
 
 const ResultCard = ({
   card,
@@ -60,15 +66,15 @@ const ResultCard = ({
   const { isCardStruck, toggleCardStrike } = useCardStrike
   const { isMobile } = useBreakpoint()
 
-  const matchingKeywordsText = useMemo(() => {
-    const matches = parsedKeywords.filter(
-      (keyword) =>
-        card.name.toLowerCase().includes(keyword.toLowerCase()) ||
-        card.description.toLowerCase().includes(keyword.toLowerCase())
-    )
-
-    return `{ ${matches.join(', ')} }`
-  }, [parsedKeywords, card.name, card.description])
+  const matchingKeywords = useMemo(
+    () =>
+      parsedKeywords.filter(
+        (keyword) =>
+          card.name.toLowerCase().includes(keyword.toLowerCase()) ||
+          card.description.toLowerCase().includes(keyword.toLowerCase())
+      ),
+    [parsedKeywords, card.name, card.description]
+  )
 
   const isFullMatch = parsedKeywords.some(
     (keyword) => card.name.toLowerCase() === keyword.toLowerCase()
@@ -153,7 +159,14 @@ const ResultCard = ({
         <div className={cardClassName}>
           <span className={nameClassName}>{card.name}</span>
           {isShowingKeywords && !shouldShowKeywordsOnSeparateRow && (
-            <span className={cx('result-card__keywords')}>{matchingKeywordsText}</span>
+            <span className={cx('result-card__keywords')}>
+              <KeywordPills
+                parsedKeywords={matchingKeywords}
+                matches={[]}
+                singleLine
+                maxPillCharacters={MAX_KEYWORD_CHARACTERS_INLINE}
+              />
+            </span>
           )}
           <CardMetadata
             card={card}
@@ -165,7 +178,16 @@ const ResultCard = ({
           />
         </div>
         {shouldShowKeywordsOnSeparateRow && (
-          <span className={keywordsSeparateRowClassName}>{matchingKeywordsText}</span>
+          <span className={keywordsSeparateRowClassName}>
+            <KeywordPills
+              parsedKeywords={matchingKeywords}
+              matches={[]}
+              singleLine
+              maxPillCharacters={
+                isMobile ? MAX_KEYWORD_CHARACTERS_OWN_MOBILE : MAX_KEYWORD_CHARACTERS_OWN_ROW
+              }
+            />
+          </span>
         )}
         {shouldShowDescription && (
           <div

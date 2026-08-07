@@ -46,6 +46,8 @@ const TalentSearchPanel = ({ useSearchFilters, useTalentData }: TalentSearchPane
   const {
     keywords,
     setKeywords,
+    parsedKeywords,
+    matchingTalentNames,
     useCardSetFilters,
     useRequirementFilters,
     useTierFilters,
@@ -193,7 +195,12 @@ const TalentSearchPanel = ({ useSearchFilters, useTalentData }: TalentSearchPane
       <PanelHeader type="Search" />
 
       <form onSubmit={preventFormSubmission} aria-label="Card search and filters">
-        <SearchField keywords={keywords} setKeywords={setKeywords} />
+        <SearchField
+          keywords={keywords}
+          setKeywords={setKeywords}
+          parsedKeywords={parsedKeywords}
+          matches={matchingTalentNames}
+        />
 
         <div className={styles['filters']}>
           <FilterGroup

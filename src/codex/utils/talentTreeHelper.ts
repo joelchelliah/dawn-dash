@@ -189,18 +189,16 @@ export const getLinkColor = (
   }
 }
 
-// Returns a formatted string of keywords that match the talent's name or description
-export const getMatchingKeywordsText = (
+// Keywords that match the talent's name or description
+export const getMatchingKeywords = (
   talent: HierarchicalTalentTreeNode,
   parsedKeywords: string[]
-) => {
-  const matches = parsedKeywords.filter(
+): string[] =>
+  parsedKeywords.filter(
     (keyword) =>
       talent.name.toLowerCase().includes(keyword.toLowerCase()) ||
       talent.description.toLowerCase().includes(keyword.toLowerCase())
   )
-  return matches.length > 0 ? `{ ${matches.join(', ')} }` : ''
-}
 
 /**
  * Recursively checks if a node or any of its descendants match keywords

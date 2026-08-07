@@ -5,9 +5,10 @@ import { isNotNullOrUndefined } from '@/shared/utils/object'
 import { getCardImageSrc, TALENT_ARTWORK_CATEGORY } from '@/shared/hooks/useCardImageSrc'
 
 import { HierarchicalTalentTreeNode, TalentRenderingContext } from '@/codex/types/talents'
-import { getMatchingKeywordsText } from '@/codex/utils/talentTreeHelper'
+import { getMatchingKeywords } from '@/codex/utils/talentTreeHelper'
 import { getNameRowHeight, getNodeHeight } from '@/codex/utils/talentNodeDimensions'
 import {
+  measureTalentTextWidth,
   truncateTalentName,
   wrapTalentText,
   type TalentNameVariant,
@@ -145,7 +146,7 @@ export function renderTalentNode(
   }
 
   if (shouldShowKeywords) {
-    const matchingKeywords = getMatchingKeywordsText(data, parsedKeywords)
+    const matchingKeywords = getMatchingKeywords(data, parsedKeywords)
     if (matchingKeywords.length > 0) {
       renderKeywords(nodeElement, halfNodeHeight, matchingKeywords)
     }
@@ -486,25 +487,61 @@ function renderBlightbaneLink(
     })
 }
 
-function renderKeywords(nodeElement: NodeElement, originY: number, matchingKeywords: string): void {
-  const halfKeywordsHeight = NODE.KEYWORDS.HEIGHT / 2
-  const topMargin = NODE.KEYWORDS.TOP_MARGIN
-  const bottomMargin = NODE.KEYWORDS.BOTTOM_MARGIN
+function renderKeywords(nodeElement: NodeElement, originY: number, keywords: string[]): void {
+  const { HEIGHT, TOP_MARGIN, BOTTOM_MARGIN, PILL_PADDING_X, PILL_GAP, PILL_CORNER_RADIUS } =
+    NODE.KEYWORDS
+  const halfKeywordsHeight = HEIGHT / 2
 
   const keywordsGroup = appendSectionGroup(
     nodeElement,
-    originY + halfKeywordsHeight + topMargin,
+    originY + halfKeywordsHeight + TOP_MARGIN,
     halfKeywordsHeight,
-    topMargin,
-    NODE.KEYWORDS.HEIGHT + topMargin + bottomMargin,
+    TOP_MARGIN,
+    HEIGHT + TOP_MARGIN + BOTTOM_MARGIN,
     'keywords'
   )
 
-  keywordsGroup
-    .append('text')
-    .attr('y', halfKeywordsHeight)
-    .attr('class', cx('talent-node-keywords'))
-    .text(matchingKeywords)
+  const pills = keywords.map((keyword) => ({
+    keyword,
+    width: measureTalentTextWidth(keyword) + PILL_PADDING_X * 2,
+  }))
+
+  // Keep only what fits on one line, then centre that set as a group.
+  const maxRowWidth = NODE.WIDTH - NODE.KEYWORDS.PILL_GAP * 2
+  const visiblePills: typeof pills = []
+  let rowWidth = 0
+  for (const pill of pills) {
+    const widthWithPill = rowWidth === 0 ? pill.width : rowWidth + PILL_GAP + pill.width
+    if (widthWithPill > maxRowWidth) break
+    visiblePills.push(pill)
+    rowWidth = widthWithPill
+  }
+  if (visiblePills.length === 0) return
+
+  let x = -rowWidth / 2
+
+  visiblePills.forEach(({ keyword, width }) => {
+    const pillGroup = keywordsGroup.append('g')
+
+    pillGroup
+      .append('rect')
+      .attr('x', x)
+      .attr('y', 0)
+      .attr('width', width)
+      .attr('height', HEIGHT)
+      .attr('rx', PILL_CORNER_RADIUS)
+      .attr('ry', PILL_CORNER_RADIUS)
+      .attr('class', cx('talent-node-keyword-pill'))
+
+    pillGroup
+      .append('text')
+      .attr('x', x + width / 2)
+      .attr('y', halfKeywordsHeight + NODE.KEYWORDS.PILL_TEXT_BASELINE_OFFSET)
+      .attr('class', cx('talent-node-keyword-pill-text'))
+      .text(keyword)
+
+    x += width + PILL_GAP
+  })
 }
 
 function appendSeparator(nodeElement: NodeElement, y: number, tier: number): void {

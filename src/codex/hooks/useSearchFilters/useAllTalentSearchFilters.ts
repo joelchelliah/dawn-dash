@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef } from 'react'
 
-import { TalentTree } from '@/codex/types/talents'
+import { TalentTree, TalentTreeNode, TalentTreeNodeType } from '@/codex/types/talents'
 import {
   cacheTalentCodexSearchFilters,
   getCachedTalentCodexSearchFilters,
@@ -19,11 +19,36 @@ export interface UseAllTalentSearchFilters {
   setKeywords: (keywords: string) => void
   parsedKeywords: string[]
   matchingTalentTree: TalentTree | undefined
+  matchingTalentNames: string[]
   useCardSetFilters: ReturnType<typeof useTalentCardSetFilters>
   useRequirementFilters: ReturnType<typeof useRequirementFilters>
   useTierFilters: ReturnType<typeof useTierFilters>
   useFormattingFilters: ReturnType<typeof useFormattingTalentFilters>
   resetFilters: () => void
+}
+
+const collectDistinctTalentNames = (tree: TalentTree | undefined): string[] => {
+  if (!tree) return []
+
+  const names = new Set<string>()
+
+  const traverse = (nodes: TalentTreeNode[]) => {
+    for (const node of nodes) {
+      if (node.type === TalentTreeNodeType.TALENT) names.add(node.name)
+      traverse(node.children)
+    }
+  }
+
+  traverse([
+    ...(tree.noReqNode.children ?? []),
+    ...(tree.energyNodes ?? []),
+    ...(tree.classNodes ?? []),
+    ...tree.eventNodes.flatMap((node) => node.children),
+    ...(tree.offerNode.children ?? []),
+    ...(tree.unavailableNode.children ?? []),
+  ])
+
+  return Array.from(names)
 }
 
 export const useAllTalentSearchFilters = (
@@ -139,6 +164,11 @@ export const useAllTalentSearchFilters = (
     () => (talentTree ? filterTalentTree(talentTree, filterCriteria) : undefined),
     [talentTree, filterCriteria]
   )
+
+  const matchingTalentNames = useMemo(
+    () => collectDistinctTalentNames(matchingTalentTree),
+    [matchingTalentTree]
+  )
   // --------------------------------------------------
   // --------------------------------------------------
 
@@ -147,6 +177,7 @@ export const useAllTalentSearchFilters = (
     setKeywords: trackedSetKeywords,
     parsedKeywords,
     matchingTalentTree,
+    matchingTalentNames,
     useCardSetFilters: trackedUseCardSetFilters,
     useTierFilters: trackedUseTierFilters,
     useRequirementFilters: trackedUseRequirementFilters,

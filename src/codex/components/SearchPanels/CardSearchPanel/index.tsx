@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 
 import { createCx } from '@/shared/utils/classnames'
 import {
@@ -49,6 +49,8 @@ const CardSearchPanel = ({ useSearchFilters, useCardData }: CardSearchPanelProps
   const {
     keywords,
     setKeywords,
+    parsedKeywords,
+    matchingCards,
     useCardSetFilters,
     useRarityFilters,
     useBannerFilters,
@@ -72,6 +74,9 @@ const CardSearchPanel = ({ useSearchFilters, useCardData }: CardSearchPanelProps
   const { formattingFilters, handleFormattingFilterToggle, getFormattingFilterName } =
     useFormattingFilters
   const { struckCards } = useCardStrike
+
+  // Memoized because the matching set can run to thousands of cards, and only the names are needed.
+  const matchingCardNames = useMemo(() => matchingCards.map((card) => card.name), [matchingCards])
 
   const [showNotification, setShowNotification] = useState(false)
   const [notificationMessage, setNotificationMessage] = useState<React.ReactNode>(null)
@@ -236,7 +241,12 @@ const CardSearchPanel = ({ useSearchFilters, useCardData }: CardSearchPanelProps
       <PanelHeader type="Search" />
 
       <form onSubmit={preventFormSubmission} aria-label="Card search and filters">
-        <SearchField keywords={keywords} setKeywords={setKeywords} />
+        <SearchField
+          keywords={keywords}
+          setKeywords={setKeywords}
+          parsedKeywords={parsedKeywords}
+          matches={matchingCardNames}
+        />
 
         <div className={cx('filters')}>
           <FilterGroup
