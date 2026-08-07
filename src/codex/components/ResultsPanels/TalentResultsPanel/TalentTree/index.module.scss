@@ -239,9 +239,15 @@
   }
 }
 
-.talent-node-keywords {
+.talent-node-keyword-pill {
+  fill: rgba($color-primary-base, 0.08);
+  stroke: $color-component-border;
+  stroke-width: 1px;
+  pointer-events: none;
+}
+
+.talent-node-keyword-pill-text {
   font-size: font-size('xxs');
-  font-style: italic;
   font-weight: 400;
   fill: $color-primary-muted;
   text-anchor: middle;

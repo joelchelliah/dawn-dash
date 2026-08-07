@@ -214,7 +214,25 @@ no gap, reading as one control) or as a clearly separate row below it. Try flush
 in the search panel. Give it a stable min-height, or the filter groups jump on the first keystroke. On
 mobile the panel is `flex: 1 0 100%`, so the row wraps sooner.
 
-### Task 2 — The same pills on the tree nodes — STATUS: TODO
+### Task 2 — The same pills on the tree nodes — STATUS: COMPLETED
+
+**As built**: `renderKeywords` in `talentNodes.ts` draws `rect` + `text` pairs, no `foreignObject`.
+Pill widths come from `measureTalentTextWidth` (the `default` 12px variant, matching the pill text's
+font size). New dials live under `NODE.KEYWORDS` in `constants/talentTreeValues.ts`.
+
+`getMatchingKeywordsText` became **`getMatchingKeywords`**, returning the array rather than a
+pre-formatted `{ a, b }` string. Both dimension-engine call sites only tested `.length > 0`, so they
+were unaffected beyond the rename.
+
+**The height budget stays in agreement** because the reserved height (`talentNodeDimensions.ts`) and
+the drawn row both read the same `NODE.KEYWORDS.HEIGHT` / `TOP_MARGIN` / `BOTTOM_MARGIN`. `HEIGHT`
+went 8 → 14 for the taller pills, and both paths picked that up from the one constant.
+
+**Pills that would overflow the node are dropped, not wrapped.** Wrapping would make node height
+depend on keyword text, which means teaching the dimension engine to agree on a line count — a much
+larger change. Measured against realistic keyword sets: four short keywords use 142 of the available
+192px, and only three long words (`transcendence, invulnerable, purification`) overflow, dropping the
+third.
 
 **A separate pause from Task 1** — it's SVG rather than HTML, so a different implementation with a
 different failure mode, and it's only worth doing once Task 1's pill design is settled.

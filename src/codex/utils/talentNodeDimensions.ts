@@ -10,7 +10,7 @@ import { NODE, REQUIREMENT_NODE } from '@/codex/constants/talentTreeValues'
 
 import { wrapTalentText } from './talentTextMeasurer'
 import { createNodeDimensionEngine } from './tree/nodeDimensions'
-import { getMatchingKeywordsText } from './talentTreeHelper'
+import { getMatchingKeywords } from './talentTreeHelper'
 
 /**
  * Node lookup map type for O(1) access to nodes by ID
@@ -132,7 +132,7 @@ const _getNodeHeight = (
     // Keywords height
     if (
       context.parsedKeywords.length > 0 &&
-      getMatchingKeywordsText(node, context.parsedKeywords).length > 0
+      getMatchingKeywords(node, context.parsedKeywords).length > 0
     ) {
       outerHeight += NODE.KEYWORDS.HEIGHT + NODE.KEYWORDS.TOP_MARGIN + NODE.KEYWORDS.BOTTOM_MARGIN
     }
@@ -180,7 +180,7 @@ const dimensionEngine = createNodeDimensionEngine<
     // Keywords section is shown if BOTH showKeywords filter is on AND this node has matching keywords
     const showKeywordsSection =
       context.parsedKeywords.length > 0 &&
-      getMatchingKeywordsText(node, context.parsedKeywords).length > 0
+      getMatchingKeywords(node, context.parsedKeywords).length > 0
 
     return `${node.name}:req-${specialRequirements}:description-${context.shouldShowDescription}:card-set-${showCardSet}:keywords-${showKeywordsSection}:blightbane-${context.shouldShowBlightbaneLink}:art-${context.shouldShowTalentArt}`
   },

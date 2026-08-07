@@ -107,9 +107,14 @@ export const NODE = {
 
   /** Keywords-specific constants */
   KEYWORDS: {
-    HEIGHT: 8,
-    TOP_MARGIN: 10,
-    BOTTOM_MARGIN: -2,
+    HEIGHT: 15,
+    TOP_MARGIN: 6,
+    BOTTOM_MARGIN: 2,
+
+    PILL_PADDING_X: 6,
+    PILL_GAP: 4,
+    PILL_CORNER_RADIUS: 7,
+    PILL_TEXT_BASELINE_OFFSET: 3.5,
   },
 } as const
 
