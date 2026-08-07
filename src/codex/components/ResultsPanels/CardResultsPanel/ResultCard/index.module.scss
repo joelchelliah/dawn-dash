@@ -220,27 +220,24 @@ $row-entry-animation: resultRowIn 0.5s ease-out backwards;
 .result-card__keywords {
   display: inline-block;
   color: $color-primary-muted;
-  width: 12rem;
-  @include text-truncate;
+  flex-shrink: 1;
+  min-width: 0;
+  overflow: hidden;
   margin-left: 0.5rem;
-  font-style: italic;
+  box-sizing: border-box;
+  border-right: 0.5rem solid transparent;
 
-  @media (max-width: $breakpoint-mobile) {
-    font-size: font-size('xxs');
-    width: 8rem;
-  }
-
-  // On its own row when: The description is disabled, OR on mobile.
   &--own-row {
+    display: block;
     width: auto;
     max-width: 100%;
     margin-left: 0;
     margin-bottom: 0.25rem;
-    font-size: font-size('xxs');
   }
 
+  // Struck cards line through their text; the pill borders would survive it, so fade instead.
   &--struck {
-    text-decoration: line-through;
+    opacity: 0.5;
   }
 
   &--hidden {
