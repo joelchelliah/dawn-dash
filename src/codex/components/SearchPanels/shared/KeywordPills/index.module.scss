@@ -58,6 +58,10 @@
   line-height: 1;
   position: relative;
   bottom: 1px;
+
+  @media (max-width: $breakpoint-mobile) {
+    bottom: 0;
+  }
 }
 
 .pill__remove {
