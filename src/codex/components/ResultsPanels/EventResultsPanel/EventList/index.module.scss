@@ -113,6 +113,9 @@ $alternating-row-mobile-background: linear-gradient(to right, rgba(0, 0, 0, 0.25
     background-size: cover;
     background-position: center;
     flex-shrink: 0;
+    transition:
+      transform 0.25s ease,
+      border-color 0.35s ease;
   }
 
   &__text {
@@ -149,6 +152,7 @@ $alternating-row-mobile-background: linear-gradient(to right, rgba(0, 0, 0, 0.25
 
     .event-list-item__artwork {
       border-color: $color-component-border-hover;
+      transform: scale(1.1);
     }
     .event-list-item__name {
       font-weight: 600;
