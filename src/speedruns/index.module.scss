@@ -6,8 +6,10 @@
   padding: 0.375rem 0.625rem 0.625rem;
   background-color: $color-base-bg;
   min-height: 100vh;
+  @include starBandHeights;
   @include starsTexture('upper');
   @include starsTexture('lower');
+  @include starsTextureHiddenWhenAnimated;
 }
 
 .content {

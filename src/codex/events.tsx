@@ -7,6 +7,7 @@ import { MapOfHuesImageUrl } from '@/shared/utils/imageUrls'
 import Footer from '@/shared/components/Footer'
 import Header from '@/shared/components/Header'
 import ScrollToTopButton from '@/shared/components/ScrollToTopButton'
+import StarField from '@/shared/components/StarField'
 import Notification from '@/shared/components/Notification'
 import { useBreakpoint } from '@/shared/hooks/useBreakpoint'
 
@@ -68,6 +69,8 @@ function Events(): JSX.Element {
 
   return (
     <div className={cx('container')}>
+      <StarField position="upper" />
+      <StarField position="lower" />
       <Header
         onLogoClick={() => navigateTo('eventmaps')}
         logoSrc={MapOfHuesImageUrl}

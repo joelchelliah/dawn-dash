@@ -1,3 +1,5 @@
+@use 'constants' as *;
+
 /**
  * Rotates element around the Y axis
  * @param {string} $trigger - 'hover' = hover effect, 'auto' = rotate on render
@@ -223,5 +225,18 @@
   }
   40% {
     transform: translateX(4px);
+  }
+}
+
+/*
+ * The twinkle for the individual stars of the animated star field.
+ */
+@keyframes starTwinkle {
+  0%,
+  100% {
+    opacity: $star-opacity-dim;
+  }
+  50% {
+    opacity: $star-opacity-bright;
   }
 }

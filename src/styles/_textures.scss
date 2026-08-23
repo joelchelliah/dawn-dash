@@ -1,4 +1,5 @@
 @use 'colors' as colors;
+@use 'constants' as constants;
 
 $texture-rain: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M-10 40L40 -10M0 50L50 0M-10 60L60 -10' stroke='white' stroke-width='0.5' stroke-opacity='0.5' fill='none'/%3E%3C/svg%3E");
 $texture-rain-flipped: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M50 40L0 -10M40 50L-10 0M50 60L-20 -10' stroke='white' stroke-width='0.5' stroke-opacity='0.5' fill='none'/%3E%3C/svg%3E");
@@ -14,11 +15,68 @@ $texture-stars: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
   }
 }
 
+/*
+ * Sets the star-band heights for a page container, defaulting to the shared constants.
+ */
+@mixin starBandHeights(
+  $upper: constants.$star-band-height-upper,
+  $lower: constants.$star-band-height-lower
+) {
+  & {
+    --star-band-height-upper: #{$upper};
+    --star-band-height-lower: #{$lower};
+  }
+}
+
 @mixin starsTexture($position) {
   @if $position == 'upper' {
-    @include _applyTexture($texture-stars, before, 0.25, 4rem, to bottom, 8rem);
+    @include _applyTexture(
+      $texture-stars,
+      before,
+      0.25,
+      4rem,
+      to bottom,
+      var(--star-band-height-upper, #{constants.$star-band-height-upper})
+    );
   } @else {
-    @include _applyTexture($texture-stars, after, 0.25, 4rem, to top, 12rem);
+    @include _applyTexture(
+      $texture-stars,
+      after,
+      0.25,
+      4rem,
+      to top,
+      var(--star-band-height-lower, #{constants.$star-band-height-lower})
+    );
+  }
+}
+
+/*
+ * The same vertical fade the static star texture uses, for the animated `StarField`
+ * component to reuse so the two versions fade out at the same rate.
+ */
+@mixin starFieldMask($direction) {
+  @supports (
+    (mask-image: linear-gradient($direction, black, transparent)) or
+      (-webkit-mask-image: linear-gradient($direction, black, transparent))
+  ) {
+    -webkit-mask-image: linear-gradient($direction, rgba(0, 0, 0, 0.65) 40%, rgba(0, 0, 0, 0));
+    mask-image: linear-gradient($direction, rgba(0, 0, 0, 0.65) 40%, rgba(0, 0, 0, 0));
+  }
+}
+
+/*
+ * Hides the static star texture on containers that render the animated `StarField`
+ * instead, so the two never stack. Under `prefers-reduced-motion` the field hides
+ * itself and the static texture comes back.
+ */
+@mixin starsTextureHiddenWhenAnimated {
+  // `no-preference` rather than `not (reduce)`: the negated form is Media Queries 4
+  // syntax that older Safari ignores, which would leave both versions stacked.
+  @media (prefers-reduced-motion: no-preference) {
+    &::before,
+    &::after {
+      background-image: none;
+    }
   }
 }
 

@@ -8,6 +8,7 @@ import { EleganceImageUrl } from '@/shared/utils/imageUrls'
 import Footer from '@/shared/components/Footer'
 import Header from '@/shared/components/Header'
 import ScrollToTopButton from '@/shared/components/ScrollToTopButton'
+import StarField from '@/shared/components/StarField'
 
 import CodexErrorMessage from './components/CodexErrorMessage'
 import CodexLoadingMessage from './components/CodexLoadingMessage'
@@ -40,6 +41,8 @@ function Skills(): JSX.Element {
 
   return (
     <div className={cx('container')}>
+      <StarField position="upper" />
+      <StarField position="lower" />
       <Header
         onLogoClick={() => navigateTo('skilldex')}
         logoSrc={EleganceImageUrl}

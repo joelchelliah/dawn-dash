@@ -7,6 +7,7 @@ import { TOOL_REGISTRY } from '@/shared/config/toolRegistry'
 import Footer from '@/shared/components/Footer'
 import { useNavigation } from '@/shared/hooks/useNavigation'
 import Header from '@/shared/components/Header'
+import StarField from '@/shared/components/StarField'
 import GradientLink from '@/shared/components/GradientLink'
 import GradientDivider from '@/shared/components/GradientDivider'
 import { useBreakpoint } from '@/shared/hooks/useBreakpoint'
@@ -23,6 +24,8 @@ export default function Landing() {
 
   return (
     <div className={cx('container')}>
+      <StarField position="upper" />
+      <StarField position="lower" />
       <Header
         onLogoClick={resetToLandingPage}
         logoSrc={DashImageUrl}
