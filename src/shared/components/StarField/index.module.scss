@@ -24,19 +24,31 @@
   @include starFieldMask(to top);
 }
 
-// The small majority of stars: a soft radial glow rather than a hard-edged dot, which
-// at a few pixels across reads as a distant star instead of a stray pixel.
 .star {
   position: absolute;
+  --star-tint: #fff;
   background: radial-gradient(
     circle closest-side,
     rgba(255, 255, 255, 1) 0%,
-    rgba(255, 255, 255, 0.75) 40%,
+    var(--star-tint) 40%,
     rgba(255, 255, 255, 0) 100%
   );
   animation: starTwinkle 3s ease-in-out infinite;
   opacity: $star-opacity-dim;
   will-change: opacity;
+}
+
+// Scatters a warm or cool bias across the field.
+//
+// Recipe:
+// Pick your yellow number X, then make green 2Xn + 1 (or 3Xn + 1, etc.).
+// The multiple guarantees the sets never overlap, and the offset guarantees they never align.
+.star:nth-child(2n) {
+  --star-tint: #{$star-tint-yellow};
+}
+
+.star:nth-child(4n + 1) {
+  --star-tint: #{$star-tint-green};
 }
 
 // Only the largest stars get an actual silhouette. Below ~4px the points are smaller
@@ -45,7 +57,7 @@
   // Scaled up because the polygon covers far less of its box than a circle does: at an
   // equal box size the sparkle would look smaller than the glows, not bigger.
   transform: scale(1.9);
-  background: white;
+  background: var(--star-tint);
   // Four points with a pinched waist. The 42/58 pairs set how thin the spikes are —
   // nearer 50 is thinner and sharper.
   clip-path: polygon(50% 0%, 58% 42%, 100% 50%, 58% 58%, 50% 100%, 42% 58%, 0% 50%, 42% 42%);

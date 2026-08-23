@@ -10,7 +10,7 @@ interface StarFieldProps {
 }
 
 // Radius at and above which a star is drawn as a four-point sparkle rather than a glow.
-const SPARKLE_MIN_RADIUS = 2.1
+const SPARKLE_MIN_RADIUS = 2.0
 
 /**
  * Animated star field for the top and bottom of a page background — the moving

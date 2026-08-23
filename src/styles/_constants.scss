@@ -23,7 +23,7 @@ $padding-button-vertical: 0.5rem;
 // Animated star field (StarField). The dim value is both the twinkle's floor and the
 // opacity a star sits at while still inside its animation-delay, so the two must match
 // or stars visibly pop as their delays elapse.
-$star-opacity-dim: 0.3;
+$star-opacity-dim: 0.15;
 $star-opacity-bright: 0.85;
 
 // Default height of the two star bands. Shared because the animated field and the
