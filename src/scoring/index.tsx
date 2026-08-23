@@ -6,6 +6,7 @@ import { PestilenceDecreeUrl } from '@/shared/utils/imageUrls'
 import Footer from '@/shared/components/Footer'
 import Header from '@/shared/components/Header'
 import ScrollToTopButton from '@/shared/components/ScrollToTopButton'
+import StarField from '@/shared/components/StarField'
 import { useScrollToTop } from '@/shared/hooks/useScrollToTop'
 import { useBreakpoint } from '@/shared/hooks/useBreakpoint'
 
@@ -113,6 +114,8 @@ function Scoring(): JSX.Element {
 
   return (
     <div className={cx('container')}>
+      <StarField position="upper" />
+      <StarField position="lower" />
       <Header
         onLogoClick={() => navigateTo('scoring')}
         logoSrc={PestilenceDecreeUrl}

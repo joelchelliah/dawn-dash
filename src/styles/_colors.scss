@@ -10,6 +10,11 @@ $green-hover: #2bc02b;
 $green-border: #176616;
 // -- -- -- -- -- -- -- //
 
+// -- Star field tints -- //
+$star-tint-yellow: color.mix($yellow-base, #fff, 90%);
+$star-tint-green: color.mix($green-base, #fff, 65%);
+// -- -- -- -- -- -- -- //
+
 // -- Primary colors -- //
 $color-primary-base: #ddd;
 $color-primary-active: #eee;

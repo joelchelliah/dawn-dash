@@ -1,0 +1,84 @@
+@use 'index' as *;
+
+.star-field {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+// Heights come from custom properties set on the page container by the `starBandHeights`
+// mixin, so a page can size its own bands (the landing page does) without this module
+// knowing about it. The Sass constants are the fallback for any container that never
+// calls the mixin.
+.star-field--upper {
+  top: 0;
+  height: var(--star-band-height-upper, #{$star-band-height-upper});
+  @include starFieldMask(to bottom);
+}
+
+.star-field--lower {
+  bottom: 0;
+  height: var(--star-band-height-lower, #{$star-band-height-lower});
+  @include starFieldMask(to top);
+}
+
+.star {
+  position: absolute;
+  --star-tint: #fff;
+  background: radial-gradient(
+    circle closest-side,
+    rgba(255, 255, 255, 1) 0%,
+    var(--star-tint) 40%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  animation: starTwinkle 3s ease-in-out infinite;
+  opacity: $star-opacity-dim;
+  will-change: opacity;
+}
+
+// Scatters a warm or cool bias across the field.
+//
+// Recipe:
+// Pick your yellow number X, then make green 2Xn + 1 (or 3Xn + 1, etc.).
+// The multiple guarantees the sets never overlap, and the offset guarantees they never align.
+.star:nth-child(2n) {
+  --star-tint: #{$star-tint-yellow};
+}
+
+.star:nth-child(4n + 1) {
+  --star-tint: #{$star-tint-green};
+}
+
+// Only the largest stars get an actual silhouette. Below ~4px the points are smaller
+// than a pixel and the shape just reads as a dimmer blob, so the small ones stay glows.
+.star--sparkle {
+  // Scaled up because the polygon covers far less of its box than a circle does: at an
+  // equal box size the sparkle would look smaller than the glows, not bigger.
+  transform: scale(1.9);
+  background: var(--star-tint);
+  // Four points with a pinched waist. The 42/58 pairs set how thin the spikes are —
+  // nearer 50 is thinner and sharper.
+  clip-path: polygon(50% 0%, 58% 42%, 100% 50%, 58% 58%, 50% 100%, 42% 58%, 0% 50%, 42% 42%);
+}
+
+// The numbers used here must stay in sync with `STAR_COUNTS` in `stars.ts`;
+@media (max-width: $breakpoint-tablet) {
+  .star:nth-child(n + 126) {
+    display: none;
+  }
+}
+
+@media (max-width: $breakpoint-mobile) {
+  .star:nth-child(n + 101) {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  // The container keeps the static texture in this case, so the field would double it up.
+  .star-field {
+    display: none;
+  }
+}
