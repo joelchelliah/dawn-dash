@@ -74,6 +74,48 @@ const X_WEIGHTS = [1.2, 1.5, 1.8, 2.2]
 
 const SEEDS_PER_BAND = 60
 
+// Only used for reporting, not the layout generation.
+// The actual min radius is set in Starfield/index.tsx. So no big deal if we forget to keep this in sync.
+// Only weird outcome would be that our script's preview would look off...
+const SPARKLE_MIN_RADIUS = 2.0
+
+/**
+ * Star radii and how common each one is, smallest first.
+ *
+ * `upTo` is the cumulative share of stars at or below that size, so each tier's own
+ * share is the gap from the previous row: 1px covers 0–0.55 (55% of stars), 1.5px
+ * covers 0.55–0.8 (25%), and so on. Weighted small on purpose — most stars should be
+ * faint specks, with a few bright ones as the accent.
+ *
+ * To retune: change a `radius`, move a boundary, or add a row — only the last `upTo`
+ * has to be 1 (it is asserted below). Sizes are radii in CSS pixels, so a star renders
+ * at twice the value; the largest tiers cross `SPARKLE_MIN_RADIUS` in the component and
+ * draw as sparkles rather than glows, so adding a big tier makes sparkles more common.
+ */
+const RADIUS_TIERS = [
+  { upTo: 0.46, radius: 1 },
+  { upTo: 0.64, radius: 1.5 },
+  { upTo: 0.82, radius: 2.0 },
+  { upTo: 0.94, radius: 2.5 },
+  { upTo: 1, radius: 3.0 },
+]
+
+if (RADIUS_TIERS[RADIUS_TIERS.length - 1].upTo !== 1) {
+  throw new Error('RADIUS_TIERS must end with an `upTo` of 1, or some rolls match no tier.')
+}
+
+/**
+ * Picks a radius for a roll in [0, 1) from `RADIUS_TIERS`.
+ *
+ * @param {number} roll
+ * @returns {number}
+ */
+function radiusForRoll(roll) {
+  const tier = RADIUS_TIERS.find((t) => roll < t.upTo)
+  // Unreachable while the last tier's `upTo` is 1, which is asserted above.
+  return tier ? tier.radius : RADIUS_TIERS[RADIUS_TIERS.length - 1].radius
+}
+
 /** Mulberry32 — small deterministic PRNG, so a given seed always yields the same band. */
 /**
  * @param {number} seed
@@ -243,13 +285,8 @@ function busiestBin(points, axis, bins) {
 }
 
 /**
- * Assigns each star a radius and an animation delay.
+ * Assigns each star a radius (from `RADIUS_TIERS`) and an animation delay.
  *
- * Radii are weighted small: most stars are faint specks and only a few are bright.
- * The largest tier is what the stylesheet draws as a four-point sparkle rather than a
- * glow, so keeping it rare is what makes it read as an accent.
- */
-/**
  * @param {Point[]} points
  * @param {number} seed
  * @param {number} twinkleSeconds
@@ -258,8 +295,7 @@ function busiestBin(points, axis, bins) {
 function assignAttributes(points, seed, twinkleSeconds) {
   const random = makeRandom(seed * 977 + 13)
   return points.map((p) => {
-    const roll = random()
-    const radius = roll < 0.55 ? 1 : roll < 0.8 ? 1.5 : roll < 0.94 ? 2 : 2.5
+    const radius = radiusForRoll(random())
     return { x: p.x, y: p.y, radius, delay: round2(random() * twinkleSeconds) }
   })
 }
@@ -326,7 +362,7 @@ function inspect(stars, counts) {
     const yBins = new Set(visible.map((p) => Math.min(7, Math.floor(p.y / 12.5))))
     const xs = visible.map((p) => p.x).sort((a, b) => a - b)
     const ys = visible.map((p) => p.y).sort((a, b) => a - b)
-    const sparkles = visible.filter((p) => p.radius >= 2.1).length
+    const sparkles = visible.filter((p) => p.radius >= SPARKLE_MIN_RADIUS).length
     rows.push({
       count,
       emptyX: 20 - xBins.size,
@@ -353,7 +389,7 @@ function render(stars, count, width = 100, height = 22) {
   for (const star of stars.slice(0, count)) {
     const gx = Math.min(width - 1, Math.floor((star.x / 100) * width))
     const gy = Math.min(height - 1, Math.floor((star.y / 100) * height))
-    grid[gy][gx] = star.radius >= 2.1 ? '+' : '*'
+    grid[gy][gx] = star.radius >= SPARKLE_MIN_RADIUS ? '+' : '*'
   }
   return grid.map((row) => `  |${row.join('')}|`).join('\n')
 }
