@@ -138,11 +138,9 @@ function KeywordsBonusScoring({ challengeData }: KeywordsBonusScoringProps): JSX
       </p>
       <MalignancyScalingList baseValue={legendaryScore} />
       {cardBaseValue > 0 && keywords.length > 0 && (
-        <p>
-          <strong>Hint:</strong>{' '}
-          <span className={cx('meta')}>
-            <GradientLink text="Dawn-Dash: Cardex" url="https://dawn-dash.com/cardex" />
-          </span>
+        <p className={cx('cardex-hint')}>
+          <strong>Hint:</strong> Find all keyword-matching cards on{' '}
+          <GradientLink text="Dawn-Dash: Cardex" url="https://dawn-dash.com/cardex" />!
         </p>
       )}
 

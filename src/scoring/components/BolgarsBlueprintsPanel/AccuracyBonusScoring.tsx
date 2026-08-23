@@ -35,12 +35,12 @@ function AccuracyBonusScoring({ challengeData }: AccuracyBonusScoringProps): JSX
       if (offset < 0) {
         const end = target - buffer + 2 + (offset + 1) * buffer
         const start = end - buffer + 1
-        return `${start} - ${end}`
+        return `${Math.max(0, start)} - ${end}`
       }
       // offset > 0
       const start = target + buffer + (offset - 1) * buffer
       const end = start + buffer - 1
-      return `${start} - ${end}`
+      return `${Math.max(0, start)} - ${end}`
     },
     [target, buffer]
   )
