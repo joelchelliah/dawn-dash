@@ -12,13 +12,44 @@
  * The counts are a tier list: the file holds `desktop` stars per band and the
  * stylesheet hides the tail down to `tablet` and `mobile`. So a layout has to look
  * good at THREE different densities, not one — which is what most of this script is
- * about. See `scoreLayout` for the specific failure modes it guards against, all of
- * which shipped at some point and were visible on screen while some simpler metric
- * said they were fine.
+ * about.
  *
  * After running, update the `nth-child` cutoffs in
  * `src/shared/components/StarField/index.module.scss` if the counts changed — the
  * script prints the exact values to use, since `nth-child` needs literal numbers.
+ *
+ * ## How a layout is built
+ *
+ * A jittered grid: one star randomly placed inside each cell, the jitter overspilling
+ * its cell so neighbouring cells overlap. Without that overlap every star sits away
+ * from the cell edges and the grid shows up as faint empty gutters between rows. A
+ * minimum-separation retry stops the overlap from merging two stars into one smudge.
+ *
+ * The result is then ordered so each star is the furthest from every star already
+ * placed. That is what makes truncation safe: any prefix of the list is spread over
+ * the whole band, so hiding the tail on smaller screens thins the field evenly rather
+ * than leaving a bare patch. Cells beyond the star count are trimmed after ordering,
+ * so the ones dropped are the least spread-out.
+ *
+ * Finally, seeds and x-weights are searched for the layout that scores cleanest across
+ * all three counts — see `scoreLayout`.
+ *
+ * ## Failure modes this guards against
+ *
+ * Both of these shipped at some point. Each looked fine by whatever metric was being
+ * checked at the time, and each was obvious on screen:
+ *
+ *  - **Diagonal lattice.** A constant step between consecutive stars (two
+ *    golden-ratio series advancing in lockstep, say) passes per-column evenness
+ *    checks while placing every star on the same set of parallel diagonals.
+ *    `inspect` reports the most-repeated step for this reason.
+ *  - **Vertical striping.** Down-weighting x in the ordering treats horizontal gaps
+ *    as cheap, so prefixes stack into vertical stripes with dead space between them —
+ *    while scoring perfectly on vertical spread. Hence `X_WEIGHTS` >= 1, and hence
+ *    `scoreLayout` checking both axes independently.
+ *
+ * The lesson behind both: measure the axis you are not thinking about, and look at the
+ * rendered layout rather than trusting a summary statistic. `--preview` prints it.
  */
 
 const fs = require('fs')
@@ -358,49 +389,23 @@ function formatBand(stars, name) {
  * @param {Star[]} upper
  * @param {Star[]} lower
  * @param {Counts} counts
- * @param {Grid} grid
  * @returns {string}
  */
-function buildFile(upper, lower, counts, grid) {
+function buildFile(upper, lower, counts) {
   return `/**
  * Star positions for the animated star field, split into an upper and a lower band.
  *
- * GENERATED FILE — edit \`scripts/generate-star-field.js\` and run \`npm run generate-stars\`
- * rather than editing by hand. Hand-tuning a position is fine in isolation, but the
- * layout has properties the generator enforces which are easy to break by eye; the
- * script prints what it checked.
+ * GENERATED — run \`npm run generate-stars\` to change these. Do not edit by hand: the
+ * order and spacing carry properties that are easy to break by eye, and
+ * \`scripts/generate-star-field.js\` documents them and checks them.
  *
- * Positions are fixed rather than randomly generated so the field is identical on the
- * server and the client (a random layout would hydrate mismatched) and stable across
- * re-renders. \`x\` is a percentage of the band's width, \`y\` a percentage of its height.
+ * \`x\`/\`y\` are percentages of the band's size, so the field stretches with the band
+ * height. \`radius\` is in pixels; the largest tier renders as a sparkle rather than a
+ * glow. \`delay\` offsets each star's twinkle so the band shimmers instead of pulsing
+ * as one.
  *
- * \`delay\` staggers each star's twinkle so the band shimmers instead of pulsing as one.
- *
- * Each band holds the full desktop count. Narrower screens render the same list and
- * hide the tail with \`nth-child\`, so the count is a pure CSS tier switch with no
- * resize listener and no server/client mismatch — see \`index.module.scss\` and
- * \`STAR_COUNTS\` below.
- *
- * Because of that truncation the *order* matters as much as the positions: the list is
- * sorted so each star is the one furthest from all the stars before it. Any prefix is
- * therefore spread over the whole band, and cutting to ${counts.mobile} thins the field
- * evenly instead of leaving bare patches.
- *
- * Generated as a jittered ${grid.cols}x${grid.rows} grid — one star randomly placed per
- * cell, the jitter overspilling its cell so neighbours overlap and no gutters show
- * between rows, with a minimum-separation retry so no two stars merge into one blob.
- * Any cells beyond the star count are trimmed after ordering, so the dropped ones are
- * the least spread-out.
- * Seeds are then searched for the layout whose every truncation leaves no empty band on
- * *either* axis.
- *
- * Two failure modes worth knowing, both of which looked fine by some measure while
- * being obvious on screen:
- *  - A constant step between consecutive stars (two golden-ratio series, say) passes
- *    per-column evenness checks while placing every star on one diagonal lattice.
- *  - Down-weighting x in the furthest-point ordering treats horizontal gaps as cheap,
- *    so prefixes stack into vertical stripes with dead space between them, all while
- *    scoring perfectly on vertical spread.
+ * The order is significant — smaller screens render a prefix of each list, not a
+ * subset. See \`STAR_COUNTS\`.
  */
 export interface Star {
   x: number
@@ -410,9 +415,9 @@ export interface Star {
 }
 
 /**
- * How many of each band's stars are visible per breakpoint. Kept here next to the data
- * as the reference for the \`nth-child\` cutoffs in the stylesheet, which have to be
- * literal numbers.
+ * How many of each band's stars are visible per breakpoint: the stylesheet renders the
+ * whole list and hides the tail with \`nth-child\`, so these must match the cutoffs in
+ * \`index.module.scss\`, which need literal numbers.
  */
 export const STAR_COUNTS = {
   mobile: ${counts.mobile},
@@ -578,7 +583,7 @@ function main() {
     return
   }
 
-  fs.writeFileSync(OUTPUT_FILE, buildFile(bands[0].stars, bands[1].stars, counts, grid), 'utf-8')
+  fs.writeFileSync(OUTPUT_FILE, buildFile(bands[0].stars, bands[1].stars, counts), 'utf-8')
   console.log(`\n💾 Wrote ${path.relative(process.cwd(), OUTPUT_FILE)}`)
 
   if (

@@ -1,42 +1,17 @@
 /**
  * Star positions for the animated star field, split into an upper and a lower band.
  *
- * GENERATED FILE — edit `scripts/generate-star-field.js` and run `npm run generate-stars`
- * rather than editing by hand. Hand-tuning a position is fine in isolation, but the
- * layout has properties the generator enforces which are easy to break by eye; the
- * script prints what it checked.
+ * GENERATED — run `npm run generate-stars` to change these. Do not edit by hand: the
+ * order and spacing carry properties that are easy to break by eye, and
+ * `scripts/generate-star-field.js` documents them and checks them.
  *
- * Positions are fixed rather than randomly generated so the field is identical on the
- * server and the client (a random layout would hydrate mismatched) and stable across
- * re-renders. `x` is a percentage of the band's width, `y` a percentage of its height.
+ * `x`/`y` are percentages of the band's size, so the field stretches with the band
+ * height. `radius` is in pixels; the largest tier renders as a sparkle rather than a
+ * glow. `delay` offsets each star's twinkle so the band shimmers instead of pulsing
+ * as one.
  *
- * `delay` staggers each star's twinkle so the band shimmers instead of pulsing as one.
- *
- * Each band holds the full desktop count. Narrower screens render the same list and
- * hide the tail with `nth-child`, so the count is a pure CSS tier switch with no
- * resize listener and no server/client mismatch — see `index.module.scss` and
- * `STAR_COUNTS` below.
- *
- * Because of that truncation the *order* matters as much as the positions: the list is
- * sorted so each star is the one furthest from all the stars before it. Any prefix is
- * therefore spread over the whole band, and cutting to 100 thins the field
- * evenly instead of leaving bare patches.
- *
- * Generated as a jittered 15x10 grid — one star randomly placed per
- * cell, the jitter overspilling its cell so neighbours overlap and no gutters show
- * between rows, with a minimum-separation retry so no two stars merge into one blob.
- * Any cells beyond the star count are trimmed after ordering, so the dropped ones are
- * the least spread-out.
- * Seeds are then searched for the layout whose every truncation leaves no empty band on
- * *either* axis.
- *
- * Two failure modes worth knowing, both of which looked fine by some measure while
- * being obvious on screen:
- *  - A constant step between consecutive stars (two golden-ratio series, say) passes
- *    per-column evenness checks while placing every star on one diagonal lattice.
- *  - Down-weighting x in the furthest-point ordering treats horizontal gaps as cheap,
- *    so prefixes stack into vertical stripes with dead space between them, all while
- *    scoring perfectly on vertical spread.
+ * The order is significant — smaller screens render a prefix of each list, not a
+ * subset. See `STAR_COUNTS`.
  */
 export interface Star {
   x: number
@@ -46,9 +21,9 @@ export interface Star {
 }
 
 /**
- * How many of each band's stars are visible per breakpoint. Kept here next to the data
- * as the reference for the `nth-child` cutoffs in the stylesheet, which have to be
- * literal numbers.
+ * How many of each band's stars are visible per breakpoint: the stylesheet renders the
+ * whole list and hides the tail with `nth-child`, so these must match the cutoffs in
+ * `index.module.scss`, which need literal numbers.
  */
 export const STAR_COUNTS = {
   mobile: 100,
