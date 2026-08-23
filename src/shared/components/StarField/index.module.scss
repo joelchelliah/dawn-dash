@@ -53,13 +53,13 @@
 
 // The numbers used here must stay in sync with `STAR_COUNTS` in `stars.ts`;
 @media (max-width: $breakpoint-tablet) {
-  .star:nth-child(n + 76) {
+  .star:nth-child(n + 126) {
     display: none;
   }
 }
 
 @media (max-width: $breakpoint-mobile) {
-  .star:nth-child(n + 51) {
+  .star:nth-child(n + 101) {
     display: none;
   }
 }

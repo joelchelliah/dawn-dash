@@ -8,7 +8,7 @@
   color: $color-primary-base;
   min-height: 100vh;
   gap: 1rem;
-  @include starBandHeights($upper: 26rem, $lower: 30rem);
+  @include starBandHeights($upper: 22rem, $lower: 26rem);
   @include starsTexture('upper');
   @include starsTexture('lower');
   @include starsTextureHiddenWhenAnimated;
