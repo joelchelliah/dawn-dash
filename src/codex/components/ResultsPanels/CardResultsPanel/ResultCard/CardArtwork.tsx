@@ -24,9 +24,10 @@ const indexToRarityBorderClassMap = {
 
 interface CardArtworkProps {
   card: CardData
+  isStruck: boolean
 }
 
-const CardArtwork = ({ card }: CardArtworkProps) => {
+const CardArtwork = ({ card, isStruck }: CardArtworkProps) => {
   /**
    * Passing `null` as the fallback opts out of the hook's `PestilenceDecreeUrl` default: an
    * unresolved card renders the rarity-tinted placeholder square.
@@ -34,10 +35,12 @@ const CardArtwork = ({ card }: CardArtworkProps) => {
   const { cardImageSrc, onImageSrcError } = useCardImageSrc(card.name, null, card.category)
   const { isMobile } = useBreakpoint()
 
-  const className = cx(
-    'card-artwork',
+  const rarityClass =
     indexToRarityBorderClassMap[card.rarity as keyof typeof indexToRarityBorderClassMap]
-  )
+  const className = cx('card-artwork', {
+    [rarityClass]: !isStruck,
+    'card-artwork--struck': isStruck,
+  })
 
   if (!cardImageSrc) return <div className={className} />
 

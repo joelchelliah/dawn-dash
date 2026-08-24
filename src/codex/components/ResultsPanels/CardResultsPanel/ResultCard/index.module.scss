@@ -92,8 +92,18 @@ $row-entry-animation: resultRowIn 0.5s ease-out backwards;
 
   &--struck {
     @include cardOverlayPositioningFix;
-    opacity: 0.5;
+    color: $color-primary-dark;
     background-color: rgba(0, 0, 0, 0.5) !important;
+
+    .result-card__name {
+      opacity: 0.6;
+    }
+
+    .result-card__keywords,
+    .result-card__description,
+    .result-card__blightbane-link {
+      opacity: 0.45;
+    }
   }
 
   &--hidden {
@@ -161,7 +171,10 @@ $row-entry-animation: resultRowIn 0.5s ease-out backwards;
 }
 
 // `min-width: 0` lets the truncating children shrink instead of overflowing.
+// `position: relative` is the strike badge's positioning context — it centres on this column's
+// leading edge, so it lands on the name whether or not card art is shown.
 .result-card__content {
+  position: relative;
   display: flex;
   flex-direction: column;
   flex: 1;
@@ -176,10 +189,6 @@ $row-entry-animation: resultRowIn 0.5s ease-out backwards;
   padding: 0.25rem 0;
   cursor: pointer;
   min-height: 1.25rem;
-
-  &--struck {
-    text-decoration: line-through;
-  }
 
   &--hidden {
     display: none;
@@ -235,11 +244,6 @@ $row-entry-animation: resultRowIn 0.5s ease-out backwards;
     margin-bottom: 0.25rem;
   }
 
-  // Struck cards line through their text; the pill borders would survive it, so fade instead.
-  &--struck {
-    opacity: 0.5;
-  }
-
   &--hidden {
     display: none;
   }
@@ -250,10 +254,6 @@ $row-entry-animation: resultRowIn 0.5s ease-out backwards;
   color: $color-primary-muted;
   cursor: pointer;
   @include description-margins-based-on-filters;
-
-  &--struck {
-    text-decoration: line-through;
-  }
 
   &--hidden {
     display: none;

@@ -1,0 +1,41 @@
+@use 'index' as *;
+
+$badge-colour: $green-border;
+$badge-border-width: 2px;
+$badge-size: clamp(1.5rem, 62%, 2.5rem);
+
+.card-strike-badge {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translate(50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: $badge-size;
+  aspect-ratio: 1;
+  box-sizing: border-box;
+  border: $badge-border-width solid $badge-colour;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.25);
+  pointer-events: none;
+  z-index: 3;
+  opacity: 0.75;
+  overflow: visible;
+
+  @media (max-width: $breakpoint-mobile) {
+    transform: translate(20%, -50%);
+  }
+}
+
+.card-strike-badge__check {
+  width: 115%;
+  height: 115%;
+  overflow: visible;
+  transform: translate(10%, -8%);
+
+  path {
+    fill: $badge-colour;
+    filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.8));
+  }
+}

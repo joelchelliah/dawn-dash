@@ -60,14 +60,25 @@ $artwork-glow-opacity-hover: 85%;
     --rarity-colour: #{$color-danger-special-card};
   }
 
+  &--struck {
+    filter: grayscale(1);
+    box-shadow: none;
+    border-color: rgba(255, 255, 255, 0.15);
+  }
+
   // Hover feedback, driven from the row. `.result-card-hoverable` is an unhashed marker class that
   // `ResultCard` adds alongside its own hashed one.
   //
   // The glow brightens on the same trigger as the pop, so the thumbnail swells and lights up
   // together instead of scaling against a static shadow.
-  :global(.result-card-hoverable):hover & {
+  :global(.result-card-hoverable):hover &:not(&--struck) {
     animation: tinyPop 0.4s ease-out;
     box-shadow: 0 0 $artwork-glow-blur-hover $artwork-glow-spread-hover
       color-mix(in srgb, var(--rarity-colour) $artwork-glow-opacity-hover, transparent);
+  }
+
+  // The pop still fires while struck, so the row responds as one — just without the glow.
+  :global(.result-card-hoverable):hover &--struck {
+    animation: tinyPop 0.4s ease-out;
   }
 }

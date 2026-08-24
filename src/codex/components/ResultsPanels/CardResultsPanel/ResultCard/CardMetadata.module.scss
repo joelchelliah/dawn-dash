@@ -45,11 +45,19 @@ $pill-glow-opacity-hover: 20%;
     border-color $pill-hover-transition ease-out,
     box-shadow $pill-hover-transition ease-out;
 
-  :global(.result-card-hoverable):hover & {
+  :global(.result-card-hoverable):not(:global(.result-card-struck)):hover & {
     animation: tinyPop 0.4s ease-out;
     border-color: color-mix(in srgb, $color-primary-hover 25%, $color-component-border-dark);
     box-shadow: 0 0 $pill-glow-blur $pill-glow-spread
       color-mix(in srgb, $color-primary-hover $pill-glow-opacity-hover, transparent);
+  }
+
+  :global(.result-card-struck) & {
+    opacity: 0.45;
+  }
+
+  :global(.result-card-struck):hover & {
+    animation: tinyPop 0.4s ease-out;
   }
 }
 
@@ -62,7 +70,7 @@ $pill-glow-opacity-hover: 20%;
   // Same timing and partial brighten as the border, so the pill lifts as one piece.
   transition: background-color $pill-hover-transition ease-out;
 
-  :global(.result-card-hoverable):hover & {
+  :global(.result-card-hoverable):not(:global(.result-card-struck)):hover & {
     background-color: color-mix(in srgb, $color-primary-hover 55%, $color-component-border-dark);
   }
 }
