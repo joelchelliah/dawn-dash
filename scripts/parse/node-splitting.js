@@ -20,7 +20,9 @@ const { recordParseFailure } = require('./debug.js')
  * LIGHTLESSTEST, VEILCARD and UNVEILCARD added 2026-08-03 with the Shrine of Night / Shrine of
  * Absence sync — none of them names a knot; VEILCARD/UNVEILCARD only produce an effect label,
  * while LIGHTLESSTEST branches via inline `[?testresult:…]` conditionals, see
- * ENGINE_TEST_COMMANDS).
+ * ENGINE_TEST_COMMANDS). AREASPECIALPERCENT and HARNESSAREASPECIAL added 2026-08-27 with the
+ * Campfire sync, which gained the Nexus Corruption choices; neither names a knot, and both
+ * only produce an effect label ("AREASPECIALPERCENT: -50:Nexus Corruption").
  * An unrecognized command isn't a hard error — it still renders as "COMMAND: value" — but
  * it's exactly the kind of silent drift (a typo, an upstream rename) spec 6's config-name
  * validation guards against elsewhere, so it's worth surfacing via recordParseFailure.
@@ -41,6 +43,7 @@ const KNOWN_COMMANDS = new Set([
   'ADDUPGRADEDCARD',
   'ANIMA',
   'AREASPECIAL',
+  'AREASPECIALPERCENT',
   'BANDITCARD',
   'BLOODCARD',
   'BUYCARDBYCATEGORY',
@@ -67,6 +70,7 @@ const KNOWN_COMMANDS = new Set([
   'EVENT',
   'GOLD',
   'GOTOAREA',
+  'HARNESSAREASPECIAL',
   'HEAL',
   'HEALPERCENTAGE',
   'IMBUE',

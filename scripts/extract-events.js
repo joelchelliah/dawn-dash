@@ -25,6 +25,16 @@ const INLINE_CARD_ID_COMMAND_REGEX = new RegExp(
   'g'
 )
 
+// The parse step reads exactly these six fields off each event (see the destructure in
+// parse/parse-event-trees.js). Everything else upstream sends - desc, rarity, minimumLevel,
+// maxLevel, unique, related - has no consumer, so it is dropped here rather than committed.
+const USED_FIELDS = ['name', 'type', 'artwork', 'text', 'caption', 'deprecated']
+
+const pickUsedFields = (event) =>
+  Object.fromEntries(
+    USED_FIELDS.filter((key) => event[key] !== undefined).map((key) => [key, event[key]])
+  )
+
 async function extractEvents() {
   console.log('Fetching card and talent data from Blightbane API...')
   const idToName = await buildIdToNameMapping()
@@ -115,24 +125,6 @@ async function extractEvents() {
       }
     }
 
-    // Replace card/talent IDs with names in the related.cards and related.talents arrays
-    if (selectedEvent.related) {
-      if (selectedEvent.related.cards && Array.isArray(selectedEvent.related.cards)) {
-        selectedEvent.related.cards = selectedEvent.related.cards.map((id) => {
-          const name = idToName[id]
-          if (!name) unresolvedIds.add(Number(id))
-          return name || missingName(id)
-        })
-      }
-      if (selectedEvent.related.talents && Array.isArray(selectedEvent.related.talents)) {
-        selectedEvent.related.talents = selectedEvent.related.talents.map((id) => {
-          const name = idToName[id]
-          if (!name) unresolvedIds.add(Number(id))
-          return name || missingName(id)
-        })
-      }
-    }
-
     // Replace numeric IDs in card/talent commands (ADDCARD:123, ADDTALENT:456, etc.)
     selectedEvent.text = selectedEvent.text.replace(
       INLINE_CARD_ID_COMMAND_REGEX,
@@ -159,7 +151,7 @@ async function extractEvents() {
       selectedEvent.deprecated = true
     }
 
-    uniqueEvents.push(selectedEvent)
+    uniqueEvents.push(pickUsedFields(selectedEvent))
   }
 
   console.log(`Unique events after deduplication: ${uniqueEvents.length}`)
