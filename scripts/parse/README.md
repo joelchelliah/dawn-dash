@@ -427,6 +427,9 @@ node scripts/sync-events.js
 # Writes scripts/data/events-from-dump.json and parses that; events.json is untouched.
 node scripts/sync-events.js --from-dump
 
+# Via npm, the `--` separator is REQUIRED:
+npm run sync-events -- --from-dump
+
 # Parse step only (card/talent names come from the cached scripts/data/card-id-mapping.json
 # written by extract-events.js, so this runs offline — falls back to a live API fetch when
 # the cache is missing)
