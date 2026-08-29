@@ -90,6 +90,8 @@ const EventSearchPanel = ({
     setShowContinuesTags,
     showAlteredBadges,
     setShowAlteredBadges,
+    includeRemovedEvents,
+    setIncludeRemovedEvents,
     resetFilters,
   } = useSearchFilters
 
@@ -262,23 +264,34 @@ const EventSearchPanel = ({
                 />
               </div>
             )}
-            <div className={cx('control-wrapper', 'control-wrapper--checkbox')}>
-              <Checkbox
-                name="show-continues-tags"
-                checkboxLabel="⏭️ Show «Continues» tags"
-                checked={showContinuesTags}
-                onChange={() => setShowContinuesTags(!showContinuesTags)}
-                type="formatting-event"
-              />
-            </div>
-            <div className={cx('control-wrapper', 'control-wrapper--checkbox')}>
-              <Checkbox
-                name="show-altered-badges"
-                checkboxLabel={'🛠️ Mark altered content'}
-                checked={showAlteredBadges}
-                onChange={() => setShowAlteredBadges(!showAlteredBadges)}
-                type="formatting-event"
-              />
+            <div className={cx('checkbox-row')}>
+              <div className={cx('control-wrapper', 'control-wrapper--checkbox')}>
+                <Checkbox
+                  name="include-removed-events"
+                  checkboxLabel="🚫 Include removed events"
+                  checked={includeRemovedEvents}
+                  onChange={() => setIncludeRemovedEvents(!includeRemovedEvents)}
+                  type="formatting-event"
+                />
+              </div>
+              <div className={cx('control-wrapper', 'control-wrapper--checkbox')}>
+                <Checkbox
+                  name="show-continues-tags"
+                  checkboxLabel="⏭️ Show «Continues» tags"
+                  checked={showContinuesTags}
+                  onChange={() => setShowContinuesTags(!showContinuesTags)}
+                  type="formatting-event"
+                />
+              </div>
+              <div className={cx('control-wrapper', 'control-wrapper--checkbox')}>
+                <Checkbox
+                  name="show-altered-badges"
+                  checkboxLabel={'🛠️ Mark altered content'}
+                  checked={showAlteredBadges}
+                  onChange={() => setShowAlteredBadges(!showAlteredBadges)}
+                  type="formatting-event"
+                />
+              </div>
             </div>
             <div className={cx('control-wrapper', 'control-wrapper--info-message')}>
               {!isAllEventsSelected && renderRedrawMapMessage()}

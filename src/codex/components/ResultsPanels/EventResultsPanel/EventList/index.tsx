@@ -137,8 +137,21 @@ function EventListItem({ event, allEvents, onEventSelect }: EventListItemProps):
         onError={onImageSrcError}
       />
       <div className={cx('event-list-item__text')}>
-        <span className={cx('event-list-item__name')}>{event.name}</span>
-        {event.alias && <span className={cx('event-list-item__alias')}>({event.alias})</span>}
+        <span
+          className={cx('event-list-item__name', {
+            'event-list-item__name--faded': event.deprecated,
+          })}
+        >
+          {event.name}
+        </span>
+        {(event.alias || event.deprecated) && (
+          <span className={cx('event-list-item__subtext')}>
+            {event.alias && <span className={cx('event-list-item__alias')}>({event.alias})</span>}
+            {event.deprecated && (
+              <span className={cx('event-list-item__deprecated')}>🚫 REMOVED</span>
+            )}
+          </span>
+        )}
       </div>
     </div>
   )
