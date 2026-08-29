@@ -35,6 +35,7 @@ import styles from './index.module.scss'
 const cx = createCx(styles)
 
 const eventTrees = eventTreesData as Event[]
+const eventIndexByEvent = new Map(eventTrees.map((event, index) => [event, index]))
 
 interface EventSearchPanelProps {
   selectedEventIndex: number
@@ -61,6 +62,9 @@ const getLoopingPathModeLabel = (mode: LoopingPathMode): string =>
   mode === LoopingPathMode.INDICATOR
     ? `🔄${wideSpace}With «Loops back to» tags on nodes`
     : `🔗${wideSpace}With links back to the looping nodes`
+
+const getEventOptionLabel = (event: Event): string =>
+  event.deprecated ? `${event.name}${wideSpace}🚫` : event.name
 
 const getNavigationModeLabel = (mode: TreeNavigationMode): string =>
   mode === TreeNavigationMode.DRAG
@@ -112,14 +116,22 @@ const EventSearchPanel = ({
     return `All events (${filteredEvents.length})`
   }
 
+  // Add selected removed event into the list when «Include removed events» is unticked
+  const selectedEvent = isAllEventsSelected ? undefined : eventTrees[selectedEventIndex]
+  const filteredOutSelectedOption =
+    selectedEvent && !filteredEvents.includes(selectedEvent)
+      ? { value: selectedEventIndex, label: getEventOptionLabel(selectedEvent) }
+      : null
+
   const eventOptions = [
     {
       value: ALL_EVENTS_INDEX,
       label: getAllEventsLabel(),
     },
+    ...(filteredOutSelectedOption ? [filteredOutSelectedOption] : []),
     ...filteredEvents.map((event) => ({
-      value: eventTrees.indexOf(event),
-      label: event.name,
+      value: eventIndexByEvent.get(event) ?? ALL_EVENTS_INDEX,
+      label: getEventOptionLabel(event),
     })),
   ]
 
@@ -191,7 +203,7 @@ const EventSearchPanel = ({
             options={eventOptions}
             value={selectedEventIndex}
             onChange={onEventChange}
-            disabled={filteredEvents.length === 0}
+            disabled={filteredEvents.length === 0 && !filteredOutSelectedOption}
           />
         </div>
 
