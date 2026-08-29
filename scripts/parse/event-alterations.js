@@ -16,7 +16,7 @@
  *   - { textStartsWith: 'text' } - Search where text or choiceLabel starts with
  *   - { effect: 'CARDPUZZLE' } - Search by effect (substring match)
  *   - { requirement: 'COLLECTOR: Epic' } - Search by requirement (substring match)
- *   - { textOrLabel: 'text', effect: 'GOTOAREA: 91' } - Search by both text-or-label AND effect
+ *   - { textOrLabel: 'text', effect: 'GOTOAREA: The Defiled Sanctum' } - Search by both text-or-label AND effect
  *   - { textOrLabel: 'text', requirement: 'strength:=0' } - Search by both text-or-label AND requirement
  *
  * Additional property filters (combinable with any search above):
@@ -196,7 +196,7 @@ module.exports = [
     alterations: [
       {
         // Find the dialogue node that should be an end node (GOTOAREA transition)
-        find: { effect: 'GOTOAREA: 91' },
+        find: { effect: 'GOTOAREA: The Defiled Sanctum' },
         modifyNode: {
           removeRef: true,
           removeText: true,

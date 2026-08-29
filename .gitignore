@@ -29,6 +29,7 @@ scripts/data/card-id-mapping.json
 scripts/data/dump.txt
 scripts/data/dump.txt.backup
 scripts/data/event-trees.json
+scripts/data/events-from-dump.json
 scripts/data/events.json
 scripts/data/events.json.backup
 

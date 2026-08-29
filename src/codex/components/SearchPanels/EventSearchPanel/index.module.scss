@@ -87,7 +87,7 @@
 
   &--level-of-detail {
     flex: 1;
-    max-width: 14rem;
+    max-width: 16rem;
     min-width: 12rem;
 
     @media (max-width: $breakpoint-mobile) {
@@ -97,7 +97,7 @@
 
   &--looping-path {
     flex: 1;
-    max-width: 20rem;
+    max-width: 24rem;
     min-width: 14rem;
 
     @media (max-width: $breakpoint-mobile) {
@@ -107,7 +107,7 @@
 
   &--navigation-mode {
     flex: 1;
-    max-width: 16rem;
+    max-width: 18rem;
     min-width: 12rem;
 
     @media (max-width: $breakpoint-mobile) {
@@ -117,13 +117,13 @@
 
   &--checkbox {
     flex: 1;
-    min-width: 13rem;
+    max-width: 18rem;
     height: 1rem;
-    padding: 0.25rem 0 0;
+    padding: 0;
 
     @media (max-width: $breakpoint-mobile) {
       flex-basis: 100%;
-      padding: 0.25rem 0 0.75rem;
+      padding: 0.5rem 0 0.75rem;
     }
   }
 
@@ -139,6 +139,17 @@
       justify-content: center;
       min-width: 0;
     }
+  }
+}
+
+.checkbox-row {
+  display: flex;
+  gap: 1rem;
+  flex-basis: 100%;
+
+  @media (max-width: $breakpoint-mobile) {
+    flex-wrap: wrap;
+    gap: 0;
   }
 }
 

@@ -320,10 +320,16 @@ function EventTree({
           onError={onImageSrcError}
         />
         <div className={cx('event-header__title')}>
-          <h3 className={cx('event-header__title__name')}>{event.name}</h3>
+          <h3
+            className={cx('event-header__title__name', {
+              'event-header__title__name--faded': event.deprecated,
+            })}
+          >
+            {event.name}
+          </h3>
           {event.deprecated && (
             <p className={cx('event-header__title__deprecated')}>
-              ⚠️ &nbsp;Not in the game anymore!
+              🚫 &nbsp;Not in the game anymore!
             </p>
           )}
           {event.alias && !event.deprecated && (

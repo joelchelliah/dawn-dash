@@ -250,6 +250,7 @@ export interface EventCodexSearchFilterCache {
   levelOfDetail: string
   showContinuesTags: boolean
   showAlteredBadges?: boolean
+  includeRemovedEvents?: boolean
   lastUpdated: number
 }
 

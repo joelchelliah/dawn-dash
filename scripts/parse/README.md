@@ -6,32 +6,48 @@ Turns the game's own [Ink](https://www.inklestudios.com/ink/) stories into the s
 
 ## The big picture
 
+There are **two possible sources** for the event data the parse step consumes. The default is an
+external event-extraction tool; the in-repo bundle-scraping pipeline is the `--from-dump` fallback.
+
 ```
-Blightbane website bundle
-        │
-        │  scripts/fetch-events-data-from-blightbane.js
-        ▼
-scripts/data/dump.txt            (minified JS bundle)
-        │
-        │  scripts/extract-events.js
-        │  - find JSON.parse('[...]') blobs, keep objects with event types
-        │  - dedupe by caption+text, resolve card/talent ids -> names
-        │    (both `ADDTALENT:123` commands and inline `<talent=123>` prose tokens)
-        │  - flag DEPRECATED_EVENTS (so changing that list needs THIS step re-run,
-        │    not just the parse step below)
-        ▼
-scripts/data/events.json         (each event's `text` = a compiled Ink story)
-        │
-        │  scripts/parse/parse-event-trees.js          <── THIS FOLDER
-        │  1. tree building: replay every story path with the inkjs runtime
-        │  2. post-processing: the PIPELINE pass registry (19 passes)
-        │  3. validation: diff output vs baseline, ignore known noise
-        ▼
-src/codex/data/event-trees.json  (201 trees, ~4.2k nodes, statically imported)
-        │
-        ▼
-Eventmaps (src/codex/) renders each tree with d3-flextree
+DEFAULT                                  --from-dump (legacy in-repo scrape)
+
+external event-extraction tool           Blightbane website bundle
+(outside this repo)                              │
+        │                                        │  scripts/fetch-events-data-from-blightbane.js
+        │  output pasted in by hand              ▼
+        │                                scripts/data/dump.txt      (minified JS bundle)
+        │                                        │
+        │                                        │  scripts/extract-events.js
+        │                                        │  - find JSON.parse('[...]') blobs, keep event types
+        │                                        │  - dedupe by caption+text, resolve card/talent ids
+        │                                        │    -> names (`ADDTALENT:123` commands and inline
+        │                                        │    `<talent=123>` prose tokens)
+        │                                        │  - flag DEPRECATED_EVENTS (changing that list needs
+        │                                        │    THIS step re-run, not just the parse step)
+        ▼                                        ▼
+scripts/data/events.json                 scripts/data/events-from-dump.json
+        │                                        │
+        └────────────────┬───────────────────────┘
+                         │   each event's `text` = a compiled Ink story
+                         ▼
+        scripts/parse/parse-event-trees.js          <── THIS FOLDER
+        1. tree building: replay every story path with the inkjs runtime
+        2. post-processing: the PIPELINE pass registry (19 passes)
+        3. validation: diff output vs baseline, ignore known noise
+                         │
+                         ▼
+        src/codex/data/event-trees.json  (~200 trees, ~4.2k nodes, statically imported)
+                         │
+                         ▼
+        Eventmaps (src/codex/) renders each tree with d3-flextree
 ```
+
+Both files have the identical shape — an array of `{ name, type, artwork, text, caption,
+deprecated }` — so the parse step is agnostic about which one it reads. `events.json` is **not**
+written by anything in this repo: the external tool produces it and it is pasted into
+`scripts/data/`. That is why `extract-events.js` writes `events-from-dump.json` instead — so a
+`--from-dump` run can never clobber the external tool's file. Both are gitignored.
 
 The key idea: instead of parsing Ink's JSON format ourselves, we load each story into the
 **official inkjs runtime and play it** — the same way the game does — exhaustively, snapshotting
@@ -402,12 +418,21 @@ the game data updates significantly.
 ## Running it
 
 ```bash
-# Full pipeline (fetch + extract + parse)
+# Default: parse scripts/data/events.json (from the external event-extraction tool).
+# This is parse-only — nothing fetches or generates events.json, so put the tool's
+# output at that path first. Fails with a clear message if the file is missing.
 node scripts/sync-events.js
 
-# Parse step only (needs scripts/data/events.json; card/talent names come from the
-# cached scripts/data/card-id-mapping.json written by extract-events.js, so this runs
-# offline — falls back to a live API fetch when the cache is missing)
+# Legacy in-repo source: fetch the Blightbane bundle + extract + parse.
+# Writes scripts/data/events-from-dump.json and parses that; events.json is untouched.
+node scripts/sync-events.js --from-dump
+
+# Via npm, the `--` separator is REQUIRED:
+npm run sync-events -- --from-dump
+
+# Parse step only (card/talent names come from the cached scripts/data/card-id-mapping.json
+# written by extract-events.js, so this runs offline — falls back to a live API fetch when
+# the cache is missing)
 node scripts/parse/parse-event-trees.js
 
 # Flags (also forwarded by sync-events.js to the parse step):
@@ -415,6 +440,7 @@ node scripts/parse/parse-event-trees.js --debug "Frozen Heart"     # verbose log
 node scripts/parse/parse-event-trees.js --only "Frozen Heart"      # re-parse one event, merge into output
 node scripts/parse/parse-event-trees.js --dry-run                  # don't touch the output file
 node scripts/parse/parse-event-trees.js --baseline snapshot.json   # validate against a snapshot
+node scripts/parse/parse-event-trees.js --from-dump                # read events-from-dump.json
 ```
 
 Typical iteration loop when fixing one event:
@@ -422,9 +448,11 @@ Typical iteration loop when fixing one event:
 
 That loop only covers changes to *this* folder. `event-overrides.js` also exports
 `DEPRECATED_EVENTS`, which is read by `extract-events.js` — a change to it takes effect only
-after `node scripts/extract-events.js` re-writes `scripts/data/events.json`, since the parse step
-just copies the flag from there. That step always fetches the Blightbane API live, so snapshot
-`events.json` first and diff after to keep unrelated upstream changes out of the commit.
+after `node scripts/extract-events.js` re-writes `scripts/data/events-from-dump.json`, since the
+parse step just copies the flag from there. That step always fetches the Blightbane API live, so
+snapshot `events-from-dump.json` first and diff after to keep unrelated upstream changes out of
+the commit. Note this only affects the `--from-dump` path: on the default path the `deprecated`
+flag comes from the external tool's `events.json`, so `DEPRECATED_EVENTS` has no effect there.
 
 ## Known nondeterminism
 

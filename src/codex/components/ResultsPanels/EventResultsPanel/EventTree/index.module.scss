@@ -101,6 +101,10 @@
       font-size: font-size('md');
       font-weight: 600;
       color: $color-primary-base;
+
+      &--faded {
+        color: $color-primary-dark;
+      }
     }
 
     &__deprecated {

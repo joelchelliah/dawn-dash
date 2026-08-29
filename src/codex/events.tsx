@@ -43,8 +43,10 @@ function Events(): JSX.Element {
     setSelectedEventIndex
   )
 
-  const filteredEvents = eventTrees.filter((event) =>
-    searchEventTree(event, useSearchFiltersHook.deferredFilterText)
+  const filteredEvents = eventTrees.filter(
+    (event) =>
+      (useSearchFiltersHook.includeRemovedEvents || !event.deprecated) &&
+      searchEventTree(event, useSearchFiltersHook.deferredFilterText)
   )
 
   const selectedEvent =

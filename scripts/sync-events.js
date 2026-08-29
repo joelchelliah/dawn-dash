@@ -1,20 +1,33 @@
 #!/usr/bin/env node
 
 /**
- * Sync events data from Blightbane and parse event trees
+ * Sync events data and parse event trees
  *
- * This script runs the complete event data pipeline:
+ * Default (external-tool source):
+ * 1. Parse event trees from scripts/data/events.json (parse/parse-event-trees.js)
+ *
+ * With --from-dump (legacy in-repo source):
  * 1. Fetch events data from Blightbane (fetch-events-data-from-blightbane.js)
- * 2. Extract events from the bundle dump (extract-events.js)
- * 3. Parse event trees from the extracted events (parse/parse-event-trees.js)
+ * 2. Extract events from the bundle dump into events-from-dump.json (extract-events.js)
+ * 3. Parse event trees from events-from-dump.json (parse/parse-event-trees.js)
+ *
+ * scripts/data/events.json is produced by an external event-extraction tool and pasted in;
+ * nothing in this repo writes it, so the default path is parse-only. The dump pipeline writes
+ * its own events-from-dump.json and never overwrites the external tool's file.
  *
  * Each step only runs if the previous step succeeds.
  */
 
 const { spawn } = require('child_process')
+const fs = require('fs')
 const path = require('path')
 
-const scripts = [
+const args = process.argv.slice(2)
+const fromDump = args.includes('--from-dump')
+
+const EVENTS_FILE = path.join(__dirname, 'data', fromDump ? 'events-from-dump.json' : 'events.json')
+
+const dumpScripts = [
   {
     name: 'Fetch events data from Blightbane',
     path: path.join(__dirname, 'fetch-events-data-from-blightbane.js'),
@@ -23,14 +36,17 @@ const scripts = [
     name: 'Extract events',
     path: path.join(__dirname, 'extract-events.js'),
   },
-  {
-    name: 'Parse event trees',
-    path: path.join(__dirname, 'parse/parse-event-trees.js'),
-    // CLI flags passed to sync-events.js (--debug, --only, --dry-run, --baseline)
-    // are forwarded to the parse step only
-    forwardArgs: true,
-  },
 ]
+
+const parseScript = {
+  name: 'Parse event trees',
+  path: path.join(__dirname, 'parse/parse-event-trees.js'),
+  // CLI flags passed to sync-events.js (--debug, --only, --dry-run, --baseline, --from-dump)
+  // are forwarded to the parse step only
+  forwardArgs: true,
+}
+
+const scripts = fromDump ? [...dumpScripts, parseScript] : [parseScript]
 
 /**
  * Run a script and return a promise that resolves/rejects based on exit code
@@ -67,10 +83,26 @@ function runScript(scriptPath, scriptName, args = []) {
 async function runPipeline() {
   const startTime = Date.now()
 
+  // Only meaningful in the default path: the dump path generates its input as step 2.
+  if (!fromDump && !fs.existsSync(EVENTS_FILE)) {
+    console.error(`\n❌ Events file not found: ${EVENTS_FILE}`)
+    console.error(
+      '   Generate it with the external event-extraction tool and place it at that path,\n' +
+        '   or run with --from-dump to scrape the Blightbane bundle instead.\n'
+    )
+    process.exit(1)
+  }
+
+  console.log(
+    fromDump
+      ? '\n🔧 Source: Blightbane bundle dump (--from-dump) -> data/events-from-dump.json'
+      : '\n🔧 Source: data/events.json (external event-extraction tool)'
+  )
+
   try {
     for (let i = 0; i < scripts.length; i++) {
       const { name, path: scriptPath, forwardArgs } = scripts[i]
-      await runScript(scriptPath, name, forwardArgs ? process.argv.slice(2) : [])
+      await runScript(scriptPath, name, forwardArgs ? args : [])
     }
 
     const duration = ((Date.now() - startTime) / 1000).toFixed(2)
