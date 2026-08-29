@@ -86,11 +86,17 @@ function detectKnotDefinitions(inkJson) {
  * Understood element shapes, beyond plain strings:
  * - nested arrays: Ink's stitch/conditional-block containers, walked in order
  * - `{"#": ...}` / `{"#f": ...}` / `{"#n": ...}`: metadata tags, skipped
- * - `{"temp=": name}`: local variable declaration, skipped (nothing to render)
- * - `{"VAR?": name}`: a variable read. Resolved against `randomVars` when known; when
- *   the read has no statically-known source (e.g. a tunnel/function parameter set by
- *   whatever called this knot), recorded as an unresolved read via recordParseFailure
- *   and rendered as the literal `<name>` placeholder rather than silently dropped
+ * - `{"temp=": name}`: local variable declaration. Nothing to render, but the name is
+ *   remembered: in a compiled Ink function it is how a parameter arrives, so a later
+ *   read of it is unresolvable BY DESIGN rather than by drift (see `VAR?` below)
+ * - `{"VAR?": name}`: a variable read. Resolved against `randomVars` when known;
+ *   otherwise rendered as the literal `<name>` placeholder rather than silently dropped.
+ *   A read of a name declared `temp=` in this same knot is a function parameter whose
+ *   value only exists at call time — inkjs never runs the external STORYFUNCTION call, so
+ *   this is expected, and downstream passes rely on the placeholder (see
+ *   `replaceEngineAdjustedCosts` in misc-passes.js, which rewrites `<newCost>` to `<?>`
+ *   precisely so a stale `global decl` default is not shown as a real price). Only a read
+ *   that is neither random nor a declared parameter is recorded via recordParseFailure
  * - `{"VAR=": name}`: a variable assignment, recorded directly as a `SET name = <value>`
  *   effect (value is the most recently resolved `VAR?` read, or `?` if none preceded it) —
  *   not routed through extractEffects, since `SET` is a synthetic marker, not a real
@@ -113,6 +119,9 @@ function parseKnotContentManually(knotBody, randomVars = new Map(), eventName = 
   let text = ''
   let lastResolvedRead = null
   const assignmentEffects = []
+  // Names declared `temp=` in this knot — a compiled Ink function's parameters. Reads of
+  // these are expected to be unresolvable, so they must not be reported as parse drift.
+  const localVars = new Set()
 
   function walk(element) {
     if (typeof element === 'string') {
@@ -148,6 +157,7 @@ function parseKnotContentManually(knotBody, randomVars = new Map(), eventName = 
       }
 
       if ('temp=' in element) {
+        localVars.add(element['temp='])
         return
       }
 
@@ -157,11 +167,14 @@ function parseKnotContentManually(knotBody, randomVars = new Map(), eventName = 
         if (ranges && ranges.length > 0) {
           lastResolvedRead = `random [${ranges.map((r) => `${r.min} - ${r.max}`).join(', ')}]`
         } else {
-          recordParseFailure(
-            'unresolved knot variable read',
-            eventName,
-            new Error(`"${varName}" has no statically-known value in this knot`)
-          )
+          // A parameter of this knot: no call-time value exists to resolve, by design.
+          if (!localVars.has(varName)) {
+            recordParseFailure(
+              'unresolved knot variable read',
+              eventName,
+              new Error(`"${varName}" has no statically-known value in this knot`)
+            )
+          }
           lastResolvedRead = `<${varName}>`
         }
         return
