@@ -216,7 +216,7 @@ function AdvancedInsight({ challengeData }: AdvancedInsightProps): JSX.Element {
     return (
       <p className={cx('insight-paragraph')}>
         For a <strong>net positive score</strong> after breaking the{' '}
-        <strong>accuracy window</strong>, you need <em>at least</em>{' '}
+        <strong>accuracy window</strong>, you need at least{' '}
         {justAbove && (
           <>
             <Code>

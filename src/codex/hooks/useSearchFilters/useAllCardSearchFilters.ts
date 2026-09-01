@@ -4,6 +4,7 @@ import { ExtraCardFilterOption, WeeklyChallengeFilterData } from '@/codex/types/
 import {
   hasMonsterBanner,
   hasMonsterRarity,
+  hasNoBanner,
   isAnimalCompanionCard,
   isNonCollectible,
 } from '@/codex/utils/cardHelper'
@@ -337,9 +338,12 @@ const isCardMatching = (
   const passesRarityFilter = hasMonsterRarity(card)
     ? shouldIncludeMonsterCards
     : isRaritySelected(card.rarity)
-  const passesBannerFilter = hasMonsterBanner(card)
-    ? shouldIncludeMonsterCards
-    : isBannerSelected(card.color)
+  // Bannerless cards fall through the banner filter entirely
+  const passesBannerFilter = hasNoBanner(card)
+    ? true
+    : hasMonsterBanner(card)
+      ? shouldIncludeMonsterCards
+      : isBannerSelected(card.color)
   /*
    * Unlike rarity 4 and banner 11, type 7 is not a card-wide monster marker!
    * Keying the deferral on the type would let the Type group veto monster cards

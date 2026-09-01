@@ -100,6 +100,7 @@ const NON_COLLECTIBLE_CARDS = [
 
 export const hasMonsterRarity = (card: CardData) => card.rarity === 4
 export const hasMonsterBanner = (card: CardData) => card.color === 11
+export const hasNoBanner = (card: CardData) => card.color === 0
 export const isAnimalCompanionCard = (card: CardData) => card.name.endsWith('(Companion)')
 
 /*
