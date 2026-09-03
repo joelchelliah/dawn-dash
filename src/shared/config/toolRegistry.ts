@@ -4,6 +4,7 @@ import {
   MapOfHuesImageUrl,
   PestilenceDecreeUrl,
   DashImageUrl,
+  BootyImageUrl,
 } from '../utils/imageUrls'
 
 export interface ToolDefinition {
@@ -83,6 +84,25 @@ export const TOOL_REGISTRY: ToolDefinition[] = [
     landingImage: '/landing-eventmaps.webp',
     navIcon: MapOfHuesImageUrl,
     legacyPaths: ['/codex/events'],
+  },
+  {
+    id: 'booty',
+    path: '/booty',
+    title: 'Booty',
+    ogTitle: '🪎 Booty',
+    description:
+      'A detailed breakdown of all the treasure cards in Dawncaster, and how to find them during your runs!',
+    shortDescription:
+      'A breakdown of all treasure cards in Dawncaster, and how to find them during your runs!',
+    metaDescription:
+      'A detailed breakdown of all the treasure cards in Dawncaster, and how to find them during your runs!',
+    ogDescription:
+      'See all the available treasure cards in Dawncaster, and how to find them during your runs!',
+    ogImage: 'https://www.dawn-dash.com/og-image-booty.png',
+    logoImage: 'https://www.dawn-dash.com/logo-booty.png',
+    landingImage: '/landing-booty.webp',
+    navIcon: BootyImageUrl,
+    unlisted: true,
   },
   {
     id: 'scoring',

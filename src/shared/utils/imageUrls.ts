@@ -7,6 +7,7 @@ export const AnimaImageUrl = `${blightbaneImagesUrl}/icons/MoM_anima.webp`
 export const AuraOfPurityImageUrl = `${blightbaneImagesUrl}/icons/aura%20of%20purity.webp`
 export const BigBombImageUrl = `${blightbaneImagesUrl}/icons/Masks%20of%20Misery_30.webp`
 export const BolgarCreatureImageUrl = `${blightbaneImagesUrl}/icons/creature_icon_bolgar.webp`
+export const BootyImageUrl = `${blightbaneImagesUrl}/icons/warchest.webp`
 export const CoinsOfPassingImageUrl = `${blightbaneImagesUrl}/icons/siegeOfshadows_abilities_2-quest_coinsOfPassing.webp`
 export const CollectorImageUrl = `${blightbaneImagesUrl}/icons/cardart_2_4.webp`
 export const DanceOfBlightImageUrl = `${blightbaneImagesUrl}/icons/Dance%20of%20Blight_eclypse.webp`
