@@ -9,7 +9,7 @@ The tool registry makes this a two-file change plus assets. Follow the checklist
 
 ## 1. Registry entry
 
-Add an entry to `TOOL_REGISTRY` in `src/shared/config/toolRegistry.ts`, filling every `ToolDefinition` field (id, path, title, ogTitle, description, shortDescription, metaDescription, ogDescription, ogImage, logoImage, landingImage, navIcon; `legacyPaths` only if old URLs must redirect). Look at an existing entry for the copy style and URL conventions:
+Add an entry to `TOOL_REGISTRY` in `src/shared/config/toolRegistry.ts`, filling every `ToolDefinition` field (id, path, title, ogTitle, description, shortDescription, ogDescription, ogImage, logoImage, landingImage, navIcon; `legacyPaths` only if old URLs must redirect). Look at an existing entry for the copy style and URL conventions:
 
 - `ogImage`: `https://www.dawn-dash.com/og-image-<id>.png`
 - `logoImage`: `https://www.dawn-dash.com/logo-<id>.png`

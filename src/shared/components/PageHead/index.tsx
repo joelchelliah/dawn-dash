@@ -18,7 +18,7 @@ export function PageHead({ toolId }: PageHeadProps) {
   return (
     <Head>
       <title>{`${tool.title} | Dawn-Dash`}</title>
-      <meta name="description" content={tool.metaDescription} />
+      <meta name="description" content={tool.description} />
       {/* Unlisted tools stay reachable by direct link (og tags included, so shared links still
           preview), but must not be indexed or linked onward until they launch. */}
       {tool.unlisted ? (
@@ -41,7 +41,7 @@ export function PageHead({ toolId }: PageHeadProps) {
 
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:title" content={title} />
-      <meta name="twitter:description" content={tool.metaDescription} />
+      <meta name="twitter:description" content={tool.description} />
       <meta property="twitter:image" content={tool.ogImage} />
 
       {/* Page-Specific Structured Data */}
@@ -53,7 +53,7 @@ export function PageHead({ toolId }: PageHeadProps) {
               '@context': 'https://schema.org',
               '@type': 'WebPage',
               name: title,
-              description: tool.metaDescription,
+              description: tool.description,
               url,
               image: tool.logoImage,
             }),

@@ -30,7 +30,7 @@ export function EventmapHead({ event, eventUrlParam }: EventmapHeadProps = {}) {
 
   const description = isEventPage
     ? `View the complete event tree for «${eventName}», with all branching paths.`
-    : tool.metaDescription
+    : tool.description
   const ogDescription = isEventPage ? `${eventDisplayText}` : tool.ogDescription
 
   const image = hasEventArtwork ? eventImageSrc : tool.ogImage
