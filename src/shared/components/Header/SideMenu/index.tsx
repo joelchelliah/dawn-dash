@@ -17,7 +17,7 @@ import InfoModal from '@/shared/components/Modals/InfoModal'
 import { useBreakpoint } from '@/shared/hooks/useBreakpoint'
 import { ClassColorVariant, getClassColor } from '@/shared/utils/classColors'
 import { CharacterClass } from '@/shared/types/characterClass'
-import { TOOL_REGISTRY, getTool } from '@/shared/config/toolRegistry'
+import { getListedTools, getTool } from '@/shared/config/toolRegistry'
 
 import { CurrentPageType } from '../types'
 
@@ -48,7 +48,7 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
   }
 
   const getNavLinkImage = (url: string, alt: string, isHome?: boolean) => {
-    const size = isHome ? 25 : 40
+    const size = isHome ? 32 : 40
     return (
       <Image
         src={url}
@@ -150,7 +150,7 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
             </Link>
           </div>
 
-          {TOOL_REGISTRY.map((tool) => (
+          {getListedTools().map((tool) => (
             <div
               key={tool.id}
               className={cx('side-menu__nav-link-container', {

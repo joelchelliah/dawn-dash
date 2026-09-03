@@ -3,7 +3,7 @@ import { useState } from 'react'
 import Image from '@/shared/components/Image'
 import { createCx } from '@/shared/utils/classnames'
 import { DashImageUrl, HauntingNightmaresImageUrl } from '@/shared/utils/imageUrls'
-import { TOOL_REGISTRY } from '@/shared/config/toolRegistry'
+import { getListedTools, getTool } from '@/shared/config/toolRegistry'
 import Footer from '@/shared/components/Footer'
 import { useNavigation } from '@/shared/hooks/useNavigation'
 import Header from '@/shared/components/Header'
@@ -44,7 +44,7 @@ export default function Landing() {
         </div>
 
         <nav className={cx('nav')}>
-          {TOOL_REGISTRY.map((tool, index) => (
+          {getListedTools().map((tool, index) => (
             <NavItem
               key={tool.id}
               url={tool.path}
@@ -77,9 +77,7 @@ export default function Landing() {
           })}
         >
           {hoveredItem && (
-            <p className={cx('nav-description-text')}>
-              {TOOL_REGISTRY.find((tool) => tool.id === hoveredItem)?.description}
-            </p>
+            <p className={cx('nav-description-text')}>{getTool(hoveredItem)?.description}</p>
           )}
         </div>
       </div>

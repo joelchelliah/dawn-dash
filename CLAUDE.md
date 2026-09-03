@@ -85,6 +85,8 @@ This is a Next.js application (dawn-dash.com) for Dawncaster game data visualiza
 ### Tool Registry
 `src/shared/config/toolRegistry.ts` is the single source of truth for each tool's identity: path, title, descriptions, meta/OG copy, images, nav icon, and legacy redirect paths. It is consumed by the landing page, the header side menu, `useNavigation`, `PageHead`, and `next.config.ts` (generated redirects). Adding a new tool requires only a registry entry + a `pages/` file (see the `add-new-tool` skill in `.claude/skills/`), plus a URL entry in `scripts/generate-sitemap.js`.
 
+A tool marked `unlisted: true` stays reachable by direct URL but is hidden from the landing page and side menu (both iterate `getListedTools()`, not `TOOL_REGISTRY`) and gets `noindex, nofollow` instead of a canonical link and JSON-LD from `PageHead`. OG tags are still served, so shared links keep their previews. The sitemap's tool URLs are hardcoded rather than registry-driven precisely so unlisted tools stay out of it — don't "fix" that by generating them from the registry.
+
 ### Main Features
 
 Each feature directory has its own `CLAUDE.md` with architecture details and invariants — read it before changing that feature.

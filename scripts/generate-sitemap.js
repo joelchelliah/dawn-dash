@@ -15,6 +15,8 @@ function generateSitemap() {
 
   console.log(`📋 Found ${events.length} events`)
 
+  // Tool URLs are listed manually rather than read from the tool registry, so an `unlisted`
+  // work-in-progress tool stays out of the sitemap. Add a tool here when it launches.
   const urls = [
     {
       loc: `${BASE_URL}/`,

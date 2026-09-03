@@ -21,6 +21,9 @@ export interface ToolDefinition {
   landingImage: string
   navIcon: string
   legacyPaths?: string[]
+  // Work-in-progress tools: reachable by direct URL, but kept out of the landing page and side
+  // menu, and marked noindex by PageHead so search engines skip them until launch.
+  unlisted?: boolean
 }
 
 export const TOOL_REGISTRY: ToolDefinition[] = [
@@ -121,3 +124,5 @@ export const TOOL_REGISTRY: ToolDefinition[] = [
 
 export const getTool = (id: string): ToolDefinition | undefined =>
   TOOL_REGISTRY.find((t) => t.id === id)
+
+export const getListedTools = (): ToolDefinition[] => TOOL_REGISTRY.filter((t) => !t.unlisted)

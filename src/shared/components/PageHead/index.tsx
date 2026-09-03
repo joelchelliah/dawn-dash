@@ -19,7 +19,13 @@ export function PageHead({ toolId }: PageHeadProps) {
     <Head>
       <title>{`${tool.title} | Dawn-Dash`}</title>
       <meta name="description" content={tool.metaDescription} />
-      <link rel="canonical" href={url} />
+      {/* Unlisted tools stay reachable by direct link (og tags included, so shared links still
+          preview), but must not be indexed or linked onward until they launch. */}
+      {tool.unlisted ? (
+        <meta name="robots" content="noindex, nofollow" />
+      ) : (
+        <link rel="canonical" href={url} />
+      )}
 
       <meta property="og:type" content="website" />
       <meta property="og:title" content={tool.ogTitle} />
@@ -39,19 +45,21 @@ export function PageHead({ toolId }: PageHeadProps) {
       <meta property="twitter:image" content={tool.ogImage} />
 
       {/* Page-Specific Structured Data */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            '@context': 'https://schema.org',
-            '@type': 'WebPage',
-            name: title,
-            description: tool.metaDescription,
-            url,
-            image: tool.logoImage,
-          }),
-        }}
-      />
+      {!tool.unlisted && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'WebPage',
+              name: title,
+              description: tool.metaDescription,
+              url,
+              image: tool.logoImage,
+            }),
+          }}
+        />
+      )}
     </Head>
   )
 }
