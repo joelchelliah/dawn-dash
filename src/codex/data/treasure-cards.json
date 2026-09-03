@@ -1,0 +1,1135 @@
+[
+  {
+    "id": 930531,
+    "name": "Chalice of Blood",
+    "isTreasure": true,
+    "inSunforge": true,
+    "inCardRewards": false,
+    "inConjurations": false,
+    "inMerchant": false,
+    "inAlchemist": false,
+    "canBeAcquired": true,
+    "fromEvents": [
+      {
+        "event": "Broken Tombstone",
+        "pool": "C",
+        "command": "addcardbykeyword"
+      },
+      {
+        "event": "Marrow Halls",
+        "pool": "C",
+        "command": "delvefromany"
+      },
+      {
+        "event": "Molekin Burrow",
+        "pool": "D",
+        "command": "delvefromkeyword"
+      },
+      {
+        "event": "Painted Landscape",
+        "pool": "C",
+        "command": "addcardbykeyword"
+      },
+      {
+        "event": "Rotting Residence",
+        "pool": "D",
+        "command": "delvefromkeyword"
+      },
+      {
+        "event": "Survey the Field",
+        "pool": "C",
+        "command": "delvefromany"
+      },
+      {
+        "event": "The Cocoon",
+        "pool": "D",
+        "command": "delvefromkeyword"
+      },
+      {
+        "event": "Undisturbed Grave",
+        "pool": "C",
+        "command": "addcardbykeyword"
+      },
+      {
+        "event": "Vault Door",
+        "pool": "C",
+        "command": "delvefromany"
+      },
+      {
+        "event": "Vesparin Vault",
+        "pool": "C",
+        "command": "delvefromany"
+      }
+    ],
+    "fromCards": [
+      {
+        "card": "Booty",
+        "pool": "A",
+        "command": "delvebytag"
+      },
+      {
+        "card": "Explorer's Trick",
+        "pool": "C",
+        "command": "setrewardstokeyword"
+      },
+      {
+        "card": "Shovel",
+        "pool": "A",
+        "command": "delvebytag"
+      }
+    ],
+    "fromTalents": [
+      {
+        "talent": "Pirate Parlour",
+        "pool": "B",
+        "command": "pirateparlour"
+      }
+    ],
+    "missingFromAddCardByKeyword": null
+  },
+  {
+    "id": 611711,
+    "name": "Cursed Puzzlebox",
+    "isTreasure": true,
+    "inSunforge": true,
+    "inCardRewards": false,
+    "inConjurations": false,
+    "inMerchant": false,
+    "inAlchemist": false,
+    "canBeAcquired": false,
+    "fromEvents": [
+      {
+        "event": "Broken Tombstone",
+        "pool": "C",
+        "command": "addcardbykeyword"
+      },
+      {
+        "event": "Marrow Halls",
+        "pool": "C",
+        "command": "delvefromany"
+      },
+      {
+        "event": "Painted Landscape",
+        "pool": "C",
+        "command": "addcardbykeyword"
+      },
+      {
+        "event": "Survey the Field",
+        "pool": "C",
+        "command": "delvefromany"
+      },
+      {
+        "event": "Undisturbed Grave",
+        "pool": "C",
+        "command": "addcardbykeyword"
+      },
+      {
+        "event": "Vault Door",
+        "pool": "C",
+        "command": "delvefromany"
+      },
+      {
+        "event": "Vesparin Vault",
+        "pool": "C",
+        "command": "delvefromany"
+      }
+    ],
+    "fromCards": [
+      {
+        "card": "Booty",
+        "pool": "A",
+        "command": "delvebytag"
+      },
+      {
+        "card": "Explorer's Trick",
+        "pool": "C",
+        "command": "setrewardstokeyword"
+      },
+      {
+        "card": "Shovel",
+        "pool": "A",
+        "command": "delvebytag"
+      }
+    ],
+    "fromTalents": [
+      {
+        "talent": "Pirate Parlour",
+        "pool": "B",
+        "command": "pirateparlour"
+      }
+    ],
+    "missingFromAddCardByKeyword": null
+  },
+  {
+    "id": 978149,
+    "name": "Dark Mirror Vial",
+    "isTreasure": true,
+    "inSunforge": true,
+    "inCardRewards": true,
+    "inConjurations": true,
+    "inMerchant": true,
+    "inAlchemist": false,
+    "canBeAcquired": false,
+    "fromEvents": [
+      {
+        "event": "Broken Tombstone",
+        "pool": "C",
+        "command": "addcardbykeyword"
+      },
+      {
+        "event": "Marrow Halls",
+        "pool": "C",
+        "command": "delvefromany"
+      },
+      {
+        "event": "Painted Landscape",
+        "pool": "C",
+        "command": "addcardbykeyword"
+      },
+      {
+        "event": "Survey the Field",
+        "pool": "C",
+        "command": "delvefromany"
+      },
+      {
+        "event": "Undisturbed Grave",
+        "pool": "C",
+        "command": "addcardbykeyword"
+      },
+      {
+        "event": "Vault Door",
+        "pool": "C",
+        "command": "delvefromany"
+      },
+      {
+        "event": "Vesparin Vault",
+        "pool": "C",
+        "command": "delvefromany"
+      }
+    ],
+    "fromCards": [
+      {
+        "card": "Booty",
+        "pool": "A",
+        "command": "delvebytag"
+      },
+      {
+        "card": "Explorer's Trick",
+        "pool": "C",
+        "command": "setrewardstokeyword"
+      },
+      {
+        "card": "Shovel",
+        "pool": "A",
+        "command": "delvebytag"
+      }
+    ],
+    "fromTalents": [
+      {
+        "talent": "Pirate Parlour",
+        "pool": "B",
+        "command": "pirateparlour"
+      }
+    ],
+    "missingFromAddCardByKeyword": {
+      "whenDisabled": ["Infinitum"]
+    }
+  },
+  {
+    "id": 909591,
+    "name": "Flying Carpet",
+    "isTreasure": true,
+    "inSunforge": true,
+    "inCardRewards": false,
+    "inConjurations": false,
+    "inMerchant": false,
+    "inAlchemist": false,
+    "canBeAcquired": true,
+    "fromEvents": [
+      {
+        "event": "Broken Tombstone",
+        "pool": "C",
+        "command": "addcardbykeyword"
+      },
+      {
+        "event": "Marrow Halls",
+        "pool": "C",
+        "command": "delvefromany"
+      },
+      {
+        "event": "Molekin Burrow",
+        "pool": "D",
+        "command": "delvefromkeyword"
+      },
+      {
+        "event": "Painted Landscape",
+        "pool": "C",
+        "command": "addcardbykeyword"
+      },
+      {
+        "event": "Rotting Residence",
+        "pool": "D",
+        "command": "delvefromkeyword"
+      },
+      {
+        "event": "Survey the Field",
+        "pool": "C",
+        "command": "delvefromany"
+      },
+      {
+        "event": "The Cocoon",
+        "pool": "D",
+        "command": "delvefromkeyword"
+      },
+      {
+        "event": "Undisturbed Grave",
+        "pool": "C",
+        "command": "addcardbykeyword"
+      },
+      {
+        "event": "Vault Door",
+        "pool": "C",
+        "command": "delvefromany"
+      },
+      {
+        "event": "Vesparin Vault",
+        "pool": "C",
+        "command": "delvefromany"
+      }
+    ],
+    "fromCards": [
+      {
+        "card": "Booty",
+        "pool": "A",
+        "command": "delvebytag"
+      },
+      {
+        "card": "Explorer's Trick",
+        "pool": "C",
+        "command": "setrewardstokeyword"
+      },
+      {
+        "card": "Shovel",
+        "pool": "A",
+        "command": "delvebytag"
+      }
+    ],
+    "fromTalents": [
+      {
+        "talent": "Pirate Parlour",
+        "pool": "B",
+        "command": "pirateparlour"
+      }
+    ],
+    "missingFromAddCardByKeyword": {
+      "whenDisabled": ["Infinitum", "Eclypse"]
+    }
+  },
+  {
+    "id": 353519,
+    "name": "Healing Potion",
+    "isTreasure": true,
+    "inSunforge": true,
+    "inCardRewards": false,
+    "inConjurations": true,
+    "inMerchant": false,
+    "inAlchemist": true,
+    "canBeAcquired": false,
+    "fromEvents": [
+      {
+        "event": "Broken Tombstone",
+        "pool": "C",
+        "command": "addcardbykeyword"
+      },
+      {
+        "event": "Marrow Halls",
+        "pool": "C",
+        "command": "delvefromany"
+      },
+      {
+        "event": "Painted Landscape",
+        "pool": "C",
+        "command": "addcardbykeyword"
+      },
+      {
+        "event": "Survey the Field",
+        "pool": "C",
+        "command": "delvefromany"
+      },
+      {
+        "event": "Undisturbed Grave",
+        "pool": "C",
+        "command": "addcardbykeyword"
+      },
+      {
+        "event": "Vault Door",
+        "pool": "C",
+        "command": "delvefromany"
+      },
+      {
+        "event": "Vesparin Vault",
+        "pool": "C",
+        "command": "delvefromany"
+      }
+    ],
+    "fromCards": [
+      {
+        "card": "Booty",
+        "pool": "A",
+        "command": "delvebytag"
+      },
+      {
+        "card": "Explorer's Trick",
+        "pool": "C",
+        "command": "setrewardstokeyword"
+      },
+      {
+        "card": "Shovel",
+        "pool": "A",
+        "command": "delvebytag"
+      }
+    ],
+    "fromTalents": [
+      {
+        "talent": "Pirate Parlour",
+        "pool": "B",
+        "command": "pirateparlour"
+      }
+    ],
+    "missingFromAddCardByKeyword": null
+  },
+  {
+    "id": 68505,
+    "name": "Philosopher's Stone",
+    "isTreasure": true,
+    "inSunforge": true,
+    "inCardRewards": true,
+    "inConjurations": false,
+    "inMerchant": true,
+    "inAlchemist": false,
+    "canBeAcquired": true,
+    "fromEvents": [
+      {
+        "event": "Broken Tombstone",
+        "pool": "C",
+        "command": "addcardbykeyword"
+      },
+      {
+        "event": "Marrow Halls",
+        "pool": "C",
+        "command": "delvefromany"
+      },
+      {
+        "event": "Molekin Burrow",
+        "pool": "D",
+        "command": "delvefromkeyword"
+      },
+      {
+        "event": "Painted Landscape",
+        "pool": "C",
+        "command": "addcardbykeyword"
+      },
+      {
+        "event": "Rotting Residence",
+        "pool": "D",
+        "command": "delvefromkeyword"
+      },
+      {
+        "event": "Survey the Field",
+        "pool": "C",
+        "command": "delvefromany"
+      },
+      {
+        "event": "The Cocoon",
+        "pool": "D",
+        "command": "delvefromkeyword"
+      },
+      {
+        "event": "Undisturbed Grave",
+        "pool": "C",
+        "command": "addcardbykeyword"
+      },
+      {
+        "event": "Vault Door",
+        "pool": "C",
+        "command": "delvefromany"
+      },
+      {
+        "event": "Vesparin Vault",
+        "pool": "C",
+        "command": "delvefromany"
+      }
+    ],
+    "fromCards": [
+      {
+        "card": "Booty",
+        "pool": "A",
+        "command": "delvebytag"
+      },
+      {
+        "card": "Explorer's Trick",
+        "pool": "C",
+        "command": "setrewardstokeyword"
+      },
+      {
+        "card": "Shovel",
+        "pool": "A",
+        "command": "delvebytag"
+      }
+    ],
+    "fromTalents": [
+      {
+        "talent": "Pirate Parlour",
+        "pool": "B",
+        "command": "pirateparlour"
+      }
+    ],
+    "missingFromAddCardByKeyword": null
+  },
+  {
+    "id": 855931,
+    "name": "Potion of Visions",
+    "isTreasure": true,
+    "inSunforge": true,
+    "inCardRewards": false,
+    "inConjurations": true,
+    "inMerchant": false,
+    "inAlchemist": true,
+    "canBeAcquired": false,
+    "fromEvents": [
+      {
+        "event": "Broken Tombstone",
+        "pool": "C",
+        "command": "addcardbykeyword"
+      },
+      {
+        "event": "Marrow Halls",
+        "pool": "C",
+        "command": "delvefromany"
+      },
+      {
+        "event": "Painted Landscape",
+        "pool": "C",
+        "command": "addcardbykeyword"
+      },
+      {
+        "event": "Survey the Field",
+        "pool": "C",
+        "command": "delvefromany"
+      },
+      {
+        "event": "Undisturbed Grave",
+        "pool": "C",
+        "command": "addcardbykeyword"
+      },
+      {
+        "event": "Vault Door",
+        "pool": "C",
+        "command": "delvefromany"
+      },
+      {
+        "event": "Vesparin Vault",
+        "pool": "C",
+        "command": "delvefromany"
+      }
+    ],
+    "fromCards": [
+      {
+        "card": "Booty",
+        "pool": "A",
+        "command": "delvebytag"
+      },
+      {
+        "card": "Explorer's Trick",
+        "pool": "C",
+        "command": "setrewardstokeyword"
+      },
+      {
+        "card": "Shovel",
+        "pool": "A",
+        "command": "delvebytag"
+      }
+    ],
+    "fromTalents": [
+      {
+        "talent": "Pirate Parlour",
+        "pool": "B",
+        "command": "pirateparlour"
+      }
+    ],
+    "missingFromAddCardByKeyword": null
+  },
+  {
+    "id": 973883,
+    "name": "Ring of Power",
+    "isTreasure": true,
+    "inSunforge": true,
+    "inCardRewards": true,
+    "inConjurations": false,
+    "inMerchant": true,
+    "inAlchemist": false,
+    "canBeAcquired": true,
+    "fromEvents": [
+      {
+        "event": "Broken Tombstone",
+        "pool": "C",
+        "command": "addcardbykeyword"
+      },
+      {
+        "event": "Marrow Halls",
+        "pool": "C",
+        "command": "delvefromany"
+      },
+      {
+        "event": "Molekin Burrow",
+        "pool": "D",
+        "command": "delvefromkeyword"
+      },
+      {
+        "event": "Painted Landscape",
+        "pool": "C",
+        "command": "addcardbykeyword"
+      },
+      {
+        "event": "Rotting Residence",
+        "pool": "D",
+        "command": "delvefromkeyword"
+      },
+      {
+        "event": "Survey the Field",
+        "pool": "C",
+        "command": "delvefromany"
+      },
+      {
+        "event": "The Cocoon",
+        "pool": "D",
+        "command": "delvefromkeyword"
+      },
+      {
+        "event": "Undisturbed Grave",
+        "pool": "C",
+        "command": "addcardbykeyword"
+      },
+      {
+        "event": "Vault Door",
+        "pool": "C",
+        "command": "delvefromany"
+      },
+      {
+        "event": "Vesparin Vault",
+        "pool": "C",
+        "command": "delvefromany"
+      }
+    ],
+    "fromCards": [
+      {
+        "card": "Booty",
+        "pool": "A",
+        "command": "delvebytag"
+      },
+      {
+        "card": "Explorer's Trick",
+        "pool": "C",
+        "command": "setrewardstokeyword"
+      },
+      {
+        "card": "Shovel",
+        "pool": "A",
+        "command": "delvebytag"
+      }
+    ],
+    "fromTalents": [
+      {
+        "talent": "Pirate Parlour",
+        "pool": "B",
+        "command": "pirateparlour"
+      }
+    ],
+    "missingFromAddCardByKeyword": null
+  },
+  {
+    "id": 740335,
+    "name": "Rune of Persistence",
+    "isTreasure": true,
+    "inSunforge": true,
+    "inCardRewards": true,
+    "inConjurations": true,
+    "inMerchant": true,
+    "inAlchemist": false,
+    "canBeAcquired": true,
+    "fromEvents": [
+      {
+        "event": "Broken Tombstone",
+        "pool": "C",
+        "command": "addcardbykeyword"
+      },
+      {
+        "event": "Marrow Halls",
+        "pool": "C",
+        "command": "delvefromany"
+      },
+      {
+        "event": "Molekin Burrow",
+        "pool": "D",
+        "command": "delvefromkeyword"
+      },
+      {
+        "event": "Painted Landscape",
+        "pool": "C",
+        "command": "addcardbykeyword"
+      },
+      {
+        "event": "Rotting Residence",
+        "pool": "D",
+        "command": "delvefromkeyword"
+      },
+      {
+        "event": "Survey the Field",
+        "pool": "C",
+        "command": "delvefromany"
+      },
+      {
+        "event": "The Cocoon",
+        "pool": "D",
+        "command": "delvefromkeyword"
+      },
+      {
+        "event": "Undisturbed Grave",
+        "pool": "C",
+        "command": "addcardbykeyword"
+      },
+      {
+        "event": "Vault Door",
+        "pool": "C",
+        "command": "delvefromany"
+      },
+      {
+        "event": "Vesparin Vault",
+        "pool": "C",
+        "command": "delvefromany"
+      }
+    ],
+    "fromCards": [
+      {
+        "card": "Booty",
+        "pool": "A",
+        "command": "delvebytag"
+      },
+      {
+        "card": "Explorer's Trick",
+        "pool": "C",
+        "command": "setrewardstokeyword"
+      },
+      {
+        "card": "Shovel",
+        "pool": "A",
+        "command": "delvebytag"
+      }
+    ],
+    "fromTalents": [
+      {
+        "talent": "Pirate Parlour",
+        "pool": "B",
+        "command": "pirateparlour"
+      }
+    ],
+    "missingFromAddCardByKeyword": null
+  },
+  {
+    "id": 407234,
+    "name": "Rusty Lamp",
+    "isTreasure": true,
+    "inSunforge": true,
+    "inCardRewards": false,
+    "inConjurations": false,
+    "inMerchant": false,
+    "inAlchemist": false,
+    "canBeAcquired": false,
+    "fromEvents": [
+      {
+        "event": "Broken Tombstone",
+        "pool": "C",
+        "command": "addcardbykeyword"
+      },
+      {
+        "event": "Marrow Halls",
+        "pool": "C",
+        "command": "delvefromany"
+      },
+      {
+        "event": "Painted Landscape",
+        "pool": "C",
+        "command": "addcardbykeyword"
+      },
+      {
+        "event": "Survey the Field",
+        "pool": "C",
+        "command": "delvefromany"
+      },
+      {
+        "event": "Undisturbed Grave",
+        "pool": "C",
+        "command": "addcardbykeyword"
+      },
+      {
+        "event": "Vault Door",
+        "pool": "C",
+        "command": "delvefromany"
+      },
+      {
+        "event": "Vesparin Vault",
+        "pool": "C",
+        "command": "delvefromany"
+      }
+    ],
+    "fromCards": [
+      {
+        "card": "Booty",
+        "pool": "A",
+        "command": "delvebytag"
+      },
+      {
+        "card": "Explorer's Trick",
+        "pool": "C",
+        "command": "setrewardstokeyword"
+      },
+      {
+        "card": "Shovel",
+        "pool": "A",
+        "command": "delvebytag"
+      }
+    ],
+    "fromTalents": [
+      {
+        "talent": "Pirate Parlour",
+        "pool": "B",
+        "command": "pirateparlour"
+      }
+    ],
+    "missingFromAddCardByKeyword": null
+  },
+  {
+    "id": 816971,
+    "name": "Sharpening Stone",
+    "isTreasure": true,
+    "inSunforge": true,
+    "inCardRewards": true,
+    "inConjurations": true,
+    "inMerchant": true,
+    "inAlchemist": false,
+    "canBeAcquired": true,
+    "fromEvents": [
+      {
+        "event": "Broken Tombstone",
+        "pool": "C",
+        "command": "addcardbykeyword"
+      },
+      {
+        "event": "Marrow Halls",
+        "pool": "C",
+        "command": "delvefromany"
+      },
+      {
+        "event": "Molekin Burrow",
+        "pool": "D",
+        "command": "delvefromkeyword"
+      },
+      {
+        "event": "Painted Landscape",
+        "pool": "C",
+        "command": "addcardbykeyword"
+      },
+      {
+        "event": "Rotting Residence",
+        "pool": "D",
+        "command": "delvefromkeyword"
+      },
+      {
+        "event": "Survey the Field",
+        "pool": "C",
+        "command": "delvefromany"
+      },
+      {
+        "event": "The Cocoon",
+        "pool": "D",
+        "command": "delvefromkeyword"
+      },
+      {
+        "event": "Undisturbed Grave",
+        "pool": "C",
+        "command": "addcardbykeyword"
+      },
+      {
+        "event": "Vault Door",
+        "pool": "C",
+        "command": "delvefromany"
+      },
+      {
+        "event": "Vesparin Vault",
+        "pool": "C",
+        "command": "delvefromany"
+      }
+    ],
+    "fromCards": [
+      {
+        "card": "Booty",
+        "pool": "A",
+        "command": "delvebytag"
+      },
+      {
+        "card": "Explorer's Trick",
+        "pool": "C",
+        "command": "setrewardstokeyword"
+      },
+      {
+        "card": "Shovel",
+        "pool": "A",
+        "command": "delvebytag"
+      }
+    ],
+    "fromTalents": [
+      {
+        "talent": "Pirate Parlour",
+        "pool": "B",
+        "command": "pirateparlour"
+      }
+    ],
+    "missingFromAddCardByKeyword": null
+  },
+  {
+    "id": 77316,
+    "name": "Staff of Thunder",
+    "isTreasure": true,
+    "inSunforge": true,
+    "inCardRewards": false,
+    "inConjurations": true,
+    "inMerchant": false,
+    "inAlchemist": false,
+    "canBeAcquired": false,
+    "fromEvents": [
+      {
+        "event": "Broken Tombstone",
+        "pool": "C",
+        "command": "addcardbykeyword"
+      },
+      {
+        "event": "Marrow Halls",
+        "pool": "C",
+        "command": "delvefromany"
+      },
+      {
+        "event": "Painted Landscape",
+        "pool": "C",
+        "command": "addcardbykeyword"
+      },
+      {
+        "event": "Survey the Field",
+        "pool": "C",
+        "command": "delvefromany"
+      },
+      {
+        "event": "Undisturbed Grave",
+        "pool": "C",
+        "command": "addcardbykeyword"
+      },
+      {
+        "event": "Vault Door",
+        "pool": "C",
+        "command": "delvefromany"
+      },
+      {
+        "event": "Vesparin Vault",
+        "pool": "C",
+        "command": "delvefromany"
+      }
+    ],
+    "fromCards": [
+      {
+        "card": "Booty",
+        "pool": "A",
+        "command": "delvebytag"
+      },
+      {
+        "card": "Explorer's Trick",
+        "pool": "C",
+        "command": "setrewardstokeyword"
+      },
+      {
+        "card": "Shovel",
+        "pool": "A",
+        "command": "delvebytag"
+      }
+    ],
+    "fromTalents": [
+      {
+        "talent": "Pirate Parlour",
+        "pool": "B",
+        "command": "pirateparlour"
+      }
+    ],
+    "missingFromAddCardByKeyword": null
+  },
+  {
+    "id": 571114,
+    "name": "Stash of Weapons",
+    "isTreasure": true,
+    "inSunforge": true,
+    "inCardRewards": true,
+    "inConjurations": true,
+    "inMerchant": true,
+    "inAlchemist": false,
+    "canBeAcquired": true,
+    "fromEvents": [
+      {
+        "event": "Broken Tombstone",
+        "pool": "C",
+        "command": "addcardbykeyword"
+      },
+      {
+        "event": "Marrow Halls",
+        "pool": "C",
+        "command": "delvefromany"
+      },
+      {
+        "event": "Molekin Burrow",
+        "pool": "D",
+        "command": "delvefromkeyword"
+      },
+      {
+        "event": "Painted Landscape",
+        "pool": "C",
+        "command": "addcardbykeyword"
+      },
+      {
+        "event": "Rotting Residence",
+        "pool": "D",
+        "command": "delvefromkeyword"
+      },
+      {
+        "event": "Survey the Field",
+        "pool": "C",
+        "command": "delvefromany"
+      },
+      {
+        "event": "The Cocoon",
+        "pool": "D",
+        "command": "delvefromkeyword"
+      },
+      {
+        "event": "Undisturbed Grave",
+        "pool": "C",
+        "command": "addcardbykeyword"
+      },
+      {
+        "event": "Vault Door",
+        "pool": "C",
+        "command": "delvefromany"
+      },
+      {
+        "event": "Vesparin Vault",
+        "pool": "C",
+        "command": "delvefromany"
+      }
+    ],
+    "fromCards": [
+      {
+        "card": "Booty",
+        "pool": "A",
+        "command": "delvebytag"
+      },
+      {
+        "card": "Explorer's Trick",
+        "pool": "C",
+        "command": "setrewardstokeyword"
+      },
+      {
+        "card": "Shovel",
+        "pool": "A",
+        "command": "delvebytag"
+      }
+    ],
+    "fromTalents": [
+      {
+        "talent": "Pirate Parlour",
+        "pool": "B",
+        "command": "pirateparlour"
+      }
+    ],
+    "missingFromAddCardByKeyword": null
+  },
+  {
+    "id": 307462,
+    "name": "Tradepost",
+    "isTreasure": true,
+    "inSunforge": true,
+    "inCardRewards": false,
+    "inConjurations": false,
+    "inMerchant": false,
+    "inAlchemist": false,
+    "canBeAcquired": false,
+    "fromEvents": [
+      {
+        "event": "Broken Tombstone",
+        "pool": "C",
+        "command": "addcardbykeyword"
+      },
+      {
+        "event": "Marrow Halls",
+        "pool": "C",
+        "command": "delvefromany"
+      },
+      {
+        "event": "Painted Landscape",
+        "pool": "C",
+        "command": "addcardbykeyword"
+      },
+      {
+        "event": "Survey the Field",
+        "pool": "C",
+        "command": "delvefromany"
+      },
+      {
+        "event": "Undisturbed Grave",
+        "pool": "C",
+        "command": "addcardbykeyword"
+      },
+      {
+        "event": "Vault Door",
+        "pool": "C",
+        "command": "delvefromany"
+      },
+      {
+        "event": "Vesparin Vault",
+        "pool": "C",
+        "command": "delvefromany"
+      }
+    ],
+    "fromCards": [
+      {
+        "card": "Booty",
+        "pool": "A",
+        "command": "delvebytag"
+      },
+      {
+        "card": "Explorer's Trick",
+        "pool": "C",
+        "command": "setrewardstokeyword"
+      },
+      {
+        "card": "Shovel",
+        "pool": "A",
+        "command": "delvebytag"
+      }
+    ],
+    "fromTalents": [
+      {
+        "talent": "Pirate Parlour",
+        "pool": "B",
+        "command": "pirateparlour"
+      }
+    ],
+    "missingFromAddCardByKeyword": {
+      "whenDisabled": null
+    }
+  }
+]

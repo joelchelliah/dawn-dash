@@ -1,0 +1,98 @@
+[
+  {
+    "pool": "A",
+    "name": "DelveTreasure",
+    "predicate": "treasure keyword OR Equipment OR Item, minus Junk/Companion suffix",
+    "useAllCardSets": false,
+    "size": 102,
+    "keywordShare": 14,
+    "reachedBy": [
+      {
+        "card": "Booty",
+        "command": "delvebytag"
+      },
+      {
+        "card": "Shovel",
+        "command": "delvebytag"
+      }
+    ],
+    "note": "The wide one, and the least filtered pool in the game: the delvebytag short-circuit skips its own Unique / Grounded / canBeAcquired / excludeFromConjurations filters. Most candidates are not treasure-keyword cards."
+  },
+  {
+    "pool": "B",
+    "name": "DelvePirateParlor",
+    "predicate": "treasure keyword OR map keyword OR Location category, minus owned Uniques and Unplayable, plus 1-5 tatoos",
+    "useAllCardSets": true,
+    "size": 27,
+    "reachedBy": [
+      {
+        "talent": "Pirate Parlour",
+        "command": "pirateparlour"
+      }
+    ],
+    "note": "Ignores set selection, so it can offer cards from disabled expansions. Ends in `play`, not `obtain`, so the pick is played rather than added to the deck. Size counts base candidates: notes/15 §3 quotes 26, this minus the one Unplayable Location (Lost Lagoon), and excludes both the run-state-dependent owned-Unique removal and the tatoos."
+  },
+  {
+    "pool": "C",
+    "name": "keyword, ungated",
+    "predicate": "treasure keyword",
+    "useAllCardSets": false,
+    "size": 14,
+    "reachedBy": [
+      {
+        "card": "Explorer's Trick",
+        "command": "setrewardstokeyword"
+      },
+      {
+        "event": "Broken Tombstone",
+        "command": "addcardbykeyword"
+      },
+      {
+        "event": "Marrow Halls",
+        "command": "delvefromany"
+      },
+      {
+        "event": "Painted Landscape",
+        "command": "addcardbykeyword"
+      },
+      {
+        "event": "Survey the Field",
+        "command": "delvefromany"
+      },
+      {
+        "event": "Undisturbed Grave",
+        "command": "addcardbykeyword"
+      },
+      {
+        "event": "Vault Door",
+        "command": "delvefromany"
+      },
+      {
+        "event": "Vesparin Vault",
+        "command": "delvefromany"
+      }
+    ]
+  },
+  {
+    "pool": "D",
+    "name": "keyword, acquirable",
+    "predicate": "treasure keyword AND canBeAcquired AND PlayerCanCastCard",
+    "useAllCardSets": false,
+    "size": 7,
+    "reachedBy": [
+      {
+        "event": "Molekin Burrow",
+        "command": "delvefromkeyword"
+      },
+      {
+        "event": "Rotting Residence",
+        "command": "delvefromkeyword"
+      },
+      {
+        "event": "The Cocoon",
+        "command": "delvefromkeyword"
+      }
+    ],
+    "note": "Differs from C by one bool. This is why two events both labelled treasure hand out different cards."
+  }
+]
