@@ -25,9 +25,9 @@ export default function LandingPage() {
 
   const title = 'Dawn-Dash'
   const description =
-    'Dawncaster tools and resources, including interactive codexes for cards and talents, event-tree visualizer, and speedrun charts!'
+    'Dawncaster tools and resources, including interactive codexes for cards, talents and events, score guides,and speedrun charts!'
   const ogDescription =
-    'Useful tools for Dawncaster, including advanced cards/talents search, event-tree visualizer, and speedrun charts!'
+    'Collection of tools and resources for Dawncaster, including interactive codexes for cards, talents and events, score guides, and speedrun charts!'
   const image = 'https://www.dawn-dash.com/og-image-dawndash.png'
   const url = 'https://www.dawn-dash.com'
   const squareLogo = 'https://www.dawn-dash.com/logo-dawndash.png'

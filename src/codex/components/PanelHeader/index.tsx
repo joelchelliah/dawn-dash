@@ -6,25 +6,23 @@ import styles from './index.module.scss'
 
 const cx = createCx(styles)
 
+export type PanelHeaderType =
+  'Search' | 'CardResults' | 'TalentResults' | 'EventResults' | 'TreasureCards' | 'TreasurePools'
+
+const PANEL_TITLES: Record<PanelHeaderType, string> = {
+  Search: 'Search',
+  CardResults: 'Cards',
+  TalentResults: 'Talents',
+  EventResults: 'Event',
+  TreasureCards: 'Treasure cards',
+  TreasurePools: 'Treasure pools',
+}
+
 interface PanelHeaderProps {
-  type: 'Search' | 'CardResults' | 'TalentResults' | 'EventResults'
+  type: PanelHeaderType
 }
 
 const PanelHeader = ({ type }: PanelHeaderProps) => {
-  const renderTitle = () => {
-    if (type === 'Search') {
-      return 'Search'
-    } else if (type === 'CardResults') {
-      return 'Cards'
-    } else if (type === 'TalentResults') {
-      return 'Talents'
-    } else if (type === 'EventResults') {
-      return 'Event'
-    }
-
-    return 'Results'
-  }
-
   const renderIcon = () => {
     if (type === 'Search') {
       return <MagnifyingGlassIcon className={cx('panel-header__magnifying-glass-icon')} />
@@ -37,7 +35,7 @@ const PanelHeader = ({ type }: PanelHeaderProps) => {
     <>
       <div className={cx('panel-header')}>
         {renderIcon()}
-        <span className={cx('panel-header__title')}>{renderTitle()}</span>
+        <span className={cx('panel-header__title')}>{PANEL_TITLES[type]}</span>
       </div>
       <GradientDivider spacingBottom="lg" />
     </>
