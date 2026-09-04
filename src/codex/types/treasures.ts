@@ -1,3 +1,5 @@
+import { CardData } from '@/codex/types/cards'
+
 export interface TreasureCard {
   id: number
   name: string
@@ -56,4 +58,9 @@ export interface PoolReachedBy {
 
 export interface MissingFromAddCardByKeyword {
   whenDisabled: string[] | null
+}
+
+export interface EnrichedTreasureCard {
+  treasureDetails: TreasureCard
+  cardDetails: CardData
 }

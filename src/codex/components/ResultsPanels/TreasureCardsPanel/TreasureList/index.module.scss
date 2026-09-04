@@ -1,0 +1,197 @@
+@use 'index' as *;
+
+$alternating-row-background: rgba(0, 0, 0, 0.14);
+$alternating-row-last-item-background: linear-gradient(
+  to right,
+  $alternating-row-background,
+  transparent
+);
+$alternating-row-mobile-background: linear-gradient(to right, rgba(0, 0, 0, 0.25), transparent);
+
+$rarity-colors: (
+  'common': $color-rarity-common,
+  'uncommon': $color-rarity-uncommon,
+  'rare': $color-rarity-rare,
+  'legendary': $color-rarity-legendary,
+  'monster': $color-danger-special-card,
+);
+
+$breakpoint-treasures-4-col: 90rem;
+$breakpoint-treasures-3-col: 76rem;
+
+.treasure-list-container {
+  width: 100%;
+}
+
+/*
+ * 5 columns at the widest, stepping 5 → 4 → 3 → 1.
+ *
+ * The alternating row bands are `nth-child` arithmetic, so every column count needs its own set of
+ * rules: the "2 rows on, 2 rows off" band for N columns is `nth-child(2N n + 1 … 2N n + N)`. That
+ * is why the count is repeated per breakpoint rather than driven by a variable — CSS can't compute
+ * an `nth-child` coefficient. Each block resets the previous one's bands before setting its own,
+ * since the wider rules still match at narrower widths.
+ */
+.treasure-list {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0;
+  width: 100%;
+  padding: 0;
+
+  @media (max-width: $breakpoint-treasures-4-col) {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  @media (max-width: $breakpoint-treasures-3-col) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  @media (max-width: $breakpoint-mobile) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.treasure-list-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.25rem;
+  transition: all 0.5s ease;
+
+  // Keeps the artwork and text together when a narrow column would otherwise wrap them.
+  flex-wrap: nowrap;
+  white-space: nowrap;
+
+  // Alternating row bands — 5 columns
+  &:nth-child(10n + 1),
+  &:nth-child(10n + 2),
+  &:nth-child(10n + 3),
+  &:nth-child(10n + 4),
+  &:nth-child(10n + 5) {
+    background-color: $alternating-row-background;
+  }
+
+  // Gradient fade on the row's last item
+  &:nth-child(10n + 5) {
+    background: $alternating-row-last-item-background;
+  }
+
+  // An incomplete final row still fades out
+  &:last-child:not(:nth-child(5n)) {
+    background: $alternating-row-last-item-background;
+  }
+
+  &__text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    // Lets the truncating name shrink instead of overflowing the grid column.
+    min-width: 0;
+    flex: 1;
+  }
+
+  &__name {
+    font-size: font-size('sm');
+    font-weight: 400;
+    color: $color-primary-base;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__rarity {
+    font-size: font-size('xxs');
+    font-weight: 400;
+    letter-spacing: 0.025em;
+
+    @each $name, $colour in $rarity-colors {
+      &--#{$name} {
+        color: $colour;
+      }
+    }
+  }
+
+  &:hover {
+    background: linear-gradient(to right, $color-list-bg-hover, transparent) !important;
+
+    .treasure-list-item__name {
+      color: $color-primary-hover;
+      font-weight: 600;
+    }
+    .treasure-list-item__rarity {
+      font-weight: 600;
+    }
+  }
+
+  // Alternating row bands — 4 columns
+  @media (max-width: $breakpoint-treasures-4-col) {
+    &:nth-child(10n + 1),
+    &:nth-child(10n + 2),
+    &:nth-child(10n + 3),
+    &:nth-child(10n + 4),
+    &:nth-child(10n + 5),
+    &:nth-child(5n) {
+      background-color: transparent;
+      background: none;
+    }
+
+    &:nth-child(8n + 1),
+    &:nth-child(8n + 2),
+    &:nth-child(8n + 3),
+    &:nth-child(8n + 4) {
+      background-color: $alternating-row-background;
+    }
+
+    &:nth-child(8n + 4) {
+      background: $alternating-row-last-item-background;
+    }
+
+    &:last-child:not(:nth-child(4n)) {
+      background: $alternating-row-last-item-background;
+    }
+  }
+
+  // Alternating row bands — 3 columns
+  @media (max-width: $breakpoint-treasures-3-col) {
+    &:nth-child(8n + 1),
+    &:nth-child(8n + 2),
+    &:nth-child(8n + 3),
+    &:nth-child(8n + 4),
+    &:nth-child(4n) {
+      background-color: transparent;
+      background: none;
+    }
+
+    &:nth-child(6n + 1),
+    &:nth-child(6n + 2),
+    &:nth-child(6n + 3) {
+      background-color: $alternating-row-background;
+    }
+
+    &:nth-child(6n + 3) {
+      background: $alternating-row-last-item-background;
+    }
+
+    &:last-child:not(:nth-child(3n)) {
+      background: $alternating-row-last-item-background;
+    }
+  }
+
+  // Alternating row bands — 1 column
+  @media (max-width: $breakpoint-mobile) {
+    gap: 1.25rem;
+
+    &:nth-child(6n + 1),
+    &:nth-child(6n + 2),
+    &:nth-child(6n + 3) {
+      background-color: transparent;
+      background: none;
+    }
+
+    &:nth-child(odd) {
+      background: $alternating-row-mobile-background;
+    }
+  }
+}

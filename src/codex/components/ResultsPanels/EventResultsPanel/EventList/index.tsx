@@ -12,6 +12,8 @@ import styles from './index.module.scss'
 
 const cx = createCx(styles)
 
+const ARTWORK_SIZE = 50
+
 interface EventListProps {
   events: Event[]
   allEvents: Event[]
@@ -131,8 +133,8 @@ function EventListItem({ event, allEvents, onEventSelect }: EventListItemProps):
       <Image
         src={eventImageSrc}
         alt={event.name}
-        width={50}
-        height={50}
+        width={ARTWORK_SIZE}
+        height={ARTWORK_SIZE}
         className={cx('event-list-item__artwork')}
         onError={onImageSrcError}
       />

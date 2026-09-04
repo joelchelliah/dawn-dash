@@ -5,18 +5,23 @@
   padding: 1rem 0;
   border-radius: 4px;
 
-  &__header {
+  // The container itself has no horizontal margin, so everything sitting directly inside it needs
+  // its own — the last-updated line and the empty-state message included.
+  &__header,
+  &__treasure-list,
+  &__last-updated {
     margin: 0 1rem;
   }
 
   &__container {
     display: flex;
     flex-direction: column;
-    margin: 1rem 1rem 0;
+    margin-top: 1rem;
   }
 }
 
 .info-message {
+  margin: 0 1rem;
   font-size: font-size('sm');
   line-height: 1.4;
   color: $color-primary-muted;

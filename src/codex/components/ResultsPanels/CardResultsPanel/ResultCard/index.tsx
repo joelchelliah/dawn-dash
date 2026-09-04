@@ -1,6 +1,10 @@
 import { memo, useMemo } from 'react'
 
 import GradientLink from '@/shared/components/GradientLink'
+import {
+  RARITY_BORDERED_ARTWORK_HOVER_TRIGGER,
+  RARITY_BORDERED_ARTWORK_STRUCK_TRIGGER,
+} from '@/shared/components/RarityBorderedArtwork'
 import { useBreakpoint } from '@/shared/hooks/useBreakpoint'
 import { createCx } from '@/shared/utils/classnames'
 
@@ -82,15 +86,13 @@ const ResultCard = ({
   )
   const isStruck = isCardStruck(card)
 
-  // `result-card-hoverable` and `result-card-struck` are deliberately unhashed (see the `:global`
-  // rules in CardArtwork / CardIcons / CardMetadata): those live in their own CSS modules and cannot
-  // see this module's hashed class names, so the hover-driven hop and the struck fade each need one
-  // shared, stable hook to key off.
   const cardContainerClassName = `${cx('result-card', {
     'result-card--struck': isStruck,
     'result-card--full-match': isFullMatch,
     'result-card--hidden': shouldHideTrackedCards && isStruck,
-  })} result-card-hoverable${isStruck ? ' result-card-struck' : ''}`
+  })} result-card-hoverable ${RARITY_BORDERED_ARTWORK_HOVER_TRIGGER}${
+    isStruck ? ` result-card-struck ${RARITY_BORDERED_ARTWORK_STRUCK_TRIGGER}` : ''
+  }`
   const cardClassName = cx('result-card__title-row', {
     'result-card__title-row--hidden': shouldHideTrackedCards && isStruck,
   })
@@ -147,7 +149,7 @@ const ResultCard = ({
       onClick={() => toggleCardStrike(card)}
       style={{ animationDelay }}
     >
-      {shouldShowCardArt && <CardArtwork card={card} isStruck={isStruck} />}
+      {shouldShowCardArt && <CardArtwork card={card} />}
       {/* Sibling of the content column, not part of the title row, so the icons centre against
           the whole row's height the way the artwork does. */}
       <CardIcons
