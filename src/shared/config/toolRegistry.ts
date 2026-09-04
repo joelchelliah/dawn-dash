@@ -12,16 +12,13 @@ export interface ToolDefinition {
   path: string
   title: string
   ogTitle: string
-  // Doubles as the SEO meta description (PageHead renders it into `meta[name=description]`,
-  // twitter:description and the JSON-LD) as well as the landing page's desktop hover panel.
-  // Google truncates the search snippet around 155 characters, so keep it under that and
-  // keyword-forward — the panel has surrounding context, a search result does not.
+  // Doubles as the SEO meta description as well as the landing page's desktop hover panel.
+  // Google truncates the search snippet around 155 characters, so keep it under that!
   description: string
   // Landing page mobile card only; the hover panel is pointer-only so the two never co-render.
-  // Sits in a grid tile at font-size xxs, so a long string blows out the card height.
+  // Keep it short!
   shortDescription: string
-  // Discord/Slack/Twitter card blurb: relaxed and direct, for readers who already know the
-  // game. Clipped around 120 characters by the tightest embed.
+  // Discord/Slack/Twitter card blurb. For readers who already know the game.
   ogDescription: string
   ogImage: string
   logoImage: string
@@ -61,7 +58,7 @@ export const TOOL_REGISTRY: ToolDefinition[] = [
     shortDescription:
       'Skill trees of all the talents in Dawncaster, with advanced search and filtering!',
     ogDescription:
-      'Search and filter through all Dawncaster talents and their requirements, shown as tiny skill trees!',
+      'Browse and filter through all Dawncaster talents and their requirements, shown as tiny skill trees!',
     ogImage: 'https://www.dawn-dash.com/og-image-skilldex.png',
     logoImage: 'https://www.dawn-dash.com/logo-skilldex.png',
     landingImage: '/landing-skilldex.webp',
@@ -78,7 +75,7 @@ export const TOOL_REGISTRY: ToolDefinition[] = [
     shortDescription:
       'Event trees for all events in Dawncaster, showing all paths, dialogue and rewards!',
     ogDescription:
-      'Explore all Dawncaster events, as fully mapped out event trees, including all dialogue options and rewards!',
+      'Explore every Dawncaster event, as a fully mapped out event tree, with all dialogue options and rewards!',
     ogImage: 'https://www.dawn-dash.com/og-image-eventmaps.png',
     logoImage: 'https://www.dawn-dash.com/logo-eventmaps.png',
     landingImage: '/landing-eventmaps.webp',
