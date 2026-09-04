@@ -4,6 +4,7 @@ import RarityBorderedArtwork, {
 } from '@/shared/components/RarityBorderedArtwork'
 import { createCx } from '@/shared/utils/classnames'
 
+import { CARD_CATEGORIES } from '@/codex/constants/cardCategories'
 import { EnrichedTreasureCard } from '@/codex/types/treasures'
 
 import styles from './index.module.scss'
@@ -37,6 +38,8 @@ interface TreasureListItemProps {
 function TreasureListItem({ treasure }: TreasureListItemProps): JSX.Element {
   const { treasureDetails, cardDetails } = treasure
   const rarity = RARITIES[cardDetails.rarity]
+  const category = CARD_CATEGORIES[cardDetails.category]
+  const rarityAndCategory = [rarity?.name, category].filter(Boolean).join(' ')
 
   // The trigger marker is what lets the row's hover drive the artwork's pop and glow — the shared
   // component can't see this module's hashed class names.
@@ -54,14 +57,13 @@ function TreasureListItem({ treasure }: TreasureListItemProps): JSX.Element {
       />
       <div className={cx('treasure-list-item__text')}>
         <span className={cx('treasure-list-item__name')}>{treasureDetails.name}</span>
-        {rarity && (
+        {rarityAndCategory && (
           <span
-            className={cx(
-              'treasure-list-item__rarity',
-              `treasure-list-item__rarity--${rarity.slug}`
-            )}
+            className={cx('treasure-list-item__rarity', {
+              [`treasure-list-item__rarity--${rarity?.slug}`]: Boolean(rarity),
+            })}
           >
-            {rarity.name}
+            {rarityAndCategory}
           </span>
         )}
       </div>
