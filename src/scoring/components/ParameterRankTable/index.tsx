@@ -443,7 +443,8 @@ function ParameterRankTable({ mode }: ParameterRankTableProps): JSX.Element {
       onSelectChange={setSelectedParameter}
       selectLabel="Scoring parameter"
       renderContent={renderParameterContent}
-      maxHeight={450}
+      containerHeight={450}
+      fadeHeight="10rem"
     />
   )
 }

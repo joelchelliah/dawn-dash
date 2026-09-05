@@ -41,7 +41,10 @@ function Modal({
         style={{ borderColor, maxWidth }}
       >
         {scrollable ? (
-          <ScrollableWithFade className={cx('content', 'content--scrollable')}>
+          <ScrollableWithFade
+            className={cx('content', 'content--scrollable')}
+            scrollBottomOffset={95}
+          >
             {children}
             {footer}
           </ScrollableWithFade>

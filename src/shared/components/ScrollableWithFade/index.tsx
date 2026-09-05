@@ -6,13 +6,32 @@ import styles from './index.module.scss'
 
 const cx = createCx(styles)
 
+// Matches the CSS fallback for --fade-height in index.module.scss.
+const DEFAULT_FADE_HEIGHT = '12rem'
+
+/**
+ * Resolves a CSS length (rem, px, em...) to pixels by letting the browser compute it.
+ * The fade height is authored in CSS units but the scroll maths needs real pixels.
+ */
+const toPixels = (length: string): number => {
+  const probe = document.createElement('div')
+  probe.style.cssText = `position:absolute;visibility:hidden;height:${length}`
+  document.body.appendChild(probe)
+  const pixels = probe.getBoundingClientRect().height
+  probe.remove()
+
+  return pixels
+}
+
 interface ScrollableWithFadeProps {
   children: React.ReactNode
   maxHeight?: string
   className?: string
   fadeColor?: string
-  // To prevent "jumping" when the content is scrolled to the bottom
+  // How far from the bottom the fade switches off, in px
   scrollBottomOffset?: number
+  // Height of the bottom fade gradient
+  fadeHeight?: string
 }
 
 function ScrollableWithFade({
@@ -20,7 +39,8 @@ function ScrollableWithFade({
   maxHeight = '85vh',
   className,
   fadeColor,
-  scrollBottomOffset = 90,
+  scrollBottomOffset,
+  fadeHeight,
 }: ScrollableWithFadeProps): JSX.Element {
   const contentRef = useRef<HTMLDivElement>(null)
   const [showBottomFade, setShowBottomFade] = useState(false)
@@ -29,9 +49,12 @@ function ScrollableWithFade({
     const contentEl = contentRef.current
     if (!contentEl) return
 
+    // The fade should clear exactly as its gradient reaches the end of the content.
+    const offset = scrollBottomOffset ?? toPixels(fadeHeight ?? DEFAULT_FADE_HEIGHT)
+
     const checkScroll = () => {
       const { scrollTop, scrollHeight, clientHeight } = contentEl
-      const isScrolledToBottom = scrollTop + clientHeight >= scrollHeight - scrollBottomOffset
+      const isScrolledToBottom = scrollTop + clientHeight >= scrollHeight - offset
       setShowBottomFade(!isScrolledToBottom && scrollHeight > clientHeight)
     }
 
@@ -47,7 +70,7 @@ function ScrollableWithFade({
       contentEl.removeEventListener('scroll', checkScroll)
       resizeObserver.disconnect()
     }
-  }, [scrollBottomOffset])
+  }, [scrollBottomOffset, fadeHeight])
 
   const containerClassName = cx('container', className, {
     'show-fade': showBottomFade,
@@ -57,12 +80,13 @@ function ScrollableWithFade({
     <div
       ref={contentRef}
       className={containerClassName}
-      style={{
-        maxHeight,
-        ...(fadeColor && showBottomFade
-          ? ({ '--fade-color': fadeColor } as React.CSSProperties)
-          : {}),
-      }}
+      style={
+        {
+          maxHeight,
+          ...(fadeHeight ? { '--fade-height': fadeHeight } : {}),
+          ...(fadeColor && showBottomFade ? { '--fade-color': fadeColor } : {}),
+        } as React.CSSProperties
+      }
     >
       {children}
     </div>

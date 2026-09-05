@@ -29,11 +29,13 @@
   gap: 1rem;
   align-items: flex-start;
   width: 100%;
+  min-height: var(--container-height);
 
   @media (max-width: $breakpoint-mobile) {
     flex-direction: column;
     align-items: stretch;
     gap: 0;
+    min-height: 0;
   }
 }
 
@@ -208,13 +210,10 @@
   flex-direction: column;
   gap: 1rem;
   padding: 0 1rem 2rem;
-  // Set from the maxHeight prop. Makes the scrollable fade appear again when scrolling up from bottom.
-  min-height: var(--min-content-height, 580px);
 
   &--mobile {
     border-left: none;
     padding: 0;
-    min-height: auto;
     margin-top: 1rem;
 
     @media (max-width: $breakpoint-mobile) {

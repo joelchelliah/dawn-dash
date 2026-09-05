@@ -12,7 +12,7 @@
     bottom: -2rem;
     left: 0;
     right: 0;
-    height: 12rem;
+    height: var(--fade-height, 12rem);
     background: linear-gradient(
       to bottom,
       transparent 0%,
@@ -20,6 +20,8 @@
       var(--fade-color, $color-component-bg) 100%
     );
     pointer-events: none;
-    margin-top: -4rem;
+    // Pulls the gradient back over the content. Kept proportional to the fade height,
+    // so a smaller fade doesn't overlap the content more than a large one.
+    margin-top: calc(var(--fade-height, 12rem) / -3);
   }
 }

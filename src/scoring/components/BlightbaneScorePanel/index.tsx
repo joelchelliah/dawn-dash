@@ -513,7 +513,8 @@ function BlightbaneScorePanel({
           comes with a small set of additional rules:
         </p>
         <SelectableScoringInfo
-          maxHeight={240}
+          containerHeight={240}
+          fadeHeight="8rem"
           mode={mode}
           selectedClass={CharacterClass.Rogue}
           items={CALCULATION_TYPE_ITEMS}
