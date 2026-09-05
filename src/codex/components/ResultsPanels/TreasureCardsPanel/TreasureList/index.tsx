@@ -13,7 +13,7 @@ const cx = createCx(styles)
 
 const ARTWORK_SIZE = 48
 const ARTWORK_SIZE_MOBILE = 44
-const ARTWORK_BORDER_OPACITY = 70
+const ARTWORK_BORDER_OPACITY = 75
 
 interface TreasureListProps {
   treasures: EnrichedTreasureCard[]
