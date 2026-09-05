@@ -1,3 +1,5 @@
+import { useState } from 'react'
+
 import { createCx } from '@/shared/utils/classnames'
 import {
   AnimaImageUrl,
@@ -12,6 +14,7 @@ import {
 import GradientLink from '@/shared/components/GradientLink'
 import Code from '@/shared/components/Code'
 import Image from '@/shared/components/Image'
+import { CharacterClass } from '@/shared/types/characterClass'
 
 import { ScoringMode } from '@/scoring/types'
 
@@ -23,6 +26,7 @@ import ParameterInfoList from '../ParameterInfoList'
 import IllustratedScoringInfo from '../IllustratedScoringInfo'
 import SpoilerText from '../SpoilerText'
 import CenteredImage from '../CenteredImage'
+import SelectableScoringInfo, { SelectableItem } from '../SelectableScoringInfo'
 
 import styles from './index.module.scss'
 
@@ -32,7 +36,7 @@ const RARITY_BASE_POINTS = [
   { rarity: 'Common', points: 50 },
   { rarity: 'Uncommon', points: 75 },
   { rarity: 'Rare', points: 113 },
-  { rarity: 'Legendary', points: 169 },
+  { rarity: 'Legendary', points: 170 },
   { rarity: 'Monster', points: 50, note: '(scored as a common, but is actually a lower rarity)' },
 ]
 
@@ -98,6 +102,110 @@ const FLAT_SCORE_BONUSES = [
     ),
   },
 ]
+
+type CalculationType = 'DiminishingReturns' | 'Simple' | 'LowestX'
+
+const CALCULATION_TYPE_ITEMS: SelectableItem<CalculationType>[] = [
+  { value: 'DiminishingReturns', label: 'Diminishing Returns', emoji: '📉' },
+  { value: 'Simple', label: 'Simple', emoji: '😶' },
+  { value: 'LowestX', label: 'Lowest X', emoji: '💢' },
+]
+
+// Keyed by calculation type so the selectable panel stays a lookup rather than a switch.
+const CALCULATION_TYPE_CONTENT: Record<CalculationType, React.ReactNode> = {
+  DiminishingReturns: (
+    <>
+      <p className={cx('calculation-type-description')}>
+        <span>
+          This is the default <strong>calculation type</strong> used for almost every{' '}
+          <Highlight mode={ScoringMode.WeeklyChallenge}>Weekly Challenge</Highlight>, and is also by
+          far the most balanced one of the three. Rewards variety and punishes stacking duplicates.
+        </span>
+        <br />
+        <br />
+        <span>
+          Your card-scoring objective is supplemented with:
+          <Code wrap="mobile">
+            <strong>Half Points for additional copies after the first</strong>
+          </Code>
+          , meaning that you&apos;ll get a <strong>50%</strong> score reduction on each additional
+          copy of a card you already have. That&apos;s 50% of the previous bonus, so the values
+          diminish per copy. This prevents you from creating several copies of the same card to blow
+          up your score.
+        </span>
+        <br />
+        <br />
+        <span>
+          As an example, having 3 copies of the same keyword-matching <strong>legendary</strong>{' '}
+          card will give you a base score of only{' '}
+          <Highlight mode={ScoringMode.Blightbane}>298</Highlight> (<Code>170 + 85 + 43 = 298</Code>
+          ).
+        </span>
+      </p>
+      <br />
+      <ExampleBox emoji="🌀" mode={ScoringMode.Blightbane}>
+        <p>
+          Usually, this 50% score reduction only applies to the first 2 extra copies. Any duplicates
+          beyond that are not scored at all! This is a <strong>flexible parameter</strong>, but it
+          rarely changes.
+        </p>
+      </ExampleBox>
+    </>
+  ),
+  Simple: (
+    <>
+      <p className={cx('calculation-type-description')}>
+        <span>
+          The simplest <strong>calculation type</strong> of the three, and rarely used anymore. Very
+          similar to <Highlight mode={ScoringMode.Blightbane}>Diminishing Returns</Highlight>, but
+          without any downsides. Intended for challenges that reward maximum collection!
+        </span>
+        <br />
+        <br />
+        <span>
+          Every keywords-matching card scores its full value, with <strong>no 50% reduction</strong>{' '}
+          for duplicates. This lets you greatly increase your score by creating several copies of
+          the same bonus cards, as long as you&apos;re not heavily penalized for this by other
+          scoring components (e.g. the <strong>Accuracy</strong> bonus)!
+        </span>
+        <br />
+        <br />
+        <span>
+          As an example, having 3 copies of the same keyword-matching <strong>legendary</strong>{' '}
+          card will score you <Highlight mode={ScoringMode.Blightbane}>510</Highlight> (
+          <Code>170 + 170 + 170 = 510</Code>
+          ).
+        </span>
+      </p>
+    </>
+  ),
+  LowestX: (
+    <>
+      <p className={cx('calculation-type-description')}>
+        <span>
+          This <strong>calculation type</strong> is intended for challenges that reward winning with
+          the fewest low-rarity cards. It doesn&apos;t even care about keywords at all! This one is
+          also very rarely used anymore.
+        </span>
+        <br />
+        <br />
+        <span>
+          Only your <strong>lowest rarity X cards</strong> are scored. Bonus keywords are not
+          provided when this <strong>calculation type</strong> is used. Encourages you to prioritize
+          higher rarity cards, and remove the low-rarity ones from your deck.
+        </span>
+        <br />
+        <br />
+        <span>
+          As an example, having <strong>15 rare</strong> cards and <strong>10 legendary</strong>{' '}
+          cards in a <Highlight mode={ScoringMode.Blightbane}>Lowest 20</Highlight> challenge will
+          give you a base score of <Highlight mode={ScoringMode.Blightbane}>2,545</Highlight> (
+          <Code>(15 &times; 113) + (5 &times; 170) = 2,545</Code>).
+        </span>
+      </p>
+    </>
+  ),
+}
 
 const renderIcon = (name: string, large = false) => {
   const size = large ? 28 : 16
@@ -225,6 +333,21 @@ function BlightbaneScorePanel({
   panelId,
 }: BlightbaneScorePanelProps): JSX.Element {
   const mode = ScoringMode.Blightbane
+  const [selectedCalculationType, setSelectedCalculationType] =
+    useState<CalculationType>('DiminishingReturns')
+
+  const renderCalculationTypeContent = () => {
+    const item = CALCULATION_TYPE_ITEMS.find(({ value }) => value === selectedCalculationType)
+
+    return (
+      <>
+        <h3 className={cx('calculation-type-title')}>
+          {item?.emoji} &nbsp; {item?.label}
+        </h3>
+        {CALCULATION_TYPE_CONTENT[selectedCalculationType]}
+      </>
+    )
+  }
 
   return (
     <BasePanel
@@ -384,23 +507,22 @@ function BlightbaneScorePanel({
           cards. A <strong>legendary</strong> is worth over 3 times as much as a{' '}
           <strong>common</strong>, and will also scale a lot faster with your malignancies!
         </p>
-        <p className={cx('follow-up')}>
-          The objective usually also states:
-          <Code wrap="mobile">
-            <strong>Half Points for additional copies after the first</strong>
-          </Code>
-          , meaning that you&apos;ll get a <strong>50%</strong> score reduction on each additional
-          copy of a card you already have. For 3 copies of the same <strong>legendary</strong> card,
-          that matches a weekly keyword, you will receive a base score of only{' '}
-          <Highlight mode={mode}>298</Highlight> (<Code>170 + 85 + 43 = 298</Code>).
+        <p>
+          Additionally, there is one more component that determines how card-specific scores are
+          calculated. This is called the <Highlight mode={mode}>Calculation Type</Highlight>, and
+          comes with a small set of additional rules:
         </p>
-        <ExampleBox emoji="🌀" mode={mode}>
-          <p>
-            For most weeks, the 50% score reduction only applies to the first 2 extra copies, giving
-            no score at all for any duplicates beyond that. This is a flexible parameter, but it
-            hardly ever changes.
-          </p>
-        </ExampleBox>
+        <SelectableScoringInfo
+          maxHeight={240}
+          mode={mode}
+          selectedClass={CharacterClass.Rogue}
+          items={CALCULATION_TYPE_ITEMS}
+          selectedValue={selectedCalculationType}
+          onSelectChange={setSelectedCalculationType}
+          selectLabel="Calculation type"
+          renderContent={renderCalculationTypeContent}
+        />
+
         <h5 className={cx('mini-header')}>🕵️‍♂️ Help tracking keywords</h5>
         <p>
           Some weeks the keywords can be trickier to spot than others. Especially if they&apos;re

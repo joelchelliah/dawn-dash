@@ -31,6 +31,24 @@
     }
   }
 
+  .calculation-type-title {
+    font-size: font-size('md');
+    font-weight: 700;
+    margin: 1rem 0 0;
+    color: $color-primary-hover;
+
+    @media (max-width: $breakpoint-mobile) {
+      font-size: font-size('sm');
+      margin: 0.25rem 0 0;
+    }
+  }
+
+  .calculation-type-description {
+    margin: 0;
+    line-height: 1.4;
+    color: $color-primary-base;
+  }
+
   .mini-header {
     font-size: font-size('sm');
     font-weight: 800;

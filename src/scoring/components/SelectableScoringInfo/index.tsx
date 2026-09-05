@@ -12,8 +12,11 @@ import styles from './index.module.scss'
 
 const cx = createCx(styles)
 
-const MAX_HEIGHT = '450px'
 const SCROLL_BOTTOM_OFFSET = 125
+
+// The inner content must overshoot the scroll viewport, or short content never scrolls
+// and the bottom fade has nothing to reappear for when scrolling back up.
+const CONTENT_HEIGHT_OVERSHOOT = 130
 
 export interface SelectableItem<T extends string = string> {
   value: T
@@ -30,6 +33,7 @@ interface SelectableScoringInfoProps<T extends string = string> {
   selectLabel: string
   renderContent: () => ReactNode
   renderListItem?: (item: SelectableItem<T>, isActive: boolean) => ReactNode
+  maxHeight: number
 }
 
 function SelectableScoringInfo<T extends string = string>({
@@ -41,8 +45,10 @@ function SelectableScoringInfo<T extends string = string>({
   selectLabel,
   renderContent,
   renderListItem,
+  maxHeight,
 }: SelectableScoringInfoProps<T>): JSX.Element {
   const { isMobile } = useBreakpoint()
+  const minContentHeight = maxHeight + CONTENT_HEIGHT_OVERSHOOT
 
   const defaultRenderListItem = (item: SelectableItem<T>) => (
     <>
@@ -91,11 +97,16 @@ function SelectableScoringInfo<T extends string = string>({
             <div className={cx('content-area', 'content-area--mobile')}>{renderContent()}</div>
           ) : (
             <ScrollableWithFade
-              maxHeight={MAX_HEIGHT}
+              maxHeight={`${maxHeight}px`}
               fadeColor="rgba(0, 0, 0, 1.75)"
               scrollBottomOffset={SCROLL_BOTTOM_OFFSET}
             >
-              <div className={cx('content-area')}>{renderContent()}</div>
+              <div
+                className={cx('content-area')}
+                style={{ '--min-content-height': `${minContentHeight}px` } as React.CSSProperties}
+              >
+                {renderContent()}
+              </div>
             </ScrollableWithFade>
           )}
         </div>

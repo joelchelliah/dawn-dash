@@ -6,6 +6,11 @@
   font-weight: 700;
   margin: 1rem 0 0 0;
   color: $color-primary-hover;
+
+  @media (max-width: $breakpoint-mobile) {
+    font-size: font-size('sm');
+    margin: 0.25rem 0 0;
+  }
 }
 
 .parameter-description {
