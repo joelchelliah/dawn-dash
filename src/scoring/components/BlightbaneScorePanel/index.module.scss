@@ -49,6 +49,15 @@
     color: $color-primary-base;
   }
 
+  .bolgars-blueprints-link {
+    font-size: font-size('sm');
+    font-weight: 600;
+
+    @media (max-width: $breakpoint-mobile) {
+      font-size: font-size('xs');
+    }
+  }
+
   .mini-header {
     font-size: font-size('sm');
     font-weight: 800;

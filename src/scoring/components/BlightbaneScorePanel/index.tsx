@@ -16,7 +16,7 @@ import Code from '@/shared/components/Code'
 import Image from '@/shared/components/Image'
 import { CharacterClass } from '@/shared/types/characterClass'
 
-import { ScoringMode } from '@/scoring/types'
+import { ScoringMode, ScoringPanelId } from '@/scoring/types'
 
 import BasePanel from '../BasePanel'
 import Highlight from '../Highlight'
@@ -323,6 +323,7 @@ interface BlightbaneScorePanelProps {
   isFirstPanel?: boolean
   isLastPanel?: boolean
   panelId?: string
+  onNavigateToPanel?: (panelId: ScoringPanelId) => void
 }
 
 function BlightbaneScorePanel({
@@ -331,6 +332,7 @@ function BlightbaneScorePanel({
   isFirstPanel,
   isLastPanel,
   panelId,
+  onNavigateToPanel,
 }: BlightbaneScorePanelProps): JSX.Element {
   const mode = ScoringMode.Blightbane
   const [selectedCalculationType, setSelectedCalculationType] =
@@ -524,7 +526,35 @@ function BlightbaneScorePanel({
           renderContent={renderCalculationTypeContent}
         />
 
-        <h5 className={cx('mini-header')}>🕵️‍♂️ Help tracking keywords</h5>
+        <p>
+          {' '}
+          <i>
+            <strong>Warning:</strong>
+          </i>{' '}
+          The <strong>calculation type</strong> used for a{' '}
+          <Highlight mode={ScoringMode.WeeklyChallenge}>Weekly Challenge</Highlight> is never shown
+          anywhere! Neither in the game&apos;s challenge description nor on{' '}
+          <Highlight mode={mode}>Blightbane</Highlight>&apos;s challenge page. It&apos;s usually the
+          default <Highlight mode={mode}>Diminishing Returns</Highlight> type, so that&apos;s a
+          pretty safe bet.
+        </p>
+
+        <ExampleBox emoji="📜" mode={mode}>
+          <p>
+            The{' '}
+            <GradientLink
+              text="Bolgar's Blueprints"
+              onClick={() => onNavigateToPanel?.(ScoringPanelId.BolgarsBlueprints)}
+              internal
+              className={cx('bolgars-blueprints-link')}
+            />{' '}
+            section at the bottom will contain this information! Along with other in-depth
+            information and advanced tips, specifically tailored for the current{' '}
+            <strong>Weekly challenge</strong>.
+          </p>
+        </ExampleBox>
+
+        <h5 className={cx('mini-header')}>🕵️‍♂️ Help tracking down keywords</h5>
         <p>
           Some weeks the keywords can be trickier to spot than others. Especially if they&apos;re
           unusual words, or are hiding inside other words (and icons) like &quot;

@@ -138,7 +138,10 @@ function Scoring(): JSX.Element {
         <InGameScorePanel mode={inGameScoreMode} {...getPanelProps(inGamePanelId)} />
 
         {selectedMode === ScoringMode.WeeklyChallenge && (
-          <BlightbaneScorePanel {...getPanelProps(ScoringPanelId.BlightbaneScore)} />
+          <BlightbaneScorePanel
+            onNavigateToPanel={onSelectPanel}
+            {...getPanelProps(ScoringPanelId.BlightbaneScore)}
+          />
         )}
 
         <ExamplesPanel mode={selectedMode} {...getPanelProps(ScoringPanelId.ScoringExample)} />
