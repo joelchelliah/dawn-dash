@@ -92,7 +92,7 @@ function AdvancedInsight({ challengeData }: AdvancedInsightProps): JSX.Element {
         </Highlight>{' '}
         to{' '}
         <Highlight mode={ScoringMode.Blightbane} strong>
-          XI
+          IX
         </Highlight>{' '}
         in the <strong>Damage</strong>, <strong>Awareness</strong> and <strong>Wealth</strong>{' '}
         parameters (<Highlight mode={ScoringMode.Blightbane}>500</Highlight>), are each worth{' '}

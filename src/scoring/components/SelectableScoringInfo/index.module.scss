@@ -18,6 +18,9 @@
   &--WeeklyChallenge {
     border-color: $color-class-knight-border;
   }
+  &--Blightbane {
+    border-color: $color-class-rogue-border;
+  }
 }
 
 .columns {
@@ -26,11 +29,13 @@
   gap: 1rem;
   align-items: flex-start;
   width: 100%;
+  min-height: var(--container-height);
 
   @media (max-width: $breakpoint-mobile) {
     flex-direction: column;
     align-items: stretch;
     gap: 0;
+    min-height: 0;
   }
 }
 
@@ -41,7 +46,7 @@
 
 .left-column {
   flex: 0 0 auto;
-  min-width: 200px;
+  min-width: 230px;
 
   @media (max-width: $breakpoint-mobile) {
     width: 100%;
@@ -76,6 +81,9 @@
   }
   &--WeeklyChallenge {
     border-color: $color-class-knight-border;
+  }
+  &--Blightbane {
+    border-color: $color-class-rogue-border;
   }
 }
 
@@ -132,6 +140,13 @@
     }
   }
 
+  &--Blightbane:hover {
+    .item-label {
+      color: $color-class-rogue-hover;
+      font-weight: 600;
+    }
+  }
+
   &--Standard.active {
     .item-label {
       color: $color-class-warrior;
@@ -147,6 +162,12 @@
   &--WeeklyChallenge.active {
     .item-label {
       color: $color-class-knight;
+    }
+  }
+
+  &--Blightbane.active {
+    .item-label {
+      color: $color-class-rogue;
     }
   }
 
@@ -189,12 +210,10 @@
   flex-direction: column;
   gap: 1rem;
   padding: 0 1rem 2rem;
-  min-height: 580px; // To make the scrollable fade appear again when scrolling up from bottom.
 
   &--mobile {
     border-left: none;
     padding: 0;
-    min-height: auto;
     margin-top: 1rem;
 
     @media (max-width: $breakpoint-mobile) {

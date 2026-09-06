@@ -7,7 +7,12 @@ import GradientLink from '@/shared/components/GradientLink'
 import Image from '@/shared/components/Image'
 import { useCardImageSrc } from '@/shared/hooks/useCardImageSrc'
 
-import { FixedValueAction, ScoringMode, WeeklyChallengeData } from '@/scoring/types'
+import {
+  FixedValueAction,
+  PanelNavigationProps,
+  ScoringMode,
+  WeeklyChallengeData,
+} from '@/scoring/types'
 import { useWeeklyChallengeData } from '@/scoring/hooks/useWeeklyChallengeData'
 
 import Highlight from '../Highlight'
@@ -131,22 +136,13 @@ const getFixedValueScoringParameters = ({ scoring }: WeeklyChallengeData) =>
     }
   })
 
-interface BolgarsBlueprintsPanelProps {
+interface BolgarsBlueprintsPanelProps extends PanelNavigationProps {
   weeklyChallengeData: ReturnType<typeof useWeeklyChallengeData>
-  onNext?: () => void
-  onPrevious?: () => void
-  isFirstPanel?: boolean
-  isLastPanel?: boolean
-  panelId?: string
 }
 
 function BolgarsBlueprintsPanel({
   weeklyChallengeData,
-  onNext,
-  onPrevious,
-  isFirstPanel,
-  isLastPanel,
-  panelId,
+  ...navigation
 }: BolgarsBlueprintsPanelProps): JSX.Element {
   const { challengeData, isLoading, isError } = weeklyChallengeData
   const { cardImageSrc, onImageSrcError } = useCardImageSrc(challengeData?.image || '')
@@ -157,11 +153,7 @@ function BolgarsBlueprintsPanel({
       imageUrl={BolgarCreatureImageUrl}
       mode={ScoringMode.Blightbane}
       isLongTitle
-      onNext={onNext}
-      onPrevious={onPrevious}
-      isFirstPanel={isFirstPanel}
-      isLastPanel={isLastPanel}
-      panelId={panelId}
+      {...navigation}
     >
       <div className={cx('content')}>
         <p>

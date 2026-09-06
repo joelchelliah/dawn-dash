@@ -171,7 +171,7 @@ function AccuracyBonusScoring({ challengeData }: AccuracyBonusScoringProps): JSX
           are away from the target (<Highlight mode={ScoringMode.Blightbane}>{target}</Highlight>).
           Either above or below the target.
           <br />
-          Passing the buffer once will put outside the <strong>
+          Passing the buffer once will put you outside the <strong>
             derived accuracy window:
           </strong>{' '}
           <span style={{ whiteSpace: 'nowrap' }}>

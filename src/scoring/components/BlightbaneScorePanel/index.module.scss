@@ -31,6 +31,33 @@
     }
   }
 
+  .calculation-type-title {
+    font-size: font-size('md');
+    font-weight: 700;
+    margin: 1rem 0 0;
+    color: $color-primary-hover;
+
+    @media (max-width: $breakpoint-mobile) {
+      font-size: font-size('sm');
+      margin: 0.25rem 0 0;
+    }
+  }
+
+  .calculation-type-description {
+    margin: 0;
+    line-height: 1.4;
+    color: $color-primary-base;
+  }
+
+  .bolgars-blueprints-link {
+    font-size: font-size('sm');
+    font-weight: 600;
+
+    @media (max-width: $breakpoint-mobile) {
+      font-size: font-size('xs');
+    }
+  }
+
   .mini-header {
     font-size: font-size('sm');
     font-weight: 800;
@@ -130,18 +157,6 @@
 
     @media (max-width: $breakpoint-mobile) {
       grid-template-columns: 1fr;
-    }
-  }
-
-  .rarity-note {
-    font-size: font-size('xs');
-    color: $color-primary-muted;
-    font-style: italic;
-
-    @media (max-width: $breakpoint-mobile) {
-      display: block;
-      font-size: font-size('xxs');
-      margin-left: 1rem;
     }
   }
 }

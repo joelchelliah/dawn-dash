@@ -12,9 +12,6 @@ import styles from './index.module.scss'
 
 const cx = createCx(styles)
 
-const MAX_HEIGHT = '450px'
-const SCROLL_BOTTOM_OFFSET = 125
-
 export interface SelectableItem<T extends string = string> {
   value: T
   label: string
@@ -30,6 +27,10 @@ interface SelectableScoringInfoProps<T extends string = string> {
   selectLabel: string
   renderContent: () => ReactNode
   renderListItem?: (item: SelectableItem<T>, isActive: boolean) => ReactNode
+  // Height of the visible scroll viewport, in px
+  containerHeight: number
+  // Height of the scroll fade
+  fadeHeight?: string
 }
 
 function SelectableScoringInfo<T extends string = string>({
@@ -41,6 +42,8 @@ function SelectableScoringInfo<T extends string = string>({
   selectLabel,
   renderContent,
   renderListItem,
+  containerHeight,
+  fadeHeight,
 }: SelectableScoringInfoProps<T>): JSX.Element {
   const { isMobile } = useBreakpoint()
 
@@ -53,7 +56,14 @@ function SelectableScoringInfo<T extends string = string>({
 
   return (
     <div className={cx('selectable-container', `selectable-container--${mode}`)}>
-      <div className={cx('columns')}>
+      <div
+        className={cx('columns')}
+        style={
+          isMobile
+            ? undefined
+            : ({ '--container-height': `${containerHeight}px` } as React.CSSProperties)
+        }
+      >
         {isMobile ? (
           <div className={cx('mobile-select-container')}>
             <Select
@@ -91,9 +101,10 @@ function SelectableScoringInfo<T extends string = string>({
             <div className={cx('content-area', 'content-area--mobile')}>{renderContent()}</div>
           ) : (
             <ScrollableWithFade
-              maxHeight={MAX_HEIGHT}
-              fadeColor="rgba(0, 0, 0, 1.75)"
-              scrollBottomOffset={SCROLL_BOTTOM_OFFSET}
+              maxHeight={`${containerHeight}px`}
+              fadeColor="rgba(25, 25, 25, 1)"
+              fadeHeight={fadeHeight}
+              scrollBottomOffset={110}
             >
               <div className={cx('content-area')}>{renderContent()}</div>
             </ScrollableWithFade>
