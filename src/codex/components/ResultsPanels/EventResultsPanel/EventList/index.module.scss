@@ -156,6 +156,10 @@ $alternating-row-mobile-background: linear-gradient(to right, rgba(0, 0, 0, 0.25
   &:hover {
     background: linear-gradient(to right, $color-list-bg-hover, transparent) !important;
 
+    .event-list-item__text {
+      @include tinyNudgeRightAnimation;
+    }
+
     .event-list-item__name {
       font-weight: 600;
       color: $color-primary-hover;

@@ -80,12 +80,15 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
 
   const loadingColor = getClassColor(CharacterClass.Rogue, ClassColorVariant.Dark)
 
-  const getNavLinkText = (name: string) =>
-    loadingPage === name ? (
-      <LoadingDots color={loadingColor} className={cx('side-menu__nav-link__loading-dots')} />
-    ) : (
-      name
-    )
+  const getNavLinkText = (name: string) => (
+    <span className={cx('side-menu__nav-link__text')}>
+      {loadingPage === name ? (
+        <LoadingDots color={loadingColor} className={cx('side-menu__nav-link__loading-dots')} />
+      ) : (
+        name
+      )}
+    </span>
+  )
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -178,7 +181,7 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
           <div className={getNavLinkContainerClassName(false)}>
             <button className={cx('side-menu__nav-link')} onClick={() => setIsAboutInfoOpen(true)}>
               {getNavLinkImage(RushedForgeryImageUrl, 'About logo')}
-              About
+              {getNavLinkText('About')}
             </button>
           </div>
         </nav>

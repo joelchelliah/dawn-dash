@@ -228,6 +228,15 @@
   }
 }
 
+/**
+ * Hover feedback for text sitting beside a `BorderedArtwork`. A nudge rather than a pop: scaling
+ * text rasterizes the glyphs at a fractional size mid-animation and reads as soft. The duration
+ * matches the artwork's `tinyPop`, so the row responds as one — keep them in step if either changes.
+ */
+@mixin tinyNudgeRightAnimation {
+  animation: tinyNudgeRight 0.35s ease-out;
+}
+
 /*
  * The twinkle for the individual stars of the animated star field.
  */

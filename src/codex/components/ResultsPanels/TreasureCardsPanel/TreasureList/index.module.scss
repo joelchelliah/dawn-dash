@@ -119,11 +119,11 @@ $breakpoint-treasures-3-col: 76rem;
     .treasure-list-item__name {
       color: $color-primary-hover;
       font-weight: 600;
-      animation: tinyNudgeRight 0.35s ease-out;
+      @include tinyNudgeRightAnimation;
     }
     .treasure-list-item__rarity {
       font-weight: 600;
-      animation: tinyNudgeRight 0.35s ease-out;
+      @include tinyNudgeRightAnimation;
     }
   }
 

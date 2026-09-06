@@ -150,10 +150,8 @@ $row-entry-animation: resultRowIn 0.5s ease-out backwards;
     background-color: rgba(255, 255, 255, 0.03);
     @include cardOverlayPositioningFix;
 
-    // A nudge rather than a pop: scaling text rasterizes the glyphs at a fractional size mid-animation
-    // and reads as soft. Same duration as the artwork and pill, so the row responds as one.
     .result-card__name {
-      animation: tinyNudgeRight 0.35s ease-out;
+      @include tinyNudgeRightAnimation;
     }
 
     .result-card__description {

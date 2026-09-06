@@ -130,8 +130,10 @@ $button-active-scale: 1;
       background-color: $color-list-bg-hover;
       border-bottom: 1px solid $color-component-border;
 
-      .side-menu__nav-link {
+      .side-menu__nav-link__text {
         font-weight: 600;
+
+        @include tinyNudgeRightAnimation;
         @include yellowGreenGradient(true);
       }
     }
