@@ -505,24 +505,17 @@ function BlightbaneScorePanel({
           The <strong>calculation type</strong> used for a{' '}
           <Highlight mode={ScoringMode.WeeklyChallenge}>Weekly Challenge</Highlight> is never shown
           anywhere! Neither in the game&apos;s challenge description nor on{' '}
-          <Highlight mode={mode}>Blightbane</Highlight>&apos;s challenge page. It&apos;s usually the
-          default <Highlight mode={mode}>Diminishing Returns</Highlight> type, so that&apos;s a
-          pretty safe bet.
+          <Highlight mode={mode}>Blightbane</Highlight>&apos;s challenge page. But you can find this
+          information in the{' '}
+          <GradientLink
+            text="Bolgar's Blueprints"
+            onClick={() => onNavigateToPanel?.(ScoringPanelId.BolgarsBlueprints)}
+            internal
+            className={cx('bolgars-blueprints-link')}
+          />{' '}
+          section of the guide, at the very bottom. Along with some in-depth number-crunching and
+          advanced tips, specifically tailored for the current challenge.
         </p>
-
-        <ExampleBox emoji="📜" mode={mode}>
-          <p>
-            The{' '}
-            <GradientLink
-              text="Bolgar's Blueprints"
-              onClick={() => onNavigateToPanel?.(ScoringPanelId.BolgarsBlueprints)}
-              internal
-              className={cx('bolgars-blueprints-link')}
-            />{' '}
-            section at the bottom contains this information! Along with other in-depth info and
-            advanced tips, specifically tailored for the current <strong>Weekly challenge</strong>.
-          </p>
-        </ExampleBox>
 
         <h5 className={cx('mini-header')}>🕵️‍♂️ Help tracking down keywords</h5>
         <p>
