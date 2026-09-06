@@ -1,0 +1,64 @@
+@use 'index' as *;
+
+// How far the border colour bleeds out around the thumbnail.
+$artwork-glow-blur: 0.375rem;
+$artwork-glow-spread: 0.0625rem;
+$artwork-glow-opacity: 45%;
+
+// Same glow, intensified while hovered.
+$artwork-glow-blur-hover: 0.5rem;
+$artwork-glow-spread-hover: 0.125rem;
+$artwork-glow-opacity-hover: 85%;
+
+// Tinted artwork thumbnail. Also serves as the placeholder square when the caller resolves no
+// artwork, and while the image loads.
+//
+// Size comes from `--artwork-size` / `--artwork-size-mobile`, set inline by the component, so the
+// painted box always agrees with the one React reserved. `--artwork-colour` defaults to the neutral
+// component border; consumers with a colour of their own override it from their stylesheet.
+.bordered-artwork {
+  --artwork-colour: #{$color-component-border};
+
+  flex-shrink: 0;
+  width: var(--artwork-size);
+  height: var(--artwork-size);
+  object-fit: cover;
+  border-radius: 0.25rem;
+  border: 1px solid color-mix(in srgb, var(--artwork-colour) var(--border-opacity), transparent);
+  background-color: rgba(255, 255, 255, 0.1);
+
+  box-shadow: 0 0 $artwork-glow-blur $artwork-glow-spread
+    color-mix(in srgb, var(--artwork-colour) $artwork-glow-opacity, transparent);
+  // Only the glow transitions — `transform` is left alone so the hover pop animation keeps control
+  // of it. The ease-out ramp makes the glow swell with the pop rather than snapping on.
+  transition: box-shadow 0.25s ease-out;
+
+  @media (max-width: $breakpoint-mobile) {
+    width: var(--artwork-size-mobile);
+    height: var(--artwork-size-mobile);
+  }
+
+  // Struck rows grey the thumbnail out and drop the glow. Driven from the ancestor marker, since
+  // the row is what knows it is struck.
+  :global(.bordered-artwork-struck) & {
+    filter: grayscale(1);
+    box-shadow: none;
+    border-color: rgba(255, 255, 255, 0.15);
+  }
+
+  /*
+   * Hover feedback, driven from whichever ancestor carries the trigger marker (see
+   * `BORDERED_ARTWORK_HOVER_TRIGGER`). The glow brightens on the same trigger as the pop, so the
+   * thumbnail swells and lights up together instead of scaling against a static shadow.
+   */
+  :global(.bordered-artwork-hoverable):not(:global(.bordered-artwork-struck)):hover & {
+    animation: tinyPop 0.4s ease-out;
+    box-shadow: 0 0 $artwork-glow-blur-hover $artwork-glow-spread-hover
+      color-mix(in srgb, var(--artwork-colour) $artwork-glow-opacity-hover, transparent);
+  }
+
+  // The pop still fires while struck, so the row responds as one — just without the glow.
+  :global(.bordered-artwork-hoverable.bordered-artwork-struck):hover & {
+    animation: tinyPop 0.4s ease-out;
+  }
+}

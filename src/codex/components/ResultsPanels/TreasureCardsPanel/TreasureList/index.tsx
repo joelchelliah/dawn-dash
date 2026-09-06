@@ -1,7 +1,5 @@
-import RarityBorderedArtwork, {
-  RARITIES,
-  RARITY_BORDERED_ARTWORK_HOVER_TRIGGER,
-} from '@/shared/components/RarityBorderedArtwork'
+import { BORDERED_ARTWORK_HOVER_TRIGGER } from '@/shared/components/BorderedArtwork'
+import RarityBorderedArtwork, { RARITIES } from '@/shared/components/RarityBorderedArtwork'
 import { createCx } from '@/shared/utils/classnames'
 
 import { CARD_CATEGORIES } from '@/codex/constants/cardCategories'
@@ -41,9 +39,7 @@ function TreasureListItem({ treasure }: TreasureListItemProps): JSX.Element {
   const category = CARD_CATEGORIES[cardDetails.category]
   const rarityAndCategory = [rarity?.name, category].filter(Boolean).join(' ')
 
-  // The trigger marker is what lets the row's hover drive the artwork's pop and glow — the shared
-  // component can't see this module's hashed class names.
-  const itemClassName = `${cx('treasure-list-item')} ${RARITY_BORDERED_ARTWORK_HOVER_TRIGGER}`
+  const itemClassName = `${cx('treasure-list-item')} ${BORDERED_ARTWORK_HOVER_TRIGGER}`
 
   return (
     <div className={itemClassName}>

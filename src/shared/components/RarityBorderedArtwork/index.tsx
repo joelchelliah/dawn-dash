@@ -1,4 +1,4 @@
-import Image from '@/shared/components/Image'
+import BorderedArtwork from '@/shared/components/BorderedArtwork'
 import { useCardImageSrc } from '@/shared/hooks/useCardImageSrc'
 import { createCx } from '@/shared/utils/classnames'
 
@@ -13,15 +13,6 @@ export const RARITIES: Record<number, { name: string; slug: string }> = {
   [3]: { name: 'Legendary', slug: 'legendary' },
   [4]: { name: 'Monster', slug: 'monster' },
 }
-
-// Put this on whichever ancestor owns the hover
-export const RARITY_BORDERED_ARTWORK_HOVER_TRIGGER = 'rarity-artwork-hoverable'
-
-// Put this on the same ancestor to grey the artwork out
-export const RARITY_BORDERED_ARTWORK_STRUCK_TRIGGER = 'rarity-artwork-struck'
-
-// Full-strength border, i.e. the rarity colour as-is.
-const DEFAULT_BORDER_OPACITY = 100
 
 interface RarityArtworkProps {
   cardName: string
@@ -39,33 +30,25 @@ const RarityBorderedArtwork = ({
   category,
   size,
   sizeMobile,
-  borderOpacity = DEFAULT_BORDER_OPACITY,
+  borderOpacity,
   className,
 }: RarityArtworkProps) => {
   const { cardImageSrc, onImageSrcError } = useCardImageSrc(cardName, null, category)
 
   const raritySlug = RARITIES[rarity]?.slug
-  const artworkClassName = `${cx('rarity-artwork', {
+  const rarityClassName = `${cx('rarity-artwork', {
     [`rarity-artwork--${raritySlug}`]: Boolean(raritySlug),
   })}${className ? ` ${className}` : ''}`
 
-  const artworkStyle = {
-    '--artwork-size': `${size}px`,
-    '--artwork-size-mobile': `${sizeMobile ?? size}px`,
-    '--border-opacity': `${borderOpacity}%`,
-  } as React.CSSProperties
-
-  if (!cardImageSrc) return <div className={artworkClassName} style={artworkStyle} />
-
   return (
-    <Image
-      className={artworkClassName}
-      style={artworkStyle}
+    <BorderedArtwork
       src={cardImageSrc}
       alt={cardName}
-      width={size}
-      height={size}
-      onError={onImageSrcError}
+      size={size}
+      sizeMobile={sizeMobile}
+      borderOpacity={borderOpacity}
+      onImageSrcError={onImageSrcError}
+      className={rarityClassName}
     />
   )
 }

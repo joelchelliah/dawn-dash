@@ -1,4 +1,6 @@
-import Image from '@/shared/components/Image'
+import BorderedArtwork, {
+  BORDERED_ARTWORK_HOVER_TRIGGER,
+} from '@/shared/components/BorderedArtwork'
 import { createCx } from '@/shared/utils/classnames'
 import { CharacterClass } from '@/shared/types/characterClass'
 import { useBreakpoint } from '@/shared/hooks/useBreakpoint'
@@ -13,6 +15,8 @@ import styles from './index.module.scss'
 const cx = createCx(styles)
 
 const ARTWORK_SIZE = 50
+const ARTWORK_SIZE_MOBILE = 46
+const ARTWORK_BORDER_OPACITY = 90
 
 interface EventListProps {
   events: Event[]
@@ -128,15 +132,17 @@ function EventListItem({ event, allEvents, onEventSelect }: EventListItemProps):
     }
   }
 
+  const itemClassName = `${cx('event-list-item')} ${BORDERED_ARTWORK_HOVER_TRIGGER}`
+
   return (
-    <div className={cx('event-list-item')} onClick={handleClick}>
-      <Image
+    <div className={itemClassName} onClick={handleClick}>
+      <BorderedArtwork
         src={eventImageSrc}
         alt={event.name}
-        width={ARTWORK_SIZE}
-        height={ARTWORK_SIZE}
-        className={cx('event-list-item__artwork')}
-        onError={onImageSrcError}
+        size={ARTWORK_SIZE}
+        sizeMobile={ARTWORK_SIZE_MOBILE}
+        borderOpacity={ARTWORK_BORDER_OPACITY}
+        onImageSrcError={onImageSrcError}
       />
       <div className={cx('event-list-item__text')}>
         <span

@@ -2,9 +2,9 @@ import { memo, useMemo } from 'react'
 
 import GradientLink from '@/shared/components/GradientLink'
 import {
-  RARITY_BORDERED_ARTWORK_HOVER_TRIGGER,
-  RARITY_BORDERED_ARTWORK_STRUCK_TRIGGER,
-} from '@/shared/components/RarityBorderedArtwork'
+  BORDERED_ARTWORK_HOVER_TRIGGER,
+  BORDERED_ARTWORK_STRUCK_TRIGGER,
+} from '@/shared/components/BorderedArtwork'
 import { useBreakpoint } from '@/shared/hooks/useBreakpoint'
 import { createCx } from '@/shared/utils/classnames'
 
@@ -90,8 +90,8 @@ const ResultCard = ({
     'result-card--struck': isStruck,
     'result-card--full-match': isFullMatch,
     'result-card--hidden': shouldHideTrackedCards && isStruck,
-  })} result-card-hoverable ${RARITY_BORDERED_ARTWORK_HOVER_TRIGGER}${
-    isStruck ? ` result-card-struck ${RARITY_BORDERED_ARTWORK_STRUCK_TRIGGER}` : ''
+  })} result-card-hoverable ${BORDERED_ARTWORK_HOVER_TRIGGER}${
+    isStruck ? ` result-card-struck ${BORDERED_ARTWORK_STRUCK_TRIGGER}` : ''
   }`
   const cardClassName = cx('result-card__title-row', {
     'result-card__title-row--hidden': shouldHideTrackedCards && isStruck,
