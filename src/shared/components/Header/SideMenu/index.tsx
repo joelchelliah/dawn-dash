@@ -3,6 +3,9 @@ import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 
 import Image from '@/shared/components/Image'
+import BorderedArtwork, {
+  BORDERED_ARTWORK_HOVER_TRIGGER,
+} from '@/shared/components/BorderedArtwork'
 import LoadingDots from '@/shared/components/LoadingDots'
 import {
   HamburgerIcon,
@@ -29,6 +32,10 @@ interface SideMenuProps {
 
 const cx = createCx(styles)
 
+const NAV_ICON_SIZE = 40
+const NAV_ICON_SIZE_HOME = 32
+const NAV_ICON_BORDER_OPACITY = 75
+
 const SideMenu = ({ currentPage }: SideMenuProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isAboutInfoOpen, setIsAboutInfoOpen] = useState(false)
@@ -47,18 +54,18 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
     }
   }
 
-  const getNavLinkImage = (url: string, alt: string, isHome?: boolean) => {
-    const size = isHome ? 32 : 40
-    return (
-      <Image
-        src={url}
-        alt={alt}
-        className={cx('side-menu__nav-link__icon')}
-        width={size}
-        height={size}
-      />
-    )
-  }
+  const getNavLinkImage = (url: string, alt: string, isHome?: boolean) => (
+    <BorderedArtwork
+      src={url}
+      alt={alt}
+      size={isHome ? NAV_ICON_SIZE_HOME : NAV_ICON_SIZE}
+      borderOpacity={NAV_ICON_BORDER_OPACITY}
+    />
+  )
+
+  const getInfoTitleImage = (url: string, alt: string) => (
+    <Image src={url} alt={alt} width={NAV_ICON_SIZE} height={NAV_ICON_SIZE} />
+  )
 
   const getInfoTitle = (toolId: string) => {
     const tool = getTool(toolId)
@@ -66,7 +73,7 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
 
     return (
       <h3 className={cx('info-title')}>
-        {getNavLinkImage(tool.navIcon, `${tool.title} logo`)} {tool.title}
+        {getInfoTitleImage(tool.navIcon, `${tool.title} logo`)} {tool.title}
       </h3>
     )
   }
@@ -99,13 +106,18 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
     }
   }, [isMenuOpen])
 
-  const landingLinkContainerClassNames = cx(
+  const landingLinkContainerClassNames = `${cx(
     'side-menu__nav-link-container',
     'side-menu__nav-link-container--home',
     {
       'side-menu__nav-link-container--active': currentPage === 'landing',
     }
-  )
+  )} ${BORDERED_ARTWORK_HOVER_TRIGGER}`
+
+  const getNavLinkContainerClassName = (isActive: boolean) =>
+    `${cx('side-menu__nav-link-container', {
+      'side-menu__nav-link-container--active': isActive,
+    })} ${BORDERED_ARTWORK_HOVER_TRIGGER}`
 
   const menuIcon = isMobile ? (
     isMenuOpen ? (
@@ -151,12 +163,7 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
           </div>
 
           {getListedTools().map((tool) => (
-            <div
-              key={tool.id}
-              className={cx('side-menu__nav-link-container', {
-                'side-menu__nav-link-container--active': currentPage === tool.id,
-              })}
-            >
+            <div key={tool.id} className={getNavLinkContainerClassName(currentPage === tool.id)}>
               <Link
                 href={tool.path}
                 className={cx('side-menu__nav-link')}
@@ -168,7 +175,7 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
             </div>
           ))}
 
-          <div className={cx('side-menu__nav-link-container')}>
+          <div className={getNavLinkContainerClassName(false)}>
             <button className={cx('side-menu__nav-link')} onClick={() => setIsAboutInfoOpen(true)}>
               {getNavLinkImage(RushedForgeryImageUrl, 'About logo')}
               About
