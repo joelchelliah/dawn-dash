@@ -11,9 +11,10 @@ import { useScrollToTop } from '@/shared/hooks/useScrollToTop'
 import { useBreakpoint } from '@/shared/hooks/useBreakpoint'
 
 import ScoringGuidePanel from './components/ScoringGuidePanel'
+import { getPanelOrder } from './components/ContentNavigation'
 import BlightbaneScorePanel from './components/BlightbaneScorePanel'
 import styles from './index.module.scss'
-import { ScoringMode, ScoringPanelId } from './types'
+import { PanelNavigationProps, ScoringMode, ScoringPanelId } from './types'
 import InGameScorePanel from './components/InGameScorePanel'
 import WeeklyChallengePanel from './components/WeeklyChallengePanel'
 import { useUrlParams } from './hooks/useUrlParams'
@@ -23,25 +24,6 @@ import { useWeeklyChallengeData } from './hooks/useWeeklyChallengeData'
 import { useSelectedPanel } from './hooks/useSelectedPanel'
 
 const cx = createCx(styles)
-
-const getPanelOrder = (mode: ScoringMode): ScoringPanelId[] => {
-  switch (mode) {
-    case ScoringMode.Standard:
-      return [ScoringPanelId.StandardScore, ScoringPanelId.ScoringExample]
-    case ScoringMode.Sunforge:
-      return [ScoringPanelId.SunforgeScore, ScoringPanelId.ScoringExample]
-    case ScoringMode.WeeklyChallenge:
-      return [
-        ScoringPanelId.WeeklyChallengeScore,
-        ScoringPanelId.StandardScore,
-        ScoringPanelId.BlightbaneScore,
-        ScoringPanelId.ScoringExample,
-        ScoringPanelId.BolgarsBlueprints,
-      ]
-    default:
-      return []
-  }
-}
 
 function useScoringScrollToTop() {
   const { isTabletOrSmaller } = useBreakpoint()
@@ -64,53 +46,20 @@ function Scoring(): JSX.Element {
       ? ScoringPanelId.SunforgeScore
       : ScoringPanelId.StandardScore
 
-  const getNextPanelHandler = (currentPanelId: ScoringPanelId) => {
+  const getPanelProps = (panelId: ScoringPanelId): PanelNavigationProps => {
     const panelOrder = getPanelOrder(selectedMode)
-    const currentIndex = panelOrder.indexOf(currentPanelId)
+    const index = panelOrder.indexOf(panelId)
+    const hasPrevious = index > 0
+    const hasNext = index !== -1 && index < panelOrder.length - 1
 
-    if (currentIndex !== -1 && currentIndex < panelOrder.length - 1) {
-      const nextPanelId = panelOrder[currentIndex + 1]
-
-      return () => onSelectPanel(nextPanelId)
+    return {
+      panelId,
+      isFirstPanel: index === 0,
+      isLastPanel: index === panelOrder.length - 1,
+      onPrevious: hasPrevious ? () => onSelectPanel(panelOrder[index - 1]) : undefined,
+      onNext: hasNext ? () => onSelectPanel(panelOrder[index + 1]) : undefined,
     }
-
-    return undefined
   }
-
-  const getPreviousPanelHandler = (currentPanelId: ScoringPanelId) => {
-    const panelOrder = getPanelOrder(selectedMode)
-    const currentIndex = panelOrder.indexOf(currentPanelId)
-
-    if (currentIndex > 0) {
-      const previousPanelId = panelOrder[currentIndex - 1]
-
-      return () => onSelectPanel(previousPanelId)
-    }
-
-    return undefined
-  }
-
-  const isFirstPanel = (panelId: ScoringPanelId): boolean => {
-    const panelOrder = getPanelOrder(selectedMode)
-    const currentIndex = panelOrder.indexOf(panelId)
-
-    return currentIndex === 0
-  }
-
-  const isLastPanel = (panelId: ScoringPanelId): boolean => {
-    const panelOrder = getPanelOrder(selectedMode)
-    const currentIndex = panelOrder.indexOf(panelId)
-
-    return currentIndex === panelOrder.length - 1
-  }
-
-  const getPanelProps = (panelId: ScoringPanelId) => ({
-    onNext: getNextPanelHandler(panelId),
-    onPrevious: getPreviousPanelHandler(panelId),
-    isFirstPanel: isFirstPanel(panelId),
-    isLastPanel: isLastPanel(panelId),
-    panelId,
-  })
 
   return (
     <div className={cx('container')}>

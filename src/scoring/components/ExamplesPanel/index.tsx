@@ -13,7 +13,7 @@ import Modal from '@/shared/components/Modals/Modal'
 import { ClassColorVariant, getClassColor } from '@/shared/utils/classColors'
 import { CharacterClass } from '@/shared/types/characterClass'
 
-import { ScoringMode } from '@/scoring/types'
+import { PanelNavigationProps, ScoringMode } from '@/scoring/types'
 
 import BasePanel from '../BasePanel'
 import Highlight from '../Highlight'
@@ -85,23 +85,11 @@ const renderParameterScoreList = (mode: ScoringMode, scores: ExampleParameterSco
   </ScoringList>
 )
 
-type ExamplesPanelProps = {
+interface ExamplesPanelProps extends PanelNavigationProps {
   mode: ScoringMode
-  onNext?: () => void
-  onPrevious?: () => void
-  isFirstPanel?: boolean
-  isLastPanel?: boolean
-  panelId?: string
 }
 
-function ExamplesPanel({
-  mode,
-  onNext,
-  onPrevious,
-  isFirstPanel,
-  isLastPanel,
-  panelId,
-}: ExamplesPanelProps): JSX.Element {
+function ExamplesPanel({ mode, ...navigation }: ExamplesPanelProps): JSX.Element {
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   const getImageUrl = () => {
@@ -150,7 +138,7 @@ function ExamplesPanel({
       <p>
         Score-wise, a quite average run. All parameters are pretty low, except for{' '}
         <strong>💨 Lethality</strong> sitting at rank <strong>VIII</strong>. The number of remaining
-        rerolls is rather low, considering how quicly they stack up near the end.
+        rerolls is rather low, considering how quickly they stack up near the end.
       </p>
 
       <IllustratedScoringInfo
@@ -297,11 +285,7 @@ function ExamplesPanel({
       imageUrl={getImageUrl()}
       mode={mode}
       isLongTitle
-      onNext={onNext}
-      onPrevious={onPrevious}
-      isFirstPanel={isFirstPanel}
-      isLastPanel={isLastPanel}
-      panelId={panelId}
+      {...navigation}
     >
       <div className={cx('content')}>
         {mode === ScoringMode.Standard && getStandardExample()}

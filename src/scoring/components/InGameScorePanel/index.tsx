@@ -6,7 +6,7 @@ import { AdaptiveEdgeImageUrl, AuraOfPurityImageUrl } from '@/shared/utils/image
 import GradientLink from '@/shared/components/GradientLink'
 import InfoModal from '@/shared/components/Modals/InfoModal'
 
-import { ScoringMode } from '@/scoring/types'
+import { PanelNavigationProps, ScoringMode } from '@/scoring/types'
 import { MAX_MALIGNANCY_PERCENT } from '@/scoring/constants/scoring'
 
 import BasePanel from '../BasePanel'
@@ -21,13 +21,8 @@ import styles from './index.module.scss'
 
 const cx = createCx(styles)
 
-interface InGameScorePanelProps {
+interface InGameScorePanelProps extends PanelNavigationProps {
   mode: ScoringMode
-  onNext?: () => void
-  onPrevious?: () => void
-  isFirstPanel?: boolean
-  isLastPanel?: boolean
-  panelId?: string
 }
 
 const SCORE_PARAMETERS = [
@@ -121,14 +116,7 @@ function getIntroText(mode: ScoringMode): JSX.Element {
   throw new Error(`Unsupported mode for in-game score: ${mode}`)
 }
 
-function InGameScorePanel({
-  mode,
-  onNext,
-  onPrevious,
-  isFirstPanel,
-  isLastPanel,
-  panelId,
-}: InGameScorePanelProps): JSX.Element {
+function InGameScorePanel({ mode, ...navigation }: InGameScorePanelProps): JSX.Element {
   const title = mode === ScoringMode.Sunforge ? 'Sunforge score' : 'Standard score'
   const [isDisclaimerOpen, setIsDisclaimerOpen] = useState(false)
   const introImageSrc =
@@ -139,11 +127,7 @@ function InGameScorePanel({
       title={title}
       imageUrl={mode === ScoringMode.Sunforge ? AuraOfPurityImageUrl : AdaptiveEdgeImageUrl}
       mode={mode}
-      onNext={onNext}
-      onPrevious={onPrevious}
-      isFirstPanel={isFirstPanel}
-      isLastPanel={isLastPanel}
-      panelId={panelId}
+      {...navigation}
     >
       <div className={cx('content')}>
         {getIntroText(mode)}
@@ -299,7 +283,7 @@ function InGameScorePanel({
             <p className={cx('follow-up')}>
               This score is then multiplied by your <strong>Reroll bonus</strong> modifier, which
               starts off at <strong>0%</strong>, and can be increased up to four times via your{' '}
-              <Highlight mode={mode}>Sunforge</Highlight> rewards track. At the maximmum of{' '}
+              <Highlight mode={mode}>Sunforge</Highlight> rewards track. At the maximum of{' '}
               <strong>4%</strong>, ending a run with 30 extra rerolls gives the above example a{' '}
               <strong>Reroll bonus score</strong> of <Highlight mode={mode}>24,300</Highlight> (
               <Code>20250 × 0.04 × 30</Code>).

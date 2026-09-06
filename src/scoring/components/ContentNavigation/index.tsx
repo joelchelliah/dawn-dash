@@ -39,6 +39,9 @@ const CONTENT_LINKS: Record<ScoringMode, ContentLink[]> = {
   [ScoringMode.Blightbane]: [],
 }
 
+export const getPanelOrder = (mode: ScoringMode): ScoringPanelId[] =>
+  CONTENT_LINKS[mode].map(({ id }) => id)
+
 function ContentNavigation({
   mode,
   selectedPanelId,

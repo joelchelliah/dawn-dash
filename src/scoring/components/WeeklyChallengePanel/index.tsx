@@ -2,7 +2,7 @@ import { createCx } from '@/shared/utils/classnames'
 import { BigBombImageUrl } from '@/shared/utils/imageUrls'
 import GradientLink from '@/shared/components/GradientLink'
 
-import { ScoringMode } from '@/scoring/types'
+import { PanelNavigationProps, ScoringMode } from '@/scoring/types'
 
 import BasePanel from '../BasePanel'
 import IllustratedScoringInfo from '../IllustratedScoringInfo'
@@ -13,21 +13,7 @@ import styles from './index.module.scss'
 
 const cx = createCx(styles)
 
-interface WeeklyChallengePanelProps {
-  onNext?: () => void
-  onPrevious?: () => void
-  isFirstPanel?: boolean
-  isLastPanel?: boolean
-  panelId?: string
-}
-
-function WeeklyChallengePanel({
-  onNext,
-  onPrevious,
-  isFirstPanel,
-  isLastPanel,
-  panelId,
-}: WeeklyChallengePanelProps): JSX.Element {
+function WeeklyChallengePanel(navigation: PanelNavigationProps): JSX.Element {
   const mode = ScoringMode.WeeklyChallenge
 
   return (
@@ -37,11 +23,7 @@ function WeeklyChallengePanel({
       imageUrl={BigBombImageUrl}
       mode={mode}
       isLongTitle
-      onNext={onNext}
-      onPrevious={onPrevious}
-      isFirstPanel={isFirstPanel}
-      isLastPanel={isLastPanel}
-      panelId={panelId}
+      {...navigation}
     >
       <div className={cx('content')}>
         <p>
@@ -96,7 +78,7 @@ function WeeklyChallengePanel({
                 Some numbers from your <Highlight mode={ScoringMode.Standard}>Standard</Highlight>{' '}
                 mode score.
               </li>
-              <>Your cards, talents, malignancies and boss fights.</>,
+              <li>Your cards, talents, malignancies and boss fights.</li>
               <li>
                 A detailed breakdown of how well you did on your{' '}
                 <Highlight mode={ScoringMode.Blightbane}>Blightbane</Highlight> score parameters.

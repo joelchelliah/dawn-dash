@@ -16,7 +16,7 @@ import Code from '@/shared/components/Code'
 import Image from '@/shared/components/Image'
 import { CharacterClass } from '@/shared/types/characterClass'
 
-import { ScoringMode, ScoringPanelId } from '@/scoring/types'
+import { CalculationType, PanelNavigationProps, ScoringMode, ScoringPanelId } from '@/scoring/types'
 
 import BasePanel from '../BasePanel'
 import Highlight from '../Highlight'
@@ -95,8 +95,6 @@ const FLAT_SCORE_BONUSES = [
     ),
   },
 ]
-
-type CalculationType = 'DiminishingReturns' | 'Simple' | 'LowestX'
 
 const CALCULATION_TYPE_ITEMS: SelectableItem<CalculationType>[] = [
   { value: 'DiminishingReturns', label: 'Diminishing Returns', emoji: '📉' },
@@ -310,22 +308,13 @@ const ICON_KEYWORDS = [
   },
 ]
 
-interface BlightbaneScorePanelProps {
-  onNext?: () => void
-  onPrevious?: () => void
-  isFirstPanel?: boolean
-  isLastPanel?: boolean
-  panelId?: string
+interface BlightbaneScorePanelProps extends PanelNavigationProps {
   onNavigateToPanel?: (panelId: ScoringPanelId) => void
 }
 
 function BlightbaneScorePanel({
-  onNext,
-  onPrevious,
-  isFirstPanel,
-  isLastPanel,
-  panelId,
   onNavigateToPanel,
+  ...navigation
 }: BlightbaneScorePanelProps): JSX.Element {
   const mode = ScoringMode.Blightbane
   const [selectedCalculationType, setSelectedCalculationType] =
@@ -350,11 +339,7 @@ function BlightbaneScorePanel({
       imageUrl={AnimaImageUrl}
       mode={mode}
       isLongTitle
-      onNext={onNext}
-      onPrevious={onPrevious}
-      isFirstPanel={isFirstPanel}
-      isLastPanel={isLastPanel}
-      panelId={panelId}
+      {...navigation}
     >
       <div className={cx('content')}>
         <p>
@@ -378,7 +363,7 @@ function BlightbaneScorePanel({
           <ParameterInfoList parameters={FLAT_SCORE_BONUSES} />
         </IllustratedScoringInfo>
         <p>
-          You&apos;ll need to evaluate each of these on a <em>weekly-by-weekly</em> basis, and
+          You&apos;ll need to evaluate each of these on a <em>Weekly-by-Weekly</em> basis, and
           decide how high you want to prioritize them compared to all the other scoring objectives.
           Especially considering their fixed score values!
         </p>
@@ -403,9 +388,10 @@ function BlightbaneScorePanel({
         </p>
         <h4 className={cx('subheader')}>📝 Keywords bonus</h4>
         <p>
-          The <strong>keywords bonus</strong> scoring has a few different variants, but only one of
-          them is used most of the time. We&apos;ll only be covering this default variant here, for
-          now:
+          The <strong>keywords bonus</strong> scoring can have one of three different{' '}
+          <Highlight mode={mode}>Calculation types</Highlight> that determine how it&apos;s
+          calculated. We&apos;ll cover those in more detail later on. But first, let&apos;s look at
+          how keywords are matched:
         </p>
         <IllustratedScoringInfo
           mode={mode}
@@ -496,9 +482,8 @@ function BlightbaneScorePanel({
           <strong>common</strong>, and will also scale a lot faster with your malignancies!
         </p>
         <p>
-          Additionally, there is one more component that determines how card-specific scores are
-          calculated. This is called the <Highlight mode={mode}>Calculation Type</Highlight>, and
-          comes with a small set of additional rules:
+          As mentioned earlier, the <Highlight mode={mode}>Calculation Type</Highlight> also plays a
+          role in how these scores are calculated, and comes with a small set of additional rules:
         </p>
         <SelectableScoringInfo
           containerHeight={240}
@@ -534,9 +519,8 @@ function BlightbaneScorePanel({
               internal
               className={cx('bolgars-blueprints-link')}
             />{' '}
-            section at the bottom will contain this information! Along with other in-depth
-            information and advanced tips, specifically tailored for the current{' '}
-            <strong>Weekly challenge</strong>.
+            section at the bottom contains this information! Along with other in-depth info and
+            advanced tips, specifically tailored for the current <strong>Weekly challenge</strong>.
           </p>
         </ExampleBox>
 

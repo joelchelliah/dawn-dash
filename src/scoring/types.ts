@@ -54,3 +54,13 @@ type WeeklyChallengeFixedValueScoring = {
   pointValue: number
   pointLimit: number
 }
+
+export type CalculationType = 'DiminishingReturns' | 'Simple' | 'LowestX'
+
+export interface PanelNavigationProps {
+  onNext?: () => void
+  onPrevious?: () => void
+  isFirstPanel?: boolean
+  isLastPanel?: boolean
+  panelId?: string
+}

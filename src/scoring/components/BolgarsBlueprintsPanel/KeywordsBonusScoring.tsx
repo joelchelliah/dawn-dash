@@ -5,7 +5,7 @@ import Code from '@/shared/components/Code'
 import GradientLink from '@/shared/components/GradientLink'
 import InfoModal from '@/shared/components/Modals/InfoModal'
 
-import { ScoringMode, WeeklyChallengeData } from '@/scoring/types'
+import { CalculationType, ScoringMode, WeeklyChallengeData } from '@/scoring/types'
 import { getCardScoreScaledByRarity } from '@/scoring/utils/advancedScoring'
 import { DUPLICATE_SCORE_MULTIPLIER } from '@/scoring/constants/scoring'
 
@@ -89,7 +89,7 @@ function KeywordsBonusScoring({ challengeData }: KeywordsBonusScoringProps): JSX
     ))
   }
 
-  const getCalculationTypeHint = (calculationType: string) => {
+  const getCalculationTypeHint = (calculationType: CalculationType | string) => {
     if (calculationType === 'Simple') {
       return 'Duplicates get full score'
     }
