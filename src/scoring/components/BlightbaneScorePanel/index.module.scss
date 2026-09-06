@@ -159,16 +159,4 @@
       grid-template-columns: 1fr;
     }
   }
-
-  .rarity-note {
-    font-size: font-size('xs');
-    color: $color-primary-muted;
-    font-style: italic;
-
-    @media (max-width: $breakpoint-mobile) {
-      display: block;
-      font-size: font-size('xxs');
-      margin-left: 1rem;
-    }
-  }
 }

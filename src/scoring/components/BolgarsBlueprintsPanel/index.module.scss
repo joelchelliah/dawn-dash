@@ -281,3 +281,12 @@ $additional-loading-and-error-margin: 20rem;
   font-size: font-size('xs');
   margin: 0;
 }
+
+.small-text-hint {
+  font-size: font-size('xs');
+  font-style: italic;
+
+  @media (max-width: $breakpoint-mobile) {
+    font-size: font-size('xxs');
+  }
+}

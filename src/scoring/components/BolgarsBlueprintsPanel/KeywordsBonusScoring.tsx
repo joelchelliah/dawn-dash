@@ -13,9 +13,9 @@ import Highlight from '../Highlight'
 import ScoringList from '../ScoringList'
 import ScoringTable, { ScoringTableColumn } from '../ScoringTable'
 import ScoringButton from '../ScoringButton'
+import RarityScoringList from '../RarityScoringList'
 
 import MalignancyScalingList from './MalignancyScalingList'
-import UnsupportedCalculationType from './UnsupportedCalculationType'
 import styles from './index.module.scss'
 
 const cx = createCx(styles)
@@ -27,12 +27,13 @@ interface KeywordsBonusScoringProps {
 function KeywordsBonusScoring({ challengeData }: KeywordsBonusScoringProps): JSX.Element {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const { scoring } = challengeData
-  const { cardBaseValue, diminishingReturnsLimit, calculationType, keywords } = scoring
-  const isScoringAvailable = calculationType === 'DiminishingReturns'
+  const { cardBaseValue, diminishingReturnsLimit, calculationType, keywords, lowestXAmount } =
+    scoring
 
   const uncommonScore = getCardScoreScaledByRarity('Uncommon', cardBaseValue)
   const rareScore = getCardScoreScaledByRarity('Rare', cardBaseValue)
   const legendaryScore = getCardScoreScaledByRarity('Legendary', cardBaseValue)
+  const monsterScore = cardBaseValue
 
   const getRow = (rarity: string, base: number) => ({
     rarity,
@@ -62,13 +63,10 @@ function KeywordsBonusScoring({ challengeData }: KeywordsBonusScoringProps): JSX
       getRow('Uncommon', uncommonScore),
       getRow('Rare', rareScore),
       getRow('Legendary', legendaryScore),
+      getRow('Monster', monsterScore),
     ],
-    [cardBaseValue, uncommonScore, rareScore, legendaryScore]
+    [cardBaseValue, uncommonScore, rareScore, legendaryScore, monsterScore]
   )
-
-  if (!isScoringAvailable) {
-    return <UnsupportedCalculationType calculationType={calculationType} />
-  }
 
   const listScoringKeywords = () => {
     if (keywords.length === 0) {
@@ -91,14 +89,39 @@ function KeywordsBonusScoring({ challengeData }: KeywordsBonusScoringProps): JSX
     ))
   }
 
+  const getCalculationTypeHint = (calculationType: string) => {
+    if (calculationType === 'Simple') {
+      return 'Duplicates get full score'
+    }
+    if (calculationType === 'DiminishingReturns') {
+      return '50% score reduction for duplicates'
+    }
+    if (calculationType === 'LowestX') {
+      return 'Only lowest X cards are scored'
+    }
+
+    return '⚠️ Unknown calculation type'
+  }
+
   return (
     <div className={cx('scoring-container')}>
       <p>
         These bonuses scale with your <strong>malignancy level</strong>.
       </p>
       <ScoringList mode={ScoringMode.Blightbane}>
+        {calculationType !== 'LowestX' && (
+          <li>
+            <strong>Keywords:</strong> {listScoringKeywords()}
+          </li>
+        )}
         <li>
-          <strong>Keywords:</strong> {listScoringKeywords()}
+          <strong>Calculation type:</strong>{' '}
+          <Highlight mode={ScoringMode.Blightbane} strong>
+            {calculationType}
+          </Highlight>{' '}
+          <span className={cx('small-text-hint')}>
+            ( {getCalculationTypeHint(calculationType)} )
+          </span>
         </li>
         <li>
           <strong>Card base value:</strong>{' '}
@@ -107,14 +130,16 @@ function KeywordsBonusScoring({ challengeData }: KeywordsBonusScoringProps): JSX
           </Highlight>{' '}
           {cardBaseValue < 0 ? <em>(negative score)</em> : ''}
         </li>
-        <li>
-          <strong>
-            Diminishing returns limit:{' '}
-            <Highlight mode={ScoringMode.Blightbane} strong>
-              {diminishingReturnsLimit}
-            </Highlight>
-          </strong>
-        </li>
+        {calculationType === 'DiminishingReturns' && (
+          <li>
+            <strong>
+              Diminishing returns limit:{' '}
+              <Highlight mode={ScoringMode.Blightbane} strong>
+                {diminishingReturnsLimit}
+              </Highlight>
+            </strong>
+          </li>
+        )}
       </ScoringList>
       <ScoringButton
         mode={ScoringMode.Blightbane}
@@ -123,12 +148,27 @@ function KeywordsBonusScoring({ challengeData }: KeywordsBonusScoringProps): JSX
       >
         Explain these settings
       </ScoringButton>
-      <ScoringTable
-        mode={ScoringMode.Blightbane}
-        columns={scoreTableColumns}
-        data={scoreTableData}
-        className={cx('table')}
-      />
+      {calculationType === 'DiminishingReturns' ? (
+        <>
+          <span>
+            <strong>Rarity</strong>-based scaling (with diminishing returns):
+          </span>
+          <ScoringTable
+            mode={ScoringMode.Blightbane}
+            columns={scoreTableColumns}
+            data={scoreTableData}
+            className={cx('table')}
+          />
+        </>
+      ) : (
+        <>
+          <p>
+            <strong>Rarity</strong>-based scaling:
+          </p>
+          <RarityScoringList mode={ScoringMode.Blightbane} />
+        </>
+      )}
+
       <p>
         <strong>Malignancy</strong>-based scaling for a <strong>Legendary</strong> card bonus (
         <Code>
@@ -148,6 +188,35 @@ function KeywordsBonusScoring({ challengeData }: KeywordsBonusScoringProps): JSX
         <h4 className={cx('explain-settings-header')}>📝 &nbsp;Keywords bonuses settings</h4>
 
         <div className={cx('explain-settings-item-header')}>
+          Calculation type:{' '}
+          <Highlight mode={ScoringMode.Blightbane} strong>
+            {calculationType}
+          </Highlight>
+        </div>
+        <p>
+          {calculationType === 'Simple' && (
+            <>
+              No <strong>50% reduction</strong> for several copies of the same keyword-matching
+              cards. Each copy is scored at full value.
+            </>
+          )}
+          {calculationType === 'DiminishingReturns' && (
+            <>
+              Each duplicate keyword-matching card is scored at <strong>50%</strong> of its previous
+              copy. Score diminishes for each additional copy of that card.
+            </>
+          )}
+          {calculationType === 'LowestX' && (
+            <>
+              Only the <strong>lowest rarity</strong> X cards are scored. There are no bonus
+              keywords for this mode. Only card rarity matters.
+            </>
+          )}
+        </p>
+
+        <hr className={cx('divider')} />
+
+        <div className={cx('explain-settings-item-header')}>
           Base value:{' '}
           <Highlight mode={ScoringMode.Blightbane} strong>
             {cardBaseValue}
@@ -156,24 +225,43 @@ function KeywordsBonusScoring({ challengeData }: KeywordsBonusScoringProps): JSX
         <p>
           A <strong>Common</strong> card matching the weekly keywords is worth{' '}
           <Highlight mode={ScoringMode.Blightbane}>{cardBaseValue}</Highlight> base points. Each
-          rarity level above common is worth <strong>50%</strong> more than the previous one.
+          rarity level above common is worth <strong>50%</strong> more than the rarity below.
         </p>
-        <hr className={cx('divider')} />
 
-        <div className={cx('explain-settings-item-header')}>
-          Diminishing returns limit:{' '}
-          <Highlight mode={ScoringMode.Blightbane} strong>
-            {diminishingReturnsLimit}
-          </Highlight>
-        </div>
-        <p>
-          Only your first{' '}
-          <Highlight mode={ScoringMode.Blightbane}>{diminishingReturnsLimit}</Highlight> copies of
-          each matching card are scored, with each additional copy being scored{' '}
-          <strong>half</strong> as much as the previous copy.
-          <br />
-          All other copies beyond that are <strong>not</strong> scored.
-        </p>
+        {calculationType === 'DiminishingReturns' && (
+          <>
+            <hr className={cx('divider')} />
+
+            <div className={cx('explain-settings-item-header')}>
+              Diminishing returns limit:{' '}
+              <Highlight mode={ScoringMode.Blightbane} strong>
+                {diminishingReturnsLimit}
+              </Highlight>
+            </div>
+            <p>
+              Only your first{' '}
+              <Highlight mode={ScoringMode.Blightbane}>{diminishingReturnsLimit}</Highlight> copies
+              of each matching card are scored, with diminishing value per copy. All other copies
+              beyond that are <strong>not</strong> scored.
+            </p>
+          </>
+        )}
+        {calculationType === 'LowestX' && (
+          <>
+            <hr className={cx('divider')} />
+
+            <div className={cx('explain-settings-item-header')}>
+              Lowest X amount:{' '}
+              <Highlight mode={ScoringMode.Blightbane} strong>
+                {lowestXAmount}
+              </Highlight>
+            </div>
+            <p>
+              Only the <Highlight mode={ScoringMode.Blightbane}>{lowestXAmount}</Highlight>{' '}
+              <strong>lowest rarity</strong> cards are scored. All other cards are ignored.
+            </p>
+          </>
+        )}
       </InfoModal>
     </div>
   )

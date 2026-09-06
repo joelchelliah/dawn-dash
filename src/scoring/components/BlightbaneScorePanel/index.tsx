@@ -21,6 +21,7 @@ import { ScoringMode, ScoringPanelId } from '@/scoring/types'
 import BasePanel from '../BasePanel'
 import Highlight from '../Highlight'
 import ScoringList from '../ScoringList'
+import RarityScoringList from '../RarityScoringList'
 import ExampleBox from '../ExampleBox'
 import ParameterInfoList from '../ParameterInfoList'
 import IllustratedScoringInfo from '../IllustratedScoringInfo'
@@ -31,14 +32,6 @@ import SelectableScoringInfo, { SelectableItem } from '../SelectableScoringInfo'
 import styles from './index.module.scss'
 
 const cx = createCx(styles)
-
-const RARITY_BASE_POINTS = [
-  { rarity: 'Common', points: 50 },
-  { rarity: 'Uncommon', points: 75 },
-  { rarity: 'Rare', points: 113 },
-  { rarity: 'Legendary', points: 170 },
-  { rarity: 'Monster', points: 50, note: '(scored as a common, but is actually a lower rarity)' },
-]
 
 const modeBlightbane = ScoringMode.Blightbane
 
@@ -138,7 +131,7 @@ const CALCULATION_TYPE_CONTENT: Record<CalculationType, React.ReactNode> = {
         <span>
           As an example, having 3 copies of the same keyword-matching <strong>legendary</strong>{' '}
           card will give you a base score of only{' '}
-          <Highlight mode={ScoringMode.Blightbane}>298</Highlight> (<Code>170 + 85 + 43 = 298</Code>
+          <Highlight mode={ScoringMode.Blightbane}>297</Highlight> (<Code>169 + 85 + 43 = 297</Code>
           ).
         </span>
       </p>
@@ -172,8 +165,8 @@ const CALCULATION_TYPE_CONTENT: Record<CalculationType, React.ReactNode> = {
         <br />
         <span>
           As an example, having 3 copies of the same keyword-matching <strong>legendary</strong>{' '}
-          card will score you <Highlight mode={ScoringMode.Blightbane}>510</Highlight> (
-          <Code>170 + 170 + 170 = 510</Code>
+          card will score you <Highlight mode={ScoringMode.Blightbane}>507</Highlight> (
+          <Code>169 + 169 + 169 = 507</Code>
           ).
         </span>
       </p>
@@ -199,8 +192,8 @@ const CALCULATION_TYPE_CONTENT: Record<CalculationType, React.ReactNode> = {
         <span>
           As an example, having <strong>15 rare</strong> cards and <strong>10 legendary</strong>{' '}
           cards in a <Highlight mode={ScoringMode.Blightbane}>Lowest 20</Highlight> challenge will
-          give you a base score of <Highlight mode={ScoringMode.Blightbane}>2,545</Highlight> (
-          <Code>(15 &times; 113) + (5 &times; 170) = 2,545</Code>).
+          give you a base score of <Highlight mode={ScoringMode.Blightbane}>2,540</Highlight> (
+          <Code>(15 &times; 113) + (5 &times; 169) = 2,540</Code>).
         </span>
       </p>
     </>
@@ -496,14 +489,7 @@ function BlightbaneScorePanel({
           a <strong>common card</strong>. For each rarity level above common, you get a{' '}
           <strong>50% higher</strong> base value than the one below it:
         </p>
-        <ScoringList mode={mode}>
-          {RARITY_BASE_POINTS.map(({ rarity, points, note }) => (
-            <li key={rarity}>
-              <strong>{rarity}</strong> - <Highlight mode={mode}>{points}</Highlight>{' '}
-              {note && <span className={cx('rarity-note')}>{note}</span>}
-            </li>
-          ))}
-        </ScoringList>
+        <RarityScoringList mode={mode} />
         <p>
           You should always prioritize the higher rarity ones when hunting down your keyword bonus
           cards. A <strong>legendary</strong> is worth over 3 times as much as a{' '}
@@ -714,7 +700,7 @@ function BlightbaneScorePanel({
           </p>
           <p>
             <strong>Hint:</strong> Every distinct <strong>legendary</strong> keyword match gives you{' '}
-            <Highlight mode={mode}>170</Highlight> base score.
+            <Highlight mode={mode}>169</Highlight> base score.
           </p>
           <p>
             <SpoilerText mode={mode} label="Show answer">

@@ -1,5 +1,9 @@
 import { createCx } from '@/shared/utils/classnames'
 
+import { ScoringMode } from '@/scoring/types'
+
+import Highlight from '../Highlight'
+
 import styles from './index.module.scss'
 
 const cx = createCx(styles)
@@ -14,8 +18,11 @@ function UnsupportedCalculationType({
   return (
     <div className={cx('unavailable')}>
       <p>
-        ⚠️ The score calculation type for this challenge is &quot;
-        <strong>{calculationType}</strong>&quot;. This section is not yet supported for that type.
+        This section is not yet implemented for calculation type:{' '}
+        <Highlight mode={ScoringMode.Blightbane} strong>
+          {calculationType}
+        </Highlight>
+        .
       </p>
     </div>
   )
