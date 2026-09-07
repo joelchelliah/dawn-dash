@@ -5,13 +5,12 @@ import Modal, { ModalProps } from '@/shared/components/Modals/Modal'
 import styles from './index.module.scss'
 
 interface InfoModalProps extends Omit<ModalProps, 'footer'> {
-  additionalText?: string
   buttonColor?: string
 }
 
 const BUTTON_TEXT = 'Okay!'
 
-function InfoModal({ additionalText, buttonColor, children, ...modalProps }: InfoModalProps) {
+function InfoModal({ buttonColor, children, ...modalProps }: InfoModalProps) {
   const closeButton = buttonColor ? (
     <Button
       className={`${styles['close-button']} ${styles['close-button--colored']}`}
@@ -29,12 +28,6 @@ function InfoModal({ additionalText, buttonColor, children, ...modalProps }: Inf
   return (
     <Modal {...modalProps} footer={closeButton}>
       {children}
-      {additionalText && (
-        <div>
-          <br />
-          {additionalText}
-        </div>
-      )}
     </Modal>
   )
 }

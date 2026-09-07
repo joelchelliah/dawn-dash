@@ -7,15 +7,23 @@ import InfoModal from '@/shared/components/Modals/InfoModal'
 
 import styles from './index.module.scss'
 
-function getInfoText(multiline = false): JSX.Element {
+const paragraphStyle = { lineHeight: 1.8, marginBlockStart: 0, marginBlockEnd: 0 }
+
+function getInfoText(inModal = false): JSX.Element {
   return (
-    <p style={{ lineHeight: 1.8, marginBlockStart: 0, marginBlockEnd: 0 }}>
+    <p style={paragraphStyle}>
+      {inModal && <GitHubIcon className={styles['modal-icon']} />}
       <span>This is an open source project: </span>
-      {multiline && <br />}
+      {inModal && <br />}
       <GradientLink
         text="github.com/joelchelliah/dawn-dash"
         url="https://github.com/joelchelliah/dawn-dash"
       />
+      {inModal && (
+        <>
+          <p>Feedback, ideas, and contributions are welcome!</p>
+        </>
+      )}
     </p>
   )
 }
@@ -34,11 +42,7 @@ function OpenSourceInfo(): JSX.Element {
 
       <GitHubIcon className={styles['container__icon']} onClick={onIconClick} />
 
-      <InfoModal
-        isOpen={isModalOpen}
-        additionalText={'Feedback, ideas, and contributions are welcome!'}
-        onClose={() => setIsModalOpen(false)}
-      >
+      <InfoModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
         {getInfoText(true)}
       </InfoModal>
     </div>
