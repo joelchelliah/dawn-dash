@@ -1,5 +1,16 @@
 @use 'index' as *;
 
+.treasure-event-list__hint {
+  margin-top: 0.5rem;
+  padding-left: 0.5rem;
+  font-size: font-size('xs');
+  color: $color-primary-dark;
+
+  @media (max-width: $breakpoint-mobile) {
+    font-size: font-size('xxs');
+  }
+}
+
 .treasure-event-list {
   display: grid;
   grid-template-columns: repeat(3, 1fr);

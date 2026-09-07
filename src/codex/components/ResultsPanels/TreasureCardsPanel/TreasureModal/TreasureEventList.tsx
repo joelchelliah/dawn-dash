@@ -23,11 +23,17 @@ interface TreasureEventListProps {
 
 function TreasureEventList({ events }: TreasureEventListProps): JSX.Element {
   return (
-    <div className={cx('treasure-event-list')}>
-      {events.map((event) => (
-        <TreasureEventItem key={event.name} event={event} />
-      ))}
-    </div>
+    <>
+      <div className={cx('treasure-event-list')}>
+        {events.map((event) => (
+          <TreasureEventItem key={event.name} event={event} />
+        ))}
+      </div>
+      <div className={cx('treasure-event-list__hint')}>
+        Some of these events have a large pool of cards, including many{' '}
+        <strong>non-treasure</strong> equipment and items.
+      </div>
+    </>
   )
 }
 
