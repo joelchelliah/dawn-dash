@@ -30,7 +30,7 @@ const Divider = ({ spacingBottom = 'sm', widthPercentage = 100, color }: Divider
         margin: 'auto',
         marginBottom: spacingBottomMap[spacingBottom],
         width: `${widthPercentage}%`,
-        background: color,
+        background: color ? `linear-gradient(to right, ${color}, transparent)` : undefined,
       }}
     />
   )

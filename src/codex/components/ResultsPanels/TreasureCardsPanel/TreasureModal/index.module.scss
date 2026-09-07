@@ -12,7 +12,7 @@ $rarity-colors: (
   @each $name, $colour in $rarity-colors {
     &--#{$name}#{&}--#{$name} {
       --rarity-colour: #{$colour};
-      border-color: color-mix(in srgb, var(--rarity-colour) 35%, transparent);
+      border-color: color-mix(in srgb, var(--rarity-colour) 40%, transparent);
     }
   }
   border-radius: 0.375rem;

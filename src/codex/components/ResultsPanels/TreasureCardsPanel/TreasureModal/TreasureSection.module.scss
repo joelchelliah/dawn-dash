@@ -1,15 +1,20 @@
 @use 'index' as *;
 
 .treasure-section {
-  margin-top: 1.5rem;
+  margin-top: 1.75rem;
+
+  @media (max-width: $breakpoint-mobile) {
+    margin-top: 1.5rem;
+  }
 
   h4 {
     margin-top: 0;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.75rem;
     font-size: font-size('sm');
     color: $color-primary-base;
 
     @media (max-width: $breakpoint-mobile) {
+      margin-bottom: 0.5rem;
       font-size: font-size('xs');
     }
   }
