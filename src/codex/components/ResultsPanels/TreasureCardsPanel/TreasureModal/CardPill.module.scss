@@ -1,0 +1,27 @@
+@use 'index' as *;
+
+$pill-height: 1.375rem;
+$pill-height-mobile: 1.25rem;
+
+.card-pill {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  height: $pill-height;
+  margin-left: auto;
+  padding: 0 0.75rem 0.0625rem;
+  border: 1px solid $color-component-border-dark;
+  border-radius: $pill-height;
+  background-color: rgba(0, 0, 0, 0.5);
+
+  color: $color-primary-dark;
+  white-space: nowrap;
+  font-weight: 500;
+  font-size: font-size('xxs');
+
+  @media (max-width: $breakpoint-mobile) {
+    height: $pill-height-mobile;
+    border-radius: $pill-height-mobile;
+    padding: 0 0.5rem 0.0625rem;
+  }
+}

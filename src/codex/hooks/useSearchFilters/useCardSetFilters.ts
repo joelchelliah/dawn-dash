@@ -61,6 +61,8 @@ const useBaseCardSetFilters = createFilterHook({
 const CORE_INDEX = 1
 const toCardSetIndex = (index: number) => (index === 0 ? CORE_INDEX : index)
 
+export const getCardSetName = (index: number) => indexToValueMap[toCardSetIndex(index)] ?? ''
+
 /*
  * Index predicate for an arbitrary selection of card set names, rather than for the hook's current
  * state.

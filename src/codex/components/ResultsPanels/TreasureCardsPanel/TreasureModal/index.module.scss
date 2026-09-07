@@ -1,0 +1,80 @@
+@use 'index' as *;
+
+$rarity-colors: (
+  'common': $color-rarity-common,
+  'uncommon': $color-rarity-uncommon,
+  'rare': $color-rarity-rare,
+  'legendary': $color-rarity-legendary,
+  'monster': $color-danger-special-card,
+);
+
+.treasure-modal {
+  display: flex;
+  flex-direction: column;
+  padding: 0.5rem 0 0.75rem;
+
+  &__card {
+    padding: 0.5rem;
+    border-radius: 0.375rem;
+    background-color: rgba(0, 0, 0, 0.35);
+    box-shadow: 0 0 0.25rem 0.25rem rgba(0, 0, 0, 0.35);
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+  }
+
+  &__header-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    min-width: 0;
+    flex-shrink: 1;
+  }
+
+  &__name {
+    font-size: font-size('md');
+    font-weight: bold;
+    color: $color-primary-base;
+    @include text-truncate;
+  }
+
+  &__subtitle {
+    font-size: font-size('xxs');
+    letter-spacing: 0.025em;
+
+    @each $name, $colour in $rarity-colors {
+      &--#{$name} {
+        color: $colour;
+      }
+    }
+  }
+
+  &__description {
+    margin-top: 0.75rem;
+    font-size: font-size('xxs');
+    line-height: 1.4;
+    color: $color-primary-muted;
+
+    &__icon {
+      position: relative;
+      top: 0.0625rem;
+      display: inline-block;
+      width: 0.5625rem;
+      height: 0.5625rem;
+      opacity: 0.875;
+    }
+  }
+
+  &__availability {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem 0.75rem;
+
+    @media (max-width: $breakpoint-mobile) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+}

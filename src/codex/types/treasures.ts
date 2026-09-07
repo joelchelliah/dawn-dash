@@ -3,6 +3,8 @@ import { CardData } from '@/codex/types/cards'
 export interface TreasureCard {
   id: number
   name: string
+  category: string
+  type: string
   isTreasure: boolean
   inSunforge: boolean
   inCardRewards: boolean
@@ -10,6 +12,8 @@ export interface TreasureCard {
   inMerchant: boolean
   inAlchemist: boolean
   canBeAcquired: boolean
+  fromTranspose: boolean
+  fromTrade: boolean
   fromEvents: TreasureEventSource[]
   fromCards: TreasureCardSource[]
   fromTalents: TreasureTalentSource[]

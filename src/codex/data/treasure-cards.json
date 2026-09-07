@@ -2,6 +2,8 @@
   {
     "id": 930531,
     "name": "Chalice of Blood",
+    "category": "Action",
+    "type": "Divine",
     "isTreasure": true,
     "inSunforge": true,
     "inCardRewards": false,
@@ -9,6 +11,8 @@
     "inMerchant": false,
     "inAlchemist": false,
     "canBeAcquired": true,
+    "fromTranspose": false,
+    "fromTrade": false,
     "fromEvents": [
       {
         "event": "Broken Tombstone",
@@ -90,6 +94,8 @@
   {
     "id": 611711,
     "name": "Cursed Puzzlebox",
+    "category": "Artifact",
+    "type": "Utility",
     "isTreasure": true,
     "inSunforge": true,
     "inCardRewards": false,
@@ -97,6 +103,8 @@
     "inMerchant": false,
     "inAlchemist": false,
     "canBeAcquired": false,
+    "fromTranspose": false,
+    "fromTrade": false,
     "fromEvents": [
       {
         "event": "Broken Tombstone",
@@ -163,6 +171,8 @@
   {
     "id": 978149,
     "name": "Dark Mirror Vial",
+    "category": "Item",
+    "type": "Utility",
     "isTreasure": true,
     "inSunforge": true,
     "inCardRewards": true,
@@ -170,6 +180,8 @@
     "inMerchant": true,
     "inAlchemist": false,
     "canBeAcquired": false,
+    "fromTranspose": true,
+    "fromTrade": true,
     "fromEvents": [
       {
         "event": "Broken Tombstone",
@@ -238,6 +250,8 @@
   {
     "id": 909591,
     "name": "Flying Carpet",
+    "category": "Equipment",
+    "type": "Magic",
     "isTreasure": true,
     "inSunforge": true,
     "inCardRewards": false,
@@ -245,6 +259,8 @@
     "inMerchant": false,
     "inAlchemist": false,
     "canBeAcquired": true,
+    "fromTranspose": false,
+    "fromTrade": false,
     "fromEvents": [
       {
         "event": "Broken Tombstone",
@@ -328,6 +344,8 @@
   {
     "id": 353519,
     "name": "Healing Potion",
+    "category": "Item",
+    "type": "Utility",
     "isTreasure": true,
     "inSunforge": true,
     "inCardRewards": false,
@@ -335,6 +353,8 @@
     "inMerchant": false,
     "inAlchemist": true,
     "canBeAcquired": false,
+    "fromTranspose": true,
+    "fromTrade": false,
     "fromEvents": [
       {
         "event": "Broken Tombstone",
@@ -401,6 +421,8 @@
   {
     "id": 68505,
     "name": "Philosopher's Stone",
+    "category": "Item",
+    "type": "Utility",
     "isTreasure": true,
     "inSunforge": true,
     "inCardRewards": true,
@@ -408,6 +430,8 @@
     "inMerchant": true,
     "inAlchemist": false,
     "canBeAcquired": true,
+    "fromTranspose": true,
+    "fromTrade": true,
     "fromEvents": [
       {
         "event": "Broken Tombstone",
@@ -489,6 +513,8 @@
   {
     "id": 855931,
     "name": "Potion of Visions",
+    "category": "Item",
+    "type": "Utility",
     "isTreasure": true,
     "inSunforge": true,
     "inCardRewards": false,
@@ -496,6 +522,8 @@
     "inMerchant": false,
     "inAlchemist": true,
     "canBeAcquired": false,
+    "fromTranspose": true,
+    "fromTrade": true,
     "fromEvents": [
       {
         "event": "Broken Tombstone",
@@ -562,6 +590,8 @@
   {
     "id": 973883,
     "name": "Ring of Power",
+    "category": "Item",
+    "type": "Magic",
     "isTreasure": true,
     "inSunforge": true,
     "inCardRewards": true,
@@ -569,6 +599,8 @@
     "inMerchant": true,
     "inAlchemist": false,
     "canBeAcquired": true,
+    "fromTranspose": true,
+    "fromTrade": true,
     "fromEvents": [
       {
         "event": "Broken Tombstone",
@@ -650,6 +682,8 @@
   {
     "id": 740335,
     "name": "Rune of Persistence",
+    "category": "Item",
+    "type": "Utility",
     "isTreasure": true,
     "inSunforge": true,
     "inCardRewards": true,
@@ -657,6 +691,8 @@
     "inMerchant": true,
     "inAlchemist": false,
     "canBeAcquired": true,
+    "fromTranspose": true,
+    "fromTrade": true,
     "fromEvents": [
       {
         "event": "Broken Tombstone",
@@ -738,6 +774,8 @@
   {
     "id": 407234,
     "name": "Rusty Lamp",
+    "category": "Equipment",
+    "type": "Utility",
     "isTreasure": true,
     "inSunforge": true,
     "inCardRewards": false,
@@ -745,6 +783,8 @@
     "inMerchant": false,
     "inAlchemist": false,
     "canBeAcquired": false,
+    "fromTranspose": false,
+    "fromTrade": false,
     "fromEvents": [
       {
         "event": "Broken Tombstone",
@@ -811,6 +851,8 @@
   {
     "id": 816971,
     "name": "Sharpening Stone",
+    "category": "Item",
+    "type": "Utility",
     "isTreasure": true,
     "inSunforge": true,
     "inCardRewards": true,
@@ -818,6 +860,8 @@
     "inMerchant": true,
     "inAlchemist": false,
     "canBeAcquired": true,
+    "fromTranspose": true,
+    "fromTrade": true,
     "fromEvents": [
       {
         "event": "Broken Tombstone",
@@ -899,6 +943,8 @@
   {
     "id": 77316,
     "name": "Staff of Thunder",
+    "category": "BasicAttack",
+    "type": "Magic",
     "isTreasure": true,
     "inSunforge": true,
     "inCardRewards": false,
@@ -906,6 +952,8 @@
     "inMerchant": false,
     "inAlchemist": false,
     "canBeAcquired": false,
+    "fromTranspose": false,
+    "fromTrade": false,
     "fromEvents": [
       {
         "event": "Broken Tombstone",
@@ -972,6 +1020,8 @@
   {
     "id": 571114,
     "name": "Stash of Weapons",
+    "category": "Item",
+    "type": "Utility",
     "isTreasure": true,
     "inSunforge": true,
     "inCardRewards": true,
@@ -979,6 +1029,8 @@
     "inMerchant": true,
     "inAlchemist": false,
     "canBeAcquired": true,
+    "fromTranspose": true,
+    "fromTrade": true,
     "fromEvents": [
       {
         "event": "Broken Tombstone",
@@ -1060,6 +1112,8 @@
   {
     "id": 307462,
     "name": "Tradepost",
+    "category": "Artifact",
+    "type": "Utility",
     "isTreasure": true,
     "inSunforge": true,
     "inCardRewards": false,
@@ -1067,6 +1121,8 @@
     "inMerchant": false,
     "inAlchemist": false,
     "canBeAcquired": false,
+    "fromTranspose": false,
+    "fromTrade": false,
     "fromEvents": [
       {
         "event": "Broken Tombstone",

@@ -1,9 +1,12 @@
+import { useState } from 'react'
+
 import { BORDERED_ARTWORK_HOVER_TRIGGER } from '@/shared/components/BorderedArtwork'
 import RarityBorderedArtwork, { RARITIES } from '@/shared/components/RarityBorderedArtwork'
 import { createCx } from '@/shared/utils/classnames'
 
-import { CARD_CATEGORIES } from '@/codex/constants/cardCategories'
 import { EnrichedTreasureCard } from '@/codex/types/treasures'
+
+import TreasureModal from '../TreasureModal'
 
 import styles from './index.module.scss'
 
@@ -18,31 +21,54 @@ interface TreasureListProps {
 }
 
 function TreasureList({ treasures }: TreasureListProps): JSX.Element {
+  const [selectedId, setSelectedId] = useState<number | null>(null)
+  const selectedTreasure = treasures.find(
+    ({ treasureDetails }) => treasureDetails.id === selectedId
+  )
+
   return (
     <div className={cx('treasure-list-container')}>
       <div className={cx('treasure-list')}>
         {treasures.map((treasure) => (
-          <TreasureListItem key={treasure.treasureDetails.id} treasure={treasure} />
+          <TreasureListItem
+            key={treasure.treasureDetails.id}
+            treasure={treasure}
+            onClick={() => setSelectedId(treasure.treasureDetails.id)}
+          />
         ))}
       </div>
+      {selectedTreasure && (
+        <TreasureModal treasure={selectedTreasure} onClose={() => setSelectedId(null)} />
+      )}
     </div>
   )
 }
 
 interface TreasureListItemProps {
   treasure: EnrichedTreasureCard
+  onClick: () => void
 }
 
-function TreasureListItem({ treasure }: TreasureListItemProps): JSX.Element {
+function TreasureListItem({ treasure, onClick }: TreasureListItemProps): JSX.Element {
   const { treasureDetails, cardDetails } = treasure
   const rarity = RARITIES[cardDetails.rarity]
-  const category = CARD_CATEGORIES[cardDetails.category]
-  const rarityAndCategory = [rarity?.name, category].filter(Boolean).join(' ')
+  const rarityAndCategory = [rarity?.name, treasureDetails.category].filter(Boolean).join(' ')
 
   const itemClassName = `${cx('treasure-list-item')} ${BORDERED_ARTWORK_HOVER_TRIGGER}`
 
   return (
-    <div className={itemClassName}>
+    <div
+      className={itemClassName}
+      role="button"
+      tabIndex={0}
+      onClick={onClick}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          onClick()
+        }
+      }}
+    >
       <RarityBorderedArtwork
         cardName={cardDetails.name}
         rarity={cardDetails.rarity}

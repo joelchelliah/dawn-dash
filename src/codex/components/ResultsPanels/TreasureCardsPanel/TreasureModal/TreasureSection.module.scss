@@ -1,0 +1,12 @@
+@use 'index' as *;
+
+.treasure-section {
+  margin-top: 1.5rem;
+
+  h4 {
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+    font-size: font-size('sm');
+    color: $color-primary-base;
+  }
+}

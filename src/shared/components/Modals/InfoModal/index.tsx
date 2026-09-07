@@ -13,7 +13,7 @@ function InfoModal({ additionalText, children, ...modalProps }: InfoModalProps) 
       {...modalProps}
       footer={
         <GradientButton bold className={styles['close-button']} onClick={modalProps.onClose}>
-          Got it!
+          Okay!
         </GradientButton>
       }
     >
