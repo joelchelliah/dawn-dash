@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { BORDERED_ARTWORK_HOVER_TRIGGER } from '@/shared/components/BorderedArtwork'
 import RarityBorderedArtwork, { RARITIES } from '@/shared/components/RarityBorderedArtwork'
 import { createCx } from '@/shared/utils/classnames'
+import { splitCamelCaseWords } from '@/shared/utils/textHelper'
 
 import { EnrichedTreasureCard } from '@/codex/types/treasures'
 
@@ -52,7 +53,9 @@ interface TreasureListItemProps {
 function TreasureListItem({ treasure, onClick }: TreasureListItemProps): JSX.Element {
   const { treasureDetails, cardDetails } = treasure
   const rarity = RARITIES[cardDetails.rarity]
-  const rarityAndCategory = [rarity?.name, treasureDetails.category].filter(Boolean).join(' ')
+  const rarityAndCategory = [rarity?.name, splitCamelCaseWords(treasureDetails.category)]
+    .filter(Boolean)
+    .join(' ')
 
   const itemClassName = `${cx('treasure-list-item')} ${BORDERED_ARTWORK_HOVER_TRIGGER}`
 

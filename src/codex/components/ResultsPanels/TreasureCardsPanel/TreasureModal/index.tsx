@@ -1,6 +1,7 @@
 import InfoModal from '@/shared/components/Modals/InfoModal'
 import RarityBorderedArtwork, { RARITIES } from '@/shared/components/RarityBorderedArtwork'
 import { createCx } from '@/shared/utils/classnames'
+import { splitCamelCaseWords } from '@/shared/utils/textHelper'
 
 import { getCardSetName } from '@/codex/hooks/useSearchFilters/useCardSetFilters'
 import { EnrichedTreasureCard, TreasureCard } from '@/codex/types/treasures'
@@ -47,11 +48,9 @@ const getAvailability = (treasure: TreasureCard): TreasureAvailability[] => {
 const UNINFORMATIVE_TYPES = ['Utility']
 
 const getSubtitle = ({ type, category }: TreasureCard, rarityName?: string) =>
-  [rarityName, UNINFORMATIVE_TYPES.includes(type) ? '' : type, splitCategoryWords(category)]
+  [rarityName, UNINFORMATIVE_TYPES.includes(type) ? '' : type, splitCamelCaseWords(category)]
     .filter(Boolean)
     .join(' ')
-
-const splitCategoryWords = (category: string) => category.replace(/([a-z])([A-Z])/g, '$1 $2')
 
 interface TreasureModalProps {
   treasure: EnrichedTreasureCard
