@@ -61,6 +61,7 @@ function TreasureEventItem({ event }: TreasureEventItemProps): JSX.Element {
         sizeMobile={EVENT_ARTWORK_SIZE_MOBILE}
         borderOpacity={EVENT_ARTWORK_BORDER_OPACITY}
         onImageSrcError={onImageSrcError}
+        className={cx('treasure-event-item__artwork')}
       />
       <div className={cx('treasure-event-item__text')}>
         <span className={cx('treasure-event-item__name')}>{event.name}</span>

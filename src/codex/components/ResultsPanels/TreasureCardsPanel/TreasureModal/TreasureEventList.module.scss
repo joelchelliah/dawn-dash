@@ -61,14 +61,16 @@
 
   &:hover {
     background: linear-gradient(to right, $color-list-bg-hover, transparent) !important;
+    .treasure-event-item__artwork {
+      @include hover-tint-artwork(var(--rarity-colour, #{$color-primary-hover}));
+    }
 
     .treasure-event-item__text {
       @include tinyNudgeRightAnimation;
     }
 
     .treasure-event-item__name {
-      font-weight: 600;
-      color: $color-primary-hover;
+      @include hover-tint-name(var(--rarity-colour, #{$color-primary-hover}));
     }
   }
 }

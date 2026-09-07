@@ -143,6 +143,7 @@ function EventListItem({ event, allEvents, onEventSelect }: EventListItemProps):
         sizeMobile={ARTWORK_SIZE_MOBILE}
         borderOpacity={ARTWORK_BORDER_OPACITY}
         onImageSrcError={onImageSrcError}
+        className={cx('event-list-item__artwork')}
       />
       <div className={cx('event-list-item__text')}>
         <span

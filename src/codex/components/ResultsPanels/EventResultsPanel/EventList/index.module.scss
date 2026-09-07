@@ -144,9 +144,12 @@
       @include tinyNudgeRightAnimation;
     }
 
+    .event-list-item__artwork {
+      @include hover-tint-artwork($yellow-hover);
+    }
+
     .event-list-item__name {
-      font-weight: 600;
-      color: $color-primary-hover;
+      @include hover-tint-name($yellow-hover);
     }
   }
 
