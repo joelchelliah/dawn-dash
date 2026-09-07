@@ -45,6 +45,8 @@ function TreasureEventItem({ event }: TreasureEventItemProps): JSX.Element {
       href={`/eventmaps/${normalizeEventNameForUrl(event.name)}`}
       className={itemClassName}
       title={event.name}
+      target="_blank"
+      rel="noopener noreferrer"
     >
       <BorderedArtwork
         src={eventImageSrc}
