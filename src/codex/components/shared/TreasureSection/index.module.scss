@@ -1,10 +1,12 @@
 @use 'index' as *;
 
 .treasure-section {
-  margin-top: 1.75rem;
+  &--stacked {
+    margin-top: 1.75rem;
 
-  @media (max-width: $breakpoint-mobile) {
-    margin-top: 1.5rem;
+    @media (max-width: $breakpoint-mobile) {
+      margin-top: 1.5rem;
+    }
   }
 
   h4 {

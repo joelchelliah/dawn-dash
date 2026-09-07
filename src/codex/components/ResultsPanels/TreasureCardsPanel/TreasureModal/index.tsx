@@ -7,11 +7,11 @@ import { getCardSetName } from '@/codex/hooks/useSearchFilters/useCardSetFilters
 import { EnrichedTreasureCard, TreasureCard } from '@/codex/types/treasures'
 import { parseCardDescription } from '@/codex/utils/cardHelper'
 import { getTreasureEvents } from '@/codex/utils/treasureHelper'
+import TreasureSection from '@/codex/components/shared/TreasureSection'
 
 import CardPill from './CardPill'
 import TreasureEventList from './TreasureEventList'
 import TreasureFlag from './TreasureFlag'
-import TreasureSection from './TreasureSection'
 import styles from './index.module.scss'
 
 const cx = createCx(styles)

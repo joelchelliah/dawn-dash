@@ -14,13 +14,15 @@
     flex-direction: column;
     margin: 1rem 1rem 0;
   }
-}
 
-.info-message {
-  font-size: font-size('sm');
-  font-weight: 600;
-  line-height: 1.4;
-  color: $color-primary-muted;
-  text-align: center;
-  padding: 2rem;
+  &__pools {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    align-items: stretch;
+
+    @media (max-width: $breakpoint-mobile) {
+      grid-template-columns: 1fr;
+    }
+  }
 }

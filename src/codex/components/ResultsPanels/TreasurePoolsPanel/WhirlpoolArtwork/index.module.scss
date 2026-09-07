@@ -1,0 +1,194 @@
+@use 'index' as *;
+
+// How far each swirling ring extends past the artwork.
+$swirl-bleed-outer: 0.5rem;
+$swirl-bleed-inner: 0.1875rem;
+
+$swirl-duration-outer: 7s;
+$swirl-duration-inner: 11s;
+$swirl-duration-outer-hover: 2.5s;
+$swirl-duration-inner-hover: 4s;
+
+$swirl-opacity-outer: 0.7;
+$swirl-opacity-inner: 0.5;
+$swirl-opacity-outer-hover: 1;
+$swirl-opacity-inner-hover: 0.85;
+
+// The rings grow on hover to eat into the space around the artwork. Scaling the ring rather than
+// widening `inset` keeps the layout box fixed, so a hovered card never nudges its neighbours.
+$swirl-scale-hover: 1.22;
+$swirl-scale-hover-inner: 1.14;
+
+/*
+ * Round artwork ringed by a whirlpool. Size comes from `--whirlpool-size` /
+ * `--whirlpool-size-mobile` and colour from `--whirlpool-colour` / `--whirlpool-colour-bright`,
+ * all set inline by the component — so a pool picks its own accent without a stylesheet change.
+ */
+.whirlpool {
+  position: relative;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--whirlpool-size);
+  height: var(--whirlpool-size);
+
+  @media (max-width: $breakpoint-mobile) {
+    width: var(--whirlpool-size-mobile);
+    height: var(--whirlpool-size-mobile);
+  }
+
+  /*
+   * A swirling ring. The conic gradient is hollowed into a ring by a radial mask, so the artwork
+   * never sits on a tinted disc.
+   *
+   * The choppiness comes from the two rings disagreeing: each has an uneven gradient with hard-ish
+   * colour stops, and they turn in opposite directions at different speeds, so the visible edge is
+   * never the same shape twice. A single smoothly-interpolated ring just reads as a spinning disc
+   * no matter how it's masked.
+   */
+  /*
+   * The rings' rotation lives in a keyframe `transform`, which would overwrite a `scale` set on
+   * the same element — so the hover growth is applied to this wrapper instead. Its own box stays
+   * put, so a growing ring never nudges the card's layout.
+   */
+  &__swirl-scaler {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    transition: transform 0.4s ease-out;
+  }
+
+  &__swirl {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+    transition: opacity 0.35s ease-out;
+  }
+
+  &__swirl--outer {
+    inset: -$swirl-bleed-outer;
+    opacity: $swirl-opacity-outer;
+
+    // Uneven stops with abrupt jumps: the closely-spaced pairs read as crests, the wide transparent
+    // gaps as troughs.
+    background: conic-gradient(
+      from 0deg,
+      transparent 0deg,
+      color-mix(in srgb, var(--whirlpool-colour) 70%, transparent) 22deg,
+      var(--whirlpool-colour-bright) 38deg,
+      color-mix(in srgb, var(--whirlpool-colour) 40%, transparent) 62deg,
+      transparent 96deg,
+      color-mix(in srgb, var(--whirlpool-colour) 85%, transparent) 130deg,
+      var(--whirlpool-colour-bright) 148deg,
+      transparent 186deg,
+      transparent 214deg,
+      color-mix(in srgb, var(--whirlpool-colour) 60%, transparent) 240deg,
+      var(--whirlpool-colour-bright) 262deg,
+      color-mix(in srgb, var(--whirlpool-colour) 30%, transparent) 292deg,
+      transparent 318deg,
+      color-mix(in srgb, var(--whirlpool-colour) 55%, transparent) 344deg,
+      transparent 360deg
+    );
+
+    // A slightly ragged ring: the mask's mid stops are close together, so the fade in and out is
+    // sharp enough to keep the crests looking like separate wisps.
+    mask: radial-gradient(closest-side, transparent 58%, #000 72%, #000 88%, transparent 100%);
+    -webkit-mask: radial-gradient(
+      closest-side,
+      transparent 58%,
+      #000 72%,
+      #000 88%,
+      transparent 100%
+    );
+
+    animation: whirlpoolSpin $swirl-duration-outer linear infinite;
+  }
+
+  &__swirl--inner {
+    inset: -$swirl-bleed-inner;
+    opacity: $swirl-opacity-inner;
+
+    background: conic-gradient(
+      from 140deg,
+      transparent 0deg,
+      var(--whirlpool-colour-bright) 30deg,
+      transparent 74deg,
+      color-mix(in srgb, var(--whirlpool-colour) 75%, transparent) 118deg,
+      transparent 166deg,
+      var(--whirlpool-colour-bright) 208deg,
+      color-mix(in srgb, var(--whirlpool-colour) 45%, transparent) 250deg,
+      transparent 288deg,
+      color-mix(in srgb, var(--whirlpool-colour) 65%, transparent) 330deg,
+      transparent 360deg
+    );
+
+    mask: radial-gradient(closest-side, transparent 64%, #000 80%, #000 100%);
+    -webkit-mask: radial-gradient(closest-side, transparent 64%, #000 80%, #000 100%);
+
+    // Counter-rotating, so the two edges beat against each other instead of travelling together.
+    animation: whirlpoolSpinReverse $swirl-duration-inner linear infinite;
+  }
+
+  &__artwork {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 1px solid color-mix(in srgb, var(--whirlpool-colour) 70%, transparent);
+    background-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 0.5rem 0.0625rem color-mix(in srgb, var(--whirlpool-colour) 30%, transparent);
+    transition: box-shadow 0.35s ease-out;
+  }
+
+  /*
+   * Hover feedback, driven from whichever ancestor carries the trigger marker. The rings brighten
+   * and speed up while the artwork pops, so the card responds as one. `animation-duration` is not
+   * transitionable, so the speed-up is an instant swap — it reads fine because the brightening
+   * ramps alongside it.
+   */
+  :global(.whirlpool-hoverable):hover & {
+    &__swirl-scaler--outer {
+      transform: scale($swirl-scale-hover);
+    }
+
+    &__swirl-scaler--inner {
+      transform: scale($swirl-scale-hover-inner);
+    }
+
+    &__swirl--outer {
+      opacity: $swirl-opacity-outer-hover;
+      animation-duration: $swirl-duration-outer-hover;
+    }
+
+    &__swirl--inner {
+      opacity: $swirl-opacity-inner-hover;
+      animation-duration: $swirl-duration-inner-hover;
+    }
+
+    &__artwork {
+      animation: tinyPop 0.4s ease-out;
+      box-shadow: 0 0 0.75rem 0.125rem
+        color-mix(in srgb, var(--whirlpool-colour-bright) 70%, transparent);
+    }
+  }
+}
+
+@keyframes whirlpoolSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes whirlpoolSpinReverse {
+  from {
+    transform: rotate(360deg);
+  }
+  to {
+    transform: rotate(0deg);
+  }
+}
