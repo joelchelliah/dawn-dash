@@ -9,7 +9,7 @@ import { useNavigation } from '@/shared/hooks/useNavigation'
 import Header from '@/shared/components/Header'
 import StarField from '@/shared/components/StarField'
 import GradientLink from '@/shared/components/GradientLink'
-import GradientDivider from '@/shared/components/GradientDivider'
+import Divider from '@/shared/components/Divider'
 import { useBreakpoint } from '@/shared/hooks/useBreakpoint'
 
 import styles from './index.module.scss'
@@ -40,7 +40,7 @@ export default function Landing() {
         </p>
 
         <div style={{ width: '100%' }}>
-          <GradientDivider spacingBottom="md" widthPercentage={85} />
+          <Divider spacingBottom="md" widthPercentage={85} />
         </div>
 
         <nav className={cx('nav')}>

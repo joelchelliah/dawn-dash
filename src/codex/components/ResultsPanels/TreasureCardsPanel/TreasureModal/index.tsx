@@ -21,6 +21,10 @@ const ARTWORK_SIZE_MOBILE = 44
 const ARTWORK_BORDER_OPACITY = 75
 const MODAL_MAX_WIDTH = 800
 
+// The rarity colours live only in SCSS (see `index.module.scss`), so the modal's border, dividers
+// and close button read them through this variable rather than a JS colour value.
+const RARITY_COLOUR = 'var(--rarity-colour)'
+
 interface TreasureAvailability {
   label: string
   value: boolean
@@ -64,8 +68,19 @@ function TreasureModal({ treasure, onClose }: TreasureModalProps): JSX.Element {
 
   const events = getTreasureEvents(treasureDetails)
 
+  const rarityClassName = cx('treasure-modal-border', {
+    [`treasure-modal-border--${rarity?.slug}`]: Boolean(rarity),
+  })
+
   return (
-    <InfoModal isOpen onClose={onClose} maxWidth={MODAL_MAX_WIDTH} scrollable>
+    <InfoModal
+      isOpen
+      onClose={onClose}
+      maxWidth={MODAL_MAX_WIDTH}
+      scrollable
+      borderClassName={rarityClassName}
+      buttonColor={rarity ? RARITY_COLOUR : undefined}
+    >
       <div className={cx('treasure-modal')}>
         <div className={cx('treasure-modal__card')}>
           <div className={cx('treasure-modal__header')}>
@@ -105,7 +120,10 @@ function TreasureModal({ treasure, onClose }: TreasureModalProps): JSX.Element {
           )}
         </div>
 
-        <TreasureSection title="Acquired outside events">
+        <TreasureSection
+          title="Acquired outside events"
+          dividerColor={rarity ? RARITY_COLOUR : undefined}
+        >
           <div className={cx('treasure-modal__availability')}>
             {getAvailability(treasureDetails).map(({ label, value }) => (
               <TreasureFlag key={label} label={label} value={value} />
@@ -114,7 +132,10 @@ function TreasureModal({ treasure, onClose }: TreasureModalProps): JSX.Element {
         </TreasureSection>
 
         {events.length > 0 && (
-          <TreasureSection title={`Acquired from events (${events.length})`}>
+          <TreasureSection
+            title={`Acquired from events (${events.length})`}
+            dividerColor={rarity ? RARITY_COLOUR : undefined}
+          >
             <TreasureEventList events={events} />
           </TreasureSection>
         )}

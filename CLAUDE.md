@@ -103,7 +103,7 @@ Each feature directory has its own `CLAUDE.md` with architecture details and inv
 - `PageHead` — renders each tool page's meta/OG tags from the tool registry
 - Buttons: Button, GradientButton, IllustratedButton, ButtonRow — all extend `BaseButtonProps` from `Buttons/types.ts`
 - Modals: Modal, InfoModal
-- UI elements: LoadingDots, ScrollToTopButton, GradientDivider, GradientLink, ScrollableWithFade, Select, Code, Image
+- UI elements: LoadingDots, ScrollToTopButton, Divider, GradientLink, ScrollableWithFade, Select, Code, Image
 - `Sliders/Thumb` — the draggable energy-orb thumb shared by the speedruns sliders and the codex zoom slider; takes an `orientation` prop because the CSS centering axis differs between horizontal and vertical tracks
 - Notifications: Notification (toast-style with auto-dismiss and progress bar)
 - `Icons/` — one component per SVG icon, each taking only `className` and `onClick`, so **size and colour are set entirely in CSS**. An icon's apparent size depends on its *fill* (how much of the viewBox is ink rather than margin), which varies a lot between icons — so equal CSS sizes do not look equal. To make an icon look bigger or smaller, crop or widen its `viewBox` rather than fighting it with CSS: run `npm run icon-viewbox -- <IconName>` for its current fill and a table of candidate viewBoxes. These components are shared (result cards *and* search-panel filters), so a viewBox change affects every consumer — use a stylesheet's `svg { width/height }` when only one place should change.

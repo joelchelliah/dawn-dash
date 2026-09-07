@@ -1,13 +1,18 @@
+import { createCx } from '@/shared/utils/classnames'
+
 import styles from './index.module.scss'
+
+const cx = createCx(styles)
 
 type Spacing = 'xs' | 'sm' | 'md' | 'lg'
 
-interface GradientDividerProps {
+interface DividerProps {
   spacingBottom: Spacing
   widthPercentage?: number
+  color?: string
 }
 
-const GradientDivider = ({ spacingBottom = 'sm', widthPercentage = 100 }: GradientDividerProps) => {
+const Divider = ({ spacingBottom = 'sm', widthPercentage = 100, color }: DividerProps) => {
   const spacingBottomMap = {
     xs: '-0.5rem',
     sm: '0.75rem',
@@ -17,14 +22,18 @@ const GradientDivider = ({ spacingBottom = 'sm', widthPercentage = 100 }: Gradie
 
   return (
     <div
-      className={styles['gradient-divider']}
+      className={cx('divider', {
+        'divider--gradient': !color,
+        'divider--solid': Boolean(color),
+      })}
       style={{
         margin: 'auto',
         marginBottom: spacingBottomMap[spacingBottom],
         width: `${widthPercentage}%`,
+        background: color,
       }}
     />
   )
 }
 
-export default GradientDivider
+export default Divider

@@ -8,6 +8,16 @@ $rarity-colors: (
   'monster': $color-danger-special-card,
 );
 
+.treasure-modal-border {
+  @each $name, $colour in $rarity-colors {
+    &--#{$name}#{&}--#{$name} {
+      --rarity-colour: #{$colour};
+      border-color: color-mix(in srgb, var(--rarity-colour) 35%, transparent);
+    }
+  }
+  border-radius: 0.375rem;
+}
+
 .treasure-modal {
   display: flex;
   flex-direction: column;
@@ -15,7 +25,7 @@ $rarity-colors: (
 
   &__card {
     padding: 0.5rem;
-    margin-bottom: 0.25rem;
+    margin: 0.25rem 0;
     border-radius: 0.375rem;
     background-color: rgba(0, 0, 0, 0.35);
     box-shadow: 0 0 0.25rem 0.25rem rgba(0, 0, 0, 0.35);

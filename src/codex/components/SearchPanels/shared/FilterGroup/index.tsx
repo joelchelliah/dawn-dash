@@ -1,5 +1,5 @@
 import { createCx } from '@/shared/utils/classnames'
-import GradientDivider from '@/shared/components/GradientDivider'
+import Divider from '@/shared/components/Divider'
 
 import { FilterTypeCard, FilterTypeTalent } from '@/codex/types/filters'
 
@@ -31,7 +31,7 @@ function FilterGroup({
   return (
     <div className={cx('filter-group')}>
       <h4>{title}</h4>
-      <GradientDivider spacingBottom="sm" />
+      <Divider spacingBottom="sm" />
       <div className={checkboxesClassName}>
         {filters.map((filter) => (
           <Checkbox

@@ -1,5 +1,5 @@
 import { MagnifyingGlassIcon, StackedCardsIcon } from '@/shared/components/Icons'
-import GradientDivider from '@/shared/components/GradientDivider'
+import Divider from '@/shared/components/Divider'
 import { createCx } from '@/shared/utils/classnames'
 
 import styles from './index.module.scss'
@@ -37,7 +37,7 @@ const PanelHeader = ({ type }: PanelHeaderProps) => {
         {renderIcon()}
         <span className={cx('panel-header__title')}>{PANEL_TITLES[type]}</span>
       </div>
-      <GradientDivider spacingBottom="lg" />
+      <Divider spacingBottom="lg" />
     </>
   )
 }

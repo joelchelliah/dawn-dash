@@ -1,4 +1,4 @@
-import GradientDivider from '@/shared/components/GradientDivider'
+import Divider from '@/shared/components/Divider'
 import { createCx } from '@/shared/utils/classnames'
 
 import styles from './TreasureSection.module.scss'
@@ -7,14 +7,15 @@ const cx = createCx(styles)
 
 interface TreasureSectionProps {
   title: string
+  dividerColor?: string
   children: React.ReactNode
 }
 
-function TreasureSection({ title, children }: TreasureSectionProps): JSX.Element {
+function TreasureSection({ title, dividerColor, children }: TreasureSectionProps): JSX.Element {
   return (
     <div className={cx('treasure-section')}>
       <h4>{title}</h4>
-      <GradientDivider spacingBottom="sm" />
+      <Divider spacingBottom="sm" color={dividerColor} />
       {children}
     </div>
   )
