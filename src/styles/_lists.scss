@@ -1,0 +1,51 @@
+@use 'colors' as *;
+
+// Shades whole rows of a $columns-wide grid in an alternating pattern, fading
+// the last item of each shaded row out to the right.
+@mixin alternating-rows($columns, $shade: $color-list-row-alt) {
+  $period: $columns * 2;
+  $fade: linear-gradient(to right, $shade, transparent);
+
+  @for $i from 1 through $columns {
+    &:nth-child(#{$period}n + #{$i}) {
+      background: $shade;
+    }
+  }
+
+  // Last item of each shaded row fades out to the right
+  &:nth-child(#{$period}n + #{$columns}) {
+    background: $fade;
+  }
+
+  // Trailing incomplete row: fade its final item, but only within the shaded
+  // band — an item ending an unshaded row must not pick up a background.
+  @if $columns > 1 {
+    @for $i from 1 through $columns - 1 {
+      &:last-child:nth-child(#{$period}n + #{$i}) {
+        background: $fade;
+      }
+    }
+  }
+}
+
+// Applies `alternating-rows` over a width range bounded by breakpoint values,
+// matching how the grids here declare their column counts: `$through` is
+// *inclusive* (like a plain `max-width: $breakpoint`), and `$above` is its
+// exact complement, a hair over the given breakpoint.
+@mixin alternating-rows-range($columns, $above: null, $through: null, $shade: $color-list-row-alt) {
+  @if $above == null and $through == null {
+    @include alternating-rows($columns, $shade);
+  } @else if $above == null {
+    @media (max-width: $through) {
+      @include alternating-rows($columns, $shade);
+    }
+  } @else if $through == null {
+    @media (min-width: calc(#{$above} + 0.01px)) {
+      @include alternating-rows($columns, $shade);
+    }
+  } @else {
+    @media (min-width: calc(#{$above} + 0.01px)) and (max-width: $through) {
+      @include alternating-rows($columns, $shade);
+    }
+  }
+}

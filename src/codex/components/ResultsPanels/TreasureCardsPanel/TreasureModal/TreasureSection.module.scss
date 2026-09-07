@@ -8,5 +8,9 @@
     margin-bottom: 0.5rem;
     font-size: font-size('sm');
     color: $color-primary-base;
+
+    @media (max-width: $breakpoint-mobile) {
+      font-size: font-size('xs');
+    }
   }
 }
