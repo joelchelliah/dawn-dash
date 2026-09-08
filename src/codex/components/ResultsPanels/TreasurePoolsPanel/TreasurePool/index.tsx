@@ -1,11 +1,17 @@
 import { createCx } from '@/shared/utils/classnames'
 
-import { getPoolSize, TreasurePoolDisplay } from '@/codex/constants/treasurePools'
+import {
+  getPoolRewards,
+  getPoolSize,
+  getPoolSources,
+  TreasurePoolDisplay,
+} from '@/codex/constants/treasurePools'
 import Section from '@/codex/components/shared/Section'
 
 import WhirlpoolArtwork, { WHIRLPOOL_HOVER_TRIGGER } from '../WhirlpoolArtwork'
 
 import styles from './index.module.scss'
+import { POOL_NOTES } from './poolNotes'
 
 const cx = createCx(styles)
 
@@ -17,6 +23,10 @@ interface TreasurePoolProps {
 }
 
 function TreasurePool({ pool }: TreasurePoolProps): JSX.Element {
+  const rewards = getPoolRewards(pool)
+  const sources = getPoolSources(pool)
+  const notes = POOL_NOTES[pool.id]
+
   const cardClassName = `${cx('pool-card')} ${WHIRLPOOL_HOVER_TRIGGER}`
   const cardStyle = {
     '--pool-color': pool.color,
@@ -40,9 +50,15 @@ function TreasurePool({ pool }: TreasurePoolProps): JSX.Element {
         </div>
       </div>
 
+      {notes.above && (
+        <div className={cx('pool-card__note')}>
+          <p>{notes.above}</p>
+        </div>
+      )}
+
       <Section title="Rewards" dividerColor="var(--pool-color)" spacing="none">
         <div className={cx('pool-card__tags')}>
-          {pool.rewards.map(({ label, excluded }) => (
+          {rewards.map(({ label, excluded }) => (
             <span
               key={label}
               className={cx('pool-card__tag', { 'pool-card__tag--excluded': excluded })}
@@ -53,17 +69,17 @@ function TreasurePool({ pool }: TreasurePoolProps): JSX.Element {
         </div>
       </Section>
 
-      <div className={cx('pool-card__acquired')}>
-        <Section title="Acquired from" dividerColor="var(--pool-color)" spacing="none">
-          <div className={cx('pool-card__tags')}>
-            {pool.sources.map((source) => (
-              <span key={source} className={cx('pool-card__tag')}>
-                {source}
-              </span>
-            ))}
-          </div>
-        </Section>
-      </div>
+      <Section title="Acquired from" dividerColor="var(--pool-color)" spacing="none">
+        <div className={cx('pool-card__tags')}>
+          {sources.map((source) => (
+            <span key={source} className={cx('pool-card__tag')}>
+              {source}
+            </span>
+          ))}
+        </div>
+      </Section>
+
+      <div className={cx('pool-card__note')}>{notes.below && <p>{notes.below}</p>}</div>
     </div>
   )
 }

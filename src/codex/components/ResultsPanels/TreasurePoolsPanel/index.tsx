@@ -3,7 +3,11 @@ import { useEffect } from 'react'
 import { createCx } from '@/shared/utils/classnames'
 import { logger } from '@/shared/utils/logger'
 
-import { findUnmappedPools, TREASURE_POOL_DISPLAYS } from '@/codex/constants/treasurePools'
+import {
+  findUnknownRewards,
+  findUnmappedPools,
+  TREASURE_POOL_DISPLAYS,
+} from '@/codex/constants/treasurePools'
 
 import PanelHeader from '../../PanelHeader'
 
@@ -20,6 +24,15 @@ const TreasurePoolsPanel = () => {
       logger.warn(
         `Treasure pools missing from TREASURE_POOL_DISPLAYS: ${unmapped.join(', ')}. ` +
           'Add them in constants/treasurePools.ts'
+      )
+    }
+
+    const unknown = findUnknownRewards()
+
+    if (unknown.length > 0) {
+      logger.warn(
+        `Treasure pool categories missing from KNOWN_REWARDS: ${unknown.join(', ')}. ` +
+          'Check they read well as a reward tag, then add them in constants/treasurePools.ts'
       )
     }
   }, [])

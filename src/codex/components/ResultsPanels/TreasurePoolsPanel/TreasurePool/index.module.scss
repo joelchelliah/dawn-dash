@@ -59,8 +59,28 @@ $tag-height-mobile: 1.375rem;
     white-space: nowrap;
   }
 
-  &__acquired {
-    margin-top: auto;
+  &__note {
+    display: flex;
+    flex-direction: column;
+    margin-top: 0.75rem;
+    gap: 0.5rem;
+
+    p {
+      margin: 0;
+      font-size: font-size('xs');
+      line-height: 1.5;
+      color: $color-primary-dark;
+    }
+
+    @media (max-width: $breakpoint-tablet) {
+      gap: 0.25rem;
+      margin-top: 0.5rem;
+
+      p {
+        line-height: 1.4;
+        font-size: font-size('xxs');
+      }
+    }
   }
 
   &__tags {

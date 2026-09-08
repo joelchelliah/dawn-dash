@@ -5,18 +5,21 @@ import {
 } from '@/shared/utils/imageUrls'
 
 import treasurePools from '@/codex/data/treasure-pools.json'
-import { TreasurePool } from '@/codex/types/treasures'
+import { PoolReachedBy, TreasurePool } from '@/codex/types/treasures'
+
+export type PoolId = 'booty-shovel' | 'only-treasure' | 'pirate-parlour'
 
 export interface TreasurePoolDisplay {
-  id: string
-  // Which JSON pools this display pool covers. C and D are merged.
+  id: PoolId
+  // Which JSON pools this display pool covers. C and D are merged
   pools: string[]
   name: string
   imageSrc: string
   color: string
   colorAccent: string
-  rewards: PoolReward[]
-  sources: string[]
+  excludedRewards?: string[]
+  // Replaces the derived per-event source tags with a single tag
+  collapsedEventSource?: string
 }
 
 export interface PoolReward {
@@ -32,23 +35,16 @@ export const TREASURE_POOL_DISPLAYS: TreasurePoolDisplay[] = [
     imageSrc: ShovelImageUrl,
     color: '#c09528',
     colorAccent: '#e7b35f',
-    rewards: [
-      { label: 'Treasures' },
-      { label: 'Equipment' },
-      { label: 'Items' },
-      { label: 'Junk Items', excluded: true },
-    ],
-    sources: ['Booty (card)', 'Shovel (card)'],
+    excludedRewards: ['Junk Items'],
   },
   {
-    id: 'only-treasures',
+    id: 'only-treasure',
     pools: ['C', 'D'],
-    name: 'Only Treasures',
+    name: 'Only Treasure',
     imageSrc: RingOfPowerImageUrl,
     color: '#2f9c83',
     colorAccent: '#53bca9',
-    rewards: [{ label: 'Treasures' }],
-    sources: ['All Treasure events', "Explorer's Trick (card)"],
+    collapsedEventSource: 'All Treasure events',
   },
   {
     id: 'pirate-parlour',
@@ -57,25 +53,67 @@ export const TREASURE_POOL_DISPLAYS: TreasurePoolDisplay[] = [
     imageSrc: PirateParlourImageUrl,
     color: '#7f60cd',
     colorAccent: '#a681ef',
-    rewards: [
-      { label: 'Treasures' },
-      { label: 'Locations' },
-      { label: 'Maps' },
-      { label: 'Pirate Ink' },
-    ],
-    sources: ['Pirate Parlour (talent)'],
   },
 ]
 
 const TREASURE_POOLS = treasurePools as TreasurePool[]
 
-const POOL_SIZES = new Map(TREASURE_POOLS.map(({ pool, size }) => [pool, size]))
+const POOLS_BY_ID = new Map(TREASURE_POOLS.map((pool) => [pool.pool, pool]))
+
+const getMembers = ({ pools }: TreasurePoolDisplay): TreasurePool[] =>
+  pools.flatMap((pool) => POOLS_BY_ID.get(pool) ?? [])
 
 /*
  * Merged display pools take the size of their largest member
  */
-export const getPoolSize = ({ pools }: TreasurePoolDisplay): number =>
-  Math.max(...pools.map((pool) => POOL_SIZES.get(pool) ?? 0))
+export const getPoolSize = (display: TreasurePoolDisplay): number =>
+  Math.max(0, ...getMembers(display).map(({ size }) => size))
+
+const KNOWN_REWARDS: string[] = [
+  'Treasure',
+  'Equipment',
+  'Items',
+  'Maps',
+  'Locations',
+  'Pirate Ink',
+]
+
+export const findUnknownRewards = (): string[] => {
+  const categories = TREASURE_POOLS.flatMap(({ contains }) => contains)
+
+  return Array.from(new Set(categories)).filter((category) => !KNOWN_REWARDS.includes(category))
+}
+
+export const getPoolRewards = (display: TreasurePoolDisplay): PoolReward[] => {
+  const contains = getMembers(display).flatMap(({ contains }) => contains)
+  const labels = Array.from(new Set(contains))
+
+  return [
+    ...labels.map((label) => ({ label })),
+    ...(display.excludedRewards ?? []).map((label) => ({ label, excluded: true })),
+  ]
+}
+
+const describeSource = ({ card, talent, event }: PoolReachedBy): string | null => {
+  if (card) return `${card} (card)`
+  if (talent) return `${talent} (talent)`
+  if (event) return `${event} (event)`
+
+  return null
+}
+
+export const getPoolSources = (display: TreasurePoolDisplay): string[] => {
+  const reachedBy = getMembers(display).flatMap((pool) => pool.reachedBy)
+
+  const named = reachedBy
+    .filter(({ event }) => !(event && display.collapsedEventSource))
+    .flatMap((source) => describeSource(source) ?? [])
+
+  const hasEvents = reachedBy.some(({ event }) => event)
+  const collapsed = hasEvents && display.collapsedEventSource ? [display.collapsedEventSource] : []
+
+  return [...collapsed, ...Array.from(new Set(named))]
+}
 
 /*
  * The JSON is the source of truth for *which* pools exist; this file only supplies their copy.

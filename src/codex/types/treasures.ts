@@ -25,13 +25,16 @@ export interface TreasureCard {
 export interface TreasurePool {
   pool: string
   name: string
-  predicate: string
+  // Card categories the pool can offer. The UI's reward tags are built from this.
+  contains: string[]
+  // The engine's filter, as prose. Reference material for writing the notes in
+  // `constants/treasurePools.ts` — nothing renders it.
+  predicate: string | null
   useAllCardSets: boolean
   size: number
   // Only present on pools that mix treasure-keyword cards in with other candidates.
   keywordShare?: number
   reachedBy: PoolReachedBy[]
-  note?: string
 }
 
 export interface TreasureEventSource {

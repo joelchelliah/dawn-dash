@@ -1,8 +1,9 @@
 [
   {
     "pool": "A",
-    "name": "DelveTreasure",
-    "predicate": "treasure keyword OR Equipment OR Item, minus Junk/Companion suffix",
+    "name": "Delve Treasure",
+    "contains": ["Treasure", "Equipment", "Items"],
+    "predicate": "NOT Junk/Companion",
     "useAllCardSets": false,
     "size": 102,
     "keywordShare": 14,
@@ -15,13 +16,13 @@
         "card": "Shovel",
         "command": "delvebytag"
       }
-    ],
-    "note": "The wide one, and the least filtered pool in the game: the delvebytag short-circuit skips its own Unique / Grounded / canBeAcquired / excludeFromConjurations filters. Most candidates are not treasure-keyword cards."
+    ]
   },
   {
     "pool": "B",
-    "name": "DelvePirateParlor",
-    "predicate": "treasure keyword OR map keyword OR Location category, minus owned Uniques and Unplayable, plus 1-5 tatoos",
+    "name": "Pirate Parlour",
+    "contains": ["Treasure", "Maps", "Locations", "Pirate Ink"],
+    "predicate": "NOT owned Uniques AND NOT Unplayable",
     "useAllCardSets": true,
     "size": 27,
     "reachedBy": [
@@ -29,13 +30,13 @@
         "talent": "Pirate Parlour",
         "command": "pirateparlour"
       }
-    ],
-    "note": "Ignores set selection, so it can offer cards from disabled expansions. Ends in `play`, not `obtain`, so the pick is played rather than added to the deck. Size counts base candidates: notes/15 §3 quotes 26, this minus the one Unplayable Location (Lost Lagoon), and excludes both the run-state-dependent owned-Unique removal and the tatoos."
+    ]
   },
   {
     "pool": "C",
     "name": "keyword, ungated",
-    "predicate": "treasure keyword",
+    "contains": ["Treasure"],
+    "predicate": null,
     "useAllCardSets": false,
     "size": 14,
     "reachedBy": [
@@ -76,7 +77,8 @@
   {
     "pool": "D",
     "name": "keyword, acquirable",
-    "predicate": "treasure keyword AND canBeAcquired AND PlayerCanCastCard",
+    "contains": ["Treasure"],
+    "predicate": "canBeAcquired AND PlayerCanCastCard",
     "useAllCardSets": false,
     "size": 7,
     "reachedBy": [
@@ -92,7 +94,6 @@
         "event": "The Cocoon",
         "command": "delvefromkeyword"
       }
-    ],
-    "note": "Differs from C by one bool. This is why two events both labelled treasure hand out different cards."
+    ]
   }
 ]
