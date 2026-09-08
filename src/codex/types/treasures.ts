@@ -15,6 +15,7 @@ export interface TreasureCard {
   fromTranspose: boolean
   fromTrade: boolean
   fromEvents: TreasureEventSource[]
+  fromTreasureEvents: TreasurePoolEventSource[]
   fromCards: TreasureCardSource[]
   fromTalents: TreasureTalentSource[]
   // Null when the card is always reachable via addcardbykeyword;
@@ -39,8 +40,11 @@ export interface TreasurePool {
 
 export interface TreasureEventSource {
   event: string
-  pool: string
   command: string
+}
+
+export interface TreasurePoolEventSource extends TreasureEventSource {
+  pool: string
 }
 
 export interface TreasureCardSource {

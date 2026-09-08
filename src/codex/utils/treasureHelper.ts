@@ -2,7 +2,7 @@ import { logger } from '@/shared/utils/logger'
 
 import { CardData } from '@/codex/types/cards'
 import { Event } from '@/codex/types/events'
-import { EnrichedTreasureCard, TreasureCard } from '@/codex/types/treasures'
+import { EnrichedTreasureCard, TreasureCard, TreasureEventSource } from '@/codex/types/treasures'
 import eventTrees from '@/codex/data/event-trees.json'
 import treasureCards from '@/codex/data/treasure-cards.json'
 
@@ -26,8 +26,8 @@ export const enrichTreasureCards = (cardData: CardData[] | undefined): EnrichedT
   })
 }
 
-export const getTreasureEvents = (treasure: TreasureCard): Event[] =>
-  treasure.fromEvents.flatMap(({ event }) => {
+const resolveEvents = (sources: TreasureEventSource[]): Event[] =>
+  sources.flatMap(({ event }) => {
     const eventDetails = EVENTS_BY_NAME.get(event)
 
     if (!eventDetails) {
@@ -37,3 +37,9 @@ export const getTreasureEvents = (treasure: TreasureCard): Event[] =>
 
     return [eventDetails]
   })
+
+export const getGuaranteedTreasureEvents = (treasure: TreasureCard): Event[] =>
+  resolveEvents(treasure.fromEvents)
+
+export const getTreasurePoolEvents = (treasure: TreasureCard): Event[] =>
+  resolveEvents(treasure.fromTreasureEvents)

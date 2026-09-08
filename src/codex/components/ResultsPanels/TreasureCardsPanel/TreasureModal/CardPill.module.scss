@@ -1,7 +1,7 @@
 @use 'index' as *;
 
-$pill-height: 1.375rem;
-$pill-height-mobile: 1.25rem;
+$pill-height: 1.5rem;
+$pill-height-mobile: 1.375rem;
 
 .card-pill {
   display: inline-flex;
@@ -17,11 +17,13 @@ $pill-height-mobile: 1.25rem;
   color: $color-primary-dark;
   white-space: nowrap;
   font-weight: 500;
-  font-size: font-size('xxs');
+  font-size: font-size('xs');
 
   @media (max-width: $breakpoint-mobile) {
     height: $pill-height-mobile;
     border-radius: $pill-height-mobile;
-    padding: 0 0.5rem 0.0625rem;
+    padding: 0 0.675rem 0.0625rem;
+
+    font-size: font-size('xxs');
   }
 }

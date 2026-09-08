@@ -6,7 +6,7 @@ import { splitCamelCaseWords } from '@/shared/utils/textHelper'
 import { getCardSetName } from '@/codex/hooks/useSearchFilters/useCardSetFilters'
 import { EnrichedTreasureCard, TreasureCard } from '@/codex/types/treasures'
 import { parseCardDescription } from '@/codex/utils/cardHelper'
-import { getTreasureEvents } from '@/codex/utils/treasureHelper'
+import { getGuaranteedTreasureEvents, getTreasurePoolEvents } from '@/codex/utils/treasureHelper'
 import Section from '@/codex/components/shared/Section'
 
 import CardPill from './CardPill'
@@ -62,12 +62,20 @@ function TreasureModal({ treasure, onClose }: TreasureModalProps): JSX.Element {
   const { treasureDetails, cardDetails } = treasure
   const rarity = RARITIES[cardDetails.rarity]
   const subtitle = getSubtitle(treasureDetails, rarity?.name)
+  const cardSetName = getCardSetName(cardDetails.expansion)
 
-  const events = getTreasureEvents(treasureDetails)
+  const guaranteedEvents = getGuaranteedTreasureEvents(treasureDetails)
+  const poolEvents = getTreasurePoolEvents(treasureDetails)
 
   const rarityClassName = cx('treasure-modal-border', {
     [`treasure-modal-border--${rarity?.slug}`]: Boolean(rarity),
   })
+
+  const cardSetHint = (
+    <>
+      Card set <strong>{cardSetName}</strong> must be enabled.
+    </>
+  )
 
   return (
     <InfoModal
@@ -101,7 +109,7 @@ function TreasureModal({ treasure, onClose }: TreasureModalProps): JSX.Element {
                 </span>
               )}
             </div>
-            <CardPill cardSet={getCardSetName(cardDetails.expansion)} />
+            <CardPill cardSet={cardSetName} />
           </div>
 
           {cardDetails.description && (
@@ -117,7 +125,13 @@ function TreasureModal({ treasure, onClose }: TreasureModalProps): JSX.Element {
           )}
         </div>
 
-        <Section title="Acquired outside events" dividerColor={rarity ? RARITY_COLOR : undefined}>
+        <Section
+          title="Acquired outside of events"
+          dividerColor={rarity ? RARITY_COLOR : undefined}
+        >
+          {cardSetName !== 'Core' && (
+            <div className={cx('treasure-modal__hint')}>{cardSetHint}</div>
+          )}
           <div className={cx('treasure-modal__availability')}>
             {getAvailability(treasureDetails).map(({ label, value }) => (
               <TreasureFlag key={label} label={label} value={value} />
@@ -125,12 +139,30 @@ function TreasureModal({ treasure, onClose }: TreasureModalProps): JSX.Element {
           </div>
         </Section>
 
-        {events.length > 0 && (
+        <Section
+          title={`Acquired from events (${guaranteedEvents.length})`}
+          dividerColor={rarity ? RARITY_COLOR : undefined}
+        >
+          <div
+            className={cx('treasure-modal__hint', {
+              'treasure-modal__hint--only': guaranteedEvents.length === 0,
+            })}
+          >
+            {guaranteedEvents.length > 0 ? 'Events that can always offer this treasure.' : 'None'}
+          </div>
+          <TreasureEventList events={guaranteedEvents} />
+        </Section>
+
+        {poolEvents.length > 0 && (
           <Section
-            title={`Acquired from events (${events.length})`}
+            title={`Chance to acquire from events (${poolEvents.length})`}
             dividerColor={rarity ? RARITY_COLOR : undefined}
           >
-            <TreasureEventList events={events} />
+            <div className={cx('treasure-modal__hint')}>
+              Events that draw from a pool containing this treasure.
+              {cardSetName !== 'Core' && <> {cardSetHint}</>}
+            </div>
+            <TreasureEventList events={poolEvents} />
           </Section>
         )}
       </div>

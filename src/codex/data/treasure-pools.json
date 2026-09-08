@@ -24,7 +24,8 @@
     "contains": ["Treasure", "Maps", "Locations", "Pirate Ink"],
     "predicate": "NOT owned Uniques AND NOT Unplayable",
     "useAllCardSets": true,
-    "size": 27,
+    "size": 31,
+    "tatoosAdded": "0-5",
     "reachedBy": [
       {
         "talent": "Pirate Parlour",
