@@ -142,7 +142,7 @@ $button-active-scale: 1;
       background-color: $color-list-bg-active;
       font-weight: 500;
 
-      .side-menu__nav-link {
+      .side-menu__nav-link__text {
         @include yellowGreenGradient(false);
       }
     }
