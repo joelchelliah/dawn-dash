@@ -5,9 +5,6 @@ import styles from './index.module.scss'
 
 const cx = createCx(styles)
 
-// Put this on whichever ancestor owns the hover
-export const WHIRLPOOL_HOVER_TRIGGER = 'whirlpool-hoverable'
-
 interface WhirlpoolArtworkProps {
   src: string
   alt: string

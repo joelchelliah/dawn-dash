@@ -1,9 +1,8 @@
 import Link from 'next/link'
 
-import BorderedArtwork, {
-  BORDERED_ARTWORK_HOVER_TRIGGER,
-} from '@/shared/components/BorderedArtwork'
+import BorderedArtwork from '@/shared/components/BorderedArtwork'
 import { createCx } from '@/shared/utils/classnames'
+import { HOVER_TRIGGER } from '@/shared/utils/hoverTrigger'
 
 import { useEventImageSrc } from '@/codex/hooks/useEventImageSrc'
 import { normalizeEventNameForUrl } from '@/codex/hooks/useEventUrlParam'
@@ -44,7 +43,7 @@ interface TreasureEventItemProps {
 function TreasureEventItem({ event }: TreasureEventItemProps): JSX.Element {
   const { eventImageSrc, onImageSrcError } = useEventImageSrc(event.artwork)
 
-  const itemClassName = `${cx('treasure-event-item')} ${BORDERED_ARTWORK_HOVER_TRIGGER}`
+  const itemClassName = cx('treasure-event-item', HOVER_TRIGGER)
 
   return (
     <Link

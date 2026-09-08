@@ -118,12 +118,9 @@ $overlap-icon-pill-offset: -4px;
     }
   }
 
-  // Hover feedback, driven from the row. `.result-card-hoverable` is an unhashed marker class that
-  // `ResultCard` adds alongside its own hashed one.
-  //
   // On the column, not the icons: the rarity glyphs and the paw/cross pill already use `transform`
   // while overlapping, and a second one on the same element would replace it rather than compose.
-  :global(.result-card-hoverable):hover & {
+  :global(.hoverable):hover & {
     animation: tinySqueeze 0.25s ease-out;
   }
 }

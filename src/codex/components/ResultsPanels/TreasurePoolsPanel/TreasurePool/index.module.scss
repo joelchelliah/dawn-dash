@@ -2,25 +2,44 @@
 
 $tag-height: 1.5rem;
 $tag-height-mobile: 1.375rem;
+$transition-duration: 0.5s;
 
-.pool-card {
+@function pool-color-mix($amount, $to: transparent, $from: var(--pool-color)) {
+  @return color-mix(in srgb, $from $amount, $to);
+}
+
+.pool {
   display: flex;
   flex-direction: column;
   gap: 1.125rem;
   padding: 1rem;
-  border: 1px solid $color-component-border-dark;
+  border: 1px solid pool-color-mix(40%);
   border-radius: 0.25rem;
   background-color: rgba(0, 0, 0, 0.2);
   transition:
-    border-color 0.35s ease-out,
-    background-color 0.35s ease-out;
+    border-color $transition-duration ease-out,
+    background-color $transition-duration ease-out;
 
   &:hover {
-    border-color: color-mix(in srgb, var(--pool-color) 60%, transparent);
+    border-color: pool-color-mix(50%, transparent, var(--pool-color-accent));
     background-color: rgba(0, 0, 0, 0.35);
 
-    .pool-card__name {
+    .pool__name {
       color: var(--pool-color-accent);
+    }
+
+    .pool__tag {
+      border-color: pool-color-mix(30%, $color-component-border-dark);
+      color: pool-color-mix(30%, $color-primary-muted, var(--pool-color-accent));
+
+      &.pool__tag--excluded {
+        border-color: $color-component-border-dark;
+        color: $color-primary-dark;
+      }
+    }
+
+    .pool__note p {
+      color: pool-color-mix(10%, $color-primary-muted);
     }
   }
 
@@ -44,7 +63,7 @@ $tag-height-mobile: 1.375rem;
     font-weight: 600;
     color: var(--pool-color);
     min-width: 0;
-    transition: color 0.35s ease-out;
+    transition: color $transition-duration ease-out;
 
     @media (max-width: $breakpoint-tablet) {
       font-size: font-size('sm');
@@ -70,6 +89,7 @@ $tag-height-mobile: 1.375rem;
       font-size: font-size('xs');
       line-height: 1.5;
       color: $color-primary-dark;
+      transition: color $transition-duration ease-out;
     }
 
     @media (max-width: $breakpoint-tablet) {
@@ -102,6 +122,9 @@ $tag-height-mobile: 1.375rem;
     white-space: nowrap;
     font-weight: 500;
     font-size: font-size('xxs');
+    transition:
+      border-color $transition-duration ease-out,
+      color $transition-duration ease-out;
 
     // An exclusion rather than a reward — struck through, matching `TreasureFlag`'s off state.
     &--excluded {

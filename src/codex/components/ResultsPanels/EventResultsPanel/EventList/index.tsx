@@ -1,7 +1,6 @@
-import BorderedArtwork, {
-  BORDERED_ARTWORK_HOVER_TRIGGER,
-} from '@/shared/components/BorderedArtwork'
+import BorderedArtwork from '@/shared/components/BorderedArtwork'
 import { createCx } from '@/shared/utils/classnames'
+import { HOVER_TRIGGER } from '@/shared/utils/hoverTrigger'
 import { CharacterClass } from '@/shared/types/characterClass'
 import { useBreakpoint } from '@/shared/hooks/useBreakpoint'
 
@@ -132,7 +131,7 @@ function EventListItem({ event, allEvents, onEventSelect }: EventListItemProps):
     }
   }
 
-  const itemClassName = `${cx('event-list-item')} ${BORDERED_ARTWORK_HOVER_TRIGGER}`
+  const itemClassName = cx('event-list-item', HOVER_TRIGGER)
 
   return (
     <div className={itemClassName} onClick={handleClick}>

@@ -3,9 +3,7 @@ import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 
 import Image from '@/shared/components/Image'
-import BorderedArtwork, {
-  BORDERED_ARTWORK_HOVER_TRIGGER,
-} from '@/shared/components/BorderedArtwork'
+import BorderedArtwork from '@/shared/components/BorderedArtwork'
 import LoadingDots from '@/shared/components/LoadingDots'
 import {
   HamburgerIcon,
@@ -15,6 +13,7 @@ import {
 } from '@/shared/components/Icons'
 import { InfernalContractUrl, RushedForgeryImageUrl } from '@/shared/utils/imageUrls'
 import { createCx } from '@/shared/utils/classnames'
+import { HOVER_TRIGGER } from '@/shared/utils/hoverTrigger'
 import GradientLink from '@/shared/components/GradientLink'
 import InfoModal from '@/shared/components/Modals/InfoModal'
 import { useBreakpoint } from '@/shared/hooks/useBreakpoint'
@@ -109,18 +108,19 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
     }
   }, [isMenuOpen])
 
-  const landingLinkContainerClassNames = `${cx(
+  const landingLinkContainerClassNames = cx(
     'side-menu__nav-link-container',
     'side-menu__nav-link-container--home',
+    HOVER_TRIGGER,
     {
       'side-menu__nav-link-container--active': currentPage === 'landing',
     }
-  )} ${BORDERED_ARTWORK_HOVER_TRIGGER}`
+  )
 
   const getNavLinkContainerClassName = (isActive: boolean) =>
-    `${cx('side-menu__nav-link-container', {
+    cx('side-menu__nav-link-container', HOVER_TRIGGER, {
       'side-menu__nav-link-container--active': isActive,
-    })} ${BORDERED_ARTWORK_HOVER_TRIGGER}`
+    })
 
   const menuIcon = isMobile ? (
     isMenuOpen ? (

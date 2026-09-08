@@ -1,18 +1,16 @@
 import { memo, useMemo } from 'react'
 
 import GradientLink from '@/shared/components/GradientLink'
-import {
-  BORDERED_ARTWORK_HOVER_TRIGGER,
-  BORDERED_ARTWORK_STRUCK_TRIGGER,
-} from '@/shared/components/BorderedArtwork'
 import { useBreakpoint } from '@/shared/hooks/useBreakpoint'
 import { createCx } from '@/shared/utils/classnames'
+import { HOVER_TRIGGER } from '@/shared/utils/hoverTrigger'
 
 import { UseAllCardSearchFilters } from '@/codex/hooks/useSearchFilters'
 import { CardData } from '@/codex/types/cards'
 import { parseCardDescription } from '@/codex/utils/cardHelper'
 import KeywordPills from '@/codex/components/SearchPanels/shared/KeywordPills'
 
+import { STRUCK_TRIGGER } from './struckTrigger'
 import CardArtwork from './CardArtwork'
 import CardIcons from './CardIcons'
 import CardMetadata from './CardMetadata'
@@ -86,13 +84,12 @@ const ResultCard = ({
   )
   const isStruck = isCardStruck(card)
 
-  const cardContainerClassName = `${cx('result-card', {
+  const cardContainerClassName = cx('result-card', HOVER_TRIGGER, {
     'result-card--struck': isStruck,
     'result-card--full-match': isFullMatch,
     'result-card--hidden': shouldHideTrackedCards && isStruck,
-  })} result-card-hoverable ${BORDERED_ARTWORK_HOVER_TRIGGER}${
-    isStruck ? ` result-card-struck ${BORDERED_ARTWORK_STRUCK_TRIGGER}` : ''
-  }`
+    [STRUCK_TRIGGER]: isStruck,
+  })
   const cardClassName = cx('result-card__title-row', {
     'result-card__title-row--hidden': shouldHideTrackedCards && isStruck,
   })

@@ -27,14 +27,23 @@ export interface PoolReward {
   excluded?: boolean
 }
 
+const COLORS = {
+  BOOTY_SHOVEL: '#c46e17',
+  BOOTY_SHOVEL_ACCENT: '#eb943d',
+  ONLY_TREASURE: '#2ea17a',
+  ONLY_TREASURE_ACCENT: '#4fc29c',
+  PIRATE_PARLOUR: '#3e6dbf',
+  PIRATE_PARLOUR_ACCENT: '#578ae3',
+}
+
 export const TREASURE_POOL_DISPLAYS: TreasurePoolDisplay[] = [
   {
     id: 'booty-shovel',
     pools: ['A'],
     name: 'Shovel & Booty',
     imageSrc: ShovelImageUrl,
-    color: '#c09528',
-    colorAccent: '#e7b35f',
+    color: COLORS.BOOTY_SHOVEL,
+    colorAccent: COLORS.BOOTY_SHOVEL_ACCENT,
     excludedRewards: ['Junk Items'],
   },
   {
@@ -42,8 +51,8 @@ export const TREASURE_POOL_DISPLAYS: TreasurePoolDisplay[] = [
     pools: ['C', 'D'],
     name: 'Only Treasure',
     imageSrc: RingOfPowerImageUrl,
-    color: '#2f9c83',
-    colorAccent: '#53bca9',
+    color: COLORS.ONLY_TREASURE,
+    colorAccent: COLORS.ONLY_TREASURE_ACCENT,
     collapsedEventSource: 'All Treasure events',
   },
   {
@@ -51,8 +60,8 @@ export const TREASURE_POOL_DISPLAYS: TreasurePoolDisplay[] = [
     pools: ['B'],
     name: 'Pirate Parlour',
     imageSrc: PirateParlourImageUrl,
-    color: '#7f60cd',
-    colorAccent: '#a681ef',
+    color: COLORS.PIRATE_PARLOUR,
+    colorAccent: COLORS.PIRATE_PARLOUR_ACCENT,
   },
 ]
 

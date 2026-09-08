@@ -5,12 +5,6 @@ import styles from './index.module.scss'
 
 const cx = createCx(styles)
 
-// Put this on whichever ancestor owns the hover
-export const BORDERED_ARTWORK_HOVER_TRIGGER = 'bordered-artwork-hoverable'
-
-// Put this on the same ancestor to grey the artwork out
-export const BORDERED_ARTWORK_STRUCK_TRIGGER = 'bordered-artwork-struck'
-
 // Full-strength border, i.e. the border color as-is.
 const DEFAULT_BORDER_OPACITY = 100
 

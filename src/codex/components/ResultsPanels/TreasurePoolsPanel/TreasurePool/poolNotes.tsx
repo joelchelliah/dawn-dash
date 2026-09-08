@@ -25,8 +25,8 @@ export const POOL_NOTES: Record<PoolId, PoolNotes> = {
     above: (
       <>
         The only pool that consists entirely of <strong>Treasure</strong> cards. Used by all
-        Treasure-granting events, and by the <strong>Explorer's Trick</strong> card's secondary
-        effect.
+        Treasure-granting events, and by the <strong>Explorer&apos;s Trick</strong> card&apos;s
+        secondary effect.
       </>
     ),
     below: (

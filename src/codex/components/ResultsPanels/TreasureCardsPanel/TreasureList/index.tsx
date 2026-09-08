@@ -1,8 +1,8 @@
 import { useState } from 'react'
 
-import { BORDERED_ARTWORK_HOVER_TRIGGER } from '@/shared/components/BorderedArtwork'
 import RarityBorderedArtwork, { RARITIES } from '@/shared/components/RarityBorderedArtwork'
 import { createCx } from '@/shared/utils/classnames'
+import { HOVER_TRIGGER } from '@/shared/utils/hoverTrigger'
 import { splitCamelCaseWords } from '@/shared/utils/textHelper'
 
 import { EnrichedTreasureCard } from '@/codex/types/treasures'
@@ -57,7 +57,7 @@ function TreasureListItem({ treasure, onClick }: TreasureListItemProps): JSX.Ele
     .filter(Boolean)
     .join(' ')
 
-  const itemClassName = `${cx('treasure-list-item')} ${BORDERED_ARTWORK_HOVER_TRIGGER}`
+  const itemClassName = cx('treasure-list-item', HOVER_TRIGGER)
 
   return (
     <div
