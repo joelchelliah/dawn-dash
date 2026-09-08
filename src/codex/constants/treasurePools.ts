@@ -1,4 +1,8 @@
-import { ChestImageUrl, SunforgeImageUrl, MapOfHuesImageUrl } from '@/shared/utils/imageUrls'
+import {
+  ShovelImageUrl,
+  RingOfPowerImageUrl,
+  PirateParlourImageUrl,
+} from '@/shared/utils/imageUrls'
 
 import treasurePools from '@/codex/data/treasure-pools.json'
 import { TreasurePool } from '@/codex/types/treasures'
@@ -24,40 +28,40 @@ export const TREASURE_POOL_DISPLAYS: TreasurePoolDisplay[] = [
   {
     id: 'booty-shovel',
     pools: ['A'],
-    name: 'Booty / Shovel',
-    imageSrc: ChestImageUrl,
+    name: 'Shovel & Booty',
+    imageSrc: ShovelImageUrl,
     colour: '#c09528',
     colourBright: '#e7b35f',
     rewards: [
       { label: 'Treasures' },
       { label: 'Equipment' },
       { label: 'Items' },
-      { label: 'Junk', excluded: true },
+      { label: 'Junk Items', excluded: true },
     ],
     sources: ['Booty (card)', 'Shovel (card)'],
   },
   {
     id: 'only-treasures',
     pools: ['C', 'D'],
-    name: 'Only treasures',
-    imageSrc: SunforgeImageUrl,
+    name: 'Only Treasures',
+    imageSrc: RingOfPowerImageUrl,
     colour: '#2f9c83',
     colourBright: '#53bca9',
     rewards: [{ label: 'Treasures' }],
-    sources: ['All treasure events', "Explorer's Trick (card)"],
+    sources: ['All Treasure events', "Explorer's Trick (card)"],
   },
   {
     id: 'pirate-parlour',
     pools: ['B'],
     name: 'Pirate Parlour',
-    imageSrc: MapOfHuesImageUrl,
+    imageSrc: PirateParlourImageUrl,
     colour: '#7f60cd',
     colourBright: '#a681ef',
     rewards: [
       { label: 'Treasures' },
       { label: 'Locations' },
       { label: 'Maps' },
-      { label: 'Pirate Tattoos' },
+      { label: 'Pirate Ink' },
     ],
     sources: ['Pirate Parlour (talent)'],
   },

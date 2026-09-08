@@ -5,23 +5,27 @@ import styles from './index.module.scss'
 
 const cx = createCx(styles)
 
-type SectionSpacing = 'stacked' | 'none'
+type SectionSpacing =
+  // `stacked` pushes the section away from whatever precedes it
+  | 'stacked'
+  // `none` leaves the spacing to a parent that already sets its own gap.
+  | 'none'
 
-interface TreasureSectionProps {
+interface SectionProps {
   title: string
   dividerColor?: string
   spacing?: SectionSpacing
   children: React.ReactNode
 }
 
-function TreasureSection({
+function Section({
   title,
   dividerColor,
   spacing = 'stacked',
   children,
-}: TreasureSectionProps): JSX.Element {
+}: SectionProps): JSX.Element {
   return (
-    <div className={cx('treasure-section', `treasure-section--${spacing}`)}>
+    <div className={cx('section', `section--${spacing}`)}>
       <h4>{title}</h4>
       <Divider spacingBottom="sm" color={dividerColor} />
       {children}
@@ -29,4 +33,4 @@ function TreasureSection({
   )
 }
 
-export default TreasureSection
+export default Section

@@ -1,6 +1,6 @@
 @use 'index' as *;
 
-$rarity-colours: (
+$rarity-colors: (
   'common': $color-rarity-common,
   'uncommon': $color-rarity-uncommon,
   'rare': $color-rarity-rare,
@@ -8,11 +8,11 @@ $rarity-colours: (
   'monster': $color-danger-special-card,
 );
 
-// Rarity tint for `BorderedArtwork`, which paints the box, border and glow from `--artwork-colour`
+// Rarity tint for `BorderedArtwork`, which paints the box, border and glow from `--artwork-color`
 .rarity-artwork {
-  @each $name, $colour in $rarity-colours {
+  @each $name, $color in $rarity-colors {
     &--#{$name} {
-      --artwork-colour: #{$colour};
+      --artwork-color: #{$color};
     }
   }
 }

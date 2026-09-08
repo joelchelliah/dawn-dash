@@ -3,10 +3,6 @@
 $tag-height: 1.5rem;
 $tag-height-mobile: 1.375rem;
 
-/*
- * `--pool-colour` / `--pool-colour-bright` are set inline by the component, so each pool tints its
- * own name, dividers and border without a rule per pool.
- */
 .pool-card {
   display: flex;
   flex-direction: column;
@@ -22,6 +18,10 @@ $tag-height-mobile: 1.375rem;
   &:hover {
     border-color: color-mix(in srgb, var(--pool-colour) 60%, transparent);
     background-color: rgba(0, 0, 0, 0.35);
+
+    .pool-card__name {
+      color: var(--pool-colour-bright);
+    }
   }
 
   &__header {
@@ -42,7 +42,7 @@ $tag-height-mobile: 1.375rem;
   &__name {
     font-size: font-size('md');
     font-weight: 600;
-    color: var(--pool-colour-bright);
+    color: var(--pool-colour);
     min-width: 0;
     transition: color 0.35s ease-out;
 

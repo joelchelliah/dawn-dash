@@ -7,7 +7,7 @@ import { getCardSetName } from '@/codex/hooks/useSearchFilters/useCardSetFilters
 import { EnrichedTreasureCard, TreasureCard } from '@/codex/types/treasures'
 import { parseCardDescription } from '@/codex/utils/cardHelper'
 import { getTreasureEvents } from '@/codex/utils/treasureHelper'
-import TreasureSection from '@/codex/components/shared/TreasureSection'
+import Section from '@/codex/components/shared/Section'
 
 import CardPill from './CardPill'
 import TreasureEventList from './TreasureEventList'
@@ -120,24 +120,21 @@ function TreasureModal({ treasure, onClose }: TreasureModalProps): JSX.Element {
           )}
         </div>
 
-        <TreasureSection
-          title="Acquired outside events"
-          dividerColor={rarity ? RARITY_COLOUR : undefined}
-        >
+        <Section title="Acquired outside events" dividerColor={rarity ? RARITY_COLOUR : undefined}>
           <div className={cx('treasure-modal__availability')}>
             {getAvailability(treasureDetails).map(({ label, value }) => (
               <TreasureFlag key={label} label={label} value={value} />
             ))}
           </div>
-        </TreasureSection>
+        </Section>
 
         {events.length > 0 && (
-          <TreasureSection
+          <Section
             title={`Acquired from events (${events.length})`}
             dividerColor={rarity ? RARITY_COLOUR : undefined}
           >
             <TreasureEventList events={events} />
-          </TreasureSection>
+          </Section>
         )}
       </div>
     </InfoModal>

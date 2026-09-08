@@ -56,7 +56,7 @@
 // class names are hashed per file, so a shared mixin cannot name them.
 @mixin hover-tint-artwork($colour, $strength: 75%) {
   // `BorderedArtwork` paints its border and glow from this, so both take the tint together.
-  --artwork-colour: #{color-mix(in srgb, #{$colour} $strength, transparent)};
+  --artwork-color: #{color-mix(in srgb, #{$colour} $strength, transparent)};
 }
 
 @mixin hover-tint-name($colour, $strength: 75%) {

@@ -1,7 +1,7 @@
 import { createCx } from '@/shared/utils/classnames'
 
 import { getPoolSize, TreasurePoolDisplay } from '@/codex/constants/treasurePools'
-import TreasureSection from '@/codex/components/shared/TreasureSection'
+import Section from '@/codex/components/shared/Section'
 
 import WhirlpoolArtwork, { WHIRLPOOL_HOVER_TRIGGER } from '../WhirlpoolArtwork'
 
@@ -43,7 +43,7 @@ function TreasurePool({ pool }: TreasurePoolProps): JSX.Element {
         </div>
       </div>
 
-      <TreasureSection title="Rewards" dividerColor="var(--pool-colour)" spacing="none">
+      <Section title="Rewards" dividerColor="var(--pool-colour)" spacing="none">
         <div className={cx('pool-card__tags')}>
           {pool.rewards.map(({ label, excluded }) => (
             <span
@@ -54,10 +54,10 @@ function TreasurePool({ pool }: TreasurePoolProps): JSX.Element {
             </span>
           ))}
         </div>
-      </TreasureSection>
+      </Section>
 
       <div className={cx('pool-card__acquired')}>
-        <TreasureSection title="Acquired from" dividerColor="var(--pool-colour)" spacing="none">
+        <Section title="Acquired from" dividerColor="var(--pool-colour)" spacing="none">
           <div className={cx('pool-card__tags')}>
             {pool.sources.map((source) => (
               <span key={source} className={cx('pool-card__tag')}>
@@ -65,7 +65,7 @@ function TreasurePool({ pool }: TreasurePoolProps): JSX.Element {
               </span>
             ))}
           </div>
-        </TreasureSection>
+        </Section>
       </div>
     </div>
   )
