@@ -1,6 +1,6 @@
 @use 'index' as *;
 
-// How far the border colour bleeds out around the thumbnail.
+// How far the border color bleeds out around the thumbnail.
 $artwork-glow-blur: 0.375rem;
 $artwork-glow-spread: 0.0625rem;
 $artwork-glow-opacity: 45%;
@@ -15,7 +15,7 @@ $artwork-glow-opacity-hover: 85%;
 //
 // Size comes from `--artwork-size` / `--artwork-size-mobile`, set inline by the component, so the
 // painted box always agrees with the one React reserved. `--artwork-color` defaults to the neutral
-// component border; consumers with a colour of their own override it from their stylesheet.
+// component border; consumers with a color of their own override it from their stylesheet.
 .bordered-artwork {
   --artwork-color: #{$color-component-border};
 

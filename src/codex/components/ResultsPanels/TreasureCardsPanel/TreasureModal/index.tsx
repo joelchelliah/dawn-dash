@@ -19,11 +19,8 @@ const cx = createCx(styles)
 const ARTWORK_SIZE = 50
 const ARTWORK_SIZE_MOBILE = 44
 const ARTWORK_BORDER_OPACITY = 75
-const MODAL_MAX_WIDTH = 800
-
-// The rarity colours live only in SCSS (see `index.module.scss`), so the modal's border, dividers
-// and close button read them through this variable rather than a JS colour value.
-const RARITY_COLOUR = 'var(--rarity-colour)'
+const MODAL_MAX_WIDTH = 700
+const RARITY_COLOR = 'var(--rarity-color)'
 
 interface TreasureAvailability {
   label: string
@@ -79,7 +76,7 @@ function TreasureModal({ treasure, onClose }: TreasureModalProps): JSX.Element {
       maxWidth={MODAL_MAX_WIDTH}
       scrollable
       borderClassName={rarityClassName}
-      buttonColor={rarity ? RARITY_COLOUR : undefined}
+      buttonColor={rarity ? RARITY_COLOR : undefined}
     >
       <div className={cx('treasure-modal')}>
         <div className={cx('treasure-modal__card')}>
@@ -120,7 +117,7 @@ function TreasureModal({ treasure, onClose }: TreasureModalProps): JSX.Element {
           )}
         </div>
 
-        <Section title="Acquired outside events" dividerColor={rarity ? RARITY_COLOUR : undefined}>
+        <Section title="Acquired outside events" dividerColor={rarity ? RARITY_COLOR : undefined}>
           <div className={cx('treasure-modal__availability')}>
             {getAvailability(treasureDetails).map(({ label, value }) => (
               <TreasureFlag key={label} label={label} value={value} />
@@ -131,7 +128,7 @@ function TreasureModal({ treasure, onClose }: TreasureModalProps): JSX.Element {
         {events.length > 0 && (
           <Section
             title={`Acquired from events (${events.length})`}
-            dividerColor={rarity ? RARITY_COLOUR : undefined}
+            dividerColor={rarity ? RARITY_COLOR : undefined}
           >
             <TreasureEventList events={events} />
           </Section>

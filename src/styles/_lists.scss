@@ -54,12 +54,12 @@
 //
 // These emit declarations only, so each stylesheet applies them to its own selectors — SCSS-module
 // class names are hashed per file, so a shared mixin cannot name them.
-@mixin hover-tint-artwork($colour, $strength: 75%) {
+@mixin hover-tint-artwork($color, $strength: 75%) {
   // `BorderedArtwork` paints its border and glow from this, so both take the tint together.
-  --artwork-color: #{color-mix(in srgb, #{$colour} $strength, transparent)};
+  --artwork-color: #{color-mix(in srgb, #{$color} $strength, transparent)};
 }
 
-@mixin hover-tint-name($colour, $strength: 75%) {
+@mixin hover-tint-name($color, $strength: 75%) {
   font-weight: 600;
-  color: color-mix(in srgb, #{$colour} $strength, transparent);
+  color: color-mix(in srgb, #{$color} $strength, transparent);
 }

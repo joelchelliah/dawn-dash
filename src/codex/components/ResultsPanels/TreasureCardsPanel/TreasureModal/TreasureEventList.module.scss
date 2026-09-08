@@ -62,7 +62,7 @@
   &:hover {
     background: linear-gradient(to right, $color-list-bg-hover, transparent) !important;
     .treasure-event-item__artwork {
-      @include hover-tint-artwork(var(--rarity-colour, #{$color-primary-hover}));
+      @include hover-tint-artwork(var(--rarity-color, #{$color-primary-hover}));
     }
 
     .treasure-event-item__text {
@@ -70,7 +70,7 @@
     }
 
     .treasure-event-item__name {
-      @include hover-tint-name(var(--rarity-colour, #{$color-primary-hover}));
+      @include hover-tint-name(var(--rarity-color, #{$color-primary-hover}));
     }
   }
 }

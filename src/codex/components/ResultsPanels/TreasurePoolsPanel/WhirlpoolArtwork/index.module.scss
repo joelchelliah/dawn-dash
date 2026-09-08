@@ -21,7 +21,7 @@ $swirl-scale-hover-inner: 1.14;
 
 /*
  * Round artwork ringed by a whirlpool. Size comes from `--whirlpool-size` /
- * `--whirlpool-size-mobile` and colour from `--whirlpool-colour` / `--whirlpool-colour-bright`,
+ * `--whirlpool-size-mobile` and color from `--whirlpool-color` / `--whirlpool-color-accent`,
  * all set inline by the component — so a pool picks its own accent without a stylesheet change.
  */
 .whirlpool {
@@ -43,7 +43,7 @@ $swirl-scale-hover-inner: 1.14;
    * never sits on a tinted disc.
    *
    * The choppiness comes from the two rings disagreeing: each has an uneven gradient with hard-ish
-   * colour stops, and they turn in opposite directions at different speeds, so the visible edge is
+   * color stops, and they turn in opposite directions at different speeds, so the visible edge is
    * never the same shape twice. A single smoothly-interpolated ring just reads as a spinning disc
    * no matter how it's masked.
    */
@@ -75,19 +75,19 @@ $swirl-scale-hover-inner: 1.14;
     background: conic-gradient(
       from 0deg,
       transparent 0deg,
-      color-mix(in srgb, var(--whirlpool-colour) 70%, transparent) 22deg,
-      var(--whirlpool-colour-bright) 38deg,
-      color-mix(in srgb, var(--whirlpool-colour) 40%, transparent) 62deg,
+      color-mix(in srgb, var(--whirlpool-color) 70%, transparent) 22deg,
+      var(--whirlpool-color-accent) 38deg,
+      color-mix(in srgb, var(--whirlpool-color) 40%, transparent) 62deg,
       transparent 96deg,
-      color-mix(in srgb, var(--whirlpool-colour) 85%, transparent) 130deg,
-      var(--whirlpool-colour-bright) 148deg,
+      color-mix(in srgb, var(--whirlpool-color) 85%, transparent) 130deg,
+      var(--whirlpool-color-accent) 148deg,
       transparent 186deg,
       transparent 214deg,
-      color-mix(in srgb, var(--whirlpool-colour) 60%, transparent) 240deg,
-      var(--whirlpool-colour-bright) 262deg,
-      color-mix(in srgb, var(--whirlpool-colour) 30%, transparent) 292deg,
+      color-mix(in srgb, var(--whirlpool-color) 60%, transparent) 240deg,
+      var(--whirlpool-color-accent) 262deg,
+      color-mix(in srgb, var(--whirlpool-color) 30%, transparent) 292deg,
       transparent 318deg,
-      color-mix(in srgb, var(--whirlpool-colour) 55%, transparent) 344deg,
+      color-mix(in srgb, var(--whirlpool-color) 55%, transparent) 344deg,
       transparent 360deg
     );
 
@@ -112,14 +112,14 @@ $swirl-scale-hover-inner: 1.14;
     background: conic-gradient(
       from 140deg,
       transparent 0deg,
-      var(--whirlpool-colour-bright) 30deg,
+      var(--whirlpool-color-accent) 30deg,
       transparent 74deg,
-      color-mix(in srgb, var(--whirlpool-colour) 75%, transparent) 118deg,
+      color-mix(in srgb, var(--whirlpool-color) 75%, transparent) 118deg,
       transparent 166deg,
-      var(--whirlpool-colour-bright) 208deg,
-      color-mix(in srgb, var(--whirlpool-colour) 45%, transparent) 250deg,
+      var(--whirlpool-color-accent) 208deg,
+      color-mix(in srgb, var(--whirlpool-color) 45%, transparent) 250deg,
       transparent 288deg,
-      color-mix(in srgb, var(--whirlpool-colour) 65%, transparent) 330deg,
+      color-mix(in srgb, var(--whirlpool-color) 65%, transparent) 330deg,
       transparent 360deg
     );
 
@@ -136,9 +136,9 @@ $swirl-scale-hover-inner: 1.14;
     height: 100%;
     object-fit: cover;
     border-radius: 50%;
-    border: 1px solid color-mix(in srgb, var(--whirlpool-colour) 70%, transparent);
+    border: 1px solid color-mix(in srgb, var(--whirlpool-color) 70%, transparent);
     background-color: rgba(255, 255, 255, 0.1);
-    box-shadow: 0 0 0.5rem 0.0625rem color-mix(in srgb, var(--whirlpool-colour) 30%, transparent);
+    box-shadow: 0 0 0.5rem 0.0625rem color-mix(in srgb, var(--whirlpool-color) 30%, transparent);
     transition: box-shadow 0.35s ease-out;
   }
 
@@ -170,7 +170,7 @@ $swirl-scale-hover-inner: 1.14;
     &__artwork {
       animation: tinyPop 0.4s ease-out;
       box-shadow: 0 0 0.75rem 0.125rem
-        color-mix(in srgb, var(--whirlpool-colour-bright) 70%, transparent);
+        color-mix(in srgb, var(--whirlpool-color-accent) 70%, transparent);
     }
   }
 }

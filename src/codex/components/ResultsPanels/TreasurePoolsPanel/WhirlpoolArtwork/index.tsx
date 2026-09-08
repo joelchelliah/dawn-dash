@@ -13,8 +13,8 @@ interface WhirlpoolArtworkProps {
   alt: string
   size: number
   sizeMobile?: number
-  colour: string
-  colourBright: string
+  color: string
+  colorAccent: string
 }
 
 const WhirlpoolArtwork = ({
@@ -22,14 +22,14 @@ const WhirlpoolArtwork = ({
   alt,
   size,
   sizeMobile,
-  colour,
-  colourBright,
+  color,
+  colorAccent,
 }: WhirlpoolArtworkProps) => {
   const style = {
     '--whirlpool-size': `${size}px`,
     '--whirlpool-size-mobile': `${sizeMobile ?? size}px`,
-    '--whirlpool-colour': colour,
-    '--whirlpool-colour-bright': colourBright,
+    '--whirlpool-color': color,
+    '--whirlpool-color-accent': colorAccent,
   } as React.CSSProperties
 
   return (

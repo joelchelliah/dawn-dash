@@ -18,12 +18,9 @@ interface TreasurePoolProps {
 
 function TreasurePool({ pool }: TreasurePoolProps): JSX.Element {
   const cardClassName = `${cx('pool-card')} ${WHIRLPOOL_HOVER_TRIGGER}`
-
-  // The accent colour reaches the stylesheet as a variable, so the name, dividers and border all
-  // follow the pool's own colour without a rule per pool.
   const cardStyle = {
-    '--pool-colour': pool.colour,
-    '--pool-colour-bright': pool.colourBright,
+    '--pool-color': pool.color,
+    '--pool-color-accent': pool.colorAccent,
   } as React.CSSProperties
 
   return (
@@ -34,8 +31,8 @@ function TreasurePool({ pool }: TreasurePoolProps): JSX.Element {
           alt={pool.name}
           size={ARTWORK_SIZE}
           sizeMobile={ARTWORK_SIZE_MOBILE}
-          colour={pool.colour}
-          colourBright={pool.colourBright}
+          color={pool.color}
+          colorAccent={pool.colorAccent}
         />
         <div className={cx('pool-card__header-text')}>
           <span className={cx('pool-card__name')}>{pool.name}</span>
@@ -43,7 +40,7 @@ function TreasurePool({ pool }: TreasurePoolProps): JSX.Element {
         </div>
       </div>
 
-      <Section title="Rewards" dividerColor="var(--pool-colour)" spacing="none">
+      <Section title="Rewards" dividerColor="var(--pool-color)" spacing="none">
         <div className={cx('pool-card__tags')}>
           {pool.rewards.map(({ label, excluded }) => (
             <span
@@ -57,7 +54,7 @@ function TreasurePool({ pool }: TreasurePoolProps): JSX.Element {
       </Section>
 
       <div className={cx('pool-card__acquired')}>
-        <Section title="Acquired from" dividerColor="var(--pool-colour)" spacing="none">
+        <Section title="Acquired from" dividerColor="var(--pool-color)" spacing="none">
           <div className={cx('pool-card__tags')}>
             {pool.sources.map((source) => (
               <span key={source} className={cx('pool-card__tag')}>

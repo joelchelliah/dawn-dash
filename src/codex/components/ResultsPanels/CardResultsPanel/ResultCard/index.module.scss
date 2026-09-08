@@ -35,14 +35,14 @@ $row-entry-animation: resultRowIn 0.5s ease-out backwards;
 
 /*
  * The row divider, as a 1px background layer rather than a border (a border can't hold a gradient).
- * One colour fading to transparent: interpolating two *different* colours with differing alpha can
+ * One color fading to transparent: interpolating two *different* colors with differing alpha can
  * pass through a muddy midpoint, so the alpha does all the work.
  *
  * A function, not a mixin, because three rules need the gradient as a *value* — the base row, the
  * hovered row, and `--full-match`, which lists it as a second background layer under its shine.
  */
-@function row-divider($colour: $color-component-border, $start-alpha: 0.85, $end: 100%) {
-  @return linear-gradient(to right, rgba($colour, $start-alpha) 0%, rgba($colour, 0) $end);
+@function row-divider($color: $color-component-border, $start-alpha: 0.85, $end: 100%) {
+  @return linear-gradient(to right, rgba($color, $start-alpha) 0%, rgba($color, 0) $end);
 }
 
 /*

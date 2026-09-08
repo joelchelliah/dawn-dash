@@ -39,8 +39,8 @@ $vertical-track-spacing: 0.875rem;
     pointer-events: none;
     user-select: none;
 
-    // The colour here is hardcoded (unlike the label, which takes an inline
-    // class colour), so disabling has to be handled explicitly.
+    // The color here is hardcoded (unlike the label, which takes an inline
+    // class color), so disabling has to be handled explicitly.
     &--disabled {
       opacity: 0.42;
     }
@@ -141,7 +141,7 @@ $vertical-track-spacing: 0.875rem;
     }
 
     // Static (not absolute) here, so it flows below the track as a normal row
-    // instead of being positioned inside it. Takes the label's muted colour
+    // instead of being positioned inside it. Takes the label's muted color
     // since it sits on the container background, not on the track. The reserved
     // width stops "Cover" → "100%" from resizing the floaty container.
     .zoom-slider__value {
@@ -151,7 +151,7 @@ $vertical-track-spacing: 0.875rem;
       color: $color-primary-muted;
       text-shadow: none;
 
-      // Already a muted colour rather than white-on-track, so it needs less
+      // Already a muted color rather than white-on-track, so it needs less
       // dimming than the horizontal variant to read as disabled.
       &--disabled {
         opacity: 0.5;

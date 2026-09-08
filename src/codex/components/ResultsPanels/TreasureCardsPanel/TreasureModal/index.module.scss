@@ -9,10 +9,10 @@ $rarity-colors: (
 );
 
 .treasure-modal-border {
-  @each $name, $colour in $rarity-colors {
+  @each $name, $color in $rarity-colors {
     &--#{$name}#{&}--#{$name} {
-      --rarity-colour: #{$colour};
-      border-color: color-mix(in srgb, var(--rarity-colour) 40%, transparent);
+      --rarity-color: #{$color};
+      border-color: color-mix(in srgb, var(--rarity-color) 40%, transparent);
     }
   }
   border-radius: 0.375rem;
@@ -56,9 +56,9 @@ $rarity-colors: (
     font-size: font-size('xxs');
     letter-spacing: 0.025em;
 
-    @each $name, $colour in $rarity-colors {
+    @each $name, $color in $rarity-colors {
       &--#{$name} {
-        color: $colour;
+        color: $color;
       }
     }
   }

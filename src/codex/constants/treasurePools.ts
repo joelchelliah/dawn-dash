@@ -13,8 +13,8 @@ export interface TreasurePoolDisplay {
   pools: string[]
   name: string
   imageSrc: string
-  colour: string
-  colourBright: string
+  color: string
+  colorAccent: string
   rewards: PoolReward[]
   sources: string[]
 }
@@ -30,8 +30,8 @@ export const TREASURE_POOL_DISPLAYS: TreasurePoolDisplay[] = [
     pools: ['A'],
     name: 'Shovel & Booty',
     imageSrc: ShovelImageUrl,
-    colour: '#c09528',
-    colourBright: '#e7b35f',
+    color: '#c09528',
+    colorAccent: '#e7b35f',
     rewards: [
       { label: 'Treasures' },
       { label: 'Equipment' },
@@ -45,8 +45,8 @@ export const TREASURE_POOL_DISPLAYS: TreasurePoolDisplay[] = [
     pools: ['C', 'D'],
     name: 'Only Treasures',
     imageSrc: RingOfPowerImageUrl,
-    colour: '#2f9c83',
-    colourBright: '#53bca9',
+    color: '#2f9c83',
+    colorAccent: '#53bca9',
     rewards: [{ label: 'Treasures' }],
     sources: ['All Treasure events', "Explorer's Trick (card)"],
   },
@@ -55,8 +55,8 @@ export const TREASURE_POOL_DISPLAYS: TreasurePoolDisplay[] = [
     pools: ['B'],
     name: 'Pirate Parlour',
     imageSrc: PirateParlourImageUrl,
-    colour: '#7f60cd',
-    colourBright: '#a681ef',
+    color: '#7f60cd',
+    colorAccent: '#a681ef',
     rewards: [
       { label: 'Treasures' },
       { label: 'Locations' },

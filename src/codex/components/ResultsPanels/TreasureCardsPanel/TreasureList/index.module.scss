@@ -107,9 +107,9 @@ $breakpoint-treasures-3-col: 76rem;
     font-weight: 400;
     letter-spacing: 0.025em;
 
-    @each $name, $colour in $rarity-colors {
+    @each $name, $color in $rarity-colors {
       &--#{$name} {
-        color: $colour;
+        color: $color;
       }
     }
   }
