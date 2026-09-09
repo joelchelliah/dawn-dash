@@ -1,6 +1,6 @@
 # Spec: launch Booty publicly
 
-**Status: tasks 1–2 COMPLETED. Next up: task 3 (generate the three missing images).**
+**Status: tasks 1–3 COMPLETED. Next up: task 4 (the About-section paragraph).**
 
 Booty is functionally complete and shipped behind `unlisted: true` — reachable at `/booty`, hidden
 from the landing page and side menu, `noindex, nofollow`. This spec covers everything between that
@@ -52,6 +52,9 @@ and it depends on task 3's images existing.
 tool is publicly visible and everything is checkable at once in the browser.
 
 **Tasks 8–9 are doc-only and have no visible effect** — don't mistake them for broken steps.
+
+**Task 14 is post-launch and explicitly not a blocker** — a pre-existing service-worker issue found
+during this work, unrelated to Booty. Don't pull it forward into the launch sequence.
 
 Mark each task `COMPLETED` in this file as it's finished, so a fresh context can tell what's done
 from the spec alone.
@@ -153,7 +156,7 @@ orbs in the treasure modal, and the two orbs flanking the speedruns chart footer
 `getEnergyImageUrl` returns the same URLs for all `CharacterClass` values, so this is a
 regression check rather than an expected change.
 
-### 3. Generate the three missing images
+### 3. Generate the three missing images — COMPLETED
 
 All three are referenced by the registry; **none exist in `public/`.** Dimensions are dictated by the
 existing assets, and by `PageHead` for the og image:
@@ -171,6 +174,38 @@ becomes live the instant task 7 lands.
 **Verify:** `npm run build && npm run check-sw`. The built service worker precaches every `public/`
 image by name, and because Workbox precaching is atomic a single 404 silently disables the whole
 worker including all runtime image caching.
+
+**Outcome:** all three generated at exactly the required dimensions (1200×1200, 800×420, 2400×1260).
+`npm run build && npm run check-sw` passes — **all 105 precached URLs resolve to real files**, and
+the manifest carries `/logo-booty.png`, `/og-image-booty.png` and `/landing-booty.webp`.
+
+**No registry change was needed.** The booty entry already pointed at all three final paths, so the
+only actual gap was the format of the landing image.
+
+- **The landing image arrived as PNG; the registry wants `landing-booty.webp`.** Converted with
+  `cwebp -q 82` → **31KB**, inside the 19–39KB band of the five existing landing WebPs (all lossy).
+  Left at 800×420, matching the others exactly.
+- **Every per-tool image reference is registry-driven**, so wiring is complete once the files exist
+  and the registry paths match. Grep confirms the only hardcoded image paths anywhere are the
+  landing page's own `og-image-dawndash` / `logo-dawndash` in `pages/index.tsx`, plus one decorative
+  `/landing-cardex.webp` in the scoring panel.
+- **`landing-booty.png` and `landing-scoring.png` were both deleted.** Only the WebPs are referenced.
+  `git log -S landing-scoring.png` finds no commit that ever referenced the PNG in source — it was
+  committed alongside its WebP in `1381411` and never wired up, so it was dead weight from the
+  start. **Landing images are WebP-only; don't reintroduce a PNG source beside one.**
+
+**Booty's PNGs are not outliers — measured, not assumed.** `og-image-booty.png` (2268KB) is *below*
+the mean of the seven og-images (1441–2589KB), and `logo-booty.png` (1043KB) is mid-pack among the
+seven logos (829–1280KB). **None of the existing images were run through a compressor**; the spread
+is just image content, with flatter artwork (eventmaps, scoring) compressing better. So there is no
+per-image cleanup to do here.
+
+The real finding is that precaching **22.9MB** of og-images and logos is wasteful regardless of
+Booty — see **task 14**, post-launch.
+
+One cosmetic inconsistency, not worth acting on: the three new PNGs are **interlaced** (Adam7) while
+all existing ones are non-interlaced — an artifact of the export tool. Interlacing usually makes PNGs
+slightly larger and is irrelevant here, since neither asset is ever progressively rendered.
 
 ### 4. Write the Booty paragraph for the About section
 
@@ -316,3 +351,104 @@ with Cardex. Treasure counts are small (~27KB of card data), so this is very lik
 DevTools rather than assuming, and don't resize the bucket without evidence: keeping `card-artwork`
 and `external-images` separate is what stops a large Cardex session evicting the rest of the site's
 images, and the specific pattern must stay **first** since Workbox uses the first match.
+
+---
+
+## Post-launch
+
+Not blockers. These are pre-existing issues found while doing the launch work — none is caused by
+Booty, and none should hold the launch up.
+
+### 14. Stop precaching og-images and logos (`publicExcludes`)
+
+**Not a Booty issue** — surfaced while sizing Booty's images. The site precaches **22.9MB** of
+`public/` images, of which **22.5MB is the 7 og-images (15.2MB) + 7 logos (7.3MB)**. Excluding both
+leaves **435KB**. Workbox precaching downloads the whole manifest on first visit, so every visitor
+currently pays ~23MB for assets **no browser in the app ever renders**.
+
+#### Research already done — don't redo this
+
+**These assets are metadata-only. Verified by grep, not assumed:**
+
+- `ogImage` is only ever emitted as `<meta property="og:image">` / `twitter:image` content in
+  `PageHead` — an absolute `https://www.dawn-dash.com/...` URL fetched by *scrapers* (Discord,
+  Twitter, Slack), which never touch the service worker.
+- `logoImage` is only ever emitted as the `image` field of the JSON-LD blob in `PageHead:58` and
+  `EventMapHead:38` — a string in a `<script type="application/ld+json">`, never fetched as an image
+  by the browser at all.
+- `pages/index.tsx:31,33` hardcodes the two `*-dawndash` equivalents for the landing page, in the
+  same metadata-only way.
+- **No `<Image>`, `<img>`, or CSS rule anywhere references either set.** Grep for `og-image` /
+  `logoImage` across `src/` and `pages/` returns only the above.
+
+**`buildExcludes` is the WRONG option — this was the first thing tried and it does nothing here.**
+`next-pwa` has two separate excludes, and the distinction is not obvious:
+
+| Option | Applies to | Where in `node_modules/next-pwa/index.js` |
+|---|---|---|
+| `buildExcludes` | `.next/static` webpack assets only | line ~213, passed as Workbox `exclude` |
+| **`publicExcludes`** | **the `public/` folder** | line ~156, appended to a `glob.sync` over `cwd: 'public'` |
+
+Confirmed against both the source and the [next-pwa docs](https://github.com/shadowwalker/next-pwa):
+buildExcludes is documented as *"exclude files from being precached in `.next/static` (or your custom
+build) folder"*; publicExcludes as *"an array of glob pattern strings to exclude files in the
+`public` folder from being precached"*, default `['!noprecache/**/*']`, documented example
+`['!img/super-large-image.jpg', '!fonts/not-used-fonts.otf']`.
+
+**The change:**
+
+```ts
+publicExcludes: ['!noprecache/**/*', '!og-image-*.png', '!logo-*.png'],
+```
+
+Two syntax traps, both easy to get backwards:
+- **The `!` prefix is required.** These strings are appended to a `glob.sync` pattern array where
+  `**/*` includes everything; the `!` entries are what subtract. A pattern *without* `!` would add
+  files rather than remove them.
+- **Re-state the default.** Setting `publicExcludes` *replaces* `['!noprecache/**/*']` rather than
+  extending it, so dropping it would silently start precaching `public/noprecache/` if that folder
+  is ever used.
+
+**Pattern safety — verified:** `og-image-*.png` and `logo-*.png` match exactly the intended 14 files
+and **do not** match `favicon.ico`, `icon-192.png`, `icon-512.png` or `manifest.json`. The PWA icons
+must stay precached; check this again if the patterns are broadened.
+
+#### How standard is this, honestly
+
+**Supported by Workbox's general guidance, but not by a rule specifically about og-images.** Don't
+oversell it in a commit message.
+
+[Workbox's *Precaching dos and don'ts*](https://developer.chrome.com/docs/workbox/precaching-dos-and-donts)
+says precache "critical static assets" — global CSS/JS, app-shell HTML, offline fallbacks — and
+that **"when precaching assets, it's best to err on the side of precaching less rather than more"**,
+recommending runtime caching for anything not needed on every page. It explicitly lists responsive
+images and favicons as things *not* to precache. It does **not** mention og-images or
+externally-fetched metadata assets at all, so this is that principle applied to our case, not a
+documented convention being followed.
+
+The reasoning that closes the gap: precaching only helps assets *this* browser will later request.
+These are requested exclusively by third-party scrapers on their own infrastructure, so the cache
+hit rate for a real visitor is exactly zero. There is no offline story to preserve either — an
+`og:image` has no meaning offline.
+
+**No runtime-caching route is needed to replace it** (the usual Workbox advice when removing
+something from precache): nothing in-app fetches these, so there is no request to intercept. Adding
+a route would be dead config.
+
+#### Verification
+
+1. `npm run build && npm run check-sw` — must still report all URLs resolving. Expect the count to
+   drop by **14** (currently 105 → 91).
+2. `grep -c 'og-image-\|logo-' public/sw.js` on the built worker — expect no `public/` og/logo entries.
+3. **`npm start` and confirm in DevTools → Application → Cache Storage that the worker still
+   installs and the precache fills.** This is the important one. `next-pwa` 5.6.0 predates Next 15
+   and has already silently disabled the entire worker once in this repo (see the `buildExcludes`
+   comment in `next.config.ts` and `src/codex/specs-next-pwa-replacement.md`). A broken worker looks
+   identical to a working one outside DevTools.
+4. Re-check a Discord embed for one tool — the og-image must still resolve over plain HTTPS. It
+   will; it was never being served from the cache. Cheap confirmation that nothing regressed.
+
+#### If it goes wrong
+
+Revert the one line. There is no data migration and no cached state to clean up — `cleanupOutdatedCaches()`
+is already enabled, so an old precache is discarded on the next worker activation either way.

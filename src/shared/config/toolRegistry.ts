@@ -4,7 +4,7 @@ import {
   MapOfHuesImageUrl,
   PestilenceDecreeUrl,
   DashImageUrl,
-  BootyImageUrl,
+  TreasureImageUrl,
 } from '../utils/imageUrls'
 
 export interface ToolDefinition {
@@ -96,7 +96,7 @@ export const TOOL_REGISTRY: ToolDefinition[] = [
     ogImage: 'https://www.dawn-dash.com/og-image-booty.png',
     logoImage: 'https://www.dawn-dash.com/logo-booty.png',
     landingImage: '/landing-booty.webp',
-    navIcon: BootyImageUrl,
+    navIcon: TreasureImageUrl,
     unlisted: true,
   },
   {

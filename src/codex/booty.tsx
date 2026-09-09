@@ -4,7 +4,7 @@ import { createCx } from '@/shared/utils/classnames'
 import { useNavigation } from '@/shared/hooks/useNavigation'
 import { useScrollToTop } from '@/shared/hooks/useScrollToTop'
 import { useBreakpoint } from '@/shared/hooks/useBreakpoint'
-import { BootyImageUrl } from '@/shared/utils/imageUrls'
+import { TreasureImageUrl } from '@/shared/utils/imageUrls'
 import Footer from '@/shared/components/Footer'
 import Header from '@/shared/components/Header'
 import ScrollToTopButton from '@/shared/components/ScrollToTopButton'
@@ -37,7 +37,7 @@ function Booty(): JSX.Element {
       <StarField position="lower" />
       <Header
         onLogoClick={() => navigateTo('booty')}
-        logoSrc={BootyImageUrl}
+        logoSrc={TreasureImageUrl}
         title="Booty"
         subtitle="Dawncaster treasures"
         currentPage="booty"
