@@ -117,8 +117,8 @@ function TreasureModal({ treasure, onClose }: TreasureModalProps): JSX.Element {
     ),
     Tradepost: (
       <>
-        The <strong>Undisturbed Grave</strong> and <strong>Broken Tombstone</strong> events will
-        never actually offer this card.
+        The <strong>Undisturbed Grave</strong> and <strong>Broken Tombstone</strong> events
+        explicitly exclude this card.
       </>
     ),
   }
@@ -199,7 +199,7 @@ function TreasureModal({ treasure, onClose }: TreasureModalProps): JSX.Element {
 
         {poolEvents.length > 0 && (
           <Section
-            title={`Chance to acquire from events (${poolEvents.length})`}
+            title={`In treasure pool used by events (${poolEvents.length})`}
             dividerColor={rarity ? RARITY_COLOR : undefined}
           >
             <div className={cx('treasure-modal__hint')}>
