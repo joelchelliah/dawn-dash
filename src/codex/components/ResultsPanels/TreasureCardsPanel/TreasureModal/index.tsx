@@ -3,8 +3,9 @@ import RarityBorderedArtwork, { RARITIES } from '@/shared/components/RarityBorde
 import { CharacterClass } from '@/shared/types/characterClass'
 import { createCx } from '@/shared/utils/classnames'
 import { splitCamelCaseWords } from '@/shared/utils/textHelper'
+import GradientLink from '@/shared/components/GradientLink'
+import ClassEnergy from '@/shared/components/ClassEnergy'
 
-import ClassEnergy from '@/speedruns/components/ClassEnergy'
 import { getCardSetName } from '@/codex/hooks/useSearchFilters/useCardSetFilters'
 import { EnrichedTreasureCard, TreasureCard } from '@/codex/types/treasures'
 import { parseCardDescription } from '@/codex/utils/cardHelper'
@@ -15,7 +16,6 @@ import CardPill from './CardPill'
 import TreasureEventList from './TreasureEventList'
 import TreasureFlag from './TreasureFlag'
 import styles from './index.module.scss'
-import GradientLink from '@/shared/components/GradientLink'
 
 const cx = createCx(styles)
 
@@ -91,13 +91,14 @@ function TreasureModal({ treasure, onClose }: TreasureModalProps): JSX.Element {
         <br />
         <br />
         The <strong>Undisturbed Grave</strong> and <strong>Broken Tombstone</strong> events will
-        only offer this card if you also have the <strong>Infinitum</strong> card set enabled.
+        only have a chance to offer this card if you also have the <strong>Infinitum</strong> card
+        set enabled.
       </>
     ),
     'Flying Carpet': (
       <>
         The <strong>Undisturbed Grave</strong> and <strong>Broken Tombstone</strong> events will
-        only offer this card if you have either the <strong>Eclypse</strong> or{' '}
+        only have a chance to offer this card if you have either the <strong>Eclypse</strong> or{' '}
         <strong>Infinitum</strong> card set enabled.
       </>
     ),

@@ -3,8 +3,8 @@ import GradientButton from '@/shared/components/Buttons/GradientButton'
 import { useFromNow } from '@/shared/hooks/useFromNow'
 import { ClassColorVariant, getClassColor } from '@/shared/utils/classColors'
 import { CharacterClass } from '@/shared/types/characterClass'
+import ClassEnergy from '@/shared/components/ClassEnergy'
 
-import ClassEnergy from '../../ClassEnergy'
 import ClassLoadingDots from '../../ClassLoadingDots'
 
 import styles from './index.module.scss'
