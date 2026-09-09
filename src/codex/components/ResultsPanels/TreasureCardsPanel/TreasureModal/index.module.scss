@@ -103,11 +103,6 @@ $rarity-colors: (
       font-size: font-size('xxs');
     }
 
-    // Standing in for the list rather than sitting above it, so the top gap goes away.
-    &--only {
-      margin-top: 0;
-    }
-
     &__energy {
       display: inline-block;
       vertical-align: baseline;

@@ -15,6 +15,7 @@ import CardPill from './CardPill'
 import TreasureEventList from './TreasureEventList'
 import TreasureFlag from './TreasureFlag'
 import styles from './index.module.scss'
+import GradientLink from '@/shared/components/GradientLink'
 
 const cx = createCx(styles)
 
@@ -39,7 +40,7 @@ const getAvailability = (treasure: TreasureCard): TreasureAvailability[] => {
     { label: 'Card rewards', value: treasure.inCardRewards },
     { label: 'Sold by Merchant', value: treasure.inMerchant },
     { label: 'Sold by Alchemist', value: treasure.inAlchemist },
-    { label: 'Transmute', value: treasure.fromTranspose || treasure.fromTrade },
+    { label: 'Trade / Transmute', value: treasure.fromTranspose || treasure.fromTrade },
     { label: "Explorer's Trick (card)", value: sourceCards.includes(EXPLORERS_TRICK) },
     {
       label: 'Booty / Shovel (card)',
@@ -80,17 +81,44 @@ function TreasureModal({ treasure, onClose }: TreasureModalProps): JSX.Element {
     </>
   )
 
+  const potionNotes = <>Can also be created during combat by several different cards.</>
   const cardSpecificNotes: Record<string, JSX.Element> = {
     'Dark Mirror Vial': (
       <>
-        Cannot be acquired via <strong>Tradepost</strong>, although any other forms of trade or
-        transmute will work.
+        Cannot be acquired via{' '}
+        <GradientLink url="https://www.blightbane.io/card/Tradepost" text="Tradepost" />, but any
+        other form of trade or transmute will work.
+        <br />
+        <br />
+        The <strong>Undisturbed Grave</strong> and <strong>Broken Tombstone</strong> events will
+        only offer this card if you also have the <strong>Infinitum</strong> card set enabled.
       </>
     ),
+    'Flying Carpet': (
+      <>
+        The <strong>Undisturbed Grave</strong> and <strong>Broken Tombstone</strong> events will
+        only offer this card if you have either the <strong>Eclypse</strong> or{' '}
+        <strong>Infinitum</strong> card set enabled.
+      </>
+    ),
+    'Healing Potion': potionNotes,
+    'Potion of Visions': potionNotes,
     'Rusty Lamp': (
       <>
-        Only acquirable if you have <EnergyPip classType={CharacterClass.Arcanist} /> or{' '}
+        Only available if you have <EnergyPip classType={CharacterClass.Arcanist} /> or{' '}
         <EnergyPip classType={CharacterClass.Rogue} /> attributes.
+      </>
+    ),
+    'Staff of Thunder': (
+      <>
+        Can also be acquired via{' '}
+        <GradientLink url="https://www.blightbane.io/card/Elite_Weaponry" text="Elite Weaponry" />.
+      </>
+    ),
+    Tradepost: (
+      <>
+        The <strong>Undisturbed Grave</strong> and <strong>Broken Tombstone</strong> events will
+        never actually offer this card.
       </>
     ),
   }
@@ -157,19 +185,17 @@ function TreasureModal({ treasure, onClose }: TreasureModalProps): JSX.Element {
           </div>
         </Section>
 
-        <Section
-          title={`Acquired from events (${guaranteedEvents.length})`}
-          dividerColor={rarity ? RARITY_COLOR : undefined}
-        >
-          <div
-            className={cx('treasure-modal__hint', {
-              'treasure-modal__hint--only': guaranteedEvents.length === 0,
-            })}
+        {guaranteedEvents.length > 0 && (
+          <Section
+            title={`Acquired from events (${guaranteedEvents.length})`}
+            dividerColor={rarity ? RARITY_COLOR : undefined}
           >
-            {guaranteedEvents.length > 0 ? 'Events that can always offer this treasure.' : 'None'}
-          </div>
-          <TreasureEventList events={guaranteedEvents} />
-        </Section>
+            <div className={cx('treasure-modal__hint')}>
+              Events that can always offer this treasure.
+            </div>
+            <TreasureEventList events={guaranteedEvents} />
+          </Section>
+        )}
 
         {poolEvents.length > 0 && (
           <Section
