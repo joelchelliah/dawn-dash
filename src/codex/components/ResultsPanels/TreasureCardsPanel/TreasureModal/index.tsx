@@ -1,8 +1,10 @@
 import InfoModal from '@/shared/components/Modals/InfoModal'
 import RarityBorderedArtwork, { RARITIES } from '@/shared/components/RarityBorderedArtwork'
+import { CharacterClass } from '@/shared/types/characterClass'
 import { createCx } from '@/shared/utils/classnames'
 import { splitCamelCaseWords } from '@/shared/utils/textHelper'
 
+import ClassEnergy from '@/speedruns/components/ClassEnergy'
 import { getCardSetName } from '@/codex/hooks/useSearchFilters/useCardSetFilters'
 import { EnrichedTreasureCard, TreasureCard } from '@/codex/types/treasures'
 import { parseCardDescription } from '@/codex/utils/cardHelper'
@@ -62,6 +64,7 @@ function TreasureModal({ treasure, onClose }: TreasureModalProps): JSX.Element {
   const { treasureDetails, cardDetails } = treasure
   const rarity = RARITIES[cardDetails.rarity]
   const subtitle = getSubtitle(treasureDetails, rarity?.name)
+  const cardName = treasureDetails.name
   const cardSetName = getCardSetName(cardDetails.expansion)
 
   const guaranteedEvents = getGuaranteedTreasureEvents(treasureDetails)
@@ -73,9 +76,24 @@ function TreasureModal({ treasure, onClose }: TreasureModalProps): JSX.Element {
 
   const cardSetHint = (
     <>
-      Card set <strong>{cardSetName}</strong> must be enabled.
+      The <strong>{cardSetName}</strong> card set must be enabled.
     </>
   )
+
+  const cardSpecificNotes: Record<string, JSX.Element> = {
+    'Dark Mirror Vial': (
+      <>
+        Cannot be acquired via <strong>Tradepost</strong>, although any other forms of trade or
+        transmute will work.
+      </>
+    ),
+    'Rusty Lamp': (
+      <>
+        Only acquirable if you have <EnergyPip classType={CharacterClass.Arcanist} /> or{' '}
+        <EnergyPip classType={CharacterClass.Rogue} /> attributes.
+      </>
+    ),
+  }
 
   return (
     <InfoModal
@@ -90,7 +108,7 @@ function TreasureModal({ treasure, onClose }: TreasureModalProps): JSX.Element {
         <div className={cx('treasure-modal__card')}>
           <div className={cx('treasure-modal__header')}>
             <RarityBorderedArtwork
-              cardName={cardDetails.name}
+              cardName={cardName}
               rarity={cardDetails.rarity}
               category={cardDetails.category}
               size={ARTWORK_SIZE}
@@ -98,7 +116,7 @@ function TreasureModal({ treasure, onClose }: TreasureModalProps): JSX.Element {
               borderOpacity={ARTWORK_BORDER_OPACITY}
             />
             <div className={cx('treasure-modal__header-text')}>
-              <span className={cx('treasure-modal__name')}>{treasureDetails.name}</span>
+              <span className={cx('treasure-modal__name')}>{cardName}</span>
               {subtitle && (
                 <span
                   className={cx('treasure-modal__subtitle', {
@@ -159,15 +177,27 @@ function TreasureModal({ treasure, onClose }: TreasureModalProps): JSX.Element {
             dividerColor={rarity ? RARITY_COLOR : undefined}
           >
             <div className={cx('treasure-modal__hint')}>
-              Events that draw from a pool containing this treasure.
+              Events that draw from a treasure pool containing this card.
               {cardSetName !== 'Core' && <> {cardSetHint}</>}
             </div>
             <TreasureEventList events={poolEvents} />
+          </Section>
+        )}
+
+        {cardSpecificNotes[cardName] && (
+          <Section title="Additional notes" dividerColor={rarity ? RARITY_COLOR : undefined}>
+            <div className={cx('treasure-modal__hint')}>{cardSpecificNotes[cardName]}</div>
           </Section>
         )}
       </div>
     </InfoModal>
   )
 }
+
+const EnergyPip = ({ classType }: { classType: CharacterClass }) => (
+  <span className={cx('treasure-modal__hint__energy')}>
+    <ClassEnergy classType={classType} />
+  </span>
+)
 
 export default TreasureModal

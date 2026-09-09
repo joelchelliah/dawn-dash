@@ -107,6 +107,27 @@ $rarity-colors: (
     &--only {
       margin-top: 0;
     }
+
+    &__energy {
+      display: inline-block;
+      vertical-align: baseline;
+
+      img {
+        position: relative;
+        top: 0.1875rem;
+        width: 1rem;
+        height: 1rem;
+        padding-top: 0;
+      }
+
+      @media (max-width: $breakpoint-mobile) {
+        img {
+          top: 0.125rem;
+          width: 0.75rem;
+          height: 0.75rem;
+        }
+      }
+    }
   }
 
   &__availability {

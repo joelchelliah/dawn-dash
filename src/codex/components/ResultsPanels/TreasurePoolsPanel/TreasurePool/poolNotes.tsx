@@ -9,15 +9,15 @@ export const POOL_NOTES: Record<PoolId, PoolNotes> = {
   'booty-shovel': {
     above: (
       <>
-        The largest pool in the game, and only used by <strong>Shovel</strong> and{' '}
-        <strong>Booty</strong> cards, letting you delve between 3 random cards from this pool during
+        The largest pool in the game. Only used by <strong>Shovel</strong> and{' '}
+        <strong>Booty</strong>, which let you delve between 3 random cards from this pool during
         combat.
       </>
     ),
     below: (
       <>
         Both <strong>Shovel</strong> and <strong>Booty</strong> can delve <strong>Unique</strong>{' '}
-        cards you already own. cards you already own.
+        cards you already own.
       </>
     ),
   },
@@ -31,8 +31,8 @@ export const POOL_NOTES: Record<PoolId, PoolNotes> = {
     ),
     below: (
       <>
-        A few of the <strong>Treasure events</strong> have additional restrictions, preventing you
-        from getting certain cards from them.
+        Some of the <strong>Treasure events</strong> have additional hidden restrictions, preventing
+        you from getting certain cards.
       </>
     ),
   },
@@ -45,8 +45,8 @@ export const POOL_NOTES: Record<PoolId, PoolNotes> = {
     ),
     below: (
       <>
-        The delved cards are <strong>played</strong> immediately. No cards are permanently added to
-        the deck.
+        Cards delved via <strong>Pirate Parlour</strong> are played immediately. No cards are
+        permanently added to the deck.
       </>
     ),
   },

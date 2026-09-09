@@ -16,7 +16,7 @@ import { POOL_NOTES } from './poolNotes'
 
 const cx = createCx(styles)
 
-const ARTWORK_SIZE = 38
+const ARTWORK_SIZE = 40
 const ARTWORK_SIZE_MOBILE = 32
 
 interface TreasurePoolProps {
@@ -61,7 +61,7 @@ function TreasurePool({ pool }: TreasurePoolProps): JSX.Element {
         </div>
       )}
 
-      <Section title="Rewards" dividerColor="var(--pool-color)" spacing="none">
+      <Section title="Contains" dividerColor="var(--pool-color)" spacing="none">
         <div className={cx('pool__tags')}>
           {rewards.map(({ label, excluded }) => (
             <span key={label} className={cx('pool__tag', { 'pool__tag--excluded': excluded })}>
@@ -71,7 +71,7 @@ function TreasurePool({ pool }: TreasurePoolProps): JSX.Element {
         </div>
       </Section>
 
-      <Section title="Acquired from" dividerColor="var(--pool-color)" spacing="none">
+      <Section title="Used by" dividerColor="var(--pool-color)" spacing="none">
         <div className={cx('pool__tags')}>
           {sources.map((source) => (
             <span key={source} className={cx('pool__tag')}>
