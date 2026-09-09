@@ -46,8 +46,8 @@ $transition-duration: 0.5s;
   &__header {
     display: flex;
     align-items: center;
-    // The whirlpool bleeds well past the artwork, so the gap has to clear the swirl, not the image.
-    gap: 1.125rem;
+    // Gap between whirlpool and header
+    gap: 1rem;
     min-width: 0;
   }
 
@@ -126,12 +126,12 @@ $transition-duration: 0.5s;
       border-color $transition-duration ease-out,
       color $transition-duration ease-out;
 
-    // An exclusion rather than a reward — struck through, matching `TreasureFlag`'s off state.
     &--excluded {
       color: $color-primary-dark;
       text-decoration: line-through;
-      text-decoration-color: rgba(200, 95, 95, 0.75);
+      text-decoration-color: rgba(200, 95, 95, 1);
       text-decoration-thickness: 1px;
+      opacity: 0.75;
     }
 
     @media (max-width: $breakpoint-tablet) {
@@ -150,7 +150,8 @@ $transition-duration: 0.5s;
     padding: 0.75rem;
 
     &__header {
-      gap: 0.875rem;
+      // Gap between whirlpool and header
+      gap: 0.75rem;
     }
   }
 }

@@ -16,8 +16,8 @@ import { POOL_NOTES } from './poolNotes'
 
 const cx = createCx(styles)
 
-const ARTWORK_SIZE = 48
-const ARTWORK_SIZE_MOBILE = 42
+const ARTWORK_SIZE = 38
+const ARTWORK_SIZE_MOBILE = 32
 
 interface TreasurePoolProps {
   pool: TreasurePoolDisplay
@@ -29,9 +29,13 @@ function TreasurePool({ pool }: TreasurePoolProps): JSX.Element {
   const notes = POOL_NOTES[pool.id]
 
   const cardClassName = cx('pool', HOVER_TRIGGER)
+  // The artwork size is published on the card, not just handed to the whirlpool, because the header
+  // gap is a fraction of it — see `$header-gap-*` in the stylesheet.
   const cardStyle = {
     '--pool-color': pool.color,
     '--pool-color-accent': pool.colorAccent,
+    '--pool-artwork-size': `${ARTWORK_SIZE}px`,
+    '--pool-artwork-size-mobile': `${ARTWORK_SIZE_MOBILE}px`,
   } as React.CSSProperties
 
   return (
