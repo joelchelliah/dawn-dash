@@ -45,12 +45,15 @@
     "test": "jest --passWithNoTests",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
+    "sync-all": "node scripts/sync-all.js",
     "sync-events": "node scripts/sync-events.js",
+    "sync-treasures": "node scripts/sync-treasures.js",
     "sync-talents-preflight": "node scripts/sync-talents-preflight.js",
     "backup-talents": "node scripts/backup-talents.js",
     "sync-artwork": "node scripts/fetch-card-artwork-mapping.js",
     "icon-viewbox": "node scripts/icon-viewbox.js",
     "generate-stars": "node scripts/generate-star-field.js",
+    "generate-landing-images": "node scripts/generate-landing-images.js",
     "check-sw": "node scripts/check-service-worker.js"
   },
   "devDependencies": {
@@ -76,6 +79,7 @@
     "jest": "^30.2.0",
     "jest-environment-jsdom": "^30.2.0",
     "prettier": "^3.3.3",
+    "sharp": "^0.34.3",
     "supabase": "^2.78.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.2"

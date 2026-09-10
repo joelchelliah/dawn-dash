@@ -1,0 +1,65 @@
+@use 'index' as *;
+
+.treasure-event-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+
+  @media (max-width: $breakpoint-mobile) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.treasure-event-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0.5rem;
+  border-radius: 0.25rem;
+  transition: all 0.5s ease;
+  cursor: pointer;
+  text-decoration: none;
+  min-width: 0;
+
+  &__text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    overflow: hidden;
+    flex: 1;
+  }
+
+  &__name {
+    font-size: font-size('xs');
+    font-weight: 400;
+    color: $color-primary-base;
+    @include text-truncate;
+
+    @media (max-width: $breakpoint-mobile) {
+      font-size: font-size('xxs');
+    }
+  }
+
+  @include alternating-rows-range(
+    2,
+    $through: $breakpoint-mobile,
+    // Omitting on purpose since we have two columns on mobile here
+     // $shade: $color-list-row-alt-mobile
+  );
+  @include alternating-rows-range(3, $above: $breakpoint-mobile);
+
+  &:hover {
+    background: linear-gradient(to right, $color-list-bg-hover, transparent) !important;
+    .treasure-event-item__artwork {
+      @include hover-tint-artwork(var(--rarity-color, #{$color-primary-hover}));
+    }
+
+    .treasure-event-item__text {
+      @include tinyNudgeRightAnimation;
+    }
+
+    .treasure-event-item__name {
+      @include hover-tint-name(var(--rarity-color, #{$color-primary-hover}));
+    }
+  }
+}

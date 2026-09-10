@@ -2,7 +2,7 @@ import { useCallback } from 'react'
 
 import { createCx } from '@/shared/utils/classnames'
 import GradientLink from '@/shared/components/GradientLink'
-import GradientDivider from '@/shared/components/GradientDivider'
+import Divider from '@/shared/components/Divider'
 import Image from '@/shared/components/Image'
 import LoadingDots from '@/shared/components/LoadingDots'
 import { BolgarImageUrl } from '@/shared/utils/imageUrls'
@@ -73,7 +73,7 @@ const EventResultsPanel = ({
       />
       <br />
       <br />
-      <GradientDivider widthPercentage={85} spacingBottom="xs" />
+      <Divider widthPercentage={85} spacingBottom="xs" />
       <div className={cx('info-message')}>
         <Image
           className={cx('info-message__icon')}

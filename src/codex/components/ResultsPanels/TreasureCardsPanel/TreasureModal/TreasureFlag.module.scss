@@ -1,0 +1,42 @@
+@use 'index' as *;
+
+$flag-on-color: $green-hover;
+$flag-off-color: $color-danger-hover;
+
+.treasure-flag {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.5rem;
+  border-radius: 0.25rem;
+  background-color: rgba(0, 0, 0, 0.35);
+  color: $flag-on-color;
+  min-width: 0;
+
+  &--off {
+    color: $flag-off-color;
+  }
+
+  &__icon {
+    flex-shrink: 0;
+    width: 0.875rem;
+    height: 0.875rem;
+  }
+
+  &__label {
+    font-size: font-size('xs');
+    line-height: 1.2;
+    color: $color-primary-muted;
+
+    @media (max-width: $breakpoint-mobile) {
+      font-size: font-size('xxs');
+    }
+  }
+
+  &--off &__label {
+    color: $color-primary-dark;
+    text-decoration: line-through;
+    text-decoration-color: rgba(200, 95, 95, 0.75);
+    text-decoration-thickness: 1px;
+  }
+}

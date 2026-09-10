@@ -41,7 +41,7 @@ export default function App({ Component, pageProps }: AppProps) {
               '@type': 'WebApplication',
               name: 'Dawn-Dash',
               description:
-                'Dawncaster tools and resources, including speedrun charts, cards codex, talents codex, and event tree visualizer!',
+                'Dawncaster tools and resources, including interactive codexes for cards, talents and events, score guides,and speedrun charts!',
               url: 'https://www.dawn-dash.com',
               applicationCategory: 'GameApplication',
               logo: 'https://www.dawn-dash.com/icon-512.png',

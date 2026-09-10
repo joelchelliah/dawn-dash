@@ -1,0 +1,29 @@
+@use 'index' as *;
+
+.section {
+  &--stacked {
+    margin-top: 1.75rem;
+
+    @media (max-width: $breakpoint-mobile) {
+      margin-top: 1.5rem;
+    }
+  }
+
+  h4 {
+    margin-top: 0;
+    margin-bottom: 0.75rem;
+    font-size: font-size('sm');
+    color: $color-primary-muted;
+    transition: color 0.35s ease-out;
+
+    @media (max-width: $breakpoint-mobile) {
+      margin-bottom: 0.5rem;
+      font-size: font-size('xs');
+    }
+  }
+
+  // Brightens only for consumers that mark an ancestor as the hover owner; see `hoverTrigger.ts`.
+  :global(.hoverable):hover & h4 {
+    color: $color-primary-base;
+  }
+}

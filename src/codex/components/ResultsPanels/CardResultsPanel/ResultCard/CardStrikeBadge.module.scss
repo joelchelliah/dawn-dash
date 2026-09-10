@@ -1,6 +1,6 @@
 @use 'index' as *;
 
-$badge-colour: $green-border;
+$badge-color: $green-border;
 $badge-border-width: 2px;
 $badge-size: clamp(1.5rem, 62%, 2.5rem);
 
@@ -15,7 +15,7 @@ $badge-size: clamp(1.5rem, 62%, 2.5rem);
   height: $badge-size;
   aspect-ratio: 1;
   box-sizing: border-box;
-  border: $badge-border-width solid $badge-colour;
+  border: $badge-border-width solid $badge-color;
   border-radius: 50%;
   background-color: rgba(0, 0, 0, 0.25);
   pointer-events: none;
@@ -35,7 +35,7 @@ $badge-size: clamp(1.5rem, 62%, 2.5rem);
   transform: translate(10%, -8%);
 
   path {
-    fill: $badge-colour;
+    fill: $badge-color;
     filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.8));
   }
 }

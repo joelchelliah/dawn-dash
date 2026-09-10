@@ -25,7 +25,7 @@ const indexToRarityIconMap = {
 }
 
 /*
- * Sets `--rarity-colour` on the column so every plate's border inherits it — the rarity class itself
+ * Sets `--rarity-color` on the column so every plate's border inherits it — the rarity class itself
  * sits on the glyph, which is too deep for the plates to key off. Mirrors `CardArtwork`'s border.
  */
 const indexToRarityClassMap = {

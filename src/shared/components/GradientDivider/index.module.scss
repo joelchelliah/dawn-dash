@@ -1,7 +1,0 @@
-@use 'index' as *;
-
-.gradient-divider {
-  height: 1px;
-  opacity: 0.6;
-  @include yellowGreenGradientBackground(false);
-}

@@ -9,6 +9,7 @@ const cx = createCx(styles)
 export interface ModalProps {
   children: React.ReactNode
   borderColor?: string
+  borderClassName?: string
   isOpen: boolean
   onClose: () => void
   maxWidth?: number
@@ -21,6 +22,7 @@ export interface ModalProps {
 function Modal({
   children,
   borderColor,
+  borderClassName,
   isOpen,
   onClose,
   maxWidth,
@@ -29,8 +31,8 @@ function Modal({
 }: ModalProps): JSX.Element | null {
   if (!isOpen) return null
 
-  const wrapperClassName = cx('wrapper', {
-    'wrapper--without-class-border': !borderColor,
+  const wrapperClassName = cx('wrapper', borderClassName, {
+    'wrapper--without-class-border': !borderColor && !borderClassName,
   })
 
   return (

@@ -3,3 +3,16 @@
 .close-button {
   float: right;
 }
+
+.close-button--colored.close-button--colored {
+  min-width: 5rem;
+  font-weight: 600;
+  color: color-mix(in srgb, var(--button-color) 50%, transparent);
+
+  &:hover {
+    background: $color-component-bg-hover;
+    color: color-mix(in srgb, var(--button-color) 75%, transparent);
+    border-color: color-mix(in srgb, var(--button-color) 50%, transparent);
+    font-weight: 800;
+  }
+}

@@ -61,6 +61,7 @@ operationally — the sequence they should be built in, not a topical grouping.
 - `npm run type-check` - Run TypeScript type checking
 - `npm run verify` - Run format:check, lint, type-check, and test together
 - `npm run icon-viewbox -- <IconName>` - Inspect an icon's viewBox fill and print candidate viewBoxes for making it look bigger/smaller (see `Icons/` under Shared Infrastructure)
+- `npm run generate-landing-images` - Regenerate every `public/landing-<tool>.webp` from its `public/og-image-<tool>.png`. **Run after changing any OG image** — the landing thumbnails are derived from them, not drawn separately (see Derived assets)
 - `npm run check-sw` - Fail if the built service worker precaches a URL that will 404. **Run after `npm run build` whenever `next.config.ts` or the PWA setup changes** — Workbox precaching is atomic, so one bad entry silently disables the entire worker including all runtime caching
 
 **`npm run verify` is the required check before any change (AI-generated changes included) is considered done.** For changes touching `pages/`, `next.config.ts`, or data hooks, also run `npm run build`.
@@ -74,12 +75,12 @@ operationally — the sequence they should be built in, not a topical grouping.
 
 ## Project Architecture
 
-This is a Next.js application (dawn-dash.com) for Dawncaster game data visualization with **five tools**: Speedruns, Cardex, Skilldex, Eventmaps, and Scoring.
+This is a Next.js application (dawn-dash.com) for Dawncaster game data visualization with **six tools**: Speedruns, Cardex, Skilldex, Eventmaps, Booty, and Scoring.
 
 ### Core Structure
 - **Next.js 15** (pages router) with React 18, TypeScript, and SCSS modules
 - **`/pages`**: thin page components — one per tool, plus `pages/eventmaps/[event].tsx` for per-event pages
-- **`/src`**: application logic organized by feature: `landing/`, `speedruns/`, `codex/` (Cardex + Skilldex + Eventmaps), `scoring/`, `shared/`
+- **`/src`**: application logic organized by feature: `landing/`, `speedruns/`, `codex/` (Cardex + Skilldex + Eventmaps + Booty), `scoring/`, `shared/`
 - **Supabase backend**: database and edge functions for **talents** data. Cards are *not* read from Supabase — Cardex fetches them live from the Blightbane API (see Data Layer)
 
 ### Tool Registry
@@ -95,7 +96,8 @@ Each feature directory has its own `CLAUDE.md` with architecture details and inv
 2. **Cardex** (`/cardex`, `src/codex/`) — multi-keyword card search and advanced filtering, plus card tracking for weekly challenges; card data fetched live from the Blightbane API
 3. **Skilldex** (`/skilldex`, `src/codex/`) — interactive talent-tree visualizer (D3 hierarchy) with prerequisite tracking and requirement filters; talent data from Supabase
 4. **Eventmaps** (`/eventmaps`, `src/codex/`) — fully mapped event trees (branches, requirements, rewards) rendered from static `src/codex/data/event-trees.json`
-5. **Scoring** (`/scoring`, `src/scoring/`) — prose-heavy scoring guides per game mode plus real score-calculation logic (`advancedScoring.ts`)
+5. **Booty** (`/booty`, `src/codex/`) — a breakdown of every treasure card and the ways of acquiring it, rendered from static `src/codex/data/treasure-cards.json` / `treasure-pools.json`, with card details joined live from the Blightbane API via `useCardData`
+6. **Scoring** (`/scoring`, `src/scoring/`) — prose-heavy scoring guides per game mode plus real score-calculation logic (`advancedScoring.ts`)
 
 ### Shared Infrastructure (`/src/shared/`)
 **Components**:
@@ -103,10 +105,10 @@ Each feature directory has its own `CLAUDE.md` with architecture details and inv
 - `PageHead` — renders each tool page's meta/OG tags from the tool registry
 - Buttons: Button, GradientButton, IllustratedButton, ButtonRow — all extend `BaseButtonProps` from `Buttons/types.ts`
 - Modals: Modal, InfoModal
-- UI elements: LoadingDots, ScrollToTopButton, GradientDivider, GradientLink, ScrollableWithFade, Select, Code, Image
+- UI elements: LoadingDots, ScrollToTopButton, Divider, GradientLink, ScrollableWithFade, Select, Code, Image
 - `Sliders/Thumb` — the draggable energy-orb thumb shared by the speedruns sliders and the codex zoom slider; takes an `orientation` prop because the CSS centering axis differs between horizontal and vertical tracks
 - Notifications: Notification (toast-style with auto-dismiss and progress bar)
-- `Icons/` — one component per SVG icon, each taking only `className` and `onClick`, so **size and colour are set entirely in CSS**. An icon's apparent size depends on its *fill* (how much of the viewBox is ink rather than margin), which varies a lot between icons — so equal CSS sizes do not look equal. To make an icon look bigger or smaller, crop or widen its `viewBox` rather than fighting it with CSS: run `npm run icon-viewbox -- <IconName>` for its current fill and a table of candidate viewBoxes. These components are shared (result cards *and* search-panel filters), so a viewBox change affects every consumer — use a stylesheet's `svg { width/height }` when only one place should change.
+- `Icons/` — one component per SVG icon, each taking only `className` and `onClick`, so **size and color are set entirely in CSS**. An icon's apparent size depends on its *fill* (how much of the viewBox is ink rather than margin), which varies a lot between icons — so equal CSS sizes do not look equal. To make an icon look bigger or smaller, crop or widen its `viewBox` rather than fighting it with CSS: run `npm run icon-viewbox -- <IconName>` for its current fill and a table of candidate viewBoxes. These components are shared (result cards *and* search-panel filters), so a viewBox change affects every consumer — use a stylesheet's `svg { width/height }` when only one place should change.
 
 **Custom Hooks**:
 - `useNavigation()` - registry-driven `navigateTo(toolId, query?)` + `resetToLandingPage()`
@@ -141,9 +143,10 @@ Each feature directory has its own `CLAUDE.md` with architecture details and inv
 - **localStorage caching** with staleness detection: 10-minute TTL for speedrun leaderboard data (intentionally short — new runs arrive continuously), 24-hour TTL for codex card/talent data
 - **Stores are plain localStorage wrapper modules** (not subscription/Zustand stores): versioned cache keys are co-located with each store — `src/speedruns/utils/speedrunsStore.ts`, `src/codex/utils/codexCardsStore.ts`, `codexTalentsStore.ts`, `codexFilterStore.ts`
 
-### Data Synchronization (two ownership paths)
+### Data Synchronization (three ownership paths)
 - **Supabase Edge Functions** (`supabase/functions/`, Deno) own the **talents** data: `sync-talents` pulls from the Blightbane API into the Supabase `Talents` table; `talents-name` is a public read-only endpoint. `sync-cards` and the `Cards` table still exist but are **dormant** — Cardex stopped reading from Supabase and fetches cards live from Blightbane instead, so nothing consumes what `sync-cards` writes. Deploy with `npx supabase functions deploy <name>`. The root `deno.json` exists **solely** for these edge functions.
-- **Local Node scripts** (`scripts/`) own the **events and artwork** data: `sync-events.js` runs the event pipeline. By default it is **parse-only** — it parses `scripts/data/events.json` (produced by an **external event-extraction tool** and pasted in; nothing in this repo writes it) into `src/codex/data/event-trees.json`, and fails fast if that file is missing. `npm run sync-events -- --from-dump` (the `--` is required, or npm eats the flag and silently runs the default path) runs the legacy in-repo path instead (fetch the Blightbane bundle → extract into `scripts/data/events-from-dump.json` → parse that), which never overwrites the external tool's `events.json`. Both input files are gitignored and share the same shape, so the parse step is agnostic about the source; see `scripts/parse/README.md`. Also: `fetch-card-artwork-mapping.js` writes `src/shared/data/card-artwork.json`; `generate-sitemap.js` builds `public/sitemap.xml` from the event data (tool URLs are hardcoded in it)
+- **Local Node scripts** (`scripts/`) own the **events and artwork** data: `sync-events.js` runs the event pipeline. By default it is **parse-only** — it parses `scripts/data/events.json` (produced by an **external event-extraction tool** and pasted in; nothing in this repo writes it) into `src/codex/data/event-trees.json`, and fails fast if that file is missing. `npm run sync-events -- --from-dump` (the `--` is required, or npm eats the flag and silently runs the default path) runs the legacy in-repo path instead (fetch the Blightbane bundle → extract into `scripts/data/events-from-dump.json` → parse that), which never overwrites the external tool's `events.json`. Both input files are gitignored and share the same shape, so the parse step is agnostic about the source; see `scripts/parse/README.md`. `sync-treasures.js` splits `scripts/data/treasures.json` into `src/codex/data/treasure-cards.json` and `treasure-pools.json` — same ownership story as `events.json`: the input comes from an **external treasure-extraction tool** and is pasted in manually (gitignored; the script fails fast without it). `npm run sync-all` runs `sync-treasures`, `sync-events` and the talents preflight in sequence. Also: `fetch-card-artwork-mapping.js` writes `src/shared/data/card-artwork.json`; `generate-sitemap.js` builds `public/sitemap.xml` from the event data (tool URLs are hardcoded in it)
+- **Derived assets**: `public/landing-<tool>.webp` is **generated from `public/og-image-<tool>.png`**, not authored separately — `npm run generate-landing-images` downscales each 2400x1260 OG image to the 800x420 thumbnail the landing page and tool registry point at. So updating an OG image without rerunning it leaves the landing card showing the old artwork. The script requires the source to share the OG aspect ratio and skips (non-zero exit) rather than cropping if it does not, and `og-image-dawndash.png` is skipped by default since the landing page shows the six tools, not itself. It needs `sharp`, which is a direct devDependency for this reason — it used to be pulled in only transitively via Next
 - **Speedrun data** is not synced — it is fetched live from the Blightbane API at runtime
 
 ### PWA & Performance

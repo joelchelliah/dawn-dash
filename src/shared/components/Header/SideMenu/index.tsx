@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 
 import Image from '@/shared/components/Image'
+import BorderedArtwork from '@/shared/components/BorderedArtwork'
 import LoadingDots from '@/shared/components/LoadingDots'
 import {
   HamburgerIcon,
@@ -12,6 +13,7 @@ import {
 } from '@/shared/components/Icons'
 import { InfernalContractUrl, RushedForgeryImageUrl } from '@/shared/utils/imageUrls'
 import { createCx } from '@/shared/utils/classnames'
+import { HOVER_TRIGGER } from '@/shared/utils/hoverTrigger'
 import GradientLink from '@/shared/components/GradientLink'
 import InfoModal from '@/shared/components/Modals/InfoModal'
 import { useBreakpoint } from '@/shared/hooks/useBreakpoint'
@@ -28,6 +30,10 @@ interface SideMenuProps {
 }
 
 const cx = createCx(styles)
+
+const NAV_ICON_SIZE = 40
+const NAV_ICON_SIZE_HOME = 32
+const NAV_ICON_BORDER_OPACITY = 75
 
 const SideMenu = ({ currentPage }: SideMenuProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -47,18 +53,18 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
     }
   }
 
-  const getNavLinkImage = (url: string, alt: string, isHome?: boolean) => {
-    const size = isHome ? 32 : 40
-    return (
-      <Image
-        src={url}
-        alt={alt}
-        className={cx('side-menu__nav-link__icon')}
-        width={size}
-        height={size}
-      />
-    )
-  }
+  const getNavLinkImage = (url: string, alt: string, isHome?: boolean) => (
+    <BorderedArtwork
+      src={url}
+      alt={alt}
+      size={isHome ? NAV_ICON_SIZE_HOME : NAV_ICON_SIZE}
+      borderOpacity={NAV_ICON_BORDER_OPACITY}
+    />
+  )
+
+  const getInfoTitleImage = (url: string, alt: string) => (
+    <Image src={url} alt={alt} width={NAV_ICON_SIZE} height={NAV_ICON_SIZE} />
+  )
 
   const getInfoTitle = (toolId: string) => {
     const tool = getTool(toolId)
@@ -66,19 +72,22 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
 
     return (
       <h3 className={cx('info-title')}>
-        {getNavLinkImage(tool.navIcon, `${tool.title} logo`)} {tool.title}
+        {getInfoTitleImage(tool.navIcon, `${tool.title} logo`)} {tool.title}
       </h3>
     )
   }
 
   const loadingColor = getClassColor(CharacterClass.Rogue, ClassColorVariant.Dark)
 
-  const getNavLinkText = (name: string) =>
-    loadingPage === name ? (
-      <LoadingDots color={loadingColor} className={cx('side-menu__nav-link__loading-dots')} />
-    ) : (
-      name
-    )
+  const getNavLinkText = (name: string) => (
+    <span className={cx('side-menu__nav-link__text')}>
+      {loadingPage === name ? (
+        <LoadingDots color={loadingColor} className={cx('side-menu__nav-link__loading-dots')} />
+      ) : (
+        name
+      )}
+    </span>
+  )
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -102,10 +111,16 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
   const landingLinkContainerClassNames = cx(
     'side-menu__nav-link-container',
     'side-menu__nav-link-container--home',
+    HOVER_TRIGGER,
     {
       'side-menu__nav-link-container--active': currentPage === 'landing',
     }
   )
+
+  const getNavLinkContainerClassName = (isActive: boolean) =>
+    cx('side-menu__nav-link-container', HOVER_TRIGGER, {
+      'side-menu__nav-link-container--active': isActive,
+    })
 
   const menuIcon = isMobile ? (
     isMenuOpen ? (
@@ -151,12 +166,7 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
           </div>
 
           {getListedTools().map((tool) => (
-            <div
-              key={tool.id}
-              className={cx('side-menu__nav-link-container', {
-                'side-menu__nav-link-container--active': currentPage === tool.id,
-              })}
-            >
+            <div key={tool.id} className={getNavLinkContainerClassName(currentPage === tool.id)}>
               <Link
                 href={tool.path}
                 className={cx('side-menu__nav-link')}
@@ -168,10 +178,10 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
             </div>
           ))}
 
-          <div className={cx('side-menu__nav-link-container')}>
+          <div className={getNavLinkContainerClassName(false)}>
             <button className={cx('side-menu__nav-link')} onClick={() => setIsAboutInfoOpen(true)}>
               {getNavLinkImage(RushedForgeryImageUrl, 'About logo')}
-              About
+              {getNavLinkText('About')}
             </button>
           </div>
         </nav>
@@ -181,9 +191,8 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
         {getInfoTitle('cardex')}
 
         <p className={cx('info-last-paragraph')}>
-          A codex and multi-search tool for all the cards available in <b>Dawncaster</b>. Has
-          several options for filtering, tracking, and formatting the output, to help you plan out
-          your run!
+          Codex and multi-search tool for all the cards available in <b>Dawncaster</b>. Has several
+          options for filtering, tracking, and formatting the output, to help you plan out your run!
         </p>
 
         <div className={cx('info-divider')} />
@@ -191,7 +200,7 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
         {getInfoTitle('skilldex')}
 
         <p className={cx('info-last-paragraph')}>
-          A codex and talent-tree vizualisation of all the talents and infernal offers available in{' '}
+          Codex and talent-tree vizualisation of all the talents and infernal offers available in{' '}
           <b>Dawncaster</b>. Includes several options to narrow down the results and track down the
           talents you need for your run!
         </p>
@@ -204,6 +213,16 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
           Fully mapped out event trees for all events available in <b>Dawncaster</b>. See all
           dialogue options, along with their requirements and rewards, so that you can get the best
           outcome from each event!
+        </p>
+
+        <div className={cx('info-divider')} />
+
+        {getInfoTitle('booty')}
+
+        <p className={cx('info-last-paragraph')}>
+          Full breakdown of every treasure card in <b>Dawncaster</b>, and the different ways to find
+          them during your runs. Along with an overview of the treasure pools behind each
+          treasure-delving card, talent and event!
         </p>
 
         <div className={cx('info-divider')} />

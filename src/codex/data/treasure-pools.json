@@ -1,0 +1,100 @@
+[
+  {
+    "pool": "A",
+    "name": "Delve Treasure",
+    "contains": ["Treasure", "Equipment", "Items"],
+    "predicate": "NOT Junk/Companion",
+    "useAllCardSets": false,
+    "size": 102,
+    "keywordShare": 14,
+    "reachedBy": [
+      {
+        "card": "Booty",
+        "command": "delvebytag"
+      },
+      {
+        "card": "Shovel",
+        "command": "delvebytag"
+      }
+    ]
+  },
+  {
+    "pool": "B",
+    "name": "Pirate Parlour",
+    "contains": ["Treasure", "Maps", "Locations", "Pirate Ink"],
+    "predicate": "NOT owned Uniques AND NOT Unplayable",
+    "useAllCardSets": true,
+    "size": 31,
+    "tatoosAdded": "0-5",
+    "reachedBy": [
+      {
+        "talent": "Pirate Parlour",
+        "command": "pirateparlour"
+      }
+    ]
+  },
+  {
+    "pool": "C",
+    "name": "keyword, ungated",
+    "contains": ["Treasure"],
+    "predicate": null,
+    "useAllCardSets": false,
+    "size": 14,
+    "reachedBy": [
+      {
+        "card": "Explorer's Trick",
+        "command": "setrewardstokeyword"
+      },
+      {
+        "event": "Broken Tombstone",
+        "command": "addcardbykeyword"
+      },
+      {
+        "event": "Marrow Halls",
+        "command": "delvefromany"
+      },
+      {
+        "event": "Painted Landscape",
+        "command": "addcardbykeyword"
+      },
+      {
+        "event": "Survey the Field",
+        "command": "delvefromany"
+      },
+      {
+        "event": "Undisturbed Grave",
+        "command": "addcardbykeyword"
+      },
+      {
+        "event": "Vault Door",
+        "command": "delvefromany"
+      },
+      {
+        "event": "Vesparin Vault",
+        "command": "delvefromany"
+      }
+    ]
+  },
+  {
+    "pool": "D",
+    "name": "keyword, acquirable",
+    "contains": ["Treasure"],
+    "predicate": "canBeAcquired AND PlayerCanCastCard",
+    "useAllCardSets": false,
+    "size": 7,
+    "reachedBy": [
+      {
+        "event": "Molekin Burrow",
+        "command": "delvefromkeyword"
+      },
+      {
+        "event": "Rotting Residence",
+        "command": "delvefromkeyword"
+      },
+      {
+        "event": "The Cocoon",
+        "command": "delvefromkeyword"
+      }
+    ]
+  }
+]

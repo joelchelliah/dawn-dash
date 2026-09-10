@@ -1,5 +1,5 @@
 import { createCx } from '@/shared/utils/classnames'
-import GradientDivider from '@/shared/components/GradientDivider'
+import Divider from '@/shared/components/Divider'
 
 import styles from './index.module.scss'
 
@@ -25,7 +25,7 @@ function ButtonRow({
 
   return (
     <div className={cx('button-row-container')}>
-      {includeBorder && <GradientDivider spacingBottom="lg" />}
+      {includeBorder && <Divider spacingBottom="lg" />}
       <div className={buttonRowClassName}>{children}</div>
     </div>
   )

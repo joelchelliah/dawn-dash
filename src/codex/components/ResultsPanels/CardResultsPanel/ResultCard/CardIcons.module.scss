@@ -35,7 +35,7 @@ $rarity-sizes: (
   ),
 );
 
-$rarity-colours: (
+$rarity-colors: (
   'common': $color-rarity-common,
   'uncommon': $color-rarity-uncommon,
   'rare': $color-rarity-rare,
@@ -45,9 +45,9 @@ $rarity-colours: (
 
 // In px so it can be combined with the artwork sizes when positioning the icons on its corners.
 $overlap-icon-plate-size: 22px;
-$overlap-icon-plate-colour: rgba(0, 0, 0, 0.75);
+$overlap-icon-plate-color: rgba(0, 0, 0, 0.75);
 
-// While overlapping, the icons are *centred on* the artwork's top-right and bottom-right corners.
+// While overlapping, the icons are *centered on* the artwork's top-right and bottom-right corners.
 //
 // `$overlap-icon-inset` pulls both icons back inward from the corners.
 $overlap-icon-inset: 2px;
@@ -75,10 +75,10 @@ $overlap-icon-pill-offset: -4px;
   width: $overlap-icon-plate-size;
   height: $overlap-icon-plate-size;
   border-radius: 50%;
-  background-color: $overlap-icon-plate-colour;
+  background-color: $overlap-icon-plate-color;
   // `color-mix` so that we can have an opacity on the plate border.
   border: 1px solid
-    color-mix(in srgb, var(--rarity-colour, #{$color-component-border}) 60%, transparent);
+    color-mix(in srgb, var(--rarity-color, #{$color-component-border}) 60%, transparent);
 }
 
 .card-icons {
@@ -91,9 +91,9 @@ $overlap-icon-pill-offset: -4px;
 
   // Feeds the plate borders in `overlap-icon-plate`. Declared on the column because the rarity class
   // sits on the glyph, which is too deep for the plate wrappers to key off.
-  @each $name, $colour in $rarity-colours {
+  @each $name, $color in $rarity-colors {
     &--#{$name} {
-      --rarity-colour: #{$colour};
+      --rarity-color: #{$color};
     }
   }
 
@@ -118,12 +118,9 @@ $overlap-icon-pill-offset: -4px;
     }
   }
 
-  // Hover feedback, driven from the row. `.result-card-hoverable` is an unhashed marker class that
-  // `ResultCard` adds alongside its own hashed one.
-  //
   // On the column, not the icons: the rarity glyphs and the paw/cross pill already use `transform`
   // while overlapping, and a second one on the same element would replace it rather than compose.
-  :global(.result-card-hoverable):hover & {
+  :global(.hoverable):hover & {
     animation: tinySqueeze 0.25s ease-out;
   }
 }
@@ -137,7 +134,7 @@ $overlap-icon-pill-offset: -4px;
       @extend .card-icons__rarity;
       width: list.nth($size, 1);
       height: list.nth($size, 2);
-      color: map.get($rarity-colours, $name);
+      color: map.get($rarity-colors, $name);
     }
   }
 

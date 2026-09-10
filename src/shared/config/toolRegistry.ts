@@ -4,6 +4,7 @@ import {
   MapOfHuesImageUrl,
   PestilenceDecreeUrl,
   DashImageUrl,
+  TreasureImageUrl,
 } from '../utils/imageUrls'
 
 export interface ToolDefinition {
@@ -11,10 +12,13 @@ export interface ToolDefinition {
   path: string
   title: string
   ogTitle: string
+  // Doubles as the SEO meta description as well as the landing page's desktop hover panel.
+  // Google truncates the search snippet around 155 characters, so keep it under that!
   description: string
+  // Landing page mobile card only; the hover panel is pointer-only so the two never co-render.
+  // Keep it short!
   shortDescription: string
-  // SEO copy rendered by PageHead — distinct from the landing-page descriptions above
-  metaDescription: string
+  // Discord/Slack/Twitter card blurb. For readers who already know the game.
   ogDescription: string
   ogImage: string
   logoImage: string
@@ -33,11 +37,9 @@ export const TOOL_REGISTRY: ToolDefinition[] = [
     title: 'Cardex',
     ogTitle: '🃏 Cardex',
     description:
-      'An interactive codex of all the cards available in Dawncaster, with advanced search and filtering options to help you find and track your cards throughout your runs!',
+      'An interactive codex of all the cards in Dawncaster, with advanced search and filtering options to help you find and track your cards through your runs!',
     shortDescription:
-      'An interactive codex of all the cards in Dawncaster, with advanced search and filtering options!',
-    metaDescription:
-      'Interactive Dawncaster cards codex, with advanced search and filtering options to find and track your cards through your runs!',
+      'A visual codex of all the cards in Dawncaster, with advanced search and filtering!',
     ogDescription:
       'Search and track all Dawncaster cards through your runs, with advanced filtering options!',
     ogImage: 'https://www.dawn-dash.com/og-image-cardex.png',
@@ -52,13 +54,11 @@ export const TOOL_REGISTRY: ToolDefinition[] = [
     title: 'Skilldex',
     ogTitle: '🎯 Skilldex',
     description:
-      'An interactive codex and skill-tree visualizer of all the talents available in Dawncaster, with advanced search and filtering options to find all talents and their requirements!',
+      'An interactive skill-tree visualizer for all the talents in Dawncaster, with advanced search and filtering to find every talent and its requirements!',
     shortDescription:
-      'An interactive codex of all the talents in Dawncaster, with advanced search and filtering options!',
-    metaDescription:
-      'Interactive Dawncaster talents codex, with advanced search and filtering options to find and show all talents and their requirements!',
+      'Skill trees of all the talents in Dawncaster, with advanced search and filtering!',
     ogDescription:
-      'Search and filter through all Dawncaster talents and their requirements, visualized as tiny talent trees!',
+      'Browse and filter through all Dawncaster talents and their requirements, shown as tiny skill trees!',
     ogImage: 'https://www.dawn-dash.com/og-image-skilldex.png',
     logoImage: 'https://www.dawn-dash.com/logo-skilldex.png',
     landingImage: '/landing-skilldex.webp',
@@ -71,13 +71,11 @@ export const TOOL_REGISTRY: ToolDefinition[] = [
     title: 'Eventmaps',
     ogTitle: '🗺 Eventmaps',
     description:
-      'Fully mapped out event trees of all the events in Dawncaster, letting you explore all the possible branching paths, dialogue options, rewards, and dangers of each event!',
+      'Fully mapped out event trees for every event in Dawncaster, letting you explore all the branching paths, dialogue options, and rewards!',
     shortDescription:
-      'Fully mapped out event trees for all events in Dawncaster, showing all options and rewards for each event!',
-    metaDescription:
-      'Interactive Dawncaster events codex, with fully mapped out branches and options, to help you get the best outcome from each event!',
+      'Event trees for all events in Dawncaster, showing all paths, dialogue and rewards!',
     ogDescription:
-      'Explore all Dawncaster events, as fully mapped out event trees, including all dialogue options, requirements and rewards!',
+      'Explore every Dawncaster event, as a fully mapped out event tree, with all dialogue options and rewards!',
     ogImage: 'https://www.dawn-dash.com/og-image-eventmaps.png',
     logoImage: 'https://www.dawn-dash.com/logo-eventmaps.png',
     landingImage: '/landing-eventmaps.webp',
@@ -85,18 +83,31 @@ export const TOOL_REGISTRY: ToolDefinition[] = [
     legacyPaths: ['/codex/events'],
   },
   {
+    id: 'booty',
+    path: '/booty',
+    title: 'Booty',
+    ogTitle: '🪎 Booty',
+    description:
+      'A full breakdown of every treasure card in Dawncaster, and all the various ways of acquiring them through cards, talents and events!',
+    shortDescription: 'A breakdown of all treasure cards in Dawncaster, and how to find them!',
+    ogDescription:
+      'Delve into all the available treasure cards in Dawncaster, and the secrets to finding them!',
+    ogImage: 'https://www.dawn-dash.com/og-image-booty.png',
+    logoImage: 'https://www.dawn-dash.com/logo-booty.png',
+    landingImage: '/landing-booty.webp',
+    navIcon: TreasureImageUrl,
+  },
+  {
     id: 'scoring',
     path: '/scoring',
     title: 'Scoring',
     ogTitle: '🧮 Scoring',
     description:
-      'Detailed Dawncaster scoring guides, specifically tailored to each game mode, to help you maximize your scores in Standard, Sunforge, and the Weekly Challenges!',
-    shortDescription:
-      'Detailed Dawncaster scoring guides, covering Standard mode, Sunforge, and the Weekly Challenges!',
-    metaDescription:
       'Detailed Dawncaster scoring guides, specifically tailored to help you maximize your scores in Standard mode, Sunforge, and the Weekly Challenges!',
+    shortDescription:
+      'Dawncaster scoring guides, for Standard mode, Sunforge, and the Weekly Challenges!',
     ogDescription:
-      'Detailed Dawncaster scoring guides, for Standard mode, Sunforge, and the Weekly Challenges!',
+      'Maximize your scores in Standard mode, Sunforge, or any of the Weekly Challenges runs!',
     ogImage: 'https://www.dawn-dash.com/og-image-scoring.png',
     logoImage: 'https://www.dawn-dash.com/logo-scoring.png',
     landingImage: '/landing-scoring.webp',
@@ -108,13 +119,11 @@ export const TOOL_REGISTRY: ToolDefinition[] = [
     title: 'Speedruns',
     ogTitle: '🏃‍♂️ Speedruns',
     description:
-      'Speedrun charts, records, and statistics for all game modes and difficulties in Dawncaster, based on player-submitted data from Blightbane.io!',
+      'Interactive Dawncaster speedrun charts, records, and stats across all game modes, classes and difficulties, based on data from Blightbane.io!',
     shortDescription:
-      'Speedrun charts, records, and statistics for all game modes and difficulties in Dawncaster!',
-    metaDescription:
-      'Interactive Dawncaster speedrun charts, showing world records, fastest times, and leaderboards across all modes, classes and difficulties!',
+      'Speedrun charts, records, and stats for all game modes and difficulties in Dawncaster!',
     ogDescription:
-      'Check out the fastest Dawncaster speedruns! Compare live records across all modes, classes and difficulties!',
+      'Check out the fastest Dawncaster runs, and compare live records across all modes and difficulties!',
     ogImage: 'https://www.dawn-dash.com/og-image-speedruns.png',
     logoImage: 'https://www.dawn-dash.com/logo-speedruns.png',
     landingImage: '/landing-speedruns.webp',

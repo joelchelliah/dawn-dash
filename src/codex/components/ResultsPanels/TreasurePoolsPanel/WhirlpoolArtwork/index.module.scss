@@ -1,0 +1,227 @@
+@use 'index' as *;
+
+@function swirl($amount, $color: var(--whirlpool-color)) {
+  @return color-mix(in srgb, $color $amount, transparent);
+}
+
+@mixin ring-mask($stops...) {
+  mask: radial-gradient(closest-side, $stops...);
+  -webkit-mask: radial-gradient(closest-side, $stops...);
+}
+
+@mixin artwork-glow($blur, $spread, $color) {
+  box-shadow: 0 0 calc(var(--whirlpool-scale) * $blur) calc(var(--whirlpool-scale) * $spread) $color;
+}
+
+// How far each swirling ring extends past the artwork, and how far the artwork's glow spreads —
+// both as fractions of the artwork's own size.
+$swirl-bleed-outer: 0.2;
+$swirl-bleed-inner: 0.1;
+
+$glow-blur: 0.3;
+$glow-spread: 0.05;
+$glow-blur-hover: 0.4;
+$glow-spread-hover: 0.1;
+
+// Swirl durations
+$swirl-duration-outer: 6s;
+$swirl-duration-inner: 11s;
+$swirl-duration-outer-hover: 3s;
+$swirl-duration-inner-hover: 5s;
+
+// Swirl opacities
+$swirl-opacity-outer: 0.7;
+$swirl-opacity-inner: 0.5;
+$swirl-opacity-outer-hover: 1;
+$swirl-opacity-inner-hover: 0.75;
+
+// The rings grow on hover to eat into the space around the artwork.
+$swirl-scale-hover: 1.2;
+$swirl-scale-hover-inner: 1.2;
+
+/*
+ * Round artwork ringed by a whirlpool. Size comes from `--whirlpool-size` /
+ * `--whirlpool-size-mobile` and color from `--whirlpool-color` / `--whirlpool-color-accent`,
+ * all set inline by the component — so a pool picks its own accent without a stylesheet change.
+ */
+.whirlpool {
+  position: relative;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  // The one length every derived measurement below is a fraction of.
+  --whirlpool-scale: var(--whirlpool-size);
+
+  width: var(--whirlpool-scale);
+  height: var(--whirlpool-scale);
+
+  @media (max-width: $breakpoint-mobile) {
+    --whirlpool-scale: var(--whirlpool-size-mobile);
+  }
+
+  /*
+   * A swirling ring. The conic gradient is hollowed into a ring by a radial mask, so the artwork
+   * never sits on a tinted disc.
+   *
+   * The choppiness comes from the two rings disagreeing: each has an uneven gradient with hard-ish
+   * color stops, and they turn in opposite directions at different speeds, so the visible edge is
+   * never the same shape twice. A single smoothly-interpolated ring just reads as a spinning disc
+   * no matter how it's masked.
+   */
+  /*
+   * The rings' rotation lives in a keyframe `transform`, which would overwrite a `scale` set on
+   * the same element — so the hover growth is applied to this wrapper instead. Its own box stays
+   * put, so a growing ring never nudges the card's layout.
+   */
+  &__swirl-scaler {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    transition: transform 0.4s ease-out;
+  }
+
+  &__swirl {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+    transition: opacity 0.35s ease-out;
+  }
+
+  &__swirl--outer {
+    inset: calc(var(--whirlpool-scale) * #{-$swirl-bleed-outer});
+    opacity: $swirl-opacity-outer;
+
+    // Uneven stops with abrupt jumps: the closely-spaced pairs read as crests, the wide transparent
+    // gaps as troughs.
+    background: conic-gradient(
+      from 0deg,
+      transparent 0deg,
+      swirl(70%) 22deg,
+      var(--whirlpool-color-accent) 38deg,
+      swirl(40%) 62deg,
+      transparent 96deg,
+      swirl(85%) 130deg,
+      var(--whirlpool-color-accent) 148deg,
+      transparent 186deg,
+      transparent 214deg,
+      swirl(60%) 240deg,
+      var(--whirlpool-color-accent) 262deg,
+      swirl(30%) 292deg,
+      transparent 318deg,
+      swirl(55%) 344deg,
+      transparent 360deg
+    );
+
+    // A slightly ragged ring: the mask's mid stops are close together, so the fade in and out is
+    // sharp enough to keep the crests looking like separate wisps.
+    @include ring-mask(transparent 58%, #000 72%, #000 88%, transparent 100%);
+
+    animation: whirlpoolSpin $swirl-duration-outer linear infinite;
+  }
+
+  &__swirl--inner {
+    inset: calc(var(--whirlpool-scale) * #{-$swirl-bleed-inner});
+    opacity: $swirl-opacity-inner;
+
+    /*
+     * The outer ring's stop *rhythm* — the same uneven spacing that gives it crests and troughs —
+     * rather than a structure of its own, which spaced its stops too evenly to read as anything but
+     * a spinning disc. Every stop is perturbed a few degrees off the outer's, so counter-rotating at
+     * a different speed the two never resolve into one thick doubled spoke.
+     *
+     * The outer's 186deg-214deg flat dead zone is deliberately *not* copied: this ring is a narrower
+     * annulus hugging the artwork, where a hard break reads as a bite taken out of it rather than as
+     * a gap between wisps. It gets a single transparent point instead.
+     */
+    background: conic-gradient(
+      from 140deg,
+      transparent 0deg,
+      swirl(65%) 26deg,
+      var(--whirlpool-color-accent) 44deg,
+      swirl(35%) 58deg,
+      transparent 92deg,
+      swirl(80%) 136deg,
+      var(--whirlpool-color-accent) 152deg,
+      transparent 198deg,
+      swirl(55%) 234deg,
+      var(--whirlpool-color-accent) 268deg,
+      swirl(25%) 286deg,
+      transparent 324deg,
+      swirl(60%) 338deg,
+      transparent 360deg
+    );
+
+    // Fades out before the edge rather than running opaque into `border-radius`' hard circular clip,
+    // which reads as a solid disc boundary and flattens the gradient's variation into mere texture.
+    @include ring-mask(transparent 62%, #000 78%, #000 92%, transparent 100%);
+
+    // Counter-rotating, so the two edges beat against each other instead of travelling together.
+    animation: whirlpoolSpinReverse $swirl-duration-inner linear infinite;
+  }
+
+  &__artwork {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 1px solid swirl(70%);
+    background-color: rgba(255, 255, 255, 0.1);
+    @include artwork-glow($glow-blur, $glow-spread, swirl(30%));
+    transition: box-shadow 0.35s ease-out;
+  }
+
+  /*
+   * Hover feedback, driven from whichever ancestor carries the trigger marker. The rings brighten
+   * and speed up while the artwork pops, so the card responds as one. `animation-duration` is not
+   * transitionable, so the speed-up is an instant swap — it reads fine because the brightening
+   * ramps alongside it.
+   */
+  :global(.hoverable):hover & {
+    &__swirl-scaler--outer {
+      transform: scale($swirl-scale-hover);
+    }
+
+    &__swirl-scaler--inner {
+      transform: scale($swirl-scale-hover-inner);
+    }
+
+    &__swirl--outer {
+      opacity: $swirl-opacity-outer-hover;
+      animation-duration: $swirl-duration-outer-hover;
+    }
+
+    &__swirl--inner {
+      opacity: $swirl-opacity-inner-hover;
+      animation-duration: $swirl-duration-inner-hover;
+    }
+
+    &__artwork {
+      animation: tinyPop 0.4s ease-out;
+      @include artwork-glow(
+        $glow-blur-hover,
+        $glow-spread-hover,
+        swirl(70%, var(--whirlpool-color-accent))
+      );
+    }
+  }
+}
+
+@keyframes whirlpoolSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes whirlpoolSpinReverse {
+  from {
+    transform: rotate(360deg);
+  }
+  to {
+    transform: rotate(0deg);
+  }
+}

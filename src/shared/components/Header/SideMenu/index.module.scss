@@ -130,8 +130,10 @@ $button-active-scale: 1;
       background-color: $color-list-bg-hover;
       border-bottom: 1px solid $color-component-border;
 
-      .side-menu__nav-link {
+      .side-menu__nav-link__text {
         font-weight: 600;
+
+        @include tinyNudgeRightAnimation;
         @include yellowGreenGradient(true);
       }
     }
@@ -140,7 +142,7 @@ $button-active-scale: 1;
       background-color: $color-list-bg-active;
       font-weight: 500;
 
-      .side-menu__nav-link {
+      .side-menu__nav-link__text {
         @include yellowGreenGradient(false);
       }
     }
@@ -178,10 +180,6 @@ $button-active-scale: 1;
       }
     }
 
-    &__icon {
-      @include rotateY360Animation('hover', '.side-menu__nav-link:hover');
-    }
-
     &__loading-dots {
       font-size: font-size('xs');
       margin-left: 0.75rem;
@@ -195,9 +193,14 @@ $button-active-scale: 1;
   gap: 0.5rem;
 
   img {
-    height: 1.5rem;
-    width: 1.5rem;
-    border-radius: 20px;
+    height: 1.75rem;
+    width: 1.75rem;
+    border-radius: 25px;
+
+    @media (max-width: $breakpoint-mobile) {
+      height: 1.5rem;
+      width: 1.5rem;
+    }
   }
 }
 

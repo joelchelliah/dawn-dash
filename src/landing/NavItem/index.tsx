@@ -1,3 +1,5 @@
+import { CSSProperties } from 'react'
+
 import Link from 'next/link'
 
 import Image from '@/shared/components/Image'
@@ -9,6 +11,7 @@ const cx = createCx(styles)
 
 interface NavItemProps {
   url: string
+  style?: CSSProperties
   imageSrc: string
   alt: string
   mobileDescription: string
@@ -19,6 +22,7 @@ interface NavItemProps {
 
 export default function NavItem({
   url,
+  style,
   imageSrc,
   alt,
   mobileDescription,
@@ -38,6 +42,7 @@ export default function NavItem({
     <Link
       href={url}
       className={cx('nav-item')}
+      style={style}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
     >

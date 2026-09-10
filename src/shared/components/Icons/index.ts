@@ -1,4 +1,5 @@
 export { ArrowIcon } from './ArrowIcon'
+export { CheckIcon } from './CheckIcon'
 export { CircleIcon } from './CircleIcon'
 export { CloseIcon } from './CloseIcon'
 export { CloseMenuIcon } from './CloseMenuIcon'
