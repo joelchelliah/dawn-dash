@@ -191,9 +191,8 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
         {getInfoTitle('cardex')}
 
         <p className={cx('info-last-paragraph')}>
-          A codex and multi-search tool for all the cards available in <b>Dawncaster</b>. Has
-          several options for filtering, tracking, and formatting the output, to help you plan out
-          your run!
+          Codex and multi-search tool for all the cards available in <b>Dawncaster</b>. Has several
+          options for filtering, tracking, and formatting the output, to help you plan out your run!
         </p>
 
         <div className={cx('info-divider')} />
@@ -201,7 +200,7 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
         {getInfoTitle('skilldex')}
 
         <p className={cx('info-last-paragraph')}>
-          A codex and talent-tree vizualisation of all the talents and infernal offers available in{' '}
+          Codex and talent-tree vizualisation of all the talents and infernal offers available in{' '}
           <b>Dawncaster</b>. Includes several options to narrow down the results and track down the
           talents you need for your run!
         </p>
@@ -214,6 +213,16 @@ const SideMenu = ({ currentPage }: SideMenuProps) => {
           Fully mapped out event trees for all events available in <b>Dawncaster</b>. See all
           dialogue options, along with their requirements and rewards, so that you can get the best
           outcome from each event!
+        </p>
+
+        <div className={cx('info-divider')} />
+
+        {getInfoTitle('booty')}
+
+        <p className={cx('info-last-paragraph')}>
+          Full breakdown of every treasure card in <b>Dawncaster</b>, and the different ways to find
+          them during your runs. Along with an overview of the treasure pools behind each
+          treasure-delving card, talent and event!
         </p>
 
         <div className={cx('info-divider')} />

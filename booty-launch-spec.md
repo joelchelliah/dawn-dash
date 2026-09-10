@@ -1,6 +1,6 @@
 # Spec: launch Booty publicly
 
-**Status: tasks 1–3 COMPLETED. Next up: task 4 (the About-section paragraph).**
+**Status: tasks 1–6 COMPLETED. Next up: task 7 (the launch switch — remove `unlisted: true`).**
 
 Booty is functionally complete and shipped behind `unlisted: true` — reachable at `/booty`, hidden
 from the landing page and side menu, `noindex, nofollow`. This spec covers everything between that
@@ -207,7 +207,7 @@ One cosmetic inconsistency, not worth acting on: the three new PNGs are **interl
 all existing ones are non-interlaced — an artifact of the export tool. Interlacing usually makes PNGs
 slightly larger and is irrelevant here, since neither asset is ever progressively rendered.
 
-### 4. Write the Booty paragraph for the About section
+### 4. Write the Booty paragraph for the About section — COMPLETED
 
 In the `InfoModal` in `src/shared/components/Header/SideMenu/index.tsx` (~lines 190–240). Insert in
 registry order — **after Eventmaps, before Scoring**:
@@ -236,7 +236,11 @@ Two things to get right:
 **Verify:** open the About modal from the side menu; check Booty sits between Eventmaps and Scoring
 with correct spacing and dividers above and below.
 
-### 5. Add `/booty` to the sitemap
+**Outcome:** section added between Eventmaps and Scoring, following the established pattern —
+`getInfoTitle('booty')`, one `info-last-paragraph`, then an `info-divider`. Speedruns still has no
+divider after it, as before. **Prose is a first draft for the user to tweak.**
+
+### 5. Add `/booty` to the sitemap — COMPLETED
 
 `scripts/generate-sitemap.js` lists tool URLs manually — the comment there says exactly this ("Add a
 tool here when it launches"). Add:
@@ -255,7 +259,21 @@ tool here when it launches"). Add:
 **Verify:** `npm run sync-events` (regenerates the sitemap), then confirm `/booty` is present in
 `public/sitemap.xml` and the URL count went up by one.
 
-### 6. Update the README
+**Outcome:** entry added between `/eventmaps` and `/speedruns` (registry order in the array), at
+priority `0.8`. Sitemap regenerated: **217 → 218 URLs**, static pages 6 → 7, `/booty` present.
+
+**Correction to this spec: `npm run sync-events` does NOT regenerate the sitemap.** Nothing in
+`package.json` or `scripts/` invokes `generate-sitemap.js` — there is no npm script for it, and
+`sync-all.js` does not call it either. The `add-new-tool` skill has it right: run
+**`node scripts/generate-sitemap.js`** directly. Running `sync-events` instead is actively
+counterproductive here — it re-parses `scripts/data/events.json` and rewrote two unrelated event
+texts in `event-trees.json` (an "Opportunity" dialogue and a "Focus on the Succubus" choice label),
+which had to be reverted. Don't run it as part of the sitemap step.
+
+Apart from the new `/booty` block, the sitemap diff is entirely `lastmod` dates — every entry is
+stamped with today's date on each regeneration, so a large diff there is expected and harmless.
+
+### 6. Update the README — COMPLETED
 
 Add a `## 🪎 Booty` section between Eventmaps and Scoring, following the existing shape: blurb →
 `**Check it out**:` link → og-image thumbnail linking to the live page.
@@ -269,6 +287,20 @@ alt text `Eventmaps`** (`[![Eventmaps](./public/og-image-scoring.png ...)]`).
 
 **Verify:** README renders correctly on GitHub — in particular that the new thumbnail resolves
 (depends on task 3).
+
+**Outcome:** `## 🪬 Booty` added between Eventmaps and Scoring, matching the Cardex/Skilldex shape
+(blurb → bullets → `**Check it out**:` link → og-image thumbnail). **Prose is a first draft for the
+user to tweak.**
+
+**Only one alt-text bug existed, not two.** The spec says Eventmaps and Scoring both use alt text
+`Eventmaps`; in fact the Eventmaps thumbnail's own alt text was already correct — only Scoring's was
+wrong, and it is now `Scoring`. (Speedruns uses `Dawn-Dash` rather than `Speedruns` — left as is,
+since it reads as deliberate for the first thumbnail in the file.)
+
+Emoji: the README heading uses **`🪎`** (U+1FA8E), matching the registry's
+`ogTitle: '🪎 Booty'` exactly — verified by codepoint, since it renders near-identically to
+`🪬` (hamsa) in many fonts and is easy to swap by accident. Task 12 checks that same glyph in a
+Discord embed.
 
 ### 7. Remove `unlisted: true` — the launch switch
 
