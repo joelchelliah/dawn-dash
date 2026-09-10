@@ -14,7 +14,7 @@ import { useEffect, useRef, useState } from 'react'
  * above 50 is below the middle) and how tall it is.
  */
 const BAND_CENTER = 60
-const BAND_HEIGHT = 30
+const BAND_HEIGHT = 40
 
 // `rootMargin` insets each edge from itself, so the band is expressed as the space above and below it.
 const BAND_INSET_TOP = BAND_CENTER - BAND_HEIGHT / 2
