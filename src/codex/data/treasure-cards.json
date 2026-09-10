@@ -595,10 +595,6 @@
         "command": "addcard"
       },
       {
-        "event": "Hungry Humoculus",
-        "command": "addcard"
-      },
-      {
         "event": "Purpleberries",
         "command": "addcard"
       }
