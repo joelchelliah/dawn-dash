@@ -1,7 +1,8 @@
 # Spec: launch Booty publicly
 
-**Status: tasks 1–9 COMPLETED. Booty is publicly listed. Next up: the pre-launch verification pass
-(tasks 10–14), done by the user — 10–13 in the browser, 14 in Search Console after deploying.**
+**Status: tasks 1–13 COMPLETED. Booty is publicly listed and deployed to production; the browser
+verification pass (10–13) is done. Remaining: task 14, Search Console registration against the live
+site.**
 
 Booty is functionally complete and shipped behind `unlisted: true` — reachable at `/booty`, hidden
 from the landing page and side menu, `noindex, nofollow`. This spec covers everything between that
@@ -385,7 +386,7 @@ tool count and would have contradicted the line above it, so it was updated too.
 
 ## Pre-launch verification pass
 
-### 10. Visual check across states
+### 10. Visual check across states — COMPLETED
 
 Mobile / tablet / desktop. Treasure modal open with long pool lists and with cards both with and
 without hints. Pool notes above **and** below the tag sections. Both panels' **loading and error**
@@ -393,7 +394,7 @@ states — `useCardData` fetches live from Blightbane, so a failed fetch is a re
 
 The user runs the dev server and does the comparison.
 
-### 11. Confirm the dev-only drift warnings are silent
+### 11. Confirm the dev-only drift warnings are silent — COMPLETED
 
 A clean console on the current data set confirms every join resolves:
 
@@ -409,13 +410,13 @@ A clean console on the current data set confirms every join resolves:
 Note `POOL_NOTES` is a `Record<PoolId, PoolNotes>`, so a pool missing copy fails to **compile** —
 that's deliberate, and why there's no runtime warning for it.
 
-### 12. Check the `🪎` og emoji renders in a Discord embed
+### 12. Check the `🪎` og emoji renders in a Discord embed — COMPLETED
 
 `ogTitle` is `'🪎 Booty'` — the nazar amulet is an unusual glyph. Discord is the primary sharing
 target and it's the one thing that can't be fixed after the link is out. Check the embed shows the
 emoji, the og image, and `dawn-dash.com/booty` as the site name.
 
-### 13. Check the `card-artwork` cache bucket sizing
+### 13. Check the `card-artwork` cache bucket sizing — COMPLETED
 
 Booty renders treasure artwork from `/images/icons/**`, sharing the 1500-entry `card-artwork` bucket
 with Cardex. Treasure counts are small (~27KB of card data), so this is very likely fine — confirm in

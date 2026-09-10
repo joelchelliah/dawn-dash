@@ -57,6 +57,11 @@ export default withPWA({
   // over HTTP. Precaching is atomic, so a single 404 fails the whole install with
   // `bad-precaching-response` — which silently takes the runtimeCaching rules below with it.
   buildExcludes: [/dynamic-css-manifest\.json$/],
+  // Not the same thing as buildExcludes above: that one filters `.next/static`, this one filters
+  // `public/`. The og-images and logos are metadata-only — emitted as og:image/twitter:image URLs
+  // and as the JSON-LD `image` field — so they are fetched by third-party scrapers, never by a
+  // browser running the app.
+  publicExcludes: ['!noprecache/**/*', '!og-image-*.png', '!logo-*.png'],
   runtimeCaching: [
     // Card/talent artwork (and the scoring panels' hardcoded icons) live under /images/icons/.
     // This bucket is separate from the one below and listed first — Workbox uses the first
