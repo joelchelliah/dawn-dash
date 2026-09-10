@@ -97,7 +97,6 @@ export const TOOL_REGISTRY: ToolDefinition[] = [
     logoImage: 'https://www.dawn-dash.com/logo-booty.png',
     landingImage: '/landing-booty.webp',
     navIcon: TreasureImageUrl,
-    unlisted: true,
   },
   {
     id: 'scoring',

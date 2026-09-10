@@ -60,7 +60,7 @@ A **Treasures Codex** tool, breaking down every treasure card in the game, and a
 
 **Check it out here**: [Booty](https://dawn-dash.com/booty)
 
-[![Booty](./public/og-image-booty.png "Click to visit Booty")](https://dawn-dash.com/booty)
+[![Booty](./public/og-image-booty.png "Click to see some Booty")](https://dawn-dash.com/booty)
 
 ----------
 
@@ -85,7 +85,7 @@ Time tracking of all speedrun attempts, for all game modes, classes and difficul
 
 **Check it out here**: [Speedruns](https://dawn-dash.com/speedruns)
 
-[![Dawn-Dash](./public/og-image-speedruns.png "Click to visit Speedruns")](https://dawn-dash.com/speedruns)
+[![Speedruns](./public/og-image-speedruns.png "Click to visit Speedruns")](https://dawn-dash.com/speedruns)
 
 ----------
 

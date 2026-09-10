@@ -74,12 +74,12 @@ operationally — the sequence they should be built in, not a topical grouping.
 
 ## Project Architecture
 
-This is a Next.js application (dawn-dash.com) for Dawncaster game data visualization with **five tools**: Speedruns, Cardex, Skilldex, Eventmaps, and Scoring.
+This is a Next.js application (dawn-dash.com) for Dawncaster game data visualization with **six tools**: Speedruns, Cardex, Skilldex, Eventmaps, Booty, and Scoring.
 
 ### Core Structure
 - **Next.js 15** (pages router) with React 18, TypeScript, and SCSS modules
 - **`/pages`**: thin page components — one per tool, plus `pages/eventmaps/[event].tsx` for per-event pages
-- **`/src`**: application logic organized by feature: `landing/`, `speedruns/`, `codex/` (Cardex + Skilldex + Eventmaps), `scoring/`, `shared/`
+- **`/src`**: application logic organized by feature: `landing/`, `speedruns/`, `codex/` (Cardex + Skilldex + Eventmaps + Booty), `scoring/`, `shared/`
 - **Supabase backend**: database and edge functions for **talents** data. Cards are *not* read from Supabase — Cardex fetches them live from the Blightbane API (see Data Layer)
 
 ### Tool Registry
@@ -95,7 +95,8 @@ Each feature directory has its own `CLAUDE.md` with architecture details and inv
 2. **Cardex** (`/cardex`, `src/codex/`) — multi-keyword card search and advanced filtering, plus card tracking for weekly challenges; card data fetched live from the Blightbane API
 3. **Skilldex** (`/skilldex`, `src/codex/`) — interactive talent-tree visualizer (D3 hierarchy) with prerequisite tracking and requirement filters; talent data from Supabase
 4. **Eventmaps** (`/eventmaps`, `src/codex/`) — fully mapped event trees (branches, requirements, rewards) rendered from static `src/codex/data/event-trees.json`
-5. **Scoring** (`/scoring`, `src/scoring/`) — prose-heavy scoring guides per game mode plus real score-calculation logic (`advancedScoring.ts`)
+5. **Booty** (`/booty`, `src/codex/`) — a breakdown of every treasure card and the ways of acquiring it, rendered from static `src/codex/data/treasure-cards.json` / `treasure-pools.json`, with card details joined live from the Blightbane API via `useCardData`
+6. **Scoring** (`/scoring`, `src/scoring/`) — prose-heavy scoring guides per game mode plus real score-calculation logic (`advancedScoring.ts`)
 
 ### Shared Infrastructure (`/src/shared/`)
 **Components**:
@@ -143,7 +144,7 @@ Each feature directory has its own `CLAUDE.md` with architecture details and inv
 
 ### Data Synchronization (two ownership paths)
 - **Supabase Edge Functions** (`supabase/functions/`, Deno) own the **talents** data: `sync-talents` pulls from the Blightbane API into the Supabase `Talents` table; `talents-name` is a public read-only endpoint. `sync-cards` and the `Cards` table still exist but are **dormant** — Cardex stopped reading from Supabase and fetches cards live from Blightbane instead, so nothing consumes what `sync-cards` writes. Deploy with `npx supabase functions deploy <name>`. The root `deno.json` exists **solely** for these edge functions.
-- **Local Node scripts** (`scripts/`) own the **events and artwork** data: `sync-events.js` runs the event pipeline. By default it is **parse-only** — it parses `scripts/data/events.json` (produced by an **external event-extraction tool** and pasted in; nothing in this repo writes it) into `src/codex/data/event-trees.json`, and fails fast if that file is missing. `npm run sync-events -- --from-dump` (the `--` is required, or npm eats the flag and silently runs the default path) runs the legacy in-repo path instead (fetch the Blightbane bundle → extract into `scripts/data/events-from-dump.json` → parse that), which never overwrites the external tool's `events.json`. Both input files are gitignored and share the same shape, so the parse step is agnostic about the source; see `scripts/parse/README.md`. Also: `fetch-card-artwork-mapping.js` writes `src/shared/data/card-artwork.json`; `generate-sitemap.js` builds `public/sitemap.xml` from the event data (tool URLs are hardcoded in it)
+- **Local Node scripts** (`scripts/`) own the **events and artwork** data: `sync-events.js` runs the event pipeline. By default it is **parse-only** — it parses `scripts/data/events.json` (produced by an **external event-extraction tool** and pasted in; nothing in this repo writes it) into `src/codex/data/event-trees.json`, and fails fast if that file is missing. `npm run sync-events -- --from-dump` (the `--` is required, or npm eats the flag and silently runs the default path) runs the legacy in-repo path instead (fetch the Blightbane bundle → extract into `scripts/data/events-from-dump.json` → parse that), which never overwrites the external tool's `events.json`. Both input files are gitignored and share the same shape, so the parse step is agnostic about the source; see `scripts/parse/README.md`. `sync-treasures.js` splits `scripts/data/treasures.json` into `src/codex/data/treasure-cards.json` and `treasure-pools.json` — same ownership story as `events.json`: the input comes from an **external treasure-extraction tool** and is pasted in manually (gitignored; the script fails fast without it). `npm run sync-all` runs `sync-treasures`, `sync-events` and the talents preflight in sequence. Also: `fetch-card-artwork-mapping.js` writes `src/shared/data/card-artwork.json`; `generate-sitemap.js` builds `public/sitemap.xml` from the event data (tool URLs are hardcoded in it)
 - **Speedrun data** is not synced — it is fetched live from the Blightbane API at runtime
 
 ### PWA & Performance
