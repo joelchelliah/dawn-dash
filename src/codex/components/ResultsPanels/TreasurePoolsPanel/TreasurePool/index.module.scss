@@ -20,7 +20,8 @@ $transition-duration: 0.5s;
     border-color $transition-duration ease-out,
     background-color $transition-duration ease-out;
 
-  &:hover {
+  &:hover,
+  &:global(.focused) {
     border-color: pool-color-mix(50%, transparent, var(--pool-color-accent));
     background-color: rgba(0, 0, 0, 0.35);
 

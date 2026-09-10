@@ -178,7 +178,8 @@ $swirl-scale-hover-inner: 1.2;
    * transitionable, so the speed-up is an instant swap — it reads fine because the brightening
    * ramps alongside it.
    */
-  :global(.hoverable):hover & {
+  :global(.hoverable):hover &,
+  :global(.hoverable.focused) & {
     &__swirl-scaler--outer {
       transform: scale($swirl-scale-hover);
     }

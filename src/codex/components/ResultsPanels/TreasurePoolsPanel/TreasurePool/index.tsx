@@ -1,5 +1,6 @@
+import { useFocusBand } from '@/shared/hooks/useFocusBand'
 import { createCx } from '@/shared/utils/classnames'
-import { HOVER_TRIGGER } from '@/shared/utils/hoverTrigger'
+import { FOCUS_TRIGGER, HOVER_TRIGGER } from '@/shared/utils/hoverTrigger'
 
 import {
   getPoolRewards,
@@ -27,8 +28,9 @@ function TreasurePool({ pool }: TreasurePoolProps): JSX.Element {
   const rewards = getPoolRewards(pool)
   const sources = getPoolSources(pool)
   const notes = POOL_NOTES[pool.id]
+  const { ref, isInFocusBand } = useFocusBand<HTMLDivElement>()
 
-  const cardClassName = cx('pool', HOVER_TRIGGER)
+  const cardClassName = cx('pool', HOVER_TRIGGER, { [FOCUS_TRIGGER]: isInFocusBand })
   // The artwork size is published on the card, not just handed to the whirlpool, because the header
   // gap is a fraction of it — see `$header-gap-*` in the stylesheet.
   const cardStyle = {
@@ -40,7 +42,7 @@ function TreasurePool({ pool }: TreasurePoolProps): JSX.Element {
 
   return (
     <div className={cardClassName} style={cardStyle}>
-      <div className={cx('pool__header')}>
+      <div ref={ref} className={cx('pool__header')}>
         <WhirlpoolArtwork
           src={pool.imageSrc}
           alt={pool.name}

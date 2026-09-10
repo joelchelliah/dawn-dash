@@ -23,7 +23,8 @@
   }
 
   // Brightens only for consumers that mark an ancestor as the hover owner; see `hoverTrigger.ts`.
-  :global(.hoverable):hover & h4 {
+  :global(.hoverable):hover & h4,
+  :global(.hoverable.focused) & h4 {
     color: $color-primary-base;
   }
 }
