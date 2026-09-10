@@ -88,9 +88,8 @@ export const TOOL_REGISTRY: ToolDefinition[] = [
     title: 'Booty',
     ogTitle: '🪎 Booty',
     description:
-      'A full breakdown of every treasure card in Dawncaster, and all the various ways of acquiring them during your runs!',
-    shortDescription:
-      'A breakdown of all treasure cards in Dawncaster, and how to find them during your runs!',
+      'A full breakdown of every treasure card in Dawncaster, and all the various ways of acquiring them through cards, talents and events!',
+    shortDescription: 'A breakdown of all treasure cards in Dawncaster, and how to find them!',
     ogDescription:
       'Delve into all the available treasure cards in Dawncaster, and the secrets to finding them!',
     ogImage: 'https://www.dawn-dash.com/og-image-booty.png',
