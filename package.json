@@ -54,6 +54,7 @@
     "icon-viewbox": "node scripts/icon-viewbox.js",
     "generate-stars": "node scripts/generate-star-field.js",
     "generate-landing-images": "node scripts/generate-landing-images.js",
+    "compress-images": "node scripts/compress-images.js",
     "check-sw": "node scripts/check-service-worker.js"
   },
   "devDependencies": {
