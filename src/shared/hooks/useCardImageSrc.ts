@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useCallback, useState } from 'react'
 
 import { CardArtworkImageUrl, PestilenceDecreeUrl } from '@/shared/utils/imageUrls'
 import cardArtworkData from '@/shared/data/card-artwork.json'
@@ -71,17 +71,14 @@ export function useCardImageSrc(
   cardImageSrc: string | null
   onImageSrcError: () => void
 } {
-  const [cardImageSrc, setCardImageSrc] = useState<string | null>(() =>
-    getCardImageSrc(cardName, fallbackImageSrc, category)
-  )
+  const [erroredName, setErroredName] = useState<string | null>(null)
 
-  const onImageSrcError = () => {
-    setCardImageSrc(fallbackImageSrc)
-  }
+  const cardImageSrc =
+    erroredName === cardName
+      ? fallbackImageSrc
+      : getCardImageSrc(cardName, fallbackImageSrc, category)
 
-  useEffect(() => {
-    setCardImageSrc(getCardImageSrc(cardName, fallbackImageSrc, category))
-  }, [cardName, fallbackImageSrc, category])
+  const onImageSrcError = useCallback(() => setErroredName(cardName), [cardName])
 
   return { cardImageSrc, onImageSrcError }
 }

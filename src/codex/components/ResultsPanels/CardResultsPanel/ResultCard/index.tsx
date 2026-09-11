@@ -5,7 +5,6 @@ import { useBreakpoint } from '@/shared/hooks/useBreakpoint'
 import { createCx } from '@/shared/utils/classnames'
 import { HOVER_TRIGGER } from '@/shared/utils/hoverTrigger'
 
-import { UseAllCardSearchFilters } from '@/codex/hooks/useSearchFilters'
 import { CardData } from '@/codex/types/cards'
 import { parseCardDescription } from '@/codex/utils/cardHelper'
 import KeywordPills from '@/codex/components/SearchPanels/shared/KeywordPills'
@@ -19,7 +18,21 @@ import styles from './index.module.scss'
 
 interface ResultCardProps {
   card: CardData
-  useSearchFilters: UseAllCardSearchFilters
+  parsedKeywords: string[]
+  isStruck: boolean
+  toggleCardStrike: (card: CardData) => void
+  getCardSetNameFromIndex: (index: number) => string
+  getCardTypeNameFromIndex: (index: number) => string
+  getCardTypeEmojiFromIndex: (index: number) => string
+  shouldIncludeNonCollectibleCards: boolean
+  shouldIncludeAnimalCompanionCards: boolean
+  shouldShowDescription: boolean
+  shouldShowKeywords: boolean
+  shouldShowCardSet: boolean
+  shouldShowCardType: boolean
+  shouldShowCardArt: boolean
+  shouldShowBlightbaneLink: boolean
+  shouldHideTrackedCards: boolean
   showCardsWithoutKeywords: boolean
   entryIndex: number
 }
@@ -41,32 +54,24 @@ const MAX_KEYWORD_CHARACTERS_OWN_MOBILE = 35
 
 const ResultCard = ({
   card,
-  useSearchFilters,
+  parsedKeywords,
+  isStruck,
+  toggleCardStrike,
+  getCardSetNameFromIndex,
+  getCardTypeNameFromIndex,
+  getCardTypeEmojiFromIndex,
+  shouldIncludeNonCollectibleCards,
+  shouldIncludeAnimalCompanionCards,
+  shouldShowDescription,
+  shouldShowKeywords,
+  shouldShowCardSet,
+  shouldShowCardType,
+  shouldShowCardArt,
+  shouldShowBlightbaneLink,
+  shouldHideTrackedCards,
   showCardsWithoutKeywords,
   entryIndex,
 }: ResultCardProps) => {
-  const {
-    parsedKeywords,
-    useCardSetFilters,
-    useCardTypeFilters,
-    useExtraCardFilters,
-    useFormattingFilters,
-    useCardStrike,
-  } = useSearchFilters
-  const { getCardSetNameFromIndex } = useCardSetFilters
-  const { getCardTypeNameFromIndex, getCardTypeEmojiFromIndex } = useCardTypeFilters
-  const { shouldIncludeNonCollectibleCards, shouldIncludeAnimalCompanionCards } =
-    useExtraCardFilters
-  const {
-    shouldShowDescription,
-    shouldShowKeywords,
-    shouldShowCardSet,
-    shouldShowCardType,
-    shouldShowCardArt,
-    shouldShowBlightbaneLink,
-    shouldHideTrackedCards,
-  } = useFormattingFilters
-  const { isCardStruck, toggleCardStrike } = useCardStrike
   const { isMobile } = useBreakpoint()
 
   const matchingKeywords = useMemo(
@@ -82,7 +87,6 @@ const ResultCard = ({
   const isFullMatch = parsedKeywords.some(
     (keyword) => card.name.toLowerCase() === keyword.toLowerCase()
   )
-  const isStruck = isCardStruck(card)
 
   const cardContainerClassName = cx('result-card', HOVER_TRIGGER, {
     'result-card--struck': isStruck,

@@ -12,6 +12,8 @@ export const useFilterTracking = () => {
   // silently reverts on reload.
   const createTrackedFilter = useCallback(
     <T extends Record<string, unknown>>(untrackedFilter: T, handlerNames: (keyof T)[]): T => {
+      // NOTE: this returns a new object every call, so callers must memoize the result if they
+      // pass it (or anything from it) to a memoized component. See `useAllCardSearchFilters`.
       const trackedHandlers = handlerNames.reduce((acc, handlerName) => {
         const originalHandler = untrackedFilter[handlerName] as (...args: unknown[]) => unknown
         acc[handlerName] = ((...args: unknown[]) => {
