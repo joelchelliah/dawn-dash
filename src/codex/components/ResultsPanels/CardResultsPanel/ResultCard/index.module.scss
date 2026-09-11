@@ -72,6 +72,15 @@ $row-entry-animation: resultRowIn 0.5s ease-out backwards;
   gap: 0.5rem;
   padding: 0.25rem 0;
   cursor: pointer;
+  /*
+   * Lets the browser skip style, layout and paint for rows outside the viewport
+   *
+   * `contain-intrinsic-size` is not optional: without it a skipped row reports zero
+   * height and the scrollbar jumps as rows render on scroll. `auto` keeps each row's *real* height
+   * once it has been measured, so the estimate below only has to be close.
+   */
+  content-visibility: auto;
+  contain-intrinsic-size: auto 3.875rem;
   animation: $row-entry-animation;
   background-image: row-divider();
   background-repeat: no-repeat;

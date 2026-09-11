@@ -156,6 +156,7 @@ Each feature directory has its own `CLAUDE.md` with architecture details and inv
 - **Service worker** with CacheFirst strategy for Blightbane images (10-day cache expiry), split across **two** `runtimeCaching` buckets: `card-artwork` for `/images/icons/**` (1500 entries, ~3.2MB — sized for Cardex result sets, which easily exceed 100 images) and `external-images` for everything else (100 entries: classes, energy orbs, events). The specific pattern must stay **first**, since Workbox uses the first match. Keeping them separate is what stops a large Cardex session from evicting the rest of the site's images.
 - **Offline support** via localStorage + service worker caching
 - **Dynamic imports** with `next/dynamic` for code splitting (each tool page lazy-loads its feature component)
+- **INP (interaction responsiveness)** is tracked in `src/codex/specs-inp.md`. Cardex is **done**: `.result-card` carries `content-visibility: auto`, which cut its interaction's layout+paint 42% and is why the results list is *not* virtualized (the invariant is in `src/codex/CLAUDE.md`). **Skilldex, Eventmaps and Speedruns are scoped but untraced** in that spec's Part 2 — read it before optimising them, chiefly because the Cardex fix does **not** transfer: they render one SVG or a canvas, so there are no off-screen DOM children to skip and the cost is expected to be scripting rather than layout+paint.
 - **Image optimization** via `next/image` with remote patterns for Blightbane assets
 
 ### Styling Conventions
