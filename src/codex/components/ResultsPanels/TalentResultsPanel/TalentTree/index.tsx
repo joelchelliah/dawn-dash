@@ -18,7 +18,7 @@ import {
   getNodeInTree,
 } from '@/codex/utils/talentTreeHelper'
 import { cacheAllNodeDimensions, getNodeHeight } from '@/codex/utils/talentNodeDimensions'
-import { setupTreeSvg, createGlowFilter } from '@/codex/utils/tree/svgHelper'
+import { setupTreeSvg, createGlowFilter, applyTreeZoom } from '@/codex/utils/tree/svgHelper'
 import { NODE, TREE } from '@/codex/constants/talentTreeValues'
 import { buildHierarchicalTreeFromTalentTree } from '@/codex/utils/talentTreeBuilder'
 import { ZoomLevel, COVER } from '@/codex/constants/zoomValues'
@@ -151,20 +151,19 @@ function TalentTree({
     areChildrenExpanded,
   ])
 
-  // Render effect: draws the precomputed layout at the current zoom level
+  // Zoom scale is derived here rather than in the draw effect, so that zooming
+  // updates attributes without redrawing nodes.
+  const zoomScale = useMemo(() => {
+    if (!layout || zoomLevel === COVER) return undefined
+    const depthMultiplier = 1 / Math.pow(layout.maxDepth, 0.25)
+    return (zoomLevel / 100) * depthMultiplier
+  }, [layout, zoomLevel])
+
+  // Draw effect: builds the SVG contents from the precomputed layout.
   useEffect(() => {
     if (!svgRef.current || !layout || !scrollWrapperRef.current) return
 
-    const {
-      fullTree,
-      treeData,
-      renderingContext,
-      maxDepth,
-      svgWidth,
-      svgHeight,
-      offsetX,
-      offsetY,
-    } = layout
+    const { fullTree, treeData, renderingContext, maxDepth, svgWidth, svgHeight } = layout
 
     // Clear previous visualization
     select(svgRef.current).selectAll('*').remove()
@@ -172,22 +171,14 @@ function TalentTree({
     const getCardSetName = (index?: number) =>
       hasValidCardSet(shouldShowCardSet, index) ? getCardSetNameFromIndex(index) : undefined
 
-    // Calculate zoom scale for numbered zoom levels.
-    // With a depth multiplier so deeper trees don't zoom in as much.
-    const getZoomScale = (): number | undefined => {
-      if (zoomLevel === COVER) return undefined
-      const depthMultiplier = 1 / Math.pow(maxDepth, 0.25)
-      return (zoomLevel / 100) * depthMultiplier
-    }
-
-    const zoomScale = getZoomScale()
-
+    // The zoom effect below applies the real dimensions.
+    // Drawing at scale 1 here to keep zoomLevel out of this effect's deps.
     const { defs, contentGroup: svg } = setupTreeSvg(svgRef.current, {
       width: svgWidth,
       height: svgHeight,
-      zoomScale,
-      offsetX,
-      offsetY,
+      zoomScale: undefined,
+      offsetX: 0,
+      offsetY: 0,
       preserveAspectRatio: 'xMinYMin meet',
     })
 
@@ -258,7 +249,33 @@ function TalentTree({
     })
   }, [
     layout,
-    zoomLevel,
+    shouldShowTalentArt,
+    shouldShowDescription,
+    shouldShowCardSet,
+    shouldShowKeywords,
+    shouldShowBlightbaneLink,
+    parsedKeywords,
+    areChildrenExpanded,
+    toggleChildrenExpansion,
+    getCardSetNameFromIndex,
+  ])
+
+  // Zoom effect: resizes the already-drawn SVG. Runs after the draw effect on a
+  // redraw, and alone when only the zoom level changed.
+  useEffect(() => {
+    if (!svgRef.current || !layout) return
+
+    applyTreeZoom(svgRef.current, {
+      width: layout.svgWidth,
+      height: layout.svgHeight,
+      zoomScale,
+      offsetX: layout.offsetX,
+      offsetY: layout.offsetY,
+      preserveAspectRatio: 'xMinYMin meet',
+    })
+  }, [
+    layout,
+    zoomScale,
     shouldShowTalentArt,
     shouldShowDescription,
     shouldShowCardSet,

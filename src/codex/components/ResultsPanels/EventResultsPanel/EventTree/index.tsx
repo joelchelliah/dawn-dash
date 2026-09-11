@@ -22,7 +22,7 @@ import {
   adjustVerticalNodeSpacing,
   centerRootNodeHorizontally,
 } from '@/codex/utils/eventTreeSpacing'
-import { setupTreeSvg, createGlowFilter } from '@/codex/utils/tree/svgHelper'
+import { setupTreeSvg, createGlowFilter, applyTreeZoom } from '@/codex/utils/tree/svgHelper'
 import { TREE, NODE_BOX } from '@/codex/constants/eventTreeValues'
 import { ZoomLevel, COVER } from '@/codex/constants/zoomValues'
 import {
@@ -148,31 +148,24 @@ function EventTree({
     }
   }, [event.name])
 
-  // Render effect: draws the precomputed layout at the current zoom level
+  // Draw effect: builds the SVG contents from the precomputed layout.
   useEffect(() => {
     if (!svgRef.current || !layout || !scrollWrapperRef.current) return
 
-    const { root, nodeMap, getDimensions, svgWidth, svgHeight, offsetX, offsetY } = layout
+    const { root, nodeMap, getDimensions, svgWidth, svgHeight } = layout
     const isCompact = levelOfDetail === LevelOfDetail.COMPACT
 
     // Clear previous visualization
     select(svgRef.current).selectAll('*').remove()
 
-    const zoomScale = zoomCalculator.calculate({
-      eventName: event.name,
-      zoomLevel,
-      svgWidth,
-      svgHeight,
-      containerWidth: scrollWrapperRef.current.clientWidth,
-      containerHeight: scrollWrapperRef.current.clientHeight,
-    })
-
+    // Zoom effect below applies the real dimensions.
+    // Drawing at scale 1 here to keep zoomLevel out of this effect's deps.
     const { defs, contentGroup: g } = setupTreeSvg(svgRef.current, {
       width: svgWidth,
       height: svgHeight,
-      zoomScale,
-      offsetX,
-      offsetY,
+      zoomScale: undefined,
+      offsetX: 0,
+      offsetY: 0,
       preserveAspectRatio: 'xMidYMin meet',
     })
 
@@ -282,9 +275,48 @@ function EventTree({
     if (showAlteredBadges) {
       drawAlteredBadges(drawBadgesParam)
     }
+  }, [
+    layout,
+    loopingPathMode,
+    showLoopingIndicator,
+    levelOfDetail,
+    showContinuesTags,
+    showAlteredBadges,
+    event,
+  ])
 
-    // Center the scroll horizontally when zoomed
-    if (zoomScale && scrollWrapperRef.current) {
+  // Zoom effect: resizes the already-drawn SVG. Runs after the draw effect on a
+  // redraw, and alone when only the zoom level changed.
+  //
+  // Measuring the container here is safe even though the tree is already drawn:
+  // the wrapper's size comes from its parent (width/max-height 100%) and its
+  // scrollbars are hidden, so the drawn tree cannot change what Cover mode caches.
+  useEffect(() => {
+    if (!svgRef.current || !layout || !scrollWrapperRef.current) return
+
+    const { svgWidth, svgHeight, offsetX, offsetY } = layout
+
+    const zoomScale = zoomCalculator.calculate({
+      eventName: event.name,
+      zoomLevel,
+      svgWidth,
+      svgHeight,
+      containerWidth: scrollWrapperRef.current.clientWidth,
+      containerHeight: scrollWrapperRef.current.clientHeight,
+    })
+
+    applyTreeZoom(svgRef.current, {
+      width: svgWidth,
+      height: svgHeight,
+      zoomScale,
+      offsetX,
+      offsetY,
+      preserveAspectRatio: 'xMidYMin meet',
+    })
+
+    // Center the scroll horizontally when zoomed. Must follow applyTreeZoom,
+    // which is what gives the wrapper its scrollWidth.
+    if (zoomScale) {
       const wrapper = scrollWrapperRef.current
       // Center horizontally: (scrollWidth - clientWidth) / 2
       wrapper.scrollLeft = (wrapper.scrollWidth - wrapper.clientWidth) / 2

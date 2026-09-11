@@ -9,23 +9,19 @@ interface TreeSvgConfig {
   preserveAspectRatio: 'xMinYMin meet' | 'xMidYMin meet'
 }
 
+export const TREE_CONTENT_GROUP_CLASS = 'tree-content-group'
+
 /**
- * Sizes a tree SVG and creates the defs + zoomed/offset content group,
- * shared by the talent and event tree renderers.
+ * Applies everything about a tree SVG that depends on the zoom level: the
+ * element's dimensions and the content group's scale/offset transform.
  *
- * - With a zoomScale: explicit scaled pixel dimensions (no viewBox).
+ * - With zoomScale: explicit scaled pixel dimensions (no viewBox).
  * - Without: a viewBox so the tree scales to fit its container.
- *
- * The caller is responsible for clearing the SVG first (the event tree
- * must clear before measuring its container for zoom calculations).
  */
-export function setupTreeSvg(
+export function applyTreeZoom(
   svgElement: SVGSVGElement,
   { width, height, zoomScale, offsetX, offsetY, preserveAspectRatio }: TreeSvgConfig
-): {
-  defs: Selection<SVGDefsElement, unknown, null, undefined>
-  contentGroup: Selection<SVGGElement, unknown, null, undefined>
-} {
+): void {
   const svg = select(svgElement)
 
   if (zoomScale) {
@@ -44,13 +40,31 @@ export function setupTreeSvg(
       .attr('preserveAspectRatio', preserveAspectRatio)
   }
 
-  const defs = svg.append('defs')
-
-  // Apply zoom scale to the content group.
-  // When scaling, we need to apply scale first, then translate by the scaled offset
-  const contentGroup = svg
-    .append('g')
+  svg
+    .select(`g.${TREE_CONTENT_GROUP_CLASS}`)
     .attr('transform', `scale(${zoomScale ?? 1}) translate(${offsetX}, ${offsetY})`)
+}
+
+/**
+ * Sizes a tree SVG and creates the defs + zoomed/offset content group,
+ * shared by the talent and event tree renderers.
+ *
+ * The caller is responsible for clearing the SVG first (the event tree
+ * must clear before measuring its container for zoom calculations).
+ */
+export function setupTreeSvg(
+  svgElement: SVGSVGElement,
+  config: TreeSvgConfig
+): {
+  defs: Selection<SVGDefsElement, unknown, null, undefined>
+  contentGroup: Selection<SVGGElement, unknown, null, undefined>
+} {
+  const svg = select(svgElement)
+
+  const defs = svg.append('defs')
+  const contentGroup = svg.append('g').attr('class', TREE_CONTENT_GROUP_CLASS)
+
+  applyTreeZoom(svgElement, config)
 
   return { defs, contentGroup }
 }

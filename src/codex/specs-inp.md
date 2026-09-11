@@ -497,9 +497,14 @@ appear with no animation. Check a search whose results fit on one screen still a
 
 # Part 2 — the other three tools
 
-**Not started. Nothing here has been traced.** This section exists so a later session starts from
-the right hypotheses instead of re-deriving them, and so nobody reaches for Part 1's fix on a tool
-it cannot help.
+**Traced, not yet implemented.** Baseline measurements are recorded under *Results — baseline
+traces*; four tasks follow them. This section exists so a later session starts from the right
+hypotheses instead of re-deriving them, and so nobody reaches for Part 1's fix on a tool it cannot
+help.
+
+**The finding in one line: scripting dominates, and the cost is the D3 redraw, not the layout
+pass.** Both trees wipe and rebuild the whole SVG on every change, and an interaction that skips
+layout entirely still costs 0.8–2.1× one that runs it. See *Verdict* below the tables.
 
 ## Read this first: Part 1's fix does not transfer
 
@@ -542,28 +547,39 @@ not "Poor". Worth confirming the Cardex fix landed in the field before spending 
 
 ## Candidates — Skilldex and Eventmaps (tree tools)
 
-Both are the same architecture, so a finding on one likely applies to the other. `TalentTree`
-memoizes a layout pass and feeds a D3 render effect that wipes and redraws the whole SVG
+Both memoize a layout pass and feed a D3 render effect that wipes and redraws the whole SVG
 (`select(svgRef.current).selectAll('*').remove()`). That redraw is the suspected INP cost.
 
-The interactions to trace are **expanding/collapsing a node**, **toggling a formatting filter**, and
-**typing a keyword**. Candidates, in rough order of promise:
+**They are less alike than "same architecture" suggests, and the difference matters here.**
+Eventmaps has **no expand/collapse interaction at all** — `areChildrenExpanded` appears nowhere in
+`EventTree` — so Skilldex's worst-looking interaction has no counterpart. And their memo/effect
+splits differ: Skilldex's layout memo takes 8 deps covering essentially every control, while
+Eventmaps' takes 4 against a 9-dep render effect, so Eventmaps has controls that redraw without
+re-laying out and Skilldex has none. A fix in `utils/tree/` still lands on both, but a finding about
+*what invalidates the layout* does not automatically transfer. See *Measurement protocol* for the
+per-tool interaction lists this implies.
 
-1. **Narrow what invalidates the layout memo.** `areChildrenExpanded` is in `TalentTree`'s layout
-   memo deps, so expanding a single node re-runs `buildHierarchicalTreeFromTalentTree`, the collapse
-   filter, `cacheAllNodeDimensions`, the `tree()` layout and the bounds pass for the **entire tree**,
-   then redraws every node. Whether that is avoidable is the open question — the tidy layout genuinely
-   depends on which nodes are present, so this may be irreducible rather than wasteful. Check what
-   fraction of the interaction it actually is before designing around it.
+Candidates, in rough order of promise:
+
+1. ~~**Narrow what invalidates the layout memo.**~~ **DROPPED — measured and rejected.** The whole
+   layout pass turned out to be only ~20% of a Skilldex expand, so eliminating it perfectly would
+   save ~75 ms of 744 ms, and much of it is irreducible anyway. See *Verdict* below the baseline
+   tables.
 2. **Redraw incrementally instead of wiping the SVG.** The render effect removes all children and
    rebuilds every node. A D3 general-update-pattern join (enter/update/exit) would touch only what
-   changed. This is a **significant rewrite** of the render path and would need the same
-   visual-verification treatment the codex invariants already demand — do not start here without a
-   trace proving the redraw is the cost.
+   changed. This is a **significant rewrite** of the render path. **The trace now confirms the redraw
+   is the cost** — but it is written up as **Task 3**, behind two cheaper tasks that reduce how often
+   a redraw happens at all, and which may make it unnecessary.
 3. **Defer the redraw** (`useDeferredValue` / `startTransition`), so the checkbox or expand affordance
    paints before the tree does. Same honest trade as Part 1's Task 2: it moves the *measured*
-   interaction without reducing work. Cheapest thing to try, and the one to try first if the trace
-   confirms scripting dominates.
+   interaction without reducing work. **Now Task 4, and demoted to a fallback** — the trace exposed
+   a genuinely wasteful redraw (zoom, which changes three attributes yet rebuilds every node), and
+   fixing that is worth more than deferring work that need not happen.
+
+4. **Stop redrawing on zoom entirely** — **not in the original candidate list, and now Task 1.**
+   `setupTreeSvg` shows zoom's entire effect on the DOM is the svg's `width`/`height`/`viewBox` and a
+   `scale()` transform on the content group, yet `zoomLevel` invalidates the whole draw effect. That
+   is 293 ms of Skilldex scripting to set three attributes.
 
 **Constraints that apply before touching either tree** — from `src/codex/CLAUDE.md`, and these are
 the reason this work is harder than it looks:
@@ -606,6 +622,417 @@ Candidates:
 
 Given **4 samples** in the field data, confirm this route has meaningful traffic before investing in
 any of it.
+
+## Measurement protocol — run this before writing any Part 2 task
+
+**Nothing below changes code.** This section exists to be filled in first, so the candidates above
+are chosen against a trace rather than against the code reading plausible. Fill in every table, then
+decide. An empty table is the signal that Part 2 has not actually started.
+
+### Method (identical to Part 1's, repeat it verbatim)
+
+Dev server, **CPU unthrottled**, DevTools Performance panel. Record, perform the single interaction,
+stop, then drag-select the range covering just that interaction and read the summary donut.
+
+**Record a matched pair for every row**: the "before" run and any "after" run taken back to back, on
+the same machine, in the same session. Part 1's own baseline and its re-measurement differed by 65%
+on Scripting with the same method — dev-server traces are that noisy, so a number compared across
+sessions is not evidence.
+
+For Part 2 the "before" is simply today's code, so the first pass is a single column. Take **three
+runs per interaction and record the median**, not the best — the trees redraw enough that one run
+lands wide.
+
+Beyond the Rendering/Painting/Scripting split, record for each interaction:
+
+- **Node count actually drawn** (`document.querySelectorAll('.node').length` in the console after the
+  interaction). The whole hypothesis is that cost scales with this, so a trace without it cannot be
+  compared against another tool or another tree.
+- **Where scripting went**, from the bottom-up view: the split between the **layout memo**
+  (`buildHierarchicalTreeFromTalentTree`, `cacheAllNodeDimensions`, `tree()`, the bounds pass) and
+  the **D3 redraw** (`selectAll('*').remove()` and the node/link draw calls). This is the number
+  that picks the candidate — see *Reading the result* below.
+
+### What to fix before recording anything
+
+Both trees vary enormously by input, so a trace is meaningless without stating what was on screen.
+Pin these and write them into the table:
+
+- **Skilldex**: which class's talent tree, and which node was expanded. A shallow tree and a deep one
+  are different problems.
+- **Eventmaps**: which event. Pick both a **small** event and one of the **largest** trees — the
+  multi-parent centering pass in `utils/eventTreeSpacing/` is where size is expected to bite.
+- **Zoom level**, since it is an input to the render effect but deliberately not to the layout memo.
+- **Viewport**: desktop, and note the width. Mobile changes node heights on both trees.
+
+### Skilldex — interactions to measure
+
+Controls confirmed in `SearchPanels/TalentSearchPanel/index.tsx` and the tree's own expansion
+buttons. Ordered by how much of the pipeline each is expected to re-run.
+
+| # | Interaction | Why it is on this list |
+|---|---|---|
+| 1 | **Expand a collapsed node** (click an expansion button in the tree) | `areChildrenExpanded` is in the layout memo's deps, so expanding one node re-runs the collapse filter, `cacheAllNodeDimensions`, `tree()` and the bounds pass for the **whole tree**, then wipes and redraws every node. **This is the primary interaction** — measure it first and on a deep tree. |
+| 2 | **Collapse an expanded node** | Same path, fewer nodes drawn afterwards. The pair isolates how much of the cost is *drawing* versus *laying out*: collapsing does the same layout work but paints less. |
+| 3 | **Toggle a *Results formatting* filter** (card art, description, keywords, card set, Blightbane link) | Each is a layout-memo dep and changes every node's dimensions at once. Expected to be the worst case after expand, and it hits `cacheAllNodeDimensions` hardest. |
+| 4 | **Type a keyword** into the search field | `parsedKeywords` is a layout-memo dep *and* feeds `matchesKeywordOrHasMatchingDescendant` inside the collapse filter. Measure a keystroke that changes the match set, not one that does not. |
+| 5 | **Toggle a *Tiers* / *Base requirements* / *Card Sets* filter** | Changes which talents exist in the tree, so a different shape of layout invalidation from #3. |
+| 6 | **Drag the zoom slider and release** | The control case. Zoom is deliberately **not** a layout-memo dep, so this should re-run the redraw *without* the layout pass. If #6 costs nearly as much as #1, the redraw dominates and candidate 1 (narrowing the memo) is not worth pursuing. **This is the cheapest way to split the two costs and should be measured even though nobody is complaining about zoom.** |
+
+### Eventmaps — interactions to measure
+
+**Note a structural difference from Skilldex: Eventmaps has no expand/collapse interaction.**
+`areChildrenExpanded` appears nowhere in `EventTree`, so Skilldex's primary interaction has no
+counterpart here and the tools are less alike than *Candidates — Skilldex and Eventmaps* above
+assumes. Its layout memo takes **4** deps (`event`, `showLoopingIndicator`, `levelOfDetail`,
+`showContinuesTags`) while its render effect takes **9** — so several controls redraw without
+re-laying out, which Skilldex has no equivalent of.
+
+| # | Interaction | Why it is on this list |
+|---|---|---|
+| 1 | **Change *Level of detail*** | A layout-memo dep. Re-runs `d3-flextree`, the multi-parent centering pass and the vertical spacing pass, then redraws. **Primary interaction** — measure on a large event. |
+| 2 | **Toggle *Show «Continues» tags*** | Also a layout-memo dep, and changes node dimensions rather than node count — the closest analogue to Skilldex #3. |
+| 3 | **Change *Show looping paths*** | `showLoopingIndicator` is a layout dep but `loopingPathMode` is **render-only**. Measure both values of this control and note which one you changed; they exercise different halves of the split. |
+| 4 | **Toggle *Mark altered content*** | Render-effect dep only, **not** a layout dep. Pairs with #1 the way Skilldex's zoom pairs with its expand: it isolates redraw cost from layout cost. |
+| 5 | **Select a different event** (the *Select Event* dropdown) | Full rebuild including the dimension cache, which clears on event change. The upper bound on cost, and the one real users hit most. |
+| 6 | **Drag the zoom slider and release** | Render-only, plus `useEventTreeZoom` re-measuring `coverScale` when dragging through the Cover stop. Worth a row because it is the one interaction with an existing INP-shaped optimisation already in it. |
+
+### Results — baseline traces, Sep 2026
+
+**Scope of what was actually run.** Five traces, **one run each**, not the three-run median the
+method above asks for. That is deliberate: the question at this stage was only *which half of the
+pipeline is expensive*, and the answer came back clear enough that more runs would not have changed
+it. **The three-run median still applies to any before/after comparison of a code change** — that is
+where dev-server noise would let you fool yourself. Interactions 2–5 in each table below are still
+unmeasured, and were skipped for the same reason: the pairs answered the question.
+
+#### Skilldex — baseline (today's code)
+
+| # | Interaction | Layout pass? | Scripting | Rendering | Painting | System | Total |
+|---|---|---|---|---|---|---|---|
+| 1 | Expand a node | yes | **368 ms** | 128 ms | 42 ms | 46 ms | 744 ms |
+| 6a | Zoom Cover → 200% | no | **525 ms** | 124 ms | 26 ms | 59 ms | 988 ms |
+| 6b | Zoom 100% → 200% | no | **293 ms** | 89 ms | 25 ms | 31 ms | 894 ms |
+
+#### Eventmaps — baseline (today's code)
+
+| # | Interaction | Layout pass? | Scripting | Rendering | Painting | System | Total |
+|---|---|---|---|---|---|---|---|
+| 1 | Level of detail | yes | **108 ms** | 56 ms | 10 ms | 19 ms | — |
+| 4 | Mark altered content | no | **229 ms** | 96 ms | 12 ms | 72 ms | — |
+
+### Verdict — the redraw is the cost, not the layout memo
+
+**Scripting dominates all five traces**, confirming the Part 2 hypothesis and the mirror image of
+Cardex, where layout+paint was 3.7× scripting. Rendering + Painting never exceeds 170 ms on any
+interaction here.
+
+**The isolators settle which half.** Both tools have an interaction that redraws the SVG while
+skipping the layout pass entirely (Skilldex zoom, Eventmaps *Mark altered content*):
+
+- **Eventmaps: originally read as 2.1× (229 ms vs 108 ms), but that 229 ms is wrong** — see the
+  correction above. On re-measurement the redraw-only interaction is 22 ms, i.e. *cheaper* than the
+  layout one, so **Eventmaps does not support the verdict** and the case rests on Skilldex.
+- **Skilldex: the clean redraw-only zoom costs 0.80× the full expand** (293 ms vs 368 ms). So the
+  entire layout pipeline — `buildHierarchicalTreeFromTalentTree`, the collapse filter,
+  `cacheAllNodeDimensions`, `tree()`, the bounds pass — accounts for only **~20%** of an expand.
+
+**Therefore candidate 1 (narrowing the layout memo) is dropped.** Even eliminating the layout pass
+perfectly would cut ~75 ms from a 744 ms interaction, and much of that pass is irreducible anyway
+since the tidy layout genuinely depends on which nodes are present. It is not worth the complexity
+of splitting `areChildrenExpanded` out of the memo deps.
+
+**Candidate 2 (incremental redraw) is where the time is**, and becomes Task 1 below.
+
+> **Correction — the Eventmaps isolator reading below is wrong.** *Mark altered content* was
+> re-measured on unchanged code during Task 1 and came back at **22 ms** of scripting, not the
+> **229 ms** recorded here — a 10× discrepancy on the same interaction, same method. The 22 ms is
+> the credible figure: it is a render-only toggle, and 229 ms would make it dearer than a full zoom
+> redraw. The likely cause is the drag-selection overshoot noted below (that trace's parts summed to
+> ~409 ms of a ~465 ms total).
+>
+> **This inverts the Eventmaps half of the verdict.** With 22 ms, its redraw-only interaction was
+> *cheaper* than its layout interaction (22 ms vs 108 ms), not 2.1× dearer. The conclusion — that the
+> redraw is the cost — still stands, but it rests on **Skilldex's** isolator and on Task 1's measured
+> result (zoom scripting fell 93% on Skilldex and 81% on Eventmaps once the redraw was removed), not
+> on the Eventmaps ratio. **The lesson is procedural: draw the selection tightly.** A trace whose
+> parts do not sum to its total is measuring more than the interaction, and here that produced a
+> number wrong by an order of magnitude that a whole verdict was then built on.
+
+**The honest caveats, recorded because they qualify the numbers rather than flatter them:**
+
+- **The first Skilldex isolator reading was inflated and was re-measured.** Cover → 200% crosses the
+  Cover stop, so scale re-measurement rides along with the redraw; it read 525 ms and suggested the
+  redraw was 1.43× the expand. A clean numeric-stop zoom (100% → 200%) reads 293 ms and 0.80×. **The
+  Cover transition is itself ~230 ms of extra scripting** — worth remembering as its own finding,
+  though nobody is currently complaining about zoom.
+- **The component parts do not sum to the totals.** Skilldex expand: 584 ms of 744 ms; zoom
+  100→200: 438 ms of 894 ms. The 160–456 ms gap is idle or unattributed time in the selected range,
+  most likely the drag-selection catching a little either side of the interaction. Fine for the
+  *ratio* between two traces taken the same way; **tighten the selection before using these as a
+  before/after baseline**, and expect the after-numbers to need re-taking as a matched pair.
+- **Eventmaps totals were not recorded**, so only its scripting ratio is usable.
+- **One run each.** The Skilldex ratio (0.80×) is close enough to 1 that noise could move it
+  meaningfully; the Eventmaps ratio (2.1×) is not. The conclusion rests mainly on Eventmaps and on
+  scripting dominating everywhere, both of which are robust to a single noisy run.
+
+#### Field data — re-read before starting
+
+The table in *Field data* predates the Cardex fix. Record what Speed Insights says **now**, and
+whether Cardex actually came in under 500 ms, since that decides whether Part 2 is worth doing.
+
+| Route | P75 INP | Samples | Rating | Date read |
+|---|---|---|---|---|
+| `/cardex` | | | | |
+| `/skilldex` | | | | |
+| `/eventmaps/[event]` | | | | |
+| `/speedruns` | | | | |
+| Site-wide | | | | |
+
+### Reading the result — what each outcome means
+
+Decide the candidate from the layout-memo / redraw split, not from the totals:
+
+- **Redraw dominates** (Skilldex #6 costs nearly as much as #1; Eventmaps #4 nearly as much as #1) →
+  the wipe-and-rebuild is the cost. Candidate 2 (enter/update/exit join) is the real fix, and
+  candidate 1 is not worth designing around. Note this is the significant rewrite, so confirm it
+  twice before committing to it.
+- **Layout memo dominates** (the zoom / render-only rows are cheap) → candidate 1. But check *what
+  fraction* is the tidy layout itself: `tree()` and the flextree pass genuinely depend on which nodes
+  are present, so that part may be irreducible. `cacheAllNodeDimensions` is the part most likely to
+  be avoidable.
+- **Rendering + Painting dominates on either tree** → this contradicts the hypothesis in *Read this
+  first* above and is the interesting finding. Follow the trace, not that section, and record why.
+- **Nothing is near 200 ms on any interaction** → the honest outcome is that Part 2 is not worth
+  doing. Record the numbers and stop; that is a result, not a failure.
+
+Candidate 3 (`useDeferredValue` / `startTransition`) is worth trying regardless if scripting
+dominates, but it is the cheapest thing here and the same honest trade as Part 1's Task 2 — it moves
+the measured number without reducing the work. Do not let it substitute for recording the split.
+
+## How to work through Part 2's tasks
+
+### Where to stop
+
+**Tasks pause for confirmation. Do not chain them.** Same reasoning as Part 1, and stronger here:
+every task changes how the trees draw, and tree rendering is verified by eye, not by tests. A
+mistake in Task 1 (a node that keeps a stale attribute) looks like a rendering glitch, which is
+exactly what a later task's changes would bury.
+
+Task 1 and Task 2 are also **decision points about whether Task 3 happens at all.** Task 3 is a
+large rewrite; the two cheap tasks before it may make it unnecessary. Re-measure after each and
+record it above before continuing.
+
+After each task: get it into a state the user can look at, mark the task `COMPLETED` in this spec,
+say what changed and which states to compare, and wait. **The user runs the dev server.**
+
+### How it gets verified
+
+- `npm run verify` after every task (required).
+- **Visually, by the user, at each pause** — both trees, since `utils/tree/` is shared. The states
+  that matter:
+  - **Skilldex**: expanded and collapsed nodes; a node with artwork, description, card set and
+    Blightbane link all on, and all off; the nil-card-set case (a talent with expansion 0, which
+    must draw no card-set row); a talent whose name is long enough to truncate.
+  - **Eventmaps**: a small event and one of the largest; each *Level of detail*; looping paths on and
+    off; «Continues» tags; altered-content badges; requirement boxes on `choice`, `result`,
+    `dialogue` **and** `end` nodes.
+  - **Both**: every zoom stop including Cover, and the transition *into* and *out of* Cover — Task 1
+    changes exactly this path. Desktop and mobile.
+- **Re-measure** with the same interactions as the baseline table and record beside it.
+
+### Which docs change with the work
+
+- **`src/codex/CLAUDE.md`** — the layout/render split invariant is *extended* by Task 1, not
+  contradicted: zoom moves from "only re-renders" to "does not redraw at all". Update that wording
+  once Task 1 lands. If a task appears to contradict an invariant there, **raise it with the user**
+  rather than rewriting the invariant to fit.
+- **This file** — record measurements per task, including the ones that do not flatter the change.
+- **Root `CLAUDE.md`** — the PWA & Performance section says Skilldex/Eventmaps are "scoped but
+  untraced". Update when Part 2 concludes.
+
+### Comment style
+
+The non-obvious *why*, a line or two. Worth a comment: why zoom skips the redraw path, why a node's
+data key is what it is. Not: what a D3 join is, or the history of this spec.
+
+## Task 1 — Make zoom not redraw the tree — COMPLETED
+
+**The cheapest win available, and the baseline says it is not small.** A numeric-stop zoom costs
+**293 ms of scripting on Skilldex** and redraws every node — to change three attributes.
+
+`setupTreeSvg` (`utils/tree/svgHelper.ts`) shows zoom's entire effect on the DOM: with a
+`zoomScale` it sets the svg's `width`/`height` and clears `viewBox`; without one it sets a `viewBox`;
+either way the content group gets `transform: scale(...) translate(...)`. Nothing else in the drawn
+output depends on `zoomLevel`.
+
+So `zoomLevel` should not invalidate the draw effect at all:
+
+- Split the render effect in both `TalentTree` and `EventTree` into a **draw effect** (everything
+  that appends nodes and links, without `zoomLevel` in its deps) and a small **zoom effect** that
+  only applies the svg dimensions and the content-group transform to the already-drawn SVG.
+- The content group must be findable by the zoom effect — keep a ref to it, or select it by a
+  stable class rather than re-running `setupTreeSvg`.
+- **Check `maxDepth` first on Skilldex**: `getZoomScale` uses it, and it comes from `layout`. It is a
+  layout output, not a zoom input, so this is fine — but it means the zoom effect needs `layout`
+  available without depending on the draw having *just* run.
+- **Eventmaps has `useEventTreeZoom` and a Cover stop that re-measures `coverScale` from container
+  dimensions.** The baseline found the Cover transition is ~230 ms of scripting on its own. Keep
+  that measurement where it is; this task is about not redrawing nodes, not about changing how cover
+  scale is computed.
+
+**Verify:** `npm run verify`. Visually, the zoom states listed above on **both** trees, with
+particular attention to entering and leaving Cover, and to whether anything that was previously
+recomputed per-zoom is now stale (node text truncation is the one to check — confirm it does not
+depend on zoom). Then **re-measure the zoom interaction on both trees** and record it.
+
+### What was implemented
+
+- `utils/tree/svgHelper.ts` gained **`applyTreeZoom`**, holding everything zoom touches: the svg's
+  `width`/`height`/`viewBox`/`preserveAspectRatio` and the content group's `scale()`/`translate()`
+  transform. `setupTreeSvg` now creates `defs` and the content group and delegates to it, so the two
+  paths cannot drift.
+- The content group carries **`TREE_CONTENT_GROUP_CLASS`**, which is how the zoom effect finds it
+  without re-running setup.
+- Both trees split their render effect into a **draw effect** (no `zoomLevel` dep, calls
+  `setupTreeSvg` with `zoomScale: undefined` and zero offsets) and a **zoom effect** declared after
+  it. On a redraw both run, in order; on a zoom change only the second does.
+- Skilldex's `getZoomScale` moved out of the effect into a `useMemo` on `layout.maxDepth` and
+  `zoomLevel`.
+- Eventmaps' zoom calculation stayed with the zoom effect, since `zoomCalculator.calculate` measures
+  the container. **Its scroll-centering moved there too** — it reads `scrollWidth`, so it has to run
+  after the resize, and it was already conditional on `zoomScale`.
+
+**Two things that made this safe, both verified rather than assumed:**
+
+- **No node-drawing code on either tree reads the zoom level** — grepping `zoomLevel`/`zoomScale`
+  across `talentNodes.ts`, `requirementNodes.ts`, `expansionButtons.ts`, `links.ts`, `nodes.ts`,
+  `badges.ts` returns nothing. If that ever stops being true, this split breaks silently.
+- **Measuring Eventmaps' container after drawing is equivalent to measuring it before.** The wrapper
+  is `width: 100%` / `max-height: 100%` from its parent with scrollbars hidden
+  (`scrollbar-width: none`), so the drawn tree cannot change the dimensions Cover mode caches. This
+  mattered because the original code deliberately cleared the SVG *before* measuring.
+
+**Effect declaration order is load-bearing** and has no type-level protection: the zoom effect must
+stay declared after the draw effect, or it would transform a group that is about to be wiped.
+
+**The zoom effect's deps must also be a superset of the draw effect's** — see the bug below.
+
+### Bug found in review, and fixed
+
+Giving the zoom effect a *narrower* dep list than the draw effect was wrong. A redraw recreates the
+content group at scale 1 and resets the wrapper's scroll, so any dep present only on the draw effect
+left the tree unzoomed — and on Eventmaps, scrolled hard to the left with half the tree out of view.
+
+- **Eventmaps, user-visible:** toggling *Mark altered content* shifted the tree far left, on every
+  event, regardless of whether it had altered content. Toggling *Show «Continues» tags* appeared to
+  fix it, which was a red herring — that flag is in the **layout memo's** deps, so it produced a new
+  `layout` object, which was the one dep the zoom effect did have.
+- **Skilldex, latent and unreported:** toggling any formatting filter while zoomed redrew at scale 1
+  and left the tree unzoomed until the slider was touched next. Visible only if zoomed *and*
+  toggling a filter, which is why it escaped the first visual pass.
+
+Fixed by making each zoom effect depend on everything its draw effect depends on. Cost: Eventmaps'
+zoom scripting went 21 ms → 36 ms, because the zoom effect now correctly runs on redraws it had been
+skipping.
+
+### Results — Task 1
+
+Matched pairs, same method and machine, selections drawn tightly around the interaction.
+
+| Interaction | | Scripting | Rendering | Painting | System | Total |
+|---|---|---|---|---|---|---|
+| **Skilldex** zoom 100→200 | before | 293 ms | 89 ms | 25 ms | 31 ms | 894 ms |
+| | after | **21 ms** | 84 ms | 19 ms | 30 ms | 687 ms |
+| | | **−93%** | −6% | −24% | −3% | −23% |
+| **Eventmaps** zoom 100→200 | before | 190 ms | 71 ms | 15 ms | 31 ms | 722 ms |
+| | after | **36 ms** | 53 ms | 9 ms | 35 ms | 549 ms |
+| | | **−81%** | −25% | −40% | +13% | −24% |
+| **Eventmaps** mark altered (control) | before | 22 ms | 45 ms | 6 ms | 19 ms | 465 ms |
+| | after | 19 ms | 34 ms | 5 ms | 16 ms | 456 ms |
+
+**What the numbers say, including what they don't:**
+
+- **The scripting cut is the result**, and it is the expected shape: zoom no longer rebuilds the DOM,
+  so the JS cost collapses to a few attribute writes. Both trees land at 21–36 ms.
+- **Rendering barely moved on Skilldex (−6%), and Total only −23%.** The browser still re-renders the
+  whole SVG at a new scale, and that work was never the target. This bought a large cut in *scripting*,
+  not a proportional cut in wall time. Don't oversell it.
+- **The control behaved as a control should** (22 → 19 ms, flat), which is what makes the zoom
+  numbers trustworthy — it says the session was not noisy in the way the original baseline session
+  was.
+
+**Field data is still what decides whether this mattered.** Lab and field numbers are not comparable;
+`/skilldex` and `/eventmaps/[event]` need re-checking in Speed Insights once this has shipped and
+accumulated samples.
+
+## Task 2 — Skip the redraw when nothing drawable changed
+
+**Only if Task 1 landed and the numbers still miss.**
+
+After Task 1, the draw effect still re-runs whenever any of its many deps change identity, and
+several are functions or arrays that may be rebuilt per render rather than genuinely changed —
+`parsedKeywords`, `areChildrenExpanded`, `toggleChildrenExpansion`, `getCardSetNameFromIndex` on
+Skilldex.
+
+- Check which of those are actually ref-stable. Cardex's Part 1 work found a `memo` that never held
+  for exactly this reason, so this is a known shape of bug in this codebase, not speculation.
+- Stabilise what can be stabilised at the source (`useCallback`/`useMemo` in the owning hook), rather
+  than papering over it with a deep-compare in the effect.
+- This may turn out to be a no-op if they are all already stable. **Confirm before building
+  anything** — measure how often the draw effect actually runs per interaction first, e.g. with a
+  temporary counter, deleted before the work is done (no permanent tests).
+
+**Verify:** `npm run verify`, plus the same visual states — a stale tree from an effect that no
+longer re-runs when it should is the failure mode, so check that every filter and formatting toggle
+still updates the tree.
+
+## Task 3 — Incremental redraw (D3 enter/update/exit) — the rewrite
+
+**Only if Tasks 1–2 have landed and the numbers still miss.** This is the significant rewrite the
+candidate list warned about, and it is deliberately last despite being the thing the baseline points
+at, because Tasks 1–2 may remove enough of the *occasions* for a redraw that its cost stops
+mattering.
+
+Today both trees do `select(svgRef.current).selectAll('*').remove()` and rebuild every node. A
+general-update-pattern join would touch only what changed.
+
+**What makes this hard here, and must be settled before writing code:**
+
+- **Node identity.** The join needs a stable key. Talent nodes have `name` + `type`; event nodes
+  need checking. Without a key, D3 joins by index and every node's contents shift on any structural
+  change, which is worse than the wipe.
+- **The per-node draw is not idempotent.** `renderTalentNode` and `renderRequirementNode` *append*
+  into a fresh `<g>`. To reuse a node they must either become "clear this `<g>` and redraw it" — in
+  which case the saving is only the `<g>` and its transform, probably not worth it — or be split
+  into append-once and update-attributes halves. **That split is the real work of this task**, and it
+  lands on `renderTalentNode`, `renderRequirementNode`, `renderExpansionButton`, `drawLinks`,
+  `renderRequirementIndicators`, and the Eventmaps equivalents in `nodes.ts`/`links.ts`/`badges.ts`.
+- **Node dimensions change with settings**, so a node reused across a formatting toggle needs its
+  geometry updated, not just its text. The dimension caches are keyed by rendering settings already,
+  which helps.
+- **`defs` and filters** (`createGlowFilter`) are currently recreated per draw; they must not
+  accumulate duplicates across incremental updates.
+
+**Scope it to one tree first.** Skilldex or Eventmaps, not both — `utils/tree/` is shared, so prove
+the pattern on one, verify both still render, then port. If the per-node split turns out not to be
+separable, **stop and raise it**: the fallback is accepting the redraw cost and pursuing Task 4
+instead.
+
+**Verify:** `npm run verify`, the full visual list for both trees, and **re-measure every interaction
+in the baseline tables**, since this changes the cost of all of them rather than one.
+
+## Task 4 — Defer the redraw — fallback, not a fix
+
+**Only if the above have not got there**, or as a deliberate stopgap if Task 3 is judged too large.
+
+Wrap the tree redraw in `useDeferredValue`/`startTransition` so the control (checkbox, select,
+expansion button) paints before the tree does.
+
+**Be honest about what this does:** it reduces the *measured* interaction without reducing the work,
+exactly as Part 1's Task 2 would have. On a slow device the tree visibly lags the control. Part 1
+declined this trade on Cardex and shipped nothing for it; the same scepticism applies here. If it
+feels worse to use, drop it rather than keeping it for the metric — and record that decision.
 
 ## Which docs change with Part 2
 
