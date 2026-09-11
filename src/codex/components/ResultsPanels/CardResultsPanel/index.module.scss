@@ -2,6 +2,7 @@
 
 .results-panel {
   flex: 2;
+  min-width: 300px;
   background-color: $color-component-bg;
   padding: 1rem;
   border-radius: 4px;

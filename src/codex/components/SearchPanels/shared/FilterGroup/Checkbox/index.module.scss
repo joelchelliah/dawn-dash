@@ -40,37 +40,21 @@ $checkmark-size: 0.625rem;
   align-items: center;
   gap: 0.25rem;
   width: calc(33.33% - 0.5rem);
-  min-width: 80px;
   margin-bottom: 0.5rem;
   cursor: pointer;
 
-  &--card-set {
-    @media (max-width: $breakpoint-mobile) {
-      width: calc(50% - 0.5rem);
-      min-width: 0;
-    }
-  }
-
-  &--rarity {
-    width: calc(50% - 0.5rem);
-    margin-right: 0;
-  }
-
+  // Each group's `min-width` is based on its longest label. They differ on purpose.
+  // Verify new changes at mobile: 320px, and desktop: just above $breakpoint-mobile.
+  &--card-set,
   &--requirement {
+    min-width: 9rem;
     @media (max-width: $breakpoint-mobile) {
       width: calc(50% - 0.5rem);
-      min-width: 0;
-    }
-  }
-
-  &--card-type {
-    @media (max-width: $breakpoint-mobile) {
-      width: calc(50% - 0.5rem);
-      min-width: 0;
     }
   }
 
   &--banner {
+    min-width: 7rem;
     margin: 0.125rem 0;
     padding: 0.3125rem 0.25rem;
 
@@ -78,18 +62,35 @@ $checkmark-size: 0.625rem;
   }
 
   &--tier {
+    min-width: 9rem;
     margin: 0.125rem 0;
     padding: 0.3125rem 0.25rem;
 
     @include applyColorAndRainTexture($tier-name-to-color-map, 0.25, 0.4);
   }
 
+  &--rarity {
+    min-width: 8.25rem;
+    width: calc(50% - 0.5rem);
+    margin-right: 0;
+  }
+
+  &--card-type {
+    min-width: 7rem;
+
+    @media (max-width: $breakpoint-mobile) {
+      width: calc(50% - 0.5rem);
+    }
+  }
+
   &--extra {
+    min-width: 9rem;
     width: 100%;
   }
 
   &--formatting-card,
   &--formatting-talent {
+    min-width: 12rem;
     width: calc(50% - 1.5rem);
 
     @media (max-width: $breakpoint-mobile) {
