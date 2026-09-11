@@ -44,11 +44,15 @@ export enum RarityFilterOption {
   // Monster cards are governed by the "Include Monster cards" checkbox
 }
 
-export type Rarity = RarityFilterOption
+export type Rarity = RarityFilterOption | SharedFilterOption
 
 export const Rarity = {
   ...RarityFilterOption,
-  getAll: (): Rarity[] => [...Object.values(RarityFilterOption)],
+  ...SharedFilterOption,
+  getAll: (): Rarity[] => [
+    ...Object.values(RarityFilterOption),
+    ...Object.values(SharedFilterOption),
+  ],
 }
 
 // -------------------- Card Type --------------------

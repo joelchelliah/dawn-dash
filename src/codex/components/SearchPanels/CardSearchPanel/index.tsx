@@ -165,7 +165,7 @@ const CardSearchPanel = ({ useSearchFilters, useCardData }: CardSearchPanelProps
             Uncommon
           </span>
         )
-      default:
+      case RarityFilterOption.Common:
         return (
           <span className={cx('filter-label')}>
             <CircleIcon className={cx('filter-icon--common')} />
@@ -173,6 +173,8 @@ const CardSearchPanel = ({ useSearchFilters, useCardData }: CardSearchPanelProps
           </span>
         )
     }
+
+    return <span className={cx('filter-label')}>{filter}</span>
   }
 
   const getCardTypeFilterLabel = (filter: string) => {

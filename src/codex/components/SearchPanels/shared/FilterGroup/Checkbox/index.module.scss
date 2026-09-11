@@ -54,7 +54,7 @@ $checkmark-size: 0.625rem;
   }
 
   &--banner {
-    min-width: 7rem;
+    min-width: 7.5rem;
     margin: 0.125rem 0;
     padding: 0.3125rem 0.25rem;
 
@@ -62,7 +62,7 @@ $checkmark-size: 0.625rem;
   }
 
   &--tier {
-    min-width: 9rem;
+    min-width: 7.5rem;
     margin: 0.125rem 0;
     padding: 0.3125rem 0.25rem;
 
@@ -70,9 +70,11 @@ $checkmark-size: 0.625rem;
   }
 
   &--rarity {
-    min-width: 8.25rem;
-    width: calc(50% - 0.5rem);
-    margin-right: 0;
+    min-width: 8.5rem;
+
+    @media (max-width: $breakpoint-mobile) {
+      width: calc(50% - 0.5rem);
+    }
   }
 
   &--card-type {
