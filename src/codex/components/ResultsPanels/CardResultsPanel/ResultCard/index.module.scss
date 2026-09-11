@@ -1,21 +1,5 @@
 @use 'index' as *;
 
-// Weird visual effect work-around for struck cards and hover effect
-@mixin cardOverlayPositioningFix {
-  margin-left: -0.5rem;
-  padding-left: 0.5rem;
-
-  &:first-child {
-    margin-top: -0.25rem;
-    padding-top: 0.25rem;
-  }
-
-  &:last-child {
-    margin-bottom: -0.25rem;
-    padding-bottom: 0.5rem;
-  }
-}
-
 // To reuse the same margins for both description and blightbane link.
 @mixin description-margins-based-on-filters {
   margin: 0.125rem 0.5rem 0.375rem 0;
@@ -70,7 +54,7 @@ $row-entry-animation: resultRowIn 0.5s ease-out backwards;
   flex-direction: row;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.25rem 0;
+  padding: 0.25rem 0.5rem;
   cursor: pointer;
   /*
    * Lets the browser skip style, layout and paint for rows outside the viewport
@@ -92,15 +76,15 @@ $row-entry-animation: resultRowIn 0.5s ease-out backwards;
   }
 
   &:first-child {
-    padding-top: 0;
+    padding-top: 0.5rem;
   }
 
   &:last-child {
+    padding-bottom: 0.5rem;
     background-image: none;
   }
 
   &--struck {
-    @include cardOverlayPositioningFix;
     color: $color-primary-dark;
     background-color: rgba(0, 0, 0, 0.5) !important;
 
@@ -120,7 +104,6 @@ $row-entry-animation: resultRowIn 0.5s ease-out backwards;
   }
 
   &--full-match {
-    @include cardOverlayPositioningFix;
     position: relative;
     // Two layers: the animated shine, then the row divider re-declared.
     background-image: full-match-shine(), row-divider();
@@ -157,7 +140,6 @@ $row-entry-animation: resultRowIn 0.5s ease-out backwards;
   &:hover {
     color: $color-primary-hover;
     background-color: rgba(255, 255, 255, 0.03);
-    @include cardOverlayPositioningFix;
 
     .result-card__name {
       @include tinyNudgeRightAnimation;

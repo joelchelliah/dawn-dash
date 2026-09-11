@@ -148,9 +148,10 @@ shipped and accumulated samples. **If it is still Poor, Task 2 is the next move*
 written for that reason, not as a task anyone should pick up pre-emptively.
 
 Visually verified by the user at desktop: rows, hover and struck state all unchanged. The specific
-risk was that `content-visibility: auto` implies `contain: layout paint`, which could clip
-`cardOverlayPositioningFix`'s deliberate 0.5rem background bleed on hovered and struck rows — it
-does not.
+risk was that `content-visibility: auto` implies `contain: layout paint`, which could clip the
+deliberate 0.5rem background bleed the `cardOverlayPositioningFix` mixin gave hovered and struck
+rows. That mixin has since been removed: the row carries its own horizontal padding instead, so the
+backgrounds paint inside the border box and there is nothing left to clip.
 
 ## Why this, and not the other candidates
 
