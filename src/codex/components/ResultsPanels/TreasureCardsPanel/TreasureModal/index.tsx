@@ -174,6 +174,7 @@ function TreasureModal({ treasure, onClose }: TreasureModalProps): JSX.Element {
 
         <Section
           title="Acquired outside of events"
+          spacing="medium"
           dividerColor={rarity ? RARITY_COLOR : undefined}
         >
           {cardSetName !== 'Core' && (
@@ -190,6 +191,7 @@ function TreasureModal({ treasure, onClose }: TreasureModalProps): JSX.Element {
           <Section
             title={`Acquired from events (${guaranteedEvents.length})`}
             dividerColor={rarity ? RARITY_COLOR : undefined}
+            spacing="medium"
           >
             <div className={cx('treasure-modal__hint')}>
               Events that can always offer this treasure.
@@ -202,6 +204,7 @@ function TreasureModal({ treasure, onClose }: TreasureModalProps): JSX.Element {
           <Section
             title={`In treasure pool used by events (${poolEvents.length})`}
             dividerColor={rarity ? RARITY_COLOR : undefined}
+            spacing="medium"
           >
             <div className={cx('treasure-modal__hint')}>
               Events that draw from a treasure pool containing this card.
@@ -212,7 +215,11 @@ function TreasureModal({ treasure, onClose }: TreasureModalProps): JSX.Element {
         )}
 
         {cardSpecificNotes[cardName] && (
-          <Section title="Additional notes" dividerColor={rarity ? RARITY_COLOR : undefined}>
+          <Section
+            title="Additional notes"
+            dividerColor={rarity ? RARITY_COLOR : undefined}
+            spacing="medium"
+          >
             <div className={cx('treasure-modal__hint')}>{cardSpecificNotes[cardName]}</div>
           </Section>
         )}

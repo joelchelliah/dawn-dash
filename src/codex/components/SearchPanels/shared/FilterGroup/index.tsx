@@ -1,7 +1,7 @@
 import { createCx } from '@/shared/utils/classnames'
-import Divider from '@/shared/components/Divider'
 
 import { FilterTypeCard, FilterTypeTalent } from '@/codex/types/filters'
+import Section from '@/codex/components/shared/Section'
 
 import Checkbox from './Checkbox'
 import styles from './index.module.scss'
@@ -29,9 +29,7 @@ function FilterGroup({
   const checkboxesClassName = cx('check-boxes', `check-boxes--${type}`, className)
 
   return (
-    <div className={cx('filter-group')}>
-      <h4>{title}</h4>
-      <Divider spacingBottom="sm" />
+    <Section title={title} spacing="medium">
       <div className={checkboxesClassName}>
         {filters.map((filter) => (
           <Checkbox
@@ -44,7 +42,7 @@ function FilterGroup({
           />
         ))}
       </div>
-    </div>
+    </Section>
   )
 }
 
