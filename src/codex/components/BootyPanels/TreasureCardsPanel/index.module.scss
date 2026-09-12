@@ -1,0 +1,15 @@
+@use 'index' as *;
+
+.treasure-list,
+.last-updated {
+  margin: 0 1rem;
+}
+
+.error-message {
+  margin: 0 1rem;
+  font-size: font-size('sm');
+  line-height: 1.4;
+  color: $color-danger-error;
+  text-align: center;
+  padding: 2rem;
+}

@@ -5,10 +5,10 @@ import { createCx } from '@/shared/utils/classnames'
 import { enrichTreasureCards } from '@/codex/utils/treasureHelper'
 import { useCardData } from '@/codex/hooks/useCardData'
 
-import PanelHeader from '../../PanelHeader'
 import CodexErrorMessage from '../../CodexErrorMessage'
 import CodexLastUpdated from '../../CodexLastUpdated'
 import CodexLoadingMessage from '../../CodexLoadingMessage'
+import TreasureBasePanel from '../TreasureBasePanel'
 
 import TreasureList from './TreasureList'
 import styles from './index.module.scss'
@@ -23,23 +23,29 @@ const TreasureCardsPanel = () => {
     isError,
     isErrorInBackground,
     lastUpdated,
-    refresh,
     progress,
   } = useCardData()
 
   const treasures = useMemo(() => enrichTreasureCards(cardData), [cardData])
 
+  const hasTreasures = !isLoading && !isError && treasures.length > 0
+  const treasureInfo = hasTreasures ? (
+    <>
+      There are a total of {treasures.length} <strong>Treasure</strong> cards.
+    </>
+  ) : undefined
+
   const renderTreasures = () => {
     if (treasures.length === 0) {
-      return <div className={cx('info-message')}>No treasure cards found!</div>
+      return <div className={cx('error-message')}>No treasure cards found!</div>
     }
 
     return (
       <>
-        <div className={cx('treasure-panel__treasure-list')}>
+        <div className={cx('treasure-list')}>
           <TreasureList treasures={treasures} />
         </div>
-        <div className={cx('treasure-panel__last-updated')}>
+        <div className={cx('last-updated')}>
           <CodexLastUpdated
             type="card"
             lastUpdated={lastUpdated}
@@ -47,7 +53,6 @@ const TreasureCardsPanel = () => {
             isLoadingInBackground={isLoadingInBackground}
             isErrorInBackground={isErrorInBackground}
             progress={progress}
-            refresh={refresh}
           />
         </div>
       </>
@@ -55,17 +60,11 @@ const TreasureCardsPanel = () => {
   }
 
   return (
-    <div className={cx('treasure-panel')}>
-      <div className={cx('treasure-panel__header')}>
-        <PanelHeader type="TreasureCards" />
-      </div>
-
-      <div className={cx('treasure-panel__container')}>
-        <CodexLoadingMessage isVisible={isLoading} progress={progress} codexType="card" />
-        <CodexErrorMessage isVisible={isError && !isLoading} codexType="card" />
-        {!isLoading && !isError && renderTreasures()}
-      </div>
-    </div>
+    <TreasureBasePanel type="TreasureCards" info={treasureInfo}>
+      <CodexLoadingMessage isVisible={isLoading} progress={progress} codexType="card" />
+      <CodexErrorMessage isVisible={isError && !isLoading} codexType="card" />
+      {!isLoading && !isError && renderTreasures()}
+    </TreasureBasePanel>
   )
 }
 
