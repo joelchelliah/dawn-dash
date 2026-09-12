@@ -39,8 +39,8 @@ const TreasurePoolsPanel = () => {
 
   const treasurePoolInfo = (
     <>
-      Treasure cards, that are randomly acquired, are drawn from one of these{' '}
-      {TREASURE_POOL_DISPLAYS.length} <strong>Treasure Pools</strong>.
+      Randomly acquired treasure cards are drawn from one of these {TREASURE_POOL_DISPLAYS.length}{' '}
+      <strong>Treasure Pools</strong>.
     </>
   )
 

@@ -17,6 +17,53 @@ const OUTPUT_DIR = path.join(__dirname, '../src/codex/data')
 const CARDS_OUTPUT_FILE = path.join(OUTPUT_DIR, 'treasure-cards.json')
 const POOLS_OUTPUT_FILE = path.join(OUTPUT_DIR, 'treasure-pools.json')
 
+// Keyed by the field's own name, so a nested whitelist applies wherever that field appears.
+const NESTED_FIELDS = {
+  fromEvents: ['event'],
+  fromTreasureEvents: ['event'],
+  fromCards: ['card'],
+  fromTalents: ['talent'],
+  reachedBy: ['card', 'talent', 'event'],
+}
+
+const CARD_FIELDS = [
+  'id',
+  'name',
+  'category',
+  'type',
+  'inCardRewards',
+  'inMerchant',
+  'inAlchemist',
+  'fromTranspose',
+  'fromTrade',
+  'fromEvents',
+  'fromTreasureEvents',
+  'fromCards',
+  'fromTalents',
+]
+
+const POOL_FIELDS = ['pool', 'contains', 'size', 'reachedBy']
+
+function pickFields(object, fields, ignored, pathPrefix) {
+  const picked = {}
+
+  for (const [key, value] of Object.entries(object)) {
+    if (!fields.includes(key)) {
+      ignored.add(`${pathPrefix}.${key}`)
+      continue
+    }
+
+    const nestedFields = NESTED_FIELDS[key]
+
+    picked[key] =
+      nestedFields && Array.isArray(value)
+        ? value.map((item) => pickFields(item, nestedFields, ignored, `${pathPrefix}.${key}[]`))
+        : value
+  }
+
+  return picked
+}
+
 function writeJson(outputFile, data, label) {
   fs.writeFileSync(outputFile, `${JSON.stringify(data, null, 2)}\n`, 'utf8')
 
@@ -26,6 +73,19 @@ function writeJson(outputFile, data, label) {
 
   const sizeKb = (fs.statSync(outputFile).size / 1024).toFixed(2)
   console.log(`   ✅ ${data.length} ${label} -> ${outputFile} (${sizeKb} KB)`)
+}
+
+function logIgnoredFields(ignored) {
+  if (ignored.size === 0) {
+    console.log('\nNo fields were ignored — every field in the input is whitelisted.')
+    return
+  }
+
+  console.log(`\nIgnored ${ignored.size} field(s):`)
+  for (const field of Array.from(ignored).sort()) {
+    console.log(`   - ${field}`)
+  }
+  console.log('   Add them to CARD_FIELDS / POOL_FIELDS / NESTED_FIELDS to start including them.')
 }
 
 function main() {
@@ -50,9 +110,15 @@ function main() {
       fs.mkdirSync(OUTPUT_DIR, { recursive: true })
     }
 
+    const ignored = new Set()
+    const cards = entries.map((entry) => pickFields(entry, CARD_FIELDS, ignored, 'entries'))
+    const poolList = pools.map((pool) => pickFields(pool, POOL_FIELDS, ignored, 'pools'))
+
     console.log('\nWriting output files...')
-    writeJson(CARDS_OUTPUT_FILE, entries, 'treasure cards')
-    writeJson(POOLS_OUTPUT_FILE, pools, 'treasure pools')
+    writeJson(CARDS_OUTPUT_FILE, cards, 'treasure cards')
+    writeJson(POOLS_OUTPUT_FILE, poolList, 'treasure pools')
+
+    logIgnoredFields(ignored)
 
     console.log('\nSuccess!')
   } catch (error) {

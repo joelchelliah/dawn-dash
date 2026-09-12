@@ -1,99 +1,71 @@
 [
   {
     "pool": "A",
-    "name": "Delve Treasure",
     "contains": ["Treasure", "Equipment", "Items"],
-    "predicate": "NOT Junk/Companion",
-    "useAllCardSets": false,
     "size": 102,
-    "keywordShare": 14,
     "reachedBy": [
       {
-        "card": "Booty",
-        "command": "delvebytag"
+        "card": "Booty"
       },
       {
-        "card": "Shovel",
-        "command": "delvebytag"
+        "card": "Shovel"
       }
     ]
   },
   {
     "pool": "B",
-    "name": "Pirate Parlour",
     "contains": ["Treasure", "Maps", "Locations", "Pirate Ink"],
-    "predicate": "NOT owned Uniques AND NOT Unplayable",
-    "useAllCardSets": true,
     "size": 31,
-    "tatoosAdded": "0-5",
     "reachedBy": [
       {
-        "talent": "Pirate Parlour",
-        "command": "pirateparlour"
+        "talent": "Pirate Parlour"
       }
     ]
   },
   {
     "pool": "C",
-    "name": "keyword, ungated",
     "contains": ["Treasure"],
-    "predicate": null,
-    "useAllCardSets": false,
     "size": 14,
     "reachedBy": [
       {
-        "card": "Explorer's Trick",
-        "command": "setrewardstokeyword"
+        "card": "Explorer's Trick"
       },
       {
-        "event": "Broken Tombstone",
-        "command": "addcardbykeyword"
+        "event": "Broken Tombstone"
       },
       {
-        "event": "Marrow Halls",
-        "command": "delvefromany"
+        "event": "Marrow Halls"
       },
       {
-        "event": "Painted Landscape",
-        "command": "addcardbykeyword"
+        "event": "Painted Landscape"
       },
       {
-        "event": "Survey the Field",
-        "command": "delvefromany"
+        "event": "Survey the Field"
       },
       {
-        "event": "Undisturbed Grave",
-        "command": "addcardbykeyword"
+        "event": "Undisturbed Grave"
       },
       {
-        "event": "Vault Door",
-        "command": "delvefromany"
+        "event": "Vault Door"
       },
       {
-        "event": "Vesparin Vault",
-        "command": "delvefromany"
+        "event": "Vesparin Vault"
       }
     ]
   },
   {
     "pool": "D",
-    "name": "keyword, acquirable",
     "contains": ["Treasure"],
-    "predicate": "canBeAcquired AND PlayerCanCastCard",
-    "useAllCardSets": false,
     "size": 7,
     "reachedBy": [
       {
-        "event": "Molekin Burrow",
-        "command": "delvefromkeyword"
+        "event": "Molekin Burrow"
       },
       {
-        "event": "Rotting Residence",
-        "command": "delvefromkeyword"
+        "event": "Rotting Residence"
       },
       {
-        "event": "The Cocoon",
-        "command": "delvefromkeyword"
+        "event": "The Cocoon"
       }
     ]
   }

@@ -18,6 +18,9 @@ export const POOL_NOTES: Record<PoolId, PoolNotes> = {
       <>
         Both <strong>Shovel</strong> and <strong>Booty</strong> can delve <strong>Unique</strong>{' '}
         cards you already own.
+        <br />
+        <br />
+        This pool&apos;s size is limited by which card sets you&apos;ve enabled.
       </>
     ),
   },
@@ -33,6 +36,9 @@ export const POOL_NOTES: Record<PoolId, PoolNotes> = {
       <>
         Some of the <strong>Treasure events</strong> have additional hidden restrictions, preventing
         you from getting certain cards.
+        <br />
+        <br />
+        This pool&apos;s size is limited by which card sets you&apos;ve enabled.
       </>
     ),
   },
@@ -47,6 +53,9 @@ export const POOL_NOTES: Record<PoolId, PoolNotes> = {
       <>
         Cards delved via <strong>Pirate Parlour</strong> are played immediately. No cards are
         permanently added to the deck.
+        <br />
+        <br />
+        This pool&apos;s size is always the same, regardless of which card sets you&apos;ve enabled.
       </>
     ),
   },
