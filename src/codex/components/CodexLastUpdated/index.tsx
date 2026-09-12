@@ -14,7 +14,7 @@ interface CodexLastUpdatedProps {
   isLoadingInBackground: boolean
   isErrorInBackground: boolean
   progress: number
-  refresh: () => void
+  refresh?: () => void
 }
 
 const CodexLastUpdated = ({
@@ -52,7 +52,7 @@ const CodexLastUpdated = ({
       ) : (
         fromNow
       )}
-      {!(isLoading || isLoadingInBackground) && (
+      {!(isLoading || isLoadingInBackground) && refresh && (
         <div>
           <GradientLink text="Resync data?" onClick={refresh} />
         </div>

@@ -36,7 +36,7 @@ const Checkbox = ({ checkboxLabel, checked, onChange, type, name }: CheckboxProp
   const labelClassName = cx(
     'checkbox-label',
     `checkbox-label--${type}`,
-    `checkbox-label--${type}--${name.replace(' ', '-')}`
+    `checkbox-label--${type}--${name.replaceAll(' ', '-')}`
   )
   const checkboxClassName = cx('checkbox', `checkbox--${type}`)
   const labelTextClassName = cx('checkbox-label-text', `checkbox-label-text--${type}`, {

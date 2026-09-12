@@ -35,19 +35,13 @@
 }
 
 .event-type-group {
+  --event-type-divider-color: #{$yellow-base};
+
   margin-bottom: 2rem;
 
   &:last-child {
     margin-bottom: 0;
   }
-}
-
-.event-type-subheader {
-  margin: 0 0 0.75rem 0.75rem;
-  font-size: font-size('sm');
-  font-weight: 600;
-  color: $yellow-base;
-  letter-spacing: 0.025em;
 }
 
 .event-list {

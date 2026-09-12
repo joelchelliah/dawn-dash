@@ -12,11 +12,11 @@ import StarField from '@/shared/components/StarField'
 
 import styles from './booty.module.scss'
 
-const TreasureCardsPanel = dynamic(() => import('./components/ResultsPanels/TreasureCardsPanel'), {
+const TreasureCardsPanel = dynamic(() => import('./components/BootyPanels/TreasureCardsPanel'), {
   loading: () => <div>Loading treasure cards...</div>,
 })
 
-const TreasurePoolsPanel = dynamic(() => import('./components/ResultsPanels/TreasurePoolsPanel'), {
+const TreasurePoolsPanel = dynamic(() => import('./components/BootyPanels/TreasurePoolsPanel'), {
   loading: () => <div>Loading treasure pools...</div>,
 })
 

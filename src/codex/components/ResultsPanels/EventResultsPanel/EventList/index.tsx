@@ -6,8 +6,8 @@ import { useBreakpoint } from '@/shared/hooks/useBreakpoint'
 
 import { Event } from '@/codex/types/events'
 import { useEventImageSrc } from '@/codex/hooks/useEventImageSrc'
-import { eventTypeMapper } from '@/codex/utils/eventListHelper'
 import SearchField from '@/codex/components/SearchPanels/shared/SearchField'
+import Section from '@/codex/components/shared/Section'
 
 import styles from './index.module.scss'
 
@@ -23,6 +23,26 @@ interface EventListProps {
   filterText: string
   setFilterText: (text: string) => void
   onEventSelect: (eventIndex: number) => void
+}
+
+// The label doubles as the grouping key, so it has to stay unique per type.
+const EVENT_TYPES: Record<number, { emoji: string; label: string }> = {
+  0: { emoji: '💁‍♂️', label: 'NPC-related events' },
+  2: { emoji: '🎯', label: 'Opportunities (mostly)' },
+  10: { emoji: '⛩️', label: 'Shrines' },
+}
+const DEFAULT_EVENT_TYPE = { emoji: '📖', label: 'Story-related or special events' }
+
+const getEventType = (type: number) => EVENT_TYPES[type] ?? DEFAULT_EVENT_TYPE
+
+const getEventTypeHeaderText = (type: number): React.ReactNode => {
+  const { emoji, label } = getEventType(type)
+
+  return (
+    <>
+      &nbsp;{emoji} &nbsp;{label}
+    </>
+  )
 }
 
 function EventList({
@@ -53,7 +73,7 @@ function EventList({
   // Group events by type
   const eventsByType = events.reduce(
     (groups, event) => {
-      const type = eventTypeMapper(event.type)
+      const type = getEventType(event.type).label
       if (!groups[type]) {
         groups[type] = { index: event.type, events: [] }
       }
@@ -95,17 +115,21 @@ function EventList({
 
       {sortedTypes.map(({ index: typeIndex, events }) => (
         <div key={typeIndex} className={cx('event-type-group')}>
-          <h4 className={cx('event-type-subheader')}>{eventTypeMapper(typeIndex)}</h4>
-          <div className={cx('event-list')}>
-            {events.map((event) => (
-              <EventListItem
-                key={event.name}
-                event={event}
-                allEvents={allEvents}
-                onEventSelect={onEventSelect}
-              />
-            ))}
-          </div>
+          <Section
+            title={getEventTypeHeaderText(typeIndex)}
+            dividerColor="var(--event-type-divider-color)"
+          >
+            <div className={cx('event-list')}>
+              {events.map((event) => (
+                <EventListItem
+                  key={event.name}
+                  event={event}
+                  allEvents={allEvents}
+                  onEventSelect={onEventSelect}
+                />
+              ))}
+            </div>
+          </Section>
         </div>
       ))}
     </div>

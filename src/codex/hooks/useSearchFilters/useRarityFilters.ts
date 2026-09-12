@@ -1,15 +1,22 @@
-import { CardCodexSearchFilterCache, Rarity, RarityFilterOption } from '@/codex/types/filters'
+import {
+  CardCodexSearchFilterCache,
+  Rarity,
+  RarityFilterOption,
+  SharedFilterOption,
+} from '@/codex/types/filters'
 
 import { createFilterHook } from './useFilterFactory'
 
-const defaultFilters = {
+const defaultFilters: Record<string, boolean> = {
   [RarityFilterOption.Legendary]: true,
   [RarityFilterOption.Rare]: true,
   [RarityFilterOption.Uncommon]: false,
   [RarityFilterOption.Common]: false,
+  [SharedFilterOption.All]: false,
+  [SharedFilterOption.None]: false,
 }
 
-const indexMap = {
+const indexMap: Record<string, number> = {
   [RarityFilterOption.Legendary]: 3,
   [RarityFilterOption.Rare]: 2,
   [RarityFilterOption.Uncommon]: 1,

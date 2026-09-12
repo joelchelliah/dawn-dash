@@ -9,7 +9,7 @@ import {
   TREASURE_POOL_DISPLAYS,
 } from '@/codex/constants/treasurePools'
 
-import PanelHeader from '../../PanelHeader'
+import TreasureBasePanel from '../TreasureBasePanel'
 
 import TreasurePool from './TreasurePool'
 import styles from './index.module.scss'
@@ -37,20 +37,21 @@ const TreasurePoolsPanel = () => {
     }
   }, [])
 
-  return (
-    <div className={cx('treasure-panel')}>
-      <div className={cx('treasure-panel__header')}>
-        <PanelHeader type="TreasurePools" />
-      </div>
+  const treasurePoolInfo = (
+    <>
+      Treasure cards, that are randomly acquired, are drawn from one of these{' '}
+      {TREASURE_POOL_DISPLAYS.length} <strong>Treasure Pools</strong>.
+    </>
+  )
 
-      <div className={cx('treasure-panel__container')}>
-        <div className={cx('treasure-panel__pools')}>
-          {TREASURE_POOL_DISPLAYS.map((pool) => (
-            <TreasurePool key={pool.id} pool={pool} />
-          ))}
-        </div>
+  return (
+    <TreasureBasePanel type="TreasurePools" info={treasurePoolInfo}>
+      <div className={cx('pools')}>
+        {TREASURE_POOL_DISPLAYS.map((pool) => (
+          <TreasurePool key={pool.id} pool={pool} />
+        ))}
       </div>
-    </div>
+    </TreasureBasePanel>
   )
 }
 

@@ -20,8 +20,29 @@ const cx = createCx(styles)
 
 const CardResultsPanel = ({ useSearchFilters }: CardResultsPanelProps) => {
   const [showCardsWithoutKeywords, setShowCardsWithoutKeywords] = useState(false)
-  const { parsedKeywords, matchingCards, useCardStrike, useFormattingFilters } = useSearchFilters
-  const { shouldHideTrackedCards } = useFormattingFilters
+  const {
+    parsedKeywords,
+    matchingCards,
+    useCardStrike,
+    useFormattingFilters,
+    useCardSetFilters,
+    useCardTypeFilters,
+    useExtraCardFilters,
+  } = useSearchFilters
+  const {
+    shouldHideTrackedCards,
+    shouldShowDescription,
+    shouldShowKeywords,
+    shouldShowCardSet,
+    shouldShowCardType,
+    shouldShowCardArt,
+    shouldShowBlightbaneLink,
+  } = useFormattingFilters
+  const { getCardSetNameFromIndex } = useCardSetFilters
+  const { getCardTypeNameFromIndex, getCardTypeEmojiFromIndex } = useCardTypeFilters
+  const { shouldIncludeNonCollectibleCards, shouldIncludeAnimalCompanionCards } =
+    useExtraCardFilters
+  const { struckCardNames, toggleCardStrike } = useCardStrike
 
   useEffect(() => {
     if (parsedKeywords.length > 0) {
@@ -68,7 +89,21 @@ const CardResultsPanel = ({ useSearchFilters }: CardResultsPanelProps) => {
                   <ResultCard
                     key={card.name}
                     card={card}
-                    useSearchFilters={useSearchFilters}
+                    parsedKeywords={parsedKeywords}
+                    isStruck={struckCardNames.has(card.name)}
+                    toggleCardStrike={toggleCardStrike}
+                    getCardSetNameFromIndex={getCardSetNameFromIndex}
+                    getCardTypeNameFromIndex={getCardTypeNameFromIndex}
+                    getCardTypeEmojiFromIndex={getCardTypeEmojiFromIndex}
+                    shouldIncludeNonCollectibleCards={shouldIncludeNonCollectibleCards}
+                    shouldIncludeAnimalCompanionCards={shouldIncludeAnimalCompanionCards}
+                    shouldShowDescription={shouldShowDescription}
+                    shouldShowKeywords={shouldShowKeywords}
+                    shouldShowCardSet={shouldShowCardSet}
+                    shouldShowCardType={shouldShowCardType}
+                    shouldShowCardArt={shouldShowCardArt}
+                    shouldShowBlightbaneLink={shouldShowBlightbaneLink}
+                    shouldHideTrackedCards={shouldHideTrackedCards}
                     showCardsWithoutKeywords={showCardsWithoutKeywords}
                     entryIndex={precedingCards + cardIndex}
                   />
