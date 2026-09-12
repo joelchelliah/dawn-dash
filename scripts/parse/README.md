@@ -2,7 +2,7 @@
 
 Turns the game's own [Ink](https://www.inklestudios.com/ink/) stories into the static
 `src/codex/data/event-trees.json` that the Eventmaps tool renders. The whole pipeline is run by
-`scripts/sync-events.js`; this folder implements the final (and biggest) step.
+`scripts/sync/sync-events.js`; this folder implements the final (and biggest) step.
 
 ## The big picture
 
@@ -55,25 +55,25 @@ and restoring story state to explore every choice.
 
 ## Module map
 
-| File | Role |
-|---|---|
-| `parse-event-trees.js` | Entry point: CLI flags, parse loop, the `PIPELINE` pass registry, output writing |
-| `tree-building.js` | Ink story exploration → raw tree (`parseInkStory`, `buildTreeFromStory`) |
-| `tree-utils.js` | Node creation, node-id counter, generic tree helpers (`countNodes`, node maps) |
-| `node-splitting.js` | Effect extraction (`>>>>COMMAND`), text cleaning, combat/dialogue/choice/conditional-variant splitting |
-| `random-support.js` | Random value detection (`RANDOM(min, max)`) and normalization to `«random»` |
-| `ref-normalization.js` | Rewrite refs to point at the "right" node after structural passes move content |
-| `deduplication.js` | Structural subtree dedup (rendering-equivalent subtrees → refs; exact hashing + ref-resolving equivalence; run both mid-pipeline and again post-alterations), plus the duplicate-combat-node merge |
-| `ref-children.js` | Sibling/cousin refs → `refChildren` (renders as converging lines) |
-| `misc-passes.js` | Invalid-ref check, card-id replacement, default-node filtering |
-| `post-processing-hub-pattern-optimization.js` | Config-free BFS detection of dialogue-menu hubs |
-| `apply-event-alterations.js` | Engine for manual per-event fixes |
-| `event-alterations.js` | The manual fixes themselves (data) |
-| `event-overrides.js` | ALL per-event special-casing in one place (hub events, Ink variable overrides, blacklists, aliases, deprecated events, validation ignore rules; re-exports the alterations) |
-| `configs.js` | Pass toggles + non-per-event tuning knobs |
-| `config-validation.js` | Startup check: every per-event config entry resolves to a real event |
-| `parse-validation.js` | Structural output validation against git HEAD or a `--baseline` snapshot |
-| `debug.js` | Shared `--debug <event>` state + non-fatal parse-failure registry (summary printed at end of run) |
+| File                                          | Role                                                                                                                                                                                               |
+| --------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `parse-event-trees.js`                        | Entry point: CLI flags, parse loop, the `PIPELINE` pass registry, output writing                                                                                                                   |
+| `tree-building.js`                            | Ink story exploration → raw tree (`parseInkStory`, `buildTreeFromStory`)                                                                                                                           |
+| `tree-utils.js`                               | Node creation, node-id counter, generic tree helpers (`countNodes`, node maps)                                                                                                                     |
+| `node-splitting.js`                           | Effect extraction (`>>>>COMMAND`), text cleaning, combat/dialogue/choice/conditional-variant splitting                                                                                             |
+| `random-support.js`                           | Random value detection (`RANDOM(min, max)`) and normalization to `«random»`                                                                                                                        |
+| `ref-normalization.js`                        | Rewrite refs to point at the "right" node after structural passes move content                                                                                                                     |
+| `deduplication.js`                            | Structural subtree dedup (rendering-equivalent subtrees → refs; exact hashing + ref-resolving equivalence; run both mid-pipeline and again post-alterations), plus the duplicate-combat-node merge |
+| `ref-children.js`                             | Sibling/cousin refs → `refChildren` (renders as converging lines)                                                                                                                                  |
+| `misc-passes.js`                              | Invalid-ref check, card-id replacement, default-node filtering                                                                                                                                     |
+| `post-processing-hub-pattern-optimization.js` | Config-free BFS detection of dialogue-menu hubs                                                                                                                                                    |
+| `apply-event-alterations.js`                  | Engine for manual per-event fixes                                                                                                                                                                  |
+| `event-alterations.js`                        | The manual fixes themselves (data)                                                                                                                                                                 |
+| `event-overrides.js`                          | ALL per-event special-casing in one place (hub events, Ink variable overrides, blacklists, aliases, deprecated events, validation ignore rules; re-exports the alterations)                        |
+| `configs.js`                                  | Pass toggles + non-per-event tuning knobs                                                                                                                                                          |
+| `config-validation.js`                        | Startup check: every per-event config entry resolves to a real event                                                                                                                               |
+| `parse-validation.js`                         | Structural output validation against git HEAD or a `--baseline` snapshot                                                                                                                           |
+| `debug.js`                                    | Shared `--debug <event>` state + non-fatal parse-failure registry (summary printed at end of run)                                                                                                  |
 
 The scripts are linted and type-checked as part of `npm run verify`: the node shape the
 parser produces is the `ParseNode` JSDoc typedef in `tree-utils.js` (a superset of the
@@ -94,7 +94,7 @@ failures recorded during tree building (degraded random-var/function detection).
 
 Before playing a story, a few static scans of the raw Ink JSON collect what the runtime won't
 tell us: random variable ranges (`VAR gold = RANDOM(5, 15)`), function definitions and their
-possible return values (random keyword rewards), and *knot* definitions (named sections with
+possible return values (random keyword rewards), and _knot_ definitions (named sections with
 no in-story divert pointing at them — only reachable via an external game-engine trigger
 naming the knot to run). `COLLECTOR`/`CARDPUZZLE` name a knot dynamically at runtime, so every
 candidate knot is explored as a conditional branch (all of them for `COLLECTOR`; just the
@@ -106,7 +106,7 @@ a knot's raw JSON is walked directly by `parseKnotContentManually` instead.
 
 ### Engine-set variables (`INK_VARIABLE_OVERRIDES`)
 
-A few Ink globals are set by the *game engine*, not by the story, and gate which choices the
+A few Ink globals are set by the _game engine_, not by the story, and gate which choices the
 runtime offers. inkjs can't know their value, so it evaluates the gate against the `global decl`
 default and silently hides every branch behind it. `INK_VARIABLE_OVERRIDES` in
 `event-overrides.js` forces such a variable to a fixed value right after the `Story` is
@@ -115,13 +115,13 @@ declare is a hard error rather than a silent no-op.
 
 The Nexus is the only case: its root runs `STORYFUNCTION:setpicks:nexuscompanions`, where
 `nexuscompanions` is an engine-resolved token expanding to the companions the player actually
-recruited. `setpicks` is an Ink function but is only ever *called* through that external command,
+recruited. `setpicks` is an Ink function but is only ever _called_ through that external command,
 which inkjs never executes — so `picks` keeps its default of `""` and all 7 "Turn to \<companion\>"
 choices (which test it with Ink's `?` substring operator) stay hidden, along with the ~15
 containers behind them. Forcing `picks` to a string containing all 7 tokens opens every gate,
 which is the right output for a static map that shows every path together with its requirement.
 
-A related case is a variable the engine *reassigns* rather than gates on. The engine calls
+A related case is a variable the engine _reassigns_ rather than gates on. The engine calls
 `STORYFUNCTION:changeCost:imbueCost`, and `changeCost` assigns its parameter to a global — but
 since inkjs never runs that external call, the parameter read is unresolvable (surfacing as the
 non-fatal `unresolved knot variable read` warning) and the global keeps its declared default.
@@ -151,7 +151,7 @@ nodes** — a node that says "this continues at node N" instead of re-expanding 
 - **Choice+path loop detection** — same choice set at the same Ink path → merchant/shop loop
 - **Dialogue-menu hub detection** — whitelisted events (`DIALOGUE_MENU_EVENTS` in
   `event-overrides.js`) get menu children collapsed into refs back to the hub
-- **Menu-return detection** (`menuReturnDetection`) — for menus re-entered with *no text*
+- **Menu-return detection** (`menuReturnDetection`) — for menus re-entered with _no text_
   and no stable Ink path, where none of the above can see the loop. The hub's full choice
   set is captured on first visit; a later textless node whose choices are a strict subset
   of it is the same menu again (each visit removes the option just taken) → ref back to the
@@ -176,12 +176,12 @@ back to the root's choice list. The Eventmaps renderer understands the placehold
 these nodes correctly, so **a `"default"` node in the output is expected** and shouldn't be
 "fixed" by making the parser drop it.
 
-`filterDefaultNodes` (pass 2) *does* delete them, but only for events in `DEFAULT_NODE_BLACKLIST`
+`filterDefaultNodes` (pass 2) _does_ delete them, but only for events in `DEFAULT_NODE_BLACKLIST`
 (`event-overrides.js`) where the branch is genuinely unreachable rather than just textless — the
 pass is opt-in per event for exactly that reason.
 
 Randomness is normalized as it's encountered: a rolled `GOLD:12` becomes
-`GOLD: random [5 - 15]` using the detected ranges, so the tree describes the *distribution*,
+`GOLD: random [5 - 15]` using the detected ranges, so the tree describes the _distribution_,
 not one playthrough's dice.
 
 ### `>>>` vs `>>>>` command markers
@@ -227,12 +227,12 @@ convention from choice requirements. The rules, and the reason each is not the o
 - **Leading text** stays on the parent, and **the parent's real children stay its children**, as
   siblings of the variants. Copying them onto each variant puts them behind a requirement they
   don't have, and dedup then collapses the copies — losing choices outright.
-- **When those children are choices**, the variants are alternative *intro* prose for the menu
+- **When those children are choices**, the variants are alternative _intro_ prose for the menu
   (Alchemist's shopkeeper greetings, Spot in the Shade's arrival lines): one greeting is read, then
   the same menu is picked from. Each variant becomes an additional parent of the shared choice set
   via `refChildren`. As terminal leaves instead, every greeting reads as a dead end while the menu
   hangs off the parent as unrelated siblings.
-- **Trailing text** after the last marked line is an epilogue appended to every variant, *unless*:
+- **Trailing text** after the last marked line is an epilogue appended to every variant, _unless_:
   - the marked line carries `[continue]` **and prose of its own** — then it continues that variant.
     Both halves matter: a `[continue]` marker holding only a command (Alchemist) must not claim the
     line below it, or you get a duplicate variant holding prose that isn't conditional at all.
@@ -245,7 +245,7 @@ convention from choice requirements. The rules, and the reason each is not the o
 - **A command on a conditional line moves to that variant** and comes off the node's own effects —
   it only fires under that line's condition. On the node it would read as applying to everyone,
   including players who matched no marker, and as being checked by the very children it gates. A
-  command on a *prose-less* conditional line attaches to the variant sharing its condition; one
+  command on a _prose-less_ conditional line attaches to the variant sharing its condition; one
   matching no variant stays on the node rather than being dropped.
 - Variant and parent text go through `extractEffects`, not `cleanText`, or a command sharing the
   line leaks its value in as prose (`>>>>ADDTALENT:Clarity of Mind` → a node reading `"of Mind"`).
@@ -268,7 +268,7 @@ menu — Absence's Investigate branch has the root's choice set but its own comp
 
 #### Engine tests → `special` + `result`
 
-`>>>LIGHTLESSTEST` names no knot but *does* branch: the engine runs a test and reports which outcome
+`>>>LIGHTLESSTEST` names no knot but _does_ branch: the engine runs a test and reports which outcome
 it picked back through `[?testresult:<outcome>]` conditionals. Same "engine picks one of N outcomes"
 semantics as `COLLECTOR`/`CARDPUZZLE`, so it gets the same `special` → `result` structure.
 `ENGINE_TEST_COMMANDS` maps such a command to the flag its outcomes are keyed on; unlike
@@ -307,27 +307,27 @@ Raw trees are correct but not presentation-ready. The `PIPELINE` registry in
 `{ name, enabled?, banner?, run(eventTrees, context) }` and can be toggled via `configs.js`.
 Current order:
 
-| # | Pass | What it does |
-|---|---|---|
-| 1 | `sortEvents` | Alphabetical order by name |
-| 2 | `filterDefaultNodes` | Drop unreachable `default` branches (blacklisted events only) |
-| 3 | `separateChoicesFromEffects` | Split "choice with baked-in outcome" into choice wrapper → outcome node |
-| 4 | `normalizeAddKeywordRandomChoiceLabels` | Labels showing one rolled keyword → "Add «random»" |
-| 5 | `promoteShallowDialogueMenuHub` | Make the shallowest hub copy canonical, rewire refs to it |
-| 6 | `detectAndOptimizeDialogueMenuHubs` | Config-free BFS hub detection for loops the inline pass missed |
-| 7 | `deduplicateAllTrees` | Rendering-equivalent subtrees anywhere → refs to the shallowest occurrence. Equivalence resolves refs (a ref stub matches the expansion it points at) via a cycle-safe comparison, fast-pathed by exact bottom-up subtree hashing; the duplicate's own requirements/effects/numContinues may differ (they survive on the ref node); repeats until no pass finds anything |
-| 8 | `normalizeRefsPointingToChoiceNodes` | Refs to choice wrappers → the outcome node instead |
-| 9 | `normalizeRefsPointingToCombatNodes` | Refs to split combat nodes → the postcombat dialogue child |
-| 10 | `convertSiblingAndCousinRefsToRefChildren` | Nearby refs → `refChildren` + sibling reordering |
-| 11 | `hoistPureStandInRefNodes` | Stand-in refChildren nodes that are pure copies of their target (and only children) are deleted; the parent's converging line goes directly to the original |
-| 12 | `applyEventAlterations` | Manual per-event fixes (boss-death transitions, door/room structure, …). Every added/edited node is tagged `altered: true`, on the shallowest altered node only — descendants inherit the meaning. Not the only pass that sets the tag; see #18 |
-| 13 | `deduplicateAllTreesPostAlterations` | Pass 7 again: alterations can grow previously-too-small subtrees past the dedup size gate (boss transitions turn each duplicated `choice → combat` pair into an eligible 3-node chain), so identical chains collapse at the choice level |
-| 14 | `mergeDuplicateCombatNodes` | Duplicate combat nodes pass 13 can't catch (copies behind non-identical choice wrappers, whose chains stay below the size gate) → `ref` jump links to the shallowest copy; identical on ALL fields incl. requirements/effects, since a combat node's effects are the fight. Childless copies stay — merging a leaf removes no nodes |
-| 15 | `linkConditionalVariantsToSharedChoices` | Conditional-variant intro prose → `refChildren` on its parent's choice nodes. **Must stay last of the structural passes**: it reads sibling ids, and every pass above still renumbers or replaces nodes — resolving these ids during tree building produced `refChildren` pointing at nodes that no longer existed (Brightcandle Inn, Vaelmorin, Shrine of Absence). A marked variant whose menu a later pass collapsed drops the marker and keeps the `ref` it already carries |
-| 16 | `checkInvalidRefs` | Sanity check: every ref points at an existing node |
-| 17 | `cleanUpRandomValues` | "You gain 12 gold" → "You gain «random» gold" where rolled |
-| 18 | `replaceEngineAdjustedCosts` | Costs the game engine reassigns at runtime → `<?>` + the real escalation series, so the story's declared default stops reading as a fixed price. Tags the choice/outcome nodes it rewrites `altered: true` (not the node whose internal `SET` placeholder it tidies) |
-| 19 | `replaceCardIds` | Leftover numeric `[cardid=123]` → card names |
+| #   | Pass                                       | What it does                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| --- | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | `sortEvents`                               | Alphabetical order by name                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| 2   | `filterDefaultNodes`                       | Drop unreachable `default` branches (blacklisted events only)                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| 3   | `separateChoicesFromEffects`               | Split "choice with baked-in outcome" into choice wrapper → outcome node                                                                                                                                                                                                                                                                                                                                                                                                         |
+| 4   | `normalizeAddKeywordRandomChoiceLabels`    | Labels showing one rolled keyword → "Add «random»"                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| 5   | `promoteShallowDialogueMenuHub`            | Make the shallowest hub copy canonical, rewire refs to it                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| 6   | `detectAndOptimizeDialogueMenuHubs`        | Config-free BFS hub detection for loops the inline pass missed                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| 7   | `deduplicateAllTrees`                      | Rendering-equivalent subtrees anywhere → refs to the shallowest occurrence. Equivalence resolves refs (a ref stub matches the expansion it points at) via a cycle-safe comparison, fast-pathed by exact bottom-up subtree hashing; the duplicate's own requirements/effects/numContinues may differ (they survive on the ref node); repeats until no pass finds anything                                                                                                        |
+| 8   | `normalizeRefsPointingToChoiceNodes`       | Refs to choice wrappers → the outcome node instead                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| 9   | `normalizeRefsPointingToCombatNodes`       | Refs to split combat nodes → the postcombat dialogue child                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| 10  | `convertSiblingAndCousinRefsToRefChildren` | Nearby refs → `refChildren` + sibling reordering                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| 11  | `hoistPureStandInRefNodes`                 | Stand-in refChildren nodes that are pure copies of their target (and only children) are deleted; the parent's converging line goes directly to the original                                                                                                                                                                                                                                                                                                                     |
+| 12  | `applyEventAlterations`                    | Manual per-event fixes (boss-death transitions, door/room structure, …). Every added/edited node is tagged `altered: true`, on the shallowest altered node only — descendants inherit the meaning. Not the only pass that sets the tag; see #18                                                                                                                                                                                                                                 |
+| 13  | `deduplicateAllTreesPostAlterations`       | Pass 7 again: alterations can grow previously-too-small subtrees past the dedup size gate (boss transitions turn each duplicated `choice → combat` pair into an eligible 3-node chain), so identical chains collapse at the choice level                                                                                                                                                                                                                                        |
+| 14  | `mergeDuplicateCombatNodes`                | Duplicate combat nodes pass 13 can't catch (copies behind non-identical choice wrappers, whose chains stay below the size gate) → `ref` jump links to the shallowest copy; identical on ALL fields incl. requirements/effects, since a combat node's effects are the fight. Childless copies stay — merging a leaf removes no nodes                                                                                                                                             |
+| 15  | `linkConditionalVariantsToSharedChoices`   | Conditional-variant intro prose → `refChildren` on its parent's choice nodes. **Must stay last of the structural passes**: it reads sibling ids, and every pass above still renumbers or replaces nodes — resolving these ids during tree building produced `refChildren` pointing at nodes that no longer existed (Brightcandle Inn, Vaelmorin, Shrine of Absence). A marked variant whose menu a later pass collapsed drops the marker and keeps the `ref` it already carries |
+| 16  | `checkInvalidRefs`                         | Sanity check: every ref points at an existing node                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| 17  | `cleanUpRandomValues`                      | "You gain 12 gold" → "You gain «random» gold" where rolled                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| 18  | `replaceEngineAdjustedCosts`               | Costs the game engine reassigns at runtime → `<?>` + the real escalation series, so the story's declared default stops reading as a fixed price. Tags the choice/outcome nodes it rewrites `altered: true` (not the node whose internal `SET` placeholder it tidies)                                                                                                                                                                                                            |
+| 19  | `replaceCardIds`                           | Leftover numeric `[cardid=123]` → card names                                                                                                                                                                                                                                                                                                                                                                                                                                    |
 
 Why choice separation (pass 3) matters for rendering — before and after:
 
@@ -357,7 +357,7 @@ The trees are written pretty-printed to `src/codex/data/event-trees.json` (never
 then `parse-validation.js` compares the result **structurally** against git HEAD (or
 `--baseline <file>`) and reports which **events** changed meaningfully. Both versions are
 deep-normalized before comparison: `id` fields are stripped, each `ref`/`refChildren` value is
-replaced with a descriptor of its *target node* (path from root + text/choiceLabel), and the
+replaced with a descriptor of its _target node_ (path from root + text/choiceLabel), and the
 known nondeterministic text (see below) is masked per event. Node-id renumbering is therefore
 invisible, but a ref that silently starts pointing at a different target node — or a subtree
 collapsing into a ref — is caught. Failing events are reported with the path of the first
@@ -380,7 +380,7 @@ How we check that a change didn't meaningfully alter the generated trees. The ex
 
 **Per-change workflow:**
 
-1. **Before starting a change**: regenerate `event-trees.json` with the *current* script and
+1. **Before starting a change**: regenerate `event-trees.json` with the _current_ script and
    commit it, so the baseline reflects what today's code actually produces (including current
    API data). The `--baseline <file>` flag lets a saved snapshot file replace the commit step.
 2. Make the change, re-run `node scripts/parse/parse-event-trees.js`.
@@ -390,10 +390,10 @@ How we check that a change didn't meaningfully alter the generated trees. The ex
 4. After a verified step, re-commit the regenerated output so the next step diffs against a
    clean baseline.
 
-**Former blind spot, now closed:** the old line-diff validator ignored *all* `ref` changes
+**Former blind spot, now closed:** the old line-diff validator ignored _all_ `ref` changes
 (necessarily, since ids renumber), so a ref moving to a different target node, or a subtree
 collapsing into a ref, could pass validation unseen. The structural validator compares refs by
-*target descriptor* (path + text/choiceLabel), so id renumbering stays invisible while target
+_target descriptor_ (path + text/choiceLabel), so id renumbering stays invisible while target
 changes are caught.
 
 **Nondeterminism audit (cheap, one-off):** run the parser twice back-to-back with no code
@@ -403,6 +403,7 @@ the game data updates significantly.
 
 > Audit result (2026-07-18): the non-deterministic surface has **three** classes, all covered
 > by the validator's ignore rules:
+>
 > 1. **Fallen Soldier** — oxidised-skeleton text ("nearby wall" / "nearby signpost" /
 >    "nearby stone"; 4 values exist, see spec 20 — the audit only happened to roll two of them)
 > 2. **Mirror Shard** — "Focus on the ..." label shuffling
@@ -421,11 +422,11 @@ the game data updates significantly.
 # Default: parse scripts/data/events.json (from the external event-extraction tool).
 # This is parse-only — nothing fetches or generates events.json, so put the tool's
 # output at that path first. Fails with a clear message if the file is missing.
-node scripts/sync-events.js
+node scripts/sync/sync-events.js
 
 # Legacy in-repo source: fetch the Blightbane bundle + extract + parse.
 # Writes scripts/data/events-from-dump.json and parses that; events.json is untouched.
-node scripts/sync-events.js --from-dump
+node scripts/sync/sync-events.js --from-dump
 
 # Via npm, the `--` separator is REQUIRED:
 npm run sync-events -- --from-dump
@@ -435,7 +436,7 @@ npm run sync-events -- --from-dump
 # the cache is missing)
 node scripts/parse/parse-event-trees.js
 
-# Flags (also forwarded by sync-events.js to the parse step):
+# Flags (also forwarded by sync/sync-events.js to the parse step):
 node scripts/parse/parse-event-trees.js --debug "Frozen Heart"     # verbose logs for one event
 node scripts/parse/parse-event-trees.js --only "Frozen Heart"      # re-parse one event, merge into output
 node scripts/parse/parse-event-trees.js --dry-run                  # don't touch the output file
@@ -446,7 +447,7 @@ node scripts/parse/parse-event-trees.js --from-dump                # read events
 Typical iteration loop when fixing one event:
 `--only "<event>" --debug "<event>" --dry-run`, then drop `--dry-run` once it looks right.
 
-That loop only covers changes to *this* folder. `event-overrides.js` also exports
+That loop only covers changes to _this_ folder. `event-overrides.js` also exports
 `DEPRECATED_EVENTS`, which is read by `extract-events.js` — a change to it takes effect only
 after `node scripts/extract-events.js` re-writes `scripts/data/events-from-dump.json`, since the
 parse step just copies the flag from there. That step always fetches the Blightbane API live, so
@@ -456,7 +457,7 @@ flag comes from the external tool's `events.json`, so `DEPRECATED_EVENTS` has no
 
 ## Known nondeterminism
 
-Two events roll random content *during* story exploration, so their text can differ per run
+Two events roll random content _during_ story exploration, so their text can differ per run
 (both are covered by the validator's ignore rules — `VALIDATION_IGNORE_RULES` in
 `event-overrides.js`, scoped per event):
 

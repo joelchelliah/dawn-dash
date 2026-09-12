@@ -28,7 +28,7 @@ const path = require('path')
 const TALENTS_API =
   'https://blightbane.io/api/cards-codex?search=&rarity=&category=10&type=&banner=&exp='
 
-const ENV_FILE = path.join(__dirname, '../.env.local')
+const ENV_FILE = path.join(__dirname, '../../.env.local')
 
 // Kept in sync with src/codex/hooks/useSearchFilters/useCardSetFilters.ts (indexToValueMap)
 // and src/codex/hooks/useSearchFilters/useTierFilters.ts (tierIndexMap). A talent whose
@@ -180,14 +180,14 @@ function printReport(
       log('  • CardSetFilterOption          src/codex/types/filters.ts')
       log('  • defaultCardSetFilterValueMap, indexMap, indexToValueMap')
       log('                                 src/codex/hooks/useSearchFilters/useCardSetFilters.ts')
-      log('  • KNOWN_EXPANSIONS             scripts/sync-talents-preflight.js')
+      log('  • KNOWN_EXPANSIONS             scripts/sync/sync-talents-preflight.js')
       log('Then bump TALENTS_CACHE_VERSION in src/codex/utils/codexFilterStore.ts')
       log('so existing users get the new card set enabled by default.')
     }
     if (unknownTiers.length > 0) {
       log(`\nNew tier(s): ${unknownTiers.join(', ')}`)
       log('Add them to TierFilterOption (src/codex/types/filters.ts), useTierFilters.ts,')
-      log('and MAX_KNOWN_TIER in scripts/sync-talents-preflight.js.')
+      log('and MAX_KNOWN_TIER in scripts/sync/sync-talents-preflight.js.')
     }
   } else if (newTalents.length > 0) {
     heading('Frontend follow-up')

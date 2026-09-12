@@ -72,7 +72,7 @@ async function buildIdToNameMapping() {
 }
 
 /**
- * Read the cached id -> name mapping if present (normal case within a sync-events.js
+ * Read the cached id -> name mapping if present (normal case within a sync/sync-events.js
  * run, and enables offline re-runs of the parse step); fall back to a live fetch.
  */
 async function readOrFetchIdToNameMapping() {

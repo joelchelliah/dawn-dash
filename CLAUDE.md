@@ -25,7 +25,7 @@ Every spec gets a **"How to work through this spec"** section, placed before the
   they're visible without opening every file. Implementation often starts in a fresh context that has
   none of the discussion behind the spec, so the spec has to point at its own background rather than
   assume it.
-- **Where to stop.** State whether tasks may be chained or must pause for confirmation, and say *why*
+- **Where to stop.** State whether tasks may be chained or must pause for confirmation, and say _why_
   for this particular spec — e.g. several tasks restructuring the same DOM and stylesheet, where a
   mistake in an early task gets buried under later ones. If tasks pause: finish the task, get it into
   a state the user can look at, say what changed and what specifically to look at, and wait — **the
@@ -41,7 +41,7 @@ Every spec gets a **"How to work through this spec"** section, placed before the
   invalidate, with the reason each is affected — grep for whatever the spec touches rather than
   guessing. Note any new invariant worth recording once implemented, and say that a change
   contradicting a documented invariant gets raised with the user rather than quietly rewritten.
-- **Comment style.** The non-obvious *why*, in a line or two. No restating the code, no narrating the
+- **Comment style.** The non-obvious _why_, in a line or two. No restating the code, no narrating the
   history of a change.
 
 Also state up front any **decisions already made** so they aren't re-litigated mid-implementation, and
@@ -51,6 +51,7 @@ operationally — the sequence they should be built in, not a topical grouping.
 ## Development Commands
 
 ### Core Development
+
 - `npm run dev` - Start the Next.js development server
 - `npm run build` - Build the application for production
 - `npm start` - Start the production server
@@ -68,23 +69,26 @@ operationally — the sequence they should be built in, not a topical grouping.
 **`npm run verify` is the required check before any change (AI-generated changes included) is considered done.** For changes touching `pages/`, `next.config.ts`, or data hooks, also run `npm run build`.
 
 ### Testing
+
 - `npm test` - Run Jest tests (uses `--passWithNoTests`; zero test files is the expected steady state)
 - `npm run test:watch` - Run Jest in watch mode
 - `npm run test:coverage` - Run tests with coverage report
 - **Test framework**: Jest 30 with React Testing Library 16 (kept configured for temporary development tests)
-- **Testing policy: no permanent tests.** Tests are written only as temporary aids *during* development to verify a change, then **deleted before the work is considered done**. Do not add permanent test files unless the user explicitly requests them. Visual/rendering code (e.g. the codex trees) is verified by manual before/after comparison in the user's dev server instead.
+- **Testing policy: no permanent tests.** Tests are written only as temporary aids _during_ development to verify a change, then **deleted before the work is considered done**. Do not add permanent test files unless the user explicitly requests them. Visual/rendering code (e.g. the codex trees) is verified by manual before/after comparison in the user's dev server instead.
 
 ## Project Architecture
 
 This is a Next.js application (dawn-dash.com) for Dawncaster game data visualization with **six tools**: Speedruns, Cardex, Skilldex, Eventmaps, Booty, and Scoring.
 
 ### Core Structure
+
 - **Next.js 15** (pages router) with React 18, TypeScript, and SCSS modules
 - **`/pages`**: thin page components — one per tool, plus `pages/eventmaps/[event].tsx` for per-event pages
 - **`/src`**: application logic organized by feature: `landing/`, `speedruns/`, `codex/` (Cardex + Skilldex + Eventmaps + Booty), `scoring/`, `shared/`
-- **Supabase backend**: database and edge functions for **talents** data. Cards are *not* read from Supabase — Cardex fetches them live from the Blightbane API (see Data Layer)
+- **Supabase backend**: database and edge functions for **talents** data. Cards are _not_ read from Supabase — Cardex fetches them live from the Blightbane API (see Data Layer)
 
 ### Tool Registry
+
 `src/shared/config/toolRegistry.ts` is the single source of truth for each tool's identity: path, title, descriptions, meta/OG copy, images, nav icon, and legacy redirect paths. It is consumed by the landing page, the header side menu, `useNavigation`, `PageHead`, and `next.config.ts` (generated redirects). Adding a new tool requires only a registry entry + a `pages/` file (see the `add-new-tool` skill in `.claude/skills/`), plus a URL entry in `scripts/generate-sitemap.js`.
 
 A tool marked `unlisted: true` stays reachable by direct URL but is hidden from the landing page and side menu (both iterate `getListedTools()`, not `TOOL_REGISTRY`) and gets `noindex, nofollow` instead of a canonical link and JSON-LD from `PageHead`. OG tags are still served, so shared links keep their previews. The sitemap's tool URLs are hardcoded rather than registry-driven precisely so unlisted tools stay out of it — don't "fix" that by generating them from the registry.
@@ -101,7 +105,9 @@ Each feature directory has its own `CLAUDE.md` with architecture details and inv
 6. **Scoring** (`/scoring`, `src/scoring/`) — prose-heavy scoring guides per game mode plus real score-calculation logic (`advancedScoring.ts`)
 
 ### Shared Infrastructure (`/src/shared/`)
+
 **Components**:
+
 - Layout: Header (with SideMenu), Footer, ErrorBoundary
 - `PageHead` — renders each tool page's meta/OG tags from the tool registry
 - Buttons: Button, GradientButton, IllustratedButton, ButtonRow — all extend `BaseButtonProps` from `Buttons/types.ts`
@@ -109,9 +115,10 @@ Each feature directory has its own `CLAUDE.md` with architecture details and inv
 - UI elements: LoadingDots, ScrollToTopButton, Divider, GradientLink, ScrollableWithFade, Select, Code, Image
 - `Sliders/Thumb` — the draggable energy-orb thumb shared by the speedruns sliders and the codex zoom slider; takes an `orientation` prop because the CSS centering axis differs between horizontal and vertical tracks
 - Notifications: Notification (toast-style with auto-dismiss and progress bar)
-- `Icons/` — one component per SVG icon, each taking only `className` and `onClick`, so **size and color are set entirely in CSS**. An icon's apparent size depends on its *fill* (how much of the viewBox is ink rather than margin), which varies a lot between icons — so equal CSS sizes do not look equal. To make an icon look bigger or smaller, crop or widen its `viewBox` rather than fighting it with CSS: run `npm run icon-viewbox -- <IconName>` for its current fill and a table of candidate viewBoxes. These components are shared (result cards *and* search-panel filters), so a viewBox change affects every consumer — use a stylesheet's `svg { width/height }` when only one place should change.
+- `Icons/` — one component per SVG icon, each taking only `className` and `onClick`, so **size and color are set entirely in CSS**. An icon's apparent size depends on its _fill_ (how much of the viewBox is ink rather than margin), which varies a lot between icons — so equal CSS sizes do not look equal. To make an icon look bigger or smaller, crop or widen its `viewBox` rather than fighting it with CSS: run `npm run icon-viewbox -- <IconName>` for its current fill and a table of candidate viewBoxes. These components are shared (result cards _and_ search-panel filters), so a viewBox change affects every consumer — use a stylesheet's `svg { width/height }` when only one place should change.
 
 **Custom Hooks**:
+
 - `useNavigation()` - registry-driven `navigateTo(toolId, query?)` + `resetToLandingPage()`
 - `useBreakpoint()` - responsive breakpoint detection (values cross-referenced with `src/styles/_breakpoints.scss`)
 - `useScrollToTop()` - animated scroll-to-top with easing and threshold detection
@@ -121,6 +128,7 @@ Each feature directory has its own `CLAUDE.md` with architecture details and inv
 - `useCardImageSrc(cardName, fallbackImageSrc?)` - resolves a card/talent name to its Blightbane artwork URL via a module-scope `Map` built from `src/shared/data/card-artwork.json`. The optional fallback is what unresolved names return; it defaults to `PestilenceDecreeUrl` for scoring, and Cardex passes `null` to get a placeholder square instead. Both the hook and the plain `getCardImageSrc(name, fallback?, category?)` it delegates to take an optional `category`, which disambiguates names whose artwork differs per category (Skilldex passes the exported `TALENT_ARTWORK_CATEGORY`); the lookup falls back to name-only. The plain function exists for callers outside React's render — Skilldex draws its nodes with D3. Both lookups use module-scope `Map`s built once at import; never build another copy
 
 **Utilities**:
+
 - `classnames.ts` - `createCx()` wrapper for SCSS modules
 - `classColors.ts` - character class color mappings
 - `storage.ts` - localStorage wrapper with cache duration and staleness detection; `saveToCache` returns `{ success, error? }`
@@ -133,11 +141,13 @@ Each feature directory has its own `CLAUDE.md` with architecture details and inv
 **Global Styles**: SCSS design system in `/src/styles/` with colors, gradients, animations, typography
 
 ### Path Aliases
+
 - `@/*` maps to `src/*` (so `@/scoring/*`, `@/landing/*`, `@/styles/*` work via the catch-all)
 - Explicit aliases: `@/shared/*`, `@/codex/*`, `@/speedruns/*`
 - `next.config.ts` cannot use `@/` aliases — it imports via relative paths
 
 ### Data Layer
+
 - **SWR** for client-side data fetching with `onSuccess`/`onError` handling; fetch failures surface visible error states in the panels
 - **Service contracts**: all API fetchers **throw** on failure — never return `[]` or partial data silently
 - **Custom hooks** (`useCardData`, `useTalentData`, `useSpeedrunData`) abstract data fetching with progress callbacks. **Each hook's source differs**: `useCardData` → `cardsApiBlightbane.ts` (live Blightbane API), `useTalentData` → `talentsApiSupabase.ts` (Supabase — the only Supabase read in the app), `useSpeedrunData` → Blightbane. `src/codex/services/cardsApiSupabase.ts` is **unused legacy** from when Cardex read the Supabase `Cards` table
@@ -145,21 +155,24 @@ Each feature directory has its own `CLAUDE.md` with architecture details and inv
 - **Stores are plain localStorage wrapper modules** (not subscription/Zustand stores): versioned cache keys are co-located with each store — `src/speedruns/utils/speedrunsStore.ts`, `src/codex/utils/codexCardsStore.ts`, `codexTalentsStore.ts`, `codexFilterStore.ts`
 
 ### Data Synchronization (three ownership paths)
+
 - **Supabase Edge Functions** (`supabase/functions/`, Deno) own the **talents** data: `sync-talents` pulls from the Blightbane API into the Supabase `Talents` table; `talents-name` is a public read-only endpoint. `sync-cards` and the `Cards` table still exist but are **dormant** — Cardex stopped reading from Supabase and fetches cards live from Blightbane instead, so nothing consumes what `sync-cards` writes. Deploy with `npx supabase functions deploy <name>`. The root `deno.json` exists **solely** for these edge functions.
-- **Local Node scripts** (`scripts/`) own the **events and artwork** data: `sync-events.js` runs the event pipeline. By default it is **parse-only** — it parses `scripts/data/events.json` (produced by an **external event-extraction tool** and pasted in; nothing in this repo writes it) into `src/codex/data/event-trees.json`, and fails fast if that file is missing. `npm run sync-events -- --from-dump` (the `--` is required, or npm eats the flag and silently runs the default path) runs the legacy in-repo path instead (fetch the Blightbane bundle → extract into `scripts/data/events-from-dump.json` → parse that), which never overwrites the external tool's `events.json`. Both input files are gitignored and share the same shape, so the parse step is agnostic about the source; see `scripts/parse/README.md`. `sync-treasures.js` splits `scripts/data/treasures.json` into `src/codex/data/treasure-cards.json` and `treasure-pools.json` — same ownership story as `events.json`: the input comes from an **external treasure-extraction tool** and is pasted in manually (gitignored; the script fails fast without it). `npm run sync-all` runs `sync-treasures`, `sync-events` and the talents preflight in sequence. Also: `fetch-card-artwork-mapping.js` writes `src/shared/data/card-artwork.json`; `generate-sitemap.js` builds `public/sitemap.xml` from the event data (tool URLs are hardcoded in it)
-- **Image sources**: `image-sources/` holds the **uncompressed originals** of all 14 og-images and logos. `npm run compress-images` palette-quantizes them into `public/` at ~74% smaller (23MB → 6MB). **Quantization is where the entire saving comes from** — these sources are already well-compressed PNGs, so a pixel-exact re-encode is 17% *larger*, not smaller (`--lossless` exists only to show that). Note `effort` is deliberately absent from the sharp encode options: it implies `palette: true`, so passing it silently quantizes even with palette off. Because quantization is lossy, `public/` is **regenerated, never edited** — compressing in place would re-quantize its own output and degrade a little more each run. `image-sources/` sits outside `public/` so nothing serves, precaches or bundles it, and is checked in because it is the only copy that can regenerate quality if the setting changes. **Editing artwork means editing `image-sources/`, then running `compress-images` and `generate-landing-images` in that order.** PNG is kept deliberately rather than switching to WebP: these are fetched only by Discord/Twitter/Facebook scrapers, and staying PNG keeps the URLs and format unchanged for every scraper while still cutting most of the bytes
+- **Local Node scripts** (`scripts/`) own the **events and artwork** data: `sync/sync-events.js` runs the event pipeline. By default it is **parse-only** — it parses `scripts/data/events.json` (produced by an **external event-extraction tool** and pasted in; nothing in this repo writes it) into `src/codex/data/event-trees.json`, and fails fast if that file is missing. `npm run sync-events -- --from-dump` (the `--` is required, or npm eats the flag and silently runs the default path) runs the legacy in-repo path instead (fetch the Blightbane bundle → extract into `scripts/data/events-from-dump.json` → parse that), which never overwrites the external tool's `events.json`. Both input files are gitignored and share the same shape, so the parse step is agnostic about the source; see `scripts/parse/README.md`. `sync/sync-treasures.js` splits `scripts/data/treasures.json` into `src/codex/data/treasure-cards.json` and `treasure-pools.json` — same ownership story as `events.json`: the input comes from an **external treasure-extraction tool** and is pasted in manually (gitignored; the script fails fast without it). `sync/sync-weapons.js` narrows `scripts/data/weapons.json` into `src/codex/data/special-weapons.json` (`SpecialWeapon` in `src/codex/types/weapons.ts` mirrors its whitelist) — same pasted-in, gitignored, fail-fast story. **The whitelist-based scripts (`sync-treasures`, `sync-weapons`) share `scripts/sync/whitelist-fields.js`** for the field-picking, prettier-write and ignored-field reporting; what stays per-script is the dataset's own whitelists, paths and top-level validation. `npm run sync-all` runs `sync-treasures`, `sync-weapons`, `sync-events` and the talents preflight in sequence. Also: `fetch-card-artwork-mapping.js` writes `src/shared/data/card-artwork.json`; `generate-sitemap.js` builds `public/sitemap.xml` from the event data (tool URLs are hardcoded in it)
+- **Image sources**: `image-sources/` holds the **uncompressed originals** of all 14 og-images and logos. `npm run compress-images` palette-quantizes them into `public/` at ~74% smaller (23MB → 6MB). **Quantization is where the entire saving comes from** — these sources are already well-compressed PNGs, so a pixel-exact re-encode is 17% _larger_, not smaller (`--lossless` exists only to show that). Note `effort` is deliberately absent from the sharp encode options: it implies `palette: true`, so passing it silently quantizes even with palette off. Because quantization is lossy, `public/` is **regenerated, never edited** — compressing in place would re-quantize its own output and degrade a little more each run. `image-sources/` sits outside `public/` so nothing serves, precaches or bundles it, and is checked in because it is the only copy that can regenerate quality if the setting changes. **Editing artwork means editing `image-sources/`, then running `compress-images` and `generate-landing-images` in that order.** PNG is kept deliberately rather than switching to WebP: these are fetched only by Discord/Twitter/Facebook scrapers, and staying PNG keeps the URLs and format unchanged for every scraper while still cutting most of the bytes
 - **Derived assets**: `public/landing-<tool>.webp` is **generated from `public/og-image-<tool>.png`**, not authored separately — `npm run generate-landing-images` downscales each 2400x1260 OG image to the 800x420 thumbnail the landing page and tool registry point at. So updating an OG image without rerunning it leaves the landing card showing the old artwork. The script requires the source to share the OG aspect ratio and skips (non-zero exit) rather than cropping if it does not, and `og-image-dawndash.png` is skipped by default since the landing page shows the six tools, not itself. It needs `sharp`, which is a direct devDependency for this reason — it used to be pulled in only transitively via Next
 - **Speedrun data** is not synced — it is fetched live from the Blightbane API at runtime
 
 ### PWA & Performance
+
 - **Progressive Web App** with `next-pwa` (applied as `withPWA(options)(nextConfig)` in `next.config.ts`). **`next-pwa` 5.6.0 is the latest release and dates from 2022**, well before Next 15 — its peer range (`next >=9.0.0`) means nothing warns about the mismatch. It precached a Next 15 build file that 404s (`dynamic-css-manifest.json`), and because Workbox precaching is atomic that silently disabled the whole service worker, `runtimeCaching` included. Hence the `buildExcludes` entry — don't remove it. A broken worker looks identical to a working one outside DevTools, so **verify service-worker changes against `npm run build && npm start`** and check the caches actually fill. Replacement options are scoped in `src/codex/specs-next-pwa-replacement.md`.
 - **Service worker** with CacheFirst strategy for Blightbane images (10-day cache expiry), split across **two** `runtimeCaching` buckets: `card-artwork` for `/images/icons/**` (1500 entries, ~3.2MB — sized for Cardex result sets, which easily exceed 100 images) and `external-images` for everything else (100 entries: classes, energy orbs, events). The specific pattern must stay **first**, since Workbox uses the first match. Keeping them separate is what stops a large Cardex session from evicting the rest of the site's images.
 - **Offline support** via localStorage + service worker caching
 - **Dynamic imports** with `next/dynamic` for code splitting (each tool page lazy-loads its feature component)
-- **INP (interaction responsiveness)** is tracked in `src/codex/specs-inp.md`. Cardex is **done**: `.result-card` carries `content-visibility: auto`, which cut its interaction's layout+paint 42% and is why the results list is *not* virtualized (the invariant is in `src/codex/CLAUDE.md`). **Skilldex and Eventmaps are traced, with Task 1 done**: both trees wiped and rebuilt their whole SVG on every zoom change, so zoom now updates the svg's dimensions and the content group's transform without redrawing (scripting −93% / −81%; see Part 2 and the layout/render-split invariant in `src/codex/CLAUDE.md`). Their remaining tasks are unimplemented, and **Speedruns is still scoped but untraced**. Read Part 2 before optimising any of them, chiefly because the Cardex fix does **not** transfer: they render one SVG or a canvas, so there are no off-screen DOM children to skip and the cost is scripting rather than layout+paint.
+- **INP (interaction responsiveness)** is tracked in `src/codex/specs-inp.md`. Cardex is **done**: `.result-card` carries `content-visibility: auto`, which cut its interaction's layout+paint 42% and is why the results list is _not_ virtualized (the invariant is in `src/codex/CLAUDE.md`). **Skilldex and Eventmaps are traced, with Task 1 done**: both trees wiped and rebuilt their whole SVG on every zoom change, so zoom now updates the svg's dimensions and the content group's transform without redrawing (scripting −93% / −81%; see Part 2 and the layout/render-split invariant in `src/codex/CLAUDE.md`). Their remaining tasks are unimplemented, and **Speedruns is still scoped but untraced**. Read Part 2 before optimising any of them, chiefly because the Cardex fix does **not** transfer: they render one SVG or a canvas, so there are no off-screen DOM children to skip and the cost is scripting rather than layout+paint.
 - **Image optimization** via `next/image` with remote patterns for Blightbane assets
 
 ### Styling Conventions
+
 - **SCSS Modules** with consistent naming (`index.module.scss`)
 - **Custom classnames utility** (`createCx`) for conditional classes
 - **Responsive design** with custom breakpoint hooks
@@ -168,6 +181,7 @@ Each feature directory has its own `CLAUDE.md` with architecture details and inv
 ## Code Style & Linting
 
 The project uses strict TypeScript with comprehensive ESLint rules:
+
 - React/JSX best practices enforced
 - Import organization with path groups (react, @/shared, etc.)
 - No `console.*` outside `src/shared/utils/logger.ts`
