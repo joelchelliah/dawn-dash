@@ -10,54 +10,20 @@
     "fromTranspose": false,
     "fromTrade": false,
     "fromTreasureEvents": [
-      {
-        "event": "Broken Tombstone"
-      },
-      {
-        "event": "Marrow Halls"
-      },
-      {
-        "event": "Molekin Burrow"
-      },
-      {
-        "event": "Painted Landscape"
-      },
-      {
-        "event": "Rotting Residence"
-      },
-      {
-        "event": "Survey the Field"
-      },
-      {
-        "event": "The Cocoon"
-      },
-      {
-        "event": "Undisturbed Grave"
-      },
-      {
-        "event": "Vault Door"
-      },
-      {
-        "event": "Vesparin Vault"
-      }
+      "Broken Tombstone",
+      "Marrow Halls",
+      "Molekin Burrow",
+      "Painted Landscape",
+      "Rotting Residence",
+      "Survey the Field",
+      "The Cocoon",
+      "Undisturbed Grave",
+      "Vault Door",
+      "Vesparin Vault"
     ],
     "fromEvents": [],
-    "fromCards": [
-      {
-        "card": "Booty"
-      },
-      {
-        "card": "Explorer's Trick"
-      },
-      {
-        "card": "Shovel"
-      }
-    ],
-    "fromTalents": [
-      {
-        "talent": "Pirate Parlour"
-      }
-    ]
+    "fromCards": ["Booty", "Explorer's Trick", "Shovel"],
+    "fromTalents": ["Pirate Parlour"]
   },
   {
     "id": 611711,
@@ -70,45 +36,17 @@
     "fromTranspose": false,
     "fromTrade": false,
     "fromTreasureEvents": [
-      {
-        "event": "Broken Tombstone"
-      },
-      {
-        "event": "Marrow Halls"
-      },
-      {
-        "event": "Painted Landscape"
-      },
-      {
-        "event": "Survey the Field"
-      },
-      {
-        "event": "Undisturbed Grave"
-      },
-      {
-        "event": "Vault Door"
-      },
-      {
-        "event": "Vesparin Vault"
-      }
+      "Broken Tombstone",
+      "Marrow Halls",
+      "Painted Landscape",
+      "Survey the Field",
+      "Undisturbed Grave",
+      "Vault Door",
+      "Vesparin Vault"
     ],
     "fromEvents": [],
-    "fromCards": [
-      {
-        "card": "Booty"
-      },
-      {
-        "card": "Explorer's Trick"
-      },
-      {
-        "card": "Shovel"
-      }
-    ],
-    "fromTalents": [
-      {
-        "talent": "Pirate Parlour"
-      }
-    ]
+    "fromCards": ["Booty", "Explorer's Trick", "Shovel"],
+    "fromTalents": ["Pirate Parlour"]
   },
   {
     "id": 978149,
@@ -121,52 +59,17 @@
     "fromTranspose": true,
     "fromTrade": true,
     "fromTreasureEvents": [
-      {
-        "event": "Broken Tombstone"
-      },
-      {
-        "event": "Marrow Halls"
-      },
-      {
-        "event": "Painted Landscape"
-      },
-      {
-        "event": "Survey the Field"
-      },
-      {
-        "event": "Undisturbed Grave"
-      },
-      {
-        "event": "Vault Door"
-      },
-      {
-        "event": "Vesparin Vault"
-      }
+      "Broken Tombstone",
+      "Marrow Halls",
+      "Painted Landscape",
+      "Survey the Field",
+      "Undisturbed Grave",
+      "Vault Door",
+      "Vesparin Vault"
     ],
-    "fromEvents": [
-      {
-        "event": "The Chasm"
-      },
-      {
-        "event": "The Dream"
-      }
-    ],
-    "fromCards": [
-      {
-        "card": "Booty"
-      },
-      {
-        "card": "Explorer's Trick"
-      },
-      {
-        "card": "Shovel"
-      }
-    ],
-    "fromTalents": [
-      {
-        "talent": "Pirate Parlour"
-      }
-    ]
+    "fromEvents": ["The Chasm", "The Dream"],
+    "fromCards": ["Booty", "Explorer's Trick", "Shovel"],
+    "fromTalents": ["Pirate Parlour"]
   },
   {
     "id": 909591,
@@ -179,54 +82,20 @@
     "fromTranspose": false,
     "fromTrade": false,
     "fromTreasureEvents": [
-      {
-        "event": "Broken Tombstone"
-      },
-      {
-        "event": "Marrow Halls"
-      },
-      {
-        "event": "Molekin Burrow"
-      },
-      {
-        "event": "Painted Landscape"
-      },
-      {
-        "event": "Rotting Residence"
-      },
-      {
-        "event": "Survey the Field"
-      },
-      {
-        "event": "The Cocoon"
-      },
-      {
-        "event": "Undisturbed Grave"
-      },
-      {
-        "event": "Vault Door"
-      },
-      {
-        "event": "Vesparin Vault"
-      }
+      "Broken Tombstone",
+      "Marrow Halls",
+      "Molekin Burrow",
+      "Painted Landscape",
+      "Rotting Residence",
+      "Survey the Field",
+      "The Cocoon",
+      "Undisturbed Grave",
+      "Vault Door",
+      "Vesparin Vault"
     ],
     "fromEvents": [],
-    "fromCards": [
-      {
-        "card": "Booty"
-      },
-      {
-        "card": "Explorer's Trick"
-      },
-      {
-        "card": "Shovel"
-      }
-    ],
-    "fromTalents": [
-      {
-        "talent": "Pirate Parlour"
-      }
-    ]
+    "fromCards": ["Booty", "Explorer's Trick", "Shovel"],
+    "fromTalents": ["Pirate Parlour"]
   },
   {
     "id": 353519,
@@ -239,55 +108,17 @@
     "fromTranspose": true,
     "fromTrade": false,
     "fromTreasureEvents": [
-      {
-        "event": "Broken Tombstone"
-      },
-      {
-        "event": "Marrow Halls"
-      },
-      {
-        "event": "Painted Landscape"
-      },
-      {
-        "event": "Survey the Field"
-      },
-      {
-        "event": "Undisturbed Grave"
-      },
-      {
-        "event": "Vault Door"
-      },
-      {
-        "event": "Vesparin Vault"
-      }
+      "Broken Tombstone",
+      "Marrow Halls",
+      "Painted Landscape",
+      "Survey the Field",
+      "Undisturbed Grave",
+      "Vault Door",
+      "Vesparin Vault"
     ],
-    "fromEvents": [
-      {
-        "event": "A Call for Help"
-      },
-      {
-        "event": "Alchemic Table"
-      },
-      {
-        "event": "Collector"
-      }
-    ],
-    "fromCards": [
-      {
-        "card": "Booty"
-      },
-      {
-        "card": "Explorer's Trick"
-      },
-      {
-        "card": "Shovel"
-      }
-    ],
-    "fromTalents": [
-      {
-        "talent": "Pirate Parlour"
-      }
-    ]
+    "fromEvents": ["A Call for Help", "Alchemic Table", "Collector"],
+    "fromCards": ["Booty", "Explorer's Trick", "Shovel"],
+    "fromTalents": ["Pirate Parlour"]
   },
   {
     "id": 68505,
@@ -300,54 +131,20 @@
     "fromTranspose": true,
     "fromTrade": true,
     "fromTreasureEvents": [
-      {
-        "event": "Broken Tombstone"
-      },
-      {
-        "event": "Marrow Halls"
-      },
-      {
-        "event": "Molekin Burrow"
-      },
-      {
-        "event": "Painted Landscape"
-      },
-      {
-        "event": "Rotting Residence"
-      },
-      {
-        "event": "Survey the Field"
-      },
-      {
-        "event": "The Cocoon"
-      },
-      {
-        "event": "Undisturbed Grave"
-      },
-      {
-        "event": "Vault Door"
-      },
-      {
-        "event": "Vesparin Vault"
-      }
+      "Broken Tombstone",
+      "Marrow Halls",
+      "Molekin Burrow",
+      "Painted Landscape",
+      "Rotting Residence",
+      "Survey the Field",
+      "The Cocoon",
+      "Undisturbed Grave",
+      "Vault Door",
+      "Vesparin Vault"
     ],
     "fromEvents": [],
-    "fromCards": [
-      {
-        "card": "Booty"
-      },
-      {
-        "card": "Explorer's Trick"
-      },
-      {
-        "card": "Shovel"
-      }
-    ],
-    "fromTalents": [
-      {
-        "talent": "Pirate Parlour"
-      }
-    ]
+    "fromCards": ["Booty", "Explorer's Trick", "Shovel"],
+    "fromTalents": ["Pirate Parlour"]
   },
   {
     "id": 855931,
@@ -360,52 +157,17 @@
     "fromTranspose": true,
     "fromTrade": true,
     "fromTreasureEvents": [
-      {
-        "event": "Broken Tombstone"
-      },
-      {
-        "event": "Marrow Halls"
-      },
-      {
-        "event": "Painted Landscape"
-      },
-      {
-        "event": "Survey the Field"
-      },
-      {
-        "event": "Undisturbed Grave"
-      },
-      {
-        "event": "Vault Door"
-      },
-      {
-        "event": "Vesparin Vault"
-      }
+      "Broken Tombstone",
+      "Marrow Halls",
+      "Painted Landscape",
+      "Survey the Field",
+      "Undisturbed Grave",
+      "Vault Door",
+      "Vesparin Vault"
     ],
-    "fromEvents": [
-      {
-        "event": "Alchemic Table"
-      },
-      {
-        "event": "Purpleberries"
-      }
-    ],
-    "fromCards": [
-      {
-        "card": "Booty"
-      },
-      {
-        "card": "Explorer's Trick"
-      },
-      {
-        "card": "Shovel"
-      }
-    ],
-    "fromTalents": [
-      {
-        "talent": "Pirate Parlour"
-      }
-    ]
+    "fromEvents": ["Alchemic Table", "Purpleberries"],
+    "fromCards": ["Booty", "Explorer's Trick", "Shovel"],
+    "fromTalents": ["Pirate Parlour"]
   },
   {
     "id": 973883,
@@ -418,54 +180,20 @@
     "fromTranspose": true,
     "fromTrade": true,
     "fromTreasureEvents": [
-      {
-        "event": "Broken Tombstone"
-      },
-      {
-        "event": "Marrow Halls"
-      },
-      {
-        "event": "Molekin Burrow"
-      },
-      {
-        "event": "Painted Landscape"
-      },
-      {
-        "event": "Rotting Residence"
-      },
-      {
-        "event": "Survey the Field"
-      },
-      {
-        "event": "The Cocoon"
-      },
-      {
-        "event": "Undisturbed Grave"
-      },
-      {
-        "event": "Vault Door"
-      },
-      {
-        "event": "Vesparin Vault"
-      }
+      "Broken Tombstone",
+      "Marrow Halls",
+      "Molekin Burrow",
+      "Painted Landscape",
+      "Rotting Residence",
+      "Survey the Field",
+      "The Cocoon",
+      "Undisturbed Grave",
+      "Vault Door",
+      "Vesparin Vault"
     ],
     "fromEvents": [],
-    "fromCards": [
-      {
-        "card": "Booty"
-      },
-      {
-        "card": "Explorer's Trick"
-      },
-      {
-        "card": "Shovel"
-      }
-    ],
-    "fromTalents": [
-      {
-        "talent": "Pirate Parlour"
-      }
-    ]
+    "fromCards": ["Booty", "Explorer's Trick", "Shovel"],
+    "fromTalents": ["Pirate Parlour"]
   },
   {
     "id": 740335,
@@ -478,54 +206,20 @@
     "fromTranspose": true,
     "fromTrade": true,
     "fromTreasureEvents": [
-      {
-        "event": "Broken Tombstone"
-      },
-      {
-        "event": "Marrow Halls"
-      },
-      {
-        "event": "Molekin Burrow"
-      },
-      {
-        "event": "Painted Landscape"
-      },
-      {
-        "event": "Rotting Residence"
-      },
-      {
-        "event": "Survey the Field"
-      },
-      {
-        "event": "The Cocoon"
-      },
-      {
-        "event": "Undisturbed Grave"
-      },
-      {
-        "event": "Vault Door"
-      },
-      {
-        "event": "Vesparin Vault"
-      }
+      "Broken Tombstone",
+      "Marrow Halls",
+      "Molekin Burrow",
+      "Painted Landscape",
+      "Rotting Residence",
+      "Survey the Field",
+      "The Cocoon",
+      "Undisturbed Grave",
+      "Vault Door",
+      "Vesparin Vault"
     ],
     "fromEvents": [],
-    "fromCards": [
-      {
-        "card": "Booty"
-      },
-      {
-        "card": "Explorer's Trick"
-      },
-      {
-        "card": "Shovel"
-      }
-    ],
-    "fromTalents": [
-      {
-        "talent": "Pirate Parlour"
-      }
-    ]
+    "fromCards": ["Booty", "Explorer's Trick", "Shovel"],
+    "fromTalents": ["Pirate Parlour"]
   },
   {
     "id": 407234,
@@ -538,45 +232,17 @@
     "fromTranspose": false,
     "fromTrade": false,
     "fromTreasureEvents": [
-      {
-        "event": "Broken Tombstone"
-      },
-      {
-        "event": "Marrow Halls"
-      },
-      {
-        "event": "Painted Landscape"
-      },
-      {
-        "event": "Survey the Field"
-      },
-      {
-        "event": "Undisturbed Grave"
-      },
-      {
-        "event": "Vault Door"
-      },
-      {
-        "event": "Vesparin Vault"
-      }
+      "Broken Tombstone",
+      "Marrow Halls",
+      "Painted Landscape",
+      "Survey the Field",
+      "Undisturbed Grave",
+      "Vault Door",
+      "Vesparin Vault"
     ],
     "fromEvents": [],
-    "fromCards": [
-      {
-        "card": "Booty"
-      },
-      {
-        "card": "Explorer's Trick"
-      },
-      {
-        "card": "Shovel"
-      }
-    ],
-    "fromTalents": [
-      {
-        "talent": "Pirate Parlour"
-      }
-    ]
+    "fromCards": ["Booty", "Explorer's Trick", "Shovel"],
+    "fromTalents": ["Pirate Parlour"]
   },
   {
     "id": 816971,
@@ -589,58 +255,20 @@
     "fromTranspose": true,
     "fromTrade": true,
     "fromTreasureEvents": [
-      {
-        "event": "Broken Tombstone"
-      },
-      {
-        "event": "Marrow Halls"
-      },
-      {
-        "event": "Molekin Burrow"
-      },
-      {
-        "event": "Painted Landscape"
-      },
-      {
-        "event": "Rotting Residence"
-      },
-      {
-        "event": "Survey the Field"
-      },
-      {
-        "event": "The Cocoon"
-      },
-      {
-        "event": "Undisturbed Grave"
-      },
-      {
-        "event": "Vault Door"
-      },
-      {
-        "event": "Vesparin Vault"
-      }
+      "Broken Tombstone",
+      "Marrow Halls",
+      "Molekin Burrow",
+      "Painted Landscape",
+      "Rotting Residence",
+      "Survey the Field",
+      "The Cocoon",
+      "Undisturbed Grave",
+      "Vault Door",
+      "Vesparin Vault"
     ],
-    "fromEvents": [
-      {
-        "event": "Field of Flowers"
-      }
-    ],
-    "fromCards": [
-      {
-        "card": "Booty"
-      },
-      {
-        "card": "Explorer's Trick"
-      },
-      {
-        "card": "Shovel"
-      }
-    ],
-    "fromTalents": [
-      {
-        "talent": "Pirate Parlour"
-      }
-    ]
+    "fromEvents": ["Field of Flowers"],
+    "fromCards": ["Booty", "Explorer's Trick", "Shovel"],
+    "fromTalents": ["Pirate Parlour"]
   },
   {
     "id": 77316,
@@ -653,45 +281,17 @@
     "fromTranspose": false,
     "fromTrade": false,
     "fromTreasureEvents": [
-      {
-        "event": "Broken Tombstone"
-      },
-      {
-        "event": "Marrow Halls"
-      },
-      {
-        "event": "Painted Landscape"
-      },
-      {
-        "event": "Survey the Field"
-      },
-      {
-        "event": "Undisturbed Grave"
-      },
-      {
-        "event": "Vault Door"
-      },
-      {
-        "event": "Vesparin Vault"
-      }
+      "Broken Tombstone",
+      "Marrow Halls",
+      "Painted Landscape",
+      "Survey the Field",
+      "Undisturbed Grave",
+      "Vault Door",
+      "Vesparin Vault"
     ],
     "fromEvents": [],
-    "fromCards": [
-      {
-        "card": "Booty"
-      },
-      {
-        "card": "Explorer's Trick"
-      },
-      {
-        "card": "Shovel"
-      }
-    ],
-    "fromTalents": [
-      {
-        "talent": "Pirate Parlour"
-      }
-    ]
+    "fromCards": ["Booty", "Explorer's Trick", "Shovel"],
+    "fromTalents": ["Pirate Parlour"]
   },
   {
     "id": 571114,
@@ -704,54 +304,20 @@
     "fromTranspose": true,
     "fromTrade": true,
     "fromTreasureEvents": [
-      {
-        "event": "Broken Tombstone"
-      },
-      {
-        "event": "Marrow Halls"
-      },
-      {
-        "event": "Molekin Burrow"
-      },
-      {
-        "event": "Painted Landscape"
-      },
-      {
-        "event": "Rotting Residence"
-      },
-      {
-        "event": "Survey the Field"
-      },
-      {
-        "event": "The Cocoon"
-      },
-      {
-        "event": "Undisturbed Grave"
-      },
-      {
-        "event": "Vault Door"
-      },
-      {
-        "event": "Vesparin Vault"
-      }
+      "Broken Tombstone",
+      "Marrow Halls",
+      "Molekin Burrow",
+      "Painted Landscape",
+      "Rotting Residence",
+      "Survey the Field",
+      "The Cocoon",
+      "Undisturbed Grave",
+      "Vault Door",
+      "Vesparin Vault"
     ],
     "fromEvents": [],
-    "fromCards": [
-      {
-        "card": "Booty"
-      },
-      {
-        "card": "Explorer's Trick"
-      },
-      {
-        "card": "Shovel"
-      }
-    ],
-    "fromTalents": [
-      {
-        "talent": "Pirate Parlour"
-      }
-    ]
+    "fromCards": ["Booty", "Explorer's Trick", "Shovel"],
+    "fromTalents": ["Pirate Parlour"]
   },
   {
     "id": 307462,
@@ -764,51 +330,16 @@
     "fromTranspose": false,
     "fromTrade": false,
     "fromTreasureEvents": [
-      {
-        "event": "Broken Tombstone"
-      },
-      {
-        "event": "Marrow Halls"
-      },
-      {
-        "event": "Painted Landscape"
-      },
-      {
-        "event": "Survey the Field"
-      },
-      {
-        "event": "Undisturbed Grave"
-      },
-      {
-        "event": "Vault Door"
-      },
-      {
-        "event": "Vesparin Vault"
-      }
+      "Broken Tombstone",
+      "Marrow Halls",
+      "Painted Landscape",
+      "Survey the Field",
+      "Undisturbed Grave",
+      "Vault Door",
+      "Vesparin Vault"
     ],
-    "fromEvents": [
-      {
-        "event": "Marrow Halls"
-      },
-      {
-        "event": "Sunfall Meadows Finish"
-      }
-    ],
-    "fromCards": [
-      {
-        "card": "Booty"
-      },
-      {
-        "card": "Explorer's Trick"
-      },
-      {
-        "card": "Shovel"
-      }
-    ],
-    "fromTalents": [
-      {
-        "talent": "Pirate Parlour"
-      }
-    ]
+    "fromEvents": ["Marrow Halls", "Sunfall Meadows Finish"],
+    "fromCards": ["Booty", "Explorer's Trick", "Shovel"],
+    "fromTalents": ["Pirate Parlour"]
   }
 ]

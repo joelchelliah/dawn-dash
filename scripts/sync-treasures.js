@@ -17,12 +17,15 @@ const OUTPUT_DIR = path.join(__dirname, '../src/codex/data')
 const CARDS_OUTPUT_FILE = path.join(OUTPUT_DIR, 'treasure-cards.json')
 const POOLS_OUTPUT_FILE = path.join(OUTPUT_DIR, 'treasure-pools.json')
 
-// Keyed by the field's own name, so a nested whitelist applies wherever that field appears.
+const FLATTENED_FIELDS = {
+  fromEvents: 'event',
+  fromTreasureEvents: 'event',
+  fromCards: 'card',
+  fromTalents: 'talent',
+}
+
+// Kept as objects: which of the three keys is set is what labels the source tag in the UI.
 const NESTED_FIELDS = {
-  fromEvents: ['event'],
-  fromTreasureEvents: ['event'],
-  fromCards: ['card'],
-  fromTalents: ['talent'],
   reachedBy: ['card', 'talent', 'event'],
 }
 
@@ -53,12 +56,24 @@ function pickFields(object, fields, ignored, pathPrefix) {
       continue
     }
 
+    const flattenedField = FLATTENED_FIELDS[key]
     const nestedFields = NESTED_FIELDS[key]
 
-    picked[key] =
-      nestedFields && Array.isArray(value)
-        ? value.map((item) => pickFields(item, nestedFields, ignored, `${pathPrefix}.${key}[]`))
-        : value
+    if (flattenedField && Array.isArray(value)) {
+      picked[key] = value.map((item) => {
+        for (const itemKey of Object.keys(item)) {
+          if (itemKey !== flattenedField) ignored.add(`${pathPrefix}.${key}[].${itemKey}`)
+        }
+
+        return item[flattenedField]
+      })
+    } else if (nestedFields && Array.isArray(value)) {
+      picked[key] = value.map((item) =>
+        pickFields(item, nestedFields, ignored, `${pathPrefix}.${key}[]`)
+      )
+    } else {
+      picked[key] = value
+    }
   }
 
   return picked

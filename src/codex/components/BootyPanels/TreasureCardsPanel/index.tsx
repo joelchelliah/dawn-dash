@@ -43,7 +43,7 @@ const TreasureCardsPanel = () => {
     return (
       <>
         <div className={cx('treasure-list')}>
-          <TreasureList treasures={treasures} />
+          <TreasureList treasures={treasures} cardData={cardData} />
         </div>
         <div className={cx('last-updated')}>
           <CodexLastUpdated

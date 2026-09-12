@@ -7,13 +7,19 @@ import GradientLink from '@/shared/components/GradientLink'
 import ClassEnergy from '@/shared/components/ClassEnergy'
 
 import { getCardSetName } from '@/codex/hooks/useSearchFilters/useCardSetFilters'
+import { CardData } from '@/codex/types/cards'
 import { EnrichedTreasureCard, TreasureCard } from '@/codex/types/treasures'
 import { parseCardDescription } from '@/codex/utils/cardHelper'
-import { getGuaranteedTreasureEvents, getTreasurePoolEvents } from '@/codex/utils/treasureHelper'
+import {
+  getRelatedEvents,
+  getRelatedTreasurePoolCards,
+  getRelatedTreasurePoolEvents,
+} from '@/codex/utils/treasureHelper'
 import Section from '@/codex/components/shared/Section'
 
 import CardPill from './CardPill'
-import TreasureEventList from './TreasureEventList'
+import RelatedCardList from './RelatedCardList'
+import RelatedEventList from './RelatedEventList'
 import TreasureFlag from './TreasureFlag'
 import styles from './index.module.scss'
 
@@ -30,22 +36,16 @@ interface TreasureAvailability {
   value: boolean
 }
 
-const EXPLORERS_TRICK = "Explorer's Trick"
-const BOOTY_AND_SHOVEL = ['Booty', 'Shovel']
-
 const getAvailability = (treasure: TreasureCard): TreasureAvailability[] => {
-  const sourceCards = treasure.fromCards.map(({ card }) => card)
+  const { fromCards, fromTalents, fromEvents, fromTreasureEvents } = treasure
 
   return [
-    { label: 'Card rewards', value: treasure.inCardRewards },
-    { label: 'Sold by Merchant', value: treasure.inMerchant },
-    { label: 'Sold by Alchemist', value: treasure.inAlchemist },
+    { label: 'Combat rewards', value: treasure.inCardRewards },
+    { label: 'Merchant (Julius)', value: treasure.inMerchant },
+    { label: 'Alchemist (Theresa)', value: treasure.inAlchemist },
     { label: 'Trade / Transmute', value: treasure.fromTranspose || treasure.fromTrade },
-    { label: "Explorer's Trick (card)", value: sourceCards.includes(EXPLORERS_TRICK) },
-    {
-      label: 'Booty / Shovel (card)',
-      value: BOOTY_AND_SHOVEL.some((card) => sourceCards.includes(card)),
-    },
+    { label: 'Events', value: fromEvents.length + fromTreasureEvents.length > 0 },
+    { label: 'Cards / Talents', value: fromCards.length + fromTalents.length > 0 },
   ]
 }
 
@@ -58,28 +58,24 @@ const getSubtitle = ({ type, category }: TreasureCard, rarityName?: string) =>
 
 interface TreasureModalProps {
   treasure: EnrichedTreasureCard
+  cardData: CardData[] | undefined
   onClose: () => void
 }
 
-function TreasureModal({ treasure, onClose }: TreasureModalProps): JSX.Element {
+function TreasureModal({ treasure, cardData, onClose }: TreasureModalProps): JSX.Element {
   const { treasureDetails, cardDetails } = treasure
   const rarity = RARITIES[cardDetails.rarity]
   const subtitle = getSubtitle(treasureDetails, rarity?.name)
   const cardName = treasureDetails.name
   const cardSetName = getCardSetName(cardDetails.expansion)
 
-  const guaranteedEvents = getGuaranteedTreasureEvents(treasureDetails)
-  const poolEvents = getTreasurePoolEvents(treasureDetails)
+  const relatedEvents = getRelatedEvents(treasureDetails)
+  const relatedPoolEvents = getRelatedTreasurePoolEvents(treasureDetails)
+  const relatedPoolCards = getRelatedTreasurePoolCards(treasureDetails, cardData)
 
   const rarityClassName = cx('treasure-modal-border', {
     [`treasure-modal-border--${rarity?.slug}`]: Boolean(rarity),
   })
-
-  const cardSetHint = (
-    <>
-      The <strong>{cardSetName}</strong> card set must be enabled.
-    </>
-  )
 
   const potionNotes = <>Can also be created during combat by several different cards.</>
   const cardSpecificNotes: Record<string, JSX.Element> = {
@@ -173,12 +169,14 @@ function TreasureModal({ treasure, onClose }: TreasureModalProps): JSX.Element {
         </div>
 
         <Section
-          title="Acquired outside of events"
+          title="Can be acquired from..."
           spacing="medium"
           dividerColor={rarity ? RARITY_COLOR : undefined}
         >
           {cardSetName !== 'Core' && (
-            <div className={cx('treasure-modal__hint')}>{cardSetHint}</div>
+            <div className={cx('treasure-modal__hint')}>
+              The <strong>{cardSetName}</strong> card set must be enabled.
+            </div>
           )}
           <div className={cx('treasure-modal__availability')}>
             {getAvailability(treasureDetails).map(({ label, value }) => (
@@ -187,30 +185,42 @@ function TreasureModal({ treasure, onClose }: TreasureModalProps): JSX.Element {
           </div>
         </Section>
 
-        {guaranteedEvents.length > 0 && (
+        {relatedEvents.length > 0 && (
           <Section
-            title={`Acquired from events (${guaranteedEvents.length})`}
+            title={`Events (${relatedEvents.length})`}
             dividerColor={rarity ? RARITY_COLOR : undefined}
             spacing="medium"
           >
             <div className={cx('treasure-modal__hint')}>
-              Events that can always offer this treasure.
+              Events that will always offer this treasure.
             </div>
-            <TreasureEventList events={guaranteedEvents} />
+            <RelatedEventList events={relatedEvents} />
           </Section>
         )}
 
-        {poolEvents.length > 0 && (
+        {relatedPoolEvents.length > 0 && (
           <Section
-            title={`In treasure pool used by events (${poolEvents.length})`}
+            title={`Treasure pool events (${relatedPoolEvents.length})`}
             dividerColor={rarity ? RARITY_COLOR : undefined}
             spacing="medium"
           >
             <div className={cx('treasure-modal__hint')}>
               Events that draw from a treasure pool containing this card.
-              {cardSetName !== 'Core' && <> {cardSetHint}</>}
             </div>
-            <TreasureEventList events={poolEvents} />
+            <RelatedEventList events={relatedPoolEvents} />
+          </Section>
+        )}
+
+        {relatedPoolCards.length > 0 && (
+          <Section
+            title={`Treasure pool cards and talents (${relatedPoolCards.length})`}
+            dividerColor={rarity ? RARITY_COLOR : undefined}
+            spacing="medium"
+          >
+            <div className={cx('treasure-modal__hint')}>
+              Cards and talents that draw from a treasure pool containing this treasure.
+            </div>
+            <RelatedCardList relatedCards={relatedPoolCards} />
           </Section>
         )}
 

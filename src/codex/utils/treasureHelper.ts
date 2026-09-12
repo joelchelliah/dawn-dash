@@ -2,7 +2,7 @@ import { logger } from '@/shared/utils/logger'
 
 import { CardData } from '@/codex/types/cards'
 import { Event } from '@/codex/types/events'
-import { EnrichedTreasureCard, TreasureCard, TreasureEventSource } from '@/codex/types/treasures'
+import { EnrichedTreasureCard, RelatedCard, TreasureCard } from '@/codex/types/treasures'
 import eventTrees from '@/codex/data/event-trees.json'
 import treasureCards from '@/codex/data/treasure-cards.json'
 
@@ -26,20 +26,41 @@ export const enrichTreasureCards = (cardData: CardData[] | undefined): EnrichedT
   })
 }
 
-const resolveEvents = (sources: TreasureEventSource[]): Event[] =>
-  sources.flatMap(({ event }) => {
-    const eventDetails = EVENTS_BY_NAME.get(event)
+const resolveEvents = (eventNames: string[]): Event[] =>
+  eventNames.flatMap((name) => {
+    const eventDetails = EVENTS_BY_NAME.get(name)
 
     if (!eventDetails) {
-      logger.warn(`No event data found for treasure event: ${event}`)
+      logger.warn(`No event data found for treasure event: ${name}`)
       return []
     }
 
     return [eventDetails]
   })
 
-export const getGuaranteedTreasureEvents = (treasure: TreasureCard): Event[] =>
+export const getRelatedEvents = (treasure: TreasureCard): Event[] =>
   resolveEvents(treasure.fromEvents)
 
-export const getTreasurePoolEvents = (treasure: TreasureCard): Event[] =>
+export const getRelatedTreasurePoolEvents = (treasure: TreasureCard): Event[] =>
   resolveEvents(treasure.fromTreasureEvents)
+
+export const getRelatedTreasurePoolCards = (
+  treasure: TreasureCard,
+  cardData: CardData[] | undefined
+): RelatedCard[] => {
+  const cardsByName = new Map((cardData ?? []).map((card) => [card.name, card]))
+
+  const cards = treasure.fromCards.map((name) => {
+    const cardDetails = cardsByName.get(name)
+
+    return {
+      name,
+      isTalent: false,
+      category: cardDetails?.category,
+    }
+  })
+
+  const talents = treasure.fromTalents.map((name) => ({ name, isTalent: true }))
+
+  return [...cards, ...talents]
+}

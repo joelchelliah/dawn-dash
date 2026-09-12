@@ -10,30 +10,17 @@ export interface TreasureCard {
   inAlchemist: boolean
   fromTranspose: boolean
   fromTrade: boolean
-  fromEvents: TreasureEventSource[]
-  fromTreasureEvents: TreasureEventSource[]
-  fromCards: TreasureCardSource[]
-  fromTalents: TreasureTalentSource[]
+  fromEvents: string[]
+  fromTreasureEvents: string[]
+  fromCards: string[]
+  fromTalents: string[]
 }
 
 export interface TreasurePool {
   pool: string
-  // Card categories the pool can offer. The UI's reward tags are built from this.
   contains: string[]
   size: number
   reachedBy: PoolReachedBy[]
-}
-
-export interface TreasureEventSource {
-  event: string
-}
-
-export interface TreasureCardSource {
-  card: string
-}
-
-export interface TreasureTalentSource {
-  talent: string
 }
 
 export interface PoolReachedBy {
@@ -45,4 +32,10 @@ export interface PoolReachedBy {
 export interface EnrichedTreasureCard {
   treasureDetails: TreasureCard
   cardDetails: CardData
+}
+
+export interface RelatedCard {
+  name: string
+  isTalent: boolean
+  category?: number
 }

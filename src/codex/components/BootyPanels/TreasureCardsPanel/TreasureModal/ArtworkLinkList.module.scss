@@ -1,6 +1,6 @@
 @use 'index' as *;
 
-.treasure-event-list {
+.artwork-link-list {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 0;
@@ -10,7 +10,7 @@
   }
 }
 
-.treasure-event-item {
+.artwork-link-item {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -50,15 +50,15 @@
 
   &:hover {
     background: linear-gradient(to right, $color-list-bg-hover, transparent) !important;
-    .treasure-event-item__artwork {
+    .artwork-link-item__artwork {
       @include hover-tint-artwork(var(--rarity-color, #{$color-primary-hover}));
     }
 
-    .treasure-event-item__text {
+    .artwork-link-item__text {
       @include tinyNudgeRightAnimation;
     }
 
-    .treasure-event-item__name {
+    .artwork-link-item__name {
       @include hover-tint-name(var(--rarity-color, #{$color-primary-hover}));
     }
   }

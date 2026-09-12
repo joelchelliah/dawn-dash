@@ -5,6 +5,7 @@ import { createCx } from '@/shared/utils/classnames'
 import { HOVER_TRIGGER } from '@/shared/utils/hoverTrigger'
 import { splitCamelCaseWords } from '@/shared/utils/textHelper'
 
+import { CardData } from '@/codex/types/cards'
 import { EnrichedTreasureCard } from '@/codex/types/treasures'
 
 import TreasureModal from '../TreasureModal'
@@ -19,9 +20,10 @@ const ARTWORK_BORDER_OPACITY = 75
 
 interface TreasureListProps {
   treasures: EnrichedTreasureCard[]
+  cardData: CardData[] | undefined
 }
 
-function TreasureList({ treasures }: TreasureListProps): JSX.Element {
+function TreasureList({ treasures, cardData }: TreasureListProps): JSX.Element {
   const [selectedId, setSelectedId] = useState<number | null>(null)
   const selectedTreasure = treasures.find(
     ({ treasureDetails }) => treasureDetails.id === selectedId
@@ -39,7 +41,11 @@ function TreasureList({ treasures }: TreasureListProps): JSX.Element {
         ))}
       </div>
       {selectedTreasure && (
-        <TreasureModal treasure={selectedTreasure} onClose={() => setSelectedId(null)} />
+        <TreasureModal
+          treasure={selectedTreasure}
+          cardData={cardData}
+          onClose={() => setSelectedId(null)}
+        />
       )}
     </div>
   )
