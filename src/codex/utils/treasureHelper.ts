@@ -2,7 +2,13 @@ import { logger } from '@/shared/utils/logger'
 
 import { CardData } from '@/codex/types/cards'
 import { Event } from '@/codex/types/events'
-import { EnrichedTreasureCard, RelatedCard, TreasureCard } from '@/codex/types/treasures'
+import {
+  EnrichedEvent,
+  EnrichedTreasureCard,
+  RelatedCard,
+  TreasureCard,
+  TreasureSource,
+} from '@/codex/types/treasures'
 import eventTrees from '@/codex/data/event-trees.json'
 import treasureCards from '@/codex/data/treasure-cards.json'
 
@@ -26,8 +32,27 @@ export const enrichTreasureCards = (cardData: CardData[] | undefined): EnrichedT
   })
 }
 
-const resolveEvents = (eventNames: string[]): Event[] =>
-  eventNames.flatMap((name) => {
+const uniqueNames = (sources: TreasureSource[]): string[] =>
+  Array.from(new Set(sources.map(({ name }) => name)))
+
+/*
+ * Collapsing `X pool` and `X pool (limited)` to a single `X pool`.
+ */
+const toBasePoolName = (pool: string): string => pool.replace(/ \(limited\)$/, '')
+
+// The treasure pools' base name, after `(limited)` has been collapsed away.
+const TREASURE_POOL_NAME = 'Treasure pool'
+
+const resolveEvents = (sources: TreasureSource[]): EnrichedEvent[] => {
+  const poolsByEvent = new Map<string, Set<string | undefined>>()
+
+  for (const { name, pool } of sources) {
+    const pools = poolsByEvent.get(name) ?? new Set<string | undefined>()
+
+    poolsByEvent.set(name, pools.add(pool ? toBasePoolName(pool) : undefined))
+  }
+
+  return Array.from(poolsByEvent, ([name, pools]) => {
     const eventDetails = EVENTS_BY_NAME.get(name)
 
     if (!eventDetails) {
@@ -35,14 +60,25 @@ const resolveEvents = (eventNames: string[]): Event[] =>
       return []
     }
 
-    return [eventDetails]
-  })
+    return Array.from(pools, (pool) => ({ ...eventDetails, pool }))
+  }).flat()
+}
 
-export const getRelatedEvents = (treasure: TreasureCard): Event[] =>
-  resolveEvents(treasure.fromEvents)
+export interface RelatedEvents {
+  guaranteed: EnrichedEvent[]
+  fromTreasurePool: EnrichedEvent[]
+  fromOtherPools: EnrichedEvent[]
+}
 
-export const getRelatedTreasurePoolEvents = (treasure: TreasureCard): Event[] =>
-  resolveEvents(treasure.fromTreasureEvents)
+export const getRelatedEvents = (treasure: TreasureCard): RelatedEvents => {
+  const events = resolveEvents(treasure.fromEvents)
+
+  return {
+    guaranteed: events.filter(({ pool }) => !pool),
+    fromTreasurePool: events.filter(({ pool }) => pool === TREASURE_POOL_NAME),
+    fromOtherPools: events.filter(({ pool }) => pool && pool !== TREASURE_POOL_NAME),
+  }
+}
 
 export const getRelatedTreasurePoolCards = (
   treasure: TreasureCard,
@@ -50,7 +86,7 @@ export const getRelatedTreasurePoolCards = (
 ): RelatedCard[] => {
   const cardsByName = new Map((cardData ?? []).map((card) => [card.name, card]))
 
-  const cards = treasure.fromCards.map((name) => {
+  const cards = uniqueNames(treasure.fromCards).map((name) => {
     const cardDetails = cardsByName.get(name)
 
     return {
@@ -60,7 +96,7 @@ export const getRelatedTreasurePoolCards = (
     }
   })
 
-  const talents = treasure.fromTalents.map((name) => ({ name, isTalent: true }))
+  const talents = uniqueNames(treasure.fromTalents).map((name) => ({ name, isTalent: true }))
 
   return [...cards, ...talents]
 }

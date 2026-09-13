@@ -31,6 +31,7 @@ interface ArtworkLinkItemProps {
   isExternal: boolean
   src: string | null
   onImageSrcError?: () => void
+  subtitle?: string
 }
 
 export function ArtworkLinkItem({
@@ -39,6 +40,7 @@ export function ArtworkLinkItem({
   isExternal,
   src,
   onImageSrcError,
+  subtitle,
 }: ArtworkLinkItemProps): JSX.Element {
   const itemClassName = cx('artwork-link-item', HOVER_TRIGGER)
   const LinkComponent = isExternal ? 'a' : Link
@@ -47,7 +49,7 @@ export function ArtworkLinkItem({
     <LinkComponent
       href={href}
       className={itemClassName}
-      title={name}
+      title={subtitle ? `${name} — ${subtitle}` : name}
       target="_blank"
       rel="noopener noreferrer"
     >
@@ -62,6 +64,7 @@ export function ArtworkLinkItem({
       />
       <div className={cx('artwork-link-item__text')}>
         <span className={cx('artwork-link-item__name')}>{name}</span>
+        {subtitle && <span className={cx('artwork-link-item__subtitle')}>{subtitle}</span>}
       </div>
     </LinkComponent>
   )

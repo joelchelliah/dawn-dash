@@ -40,6 +40,13 @@
     }
   }
 
+  &__subtitle {
+    font-size: font-size('xxs');
+    font-weight: 300;
+    color: $color-primary-dark;
+    @include text-truncate;
+  }
+
   @include alternating-rows-range(
     2,
     $through: $breakpoint-mobile,

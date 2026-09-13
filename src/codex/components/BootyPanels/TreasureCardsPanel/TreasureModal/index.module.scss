@@ -103,6 +103,10 @@ $rarity-colors: (
       font-size: font-size('xxs');
     }
 
+    &--stacked {
+      margin-top: 1.5rem;
+    }
+
     &__energy {
       display: inline-block;
       vertical-align: baseline;

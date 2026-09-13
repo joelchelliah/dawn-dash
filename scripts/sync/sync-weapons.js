@@ -21,10 +21,12 @@ const INPUT_FILE = path.join(__dirname, '../data', 'weapons.json')
 const OUTPUT_DIR = path.join(__dirname, '../../src/codex/data')
 const OUTPUT_FILE = path.join(OUTPUT_DIR, 'special-weapons.json')
 
-// Flattened down to just the name — the rest of each entry is routing detail the UI doesn't show.
-const FLATTENED_FIELDS = {
+/*
+ * Same source shape as treasures — normalized to `{ sourceType, name, pool }`, where a named `pool`
+ * means the weapon is only a chance from that source and `pool: null` means a guaranteed drop.
+ */
+const SOURCE_FIELDS = {
   fromEvents: 'event',
-  fromTreasureEvents: 'event',
   fromCards: 'card',
   fromTalents: 'talent',
 }
@@ -35,7 +37,6 @@ const WEAPON_FIELDS = [
   'category',
   'type',
   'isTreasure',
-  'fromTreasureEvents',
   'fromEvents',
   'fromCards',
   'fromTalents',
@@ -56,13 +57,13 @@ function main() {
 
     const ignored = new Set()
     const weapons = entries.map((entry) =>
-      pickFields(entry, WEAPON_FIELDS, ignored, 'entries', { flattenedFields: FLATTENED_FIELDS })
+      pickFields(entry, WEAPON_FIELDS, ignored, 'entries', { sourceFields: SOURCE_FIELDS })
     )
 
     console.log('\nWriting output file...')
     writeJson(OUTPUT_FILE, weapons, 'special weapons')
 
-    logIgnoredFields(ignored, 'WEAPON_FIELDS / FLATTENED_FIELDS')
+    logIgnoredFields(ignored, 'WEAPON_FIELDS / SOURCE_FIELDS')
 
     console.log('\nSuccess!')
   } catch (error) {

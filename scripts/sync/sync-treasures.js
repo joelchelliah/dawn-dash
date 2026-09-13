@@ -23,17 +23,25 @@ const OUTPUT_DIR = path.join(__dirname, '../../src/codex/data')
 const CARDS_OUTPUT_FILE = path.join(OUTPUT_DIR, 'treasure-cards.json')
 const POOLS_OUTPUT_FILE = path.join(OUTPUT_DIR, 'treasure-pools.json')
 
-const FLATTENED_FIELDS = {
+/*
+ * Normalized to a uniform `{ sourceType, name, pool }` so one `TreasureSource` type covers all
+ * three lists. Each entry keeps its `pool` tag: a named pool means the treasure is only a *chance*
+ * from that source, while `pool: null` means it is a guaranteed drop — the UI splits on exactly
+ * that. Note the tags name more pools than `pools` declares: the declared ones are the treasure
+ * pools Booty documents, the rest (Elite, Equipment, Potion, Rare, Uncommon) are general reward
+ * pools.
+ */
+const SOURCE_FIELDS = {
   fromEvents: 'event',
-  fromTreasureEvents: 'event',
   fromCards: 'card',
   fromTalents: 'talent',
 }
 
-// Kept as objects: which of the three keys is set is what labels the source tag in the UI.
-const NESTED_FIELDS = {
-  reachedBy: ['card', 'talent', 'event'],
-}
+/*
+ * Upstream calls it `type`; renamed so a pool's sources share the `TreasureSource` shape. No `pool`
+ * field here — the pool is the thing being reached, so there is no further pool to draw from.
+ */
+const toPoolSource = ({ type, name }) => ({ sourceType: type, name })
 
 const CARD_FIELDS = [
   'id',
@@ -46,14 +54,13 @@ const CARD_FIELDS = [
   'fromTranspose',
   'fromTrade',
   'fromEvents',
-  'fromTreasureEvents',
   'fromCards',
   'fromTalents',
 ]
 
 const POOL_FIELDS = ['pool', 'contains', 'size', 'reachedBy']
 
-const FIELD_OPTIONS = { flattenedFields: FLATTENED_FIELDS, nestedFields: NESTED_FIELDS }
+const FIELD_OPTIONS = { sourceFields: SOURCE_FIELDS }
 
 function main() {
   try {
@@ -73,15 +80,17 @@ function main() {
     const cards = entries.map((entry) =>
       pickFields(entry, CARD_FIELDS, ignored, 'entries', FIELD_OPTIONS)
     )
-    const poolList = pools.map((pool) =>
-      pickFields(pool, POOL_FIELDS, ignored, 'pools', FIELD_OPTIONS)
-    )
+    const poolList = pools.map((pool) => {
+      const picked = pickFields(pool, POOL_FIELDS, ignored, 'pools', FIELD_OPTIONS)
+
+      return { ...picked, reachedBy: picked.reachedBy.map(toPoolSource) }
+    })
 
     console.log('\nWriting output files...')
     writeJson(CARDS_OUTPUT_FILE, cards, 'treasure cards')
     writeJson(POOLS_OUTPUT_FILE, poolList, 'treasure pools')
 
-    logIgnoredFields(ignored, 'CARD_FIELDS / POOL_FIELDS / NESTED_FIELDS')
+    logIgnoredFields(ignored, 'CARD_FIELDS / POOL_FIELDS / SOURCE_FIELDS')
 
     console.log('\nSuccess!')
   } catch (error) {

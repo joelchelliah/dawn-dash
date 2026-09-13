@@ -20,17 +20,18 @@ const REPO_ROOT = path.join(__dirname, '../..')
  * Copy `object`'s whitelisted fields, recording every dropped path in `ignored`.
  *
  * Two kinds of array field get special treatment, both declared by the caller:
- * - `flattenedFields` ({ fieldName: keyToKeep }) turns a list of one-interesting-key objects
- *   into a plain string list, noting the other keys as ignored.
- * - `nestedFields` ({ fieldName: [allowedKeys] }) recurses, keeping the objects as objects —
- *   used where *which* key is set is itself the information.
+ * - `nestedFields` ({ fieldName: [allowedKeys] }) recurses, keeping the objects as objects.
+ * - `sourceFields` ({ fieldName: sourceType }) normalizes a source list. Upstream names the entity
+ *   after its kind (`event` / `card` / `talent`), which forces one type per field downstream; these
+ *   are rewritten to a uniform `{ sourceType, name, pool }` so a single type covers all of them —
+ *   the same shape `reachedBy` already arrives in.
  */
 function pickFields(
   object,
   fields,
   ignored,
   pathPrefix,
-  { flattenedFields = {}, nestedFields = {} } = {}
+  { nestedFields = {}, sourceFields = {} } = {}
 ) {
   const picked = {}
 
@@ -40,23 +41,14 @@ function pickFields(
       continue
     }
 
-    const flattenedField = flattenedFields[key]
     const nested = nestedFields[key]
+    const sourceType = sourceFields[key]
 
-    if (flattenedField && Array.isArray(value)) {
-      picked[key] = value.map((item) => {
-        for (const itemKey of Object.keys(item)) {
-          if (itemKey !== flattenedField) ignored.add(`${pathPrefix}.${key}[].${itemKey}`)
-        }
-
-        return item[flattenedField]
-      })
+    if (sourceType && Array.isArray(value)) {
+      picked[key] = value.map((item) => toSource(item, sourceType, ignored, `${pathPrefix}.${key}`))
     } else if (nested && Array.isArray(value)) {
       picked[key] = value.map((item) =>
-        pickFields(item, nested, ignored, `${pathPrefix}.${key}[]`, {
-          flattenedFields,
-          nestedFields,
-        })
+        pickFields(item, nested, ignored, `${pathPrefix}.${key}[]`, { nestedFields, sourceFields })
       )
     } else {
       picked[key] = value
@@ -64,6 +56,20 @@ function pickFields(
   }
 
   return picked
+}
+
+/**
+ * `{ [sourceType]: name, pool }` -> `{ sourceType, name, pool }`, dropping anything else.
+ *
+ * `pool` is deliberately kept even when null: null means the source hands the card over outright,
+ * a named pool means it is only a chance from that pool, and the UI splits on exactly that.
+ */
+function toSource(item, sourceType, ignored, pathPrefix) {
+  for (const key of Object.keys(item)) {
+    if (key !== sourceType && key !== 'pool') ignored.add(`${pathPrefix}[].${key}`)
+  }
+
+  return { sourceType, name: item[sourceType], pool: item.pool ?? null }
 }
 
 function writeJson(outputFile, data, label) {

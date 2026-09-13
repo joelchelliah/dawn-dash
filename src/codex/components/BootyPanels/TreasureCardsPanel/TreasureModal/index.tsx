@@ -10,11 +10,7 @@ import { getCardSetName } from '@/codex/hooks/useSearchFilters/useCardSetFilters
 import { CardData } from '@/codex/types/cards'
 import { EnrichedTreasureCard, TreasureCard } from '@/codex/types/treasures'
 import { parseCardDescription } from '@/codex/utils/cardHelper'
-import {
-  getRelatedEvents,
-  getRelatedTreasurePoolCards,
-  getRelatedTreasurePoolEvents,
-} from '@/codex/utils/treasureHelper'
+import { getRelatedEvents, getRelatedTreasurePoolCards } from '@/codex/utils/treasureHelper'
 import Section from '@/codex/components/shared/Section'
 
 import CardPill from './CardPill'
@@ -37,14 +33,14 @@ interface TreasureAvailability {
 }
 
 const getAvailability = (treasure: TreasureCard): TreasureAvailability[] => {
-  const { fromCards, fromTalents, fromEvents, fromTreasureEvents } = treasure
+  const { fromCards, fromTalents, fromEvents } = treasure
 
   return [
     { label: 'Combat rewards', value: treasure.inCardRewards },
     { label: 'Merchant (Julius)', value: treasure.inMerchant },
     { label: 'Alchemist (Theresa)', value: treasure.inAlchemist },
     { label: 'Trade / Transmute', value: treasure.fromTranspose || treasure.fromTrade },
-    { label: 'Events', value: fromEvents.length + fromTreasureEvents.length > 0 },
+    { label: 'Events', value: fromEvents.length > 0 },
     { label: 'Cards / Talents', value: fromCards.length + fromTalents.length > 0 },
   ]
 }
@@ -69,8 +65,8 @@ function TreasureModal({ treasure, cardData, onClose }: TreasureModalProps): JSX
   const cardName = treasureDetails.name
   const cardSetName = getCardSetName(cardDetails.expansion)
 
-  const relatedEvents = getRelatedEvents(treasureDetails)
-  const relatedPoolEvents = getRelatedTreasurePoolEvents(treasureDetails)
+  const { guaranteed, fromTreasurePool, fromOtherPools } = getRelatedEvents(treasureDetails)
+  const eventCount = guaranteed.length + fromTreasurePool.length + fromOtherPools.length
   const relatedPoolCards = getRelatedTreasurePoolCards(treasureDetails, cardData)
 
   const rarityClassName = cx('treasure-modal-border', {
@@ -185,29 +181,49 @@ function TreasureModal({ treasure, cardData, onClose }: TreasureModalProps): JSX
           </div>
         </Section>
 
-        {relatedEvents.length > 0 && (
+        {eventCount > 0 && (
           <Section
-            title={`Events (${relatedEvents.length})`}
+            title={`Events (${eventCount})`}
             dividerColor={rarity ? RARITY_COLOR : undefined}
             spacing="medium"
           >
-            <div className={cx('treasure-modal__hint')}>
-              Events that will always offer this treasure.
-            </div>
-            <RelatedEventList events={relatedEvents} />
-          </Section>
-        )}
+            {guaranteed.length > 0 && (
+              <>
+                <div className={cx('treasure-modal__hint')}>
+                  These events will <strong>always</strong> offer this treasure.
+                </div>
+                <RelatedEventList events={guaranteed} />
+              </>
+            )}
 
-        {relatedPoolEvents.length > 0 && (
-          <Section
-            title={`Treasure pool events (${relatedPoolEvents.length})`}
-            dividerColor={rarity ? RARITY_COLOR : undefined}
-            spacing="medium"
-          >
-            <div className={cx('treasure-modal__hint')}>
-              Events that draw from a treasure pool containing this card.
-            </div>
-            <RelatedEventList events={relatedPoolEvents} />
+            {fromTreasurePool.length > 0 && (
+              <>
+                <div
+                  className={cx('treasure-modal__hint', {
+                    'treasure-modal__hint--stacked': guaranteed.length > 0,
+                  })}
+                >
+                  These events offer cards from a <strong>treasure pool</strong>, containing this
+                  treasure.
+                </div>
+                <RelatedEventList events={fromTreasurePool} />
+              </>
+            )}
+
+            {fromOtherPools.length > 0 && (
+              <>
+                <div
+                  className={cx('treasure-modal__hint', {
+                    'treasure-modal__hint--stacked':
+                      guaranteed.length + fromTreasurePool.length > 0,
+                  })}
+                >
+                  These events offer cards from a <strong>custom pool</strong>, containing this
+                  treasure.
+                </div>
+                <RelatedEventList events={fromOtherPools} showPool />
+              </>
+            )}
           </Section>
         )}
 

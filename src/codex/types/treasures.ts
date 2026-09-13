@@ -1,4 +1,15 @@
 import { CardData } from '@/codex/types/cards'
+import { Event } from '@/codex/types/events'
+
+export type TreasureSourceType = 'card' | 'talent' | 'event'
+
+export interface TreasureSource {
+  sourceType: TreasureSourceType
+  name: string
+  pool: string | null
+}
+
+export type PoolReachedBy = Omit<TreasureSource, 'pool'>
 
 export interface TreasureCard {
   id: number
@@ -10,10 +21,9 @@ export interface TreasureCard {
   inAlchemist: boolean
   fromTranspose: boolean
   fromTrade: boolean
-  fromEvents: string[]
-  fromTreasureEvents: string[]
-  fromCards: string[]
-  fromTalents: string[]
+  fromEvents: TreasureSource[]
+  fromCards: TreasureSource[]
+  fromTalents: TreasureSource[]
 }
 
 export interface TreasurePool {
@@ -23,10 +33,11 @@ export interface TreasurePool {
   reachedBy: PoolReachedBy[]
 }
 
-export interface PoolReachedBy {
-  card?: string
-  talent?: string
-  event?: string
+/*
+ * An event plus the pool it draws a given treasure from; absent for a guaranteed drop.
+ */
+export type EnrichedEvent = Event & {
+  pool?: string
 }
 
 export interface EnrichedTreasureCard {

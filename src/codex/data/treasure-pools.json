@@ -1,71 +1,85 @@
 [
   {
-    "pool": "A",
+    "pool": "Delve Treasure pool",
     "contains": ["Treasure", "Equipment", "Items"],
     "size": 102,
     "reachedBy": [
       {
-        "card": "Booty"
+        "sourceType": "card",
+        "name": "Booty"
       },
       {
-        "card": "Shovel"
+        "sourceType": "card",
+        "name": "Shovel"
       }
     ]
   },
   {
-    "pool": "B",
+    "pool": "Pirate Parlour pool",
     "contains": ["Treasure", "Maps", "Locations", "Pirate Ink"],
     "size": 31,
     "reachedBy": [
       {
-        "talent": "Pirate Parlour"
+        "sourceType": "talent",
+        "name": "Pirate Parlour"
       }
     ]
   },
   {
-    "pool": "C",
+    "pool": "Treasure pool",
     "contains": ["Treasure"],
     "size": 14,
     "reachedBy": [
       {
-        "card": "Explorer's Trick"
+        "sourceType": "card",
+        "name": "Explorer's Trick"
       },
       {
-        "event": "Broken Tombstone"
+        "sourceType": "event",
+        "name": "Broken Tombstone"
       },
       {
-        "event": "Marrow Halls"
+        "sourceType": "event",
+        "name": "Marrow Halls"
       },
       {
-        "event": "Painted Landscape"
+        "sourceType": "event",
+        "name": "Painted Landscape"
       },
       {
-        "event": "Survey the Field"
+        "sourceType": "event",
+        "name": "Survey the Field"
       },
       {
-        "event": "Undisturbed Grave"
+        "sourceType": "event",
+        "name": "Undisturbed Grave"
       },
       {
-        "event": "Vault Door"
+        "sourceType": "event",
+        "name": "Vault Door"
       },
       {
-        "event": "Vesparin Vault"
+        "sourceType": "event",
+        "name": "Vesparin Vault"
       }
     ]
   },
   {
-    "pool": "D",
+    "pool": "Treasure pool (limited)",
     "contains": ["Treasure"],
     "size": 7,
     "reachedBy": [
       {
-        "event": "Molekin Burrow"
+        "sourceType": "event",
+        "name": "Molekin Burrow"
       },
       {
-        "event": "Rotting Residence"
+        "sourceType": "event",
+        "name": "Rotting Residence"
       },
       {
-        "event": "The Cocoon"
+        "sourceType": "event",
+        "name": "The Cocoon"
       }
     ]
   }

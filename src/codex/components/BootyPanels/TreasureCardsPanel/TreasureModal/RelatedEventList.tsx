@@ -1,39 +1,48 @@
 import { useEventImageSrc } from '@/codex/hooks/useEventImageSrc'
 import { normalizeEventNameForUrl } from '@/codex/hooks/useEventUrlParam'
-import { Event } from '@/codex/types/events'
+import { EnrichedEvent } from '@/codex/types/treasures'
 
 import { ArtworkLinkItem, ArtworkLinkList } from './ArtworkLinkList'
 
 interface RelatedEventListProps {
-  events: Event[]
+  events: EnrichedEvent[]
+  // Off by default: a list whose heading already names the pool would only repeat it on every row.
+  showPool?: boolean
 }
 
-function RelatedEventList({ events }: RelatedEventListProps): JSX.Element | null {
+function RelatedEventList({ events, showPool }: RelatedEventListProps): JSX.Element | null {
   if (events.length === 0) return null
 
   return (
     <ArtworkLinkList>
-      {events.map((event) => (
-        <RelatedEventItem key={event.name} event={event} />
+      {events.map((enrichedEvent) => (
+        <RelatedEventItem
+          key={`${enrichedEvent.name}-${enrichedEvent.pool ?? ''}`}
+          enrichedEvent={enrichedEvent}
+          showPool={showPool}
+        />
       ))}
     </ArtworkLinkList>
   )
 }
 
 interface RelatedEventItemProps {
-  event: Event
+  enrichedEvent: EnrichedEvent
+  showPool?: boolean
 }
 
-function RelatedEventItem({ event }: RelatedEventItemProps): JSX.Element {
-  const { eventImageSrc, onImageSrcError } = useEventImageSrc(event.artwork)
+function RelatedEventItem({ enrichedEvent, showPool }: RelatedEventItemProps): JSX.Element {
+  const { name, artwork, pool } = enrichedEvent
+  const { eventImageSrc, onImageSrcError } = useEventImageSrc(artwork)
 
   return (
     <ArtworkLinkItem
-      name={event.name}
-      href={`/eventmaps/${normalizeEventNameForUrl(event.name)}`}
+      name={name}
+      href={`/eventmaps/${normalizeEventNameForUrl(name)}`}
       isExternal={false}
       src={eventImageSrc}
       onImageSrcError={onImageSrcError}
+      subtitle={showPool ? pool : undefined}
     />
   )
 }

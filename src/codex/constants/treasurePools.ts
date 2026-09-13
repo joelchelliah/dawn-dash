@@ -11,7 +11,7 @@ export type PoolId = 'booty-shovel' | 'only-treasure' | 'pirate-parlour'
 
 export interface TreasurePoolDisplay {
   id: PoolId
-  // Which JSON pools this display pool covers. C and D are merged
+  // Which JSON pools this display pool covers. The two Treasure pools are merged
   pools: string[]
   name: string
   imageSrc: string
@@ -39,7 +39,7 @@ const COLORS = {
 export const TREASURE_POOL_DISPLAYS: TreasurePoolDisplay[] = [
   {
     id: 'booty-shovel',
-    pools: ['A'],
+    pools: ['Delve Treasure pool'],
     name: 'Shovel & Booty',
     imageSrc: ShovelImageUrl,
     color: COLORS.BOOTY_SHOVEL,
@@ -48,7 +48,7 @@ export const TREASURE_POOL_DISPLAYS: TreasurePoolDisplay[] = [
   },
   {
     id: 'only-treasure',
-    pools: ['C', 'D'],
+    pools: ['Treasure pool', 'Treasure pool (limited)'],
     name: 'Only Treasure',
     imageSrc: RingOfPowerImageUrl,
     color: COLORS.ONLY_TREASURE,
@@ -57,7 +57,7 @@ export const TREASURE_POOL_DISPLAYS: TreasurePoolDisplay[] = [
   },
   {
     id: 'pirate-parlour',
-    pools: ['B'],
+    pools: ['Pirate Parlour pool'],
     name: 'Pirate Parlour',
     imageSrc: PirateParlourImageUrl,
     color: COLORS.PIRATE_PARLOUR,
@@ -103,22 +103,16 @@ export const getPoolRewards = (display: TreasurePoolDisplay): PoolReward[] => {
   ]
 }
 
-const describeSource = ({ card, talent, event }: PoolReachedBy): string | null => {
-  if (card) return `${card} (card)`
-  if (talent) return `${talent} (talent)`
-  if (event) return `${event} (event)`
-
-  return null
-}
+const describeSource = ({ sourceType, name }: PoolReachedBy): string => `${name} (${sourceType})`
 
 export const getPoolSources = (display: TreasurePoolDisplay): string[] => {
   const reachedBy = getMembers(display).flatMap((pool) => pool.reachedBy)
 
   const named = reachedBy
-    .filter(({ event }) => !(event && display.collapsedEventSource))
-    .flatMap((source) => describeSource(source) ?? [])
+    .filter(({ sourceType }) => !(sourceType === 'event' && display.collapsedEventSource))
+    .map(describeSource)
 
-  const hasEvents = reachedBy.some(({ event }) => event)
+  const hasEvents = reachedBy.some(({ sourceType }) => sourceType === 'event')
   const collapsed = hasEvents && display.collapsedEventSource ? [display.collapsedEventSource] : []
 
   return [...collapsed, ...Array.from(new Set(named))]

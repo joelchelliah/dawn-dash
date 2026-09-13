@@ -5,7 +5,6 @@
     "category": "BasicAttack",
     "type": "Ranged",
     "isTreasure": false,
-    "fromTreasureEvents": [],
     "fromEvents": [],
     "fromCards": [],
     "fromTalents": []
@@ -16,9 +15,25 @@
     "category": "BasicAttack",
     "type": "Divine",
     "isTreasure": false,
-    "fromTreasureEvents": [],
-    "fromEvents": ["Collector", "The Godscar Wastes Finish"],
-    "fromCards": ["Mysterious Alloy"],
+    "fromEvents": [
+      {
+        "sourceType": "event",
+        "name": "Collector",
+        "pool": null
+      },
+      {
+        "sourceType": "event",
+        "name": "The Godscar Wastes Finish",
+        "pool": null
+      }
+    ],
+    "fromCards": [
+      {
+        "sourceType": "card",
+        "name": "Mysterious Alloy",
+        "pool": "Legendary weapon pool"
+      }
+    ],
     "fromTalents": []
   },
   {
@@ -27,7 +42,6 @@
     "category": "BasicAttack",
     "type": "Divine",
     "isTreasure": false,
-    "fromTreasureEvents": [],
     "fromEvents": [],
     "fromCards": [],
     "fromTalents": []
@@ -38,9 +52,14 @@
     "category": "BasicAttack",
     "type": "Divine",
     "isTreasure": false,
-    "fromTreasureEvents": [],
     "fromEvents": [],
-    "fromCards": ["Divine Arsenal"],
+    "fromCards": [
+      {
+        "sourceType": "card",
+        "name": "Divine Arsenal",
+        "pool": null
+      }
+    ],
     "fromTalents": []
   },
   {
@@ -49,9 +68,14 @@
     "category": "BasicAttack",
     "type": "Ranged",
     "isTreasure": false,
-    "fromTreasureEvents": [],
     "fromEvents": [],
-    "fromCards": ["Mysterious Alloy"],
+    "fromCards": [
+      {
+        "sourceType": "card",
+        "name": "Mysterious Alloy",
+        "pool": "Legendary weapon pool"
+      }
+    ],
     "fromTalents": []
   },
   {
@@ -60,9 +84,14 @@
     "category": "BasicAttack",
     "type": "Melee",
     "isTreasure": false,
-    "fromTreasureEvents": [],
     "fromEvents": [],
-    "fromCards": ["Mysterious Alloy"],
+    "fromCards": [
+      {
+        "sourceType": "card",
+        "name": "Mysterious Alloy",
+        "pool": "Legendary weapon pool"
+      }
+    ],
     "fromTalents": []
   },
   {
@@ -71,7 +100,6 @@
     "category": "BasicAttack",
     "type": "Melee",
     "isTreasure": false,
-    "fromTreasureEvents": [],
     "fromEvents": [],
     "fromCards": [],
     "fromTalents": []
@@ -82,7 +110,6 @@
     "category": "BasicAttack",
     "type": "Melee",
     "isTreasure": false,
-    "fromTreasureEvents": [],
     "fromEvents": [],
     "fromCards": [],
     "fromTalents": []
@@ -93,9 +120,25 @@
     "category": "BasicAttack",
     "type": "Melee",
     "isTreasure": false,
-    "fromTreasureEvents": [],
-    "fromEvents": ["Collector", "The Godscar Wastes Finish"],
-    "fromCards": ["Mysterious Alloy"],
+    "fromEvents": [
+      {
+        "sourceType": "event",
+        "name": "Collector",
+        "pool": null
+      },
+      {
+        "sourceType": "event",
+        "name": "The Godscar Wastes Finish",
+        "pool": null
+      }
+    ],
+    "fromCards": [
+      {
+        "sourceType": "card",
+        "name": "Mysterious Alloy",
+        "pool": "Legendary weapon pool"
+      }
+    ],
     "fromTalents": []
   },
   {
@@ -104,10 +147,21 @@
     "category": "BasicAttack",
     "type": "Magic",
     "isTreasure": false,
-    "fromTreasureEvents": [],
-    "fromEvents": ["Marrow Halls"],
+    "fromEvents": [
+      {
+        "sourceType": "event",
+        "name": "Marrow Halls",
+        "pool": "Elite pool"
+      }
+    ],
     "fromCards": [],
-    "fromTalents": ["Faerytales"]
+    "fromTalents": [
+      {
+        "sourceType": "talent",
+        "name": "Faerytales",
+        "pool": null
+      }
+    ]
   },
   {
     "id": 728501,
@@ -115,9 +169,20 @@
     "category": "BasicAttack",
     "type": "Melee",
     "isTreasure": false,
-    "fromTreasureEvents": [],
-    "fromEvents": ["Collector"],
-    "fromCards": ["Mysterious Alloy"],
+    "fromEvents": [
+      {
+        "sourceType": "event",
+        "name": "Collector",
+        "pool": null
+      }
+    ],
+    "fromCards": [
+      {
+        "sourceType": "card",
+        "name": "Mysterious Alloy",
+        "pool": "Legendary weapon pool"
+      }
+    ],
     "fromTalents": []
   },
   {
@@ -126,7 +191,6 @@
     "category": "BasicAttack",
     "type": "Divine",
     "isTreasure": false,
-    "fromTreasureEvents": [],
     "fromEvents": [],
     "fromCards": [],
     "fromTalents": []
@@ -137,7 +201,6 @@
     "category": "BasicAttack",
     "type": "Divine",
     "isTreasure": false,
-    "fromTreasureEvents": [],
     "fromEvents": [],
     "fromCards": [],
     "fromTalents": []
@@ -148,9 +211,25 @@
     "category": "BasicAttack",
     "type": "Melee",
     "isTreasure": false,
-    "fromTreasureEvents": [],
-    "fromEvents": ["Axe in the Stone", "The Chasm"],
-    "fromCards": ["Mysterious Alloy"],
+    "fromEvents": [
+      {
+        "sourceType": "event",
+        "name": "Axe in the Stone",
+        "pool": null
+      },
+      {
+        "sourceType": "event",
+        "name": "The Chasm",
+        "pool": null
+      }
+    ],
+    "fromCards": [
+      {
+        "sourceType": "card",
+        "name": "Mysterious Alloy",
+        "pool": "Legendary weapon pool"
+      }
+    ],
     "fromTalents": []
   },
   {
@@ -159,10 +238,15 @@
     "category": "BasicAttack",
     "type": "Melee",
     "isTreasure": false,
-    "fromTreasureEvents": [],
     "fromEvents": [],
     "fromCards": [],
-    "fromTalents": ["Unholy Arsenal"]
+    "fromTalents": [
+      {
+        "sourceType": "talent",
+        "name": "Unholy Arsenal",
+        "pool": null
+      }
+    ]
   },
   {
     "id": 843524,
@@ -170,9 +254,14 @@
     "category": "BasicAttack",
     "type": "Melee",
     "isTreasure": false,
-    "fromTreasureEvents": [],
     "fromEvents": [],
-    "fromCards": ["Mysterious Alloy"],
+    "fromCards": [
+      {
+        "sourceType": "card",
+        "name": "Mysterious Alloy",
+        "pool": "Legendary weapon pool"
+      }
+    ],
     "fromTalents": []
   },
   {
@@ -181,9 +270,14 @@
     "category": "BasicAttack",
     "type": "Melee",
     "isTreasure": false,
-    "fromTreasureEvents": [],
     "fromEvents": [],
-    "fromCards": ["Stone Legends"],
+    "fromCards": [
+      {
+        "sourceType": "card",
+        "name": "Stone Legends",
+        "pool": null
+      }
+    ],
     "fromTalents": []
   },
   {
@@ -192,9 +286,14 @@
     "category": "BasicAttack",
     "type": "Melee",
     "isTreasure": false,
-    "fromTreasureEvents": [],
     "fromEvents": [],
-    "fromCards": ["Mysterious Alloy"],
+    "fromCards": [
+      {
+        "sourceType": "card",
+        "name": "Mysterious Alloy",
+        "pool": "Legendary weapon pool"
+      }
+    ],
     "fromTalents": []
   },
   {
@@ -203,9 +302,14 @@
     "category": "BasicAttack",
     "type": "Ranged",
     "isTreasure": false,
-    "fromTreasureEvents": [],
     "fromEvents": [],
-    "fromCards": ["Mysterious Alloy"],
+    "fromCards": [
+      {
+        "sourceType": "card",
+        "name": "Mysterious Alloy",
+        "pool": "Legendary weapon pool"
+      }
+    ],
     "fromTalents": []
   },
   {
@@ -214,9 +318,14 @@
     "category": "BasicAttack",
     "type": "Melee",
     "isTreasure": false,
-    "fromTreasureEvents": [],
     "fromEvents": [],
-    "fromCards": ["Mysterious Alloy"],
+    "fromCards": [
+      {
+        "sourceType": "card",
+        "name": "Mysterious Alloy",
+        "pool": "Legendary weapon pool"
+      }
+    ],
     "fromTalents": []
   },
   {
@@ -225,9 +334,20 @@
     "category": "BasicAttack",
     "type": "Melee",
     "isTreasure": false,
-    "fromTreasureEvents": [],
-    "fromEvents": ["The Boneyard"],
-    "fromCards": ["Mysterious Alloy"],
+    "fromEvents": [
+      {
+        "sourceType": "event",
+        "name": "The Boneyard",
+        "pool": "Basic pool"
+      }
+    ],
+    "fromCards": [
+      {
+        "sourceType": "card",
+        "name": "Mysterious Alloy",
+        "pool": "Legendary weapon pool"
+      }
+    ],
     "fromTalents": []
   },
   {
@@ -236,9 +356,20 @@
     "category": "BasicAttack",
     "type": "Melee",
     "isTreasure": false,
-    "fromTreasureEvents": [],
-    "fromEvents": ["Marrow Halls"],
-    "fromCards": ["Elite Weaponry"],
+    "fromEvents": [
+      {
+        "sourceType": "event",
+        "name": "Marrow Halls",
+        "pool": "Elite pool"
+      }
+    ],
+    "fromCards": [
+      {
+        "sourceType": "card",
+        "name": "Elite Weaponry",
+        "pool": "Elite weapon pool"
+      }
+    ],
     "fromTalents": []
   },
   {
@@ -247,10 +378,27 @@
     "category": "BasicAttack",
     "type": "Melee",
     "isTreasure": false,
-    "fromTreasureEvents": [],
-    "fromEvents": ["Marrow Halls"],
-    "fromCards": ["Elite Weaponry"],
-    "fromTalents": ["Shredder"]
+    "fromEvents": [
+      {
+        "sourceType": "event",
+        "name": "Marrow Halls",
+        "pool": "Elite pool"
+      }
+    ],
+    "fromCards": [
+      {
+        "sourceType": "card",
+        "name": "Elite Weaponry",
+        "pool": "Elite weapon pool"
+      }
+    ],
+    "fromTalents": [
+      {
+        "sourceType": "talent",
+        "name": "Shredder",
+        "pool": null
+      }
+    ]
   },
   {
     "id": 77316,
@@ -258,17 +406,55 @@
     "category": "BasicAttack",
     "type": "Magic",
     "isTreasure": true,
-    "fromTreasureEvents": [
-      "Broken Tombstone",
-      "Marrow Halls",
-      "Painted Landscape",
-      "Survey the Field",
-      "Undisturbed Grave",
-      "Vault Door",
-      "Vesparin Vault"
+    "fromEvents": [
+      {
+        "sourceType": "event",
+        "name": "Broken Tombstone",
+        "pool": "Treasure pool"
+      },
+      {
+        "sourceType": "event",
+        "name": "Marrow Halls",
+        "pool": "Elite pool"
+      },
+      {
+        "sourceType": "event",
+        "name": "Marrow Halls",
+        "pool": "Treasure pool"
+      },
+      {
+        "sourceType": "event",
+        "name": "Painted Landscape",
+        "pool": "Treasure pool"
+      },
+      {
+        "sourceType": "event",
+        "name": "Survey the Field",
+        "pool": "Treasure pool"
+      },
+      {
+        "sourceType": "event",
+        "name": "Undisturbed Grave",
+        "pool": "Treasure pool"
+      },
+      {
+        "sourceType": "event",
+        "name": "Vault Door",
+        "pool": "Treasure pool"
+      },
+      {
+        "sourceType": "event",
+        "name": "Vesparin Vault",
+        "pool": "Treasure pool"
+      }
     ],
-    "fromEvents": ["Marrow Halls"],
-    "fromCards": ["Elite Weaponry"],
+    "fromCards": [
+      {
+        "sourceType": "card",
+        "name": "Elite Weaponry",
+        "pool": "Elite weapon pool"
+      }
+    ],
     "fromTalents": []
   },
   {
@@ -277,7 +463,6 @@
     "category": "BasicAttack",
     "type": "Divine",
     "isTreasure": false,
-    "fromTreasureEvents": [],
     "fromEvents": [],
     "fromCards": [],
     "fromTalents": []
@@ -288,10 +473,32 @@
     "category": "BasicAttack",
     "type": "Utility",
     "isTreasure": false,
-    "fromTreasureEvents": [],
-    "fromEvents": ["Broken Tombstone", "Marrow Halls"],
-    "fromCards": ["Elite Weaponry"],
-    "fromTalents": ["Shield Master"]
+    "fromEvents": [
+      {
+        "sourceType": "event",
+        "name": "Broken Tombstone",
+        "pool": null
+      },
+      {
+        "sourceType": "event",
+        "name": "Marrow Halls",
+        "pool": "Elite pool"
+      }
+    ],
+    "fromCards": [
+      {
+        "sourceType": "card",
+        "name": "Elite Weaponry",
+        "pool": "Elite weapon pool"
+      }
+    ],
+    "fromTalents": [
+      {
+        "sourceType": "talent",
+        "name": "Shield Master",
+        "pool": null
+      }
+    ]
   },
   {
     "id": 431790,
@@ -299,9 +506,14 @@
     "category": "BasicAttack",
     "type": "Ranged",
     "isTreasure": false,
-    "fromTreasureEvents": [],
     "fromEvents": [],
-    "fromCards": ["Mysterious Alloy"],
+    "fromCards": [
+      {
+        "sourceType": "card",
+        "name": "Mysterious Alloy",
+        "pool": "Legendary weapon pool"
+      }
+    ],
     "fromTalents": []
   }
 ]
