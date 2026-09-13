@@ -3,6 +3,7 @@ import { createCx } from '@/shared/utils/classnames'
 import { FOCUS_TRIGGER, HOVER_TRIGGER } from '@/shared/utils/hoverTrigger'
 
 import {
+  getPoolName,
   getPoolRewards,
   getPoolSize,
   getPoolSources,
@@ -25,6 +26,7 @@ interface TreasurePoolProps {
 }
 
 function TreasurePool({ pool }: TreasurePoolProps): JSX.Element {
+  const name = getPoolName(pool)
   const rewards = getPoolRewards(pool)
   const sources = getPoolSources(pool)
   const notes = POOL_NOTES[pool.id]
@@ -45,14 +47,14 @@ function TreasurePool({ pool }: TreasurePoolProps): JSX.Element {
       <div ref={ref} className={cx('pool__header')}>
         <WhirlpoolArtwork
           src={pool.imageSrc}
-          alt={pool.name}
+          alt={name}
           size={ARTWORK_SIZE}
           sizeMobile={ARTWORK_SIZE_MOBILE}
           color={pool.color}
           colorAccent={pool.colorAccent}
         />
         <div className={cx('pool__header-text')}>
-          <span className={cx('pool__name')}>{pool.name}</span>
+          <span className={cx('pool__name')}>{name}</span>
           <span className={cx('pool__size')}>{getPoolSize(pool)} cards</span>
         </div>
       </div>

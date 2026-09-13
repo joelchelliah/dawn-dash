@@ -22,8 +22,9 @@ const OUTPUT_DIR = path.join(__dirname, '../../src/codex/data')
 const OUTPUT_FILE = path.join(OUTPUT_DIR, 'special-weapons.json')
 
 /*
- * Same source shape as treasures — normalized to `{ sourceType, name, pool }`, where a named `pool`
- * means the weapon is only a chance from that source and `pool: null` means a guaranteed drop.
+ * Same source shape as treasures — normalized to `{ sourceType, name, guaranteed, pools }`, where
+ * `guaranteed` means the source hands the weapon over outright and each entry in `pools` is a pool
+ * it can also be drawn from as a chance.
  */
 const SOURCE_FIELDS = {
   fromEvents: 'event',

@@ -24,12 +24,13 @@ const CARDS_OUTPUT_FILE = path.join(OUTPUT_DIR, 'treasure-cards.json')
 const POOLS_OUTPUT_FILE = path.join(OUTPUT_DIR, 'treasure-pools.json')
 
 /*
- * Normalized to a uniform `{ sourceType, name, pool }` so one `TreasureSource` type covers all
- * three lists. Each entry keeps its `pool` tag: a named pool means the treasure is only a *chance*
- * from that source, while `pool: null` means it is a guaranteed drop — the UI splits on exactly
- * that. Note the tags name more pools than `pools` declares: the declared ones are the treasure
- * pools Booty documents, the rest (Elite, Equipment, Potion, Rare, Uncommon) are general reward
- * pools.
+ * Normalized to a uniform `{ sourceType, name, guaranteed, pools }` so one `TreasureSource` type
+ * covers all three lists. Upstream has already merged what used to be one entry per source-and-pool
+ * into one entry per source, so a source appears exactly once and carries every pool it draws this
+ * treasure from. `guaranteed` and `pools` are independent — the UI splits on `guaranteed`, then
+ * lists the pools. Note the tags name more pools than `pools` declares: the declared ones are the
+ * treasure pools Booty documents, the rest (Elite, Equipment, Potion, Rare, Uncommon) are general
+ * reward pools.
  */
 const SOURCE_FIELDS = {
   fromEvents: 'event',
@@ -38,8 +39,9 @@ const SOURCE_FIELDS = {
 }
 
 /*
- * Upstream calls it `type`; renamed so a pool's sources share the `TreasureSource` shape. No `pool`
- * field here — the pool is the thing being reached, so there is no further pool to draw from.
+ * Upstream calls it `type`; renamed so a pool's sources share the `TreasureSource` shape minus its
+ * drop fields — the pool is the thing being reached, so there is no further pool to draw from and
+ * nothing to be guaranteed.
  */
 const toPoolSource = ({ type, name }) => ({ sourceType: type, name })
 

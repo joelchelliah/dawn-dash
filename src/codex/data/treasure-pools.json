@@ -1,6 +1,6 @@
 [
   {
-    "pool": "Delve Treasure pool",
+    "pool": "Booty pool",
     "contains": ["Treasure", "Equipment", "Items"],
     "size": 102,
     "reachedBy": [

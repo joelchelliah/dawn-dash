@@ -19,19 +19,22 @@
       {
         "sourceType": "event",
         "name": "Collector",
-        "pool": null
+        "guaranteed": true,
+        "pools": []
       },
       {
         "sourceType": "event",
         "name": "The Godscar Wastes Finish",
-        "pool": null
+        "guaranteed": true,
+        "pools": []
       }
     ],
     "fromCards": [
       {
         "sourceType": "card",
         "name": "Mysterious Alloy",
-        "pool": "Legendary weapon pool"
+        "guaranteed": false,
+        "pools": ["Legendary weapon pool"]
       }
     ],
     "fromTalents": []
@@ -53,13 +56,7 @@
     "type": "Divine",
     "isTreasure": false,
     "fromEvents": [],
-    "fromCards": [
-      {
-        "sourceType": "card",
-        "name": "Divine Arsenal",
-        "pool": null
-      }
-    ],
+    "fromCards": [],
     "fromTalents": []
   },
   {
@@ -73,7 +70,8 @@
       {
         "sourceType": "card",
         "name": "Mysterious Alloy",
-        "pool": "Legendary weapon pool"
+        "guaranteed": false,
+        "pools": ["Legendary weapon pool"]
       }
     ],
     "fromTalents": []
@@ -89,7 +87,8 @@
       {
         "sourceType": "card",
         "name": "Mysterious Alloy",
-        "pool": "Legendary weapon pool"
+        "guaranteed": false,
+        "pools": ["Legendary weapon pool"]
       }
     ],
     "fromTalents": []
@@ -124,19 +123,22 @@
       {
         "sourceType": "event",
         "name": "Collector",
-        "pool": null
+        "guaranteed": true,
+        "pools": []
       },
       {
         "sourceType": "event",
         "name": "The Godscar Wastes Finish",
-        "pool": null
+        "guaranteed": true,
+        "pools": []
       }
     ],
     "fromCards": [
       {
         "sourceType": "card",
         "name": "Mysterious Alloy",
-        "pool": "Legendary weapon pool"
+        "guaranteed": false,
+        "pools": ["Legendary weapon pool"]
       }
     ],
     "fromTalents": []
@@ -151,7 +153,8 @@
       {
         "sourceType": "event",
         "name": "Marrow Halls",
-        "pool": "Elite pool"
+        "guaranteed": false,
+        "pools": ["Elite pool"]
       }
     ],
     "fromCards": [],
@@ -159,7 +162,8 @@
       {
         "sourceType": "talent",
         "name": "Faerytales",
-        "pool": null
+        "guaranteed": true,
+        "pools": []
       }
     ]
   },
@@ -173,14 +177,16 @@
       {
         "sourceType": "event",
         "name": "Collector",
-        "pool": null
+        "guaranteed": true,
+        "pools": []
       }
     ],
     "fromCards": [
       {
         "sourceType": "card",
         "name": "Mysterious Alloy",
-        "pool": "Legendary weapon pool"
+        "guaranteed": false,
+        "pools": ["Legendary weapon pool"]
       }
     ],
     "fromTalents": []
@@ -215,19 +221,22 @@
       {
         "sourceType": "event",
         "name": "Axe in the Stone",
-        "pool": null
+        "guaranteed": true,
+        "pools": []
       },
       {
         "sourceType": "event",
         "name": "The Chasm",
-        "pool": null
+        "guaranteed": true,
+        "pools": []
       }
     ],
     "fromCards": [
       {
         "sourceType": "card",
         "name": "Mysterious Alloy",
-        "pool": "Legendary weapon pool"
+        "guaranteed": false,
+        "pools": ["Legendary weapon pool"]
       }
     ],
     "fromTalents": []
@@ -244,7 +253,8 @@
       {
         "sourceType": "talent",
         "name": "Unholy Arsenal",
-        "pool": null
+        "guaranteed": true,
+        "pools": []
       }
     ]
   },
@@ -259,7 +269,8 @@
       {
         "sourceType": "card",
         "name": "Mysterious Alloy",
-        "pool": "Legendary weapon pool"
+        "guaranteed": false,
+        "pools": ["Legendary weapon pool"]
       }
     ],
     "fromTalents": []
@@ -271,13 +282,7 @@
     "type": "Melee",
     "isTreasure": false,
     "fromEvents": [],
-    "fromCards": [
-      {
-        "sourceType": "card",
-        "name": "Stone Legends",
-        "pool": null
-      }
-    ],
+    "fromCards": [],
     "fromTalents": []
   },
   {
@@ -291,7 +296,8 @@
       {
         "sourceType": "card",
         "name": "Mysterious Alloy",
-        "pool": "Legendary weapon pool"
+        "guaranteed": false,
+        "pools": ["Legendary weapon pool"]
       }
     ],
     "fromTalents": []
@@ -307,7 +313,8 @@
       {
         "sourceType": "card",
         "name": "Mysterious Alloy",
-        "pool": "Legendary weapon pool"
+        "guaranteed": false,
+        "pools": ["Legendary weapon pool"]
       }
     ],
     "fromTalents": []
@@ -323,7 +330,8 @@
       {
         "sourceType": "card",
         "name": "Mysterious Alloy",
-        "pool": "Legendary weapon pool"
+        "guaranteed": false,
+        "pools": ["Legendary weapon pool"]
       }
     ],
     "fromTalents": []
@@ -338,14 +346,16 @@
       {
         "sourceType": "event",
         "name": "The Boneyard",
-        "pool": "Basic pool"
+        "guaranteed": false,
+        "pools": ["Basic pool"]
       }
     ],
     "fromCards": [
       {
         "sourceType": "card",
         "name": "Mysterious Alloy",
-        "pool": "Legendary weapon pool"
+        "guaranteed": false,
+        "pools": ["Legendary weapon pool"]
       }
     ],
     "fromTalents": []
@@ -360,14 +370,16 @@
       {
         "sourceType": "event",
         "name": "Marrow Halls",
-        "pool": "Elite pool"
+        "guaranteed": false,
+        "pools": ["Elite pool"]
       }
     ],
     "fromCards": [
       {
         "sourceType": "card",
         "name": "Elite Weaponry",
-        "pool": "Elite weapon pool"
+        "guaranteed": false,
+        "pools": ["Elite weapon pool"]
       }
     ],
     "fromTalents": []
@@ -382,80 +394,31 @@
       {
         "sourceType": "event",
         "name": "Marrow Halls",
-        "pool": "Elite pool"
+        "guaranteed": false,
+        "pools": ["Elite pool"]
       }
     ],
     "fromCards": [
       {
         "sourceType": "card",
         "name": "Elite Weaponry",
-        "pool": "Elite weapon pool"
+        "guaranteed": false,
+        "pools": ["Elite weapon pool"]
       }
     ],
     "fromTalents": [
       {
         "sourceType": "talent",
         "name": "Shredder",
-        "pool": null
+        "guaranteed": true,
+        "pools": []
       }
     ]
   },
   {
     "id": 77316,
     "name": "Staff of Thunder",
-    "category": "BasicAttack",
-    "type": "Magic",
-    "isTreasure": true,
-    "fromEvents": [
-      {
-        "sourceType": "event",
-        "name": "Broken Tombstone",
-        "pool": "Treasure pool"
-      },
-      {
-        "sourceType": "event",
-        "name": "Marrow Halls",
-        "pool": "Elite pool"
-      },
-      {
-        "sourceType": "event",
-        "name": "Marrow Halls",
-        "pool": "Treasure pool"
-      },
-      {
-        "sourceType": "event",
-        "name": "Painted Landscape",
-        "pool": "Treasure pool"
-      },
-      {
-        "sourceType": "event",
-        "name": "Survey the Field",
-        "pool": "Treasure pool"
-      },
-      {
-        "sourceType": "event",
-        "name": "Undisturbed Grave",
-        "pool": "Treasure pool"
-      },
-      {
-        "sourceType": "event",
-        "name": "Vault Door",
-        "pool": "Treasure pool"
-      },
-      {
-        "sourceType": "event",
-        "name": "Vesparin Vault",
-        "pool": "Treasure pool"
-      }
-    ],
-    "fromCards": [
-      {
-        "sourceType": "card",
-        "name": "Elite Weaponry",
-        "pool": "Elite weapon pool"
-      }
-    ],
-    "fromTalents": []
+    "isTreasure": true
   },
   {
     "id": 694945,
@@ -477,26 +440,30 @@
       {
         "sourceType": "event",
         "name": "Broken Tombstone",
-        "pool": null
+        "guaranteed": true,
+        "pools": []
       },
       {
         "sourceType": "event",
         "name": "Marrow Halls",
-        "pool": "Elite pool"
+        "guaranteed": false,
+        "pools": ["Elite pool"]
       }
     ],
     "fromCards": [
       {
         "sourceType": "card",
         "name": "Elite Weaponry",
-        "pool": "Elite weapon pool"
+        "guaranteed": false,
+        "pools": ["Elite weapon pool"]
       }
     ],
     "fromTalents": [
       {
         "sourceType": "talent",
         "name": "Shield Master",
-        "pool": null
+        "guaranteed": true,
+        "pools": []
       }
     ]
   },
@@ -511,7 +478,8 @@
       {
         "sourceType": "card",
         "name": "Mysterious Alloy",
-        "pool": "Legendary weapon pool"
+        "guaranteed": false,
+        "pools": ["Legendary weapon pool"]
       }
     ],
     "fromTalents": []

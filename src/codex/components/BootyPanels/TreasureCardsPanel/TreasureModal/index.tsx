@@ -65,15 +65,14 @@ function TreasureModal({ treasure, cardData, onClose }: TreasureModalProps): JSX
   const cardName = treasureDetails.name
   const cardSetName = getCardSetName(cardDetails.expansion)
 
-  const { guaranteed, fromTreasurePool, fromOtherPools } = getRelatedEvents(treasureDetails)
-  const eventCount = guaranteed.length + fromTreasurePool.length + fromOtherPools.length
+  const { guaranteed, fromPools, total: eventCount } = getRelatedEvents(treasureDetails)
   const relatedPoolCards = getRelatedTreasurePoolCards(treasureDetails, cardData)
 
   const rarityClassName = cx('treasure-modal-border', {
     [`treasure-modal-border--${rarity?.slug}`]: Boolean(rarity),
   })
 
-  const potionNotes = <>Can also be created during combat by several different cards.</>
+  const potionNotes = <>Can also be created during combat by several cards.</>
   const cardSpecificNotes: Record<string, JSX.Element> = {
     'Dark Mirror Vial': (
       <>
@@ -100,12 +99,6 @@ function TreasureModal({ treasure, cardData, onClose }: TreasureModalProps): JSX
       <>
         Only available if you have <EnergyPip classType={CharacterClass.Arcanist} /> or{' '}
         <EnergyPip classType={CharacterClass.Rogue} /> attributes.
-      </>
-    ),
-    'Staff of Thunder': (
-      <>
-        Can also be acquired via{' '}
-        <GradientLink url="https://www.blightbane.io/card/Elite_Weaponry" text="Elite Weaponry" />.
       </>
     ),
     Tradepost: (
@@ -191,7 +184,7 @@ function TreasureModal({ treasure, cardData, onClose }: TreasureModalProps): JSX
             {guaranteed.length > 0 && (
               <>
                 <div className={cx('treasure-modal__hint')}>
-                  Events that will{' '}
+                  Events that{' '}
                   <span className={cx('treasure-modal__hint__highlighted')}>always</span> offer this
                   treasure.
                 </div>
@@ -199,34 +192,18 @@ function TreasureModal({ treasure, cardData, onClose }: TreasureModalProps): JSX
               </>
             )}
 
-            {fromTreasurePool.length > 0 && (
+            {fromPools.length > 0 && (
               <>
                 <div
                   className={cx('treasure-modal__hint', {
                     'treasure-modal__hint--stacked': guaranteed.length > 0,
                   })}
                 >
-                  Events that offer cards from a{' '}
-                  <span className={cx('treasure-modal__hint__highlighted')}>Treasure</span> pool{' '}
+                  Events that draw from a{' '}
+                  <span className={cx('treasure-modal__hint__highlighted')}>pool</span> of cards,
                   containing this treasure.
                 </div>
-                <RelatedEventList events={fromTreasurePool} />
-              </>
-            )}
-
-            {fromOtherPools.length > 0 && (
-              <>
-                <div
-                  className={cx('treasure-modal__hint', {
-                    'treasure-modal__hint--stacked':
-                      guaranteed.length + fromTreasurePool.length > 0,
-                  })}
-                >
-                  Events that offer cards from a{' '}
-                  <span className={cx('treasure-modal__hint__highlighted')}>non-Treasure</span> pool{' '}
-                  containing this treasure.
-                </div>
-                <RelatedEventList events={fromOtherPools} showPool />
+                <RelatedEventList events={fromPools} showPools />
               </>
             )}
           </Section>
@@ -239,11 +216,11 @@ function TreasureModal({ treasure, cardData, onClose }: TreasureModalProps): JSX
             spacing="medium"
           >
             <div className={cx('treasure-modal__hint')}>
-              Cards and talents that offer cards from a{' '}
-              <span className={cx('treasure-modal__hint__highlighted')}>pool</span> containing this
-              treasure.
+              Cards and talents that draw from a{' '}
+              <span className={cx('treasure-modal__hint__highlighted')}>pool</span> of cards,
+              containing this treasure.
             </div>
-            <RelatedCardList relatedCards={relatedPoolCards} showPool />
+            <RelatedCardList relatedCards={relatedPoolCards} showPools />
           </Section>
         )}
 

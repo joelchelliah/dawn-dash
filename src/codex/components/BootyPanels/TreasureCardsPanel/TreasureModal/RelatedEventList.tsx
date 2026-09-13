@@ -6,19 +6,19 @@ import { ArtworkLinkItem, ArtworkLinkList } from './ArtworkLinkList'
 
 interface RelatedEventListProps {
   events: EnrichedEvent[]
-  showPool?: boolean
+  showPools?: boolean
 }
 
-function RelatedEventList({ events, showPool }: RelatedEventListProps): JSX.Element | null {
+function RelatedEventList({ events, showPools }: RelatedEventListProps): JSX.Element | null {
   if (events.length === 0) return null
 
   return (
     <ArtworkLinkList>
       {events.map((enrichedEvent) => (
         <RelatedEventItem
-          key={`${enrichedEvent.name}-${enrichedEvent.pool ?? ''}`}
+          key={enrichedEvent.name}
           enrichedEvent={enrichedEvent}
-          showPool={showPool}
+          showPools={showPools}
         />
       ))}
     </ArtworkLinkList>
@@ -27,11 +27,11 @@ function RelatedEventList({ events, showPool }: RelatedEventListProps): JSX.Elem
 
 interface RelatedEventItemProps {
   enrichedEvent: EnrichedEvent
-  showPool?: boolean
+  showPools?: boolean
 }
 
-function RelatedEventItem({ enrichedEvent, showPool }: RelatedEventItemProps): JSX.Element {
-  const { name, artwork, pool } = enrichedEvent
+function RelatedEventItem({ enrichedEvent, showPools }: RelatedEventItemProps): JSX.Element {
+  const { name, artwork, pools } = enrichedEvent
   const { eventImageSrc, onImageSrcError } = useEventImageSrc(artwork)
 
   return (
@@ -41,7 +41,7 @@ function RelatedEventItem({ enrichedEvent, showPool }: RelatedEventItemProps): J
       isExternal={false}
       src={eventImageSrc}
       onImageSrcError={onImageSrcError}
-      subtitle={showPool ? pool : undefined}
+      subtitles={showPools ? pools : undefined}
     />
   )
 }

@@ -6,7 +6,7 @@ interface PoolNotes {
 }
 
 export const POOL_NOTES: Record<PoolId, PoolNotes> = {
-  'booty-shovel': {
+  booty: {
     above: (
       <>
         The largest pool in the game. Only used by <strong>Shovel</strong> and{' '}
@@ -24,7 +24,7 @@ export const POOL_NOTES: Record<PoolId, PoolNotes> = {
       </>
     ),
   },
-  'only-treasure': {
+  treasure: {
     above: (
       <>
         The only pool that consists entirely of <strong>Treasure</strong> cards. Used by all

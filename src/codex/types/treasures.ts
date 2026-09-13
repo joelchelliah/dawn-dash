@@ -6,10 +6,11 @@ export type TreasureSourceType = 'card' | 'talent' | 'event'
 export interface TreasureSource {
   sourceType: TreasureSourceType
   name: string
-  pool: string | null
+  guaranteed: boolean
+  pools: string[]
 }
 
-export type PoolReachedBy = Omit<TreasureSource, 'pool'>
+export type PoolReachedBy = Omit<TreasureSource, 'guaranteed' | 'pools'>
 
 export interface TreasureCard {
   id: number
@@ -33,11 +34,8 @@ export interface TreasurePool {
   reachedBy: PoolReachedBy[]
 }
 
-/*
- * An event plus the pool it draws a given treasure from; absent for a guaranteed drop.
- */
 export type EnrichedEvent = Event & {
-  pool?: string
+  pools: string[]
 }
 
 export interface EnrichedTreasureCard {
@@ -49,5 +47,5 @@ export interface RelatedCard {
   name: string
   isTalent: boolean
   category?: number
-  pool?: string
+  pools: string[]
 }

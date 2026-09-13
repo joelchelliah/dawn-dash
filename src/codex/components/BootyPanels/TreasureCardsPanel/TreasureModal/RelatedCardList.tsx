@@ -9,19 +9,19 @@ const getBlightbaneUrl = ({ name, isTalent }: RelatedCard) =>
 
 interface RelatedCardListProps {
   relatedCards: RelatedCard[]
-  showPool?: boolean
+  showPools?: boolean
 }
 
-function RelatedCardList({ relatedCards, showPool }: RelatedCardListProps): JSX.Element | null {
+function RelatedCardList({ relatedCards, showPools }: RelatedCardListProps): JSX.Element | null {
   if (relatedCards.length === 0) return null
 
   return (
     <ArtworkLinkList>
       {relatedCards.map((relatedCard) => (
         <RelatedCardItem
-          key={`${relatedCard.name}-${relatedCard.pool ?? ''}`}
+          key={`${relatedCard.name}-${relatedCard.isTalent}`}
           relatedCard={relatedCard}
-          showPool={showPool}
+          showPools={showPools}
         />
       ))}
     </ArtworkLinkList>
@@ -30,11 +30,11 @@ function RelatedCardList({ relatedCards, showPool }: RelatedCardListProps): JSX.
 
 interface RelatedCardItemProps {
   relatedCard: RelatedCard
-  showPool?: boolean
+  showPools?: boolean
 }
 
-function RelatedCardItem({ relatedCard, showPool }: RelatedCardItemProps): JSX.Element {
-  const { name, isTalent, category, pool } = relatedCard
+function RelatedCardItem({ relatedCard, showPools }: RelatedCardItemProps): JSX.Element {
+  const { name, isTalent, category, pools } = relatedCard
   const { cardImageSrc, onImageSrcError } = useCardImageSrc(
     name,
     null,
@@ -48,7 +48,7 @@ function RelatedCardItem({ relatedCard, showPool }: RelatedCardItemProps): JSX.E
       isExternal
       src={cardImageSrc}
       onImageSrcError={onImageSrcError}
-      subtitle={showPool ? pool : undefined}
+      subtitles={showPools ? pools : undefined}
     />
   )
 }

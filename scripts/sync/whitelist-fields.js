@@ -18,13 +18,6 @@ const REPO_ROOT = path.join(__dirname, '../..')
 
 /**
  * Copy `object`'s whitelisted fields, recording every dropped path in `ignored`.
- *
- * Two kinds of array field get special treatment, both declared by the caller:
- * - `nestedFields` ({ fieldName: [allowedKeys] }) recurses, keeping the objects as objects.
- * - `sourceFields` ({ fieldName: sourceType }) normalizes a source list. Upstream names the entity
- *   after its kind (`event` / `card` / `talent`), which forces one type per field downstream; these
- *   are rewritten to a uniform `{ sourceType, name, pool }` so a single type covers all of them —
- *   the same shape `reachedBy` already arrives in.
  */
 function pickFields(
   object,
@@ -58,18 +51,30 @@ function pickFields(
   return picked
 }
 
+const SOURCE_DROP_FIELDS = ['guaranteed', 'pools']
+
 /**
- * `{ [sourceType]: name, pool }` -> `{ sourceType, name, pool }`, dropping anything else.
+ * `{ [sourceType]: name, guaranteed, pools }` -> `{ sourceType, name, guaranteed, pools }`,
+ * dropping anything else.
  *
- * `pool` is deliberately kept even when null: null means the source hands the card over outright,
- * a named pool means it is only a chance from that pool, and the UI splits on exactly that.
+ * Both drop fields are kept, and they are independent rather than two halves of one flag:
+ * `guaranteed` means the source hands the card over outright, while a non-empty `pools` means it
+ * can *also* be drawn as a chance from each of those pools. A source can be both — Alchemic Table
+ * always offers a Healing Potion and also draws one from the Potion pool.
  */
 function toSource(item, sourceType, ignored, pathPrefix) {
   for (const key of Object.keys(item)) {
-    if (key !== sourceType && key !== 'pool') ignored.add(`${pathPrefix}[].${key}`)
+    if (key !== sourceType && !SOURCE_DROP_FIELDS.includes(key)) {
+      ignored.add(`${pathPrefix}[].${key}`)
+    }
   }
 
-  return { sourceType, name: item[sourceType], pool: item.pool ?? null }
+  return {
+    sourceType,
+    name: item[sourceType],
+    guaranteed: item.guaranteed ?? false,
+    pools: item.pools ?? [],
+  }
 }
 
 function writeJson(outputFile, data, label) {

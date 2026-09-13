@@ -32,54 +32,47 @@ export const enrichTreasureCards = (cardData: CardData[] | undefined): EnrichedT
   })
 }
 
-/*
- * Collapsing `X pool` and `X pool (limited)` to a single `X pool`.
- */
 const toBasePoolName = (pool: string): string => pool.replace(/ \(limited\)$/, '')
 
-// The treasure pools' base name, after `(limited)` has been collapsed away.
-const TREASURE_POOL_NAME = 'Treasure pool'
-
-const uniqueNameAndPoolPairs = (
-  sources: TreasureSource[]
-): Map<string, Set<string | undefined>> => {
-  const poolsByName = new Map<string, Set<string | undefined>>()
-
-  for (const { name, pool } of sources) {
-    const pools = poolsByName.get(name) ?? new Set<string | undefined>()
-
-    poolsByName.set(name, pools.add(pool ? toBasePoolName(pool) : undefined))
-  }
-
-  return poolsByName
-}
-
-const resolveEvents = (sources: TreasureSource[]): EnrichedEvent[] =>
-  Array.from(uniqueNameAndPoolPairs(sources), ([name, pools]) => {
-    const eventDetails = EVENTS_BY_NAME.get(name)
-
-    if (!eventDetails) {
-      logger.warn(`No event data found for treasure event: ${name}`)
-      return []
-    }
-
-    return Array.from(pools, (pool) => ({ ...eventDetails, pool }))
-  }).flat()
+const toDisplayPools = (pools: string[]): string[] =>
+  Array.from(new Set(pools.map(toBasePoolName))).sort()
 
 export interface RelatedEvents {
   guaranteed: EnrichedEvent[]
-  fromTreasurePool: EnrichedEvent[]
-  fromOtherPools: EnrichedEvent[]
+  fromPools: EnrichedEvent[]
+  // Distinct events across both lists — they overlap, so the two lengths would double-count
+  total: number
 }
 
-export const getRelatedEvents = (treasure: TreasureCard): RelatedEvents => {
-  const events = resolveEvents(treasure.fromEvents)
+const resolveEvent = ({ name, pools }: TreasureSource): EnrichedEvent[] => {
+  const eventDetails = EVENTS_BY_NAME.get(name)
 
-  return {
-    guaranteed: events.filter(({ pool }) => !pool),
-    fromTreasurePool: events.filter(({ pool }) => pool === TREASURE_POOL_NAME),
-    fromOtherPools: events.filter(({ pool }) => pool && pool !== TREASURE_POOL_NAME),
+  if (!eventDetails) {
+    logger.warn(`No event data found for treasure event: ${name}`)
+    return []
   }
+
+  return [{ ...eventDetails, pools: toDisplayPools(pools) }]
+}
+
+/*
+ * The two lists overlap on purpose. A source can be both guaranteed *and* pooled — Alchemic Table
+ * always offers a Healing Potion *and* draws one from the Potion pool — and those are two genuinely
+ * different ways to get the card, so such an event appears in both segments rather than having its
+ * pool hidden behind the guarantee. Each filter therefore reads only its own field.
+ */
+export const getRelatedEvents = (treasure: TreasureCard): RelatedEvents => {
+  const guaranteed = treasure.fromEvents
+    .filter(({ guaranteed }) => guaranteed)
+    .flatMap(resolveEvent)
+  const fromPools = treasure.fromEvents
+    .filter(({ pools }) => pools.length > 0)
+    .flatMap(resolveEvent)
+
+  // Counted after resolving, so an event missing from the event data isn't counted but unlisted
+  const names = new Set([...guaranteed, ...fromPools].map(({ name }) => name))
+
+  return { guaranteed, fromPools, total: names.size }
 }
 
 export const getRelatedTreasurePoolCards = (
@@ -88,20 +81,18 @@ export const getRelatedTreasurePoolCards = (
 ): RelatedCard[] => {
   const cardsByName = new Map((cardData ?? []).map((card) => [card.name, card]))
 
-  const cards = Array.from(uniqueNameAndPoolPairs(treasure.fromCards), ([name, pools]) => {
-    const cardDetails = cardsByName.get(name)
+  const cards = treasure.fromCards.map(({ name, pools }) => ({
+    name,
+    isTalent: false,
+    category: cardsByName.get(name)?.category,
+    pools: toDisplayPools(pools),
+  }))
 
-    return Array.from(pools, (pool) => ({
-      name,
-      isTalent: false,
-      category: cardDetails?.category,
-      pool,
-    }))
-  }).flat()
-
-  const talents = Array.from(uniqueNameAndPoolPairs(treasure.fromTalents), ([name, pools]) =>
-    Array.from(pools, (pool) => ({ name, isTalent: true, pool }))
-  ).flat()
+  const talents = treasure.fromTalents.map(({ name, pools }) => ({
+    name,
+    isTalent: true,
+    pools: toDisplayPools(pools),
+  }))
 
   return [...cards, ...talents]
 }

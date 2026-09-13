@@ -7,13 +7,11 @@ import {
 import treasurePools from '@/codex/data/treasure-pools.json'
 import { PoolReachedBy, TreasurePool } from '@/codex/types/treasures'
 
-export type PoolId = 'booty-shovel' | 'only-treasure' | 'pirate-parlour'
+export type PoolId = 'booty' | 'treasure' | 'pirate-parlour'
 
 export interface TreasurePoolDisplay {
   id: PoolId
-  // Which JSON pools this display pool covers. The two Treasure pools are merged
   pools: string[]
-  name: string
   imageSrc: string
   color: string
   colorAccent: string
@@ -38,18 +36,16 @@ const COLORS = {
 
 export const TREASURE_POOL_DISPLAYS: TreasurePoolDisplay[] = [
   {
-    id: 'booty-shovel',
-    pools: ['Delve Treasure pool'],
-    name: 'Shovel & Booty',
+    id: 'booty',
+    pools: ['Booty pool'],
     imageSrc: ShovelImageUrl,
     color: COLORS.BOOTY_SHOVEL,
     colorAccent: COLORS.BOOTY_SHOVEL_ACCENT,
     excludedRewards: ['Junk Items'],
   },
   {
-    id: 'only-treasure',
+    id: 'treasure',
     pools: ['Treasure pool', 'Treasure pool (limited)'],
-    name: 'Only Treasure',
     imageSrc: RingOfPowerImageUrl,
     color: COLORS.ONLY_TREASURE,
     colorAccent: COLORS.ONLY_TREASURE_ACCENT,
@@ -58,7 +54,6 @@ export const TREASURE_POOL_DISPLAYS: TreasurePoolDisplay[] = [
   {
     id: 'pirate-parlour',
     pools: ['Pirate Parlour pool'],
-    name: 'Pirate Parlour',
     imageSrc: PirateParlourImageUrl,
     color: COLORS.PIRATE_PARLOUR,
     colorAccent: COLORS.PIRATE_PARLOUR_ACCENT,
@@ -71,6 +66,13 @@ const POOLS_BY_ID = new Map(TREASURE_POOLS.map((pool) => [pool.pool, pool]))
 
 const getMembers = ({ pools }: TreasurePoolDisplay): TreasurePool[] =>
   pools.flatMap((pool) => POOLS_BY_ID.get(pool) ?? [])
+
+/*
+ * Falls back to the configured pool key so a display pool whose JSON entry was renamed upstream
+ * still renders a name — `findUnmappedPools` is what surfaces the rename itself.
+ */
+export const getPoolName = (display: TreasurePoolDisplay): string =>
+  getMembers(display)[0]?.pool ?? display.pools[0]
 
 /*
  * Merged display pools take the size of their largest member

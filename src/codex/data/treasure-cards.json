@@ -13,76 +13,90 @@
       {
         "sourceType": "event",
         "name": "Broken Tombstone",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Marrow Halls",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Molekin Burrow",
-        "pool": "Treasure pool (limited)"
+        "guaranteed": false,
+        "pools": ["Treasure pool (limited)"]
       },
       {
         "sourceType": "event",
         "name": "Painted Landscape",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Rotting Residence",
-        "pool": "Treasure pool (limited)"
+        "guaranteed": false,
+        "pools": ["Treasure pool (limited)"]
       },
       {
         "sourceType": "event",
         "name": "Survey the Field",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "The Cocoon",
-        "pool": "Treasure pool (limited)"
+        "guaranteed": false,
+        "pools": ["Treasure pool (limited)"]
       },
       {
         "sourceType": "event",
         "name": "Undisturbed Grave",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Vault Door",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Vesparin Vault",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       }
     ],
     "fromCards": [
       {
         "sourceType": "card",
         "name": "Booty",
-        "pool": "Delve Treasure pool"
+        "guaranteed": false,
+        "pools": ["Booty pool"]
       },
       {
         "sourceType": "card",
         "name": "Explorer's Trick",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "card",
         "name": "Shovel",
-        "pool": "Delve Treasure pool"
+        "guaranteed": false,
+        "pools": ["Booty pool"]
       }
     ],
     "fromTalents": [
       {
         "sourceType": "talent",
         "name": "Pirate Parlour",
-        "pool": "Pirate Parlour pool"
+        "guaranteed": false,
+        "pools": ["Pirate Parlour pool"]
       }
     ]
   },
@@ -100,61 +114,72 @@
       {
         "sourceType": "event",
         "name": "Broken Tombstone",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Marrow Halls",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Painted Landscape",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Survey the Field",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Undisturbed Grave",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Vault Door",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Vesparin Vault",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       }
     ],
     "fromCards": [
       {
         "sourceType": "card",
         "name": "Booty",
-        "pool": "Delve Treasure pool"
+        "guaranteed": false,
+        "pools": ["Booty pool"]
       },
       {
         "sourceType": "card",
         "name": "Explorer's Trick",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "card",
         "name": "Shovel",
-        "pool": "Delve Treasure pool"
+        "guaranteed": false,
+        "pools": ["Booty pool"]
       }
     ],
     "fromTalents": [
       {
         "sourceType": "talent",
         "name": "Pirate Parlour",
-        "pool": "Pirate Parlour pool"
+        "guaranteed": false,
+        "pools": ["Pirate Parlour pool"]
       }
     ]
   },
@@ -172,71 +197,84 @@
       {
         "sourceType": "event",
         "name": "Broken Tombstone",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Marrow Halls",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Painted Landscape",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Survey the Field",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "The Chasm",
-        "pool": null
+        "guaranteed": true,
+        "pools": []
       },
       {
         "sourceType": "event",
         "name": "The Dream",
-        "pool": null
+        "guaranteed": true,
+        "pools": []
       },
       {
         "sourceType": "event",
         "name": "Undisturbed Grave",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Vault Door",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Vesparin Vault",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       }
     ],
     "fromCards": [
       {
         "sourceType": "card",
         "name": "Booty",
-        "pool": "Delve Treasure pool"
+        "guaranteed": false,
+        "pools": ["Booty pool"]
       },
       {
         "sourceType": "card",
         "name": "Explorer's Trick",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "card",
         "name": "Shovel",
-        "pool": "Delve Treasure pool"
+        "guaranteed": false,
+        "pools": ["Booty pool"]
       }
     ],
     "fromTalents": [
       {
         "sourceType": "talent",
         "name": "Pirate Parlour",
-        "pool": "Pirate Parlour pool"
+        "guaranteed": false,
+        "pools": ["Pirate Parlour pool"]
       }
     ]
   },
@@ -254,86 +292,90 @@
       {
         "sourceType": "event",
         "name": "Broken Tombstone",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Marrow Halls",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Molekin Burrow",
-        "pool": "Equipment pool"
-      },
-      {
-        "sourceType": "event",
-        "name": "Molekin Burrow",
-        "pool": "Equipment pool (limited)"
-      },
-      {
-        "sourceType": "event",
-        "name": "Molekin Burrow",
-        "pool": "Treasure pool (limited)"
+        "guaranteed": false,
+        "pools": ["Equipment pool", "Equipment pool (limited)", "Treasure pool (limited)"]
       },
       {
         "sourceType": "event",
         "name": "Painted Landscape",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Rotting Residence",
-        "pool": "Treasure pool (limited)"
+        "guaranteed": false,
+        "pools": ["Treasure pool (limited)"]
       },
       {
         "sourceType": "event",
         "name": "Survey the Field",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "The Cocoon",
-        "pool": "Treasure pool (limited)"
+        "guaranteed": false,
+        "pools": ["Treasure pool (limited)"]
       },
       {
         "sourceType": "event",
         "name": "Undisturbed Grave",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Vault Door",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Vesparin Vault",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       }
     ],
     "fromCards": [
       {
         "sourceType": "card",
         "name": "Booty",
-        "pool": "Delve Treasure pool"
+        "guaranteed": false,
+        "pools": ["Booty pool"]
       },
       {
         "sourceType": "card",
         "name": "Explorer's Trick",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "card",
         "name": "Shovel",
-        "pool": "Delve Treasure pool"
+        "guaranteed": false,
+        "pools": ["Booty pool"]
       }
     ],
     "fromTalents": [
       {
         "sourceType": "talent",
         "name": "Pirate Parlour",
-        "pool": "Pirate Parlour pool"
+        "guaranteed": false,
+        "pools": ["Pirate Parlour pool"]
       }
     ]
   },
@@ -351,91 +393,108 @@
       {
         "sourceType": "event",
         "name": "A Call for Help",
-        "pool": null
+        "guaranteed": true,
+        "pools": []
       },
       {
         "sourceType": "event",
         "name": "Alchemic Table",
-        "pool": null
-      },
-      {
-        "sourceType": "event",
-        "name": "Alchemic Table",
-        "pool": "Potion pool"
+        "guaranteed": true,
+        "pools": ["Potion pool"]
       },
       {
         "sourceType": "event",
         "name": "Broken Tombstone",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Collector",
-        "pool": null
+        "guaranteed": true,
+        "pools": []
       },
       {
         "sourceType": "event",
         "name": "Marrow Halls",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Molekin Burrow",
-        "pool": "Potion pool"
+        "guaranteed": false,
+        "pools": ["Potion pool"]
       },
       {
         "sourceType": "event",
         "name": "Mystical Glade",
-        "pool": "Potion pool"
+        "guaranteed": false,
+        "pools": ["Potion pool"]
       },
       {
         "sourceType": "event",
         "name": "Painted Landscape",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Survey the Field",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Undisturbed Grave",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Vault Door",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Vesparin Vault",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       }
     ],
     "fromCards": [
       {
         "sourceType": "card",
         "name": "Booty",
-        "pool": "Delve Treasure pool"
+        "guaranteed": false,
+        "pools": ["Booty pool"]
       },
       {
         "sourceType": "card",
         "name": "Explorer's Trick",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "card",
         "name": "Shovel",
-        "pool": "Delve Treasure pool"
+        "guaranteed": false,
+        "pools": ["Booty pool"]
       }
     ],
     "fromTalents": [
       {
         "sourceType": "talent",
+        "name": "Jewelled Weapon",
+        "guaranteed": false,
+        "pools": ["Potion pool"]
+      },
+      {
+        "sourceType": "talent",
         "name": "Pirate Parlour",
-        "pool": "Pirate Parlour pool"
+        "guaranteed": false,
+        "pools": ["Pirate Parlour pool"]
       }
     ]
   },
@@ -453,76 +512,90 @@
       {
         "sourceType": "event",
         "name": "Broken Tombstone",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Marrow Halls",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Molekin Burrow",
-        "pool": "Treasure pool (limited)"
+        "guaranteed": false,
+        "pools": ["Treasure pool (limited)"]
       },
       {
         "sourceType": "event",
         "name": "Painted Landscape",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Rotting Residence",
-        "pool": "Treasure pool (limited)"
+        "guaranteed": false,
+        "pools": ["Treasure pool (limited)"]
       },
       {
         "sourceType": "event",
         "name": "Survey the Field",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "The Cocoon",
-        "pool": "Treasure pool (limited)"
+        "guaranteed": false,
+        "pools": ["Treasure pool (limited)"]
       },
       {
         "sourceType": "event",
         "name": "Undisturbed Grave",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Vault Door",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Vesparin Vault",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       }
     ],
     "fromCards": [
       {
         "sourceType": "card",
         "name": "Booty",
-        "pool": "Delve Treasure pool"
+        "guaranteed": false,
+        "pools": ["Booty pool"]
       },
       {
         "sourceType": "card",
         "name": "Explorer's Trick",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "card",
         "name": "Shovel",
-        "pool": "Delve Treasure pool"
+        "guaranteed": false,
+        "pools": ["Booty pool"]
       }
     ],
     "fromTalents": [
       {
         "sourceType": "talent",
         "name": "Pirate Parlour",
-        "pool": "Pirate Parlour pool"
+        "guaranteed": false,
+        "pools": ["Pirate Parlour pool"]
       }
     ]
   },
@@ -540,86 +613,102 @@
       {
         "sourceType": "event",
         "name": "Alchemic Table",
-        "pool": null
-      },
-      {
-        "sourceType": "event",
-        "name": "Alchemic Table",
-        "pool": "Potion pool"
+        "guaranteed": true,
+        "pools": ["Potion pool"]
       },
       {
         "sourceType": "event",
         "name": "Broken Tombstone",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Marrow Halls",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Molekin Burrow",
-        "pool": "Potion pool"
+        "guaranteed": false,
+        "pools": ["Potion pool"]
       },
       {
         "sourceType": "event",
         "name": "Mystical Glade",
-        "pool": "Potion pool"
+        "guaranteed": false,
+        "pools": ["Potion pool"]
       },
       {
         "sourceType": "event",
         "name": "Painted Landscape",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Purpleberries",
-        "pool": null
+        "guaranteed": true,
+        "pools": []
       },
       {
         "sourceType": "event",
         "name": "Survey the Field",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Undisturbed Grave",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Vault Door",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Vesparin Vault",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       }
     ],
     "fromCards": [
       {
         "sourceType": "card",
         "name": "Booty",
-        "pool": "Delve Treasure pool"
+        "guaranteed": false,
+        "pools": ["Booty pool"]
       },
       {
         "sourceType": "card",
         "name": "Explorer's Trick",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "card",
         "name": "Shovel",
-        "pool": "Delve Treasure pool"
+        "guaranteed": false,
+        "pools": ["Booty pool"]
       }
     ],
     "fromTalents": [
       {
         "sourceType": "talent",
+        "name": "Jewelled Weapon",
+        "guaranteed": false,
+        "pools": ["Potion pool"]
+      },
+      {
+        "sourceType": "talent",
         "name": "Pirate Parlour",
-        "pool": "Pirate Parlour pool"
+        "guaranteed": false,
+        "pools": ["Pirate Parlour pool"]
       }
     ]
   },
@@ -637,76 +726,90 @@
       {
         "sourceType": "event",
         "name": "Broken Tombstone",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Marrow Halls",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Molekin Burrow",
-        "pool": "Treasure pool (limited)"
+        "guaranteed": false,
+        "pools": ["Treasure pool (limited)"]
       },
       {
         "sourceType": "event",
         "name": "Painted Landscape",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Rotting Residence",
-        "pool": "Treasure pool (limited)"
+        "guaranteed": false,
+        "pools": ["Treasure pool (limited)"]
       },
       {
         "sourceType": "event",
         "name": "Survey the Field",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "The Cocoon",
-        "pool": "Treasure pool (limited)"
+        "guaranteed": false,
+        "pools": ["Treasure pool (limited)"]
       },
       {
         "sourceType": "event",
         "name": "Undisturbed Grave",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Vault Door",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Vesparin Vault",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       }
     ],
     "fromCards": [
       {
         "sourceType": "card",
         "name": "Booty",
-        "pool": "Delve Treasure pool"
+        "guaranteed": false,
+        "pools": ["Booty pool"]
       },
       {
         "sourceType": "card",
         "name": "Explorer's Trick",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "card",
         "name": "Shovel",
-        "pool": "Delve Treasure pool"
+        "guaranteed": false,
+        "pools": ["Booty pool"]
       }
     ],
     "fromTalents": [
       {
         "sourceType": "talent",
         "name": "Pirate Parlour",
-        "pool": "Pirate Parlour pool"
+        "guaranteed": false,
+        "pools": ["Pirate Parlour pool"]
       }
     ]
   },
@@ -724,76 +827,90 @@
       {
         "sourceType": "event",
         "name": "Broken Tombstone",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Marrow Halls",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Molekin Burrow",
-        "pool": "Treasure pool (limited)"
+        "guaranteed": false,
+        "pools": ["Treasure pool (limited)"]
       },
       {
         "sourceType": "event",
         "name": "Painted Landscape",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Rotting Residence",
-        "pool": "Treasure pool (limited)"
+        "guaranteed": false,
+        "pools": ["Treasure pool (limited)"]
       },
       {
         "sourceType": "event",
         "name": "Survey the Field",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "The Cocoon",
-        "pool": "Treasure pool (limited)"
+        "guaranteed": false,
+        "pools": ["Treasure pool (limited)"]
       },
       {
         "sourceType": "event",
         "name": "Undisturbed Grave",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Vault Door",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Vesparin Vault",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       }
     ],
     "fromCards": [
       {
         "sourceType": "card",
         "name": "Booty",
-        "pool": "Delve Treasure pool"
+        "guaranteed": false,
+        "pools": ["Booty pool"]
       },
       {
         "sourceType": "card",
         "name": "Explorer's Trick",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "card",
         "name": "Shovel",
-        "pool": "Delve Treasure pool"
+        "guaranteed": false,
+        "pools": ["Booty pool"]
       }
     ],
     "fromTalents": [
       {
         "sourceType": "talent",
         "name": "Pirate Parlour",
-        "pool": "Pirate Parlour pool"
+        "guaranteed": false,
+        "pools": ["Pirate Parlour pool"]
       }
     ]
   },
@@ -811,66 +928,78 @@
       {
         "sourceType": "event",
         "name": "Broken Tombstone",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Marrow Halls",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Molekin Burrow",
-        "pool": "Equipment pool"
+        "guaranteed": false,
+        "pools": ["Equipment pool"]
       },
       {
         "sourceType": "event",
         "name": "Painted Landscape",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Survey the Field",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Undisturbed Grave",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Vault Door",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Vesparin Vault",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       }
     ],
     "fromCards": [
       {
         "sourceType": "card",
         "name": "Booty",
-        "pool": "Delve Treasure pool"
+        "guaranteed": false,
+        "pools": ["Booty pool"]
       },
       {
         "sourceType": "card",
         "name": "Explorer's Trick",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "card",
         "name": "Shovel",
-        "pool": "Delve Treasure pool"
+        "guaranteed": false,
+        "pools": ["Booty pool"]
       }
     ],
     "fromTalents": [
       {
         "sourceType": "talent",
         "name": "Pirate Parlour",
-        "pool": "Pirate Parlour pool"
+        "guaranteed": false,
+        "pools": ["Pirate Parlour pool"]
       }
     ]
   },
@@ -888,86 +1017,102 @@
       {
         "sourceType": "event",
         "name": "Broken Tombstone",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Field of Flowers",
-        "pool": null
+        "guaranteed": true,
+        "pools": []
       },
       {
         "sourceType": "event",
         "name": "Marrow Halls",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Molekin Burrow",
-        "pool": "Treasure pool (limited)"
+        "guaranteed": false,
+        "pools": ["Treasure pool (limited)"]
       },
       {
         "sourceType": "event",
         "name": "Painted Landscape",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Rotting Residence",
-        "pool": "Treasure pool (limited)"
+        "guaranteed": false,
+        "pools": ["Treasure pool (limited)"]
       },
       {
         "sourceType": "event",
         "name": "Survey the Field",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "The Cocoon",
-        "pool": "Treasure pool (limited)"
+        "guaranteed": false,
+        "pools": ["Treasure pool (limited)"]
       },
       {
         "sourceType": "event",
         "name": "The Forge",
-        "pool": "Uncommon pool (limited)"
+        "guaranteed": false,
+        "pools": ["Uncommon pool (limited)"]
       },
       {
         "sourceType": "event",
         "name": "Undisturbed Grave",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Vault Door",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Vesparin Vault",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       }
     ],
     "fromCards": [
       {
         "sourceType": "card",
         "name": "Booty",
-        "pool": "Delve Treasure pool"
+        "guaranteed": false,
+        "pools": ["Booty pool"]
       },
       {
         "sourceType": "card",
         "name": "Explorer's Trick",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "card",
         "name": "Shovel",
-        "pool": "Delve Treasure pool"
+        "guaranteed": false,
+        "pools": ["Booty pool"]
       }
     ],
     "fromTalents": [
       {
         "sourceType": "talent",
         "name": "Pirate Parlour",
-        "pool": "Pirate Parlour pool"
+        "guaranteed": false,
+        "pools": ["Pirate Parlour pool"]
       }
     ]
   },
@@ -985,66 +1130,78 @@
       {
         "sourceType": "event",
         "name": "Broken Tombstone",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Marrow Halls",
-        "pool": "Elite pool"
-      },
-      {
-        "sourceType": "event",
-        "name": "Marrow Halls",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Elite pool", "Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Painted Landscape",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Survey the Field",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Undisturbed Grave",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Vault Door",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Vesparin Vault",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       }
     ],
     "fromCards": [
       {
         "sourceType": "card",
         "name": "Booty",
-        "pool": "Delve Treasure pool"
+        "guaranteed": false,
+        "pools": ["Booty pool"]
+      },
+      {
+        "sourceType": "card",
+        "name": "Elite Weaponry",
+        "guaranteed": false,
+        "pools": ["Elite weapon pool"]
       },
       {
         "sourceType": "card",
         "name": "Explorer's Trick",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "card",
         "name": "Shovel",
-        "pool": "Delve Treasure pool"
+        "guaranteed": false,
+        "pools": ["Booty pool"]
       }
     ],
     "fromTalents": [
       {
         "sourceType": "talent",
         "name": "Pirate Parlour",
-        "pool": "Pirate Parlour pool"
+        "guaranteed": false,
+        "pools": ["Pirate Parlour pool"]
       }
     ]
   },
@@ -1062,91 +1219,102 @@
       {
         "sourceType": "event",
         "name": "Broken Tombstone",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Entrepreneurial Imp",
-        "pool": "Rare pool (limited)"
+        "guaranteed": false,
+        "pools": ["Rare pool (limited)"]
       },
       {
         "sourceType": "event",
         "name": "Fallen Tree",
-        "pool": "Rare pool (limited)"
+        "guaranteed": false,
+        "pools": ["Rare pool (limited)"]
       },
       {
         "sourceType": "event",
         "name": "Marrow Halls",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Molekin Burrow",
-        "pool": "Treasure pool (limited)"
+        "guaranteed": false,
+        "pools": ["Treasure pool (limited)"]
       },
       {
         "sourceType": "event",
         "name": "Painted Landscape",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Rotting Residence",
-        "pool": "Treasure pool (limited)"
+        "guaranteed": false,
+        "pools": ["Treasure pool (limited)"]
       },
       {
         "sourceType": "event",
         "name": "Survey the Field",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "The Cocoon",
-        "pool": "Treasure pool (limited)"
+        "guaranteed": false,
+        "pools": ["Treasure pool (limited)"]
       },
       {
         "sourceType": "event",
         "name": "Undisturbed Grave",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Vault Door",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Vesparin Vault",
-        "pool": "Rare pool (limited)"
-      },
-      {
-        "sourceType": "event",
-        "name": "Vesparin Vault",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Rare pool (limited)", "Treasure pool"]
       }
     ],
     "fromCards": [
       {
         "sourceType": "card",
         "name": "Booty",
-        "pool": "Delve Treasure pool"
+        "guaranteed": false,
+        "pools": ["Booty pool"]
       },
       {
         "sourceType": "card",
         "name": "Explorer's Trick",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "card",
         "name": "Shovel",
-        "pool": "Delve Treasure pool"
+        "guaranteed": false,
+        "pools": ["Booty pool"]
       }
     ],
     "fromTalents": [
       {
         "sourceType": "talent",
         "name": "Pirate Parlour",
-        "pool": "Pirate Parlour pool"
+        "guaranteed": false,
+        "pools": ["Pirate Parlour pool"]
       }
     ]
   },
@@ -1164,71 +1332,78 @@
       {
         "sourceType": "event",
         "name": "Broken Tombstone",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Marrow Halls",
-        "pool": null
-      },
-      {
-        "sourceType": "event",
-        "name": "Marrow Halls",
-        "pool": "Treasure pool"
+        "guaranteed": true,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Painted Landscape",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Sunfall Meadows Finish",
-        "pool": null
+        "guaranteed": true,
+        "pools": []
       },
       {
         "sourceType": "event",
         "name": "Survey the Field",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Undisturbed Grave",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Vault Door",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "event",
         "name": "Vesparin Vault",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       }
     ],
     "fromCards": [
       {
         "sourceType": "card",
         "name": "Booty",
-        "pool": "Delve Treasure pool"
+        "guaranteed": false,
+        "pools": ["Booty pool"]
       },
       {
         "sourceType": "card",
         "name": "Explorer's Trick",
-        "pool": "Treasure pool"
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
       },
       {
         "sourceType": "card",
         "name": "Shovel",
-        "pool": "Delve Treasure pool"
+        "guaranteed": false,
+        "pools": ["Booty pool"]
       }
     ],
     "fromTalents": [
       {
         "sourceType": "talent",
         "name": "Pirate Parlour",
-        "pool": "Pirate Parlour pool"
+        "guaranteed": false,
+        "pools": ["Pirate Parlour pool"]
       }
     ]
   }
