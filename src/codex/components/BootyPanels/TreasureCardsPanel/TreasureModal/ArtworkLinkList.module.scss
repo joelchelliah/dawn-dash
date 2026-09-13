@@ -45,6 +45,10 @@
     font-weight: 300;
     color: $color-primary-dark;
     @include text-truncate;
+
+    @media (max-width: $breakpoint-mobile) {
+      font-size: font-size('xxxs');
+    }
   }
 
   @include alternating-rows-range(
