@@ -93,18 +93,28 @@ $rarity-colors: (
   }
 
   &__hint {
-    margin: -0.25rem 0 1rem;
+    margin: -0.25rem 0 0.75rem;
     padding-left: 0.25rem;
     font-size: font-size('xs');
     color: $color-primary-dark;
 
+    &--stacked {
+      margin-top: 1.25rem;
+    }
+
     @media (max-width: $breakpoint-mobile) {
       margin-bottom: 0.5rem;
       font-size: font-size('xxs');
+
+      &--stacked {
+        margin-top: 0.875rem;
+      }
     }
 
-    &--stacked {
-      margin-top: 1.5rem;
+    &__highlighted {
+      display: inline-block;
+      font-weight: 500;
+      color: color-mix(in srgb, var(--rarity-color) 30%, $color-primary-dark);
     }
 
     &__energy {

@@ -6,7 +6,6 @@ import { ArtworkLinkItem, ArtworkLinkList } from './ArtworkLinkList'
 
 interface RelatedEventListProps {
   events: EnrichedEvent[]
-  // Off by default: a list whose heading already names the pool would only repeat it on every row.
   showPool?: boolean
 }
 

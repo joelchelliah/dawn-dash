@@ -32,9 +32,6 @@ export const enrichTreasureCards = (cardData: CardData[] | undefined): EnrichedT
   })
 }
 
-const uniqueNames = (sources: TreasureSource[]): string[] =>
-  Array.from(new Set(sources.map(({ name }) => name)))
-
 /*
  * Collapsing `X pool` and `X pool (limited)` to a single `X pool`.
  */
@@ -43,16 +40,22 @@ const toBasePoolName = (pool: string): string => pool.replace(/ \(limited\)$/, '
 // The treasure pools' base name, after `(limited)` has been collapsed away.
 const TREASURE_POOL_NAME = 'Treasure pool'
 
-const resolveEvents = (sources: TreasureSource[]): EnrichedEvent[] => {
-  const poolsByEvent = new Map<string, Set<string | undefined>>()
+const uniqueNameAndPoolPairs = (
+  sources: TreasureSource[]
+): Map<string, Set<string | undefined>> => {
+  const poolsByName = new Map<string, Set<string | undefined>>()
 
   for (const { name, pool } of sources) {
-    const pools = poolsByEvent.get(name) ?? new Set<string | undefined>()
+    const pools = poolsByName.get(name) ?? new Set<string | undefined>()
 
-    poolsByEvent.set(name, pools.add(pool ? toBasePoolName(pool) : undefined))
+    poolsByName.set(name, pools.add(pool ? toBasePoolName(pool) : undefined))
   }
 
-  return Array.from(poolsByEvent, ([name, pools]) => {
+  return poolsByName
+}
+
+const resolveEvents = (sources: TreasureSource[]): EnrichedEvent[] =>
+  Array.from(uniqueNameAndPoolPairs(sources), ([name, pools]) => {
     const eventDetails = EVENTS_BY_NAME.get(name)
 
     if (!eventDetails) {
@@ -62,7 +65,6 @@ const resolveEvents = (sources: TreasureSource[]): EnrichedEvent[] => {
 
     return Array.from(pools, (pool) => ({ ...eventDetails, pool }))
   }).flat()
-}
 
 export interface RelatedEvents {
   guaranteed: EnrichedEvent[]
@@ -86,17 +88,20 @@ export const getRelatedTreasurePoolCards = (
 ): RelatedCard[] => {
   const cardsByName = new Map((cardData ?? []).map((card) => [card.name, card]))
 
-  const cards = uniqueNames(treasure.fromCards).map((name) => {
+  const cards = Array.from(uniqueNameAndPoolPairs(treasure.fromCards), ([name, pools]) => {
     const cardDetails = cardsByName.get(name)
 
-    return {
+    return Array.from(pools, (pool) => ({
       name,
       isTalent: false,
       category: cardDetails?.category,
-    }
-  })
+      pool,
+    }))
+  }).flat()
 
-  const talents = uniqueNames(treasure.fromTalents).map((name) => ({ name, isTalent: true }))
+  const talents = Array.from(uniqueNameAndPoolPairs(treasure.fromTalents), ([name, pools]) =>
+    Array.from(pools, (pool) => ({ name, isTalent: true, pool }))
+  ).flat()
 
   return [...cards, ...talents]
 }

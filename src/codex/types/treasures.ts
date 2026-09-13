@@ -49,4 +49,5 @@ export interface RelatedCard {
   name: string
   isTalent: boolean
   category?: number
+  pool?: string
 }

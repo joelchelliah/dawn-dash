@@ -171,7 +171,8 @@ function TreasureModal({ treasure, cardData, onClose }: TreasureModalProps): JSX
         >
           {cardSetName !== 'Core' && (
             <div className={cx('treasure-modal__hint')}>
-              The <strong>{cardSetName}</strong> card set must be enabled.
+              The <span className={cx('treasure-modal__hint__highlighted')}>{cardSetName}</span>{' '}
+              card set must be enabled.
             </div>
           )}
           <div className={cx('treasure-modal__availability')}>
@@ -190,7 +191,9 @@ function TreasureModal({ treasure, cardData, onClose }: TreasureModalProps): JSX
             {guaranteed.length > 0 && (
               <>
                 <div className={cx('treasure-modal__hint')}>
-                  These events will <strong>always</strong> offer this treasure.
+                  Events that will{' '}
+                  <span className={cx('treasure-modal__hint__highlighted')}>always</span> offer this
+                  treasure.
                 </div>
                 <RelatedEventList events={guaranteed} />
               </>
@@ -203,8 +206,9 @@ function TreasureModal({ treasure, cardData, onClose }: TreasureModalProps): JSX
                     'treasure-modal__hint--stacked': guaranteed.length > 0,
                   })}
                 >
-                  These events offer cards from a <strong>treasure pool</strong>, containing this
-                  treasure.
+                  Events that offer cards from a{' '}
+                  <span className={cx('treasure-modal__hint__highlighted')}>Treasure</span> pool{' '}
+                  containing this treasure.
                 </div>
                 <RelatedEventList events={fromTreasurePool} />
               </>
@@ -218,8 +222,9 @@ function TreasureModal({ treasure, cardData, onClose }: TreasureModalProps): JSX
                       guaranteed.length + fromTreasurePool.length > 0,
                   })}
                 >
-                  These events offer cards from a <strong>custom pool</strong>, containing this
-                  treasure.
+                  Events that offer cards from a{' '}
+                  <span className={cx('treasure-modal__hint__highlighted')}>non-Treasure</span> pool{' '}
+                  containing this treasure.
                 </div>
                 <RelatedEventList events={fromOtherPools} showPool />
               </>
@@ -229,14 +234,16 @@ function TreasureModal({ treasure, cardData, onClose }: TreasureModalProps): JSX
 
         {relatedPoolCards.length > 0 && (
           <Section
-            title={`Treasure pool cards and talents (${relatedPoolCards.length})`}
+            title={`Cards and talents (${relatedPoolCards.length})`}
             dividerColor={rarity ? RARITY_COLOR : undefined}
             spacing="medium"
           >
             <div className={cx('treasure-modal__hint')}>
-              Cards and talents that draw from a treasure pool containing this treasure.
+              Cards and talents that offer cards from a{' '}
+              <span className={cx('treasure-modal__hint__highlighted')}>pool</span> containing this
+              treasure.
             </div>
-            <RelatedCardList relatedCards={relatedPoolCards} />
+            <RelatedCardList relatedCards={relatedPoolCards} showPool />
           </Section>
         )}
 

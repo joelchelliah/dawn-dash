@@ -68,5 +68,13 @@
     .artwork-link-item__name {
       @include hover-tint-name(var(--rarity-color, #{$color-primary-hover}));
     }
+
+    .artwork-link-item__subtitle {
+      color: color-mix(
+        in srgb,
+        var(--rarity-color, #{$color-primary-hover}) 40%,
+        $color-primary-muted
+      );
+    }
   }
 }
