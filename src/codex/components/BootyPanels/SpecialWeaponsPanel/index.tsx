@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 
-import { enrichTreasureCards } from '@/codex/utils/treasureHelper'
+import { enrichSpecialWeapons } from '@/codex/utils/weaponHelper'
 import { useCardData } from '@/codex/hooks/useCardData'
 
 import CodexErrorMessage from '../../CodexErrorMessage'
@@ -8,9 +8,9 @@ import CodexLastUpdated from '../../CodexLastUpdated'
 import CodexLoadingMessage from '../../CodexLoadingMessage'
 import TreasureBasePanel, { TreasurePanelMessage, TreasurePanelRow } from '../TreasureBasePanel'
 
-import TreasureList from './TreasureList'
+import WeaponList from './WeaponList'
 
-const TreasureCardsPanel = () => {
+const SpecialWeaponsPanel = () => {
   const {
     cardData,
     isLoading,
@@ -21,24 +21,24 @@ const TreasureCardsPanel = () => {
     progress,
   } = useCardData()
 
-  const treasures = useMemo(() => enrichTreasureCards(cardData), [cardData])
+  const weapons = useMemo(() => enrichSpecialWeapons(cardData), [cardData])
 
-  const hasTreasures = !isLoading && !isError && treasures.length > 0
-  const treasureInfo = hasTreasures ? (
+  const hasWeapons = !isLoading && !isError && weapons.length > 0
+  const weaponInfo = hasWeapons ? (
     <>
-      There are a total of {treasures.length} <strong>Treasure</strong> cards.
+      There are a total of {weapons.length} <strong>Special Basic Attack</strong> cards.
     </>
   ) : undefined
 
-  const renderTreasures = () => {
-    if (treasures.length === 0) {
-      return <TreasurePanelMessage>No treasure cards found!</TreasurePanelMessage>
+  const renderWeapons = () => {
+    if (weapons.length === 0) {
+      return <TreasurePanelMessage>No Special Basic Attacks found!</TreasurePanelMessage>
     }
 
     return (
       <>
         <TreasurePanelRow>
-          <TreasureList treasures={treasures} cardData={cardData} />
+          <WeaponList weapons={weapons} />
         </TreasurePanelRow>
         <TreasurePanelRow>
           <CodexLastUpdated
@@ -55,12 +55,12 @@ const TreasureCardsPanel = () => {
   }
 
   return (
-    <TreasureBasePanel type="TreasureCards" info={treasureInfo}>
+    <TreasureBasePanel type="SpecialWeapons" info={weaponInfo}>
       <CodexLoadingMessage isVisible={isLoading} progress={progress} codexType="card" />
       <CodexErrorMessage isVisible={isError && !isLoading} codexType="card" />
-      {!isLoading && !isError && renderTreasures()}
+      {!isLoading && !isError && renderWeapons()}
     </TreasureBasePanel>
   )
 }
 
-export default TreasureCardsPanel
+export default SpecialWeaponsPanel

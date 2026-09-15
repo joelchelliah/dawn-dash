@@ -13,14 +13,15 @@ $artwork-glow-opacity-hover: 85%;
 // Tinted artwork thumbnail. Also serves as the placeholder square when the caller resolves no
 // artwork, and while the image loads.
 //
-// Size comes from `--artwork-size` / `--artwork-size-mobile`, set inline by the component, so the
-// painted box always agrees with the one React reserved. `--artwork-color` defaults to the neutral
+// Size comes from `--artwork-size` / `--artwork-size-mobile` (height) and `--artwork-width` /
+// `--artwork-width-mobile`, set inline by the component, so the painted box always agrees with the
+// one React reserved. The width vars equal the height ones for the square case. `--artwork-color` defaults to the neutral
 // component border; consumers with a color of their own override it from their stylesheet.
 .bordered-artwork {
   --artwork-color: #{$color-component-border};
 
   flex-shrink: 0;
-  width: var(--artwork-size);
+  width: var(--artwork-width);
   height: var(--artwork-size);
   object-fit: cover;
   border-radius: 0.25rem;
@@ -34,7 +35,7 @@ $artwork-glow-opacity-hover: 85%;
   transition: box-shadow 0.25s ease-out;
 
   @media (max-width: $breakpoint-mobile) {
-    width: var(--artwork-size-mobile);
+    width: var(--artwork-width-mobile);
     height: var(--artwork-size-mobile);
   }
 

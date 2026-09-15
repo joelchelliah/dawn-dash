@@ -7,7 +7,13 @@ import styles from './index.module.scss'
 const cx = createCx(styles)
 
 export type PanelHeaderType =
-  'Search' | 'CardResults' | 'TalentResults' | 'EventResults' | 'TreasureCards' | 'TreasurePools'
+  | 'Search'
+  | 'CardResults'
+  | 'TalentResults'
+  | 'EventResults'
+  | 'TreasureCards'
+  | 'TreasurePools'
+  | 'SpecialWeapons'
 
 const PANEL_TITLES: Record<PanelHeaderType, string> = {
   Search: 'Search',
@@ -16,6 +22,7 @@ const PANEL_TITLES: Record<PanelHeaderType, string> = {
   EventResults: 'Event',
   TreasureCards: 'Treasure cards',
   TreasurePools: 'Treasure pools',
+  SpecialWeapons: 'Special Basic Attacks',
 }
 
 interface PanelHeaderProps {

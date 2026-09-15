@@ -13,6 +13,8 @@ export interface BorderedArtworkProps {
   alt: string
   size: number
   sizeMobile?: number
+  width?: number
+  widthMobile?: number
   borderOpacity?: number
   onImageSrcError?: () => void
   className?: string
@@ -23,15 +25,25 @@ const BorderedArtwork = ({
   alt,
   size,
   sizeMobile,
+  width,
+  widthMobile,
   borderOpacity = DEFAULT_BORDER_OPACITY,
   onImageSrcError,
   className,
 }: BorderedArtworkProps) => {
   const artworkClassName = `${cx('bordered-artwork')}${className ? ` ${className}` : ''}`
 
+  // Width defaults to the height, keeping the square case a caller passes nothing extra for. The
+  // mobile width falls back to the desktop width rather than to `sizeMobile`, or a caller giving a
+  // non-square `width` plus a `sizeMobile` would silently go square on mobile.
+  const artworkWidth = width ?? size
+  const artworkWidthMobile = widthMobile ?? artworkWidth
+
   const artworkStyle = {
     '--artwork-size': `${size}px`,
     '--artwork-size-mobile': `${sizeMobile ?? size}px`,
+    '--artwork-width': `${artworkWidth}px`,
+    '--artwork-width-mobile': `${artworkWidthMobile}px`,
     '--border-opacity': `${borderOpacity}%`,
   } as React.CSSProperties
 
@@ -43,7 +55,7 @@ const BorderedArtwork = ({
       style={artworkStyle}
       src={src}
       alt={alt}
-      width={size}
+      width={artworkWidth}
       height={size}
       onError={onImageSrcError}
     />

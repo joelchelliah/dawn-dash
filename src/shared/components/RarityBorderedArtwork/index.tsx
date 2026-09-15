@@ -20,6 +20,8 @@ interface RarityArtworkProps {
   category?: number
   size: number
   sizeMobile?: number
+  width?: number
+  widthMobile?: number
   borderOpacity?: number
   className?: string
 }
@@ -30,6 +32,8 @@ const RarityBorderedArtwork = ({
   category,
   size,
   sizeMobile,
+  width,
+  widthMobile,
   borderOpacity,
   className,
 }: RarityArtworkProps) => {
@@ -46,6 +50,8 @@ const RarityBorderedArtwork = ({
       alt={cardName}
       size={size}
       sizeMobile={sizeMobile}
+      width={width}
+      widthMobile={widthMobile}
       borderOpacity={borderOpacity}
       onImageSrcError={onImageSrcError}
       className={rarityClassName}

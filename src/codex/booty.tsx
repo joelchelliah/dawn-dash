@@ -20,6 +20,10 @@ const TreasurePoolsPanel = dynamic(() => import('./components/BootyPanels/Treasu
   loading: () => <div>Loading treasure pools...</div>,
 })
 
+const SpecialWeaponsPanel = dynamic(() => import('./components/BootyPanels/SpecialWeaponsPanel'), {
+  loading: () => <div>Loading special weapons...</div>,
+})
+
 const cx = createCx(styles)
 
 function useBootyScrollToTop() {
@@ -46,6 +50,7 @@ function Booty(): JSX.Element {
       <div className={cx('content')}>
         <TreasureCardsPanel />
         <TreasurePoolsPanel />
+        <SpecialWeaponsPanel />
       </div>
 
       <Footer />

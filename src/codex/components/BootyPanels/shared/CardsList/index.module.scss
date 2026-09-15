@@ -16,10 +16,10 @@ $rarity-colors: (
   'monster': $color-danger-special-card,
 );
 
-$breakpoint-treasures-4-col: 90rem;
-$breakpoint-treasures-3-col: 76rem;
+$breakpoint-cards-4-col: 90rem;
+$breakpoint-cards-3-col: 76rem;
 
-.treasure-list-container {
+.cards-list-container {
   width: 100%;
 }
 
@@ -32,18 +32,18 @@ $breakpoint-treasures-3-col: 76rem;
  * an `nth-child` coefficient. Each block resets the previous one's bands before setting its own,
  * since the wider rules still match at narrower widths.
  */
-.treasure-list {
+.cards-list {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   gap: 0;
   width: 100%;
   padding: 0;
 
-  @media (max-width: $breakpoint-treasures-4-col) {
+  @media (max-width: $breakpoint-cards-4-col) {
     grid-template-columns: repeat(4, 1fr);
   }
 
-  @media (max-width: $breakpoint-treasures-3-col) {
+  @media (max-width: $breakpoint-cards-3-col) {
     grid-template-columns: repeat(3, 1fr);
   }
 
@@ -52,14 +52,17 @@ $breakpoint-treasures-3-col: 76rem;
   }
 }
 
-.treasure-list-item {
+.cards-list-item {
   display: flex;
   align-items: center;
   gap: 0.75rem;
   padding: 0.5rem 0.75rem;
   border-radius: 0.25rem;
   transition: all 0.5s ease;
-  cursor: pointer;
+
+  &--clickable {
+    cursor: pointer;
+  }
 
   // Keeps the artwork and text together when a narrow column would otherwise wrap them.
   flex-wrap: nowrap;
@@ -117,19 +120,19 @@ $breakpoint-treasures-3-col: 76rem;
   &:hover {
     background: linear-gradient(to right, $color-list-bg-hover, transparent) !important;
 
-    .treasure-list-item__name {
+    .cards-list-item__name {
       color: $color-primary-hover;
       font-weight: 600;
       @include tinyNudgeRightAnimation;
     }
-    .treasure-list-item__rarity {
+    .cards-list-item__rarity {
       font-weight: 600;
       @include tinyNudgeRightAnimation;
     }
   }
 
   // Alternating row bands — 4 columns
-  @media (max-width: $breakpoint-treasures-4-col) {
+  @media (max-width: $breakpoint-cards-4-col) {
     &:nth-child(10n + 1),
     &:nth-child(10n + 2),
     &:nth-child(10n + 3),
@@ -157,7 +160,7 @@ $breakpoint-treasures-3-col: 76rem;
   }
 
   // Alternating row bands — 3 columns
-  @media (max-width: $breakpoint-treasures-3-col) {
+  @media (max-width: $breakpoint-cards-3-col) {
     &:nth-child(8n + 1),
     &:nth-child(8n + 2),
     &:nth-child(8n + 3),
