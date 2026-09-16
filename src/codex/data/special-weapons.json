@@ -74,7 +74,14 @@
         "pools": ["Legendary weapon pool"]
       }
     ],
-    "fromTalents": []
+    "fromTalents": [
+      {
+        "sourceType": "talent",
+        "name": "Doing My Part",
+        "guaranteed": true,
+        "pools": []
+      }
+    ]
   },
   {
     "id": 58040,
@@ -91,7 +98,14 @@
         "pools": ["Legendary weapon pool"]
       }
     ],
-    "fromTalents": []
+    "fromTalents": [
+      {
+        "sourceType": "talent",
+        "name": "Doing My Part",
+        "guaranteed": true,
+        "pools": []
+      }
+    ]
   },
   {
     "id": 720436,
@@ -154,7 +168,7 @@
         "sourceType": "event",
         "name": "Marrow Halls",
         "guaranteed": false,
-        "pools": ["Elite pool"]
+        "pools": ["Elite weapon pool"]
       }
     ],
     "fromCards": [],
@@ -189,7 +203,14 @@
         "pools": ["Legendary weapon pool"]
       }
     ],
-    "fromTalents": []
+    "fromTalents": [
+      {
+        "sourceType": "talent",
+        "name": "Goldstrike",
+        "guaranteed": true,
+        "pools": []
+      }
+    ]
   },
   {
     "id": 239672,
@@ -248,7 +269,14 @@
     "type": "Melee",
     "isTreasure": false,
     "fromEvents": [],
-    "fromCards": [],
+    "fromCards": [
+      {
+        "sourceType": "card",
+        "name": "Phylactery Visor",
+        "guaranteed": true,
+        "pools": []
+      }
+    ],
     "fromTalents": [
       {
         "sourceType": "talent",
@@ -347,7 +375,7 @@
         "sourceType": "event",
         "name": "The Boneyard",
         "guaranteed": false,
-        "pools": ["Basic pool"]
+        "pools": ["Basic weapon pool"]
       }
     ],
     "fromCards": [
@@ -371,7 +399,7 @@
         "sourceType": "event",
         "name": "Marrow Halls",
         "guaranteed": false,
-        "pools": ["Elite pool"]
+        "pools": ["Elite weapon pool"]
       }
     ],
     "fromCards": [
@@ -395,7 +423,7 @@
         "sourceType": "event",
         "name": "Marrow Halls",
         "guaranteed": false,
-        "pools": ["Elite pool"]
+        "pools": ["Elite weapon pool"]
       }
     ],
     "fromCards": [
@@ -418,7 +446,87 @@
   {
     "id": 77316,
     "name": "Staff of Thunder",
-    "isTreasure": true
+    "category": "BasicAttack",
+    "type": "Magic",
+    "isTreasure": true,
+    "fromEvents": [
+      {
+        "sourceType": "event",
+        "name": "Broken Tombstone",
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
+      },
+      {
+        "sourceType": "event",
+        "name": "Marrow Halls",
+        "guaranteed": false,
+        "pools": ["Elite weapon pool", "Treasure pool"]
+      },
+      {
+        "sourceType": "event",
+        "name": "Painted Landscape",
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
+      },
+      {
+        "sourceType": "event",
+        "name": "Survey the Field",
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
+      },
+      {
+        "sourceType": "event",
+        "name": "Undisturbed Grave",
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
+      },
+      {
+        "sourceType": "event",
+        "name": "Vault Door",
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
+      },
+      {
+        "sourceType": "event",
+        "name": "Vesparin Vault",
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
+      }
+    ],
+    "fromCards": [
+      {
+        "sourceType": "card",
+        "name": "Booty",
+        "guaranteed": false,
+        "pools": ["Booty pool"]
+      },
+      {
+        "sourceType": "card",
+        "name": "Elite Weaponry",
+        "guaranteed": false,
+        "pools": ["Elite weapon pool"]
+      },
+      {
+        "sourceType": "card",
+        "name": "Explorer's Trick",
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
+      },
+      {
+        "sourceType": "card",
+        "name": "Shovel",
+        "guaranteed": false,
+        "pools": ["Booty pool"]
+      }
+    ],
+    "fromTalents": [
+      {
+        "sourceType": "talent",
+        "name": "Pirate Parlour",
+        "guaranteed": false,
+        "pools": ["Pirate Parlour pool"]
+      }
+    ]
   },
   {
     "id": 694945,
@@ -447,7 +555,7 @@
         "sourceType": "event",
         "name": "Marrow Halls",
         "guaranteed": false,
-        "pools": ["Elite pool"]
+        "pools": ["Elite weapon pool"]
       }
     ],
     "fromCards": [

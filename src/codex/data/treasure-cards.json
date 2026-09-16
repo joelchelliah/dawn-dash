@@ -478,6 +478,18 @@
       },
       {
         "sourceType": "card",
+        "name": "Pickpocket",
+        "guaranteed": false,
+        "pools": ["Potion pool"]
+      },
+      {
+        "sourceType": "card",
+        "name": "Shadowtheft",
+        "guaranteed": false,
+        "pools": ["Item pool"]
+      },
+      {
+        "sourceType": "card",
         "name": "Shovel",
         "guaranteed": false,
         "pools": ["Booty pool"]
@@ -689,6 +701,18 @@
         "name": "Explorer's Trick",
         "guaranteed": false,
         "pools": ["Treasure pool"]
+      },
+      {
+        "sourceType": "card",
+        "name": "Pickpocket",
+        "guaranteed": false,
+        "pools": ["Potion pool"]
+      },
+      {
+        "sourceType": "card",
+        "name": "Shadowtheft",
+        "guaranteed": false,
+        "pools": ["Item pool"]
       },
       {
         "sourceType": "card",
@@ -1137,7 +1161,7 @@
         "sourceType": "event",
         "name": "Marrow Halls",
         "guaranteed": false,
-        "pools": ["Elite pool", "Treasure pool"]
+        "pools": ["Elite weapon pool", "Treasure pool"]
       },
       {
         "sourceType": "event",

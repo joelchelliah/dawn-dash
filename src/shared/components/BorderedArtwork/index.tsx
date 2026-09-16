@@ -32,12 +32,8 @@ const BorderedArtwork = ({
   className,
 }: BorderedArtworkProps) => {
   const artworkClassName = `${cx('bordered-artwork')}${className ? ` ${className}` : ''}`
-
-  // Width defaults to the height, keeping the square case a caller passes nothing extra for. The
-  // mobile width falls back to the desktop width rather than to `sizeMobile`, or a caller giving a
-  // non-square `width` plus a `sizeMobile` would silently go square on mobile.
   const artworkWidth = width ?? size
-  const artworkWidthMobile = widthMobile ?? artworkWidth
+  const artworkWidthMobile = widthMobile ?? (width === undefined ? (sizeMobile ?? size) : width)
 
   const artworkStyle = {
     '--artwork-size': `${size}px`,

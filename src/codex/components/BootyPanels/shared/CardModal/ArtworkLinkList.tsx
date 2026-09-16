@@ -9,7 +9,7 @@ import styles from './ArtworkLinkList.module.scss'
 const cx = createCx(styles)
 
 const ARTWORK_SIZE = 40
-const ARTWORK_SIZE_MOBILE = 24
+const ARTWORK_SIZE_MOBILE = 32
 const ARTWORK_BORDER_OPACITY = 75
 
 interface ArtworkLinkListProps {

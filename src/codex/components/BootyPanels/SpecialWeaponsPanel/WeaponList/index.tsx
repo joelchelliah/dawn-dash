@@ -5,7 +5,6 @@ import { EnrichedSpecialWeapon } from '@/codex/types/weapons'
 
 import CardList, { CardListItem } from '../../shared/CardsList'
 import { WEAPON_ARTWORK } from '../../shared/cardArtwork'
-import TreasureModal from '../../TreasureCardsPanel/TreasureModal'
 import WeaponModal from '../WeaponModal'
 
 interface WeaponListProps {
@@ -33,47 +32,14 @@ function WeaponList({ weapons, cardData }: WeaponListProps): JSX.Element {
     <>
       <CardList items={items} artwork={WEAPON_ARTWORK} onSelect={setSelectedId} />
       {selectedWeapon && (
-        <SelectedWeaponModal
-          weapon={selectedWeapon}
+        <WeaponModal
+          weapon={selectedWeapon.weaponDetails}
+          cardDetails={selectedWeapon.cardDetails}
           cardData={cardData}
           onClose={() => setSelectedId(null)}
         />
       )}
     </>
-  )
-}
-
-interface SelectedWeaponModalProps {
-  weapon: EnrichedSpecialWeapon
-  cardData: CardData[] | undefined
-  onClose: () => void
-}
-
-/*
- * A weapon flagged `isTreasure` carries a full `TreasureCard` as its details (see `weaponHelper`),
- * so it gets the treasure modal — it has real Merchant/Alchemist/Trade flags, which the weapon
- * modal hardcodes to false.
- */
-function SelectedWeaponModal({ weapon, cardData, onClose }: SelectedWeaponModalProps): JSX.Element {
-  const { weaponDetails, cardDetails } = weapon
-
-  if ('inCardRewards' in weaponDetails) {
-    return (
-      <TreasureModal
-        treasure={{ treasureDetails: weaponDetails, cardDetails }}
-        cardData={cardData}
-        onClose={onClose}
-      />
-    )
-  }
-
-  return (
-    <WeaponModal
-      weapon={weaponDetails}
-      cardDetails={cardDetails}
-      cardData={cardData}
-      onClose={onClose}
-    />
   )
 }
 

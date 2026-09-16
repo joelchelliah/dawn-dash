@@ -2,7 +2,7 @@ import { RARITIES } from '@/shared/components/RarityBorderedArtwork'
 import { createCx } from '@/shared/utils/classnames'
 
 import { CardData } from '@/codex/types/cards'
-import { SpecialWeaponDetails } from '@/codex/types/weapons'
+import { SpecialWeapon } from '@/codex/types/weapons'
 import { getRelatedEvents, getRelatedTreasurePoolCards } from '@/codex/utils/treasureHelper'
 import Section from '@/codex/components/shared/Section'
 
@@ -17,10 +17,7 @@ const cx = createCx(styles)
 
 const RARITY_COLOR = 'var(--rarity-color)'
 
-const getAcquisitions = (
-  weapon: SpecialWeaponDetails,
-  hasSpecialCondition: boolean
-): Acquisition[] => {
+const getAcquisitions = (weapon: SpecialWeapon, hasSpecialCondition: boolean): Acquisition[] => {
   const { fromCards, fromTalents, fromEvents } = weapon
 
   return [
@@ -34,7 +31,7 @@ const getAcquisitions = (
 }
 
 interface WeaponModalProps {
-  weapon: SpecialWeaponDetails
+  weapon: SpecialWeapon
   cardDetails: CardData
   cardData: CardData[] | undefined
   onClose: () => void

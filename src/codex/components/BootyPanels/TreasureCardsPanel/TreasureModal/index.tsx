@@ -58,7 +58,7 @@ function TreasureModal({ treasure, cardData, onClose }: TreasureModalProps): JSX
 const ADDITIONAL_NOTES: Record<string, JSX.Element> = {
   'Dark Mirror Vial': (
     <>
-      Cannot be acquired via{' '}
+      Cannot be traded into via{' '}
       <GradientLink url="https://www.blightbane.io/card/Tradepost" text="Tradepost" />, but any
       other form of trade or transmute will work.
       <br />

@@ -1,26 +1,18 @@
 import { CardData } from '@/codex/types/cards'
-import { TreasureCard, TreasureSource } from '@/codex/types/treasures'
+import { TreasureSource } from '@/codex/types/treasures'
 
-export interface SpecialWeaponDetails {
+export interface SpecialWeapon {
   id: number
   name: string
   category: string
   type: string
-  isTreasure: false
+  isTreasure: boolean
   fromEvents: TreasureSource[]
   fromCards: TreasureSource[]
   fromTalents: TreasureSource[]
 }
 
-export interface TreasureSpecialWeapon {
-  id: number
-  name: string
-  isTreasure: true
-}
-
-export type SpecialWeapon = SpecialWeaponDetails | TreasureSpecialWeapon
-
 export interface EnrichedSpecialWeapon {
-  weaponDetails: SpecialWeaponDetails | TreasureCard
+  weaponDetails: SpecialWeapon
   cardDetails: CardData
 }
