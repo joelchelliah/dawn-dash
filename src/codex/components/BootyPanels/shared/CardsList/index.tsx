@@ -16,13 +16,6 @@ export interface CardListArtwork {
   widthMobile: number
 }
 
-const SQUARE_ARTWORK: CardListArtwork = {
-  height: 48,
-  heightMobile: 44,
-  width: 48,
-  widthMobile: 44,
-}
-
 /*
  * The neutral shape the grid renders. Treasures and special weapons carry different data around
  * them, so each panel maps its own rows down to this rather than the list knowing either type.
@@ -37,11 +30,11 @@ export interface CardListItem {
 
 interface CardListProps {
   items: CardListItem[]
-  artwork?: CardListArtwork
+  artwork: CardListArtwork
   onSelect?: (id: number) => void
 }
 
-function CardList({ items, artwork = SQUARE_ARTWORK, onSelect }: CardListProps): JSX.Element {
+function CardList({ items, artwork, onSelect }: CardListProps): JSX.Element {
   return (
     <div className={cx('cards-list-container')}>
       <div className={cx('cards-list')}>
