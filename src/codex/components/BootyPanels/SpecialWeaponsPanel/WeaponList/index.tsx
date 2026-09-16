@@ -4,11 +4,12 @@ import { EnrichedSpecialWeapon } from '@/codex/types/weapons'
 
 import CardList, { CardListArtwork, CardListItem } from '../../shared/CardsList'
 
+// Max image resolution is 41x70.
 const WEAPON_ARTWORK: CardListArtwork = {
   height: 56,
-  width: 33,
-  heightMobile: 60,
-  widthMobile: 35,
+  width: 35,
+  heightMobile: 49,
+  widthMobile: 30,
 }
 
 interface WeaponListProps {

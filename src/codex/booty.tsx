@@ -55,7 +55,7 @@ function Booty(): JSX.Element {
 
       <Footer />
 
-      <ScrollToTopButton show={showScrollToTopButton} onClick={scrollToTop} />
+      <ScrollToTopButton show={showScrollToTopButton} onClick={scrollToTop} alwaysOnTop />
     </div>
   )
 }
