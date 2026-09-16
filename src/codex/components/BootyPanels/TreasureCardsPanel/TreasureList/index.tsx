@@ -3,15 +3,9 @@ import { useMemo, useState } from 'react'
 import { CardData } from '@/codex/types/cards'
 import { EnrichedTreasureCard } from '@/codex/types/treasures'
 
-import CardList, { CardListArtwork, CardListItem } from '../../shared/CardsList'
+import CardList, { CardListItem } from '../../shared/CardsList'
+import { TREASURE_ARTWORK } from '../../shared/cardArtwork'
 import TreasureModal from '../TreasureModal'
-
-const TREASURE_ARTWORK: CardListArtwork = {
-  height: 48,
-  heightMobile: 44,
-  width: 48,
-  widthMobile: 44,
-}
 
 interface TreasureListProps {
   treasures: EnrichedTreasureCard[]

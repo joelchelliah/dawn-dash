@@ -37,6 +37,8 @@ const toBasePoolName = (pool: string): string => pool.replace(/ \(limited\)$/, '
 const toDisplayPools = (pools: string[]): string[] =>
   Array.from(new Set(pools.map(toBasePoolName))).sort()
 
+type CardWithSources = Pick<TreasureCard, 'fromEvents' | 'fromCards' | 'fromTalents'>
+
 export interface RelatedEvents {
   guaranteed: EnrichedEvent[]
   fromPools: EnrichedEvent[]
@@ -61,7 +63,7 @@ const resolveEvent = ({ name, pools }: TreasureSource): EnrichedEvent[] => {
  * different ways to get the card, so such an event appears in both segments rather than having its
  * pool hidden behind the guarantee. Each filter therefore reads only its own field.
  */
-export const getRelatedEvents = (treasure: TreasureCard): RelatedEvents => {
+export const getRelatedEvents = (treasure: CardWithSources): RelatedEvents => {
   const guaranteed = treasure.fromEvents
     .filter(({ guaranteed }) => guaranteed)
     .flatMap(resolveEvent)
@@ -75,24 +77,46 @@ export const getRelatedEvents = (treasure: TreasureCard): RelatedEvents => {
   return { guaranteed, fromPools, total: names.size }
 }
 
+export interface RelatedCards {
+  guaranteed: RelatedCard[]
+  fromPools: RelatedCard[]
+  // Distinct cards across both lists — they overlap, so the two lengths would double-count
+  total: number
+}
+
+/*
+ * Split on the same rule as `getRelatedEvents`, and overlapping for the same reason: a source can
+ * both hand the card over outright and draw it from a pool, and those are two different ways to
+ * get it. Each filter therefore reads only its own field.
+ */
 export const getRelatedTreasurePoolCards = (
-  treasure: TreasureCard,
+  treasure: CardWithSources,
   cardData: CardData[] | undefined
-): RelatedCard[] => {
+): RelatedCards => {
   const cardsByName = new Map((cardData ?? []).map((card) => [card.name, card]))
 
-  const cards = treasure.fromCards.map(({ name, pools }) => ({
-    name,
-    isTalent: false,
-    category: cardsByName.get(name)?.category,
-    pools: toDisplayPools(pools),
-  }))
+  const toRelatedCard = (isTalent: boolean) => (source: TreasureSource) => ({
+    name: source.name,
+    isTalent,
+    category: isTalent ? undefined : cardsByName.get(source.name)?.category,
+    pools: toDisplayPools(source.pools),
+  })
 
-  const talents = treasure.fromTalents.map(({ name, pools }) => ({
-    name,
-    isTalent: true,
-    pools: toDisplayPools(pools),
-  }))
+  const sources = [
+    ...treasure.fromCards.map((source) => ({ source, isTalent: false })),
+    ...treasure.fromTalents.map((source) => ({ source, isTalent: true })),
+  ]
 
-  return [...cards, ...talents]
+  const guaranteed = sources
+    .filter(({ source }) => source.guaranteed)
+    .map(({ source, isTalent }) => toRelatedCard(isTalent)(source))
+  const fromPools = sources
+    .filter(({ source }) => source.pools.length > 0)
+    .map(({ source, isTalent }) => toRelatedCard(isTalent)(source))
+
+  const keys = new Set(
+    [...guaranteed, ...fromPools].map(({ name, isTalent }) => `${name}-${isTalent}`)
+  )
+
+  return { guaranteed, fromPools, total: keys.size }
 }

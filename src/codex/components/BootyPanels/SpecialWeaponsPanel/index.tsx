@@ -38,7 +38,7 @@ const SpecialWeaponsPanel = () => {
     return (
       <>
         <TreasurePanelRow>
-          <WeaponList weapons={weapons} />
+          <WeaponList weapons={weapons} cardData={cardData} />
         </TreasurePanelRow>
         <TreasurePanelRow>
           <CodexLastUpdated
