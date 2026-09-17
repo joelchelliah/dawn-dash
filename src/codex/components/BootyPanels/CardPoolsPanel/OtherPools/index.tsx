@@ -2,6 +2,8 @@ import { createCx } from '@/shared/utils/classnames'
 
 import { getOtherPools, POOL_COLOR_CYCLE } from '@/codex/constants/treasurePools'
 
+import PoolSourceList from '../../shared/PoolSourceList'
+
 import styles from './index.module.scss'
 
 const cx = createCx(styles)
@@ -27,23 +29,22 @@ function OtherPools(): JSX.Element {
 
   return (
     <div className={cx('other-pools')} style={containerStyle}>
+      <div className={cx('other-pools__head')}>
+        <span className={cx('other-pools__head-cell')}>Pool</span>
+        <span className={cx('other-pools__head-cell')}>Used by</span>
+      </div>
+
       {OTHER_POOLS.map(({ name, sources }, index) => {
-        const nameStyle = {
-          color: `var(--pool-color-accent-${(index % POOL_COLOR_CYCLE.length) + 1})`,
+        const rowStyle = {
+          '--pool-accent': `var(--pool-color-accent-${(index % POOL_COLOR_CYCLE.length) + 1})`,
+          '--rarity-color': 'var(--pool-accent)',
         } as React.CSSProperties
 
         return (
-          <div key={name} className={cx('other-pools__row')}>
-            <span className={cx('other-pools__name')} style={nameStyle}>
-              {name}
-            </span>
+          <div key={name} className={cx('other-pools__row')} style={rowStyle}>
+            <span className={cx('other-pools__name')}>{name}</span>
             <div className={cx('other-pools__sources')}>
-              {sources.map(({ name: sourceName, sourceType }) => (
-                <span key={`${sourceName}-${sourceType}`} className={cx('other-pools__source')}>
-                  {sourceName}{' '}
-                  <span className={cx('other-pools__source-type')}>({sourceType})</span>
-                </span>
-              ))}
+              <PoolSourceList sources={sources} layout="pool-table" unshaded />
             </div>
           </div>
         )

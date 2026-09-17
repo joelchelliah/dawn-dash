@@ -9,6 +9,8 @@ $transition-duration: 0.5s;
 }
 
 .pool {
+  --rarity-color: var(--pool-color-accent);
+
   display: flex;
   flex-direction: column;
   gap: 1.125rem;

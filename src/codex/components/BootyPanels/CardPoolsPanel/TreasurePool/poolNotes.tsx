@@ -37,7 +37,7 @@ export const POOL_NOTES: Record<PoolId, PoolNotes> = {
     ),
     below: (
       <>
-        Some of the <strong>Treasure events</strong> may have additional hidden restrictions.
+        Some <strong>Treasure events</strong> may have additional hidden restrictions.
         <br />
         <br />
         This pool&apos;s size is limited by which card sets you&apos;ve enabled.

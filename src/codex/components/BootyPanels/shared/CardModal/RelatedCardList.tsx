@@ -2,7 +2,7 @@ import { TALENT_ARTWORK_CATEGORY, useCardImageSrc } from '@/shared/hooks/useCard
 
 import { RelatedCard } from '@/codex/types/treasures'
 
-import { ArtworkLinkItem, ArtworkLinkList } from './ArtworkLinkList'
+import { ArtworkLinkItem, ArtworkLinkList } from '../ArtworkLinkList'
 
 const getBlightbaneUrl = ({ name, isTalent }: RelatedCard) =>
   `https://www.blightbane.io/${isTalent ? 'talent' : 'card'}/${name.replaceAll(' ', '_')}`

@@ -5,6 +5,7 @@ import { Event } from '@/codex/types/events'
 import {
   EnrichedEvent,
   EnrichedTreasureCard,
+  PoolReachedBy,
   RelatedCard,
   TreasureCard,
   TreasurePool,
@@ -126,19 +127,14 @@ export const getRelatedTreasurePoolCards = (
   return { guaranteed, fromPools, total: keys.size }
 }
 
-export interface OtherPoolSource {
-  name: string
-  sourceType: string
-}
-
 export interface OtherPool {
   name: string
-  sources: OtherPoolSource[]
+  sources: PoolReachedBy[]
 }
 
 export const getOtherPools = (coveredPools: string[]): OtherPool[] => {
   const covered = new Set(coveredPools.map(toBasePoolName))
-  const byPool = new Map<string, Map<string, OtherPoolSource>>()
+  const byPool = new Map<string, Map<string, PoolReachedBy>>()
 
   const entries: (TreasureCard | SpecialWeapon)[] = [...TREASURE_CARDS, ...SPECIAL_WEAPONS]
 
@@ -152,7 +148,7 @@ export const getOtherPools = (coveredPools: string[]): OtherPool[] => {
       toDisplayPools(pools)
         .filter((pool) => !covered.has(pool))
         .forEach((pool) => {
-          const sources = byPool.get(pool) ?? new Map<string, OtherPoolSource>()
+          const sources = byPool.get(pool) ?? new Map<string, PoolReachedBy>()
 
           sources.set(`${name}-${sourceType}`, { name, sourceType })
           byPool.set(pool, sources)

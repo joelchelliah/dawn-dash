@@ -17,8 +17,6 @@ export interface TreasurePoolDisplay {
   color: string
   colorAccent: string
   excludedRewards?: string[]
-  // Replaces the derived per-event source tags with a single tag
-  collapsedEventSource?: string
 }
 
 export interface PoolReward {
@@ -50,7 +48,6 @@ export const TREASURE_POOL_DISPLAYS: TreasurePoolDisplay[] = [
     imageSrc: RingOfPowerImageUrl,
     color: COLORS.ONLY_TREASURE,
     colorAccent: COLORS.ONLY_TREASURE_ACCENT,
-    collapsedEventSource: 'All Treasure events',
   },
   {
     id: 'pirate-parlour',
@@ -115,19 +112,14 @@ export const getPoolRewards = (display: TreasurePoolDisplay): PoolReward[] => {
   ]
 }
 
-const describeSource = ({ sourceType, name }: PoolReachedBy): string => `${name} (${sourceType})`
+export const getPoolSources = (display: TreasurePoolDisplay): PoolReachedBy[] => {
+  const byKey = new Map<string, PoolReachedBy>()
 
-export const getPoolSources = (display: TreasurePoolDisplay): string[] => {
-  const reachedBy = getMembers(display).flatMap((pool) => pool.reachedBy)
+  getMembers(display)
+    .flatMap((pool) => pool.reachedBy)
+    .forEach((source) => byKey.set(`${source.name}-${source.sourceType}`, source))
 
-  const named = reachedBy
-    .filter(({ sourceType }) => !(sourceType === 'event' && display.collapsedEventSource))
-    .map(describeSource)
-
-  const hasEvents = reachedBy.some(({ sourceType }) => sourceType === 'event')
-  const collapsed = hasEvents && display.collapsedEventSource ? [display.collapsedEventSource] : []
-
-  return [...collapsed, ...Array.from(new Set(named))]
+  return Array.from(byKey.values()).sort((a, b) => a.name.localeCompare(b.name))
 }
 
 /*

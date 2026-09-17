@@ -1,0 +1,128 @@
+@use 'index' as *;
+
+.artwork-link-list {
+  display: grid;
+  gap: 0;
+
+  // 3 → 2
+  &--modal {
+    grid-template-columns: repeat(3, 1fr);
+
+    @media (max-width: $breakpoint-mobile) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  // 2 → 1. Drops to one column early: these sit inside a third of the pools grid, so two
+  // columns of artwork-plus-name stop fitting well before the mobile breakpoint.
+  &--pool-card {
+    grid-template-columns: repeat(2, 1fr);
+
+    @media (max-width: $breakpoint-tablet-plus) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  // 4 → 3 → 2
+  &--pool-table {
+    grid-template-columns: repeat(4, 1fr);
+
+    @media (max-width: $breakpoint-tablet-plus) {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    @media (max-width: $breakpoint-tablet) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+}
+
+.artwork-link-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0.5rem;
+  border-radius: 0.25rem;
+  transition: all 0.5s ease;
+  cursor: pointer;
+  text-decoration: none;
+  min-width: 0;
+
+  &__text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    overflow: hidden;
+    flex: 1;
+  }
+
+  &__name {
+    font-size: font-size('xs');
+    font-weight: 400;
+    color: $color-primary-base;
+    @include text-truncate;
+
+    @media (max-width: $breakpoint-mobile) {
+      font-size: font-size('xxs');
+    }
+  }
+
+  &__subtitle {
+    font-size: font-size('xxs');
+    font-weight: 300;
+    color: $color-primary-dark;
+    @include text-truncate;
+
+    @media (max-width: $breakpoint-mobile) {
+      font-size: font-size('xxxs');
+    }
+  }
+
+  .artwork-link-list--modal & {
+    @include alternating-rows-range(2, $through: $breakpoint-mobile);
+    @include alternating-rows-range(3, $above: $breakpoint-mobile);
+  }
+
+  .artwork-link-list--pool-card & {
+    @include alternating-rows-range(1, $through: $breakpoint-tablet-plus);
+    @include alternating-rows-range(2, $above: $breakpoint-tablet-plus);
+  }
+
+  .artwork-link-list--pool-table & {
+    @include alternating-rows-range(2, $through: $breakpoint-tablet);
+    @include alternating-rows-range(
+      3,
+      $above: $breakpoint-tablet,
+      $through: $breakpoint-tablet-plus
+    );
+    @include alternating-rows-range(4, $above: $breakpoint-tablet-plus);
+  }
+
+  // Wins over every count's shading above, so a striping container keeps its own rows.
+  .artwork-link-list--unshaded & {
+    background: none;
+  }
+
+  &:hover {
+    background: linear-gradient(to right, $color-list-bg-hover, transparent) !important;
+    .artwork-link-item__artwork {
+      @include hover-tint-artwork(var(--rarity-color, #{$color-primary-hover}));
+    }
+
+    .artwork-link-item__text {
+      @include tinyNudgeRightAnimation;
+    }
+
+    .artwork-link-item__name {
+      @include hover-tint-name(var(--rarity-color, #{$color-primary-hover}));
+    }
+
+    .artwork-link-item__subtitle {
+      color: color-mix(
+        in srgb,
+        var(--rarity-color, #{$color-primary-hover}) 40%,
+        $color-primary-muted
+      );
+    }
+  }
+}

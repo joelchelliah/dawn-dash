@@ -2,7 +2,7 @@ import { useEventImageSrc } from '@/codex/hooks/useEventImageSrc'
 import { normalizeEventNameForUrl } from '@/codex/hooks/useEventUrlParam'
 import { EnrichedEvent } from '@/codex/types/treasures'
 
-import { ArtworkLinkItem, ArtworkLinkList } from './ArtworkLinkList'
+import { ArtworkLinkItem, ArtworkLinkList } from '../ArtworkLinkList'
 
 interface RelatedEventListProps {
   events: EnrichedEvent[]

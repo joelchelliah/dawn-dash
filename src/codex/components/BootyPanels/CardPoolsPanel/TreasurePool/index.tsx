@@ -11,6 +11,7 @@ import {
 } from '@/codex/constants/treasurePools'
 import Section from '@/codex/components/shared/Section'
 
+import PoolSourceList from '../../shared/PoolSourceList'
 import WhirlpoolArtwork from '../WhirlpoolArtwork'
 
 import styles from './index.module.scss'
@@ -76,13 +77,7 @@ function TreasurePool({ pool }: TreasurePoolProps): JSX.Element {
       </Section>
 
       <Section title="Used by" dividerColor="var(--pool-color)" spacing="small">
-        <div className={cx('pool__tags')}>
-          {sources.map((source) => (
-            <span key={source} className={cx('pool__tag')}>
-              {source}
-            </span>
-          ))}
-        </div>
+        <PoolSourceList sources={sources} layout="pool-card" />
       </Section>
 
       <div className={cx('pool__note')}>{notes.below && <p>{notes.below}</p>}</div>

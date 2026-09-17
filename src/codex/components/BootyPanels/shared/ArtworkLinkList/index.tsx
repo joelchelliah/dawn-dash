@@ -4,7 +4,7 @@ import BorderedArtwork from '@/shared/components/BorderedArtwork'
 import { createCx } from '@/shared/utils/classnames'
 import { HOVER_TRIGGER } from '@/shared/utils/hoverTrigger'
 
-import styles from './ArtworkLinkList.module.scss'
+import styles from './index.module.scss'
 
 const cx = createCx(styles)
 
@@ -12,7 +12,20 @@ const ARTWORK_SIZE = 40
 const ARTWORK_SIZE_MOBILE = 32
 const ARTWORK_BORDER_OPACITY = 75
 
+const DEFAULT_LAYOUT = 'modal'
+
+export type ArtworkLinkLayout =
+  // 3 → 2 columns, the card modal's related-card and related-event lists
+  | 'modal'
+  // 2 → 1 columns, a list inside one of the three narrow treasure-pool cards
+  | 'pool-card'
+  // 4 → 3 → 2 columns, the full-width other-pools table
+  | 'pool-table'
+
 interface ArtworkLinkListProps {
+  layout?: ArtworkLinkLayout
+  // Drops the alternating row shading, for a list sitting inside a container that stripes its own rows.
+  unshaded?: boolean
   children: React.ReactNode
 }
 
@@ -21,8 +34,16 @@ interface ArtworkLinkListProps {
  * through a different hook — cards and talents via `useCardImageSrc`, events via
  * `useEventImageSrc` — and a hook can only run inside the item component itself.
  */
-export function ArtworkLinkList({ children }: ArtworkLinkListProps): JSX.Element {
-  return <div className={cx('artwork-link-list')}>{children}</div>
+export function ArtworkLinkList({
+  layout = DEFAULT_LAYOUT,
+  unshaded,
+  children,
+}: ArtworkLinkListProps): JSX.Element {
+  const listClassName = cx('artwork-link-list', `artwork-link-list--${layout}`, {
+    'artwork-link-list--unshaded': unshaded,
+  })
+
+  return <div className={listClassName}>{children}</div>
 }
 
 interface ArtworkLinkItemProps {
@@ -32,6 +53,9 @@ interface ArtworkLinkItemProps {
   src: string | null
   onImageSrcError?: () => void
   subtitles?: string[]
+  // Square artwork edge in px; defaults to the `modal` layout's size.
+  artworkSize?: number
+  artworkSizeMobile?: number
 }
 
 export function ArtworkLinkItem({
@@ -41,6 +65,8 @@ export function ArtworkLinkItem({
   src,
   onImageSrcError,
   subtitles = [],
+  artworkSize = ARTWORK_SIZE,
+  artworkSizeMobile = ARTWORK_SIZE_MOBILE,
 }: ArtworkLinkItemProps): JSX.Element {
   const itemClassName = cx('artwork-link-item', HOVER_TRIGGER)
   const LinkComponent = isExternal ? 'a' : Link
@@ -57,8 +83,8 @@ export function ArtworkLinkItem({
       <BorderedArtwork
         src={src}
         alt={name}
-        size={ARTWORK_SIZE}
-        sizeMobile={ARTWORK_SIZE_MOBILE}
+        size={artworkSize}
+        sizeMobile={artworkSizeMobile}
         borderOpacity={ARTWORK_BORDER_OPACITY}
         onImageSrcError={onImageSrcError}
         className={cx('artwork-link-item__artwork')}
