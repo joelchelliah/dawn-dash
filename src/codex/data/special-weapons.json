@@ -370,14 +370,7 @@
     "category": "BasicAttack",
     "type": "Melee",
     "isTreasure": false,
-    "fromEvents": [
-      {
-        "sourceType": "event",
-        "name": "The Boneyard",
-        "guaranteed": false,
-        "pools": ["Basic weapon pool"]
-      }
-    ],
+    "fromEvents": [],
     "fromCards": [
       {
         "sourceType": "card",

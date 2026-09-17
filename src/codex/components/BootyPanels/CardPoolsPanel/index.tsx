@@ -11,6 +11,7 @@ import {
 
 import TreasureBasePanel from '../TreasureBasePanel'
 
+import OtherPools, { OTHER_POOL_COUNT } from './OtherPools'
 import TreasurePool from './TreasurePool'
 import styles from './index.module.scss'
 
@@ -41,7 +42,7 @@ const CardPoolsPanel = () => {
     <TreasureBasePanel type="CardPools">
       <span className={cx('pools-info')}>
         Randomly acquired <strong>Treasure</strong> cards are drawn from one of these{' '}
-        {TREASURE_POOL_DISPLAYS.length} <strong>Card Pools</strong>.
+        <strong>{TREASURE_POOL_DISPLAYS.length}</strong> card pools.
       </span>
       <div className={cx('pools')}>
         {TREASURE_POOL_DISPLAYS.map((pool) => (
@@ -50,9 +51,10 @@ const CardPoolsPanel = () => {
       </div>
 
       <span className={cx('pools-info')}>
-        Other <strong>Card Pools</strong> used by cards, talents and events when producing a random
-        reward.
+        A few <strong>Treasure</strong> cards and <strong>Special Basic Attacks</strong> are
+        available in these <strong>{OTHER_POOL_COUNT}</strong> card pools.
       </span>
+      <OtherPools />
     </TreasureBasePanel>
   )
 }

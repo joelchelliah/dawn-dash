@@ -7,12 +7,17 @@ import {
   EnrichedTreasureCard,
   RelatedCard,
   TreasureCard,
+  TreasurePool,
   TreasureSource,
 } from '@/codex/types/treasures'
 import eventTrees from '@/codex/data/event-trees.json'
+import { SpecialWeapon } from '@/codex/types/weapons'
+import specialWeapons from '@/codex/data/special-weapons.json'
 import treasureCards from '@/codex/data/treasure-cards.json'
+import treasurePools from '@/codex/data/treasure-pools.json'
 
 const TREASURE_CARDS = treasureCards as TreasureCard[]
+const SPECIAL_WEAPONS = specialWeapons as SpecialWeapon[]
 const EVENTS_BY_NAME = new Map((eventTrees as Event[]).map((event) => [event.name, event]))
 
 export const enrichTreasureCards = (cardData: CardData[] | undefined): EnrichedTreasureCard[] => {
@@ -119,4 +124,71 @@ export const getRelatedTreasurePoolCards = (
   )
 
   return { guaranteed, fromPools, total: keys.size }
+}
+
+export interface OtherPoolSource {
+  name: string
+  sourceType: string
+}
+
+export interface OtherPool {
+  name: string
+  sources: OtherPoolSource[]
+}
+
+export const getOtherPools = (coveredPools: string[]): OtherPool[] => {
+  const covered = new Set(coveredPools.map(toBasePoolName))
+  const byPool = new Map<string, Map<string, OtherPoolSource>>()
+
+  const entries: (TreasureCard | SpecialWeapon)[] = [...TREASURE_CARDS, ...SPECIAL_WEAPONS]
+
+  entries
+    .flatMap(({ fromEvents, fromCards, fromTalents }) => [
+      ...fromEvents,
+      ...fromCards,
+      ...fromTalents,
+    ])
+    .forEach(({ name, sourceType, pools }) => {
+      toDisplayPools(pools)
+        .filter((pool) => !covered.has(pool))
+        .forEach((pool) => {
+          const sources = byPool.get(pool) ?? new Map<string, OtherPoolSource>()
+
+          sources.set(`${name}-${sourceType}`, { name, sourceType })
+          byPool.set(pool, sources)
+        })
+    })
+
+  return Array.from(byPool.entries())
+    .map(([name, sources]) => ({
+      name,
+      sources: Array.from(sources.values()).sort((a, b) => a.name.localeCompare(b.name)),
+    }))
+    .sort((a, b) => a.name.localeCompare(b.name))
+}
+
+/*
+ * What share of a pool is Treasure cards. Both halves come from the data — the pool's declared
+ * `size` and the treasures that name it as a source — so a resync moves the figure instead of
+ * leaving hardcoded copy behind.
+ */
+export const getTreasureShareOfPool = (poolNames: string[]): number | null => {
+  const pools = new Set(poolNames.map(toBasePoolName))
+
+  const size = Math.max(
+    0,
+    ...(treasurePools as TreasurePool[])
+      .filter(({ pool }) => pools.has(toBasePoolName(pool)))
+      .map(({ size }) => size)
+  )
+
+  if (size === 0) return null
+
+  const treasures = TREASURE_CARDS.filter(({ fromEvents, fromCards, fromTalents }) =>
+    toDisplayPools(
+      [...fromEvents, ...fromCards, ...fromTalents].flatMap(({ pools: sourcePools }) => sourcePools)
+    ).some((pool) => pools.has(pool))
+  ).length
+
+  return (treasures / size) * 100
 }

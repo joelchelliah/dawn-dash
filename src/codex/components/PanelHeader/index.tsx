@@ -20,8 +20,8 @@ const PANEL_TITLES: Record<PanelHeaderType, string> = {
   CardResults: 'Cards',
   TalentResults: 'Talents',
   EventResults: 'Event',
-  TreasureCards: 'Treasure cards',
-  CardPools: 'Card pools',
+  TreasureCards: 'Treasure Cards',
+  CardPools: 'Card Pools',
   SpecialWeapons: 'Special Basic Attacks',
 }
 

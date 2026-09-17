@@ -6,6 +6,7 @@ import {
 
 import treasurePools from '@/codex/data/treasure-pools.json'
 import { PoolReachedBy, TreasurePool } from '@/codex/types/treasures'
+import { getOtherPools as getOtherPoolsFromData, OtherPool } from '@/codex/utils/treasureHelper'
 
 export type PoolId = 'booty' | 'treasure' | 'pirate-parlour'
 
@@ -59,6 +60,15 @@ export const TREASURE_POOL_DISPLAYS: TreasurePoolDisplay[] = [
     colorAccent: COLORS.PIRATE_PARLOUR_ACCENT,
   },
 ]
+
+export const POOL_COLOR_CYCLE = TREASURE_POOL_DISPLAYS.map(({ color, colorAccent }) => ({
+  color,
+  colorAccent,
+}))
+
+const COVERED_POOLS = TREASURE_POOL_DISPLAYS.flatMap(({ pools }) => pools)
+
+export const getOtherPools = (): OtherPool[] => getOtherPoolsFromData(COVERED_POOLS)
 
 const TREASURE_POOLS = treasurePools as TreasurePool[]
 

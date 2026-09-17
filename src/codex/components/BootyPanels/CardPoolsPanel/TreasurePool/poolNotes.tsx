@@ -1,17 +1,22 @@
-import { PoolId } from '@/codex/constants/treasurePools'
+import { PoolId, TREASURE_POOL_DISPLAYS } from '@/codex/constants/treasurePools'
+import { getTreasureShareOfPool } from '@/codex/utils/treasureHelper'
 
 interface PoolNotes {
   above?: JSX.Element
   below?: JSX.Element
 }
 
+const getPoolsOf = (id: PoolId): string[] =>
+  TREASURE_POOL_DISPLAYS.find((display) => display.id === id)?.pools ?? []
+
+const BOOTY_TREASURE_SHARE = getTreasureShareOfPool(getPoolsOf('booty'))
+
 export const POOL_NOTES: Record<PoolId, PoolNotes> = {
   booty: {
     above: (
       <>
-        The largest pool in the game. Only used by <strong>Shovel</strong> and{' '}
-        <strong>Booty</strong>, which let you delve between 3 random cards from this pool during
-        combat.
+        The largest treasure pool, with only <strong>{BOOTY_TREASURE_SHARE?.toFixed(1)}%</strong> of
+        the total pool consisting of actual <strong>Treasure</strong> cards.
       </>
     ),
     below: (
@@ -27,15 +32,12 @@ export const POOL_NOTES: Record<PoolId, PoolNotes> = {
   treasure: {
     above: (
       <>
-        The only pool that consists entirely of <strong>Treasure</strong> cards. Used by all
-        Treasure-granting events, and by the <strong>Explorer&apos;s Trick</strong> card&apos;s
-        secondary effect.
+        The only pool consisting entirely of <strong>Treasure</strong> cards.
       </>
     ),
     below: (
       <>
-        Some of the <strong>Treasure events</strong> have additional hidden restrictions, preventing
-        you from getting certain cards.
+        Some of the <strong>Treasure events</strong> may have additional hidden restrictions.
         <br />
         <br />
         This pool&apos;s size is limited by which card sets you&apos;ve enabled.
@@ -43,12 +45,7 @@ export const POOL_NOTES: Record<PoolId, PoolNotes> = {
     ),
   },
   'pirate-parlour': {
-    above: (
-      <>
-        Only used by the <strong>Pirate Parlour</strong> talent, which lets you delve between 3
-        random cards from this pool during combat.
-      </>
-    ),
+    above: <>You don&apos;t really get to keep any of the cards from here.</>,
     below: (
       <>
         Cards delved via <strong>Pirate Parlour</strong> are played immediately. No cards are
