@@ -12,7 +12,7 @@ export type PanelHeaderType =
   | 'TalentResults'
   | 'EventResults'
   | 'TreasureCards'
-  | 'TreasurePools'
+  | 'CardPools'
   | 'SpecialWeapons'
 
 const PANEL_TITLES: Record<PanelHeaderType, string> = {
@@ -21,7 +21,7 @@ const PANEL_TITLES: Record<PanelHeaderType, string> = {
   TalentResults: 'Talents',
   EventResults: 'Event',
   TreasureCards: 'Treasure cards',
-  TreasurePools: 'Treasure pools',
+  CardPools: 'Card pools',
   SpecialWeapons: 'Special Basic Attacks',
 }
 

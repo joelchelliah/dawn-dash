@@ -16,12 +16,12 @@ const TreasureCardsPanel = dynamic(() => import('./components/BootyPanels/Treasu
   loading: () => <div>Loading treasure cards...</div>,
 })
 
-const TreasurePoolsPanel = dynamic(() => import('./components/BootyPanels/TreasurePoolsPanel'), {
-  loading: () => <div>Loading treasure pools...</div>,
-})
-
 const SpecialWeaponsPanel = dynamic(() => import('./components/BootyPanels/SpecialWeaponsPanel'), {
   loading: () => <div>Loading special weapons...</div>,
+})
+
+const CardPoolsPanel = dynamic(() => import('./components/BootyPanels/CardPoolsPanel'), {
+  loading: () => <div>Loading card pools...</div>,
 })
 
 const cx = createCx(styles)
@@ -49,8 +49,8 @@ function Booty(): JSX.Element {
 
       <div className={cx('content')}>
         <TreasureCardsPanel />
-        <TreasurePoolsPanel />
         <SpecialWeaponsPanel />
+        <CardPoolsPanel />
       </div>
 
       <Footer />

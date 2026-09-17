@@ -7,7 +7,7 @@ import styles from './index.module.scss'
 const cx = createCx(styles)
 
 interface TreasureBasePanelProps {
-  type: Extract<PanelHeaderType, 'TreasureCards' | 'TreasurePools' | 'SpecialWeapons'>
+  type: Extract<PanelHeaderType, 'TreasureCards' | 'CardPools' | 'SpecialWeapons'>
   info?: React.ReactNode
   children: React.ReactNode
 }

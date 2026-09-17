@@ -1,0 +1,27 @@
+@use 'index' as *;
+
+.pools {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  align-items: stretch;
+  margin: 0 1rem 2rem;
+
+  @media (max-width: $breakpoint-mobile) {
+    grid-template-columns: 1fr;
+
+    margin-bottom: 1rem;
+  }
+}
+
+.pools-info {
+  color: $color-primary-muted;
+  font-size: font-size('sm');
+  margin: 0 1rem 1.5rem 1.25rem;
+  opacity: 0.85;
+
+  @media (max-width: $breakpoint-mobile) {
+    font-size: font-size('xs');
+    margin-bottom: 1rem;
+  }
+}

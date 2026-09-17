@@ -16,7 +16,7 @@ import styles from './index.module.scss'
 
 const cx = createCx(styles)
 
-const TreasurePoolsPanel = () => {
+const CardPoolsPanel = () => {
   useEffect(() => {
     const unmapped = findUnmappedPools()
 
@@ -37,22 +37,24 @@ const TreasurePoolsPanel = () => {
     }
   }, [])
 
-  const treasurePoolInfo = (
-    <>
-      Randomly acquired treasure cards are drawn from one of these {TREASURE_POOL_DISPLAYS.length}{' '}
-      <strong>Treasure Pools</strong>.
-    </>
-  )
-
   return (
-    <TreasureBasePanel type="TreasurePools" info={treasurePoolInfo}>
+    <TreasureBasePanel type="CardPools">
+      <span className={cx('pools-info')}>
+        Randomly acquired <strong>Treasure</strong> cards are drawn from one of these{' '}
+        {TREASURE_POOL_DISPLAYS.length} <strong>Card Pools</strong>.
+      </span>
       <div className={cx('pools')}>
         {TREASURE_POOL_DISPLAYS.map((pool) => (
           <TreasurePool key={pool.id} pool={pool} />
         ))}
       </div>
+
+      <span className={cx('pools-info')}>
+        Other <strong>Card Pools</strong> used by cards, talents and events when producing a random
+        reward.
+      </span>
     </TreasureBasePanel>
   )
 }
 
-export default TreasurePoolsPanel
+export default CardPoolsPanel
