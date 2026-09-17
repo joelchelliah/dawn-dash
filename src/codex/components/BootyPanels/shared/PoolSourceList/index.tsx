@@ -8,8 +8,8 @@ import eventTrees from '@/codex/data/event-trees.json'
 
 import { ArtworkLinkItem, ArtworkLinkLayout, ArtworkLinkList } from '../ArtworkLinkList'
 
-const ARTWORK_SIZE = 32
-const ARTWORK_SIZE_MOBILE = 28
+const ARTWORK_SIZE = 40
+const ARTWORK_SIZE_MOBILE = 32
 
 const EVENT_ARTWORK_BY_NAME = new Map(
   (eventTrees as Event[]).map(({ name, artwork }) => [name, artwork])

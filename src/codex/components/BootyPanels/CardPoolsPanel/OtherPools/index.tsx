@@ -51,8 +51,12 @@ function OtherPools(): JSX.Element {
       })}
 
       <span className={cx('other-pools__note')}>
-        Pool sizes vary greatly depending on class, attributes, and which card sets are enabled.
-        Some events/cards may have additional hidden restrictions.
+        Some <strong>cards</strong> and <strong>events</strong> may have additional hidden
+        restrictions.
+        <br />
+        <br />
+        Pool sizes vary greatly depending on class, attributes, and which card sets you&apos;ve
+        enabled.
       </span>
     </div>
   )

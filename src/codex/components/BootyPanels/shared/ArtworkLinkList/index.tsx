@@ -17,9 +17,7 @@ const DEFAULT_LAYOUT = 'modal'
 export type ArtworkLinkLayout =
   // 3 → 2 columns, the card modal's related-card and related-event lists
   | 'modal'
-  // 2 → 1 columns, a list inside one of the three narrow treasure-pool cards
-  | 'pool-card'
-  // 4 → 3 → 2 columns, the full-width other-pools table
+  // 5 → 4 → 3 → 2 columns, the full-width pool rows: treasure pools and the other-pools table
   | 'pool-table'
 
 interface ArtworkLinkListProps {

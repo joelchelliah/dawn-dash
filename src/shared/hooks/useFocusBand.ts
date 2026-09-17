@@ -11,18 +11,15 @@ import { useEffect, useRef, useState } from 'react'
 
 /*
  * The band, as percentages of viewport height: where its centre sits (measured from the top, so
- * above 50 is below the middle) and how tall it is.
+ * above 50 is below the middle) and how tall it is. A caller whose elements are short passes a
+ * smaller height, so only one of them is lit at a time.
  */
 const BAND_CENTER = 60
-const BAND_HEIGHT = 40
-
-// `rootMargin` insets each edge from itself, so the band is expressed as the space above and below it.
-const BAND_INSET_TOP = BAND_CENTER - BAND_HEIGHT / 2
-const BAND_INSET_BOTTOM = 100 - BAND_CENTER - BAND_HEIGHT / 2
+const DEFAULT_BAND_HEIGHT = 50
 
 const NO_HOVER_QUERY = '(hover: none)'
 
-export function useFocusBand<T extends HTMLElement>() {
+export function useFocusBand<T extends HTMLElement>(bandHeight = DEFAULT_BAND_HEIGHT) {
   const ref = useRef<T>(null)
   const [isInFocusBand, setIsInFocusBand] = useState(false)
 
@@ -44,8 +41,13 @@ export function useFocusBand<T extends HTMLElement>() {
         return
       }
 
+      // `rootMargin` insets each edge from itself, so the band is expressed as the space above
+      // and below it.
+      const insetTop = BAND_CENTER - bandHeight / 2
+      const insetBottom = 100 - BAND_CENTER - bandHeight / 2
+
       observer = new IntersectionObserver(([entry]) => setIsInFocusBand(entry.isIntersecting), {
-        rootMargin: `-${BAND_INSET_TOP}% 0px -${BAND_INSET_BOTTOM}% 0px`,
+        rootMargin: `-${insetTop}% 0px -${insetBottom}% 0px`,
       })
       observer.observe(element)
     }
@@ -57,7 +59,7 @@ export function useFocusBand<T extends HTMLElement>() {
       observer?.disconnect()
       hoverQuery.removeEventListener('change', sync)
     }
-  }, [])
+  }, [bandHeight])
 
   return { ref, isInFocusBand }
 }

@@ -1,5 +1,11 @@
 @use 'index' as *;
 
+// Column-count bands for the pool-table grid. The row striping below has to switch
+// counts at exactly these widths, so both read them from here.
+$pool-table-5-col: $breakpoint-tablet-plus + 8rem;
+$pool-table-4-col: $breakpoint-tablet + 2rem;
+$pool-table-3-col: $breakpoint-tablet - 6rem;
+
 .artwork-link-list {
   display: grid;
   gap: 0;
@@ -13,25 +19,19 @@
     }
   }
 
-  // 2 → 1. Drops to one column early: these sit inside a third of the pools grid, so two
-  // columns of artwork-plus-name stop fitting well before the mobile breakpoint.
-  &--pool-card {
-    grid-template-columns: repeat(2, 1fr);
-
-    @media (max-width: $breakpoint-tablet-plus) {
-      grid-template-columns: 1fr;
-    }
-  }
-
-  // 4 → 3 → 2
+  // 5 → 4 → 3 → 2
   &--pool-table {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, 1fr);
 
-    @media (max-width: $breakpoint-tablet-plus) {
+    @media (max-width: $pool-table-5-col) {
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    @media (max-width: $pool-table-4-col) {
       grid-template-columns: repeat(3, 1fr);
     }
 
-    @media (max-width: $breakpoint-tablet) {
+    @media (max-width: $pool-table-3-col) {
       grid-template-columns: repeat(2, 1fr);
     }
   }
@@ -83,19 +83,11 @@
     @include alternating-rows-range(3, $above: $breakpoint-mobile);
   }
 
-  .artwork-link-list--pool-card & {
-    @include alternating-rows-range(1, $through: $breakpoint-tablet-plus);
-    @include alternating-rows-range(2, $above: $breakpoint-tablet-plus);
-  }
-
   .artwork-link-list--pool-table & {
-    @include alternating-rows-range(2, $through: $breakpoint-tablet);
-    @include alternating-rows-range(
-      3,
-      $above: $breakpoint-tablet,
-      $through: $breakpoint-tablet-plus
-    );
-    @include alternating-rows-range(4, $above: $breakpoint-tablet-plus);
+    @include alternating-rows-range(2, $through: $pool-table-3-col);
+    @include alternating-rows-range(3, $above: $pool-table-3-col, $through: $pool-table-4-col);
+    @include alternating-rows-range(4, $above: $pool-table-4-col, $through: $pool-table-5-col);
+    @include alternating-rows-range(5, $above: $pool-table-5-col);
   }
 
   // Wins over every count's shading above, so a striping container keeps its own rows.

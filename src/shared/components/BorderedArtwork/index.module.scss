@@ -47,7 +47,9 @@ $artwork-glow-opacity-hover: 85%;
     border-color: rgba(255, 255, 255, 0.15);
   }
 
-  :global(.hoverable):not(:global(.struck)):hover & {
+  // `:not(.hoverable-shallow)` keeps a container that merely wraps hoverable rows from lighting up
+  // every artwork inside it at once — see `HOVER_TRIGGER_SHALLOW`.
+  :global(.hoverable):not(:global(.hoverable-shallow)):not(:global(.struck)):hover & {
     animation: tinyPop 0.4s ease-out;
     box-shadow: 0 0 $artwork-glow-blur-hover $artwork-glow-spread-hover
       color-mix(in srgb, var(--artwork-color) $artwork-glow-opacity-hover, transparent);
