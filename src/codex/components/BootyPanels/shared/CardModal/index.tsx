@@ -185,7 +185,7 @@ function CardModal({
                   <span className={cx('card-modal__hint__highlighted')}>always</span> offer this{' '}
                   {cardNoun}.
                 </div>
-                <RelatedCardList relatedCards={guaranteedCards} />
+                <RelatedCardList relatedCards={guaranteedCards} showSourceType />
               </>
             )}
 

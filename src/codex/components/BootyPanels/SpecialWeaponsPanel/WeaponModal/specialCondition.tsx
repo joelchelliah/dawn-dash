@@ -101,11 +101,9 @@ export const SPECIAL_CONDITIONS: Record<string, SpecialCondition | undefined> = 
     cardWidthMobile: 9,
     description: (
       <>
-        <span className={cxCardModal('card-modal__hint__highlighted')}>Battlepears</span> are always
-        added to your deck as <strong>Untempered</strong> copies, from several different cards.
-        <br />
-        <br />
-        They are intended to be temporary.
+        There are several cards that add <strong>Untempered</strong>{' '}
+        <span className={cxCardModal('card-modal__hint__highlighted')}>Battlepears</span> to your
+        deck.
         <br />
         <br />
         The only way to obtain a permanent copy is to make it <strong>Cursed</strong> during battle,
@@ -163,9 +161,6 @@ export const SPECIAL_CONDITIONS: Record<string, SpecialCondition | undefined> = 
         <span className={cxCardModal('card-modal__hint__highlighted')}>Celestial Claws</span>.
         <br />
         <br />
-        They are intended to be temporary.
-        <br />
-        <br />
         <span className={cxCardModal('card-modal__hint__highlighted')}>Moonclaws</span> always
         transform based on your current form.
       </>
@@ -183,15 +178,11 @@ export const SPECIAL_CONDITIONS: Record<string, SpecialCondition | undefined> = 
         <span className={cxCardModal('card-modal__hint__highlighted')}>Demon Claws</span>.
         <br />
         <br />
-        They are intended to be temporary.
-        <br />
-        <br />
         <span className={cxCardModal('card-modal__hint__highlighted')}>Moonclaws</span> always
         transform based on your current form.
       </>
     ),
   },
-
   Drakkan: {
     events: ['Marrow Halls'],
     cards: ['Steel Longsword'],
@@ -211,6 +202,106 @@ export const SPECIAL_CONDITIONS: Record<string, SpecialCondition | undefined> = 
         <br />
         <br />
         Must be <strong>corrupted</strong>.
+      </>
+    ),
+  },
+  Halifax: {
+    cards: ['Rusty Spear'],
+    cardWidth: 9,
+    cardWidthMobile: 7.5,
+    description: (
+      <>
+        Gain a total of <strong>150 Blessings</strong> while having a{' '}
+        <span className={cxCardModal('card-modal__hint__highlighted')}>Rusty Spear</span> in hand.
+      </>
+    ),
+  },
+  Helios: {
+    cards: ['Suntree Twig'],
+    cardWidth: 9.5,
+    cardWidthMobile: 8,
+    description: (
+      <>
+        <strong>Bury</strong> the{' '}
+        <span className={cxCardModal('card-modal__hint__highlighted')}>Suntree Twig</span>, on your
+        turn, during any combat.
+        <br />
+        <br />
+        Burying it during the enemy&apos;s turn does nothing.
+      </>
+    ),
+  },
+  Majatome: {
+    cards: ['Dull Axe'],
+    cardWidth: 7.5,
+    cardWidthMobile: 6.5,
+    description: (
+      <>
+        Trigger the <span className={cxCardModal('card-modal__hint__highlighted')}>Dull Axe</span>
+        &apos;s <strong>Rebound</strong> by playing it total of <strong>40</strong> times during
+        combat.
+      </>
+    ),
+  },
+  Monolith: {
+    cards: ['Stone Legends'],
+    cardWidth: 10.5,
+    cardWidthMobile: 8.5,
+    description: (
+      <>
+        Playing <span className={cxCardModal('card-modal__hint__highlighted')}>Stone Legends</span>{' '}
+        adds an <strong>Untempered</strong>{' '}
+        <span className={cxCardModal('card-modal__hint__highlighted')}>Monolith</span> to your deck.
+        <br />
+        <br />
+        The only way to obtain a permanent copy is to make it <strong>Cursed</strong> during battle,
+        which will remove the <strong>Untempered</strong> keyword.
+      </>
+    ),
+  },
+  Oathbreaker: {
+    events: ['Eastern Blightwoods Finish'],
+    cards: ['Daggers'],
+    cardWidth: 14.5,
+    cardWidthMobile: 8.5,
+    description: (
+      <>
+        Have a <span className={cxCardModal('card-modal__hint__highlighted')}>Daggers</span> in your
+        deck when fighting the <strong>Eastern Blightwoods</strong> Bandit leader.
+        <br />
+        <br />
+        Then, recruit the bandits to <strong> work for you</strong> in the{' '}
+        <span className={cxCardModal('card-modal__hint__highlighted')}>
+          Eastern Blightwoods Finish
+        </span>{' '}
+        event.
+      </>
+    ),
+  },
+  Rainbow: {
+    cards: ['Plain Bow'],
+    cardWidth: 8,
+    cardWidthMobile: 7,
+    description: (
+      <>
+        Play a <span className={cxCardModal('card-modal__hint__highlighted')}>Plain Bow</span> while
+        having <EnergyPip classType={CharacterClass.Rogue} />{' '}
+        <EnergyPip classType={CharacterClass.Arcanist} />{' '}
+        <EnergyPip classType={CharacterClass.Warrior} />{' '}
+        <EnergyPip classType={CharacterClass.Sunforge} /> left over.
+      </>
+    ),
+  },
+  Rhymebind: {
+    cards: ['Broken Hilt'],
+    cardWidth: 9,
+    cardWidthMobile: 7.5,
+    description: (
+      <>
+        Play and deal damage with{' '}
+        <span className={cxCardModal('card-modal__hint__highlighted')}>Broken Hilt</span>, after
+        having inflicted a total of <strong>100 Frozen</strong> while having{' '}
+        <span className={cxCardModal('card-modal__hint__highlighted')}>Broken Hilt</span> in hand.
       </>
     ),
   },

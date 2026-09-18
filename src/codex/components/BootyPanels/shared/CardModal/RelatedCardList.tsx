@@ -10,9 +10,14 @@ const getBlightbaneUrl = ({ name, isTalent }: RelatedCard) =>
 interface RelatedCardListProps {
   relatedCards: RelatedCard[]
   showPools?: boolean
+  showSourceType?: boolean
 }
 
-function RelatedCardList({ relatedCards, showPools }: RelatedCardListProps): JSX.Element | null {
+function RelatedCardList({
+  relatedCards,
+  showPools,
+  showSourceType,
+}: RelatedCardListProps): JSX.Element | null {
   if (relatedCards.length === 0) return null
 
   return (
@@ -22,6 +27,7 @@ function RelatedCardList({ relatedCards, showPools }: RelatedCardListProps): JSX
           key={`${relatedCard.name}-${relatedCard.isTalent}`}
           relatedCard={relatedCard}
           showPools={showPools}
+          showSourceType={showSourceType}
         />
       ))}
     </ArtworkLinkList>
@@ -31,15 +37,22 @@ function RelatedCardList({ relatedCards, showPools }: RelatedCardListProps): JSX
 interface RelatedCardItemProps {
   relatedCard: RelatedCard
   showPools?: boolean
+  showSourceType?: boolean
 }
 
-function RelatedCardItem({ relatedCard, showPools }: RelatedCardItemProps): JSX.Element {
+function RelatedCardItem({
+  relatedCard,
+  showPools,
+  showSourceType,
+}: RelatedCardItemProps): JSX.Element {
   const { name, isTalent, category, pools } = relatedCard
   const { cardImageSrc, onImageSrcError } = useCardImageSrc(
     name,
     null,
     isTalent ? TALENT_ARTWORK_CATEGORY : category
   )
+
+  const subtitles = showPools ? pools : showSourceType ? [isTalent ? 'talent' : 'card'] : undefined
 
   return (
     <ArtworkLinkItem
@@ -48,7 +61,7 @@ function RelatedCardItem({ relatedCard, showPools }: RelatedCardItemProps): JSX.
       isExternal
       src={cardImageSrc}
       onImageSrcError={onImageSrcError}
-      subtitles={showPools ? pools : undefined}
+      subtitles={subtitles}
     />
   )
 }
