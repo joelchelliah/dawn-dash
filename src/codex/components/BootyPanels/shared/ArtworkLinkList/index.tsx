@@ -19,6 +19,8 @@ export type ArtworkLinkLayout =
   | 'modal'
   // 5 → 4 → 3 → 2 columns, the full-width pool rows: treasure pools and the other-pools table
   | 'pool-table'
+  // A single stacked column, for the weapons' special-condition cards sitting beside their description
+  | 'stacked'
 
 interface ArtworkLinkListProps {
   layout?: ArtworkLinkLayout

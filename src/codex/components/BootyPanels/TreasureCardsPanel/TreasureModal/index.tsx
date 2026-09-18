@@ -1,13 +1,13 @@
 import { RARITIES } from '@/shared/components/RarityBorderedArtwork'
 import { CharacterClass } from '@/shared/types/characterClass'
 import { createCx } from '@/shared/utils/classnames'
-import ClassEnergy from '@/shared/components/ClassEnergy'
 
 import { CardData } from '@/codex/types/cards'
 import { EnrichedTreasureCard, TreasureCard } from '@/codex/types/treasures'
 import { getRelatedEvents, getRelatedTreasurePoolCards } from '@/codex/utils/treasureHelper'
 
 import CardModal, { getCardSubtitle } from '../../shared/CardModal'
+import EnergyPip from '../../shared/EnergyPip'
 import { TREASURE_ARTWORK } from '../../shared/cardArtwork'
 import { Acquisition } from '../../shared/CardModal/AcquisitionFlag'
 import styles from '../../shared/CardModal/index.module.scss'
@@ -97,14 +97,6 @@ const ADDITIONAL_NOTES: Record<string, JSX.Element> = {
       {ADD_CARD_BY_KEYWORD_EXCEPTIONS}
     </>
   ),
-}
-
-function EnergyPip({ classType }: { classType: CharacterClass }): JSX.Element {
-  return (
-    <span className={cx('card-modal__hint__energy')}>
-      <ClassEnergy classType={classType} />
-    </span>
-  )
 }
 
 export default TreasureModal

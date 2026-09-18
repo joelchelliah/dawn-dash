@@ -19,6 +19,10 @@ $pool-table-3-col: $breakpoint-tablet - 6rem;
     }
   }
 
+  &--stacked {
+    grid-template-columns: 1fr;
+  }
+
   // 5 → 4 → 3 → 2
   &--pool-table {
     grid-template-columns: repeat(5, 1fr);
@@ -81,6 +85,10 @@ $pool-table-3-col: $breakpoint-tablet - 6rem;
   .artwork-link-list--modal & {
     @include alternating-rows-range(2, $through: $breakpoint-mobile);
     @include alternating-rows-range(3, $above: $breakpoint-mobile);
+  }
+
+  .artwork-link-list--stacked & {
+    @include alternating-rows-range(1);
   }
 
   .artwork-link-list--pool-table & {

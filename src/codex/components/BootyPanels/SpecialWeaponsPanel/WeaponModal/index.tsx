@@ -11,7 +11,7 @@ import { WEAPON_ARTWORK } from '../../shared/cardArtwork'
 import { Acquisition } from '../../shared/CardModal/AcquisitionFlag'
 import styles from '../../shared/CardModal/index.module.scss'
 
-import { getSpecialCondition } from './specialConditions'
+import SpecialCondition, { SPECIAL_CONDITIONS } from './specialCondition'
 
 const cx = createCx(styles)
 
@@ -39,7 +39,7 @@ interface WeaponModalProps {
 
 function WeaponModal({ weapon, cardDetails, cardData, onClose }: WeaponModalProps): JSX.Element {
   const rarity = RARITIES[cardDetails.rarity]
-  const specialCondition = getSpecialCondition(weapon.name)
+  const specialCondition = SPECIAL_CONDITIONS[weapon.name]
 
   const specialConditionSection = specialCondition && (
     <Section
@@ -47,7 +47,9 @@ function WeaponModal({ weapon, cardDetails, cardData, onClose }: WeaponModalProp
       dividerColor={rarity ? RARITY_COLOR : undefined}
       spacing="medium"
     >
-      <div className={cx('card-modal__hint')}>{specialCondition}</div>
+      <div className={cx('card-modal__hint')}>
+        <SpecialCondition condition={specialCondition} cardData={cardData} />
+      </div>
     </Section>
   )
 
