@@ -73,12 +73,15 @@ function CardModal({
   const cardSetName = getCardSetName(cardDetails.expansion)
   const dividerColor = rarity ? RARITY_COLOR : undefined
 
-  const { guaranteed, fromPools, total: eventCount } = relatedEvents
+  const { guaranteed: guaranteedEvents, fromPools: pooledEvents, total: eventCount } = relatedEvents
   const { guaranteed: guaranteedCards, fromPools: pooledCards, total: cardCount } = relatedCards
 
   const rarityClassName = cx('card-modal-border', {
     [`card-modal-border--${rarity?.slug}`]: Boolean(rarity),
   })
+
+  const showCardSetRequirement =
+    cardSetName !== 'Core' && (pooledEvents.length > 0 || pooledCards.length > 0)
 
   return (
     <InfoModal
@@ -131,12 +134,6 @@ function CardModal({
         </div>
 
         <Section title="Can be acquired from..." spacing="medium" dividerColor={dividerColor}>
-          {cardSetName !== 'Core' && (
-            <div className={cx('card-modal__hint')}>
-              The <span className={cx('card-modal__hint__highlighted')}>{cardSetName}</span> card
-              set must be enabled.
-            </div>
-          )}
           <div className={cx('card-modal__availability')}>
             {acquisitions.map(({ label, value }) => (
               <AcquisitionFlag key={label} label={label} value={value} />
@@ -148,28 +145,28 @@ function CardModal({
 
         {eventCount > 0 && (
           <Section title={`Events (${eventCount})`} dividerColor={dividerColor} spacing="medium">
-            {guaranteed.length > 0 && (
+            {guaranteedEvents.length > 0 && (
               <>
                 <div className={cx('card-modal__hint')}>
                   Events that <span className={cx('card-modal__hint__highlighted')}>always</span>{' '}
                   offer this {cardNoun}.
                 </div>
-                <RelatedEventList events={guaranteed} />
+                <RelatedEventList events={guaranteedEvents} />
               </>
             )}
 
-            {fromPools.length > 0 && (
+            {pooledEvents.length > 0 && (
               <>
                 <div
                   className={cx('card-modal__hint', {
-                    'card-modal__hint--stacked': guaranteed.length > 0,
+                    'card-modal__hint--stacked': guaranteedEvents.length > 0,
                   })}
                 >
                   Events that draw from a{' '}
                   <span className={cx('card-modal__hint__highlighted')}>pool</span> of cards,
                   containing this {cardNoun}.
                 </div>
-                <RelatedEventList events={fromPools} showPools />
+                <RelatedEventList events={pooledEvents} showPools />
               </>
             )}
           </Section>
@@ -209,9 +206,23 @@ function CardModal({
           </Section>
         )}
 
-        {additionalNotes && (
+        {(showCardSetRequirement || additionalNotes) && (
           <Section title="Additional notes" dividerColor={dividerColor} spacing="medium">
-            <div className={cx('card-modal__hint')}>{additionalNotes}</div>
+            {showCardSetRequirement && (
+              <div className={cx('card-modal__hint')}>
+                The <span className={cx('card-modal__hint__highlighted')}>{cardSetName}</span> card
+                set must be enabled for this to be available in <strong>card pools</strong>.
+              </div>
+            )}
+            {additionalNotes && (
+              <div
+                className={cx('card-modal__hint', {
+                  'card-modal__hint--stacked': showCardSetRequirement,
+                })}
+              >
+                {additionalNotes}
+              </div>
+            )}
           </Section>
         )}
       </div>

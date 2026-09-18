@@ -45,7 +45,11 @@ export const POOL_NOTES: Record<PoolId, PoolNotes> = {
     ),
   },
   'pirate-parlour': {
-    above: <>You don&apos;t really get to keep any of the cards from here.</>,
+    above: (
+      <>
+        Apart from the <strong>Pirate Inks</strong>, all rewards from this pool are temporary.
+      </>
+    ),
     below: (
       <>
         Cards delved via <strong>Pirate Parlour</strong> are played immediately. No cards are

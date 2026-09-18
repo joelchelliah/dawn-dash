@@ -1,7 +1,6 @@
 import { RARITIES } from '@/shared/components/RarityBorderedArtwork'
 import { CharacterClass } from '@/shared/types/characterClass'
 import { createCx } from '@/shared/utils/classnames'
-import GradientLink from '@/shared/components/GradientLink'
 import ClassEnergy from '@/shared/components/ClassEnergy'
 
 import { CardData } from '@/codex/types/cards'
@@ -55,36 +54,47 @@ function TreasureModal({ treasure, cardData, onClose }: TreasureModalProps): JSX
   )
 }
 
+const ADD_CARD_BY_KEYWORD_EXCEPTIONS = (
+  <ul>
+    <li>Undisturbed Grave</li>
+    <li>Broken Tombstone</li>
+    <li>Painted Landscape</li>
+  </ul>
+)
+
 const ADDITIONAL_NOTES: Record<string, JSX.Element> = {
   'Dark Mirror Vial': (
     <>
       Cannot be traded into via{' '}
-      <GradientLink url="https://www.blightbane.io/card/Tradepost" text="Tradepost" />, but any
-      other form of trade or transmute will work.
+      <span className={cx('card-modal__hint__highlighted')}>Tradepost</span>, but any other form of
+      trade or transmute will work.
       <br />
       <br />
-      The <strong>Undisturbed Grave</strong> and <strong>Broken Tombstone</strong> events will only
-      have a chance to offer this card if you also have the <strong>Infinitum</strong> card set
-      enabled.
+      Events that only include this treasure in their <strong>card pool</strong> while{' '}
+      <span className={cx('card-modal__hint__highlighted')}>Eclypse</span> is enabled:
+      {ADD_CARD_BY_KEYWORD_EXCEPTIONS}
     </>
   ),
   'Flying Carpet': (
     <>
-      The <strong>Undisturbed Grave</strong> and <strong>Broken Tombstone</strong> events will only
-      have a chance to offer this card if you have either the <strong>Eclypse</strong> or{' '}
-      <strong>Infinitum</strong> card set enabled.
+      Events that only include this treasure in their <strong>card pool</strong> while{' '}
+      <span className={cx('card-modal__hint__highlighted')}>Infinitum</span> or{' '}
+      <span className={cx('card-modal__hint__highlighted')}>Eclypse</span> is enabled:
+      {ADD_CARD_BY_KEYWORD_EXCEPTIONS}
     </>
   ),
   'Rusty Lamp': (
     <>
-      Only available if you have <EnergyPip classType={CharacterClass.Arcanist} /> or{' '}
+      Only available in <strong>card pools</strong> if you have{' '}
+      <EnergyPip classType={CharacterClass.Arcanist} /> or{' '}
       <EnergyPip classType={CharacterClass.Rogue} /> attributes.
     </>
   ),
   Tradepost: (
     <>
-      The <strong>Undisturbed Grave</strong> and <strong>Broken Tombstone</strong> events explicitly
-      exclude this card.
+      Events that exclude this treasure from their <strong>card pool</strong> while{' '}
+      <span className={cx('card-modal__hint__highlighted')}>Infinitum</span> is enabled:
+      {ADD_CARD_BY_KEYWORD_EXCEPTIONS}
     </>
   ),
 }
