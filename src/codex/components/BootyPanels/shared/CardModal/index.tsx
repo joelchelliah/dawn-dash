@@ -183,7 +183,7 @@ function CardModal({
                 <div className={cx('card-modal__hint')}>
                   Cards and talents that{' '}
                   <span className={cx('card-modal__hint__highlighted')}>always</span> offer this{' '}
-                  {cardNoun}, if you meet their conditions.
+                  {cardNoun}.
                 </div>
                 <RelatedCardList relatedCards={guaranteedCards} />
               </>

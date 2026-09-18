@@ -74,14 +74,7 @@
         "pools": ["Legendary weapon pool"]
       }
     ],
-    "fromTalents": [
-      {
-        "sourceType": "talent",
-        "name": "Doing My Part",
-        "guaranteed": true,
-        "pools": []
-      }
-    ]
+    "fromTalents": []
   },
   {
     "id": 58040,
@@ -98,14 +91,7 @@
         "pools": ["Legendary weapon pool"]
       }
     ],
-    "fromTalents": [
-      {
-        "sourceType": "talent",
-        "name": "Doing My Part",
-        "guaranteed": true,
-        "pools": []
-      }
-    ]
+    "fromTalents": []
   },
   {
     "id": 720436,
