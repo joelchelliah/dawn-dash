@@ -2,6 +2,7 @@ import { TALENT_ARTWORK_CATEGORY, useCardImageSrc } from '@/shared/hooks/useCard
 import { createCx } from '@/shared/utils/classnames'
 import { CharacterClass } from '@/shared/types/characterClass'
 import { EmpoweredHydraImageUrl } from '@/shared/utils/imageUrls'
+import { capitalize } from '@/shared/utils/textHelper'
 
 import { useEventImageSrc } from '@/codex/hooks/useEventImageSrc'
 import { normalizeEventNameForUrl } from '@/codex/hooks/useEventUrlParam'
@@ -468,7 +469,7 @@ function SpecialConditionCustom({ source }: { source: CustomConditionSource }): 
       href={link}
       isExternal
       src={imageUrl}
-      subtitles={[type]}
+      subtitles={[capitalize(type)]}
       artworkSize={ARTWORK_SIZE}
       artworkSizeMobile={ARTWORK_SIZE_MOBILE}
     />

@@ -1,4 +1,5 @@
 import { TALENT_ARTWORK_CATEGORY, useCardImageSrc } from '@/shared/hooks/useCardImageSrc'
+import { capitalize } from '@/shared/utils/textHelper'
 
 import { RelatedCard } from '@/codex/types/treasures'
 
@@ -61,7 +62,7 @@ function RelatedCardItem({
       isExternal
       src={cardImageSrc}
       onImageSrcError={onImageSrcError}
-      subtitles={subtitles}
+      subtitles={subtitles?.map(capitalize) ?? []}
     />
   )
 }

@@ -1,3 +1,5 @@
+import { capitalize } from '@/shared/utils/textHelper'
+
 import { useEventImageSrc } from '@/codex/hooks/useEventImageSrc'
 import { normalizeEventNameForUrl } from '@/codex/hooks/useEventUrlParam'
 import { EnrichedEvent } from '@/codex/types/treasures'
@@ -41,7 +43,7 @@ function RelatedEventItem({ enrichedEvent, showPools }: RelatedEventItemProps): 
       isExternal={false}
       src={eventImageSrc}
       onImageSrcError={onImageSrcError}
-      subtitles={showPools ? pools : undefined}
+      subtitles={showPools ? pools.map(capitalize) : undefined}
     />
   )
 }

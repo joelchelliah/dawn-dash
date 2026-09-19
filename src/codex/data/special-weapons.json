@@ -261,6 +261,12 @@
         "name": "Phylactery Visor",
         "guaranteed": true,
         "pools": []
+      },
+      {
+        "sourceType": "card",
+        "name": "Warp Steel",
+        "guaranteed": true,
+        "pools": []
       }
     ],
     "fromTalents": [

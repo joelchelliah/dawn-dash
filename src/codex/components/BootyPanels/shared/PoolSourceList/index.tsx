@@ -1,4 +1,5 @@
 import { TALENT_ARTWORK_CATEGORY, useCardImageSrc } from '@/shared/hooks/useCardImageSrc'
+import { capitalize } from '@/shared/utils/textHelper'
 
 import { useEventImageSrc } from '@/codex/hooks/useEventImageSrc'
 import { normalizeEventNameForUrl } from '@/codex/hooks/useEventUrlParam'
@@ -56,7 +57,7 @@ function PoolEventItem({ name }: { name: string }): JSX.Element {
       isExternal={false}
       src={eventImageSrc}
       onImageSrcError={onImageSrcError}
-      subtitles={['event']}
+      subtitles={['Event']}
       artworkSize={ARTWORK_SIZE}
       artworkSizeMobile={ARTWORK_SIZE_MOBILE}
     />
@@ -83,7 +84,7 @@ function PoolCardItem({
       isExternal
       src={cardImageSrc}
       onImageSrcError={onImageSrcError}
-      subtitles={[sourceType]}
+      subtitles={[capitalize(sourceType)]}
       artworkSize={ARTWORK_SIZE}
       artworkSizeMobile={ARTWORK_SIZE_MOBILE}
     />
