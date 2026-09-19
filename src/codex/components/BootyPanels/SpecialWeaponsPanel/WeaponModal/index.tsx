@@ -21,12 +21,10 @@ const getAcquisitions = (weapon: SpecialWeapon, hasSpecialCondition: boolean): A
   const { fromCards, fromTalents, fromEvents } = weapon
 
   return [
-    { label: 'Combat rewards', value: false },
-    { label: 'Merchant (Julius)', value: false },
-    { label: 'Special condition', value: hasSpecialCondition },
-    { label: 'Trade / Transmute', value: false },
+    { label: 'Special', value: hasSpecialCondition },
     { label: 'Events', value: fromEvents.length > 0 },
-    { label: 'Cards / Talents', value: fromCards.length + fromTalents.length > 0 },
+    { label: 'Cards', value: fromCards.length > 0 },
+    { label: 'Talents', value: fromTalents.length > 0 },
   ]
 }
 
@@ -61,6 +59,7 @@ function WeaponModal({ weapon, cardDetails, cardData, onClose }: WeaponModalProp
       artwork={WEAPON_ARTWORK}
       cardNoun="weapon"
       acquisitions={getAcquisitions(weapon, Boolean(specialCondition))}
+      acquisitionColumns={4}
       relatedEvents={getRelatedEvents(weapon)}
       relatedCards={getRelatedTreasurePoolCards(weapon, cardData)}
       sectionAfterAcquisitions={specialConditionSection}

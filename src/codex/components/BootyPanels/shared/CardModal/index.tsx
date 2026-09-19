@@ -46,6 +46,8 @@ export interface CardModalProps {
   // The same dimensions the card's list rows use, so the two never drift
   artwork: CardListArtwork
   acquisitions: Acquisition[]
+  // Desktop columns for the acquisition flags; mobile always falls back to two
+  acquisitionColumns?: 3 | 4
   relatedEvents: RelatedEvents
   relatedCards: RelatedCards
   // What the Events / Cards hints call this card, e.g. "treasure" or "weapon"
@@ -62,6 +64,7 @@ function CardModal({
   cardDetails,
   artwork,
   acquisitions,
+  acquisitionColumns = 3,
   relatedEvents,
   relatedCards,
   cardNoun,
@@ -134,7 +137,11 @@ function CardModal({
         </div>
 
         <Section title="Can be acquired from..." spacing="medium" dividerColor={dividerColor}>
-          <div className={cx('card-modal__availability')}>
+          <div
+            className={cx('card-modal__availability', {
+              'card-modal__availability--four-columns': acquisitionColumns === 4,
+            })}
+          >
             {acquisitions.map(({ label, value }) => (
               <AcquisitionFlag key={label} label={label} value={value} />
             ))}

@@ -168,5 +168,14 @@ $rarity-colors: (
     @media (max-width: $breakpoint-mobile) {
       grid-template-columns: repeat(2, 1fr);
     }
+
+    &--four-columns {
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.5rem;
+
+      @media (max-width: $breakpoint-mobile) {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
   }
 }
