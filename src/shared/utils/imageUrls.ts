@@ -60,6 +60,7 @@ export const HealthImageUrl = `${blightbaneImagesUrl}/health.webp`
 export const BloodImageUrl = `${blightbaneImagesUrl}/blood.webp`
 export const BolgarImageUrl = `${blightbaneImagesUrl}/bolgar.png`
 export const ChestImageUrl = `${blightbaneImagesUrl}/events/opportunity_image.webp`
+export const EmpoweredHydraImageUrl = `${blightbaneImagesUrl}/monsters/SoS_icon_hydra.webp`
 
 export const EventArtworkImageUrl = (artwork: string) =>
   `${blightbaneImagesUrl}/events/${encodeURIComponent(artwork)}.webp`

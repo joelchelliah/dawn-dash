@@ -1,6 +1,7 @@
 import { TALENT_ARTWORK_CATEGORY, useCardImageSrc } from '@/shared/hooks/useCardImageSrc'
 import { createCx } from '@/shared/utils/classnames'
 import { CharacterClass } from '@/shared/types/characterClass'
+import { EmpoweredHydraImageUrl } from '@/shared/utils/imageUrls'
 
 import { useEventImageSrc } from '@/codex/hooks/useEventImageSrc'
 import { normalizeEventNameForUrl } from '@/codex/hooks/useEventUrlParam'
@@ -24,10 +25,17 @@ const EVENT_ARTWORK_BY_NAME = new Map(
 const getBlightbaneUrl = (name: string, isTalent: boolean) =>
   `https://www.blightbane.io/${isTalent ? 'talent' : 'card'}/${name.replaceAll(' ', '_')}`
 
+interface CustomConditionSource {
+  name: string
+  type: string
+  link: string
+  imageUrl: string
+}
 interface SpecialCondition {
-  cards: string[]
+  cards?: string[]
   talents?: string[]
   events?: string[]
+  custom?: CustomConditionSource
   description: JSX.Element
   // Width of the cards column, in rem. Set per entry because the column is sized to hold the
   // longest card name without truncating, and that differs a lot between conditions.
@@ -213,6 +221,11 @@ export const SPECIAL_CONDITIONS: Record<string, SpecialCondition | undefined> = 
       <>
         Gain a total of <strong>150 Blessings</strong> while having a{' '}
         <span className={cxCardModal('card-modal__hint__highlighted')}>Rusty Spear</span> in hand.
+        <br />
+        <br />
+        <span className={cxCardModal('card-modal__hint__highlighted')}>
+          Rusty Spear
+        </span>&apos;s <strong>Blessings</strong> count persists across multiple combats.
       </>
     ),
   },
@@ -224,7 +237,7 @@ export const SPECIAL_CONDITIONS: Record<string, SpecialCondition | undefined> = 
       <>
         <strong>Bury</strong> the{' '}
         <span className={cxCardModal('card-modal__hint__highlighted')}>Suntree Twig</span>, on your
-        turn, during any combat.
+        turn, during combat.
         <br />
         <br />
         Burying it during the enemy&apos;s turn does nothing.
@@ -238,8 +251,7 @@ export const SPECIAL_CONDITIONS: Record<string, SpecialCondition | undefined> = 
     description: (
       <>
         Trigger the <span className={cxCardModal('card-modal__hint__highlighted')}>Dull Axe</span>
-        &apos;s <strong>Rebound</strong> by playing it total of <strong>40</strong> times during
-        combat.
+        &apos;s <strong>Rebound</strong> by playing it <strong>40</strong> times during combat.
       </>
     ),
   },
@@ -270,7 +282,7 @@ export const SPECIAL_CONDITIONS: Record<string, SpecialCondition | undefined> = 
         deck when fighting the <strong>Eastern Blightwoods</strong> Bandit leader.
         <br />
         <br />
-        Then, recruit the bandits to <strong> work for you</strong> in the{' '}
+        Recruit the bandits to <strong> work for you</strong> in the{' '}
         <span className={cxCardModal('card-modal__hint__highlighted')}>
           Eastern Blightwoods Finish
         </span>{' '}
@@ -298,10 +310,64 @@ export const SPECIAL_CONDITIONS: Record<string, SpecialCondition | undefined> = 
     cardWidthMobile: 7.5,
     description: (
       <>
-        Play and deal damage with{' '}
+        Deal damage with{' '}
         <span className={cxCardModal('card-modal__hint__highlighted')}>Broken Hilt</span>, after
         having inflicted a total of <strong>100 Frozen</strong> while having{' '}
         <span className={cxCardModal('card-modal__hint__highlighted')}>Broken Hilt</span> in hand.
+        <br />
+        <br />
+        <span className={cxCardModal('card-modal__hint__highlighted')}>
+          Broken Hilt
+        </span>&apos;s <strong>Frozen</strong> count persists across multiple combats.
+      </>
+    ),
+  },
+  Rovik: {
+    cards: ['Dull Maul'],
+    cardWidth: 7.75,
+    cardWidthMobile: 6.5,
+    description: (
+      <>
+        Play <span className={cxCardModal('card-modal__hint__highlighted')}>Dull Maul</span> while
+        having scars, until you reach an accumulated count of <strong>20 Scars</strong>
+        .
+        <br />
+        <br />
+        <span className={cxCardModal('card-modal__hint__highlighted')}>Dull Maul</span>&apos;s{' '}
+        <strong>Scars</strong> count persists across multiple combats.
+      </>
+    ),
+  },
+  'Suntree Twig': {
+    custom: {
+      name: 'Empowered Hydra',
+      type: 'Monster',
+      link: 'https://blightbane.io/monster/Empowered_Hydra',
+      imageUrl: EmpoweredHydraImageUrl,
+    },
+    cardWidth: 11.5,
+    cardWidthMobile: 9,
+    description: (
+      <>
+        Defeat the{' '}
+        <span className={cxCardModal('card-modal__hint__highlighted')}>Empowered Hydra</span> in the{' '}
+        <strong>Emberwyld Heights</strong> canto.
+        <br />
+        <br />
+        The <span className={cxCardModal('card-modal__hint__highlighted')}>Suntree Twig</span>{' '}
+        appears as a <strong>card reward</strong> after combat.
+      </>
+    ),
+  },
+  Trancor: {
+    cards: ['Dull Hammer'],
+    cardWidth: 9.5,
+    cardWidthMobile: 8,
+    description: (
+      <>
+        Trigger the{' '}
+        <span className={cxCardModal('card-modal__hint__highlighted')}>Dull Hammer</span>
+        &apos;s <strong>Rebound</strong> by playing it <strong>30</strong> times during combat.
       </>
     ),
   },
@@ -326,13 +392,14 @@ function SpecialCondition({ condition, cardData }: SpecialConditionProps): JSX.E
     <div className={cx('special-condition')} style={widths}>
       <div className={cx('special-condition__cards')}>
         <ArtworkLinkList layout="stacked">
+          {condition.custom && <SpecialConditionCustom source={condition.custom} />}
           {condition.events?.map((name) => (
             <SpecialConditionEvent key={name} name={name} />
           ))}
           {condition.talents?.map((name) => (
             <SpecialConditionCard key={name} name={name} isTalent />
           ))}
-          {condition.cards.map((name) => (
+          {condition.cards?.map((name) => (
             <SpecialConditionCard key={name} name={name} category={categoriesByName.get(name)} />
           ))}
         </ArtworkLinkList>
@@ -368,7 +435,7 @@ function SpecialConditionCard({
       isExternal
       src={cardImageSrc}
       onImageSrcError={onImageSrcError}
-      subtitles={[isTalent ? 'talent' : 'card']}
+      subtitles={[isTalent ? 'Talent' : 'Card']}
       artworkSize={ARTWORK_SIZE}
       artworkSizeMobile={ARTWORK_SIZE_MOBILE}
     />
@@ -385,7 +452,23 @@ function SpecialConditionEvent({ name }: { name: string }): JSX.Element {
       isExternal={false}
       src={eventImageSrc}
       onImageSrcError={onImageSrcError}
-      subtitles={['event']}
+      subtitles={['Event']}
+      artworkSize={ARTWORK_SIZE}
+      artworkSizeMobile={ARTWORK_SIZE_MOBILE}
+    />
+  )
+}
+
+function SpecialConditionCustom({ source }: { source: CustomConditionSource }): JSX.Element {
+  const { name, type, link, imageUrl } = source
+
+  return (
+    <ArtworkLinkItem
+      name={name}
+      href={link}
+      isExternal
+      src={imageUrl}
+      subtitles={[type]}
       artworkSize={ARTWORK_SIZE}
       artworkSizeMobile={ARTWORK_SIZE_MOBILE}
     />
