@@ -6,7 +6,6 @@ export interface SpecialWeapon {
   name: string
   category: string
   type: string
-  isTreasure: boolean
   fromEvents: TreasureSource[]
   fromCards: TreasureSource[]
   fromTalents: TreasureSource[]

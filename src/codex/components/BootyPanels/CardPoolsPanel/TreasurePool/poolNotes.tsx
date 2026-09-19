@@ -1,7 +1,7 @@
 import { PoolId, TREASURE_POOL_DISPLAYS } from '@/codex/constants/treasurePools'
 import { getTreasureShareOfPool } from '@/codex/utils/treasureHelper'
 
-interface PoolNotes {
+export interface PoolNotes {
   above?: JSX.Element
   below?: JSX.Element
 }

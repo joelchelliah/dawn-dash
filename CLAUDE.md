@@ -102,7 +102,7 @@ Each feature directory has its own `CLAUDE.md` with architecture details and inv
 2. **Cardex** (`/cardex`, `src/codex/`) — multi-keyword card search and advanced filtering, plus card tracking for weekly challenges; card data fetched live from the Blightbane API
 3. **Skilldex** (`/skilldex`, `src/codex/`) — interactive talent-tree visualizer (D3 hierarchy) with prerequisite tracking and requirement filters; talent data from Supabase
 4. **Eventmaps** (`/eventmaps`, `src/codex/`) — fully mapped event trees (branches, requirements, rewards) rendered from static `src/codex/data/event-trees.json`
-5. **Booty** (`/booty`, `src/codex/`) — a breakdown of every treasure card and the ways of acquiring it, rendered from static `src/codex/data/treasure-cards.json` / `treasure-pools.json`, with card details joined live from the Blightbane API via `useCardData`
+5. **Booty** (`/booty`, `src/codex/`) — a breakdown of every treasure card, special basic attack and card pool, and the ways of acquiring each, rendered from static `src/codex/data/treasure-cards.json` / `treasure-pools.json` / `special-weapons.json`, with card details joined live from the Blightbane API via `useCardData`. **`booty.tsx` owns the one `useCardData()` call for all three panels** and shares it through `BootyCardDataContext` — see the single-fetch invariant in `src/codex/CLAUDE.md`
 6. **Scoring** (`/scoring`, `src/scoring/`) — prose-heavy scoring guides per game mode plus real score-calculation logic (`advancedScoring.ts`)
 
 ### Shared Infrastructure (`/src/shared/`)
@@ -135,7 +135,7 @@ Each feature directory has its own `CLAUDE.md` with architecture details and inv
 - `storage.ts` - localStorage wrapper with cache duration and staleness detection; `saveToCache` returns `{ success, error? }`
 - `apiErrorHandling.ts` - `handleError` normalizes any unknown error (Axios, Error, other) into a structured `ApiErrorInfo`
 - `logger.ts` - `logger.debug/warn` no-op outside development, `logger.error` always logs. **Never call `console.*` directly** (ESLint `no-console` enforces this)
-- `imageUrls.ts` - centralized Blightbane asset URLs
+- `imageUrls.ts` - centralized Blightbane asset URLs, plus the `BlightbaneCardUrl`/`BlightbaneTalentUrl`/`BlightbaneMonsterUrl` builders for links to blightbane.io pages (they share one name→slug rule; don't re-inline the template)
 - `energyImages.ts` - `getEnergyImageUrl(CharacterClass)` → energy orb asset. Speedruns wraps this in its own `utils/images.ts` to also handle the speedruns-only `SpeedRunSubclass` members (`All`, `Hybrid`); `shared/` must not import speedruns types
 - `lists.ts`, `object.ts`, `textHelper.ts` - small pure helpers
 

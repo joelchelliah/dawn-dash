@@ -1,12 +1,9 @@
-import { TALENT_ARTWORK_CATEGORY, useCardImageSrc } from '@/shared/hooks/useCardImageSrc'
 import { capitalize } from '@/shared/utils/textHelper'
 
 import { RelatedCard } from '@/codex/types/treasures'
 
-import { ArtworkLinkItem, ArtworkLinkList } from '../ArtworkLinkList'
-
-const getBlightbaneUrl = ({ name, isTalent }: RelatedCard) =>
-  `https://www.blightbane.io/${isTalent ? 'talent' : 'card'}/${name.replaceAll(' ', '_')}`
+import { ArtworkLinkList } from '../ArtworkLinkList'
+import { CardSourceItem } from '../ArtworkSourceItem'
 
 interface RelatedCardListProps {
   relatedCards: RelatedCard[]
@@ -23,47 +20,24 @@ function RelatedCardList({
 
   return (
     <ArtworkLinkList>
-      {relatedCards.map((relatedCard) => (
-        <RelatedCardItem
-          key={`${relatedCard.name}-${relatedCard.isTalent}`}
-          relatedCard={relatedCard}
-          showPools={showPools}
-          showSourceType={showSourceType}
-        />
-      ))}
+      {relatedCards.map(({ name, isTalent, category, pools }) => {
+        const subtitles = showPools
+          ? pools
+          : showSourceType
+            ? [isTalent ? 'talent' : 'card']
+            : undefined
+
+        return (
+          <CardSourceItem
+            key={`${name}-${isTalent}`}
+            name={name}
+            isTalent={isTalent}
+            category={category}
+            subtitles={subtitles?.map(capitalize) ?? []}
+          />
+        )
+      })}
     </ArtworkLinkList>
-  )
-}
-
-interface RelatedCardItemProps {
-  relatedCard: RelatedCard
-  showPools?: boolean
-  showSourceType?: boolean
-}
-
-function RelatedCardItem({
-  relatedCard,
-  showPools,
-  showSourceType,
-}: RelatedCardItemProps): JSX.Element {
-  const { name, isTalent, category, pools } = relatedCard
-  const { cardImageSrc, onImageSrcError } = useCardImageSrc(
-    name,
-    null,
-    isTalent ? TALENT_ARTWORK_CATEGORY : category
-  )
-
-  const subtitles = showPools ? pools : showSourceType ? [isTalent ? 'talent' : 'card'] : undefined
-
-  return (
-    <ArtworkLinkItem
-      name={name}
-      href={getBlightbaneUrl(relatedCard)}
-      isExternal
-      src={cardImageSrc}
-      onImageSrcError={onImageSrcError}
-      subtitles={subtitles?.map(capitalize) ?? []}
-    />
   )
 }
 

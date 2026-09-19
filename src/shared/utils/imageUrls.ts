@@ -67,3 +67,16 @@ export const EventArtworkImageUrl = (artwork: string) =>
 
 export const CardArtworkImageUrl = (artwork: string) =>
   `${blightbaneImagesUrl}/icons/${encodeURIComponent(artwork)}.webp`
+
+const blightbaneSiteUrl = 'https://www.blightbane.io'
+
+const toBlightbaneSlug = (name: string) => name.replaceAll(' ', '_')
+
+export const BlightbaneCardUrl = (name: string) =>
+  `${blightbaneSiteUrl}/card/${toBlightbaneSlug(name)}`
+
+export const BlightbaneTalentUrl = (name: string) =>
+  `${blightbaneSiteUrl}/talent/${toBlightbaneSlug(name)}`
+
+export const BlightbaneMonsterUrl = (name: string) =>
+  `${blightbaneSiteUrl}/monster/${toBlightbaneSlug(name)}`

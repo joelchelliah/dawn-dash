@@ -19,7 +19,10 @@ import treasurePools from '@/codex/data/treasure-pools.json'
 
 const TREASURE_CARDS = treasureCards as TreasureCard[]
 const SPECIAL_WEAPONS = specialWeapons as SpecialWeapon[]
-const EVENTS_BY_NAME = new Map((eventTrees as Event[]).map((event) => [event.name, event]))
+
+export const EVENTS_BY_NAME = new Map((eventTrees as Event[]).map((event) => [event.name, event]))
+
+export const getEventArtwork = (name: string): string => EVENTS_BY_NAME.get(name)?.artwork ?? ''
 
 export const enrichTreasureCards = (cardData: CardData[] | undefined): EnrichedTreasureCard[] => {
   if (!cardData) return []
@@ -42,6 +45,22 @@ const toBasePoolName = (pool: string): string => pool.replace(/ \(limited\)$/, '
 
 const toDisplayPools = (pools: string[]): string[] =>
   Array.from(new Set(pools.map(toBasePoolName))).sort()
+
+/*
+ * The card array is the whole ~3000-card payload and changes identity only on a resync, so the
+ * name lookup is built once per array rather than per modal render.
+ */
+let cardsByNameCache: { source: CardData[]; byName: Map<string, CardData> } | null = null
+
+const getCardsByName = (cardData: CardData[] | undefined): Map<string, CardData> => {
+  if (!cardData) return new Map()
+  if (cardsByNameCache?.source === cardData) return cardsByNameCache.byName
+
+  const byName = new Map(cardData.map((card) => [card.name, card]))
+  cardsByNameCache = { source: cardData, byName }
+
+  return byName
+}
 
 type CardWithSources = Pick<TreasureCard, 'fromEvents' | 'fromCards' | 'fromTalents'>
 
@@ -99,7 +118,7 @@ export const getRelatedTreasurePoolCards = (
   treasure: CardWithSources,
   cardData: CardData[] | undefined
 ): RelatedCards => {
-  const cardsByName = new Map((cardData ?? []).map((card) => [card.name, card]))
+  const cardsByName = getCardsByName(cardData)
 
   const toRelatedCard = (isTalent: boolean) => (source: TreasureSource) => ({
     name: source.name,

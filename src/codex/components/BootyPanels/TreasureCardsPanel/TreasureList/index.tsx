@@ -14,9 +14,9 @@ interface TreasureListProps {
 
 function TreasureList({ treasures, cardData }: TreasureListProps): JSX.Element {
   const [selectedId, setSelectedId] = useState<number | null>(null)
-  const selectedTreasure = treasures.find(
-    ({ treasureDetails }) => treasureDetails.id === selectedId
-  )
+  const selectedTreasure =
+    selectedId !== null &&
+    treasures.find(({ treasureDetails }) => treasureDetails.id === selectedId)
 
   const items = useMemo<CardListItem[]>(
     () =>

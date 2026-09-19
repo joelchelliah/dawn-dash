@@ -1,12 +1,8 @@
 @use 'index' as *;
 
+// The mixin derives each row's fade from these, so only the flat shade is declared here.
 $alternating-row-background: rgba(0, 0, 0, 0.14);
-$alternating-row-last-item-background: linear-gradient(
-  to right,
-  $alternating-row-background,
-  transparent
-);
-$alternating-row-mobile-background: linear-gradient(to right, rgba(0, 0, 0, 0.25), transparent);
+$alternating-row-mobile-background: rgba(0, 0, 0, 0.25);
 
 $rarity-colors: (
   'common': $color-rarity-common,
@@ -22,15 +18,7 @@ $breakpoint-cards-3-col: 68rem;
   width: 100%;
 }
 
-/*
- * 4 columns at the widest, stepping 4 → 3 → 1.
- *
- * The alternating row bands are `nth-child` arithmetic, so every column count needs its own set of
- * rules: the "2 rows on, 2 rows off" band for N columns is `nth-child(2N n + 1 … 2N n + N)`. That
- * is why the count is repeated per breakpoint rather than driven by a variable — CSS can't compute
- * an `nth-child` coefficient. Each block resets the previous one's bands before setting its own,
- * since the wider rules still match at narrower widths.
- */
+/* 4 columns at the widest, stepping 4 → 3 → 1. */
 .cards-list {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -63,23 +51,23 @@ $breakpoint-cards-3-col: 68rem;
   flex-wrap: nowrap;
   white-space: nowrap;
 
-  // Alternating row bands — 4 columns
-  &:nth-child(8n + 1),
-  &:nth-child(8n + 2),
-  &:nth-child(8n + 3),
-  &:nth-child(8n + 4) {
-    background-color: $alternating-row-background;
-  }
-
-  // Gradient fade on the row's last item
-  &:nth-child(8n + 4) {
-    background: $alternating-row-last-item-background;
-  }
-
-  // An incomplete final row still fades out
-  &:last-child:not(:nth-child(4n)) {
-    background: $alternating-row-last-item-background;
-  }
+  // Alternating row bands. Each range is exclusive of the others, so no block has to undo another's.
+  @include alternating-rows-range(
+    4,
+    $above: $breakpoint-cards-3-col,
+    $shade: $alternating-row-background
+  );
+  @include alternating-rows-range(
+    3,
+    $above: $breakpoint-mobile,
+    $through: $breakpoint-cards-3-col,
+    $shade: $alternating-row-background
+  );
+  @include alternating-rows-range(
+    1,
+    $through: $breakpoint-mobile,
+    $shade: $alternating-row-mobile-background
+  );
 
   &__text {
     display: flex;
@@ -125,45 +113,7 @@ $breakpoint-cards-3-col: 68rem;
     }
   }
 
-  // Alternating row bands — 3 columns
-  @media (max-width: $breakpoint-cards-3-col) {
-    &:nth-child(8n + 1),
-    &:nth-child(8n + 2),
-    &:nth-child(8n + 3),
-    &:nth-child(8n + 4),
-    &:nth-child(4n) {
-      background-color: transparent;
-      background: none;
-    }
-
-    &:nth-child(6n + 1),
-    &:nth-child(6n + 2),
-    &:nth-child(6n + 3) {
-      background-color: $alternating-row-background;
-    }
-
-    &:nth-child(6n + 3) {
-      background: $alternating-row-last-item-background;
-    }
-
-    &:last-child:not(:nth-child(3n)) {
-      background: $alternating-row-last-item-background;
-    }
-  }
-
-  // Alternating row bands — 1 column
   @media (max-width: $breakpoint-mobile) {
     gap: 1.25rem;
-
-    &:nth-child(6n + 1),
-    &:nth-child(6n + 2),
-    &:nth-child(6n + 3) {
-      background-color: transparent;
-      background: none;
-    }
-
-    &:nth-child(odd) {
-      background: $alternating-row-mobile-background;
-    }
   }
 }

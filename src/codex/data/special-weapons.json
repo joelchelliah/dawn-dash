@@ -4,7 +4,6 @@
     "name": "Arcane Bow",
     "category": "BasicAttack",
     "type": "Ranged",
-    "isTreasure": false,
     "fromEvents": [],
     "fromCards": [],
     "fromTalents": []
@@ -14,7 +13,6 @@
     "name": "Asteran",
     "category": "BasicAttack",
     "type": "Divine",
-    "isTreasure": false,
     "fromEvents": [
       {
         "sourceType": "event",
@@ -44,7 +42,6 @@
     "name": "Astrakan",
     "category": "BasicAttack",
     "type": "Divine",
-    "isTreasure": false,
     "fromEvents": [],
     "fromCards": [],
     "fromTalents": []
@@ -54,7 +51,6 @@
     "name": "Battlespear",
     "category": "BasicAttack",
     "type": "Divine",
-    "isTreasure": false,
     "fromEvents": [],
     "fromCards": [],
     "fromTalents": []
@@ -64,7 +60,6 @@
     "name": "Blaster",
     "category": "BasicAttack",
     "type": "Ranged",
-    "isTreasure": false,
     "fromEvents": [],
     "fromCards": [
       {
@@ -81,7 +76,6 @@
     "name": "Buzzsword",
     "category": "BasicAttack",
     "type": "Melee",
-    "isTreasure": false,
     "fromEvents": [],
     "fromCards": [
       {
@@ -98,7 +92,6 @@
     "name": "Celestial Claws",
     "category": "BasicAttack",
     "type": "Melee",
-    "isTreasure": false,
     "fromEvents": [],
     "fromCards": [],
     "fromTalents": []
@@ -108,7 +101,6 @@
     "name": "Demon Claws",
     "category": "BasicAttack",
     "type": "Melee",
-    "isTreasure": false,
     "fromEvents": [],
     "fromCards": [],
     "fromTalents": []
@@ -118,7 +110,6 @@
     "name": "Drakkan",
     "category": "BasicAttack",
     "type": "Melee",
-    "isTreasure": false,
     "fromEvents": [
       {
         "sourceType": "event",
@@ -148,7 +139,6 @@
     "name": "Faewand",
     "category": "BasicAttack",
     "type": "Magic",
-    "isTreasure": false,
     "fromEvents": [
       {
         "sourceType": "event",
@@ -172,7 +162,6 @@
     "name": "Goldstrike",
     "category": "BasicAttack",
     "type": "Melee",
-    "isTreasure": false,
     "fromEvents": [
       {
         "sourceType": "event",
@@ -203,7 +192,6 @@
     "name": "Halifax",
     "category": "BasicAttack",
     "type": "Divine",
-    "isTreasure": false,
     "fromEvents": [],
     "fromCards": [],
     "fromTalents": []
@@ -213,7 +201,6 @@
     "name": "Helios",
     "category": "BasicAttack",
     "type": "Divine",
-    "isTreasure": false,
     "fromEvents": [],
     "fromCards": [],
     "fromTalents": []
@@ -223,7 +210,6 @@
     "name": "Hellforged Axe",
     "category": "BasicAttack",
     "type": "Melee",
-    "isTreasure": false,
     "fromEvents": [
       {
         "sourceType": "event",
@@ -253,7 +239,6 @@
     "name": "Hexglaive",
     "category": "BasicAttack",
     "type": "Melee",
-    "isTreasure": false,
     "fromEvents": [],
     "fromCards": [
       {
@@ -283,7 +268,6 @@
     "name": "Majatome",
     "category": "BasicAttack",
     "type": "Melee",
-    "isTreasure": false,
     "fromEvents": [],
     "fromCards": [
       {
@@ -300,7 +284,6 @@
     "name": "Monolith",
     "category": "BasicAttack",
     "type": "Melee",
-    "isTreasure": false,
     "fromEvents": [],
     "fromCards": [],
     "fromTalents": []
@@ -310,7 +293,6 @@
     "name": "Oathbreaker",
     "category": "BasicAttack",
     "type": "Melee",
-    "isTreasure": false,
     "fromEvents": [],
     "fromCards": [
       {
@@ -327,7 +309,6 @@
     "name": "Rainbow",
     "category": "BasicAttack",
     "type": "Ranged",
-    "isTreasure": false,
     "fromEvents": [],
     "fromCards": [
       {
@@ -344,7 +325,6 @@
     "name": "Rhymebind",
     "category": "BasicAttack",
     "type": "Melee",
-    "isTreasure": false,
     "fromEvents": [],
     "fromCards": [
       {
@@ -361,7 +341,6 @@
     "name": "Rovik",
     "category": "BasicAttack",
     "type": "Melee",
-    "isTreasure": false,
     "fromEvents": [],
     "fromCards": [
       {
@@ -378,7 +357,6 @@
     "name": "Scythe",
     "category": "BasicAttack",
     "type": "Melee",
-    "isTreasure": false,
     "fromEvents": [
       {
         "sourceType": "event",
@@ -402,7 +380,6 @@
     "name": "Shredder Axe",
     "category": "BasicAttack",
     "type": "Melee",
-    "isTreasure": false,
     "fromEvents": [
       {
         "sourceType": "event",
@@ -433,7 +410,6 @@
     "name": "Staff of Thunder",
     "category": "BasicAttack",
     "type": "Magic",
-    "isTreasure": true,
     "fromEvents": [
       {
         "sourceType": "event",
@@ -518,7 +494,6 @@
     "name": "Suntree Twig",
     "category": "BasicAttack",
     "type": "Divine",
-    "isTreasure": false,
     "fromEvents": [],
     "fromCards": [],
     "fromTalents": []
@@ -528,7 +503,6 @@
     "name": "Towershield",
     "category": "BasicAttack",
     "type": "Utility",
-    "isTreasure": false,
     "fromEvents": [
       {
         "sourceType": "event",
@@ -565,7 +539,6 @@
     "name": "Trancor",
     "category": "BasicAttack",
     "type": "Ranged",
-    "isTreasure": false,
     "fromEvents": [],
     "fromCards": [
       {

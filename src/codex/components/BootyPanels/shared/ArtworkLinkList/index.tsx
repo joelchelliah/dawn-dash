@@ -70,8 +70,12 @@ export function ArtworkLinkItem({
 }: ArtworkLinkItemProps): JSX.Element {
   const itemClassName = cx('artwork-link-item', HOVER_TRIGGER)
   const LinkComponent = isExternal ? 'a' : Link
-  const title = subtitles.length > 0 ? `${name} — ${subtitles.join(', ')}` : name
+  const title = subtitles.length > 0 ? `${name} (${subtitles.join(', ')})` : name
 
+  /*
+   * Every row opens in a new tab, internal ones included, so following a link never costs the
+   * reader the modal or the scroll position they were at.
+   */
   return (
     <LinkComponent
       href={href}
@@ -91,8 +95,8 @@ export function ArtworkLinkItem({
       />
       <div className={cx('artwork-link-item__text')}>
         <span className={cx('artwork-link-item__name')}>{name}</span>
-        {subtitles.map((subtitle) => (
-          <span key={subtitle} className={cx('artwork-link-item__subtitle')}>
+        {subtitles.map((subtitle, index) => (
+          <span key={`${subtitle}-${index}`} className={cx('artwork-link-item__subtitle')}>
             {subtitle}
           </span>
         ))}

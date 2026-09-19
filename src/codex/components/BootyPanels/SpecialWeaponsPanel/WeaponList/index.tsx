@@ -14,7 +14,8 @@ interface WeaponListProps {
 
 function WeaponList({ weapons, cardData }: WeaponListProps): JSX.Element {
   const [selectedId, setSelectedId] = useState<number | null>(null)
-  const selectedWeapon = weapons.find(({ weaponDetails }) => weaponDetails.id === selectedId)
+  const selectedWeapon =
+    selectedId !== null && weapons.find(({ weaponDetails }) => weaponDetails.id === selectedId)
 
   const items = useMemo<CardListItem[]>(
     () =>

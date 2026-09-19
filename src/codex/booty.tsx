@@ -10,6 +10,8 @@ import Header from '@/shared/components/Header'
 import ScrollToTopButton from '@/shared/components/ScrollToTopButton'
 import StarField from '@/shared/components/StarField'
 
+import { BootyCardDataProvider } from './components/BootyPanels/BootyCardDataContext'
+import { useCardData } from './hooks/useCardData'
 import styles from './booty.module.scss'
 
 const TreasureCardsPanel = dynamic(() => import('./components/BootyPanels/TreasureCardsPanel'), {
@@ -34,6 +36,8 @@ function useBootyScrollToTop() {
 function Booty(): JSX.Element {
   const { navigateTo } = useNavigation()
   const { showScrollToTopButton, scrollToTop } = useBootyScrollToTop()
+  const cardData = useCardData()
+  const hasCardData = !cardData.isLoading && !cardData.isError
 
   return (
     <div className={cx('container')}>
@@ -47,11 +51,17 @@ function Booty(): JSX.Element {
         currentPage="booty"
       />
 
-      <div className={cx('content')}>
-        <TreasureCardsPanel />
-        <SpecialWeaponsPanel />
-        <CardPoolsPanel />
-      </div>
+      <BootyCardDataProvider value={cardData}>
+        <div className={cx('content')}>
+          <TreasureCardsPanel />
+          {hasCardData && (
+            <>
+              <SpecialWeaponsPanel />
+              <CardPoolsPanel />
+            </>
+          )}
+        </div>
+      </BootyCardDataProvider>
 
       <Footer />
 

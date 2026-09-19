@@ -7,6 +7,12 @@ $column-gap: 1.5rem;
   @return color-mix(in srgb, var(--pool-color-#{$index}) 40%, transparent);
 }
 
+/*
+ * Cycles the three colors of `POOL_COLOR_CYCLE`, which comes from `TREASURE_POOL_DISPLAYS`. CSS
+ * can't generate keyframe stops from a variable count, so a fourth treasure pool would emit a
+ * `--pool-color-4` that this animation silently ignores — add its stops here by hand if that day
+ * comes. The row accents below are index-based and need no change.
+ */
 @keyframes poolBorderCycle {
   0%,
   22% {
@@ -29,7 +35,7 @@ $column-gap: 1.5rem;
   display: flex;
   flex-direction: column;
   gap: 0.125rem;
-  margin: 0 1rem 2rem 1.25rem;
+  margin: 0 1rem 2rem;
   padding: 1rem;
   border: 1px solid transparent;
   border-radius: 0.25rem;

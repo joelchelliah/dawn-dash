@@ -1,3 +1,5 @@
+import { useMemo } from 'react'
+
 import { RARITIES } from '@/shared/components/RarityBorderedArtwork'
 import { createCx } from '@/shared/utils/classnames'
 
@@ -11,7 +13,8 @@ import { WEAPON_ARTWORK } from '../../shared/cardArtwork'
 import { Acquisition } from '../../shared/CardModal/AcquisitionFlag'
 import styles from '../../shared/CardModal/index.module.scss'
 
-import SpecialCondition, { SPECIAL_CONDITIONS } from './specialCondition'
+import SpecialCondition from './SpecialCondition'
+import { SPECIAL_CONDITIONS } from './specialConditions'
 
 const cx = createCx(styles)
 
@@ -39,6 +42,12 @@ function WeaponModal({ weapon, cardDetails, cardData, onClose }: WeaponModalProp
   const rarity = RARITIES[cardDetails.rarity]
   const specialCondition = SPECIAL_CONDITIONS[weapon.name]
 
+  const relatedEvents = useMemo(() => getRelatedEvents(weapon), [weapon])
+  const relatedCards = useMemo(
+    () => getRelatedTreasurePoolCards(weapon, cardData),
+    [weapon, cardData]
+  )
+
   const specialConditionSection = specialCondition && (
     <Section
       title="Special condition"
@@ -60,8 +69,8 @@ function WeaponModal({ weapon, cardDetails, cardData, onClose }: WeaponModalProp
       cardNoun="weapon"
       acquisitions={getAcquisitions(weapon, Boolean(specialCondition))}
       acquisitionColumns={4}
-      relatedEvents={getRelatedEvents(weapon)}
-      relatedCards={getRelatedTreasurePoolCards(weapon, cardData)}
+      relatedEvents={relatedEvents}
+      relatedCards={relatedCards}
       sectionAfterAcquisitions={specialConditionSection}
       onClose={onClose}
     />

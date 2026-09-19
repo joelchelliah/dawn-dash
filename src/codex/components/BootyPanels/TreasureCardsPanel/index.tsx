@@ -1,11 +1,11 @@
 import { useMemo } from 'react'
 
 import { enrichTreasureCards } from '@/codex/utils/treasureHelper'
-import { useCardData } from '@/codex/hooks/useCardData'
 
 import CodexErrorMessage from '../../CodexErrorMessage'
 import CodexLastUpdated from '../../CodexLastUpdated'
 import CodexLoadingMessage from '../../CodexLoadingMessage'
+import { useBootyCardData } from '../BootyCardDataContext'
 import TreasureBasePanel, { TreasurePanelMessage, TreasurePanelRow } from '../TreasureBasePanel'
 
 import TreasureList from './TreasureList'
@@ -19,7 +19,7 @@ const TreasureCardsPanel = () => {
     isErrorInBackground,
     lastUpdated,
     progress,
-  } = useCardData()
+  } = useBootyCardData()
 
   const treasures = useMemo(() => enrichTreasureCards(cardData), [cardData])
 

@@ -1,3 +1,5 @@
+import { useMemo } from 'react'
+
 import { RARITIES } from '@/shared/components/RarityBorderedArtwork'
 import { CharacterClass } from '@/shared/types/characterClass'
 import { createCx } from '@/shared/utils/classnames'
@@ -38,6 +40,12 @@ function TreasureModal({ treasure, cardData, onClose }: TreasureModalProps): JSX
   const rarity = RARITIES[cardDetails.rarity]
   const cardName = treasureDetails.name
 
+  const relatedEvents = useMemo(() => getRelatedEvents(treasureDetails), [treasureDetails])
+  const relatedCards = useMemo(
+    () => getRelatedTreasurePoolCards(treasureDetails, cardData),
+    [treasureDetails, cardData]
+  )
+
   return (
     <CardModal
       cardName={cardName}
@@ -46,8 +54,8 @@ function TreasureModal({ treasure, cardData, onClose }: TreasureModalProps): JSX
       artwork={TREASURE_ARTWORK}
       cardNoun="treasure"
       acquisitions={getAcquisitions(treasureDetails)}
-      relatedEvents={getRelatedEvents(treasureDetails)}
-      relatedCards={getRelatedTreasurePoolCards(treasureDetails, cardData)}
+      relatedEvents={relatedEvents}
+      relatedCards={relatedCards}
       additionalNotes={ADDITIONAL_NOTES[cardName]}
       onClose={onClose}
     />
