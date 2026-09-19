@@ -77,7 +77,7 @@ const ADDITIONAL_NOTES: Record<string, JSX.Element> = {
   ),
   'Flying Carpet': (
     <>
-      Events that only include this treasure in their <strong>card pool</strong> while{' '}
+      Events that only include this treasure in their <strong>card pool</strong> while either{' '}
       <span className={cx('card-modal__hint__highlighted')}>Infinitum</span> or{' '}
       <span className={cx('card-modal__hint__highlighted')}>Eclypse</span> is enabled:
       {ADD_CARD_BY_KEYWORD_EXCEPTIONS}
