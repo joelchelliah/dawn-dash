@@ -25,22 +25,26 @@ const path = require('path')
 const args = process.argv.slice(2)
 const fromDump = args.includes('--from-dump')
 
-const EVENTS_FILE = path.join(__dirname, 'data', fromDump ? 'events-from-dump.json' : 'events.json')
+const EVENTS_FILE = path.join(
+  __dirname,
+  '../data',
+  fromDump ? 'events-from-dump.json' : 'events.json'
+)
 
 const dumpScripts = [
   {
     name: 'Fetch events data from Blightbane',
-    path: path.join(__dirname, 'fetch-events-data-from-blightbane.js'),
+    path: path.join(__dirname, '../fetch-events-data-from-blightbane.js'),
   },
   {
     name: 'Extract events',
-    path: path.join(__dirname, 'extract-events.js'),
+    path: path.join(__dirname, '../extract-events.js'),
   },
 ]
 
 const parseScript = {
   name: 'Parse event trees',
-  path: path.join(__dirname, 'parse/parse-event-trees.js'),
+  path: path.join(__dirname, '../parse/parse-event-trees.js'),
   // CLI flags passed to sync-events.js (--debug, --only, --dry-run, --baseline, --from-dump)
   // are forwarded to the parse step only
   forwardArgs: true,

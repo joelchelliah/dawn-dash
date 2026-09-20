@@ -1,8 +1,9 @@
 import { useFocusBand } from '@/shared/hooks/useFocusBand'
 import { createCx } from '@/shared/utils/classnames'
-import { FOCUS_TRIGGER, HOVER_TRIGGER } from '@/shared/utils/hoverTrigger'
+import { FOCUS_TRIGGER, HOVER_TRIGGER, HOVER_TRIGGER_SHALLOW } from '@/shared/utils/hoverTrigger'
 
 import {
+  getPoolName,
   getPoolRewards,
   getPoolSize,
   getPoolSources,
@@ -10,6 +11,7 @@ import {
 } from '@/codex/constants/treasurePools'
 import Section from '@/codex/components/shared/Section'
 
+import PoolSourceList from '../../shared/PoolSourceList'
 import WhirlpoolArtwork from '../WhirlpoolArtwork'
 
 import styles from './index.module.scss'
@@ -25,19 +27,18 @@ interface TreasurePoolProps {
 }
 
 function TreasurePool({ pool }: TreasurePoolProps): JSX.Element {
+  const name = getPoolName(pool)
   const rewards = getPoolRewards(pool)
   const sources = getPoolSources(pool)
   const notes = POOL_NOTES[pool.id]
   const { ref, isInFocusBand } = useFocusBand<HTMLDivElement>()
 
-  const cardClassName = cx('pool', HOVER_TRIGGER, { [FOCUS_TRIGGER]: isInFocusBand })
-  // The artwork size is published on the card, not just handed to the whirlpool, because the header
-  // gap is a fraction of it — see `$header-gap-*` in the stylesheet.
+  const cardClassName = cx('pool', HOVER_TRIGGER, HOVER_TRIGGER_SHALLOW, {
+    [FOCUS_TRIGGER]: isInFocusBand,
+  })
   const cardStyle = {
     '--pool-color': pool.color,
     '--pool-color-accent': pool.colorAccent,
-    '--pool-artwork-size': `${ARTWORK_SIZE}px`,
-    '--pool-artwork-size-mobile': `${ARTWORK_SIZE_MOBILE}px`,
   } as React.CSSProperties
 
   return (
@@ -45,14 +46,14 @@ function TreasurePool({ pool }: TreasurePoolProps): JSX.Element {
       <div ref={ref} className={cx('pool__header')}>
         <WhirlpoolArtwork
           src={pool.imageSrc}
-          alt={pool.name}
+          alt={name}
           size={ARTWORK_SIZE}
           sizeMobile={ARTWORK_SIZE_MOBILE}
           color={pool.color}
           colorAccent={pool.colorAccent}
         />
         <div className={cx('pool__header-text')}>
-          <span className={cx('pool__name')}>{pool.name}</span>
+          <span className={cx('pool__name')}>{name}</span>
           <span className={cx('pool__size')}>{getPoolSize(pool)} cards</span>
         </div>
       </div>
@@ -74,13 +75,7 @@ function TreasurePool({ pool }: TreasurePoolProps): JSX.Element {
       </Section>
 
       <Section title="Used by" dividerColor="var(--pool-color)" spacing="small">
-        <div className={cx('pool__tags')}>
-          {sources.map((source) => (
-            <span key={source} className={cx('pool__tag')}>
-              {source}
-            </span>
-          ))}
-        </div>
+        <PoolSourceList sources={sources} layout="pool-table" />
       </Section>
 
       <div className={cx('pool__note')}>{notes.below && <p>{notes.below}</p>}</div>

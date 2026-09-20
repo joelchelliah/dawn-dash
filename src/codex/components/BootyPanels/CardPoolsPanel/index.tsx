@@ -11,12 +11,13 @@ import {
 
 import TreasureBasePanel from '../TreasureBasePanel'
 
+import OtherPools, { OTHER_POOL_COUNT } from './OtherPools'
 import TreasurePool from './TreasurePool'
 import styles from './index.module.scss'
 
 const cx = createCx(styles)
 
-const TreasurePoolsPanel = () => {
+const CardPoolsPanel = () => {
   useEffect(() => {
     const unmapped = findUnmappedPools()
 
@@ -37,22 +38,25 @@ const TreasurePoolsPanel = () => {
     }
   }, [])
 
-  const treasurePoolInfo = (
-    <>
-      Treasure cards, that are randomly acquired, are drawn from one of these{' '}
-      {TREASURE_POOL_DISPLAYS.length} <strong>Treasure Pools</strong>.
-    </>
-  )
-
   return (
-    <TreasureBasePanel type="TreasurePools" info={treasurePoolInfo}>
+    <TreasureBasePanel type="CardPools">
+      <span className={cx('pools-info')}>
+        Randomly acquired <strong>Treasure</strong> cards are drawn from one of these{' '}
+        <strong>{TREASURE_POOL_DISPLAYS.length}</strong> card pools.
+      </span>
       <div className={cx('pools')}>
         {TREASURE_POOL_DISPLAYS.map((pool) => (
           <TreasurePool key={pool.id} pool={pool} />
         ))}
       </div>
+
+      <span className={cx('pools-info')}>
+        A few <strong>Treasure</strong> cards and <strong>Special Basic Attacks</strong> are
+        available in these <strong>{OTHER_POOL_COUNT}</strong> card pools.
+      </span>
+      <OtherPools />
     </TreasureBasePanel>
   )
 }
 
-export default TreasurePoolsPanel
+export default CardPoolsPanel

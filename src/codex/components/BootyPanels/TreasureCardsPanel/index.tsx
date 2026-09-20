@@ -1,19 +1,14 @@
 import { useMemo } from 'react'
 
-import { createCx } from '@/shared/utils/classnames'
-
 import { enrichTreasureCards } from '@/codex/utils/treasureHelper'
-import { useCardData } from '@/codex/hooks/useCardData'
 
 import CodexErrorMessage from '../../CodexErrorMessage'
 import CodexLastUpdated from '../../CodexLastUpdated'
 import CodexLoadingMessage from '../../CodexLoadingMessage'
-import TreasureBasePanel from '../TreasureBasePanel'
+import { useBootyCardData } from '../BootyCardDataContext'
+import TreasureBasePanel, { TreasurePanelMessage, TreasurePanelRow } from '../TreasureBasePanel'
 
 import TreasureList from './TreasureList'
-import styles from './index.module.scss'
-
-const cx = createCx(styles)
 
 const TreasureCardsPanel = () => {
   const {
@@ -24,7 +19,7 @@ const TreasureCardsPanel = () => {
     isErrorInBackground,
     lastUpdated,
     progress,
-  } = useCardData()
+  } = useBootyCardData()
 
   const treasures = useMemo(() => enrichTreasureCards(cardData), [cardData])
 
@@ -37,15 +32,15 @@ const TreasureCardsPanel = () => {
 
   const renderTreasures = () => {
     if (treasures.length === 0) {
-      return <div className={cx('error-message')}>No treasure cards found!</div>
+      return <TreasurePanelMessage>No treasure cards found!</TreasurePanelMessage>
     }
 
     return (
       <>
-        <div className={cx('treasure-list')}>
-          <TreasureList treasures={treasures} />
-        </div>
-        <div className={cx('last-updated')}>
+        <TreasurePanelRow>
+          <TreasureList treasures={treasures} cardData={cardData} />
+        </TreasurePanelRow>
+        <TreasurePanelRow>
           <CodexLastUpdated
             type="card"
             lastUpdated={lastUpdated}
@@ -54,7 +49,7 @@ const TreasureCardsPanel = () => {
             isErrorInBackground={isErrorInBackground}
             progress={progress}
           />
-        </div>
+        </TreasurePanelRow>
       </>
     )
   }

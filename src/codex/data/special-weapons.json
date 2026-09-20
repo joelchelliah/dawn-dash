@@ -1,0 +1,553 @@
+[
+  {
+    "id": 862599,
+    "name": "Arcane Bow",
+    "category": "BasicAttack",
+    "type": "Ranged",
+    "fromEvents": [],
+    "fromCards": [],
+    "fromTalents": []
+  },
+  {
+    "id": 178462,
+    "name": "Asteran",
+    "category": "BasicAttack",
+    "type": "Divine",
+    "fromEvents": [
+      {
+        "sourceType": "event",
+        "name": "Collector",
+        "guaranteed": true,
+        "pools": []
+      },
+      {
+        "sourceType": "event",
+        "name": "The Godscar Wastes Finish",
+        "guaranteed": true,
+        "pools": []
+      }
+    ],
+    "fromCards": [
+      {
+        "sourceType": "card",
+        "name": "Mysterious Alloy",
+        "guaranteed": false,
+        "pools": ["Legendary weapon pool"]
+      }
+    ],
+    "fromTalents": []
+  },
+  {
+    "id": 761240,
+    "name": "Astrakan",
+    "category": "BasicAttack",
+    "type": "Divine",
+    "fromEvents": [],
+    "fromCards": [],
+    "fromTalents": []
+  },
+  {
+    "id": 264169,
+    "name": "Battlespear",
+    "category": "BasicAttack",
+    "type": "Divine",
+    "fromEvents": [],
+    "fromCards": [],
+    "fromTalents": []
+  },
+  {
+    "id": 238182,
+    "name": "Blaster",
+    "category": "BasicAttack",
+    "type": "Ranged",
+    "fromEvents": [],
+    "fromCards": [
+      {
+        "sourceType": "card",
+        "name": "Mysterious Alloy",
+        "guaranteed": false,
+        "pools": ["Legendary weapon pool"]
+      }
+    ],
+    "fromTalents": []
+  },
+  {
+    "id": 58040,
+    "name": "Buzzsword",
+    "category": "BasicAttack",
+    "type": "Melee",
+    "fromEvents": [],
+    "fromCards": [
+      {
+        "sourceType": "card",
+        "name": "Mysterious Alloy",
+        "guaranteed": false,
+        "pools": ["Legendary weapon pool"]
+      }
+    ],
+    "fromTalents": []
+  },
+  {
+    "id": 720436,
+    "name": "Celestial Claws",
+    "category": "BasicAttack",
+    "type": "Melee",
+    "fromEvents": [],
+    "fromCards": [],
+    "fromTalents": []
+  },
+  {
+    "id": 683451,
+    "name": "Demon Claws",
+    "category": "BasicAttack",
+    "type": "Melee",
+    "fromEvents": [],
+    "fromCards": [],
+    "fromTalents": []
+  },
+  {
+    "id": 415692,
+    "name": "Drakkan",
+    "category": "BasicAttack",
+    "type": "Melee",
+    "fromEvents": [
+      {
+        "sourceType": "event",
+        "name": "Collector",
+        "guaranteed": true,
+        "pools": []
+      },
+      {
+        "sourceType": "event",
+        "name": "The Godscar Wastes Finish",
+        "guaranteed": true,
+        "pools": []
+      }
+    ],
+    "fromCards": [
+      {
+        "sourceType": "card",
+        "name": "Mysterious Alloy",
+        "guaranteed": false,
+        "pools": ["Legendary weapon pool"]
+      }
+    ],
+    "fromTalents": []
+  },
+  {
+    "id": 606138,
+    "name": "Faewand",
+    "category": "BasicAttack",
+    "type": "Magic",
+    "fromEvents": [
+      {
+        "sourceType": "event",
+        "name": "Marrow Halls",
+        "guaranteed": false,
+        "pools": ["Elite weapon pool"]
+      }
+    ],
+    "fromCards": [],
+    "fromTalents": [
+      {
+        "sourceType": "talent",
+        "name": "Faerytales",
+        "guaranteed": true,
+        "pools": []
+      }
+    ]
+  },
+  {
+    "id": 728501,
+    "name": "Goldstrike",
+    "category": "BasicAttack",
+    "type": "Melee",
+    "fromEvents": [
+      {
+        "sourceType": "event",
+        "name": "Collector",
+        "guaranteed": true,
+        "pools": []
+      }
+    ],
+    "fromCards": [
+      {
+        "sourceType": "card",
+        "name": "Mysterious Alloy",
+        "guaranteed": false,
+        "pools": ["Legendary weapon pool"]
+      }
+    ],
+    "fromTalents": [
+      {
+        "sourceType": "talent",
+        "name": "Goldstrike",
+        "guaranteed": true,
+        "pools": []
+      }
+    ]
+  },
+  {
+    "id": 239672,
+    "name": "Halifax",
+    "category": "BasicAttack",
+    "type": "Divine",
+    "fromEvents": [],
+    "fromCards": [],
+    "fromTalents": []
+  },
+  {
+    "id": 765067,
+    "name": "Helios",
+    "category": "BasicAttack",
+    "type": "Divine",
+    "fromEvents": [],
+    "fromCards": [],
+    "fromTalents": []
+  },
+  {
+    "id": 450681,
+    "name": "Hellforged Axe",
+    "category": "BasicAttack",
+    "type": "Melee",
+    "fromEvents": [
+      {
+        "sourceType": "event",
+        "name": "Axe in the Stone",
+        "guaranteed": true,
+        "pools": []
+      },
+      {
+        "sourceType": "event",
+        "name": "The Chasm",
+        "guaranteed": true,
+        "pools": []
+      }
+    ],
+    "fromCards": [
+      {
+        "sourceType": "card",
+        "name": "Mysterious Alloy",
+        "guaranteed": false,
+        "pools": ["Legendary weapon pool"]
+      }
+    ],
+    "fromTalents": []
+  },
+  {
+    "id": 760719,
+    "name": "Hexglaive",
+    "category": "BasicAttack",
+    "type": "Melee",
+    "fromEvents": [],
+    "fromCards": [
+      {
+        "sourceType": "card",
+        "name": "Phylactery Visor",
+        "guaranteed": true,
+        "pools": []
+      },
+      {
+        "sourceType": "card",
+        "name": "Warp Steel",
+        "guaranteed": true,
+        "pools": []
+      }
+    ],
+    "fromTalents": [
+      {
+        "sourceType": "talent",
+        "name": "Unholy Arsenal",
+        "guaranteed": true,
+        "pools": []
+      }
+    ]
+  },
+  {
+    "id": 843524,
+    "name": "Majatome",
+    "category": "BasicAttack",
+    "type": "Melee",
+    "fromEvents": [],
+    "fromCards": [
+      {
+        "sourceType": "card",
+        "name": "Mysterious Alloy",
+        "guaranteed": false,
+        "pools": ["Legendary weapon pool"]
+      }
+    ],
+    "fromTalents": []
+  },
+  {
+    "id": 144375,
+    "name": "Monolith",
+    "category": "BasicAttack",
+    "type": "Melee",
+    "fromEvents": [],
+    "fromCards": [],
+    "fromTalents": []
+  },
+  {
+    "id": 41020033,
+    "name": "Oathbreaker",
+    "category": "BasicAttack",
+    "type": "Melee",
+    "fromEvents": [],
+    "fromCards": [
+      {
+        "sourceType": "card",
+        "name": "Mysterious Alloy",
+        "guaranteed": false,
+        "pools": ["Legendary weapon pool"]
+      }
+    ],
+    "fromTalents": []
+  },
+  {
+    "id": 91730,
+    "name": "Rainbow",
+    "category": "BasicAttack",
+    "type": "Ranged",
+    "fromEvents": [],
+    "fromCards": [
+      {
+        "sourceType": "card",
+        "name": "Mysterious Alloy",
+        "guaranteed": false,
+        "pools": ["Legendary weapon pool"]
+      }
+    ],
+    "fromTalents": []
+  },
+  {
+    "id": 956773,
+    "name": "Rhymebind",
+    "category": "BasicAttack",
+    "type": "Melee",
+    "fromEvents": [],
+    "fromCards": [
+      {
+        "sourceType": "card",
+        "name": "Mysterious Alloy",
+        "guaranteed": false,
+        "pools": ["Legendary weapon pool"]
+      }
+    ],
+    "fromTalents": []
+  },
+  {
+    "id": 514930,
+    "name": "Rovik",
+    "category": "BasicAttack",
+    "type": "Melee",
+    "fromEvents": [],
+    "fromCards": [
+      {
+        "sourceType": "card",
+        "name": "Mysterious Alloy",
+        "guaranteed": false,
+        "pools": ["Legendary weapon pool"]
+      }
+    ],
+    "fromTalents": []
+  },
+  {
+    "id": 564994,
+    "name": "Scythe",
+    "category": "BasicAttack",
+    "type": "Melee",
+    "fromEvents": [
+      {
+        "sourceType": "event",
+        "name": "Marrow Halls",
+        "guaranteed": false,
+        "pools": ["Elite weapon pool"]
+      }
+    ],
+    "fromCards": [
+      {
+        "sourceType": "card",
+        "name": "Elite Weaponry",
+        "guaranteed": false,
+        "pools": ["Elite weapon pool"]
+      }
+    ],
+    "fromTalents": []
+  },
+  {
+    "id": 722053,
+    "name": "Shredder Axe",
+    "category": "BasicAttack",
+    "type": "Melee",
+    "fromEvents": [
+      {
+        "sourceType": "event",
+        "name": "Marrow Halls",
+        "guaranteed": false,
+        "pools": ["Elite weapon pool"]
+      }
+    ],
+    "fromCards": [
+      {
+        "sourceType": "card",
+        "name": "Elite Weaponry",
+        "guaranteed": false,
+        "pools": ["Elite weapon pool"]
+      }
+    ],
+    "fromTalents": [
+      {
+        "sourceType": "talent",
+        "name": "Shredder",
+        "guaranteed": true,
+        "pools": []
+      }
+    ]
+  },
+  {
+    "id": 77316,
+    "name": "Staff of Thunder",
+    "category": "BasicAttack",
+    "type": "Magic",
+    "fromEvents": [
+      {
+        "sourceType": "event",
+        "name": "Broken Tombstone",
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
+      },
+      {
+        "sourceType": "event",
+        "name": "Marrow Halls",
+        "guaranteed": false,
+        "pools": ["Elite weapon pool", "Treasure pool"]
+      },
+      {
+        "sourceType": "event",
+        "name": "Painted Landscape",
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
+      },
+      {
+        "sourceType": "event",
+        "name": "Survey the Field",
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
+      },
+      {
+        "sourceType": "event",
+        "name": "Undisturbed Grave",
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
+      },
+      {
+        "sourceType": "event",
+        "name": "Vault Door",
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
+      },
+      {
+        "sourceType": "event",
+        "name": "Vesparin Vault",
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
+      }
+    ],
+    "fromCards": [
+      {
+        "sourceType": "card",
+        "name": "Booty",
+        "guaranteed": false,
+        "pools": ["Booty pool"]
+      },
+      {
+        "sourceType": "card",
+        "name": "Elite Weaponry",
+        "guaranteed": false,
+        "pools": ["Elite weapon pool"]
+      },
+      {
+        "sourceType": "card",
+        "name": "Explorer's Trick",
+        "guaranteed": false,
+        "pools": ["Treasure pool"]
+      },
+      {
+        "sourceType": "card",
+        "name": "Shovel",
+        "guaranteed": false,
+        "pools": ["Booty pool"]
+      }
+    ],
+    "fromTalents": [
+      {
+        "sourceType": "talent",
+        "name": "Pirate Parlour",
+        "guaranteed": false,
+        "pools": ["Pirate Parlour pool"]
+      }
+    ]
+  },
+  {
+    "id": 694945,
+    "name": "Suntree Twig",
+    "category": "BasicAttack",
+    "type": "Divine",
+    "fromEvents": [],
+    "fromCards": [],
+    "fromTalents": []
+  },
+  {
+    "id": 561648,
+    "name": "Towershield",
+    "category": "BasicAttack",
+    "type": "Utility",
+    "fromEvents": [
+      {
+        "sourceType": "event",
+        "name": "Broken Tombstone",
+        "guaranteed": true,
+        "pools": []
+      },
+      {
+        "sourceType": "event",
+        "name": "Marrow Halls",
+        "guaranteed": false,
+        "pools": ["Elite weapon pool"]
+      }
+    ],
+    "fromCards": [
+      {
+        "sourceType": "card",
+        "name": "Elite Weaponry",
+        "guaranteed": false,
+        "pools": ["Elite weapon pool"]
+      }
+    ],
+    "fromTalents": [
+      {
+        "sourceType": "talent",
+        "name": "Shield Master",
+        "guaranteed": true,
+        "pools": []
+      }
+    ]
+  },
+  {
+    "id": 431790,
+    "name": "Trancor",
+    "category": "BasicAttack",
+    "type": "Ranged",
+    "fromEvents": [],
+    "fromCards": [
+      {
+        "sourceType": "card",
+        "name": "Mysterious Alloy",
+        "guaranteed": false,
+        "pools": ["Legendary weapon pool"]
+      }
+    ],
+    "fromTalents": []
+  }
+]

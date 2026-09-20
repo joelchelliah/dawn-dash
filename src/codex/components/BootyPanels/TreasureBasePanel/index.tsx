@@ -7,7 +7,7 @@ import styles from './index.module.scss'
 const cx = createCx(styles)
 
 interface TreasureBasePanelProps {
-  type: Extract<PanelHeaderType, 'TreasureCards' | 'TreasurePools'>
+  type: Extract<PanelHeaderType, 'TreasureCards' | 'CardPools' | 'SpecialWeapons'>
   info?: React.ReactNode
   children: React.ReactNode
 }
@@ -25,6 +25,15 @@ function TreasureBasePanel({ type, info, children }: TreasureBasePanelProps): JS
       </div>
     </div>
   )
+}
+
+/* The panel owns its children's gutter, so a panel's content doesn't re-declare the margin. */
+export function TreasurePanelRow({ children }: { children: React.ReactNode }): JSX.Element {
+  return <div className={cx('treasure-panel__row')}>{children}</div>
+}
+
+export function TreasurePanelMessage({ children }: { children: React.ReactNode }): JSX.Element {
+  return <div className={cx('treasure-panel__message')}>{children}</div>
 }
 
 export default TreasureBasePanel

@@ -13,6 +13,8 @@ export interface BorderedArtworkProps {
   alt: string
   size: number
   sizeMobile?: number
+  width?: number
+  widthMobile?: number
   borderOpacity?: number
   onImageSrcError?: () => void
   className?: string
@@ -23,15 +25,21 @@ const BorderedArtwork = ({
   alt,
   size,
   sizeMobile,
+  width,
+  widthMobile,
   borderOpacity = DEFAULT_BORDER_OPACITY,
   onImageSrcError,
   className,
 }: BorderedArtworkProps) => {
   const artworkClassName = `${cx('bordered-artwork')}${className ? ` ${className}` : ''}`
+  const artworkWidth = width ?? size
+  const artworkWidthMobile = widthMobile ?? (width === undefined ? (sizeMobile ?? size) : width)
 
   const artworkStyle = {
     '--artwork-size': `${size}px`,
     '--artwork-size-mobile': `${sizeMobile ?? size}px`,
+    '--artwork-width': `${artworkWidth}px`,
+    '--artwork-width-mobile': `${artworkWidthMobile}px`,
     '--border-opacity': `${borderOpacity}%`,
   } as React.CSSProperties
 
@@ -43,7 +51,7 @@ const BorderedArtwork = ({
       style={artworkStyle}
       src={src}
       alt={alt}
-      width={size}
+      width={artworkWidth}
       height={size}
       onError={onImageSrcError}
     />

@@ -33,6 +33,7 @@ scripts/data/events-from-dump.json
 scripts/data/events.json
 scripts/data/events.json.backup
 scripts/data/treasures.json
+scripts/data/weapons.json
 
 # Supabase
 supabase/.temp

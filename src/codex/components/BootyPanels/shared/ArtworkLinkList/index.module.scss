@@ -1,0 +1,134 @@
+@use 'index' as *;
+
+// Column-count bands for the pool-table grid. The row striping below has to switch
+// counts at exactly these widths, so both read them from here.
+$pool-table-5-col: $breakpoint-tablet-plus + 8rem;
+$pool-table-4-col: $breakpoint-tablet + 2rem;
+$pool-table-3-col: $breakpoint-tablet - 6rem;
+
+.artwork-link-list {
+  display: grid;
+  gap: 0;
+
+  // 3 → 2
+  &--modal {
+    grid-template-columns: repeat(3, 1fr);
+
+    @media (max-width: $breakpoint-mobile) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  &--stacked {
+    grid-template-columns: 1fr;
+  }
+
+  // 5 → 4 → 3 → 2
+  &--pool-table {
+    grid-template-columns: repeat(5, 1fr);
+
+    @media (max-width: $pool-table-5-col) {
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    @media (max-width: $pool-table-4-col) {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    @media (max-width: $pool-table-3-col) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+}
+
+.artwork-link-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0.5rem;
+  border-radius: 0.25rem;
+  transition: all 0.5s ease;
+  cursor: pointer;
+  text-decoration: none;
+  min-width: 0;
+
+  &__text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    overflow: hidden;
+    flex: 1;
+  }
+
+  &__name {
+    font-size: font-size('xs');
+    font-weight: 400;
+    color: $color-primary-base;
+    @include text-truncate;
+
+    @media (max-width: $breakpoint-mobile) {
+      font-size: font-size('xxs');
+    }
+  }
+
+  &__subtitle {
+    font-size: font-size('xxs');
+    font-weight: 300;
+    color: $color-primary-dark;
+    @include text-truncate;
+
+    @media (max-width: $breakpoint-mobile) {
+      font-size: font-size('xxxs');
+    }
+  }
+
+  .artwork-link-list--modal & {
+    @include alternating-rows-range(2, $through: $breakpoint-mobile);
+    @include alternating-rows-range(3, $above: $breakpoint-mobile);
+  }
+
+  .artwork-link-list--stacked & {
+    @include alternating-rows-range(1);
+  }
+
+  .artwork-link-list--pool-table & {
+    @include alternating-rows-range(2, $through: $pool-table-3-col);
+    @include alternating-rows-range(3, $above: $pool-table-3-col, $through: $pool-table-4-col);
+    @include alternating-rows-range(4, $above: $pool-table-4-col, $through: $pool-table-5-col);
+    @include alternating-rows-range(5, $above: $pool-table-5-col);
+  }
+
+  // Wins over every count's shading above, so a striping container keeps its own rows.
+  .artwork-link-list--unshaded & {
+    background: none;
+  }
+
+  &:hover,
+  &:focus-visible {
+    background: linear-gradient(to right, $color-list-bg-hover, transparent) !important;
+    .artwork-link-item__artwork {
+      @include hover-tint-artwork(var(--rarity-color, #{$color-primary-hover}));
+    }
+
+    .artwork-link-item__text {
+      @include tinyNudgeRightAnimation;
+    }
+
+    .artwork-link-item__name {
+      @include hover-tint-name(var(--rarity-color, #{$color-primary-hover}));
+    }
+
+    .artwork-link-item__subtitle {
+      color: color-mix(
+        in srgb,
+        var(--rarity-color, #{$color-primary-hover}) 40%,
+        $color-primary-muted
+      );
+    }
+  }
+
+  &:focus-visible {
+    outline: 1px solid $color-primary-muted;
+    outline-offset: -1px;
+  }
+}

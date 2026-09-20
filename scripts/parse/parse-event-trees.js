@@ -543,7 +543,7 @@ async function processEvents() {
     console.error(`❌ Events file not found: ${EVENTS_FILE}`)
     console.error(
       CLI_ARGS.fromDump
-        ? '   Run the dump pipeline first: node scripts/sync-events.js --from-dump'
+        ? '   Run the dump pipeline first: node scripts/sync/sync-events.js --from-dump'
         : '   Generate it with the external event-extraction tool and place it at that path,\n' +
             '   or use --from-dump to parse from the in-repo dump pipeline instead.'
     )

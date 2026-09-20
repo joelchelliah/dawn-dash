@@ -98,7 +98,7 @@ $pill-glow-opacity-hover: 20%;
   font-size: font-size('xxs');
 
   @media (max-width: $breakpoint-mobile) {
-    transform: scale(0.8);
-    margin-right: 0.125rem;
+    font-size: font-size('xxxs');
+    margin: 0.0625rem 0.125rem 0 0;
   }
 }

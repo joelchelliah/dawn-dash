@@ -1,4 +1,9 @@
-import { MagnifyingGlassIcon, StackedCardsIcon } from '@/shared/components/Icons'
+import {
+  CrossedSwordsIcon,
+  MagnifyingGlassIcon,
+  StackedCardsIcon,
+  StarTrailIcon,
+} from '@/shared/components/Icons'
 import Divider from '@/shared/components/Divider'
 import { createCx } from '@/shared/utils/classnames'
 
@@ -7,15 +12,22 @@ import styles from './index.module.scss'
 const cx = createCx(styles)
 
 export type PanelHeaderType =
-  'Search' | 'CardResults' | 'TalentResults' | 'EventResults' | 'TreasureCards' | 'TreasurePools'
+  | 'Search'
+  | 'CardResults'
+  | 'TalentResults'
+  | 'EventResults'
+  | 'TreasureCards'
+  | 'CardPools'
+  | 'SpecialWeapons'
 
 const PANEL_TITLES: Record<PanelHeaderType, string> = {
   Search: 'Search',
   CardResults: 'Cards',
   TalentResults: 'Talents',
   EventResults: 'Event',
-  TreasureCards: 'Treasure cards',
-  TreasurePools: 'Treasure pools',
+  TreasureCards: 'Treasure Cards',
+  CardPools: 'Card Pools',
+  SpecialWeapons: 'Special Basic Attacks',
 }
 
 interface PanelHeaderProps {
@@ -24,10 +36,15 @@ interface PanelHeaderProps {
 
 const PanelHeader = ({ type }: PanelHeaderProps) => {
   const renderIcon = () => {
-    if (type === 'Search') {
-      return <MagnifyingGlassIcon className={cx('panel-header__magnifying-glass-icon')} />
-    } else {
-      return <StackedCardsIcon className={cx('panel-header__cards-icon')} />
+    switch (type) {
+      case 'Search':
+        return <MagnifyingGlassIcon className={cx('panel-header__magnifying-glass-icon')} />
+      case 'TreasureCards':
+        return <StarTrailIcon className={cx('panel-header__star-trail-icon')} />
+      case 'SpecialWeapons':
+        return <CrossedSwordsIcon className={cx('panel-header__swords-icon')} />
+      default:
+        return <StackedCardsIcon className={cx('panel-header__cards-icon')} />
     }
   }
 

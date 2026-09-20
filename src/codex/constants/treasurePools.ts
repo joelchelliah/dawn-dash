@@ -6,20 +6,17 @@ import {
 
 import treasurePools from '@/codex/data/treasure-pools.json'
 import { PoolReachedBy, TreasurePool } from '@/codex/types/treasures'
+import { getOtherPools as getOtherPoolsFromData, OtherPool } from '@/codex/utils/treasureHelper'
 
-export type PoolId = 'booty-shovel' | 'only-treasure' | 'pirate-parlour'
+export type PoolId = 'booty' | 'treasure' | 'pirate-parlour'
 
 export interface TreasurePoolDisplay {
   id: PoolId
-  // Which JSON pools this display pool covers. C and D are merged
   pools: string[]
-  name: string
   imageSrc: string
   color: string
   colorAccent: string
   excludedRewards?: string[]
-  // Replaces the derived per-event source tags with a single tag
-  collapsedEventSource?: string
 }
 
 export interface PoolReward {
@@ -38,32 +35,37 @@ const COLORS = {
 
 export const TREASURE_POOL_DISPLAYS: TreasurePoolDisplay[] = [
   {
-    id: 'booty-shovel',
-    pools: ['A'],
-    name: 'Shovel & Booty',
+    id: 'booty',
+    pools: ['Booty pool'],
     imageSrc: ShovelImageUrl,
     color: COLORS.BOOTY_SHOVEL,
     colorAccent: COLORS.BOOTY_SHOVEL_ACCENT,
     excludedRewards: ['Junk Items'],
   },
   {
-    id: 'only-treasure',
-    pools: ['C', 'D'],
-    name: 'Only Treasure',
+    id: 'treasure',
+    pools: ['Treasure pool', 'Treasure pool (limited)'],
     imageSrc: RingOfPowerImageUrl,
     color: COLORS.ONLY_TREASURE,
     colorAccent: COLORS.ONLY_TREASURE_ACCENT,
-    collapsedEventSource: 'All Treasure events',
   },
   {
     id: 'pirate-parlour',
-    pools: ['B'],
-    name: 'Pirate Parlour',
+    pools: ['Pirate Parlour pool'],
     imageSrc: PirateParlourImageUrl,
     color: COLORS.PIRATE_PARLOUR,
     colorAccent: COLORS.PIRATE_PARLOUR_ACCENT,
   },
 ]
+
+export const POOL_COLOR_CYCLE = TREASURE_POOL_DISPLAYS.map(({ color, colorAccent }) => ({
+  color,
+  colorAccent,
+}))
+
+const COVERED_POOLS = TREASURE_POOL_DISPLAYS.flatMap(({ pools }) => pools)
+
+export const getOtherPools = (): OtherPool[] => getOtherPoolsFromData(COVERED_POOLS)
 
 const TREASURE_POOLS = treasurePools as TreasurePool[]
 
@@ -71,6 +73,13 @@ const POOLS_BY_ID = new Map(TREASURE_POOLS.map((pool) => [pool.pool, pool]))
 
 const getMembers = ({ pools }: TreasurePoolDisplay): TreasurePool[] =>
   pools.flatMap((pool) => POOLS_BY_ID.get(pool) ?? [])
+
+/*
+ * Falls back to the configured pool key so a display pool whose JSON entry was renamed upstream
+ * still renders a name — `findUnmappedPools` is what surfaces the rename itself.
+ */
+export const getPoolName = (display: TreasurePoolDisplay): string =>
+  getMembers(display)[0]?.pool ?? display.pools[0]
 
 /*
  * Merged display pools take the size of their largest member
@@ -103,25 +112,14 @@ export const getPoolRewards = (display: TreasurePoolDisplay): PoolReward[] => {
   ]
 }
 
-const describeSource = ({ card, talent, event }: PoolReachedBy): string | null => {
-  if (card) return `${card} (card)`
-  if (talent) return `${talent} (talent)`
-  if (event) return `${event} (event)`
+export const getPoolSources = (display: TreasurePoolDisplay): PoolReachedBy[] => {
+  const byKey = new Map<string, PoolReachedBy>()
 
-  return null
-}
+  getMembers(display)
+    .flatMap((pool) => pool.reachedBy)
+    .forEach((source) => byKey.set(`${source.name}-${source.sourceType}`, source))
 
-export const getPoolSources = (display: TreasurePoolDisplay): string[] => {
-  const reachedBy = getMembers(display).flatMap((pool) => pool.reachedBy)
-
-  const named = reachedBy
-    .filter(({ event }) => !(event && display.collapsedEventSource))
-    .flatMap((source) => describeSource(source) ?? [])
-
-  const hasEvents = reachedBy.some(({ event }) => event)
-  const collapsed = hasEvents && display.collapsedEventSource ? [display.collapsedEventSource] : []
-
-  return [...collapsed, ...Array.from(new Set(named))]
+  return Array.from(byKey.values()).sort((a, b) => a.name.localeCompare(b.name))
 }
 
 /*

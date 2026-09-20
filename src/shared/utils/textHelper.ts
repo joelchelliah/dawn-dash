@@ -20,3 +20,5 @@ export const truncateLine = (line: string, numCharsToReplace = 3): string => {
  */
 export const splitCamelCaseWords = (text: string): string =>
   text.replace(/([a-z])([A-Z])/g, '$1 $2')
+
+export const capitalize = (text: string): string => text.charAt(0).toUpperCase() + text.slice(1)

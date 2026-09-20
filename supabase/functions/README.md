@@ -101,7 +101,7 @@ requirements. So a freshly synced talent with no `requires_talents` lands under
 
 ### What `npm run sync-talents-preflight` checks
 
-[`scripts/sync-talents-preflight.js`](../../scripts/sync-talents-preflight.js) is a read-only preflight. It reports:
+[`scripts/sync/sync-talents-preflight.js`](../../scripts/sync/sync-talents-preflight.js) is a read-only preflight. It reports:
 
 - **New talents** that the edge function will insert (id, name, tier, expansion).
 - **Unknown expansion indices / tiers** — see the next section.
@@ -158,7 +158,7 @@ To fix, add the index to:
 - `CardSetFilterOption` — [`src/codex/types/filters.ts`](../../src/codex/types/filters.ts)
 - `defaultCardSetFilterValueMap`, `indexMap`, `indexToValueMap` —
   [`useCardSetFilters.ts`](../../src/codex/hooks/useSearchFilters/useCardSetFilters.ts)
-- `KNOWN_EXPANSIONS` — [`scripts/sync-talents-preflight.js`](../../scripts/sync-talents-preflight.js)
+- `KNOWN_EXPANSIONS` — [`scripts/sync/sync-talents-preflight.js`](../../scripts/sync/sync-talents-preflight.js)
 
 Then bump `TALENTS_CACHE_VERSION` in
 [`codexFilterStore.ts`](../../src/codex/utils/codexFilterStore.ts) if the tree shape changes or if there is any danger of the new data causing an error.

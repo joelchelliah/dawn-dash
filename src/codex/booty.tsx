@@ -10,14 +10,20 @@ import Header from '@/shared/components/Header'
 import ScrollToTopButton from '@/shared/components/ScrollToTopButton'
 import StarField from '@/shared/components/StarField'
 
+import { BootyCardDataProvider } from './components/BootyPanels/BootyCardDataContext'
+import { useCardData } from './hooks/useCardData'
 import styles from './booty.module.scss'
 
 const TreasureCardsPanel = dynamic(() => import('./components/BootyPanels/TreasureCardsPanel'), {
   loading: () => <div>Loading treasure cards...</div>,
 })
 
-const TreasurePoolsPanel = dynamic(() => import('./components/BootyPanels/TreasurePoolsPanel'), {
-  loading: () => <div>Loading treasure pools...</div>,
+const SpecialWeaponsPanel = dynamic(() => import('./components/BootyPanels/SpecialWeaponsPanel'), {
+  loading: () => <div>Loading special weapons...</div>,
+})
+
+const CardPoolsPanel = dynamic(() => import('./components/BootyPanels/CardPoolsPanel'), {
+  loading: () => <div>Loading card pools...</div>,
 })
 
 const cx = createCx(styles)
@@ -30,6 +36,8 @@ function useBootyScrollToTop() {
 function Booty(): JSX.Element {
   const { navigateTo } = useNavigation()
   const { showScrollToTopButton, scrollToTop } = useBootyScrollToTop()
+  const cardData = useCardData()
+  const hasCardData = !cardData.isLoading && !cardData.isError
 
   return (
     <div className={cx('container')}>
@@ -43,14 +51,21 @@ function Booty(): JSX.Element {
         currentPage="booty"
       />
 
-      <div className={cx('content')}>
-        <TreasureCardsPanel />
-        <TreasurePoolsPanel />
-      </div>
+      <BootyCardDataProvider value={cardData}>
+        <div className={cx('content')}>
+          <TreasureCardsPanel />
+          {hasCardData && (
+            <>
+              <SpecialWeaponsPanel />
+              <CardPoolsPanel />
+            </>
+          )}
+        </div>
+      </BootyCardDataProvider>
 
       <Footer />
 
-      <ScrollToTopButton show={showScrollToTopButton} onClick={scrollToTop} />
+      <ScrollToTopButton show={showScrollToTopButton} onClick={scrollToTop} alwaysOnTop />
     </div>
   )
 }

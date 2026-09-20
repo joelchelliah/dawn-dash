@@ -8,7 +8,7 @@ $rarity-colors: (
   'monster': $color-danger-special-card,
 );
 
-.treasure-modal-border {
+.card-modal-border {
   @each $name, $color in $rarity-colors {
     &--#{$name}#{&}--#{$name} {
       --rarity-color: #{$color};
@@ -18,7 +18,7 @@ $rarity-colors: (
   border-radius: 0.375rem;
 }
 
-.treasure-modal {
+.card-modal {
   display: flex;
   flex-direction: column;
   padding: 0.5rem 0 0.75rem;
@@ -93,14 +93,49 @@ $rarity-colors: (
   }
 
   &__hint {
-    margin: -0.25rem 0 1rem;
+    margin: -0.25rem 0 0.75rem;
     padding-left: 0.25rem;
     font-size: font-size('xs');
     color: $color-primary-dark;
 
+    ul {
+      margin: 0.5rem 0;
+      padding-left: 1rem;
+      padding-bottom: 0.25rem;
+      color: $color-primary-dark;
+
+      li {
+        margin: 0 0 0.5rem 0;
+        font-weight: 500;
+      }
+    }
+
+    &--stacked {
+      margin-top: 1.25rem;
+    }
+
     @media (max-width: $breakpoint-mobile) {
       margin-bottom: 0.5rem;
       font-size: font-size('xxs');
+
+      ul {
+        margin-top: 0.25rem;
+        padding-bottom: 0.0625rem;
+
+        li {
+          margin-bottom: 0.25rem;
+        }
+      }
+
+      &--stacked {
+        margin-top: 0.875rem;
+      }
+    }
+
+    &__highlighted {
+      display: inline-block;
+      font-weight: 500;
+      color: color-mix(in srgb, var(--rarity-color) 30%, $color-primary-dark);
     }
 
     &__energy {
@@ -117,9 +152,9 @@ $rarity-colors: (
 
       @media (max-width: $breakpoint-mobile) {
         img {
-          top: 0.125rem;
-          width: 0.75rem;
-          height: 0.75rem;
+          top: 0.0625rem;
+          width: 0.675rem;
+          height: 0.675rem;
         }
       }
     }
@@ -132,6 +167,15 @@ $rarity-colors: (
 
     @media (max-width: $breakpoint-mobile) {
       grid-template-columns: repeat(2, 1fr);
+    }
+
+    &--four-columns {
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.5rem;
+
+      @media (max-width: $breakpoint-mobile) {
+        grid-template-columns: repeat(2, 1fr);
+      }
     }
   }
 }

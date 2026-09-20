@@ -1,99 +1,85 @@
 [
   {
-    "pool": "A",
-    "name": "Delve Treasure",
+    "pool": "Booty pool",
     "contains": ["Treasure", "Equipment", "Items"],
-    "predicate": "NOT Junk/Companion",
-    "useAllCardSets": false,
     "size": 102,
-    "keywordShare": 14,
     "reachedBy": [
       {
-        "card": "Booty",
-        "command": "delvebytag"
+        "sourceType": "card",
+        "name": "Booty"
       },
       {
-        "card": "Shovel",
-        "command": "delvebytag"
+        "sourceType": "card",
+        "name": "Shovel"
       }
     ]
   },
   {
-    "pool": "B",
-    "name": "Pirate Parlour",
+    "pool": "Pirate Parlour pool",
     "contains": ["Treasure", "Maps", "Locations", "Pirate Ink"],
-    "predicate": "NOT owned Uniques AND NOT Unplayable",
-    "useAllCardSets": true,
     "size": 31,
-    "tatoosAdded": "0-5",
     "reachedBy": [
       {
-        "talent": "Pirate Parlour",
-        "command": "pirateparlour"
+        "sourceType": "talent",
+        "name": "Pirate Parlour"
       }
     ]
   },
   {
-    "pool": "C",
-    "name": "keyword, ungated",
+    "pool": "Treasure pool",
     "contains": ["Treasure"],
-    "predicate": null,
-    "useAllCardSets": false,
     "size": 14,
     "reachedBy": [
       {
-        "card": "Explorer's Trick",
-        "command": "setrewardstokeyword"
+        "sourceType": "card",
+        "name": "Explorer's Trick"
       },
       {
-        "event": "Broken Tombstone",
-        "command": "addcardbykeyword"
+        "sourceType": "event",
+        "name": "Broken Tombstone"
       },
       {
-        "event": "Marrow Halls",
-        "command": "delvefromany"
+        "sourceType": "event",
+        "name": "Marrow Halls"
       },
       {
-        "event": "Painted Landscape",
-        "command": "addcardbykeyword"
+        "sourceType": "event",
+        "name": "Painted Landscape"
       },
       {
-        "event": "Survey the Field",
-        "command": "delvefromany"
+        "sourceType": "event",
+        "name": "Survey the Field"
       },
       {
-        "event": "Undisturbed Grave",
-        "command": "addcardbykeyword"
+        "sourceType": "event",
+        "name": "Undisturbed Grave"
       },
       {
-        "event": "Vault Door",
-        "command": "delvefromany"
+        "sourceType": "event",
+        "name": "Vault Door"
       },
       {
-        "event": "Vesparin Vault",
-        "command": "delvefromany"
+        "sourceType": "event",
+        "name": "Vesparin Vault"
       }
     ]
   },
   {
-    "pool": "D",
-    "name": "keyword, acquirable",
+    "pool": "Treasure pool (limited)",
     "contains": ["Treasure"],
-    "predicate": "canBeAcquired AND PlayerCanCastCard",
-    "useAllCardSets": false,
     "size": 7,
     "reachedBy": [
       {
-        "event": "Molekin Burrow",
-        "command": "delvefromkeyword"
+        "sourceType": "event",
+        "name": "Molekin Burrow"
       },
       {
-        "event": "Rotting Residence",
-        "command": "delvefromkeyword"
+        "sourceType": "event",
+        "name": "Rotting Residence"
       },
       {
-        "event": "The Cocoon",
-        "command": "delvefromkeyword"
+        "sourceType": "event",
+        "name": "The Cocoon"
       }
     ]
   }
