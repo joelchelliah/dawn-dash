@@ -63,7 +63,7 @@ function WeaponModal({ weapon, cardDetails, cardData, onClose }: WeaponModalProp
   return (
     <CardModal
       cardName={weapon.name}
-      subtitle={getCardSubtitle(weapon, rarity?.name)}
+      subtitle={getCardSubtitle(weapon, weapon.rarity)}
       cardDetails={cardDetails}
       artwork={WEAPON_ARTWORK}
       cardNoun="weapon"

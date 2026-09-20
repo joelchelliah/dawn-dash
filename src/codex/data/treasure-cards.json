@@ -2,7 +2,7 @@
   {
     "id": 930531,
     "name": "Chalice of Blood",
-    "description": "<b>On Draw:</b> Take [[permaValue]] damage then upgrade this by 2. <br><b>One Use:</b> Gain [[permaValue]] Maximum Health.",
+    "rarity": "Legendary",
     "category": "Action",
     "type": "Divine",
     "inCardRewards": false,
@@ -104,7 +104,7 @@
   {
     "id": 611711,
     "name": "Cursed Puzzlebox",
-    "description": "Swap the cost of the Puzzlebox with a card in hand. It becomes <b>Cursed</b>.",
+    "rarity": "Legendary",
     "category": "Artifact",
     "type": "Utility",
     "inCardRewards": false,
@@ -188,7 +188,7 @@
   {
     "id": 978149,
     "name": "Dark Mirror Vial",
-    "description": "<b>One Use</b>: Create a copy of the next <b>non-unique</b> card you play. It gains <b>Cursed</b> and <b>Defiled</b>.",
+    "rarity": "Legendary",
     "category": "Item",
     "type": "Utility",
     "inCardRewards": true,
@@ -284,7 +284,7 @@
   {
     "id": 909591,
     "name": "Flying Carpet",
-    "description": "<b>Activate:</b> Gain <b>Evasion</b> and reduce the cost of all cards in hand by 1. <b>Deplete:</b> Return Flying Carpet to your hand.",
+    "rarity": "Legendary",
     "category": "Equipment",
     "type": "Magic",
     "inCardRewards": false,
@@ -372,6 +372,12 @@
         "name": "Shovel",
         "guaranteed": false,
         "pools": ["Booty pool"]
+      },
+      {
+        "sourceType": "card",
+        "name": "Warchest",
+        "guaranteed": false,
+        "pools": ["Equipment category pool (extended)"]
       }
     ],
     "fromTalents": [
@@ -380,13 +386,19 @@
         "name": "Pirate Parlour",
         "guaranteed": false,
         "pools": ["Pirate Parlour pool"]
+      },
+      {
+        "sourceType": "talent",
+        "name": "Tribute",
+        "guaranteed": false,
+        "pools": ["Equipment category pool"]
       }
     ]
   },
   {
     "id": 353519,
     "name": "Healing Potion",
-    "description": "<b>One Use:</b> Gain <b>[healing:10] HEALTH</b><br>If you are below 50% health, gain <b>[healing:15] HEALTH</b> instead.",
+    "rarity": "Uncommon",
     "category": "Item",
     "type": "Utility",
     "inCardRewards": false,
@@ -518,7 +530,7 @@
   {
     "id": 68505,
     "name": "Philosopher's Stone",
-    "description": "Conjure a random free card of the color you spend to cast this card.<br><b>Scholar</b>: Conjure 2 instead.",
+    "rarity": "Legendary",
     "category": "Item",
     "type": "Utility",
     "inCardRewards": true,
@@ -620,7 +632,7 @@
   {
     "id": 855931,
     "name": "Potion of Visions",
-    "description": "<b>One Use:</b> Draw 3 cards.",
+    "rarity": "Rare",
     "category": "Item",
     "type": "Utility",
     "inCardRewards": false,
@@ -746,7 +758,7 @@
   {
     "id": 973883,
     "name": "Ring of Power",
-    "description": "Randomly deal [damage:5] damage, inflict <b>|#5+[[damageBonus]]#| Burning</b> or <b>Frozen</b> or gain <b>|#5+[[damageBonus]]#| HEALTH</b>. Repeat for every 200 GOLD you own ([[myGold]]). <b>Upgradeable</b>.",
+    "rarity": "Legendary",
     "category": "Item",
     "type": "Magic",
     "inCardRewards": true,
@@ -848,7 +860,7 @@
   {
     "id": 740335,
     "name": "Rune of Persistence",
-    "description": "<b>One Use:</b> Add Persistent to a card in your hand. If the card was conjured, it becomes permanent.",
+    "rarity": "Legendary",
     "category": "Item",
     "type": "Utility",
     "inCardRewards": true,
@@ -941,6 +953,12 @@
     "fromTalents": [
       {
         "sourceType": "talent",
+        "name": "Epiphany",
+        "guaranteed": false,
+        "pools": ["Legendary pool"]
+      },
+      {
+        "sourceType": "talent",
         "name": "Pirate Parlour",
         "guaranteed": false,
         "pools": ["Pirate Parlour pool"]
@@ -950,7 +968,7 @@
   {
     "id": 407234,
     "name": "Rusty Lamp",
-    "description": "Activate to delve a <b>Revelation</b>. Permanently destroyed after |#3-[[permaValue]]#| uses.",
+    "rarity": "Legendary",
     "category": "Equipment",
     "type": "Utility",
     "inCardRewards": false,
@@ -1026,6 +1044,12 @@
         "name": "Shovel",
         "guaranteed": false,
         "pools": ["Booty pool"]
+      },
+      {
+        "sourceType": "card",
+        "name": "Warchest",
+        "guaranteed": false,
+        "pools": ["Equipment category pool (extended)"]
       }
     ],
     "fromTalents": [
@@ -1034,13 +1058,19 @@
         "name": "Pirate Parlour",
         "guaranteed": false,
         "pools": ["Pirate Parlour pool"]
+      },
+      {
+        "sourceType": "talent",
+        "name": "Tribute",
+        "guaranteed": false,
+        "pools": ["Equipment category pool"]
       }
     ]
   },
   {
     "id": 816971,
     "name": "Sharpening Stone",
-    "description": "<b>One Use:</b> Upgrade the next Basic Attack you <nobr>play by 2</nobr>.",
+    "rarity": "Uncommon",
     "category": "Item",
     "type": "Utility",
     "inCardRewards": true,
@@ -1154,7 +1184,7 @@
   {
     "id": 77316,
     "name": "Staff of Thunder",
-    "description": "Deal [damage:3] damage <br>three times.",
+    "rarity": "Rare",
     "category": "BasicAttack",
     "type": "Magic",
     "inCardRewards": false,
@@ -1244,7 +1274,7 @@
   {
     "id": 571114,
     "name": "Stash of Weapons",
-    "description": "Conjure 3 random free Basic Attacks.",
+    "rarity": "Rare",
     "category": "Item",
     "type": "Utility",
     "inCardRewards": true,
@@ -1358,7 +1388,7 @@
   {
     "id": 307462,
     "name": "Tradepost",
-    "description": "<b>One Use:</b> Replace a card in your deck with ANY card of the same color and rarity.",
+    "rarity": "Legendary",
     "category": "Artifact",
     "type": "Utility",
     "inCardRewards": false,

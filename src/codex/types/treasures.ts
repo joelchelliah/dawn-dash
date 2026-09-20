@@ -15,7 +15,7 @@ export type PoolReachedBy = Omit<TreasureSource, 'guaranteed' | 'pools'>
 export interface TreasureCard {
   id: number
   name: string
-  description: string
+  rarity: string
   category: string
   type: string
   inCardRewards: boolean

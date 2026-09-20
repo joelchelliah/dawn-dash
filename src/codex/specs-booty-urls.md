@@ -5,7 +5,7 @@ related events, special conditions — but they are pure local state with no URL
 is no way to link someone to a specific treasure or weapon. Every other content-bearing tool on the
 site can be linked into: Eventmaps has `/eventmaps/[event]`, Cardex has its filter state.
 
-**Status: IN PROGRESS.** Task 0 and Tasks 1–3 are COMPLETED. Task 6 was decided against (see below).
+**Status: COMPLETE.** Task 0 and Tasks 1–3 and 5 are COMPLETED. Tasks 4 and 6 were rejected (see below).
 
 The end state: `/booty/flying_carpet` loads Booty with the Flying Carpet modal already open, and a
 link to it previews in Discord with the card's own artwork and description.
@@ -44,9 +44,8 @@ Settled with the user once implementation started:
   submitted for indexing.
 - **There are 40 URLs, not 41.** 14 treasures + 27 weapons − Staff of Thunder, counted once.
 
-Deliberately left to trial and error in the browser: the scroll-into-view behaviour on cold load
-(Task 4) — how far to scroll and whether to animate is a judgement call that only reads correctly in
-a real viewport at real scroll positions.
+- **Task 4 is rejected.** The cold-load scroll-into-view was built and rolled back — too much
+  machinery for a nice-to-have, and it didn't survive closing the modal. See Task 4 below.
 
 ## How to work through this spec
 
@@ -83,12 +82,11 @@ a real viewport at real scroll positions.
 individually observable — Task 1 in particular has no visible effect at all and must not be mistaken
 for a broken step.
 
-**Pause for confirmation after Task 3, Task 4, and Task 5.** These three are where it becomes
-possible to be subtly wrong in a way that later tasks bury:
+**Pause for confirmation after Task 3 and Task 5.** Both are where it becomes possible to be subtly
+wrong in a way that is easy to miss:
 
 - Task 3 is the first point where the feature visibly works, and where shallow-routing mistakes show
   up as a remount (losing scroll and card data) rather than an error.
-- Task 4 is a judgement call about scroll position that only reads correctly in a real browser.
 - Task 5 changes what third parties see, and a wrong OG image is invisible locally — it only shows
   up when someone pastes a link into Discord.
 
@@ -103,7 +101,7 @@ server, not the agent.**
   build output is itself the verification: it should report ~41 new static pages under `/booty/[card]`.
 - **`npm run check-sw`** after Task 1, per the root `CLAUDE.md` rule about `pages/` changes reaching
   the service worker. A bad precache entry silently disables the whole worker.
-- **Visual, in the user's dev server**, for Tasks 3–5. Specific states to compare, because "looks
+- **Visual, in the user's dev server**, for Tasks 3 and 5. Specific states to compare, because "looks
   fine" on one of them routinely misses the others:
   - Cold load of `/booty/flying_carpet` (a **treasure**, above the fold) — modal open on arrival.
   - Cold load of `/booty/arcane_bow` (a **weapon**, below the fold, and behind the `hasCardData`
@@ -114,7 +112,6 @@ server, not the agent.**
   - Close the modal → back to `/booty`, page not remounted (card data not refetched — watch the
     network tab, or the loading bar not reappearing).
   - Browser **back/forward** across several card selections.
-  - Mobile width, for Task 4's scroll behaviour specifically.
 - **OG tags** (Task 5): `npm run build && npm start`, then
   `curl -s localhost:3000/booty/flying_carpet | grep -i 'og:'` — the tags must be in the **served
   HTML**, not applied after hydration. That distinction is the entire point of the route-segment
@@ -304,8 +301,10 @@ load without scrolling means closing it drops the reader at the top of the page 
 card lives.
 
 This matters **more here than it does for Eventmaps**, because these URLs exist to be shared: for a
-link arriving from Discord, the cold load is the common case rather than the rare one. Hence Task 4 —
-and it applies only to the initial load, not to clicks, since a click already happened at the row.
+link arriving from Discord, the cold load is the common case rather than the rare one. It motivated
+Task 4, which was built and then **rejected** — the reasoning above is sound, but the implementation
+cost was out of proportion to it and the scroll didn't survive closing the modal, which was the
+payoff. See Task 4 for what was tried.
 
 ### OG images could be better than Eventmaps gets
 
@@ -400,39 +399,76 @@ Verify: `npm run verify`, then the full visual list under _How it gets verified_
 case, the click/close round trip, and browser back/forward. Watch specifically that closing a modal
 does **not** refetch card data, which would mean the page remounted and `shallow` isn't working.
 
-### Task 4 — Scroll the selected row into view on cold load
+### Task 4 — Scroll the selected row into view on cold load — **REJECTED**
 
-**PAUSE AFTER THIS TASK.**
+Built, tried in the browser, and rolled back. The code is **not** in the tree; this section records
+why, so it isn't proposed again.
 
-When the selection comes from the **initial load** rather than a click, scroll the card's row into
-view behind the modal, so closing it leaves the reader where the card lives.
+**What it did.** `useBootyCardUrlParam` gained an `isCardFromInitialLoad` flag (a ref capturing the
+card in the URL on the router's first ready render, true only while the URL still holds that card, so
+clicks never qualified). Both lists passed the selected id down to `CardsList` as a new
+`scrollIntoViewId` prop; the matching `CardListRow` took a ref and called
+`scrollIntoView({ behavior: 'auto', block: 'center' })`, deferred a frame and latched to fire once.
 
-Must not fire on click-driven selection — the reader is already at that row, and scrolling under an
-opening modal reads as a glitch. Distinguishing the two is the substance of this task; a ref capturing
-"was there a param on first ready render" is the obvious approach.
+**Why it was dropped.** Two reasons, the second decisive:
 
-Deliberately left to trial and error in the browser: scroll offset and whether to animate. Check both
-desktop and mobile, and check a weapon URL specifically — it is furthest down the page and behind the
-`hasCardData` gate, so it is the case where the row's position settles latest.
+- **It didn't deliver the thing it existed for.** The scroll landed, but closing the modal returned
+  the page to the top anyway — and "closing the modal leaves the reader where the card lives" was the
+  entire justification. Left as-is it scrolls a page the reader can't see behind a modal, then throws
+  the position away at the one moment it was supposed to matter. Fixing _that_ means restoring scroll
+  across the `router.push('/booty')` that closes the modal, which is more router-level machinery
+  again.
+- **The cost/benefit is wrong.** Three files touched, a new prop threaded through the shared
+  `CardsList` (used by both panels, for a case that applies to one row of one of them), a flag on the
+  URL hook, a ref in the row, and a deferred frame — all for a nice-to-have. The feature works
+  without it: the link opens the right modal, which is what a shared link is for.
 
-Verify: `npm run verify`, plus visual checks at desktop and mobile widths.
+**If it is ever revisited**, note the two traps that cost time here, because neither is obvious:
 
-### Task 5 — Per-card OG tags
+- The first attempt cancelled its own scroll. The effect's cleanup called `cancelAnimationFrame`, and
+  `CardsList` re-renders while the card fetch settles, so the cleanup killed the pending frame before
+  it fired. `hasScrolledRef` already guarantees a single run — the cleanup was redundant _and_ wrong.
+- Scroll-position-on-close is the actual feature, not scroll-position-on-open. Any revisit should
+  start there; the open-side scroll is worthless on its own.
 
-**PAUSE AFTER THIS TASK.**
+### Task 5 — Per-card OG tags — **COMPLETED**
 
-Add `src/codex/components/BootyCardHead/`, modelled on `EventMapHead`. Per-card `<title>`,
-`description`, `og:*`, `twitter:*`, canonical, and JSON-LD including the `BreadcrumbList` that
-`EventmapHead` renders for event pages.
+`src/codex/components/BootyCardHead/index.tsx` now renders per-card `<title>`, `description`, `og:*`,
+`twitter:*`, canonical and JSON-LD (`WebPage` + `BreadcrumbList`), structurally mirroring
+`EventmapHead` including its `60`/`60` vs `2400`/`1260` width branching and conditional
+`twitter:card`.
 
-Use the card's own artwork for `og:image` when it resolves, falling back to `tool.ogImage`. Copy
-`EventmapHead`'s width/height branching (`60`/`60` vs `2400`/`1260`) and its conditional
-`twitter:card`. Branch on missing name / `artwork: null` — never on an image load failure.
+- **Artwork** resolves through `getCardImageSrc(name, null)` — the plain function, not the hook, since
+  this runs outside React's render for a `<Head>`. `null` is the miss signal, per the placeholder-webp
+  invariant. No numeric `category` is passed: it lives on the live `CardData`, not the static JSON, and
+  all 40 booty names resolve by name alone (verified against `card-artwork.json`).
+- **The OG description is built from the card's own fields, not its description.** This reverses the
+  earlier decision recorded above. Every one of the 41 descriptions carries HTML (`<b>`, `<br>`), and
+  31 of them carry value tokens (`[damage:5]`, `|#5+[damageBonus]#|`, `([myGold])`) that read as
+  sentences only beside the modal's icons and styled numbers. Stripped to plain text for a meta tag
+  they read as broken. The text is built with the modals' own exported `getCardSubtitle`, so the two
+  never drift.
+- **Task 0 was undone.** With nothing reading it, `description` was removed from the source JSONs and
+  from `CARD_FIELDS` / `WEAPON_FIELDS` / `TreasureCard` / `SpecialWeapon`. It was never needed even
+  under the original plan — the modals were deliberately left on Blightbane's copy for the keyword
+  list, so the OG description was its only prospective consumer.
+- **`rarity` replaced it in the source data.** Upstream now emits a display _name_ (`"Legendary"`),
+  not `CardData.rarity`'s numeric index, which is what lets `getStaticProps` use it — the live card
+  data is unreachable at build time. Cross-checked before switching anything over: all 41 ids resolve
+  on the live `cards-codex` payload and every static rarity matches its numeric counterpart.
+  `getCardSubtitle` now takes the static name in both modals and the head; `CardsList` rows and
+  `CardModal`'s border keep `cardDetails.rarity`, since they need the number for
+  `RarityBorderedArtwork` and the `--${slug}` class names. Widening that shared component to accept
+  either shape was tried and reverted — it is shared with Cardex, which is legitimately numeric, so
+  the branch would have bought nothing.
 
-Verify: `npm run build && npm start`, then
-`curl -s localhost:3000/booty/flying_carpet | grep -i 'og:\|twitter:'` and confirm the card's own tags
-are in the **served HTML**. Repeat for a weapon URL and for a card whose artwork doesn't resolve, if
-one exists. Optionally paste a deployed preview URL into Discord for a real-world check.
+Verified against the **prerendered HTML** in `.next/server/pages/booty/*.html` rather than a running
+server — those 40 files are exactly what a scraper receives, and unlike a `npm start` check they don't
+collide with the user's dev server on port 3000. All 40 carry their own tags; spot-checked a treasure,
+a weapon, the overlap card and a `Utility`-typed weapon.
+
+`npm run verify`, `npm run build` (40 booty pages) and `npm run check-sw` (103 precached URLs resolve)
+all pass.
 
 ### Task 6 — Sitemap — **DROPPED**
 

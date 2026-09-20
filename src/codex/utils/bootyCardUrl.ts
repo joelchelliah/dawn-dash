@@ -12,7 +12,7 @@ export type BootyCardKind = 'treasure' | 'weapon'
 export interface BootyCard {
   kind: BootyCardKind
   name: string
-  description: string
+  rarity: string
   category: string
   type: string
 }
@@ -20,17 +20,17 @@ export interface BootyCard {
 export const BOOTY_CARD_URL_OWNER: BootyCardKind = 'treasure'
 
 export const BOOTY_CARDS: BootyCard[] = [
-  ...treasures.map(({ name, description, category, type }): BootyCard => ({
+  ...treasures.map(({ name, rarity, category, type }): BootyCard => ({
     kind: 'treasure',
     name,
-    description,
+    rarity,
     category,
     type,
   })),
-  ...weapons.map(({ name, description, category, type }): BootyCard => ({
+  ...weapons.map(({ name, rarity, category, type }): BootyCard => ({
     kind: 'weapon',
     name,
-    description,
+    rarity,
     category,
     type,
   })),

@@ -48,7 +48,7 @@ const toPoolSource = ({ type, name }) => ({ sourceType: type, name })
 const CARD_FIELDS = [
   'id',
   'name',
-  'description',
+  'rarity',
   'category',
   'type',
   'inCardRewards',

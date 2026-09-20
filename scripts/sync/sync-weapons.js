@@ -35,7 +35,7 @@ const SOURCE_FIELDS = {
 const WEAPON_FIELDS = [
   'id',
   'name',
-  'description',
+  'rarity',
   'category',
   'type',
   'fromEvents',
