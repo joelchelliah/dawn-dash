@@ -41,7 +41,16 @@ export const enrichTreasureCards = (cardData: CardData[] | undefined): EnrichedT
   })
 }
 
-const toBasePoolName = (pool: string): string => pool.replace(/ \(limited\)$/, '')
+const POOL_DISPLAY_NAMES: Record<string, string> = {
+  'Equipment category pool': 'Equipment pool',
+  'Equipment category pool (extended)': 'Equipment pool',
+  'Equipment pool (limited)': 'Equipment pool',
+  'Rare pool (limited)': 'Rare pool',
+  'Treasure pool (limited)': 'Treasure pool',
+  'Uncommon pool (limited)': 'Uncommon pool',
+}
+
+const toBasePoolName = (pool: string): string => POOL_DISPLAY_NAMES[pool] ?? pool
 
 const toDisplayPools = (pools: string[]): string[] =>
   Array.from(new Set(pools.map(toBasePoolName))).sort()

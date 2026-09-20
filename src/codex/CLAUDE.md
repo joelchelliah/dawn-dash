@@ -63,11 +63,16 @@ This directory hosts four tools: **Cardex** (`cards.tsx`), **Skilldex** (`skills
   `data/treasure-pools.json` declares** — the declared four are the treasure pools Booty documents,
   while `Elite`/`Equipment`/`Potion`/`Rare`/`Uncommon pool` are general reward pools a handful of
   treasures also sit in. Don't assume a source's pool resolves to a `TreasurePool`. `toDisplayPools`
-  in `utils/treasureHelper.ts` collapses `X pool (limited)` into `X pool` and **de-duplicates the
-  result**: the restriction is not something a player can act on, two pools that only ever appear
-  limited (Rare, Uncommon) therefore render under their base name, and collapsing can leave one
-  source holding the same base name twice (Molekin Burrow draws Flying Carpet from both Equipment
-  pools). `EnrichedEvent` is `Event & { pools: string[] }`, one per event, and `ArtworkLinkItem`
+  in `utils/treasureHelper.ts` maps raw pool names through the **`POOL_DISPLAY_NAMES` table** and
+  **de-duplicates the result**: `X pool (limited)` collapses into `X pool` because the restriction is
+  not something a player can act on, and `Equipment category pool` / `Equipment category pool
+  (extended)` collapse into `Equipment pool` because reaching the pool by category rather than by
+  name is likewise invisible to the player. It is a **table rather than a suffix regex** precisely
+  because the Equipment merge is not a suffix rule — a new variant needs an entry, and unlisted names
+  pass through unchanged. Two pools that only ever appear limited (Rare, Uncommon) therefore render
+  under their base name, and collapsing can leave one source holding the same base name twice
+  (Molekin Burrow draws Flying Carpet from both Equipment pools; Warchest and Tribute reach it
+  through the two Equipment category variants). `EnrichedEvent` is `Event & { pools: string[] }`, one per event, and `ArtworkLinkItem`
   stacks those pools vertically under the name via `subtitles`. A pool's own `reachedBy` uses
   `PoolReachedBy` — the same shape minus `guaranteed`/`pools`, since the pool _is_ what those sources
   reach.
