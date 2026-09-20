@@ -5,7 +5,7 @@ related events, special conditions — but they are pure local state with no URL
 is no way to link someone to a specific treasure or weapon. Every other content-bearing tool on the
 site can be linked into: Eventmaps has `/eventmaps/[event]`, Cardex has its filter state.
 
-**Status: NOT STARTED.** Scoped and researched, no code written.
+**Status: IN PROGRESS.** Task 0 and Tasks 1–3 are COMPLETED. Task 6 was decided against (see below).
 
 The end state: `/booty/flying_carpet` loads Booty with the Flying Carpet modal already open, and a
 link to it previews in Discord with the card's own artwork and description.
@@ -15,7 +15,7 @@ link to it previews in Discord with the card's own artwork and description.
 These were settled during scoping. Don't re-litigate them mid-implementation.
 
 - **A route segment, not a query param.** `/booty/flying_carpet`, not `/booty?card=flying_carpet`.
-  The reason is OG tags and it is not a matter of taste — see *Why not a query param* below.
+  The reason is OG tags and it is not a matter of taste — see _Why not a query param_ below.
 - **Name in the URL, not id.** `flying_carpet`, not `77316`. Shareable, readable, and it survives a
   Blightbane id change. The lookup is over 41 entries, so a linear `.find` is fine — **do not** build
   a module-scope `Map` for this. (The map rule in `CLAUDE.md` is about the ~3100-entry
@@ -26,9 +26,23 @@ These were settled during scoping. Don't re-litigate them mid-implementation.
   (`/[^A-Za-z0-9 '-]/` matches none of them), so every name round-trips with no escaping. Don't write
   a second normalizer.
 - **One shared param namespace for both panels.** `/booty/staff_of_thunder`, not separate
-  `/booty/treasure/...` and `/booty/weapon/...` routes. See *The Staff of Thunder overlap*.
+  `/booty/treasure/...` and `/booty/weapon/...` routes. See _The Staff of Thunder overlap_.
 - **The modal renders over the full Booty page.** This is not "a page per card" in any meaningful
-  sense — see *What actually gets built*.
+  sense — see _What actually gets built_.
+
+Settled with the user once implementation started:
+
+- **The Treasure Cards panel owns the overlapping URL.** `staff_of_thunder` opens the treasure modal;
+  `WeaponList` sits the URL out. Recorded as `BOOTY_CARD_URL_OWNER` in `utils/bootyCardUrl.ts`.
+- **The OG description comes from the static JSON, not Blightbane.** Upstream now emits a
+  `description` on every treasure and weapon entry, so Task 0 (below) pulls it through the sync
+  scripts and types. It is the same text Blightbane serves **minus a trailing keyword list**
+  (`Grounded.`, `Unique.`, `Chain.` — 25 of the 41 cards differ this way), which is what makes it the
+  better OG copy and why the **modals deliberately keep reading Blightbane's**: those keywords are
+  gameplay information a player acts on.
+- **Task 6 is dropped.** The card URLs stay out of the sitemap — shareable and previewable, just not
+  submitted for indexing.
+- **There are 40 URLs, not 41.** 14 treasures + 27 weapons − Staff of Thunder, counted once.
 
 Deliberately left to trial and error in the browser: the scroll-into-view behaviour on cold load
 (Task 4) — how far to scroll and whether to animate is a judgement call that only reads correctly in
@@ -43,7 +57,7 @@ a real viewport at real scroll positions.
 - **`src/codex/CLAUDE.md`** — four invariants bear on this work:
   - **`booty.tsx` owns the single `useCardData()` call**, shared via `BootyCardDataContext`. The
     panels must not call the hook themselves. This constrains where URL-param resolution can live —
-    see *The mount-timing trap*.
+    see _The mount-timing trap_.
   - **Every entry in `data/special-weapons.json` carries its own full details**, so a card that is
     both a weapon and a treasure (currently only Staff of Thunder) is rendered from that file alone
     and is **not** looked up in `treasure-cards.json`. Such a card is deliberately shown twice, once
@@ -109,13 +123,13 @@ server, not the agent.**
 ### Which docs change with the work
 
 - **`src/codex/CLAUDE.md`** — add an invariant once implemented. Candidates, grepped for while
-  scoping: the *Booty* bullets near `booty.tsx owns the single useCardData() call` are where URL
+  scoping: the _Booty_ bullets near `booty.tsx owns the single useCardData() call` are where URL
   ownership belongs. The new invariant worth recording is **where the selection state lives** (the
   URL, not the list components) and **why the lists resolve from `router.query` rather than from page
-  props** — see *The mount-timing trap*, which is the non-obvious part.
+  props** — see _The mount-timing trap_, which is the non-obvious part.
 - **`scripts/generate-sitemap.js`** — Task 6, with the deliberate-hardcoding comment updated if card
   URLs are added.
-- **Root `CLAUDE.md`** — the Booty entry under *Main Features* describes it as rendering three
+- **Root `CLAUDE.md`** — the Booty entry under _Main Features_ describes it as rendering three
   panels; if card URLs land, that entry should mention the per-card routes, as the Eventmaps entry
   mentions `pages/eventmaps/[event].tsx`.
 - **This spec** — mark tasks COMPLETED as they land.
@@ -125,7 +139,7 @@ rewritten. The `useCardData` single-fetch invariant is the one most at risk here
 
 ### Comment style
 
-The non-obvious *why*, in a line or two. The three things worth a comment in this work, because
+The non-obvious _why_, in a line or two. The three things worth a comment in this work, because
 nothing about the code makes them evident:
 
 - Why the lists read `router.query` rather than page props (both paths must work; shallow routing
@@ -175,7 +189,7 @@ export default function BootyCardPage({ card, cardUrlParam }: Props) {
   return (
     <>
       <BootyCardHead card={card} cardUrlParam={cardUrlParam} />
-      <Booty />           {/* the same component pages/booty.tsx renders */}
+      <Booty /> {/* the same component pages/booty.tsx renders */}
     </>
   )
 }
@@ -236,13 +250,15 @@ entirely rather than having to handle it.
 `booty.tsx:55` gates two of the three panels behind the card fetch:
 
 ```tsx
-<TreasureCardsPanel />
-{hasCardData && (
-  <>
-    <SpecialWeaponsPanel />
-    <CardPoolsPanel />
-  </>
-)}
+;<TreasureCardsPanel />
+{
+  hasCardData && (
+    <>
+      <SpecialWeaponsPanel />
+      <CardPoolsPanel />
+    </>
+  )
+}
 ```
 
 So on a cold load of `/booty/arcane_bow`, **the weapons list does not exist yet** — for the first
@@ -306,7 +322,16 @@ The miss signal must be a missing name or `artwork: null`, **never** an image lo
 
 ## Tasks
 
-### Task 1 — The static route
+### Task 0 — Pull `description` through the sync — **COMPLETED**
+
+Added ahead of the original task list, because Task 5's OG copy reads it.
+
+- `description` added to `CARD_FIELDS` in `scripts/sync/sync-treasures.js` and to `WEAPON_FIELDS` in
+  `scripts/sync/sync-weapons.js`, and to `TreasureCard` / `SpecialWeapon` in `types/`.
+- Both syncs re-run, so `data/treasure-cards.json` and `data/special-weapons.json` now carry it.
+- **The modals were left on `cardDetails.description` (Blightbane's)** — see the decision above.
+
+### Task 1 — The static route — **COMPLETED**
 
 Add `pages/booty/[card].tsx`, structurally mirroring `pages/eventmaps/[event].tsx`.
 
@@ -325,7 +350,7 @@ still generic. This is expected — don't chase it as a bug.
 
 Verify: `npm run verify`, `npm run build` (expect ~41 new static pages), `npm run check-sw`.
 
-### Task 2 — The URL-param hook
+### Task 2 — The URL-param hook — **COMPLETED**
 
 Add `src/codex/hooks/useBootyCardUrlParam.ts`, modelled on `useEventUrlParam` but simpler — one query
 key, one route, no index sentinel like `ALL_EVENTS_INDEX`.
@@ -350,7 +375,7 @@ timing work), there is no effect to de-duplicate and the ref is unnecessary. Don
 
 Verify: `npm run verify`.
 
-### Task 3 — Wire both lists to the URL
+### Task 3 — Wire both lists to the URL — **COMPLETED**
 
 **PAUSE AFTER THIS TASK.**
 
@@ -359,7 +384,7 @@ In `TreasureList` and `WeaponList`, replace `useState<number | null>` with deriv
 
 ```ts
 const selected = cardNameInUrl
-  ? treasures.find(t => normalizeEventNameForUrl(t.treasureDetails.name) === cardNameInUrl)
+  ? treasures.find((t) => normalizeEventNameForUrl(t.treasureDetails.name) === cardNameInUrl)
   : undefined
 ```
 
@@ -371,7 +396,7 @@ the suggestion is the Treasure Cards panel.
 Note `CardList`'s `onSelect` currently passes an **id**; it will need the name, or the list can map id
 → name before calling. Prefer whichever keeps `CardsList` unchanged, since it is shared by both panels.
 
-Verify: `npm run verify`, then the full visual list under *How it gets verified* — every cold-load
+Verify: `npm run verify`, then the full visual list under _How it gets verified_ — every cold-load
 case, the click/close round trip, and browser back/forward. Watch specifically that closing a modal
 does **not** refetch card data, which would mean the page remounted and `shallow` isn't working.
 
@@ -409,7 +434,17 @@ Verify: `npm run build && npm start`, then
 are in the **served HTML**. Repeat for a weapon URL and for a card whose artwork doesn't resolve, if
 one exists. Optionally paste a deployed preview URL into Discord for a real-world check.
 
-### Task 6 — Sitemap (decide, then act)
+### Task 6 — Sitemap — **DROPPED**
+
+Raised with the user, who declined: 40 pages differing only in modal content is the thin-content risk
+this task existed to weigh, and the URLs work as shared links without being indexed. The hardcoded
+tool URLs in `scripts/generate-sitemap.js` are untouched, and the file needs no comment change since
+nothing about its deliberate hardcoding changed.
+
+<details>
+<summary>Original task text</summary>
+
+#### Task 6 — Sitemap (decide, then act)
 
 Read the deliberate-hardcoding comment in `scripts/generate-sitemap.js` first.
 
@@ -424,3 +459,5 @@ Raise it with the user rather than deciding unilaterally. If yes, follow the eve
 keep the hardcoded tool URLs untouched.
 
 Verify: `npm run build`, then inspect `public/sitemap.xml`.
+
+</details>

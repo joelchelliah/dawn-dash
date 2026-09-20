@@ -2,6 +2,7 @@
   {
     "id": 862599,
     "name": "Arcane Bow",
+    "description": "Gain <b>1 Focus</b>.<br>Shoot a <b>Stardart</b>.<br>Repeat for each time this was <b>Foretold</b> ([[tempValue]]).",
     "category": "BasicAttack",
     "type": "Ranged",
     "fromEvents": [],
@@ -11,6 +12,7 @@
   {
     "id": 178462,
     "name": "Asteran",
+    "description": "Deal [damage:6] damage. <br>Gain HOLY. Increase your Blessings by your HOLY ([[myEnergyHOLY]]).",
     "category": "BasicAttack",
     "type": "Divine",
     "fromEvents": [
@@ -40,6 +42,7 @@
   {
     "id": 761240,
     "name": "Astrakan",
+    "description": "Deal [damage:12] damage. <br>Inflict a <b>Hex</b>. Gain HOLYHOLY Astrakan becomes your Basic Attack.",
     "category": "BasicAttack",
     "type": "Divine",
     "fromEvents": [],
@@ -49,6 +52,7 @@
   {
     "id": 264169,
     "name": "Battlespear",
+    "description": "Deal [damage:5] damage.<br>Gains a random property on creation.",
     "category": "BasicAttack",
     "type": "Divine",
     "fromEvents": [],
@@ -58,6 +62,7 @@
   {
     "id": 238182,
     "name": "Blaster",
+    "description": "Deal [damage:5] damage.\nRemove a charge and repeat for each active <b>Equipment</b> ([[equipments]]). <b>Interrupt</b>.",
     "category": "BasicAttack",
     "type": "Ranged",
     "fromEvents": [],
@@ -74,6 +79,7 @@
   {
     "id": 58040,
     "name": "Buzzsword",
+    "description": "Deal [damage:6] damage.\n<b>Execute:</b> <b>Upgrade</b> this equal to 10% of the <b>Overkill</b>.",
     "category": "BasicAttack",
     "type": "Melee",
     "fromEvents": [],
@@ -90,6 +96,7 @@
   {
     "id": 720436,
     "name": "Celestial Claws",
+    "description": "Gain <b>3 HEALTH</b>.<br>Inflict <b>Burning</b> equal to the health you gained this round.",
     "category": "BasicAttack",
     "type": "Melee",
     "fromEvents": [],
@@ -99,6 +106,7 @@
   {
     "id": 683451,
     "name": "Demon Claws",
+    "description": "Deal [damage:3] damage.<br><b>On Hit:</b> Add a <b>Terror</b> to your foe's deck",
     "category": "BasicAttack",
     "type": "Melee",
     "fromEvents": [],
@@ -108,6 +116,7 @@
   {
     "id": 415692,
     "name": "Drakkan",
+    "description": "Deal [damage:8] damage.<br><b>On Hit:</b> Inflict a <b>Hex</b>.<br><b>Execute:</b> Upgrade by 1.",
     "category": "BasicAttack",
     "type": "Melee",
     "fromEvents": [
@@ -137,6 +146,7 @@
   {
     "id": 606138,
     "name": "Faewand",
+    "description": "Deal [damage:1] to [damage:7] damage.<br><b>Chaotic</b> while <b>Cursed</b>.<br><b>On Hit:</b> Add 1 to 3 <b>Pranks</b> to your foe's deck.",
     "category": "BasicAttack",
     "type": "Magic",
     "fromEvents": [
@@ -160,6 +170,7 @@
   {
     "id": 728501,
     "name": "Goldstrike",
+    "description": "Deal [damage:[[myGold]]/5] damage.<br>This weapon deals damage equal to 20% of your GOLD .",
     "category": "BasicAttack",
     "type": "Melee",
     "fromEvents": [
@@ -190,6 +201,7 @@
   {
     "id": 239672,
     "name": "Halifax",
+    "description": "Deal [damage:5] damage.<br>Gain a Blessing with stacks for each damage dealt",
     "category": "BasicAttack",
     "type": "Divine",
     "fromEvents": [],
@@ -199,6 +211,7 @@
   {
     "id": 765067,
     "name": "Helios",
+    "description": "Deal [damage:9] damage.<br><b>Lifedrain</b><br><b>Execute:</b> ???",
     "category": "BasicAttack",
     "type": "Divine",
     "fromEvents": [],
@@ -208,6 +221,7 @@
   {
     "id": 450681,
     "name": "Hellforged Axe",
+    "description": "Deal [damage:15] damage. <br>Shuffle <b>4 Fury</b> cards to your discard pile",
     "category": "BasicAttack",
     "type": "Melee",
     "fromEvents": [
@@ -237,6 +251,7 @@
   {
     "id": 760719,
     "name": "Hexglaive",
+    "description": "Deal [damage:6] damage. <br>Deals 6 additional damage per active <B>Hex</b>. <br><b>Corrupted: Lifedrain</b>.",
     "category": "BasicAttack",
     "type": "Melee",
     "fromEvents": [],
@@ -266,6 +281,7 @@
   {
     "id": 843524,
     "name": "Majatome",
+    "description": "Deal damage equal to 20% of your foe's Maximum Health (|#[[otherMaxHealth]]/5#|). <br><b>Execute: Lifedrain</b>.",
     "category": "BasicAttack",
     "type": "Melee",
     "fromEvents": [],
@@ -282,6 +298,7 @@
   {
     "id": 144375,
     "name": "Monolith",
+    "description": "Deal [damage:25] damage. <br><b>On Hit:</b> <b>Interrupt</b> and <nobr>Inflict <b>1 Dazed</b></nobr>",
     "category": "BasicAttack",
     "type": "Melee",
     "fromEvents": [],
@@ -291,6 +308,7 @@
   {
     "id": 41020033,
     "name": "Oathbreaker",
+    "description": "Deal [damage:2] damage. Add 3 damage for each Code in your deck that is not active ([[oathsbroken]]). <B>Ambush:</b> Inflict <b>Bleeding</b> for each damage dealt and gain <b>Blood Taxes</b>.",
     "category": "BasicAttack",
     "type": "Melee",
     "fromEvents": [],
@@ -307,6 +325,7 @@
   {
     "id": 91730,
     "name": "Rainbow",
+    "description": "Deal [damage:6] damage.<br>Conjure an Arrow for each shade of your energy.",
     "category": "BasicAttack",
     "type": "Ranged",
     "fromEvents": [],
@@ -323,6 +342,7 @@
   {
     "id": 956773,
     "name": "Rhymebind",
+    "description": "Deal [damage:5] damage.<br>Inflict a <b>Critical Hit</b> against <b>Frozen</b> foes.<br><b>On Hit:</b> Inflict <b>Permafrost</b>.",
     "category": "BasicAttack",
     "type": "Melee",
     "fromEvents": [],
@@ -339,6 +359,7 @@
   {
     "id": 514930,
     "name": "Rovik",
+    "description": "Deal [damage:12] damage. \nDeals 20 additional damage for each <b>Scar</b>. <b>Interrupt</b>. Draw: Adapt for each <b>Scar</b>.",
     "category": "BasicAttack",
     "type": "Melee",
     "fromEvents": [],
@@ -355,6 +376,7 @@
   {
     "id": 564994,
     "name": "Scythe",
+    "description": "Deal [damage:8] damage.<br><b>Execute:</b> Gain HEALTH equal<br>to the <b>Overkill</b>",
     "category": "BasicAttack",
     "type": "Melee",
     "fromEvents": [
@@ -378,6 +400,7 @@
   {
     "id": 722053,
     "name": "Shredder Axe",
+    "description": "Deal [damage:8] damage.<br>If you are Performing, <b>Interrupt</b> and <b>Critical Hit</b>.",
     "category": "BasicAttack",
     "type": "Melee",
     "fromEvents": [
@@ -408,6 +431,7 @@
   {
     "id": 77316,
     "name": "Staff of Thunder",
+    "description": "Deal [damage:3] damage <br>three times.",
     "category": "BasicAttack",
     "type": "Magic",
     "fromEvents": [
@@ -492,6 +516,7 @@
   {
     "id": 694945,
     "name": "Suntree Twig",
+    "description": "Deal [damage:1] damage.<br><b>Lifedrain</b> against Demons and Undead.",
     "category": "BasicAttack",
     "type": "Divine",
     "fromEvents": [],
@@ -501,6 +526,7 @@
   {
     "id": 561648,
     "name": "Towershield",
+    "description": "Gain <b>|#6+[[damageBonus]]#| Armor</b>.<br>Upgrades provide additional <b>Armor</b>.<br>Draw a card.",
     "category": "BasicAttack",
     "type": "Utility",
     "fromEvents": [
@@ -537,6 +563,7 @@
   {
     "id": 431790,
     "name": "Trancor",
+    "description": "Deal [damage:3] damage. <br><b>Continuity:</b> Gain <b>Chain</b> equal to the damage dealt.",
     "category": "BasicAttack",
     "type": "Ranged",
     "fromEvents": [],

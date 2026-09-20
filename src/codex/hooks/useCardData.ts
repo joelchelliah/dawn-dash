@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import useSWR from 'swr'
 
@@ -62,13 +62,20 @@ export function useCardData(): UseCardData {
     }
   )
 
+  /*
+   * `localData` is the invalidation signal: it changes identity exactly when
+   * `onSuccess` has written a new cache entry, which is the only thing that moves the timestamp.
+   */
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const lastUpdated = useMemo(() => getCachedCardDataTimestamp(), [localData])
+
   return {
     cardData: localData || data,
     isLoading: (isLoading || isRefreshing) && !localData && !error,
     isLoadingInBackground: Boolean((isLoading || isRefreshing) && localData && !error),
     isError: error && !localData,
     isErrorInBackground: Boolean(error && localData),
-    lastUpdated: getCachedCardDataTimestamp(),
+    lastUpdated,
     refresh: () => {
       setProgress(0)
       setIsRefreshing(true)
