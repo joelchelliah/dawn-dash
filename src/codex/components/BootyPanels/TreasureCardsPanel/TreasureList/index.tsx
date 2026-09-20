@@ -1,9 +1,9 @@
 import { useMemo } from 'react'
 
-import { normalizeEventNameForUrl } from '@/codex/hooks/useEventUrlParam'
 import { useBootyCardUrlParam } from '@/codex/hooks/useBootyCardUrlParam'
 import { CardData } from '@/codex/types/cards'
 import { EnrichedTreasureCard } from '@/codex/types/treasures'
+import { getBootyCardUrlParam } from '@/codex/utils/bootyCardUrl'
 
 import CardList, { CardListItem } from '../../shared/CardsList'
 import { TREASURE_ARTWORK } from '../../shared/cardArtwork'
@@ -19,7 +19,8 @@ function TreasureList({ treasures, cardData }: TreasureListProps): JSX.Element {
 
   const selectedTreasure = cardNameInUrl
     ? treasures.find(
-        ({ treasureDetails }) => normalizeEventNameForUrl(treasureDetails.name) === cardNameInUrl
+        ({ treasureDetails }) =>
+          getBootyCardUrlParam(treasureDetails.name, 'treasure') === cardNameInUrl
       )
     : undefined
 
@@ -37,7 +38,8 @@ function TreasureList({ treasures, cardData }: TreasureListProps): JSX.Element {
 
   const selectById = (id: number) => {
     const treasure = treasures.find(({ treasureDetails }) => treasureDetails.id === id)
-    if (treasure) selectCardAndUpdateUrl(treasure.treasureDetails.name)
+    if (treasure)
+      selectCardAndUpdateUrl(getBootyCardUrlParam(treasure.treasureDetails.name, 'treasure'))
   }
 
   return (

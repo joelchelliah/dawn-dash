@@ -32,8 +32,13 @@ These were settled during scoping. Don't re-litigate them mid-implementation.
 
 Settled with the user once implementation started:
 
-- **The Treasure Cards panel owns the overlapping URL.** `staff_of_thunder` opens the treasure modal;
-  `WeaponList` sits the URL out. Recorded as `BOOTY_CARD_URL_OWNER` in `utils/bootyCardUrl.ts`.
+- **The overlapping card gets two URLs, one per panel.** Originally the Treasure Cards panel owned
+  the single `staff_of_thunder` URL and `WeaponList` sat it out — but that left the weapon view
+  unaddressable, and clicking the weapon row opened the treasure modal. Superseded: the non-owning
+  kind is suffixed, so `/booty/staff_of_thunder` is the treasure and `/booty/staff_of_thunder_weapon`
+  the weapon. `BOOTY_CARD_URL_OWNER` now only picks which kind keeps the unsuffixed URL. The suffix
+  names the kind rather than counting (`_2`), which would be meaningless to a reader and would
+  reshuffle with dataset order if a second overlap appeared.
 - **The OG description comes from the static JSON, not Blightbane.** Upstream now emits a
   `description` on every treasure and weapon entry, so Task 0 (below) pulls it through the sync
   scripts and types. It is the same text Blightbane serves **minus a trailing keyword list**
@@ -42,7 +47,8 @@ Settled with the user once implementation started:
   gameplay information a player acts on.
 - **Task 6 is dropped.** The card URLs stay out of the sitemap — shareable and previewable, just not
   submitted for indexing.
-- **There are 40 URLs, not 41.** 14 treasures + 27 weapons − Staff of Thunder, counted once.
+- **There are 41 URLs.** 14 treasures + 27 weapons, with Staff of Thunder counted once per panel.
+  (It was 40 while the overlap shared one URL.)
 
 - **Task 4 is rejected.** The cold-load scroll-into-view was built and rolled back — too much
   machinery for a nice-to-have, and it didn't survive closing the modal. See Task 4 below.
@@ -286,13 +292,13 @@ on it.
 
 It is therefore **not a genuine ambiguity**, just one card with two homes. But it is a real hazard for
 naive per-list matching: if both lists independently match `staff_of_thunder`, **two modals open,
-stacked**. Task 3 must pick an owner. Suggested rule, to be confirmed with the user: the Treasure
-Cards panel wins, since it sits at the top of the page and is the one that reports sync state. Whatever
-is chosen needs a comment, because the tie-break is not derivable from the data — both entries look
-equally valid.
+stacked**.
 
-A route segment is what makes this a one-line rule rather than a URL-design problem: `?treasure=` vs
-`?weapon=` prefixing would have been needed under the query-param approach, giving one card two URLs.
+Task 3 first solved that by picking an owner — the treasure panel — and having `WeaponList` sit the
+URL out. That removed the stacking but left the weapon view **unaddressable**: clicking the weapon row
+opened the treasure modal, and no URL reached the weapon's own content. Since the two modals render
+genuinely different data, the card now gets **one URL per panel** instead (see _Follow-up_ below), and
+each list matches only its own params — which removes the stacking without an owner-based veto.
 
 ### Scroll on cold load
 
@@ -441,7 +447,7 @@ clicks never qualified). Both lists passed the selected id down to `CardsList` a
 - **Artwork** resolves through `getCardImageSrc(name, null)` — the plain function, not the hook, since
   this runs outside React's render for a `<Head>`. `null` is the miss signal, per the placeholder-webp
   invariant. No numeric `category` is passed: it lives on the live `CardData`, not the static JSON, and
-  all 40 booty names resolve by name alone (verified against `card-artwork.json`).
+  all 40 distinct booty names resolve by name alone (verified against `card-artwork.json`).
 - **The OG description is built from the card's own fields, not its description.** This reverses the
   earlier decision recorded above. Every one of the 41 descriptions carries HTML (`<b>`, `<br>`), and
   31 of them carry value tokens (`[damage:5]`, `|#5+[damageBonus]#|`, `([myGold])`) that read as
@@ -463,16 +469,16 @@ clicks never qualified). Both lists passed the selected id down to `CardsList` a
   the branch would have bought nothing.
 
 Verified against the **prerendered HTML** in `.next/server/pages/booty/*.html` rather than a running
-server — those 40 files are exactly what a scraper receives, and unlike a `npm start` check they don't
-collide with the user's dev server on port 3000. All 40 carry their own tags; spot-checked a treasure,
-a weapon, the overlap card and a `Utility`-typed weapon.
+server — those 41 files are exactly what a scraper receives, and unlike a `npm start` check they don't
+collide with the user's dev server on port 3000. All 41 carry their own tags; spot-checked a treasure,
+a weapon, both overlap pages and a `Utility`-typed weapon.
 
-`npm run verify`, `npm run build` (40 booty pages) and `npm run check-sw` (103 precached URLs resolve)
+`npm run verify`, `npm run build` (41 booty pages) and `npm run check-sw` (103 precached URLs resolve)
 all pass.
 
 ### Task 6 — Sitemap — **DROPPED**
 
-Raised with the user, who declined: 40 pages differing only in modal content is the thin-content risk
+Raised with the user, who declined: 41 pages differing only in modal content is the thin-content risk
 this task existed to weigh, and the URLs work as shared links without being indexed. The hardcoded
 tool URLs in `scripts/generate-sitemap.js` are untouched, and the file needs no comment change since
 nothing about its deliberate hardcoding changed.
@@ -497,3 +503,28 @@ keep the hardcoded tool URLs untouched.
 Verify: `npm run build`, then inspect `public/sitemap.xml`.
 
 </details>
+
+---
+
+## Follow-up: two URLs for the overlapping card — **COMPLETED**
+
+The tie-break above worked but made the weapon view unreachable. Replaced with a per-kind URL param.
+
+- `getBootyCardUrlParam(name, kind)` in `utils/bootyCardUrl.ts` suffixes a card's param with its kind
+  **only when the other dataset holds the same name** and the kind is not `BOOTY_CARD_URL_OWNER`.
+  Overlaps are detected from the data at module scope, so nothing is special-cased to Staff of
+  Thunder. `BootyCard` now carries its `urlParam`, and `findBootyCardByUrlParam` matches on it.
+- `BOOTY_CARD_URL_OWNER` survives with a narrower job: it picks which kind keeps the **unsuffixed**
+  URL, so the existing `/booty/staff_of_thunder` links still open the treasure modal.
+- `selectCardAndUpdateUrl` takes a ready-made param rather than a name, since a name no longer
+  determines the URL on its own.
+- **`WeaponList`'s `isOwnedByThisPanel` branch is gone** — both lists now derive their selection
+  identically, matching their own rows' params. Net slightly less code.
+- `_weapon` rather than `_2`: an ordinal is meaningless to a reader and would reshuffle with dataset
+  order if a second overlap ever appeared.
+
+41 static pages now build (was 40), and the two Staff of Thunder pages carry distinct OG descriptions
+(`«Treasure»` vs `«Special Weapon»`) and canonicals — `BootyCardHead` already branched on `card.kind`,
+so that came for free.
+
+`npm run verify`, `npm run build` (41 booty pages) and `npm run check-sw` all pass.

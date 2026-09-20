@@ -15,19 +15,28 @@ export interface BootyCard {
   rarity: string
   category: string
   type: string
+  urlParam: string
 }
 
 export const BOOTY_CARD_URL_OWNER: BootyCardKind = 'treasure'
 
-export const BOOTY_CARDS: BootyCard[] = [
-  ...treasures.map(({ name, rarity, category, type }): BootyCard => ({
+interface NamedCard {
+  kind: BootyCardKind
+  name: string
+  rarity: string
+  category: string
+  type: string
+}
+
+const namedCards: NamedCard[] = [
+  ...treasures.map(({ name, rarity, category, type }): NamedCard => ({
     kind: 'treasure',
     name,
     rarity,
     category,
     type,
   })),
-  ...weapons.map(({ name, rarity, category, type }): BootyCard => ({
+  ...weapons.map(({ name, rarity, category, type }): NamedCard => ({
     kind: 'weapon',
     name,
     rarity,
@@ -36,12 +45,30 @@ export const BOOTY_CARDS: BootyCard[] = [
   })),
 ]
 
+const overlappingNames = new Set(
+  namedCards
+    .map(({ name }) => normalizeEventNameForUrl(name))
+    .filter((param, index, params) => params.indexOf(param) !== index)
+)
+
+export const BOOTY_CARDS: BootyCard[] = namedCards.map((card) => ({
+  ...card,
+  urlParam: getBootyCardUrlParam(card.name, card.kind),
+}))
+
 export function findBootyCardByUrlParam(urlParam: string): BootyCard | null {
   const normalizedParam = urlParam.toLowerCase()
 
-  return BOOTY_CARDS.find((card) => normalizeEventNameForUrl(card.name) === normalizedParam) ?? null
+  return BOOTY_CARDS.find((card) => card.urlParam === normalizedParam) ?? null
 }
 
 export function getBootyCardUrlParams(): string[] {
-  return Array.from(new Set(BOOTY_CARDS.map((card) => normalizeEventNameForUrl(card.name))))
+  return BOOTY_CARDS.map((card) => card.urlParam)
+}
+
+export function getBootyCardUrlParam(name: string, kind: BootyCardKind): string {
+  const baseParam = normalizeEventNameForUrl(name)
+  const needsSuffix = overlappingNames.has(baseParam) && kind !== BOOTY_CARD_URL_OWNER
+
+  return needsSuffix ? `${baseParam}_${kind}` : baseParam
 }

@@ -2,13 +2,11 @@ import { useCallback } from 'react'
 
 import { useRouter } from 'next/router'
 
-import { normalizeEventNameForUrl } from './useEventUrlParam'
-
 const BOOTY_PATH = '/booty'
 
 interface UseBootyCardUrlParam {
   cardNameInUrl: string | undefined
-  selectCardAndUpdateUrl: (name: string) => void
+  selectCardAndUpdateUrl: (urlParam: string) => void
   clearCardInUrl: () => void
 }
 
@@ -24,9 +22,9 @@ export function useBootyCardUrlParam(): UseBootyCardUrlParam {
   const cardNameInUrl = router.isReady ? (router.query.card as string | undefined) : undefined
 
   const selectCardAndUpdateUrl = useCallback(
-    (name: string) => {
+    (urlParam: string) => {
       // Shallow, so the page never unmounts and the ~3000 fetched cards are not refetched.
-      router.push(`${BOOTY_PATH}/${normalizeEventNameForUrl(name)}`, undefined, { shallow: true })
+      router.push(`${BOOTY_PATH}/${urlParam}`, undefined, { shallow: true })
     },
     [router]
   )

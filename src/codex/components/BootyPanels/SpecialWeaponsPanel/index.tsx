@@ -15,7 +15,7 @@ const SpecialWeaponsPanel = () => {
   const weaponInfo =
     weapons.length > 0 ? (
       <>
-        There are a total of {weapons.length} <strong>Special Basic Attack</strong> cards.
+        There are a total of <strong>{weapons.length} Special Basic Attack</strong> cards.
       </>
     ) : undefined
 

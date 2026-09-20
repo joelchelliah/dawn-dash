@@ -1,10 +1,9 @@
 import { useMemo } from 'react'
 
-import { normalizeEventNameForUrl } from '@/codex/hooks/useEventUrlParam'
 import { useBootyCardUrlParam } from '@/codex/hooks/useBootyCardUrlParam'
 import { CardData } from '@/codex/types/cards'
 import { EnrichedSpecialWeapon } from '@/codex/types/weapons'
-import { BOOTY_CARD_URL_OWNER, findBootyCardByUrlParam } from '@/codex/utils/bootyCardUrl'
+import { getBootyCardUrlParam } from '@/codex/utils/bootyCardUrl'
 
 import CardList, { CardListItem } from '../../shared/CardsList'
 import { WEAPON_ARTWORK } from '../../shared/cardArtwork'
@@ -18,11 +17,9 @@ interface WeaponListProps {
 function WeaponList({ weapons, cardData }: WeaponListProps): JSX.Element {
   const { cardNameInUrl, selectCardAndUpdateUrl, clearCardInUrl } = useBootyCardUrlParam()
 
-  const isOwnedByThisPanel =
-    !!cardNameInUrl && findBootyCardByUrlParam(cardNameInUrl)?.kind !== BOOTY_CARD_URL_OWNER
-  const selectedWeapon = isOwnedByThisPanel
+  const selectedWeapon = cardNameInUrl
     ? weapons.find(
-        ({ weaponDetails }) => normalizeEventNameForUrl(weaponDetails.name) === cardNameInUrl
+        ({ weaponDetails }) => getBootyCardUrlParam(weaponDetails.name, 'weapon') === cardNameInUrl
       )
     : undefined
 
@@ -40,7 +37,7 @@ function WeaponList({ weapons, cardData }: WeaponListProps): JSX.Element {
 
   const selectById = (id: number) => {
     const weapon = weapons.find(({ weaponDetails }) => weaponDetails.id === id)
-    if (weapon) selectCardAndUpdateUrl(weapon.weaponDetails.name)
+    if (weapon) selectCardAndUpdateUrl(getBootyCardUrlParam(weapon.weaponDetails.name, 'weapon'))
   }
 
   return (
