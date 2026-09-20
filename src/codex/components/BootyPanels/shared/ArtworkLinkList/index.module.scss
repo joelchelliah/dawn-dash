@@ -103,7 +103,8 @@ $pool-table-3-col: $breakpoint-tablet - 6rem;
     background: none;
   }
 
-  &:hover {
+  &:hover,
+  &:focus-visible {
     background: linear-gradient(to right, $color-list-bg-hover, transparent) !important;
     .artwork-link-item__artwork {
       @include hover-tint-artwork(var(--rarity-color, #{$color-primary-hover}));
@@ -124,5 +125,10 @@ $pool-table-3-col: $breakpoint-tablet - 6rem;
         $color-primary-muted
       );
     }
+  }
+
+  &:focus-visible {
+    outline: 1px solid $color-primary-muted;
+    outline-offset: -1px;
   }
 }

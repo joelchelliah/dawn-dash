@@ -99,7 +99,8 @@ $breakpoint-cards-3-col: 68rem;
     }
   }
 
-  &:hover {
+  &:hover,
+  &:focus-visible {
     background: linear-gradient(to right, $color-list-bg-hover, transparent) !important;
 
     .cards-list-item__name {
@@ -111,6 +112,11 @@ $breakpoint-cards-3-col: 68rem;
       font-weight: 600;
       @include tinyNudgeRightAnimation;
     }
+  }
+
+  &:focus-visible {
+    outline: 1px solid $color-primary-muted;
+    outline-offset: -1px;
   }
 
   @media (max-width: $breakpoint-mobile) {

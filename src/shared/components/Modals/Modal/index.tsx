@@ -1,3 +1,5 @@
+import { useEffect, useRef } from 'react'
+
 import { createCx } from '@/shared/utils/classnames'
 
 import ScrollableWithFade from '../../ScrollableWithFade'
@@ -29,6 +31,25 @@ function Modal({
   scrollable,
   footer,
 }: ModalProps): JSX.Element | null {
+  const onCloseRef = useRef(onClose)
+  onCloseRef.current = onClose
+
+  /*
+   * Escape closes the modal, mirroring the overlay click. Bound on document rather than the
+   * wrapper because nothing inside is focused when the modal opens, so a wrapper-level handler
+   * would never see the key.
+   */
+  useEffect(() => {
+    if (!isOpen) return
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onCloseRef.current()
+    }
+
+    document.addEventListener('keydown', onKeyDown)
+    return () => document.removeEventListener('keydown', onKeyDown)
+  }, [isOpen])
+
   if (!isOpen) return null
 
   const wrapperClassName = cx('wrapper', borderClassName, {
