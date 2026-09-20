@@ -67,7 +67,7 @@ $pool-table-3-col: $breakpoint-tablet - 6rem;
     @include text-truncate;
 
     @media (max-width: $breakpoint-mobile) {
-      font-size: font-size('xxs');
+      font-size: font-size('xxxs');
     }
   }
 

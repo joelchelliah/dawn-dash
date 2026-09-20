@@ -6,7 +6,7 @@ import { ArtworkLinkLayout, ArtworkLinkList } from '../ArtworkLinkList'
 import { CardSourceItem, EventSourceItem } from '../ArtworkSourceItem'
 
 const ARTWORK_SIZE = 40
-const ARTWORK_SIZE_MOBILE = 28
+const ARTWORK_SIZE_MOBILE = 24
 
 interface PoolSourceListProps {
   sources: PoolReachedBy[]
