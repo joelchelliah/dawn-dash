@@ -27,8 +27,8 @@ export const SPECIAL_CONDITIONS: Record<string, SpecialCondition | undefined> = 
         <br />
         <br />
         Spend <EnergyPip classType={CharacterClass.Sunforge} /> energy to play{' '}
-        <Hl>Steel Longsword</Hl> <strong>9</strong> times during combat. Must be{' '}
-        <strong>not corrupted</strong>.
+        <Hl>Steel Longsword</Hl> <strong>9</strong> times during combat. Make sure to{' '}
+        <strong>not</strong> be <strong>corrupted</strong>.
       </>
     ),
   },
@@ -51,8 +51,8 @@ export const SPECIAL_CONDITIONS: Record<string, SpecialCondition | undefined> = 
         deck.
         <br />
         <br />
-        The only way to obtain a permanent copy is to make it <strong>Cursed</strong> during battle,
-        which will remove the <strong>Untempered</strong> keyword.
+        The only way to obtain a permanent copy is to remove the <strong>Untempered</strong>{' '}
+        keyword, by making it <strong>Cursed</strong> during battle.
       </>
     ),
   },
@@ -61,7 +61,7 @@ export const SPECIAL_CONDITIONS: Record<string, SpecialCondition | undefined> = 
     cards: ['Sergeant'],
     description: (
       <>
-        The <Hl>Triage Weapon</Hl> power gives you the secret talent <Hl>Doing My Part</Hl>, which
+        The <Hl>Triage Weapon</Hl> starter power gives you the <Hl>Doing My Part</Hl> talent, which
         rewards you for accumulated <strong>overkill</strong> damage.
         <br />
         <br />
@@ -75,7 +75,7 @@ export const SPECIAL_CONDITIONS: Record<string, SpecialCondition | undefined> = 
     cards: ['Lieutenant'],
     description: (
       <>
-        The <Hl>Triage Weapon</Hl> power gives you the secret talent <Hl>Doing My Part</Hl>, which
+        The <Hl>Triage Weapon</Hl> starter power gives you the <Hl>Doing My Part</Hl> talent, which
         rewards you for accumulated <strong>overkill</strong> damage.
         <br />
         <br />
@@ -92,7 +92,7 @@ export const SPECIAL_CONDITIONS: Record<string, SpecialCondition | undefined> = 
         <strong>temporarily</strong> transform into a <Hl>Celestial Claws</Hl>.
         <br />
         <br />
-        <Hl>Moonclaws</Hl> always transform based on your current form.
+        <Hl>Moonclaws</Hl> always transform based on your latest form.
       </>
     ),
   },
@@ -104,7 +104,7 @@ export const SPECIAL_CONDITIONS: Record<string, SpecialCondition | undefined> = 
         <strong>temporarily</strong> transform into a <Hl>Demon Claws</Hl>.
         <br />
         <br />
-        <Hl>Moonclaws</Hl> always transform based on your current form.
+        <Hl>Moonclaws</Hl> always transform based on your latest form.
       </>
     ),
   },
@@ -134,13 +134,20 @@ export const SPECIAL_CONDITIONS: Record<string, SpecialCondition | undefined> = 
     ),
   },
   Helios: {
+    custom: {
+      name: 'Empowered Hydra',
+      type: 'Monster',
+      link: BlightbaneMonsterUrl('Empowered Hydra'),
+      imageUrl: EmpoweredHydraImageUrl,
+    },
     cards: ['Suntree Twig'],
     description: (
       <>
-        <strong>Bury</strong> the <Hl>Suntree Twig</Hl>, on your turn, during combat.
+        Obtain the <Hl>Suntree Twig</Hl> from fighting the <Hl>Empowered Hydra</Hl>.
         <br />
         <br />
-        Burying it during the enemy&apos;s turn does nothing.
+        <strong>Bury</strong> the <Hl>Suntree Twig</Hl>, on <strong>your</strong> turn, during any
+        combat.
       </>
     ),
   },
@@ -161,8 +168,8 @@ export const SPECIAL_CONDITIONS: Record<string, SpecialCondition | undefined> = 
         deck.
         <br />
         <br />
-        The only way to obtain a permanent copy is to make it <strong>Cursed</strong> during battle,
-        which will remove the <strong>Untempered</strong> keyword.
+        The only way to obtain a permanent copy is to remove the <strong>Untempered</strong>{' '}
+        keyword, by making it <strong>Cursed</strong> during battle.
       </>
     ),
   },
@@ -187,7 +194,7 @@ export const SPECIAL_CONDITIONS: Record<string, SpecialCondition | undefined> = 
         Play a <Hl>Plain Bow</Hl> while having <EnergyPip classType={CharacterClass.Rogue} />{' '}
         <EnergyPip classType={CharacterClass.Arcanist} />{' '}
         <EnergyPip classType={CharacterClass.Warrior} />{' '}
-        <EnergyPip classType={CharacterClass.Sunforge} /> left over.
+        <EnergyPip classType={CharacterClass.Sunforge} /> energy left over.
       </>
     ),
   },
@@ -224,7 +231,7 @@ export const SPECIAL_CONDITIONS: Record<string, SpecialCondition | undefined> = 
     },
     description: (
       <>
-        Defeat the <Hl>Empowered Hydra</Hl> in the <strong>Emberwyld Heights</strong> canto.
+        Defeat the <Hl>Empowered Hydra</Hl> in the <strong>Emberwyld Heights</strong>.
         <br />
         <br />
         The <Hl>Suntree Twig</Hl> appears as a <strong>card reward</strong> after combat.
