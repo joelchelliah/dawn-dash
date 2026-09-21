@@ -1,11 +1,13 @@
 import { CharacterClass } from '@/shared/types/characterClass'
 import { BlightbaneMonsterUrl, EmpoweredHydraImageUrl } from '@/shared/utils/imageUrls'
 
+import { SpecialConditionWeapon } from '@/codex/utils/weaponHelper'
+
 import EnergyPip from '../../shared/EnergyPip'
 
 import { Hl, SpecialCondition } from './conditionTypes'
 
-export const SPECIAL_CONDITIONS: Record<string, SpecialCondition | undefined> = {
+const SPECIAL_CONDITIONS: Record<SpecialConditionWeapon, SpecialCondition> = {
   'Arcane Bow': {
     cards: ['Plain Bow', 'Stardart'],
     description: (
@@ -248,3 +250,6 @@ export const SPECIAL_CONDITIONS: Record<string, SpecialCondition | undefined> = 
     ),
   },
 }
+
+export const getSpecialCondition = (name: string): SpecialCondition | undefined =>
+  SPECIAL_CONDITIONS[name as SpecialConditionWeapon]

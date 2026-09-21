@@ -22,3 +22,35 @@ export const enrichSpecialWeapons = (cardData: CardData[] | undefined): Enriched
     return [{ weaponDetails: weapon, cardDetails }]
   })
 }
+
+/*
+ * Weapons that are earned by fulfilling a special condition.
+ */
+export const SPECIAL_CONDITION_WEAPONS = [
+  'Arcane Bow',
+  'Asteran',
+  'Astrakan',
+  'Battlespear',
+  'Blaster',
+  'Buzzsword',
+  'Celestial Claws',
+  'Demon Claws',
+  'Drakkan',
+  'Halifax',
+  'Helios',
+  'Majatome',
+  'Monolith',
+  'Oathbreaker',
+  'Rainbow',
+  'Rhymebind',
+  'Rovik',
+  'Suntree Twig',
+  'Trancor',
+] as const
+
+export type SpecialConditionWeapon = (typeof SPECIAL_CONDITION_WEAPONS)[number]
+
+const SPECIAL_CONDITION_WEAPON_NAMES = new Set<string>(SPECIAL_CONDITION_WEAPONS)
+
+export const hasSpecialCondition = (name: string): boolean =>
+  SPECIAL_CONDITION_WEAPON_NAMES.has(name)

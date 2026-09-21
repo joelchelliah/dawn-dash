@@ -92,7 +92,7 @@ export const TOOL_REGISTRY: ToolDefinition[] = [
     shortDescription: 'All treasures and special weapons in Dawncaster, and how to find them!',
     ogDescription:
       'Delve into all the available treasures and special weapons in Dawncaster, and how to find them!',
-    ogImage: 'https://www.dawn-dash.com/og-image-booty.png',
+    ogImage: 'https://www.dawn-dash.com/og-image-booty-v2.png',
     logoImage: 'https://www.dawn-dash.com/logo-booty.png',
     landingImage: '/landing-booty.webp',
     navIcon: TreasureImageUrl,

@@ -31,3 +31,9 @@ export const isNotNullOrEmpty = <T>(list: T[] | null | undefined): list is NonNu
 export const isNullOrEmpty = <T>(list: T[] | null | undefined): list is null | undefined => {
   return list === null || list === undefined || list.length === 0
 }
+
+export const joinWithAnd = (items: string[]): string => {
+  if (items.length < 2) return items[0] ?? ''
+
+  return `${items.slice(0, -1).join(', ')} and ${items[items.length - 1]}`
+}

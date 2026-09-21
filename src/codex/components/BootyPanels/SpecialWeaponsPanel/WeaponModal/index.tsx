@@ -18,7 +18,7 @@ import { Acquisition } from '../../shared/CardModal/AcquisitionFlag'
 import styles from '../../shared/CardModal/index.module.scss'
 
 import SpecialCondition from './SpecialCondition'
-import { SPECIAL_CONDITIONS } from './specialConditions'
+import { getSpecialCondition } from './specialConditions'
 
 const cx = createCx(styles)
 
@@ -44,7 +44,7 @@ interface WeaponModalProps {
 
 function WeaponModal({ weapon, cardDetails, cardData, onClose }: WeaponModalProps): JSX.Element {
   const rarity = RARITIES[cardDetails.rarity]
-  const specialCondition = SPECIAL_CONDITIONS[weapon.name]
+  const specialCondition = getSpecialCondition(weapon.name)
 
   const relatedEvents = useMemo(() => getRelatedEvents(weapon), [weapon])
   const relatedCards = useMemo(

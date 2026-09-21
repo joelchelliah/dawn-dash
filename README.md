@@ -60,7 +60,7 @@ A **Treasures Codex** tool, breaking down every treasure card in the game, and a
 
 **Check it out here**: [Booty](https://dawn-dash.com/booty)
 
-[![Booty](./public/og-image-booty.png "Click to see some Booty")](https://dawn-dash.com/booty)
+[![Booty](./public/og-image-booty-v2.png "Click to see some Booty")](https://dawn-dash.com/booty)
 
 ----------
 

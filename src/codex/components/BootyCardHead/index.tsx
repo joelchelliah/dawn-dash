@@ -1,16 +1,25 @@
 import Head from 'next/head'
 
 import { getCardImageSrc } from '@/shared/hooks/useCardImageSrc'
+import { joinWithAnd } from '@/shared/utils/lists'
 import { getTool } from '@/shared/config/toolRegistry'
 
 import { BootyCard } from '@/codex/utils/bootyCardUrl'
 import { getCardSubtitle } from '@/codex/components/BootyPanels/shared/CardModal'
+import { TreasureCard } from '@/codex/types/treasures'
+import { SpecialWeapon } from '@/codex/types/weapons'
+import treasureCardsData from '@/codex/data/treasure-cards.json'
+import specialWeaponsData from '@/codex/data/special-weapons.json'
+import { hasSpecialCondition } from '@/codex/utils/weaponHelper'
 
 const BASE_URL = 'https://www.dawn-dash.com'
 interface BootyCardHeadProps {
   card: BootyCard | null
   cardUrlParam: string
 }
+
+const treasures = treasureCardsData as TreasureCard[]
+const weapons = specialWeaponsData as SpecialWeapon[]
 
 export function BootyCardHead({ card, cardUrlParam }: BootyCardHeadProps): JSX.Element | null {
   const isCardPage = !!card
@@ -111,8 +120,49 @@ export function BootyCardHead({ card, cardUrlParam }: BootyCardHeadProps): JSX.E
   )
 }
 
-function getCardDisplayText(card: BootyCard): string {
-  const kind = card.kind === 'treasure' ? '«Treasure»' : '«Special Weapon»'
+const FALLBACK_SUBTITLE = 'Mysteriously Unknown Artifact'
 
-  return `${kind} - Every way of acquiring this ${getCardSubtitle(card, card.rarity)}`
+function getCardDisplayText(card: BootyCard): string {
+  const isTreasure = card.kind === 'treasure'
+  const kind = isTreasure ? 'Treasure' : 'Special Weapon'
+
+  const acquisitionMethods = isTreasure
+    ? getTreasureAcquisitionMethods(treasures.find(({ name }) => name === card.name))
+    : getSpecialWeaponAcquisitionMethods(weapons.find(({ name }) => name === card.name))
+  const acquisitionString = acquisitionMethods
+    ? `Can be acquired through ${acquisitionMethods}`
+    : ''
+
+  const subtitle = getCardSubtitle(card, card.rarity) || FALLBACK_SUBTITLE
+
+  return `[${kind}] : ${subtitle}! ${acquisitionString}`.trim()
+}
+
+function getTreasureAcquisitionMethods(card?: TreasureCard): string | undefined {
+  if (!card) return undefined
+
+  const methods = [
+    card.inCardRewards && 'combat rewards',
+    card.inMerchant && 'merchant',
+    card.inAlchemist && 'alchemist',
+    (card.fromTrade || card.fromTranspose) && 'transmutes',
+    card.fromCards.length > 0 && 'cards',
+    card.fromTalents.length > 0 && 'talents',
+    card.fromEvents.length > 0 && 'events',
+  ].filter((method): method is string => Boolean(method))
+
+  return joinWithAnd(methods)
+}
+
+function getSpecialWeaponAcquisitionMethods(card?: SpecialWeapon): string | undefined {
+  if (!card) return undefined
+
+  const methods = [
+    card.fromCards.length > 0 && 'cards',
+    card.fromTalents.length > 0 && 'talents',
+    card.fromEvents.length > 0 && 'events',
+    hasSpecialCondition(card.name) && 'fulfilling a special condition',
+  ].filter((method): method is string => Boolean(method))
+
+  return joinWithAnd(methods)
 }
