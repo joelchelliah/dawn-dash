@@ -41,7 +41,7 @@ const CardPoolsPanel = () => {
   return (
     <TreasureBasePanel type="CardPools">
       <span className={cx('pools-info')}>
-        Randomly acquired <strong>Treasure</strong> cards are drawn from one of these{' '}
+        All <strong>Treasure</strong> cards can be randomly drawn from one of these{' '}
         <strong>{TREASURE_POOL_DISPLAYS.length}</strong> card pools.
       </span>
       <div className={cx('pools')}>
@@ -51,8 +51,8 @@ const CardPoolsPanel = () => {
       </div>
 
       <span className={cx('pools-info')}>
-        A few <strong>Treasure</strong> cards and <strong>Special Basic Attacks</strong> are
-        available in these <strong>{OTHER_POOL_COUNT}</strong> card pools.
+        Some <strong>Treasure</strong> cards and <strong>Special Basic Attacks</strong> can be
+        randomly drawn from these <strong>{OTHER_POOL_COUNT}</strong> card pools.
       </span>
       <OtherPools />
     </TreasureBasePanel>
