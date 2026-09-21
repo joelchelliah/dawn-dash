@@ -5,7 +5,11 @@ import { createCx } from '@/shared/utils/classnames'
 
 import { CardData } from '@/codex/types/cards'
 import { EnrichedTreasureCard, TreasureCard } from '@/codex/types/treasures'
-import { getRelatedEvents, getRelatedTreasurePoolCards } from '@/codex/utils/treasureHelper'
+import {
+  getRelatedEvents,
+  getRelatedTreasurePoolCards,
+  getRelatedTreasurePoolTalents,
+} from '@/codex/utils/treasureHelper'
 
 import CardModal, { getCardSubtitle } from '../../shared/CardModal'
 import EnergyPip from '../../shared/EnergyPip'
@@ -43,6 +47,10 @@ function TreasureModal({ treasure, cardData, onClose }: TreasureModalProps): JSX
     () => getRelatedTreasurePoolCards(treasureDetails, cardData),
     [treasureDetails, cardData]
   )
+  const relatedTalents = useMemo(
+    () => getRelatedTreasurePoolTalents(treasureDetails),
+    [treasureDetails]
+  )
 
   return (
     <CardModal
@@ -54,6 +62,7 @@ function TreasureModal({ treasure, cardData, onClose }: TreasureModalProps): JSX
       acquisitions={getAcquisitions(treasureDetails)}
       relatedEvents={relatedEvents}
       relatedCards={relatedCards}
+      relatedTalents={relatedTalents}
       additionalNotes={ADDITIONAL_NOTES[cardName]}
       onClose={onClose}
     />

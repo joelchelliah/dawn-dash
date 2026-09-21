@@ -123,37 +123,39 @@ export interface RelatedCards {
  * both hand the card over outright and draw it from a pool, and those are two different ways to
  * get it. Each filter therefore reads only its own field.
  */
+const splitSources = (
+  sources: TreasureSource[],
+  toRelatedCard: (source: TreasureSource) => RelatedCard
+): RelatedCards => {
+  const guaranteed = sources.filter(({ guaranteed }) => guaranteed).map(toRelatedCard)
+  const fromPools = sources.filter(({ pools }) => pools.length > 0).map(toRelatedCard)
+
+  const names = new Set([...guaranteed, ...fromPools].map(({ name }) => name))
+
+  return { guaranteed, fromPools, total: names.size }
+}
+
 export const getRelatedTreasurePoolCards = (
   treasure: CardWithSources,
   cardData: CardData[] | undefined
 ): RelatedCards => {
   const cardsByName = getCardsByName(cardData)
 
-  const toRelatedCard = (isTalent: boolean) => (source: TreasureSource) => ({
+  return splitSources(treasure.fromCards, (source) => ({
     name: source.name,
-    isTalent,
-    category: isTalent ? undefined : cardsByName.get(source.name)?.category,
+    isTalent: false,
+    category: cardsByName.get(source.name)?.category,
     pools: toDisplayPools(source.pools),
-  })
-
-  const sources = [
-    ...treasure.fromCards.map((source) => ({ source, isTalent: false })),
-    ...treasure.fromTalents.map((source) => ({ source, isTalent: true })),
-  ]
-
-  const guaranteed = sources
-    .filter(({ source }) => source.guaranteed)
-    .map(({ source, isTalent }) => toRelatedCard(isTalent)(source))
-  const fromPools = sources
-    .filter(({ source }) => source.pools.length > 0)
-    .map(({ source, isTalent }) => toRelatedCard(isTalent)(source))
-
-  const keys = new Set(
-    [...guaranteed, ...fromPools].map(({ name, isTalent }) => `${name}-${isTalent}`)
-  )
-
-  return { guaranteed, fromPools, total: keys.size }
+  }))
 }
+
+export const getRelatedTreasurePoolTalents = (treasure: CardWithSources): RelatedCards =>
+  splitSources(treasure.fromTalents, (source) => ({
+    name: source.name,
+    isTalent: true,
+    category: 10,
+    pools: toDisplayPools(source.pools),
+  }))
 
 export interface OtherPool {
   name: string

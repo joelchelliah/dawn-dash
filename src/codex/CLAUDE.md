@@ -57,7 +57,15 @@ This directory hosts four tools: **Cardex** (`cards.tsx`), **Skilldex** (`skills
   **distinct event names across both lists** — summing the two lengths double-counts an overlapping
   event, and it is computed after `resolveEvent` so an event missing from `data/event-trees.json` is
   neither listed nor counted. That is why the sync keeps these as objects rather than flattening them
-  to names. **Upstream has already merged what used to be one entry per source-and-pool into one
+  to names. **`fromCards` and `fromTalents` split the same way but into two separate sections**:
+  `getRelatedTreasurePoolCards` and `getRelatedTreasurePoolTalents` each return a `RelatedCards` over
+  one of the two lists, sharing the private `splitSources` so the guaranteed/pooled rule lives in one
+  place. Keeping them apart is what lets the modal title each section by kind, which is why
+  `RelatedCardList` has no source-type subtitle any more — every list it renders is one kind, and the
+  heading already says which. Only the cards half takes `cardData`, since `category` comes from the
+  live card lookup and talents never carry one. Each half's `total` counts **distinct names within
+  that list**, not `name`+`isTalent` keys: the flag is constant per list now, so it discriminated
+  nothing. **Upstream has already merged what used to be one entry per source-and-pool into one
   entry per source**, so a source appears exactly once and `RelatedEventList` can key on the event
   name alone — don't reintroduce a per-pool fan-out. The tags name **more pools than
   `data/treasure-pools.json` declares** — the declared four are the treasure pools Booty documents,
