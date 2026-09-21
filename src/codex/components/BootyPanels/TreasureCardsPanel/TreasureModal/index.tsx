@@ -69,33 +69,12 @@ function TreasureModal({ treasure, cardData, onClose }: TreasureModalProps): JSX
   )
 }
 
-const ADD_CARD_BY_KEYWORD_EXCEPTIONS = (
-  <ul>
-    <li>Undisturbed Grave</li>
-    <li>Broken Tombstone</li>
-    <li>Painted Landscape</li>
-  </ul>
-)
-
 const ADDITIONAL_NOTES: Record<string, JSX.Element> = {
   'Dark Mirror Vial': (
     <>
       Cannot be traded into via{' '}
       <span className={cx('card-modal__hint__highlighted')}>Tradepost</span>, but any other form of
       trade or transmute will work.
-      <br />
-      <br />
-      Events that only include this treasure in their <strong>card pool</strong> while{' '}
-      <span className={cx('card-modal__hint__highlighted')}>Eclypse</span> is enabled:
-      {ADD_CARD_BY_KEYWORD_EXCEPTIONS}
-    </>
-  ),
-  'Flying Carpet': (
-    <>
-      Events that only include this treasure in their <strong>card pool</strong> while either{' '}
-      <span className={cx('card-modal__hint__highlighted')}>Infinitum</span> or{' '}
-      <span className={cx('card-modal__hint__highlighted')}>Eclypse</span> is enabled:
-      {ADD_CARD_BY_KEYWORD_EXCEPTIONS}
     </>
   ),
   'Rusty Lamp': (
@@ -103,13 +82,6 @@ const ADDITIONAL_NOTES: Record<string, JSX.Element> = {
       Only available in <strong>card pools</strong> if you have{' '}
       <EnergyPip classType={CharacterClass.Arcanist} /> or{' '}
       <EnergyPip classType={CharacterClass.Rogue} /> attributes.
-    </>
-  ),
-  Tradepost: (
-    <>
-      Events that exclude this treasure from their <strong>card pool</strong> while{' '}
-      <span className={cx('card-modal__hint__highlighted')}>Infinitum</span> is enabled:
-      {ADD_CARD_BY_KEYWORD_EXCEPTIONS}
     </>
   ),
 }
