@@ -129,13 +129,11 @@ function getCardDisplayText(card: BootyCard): string {
   const acquisitionMethods = isTreasure
     ? getTreasureAcquisitionMethods(treasures.find(({ name }) => name === card.name))
     : getSpecialWeaponAcquisitionMethods(weapons.find(({ name }) => name === card.name))
-  const acquisitionString = acquisitionMethods
-    ? `Can be acquired through ${acquisitionMethods}`
-    : ''
+  const acquisitionString = acquisitionMethods ? `Can be acquired via ${acquisitionMethods}.` : ''
 
   const subtitle = getCardSubtitle(card, card.rarity) || FALLBACK_SUBTITLE
 
-  return `[${kind}] : ${subtitle}! ${acquisitionString}`.trim()
+  return `[${kind}] - ${subtitle}! ${acquisitionString}`.trim()
 }
 
 function getTreasureAcquisitionMethods(card?: TreasureCard): string | undefined {
