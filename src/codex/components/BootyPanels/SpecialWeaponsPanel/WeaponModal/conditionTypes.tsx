@@ -6,16 +6,16 @@ const cxCardModal = createCx(cardModalStyles)
 
 export interface CustomConditionSource {
   name: string
-  type: string
+  kind: string
   link: string
-  imageUrl: string
+  imageUrl: string | null
 }
 
 export interface SpecialCondition {
   cards?: string[]
   talents?: string[]
   events?: string[]
-  custom?: CustomConditionSource
+  customs?: CustomConditionSource[]
   description: JSX.Element
 }
 

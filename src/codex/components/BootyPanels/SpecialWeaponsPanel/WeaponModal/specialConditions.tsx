@@ -1,4 +1,5 @@
 import { CharacterClass } from '@/shared/types/characterClass'
+import { getCardImageSrc } from '@/shared/hooks/useCardImageSrc'
 import { BlightbaneMonsterUrl, EmpoweredHydraImageUrl } from '@/shared/utils/imageUrls'
 
 import { SpecialConditionWeapon } from '@/codex/utils/weaponHelper'
@@ -6,6 +7,8 @@ import { SpecialConditionWeapon } from '@/codex/utils/weaponHelper'
 import EnergyPip from '../../shared/EnergyPip'
 
 import { Hl, SpecialCondition } from './conditionTypes'
+
+const BOOTY_PATH = '/booty'
 
 const SPECIAL_CONDITIONS: Record<SpecialConditionWeapon, SpecialCondition> = {
   'Arcane Bow': {
@@ -35,7 +38,20 @@ const SPECIAL_CONDITIONS: Record<SpecialConditionWeapon, SpecialCondition> = {
     ),
   },
   Astrakan: {
-    cards: ['Asteran', 'Drakkan'],
+    customs: [
+      {
+        name: 'Asteran',
+        kind: 'Weapon',
+        link: `${BOOTY_PATH}/asteran`,
+        imageUrl: getCardImageSrc('Asteran', null),
+      },
+      {
+        name: 'Drakkan',
+        kind: 'Weapon',
+        link: `${BOOTY_PATH}/drakkan`,
+        imageUrl: getCardImageSrc('Drakkan', null),
+      },
+    ],
     description: (
       <>
         Have at least one <Hl>Asteran</Hl> and one <Hl>Drakkan</Hl> in your deck at the same time.
@@ -136,13 +152,20 @@ const SPECIAL_CONDITIONS: Record<SpecialConditionWeapon, SpecialCondition> = {
     ),
   },
   Helios: {
-    custom: {
-      name: 'Empowered Hydra',
-      type: 'Monster',
-      link: BlightbaneMonsterUrl('Empowered Hydra'),
-      imageUrl: EmpoweredHydraImageUrl,
-    },
-    cards: ['Suntree Twig'],
+    customs: [
+      {
+        name: 'Empowered Hydra',
+        kind: 'Monster',
+        link: BlightbaneMonsterUrl('Empowered Hydra'),
+        imageUrl: EmpoweredHydraImageUrl,
+      },
+      {
+        name: 'Suntree Twig',
+        kind: 'Weapon',
+        link: `${BOOTY_PATH}/suntree_twig`,
+        imageUrl: getCardImageSrc('Suntree Twig', null),
+      },
+    ],
     description: (
       <>
         Obtain the <Hl>Suntree Twig</Hl> from fighting the <Hl>Empowered Hydra</Hl>.
@@ -225,12 +248,14 @@ const SPECIAL_CONDITIONS: Record<SpecialConditionWeapon, SpecialCondition> = {
     ),
   },
   'Suntree Twig': {
-    custom: {
-      name: 'Empowered Hydra',
-      type: 'Monster',
-      link: BlightbaneMonsterUrl('Empowered Hydra'),
-      imageUrl: EmpoweredHydraImageUrl,
-    },
+    customs: [
+      {
+        name: 'Empowered Hydra',
+        kind: 'Monster',
+        link: BlightbaneMonsterUrl('Empowered Hydra'),
+        imageUrl: EmpoweredHydraImageUrl,
+      },
+    ],
     description: (
       <>
         Defeat the <Hl>Empowered Hydra</Hl> in the <strong>Emberwyld Heights</strong>.

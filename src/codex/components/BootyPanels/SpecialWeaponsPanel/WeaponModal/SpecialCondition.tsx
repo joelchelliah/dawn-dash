@@ -45,8 +45,8 @@ const toColumnWidth = (
   return Math.min(widthRem, maxRem)
 }
 
-const getConditionNames = ({ cards, talents, events, custom }: SpecialCondition): string[] => [
-  ...(custom ? [custom.name] : []),
+const getConditionNames = ({ cards, talents, events, customs }: SpecialCondition): string[] => [
+  ...(customs?.map((source) => source.name) ?? []),
   ...(events ?? []),
   ...(talents ?? []),
   ...(cards ?? []),
@@ -92,7 +92,9 @@ function SpecialCondition({ condition, cardData }: SpecialConditionProps): JSX.E
     <div className={cx('special-condition')} style={widths}>
       <div className={cx('special-condition__cards')}>
         <ArtworkLinkList layout="stacked">
-          {condition.custom && <SpecialConditionCustom source={condition.custom} />}
+          {condition.customs?.map((source) => (
+            <SpecialConditionCustom key={source.name} source={source} />
+          ))}
           {condition.events?.map((name) => (
             <EventSourceItem key={name} name={name} {...sizes} />
           ))}
@@ -115,15 +117,19 @@ function SpecialCondition({ condition, cardData }: SpecialConditionProps): JSX.E
 }
 
 function SpecialConditionCustom({ source }: { source: CustomConditionSource }): JSX.Element {
-  const { name, type, link, imageUrl } = source
+  const { name, kind, link, imageUrl } = source
+
+  // Internal sources are the tool's own `/booty/<card>` pages, which must route through
+  // `next/link` — a full reload there refetches the ~3000 cards `booty.tsx` owns.
+  const isExternal = !link.startsWith('/')
 
   return (
     <ArtworkLinkItem
       name={name}
       href={link}
-      isExternal
+      isExternal={isExternal}
       src={imageUrl}
-      subtitles={[capitalize(type)]}
+      subtitles={[capitalize(kind)]}
       artworkSize={ARTWORK_SIZE}
       artworkSizeMobile={ARTWORK_SIZE_MOBILE}
     />
