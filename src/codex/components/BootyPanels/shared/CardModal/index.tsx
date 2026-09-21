@@ -50,6 +50,7 @@ export interface CardModalProps {
   acquisitionColumns?: 3 | 4
   relatedEvents: RelatedEvents
   relatedCards: RelatedCards
+  relatedTalents: RelatedCards
   // What the Events / Cards hints call this card, e.g. "treasure" or "weapon"
   cardNoun: string
   // Rendered directly below the acquisition flags — the weapons' "Special condition" section
@@ -67,6 +68,7 @@ function CardModal({
   acquisitionColumns = 3,
   relatedEvents,
   relatedCards,
+  relatedTalents,
   cardNoun,
   sectionAfterAcquisitions,
   additionalNotes,
@@ -78,6 +80,11 @@ function CardModal({
 
   const { guaranteed: guaranteedEvents, fromPools: pooledEvents, total: eventCount } = relatedEvents
   const { guaranteed: guaranteedCards, fromPools: pooledCards, total: cardCount } = relatedCards
+  const {
+    guaranteed: guaranteedTalents,
+    fromPools: pooledTalents,
+    total: talentCount,
+  } = relatedTalents
 
   const rarityClassName = cx('card-modal-border', {
     [`card-modal-border--${rarity?.slug}`]: Boolean(rarity),
@@ -180,19 +187,14 @@ function CardModal({
         )}
 
         {cardCount > 0 && (
-          <Section
-            title={`Cards and talents (${cardCount})`}
-            dividerColor={dividerColor}
-            spacing="medium"
-          >
+          <Section title={`Cards (${cardCount})`} dividerColor={dividerColor} spacing="medium">
             {guaranteedCards.length > 0 && (
               <>
                 <div className={cx('card-modal__hint')}>
-                  Cards and talents that{' '}
-                  <span className={cx('card-modal__hint__highlighted')}>always</span> offer this{' '}
-                  {cardNoun}.
+                  Cards that <span className={cx('card-modal__hint__highlighted')}>always</span>{' '}
+                  offer this {cardNoun}.
                 </div>
-                <RelatedCardList relatedCards={guaranteedCards} showSourceType />
+                <RelatedCardList relatedCards={guaranteedCards} />
               </>
             )}
 
@@ -203,11 +205,40 @@ function CardModal({
                     'card-modal__hint--stacked': guaranteedCards.length > 0,
                   })}
                 >
-                  Cards and talents that draw from a{' '}
+                  Cards that draw from a{' '}
                   <span className={cx('card-modal__hint__highlighted')}>pool</span> of cards,
                   containing this {cardNoun}.
                 </div>
                 <RelatedCardList relatedCards={pooledCards} showPools />
+              </>
+            )}
+          </Section>
+        )}
+
+        {talentCount > 0 && (
+          <Section title={`Talents (${talentCount})`} dividerColor={dividerColor} spacing="medium">
+            {guaranteedTalents.length > 0 && (
+              <>
+                <div className={cx('card-modal__hint')}>
+                  Talents that <span className={cx('card-modal__hint__highlighted')}>always</span>{' '}
+                  offer this {cardNoun}.
+                </div>
+                <RelatedCardList relatedCards={guaranteedTalents} />
+              </>
+            )}
+
+            {pooledTalents.length > 0 && (
+              <>
+                <div
+                  className={cx('card-modal__hint', {
+                    'card-modal__hint--stacked': guaranteedTalents.length > 0,
+                  })}
+                >
+                  Talents that draw from a{' '}
+                  <span className={cx('card-modal__hint__highlighted')}>pool</span> of cards,
+                  containing this {cardNoun}.
+                </div>
+                <RelatedCardList relatedCards={pooledTalents} showPools />
               </>
             )}
           </Section>

@@ -1,12 +1,15 @@
 import { useMemo } from 'react'
 
-import { RARITIES } from '@/shared/components/RarityBorderedArtwork'
 import { CharacterClass } from '@/shared/types/characterClass'
 import { createCx } from '@/shared/utils/classnames'
 
 import { CardData } from '@/codex/types/cards'
 import { EnrichedTreasureCard, TreasureCard } from '@/codex/types/treasures'
-import { getRelatedEvents, getRelatedTreasurePoolCards } from '@/codex/utils/treasureHelper'
+import {
+  getRelatedEvents,
+  getRelatedTreasurePoolCards,
+  getRelatedTreasurePoolTalents,
+} from '@/codex/utils/treasureHelper'
 
 import CardModal, { getCardSubtitle } from '../../shared/CardModal'
 import EnergyPip from '../../shared/EnergyPip'
@@ -37,7 +40,6 @@ interface TreasureModalProps {
 
 function TreasureModal({ treasure, cardData, onClose }: TreasureModalProps): JSX.Element {
   const { treasureDetails, cardDetails } = treasure
-  const rarity = RARITIES[cardDetails.rarity]
   const cardName = treasureDetails.name
 
   const relatedEvents = useMemo(() => getRelatedEvents(treasureDetails), [treasureDetails])
@@ -45,17 +47,22 @@ function TreasureModal({ treasure, cardData, onClose }: TreasureModalProps): JSX
     () => getRelatedTreasurePoolCards(treasureDetails, cardData),
     [treasureDetails, cardData]
   )
+  const relatedTalents = useMemo(
+    () => getRelatedTreasurePoolTalents(treasureDetails),
+    [treasureDetails]
+  )
 
   return (
     <CardModal
       cardName={cardName}
-      subtitle={getCardSubtitle(treasureDetails, rarity?.name)}
+      subtitle={getCardSubtitle(treasureDetails, treasureDetails.rarity)}
       cardDetails={cardDetails}
       artwork={TREASURE_ARTWORK}
       cardNoun="treasure"
       acquisitions={getAcquisitions(treasureDetails)}
       relatedEvents={relatedEvents}
       relatedCards={relatedCards}
+      relatedTalents={relatedTalents}
       additionalNotes={ADDITIONAL_NOTES[cardName]}
       onClose={onClose}
     />

@@ -26,7 +26,7 @@ const TreasureCardsPanel = () => {
   const hasTreasures = !isLoading && !isError && treasures.length > 0
   const treasureInfo = hasTreasures ? (
     <>
-      There are a total of {treasures.length} <strong>Treasure</strong> cards.
+      There are a total of <strong>{treasures.length} Treasure</strong> cards.
     </>
   ) : undefined
 

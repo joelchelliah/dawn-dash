@@ -1,7 +1,9 @@
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 
+import { useBootyCardUrlParam } from '@/codex/hooks/useBootyCardUrlParam'
 import { CardData } from '@/codex/types/cards'
 import { EnrichedSpecialWeapon } from '@/codex/types/weapons'
+import { getBootyCardUrlParam } from '@/codex/utils/bootyCardUrl'
 
 import CardList, { CardListItem } from '../../shared/CardsList'
 import { WEAPON_ARTWORK } from '../../shared/cardArtwork'
@@ -13,9 +15,13 @@ interface WeaponListProps {
 }
 
 function WeaponList({ weapons, cardData }: WeaponListProps): JSX.Element {
-  const [selectedId, setSelectedId] = useState<number | null>(null)
-  const selectedWeapon =
-    selectedId !== null && weapons.find(({ weaponDetails }) => weaponDetails.id === selectedId)
+  const { cardNameInUrl, selectCardAndUpdateUrl, clearCardInUrl } = useBootyCardUrlParam()
+
+  const selectedWeapon = cardNameInUrl
+    ? weapons.find(
+        ({ weaponDetails }) => getBootyCardUrlParam(weaponDetails.name, 'weapon') === cardNameInUrl
+      )
+    : undefined
 
   const items = useMemo<CardListItem[]>(
     () =>
@@ -29,15 +35,20 @@ function WeaponList({ weapons, cardData }: WeaponListProps): JSX.Element {
     [weapons]
   )
 
+  const selectById = (id: number) => {
+    const weapon = weapons.find(({ weaponDetails }) => weaponDetails.id === id)
+    if (weapon) selectCardAndUpdateUrl(getBootyCardUrlParam(weapon.weaponDetails.name, 'weapon'))
+  }
+
   return (
     <>
-      <CardList items={items} artwork={WEAPON_ARTWORK} onSelect={setSelectedId} />
+      <CardList items={items} artwork={WEAPON_ARTWORK} onSelect={selectById} />
       {selectedWeapon && (
         <WeaponModal
           weapon={selectedWeapon.weaponDetails}
           cardDetails={selectedWeapon.cardDetails}
           cardData={cardData}
-          onClose={() => setSelectedId(null)}
+          onClose={clearCardInUrl}
         />
       )}
     </>

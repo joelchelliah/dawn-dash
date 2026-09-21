@@ -27,7 +27,7 @@ const PANEL_TITLES: Record<PanelHeaderType, string> = {
   EventResults: 'Event',
   TreasureCards: 'Treasure Cards',
   CardPools: 'Card Pools',
-  SpecialWeapons: 'Special Basic Attacks',
+  SpecialWeapons: 'Special Weapons',
 }
 
 interface PanelHeaderProps {

@@ -4,6 +4,7 @@ import { TreasureSource } from '@/codex/types/treasures'
 export interface SpecialWeapon {
   id: number
   name: string
+  rarity: string
   category: string
   type: string
   fromEvents: TreasureSource[]

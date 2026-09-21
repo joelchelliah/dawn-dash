@@ -19,8 +19,8 @@ import { POOL_NOTES } from './poolNotes'
 
 const cx = createCx(styles)
 
-const ARTWORK_SIZE = 40
-const ARTWORK_SIZE_MOBILE = 32
+const WHIRLPOOL_ARTWORK_SIZE = 40
+const WHIRLPOOL_ARTWORK_SIZE_MOBILE = 32
 
 interface TreasurePoolProps {
   pool: TreasurePoolDisplay
@@ -32,6 +32,8 @@ function TreasurePool({ pool }: TreasurePoolProps): JSX.Element {
   const sources = getPoolSources(pool)
   const notes = POOL_NOTES[pool.id]
   const { ref, isInFocusBand } = useFocusBand<HTMLDivElement>()
+
+  const allowLargerMobileArtwork = sources.length <= 2
 
   const cardClassName = cx('pool', HOVER_TRIGGER, HOVER_TRIGGER_SHALLOW, {
     [FOCUS_TRIGGER]: isInFocusBand,
@@ -47,8 +49,8 @@ function TreasurePool({ pool }: TreasurePoolProps): JSX.Element {
         <WhirlpoolArtwork
           src={pool.imageSrc}
           alt={name}
-          size={ARTWORK_SIZE}
-          sizeMobile={ARTWORK_SIZE_MOBILE}
+          size={WHIRLPOOL_ARTWORK_SIZE}
+          sizeMobile={WHIRLPOOL_ARTWORK_SIZE_MOBILE}
           color={pool.color}
           colorAccent={pool.colorAccent}
         />
@@ -75,7 +77,11 @@ function TreasurePool({ pool }: TreasurePoolProps): JSX.Element {
       </Section>
 
       <Section title="Used by" dividerColor="var(--pool-color)" spacing="small">
-        <PoolSourceList sources={sources} layout="pool-table" />
+        <PoolSourceList
+          sources={sources}
+          layout="pool-table"
+          allowLargerMobileArtwork={allowLargerMobileArtwork}
+        />
       </Section>
 
       <div className={cx('pool__note')}>{notes.below && <p>{notes.below}</p>}</div>

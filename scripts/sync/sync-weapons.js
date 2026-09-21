@@ -32,7 +32,16 @@ const SOURCE_FIELDS = {
   fromTalents: 'talent',
 }
 
-const WEAPON_FIELDS = ['id', 'name', 'category', 'type', 'fromEvents', 'fromCards', 'fromTalents']
+const WEAPON_FIELDS = [
+  'id',
+  'name',
+  'rarity',
+  'category',
+  'type',
+  'fromEvents',
+  'fromCards',
+  'fromTalents',
+]
 
 function main() {
   try {

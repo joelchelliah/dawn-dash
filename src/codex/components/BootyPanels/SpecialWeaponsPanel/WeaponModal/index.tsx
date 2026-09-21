@@ -5,7 +5,11 @@ import { createCx } from '@/shared/utils/classnames'
 
 import { CardData } from '@/codex/types/cards'
 import { SpecialWeapon } from '@/codex/types/weapons'
-import { getRelatedEvents, getRelatedTreasurePoolCards } from '@/codex/utils/treasureHelper'
+import {
+  getRelatedEvents,
+  getRelatedTreasurePoolCards,
+  getRelatedTreasurePoolTalents,
+} from '@/codex/utils/treasureHelper'
 import Section from '@/codex/components/shared/Section'
 
 import CardModal, { getCardSubtitle } from '../../shared/CardModal'
@@ -47,6 +51,7 @@ function WeaponModal({ weapon, cardDetails, cardData, onClose }: WeaponModalProp
     () => getRelatedTreasurePoolCards(weapon, cardData),
     [weapon, cardData]
   )
+  const relatedTalents = useMemo(() => getRelatedTreasurePoolTalents(weapon), [weapon])
 
   const specialConditionSection = specialCondition && (
     <Section
@@ -63,7 +68,7 @@ function WeaponModal({ weapon, cardDetails, cardData, onClose }: WeaponModalProp
   return (
     <CardModal
       cardName={weapon.name}
-      subtitle={getCardSubtitle(weapon, rarity?.name)}
+      subtitle={getCardSubtitle(weapon, weapon.rarity)}
       cardDetails={cardDetails}
       artwork={WEAPON_ARTWORK}
       cardNoun="weapon"
@@ -71,6 +76,7 @@ function WeaponModal({ weapon, cardDetails, cardData, onClose }: WeaponModalProp
       acquisitionColumns={4}
       relatedEvents={relatedEvents}
       relatedCards={relatedCards}
+      relatedTalents={relatedTalents}
       sectionAfterAcquisitions={specialConditionSection}
       onClose={onClose}
     />

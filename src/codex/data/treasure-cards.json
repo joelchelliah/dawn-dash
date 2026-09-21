@@ -2,6 +2,7 @@
   {
     "id": 930531,
     "name": "Chalice of Blood",
+    "rarity": "Legendary",
     "category": "Action",
     "type": "Divine",
     "inCardRewards": false,
@@ -103,6 +104,7 @@
   {
     "id": 611711,
     "name": "Cursed Puzzlebox",
+    "rarity": "Legendary",
     "category": "Artifact",
     "type": "Utility",
     "inCardRewards": false,
@@ -186,6 +188,7 @@
   {
     "id": 978149,
     "name": "Dark Mirror Vial",
+    "rarity": "Legendary",
     "category": "Item",
     "type": "Utility",
     "inCardRewards": true,
@@ -281,6 +284,7 @@
   {
     "id": 909591,
     "name": "Flying Carpet",
+    "rarity": "Legendary",
     "category": "Equipment",
     "type": "Magic",
     "inCardRewards": false,
@@ -368,6 +372,12 @@
         "name": "Shovel",
         "guaranteed": false,
         "pools": ["Booty pool"]
+      },
+      {
+        "sourceType": "card",
+        "name": "Warchest",
+        "guaranteed": false,
+        "pools": ["Equipment category pool (extended)"]
       }
     ],
     "fromTalents": [
@@ -376,12 +386,19 @@
         "name": "Pirate Parlour",
         "guaranteed": false,
         "pools": ["Pirate Parlour pool"]
+      },
+      {
+        "sourceType": "talent",
+        "name": "Tribute",
+        "guaranteed": false,
+        "pools": ["Equipment category pool"]
       }
     ]
   },
   {
     "id": 353519,
     "name": "Healing Potion",
+    "rarity": "Uncommon",
     "category": "Item",
     "type": "Utility",
     "inCardRewards": false,
@@ -513,6 +530,7 @@
   {
     "id": 68505,
     "name": "Philosopher's Stone",
+    "rarity": "Legendary",
     "category": "Item",
     "type": "Utility",
     "inCardRewards": true,
@@ -614,6 +632,7 @@
   {
     "id": 855931,
     "name": "Potion of Visions",
+    "rarity": "Rare",
     "category": "Item",
     "type": "Utility",
     "inCardRewards": false,
@@ -739,6 +758,7 @@
   {
     "id": 973883,
     "name": "Ring of Power",
+    "rarity": "Legendary",
     "category": "Item",
     "type": "Magic",
     "inCardRewards": true,
@@ -840,6 +860,7 @@
   {
     "id": 740335,
     "name": "Rune of Persistence",
+    "rarity": "Legendary",
     "category": "Item",
     "type": "Utility",
     "inCardRewards": true,
@@ -932,6 +953,12 @@
     "fromTalents": [
       {
         "sourceType": "talent",
+        "name": "Epiphany",
+        "guaranteed": false,
+        "pools": ["Legendary pool"]
+      },
+      {
+        "sourceType": "talent",
         "name": "Pirate Parlour",
         "guaranteed": false,
         "pools": ["Pirate Parlour pool"]
@@ -941,6 +968,7 @@
   {
     "id": 407234,
     "name": "Rusty Lamp",
+    "rarity": "Legendary",
     "category": "Equipment",
     "type": "Utility",
     "inCardRewards": false,
@@ -1016,6 +1044,12 @@
         "name": "Shovel",
         "guaranteed": false,
         "pools": ["Booty pool"]
+      },
+      {
+        "sourceType": "card",
+        "name": "Warchest",
+        "guaranteed": false,
+        "pools": ["Equipment category pool (extended)"]
       }
     ],
     "fromTalents": [
@@ -1024,12 +1058,19 @@
         "name": "Pirate Parlour",
         "guaranteed": false,
         "pools": ["Pirate Parlour pool"]
+      },
+      {
+        "sourceType": "talent",
+        "name": "Tribute",
+        "guaranteed": false,
+        "pools": ["Equipment category pool"]
       }
     ]
   },
   {
     "id": 816971,
     "name": "Sharpening Stone",
+    "rarity": "Uncommon",
     "category": "Item",
     "type": "Utility",
     "inCardRewards": true,
@@ -1143,6 +1184,7 @@
   {
     "id": 77316,
     "name": "Staff of Thunder",
+    "rarity": "Rare",
     "category": "BasicAttack",
     "type": "Magic",
     "inCardRewards": false,
@@ -1232,6 +1274,7 @@
   {
     "id": 571114,
     "name": "Stash of Weapons",
+    "rarity": "Rare",
     "category": "Item",
     "type": "Utility",
     "inCardRewards": true,
@@ -1345,6 +1388,7 @@
   {
     "id": 307462,
     "name": "Tradepost",
+    "rarity": "Legendary",
     "category": "Artifact",
     "type": "Utility",
     "inCardRewards": false,

@@ -57,21 +57,58 @@ This directory hosts four tools: **Cardex** (`cards.tsx`), **Skilldex** (`skills
   **distinct event names across both lists** — summing the two lengths double-counts an overlapping
   event, and it is computed after `resolveEvent` so an event missing from `data/event-trees.json` is
   neither listed nor counted. That is why the sync keeps these as objects rather than flattening them
-  to names. **Upstream has already merged what used to be one entry per source-and-pool into one
+  to names. **`fromCards` and `fromTalents` split the same way but into two separate sections**:
+  `getRelatedTreasurePoolCards` and `getRelatedTreasurePoolTalents` each return a `RelatedCards` over
+  one of the two lists, sharing the private `splitSources` so the guaranteed/pooled rule lives in one
+  place. Keeping them apart is what lets the modal title each section by kind, which is why
+  `RelatedCardList` has no source-type subtitle any more — every list it renders is one kind, and the
+  heading already says which. Only the cards half takes `cardData`, since `category` comes from the
+  live card lookup and talents never carry one. Each half's `total` counts **distinct names within
+  that list**, not `name`+`isTalent` keys: the flag is constant per list now, so it discriminated
+  nothing. **Upstream has already merged what used to be one entry per source-and-pool into one
   entry per source**, so a source appears exactly once and `RelatedEventList` can key on the event
   name alone — don't reintroduce a per-pool fan-out. The tags name **more pools than
   `data/treasure-pools.json` declares** — the declared four are the treasure pools Booty documents,
   while `Elite`/`Equipment`/`Potion`/`Rare`/`Uncommon pool` are general reward pools a handful of
   treasures also sit in. Don't assume a source's pool resolves to a `TreasurePool`. `toDisplayPools`
-  in `utils/treasureHelper.ts` collapses `X pool (limited)` into `X pool` and **de-duplicates the
-  result**: the restriction is not something a player can act on, two pools that only ever appear
-  limited (Rare, Uncommon) therefore render under their base name, and collapsing can leave one
-  source holding the same base name twice (Molekin Burrow draws Flying Carpet from both Equipment
-  pools). `EnrichedEvent` is `Event & { pools: string[] }`, one per event, and `ArtworkLinkItem`
+  in `utils/treasureHelper.ts` maps raw pool names through the **`POOL_DISPLAY_NAMES` table** and
+  **de-duplicates the result**: `X pool (limited)` collapses into `X pool` because the restriction is
+  not something a player can act on, and `Equipment category pool` / `Equipment category pool
+  (extended)` collapse into `Equipment pool` because reaching the pool by category rather than by
+  name is likewise invisible to the player. It is a **table rather than a suffix regex** precisely
+  because the Equipment merge is not a suffix rule — a new variant needs an entry, and unlisted names
+  pass through unchanged. Two pools that only ever appear limited (Rare, Uncommon) therefore render
+  under their base name, and collapsing can leave one source holding the same base name twice
+  (Molekin Burrow draws Flying Carpet from both Equipment pools; Warchest and Tribute reach it
+  through the two Equipment category variants). `EnrichedEvent` is `Event & { pools: string[] }`, one per event, and `ArtworkLinkItem`
   stacks those pools vertically under the name via `subtitles`. A pool's own `reachedBy` uses
   `PoolReachedBy` — the same shape minus `guaranteed`/`pools`, since the pool _is_ what those sources
   reach.
 - **`data/treasure-pools.json` owns pool _composition_; `constants/treasurePools.ts` owns pool _copy_.** The panel's reward tags, source tags, card counts **and display names** are all derived from the JSON's `contains`, `reachedBy`, `size` and `pool` — never hand-list them in the TS file, or a pool gaining a category (or being renamed, as `Delve Treasure pool` → `Booty pool` was) goes stale silently. `getPoolName` takes the **first** entry in a display pool's `pools`, which is why the merged Treasure pool lists the base name before the limited one. What stays hand-written is exactly what the JSON cannot express: the **C+D merge** into one display pool (editorial — they differ by one bool, not worth two cards to a player), colors, artwork, `excludedRewards` (the upstream JSON carried exclusions only as prose inside `predicate`, which the sync script now drops), `collapsedEventSource`, and the player-facing `note`. **Player-facing notes live in `TreasurePool/poolNotes.tsx`, not the JSON and not the constants file**: not the JSON because it comes from the external treasure-extraction tool, so copy authored there is outside this repo and lost on the next `sync-treasures` run; not the constants file because as JSX the notes can carry emphasis and split `above`/`below` the tag sections, which a `note: string` cannot. For the prose predicates behind those notes, read `scripts/data/treasures.json` — they are deliberately not shipped in `data/treasure-pools.json`. `POOL_NOTES` is a `Record<PoolId, PoolNotes>` over the **`PoolId` union**, so a new pool fails to compile until it has copy — that is deliberate, and why there is no runtime warning for missing notes. The drift cases the types _can't_ catch get dev-only warnings in `BootyPanels/CardPoolsPanel`: `findUnmappedPools` (a JSON pool with no display) and `findUnknownRewards` (a `contains` category not yet checked to read well as a tag).
+- **Both Booty route files must `export default` `BootyPage` itself, never a wrapper around it.** `/booty` and `/booty/[card]` are one page — a card URL is the same page with that card's modal open — so `pages/booty/index.tsx` and `pages/booty/[card].tsx` are each a bare `export { default } from '@/codex/BootyPage'`, and only `getStaticProps` (for the `<Head>`) differs between them. `_app` renders the page by position, so **two different page component types make React unmount the whole tree on a route change**: wrapping either export tears down and rebuilds Booty on every card click, which drops the Special Weapons and Card Pools panels for a frame (they sit behind the `hasCardData` gate, and a remount's first render has no cached data yet) — a visible flicker behind the modal that is opening. Sharing one component type is what makes that a re-render instead. Nothing type-checks this, and a wrapper looks entirely reasonable. Note the selected card survives such a remount only because it lives in the URL rather than component state; **`pages/eventmaps/` still has the un-shared shape**, where the remount also discards the tree layout memo, the filters and the zoom level on every event change.
+- **The selected Booty card lives in the URL, not in the lists.** `TreasureList` and `WeaponList` derive their modal from `useBootyCardUrlParam`'s `cardNameInUrl` **during render** rather than holding a `selectedId` — `booty.tsx` gates the weapons panel behind the card fetch, so on a cold load of a weapon URL that list does not exist yet and a single top-level "apply the param once" effect would fire before it mounts and silently do nothing. Deriving during render means each list resolves the param on its own first render, whenever that happens to be. The lists read `router.query` rather than page props because `shallow: true` never re-runs `getStaticProps`, so a prop would go stale on client-side navigation. A card in **both** datasets (only Staff of Thunder) is a genuinely different card per panel — each rendered from its own data file — so it gets **two URLs**, not one: `getBootyCardUrlParam(name, kind)` in `utils/bootyCardUrl.ts` suffixes the non-owning kind, giving `/booty/staff_of_thunder` (treasure) and `/booty/staff_of_thunder_weapon`. `BOOTY_CARD_URL_OWNER` therefore only picks which kind keeps the **unsuffixed** URL; it no longer makes one panel sit the URL out. Both lists must resolve their own rows through that function rather than normalizing the name directly — matching on the bare name is what made both lists match one URL and stack two modals. The suffix names the kind rather than counting (`_2`) so the URL stays meaningful and stable if a second overlap ever appears; a counter would reshuffle with dataset order.
+- **`BootyCardHead`'s OG copy is built from the card's own fields, never from a description.** The
+  static treasure and weapon JSON **deliberately carries no `description`**: a `description` was added
+  to both whitelists so the OG copy could use it, then removed again once it turned out unusable.
+  Every one of the 41 descriptions carries HTML and 31 carry value tokens (`[damage:5]`,
+  `|#5+[damageBonus]#|`, `([myGold])`) that only read as sentences beside the modal's icons and styled
+  numbers — stripped to plain text for a `<meta>` tag they read as broken. The modals never needed it
+  either, since they render Blightbane's own description off the live `CardData` (see the
+  keyword-list reasoning in `specs-booty-urls.md`). So don't re-add it to `CARD_FIELDS`/`WEAPON_FIELDS`
+  expecting a consumer; the field the head actually needs is `rarity`. The text is built with the
+  modals' own exported `getCardSubtitle`, so the two never drift. Artwork goes through the plain
+  `getCardImageSrc(name, null)` — the hook can't run for a `<Head>` built in `getStaticProps` — with
+  **no numeric category**, since that lives on the live `CardData`; all 40 booty names resolve by name
+  alone.
+- **The static JSON's `rarity` is a display _name_ ("Legendary"), not `CardData.rarity`'s numeric
+  index.** It exists because build-time code — `BootyCardHead` in `getStaticProps` — cannot reach the
+  live card data at all. The two agree: all 41 ids were checked against the live `cards-codex` payload
+  with zero disagreements. So the split is by what each consumer needs rather than by preference:
+  **`getCardSubtitle` takes the static name** in both modals and the head, while **`CardsList` rows
+  and `CardModal`'s border/divider keep the numeric `cardDetails.rarity`**, because they feed
+  `RarityBorderedArtwork` and `--${slug}` class names. `RarityBorderedArtwork` is shared with Cardex
+  and stays numeric-only — teaching it to also accept a name would add a branch to a shared component
+  for one caller's data shape, which is why it was tried and reverted.
 - **`booty.tsx` owns the single `useCardData()` call; the panels read it from `BootyCardDataContext`.** All three panels render from one card fetch, so calling the hook per panel gave each its own `isRefreshing` state and its own `onSuccess` — a cold load wrote the whole card blob to localStorage once per panel and drew a progress bar per panel for one download. Two consequences to preserve. The **Treasure Cards panel is the only one that reports sync state** (`CodexLoadingMessage`, `CodexErrorMessage`, `CodexLastUpdated`): it sits at the top of the page, so its bar is the one the reader sees. And `booty.tsx` **mounts the Special Weapons and Card Pools panels only once the fetch resolves**, which is why neither carries a loading or error branch — reintroducing `useCardData()` inside a panel puts both problems back silently, since a duplicate fetch looks identical to a single one on screen.
 - **Booty's source rows all render through `BootyPanels/shared/ArtworkSourceItem`.** `EventSourceItem` and `CardSourceItem` own the artwork-hook choice (events via `useEventImageSrc`, cards and talents via `useCardImageSrc` with `TALENT_ARTWORK_CATEGORY` for talents) and the Blightbane link. They stay separate leaf components because a hook can only run inside the component that uses it. Note `EventSourceItem` **defaults its subtitle to `['Event']`**, so a caller that wants none — the modal's guaranteed-events list, which is described by its own hint — must pass `subtitles={[]}` explicitly.
 - **Every Booty link opens in a new tab, internal `/eventmaps/` routes included.** `ArtworkLinkItem` sets `target="_blank"` unconditionally so following a source never costs the reader the open modal or their scroll position. `isExternal` still picks `<a>` vs `next/link`; it does **not** gate the target.
