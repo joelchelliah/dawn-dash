@@ -267,8 +267,7 @@ function CardModal({
                   'card-modal__hint--stacked': showCardSetRequirement,
                 })}
               >
-                <strong>Temporarily</strong> obtainable during combat, via{' '}
-                <Hl>Explorer&apos;s Trick</Hl>
+                Temporarily obtainable during combat, via <Hl>Explorer&apos;s Trick</Hl>
                 &apos;s primary effect (Artifact pool), as an <strong>Untempered</strong> copy.
               </div>
             )}
@@ -279,8 +278,8 @@ function CardModal({
                     showCardSetRequirement || showExplorerTrickArtifactNote,
                 })}
               >
-                <strong>Temporarily</strong> obtainable during combat, via certain <Hl>cards</Hl> or{' '}
-                <Hl>talents</Hl>, as a <strong>Conjured</strong> copy.
+                Temporarily obtainable during combat, via certain <Hl>cards</Hl> or <Hl>talents</Hl>
+                , as a <strong>Conjured</strong> copy.
               </div>
             )}
             {additionalNotes && (
