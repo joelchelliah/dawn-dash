@@ -1,3 +1,5 @@
+import Link from 'next/link'
+
 import { createCx } from '../../utils/classnames'
 
 import styles from './index.module.scss'
@@ -9,15 +11,24 @@ interface GradientLinkProps {
   url?: string
   onClick?: () => void
   className?: string
+  // Marks `url` as one of this site's own routes: it stays in the current tab and never reloads the page.
   internal?: boolean
 }
 
 function GradientLink({ text, url, onClick, className, internal }: GradientLinkProps): JSX.Element {
   if (url) {
-    const target = internal ? undefined : '_blank'
-    const rel = internal ? undefined : 'noopener noreferrer'
+    const linkClassName = cx('link', className)
+
+    if (internal) {
+      return (
+        <Link href={url} className={linkClassName}>
+          {text}
+        </Link>
+      )
+    }
+
     return (
-      <a href={url} target={target} rel={rel} className={cx('link', className)}>
+      <a href={url} target="_blank" rel="noopener noreferrer" className={linkClassName}>
         {text}
       </a>
     )

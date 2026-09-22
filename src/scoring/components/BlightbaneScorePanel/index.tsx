@@ -535,10 +535,9 @@ function BlightbaneScorePanel({
           &quot; ({renderIcon('HEALTH')}).
         </p>
         <p className={cx('follow-up')}>
-          The <GradientLink text="Dawn-Dash: Cardex" url="https://dawn-dash.com/cardex" /> tool was
-          created with the{' '}
-          <Highlight mode={ScoringMode.WeeklyChallenge}>Weekly Challenges</Highlight> in mind. It{' '}
-          will help you find all cards matching a given list of keywords.
+          The <GradientLink text="Dawn-Dash: Cardex" url="/cardex" internal /> tool was created with
+          the <Highlight mode={ScoringMode.WeeklyChallenge}>Weekly Challenges</Highlight> in mind.
+          It will help you find all cards matching a given list of keywords.
         </p>
 
         <CenteredImage

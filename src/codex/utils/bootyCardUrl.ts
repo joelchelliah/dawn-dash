@@ -56,6 +56,10 @@ export const BOOTY_CARDS: BootyCard[] = namedCards.map((card) => ({
   urlParam: getBootyCardUrlParam(card.name, card.kind),
 }))
 
+export function findBootyCard(name: string, kind: BootyCardKind): BootyCard | null {
+  return BOOTY_CARDS.find((card) => card.name === name && card.kind === kind) ?? null
+}
+
 export function findBootyCardByUrlParam(urlParam: string): BootyCard | null {
   const normalizedParam = urlParam.toLowerCase()
 

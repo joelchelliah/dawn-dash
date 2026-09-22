@@ -53,6 +53,7 @@ interface ArtworkLinkItemProps {
   src: string | null
   onImageSrcError?: () => void
   subtitles?: string[]
+  onNavigate?: () => void
   // Square artwork edge in px; defaults to the `modal` layout's size.
   artworkSize?: number
   artworkSizeMobile?: number
@@ -65,6 +66,7 @@ export function ArtworkLinkItem({
   src,
   onImageSrcError,
   subtitles = [],
+  onNavigate,
   artworkSize = ARTWORK_SIZE,
   artworkSizeMobile = ARTWORK_SIZE_MOBILE,
 }: ArtworkLinkItemProps): JSX.Element {
@@ -72,17 +74,31 @@ export function ArtworkLinkItem({
   const LinkComponent = isExternal ? 'a' : Link
   const title = subtitles.length > 0 ? `${name} (${subtitles.join(', ')})` : name
 
-  /*
-   * Every row opens in a new tab, internal ones included, so following a link never costs the
-   * reader the modal or the scroll position they were at.
-   */
+  // Left-click with no modifier only — anything else is the reader deliberately asking for a tab.
+  const handleClick = onNavigate
+    ? (event: React.MouseEvent) => {
+        if (
+          event.metaKey ||
+          event.ctrlKey ||
+          event.shiftKey ||
+          event.altKey ||
+          event.button !== 0
+        ) {
+          return
+        }
+        event.preventDefault()
+        onNavigate()
+      }
+    : undefined
+
   return (
     <LinkComponent
       href={href}
       className={itemClassName}
       title={title}
-      target="_blank"
+      target={onNavigate ? undefined : '_blank'}
       rel="noopener noreferrer"
+      onClick={handleClick}
     >
       <BorderedArtwork
         src={src}

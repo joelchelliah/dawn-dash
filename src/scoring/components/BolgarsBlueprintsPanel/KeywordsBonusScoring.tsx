@@ -180,7 +180,7 @@ function KeywordsBonusScoring({ challengeData }: KeywordsBonusScoringProps): JSX
       {cardBaseValue > 0 && keywords.length > 0 && (
         <p className={cx('cardex-hint')}>
           <strong>Hint:</strong> Find all keyword-matching cards on{' '}
-          <GradientLink text="Dawn-Dash: Cardex" url="https://dawn-dash.com/cardex" />!
+          <GradientLink text="Dawn-Dash: Cardex" url="/cardex" internal />!
         </p>
       )}
 

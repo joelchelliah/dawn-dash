@@ -1,9 +1,12 @@
 import { useMemo } from 'react'
 
+import { getCardImageSrc } from '@/shared/hooks/useCardImageSrc'
 import { createCx } from '@/shared/utils/classnames'
 import { capitalize } from '@/shared/utils/textHelper'
 
+import { useBootyCardUrlParam } from '@/codex/hooks/useBootyCardUrlParam'
 import { CardData } from '@/codex/types/cards'
+import { findBootyCard, getBootyCardUrlParam } from '@/codex/utils/bootyCardUrl'
 
 import { ArtworkLinkItem, ArtworkLinkList } from '../../shared/ArtworkLinkList'
 import { CardSourceItem, EventSourceItem } from '../../shared/ArtworkSourceItem'
@@ -13,6 +16,8 @@ import styles from './SpecialCondition.module.scss'
 import type { CustomConditionSource, SpecialCondition } from './conditionTypes'
 
 const cx = createCx(styles)
+
+const BOOTY_PATH = '/booty'
 
 const ARTWORK_SIZE = 32
 const ARTWORK_SIZE_MOBILE = 24
@@ -117,19 +122,34 @@ function SpecialCondition({ condition, cardData }: SpecialConditionProps): JSX.E
 }
 
 function SpecialConditionCustom({ source }: { source: CustomConditionSource }): JSX.Element {
-  const { name, kind, link, imageUrl } = source
+  const { selectCardAndUpdateUrl } = useBootyCardUrlParam()
+  const { name } = source
 
-  // Internal sources are the tool's own `/booty/<card>` pages, which must route through
-  // `next/link` — a full reload there refetches the ~3000 cards `booty.tsx` owns.
-  const isExternal = !link.startsWith('/')
+  if (source.bootyCard) {
+    const card = findBootyCard(name, source.bootyCard)
+    const urlParam = getBootyCardUrlParam(name, source.bootyCard)
+
+    return (
+      <ArtworkLinkItem
+        name={name}
+        href={`${BOOTY_PATH}/${urlParam}`}
+        isExternal={false}
+        src={getCardImageSrc(name, null)}
+        subtitles={card ? ['Card'] : []}
+        onNavigate={() => selectCardAndUpdateUrl(urlParam)}
+        artworkSize={ARTWORK_SIZE}
+        artworkSizeMobile={ARTWORK_SIZE_MOBILE}
+      />
+    )
+  }
 
   return (
     <ArtworkLinkItem
       name={name}
-      href={link}
-      isExternal={isExternal}
-      src={imageUrl}
-      subtitles={[capitalize(kind)]}
+      href={source.link}
+      isExternal
+      src={source.imageUrl}
+      subtitles={[capitalize(source.kind)]}
       artworkSize={ARTWORK_SIZE}
       artworkSizeMobile={ARTWORK_SIZE_MOBILE}
     />

@@ -1,5 +1,4 @@
 import { CharacterClass } from '@/shared/types/characterClass'
-import { getCardImageSrc } from '@/shared/hooks/useCardImageSrc'
 import { BlightbaneMonsterUrl, EmpoweredHydraImageUrl } from '@/shared/utils/imageUrls'
 
 import { SpecialConditionWeapon } from '@/codex/utils/weaponHelper'
@@ -7,8 +6,6 @@ import { SpecialConditionWeapon } from '@/codex/utils/weaponHelper'
 import EnergyPip from '../../shared/EnergyPip'
 
 import { Hl, SpecialCondition } from './conditionTypes'
-
-const BOOTY_PATH = '/booty'
 
 const SPECIAL_CONDITIONS: Record<SpecialConditionWeapon, SpecialCondition> = {
   'Arcane Bow': {
@@ -39,18 +36,8 @@ const SPECIAL_CONDITIONS: Record<SpecialConditionWeapon, SpecialCondition> = {
   },
   Astrakan: {
     customs: [
-      {
-        name: 'Asteran',
-        kind: 'Weapon',
-        link: `${BOOTY_PATH}/asteran`,
-        imageUrl: getCardImageSrc('Asteran', null),
-      },
-      {
-        name: 'Drakkan',
-        kind: 'Weapon',
-        link: `${BOOTY_PATH}/drakkan`,
-        imageUrl: getCardImageSrc('Drakkan', null),
-      },
+      { name: 'Asteran', bootyCard: 'weapon' },
+      { name: 'Drakkan', bootyCard: 'weapon' },
     ],
     description: (
       <>
@@ -159,12 +146,7 @@ const SPECIAL_CONDITIONS: Record<SpecialConditionWeapon, SpecialCondition> = {
         link: BlightbaneMonsterUrl('Empowered Hydra'),
         imageUrl: EmpoweredHydraImageUrl,
       },
-      {
-        name: 'Suntree Twig',
-        kind: 'Weapon',
-        link: `${BOOTY_PATH}/suntree_twig`,
-        imageUrl: getCardImageSrc('Suntree Twig', null),
-      },
+      { name: 'Suntree Twig', bootyCard: 'weapon' },
     ],
     description: (
       <>
