@@ -4,8 +4,31 @@ import { BlightbaneMonsterUrl, EmpoweredHydraImageUrl } from '@/shared/utils/ima
 import { SpecialConditionWeapon } from '@/codex/utils/weaponHelper'
 
 import EnergyPip from '../../shared/EnergyPip'
+import { Hl } from '../../shared/CardModal/Hl'
 
-import { Hl, SpecialCondition } from './conditionTypes'
+import { SpecialCondition } from './conditionTypes'
+
+const moonClawsTransformNote = (
+  <>
+    <Hl>Moonclaws</Hl> variants always transform, when drawn, based on your{' '}
+    <strong>latest form</strong>. You cannot draw a specific variant without being in the
+    corresponding <strong>form</strong>.
+  </>
+)
+
+const untemperedNote = (
+  <>
+    To obtain a permanent copy you must remove, or override, the <strong>Untempered</strong>{' '}
+    keyword. One way is to make it <strong>Cursed</strong> during battle.
+  </>
+)
+
+const doingMyPartNote = (
+  <>
+    Make sure <strong>not</strong> to gain several ranks in a single battle! This will skip your
+    final reward.
+  </>
+)
 
 const SPECIAL_CONDITIONS: Record<SpecialConditionWeapon, SpecialCondition> = {
   'Arcane Bow': {
@@ -56,8 +79,7 @@ const SPECIAL_CONDITIONS: Record<SpecialConditionWeapon, SpecialCondition> = {
         deck.
         <br />
         <br />
-        The only way to obtain a permanent copy is to remove the <strong>Untempered</strong>{' '}
-        keyword, by making it <strong>Cursed</strong> during battle.
+        {untemperedNote}
       </>
     ),
   },
@@ -70,8 +92,11 @@ const SPECIAL_CONDITIONS: Record<SpecialConditionWeapon, SpecialCondition> = {
         rewards you for accumulated <strong>overkill</strong> damage.
         <br />
         <br />
-        Passing <strong>499 overkill</strong> damage will promote you to <Hl>Sergeant</Hl>, and
-        reward you with a <Hl>Blaster</Hl>.
+        Passing <strong>499 overkill</strong> damage, while being a <Hl>Private</Hl>, will promote
+        you to <Hl>Sergeant</Hl>, and reward you with a <Hl>Blaster</Hl>.
+        <br />
+        <br />
+        {doingMyPartNote}
       </>
     ),
   },
@@ -84,8 +109,11 @@ const SPECIAL_CONDITIONS: Record<SpecialConditionWeapon, SpecialCondition> = {
         rewards you for accumulated <strong>overkill</strong> damage.
         <br />
         <br />
-        Passing <strong>999 overkill</strong> damage will promote you to <Hl>Lieutenant</Hl>, and
-        reward you with a <Hl>Buzzsword</Hl>.
+        Passing <strong>999 overkill</strong> damage, while being a <Hl>Sergeant</Hl>, will promote
+        you to <Hl>Lieutenant</Hl>, and reward you with a <Hl>Buzzsword</Hl>.
+        <br />
+        <br />
+        {doingMyPartNote}
       </>
     ),
   },
@@ -97,7 +125,7 @@ const SPECIAL_CONDITIONS: Record<SpecialConditionWeapon, SpecialCondition> = {
         <strong>temporarily</strong> transform into a <Hl>Celestial Claws</Hl>.
         <br />
         <br />
-        <Hl>Moonclaws</Hl> always transform based on your latest form.
+        {moonClawsTransformNote}
       </>
     ),
   },
@@ -109,7 +137,7 @@ const SPECIAL_CONDITIONS: Record<SpecialConditionWeapon, SpecialCondition> = {
         <strong>temporarily</strong> transform into a <Hl>Demon Claws</Hl>.
         <br />
         <br />
-        <Hl>Moonclaws</Hl> always transform based on your latest form.
+        {moonClawsTransformNote}
       </>
     ),
   },
@@ -175,8 +203,7 @@ const SPECIAL_CONDITIONS: Record<SpecialConditionWeapon, SpecialCondition> = {
         deck.
         <br />
         <br />
-        The only way to obtain a permanent copy is to remove the <strong>Untempered</strong>{' '}
-        keyword, by making it <strong>Cursed</strong> during battle.
+        {untemperedNote}
       </>
     ),
   },

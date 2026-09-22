@@ -7,7 +7,8 @@
     "type": "Ranged",
     "fromEvents": [],
     "fromCards": [],
-    "fromTalents": []
+    "fromTalents": [],
+    "hasConjurationRoute": false
   },
   {
     "id": 178462,
@@ -37,7 +38,8 @@
         "pools": ["Legendary weapon pool"]
       }
     ],
-    "fromTalents": []
+    "fromTalents": [],
+    "hasConjurationRoute": false
   },
   {
     "id": 761240,
@@ -47,7 +49,8 @@
     "type": "Divine",
     "fromEvents": [],
     "fromCards": [],
-    "fromTalents": []
+    "fromTalents": [],
+    "hasConjurationRoute": false
   },
   {
     "id": 264169,
@@ -57,7 +60,8 @@
     "type": "Divine",
     "fromEvents": [],
     "fromCards": [],
-    "fromTalents": []
+    "fromTalents": [],
+    "hasConjurationRoute": false
   },
   {
     "id": 238182,
@@ -74,7 +78,8 @@
         "pools": ["Legendary weapon pool"]
       }
     ],
-    "fromTalents": []
+    "fromTalents": [],
+    "hasConjurationRoute": false
   },
   {
     "id": 58040,
@@ -91,7 +96,8 @@
         "pools": ["Legendary weapon pool"]
       }
     ],
-    "fromTalents": []
+    "fromTalents": [],
+    "hasConjurationRoute": false
   },
   {
     "id": 720436,
@@ -101,7 +107,8 @@
     "type": "Melee",
     "fromEvents": [],
     "fromCards": [],
-    "fromTalents": []
+    "fromTalents": [],
+    "hasConjurationRoute": false
   },
   {
     "id": 683451,
@@ -111,7 +118,8 @@
     "type": "Melee",
     "fromEvents": [],
     "fromCards": [],
-    "fromTalents": []
+    "fromTalents": [],
+    "hasConjurationRoute": false
   },
   {
     "id": 415692,
@@ -141,7 +149,8 @@
         "pools": ["Legendary weapon pool"]
       }
     ],
-    "fromTalents": []
+    "fromTalents": [],
+    "hasConjurationRoute": false
   },
   {
     "id": 606138,
@@ -165,7 +174,8 @@
         "guaranteed": true,
         "pools": []
       }
-    ]
+    ],
+    "hasConjurationRoute": false
   },
   {
     "id": 728501,
@@ -196,7 +206,8 @@
         "guaranteed": true,
         "pools": []
       }
-    ]
+    ],
+    "hasConjurationRoute": false
   },
   {
     "id": 239672,
@@ -206,7 +217,8 @@
     "type": "Divine",
     "fromEvents": [],
     "fromCards": [],
-    "fromTalents": []
+    "fromTalents": [],
+    "hasConjurationRoute": false
   },
   {
     "id": 765067,
@@ -216,7 +228,8 @@
     "type": "Divine",
     "fromEvents": [],
     "fromCards": [],
-    "fromTalents": []
+    "fromTalents": [],
+    "hasConjurationRoute": false
   },
   {
     "id": 450681,
@@ -246,7 +259,8 @@
         "pools": ["Legendary weapon pool"]
       }
     ],
-    "fromTalents": []
+    "fromTalents": [],
+    "hasConjurationRoute": false
   },
   {
     "id": 760719,
@@ -276,7 +290,8 @@
         "guaranteed": true,
         "pools": []
       }
-    ]
+    ],
+    "hasConjurationRoute": true
   },
   {
     "id": 843524,
@@ -293,7 +308,8 @@
         "pools": ["Legendary weapon pool"]
       }
     ],
-    "fromTalents": []
+    "fromTalents": [],
+    "hasConjurationRoute": false
   },
   {
     "id": 144375,
@@ -303,7 +319,8 @@
     "type": "Melee",
     "fromEvents": [],
     "fromCards": [],
-    "fromTalents": []
+    "fromTalents": [],
+    "hasConjurationRoute": false
   },
   {
     "id": 41020033,
@@ -320,7 +337,8 @@
         "pools": ["Legendary weapon pool"]
       }
     ],
-    "fromTalents": []
+    "fromTalents": [],
+    "hasConjurationRoute": true
   },
   {
     "id": 91730,
@@ -337,7 +355,8 @@
         "pools": ["Legendary weapon pool"]
       }
     ],
-    "fromTalents": []
+    "fromTalents": [],
+    "hasConjurationRoute": false
   },
   {
     "id": 956773,
@@ -354,7 +373,8 @@
         "pools": ["Legendary weapon pool"]
       }
     ],
-    "fromTalents": []
+    "fromTalents": [],
+    "hasConjurationRoute": false
   },
   {
     "id": 514930,
@@ -371,7 +391,8 @@
         "pools": ["Legendary weapon pool"]
       }
     ],
-    "fromTalents": []
+    "fromTalents": [],
+    "hasConjurationRoute": false
   },
   {
     "id": 564994,
@@ -395,7 +416,8 @@
         "pools": ["Elite weapon pool"]
       }
     ],
-    "fromTalents": []
+    "fromTalents": [],
+    "hasConjurationRoute": true
   },
   {
     "id": 722053,
@@ -426,7 +448,8 @@
         "guaranteed": true,
         "pools": []
       }
-    ]
+    ],
+    "hasConjurationRoute": true
   },
   {
     "id": 77316,
@@ -511,7 +534,8 @@
         "guaranteed": false,
         "pools": ["Pirate Parlour pool"]
       }
-    ]
+    ],
+    "hasConjurationRoute": true
   },
   {
     "id": 694945,
@@ -521,7 +545,8 @@
     "type": "Divine",
     "fromEvents": [],
     "fromCards": [],
-    "fromTalents": []
+    "fromTalents": [],
+    "hasConjurationRoute": false
   },
   {
     "id": 561648,
@@ -558,7 +583,8 @@
         "guaranteed": true,
         "pools": []
       }
-    ]
+    ],
+    "hasConjurationRoute": true
   },
   {
     "id": 431790,
@@ -575,6 +601,7 @@
         "pools": ["Legendary weapon pool"]
       }
     ],
-    "fromTalents": []
+    "fromTalents": [],
+    "hasConjurationRoute": false
   }
 ]

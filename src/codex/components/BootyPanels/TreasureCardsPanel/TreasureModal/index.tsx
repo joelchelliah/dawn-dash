@@ -1,7 +1,6 @@
 import { useMemo } from 'react'
 
 import { CharacterClass } from '@/shared/types/characterClass'
-import { createCx } from '@/shared/utils/classnames'
 
 import { CardData } from '@/codex/types/cards'
 import { EnrichedTreasureCard, TreasureCard } from '@/codex/types/treasures'
@@ -15,9 +14,7 @@ import CardModal, { getCardSubtitle } from '../../shared/CardModal'
 import EnergyPip from '../../shared/EnergyPip'
 import { TREASURE_ARTWORK } from '../../shared/cardArtwork'
 import { Acquisition } from '../../shared/CardModal/AcquisitionFlag'
-import styles from '../../shared/CardModal/index.module.scss'
-
-const cx = createCx(styles)
+import { Hl } from '../../shared/CardModal/Hl'
 
 const getAcquisitions = (treasure: TreasureCard): Acquisition[] => {
   const { fromCards, fromTalents, fromEvents } = treasure
@@ -57,6 +54,7 @@ function TreasureModal({ treasure, cardData, onClose }: TreasureModalProps): JSX
       cardName={cardName}
       subtitle={getCardSubtitle(treasureDetails, treasureDetails.rarity)}
       cardDetails={cardDetails}
+      hasConjurationRoute={treasureDetails.hasConjurationRoute}
       artwork={TREASURE_ARTWORK}
       cardNoun="treasure"
       acquisitions={getAcquisitions(treasureDetails)}
@@ -72,9 +70,8 @@ function TreasureModal({ treasure, cardData, onClose }: TreasureModalProps): JSX
 const ADDITIONAL_NOTES: Record<string, JSX.Element> = {
   'Dark Mirror Vial': (
     <>
-      Cannot be traded into via{' '}
-      <span className={cx('card-modal__hint__highlighted')}>Tradepost</span>, but any other form of
-      trade or transmute will work.
+      Cannot be traded into via <Hl>Tradepost</Hl>, but any other form of trade or transmute will
+      work.
     </>
   ),
   'Rusty Lamp': (

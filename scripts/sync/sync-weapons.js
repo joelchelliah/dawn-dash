@@ -38,6 +38,7 @@ const WEAPON_FIELDS = [
   'rarity',
   'category',
   'type',
+  'hasConjurationRoute',
   'fromEvents',
   'fromCards',
   'fromTalents',

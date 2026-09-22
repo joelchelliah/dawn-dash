@@ -56,6 +56,7 @@ const CARD_FIELDS = [
   'inAlchemist',
   'fromTranspose',
   'fromTrade',
+  'hasConjurationRoute',
   'fromEvents',
   'fromCards',
   'fromTalents',

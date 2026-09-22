@@ -16,6 +16,7 @@ import CardModal, { getCardSubtitle } from '../../shared/CardModal'
 import { WEAPON_ARTWORK } from '../../shared/cardArtwork'
 import { Acquisition } from '../../shared/CardModal/AcquisitionFlag'
 import styles from '../../shared/CardModal/index.module.scss'
+import { Hl } from '../../shared/CardModal/Hl'
 
 import SpecialCondition from './SpecialCondition'
 import { getSpecialCondition } from './specialConditions'
@@ -70,6 +71,7 @@ function WeaponModal({ weapon, cardDetails, cardData, onClose }: WeaponModalProp
       cardName={weapon.name}
       subtitle={getCardSubtitle(weapon, weapon.rarity)}
       cardDetails={cardDetails}
+      hasConjurationRoute={weapon.hasConjurationRoute}
       artwork={WEAPON_ARTWORK}
       cardNoun="weapon"
       acquisitions={getAcquisitions(weapon, Boolean(specialCondition))}
@@ -78,9 +80,26 @@ function WeaponModal({ weapon, cardDetails, cardData, onClose }: WeaponModalProp
       relatedCards={relatedCards}
       relatedTalents={relatedTalents}
       sectionAfterAcquisitions={specialConditionSection}
+      additionalNotes={ADDITIONAL_NOTES[weapon.name]}
       onClose={onClose}
     />
   )
+}
+
+const getUntemperedRaidersRewardNote = (weaponName: string): JSX.Element => (
+  <>
+    If you have a <strong>Cursed</strong> Basic Attack in your deck, you can play{' '}
+    <Hl>Raider&apos;s Reward</Hl> on a <Hl>{weaponName}</Hl>, to have it permanently replace your{' '}
+    <strong>Cursed</strong> Basic Attack! This overrides the <strong>Untempered</strong> keyword.
+    <br />
+    Any non-<strong>Cursed</strong> Basic Attack will still be <strong>Untempered</strong> after
+    transformation!
+  </>
+)
+
+const ADDITIONAL_NOTES: Record<string, JSX.Element> = {
+  Battlespear: getUntemperedRaidersRewardNote('Battlespear'),
+  Monolith: getUntemperedRaidersRewardNote('Monolith'),
 }
 
 export default WeaponModal

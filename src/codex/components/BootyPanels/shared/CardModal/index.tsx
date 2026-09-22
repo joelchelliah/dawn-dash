@@ -16,6 +16,7 @@ import CardPill from './CardPill'
 import RelatedCardList from './RelatedCardList'
 import RelatedEventList from './RelatedEventList'
 import styles from './index.module.scss'
+import { Hl } from './Hl'
 
 const cx = createCx(styles)
 
@@ -25,6 +26,8 @@ const RARITY_COLOR = 'var(--rarity-color)'
 
 // Types that say nothing a player would act on, so they are left out of the subtitle entirely.
 const UNINFORMATIVE_TYPES = ['Utility']
+
+const CATEGORY_ARTIFACT = 2
 
 export const getCardSubtitle = (
   { type, category }: { type: string; category: string },
@@ -43,6 +46,7 @@ export interface CardModalProps {
   cardName: string
   subtitle: string
   cardDetails: CardData
+  hasConjurationRoute: boolean
   // The same dimensions the card's list rows use, so the two never drift
   artwork: CardListArtwork
   acquisitions: Acquisition[]
@@ -63,6 +67,7 @@ function CardModal({
   cardName,
   subtitle,
   cardDetails,
+  hasConjurationRoute,
   artwork,
   acquisitions,
   acquisitionColumns = 3,
@@ -92,6 +97,10 @@ function CardModal({
 
   const showCardSetRequirement =
     cardSetName !== 'Core' && (pooledEvents.length > 0 || pooledCards.length > 0)
+  const showExplorerTrickArtifactNote = cardDetails.category === CATEGORY_ARTIFACT
+  const showConjurableNote = hasConjurationRoute
+  const showAdditionalNotesSection =
+    showCardSetRequirement || showExplorerTrickArtifactNote || showConjurableNote || additionalNotes
 
   return (
     <InfoModal
@@ -244,7 +253,7 @@ function CardModal({
           </Section>
         )}
 
-        {(showCardSetRequirement || additionalNotes) && (
+        {showAdditionalNotesSection && (
           <Section title="Additional notes" dividerColor={dividerColor} spacing="medium">
             {showCardSetRequirement && (
               <div className={cx('card-modal__hint')}>
@@ -252,10 +261,33 @@ function CardModal({
                 set must be enabled for this to be available in <strong>card pools</strong>.
               </div>
             )}
-            {additionalNotes && (
+            {showExplorerTrickArtifactNote && (
               <div
                 className={cx('card-modal__hint', {
                   'card-modal__hint--stacked': showCardSetRequirement,
+                })}
+              >
+                <strong>Temporarily</strong> obtainable during combat, via{' '}
+                <Hl>Explorer&apos;s Trick</Hl>
+                &apos;s primary effect (Artifact pool), as an <strong>Untempered</strong> copy.
+              </div>
+            )}
+            {showConjurableNote && (
+              <div
+                className={cx('card-modal__hint', {
+                  'card-modal__hint--stacked':
+                    showCardSetRequirement || showExplorerTrickArtifactNote,
+                })}
+              >
+                <strong>Temporarily</strong> obtainable during combat, via certain <Hl>cards</Hl> or{' '}
+                <Hl>talents</Hl>, as a <strong>Conjured</strong> copy.
+              </div>
+            )}
+            {additionalNotes && (
+              <div
+                className={cx('card-modal__hint', {
+                  'card-modal__hint--stacked':
+                    showCardSetRequirement || showExplorerTrickArtifactNote || showConjurableNote,
                 })}
               >
                 {additionalNotes}

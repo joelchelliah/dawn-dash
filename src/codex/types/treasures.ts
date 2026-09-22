@@ -23,6 +23,7 @@ export interface TreasureCard {
   inAlchemist: boolean
   fromTranspose: boolean
   fromTrade: boolean
+  hasConjurationRoute: boolean
   fromEvents: TreasureSource[]
   fromCards: TreasureSource[]
   fromTalents: TreasureSource[]

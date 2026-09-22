@@ -7,6 +7,7 @@ export interface SpecialWeapon {
   rarity: string
   category: string
   type: string
+  hasConjurationRoute: boolean
   fromEvents: TreasureSource[]
   fromCards: TreasureSource[]
   fromTalents: TreasureSource[]
