@@ -1,8 +1,9 @@
 import { TALENT_ARTWORK_CATEGORY, useCardImageSrc } from '@/shared/hooks/useCardImageSrc'
-import { BlightbaneCardUrl, BlightbaneTalentUrl } from '@/shared/utils/imageUrls'
+import { BlightbaneCardUrl } from '@/shared/utils/imageUrls'
 
 import { useEventImageSrc } from '@/codex/hooks/useEventImageSrc'
 import { normalizeEventNameForUrl } from '@/codex/hooks/useEventUrlParam'
+import { SkilldexTalentUrl } from '@/codex/utils/urlHelper'
 import { getEventArtwork } from '@/codex/utils/treasureHelper'
 
 import { ArtworkLinkItem } from '../ArtworkLinkList'
@@ -58,8 +59,8 @@ export function CardSourceItem({
   return (
     <ArtworkLinkItem
       name={name}
-      href={isTalent ? BlightbaneTalentUrl(name) : BlightbaneCardUrl(name)}
-      isExternal
+      href={isTalent ? SkilldexTalentUrl(name) : BlightbaneCardUrl(name)}
+      isExternal={!isTalent}
       src={cardImageSrc}
       onImageSrcError={onImageSrcError}
       subtitles={subtitles ?? [isTalent ? 'Talent' : 'Card']}
