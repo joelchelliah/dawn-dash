@@ -279,7 +279,7 @@ tracked path is what makes the documented overwrite behaviour happen.
 `npm run verify`, `npm run build`, then **pause**: mark COMPLETED and hand the user the visual checks
 listed under _How it gets verified_ (the Skilldex ones — all but the two Cardex-only items).
 
-### Task 3 — Encoding check
+### Task 3 — Encoding check — COMPLETED
 
 Confirm that searches with commas, spaces, quotes and the `or` separator round-trip through the URL
 unchanged. `useKeywords` splits on `/,\s+or\s+|,\s*|\s+or\s+/`, so `bleed, poison or corrode` is a
@@ -292,7 +292,7 @@ does need handling, handle it in the hook, not in `useKeywords`.
 
 `npm run verify`.
 
-### Task 4 — Wire it into Cardex
+### Task 4 — Wire it into Cardex — COMPLETED
 
 Same call in `useAllCardSearchFilters`, same three arguments, same tracked setter.
 

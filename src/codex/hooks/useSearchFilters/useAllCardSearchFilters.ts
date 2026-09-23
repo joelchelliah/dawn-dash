@@ -15,6 +15,7 @@ import {
 } from '@/codex/utils/codexFilterStore'
 
 import { useWeeklyChallengeFilterData } from '../useWeeklyChallengeFilterData'
+import { useSearchQueryUrlParam } from '../useSearchQueryUrlParam'
 
 import { isCardSetIndexInSelection, useCardSetFilters } from './useCardSetFilters'
 import { allRarities, useRarityFilters } from './useRarityFilters'
@@ -150,6 +151,8 @@ export const useAllCardSearchFilters = (
     resetExtraCardFilters()
     resetFormattingFilters()
   }
+
+  useSearchQueryUrlParam({ keywords, setKeywords: trackedSetKeywords, resetFilters })
 
   // --------------------------------------------------
   // --------------- Weekly Challenge! ----------------

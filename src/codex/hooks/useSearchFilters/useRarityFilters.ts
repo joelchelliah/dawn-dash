@@ -10,9 +10,9 @@ import { createFilterHook } from './useFilterFactory'
 const defaultFilters: Record<string, boolean> = {
   [RarityFilterOption.Legendary]: true,
   [RarityFilterOption.Rare]: true,
-  [RarityFilterOption.Uncommon]: false,
-  [RarityFilterOption.Common]: false,
-  [SharedFilterOption.All]: false,
+  [RarityFilterOption.Uncommon]: true,
+  [RarityFilterOption.Common]: true,
+  [SharedFilterOption.All]: true,
   [SharedFilterOption.None]: false,
 }
 
