@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { ExtraCardFilterOption, WeeklyChallengeFilterData } from '@/codex/types/filters'
 import {
@@ -27,6 +27,10 @@ import { useCardStrike } from './useCardStrike'
 import { useKeywords } from './useKeywords'
 import { useFilterTracking } from './useFilterTracking'
 
+export type WeeklyChallengeNotification =
+  'untrackedCards' | 'specialKeywordRules' | 'animalCompanion' | 'negativeKeywords'
+const RARITY_KEYWORDS = ['Monster', 'Common', 'Uncommon', 'Rare', 'Legendary']
+
 export interface WeeklyChallengeOptimization {
   parsedKeywords: string[]
   hasAnimalCompanionMatch: boolean
@@ -46,10 +50,13 @@ export interface UseAllCardSearchFilters {
   useCardStrike: ReturnType<typeof useCardStrike>
   resetFilters: () => void
   resetStruckCards: () => void
-  setFiltersFromWeeklyChallengeData: () => WeeklyChallengeOptimization | null
+  setFiltersFromWeeklyChallengeData: () => void
   weeklyChallengeData: WeeklyChallengeFilterData | null
   isWeelyChallengeLoading: boolean
   isWeeklyChallengeError: boolean
+  isPendingWeeklyChallengeFromUrl: boolean
+  weeklyChallengeNotification: WeeklyChallengeNotification | null
+  clearWeeklyChallengeNotification: () => void
 }
 
 export const useAllCardSearchFilters = (
@@ -152,7 +159,69 @@ export const useAllCardSearchFilters = (
     resetFormattingFilters()
   }
 
-  useSearchQueryUrlParam({ keywords, setKeywords: trackedSetKeywords, resetFilters })
+  const getWeeklyChallengeNotification = (
+    optimization: WeeklyChallengeOptimization
+  ): WeeklyChallengeNotification | null => {
+    if (struckCards.length > 0) return 'untrackedCards'
+    if (RARITY_KEYWORDS.some((rarity) => optimization.parsedKeywords.includes(rarity)))
+      return 'specialKeywordRules'
+    if (optimization.hasAnimalCompanionMatch) return 'animalCompanion'
+    if (filterData?.hadNegativeKeywords) return 'negativeKeywords'
+    return null
+  }
+
+  const [weeklyChallengeNotification, setWeeklyChallengeNotification] =
+    useState<WeeklyChallengeNotification | null>(null)
+
+  const clearWeeklyChallengeNotification = useCallback(
+    () => setWeeklyChallengeNotification(null),
+    []
+  )
+
+  /*
+   * `?weekly` only records intent on arrival: the challenge data is fetched asynchronously, so the
+   * preset is applied by the effect below once it lands. This lives here rather than in
+   * `CardSearchPanel` because the panel is unmounted while the page shows its loading message —
+   */
+  const [isPendingWeeklyChallengeFromUrl, setIsPendingWeeklyChallengeFromUrl] = useState(false)
+
+  const { setWeeklyChallengeParam } = useSearchQueryUrlParam({
+    keywords,
+    setKeywords: trackedSetKeywords,
+    resetFilters,
+    onWeeklyParam: () => setIsPendingWeeklyChallengeFromUrl(true),
+  })
+
+  const applyWeeklyChallengeOptimization = () => {
+    const optimization = setFiltersFromWeeklyChallengeData()
+    if (!optimization) return
+
+    setWeeklyChallengeNotification(getWeeklyChallengeNotification(optimization))
+  }
+
+  const applyWeeklyChallengeOptimizationFromButton = () => {
+    applyWeeklyChallengeOptimization()
+    setWeeklyChallengeParam()
+  }
+
+  const hasAppliedWeeklyFromUrlRef = useRef(false)
+
+  useEffect(() => {
+    if (!isPendingWeeklyChallengeFromUrl || hasAppliedWeeklyFromUrlRef.current) return
+    if (isFilterDataLoading) return
+
+    hasAppliedWeeklyFromUrlRef.current = true
+    setIsPendingWeeklyChallengeFromUrl(false)
+
+    // The fetch failed, so there is no preset to apply — the panel hides the button in this case.
+    if (isFilterDataError || !filterData) return
+
+    applyWeeklyChallengeOptimization()
+
+    // `applyWeeklyChallengeOptimization` is recreated every render and the ref above already makes
+    // this run exactly once, so listing it would only re-run a one-shot effect.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isPendingWeeklyChallengeFromUrl, isFilterDataLoading, isFilterDataError, filterData])
 
   // --------------------------------------------------
   // --------------- Weekly Challenge! ----------------
@@ -301,10 +370,13 @@ export const useAllCardSearchFilters = (
     useCardStrike: trackedUseCardStrike,
     resetFilters,
     resetStruckCards,
-    setFiltersFromWeeklyChallengeData,
+    setFiltersFromWeeklyChallengeData: applyWeeklyChallengeOptimizationFromButton,
     weeklyChallengeData: filterData,
     isWeelyChallengeLoading: isFilterDataLoading,
     isWeeklyChallengeError: isFilterDataError,
+    isPendingWeeklyChallengeFromUrl,
+    weeklyChallengeNotification,
+    clearWeeklyChallengeNotification,
   }
 }
 
