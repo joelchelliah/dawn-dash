@@ -6,6 +6,8 @@ import {
   getCachedTalentCodexSearchFilters,
 } from '@/codex/utils/codexFilterStore'
 
+import { useSearchQueryUrlParam } from '../useSearchQueryUrlParam'
+
 import { useTalentCardSetFilters } from './useCardSetFilters'
 import { useTierFilters } from './useTierFilters'
 import { useKeywords } from './useKeywords'
@@ -109,6 +111,8 @@ export const useAllTalentSearchFilters = (
     resetTierFilters()
     resetFormattingFilters()
   }
+
+  useSearchQueryUrlParam({ keywords, setKeywords: trackedSetKeywords, resetFilters })
 
   // --------------------------------------------------
   // -------- Debounced caching of filters ------------
