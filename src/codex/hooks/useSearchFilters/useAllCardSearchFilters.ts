@@ -54,7 +54,7 @@ export interface UseAllCardSearchFilters {
   isWeelyChallengeLoading: boolean
   isWeeklyChallengeError: boolean
   isPendingWeeklyChallengeFromUrl: boolean
-  weeklyChallengeNotification: WeeklyChallengeNotification | null
+  weeklyChallengeNotifications: WeeklyChallengeNotification[]
   clearWeeklyChallengeNotification: () => void
 }
 
@@ -158,21 +158,25 @@ export const useAllCardSearchFilters = (
     resetFormattingFilters()
   }
 
-  const getWeeklyChallengeNotification = (
+  const getWeeklyChallengeNotifications = (
     optimization: WeeklyChallengeOptimization
-  ): WeeklyChallengeNotification | null => {
-    if (struckCards.length > 0) return 'untrackedCards'
-    if (RARITY_KEYWORDS.some((rarity) => optimization.parsedKeywords.includes(rarity)))
-      return 'specialKeywordRules'
-    if (filterData?.hadNegativeKeywords) return 'negativeKeywords'
-    return null
+  ): WeeklyChallengeNotification[] => {
+    const matches: Record<WeeklyChallengeNotification, boolean> = {
+      untrackedCards: struckCards.length > 0,
+      specialKeywordRules: RARITY_KEYWORDS.some((rarity) =>
+        optimization.parsedKeywords.includes(rarity)
+      ),
+      negativeKeywords: !!filterData?.hadNegativeKeywords,
+    }
+    return (Object.keys(matches) as WeeklyChallengeNotification[]).filter((key) => matches[key])
   }
 
-  const [weeklyChallengeNotification, setWeeklyChallengeNotification] =
-    useState<WeeklyChallengeNotification | null>(null)
+  const [weeklyChallengeNotifications, setWeeklyChallengeNotifications] = useState<
+    WeeklyChallengeNotification[]
+  >([])
 
   const clearWeeklyChallengeNotification = useCallback(
-    () => setWeeklyChallengeNotification(null),
+    () => setWeeklyChallengeNotifications([]),
     []
   )
 
@@ -200,7 +204,7 @@ export const useAllCardSearchFilters = (
     const optimization = setFiltersFromWeeklyChallengeData()
     if (!optimization) return
 
-    setWeeklyChallengeNotification(getWeeklyChallengeNotification(optimization))
+    setWeeklyChallengeNotifications(getWeeklyChallengeNotifications(optimization))
   }
 
   const applyWeeklyChallengeOptimizationFromButton = () => {
@@ -364,7 +368,7 @@ export const useAllCardSearchFilters = (
     isWeelyChallengeLoading: isFilterDataLoading,
     isWeeklyChallengeError: isFilterDataError,
     isPendingWeeklyChallengeFromUrl,
-    weeklyChallengeNotification,
+    weeklyChallengeNotifications,
     clearWeeklyChallengeNotification,
   }
 }
