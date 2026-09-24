@@ -8,7 +8,6 @@ import Footer from '@/shared/components/Footer'
 import Header from '@/shared/components/Header'
 import ScrollToTopButton from '@/shared/components/ScrollToTopButton'
 import StarField from '@/shared/components/StarField'
-import Notification from '@/shared/components/Notification'
 import { useBreakpoint } from '@/shared/hooks/useBreakpoint'
 
 import eventTreesData from './data/event-trees.json'
@@ -34,14 +33,10 @@ function Events(): JSX.Element {
   const { navigateTo } = useNavigation()
   const { showScrollToTopButton, scrollToTop } = useEventsScrollToTop()
   const [selectedEventIndex, setSelectedEventIndex] = useState(ALL_EVENTS_INDEX)
-  const [showInvalidNotification, setShowInvalidNotification] = useState(false)
   const [pendingEventIndex, setPendingEventIndex] = useState<number | null>(null)
 
   const useSearchFiltersHook = useAllEventSearchFilters()
-  const { isInvalidEvent, eventNameInUrl, selectEventAndUpdateUrl } = useEventUrlParam(
-    eventTrees,
-    setSelectedEventIndex
-  )
+  const { selectEventAndUpdateUrl } = useEventUrlParam(eventTrees, setSelectedEventIndex)
 
   const filteredEvents = eventTrees.filter(
     (event) =>
@@ -62,12 +57,6 @@ function Events(): JSX.Element {
       setPendingEventIndex(null)
     }
   }, [pendingEventIndex, selectedEventIndex])
-
-  useEffect(() => {
-    if (isInvalidEvent) {
-      setShowInvalidNotification(true)
-    }
-  }, [isInvalidEvent])
 
   return (
     <div className={cx('container')}>
@@ -102,16 +91,6 @@ function Events(): JSX.Element {
       <Footer />
 
       <ScrollToTopButton show={showScrollToTopButton} onClick={scrollToTop} alwaysOnTop />
-
-      <Notification
-        message={
-          <span>
-            ⛔️ Couldn&apos;t find event: «<strong>{eventNameInUrl}</strong>».
-          </span>
-        }
-        isTriggered={showInvalidNotification}
-        onClose={() => setShowInvalidNotification(false)}
-      />
     </div>
   )
 }
