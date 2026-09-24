@@ -4,6 +4,7 @@ import {
   RarityFilterOption,
   SharedFilterOption,
 } from '@/codex/types/filters'
+import { createFilterUrlCodec } from '@/codex/utils/filterUrlCodec'
 
 import { createFilterHook } from './useFilterFactory'
 
@@ -24,6 +25,8 @@ const indexMap: Record<string, number> = {
 }
 
 export const allRarities: Rarity[] = Rarity.getAll()
+
+export const rarityUrlCodec = createFilterUrlCodec('rarities', indexMap)
 
 const useBaseRarityFilters = createFilterHook({
   defaultFilters,

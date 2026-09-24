@@ -6,6 +6,7 @@ import {
   CardSetFilterOption,
   SharedFilterOption,
 } from '@/codex/types/filters'
+import { createFilterUrlCodec } from '@/codex/utils/filterUrlCodec'
 
 import { createFilterHook } from './useFilterFactory'
 
@@ -44,6 +45,8 @@ const indexToValueMap: Record<number, string> = {
 }
 
 export const allCardSets: string[] = CardSet.getAll()
+
+export const cardSetUrlCodec = createFilterUrlCodec('sets', indexMap)
 
 const useBaseCardSetFilters = createFilterHook({
   defaultFilters: defaultCardSetFilterValueMap,

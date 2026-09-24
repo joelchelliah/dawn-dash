@@ -6,14 +6,14 @@ import {
   getCachedTalentCodexSearchFilters,
 } from '@/codex/utils/codexFilterStore'
 
-import { useSearchQueryUrlParam } from '../useSearchQueryUrlParam'
+import { useCodexUrlParams } from '../useCodexUrlParams'
 
-import { useTalentCardSetFilters } from './useCardSetFilters'
-import { useTierFilters } from './useTierFilters'
+import { cardSetUrlCodec, useTalentCardSetFilters } from './useCardSetFilters'
+import { tierUrlCodec, useTierFilters } from './useTierFilters'
 import { useKeywords } from './useKeywords'
 import { useFilterTracking } from './useFilterTracking'
 import { useFormattingTalentFilters } from './useFormattingTalentFilters'
-import { useRequirementFilters } from './useRequirementFilters'
+import { requirementUrlCodec, useRequirementFilters } from './useRequirementFilters'
 import { filterTalentTree, TalentFilterCriteria } from './talentTreeFilter'
 
 export interface UseAllTalentSearchFilters {
@@ -74,9 +74,13 @@ export const useAllTalentSearchFilters = (
   const { hasUserChangedFilter, createTrackedFilter, createTrackedSetter } = useFilterTracking()
 
   const TRACKED_FILTER_HANDLERS = {
-    cardSet: ['handleCardSetFilterToggle', 'resetCardSetFilters'] as const,
-    requirement: ['handleRequirementFilterToggle', 'resetRequirementFilters'] as const,
-    tier: ['handleTierFilterToggle', 'resetTierFilters'] as const,
+    cardSet: ['handleCardSetFilterToggle', 'enableCardSetFilters', 'resetCardSetFilters'] as const,
+    requirement: [
+      'handleRequirementFilterToggle',
+      'enableRequirementFilters',
+      'resetRequirementFilters',
+    ] as const,
+    tier: ['handleTierFilterToggle', 'enableTierFilters', 'resetTierFilters'] as const,
     formatting: ['handleFormattingFilterToggle', 'resetFormattingFilters'] as const,
   } as const
 
@@ -97,10 +101,16 @@ export const useAllTalentSearchFilters = (
   // --------------------------------------------------
   // --------------------------------------------------
 
-  const { cardSetFilters, isCardSetIndexSelected, resetCardSetFilters } = trackedUseCardSetFilters
-  const { requirementFilters, isRequirementSelected, resetRequirementFilters } =
-    trackedUseRequirementFilters
-  const { tierFilters, isTierIndexSelected, resetTierFilters } = trackedUseTierFilters
+  const { cardSetFilters, isCardSetIndexSelected, enableCardSetFilters, resetCardSetFilters } =
+    trackedUseCardSetFilters
+  const {
+    requirementFilters,
+    isRequirementSelected,
+    enableRequirementFilters,
+    resetRequirementFilters,
+  } = trackedUseRequirementFilters
+  const { tierFilters, isTierIndexSelected, enableTierFilters, resetTierFilters } =
+    trackedUseTierFilters
   const { formattingFilters, resetFormattingFilters } = trackedUseFormattingFilters
 
   const resetFilters = () => {
@@ -112,7 +122,20 @@ export const useAllTalentSearchFilters = (
     resetFormattingFilters()
   }
 
-  useSearchQueryUrlParam({ keywords, setKeywords: trackedSetKeywords, resetFilters })
+  useCodexUrlParams({
+    keywords,
+    setKeywords: trackedSetKeywords,
+    filterBindings: [
+      { codec: cardSetUrlCodec, filters: cardSetFilters, enableFilters: enableCardSetFilters },
+      { codec: tierUrlCodec, filters: tierFilters, enableFilters: enableTierFilters },
+      {
+        codec: requirementUrlCodec,
+        filters: requirementFilters,
+        enableFilters: enableRequirementFilters,
+      },
+    ],
+    resetFilters,
+  })
 
   // --------------------------------------------------
   // -------- Debounced caching of filters ------------

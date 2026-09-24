@@ -4,6 +4,7 @@ import {
   CardCodexSearchFilterCache,
   SharedFilterOption,
 } from '@/codex/types/filters'
+import { createFilterUrlCodec } from '@/codex/utils/filterUrlCodec'
 
 import { createFilterHook } from './useFilterFactory'
 
@@ -35,6 +36,8 @@ const bannerIndexMap: Record<string, number> = {
 }
 
 export const allBanners: string[] = Banner.getAll()
+
+export const bannerUrlCodec = createFilterUrlCodec('banners', bannerIndexMap)
 
 /*
  * Index predicate for an arbitrary selection of banner names, rather than for the hook's current

@@ -15,12 +15,12 @@ import {
 } from '@/codex/utils/codexFilterStore'
 
 import { useWeeklyChallengeFilterData } from '../useWeeklyChallengeFilterData'
-import { useSearchQueryUrlParam } from '../useSearchQueryUrlParam'
+import { useCodexUrlParams } from '../useCodexUrlParams'
 
-import { isCardSetIndexInSelection, useCardSetFilters } from './useCardSetFilters'
-import { allRarities, useRarityFilters } from './useRarityFilters'
-import { isBannerIndexInSelection, useBannerFilters } from './useBannerFilters'
-import { allCardTypes, useCardTypeFilters } from './useCardTypeFilters'
+import { cardSetUrlCodec, isCardSetIndexInSelection, useCardSetFilters } from './useCardSetFilters'
+import { allRarities, rarityUrlCodec, useRarityFilters } from './useRarityFilters'
+import { bannerUrlCodec, isBannerIndexInSelection, useBannerFilters } from './useBannerFilters'
+import { allCardTypes, cardTypeUrlCodec, useCardTypeFilters } from './useCardTypeFilters'
 import { useExtraCardFilters } from './useExtraCardFilters'
 import { useFormattingCardFilters } from './useFormattingCardFilters'
 import { useCardStrike } from './useCardStrike'
@@ -185,9 +185,15 @@ export const useAllCardSearchFilters = (
    */
   const [isPendingWeeklyChallengeFromUrl, setIsPendingWeeklyChallengeFromUrl] = useState(false)
 
-  const { setWeeklyChallengeParam } = useSearchQueryUrlParam({
+  const { setWeeklyChallengeParam } = useCodexUrlParams({
     keywords,
     setKeywords: trackedSetKeywords,
+    filterBindings: [
+      { codec: cardSetUrlCodec, filters: cardSetFilters, enableFilters: enableCardSetFilters },
+      { codec: bannerUrlCodec, filters: bannerFilters, enableFilters: enableBannerFilters },
+      { codec: rarityUrlCodec, filters: rarityFilters, enableFilters: enableRarityFilters },
+      { codec: cardTypeUrlCodec, filters: cardTypeFilters, enableFilters: enableCardTypeFilters },
+    ],
     resetFilters,
     onWeeklyParam: () => setIsPendingWeeklyChallengeFromUrl(true),
   })

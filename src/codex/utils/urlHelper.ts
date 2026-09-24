@@ -1,4 +1,4 @@
-import { SEARCH_QUERY_PARAM } from '@/codex/hooks/useSearchQueryUrlParam'
+import { SEARCH_QUERY_PARAM } from '@/codex/hooks/useCodexUrlParams'
 
 const SKILLDEX_PATH = '/skilldex'
 
