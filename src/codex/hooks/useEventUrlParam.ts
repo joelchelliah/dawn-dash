@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback } from 'react'
+import { useEffect, useRef, useCallback } from 'react'
 
 import { useRouter } from 'next/router'
 
@@ -6,8 +6,6 @@ import { ALL_EVENTS_INDEX } from '../constants/eventSearchValues'
 import { Event } from '../types/events'
 
 interface UseEventUrlParam {
-  isInvalidEvent: boolean
-  eventNameInUrl: string | undefined
   selectEventAndUpdateUrl: (index: number) => void
 }
 
@@ -17,7 +15,6 @@ export function useEventUrlParam(
 ): UseEventUrlParam {
   const router = useRouter()
   const eventParam = router.query.event as string | undefined
-  const [isInvalidEvent, setIsInvalidEvent] = useState(false)
 
   // Track last processed param to prevent duplicate processing
   const lastProcessedParamRef = useRef<string | undefined>()
@@ -28,23 +25,8 @@ export function useEventUrlParam(
     // Skip if we've already processed this parameter
     if (eventParam === lastProcessedParamRef.current) return
 
-    if (eventParam) {
-      const foundIndex = findEventIndexByName(events, eventParam)
-
-      if (foundIndex === ALL_EVENTS_INDEX) {
-        setSelectedEventIndex(ALL_EVENTS_INDEX)
-        setIsInvalidEvent(true)
-      } else {
-        setSelectedEventIndex(foundIndex)
-        setIsInvalidEvent(false)
-      }
-
-      lastProcessedParamRef.current = eventParam
-    } else {
-      setSelectedEventIndex(ALL_EVENTS_INDEX)
-      setIsInvalidEvent(false)
-      lastProcessedParamRef.current = undefined
-    }
+    setSelectedEventIndex(eventParam ? findEventIndexByName(events, eventParam) : ALL_EVENTS_INDEX)
+    lastProcessedParamRef.current = eventParam
   }, [router.isReady, eventParam, events, setSelectedEventIndex])
 
   // Handle event change from UI - only update URL, let useEffect update state
@@ -66,19 +48,11 @@ export function useEventUrlParam(
     [events, router]
   )
 
-  return {
-    isInvalidEvent,
-    eventNameInUrl: getEventNameInUrl(eventParam),
-    selectEventAndUpdateUrl,
-  }
+  return { selectEventAndUpdateUrl }
 }
 
 export function normalizeEventNameForUrl(name: string): string {
   return name.toLowerCase().replace(/\s+/g, '_')
-}
-
-export function getEventNameInUrl(urlParam: string | undefined): string | undefined {
-  return urlParam ? urlParam.replaceAll('_', ' ') : undefined
 }
 
 export function findEventByName(events: Event[], urlParam: string): Event | null {

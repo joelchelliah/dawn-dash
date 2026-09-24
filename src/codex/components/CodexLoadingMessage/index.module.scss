@@ -35,6 +35,23 @@
     transition: width 0.3s ease;
   }
 
+  &__progress-bar--indeterminate {
+    height: 100%;
+    width: 60%;
+    background: linear-gradient(to right, $yellow-base, $green-base);
+    border-radius: 5px;
+    animation: indeterminate-sweep 2.5s ease-in-out infinite;
+  }
+
+  @keyframes indeterminate-sweep {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(250%);
+    }
+  }
+
   &__progress-text {
     font-size: 0.875rem;
     color: $color-primary-muted;

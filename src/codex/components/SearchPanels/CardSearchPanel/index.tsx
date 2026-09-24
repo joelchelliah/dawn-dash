@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 
 import { createCx } from '@/shared/utils/classnames'
 import {
@@ -12,10 +12,9 @@ import {
 } from '@/shared/components/Icons'
 import GradientButton from '@/shared/components/Buttons/GradientButton'
 import ButtonRow from '@/shared/components/Buttons/ButtonRow'
-import Notification from '@/shared/components/Notification'
 
 import { ExtraCardFilterOption, RarityFilterOption } from '@/codex/types/filters'
-import { UseAllCardSearchFilters } from '@/codex/hooks/useSearchFilters'
+import { UseAllCardSearchFilters } from '@/codex/hooks/useSearchFilters/useAllCardSearchFilters'
 import { allFormattingCardFilters } from '@/codex/hooks/useSearchFilters/useFormattingCardFilters'
 import { allRarities } from '@/codex/hooks/useSearchFilters/useRarityFilters'
 import { allBanners } from '@/codex/hooks/useSearchFilters/useBannerFilters'
@@ -33,12 +32,10 @@ import FilterGroup from '../shared/FilterGroup'
 import WeeklyChallengeButton from '../shared/WeeklyChallengeButton'
 import SearchField from '../shared/SearchField'
 
+import WeeklyOptimizationNotification from './WeeklyOptimizationNotification'
 import styles from './index.module.scss'
 
 const cx = createCx(styles)
-
-// Rarities used as challenge keywords, when capitalized, score every card of that rarity, rather than matching on text
-const RARITY_KEYWORDS = ['Monster', 'Common', 'Uncommon', 'Rare', 'Legendary']
 
 interface CardSearchPanelProps {
   useSearchFilters: UseAllCardSearchFilters
@@ -57,13 +54,14 @@ const CardSearchPanel = ({ useSearchFilters, useCardData }: CardSearchPanelProps
     useCardTypeFilters,
     useExtraCardFilters,
     useFormattingFilters,
-    useCardStrike,
     resetFilters,
     resetStruckCards,
     setFiltersFromWeeklyChallengeData,
     weeklyChallengeData,
     isWeelyChallengeLoading,
     isWeeklyChallengeError,
+    weeklyChallengeNotifications,
+    clearWeeklyChallengeNotification,
   } = useSearchFilters
   const { cardSetFilters, handleCardSetFilterToggle } = useCardSetFilters
   const { rarityFilters, handleRarityFilterToggle } = useRarityFilters
@@ -73,74 +71,9 @@ const CardSearchPanel = ({ useSearchFilters, useCardData }: CardSearchPanelProps
     useExtraCardFilters
   const { formattingFilters, handleFormattingFilterToggle, getFormattingFilterName } =
     useFormattingFilters
-  const { struckCards } = useCardStrike
 
   // Memoized because the matching set can run to thousands of cards, and only the names are needed.
   const matchingCardNames = useMemo(() => matchingCards.map((card) => card.name), [matchingCards])
-
-  const [showNotification, setShowNotification] = useState(false)
-  const [notificationMessage, setNotificationMessage] = useState<React.ReactNode>(null)
-
-  const untrackedCardsNotificationMessage = (
-    <div className={cx('notification-message')}>
-      <div className={cx('notification-message__icon')}>🔍</div>
-      <div className={cx('notification-message__text')}>
-        You still have <strong>tracked cards</strong> from your last search! You can clear them with
-        «<strong>Reset tracked cards</strong>».
-      </div>
-    </div>
-  )
-  const specialKeywordRulesNotificationMessage = (
-    <div className={cx('notification-message')}>
-      <div className={cx('notification-message__icon')}>📝</div>
-      <div className={cx('notification-message__text')}>
-        A <strong>rarity level</strong> is used as a keyword in this challenge! All cards of this{' '}
-        <strong>rarity</strong> will be scored.
-      </div>
-    </div>
-  )
-  const animalCompanionNotificationMessage = (
-    <div className={cx('notification-message')}>
-      <div className={cx('notification-message__icon')}>🐶</div>
-      <div className={cx('notification-message__text')}>
-        <strong>Animal companion cards</strong> don&apos;t score in Weekly Challenges! You can hide
-        them in «<strong>Extras</strong>».
-      </div>
-    </div>
-  )
-  const negativeKeywordsNotificationMessage = (
-    <div className={cx('notification-message')}>
-      <div className={cx('notification-message__icon')}>🧼</div>
-      <div className={cx('notification-message__text')}>
-        Keywords with a <strong>negative</strong> score have been filtered out by the optimization!
-      </div>
-    </div>
-  )
-  // The notifications describe the *optimized* search, so anything the optimization changes has to
-  // be read from its return value.
-  const handleWeeklyChallengeClick = () => {
-    const optimization = setFiltersFromWeeklyChallengeData()
-    if (!optimization) return
-
-    if (struckCards.length > 0) {
-      setNotificationMessage(untrackedCardsNotificationMessage)
-      setShowNotification(true)
-    } else if (RARITY_KEYWORDS.some((rarity) => optimization.parsedKeywords.includes(rarity))) {
-      setNotificationMessage(specialKeywordRulesNotificationMessage)
-      setShowNotification(true)
-    } else if (optimization.hasAnimalCompanionMatch) {
-      setNotificationMessage(animalCompanionNotificationMessage)
-      setShowNotification(true)
-    } else if (weeklyChallengeData?.hadNegativeKeywords) {
-      setNotificationMessage(negativeKeywordsNotificationMessage)
-      setShowNotification(true)
-    }
-  }
-
-  const handleCloseNotification = () => {
-    setNotificationMessage(null)
-    setShowNotification(false)
-  }
 
   const getRarityFilterLabel = (filter: string) => {
     switch (filter) {
@@ -232,7 +165,7 @@ const CardSearchPanel = ({ useSearchFilters, useCardData }: CardSearchPanelProps
           isLoading={isWeelyChallengeLoading}
           challengeName={weeklyChallengeData?.name}
           challengeId={weeklyChallengeData?.id}
-          onClick={handleWeeklyChallengeClick}
+          onClick={setFiltersFromWeeklyChallengeData}
         />
       </ButtonRow>
     )
@@ -332,11 +265,9 @@ const CardSearchPanel = ({ useSearchFilters, useCardData }: CardSearchPanelProps
         refresh={useCardData.refresh}
       />
 
-      <Notification
-        duration={5000}
-        isTriggered={showNotification}
-        onClose={handleCloseNotification}
-        message={notificationMessage}
+      <WeeklyOptimizationNotification
+        notifications={weeklyChallengeNotifications}
+        onShown={clearWeeklyChallengeNotification}
       />
     </div>
   )

@@ -81,7 +81,6 @@ $row-entry-animation: resultRowIn 0.5s ease-out backwards;
 
   &:last-child {
     padding-bottom: 0.5rem;
-    background-image: none;
   }
 
   &--struck {
@@ -97,10 +96,6 @@ $row-entry-animation: resultRowIn 0.5s ease-out backwards;
     .result-card__blightbane-link {
       opacity: 0.45;
     }
-  }
-
-  &--hidden {
-    display: none;
   }
 
   &--full-match {
@@ -121,20 +116,20 @@ $row-entry-animation: resultRowIn 0.5s ease-out backwards;
       card-shine-shift 1.75s linear infinite;
   }
 
-  /*
-   * The divider under the hovered row brightens and reaches further right, so which row you are on
-   * reads at a glance. Two selectors rather than one because `--full-match` carries a second
-   * background layer: overriding `background-image` with a single value there would drop its shine.
-   *
-   * `:last-child` is excluded from both — it has no divider at rest, so adding one on hover would
-   * make a line appear out of nowhere.
-   */
-  &:hover:not(:last-child):not(&--full-match) {
-    background-image: row-divider($color-primary-hover, 0.75, 90%);
+  &:hover:not(&--full-match) {
+    background-image: row-divider($color-primary-hover, 0.5, 90%);
   }
 
-  &--full-match:hover:not(:last-child) {
-    background-image: full-match-shine(), row-divider($color-primary-hover, 0.75, 90%);
+  &:has(+ &:hover):not(&--full-match) {
+    background-image: row-divider($color-primary-hover, 0.35, 90%);
+  }
+
+  &--full-match:hover {
+    background-image: full-match-shine(), row-divider($color-primary-hover, 0.5, 90%);
+  }
+
+  &--full-match:has(+ &:hover) {
+    background-image: full-match-shine(), row-divider($color-primary-hover, 0.25, 90%);
   }
 
   &:hover {
@@ -178,10 +173,6 @@ $row-entry-animation: resultRowIn 0.5s ease-out backwards;
   padding: 0.25rem 0;
   cursor: pointer;
   min-height: 1.25rem;
-
-  &--hidden {
-    display: none;
-  }
 }
 
 .result-card__name {
@@ -232,10 +223,6 @@ $row-entry-animation: resultRowIn 0.5s ease-out backwards;
     margin-left: 0;
     margin-bottom: 0.25rem;
   }
-
-  &--hidden {
-    display: none;
-  }
 }
 
 .result-card__description {
@@ -243,10 +230,6 @@ $row-entry-animation: resultRowIn 0.5s ease-out backwards;
   color: $color-primary-muted;
   cursor: pointer;
   @include description-margins-based-on-filters;
-
-  &--hidden {
-    display: none;
-  }
 
   &__icon {
     position: relative;

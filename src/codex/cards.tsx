@@ -39,6 +39,14 @@ function Cards(): JSX.Element {
   const useSearchFiltersHook = useAllCardSearchFilters(cardData)
   const { showScrollToTopButton, scrollToTop } = useCardsScrollToTop()
 
+  /*
+   * Arriving on `?weekly` holds the panel back until the challenge data also lands
+   */
+  const isWaitingForWeeklyChallenge =
+    useSearchFiltersHook.isPendingWeeklyChallengeFromUrl &&
+    useSearchFiltersHook.isWeelyChallengeLoading
+  const isLoadingAnything = isLoading || isWaitingForWeeklyChallenge
+
   return (
     <div className={cx('container')}>
       <StarField position="upper" />
@@ -52,9 +60,14 @@ function Cards(): JSX.Element {
       />
 
       <div className={cx('content')}>
-        <CodexLoadingMessage isVisible={isLoading} progress={progress} codexType="card" />
-        <CodexErrorMessage isVisible={isError && !isLoading} codexType="card" />
-        {!isError && !isLoading && (
+        <CodexLoadingMessage
+          isVisible={isLoadingAnything}
+          progress={progress}
+          codexType="card"
+          isWaitingForWeeklyChallenge={!isLoading && isWaitingForWeeklyChallenge}
+        />
+        <CodexErrorMessage isVisible={isError && !isLoadingAnything} codexType="card" />
+        {!isError && !isLoadingAnything && (
           <>
             <CardSearchPanel
               useSearchFilters={useSearchFiltersHook}
@@ -68,7 +81,7 @@ function Cards(): JSX.Element {
       <Footer />
 
       <ScrollToTopButton
-        show={showScrollToTopButton && !isLoading && !isError}
+        show={showScrollToTopButton && !isLoadingAnything && !isError}
         onClick={scrollToTop}
       />
     </div>

@@ -6,6 +6,7 @@ import {
   CardTypeFilterOption,
   SharedFilterOption,
 } from '@/codex/types/filters'
+import { createFilterUrlCodec } from '@/codex/utils/filterUrlCodec'
 
 import { createFilterHook } from './useFilterFactory'
 
@@ -57,6 +58,8 @@ const valueToEmojiMap: Record<string, string> = Object.fromEntries(
 export const getCardTypeEmojiFromName = (filter: string): string => valueToEmojiMap[filter] ?? ''
 
 export const allCardTypes: CardType[] = CardType.getAll()
+
+export const cardTypeUrlCodec = createFilterUrlCodec('types', indexMap)
 
 const useBaseCardTypeFilters = createFilterHook({
   defaultFilters,

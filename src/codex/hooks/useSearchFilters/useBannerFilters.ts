@@ -4,6 +4,7 @@ import {
   CardCodexSearchFilterCache,
   SharedFilterOption,
 } from '@/codex/types/filters'
+import { createFilterUrlCodec } from '@/codex/utils/filterUrlCodec'
 
 import { createFilterHook } from './useFilterFactory'
 
@@ -36,15 +37,7 @@ const bannerIndexMap: Record<string, number> = {
 
 export const allBanners: string[] = Banner.getAll()
 
-/*
- * Index predicate for an arbitrary selection of banner names, rather than for the hook's current
- * state.
- */
-export const isBannerIndexInSelection = (index: number, selectedBanners: string[]) => {
-  if (selectedBanners.includes(SharedFilterOption.All)) return true
-
-  return selectedBanners.some((banner) => bannerIndexMap[banner] === index)
-}
+export const bannerUrlCodec = createFilterUrlCodec('banners', bannerIndexMap)
 
 const useBaseBannerFilters = createFilterHook({
   defaultFilters: defaultBannerFilters,

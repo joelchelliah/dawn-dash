@@ -4,6 +4,7 @@ import {
   Tier,
   TierFilterOption,
 } from '@/codex/types/filters'
+import { createFilterUrlCodec } from '@/codex/utils/filterUrlCodec'
 
 import { createFilterHook } from './useFilterFactory'
 
@@ -31,6 +32,8 @@ const tierIndexMap = {
 
 export const allTiers: Tier[] = Tier.getAll()
 
+export const tierUrlCodec = createFilterUrlCodec('tiers', tierIndexMap)
+
 const useBaseTierFilters = createFilterHook({
   defaultFilters: defaultTierFilters,
   allValues: allTiers,
@@ -38,13 +41,14 @@ const useBaseTierFilters = createFilterHook({
 })
 
 export const useTierFilters = (cachedFilters?: TalentCodexSearchFilterCache['tiers']) => {
-  const { filters, isIndexSelected, handleFilterToggle, resetFilters } =
+  const { filters, isIndexSelected, handleFilterToggle, enableFilters, resetFilters } =
     useBaseTierFilters(cachedFilters)
 
   return {
     tierFilters: filters,
     isTierIndexSelected: isIndexSelected,
     handleTierFilterToggle: handleFilterToggle,
+    enableTierFilters: enableFilters,
     resetTierFilters: resetFilters,
   }
 }

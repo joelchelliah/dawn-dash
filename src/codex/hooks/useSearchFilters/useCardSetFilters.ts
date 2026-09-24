@@ -6,6 +6,7 @@ import {
   CardSetFilterOption,
   SharedFilterOption,
 } from '@/codex/types/filters'
+import { createFilterUrlCodec } from '@/codex/utils/filterUrlCodec'
 
 import { createFilterHook } from './useFilterFactory'
 
@@ -45,6 +46,8 @@ const indexToValueMap: Record<number, string> = {
 
 export const allCardSets: string[] = CardSet.getAll()
 
+export const cardSetUrlCodec = createFilterUrlCodec('sets', indexMap)
+
 const useBaseCardSetFilters = createFilterHook({
   defaultFilters: defaultCardSetFilterValueMap,
   allValues: allCardSets,
@@ -62,20 +65,6 @@ const CORE_INDEX = 1
 const toCardSetIndex = (index: number) => (index === 0 ? CORE_INDEX : index)
 
 export const getCardSetName = (index: number) => indexToValueMap[toCardSetIndex(index)] ?? ''
-
-/*
- * Index predicate for an arbitrary selection of card set names, rather than for the hook's current
- * state.
- *
- * Cardex-only, matching `useCardSetFilters` below: nil expansion counts as Core.
- */
-export const isCardSetIndexInSelection = (index: number, selectedCardSets: string[]) => {
-  if (selectedCardSets.includes(SharedFilterOption.All)) return true
-
-  const cardSetIndex = toCardSetIndex(index)
-
-  return selectedCardSets.some((cardSet) => indexMap[cardSet]?.includes(cardSetIndex))
-}
 
 const useSharedCardSetFilters = (cachedFilters?: CardCodexSearchFilterCache['cardSets']) => {
   const {

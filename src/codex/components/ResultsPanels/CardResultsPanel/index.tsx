@@ -51,14 +51,18 @@ const CardResultsPanel = ({ useSearchFilters }: CardResultsPanelProps) => {
   }, [parsedKeywords])
 
   const cardsByBanner = useMemo(() => {
-    return matchingCards.reduce(
+    const visibleCards = shouldHideTrackedCards
+      ? matchingCards.filter((card) => !struckCardNames.has(card.name))
+      : matchingCards
+
+    return visibleCards.reduce(
       (acc, card) => {
         acc[card.color] = [...(acc[card.color] || []), card]
         return acc
       },
       {} as Record<number, CardData[]>
     )
-  }, [matchingCards])
+  }, [matchingCards, shouldHideTrackedCards, struckCardNames])
 
   const renderMatchingCards = () => {
     const showingCardsWithoutKeywords = parsedKeywords.length === 0 && showCardsWithoutKeywords
@@ -103,7 +107,6 @@ const CardResultsPanel = ({ useSearchFilters }: CardResultsPanelProps) => {
                     shouldShowCardType={shouldShowCardType}
                     shouldShowCardArt={shouldShowCardArt}
                     shouldShowBlightbaneLink={shouldShowBlightbaneLink}
-                    shouldHideTrackedCards={shouldHideTrackedCards}
                     showCardsWithoutKeywords={showCardsWithoutKeywords}
                     entryIndex={precedingCards + cardIndex}
                   />

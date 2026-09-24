@@ -6,6 +6,7 @@ import {
   TalentCodexSearchFilterCache,
   SharedFilterOption,
 } from '@/codex/types/filters'
+import { createFilterUrlCodec } from '@/codex/utils/filterUrlCodec'
 
 import { createFilterHook } from './useFilterFactory'
 
@@ -69,6 +70,24 @@ const indexMap = {
 
 export const allRequirements: string[] = Requirement.getAll()
 
+export const requirementUrlCodec = createFilterUrlCodec('reqs', {
+  [RequirementFilterOption.NoRequirements]: 'noreq',
+  [RequirementFilterOption.Dexterity]: 'dex',
+  [RequirementFilterOption.Intelligence]: 'int',
+  [RequirementFilterOption.Strength]: 'str',
+  [RequirementFilterOption.Arcanist]: 'arc',
+  [RequirementFilterOption.Hunter]: 'hun',
+  [RequirementFilterOption.Knight]: 'kni',
+  [RequirementFilterOption.Rogue]: 'rog',
+  [RequirementFilterOption.Seeker]: 'see',
+  [RequirementFilterOption.Warrior]: 'war',
+  [RequirementFilterOption.Sunforge]: 'sun',
+  [RequirementFilterOption.ObtainedFromEvents]: 'evt',
+  [RequirementFilterOption.Offer]: 'off',
+  [RequirementFilterOption.ObtainedFromCards]: 'crd',
+  [RequirementFilterOption.Unavailable]: 'una',
+})
+
 const useBaseRequirementFilters = createFilterHook({
   defaultFilters,
   allValues: allRequirements,
@@ -79,7 +98,7 @@ const useBaseRequirementFilters = createFilterHook({
 export const useRequirementFilters = (
   cachedFilters?: TalentCodexSearchFilterCache['requirements']
 ) => {
-  const { filters, handleFilterToggle, getValueToString, resetFilters } =
+  const { filters, handleFilterToggle, getValueToString, enableFilters, resetFilters } =
     useBaseRequirementFilters(cachedFilters)
 
   // Stable reference (only changes when the filter state changes) so that
@@ -93,6 +112,7 @@ export const useRequirementFilters = (
     requirementFilters: filters,
     isRequirementSelected,
     handleRequirementFilterToggle: handleFilterToggle,
+    enableRequirementFilters: enableFilters,
     resetRequirementFilters: resetFilters,
     getRequirementFilterName: getValueToString,
   }
