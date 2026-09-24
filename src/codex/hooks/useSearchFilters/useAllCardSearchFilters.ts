@@ -17,9 +17,9 @@ import {
 import { useWeeklyChallengeFilterData } from '../useWeeklyChallengeFilterData'
 import { useCodexUrlParams } from '../useCodexUrlParams'
 
-import { cardSetUrlCodec, isCardSetIndexInSelection, useCardSetFilters } from './useCardSetFilters'
+import { cardSetUrlCodec, useCardSetFilters } from './useCardSetFilters'
 import { allRarities, rarityUrlCodec, useRarityFilters } from './useRarityFilters'
-import { bannerUrlCodec, isBannerIndexInSelection, useBannerFilters } from './useBannerFilters'
+import { bannerUrlCodec, useBannerFilters } from './useBannerFilters'
 import { allCardTypes, cardTypeUrlCodec, useCardTypeFilters } from './useCardTypeFilters'
 import { useExtraCardFilters } from './useExtraCardFilters'
 import { useFormattingCardFilters } from './useFormattingCardFilters'
@@ -28,12 +28,11 @@ import { useKeywords } from './useKeywords'
 import { useFilterTracking } from './useFilterTracking'
 
 export type WeeklyChallengeNotification =
-  'untrackedCards' | 'specialKeywordRules' | 'animalCompanion' | 'negativeKeywords'
+  'untrackedCards' | 'specialKeywordRules' | 'negativeKeywords'
 const RARITY_KEYWORDS = ['Monster', 'Common', 'Uncommon', 'Rare', 'Legendary']
 
 export interface WeeklyChallengeOptimization {
   parsedKeywords: string[]
-  hasAnimalCompanionMatch: boolean
 }
 
 export interface UseAllCardSearchFilters {
@@ -165,7 +164,6 @@ export const useAllCardSearchFilters = (
     if (struckCards.length > 0) return 'untrackedCards'
     if (RARITY_KEYWORDS.some((rarity) => optimization.parsedKeywords.includes(rarity)))
       return 'specialKeywordRules'
-    if (optimization.hasAnimalCompanionMatch) return 'animalCompanion'
     if (filterData?.hadNegativeKeywords) return 'negativeKeywords'
     return null
   }
@@ -237,8 +235,8 @@ export const useAllCardSearchFilters = (
   // (see `TRACKED_FILTER_HANDLERS`) — otherwise the optimization applies visibly but never
   // reaches the filter cache, and reverts on the next page load.
   //
-  // Returns what it applied.
-  // inspect the optimized result must read it from the return value, NOT from `parsedKeywords` and `matchingCards`.
+  // Returns what it applied: the setters above only commit on the next render, so callers
+  // must read the optimized keywords from the return value, NOT from `parsedKeywords`.
   const setFiltersFromWeeklyChallengeData = (): WeeklyChallengeOptimization | null => {
     if (!filterData || isFilterDataError) return null
 
@@ -255,33 +253,18 @@ export const useAllCardSearchFilters = (
     enableRarityFilters(allRarities)
     enableCardTypeFilters(allCardTypes)
 
-    // Non-collectible cards can never show up in a weekly challenge, for now...
+    // Non-collectible cards can never show up in a weekly challenge,
+    // and animal companion cards never score in one.
     enableExtraCardFilters(
       Object.keys(extraCardFilters).filter(
         (filter) =>
-          filter !== ExtraCardFilterOption.IncludeNonCollectibleCards && extraCardFilters[filter]
+          filter !== ExtraCardFilterOption.IncludeNonCollectibleCards &&
+          filter !== ExtraCardFilterOption.IncludeAnimalCompanionCards &&
+          extraCardFilters[filter]
       )
     )
 
-    return {
-      parsedKeywords: newParsedKeywords,
-      hasAnimalCompanionMatch:
-        shouldIncludeAnimalCompanionCards &&
-        (cardData ?? []).some(
-          (card) =>
-            isAnimalCompanionCard(card) &&
-            isCardMatching(card, {
-              parsedKeywords: newParsedKeywords,
-              isCardSetSelected: (index) => isCardSetIndexInSelection(index, newCardSets),
-              isBannerSelected: (index) => isBannerIndexInSelection(index, newBanners),
-              isRaritySelected: () => true,
-              isCardTypeSelected: () => true,
-              shouldIncludeMonsterCards,
-              shouldIncludeAnimalCompanionCards,
-              shouldIncludeNonCollectibleCards: false,
-            })
-        ),
-    }
+    return { parsedKeywords: newParsedKeywords }
   }
 
   // --------------------------------------------------
@@ -397,10 +380,7 @@ interface CardMatchingFilters {
   shouldIncludeNonCollectibleCards: boolean
 }
 
-/*
- * The card matching rules, taking every filter as an argument rather than closing over hook state,
- * so the same rules can be applied to filters that have not been committed to state yet.
- */
+// The card matching rules, taking every filter as an argument rather than closing over hook state.
 const isCardMatching = (
   card: CardData,
   {

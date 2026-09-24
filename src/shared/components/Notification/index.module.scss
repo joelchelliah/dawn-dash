@@ -39,6 +39,10 @@
   align-items: center;
   gap: 1rem;
   margin-bottom: 0.75rem;
+
+  &--align-top {
+    align-items: flex-start;
+  }
 }
 
 .message {

@@ -81,46 +81,38 @@ const CardSearchPanel = ({ useSearchFilters, useCardData }: CardSearchPanelProps
   const [showNotification, setShowNotification] = useState(false)
   const [notificationMessage, setNotificationMessage] = useState<React.ReactNode>(null)
 
-  const untrackedCardsNotificationMessage = (
+  const renderNotificationMessage = (icon: string, text: React.ReactNode) => (
     <div className={cx('notification-message')}>
-      <div className={cx('notification-message__icon')}>🔍</div>
-      <div className={cx('notification-message__text')}>
-        You still have <strong>tracked cards</strong> from your last search! You can clear them with
-        «<strong>Reset tracked cards</strong>».
-      </div>
+      <strong className={cx('notification-message__title')}>Optimized for Weekly!</strong>
+      <div className={cx('notification-message__divider')} />
+      <div className={cx('notification-message__icon')}>{icon}</div>
+      <div className={cx('notification-message__text')}>{text}</div>
     </div>
   )
-  const specialKeywordRulesNotificationMessage = (
-    <div className={cx('notification-message')}>
-      <div className={cx('notification-message__icon')}>📝</div>
-      <div className={cx('notification-message__text')}>
-        A <strong>rarity level</strong> is used as a keyword in this challenge! All cards of this{' '}
-        <strong>rarity</strong> will be scored.
-      </div>
-    </div>
+  const untrackedCardsNotificationMessage = renderNotificationMessage(
+    '🔍',
+    <>
+      You have <strong>tracked cards</strong> from your last search! Clear them with «
+      <strong>Reset tracked cards</strong>».
+    </>
   )
-  const animalCompanionNotificationMessage = (
-    <div className={cx('notification-message')}>
-      <div className={cx('notification-message__icon')}>🐶</div>
-      <div className={cx('notification-message__text')}>
-        <strong>Animal companion cards</strong> don&apos;t score in Weekly Challenges! You can hide
-        them in «<strong>Extras</strong>».
-      </div>
-    </div>
+  const specialKeywordRulesNotificationMessage = renderNotificationMessage(
+    '📝',
+    <>
+      A <strong>rarity level</strong> is used as a keyword in this challenge! All cards of this{' '}
+      <strong>rarity</strong> will be scored.
+    </>
   )
-  const negativeKeywordsNotificationMessage = (
-    <div className={cx('notification-message')}>
-      <div className={cx('notification-message__icon')}>🧼</div>
-      <div className={cx('notification-message__text')}>
-        Keywords with a <strong>negative</strong> score have been filtered out by the optimization!
-      </div>
-    </div>
+  const negativeKeywordsNotificationMessage = renderNotificationMessage(
+    '🧼',
+    <>
+      Keywords with a <strong>negative</strong> score have been filtered out by the optimization!
+    </>
   )
   const weeklyChallengeNotificationMessages: Record<WeeklyChallengeNotification, React.ReactNode> =
     {
       untrackedCards: untrackedCardsNotificationMessage,
       specialKeywordRules: specialKeywordRulesNotificationMessage,
-      animalCompanion: animalCompanionNotificationMessage,
       negativeKeywords: negativeKeywordsNotificationMessage,
     }
 
@@ -333,6 +325,7 @@ const CardSearchPanel = ({ useSearchFilters, useCardData }: CardSearchPanelProps
         isTriggered={showNotification}
         onClose={handleCloseNotification}
         message={notificationMessage}
+        alignCloseButtonTop
       />
     </div>
   )

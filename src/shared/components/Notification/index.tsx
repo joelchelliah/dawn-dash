@@ -14,6 +14,7 @@ interface NotificationProps {
   isTriggered: boolean
   onClose: () => void
   duration?: number
+  alignCloseButtonTop?: boolean
 }
 
 function Notification({
@@ -21,6 +22,7 @@ function Notification({
   isTriggered,
   onClose,
   duration = VISIBLE_DURATION,
+  alignCloseButtonTop = false,
 }: NotificationProps) {
   const [isVisible, setIsVisible] = useState(false)
   const [isExiting, setIsExiting] = useState(false)
@@ -51,7 +53,7 @@ function Notification({
       className={cx('notification', { 'notification--exiting': isExiting })}
       style={{ '--notification-duration': `${duration}ms` } as React.CSSProperties}
     >
-      <div className={cx('content')}>
+      <div className={cx('content', { 'content--align-top': alignCloseButtonTop })}>
         <span className={cx('message')}>{message}</span>
         <button
           className={cx('close-button')}
