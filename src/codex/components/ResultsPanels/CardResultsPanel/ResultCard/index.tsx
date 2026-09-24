@@ -32,7 +32,6 @@ interface ResultCardProps {
   shouldShowCardType: boolean
   shouldShowCardArt: boolean
   shouldShowBlightbaneLink: boolean
-  shouldHideTrackedCards: boolean
   showCardsWithoutKeywords: boolean
   entryIndex: number
 }
@@ -68,7 +67,6 @@ const ResultCard = ({
   shouldShowCardType,
   shouldShowCardArt,
   shouldShowBlightbaneLink,
-  shouldHideTrackedCards,
   showCardsWithoutKeywords,
   entryIndex,
 }: ResultCardProps) => {
@@ -91,12 +89,9 @@ const ResultCard = ({
   const cardContainerClassName = cx('result-card', HOVER_TRIGGER, {
     'result-card--struck': isStruck,
     'result-card--full-match': isFullMatch,
-    'result-card--hidden': shouldHideTrackedCards && isStruck,
     [STRUCK_TRIGGER]: isStruck,
   })
-  const cardClassName = cx('result-card__title-row', {
-    'result-card__title-row--hidden': shouldHideTrackedCards && isStruck,
-  })
+  const cardClassName = cx('result-card__title-row')
 
   // Note: These two are not mutually exclusive. After clicking "show cards without keywords", you can still toggle the checkbox state regardless.
   // In this case, this should have no effect on the rest of the elements.
@@ -121,13 +116,11 @@ const ResultCard = ({
     'result-card__keywords--own-row',
     {
       'result-card__keywords--struck': isStruck,
-      'result-card__keywords--hidden': shouldHideTrackedCards && isStruck,
     }
   )
 
   const descriptionClassName = cx('result-card__description', {
     'result-card__description--struck': isStruck,
-    'result-card__description--hidden': shouldHideTrackedCards && isStruck,
   })
   const blightbaneLinkClassName = cx('result-card__blightbane-link')
 
@@ -160,7 +153,7 @@ const ResultCard = ({
         shouldOverlapWithCardArt={shouldShowCardArt}
       />
       <div className={cx('result-card__content')}>
-        {isStruck && !shouldHideTrackedCards && <CardStrikeBadge />}
+        {isStruck && <CardStrikeBadge />}
         <div className={cardClassName}>
           <span className={nameClassName}>{card.name}</span>
           {isShowingKeywords && !shouldShowKeywordsOnSeparateRow && (
