@@ -13,6 +13,7 @@ const cx = createCx(styles)
 interface KeywordsSummaryProps {
   matches: string[]
   useCardStrike?: ReturnType<typeof useCardStrike>
+  struckMatchCount?: number
   parsedKeywords: string[]
   showingResultsWithoutKeywords: boolean
   shouldHideTrackedCards?: boolean
@@ -23,6 +24,7 @@ interface KeywordsSummaryProps {
 const KeywordsSummary = ({
   matches,
   useCardStrike,
+  struckMatchCount = 0,
   parsedKeywords,
   showingResultsWithoutKeywords,
   shouldHideTrackedCards = false,
@@ -68,8 +70,8 @@ const KeywordsSummary = ({
       return null
     }
 
-    const { struckCards, lastUndoneTrackedCard } = useCardStrike
-    const struckCount = matches.filter((match) => struckCards.includes(match)).length
+    const { lastUndoneTrackedCard } = useCardStrike
+    const struckCount = struckMatchCount
 
     const struckHiddenInfo = shouldHideTrackedCards ? (
       <div>

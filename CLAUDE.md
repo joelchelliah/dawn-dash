@@ -135,7 +135,7 @@ Each feature directory has its own `CLAUDE.md` with architecture details and inv
 - `storage.ts` - localStorage wrapper with cache duration and staleness detection; `saveToCache` returns `{ success, error? }`
 - `apiErrorHandling.ts` - `handleError` normalizes any unknown error (Axios, Error, other) into a structured `ApiErrorInfo`
 - `logger.ts` - `logger.debug/warn` no-op outside development, `logger.error` always logs. **Never call `console.*` directly** (ESLint `no-console` enforces this)
-- `imageUrls.ts` - centralized Blightbane asset URLs, plus the `BlightbaneCardUrl`/`BlightbaneTalentUrl`/`BlightbaneMonsterUrl` builders for links to blightbane.io pages (they share one name→slug rule; don't re-inline the template)
+- `imageUrls.ts` - centralized Blightbane asset URLs, plus the `BlightbaneCardUrl`/`BlightbaneTalentUrl`/`BlightbaneMonsterUrl` builders for links to blightbane.io pages (they share one name→slug rule; don't re-inline the template). `BlightbaneCardByIdUrl` is for a card whose name another card shares — Cardex picks between them with `getBlightbaneCardUrl`
 - `energyImages.ts` - `getEnergyImageUrl(CharacterClass)` → energy orb asset. Speedruns wraps this in its own `utils/images.ts` to also handle the speedruns-only `SpeedRunSubclass` members (`All`, `Hybrid`); `shared/` must not import speedruns types
 - `lists.ts`, `object.ts`, `textHelper.ts` - small pure helpers
 

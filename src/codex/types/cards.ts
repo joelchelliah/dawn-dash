@@ -8,9 +8,11 @@ export type CardData = {
   expansion: number
   color: number
   blightbane_id: number
+  // Another card shares this name, so the name alone can't identify it (links, tracking)
+  hasDuplicateName: boolean
 }
 
-export type CardApiResponse = Omit<CardData, 'blightbane_id'> & {
+export type CardApiResponse = Omit<CardData, 'blightbane_id' | 'hasDuplicateName'> & {
   id: number
   artwork: string
   tier: string

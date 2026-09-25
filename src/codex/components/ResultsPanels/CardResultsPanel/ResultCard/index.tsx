@@ -6,7 +6,7 @@ import { createCx } from '@/shared/utils/classnames'
 import { HOVER_TRIGGER } from '@/shared/utils/hoverTrigger'
 
 import { CardData } from '@/codex/types/cards'
-import { parseCardDescription } from '@/codex/utils/cardHelper'
+import { getBlightbaneCardUrl, parseCardDescription } from '@/codex/utils/cardHelper'
 import KeywordPills from '@/codex/components/SearchPanels/shared/KeywordPills'
 
 import { STRUCK_TRIGGER } from './struckTrigger'
@@ -124,7 +124,7 @@ const ResultCard = ({
   })
   const blightbaneLinkClassName = cx('result-card__blightbane-link')
 
-  const blightbaneLink = `https://www.blightbane.io/card/${card.name.replaceAll(' ', '_')}`
+  const blightbaneLink = getBlightbaneCardUrl(card)
 
   // Staggered entry after a new search. The results container is keyed on the parsed keywords, so a
   // new search remounts every row and re-runs this — no JS needed to retrigger it.
@@ -139,7 +139,6 @@ const ResultCard = ({
   return (
     <div
       className={cardContainerClassName}
-      key={card.name}
       onClick={() => toggleCardStrike(card)}
       style={{ animationDelay }}
     >

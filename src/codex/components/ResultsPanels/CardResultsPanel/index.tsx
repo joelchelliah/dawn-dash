@@ -5,6 +5,7 @@ import { createCx } from '@/shared/utils/classnames'
 
 import { CardData } from '@/codex/types/cards'
 import { UseAllCardSearchFilters } from '@/codex/hooks/useSearchFilters'
+import { isCardStruckIn } from '@/codex/utils/cardHelper'
 
 import KeywordsSummary from '../KeywordsSummary'
 import PanelHeader from '../../PanelHeader'
@@ -42,7 +43,7 @@ const CardResultsPanel = ({ useSearchFilters }: CardResultsPanelProps) => {
   const { getCardTypeNameFromIndex, getCardTypeEmojiFromIndex } = useCardTypeFilters
   const { shouldIncludeNonCollectibleCards, shouldIncludeAnimalCompanionCards } =
     useExtraCardFilters
-  const { struckCardNames, toggleCardStrike } = useCardStrike
+  const { struckCardKeys, toggleCardStrike } = useCardStrike
 
   useEffect(() => {
     if (parsedKeywords.length > 0) {
@@ -52,7 +53,7 @@ const CardResultsPanel = ({ useSearchFilters }: CardResultsPanelProps) => {
 
   const cardsByBanner = useMemo(() => {
     const visibleCards = shouldHideTrackedCards
-      ? matchingCards.filter((card) => !struckCardNames.has(card.name))
+      ? matchingCards.filter((card) => !isCardStruckIn(struckCardKeys, card))
       : matchingCards
 
     return visibleCards.reduce(
@@ -62,7 +63,12 @@ const CardResultsPanel = ({ useSearchFilters }: CardResultsPanelProps) => {
       },
       {} as Record<number, CardData[]>
     )
-  }, [matchingCards, shouldHideTrackedCards, struckCardNames])
+  }, [matchingCards, shouldHideTrackedCards, struckCardKeys])
+
+  const struckMatchCount = useMemo(
+    () => matchingCards.filter((card) => isCardStruckIn(struckCardKeys, card)).length,
+    [matchingCards, struckCardKeys]
+  )
 
   const renderMatchingCards = () => {
     const showingCardsWithoutKeywords = parsedKeywords.length === 0 && showCardsWithoutKeywords
@@ -73,6 +79,7 @@ const CardResultsPanel = ({ useSearchFilters }: CardResultsPanelProps) => {
           matches={matchingCards.map((card) => card.name)}
           resultType="card"
           useCardStrike={useCardStrike}
+          struckMatchCount={struckMatchCount}
           parsedKeywords={parsedKeywords}
           showingResultsWithoutKeywords={showingCardsWithoutKeywords}
           shouldHideTrackedCards={shouldHideTrackedCards}
@@ -91,10 +98,10 @@ const CardResultsPanel = ({ useSearchFilters }: CardResultsPanelProps) => {
               <div className={cx(`results-cards__banner--${banner}`)}>
                 {cards.map((card, cardIndex) => (
                   <ResultCard
-                    key={card.name}
+                    key={card.blightbane_id}
                     card={card}
                     parsedKeywords={parsedKeywords}
-                    isStruck={struckCardNames.has(card.name)}
+                    isStruck={isCardStruckIn(struckCardKeys, card)}
                     toggleCardStrike={toggleCardStrike}
                     getCardSetNameFromIndex={getCardSetNameFromIndex}
                     getCardTypeNameFromIndex={getCardTypeNameFromIndex}

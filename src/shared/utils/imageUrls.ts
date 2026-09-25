@@ -75,6 +75,8 @@ const toBlightbaneSlug = (name: string) => name.replaceAll(' ', '_')
 export const BlightbaneCardUrl = (name: string) =>
   `${blightbaneSiteUrl}/card/${toBlightbaneSlug(name)}`
 
+export const BlightbaneCardByIdUrl = (id: number) => `${blightbaneSiteUrl}/card/${id}?id`
+
 export const BlightbaneTalentUrl = (name: string) =>
   `${blightbaneSiteUrl}/talent/${toBlightbaneSlug(name)}`
 

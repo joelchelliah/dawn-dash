@@ -1,4 +1,6 @@
 import {
+  BlightbaneCardByIdUrl,
+  BlightbaneCardUrl,
   DexImageUrl,
   HealthImageUrl,
   HolyImageUrl,
@@ -142,6 +144,24 @@ export const parseCardDescription = (description: string, iconClassName?: string
     .replaceAll('DEX', `<img class="${iconClassName}" src="${DexImageUrl}" alt="DEX" />`)
     .trim()
 }
+
+export const getBlightbaneCardUrl = (card: CardData) =>
+  card.hasDuplicateName ? BlightbaneCardByIdUrl(card.blightbane_id) : BlightbaneCardUrl(card.name)
+
+/*
+ * Tracked cards are saved as names, so a card sharing its name with another is saved as
+ * `name#id` instead. Saved progress for every other card keeps its existing format.
+ */
+const STRIKE_KEY_ID_SEPARATOR = '#'
+
+export const getCardStrikeKey = (card: CardData) =>
+  card.hasDuplicateName ? `${card.name}${STRIKE_KEY_ID_SEPARATOR}${card.blightbane_id}` : card.name
+
+export const getCardNameFromStrikeKey = (key: string) => key.split(STRIKE_KEY_ID_SEPARATOR)[0]
+
+// A bare name saved before same-named cards were shown still marks all of them as tracked
+export const isCardStruckIn = (struckKeys: Set<string>, card: CardData) =>
+  struckKeys.has(getCardStrikeKey(card)) || (card.hasDuplicateName && struckKeys.has(card.name))
 
 export const containsNonCollectible = (cards: CardData[]) =>
   cards.some((card) => isNonCollectible(card))

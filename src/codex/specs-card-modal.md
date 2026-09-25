@@ -27,10 +27,12 @@ Settled in discussion — do not re-litigate them mid-implementation:
   Cardex's own card list**, never through Blightbane's name lookup. That gives the card's
   `blightbane_id`, and the details are fetched by id. See Verified facts for why Blightbane's lookup
   can't be used.
-- **Duplicate names need no suffix today.** Cardex keeps one card per name, so a name is
-  unambiguous within Cardex. If both twins are ever shown, the extra twin gets a distinguishing
-  suffix (`_2` or similar). Choose it then, with Booty's reason for naming a kind rather than
-  counting in mind (see _What to read first_).
+- **Same-named cards need a distinguishing suffix — format still to be decided.** Cardex now shows
+  every twin (16 names, 32 cards; each carries `hasDuplicateName`), so a bare name no longer
+  identifies one card. One twin gets a suffix (`_2` or similar). **Decide the format with the user
+  at the start of Task 4**, with Booty's reason for naming a kind rather than counting in mind (see
+  _What to read first_). Twins are ordered by `blightbane_id` within their sort position, so a
+  counter is at least stable while the set of twins doesn't change.
 - **How `?card` interacts with the other params:**
   - `?card` describes whether a modal is open, not the search state. It **coexists with `?query`
     and every filter param**.
@@ -69,18 +71,15 @@ Measured against the live API, not assumed.
 - **Names are not unique.** `cards-codex` returns 2716 cards with **18 duplicated names** (e.g.
   `Consume`, `Hold the Line`, `Blessed`, `Siren's Call`). Many are genuinely different cards:
   Cardex's `Consume` is "Dispel a Blessing…", while the other `Consume` is "Deal 20 damage…".
-  `sortAndRemoveDuplicates` in `cardsResponseMapper.ts` keeps one row per name, so Cardex never
-  shows both.
-- **Blightbane's name lookup picks a different twin from Cardex for 13 of those 18 names.** For
-  example, `/api/card/Consume` → 894487, but Cardex keeps 232361. The 13: Blessed, Cleansing Waters,
-  Consume, Court Fungus, Hold the Line, Impale Soul, Marked, Runic Repel, Rust, Siren's Call,
-  Submerged, Watershaping, Whirlpool. So a `?card=<name>` must resolve through Cardex's own list, and
-  the details must be **fetched by `blightbane_id`**.
-- **Blightbane doesn't disambiguate duplicate names either** (read from its bundle, not tested in a
-  browser). `/card/<name>` fetches `/api/card/<name>`, so it always lands on the same twin. A bare
-  `/card/<id>` **redirects to the name URL**, which lands on that same twin again. The bundle
-  suggests a query string suppresses the redirect (e.g. `/card/232361?ver=`), which would make it the
-  only way to link one specific twin. Check that in a browser before relying on it.
+  `sortAndRemoveDuplicates` in `cardsResponseMapper.ts` now drops only cards identical in every
+  displayed field (just `Divinity` and `Marked`), so Cardex shows both twins of the other 16.
+- **Blightbane's name lookup resolves a name to one fixed twin** (e.g. `/api/card/Consume` →
+  894487), so it can't reach the other one. A `?card=<name>` must resolve through Cardex's own list,
+  and the details must be **fetched by `blightbane_id`**.
+- **Blightbane doesn't disambiguate duplicate names either.** `/card/<name>` always lands on the
+  same twin, and a bare `/card/<id>` **redirects to the name URL**. Any query string suppresses the
+  redirect: `/card/232361?id` renders that exact card (confirmed in headless Chrome). Cardex's row
+  link uses this for twins via `BlightbaneCardByIdUrl`.
 - **Blightbane has no card-frame assets.** Its bundle (`js/index.bundle.js`) draws cards with CSS
   and references only artwork folders: `icons/`, `status/`, `affixes/`, `monsters/`, `events/`,
   plus the energy orbs. The frames have to come from the user's own assets.
@@ -93,16 +92,12 @@ Measured against the live API, not assumed.
   - `parseCardDescription` currently only strips brackets, so rows show these tokens raw. What the
     game prints for each one is part of Task 5's trial and error.
 
-## Found while writing this, out of scope
+## Found while writing this — since fixed
 
-Existing Cardex behaviour, recorded so it isn't mistaken for something this spec introduced:
-
-- **The row's "See full description on Blightbane" link opens the wrong twin for the 13 names
-  above**, because `BlightbaneCardUrl` links by name. The `/card/<id>?…` form under Verified facts
-  may be the fix.
-- **The dedupe hides real cards.** Twins such as the two `Gift of the Sea`s, `Watershaping`s and
-  `Whirlpool`s are different cards with different text, and Cardex shows only one of each. Showing
-  both is what would trigger the duplicate-name URL suffix.
+Both were fixed separately, before any task here: Cardex now shows both twins of each duplicated
+name, and the row's Blightbane link points at the right twin (by id). Tracking keys twins as
+`name#id` (`getCardStrikeKey` in `utils/cardHelper.ts`). What's left for this spec is the `?card`
+suffix decision above.
 
 ## How to work through this spec
 
@@ -189,11 +184,11 @@ context can tell what is already done from the spec alone.
     - Escape and overlay click both close the modal. Desktop and mobile.
   - **Task 4 (URL):**
     - Cold load of `/cardex?card=<name>` alone: the modal opens and the cached filters are kept.
-      Try it both with the card list cached and with it cleared (`codex_cards_v2`).
+      Try it both with the card list cached and with it cleared (`codex_cards_v3`).
     - `?card=<name>&query=…` with filter params: both the search and the modal apply.
     - `?card=<name>&weekly`: `?weekly` is dropped and not applied.
-    - A duplicate name from the 13 (e.g. `?card=consume`): the modal shows the **same** card as the
-      Cardex row ("Dispel a Blessing…"), not Blightbane's twin.
+    - Both twins of a duplicated name (e.g. the two `Consume`s): each row's URL opens its own card,
+      and a cold load of each URL shows that twin, not Blightbane's pick.
     - Names with punctuation: `Siren's Call`, `BANG!`, `Bite (Companion)`. The URL must round-trip
       back to the card.
     - A bogus name: the modal closes and the param clears.
@@ -300,8 +295,8 @@ made_:
 
 1. Derive the open card from `router.query.card` **during render** (only once `router.isReady`), in
    place of Task 3's local state.
-   - Resolve the param by matching it against `normalizeEventNameForUrl(card.name)` over the **full**
-     Cardex card list, not the filtered results.
+   - Resolve the param by matching it against each card's URL name (`normalizeEventNameForUrl`
+     plus the twin suffix) over the **full** Cardex card list, not the filtered results.
    - Build the name map once per card-array identity. `getCardsByName` in `utils/treasureHelper.ts`
      does the same, so don't rebuild a ~2700-entry map every render.
    - Until the card list has loaded, nothing opens. The modal appears once the list resolves. It is

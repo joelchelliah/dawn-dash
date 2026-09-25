@@ -3,7 +3,7 @@ import { CacheWriteResult, getFromCache, saveToCache } from '@/shared/utils/stor
 
 import { CardData } from '@/codex/types/cards'
 
-const CACHE_VERSION = 'v2'
+const CACHE_VERSION = 'v3'
 const CACHE_KEY = `codex_cards_${CACHE_VERSION}`
 const CACHE_DURATION = 24 * 60 * 60 * 1000 // 1 day
 

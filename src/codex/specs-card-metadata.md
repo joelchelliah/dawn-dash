@@ -1,9 +1,11 @@
 # Spec: card metadata file (cost + artwork + flavour text)
 
-Replace `src/shared/data/card-artwork.json` with a single **id-keyed** metadata file covering both
-cards and talents, carrying `cost`, `artwork` and `flavortext` alongside `id`, `name` and
-`category`. The immediate goal is showing a card's **cost** in Cardex; artwork comes along because
-it lives in the same endpoint, and the id key fixes collisions the current name key cannot.
+Add an **id-keyed** metadata file, `src/shared/data/card-metadata.json`, covering both cards and
+talents. It carries `cost`, `artwork` and `flavortext` alongside `id`, `name` and `category`. The
+file is **built by an external extraction tool** and narrowed in by a sync script, the same way as
+events, treasures and weapons. The immediate goal is showing a card's **cost** in Cardex. Artwork
+comes along with it, and the id key fixes collisions the current name key can't. Whether the file
+also **replaces `src/shared/data/card-artwork.json`** is the open question below.
 
 ## Why a static file rather than Supabase
 
@@ -31,14 +33,43 @@ If either is ever wanted, that is the point to reconsider a database; do not add
 
 These were settled in discussion — do not re-litigate them mid-implementation:
 
-- **One file, keyed by `id`**, replacing `card-artwork.json` outright rather than sitting beside it.
-  Two artwork sources would drift.
+- **The file is built externally**, by the user's extraction tool. Its output is pasted into
+  `scripts/data/` (gitignored), and a sync script narrows it into `src/shared/data/`, like
+  `sync-treasures` / `sync-weapons`. Nothing in this repo crawls Blightbane for it.
+- **Keyed by `id`.** Names collide, and ids don't.
+- **The aim is one artwork source.** Two artwork sources would drift. Whether this file gets there,
+  replacing `card-artwork.json`, depends on the open question below.
 - **`cost` is minified to a string**: `"DEX3"`, `"HOLY2,NEUTRAL1"`. Empty string means free.
 - **Cards and talents go in the same map.** Verified: zero id collisions between the two payloads.
 - **Flavour text is included.** Only ~10% of cards have one (avg 73 chars, max 160), but ~55% of
   *talents* do, so Skilldex benefits more than Cardex.
 - **Scoring keeps a name-keyed lookup.** It has no id available (see Task 4).
 - **Stop before `flags`/`effects`/`transmute`.** Not needed for this work.
+
+## Open question — should it replace `card-artwork.json`? (for the user)
+
+**Needs investigation by the user before Task 1.** Can the externally built file carry
+**everything `card-artwork.json` holds today**, so that `card-artwork.json` and
+`fetch-card-artwork-mapping.js` can be deleted and every artwork lookup uses the new file?
+
+To replace it outright, the external output has to cover:
+
+- **All 3102 entries**: 2716 cards plus 386 talents. Not just the cards Cardex shows, because
+  Skilldex and Scoring resolve artwork from the same file.
+- **Each entry's `name`, `artwork` and `category`**, which is every field the current file has. The
+  24 entries with `artwork: null` stay null.
+- **The one non-card entry, `Bolgar Blightbane` (`category: null`).** Its origin isn't obvious from
+  `fetch-card-artwork-mapping.js`, so find out whether anything resolves it before dropping it.
+- **The game's own `id`** for every entry, plus the fields this spec adds (`cost`, `flavortext`).
+
+What the answer changes:
+
+- **Yes:** the spec runs as written. Tasks 4–5 move every lookup onto the new file, and Task 7
+  deletes `card-artwork.json`.
+- **No, or only partly:** `card-artwork.json` stays as the artwork source for whatever the new file
+  doesn't cover, and Task 7 doesn't happen. Tasks 4–5 then have to decide, per call site, which file
+  artwork comes from, and that choice must not let the two drift for the same card. Settle it with
+  the user before Task 4 rather than mid-task.
 
 ## Verified facts (checked 2026-08-06 — re-check before acting)
 
@@ -47,7 +78,8 @@ shaped the way they are.
 
 - **`cards-codex` has no `cost` field.** Its cards carry only
   `id, name, rarity, type, category, description, color, expansion`. Cost exists solely on the
-  per-card endpoint, and there is **no bulk endpoint for it** — hence the crawl.
+  per-card endpoint, and there is **no bulk endpoint for it**. That's why the data comes from the
+  external tool rather than from anything Cardex fetches at runtime.
 - **Two payloads cover everything.** Blank `category=` returns **2716 cards**; `category=10`
   returns **386 talents**. All 371 artwork names absent from the cards payload are covered by the
   talents one, leaving **zero uncovered**.
@@ -56,7 +88,6 @@ shaped the way they are.
 - **`/api/card/<id>` works** and resolves the exact card. `/api/card/<name>` does **not**: for the
   19 duplicate names it returns one arbitrary match. Verified on `Awakening` — id 660263 is
   `HOLY2` / `cardart_5_4`, id 990010 is free / `Prayer`.
-- **The crawl costs ~5 minutes**: ~116 ms/card at concurrency 8, measured over 40 cards.
 - **All 385 Supabase `Talents.blightbane_id` values match Blightbane's `category=10` ids** —
   checked against production. This is what lets Skilldex key by id (Task 5).
 - **Talent costs are always empty.** All 40 sampled talents had a `cost` object present with every
@@ -84,14 +115,25 @@ shaped the way they are.
     populated sibling.
   - **A missing name or `artwork: null` is the only reliable miss signal** — blightbane.io serves a
     valid placeholder webp with HTTP 200 for non-existent icons, so `onError` never fires for a
-    wrong artwork value. This is why Task 2 validates the crawl by *count*, not by fetching images.
+    wrong artwork value. This is why Task 2 validates the output by *count*, not by fetching images.
   - The **name+category collision** invariant is the one this spec partially retires — read it, then
     see Task 6 for what replaces it.
+- **[`scripts/sync/whitelist-fields.js`](../../scripts/sync/whitelist-fields.js)** and
+  [`sync-weapons.js`](../../scripts/sync/sync-weapons.js): the pattern Task 1 follows.
+  - The input is pasted in, gitignored, and read with `readInputFile`, which fails fast when it's
+    missing.
+  - Fields are picked from a whitelist, and dropped upstream fields are printed.
+  - Note that `writeJson` **pretty-prints**, which conflicts with this spec's minified output (see
+    Task 1).
 - **[`supabase/functions/README.md`](../../supabase/functions/README.md)** — confirms talents are
   the only Supabase data the app reads, and that `sync-talents` is insert-only. Nothing in this
   spec touches Supabase; it is listed so the boundary stays visible.
 
 ### Where to stop
+
+**Don't start Task 1 until the external tool's output exists**, and until the user has answered the
+open question above. The answer decides whether Task 7 happens, and how Tasks 4–5 choose an artwork
+source.
 
 **Tasks 1–3 may be chained** — they build and validate the data file with no user-visible effect.
 **Tasks 4–7 each pause for confirmation.** They rewrite the artwork lookup that three call sites
@@ -102,7 +144,7 @@ art several tasks later. Cardex and Skilldex render artwork very differently (Re
 Finish the task, get it into a state the user can look at, say what changed and what to look at,
 then wait — **the user runs the dev server, not the agent**.
 
-**Task 3 has no visible effect of its own** (it only adds a validation script) — that is expected,
+**Task 3 has no visible effect of its own** (it only adds a `--validate` flag) — that is expected,
 not a broken step.
 
 **Mark each finished task `COMPLETED` in this file before asking the user to verify it**, so a
@@ -110,8 +152,9 @@ fresh context can tell what is already done from the spec alone.
 
 ### How it gets verified
 
-- **Tasks 1–3**: `node scripts/sync-card-metadata.js` runs clean, plus the Task 3 validator. Check
-  the written file's entry count (**3102**) and size (**~153 KB minified**) against the table above.
+- **Tasks 1–3**: `npm run sync-card-metadata` runs clean, including its validation. Check the
+  written file's entry count (**3102** if it replaces `card-artwork.json`) and size (**~153 KB
+  minified**) against the table above.
 - **Tasks 4–7**: `npm run verify` for every task. **Also `npm run build`** for Task 4 — it changes a
   module imported at page level.
 - **Visual, in the user's dev server:**
@@ -134,15 +177,20 @@ Grep before editing — these were found by grepping, not recalled:
 - **Root [`CLAUDE.md`](../../CLAUDE.md)** — the `useCardImageSrc` entry under *Shared
   Infrastructure* names `card-artwork.json` and describes the `category` parameter and
   `TALENT_ARTWORK_CATEGORY`; *Data Synchronization* names `fetch-card-artwork-mapping.js` as what
-  writes the artwork file.
+  writes the artwork file, and gains the new sync alongside the treasures/weapons ones. The
+  whitelist-scripts sentence there ("`sync-treasures`, `sync-weapons` share…") needs the third
+  script added.
 - **`package.json`** — the `sync-artwork` script currently points at
-  `scripts/fetch-card-artwork-mapping.js`.
+  `scripts/fetch-card-artwork-mapping.js`; a new `sync-card-metadata` script; `sync-all`.
+- **`.gitignore`** — the pasted-in input file under `scripts/data/`.
+- **[`scripts/sync/whitelist-fields.js`](../../scripts/sync/whitelist-fields.js)** — its header
+  comment names the scripts that share it.
 
 There is **no `scripts/README.md`** (checked) — `scripts/parse/README.md` covers only the event
 pipeline and is unaffected.
 
 **New invariants worth recording once implemented** (Task 6): that the metadata file is id-keyed and
-why; that the crawl must iterate ids and never names; and that "free" and "missing" are distinct.
+why, and is built externally (never hand-edited); and that "free" and "missing" are distinct.
 
 **If a task turns out to contradict a documented invariant, raise it with the user rather than
 quietly rewriting the doc.**
@@ -155,17 +203,17 @@ The non-obvious *why*, in a line or two. No restating the code, no narrating the
 
 ## Tasks
 
-### Task 1 — Write the crawl script
+### Task 1 — Write the sync script
 
-Add `scripts/sync-card-metadata.js`, modelled on the existing
-[`fetch-card-artwork-mapping.js`](../../scripts/fetch-card-artwork-mapping.js) (same plain-Node,
-no-dependency style — it uses `https.get`; `fetch` is fine on Node 24).
+Add `scripts/sync/sync-card-metadata.js`, modelled on
+[`sync-weapons.js`](../../scripts/sync/sync-weapons.js) and sharing
+[`whitelist-fields.js`](../../scripts/sync/whitelist-fields.js).
 
-1. Fetch **both** codex payloads: `cards-codex?search=&rarity=&category=&type=&banner=&exp=` and
-   the same with `category=10`.
-2. For every entry in both, fetch `/api/card/<id>`. **By id, never by name** — the whole point of
-   the key. Concurrency 8 (~5 min for 3102 entries); log progress so it does not look hung.
-3. Write `src/shared/data/card-metadata.json`, id-keyed:
+1. **Agree the input with the user first.** The external tool defines the file name (e.g.
+   `scripts/data/card-metadata.json`) and its per-entry fields. Add the file to `.gitignore`, and
+   read it with `readInputFile` so the script fails fast when it's missing.
+2. Whitelist the fields below, print the ignored ones, and transform them into
+   `src/shared/data/card-metadata.json`, keyed by id:
 
    ```json
    {
@@ -174,43 +222,48 @@ no-dependency style — it uses `https.get`; `fetch` is fine on Node 24).
    }
    ```
 
-   - `cost`: uppercase `KEY` + amount for each non-zero field of the cost object, comma-joined in
-     the API's own field order (`dex, int, str, holy, neutral, dexint, dexstr, intstr, blood`).
-     **Empty string for free** — always present, never omitted, so free stays distinguishable from
-     missing.
-   - `artwork`: verbatim from the endpoint. `null` stays `null` (Task 4 filters it, mirroring
-     today's behaviour).
-   - `flavortext`: **omit the key entirely when empty** — ~90% of cards have none, and omitting is
+   - `cost`: uppercase `KEY` plus the amount, for each non-zero cost field. Comma-join them in
+     Blightbane's field order (`dex, int, str, holy, neutral, dexint, dexstr, intstr, blood`). If
+     the tool already emits a cost string, check it matches this format rather than re-deriving it.
+     **Use an empty string for free.** Always include it, never omit it, so free stays
+     distinguishable from missing.
+   - `artwork`: copied verbatim. `null` stays `null`, and Task 4 filters it, as today.
+   - `flavortext`: **omit the key entirely when empty.** ~90% of cards have none, and omitting it is
      what keeps the file at 153 KB.
-   - Minified (no pretty-print). At 3102 entries a formatted file is needless diff noise.
-4. **Fail loudly**: throw if either payload is empty, or if more than a handful of per-card fetches
-   fail. A partial file that looks valid is the dangerous outcome — silent truncation here would
+   - **Minified**, with no pretty-printing. At 3102 entries a formatted file is needless diff noise.
+     That means **not** using `writeJson`, which pretty-prints. Write the file directly.
+3. **Fail loudly.** Throw on an empty input, a duplicate id, or an entry missing `id`, `name` or
+   `cost`. A partial file that looks valid is the dangerous outcome, since truncation here would
    surface much later as missing art.
 
-Add `"sync-card-metadata": "node scripts/sync-card-metadata.js"` to `package.json`. Leave the old
-`sync-artwork` script in place until Task 7.
+Add `"sync-card-metadata": "node scripts/sync/sync-card-metadata.js"` to `package.json`, and add it
+to `sync-all`. Leave the old `sync-artwork` script in place until Task 7.
 
 ### Task 2 — Run it and sanity-check the output
 
-Run the crawl. Confirm against the verified facts above:
+Run the sync. Confirm against the verified facts above:
 
-- **3102 entries** (2716 + 386), **~153 KB**.
-- Every id from both payloads is present.
+- **3102 entries** (2716 + 386) if it replaces `card-artwork.json`. Either way, about **153 KB** at
+  full coverage.
+- Every id from both Blightbane payloads is present (`cards-codex`, with and without `category=10`).
 - `Awakening` **660263** → `cardart_5_4` / `HOLY2`, and **990010** → `Prayer` / `""`. This pair is
-  the whole justification for the id key; if it is wrong, stop.
+  the whole justification for the id key, so if it's wrong, stop.
 - All 386 talents have `cost: ""`.
-- Spot-check a name with a curly apostrophe (`Typhon's Cunning`) survived verbatim.
+- A name with a curly apostrophe (`Typhon's Cunning`) survived verbatim.
+- The twin cards Cardex now shows separately (e.g. both `Whirlpool`s, 355261 / 527295) have
+  **different** artwork. They share a name and category in `card-artwork.json` today, which is why
+  both rows currently show the same art.
 
-### Task 3 — Add a validation script
+### Task 3 — Validate against the live payloads
 
-Add `scripts/validate-card-metadata.js` (or fold it into Task 1 behind `--validate`) that re-reads
-the written file and asserts the Task 2 checks: entry count matches the two payloads, no missing
-ids, `cost` present on every entry, no duplicate ids.
+Add a `--validate` flag to the sync script. It fetches the two `cards-codex` payloads and asserts
+that every id is present in the written file, and none are missing. The input comes from outside
+the repo, so this is what catches the tool silently skipping cards after a game update.
 
-**Why separate**: the crawl takes 5 minutes, so a mistake found by eye afterwards is expensive to
-re-test. This makes re-verification after a future game version a single command.
+**Why a flag rather than always on:** the sync itself should run offline from the pasted-in file,
+like the other syncs.
 
-This has **no user-visible effect** — expected.
+This has **no user-visible effect**, which is expected.
 
 ### Task 4 — Rewrite `useCardImageSrc` over the new file
 
@@ -268,7 +321,7 @@ Only now that behaviour is settled:
   and id key. Rewrite the two collision bullets: the name+category disambiguation and the
   "dozen colliding names" caveat **no longer apply to Cardex or Skilldex** (both key by id), but
   **still apply to Scoring's name lookup** — say exactly that rather than deleting them. Record the
-  new invariants: id-keyed, crawl by id never by name, and free (`""`) ≠ missing.
+  new invariants: id-keyed, built externally and never hand-edited, and free (`""`) ≠ missing.
 - **Root [`CLAUDE.md`](../../CLAUDE.md)** — the `useCardImageSrc` entry under *Shared
   Infrastructure* and the artwork line under *Data Synchronization*.
 - Grep for any remaining `card-artwork.json` / `TALENT_ARTWORK_CATEGORY` reference and fix or
@@ -276,9 +329,11 @@ Only now that behaviour is settled:
 
 ### Task 7 — Retire the old artwork file
 
-Once Tasks 4–6 are confirmed working: delete `src/shared/data/card-artwork.json` and
-`scripts/fetch-card-artwork-mapping.js`, and replace the `sync-artwork` npm script with
-`sync-card-metadata`.
+**Only if the open question was answered yes.** Otherwise skip this task, and make sure Task 6's
+docs say which file owns artwork for what.
+
+Once Tasks 4–6 are confirmed working, delete `src/shared/data/card-artwork.json` and
+`scripts/fetch-card-artwork-mapping.js`, and remove the `sync-artwork` npm script.
 
 **Verify**: `npm run verify` and `npm run build`, then re-check all three tools — this is the task
 where a missed reference surfaces as a build failure or missing art.
