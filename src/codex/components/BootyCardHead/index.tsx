@@ -129,7 +129,7 @@ function getCardDisplayText(card: BootyCard): string {
   const acquisitionMethods = isTreasure
     ? getTreasureAcquisitionMethods(treasures.find(({ name }) => name === card.name))
     : getSpecialWeaponAcquisitionMethods(weapons.find(({ name }) => name === card.name))
-  const acquisitionString = acquisitionMethods ? `Can be acquired via ${acquisitionMethods}.` : ''
+  const acquisitionString = acquisitionMethods ? `Can be acquired ${acquisitionMethods}.` : ''
 
   const subtitle = getCardSubtitle(card, card.rarity) || FALLBACK_SUBTITLE
 
@@ -147,9 +147,10 @@ function getTreasureAcquisitionMethods(card?: TreasureCard): string | undefined 
     card.fromCards.length > 0 && 'cards',
     card.fromTalents.length > 0 && 'talents',
     card.fromEvents.length > 0 && 'events',
+    card.hasConjurationRoute && 'conjurations',
   ].filter((method): method is string => Boolean(method))
 
-  return joinWithAnd(methods)
+  return methods.length > 0 ? `via ${joinWithAnd(methods)}` : undefined
 }
 
 function getSpecialWeaponAcquisitionMethods(card?: SpecialWeapon): string | undefined {
@@ -159,8 +160,14 @@ function getSpecialWeaponAcquisitionMethods(card?: SpecialWeapon): string | unde
     card.fromCards.length > 0 && 'cards',
     card.fromTalents.length > 0 && 'talents',
     card.fromEvents.length > 0 && 'events',
-    hasSpecialCondition(card.name) && 'fulfilling a special condition',
+    card.hasConjurationRoute && 'conjurations',
   ].filter((method): method is string => Boolean(method))
 
-  return joinWithAnd(methods)
+  const specialCondition = 'by fulfilling a special condition'
+  if (!hasSpecialCondition(card.name)) {
+    return methods.length > 0 ? `via ${joinWithAnd(methods)}` : undefined
+  }
+  if (methods.length === 0) return specialCondition
+
+  return `via ${methods.join(', ')} and ${specialCondition}`
 }
