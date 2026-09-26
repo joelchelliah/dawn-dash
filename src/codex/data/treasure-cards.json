@@ -100,7 +100,8 @@
         "pools": ["Pirate Parlour pool"]
       }
     ],
-    "hasConjurationRoute": false
+    "hasConjurationRoute": false,
+    "hasTradepostRoute": true
   },
   {
     "id": 611711,
@@ -185,7 +186,8 @@
         "pools": ["Pirate Parlour pool"]
       }
     ],
-    "hasConjurationRoute": false
+    "hasConjurationRoute": false,
+    "hasTradepostRoute": false
   },
   {
     "id": 978149,
@@ -282,7 +284,8 @@
         "pools": ["Pirate Parlour pool"]
       }
     ],
-    "hasConjurationRoute": true
+    "hasConjurationRoute": true,
+    "hasTradepostRoute": false
   },
   {
     "id": 909591,
@@ -397,7 +400,8 @@
         "pools": ["Equipment category pool"]
       }
     ],
-    "hasConjurationRoute": false
+    "hasConjurationRoute": false,
+    "hasTradepostRoute": true
   },
   {
     "id": 353519,
@@ -530,7 +534,8 @@
         "pools": ["Pirate Parlour pool"]
       }
     ],
-    "hasConjurationRoute": true
+    "hasConjurationRoute": true,
+    "hasTradepostRoute": false
   },
   {
     "id": 68505,
@@ -633,7 +638,8 @@
         "pools": ["Pirate Parlour pool"]
       }
     ],
-    "hasConjurationRoute": false
+    "hasConjurationRoute": false,
+    "hasTradepostRoute": true
   },
   {
     "id": 855931,
@@ -760,7 +766,8 @@
         "pools": ["Pirate Parlour pool"]
       }
     ],
-    "hasConjurationRoute": true
+    "hasConjurationRoute": true,
+    "hasTradepostRoute": false
   },
   {
     "id": 973883,
@@ -863,7 +870,8 @@
         "pools": ["Pirate Parlour pool"]
       }
     ],
-    "hasConjurationRoute": false
+    "hasConjurationRoute": false,
+    "hasTradepostRoute": true
   },
   {
     "id": 740335,
@@ -972,7 +980,8 @@
         "pools": ["Pirate Parlour pool"]
       }
     ],
-    "hasConjurationRoute": false
+    "hasConjurationRoute": false,
+    "hasTradepostRoute": true
   },
   {
     "id": 407234,
@@ -1075,7 +1084,8 @@
         "pools": ["Equipment category pool"]
       }
     ],
-    "hasConjurationRoute": false
+    "hasConjurationRoute": false,
+    "hasTradepostRoute": false
   },
   {
     "id": 816971,
@@ -1190,7 +1200,8 @@
         "pools": ["Pirate Parlour pool"]
       }
     ],
-    "hasConjurationRoute": false
+    "hasConjurationRoute": false,
+    "hasTradepostRoute": true
   },
   {
     "id": 77316,
@@ -1281,7 +1292,8 @@
         "pools": ["Pirate Parlour pool"]
       }
     ],
-    "hasConjurationRoute": true
+    "hasConjurationRoute": true,
+    "hasTradepostRoute": false
   },
   {
     "id": 571114,
@@ -1396,7 +1408,8 @@
         "pools": ["Pirate Parlour pool"]
       }
     ],
-    "hasConjurationRoute": true
+    "hasConjurationRoute": true,
+    "hasTradepostRoute": true
   },
   {
     "id": 307462,
@@ -1487,6 +1500,7 @@
         "pools": ["Pirate Parlour pool"]
       }
     ],
-    "hasConjurationRoute": false
+    "hasConjurationRoute": false,
+    "hasTradepostRoute": false
   }
 ]

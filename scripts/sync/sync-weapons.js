@@ -39,6 +39,7 @@ const WEAPON_FIELDS = [
   'category',
   'type',
   'hasConjurationRoute',
+  'hasTradepostRoute',
   'fromEvents',
   'fromCards',
   'fromTalents',

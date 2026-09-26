@@ -72,6 +72,7 @@ function WeaponModal({ weapon, cardDetails, cardData, onClose }: WeaponModalProp
       subtitle={getCardSubtitle(weapon, weapon.rarity)}
       cardDetails={cardDetails}
       hasConjurationRoute={weapon.hasConjurationRoute}
+      hasTradepostRoute={weapon.hasTradepostRoute}
       artwork={WEAPON_ARTWORK}
       cardNoun="weapon"
       acquisitions={getAcquisitions(weapon, Boolean(specialCondition))}
@@ -100,11 +101,6 @@ const getUntemperedRaidersRewardNote = (weaponName: string): JSX.Element => (
 const ADDITIONAL_NOTES: Record<string, JSX.Element> = {
   Battlespear: getUntemperedRaidersRewardNote('Battlespear'),
   Monolith: getUntemperedRaidersRewardNote('Monolith'),
-  Oathbreaker: (
-    <>
-      Obtainable via <Hl>Tradepost</Hl>, by trading in any <strong>Black Legendary</strong> card.
-    </>
-  ),
 }
 
 export default WeaponModal

@@ -24,6 +24,7 @@ export interface TreasureCard {
   fromTranspose: boolean
   fromTrade: boolean
   hasConjurationRoute: boolean
+  hasTradepostRoute: boolean
   fromEvents: TreasureSource[]
   fromCards: TreasureSource[]
   fromTalents: TreasureSource[]

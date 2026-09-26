@@ -55,6 +55,7 @@ function TreasureModal({ treasure, cardData, onClose }: TreasureModalProps): JSX
       subtitle={getCardSubtitle(treasureDetails, treasureDetails.rarity)}
       cardDetails={cardDetails}
       hasConjurationRoute={treasureDetails.hasConjurationRoute}
+      hasTradepostRoute={treasureDetails.hasTradepostRoute}
       artwork={TREASURE_ARTWORK}
       cardNoun="treasure"
       acquisitions={getAcquisitions(treasureDetails)}
@@ -70,8 +71,7 @@ function TreasureModal({ treasure, cardData, onClose }: TreasureModalProps): JSX
 const ADDITIONAL_NOTES: Record<string, JSX.Element> = {
   'Dark Mirror Vial': (
     <>
-      Cannot be traded into via <Hl>Tradepost</Hl>, but any other form of trade or transmute will
-      work.
+      Not obtained via <Hl>Tradepost</Hl>, but any other form of trade or transmute will work.
     </>
   ),
   'Rusty Lamp': (

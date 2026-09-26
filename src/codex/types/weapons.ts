@@ -8,6 +8,7 @@ export interface SpecialWeapon {
   category: string
   type: string
   hasConjurationRoute: boolean
+  hasTradepostRoute: boolean
   fromEvents: TreasureSource[]
   fromCards: TreasureSource[]
   fromTalents: TreasureSource[]

@@ -47,6 +47,7 @@ export interface CardModalProps {
   subtitle: string
   cardDetails: CardData
   hasConjurationRoute: boolean
+  hasTradepostRoute: boolean
   // The same dimensions the card's list rows use, so the two never drift
   artwork: CardListArtwork
   acquisitions: Acquisition[]
@@ -68,6 +69,7 @@ function CardModal({
   subtitle,
   cardDetails,
   hasConjurationRoute,
+  hasTradepostRoute,
   artwork,
   acquisitions,
   acquisitionColumns = 3,
@@ -99,6 +101,7 @@ function CardModal({
     cardSetName !== 'Core' && (pooledEvents.length > 0 || pooledCards.length > 0)
   const showExplorerTrickArtifactNote = cardDetails.category === CATEGORY_ARTIFACT
   const showConjurableNote = hasConjurationRoute
+  const showTradepostNote = hasTradepostRoute
   const showAdditionalNotesSection =
     showCardSetRequirement || showExplorerTrickArtifactNote || showConjurableNote || additionalNotes
 
@@ -282,11 +285,25 @@ function CardModal({
                 , as a <strong>Conjured</strong> copy.
               </div>
             )}
-            {additionalNotes && (
+            {showTradepostNote && (
               <div
                 className={cx('card-modal__hint', {
                   'card-modal__hint--stacked':
                     showCardSetRequirement || showExplorerTrickArtifactNote || showConjurableNote,
+                })}
+              >
+                Obtainable via <Hl>Tradepost</Hl>, by trading in any card of the same{' '}
+                <strong>color</strong> and <strong>rarity</strong>.
+              </div>
+            )}
+            {additionalNotes && (
+              <div
+                className={cx('card-modal__hint', {
+                  'card-modal__hint--stacked':
+                    showCardSetRequirement ||
+                    showExplorerTrickArtifactNote ||
+                    showConjurableNote ||
+                    showTradepostNote,
                 })}
               >
                 {additionalNotes}

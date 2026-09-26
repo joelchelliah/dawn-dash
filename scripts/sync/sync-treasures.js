@@ -57,6 +57,7 @@ const CARD_FIELDS = [
   'fromTranspose',
   'fromTrade',
   'hasConjurationRoute',
+  'hasTradepostRoute',
   'fromEvents',
   'fromCards',
   'fromTalents',
