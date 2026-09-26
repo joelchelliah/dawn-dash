@@ -100,6 +100,11 @@ const getUntemperedRaidersRewardNote = (weaponName: string): JSX.Element => (
 const ADDITIONAL_NOTES: Record<string, JSX.Element> = {
   Battlespear: getUntemperedRaidersRewardNote('Battlespear'),
   Monolith: getUntemperedRaidersRewardNote('Monolith'),
+  Oathbreaker: (
+    <>
+      Obtainable via <Hl>Tradepost</Hl>, by trading in any <strong>Black Legendary</strong> card.
+    </>
+  ),
 }
 
 export default WeaponModal

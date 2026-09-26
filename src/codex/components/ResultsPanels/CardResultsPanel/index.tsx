@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useRef, useState, useMemo } from 'react'
 
 import GradientButton from '@/shared/components/Buttons/GradientButton'
 import { createCx } from '@/shared/utils/classnames'
@@ -6,6 +6,7 @@ import { createCx } from '@/shared/utils/classnames'
 import { CardData } from '@/codex/types/cards'
 import { UseAllCardSearchFilters } from '@/codex/hooks/useSearchFilters'
 import { isCardStruckIn } from '@/codex/utils/cardHelper'
+import { useScrollToResultsOnArrival } from '@/codex/hooks/useScrollToResultsOnArrival'
 
 import KeywordsSummary from '../KeywordsSummary'
 import PanelHeader from '../../PanelHeader'
@@ -21,6 +22,8 @@ const cx = createCx(styles)
 
 const CardResultsPanel = ({ useSearchFilters }: CardResultsPanelProps) => {
   const [showCardsWithoutKeywords, setShowCardsWithoutKeywords] = useState(false)
+  const panelRef = useRef<HTMLDivElement>(null)
+
   const {
     parsedKeywords,
     matchingCards,
@@ -44,6 +47,8 @@ const CardResultsPanel = ({ useSearchFilters }: CardResultsPanelProps) => {
   const { shouldIncludeNonCollectibleCards, shouldIncludeAnimalCompanionCards } =
     useExtraCardFilters
   const { struckCardKeys, toggleCardStrike } = useCardStrike
+
+  useScrollToResultsOnArrival(panelRef, parsedKeywords.length > 0)
 
   useEffect(() => {
     if (parsedKeywords.length > 0) {
@@ -127,7 +132,7 @@ const CardResultsPanel = ({ useSearchFilters }: CardResultsPanelProps) => {
   }
 
   return (
-    <div className={cx('results-panel')}>
+    <div ref={panelRef} className={cx('results-panel')}>
       <PanelHeader type="CardResults" />
 
       {parsedKeywords.length > 0 || showCardsWithoutKeywords ? (

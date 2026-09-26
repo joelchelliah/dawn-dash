@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 
 // NB: Values should match breakpoints in _breakpoints.scss
 // Using matchMedia ensures JS breakpoints match CSS media queries exactly
-const MEDIA_QUERY_MOBILE = '(max-width: 48rem)' // 768px
+export const MEDIA_QUERY_MOBILE = '(max-width: 48rem)' // 768px
 const MEDIA_QUERY_TABLET = '(max-width: 64rem)' // 1024px
 
 export function useBreakpoint() {

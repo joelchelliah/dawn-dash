@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import GradientButton from '@/shared/components/Buttons/GradientButton'
 import { createCx } from '@/shared/utils/classnames'
@@ -10,6 +10,7 @@ import { useExpandableNodes } from '@/codex/hooks/useExpandableNodes'
 import { ZoomLevel, COVER } from '@/codex/constants/zoomValues'
 import StickyZoomSlider from '@/codex/components/shared/StickyZoomSlider'
 import { useStickyZoom } from '@/codex/hooks/useStickyZoom'
+import { useScrollToResultsOnArrival } from '@/codex/hooks/useScrollToResultsOnArrival'
 
 import PanelHeader from '../../PanelHeader'
 import KeywordsSummary from '../KeywordsSummary'
@@ -26,6 +27,8 @@ const cx = createCx(styles)
 const TalentResultsPanel = ({ useSearchFilters }: TalentResultsPanelProps) => {
   const [showTalentsWithoutKeywords, setShowTalentsWithoutKeywords] = useState(false)
   const [zoomLevel, setZoomLevel] = useState<ZoomLevel>(COVER)
+  const panelRef = useRef<HTMLDivElement>(null)
+
   const { isMobile } = useBreakpoint()
   const {
     parsedKeywords,
@@ -57,6 +60,8 @@ const TalentResultsPanel = ({ useSearchFilters }: TalentResultsPanelProps) => {
     window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
+
+  useScrollToResultsOnArrival(panelRef, parsedKeywords.length > 0)
 
   useEffect(() => {
     if (parsedKeywords.length > 0) {
@@ -100,7 +105,7 @@ const TalentResultsPanel = ({ useSearchFilters }: TalentResultsPanelProps) => {
   const showZoomControl = hasResults && showStickyZoom
 
   return (
-    <div className={cx('results-panel')}>
+    <div ref={panelRef} className={cx('results-panel')}>
       <PanelHeader type="TalentResults" />
 
       {showZoomControl && (
