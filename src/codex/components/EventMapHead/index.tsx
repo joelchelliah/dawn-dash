@@ -2,7 +2,7 @@ import Head from 'next/head'
 
 import { getTool } from '@/shared/config/toolRegistry'
 
-import { ChoiceNode, DialogueNode, Event } from '@/codex/types/events'
+import { ChoiceNode, DialogueNode, Event, EventTreeNode } from '@/codex/types/events'
 import { useEventImageSrc } from '@/codex/hooks/useEventImageSrc'
 
 const BASE_URL = 'https://www.dawn-dash.com'
@@ -118,15 +118,20 @@ function getEventDisplayText(event: Event | null | undefined, eventName: string)
 
   if (!event) return fallbackText
 
-  let eventText = ''
+  let eventText = getNodeText(event.rootNode)
 
-  if ('text' in event.rootNode) {
-    eventText = (event.rootNode as DialogueNode).text || ''
-  } else if ('choiceLabel' in event.rootNode) {
-    eventText = (event.rootNode as ChoiceNode).choiceLabel || ''
+  if (eventText === 'default') {
+    const firstChild = event.rootNode.children?.[0]
+    eventText = firstChild ? getNodeText(firstChild) : ''
   }
 
   if (eventText.length === 0) return fallbackText
 
   return eventText.length > maxLength ? eventText.substring(0, maxLength - 4) + '...' : eventText
+}
+
+function getNodeText(node: EventTreeNode): string {
+  if ('text' in node) return (node as DialogueNode).text || ''
+  if ('choiceLabel' in node) return (node as ChoiceNode).choiceLabel || ''
+  return ''
 }
