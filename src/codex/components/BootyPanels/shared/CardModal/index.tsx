@@ -29,11 +29,18 @@ const UNINFORMATIVE_TYPES = ['Utility']
 
 const CATEGORY_ARTIFACT = 2
 
-export const getCardSubtitle = (
-  { type, category }: { type: string; category: string },
-  rarityName?: string
-): string =>
-  [rarityName, UNINFORMATIVE_TYPES.includes(type) ? '' : type, splitCamelCaseWords(category)]
+export const getCardSubtitle = ({
+  rarity,
+  color,
+  type,
+  category,
+}: {
+  rarity: string
+  color: string
+  type: string
+  category: string
+}): string =>
+  [rarity, color, UNINFORMATIVE_TYPES.includes(type) ? '' : type, splitCamelCaseWords(category)]
     .filter(Boolean)
     .join(' ')
 

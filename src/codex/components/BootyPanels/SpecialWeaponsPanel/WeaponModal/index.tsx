@@ -69,7 +69,7 @@ function WeaponModal({ weapon, cardDetails, cardData, onClose }: WeaponModalProp
   return (
     <CardModal
       cardName={weapon.name}
-      subtitle={getCardSubtitle(weapon, weapon.rarity)}
+      subtitle={getCardSubtitle(weapon)}
       cardDetails={cardDetails}
       hasConjurationRoute={weapon.hasConjurationRoute}
       hasTradepostRoute={weapon.hasTradepostRoute}

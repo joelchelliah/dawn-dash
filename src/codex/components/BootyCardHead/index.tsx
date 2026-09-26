@@ -131,7 +131,7 @@ function getCardDisplayText(card: BootyCard): string {
     : getSpecialWeaponAcquisitionMethods(weapons.find(({ name }) => name === card.name))
   const acquisitionString = acquisitionMethods ? `Can be acquired ${acquisitionMethods}.` : ''
 
-  const subtitle = getCardSubtitle(card, card.rarity) || FALLBACK_SUBTITLE
+  const subtitle = getCardSubtitle(card) || FALLBACK_SUBTITLE
 
   return `[${kind}] - ${subtitle}! ${acquisitionString}`.trim()
 }

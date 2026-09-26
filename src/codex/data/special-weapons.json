@@ -5,6 +5,7 @@
     "rarity": "Rare",
     "category": "BasicAttack",
     "type": "Ranged",
+    "color": "Aqua",
     "fromEvents": [],
     "fromCards": [],
     "fromTalents": [],
@@ -17,6 +18,7 @@
     "rarity": "Legendary",
     "category": "BasicAttack",
     "type": "Divine",
+    "color": "Brown",
     "fromEvents": [
       {
         "sourceType": "event",
@@ -49,6 +51,7 @@
     "rarity": "Legendary",
     "category": "BasicAttack",
     "type": "Divine",
+    "color": "Brown",
     "fromEvents": [],
     "fromCards": [],
     "fromTalents": [],
@@ -61,6 +64,7 @@
     "rarity": "Rare",
     "category": "BasicAttack",
     "type": "Divine",
+    "color": "Red",
     "fromEvents": [],
     "fromCards": [],
     "fromTalents": [],
@@ -73,6 +77,7 @@
     "rarity": "Legendary",
     "category": "BasicAttack",
     "type": "Ranged",
+    "color": "Brown",
     "fromEvents": [],
     "fromCards": [
       {
@@ -92,6 +97,7 @@
     "rarity": "Legendary",
     "category": "BasicAttack",
     "type": "Melee",
+    "color": "Brown",
     "fromEvents": [],
     "fromCards": [
       {
@@ -111,6 +117,7 @@
     "rarity": "Legendary",
     "category": "BasicAttack",
     "type": "Melee",
+    "color": "Brown",
     "fromEvents": [],
     "fromCards": [],
     "fromTalents": [],
@@ -123,6 +130,7 @@
     "rarity": "Legendary",
     "category": "BasicAttack",
     "type": "Melee",
+    "color": "Black",
     "fromEvents": [],
     "fromCards": [],
     "fromTalents": [],
@@ -135,6 +143,7 @@
     "rarity": "Legendary",
     "category": "BasicAttack",
     "type": "Melee",
+    "color": "Brown",
     "fromEvents": [
       {
         "sourceType": "event",
@@ -167,6 +176,7 @@
     "rarity": "Rare",
     "category": "BasicAttack",
     "type": "Magic",
+    "color": "Brown",
     "fromEvents": [
       {
         "sourceType": "event",
@@ -193,6 +203,7 @@
     "rarity": "Legendary",
     "category": "BasicAttack",
     "type": "Melee",
+    "color": "Brown",
     "fromEvents": [
       {
         "sourceType": "event",
@@ -226,6 +237,7 @@
     "rarity": "Common",
     "category": "BasicAttack",
     "type": "Divine",
+    "color": "Gold",
     "fromEvents": [],
     "fromCards": [],
     "fromTalents": [],
@@ -238,6 +250,7 @@
     "rarity": "Legendary",
     "category": "BasicAttack",
     "type": "Divine",
+    "color": "Brown",
     "fromEvents": [],
     "fromCards": [],
     "fromTalents": [],
@@ -250,6 +263,7 @@
     "rarity": "Legendary",
     "category": "BasicAttack",
     "type": "Melee",
+    "color": "Black",
     "fromEvents": [
       {
         "sourceType": "event",
@@ -282,6 +296,7 @@
     "rarity": "Rare",
     "category": "BasicAttack",
     "type": "Melee",
+    "color": "Brown",
     "fromEvents": [],
     "fromCards": [
       {
@@ -314,6 +329,7 @@
     "rarity": "Legendary",
     "category": "BasicAttack",
     "type": "Melee",
+    "color": "Brown",
     "fromEvents": [],
     "fromCards": [
       {
@@ -333,6 +349,7 @@
     "rarity": "Legendary",
     "category": "BasicAttack",
     "type": "Melee",
+    "color": "Red",
     "fromEvents": [],
     "fromCards": [],
     "fromTalents": [],
@@ -345,6 +362,7 @@
     "rarity": "Legendary",
     "category": "BasicAttack",
     "type": "Melee",
+    "color": "Black",
     "fromEvents": [],
     "fromCards": [
       {
@@ -364,6 +382,7 @@
     "rarity": "Legendary",
     "category": "BasicAttack",
     "type": "Ranged",
+    "color": "Brown",
     "fromEvents": [],
     "fromCards": [
       {
@@ -383,6 +402,7 @@
     "rarity": "Legendary",
     "category": "BasicAttack",
     "type": "Melee",
+    "color": "Brown",
     "fromEvents": [],
     "fromCards": [
       {
@@ -402,6 +422,7 @@
     "rarity": "Legendary",
     "category": "BasicAttack",
     "type": "Melee",
+    "color": "Brown",
     "fromEvents": [],
     "fromCards": [
       {
@@ -421,6 +442,7 @@
     "rarity": "Rare",
     "category": "BasicAttack",
     "type": "Melee",
+    "color": "Brown",
     "fromEvents": [
       {
         "sourceType": "event",
@@ -447,6 +469,7 @@
     "rarity": "Rare",
     "category": "BasicAttack",
     "type": "Melee",
+    "color": "Brown",
     "fromEvents": [
       {
         "sourceType": "event",
@@ -480,6 +503,7 @@
     "rarity": "Rare",
     "category": "BasicAttack",
     "type": "Magic",
+    "color": "Brown",
     "fromEvents": [
       {
         "sourceType": "event",
@@ -567,6 +591,7 @@
     "rarity": "Legendary",
     "category": "BasicAttack",
     "type": "Divine",
+    "color": "Brown",
     "fromEvents": [],
     "fromCards": [],
     "fromTalents": [],
@@ -579,6 +604,7 @@
     "rarity": "Rare",
     "category": "BasicAttack",
     "type": "Utility",
+    "color": "Brown",
     "fromEvents": [
       {
         "sourceType": "event",
@@ -618,6 +644,7 @@
     "rarity": "Legendary",
     "category": "BasicAttack",
     "type": "Ranged",
+    "color": "Brown",
     "fromEvents": [],
     "fromCards": [
       {

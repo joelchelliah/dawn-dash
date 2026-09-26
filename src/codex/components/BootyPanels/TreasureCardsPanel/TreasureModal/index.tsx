@@ -52,7 +52,7 @@ function TreasureModal({ treasure, cardData, onClose }: TreasureModalProps): JSX
   return (
     <CardModal
       cardName={cardName}
-      subtitle={getCardSubtitle(treasureDetails, treasureDetails.rarity)}
+      subtitle={getCardSubtitle(treasureDetails)}
       cardDetails={cardDetails}
       hasConjurationRoute={treasureDetails.hasConjurationRoute}
       hasTradepostRoute={treasureDetails.hasTradepostRoute}

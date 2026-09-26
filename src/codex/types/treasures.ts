@@ -16,6 +16,7 @@ export interface TreasureCard {
   id: number
   name: string
   rarity: string
+  color: string
   category: string
   type: string
   inCardRewards: boolean

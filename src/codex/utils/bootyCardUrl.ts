@@ -13,6 +13,7 @@ export interface BootyCard {
   kind: BootyCardKind
   name: string
   rarity: string
+  color: string
   category: string
   type: string
   urlParam: string
@@ -24,22 +25,25 @@ interface NamedCard {
   kind: BootyCardKind
   name: string
   rarity: string
+  color: string
   category: string
   type: string
 }
 
 const namedCards: NamedCard[] = [
-  ...treasures.map(({ name, rarity, category, type }): NamedCard => ({
+  ...treasures.map(({ name, rarity, color, category, type }): NamedCard => ({
     kind: 'treasure',
     name,
     rarity,
+    color,
     category,
     type,
   })),
-  ...weapons.map(({ name, rarity, category, type }): NamedCard => ({
+  ...weapons.map(({ name, rarity, color, category, type }): NamedCard => ({
     kind: 'weapon',
     name,
     rarity,
+    color,
     category,
     type,
   })),

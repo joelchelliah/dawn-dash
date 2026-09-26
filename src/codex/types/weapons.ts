@@ -5,6 +5,7 @@ export interface SpecialWeapon {
   id: number
   name: string
   rarity: string
+  color: string
   category: string
   type: string
   hasConjurationRoute: boolean

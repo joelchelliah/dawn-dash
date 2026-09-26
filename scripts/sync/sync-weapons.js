@@ -36,6 +36,7 @@ const WEAPON_FIELDS = [
   'id',
   'name',
   'rarity',
+  'color',
   'category',
   'type',
   'hasConjurationRoute',

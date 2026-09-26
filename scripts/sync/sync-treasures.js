@@ -49,6 +49,7 @@ const CARD_FIELDS = [
   'id',
   'name',
   'rarity',
+  'color',
   'category',
   'type',
   'inCardRewards',
