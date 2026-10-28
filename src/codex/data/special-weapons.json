@@ -245,6 +245,26 @@
     "hasTradepostRoute": false
   },
   {
+    "id": 581517,
+    "name": "Harp",
+    "rarity": "Common",
+    "category": "BasicAttack",
+    "type": "Divine",
+    "color": "Brown",
+    "fromEvents": [],
+    "fromCards": [],
+    "fromTalents": [
+      {
+        "sourceType": "talent",
+        "name": "Battle Harmony",
+        "guaranteed": true,
+        "pools": []
+      }
+    ],
+    "hasConjurationRoute": false,
+    "hasTradepostRoute": false
+  },
+  {
     "id": 765067,
     "name": "Helios",
     "rarity": "Legendary",

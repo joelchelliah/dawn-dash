@@ -7,7 +7,7 @@
 .close-button--colored.close-button--colored {
   min-width: 5rem;
   font-weight: 600;
-  color: color-mix(in srgb, var(--button-color) 50%, transparent);
+  color: color-mix(in srgb, var(--button-color) 60%, transparent);
 
   &:hover {
     background: $color-component-bg-hover;
