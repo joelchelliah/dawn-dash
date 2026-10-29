@@ -562,14 +562,17 @@ function BlightbaneScorePanel({
           type of <strong>rarity</strong> (including the <em>capital first letter</em>), then all
           cards of that rarity will be counted as score cards for that week:{' '}
           <strong>Monster</strong>, <strong>Common</strong>, <strong>Uncommon</strong>,{' '}
-          <strong>Rare</strong>, or <strong>Legendary</strong>.
+          <strong>Rare</strong>, or <strong>Legendary</strong>. They will however{' '}
+          <strong>not</strong> match cards that merely mention them in their text, like regular
+          keywords do.
         </p>
         <p className={cx('follow-up')}>
           This doesn&apos;t happen very often anymore, but the rule still exists. Here&apos;s one we
           had with &quot;<strong>Monster</strong>&quot; as a keyword:{' '}
           <GradientLink text="Monster Mash" url="https://blightbane.io/challenge/1761815906348" />.
           As you can see from the submissions, all <strong>Monster rarity</strong> cards were
-          counted as score cards for that week.
+          counted as score cards for that week. The lowercase &quot;<strong>monster</strong>&quot;
+          keyword here ensures that cards that mention in their text are also scored.
         </p>
         <h4 className={cx('subheader')}>🎯 Accuracy bonus</h4>
         <p>
