@@ -7,6 +7,7 @@ import { HOVER_TRIGGER } from '@/shared/utils/hoverTrigger'
 
 import { CardData } from '@/codex/types/cards'
 import { getBlightbaneCardUrl, parseCardDescription } from '@/codex/utils/cardHelper'
+import { isCardMatchingKeyword } from '@/codex/utils/keywordMatching'
 import KeywordPills from '@/codex/components/SearchPanels/shared/KeywordPills'
 
 import { STRUCK_TRIGGER } from './struckTrigger'
@@ -73,13 +74,8 @@ const ResultCard = ({
   const { isMobile } = useBreakpoint()
 
   const matchingKeywords = useMemo(
-    () =>
-      parsedKeywords.filter(
-        (keyword) =>
-          card.name.toLowerCase().includes(keyword.toLowerCase()) ||
-          card.description.toLowerCase().includes(keyword.toLowerCase())
-      ),
-    [parsedKeywords, card.name, card.description]
+    () => parsedKeywords.filter((keyword) => isCardMatchingKeyword(card, keyword)),
+    [parsedKeywords, card]
   )
 
   const isFullMatch = parsedKeywords.some(

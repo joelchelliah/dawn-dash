@@ -13,6 +13,11 @@ import {
   cacheCardCodexSearchFilters,
   getCachedCardCodexSearchFilters,
 } from '@/codex/utils/codexFilterStore'
+import {
+  isCardMatchingKeyword,
+  RARITY_KEYWORDS,
+  toRarityToken,
+} from '@/codex/utils/keywordMatching'
 
 import { useWeeklyChallengeFilterData } from '../useWeeklyChallengeFilterData'
 import { useCodexUrlParams } from '../useCodexUrlParams'
@@ -28,11 +33,11 @@ import { useKeywords } from './useKeywords'
 import { useFilterTracking } from './useFilterTracking'
 
 export type WeeklyChallengeNotification =
-  'untrackedCards' | 'specialKeywordRules' | 'negativeKeywords'
-const RARITY_KEYWORDS = ['Monster', 'Common', 'Uncommon', 'Rare', 'Legendary']
+  'untrackedCards' | 'specialKeywordRules' | 'specialKeywordRulesTextNotScored' | 'negativeKeywords'
 
 export interface WeeklyChallengeOptimization {
-  parsedKeywords: string[]
+  textKeywords: string[]
+  rarityKeywords: string[]
 }
 
 export interface UseAllCardSearchFilters {
@@ -161,11 +166,17 @@ export const useAllCardSearchFilters = (
   const getWeeklyChallengeNotifications = (
     optimization: WeeklyChallengeOptimization
   ): WeeklyChallengeNotification[] => {
+    const lowercasedTextKeywords = optimization.textKeywords.map((keyword) => keyword.toLowerCase())
+    // A rarity's word only scores in card text when some other keyword also covers it
+    const isRarityTextNotScored = optimization.rarityKeywords.some(
+      (rarity) => !lowercasedTextKeywords.includes(rarity.toLowerCase())
+    )
+    const hasRarityKeywords = optimization.rarityKeywords.length > 0
+
     const matches: Record<WeeklyChallengeNotification, boolean> = {
       untrackedCards: struckCards.length > 0,
-      specialKeywordRules: RARITY_KEYWORDS.some((rarity) =>
-        optimization.parsedKeywords.includes(rarity)
-      ),
+      specialKeywordRules: hasRarityKeywords && !isRarityTextNotScored,
+      specialKeywordRulesTextNotScored: hasRarityKeywords && isRarityTextNotScored,
       negativeKeywords: !!filterData?.hadNegativeKeywords,
     }
     return (Object.keys(matches) as WeeklyChallengeNotification[]).filter((key) => matches[key])
@@ -244,13 +255,20 @@ export const useAllCardSearchFilters = (
   const setFiltersFromWeeklyChallengeData = (): WeeklyChallengeOptimization | null => {
     if (!filterData || isFilterDataError) return null
 
-    const newParsedKeywords = Array.from(
-      new Set([...Array.from(filterData.keywords), ...Array.from(filterData.specialKeywords)])
+    // Only a capitalized rarity among the base scoring keywords scores by rarity rather than by
+    // text. The same word in a `miscPointsRules` keyword is matched against card text as usual.
+    const baseKeywords = Array.from(filterData.keywords)
+    const rarityKeywords = baseKeywords.filter((keyword) => RARITY_KEYWORDS.includes(keyword))
+    const textKeywords = Array.from(
+      new Set([
+        ...baseKeywords.filter((keyword) => !RARITY_KEYWORDS.includes(keyword)),
+        ...Array.from(filterData.specialKeywords),
+      ])
     )
     const newCardSets = Array.from(filterData.cardSets)
     const newBanners = Array.from(filterData.banners)
 
-    trackedSetKeywords(newParsedKeywords.join(', '))
+    trackedSetKeywords([...textKeywords, ...rarityKeywords.map(toRarityToken)].join(', '))
 
     enableCardSetFilters(newCardSets)
     enableBannerFilters(newBanners)
@@ -259,16 +277,19 @@ export const useAllCardSearchFilters = (
 
     // Non-collectible cards can never show up in a weekly challenge,
     // and animal companion cards never score in one.
+    // A Monster rarity token matches nothing unless monster cards are included.
+    const shouldIncludeMonsterCards = rarityKeywords.includes('Monster')
     enableExtraCardFilters(
       Object.keys(extraCardFilters).filter(
         (filter) =>
           filter !== ExtraCardFilterOption.IncludeNonCollectibleCards &&
           filter !== ExtraCardFilterOption.IncludeAnimalCompanionCards &&
-          extraCardFilters[filter]
+          (extraCardFilters[filter] ||
+            (filter === ExtraCardFilterOption.IncludeMonsterCards && shouldIncludeMonsterCards))
       )
     )
 
-    return { parsedKeywords: newParsedKeywords }
+    return { textKeywords, rarityKeywords }
   }
 
   // --------------------------------------------------
@@ -434,17 +455,9 @@ const isCardMatching = (
     passesCardTypeFilter &&
     passesAnimalCompanionFilter &&
     passesCollectibilityFilter &&
-    isNameOrDescriptionIncluded(card, parsedKeywords)
+    matchesAnyKeyword(card, parsedKeywords)
   )
 }
 
-const isNameOrDescriptionIncluded = (
-  { name, description }: CardData,
-  keywords: string[]
-): boolean =>
-  keywords.length === 0 ||
-  keywords.some(
-    (keyword) =>
-      name.toLowerCase().includes(keyword.toLowerCase()) ||
-      description.toLowerCase().includes(keyword.toLowerCase())
-  )
+const matchesAnyKeyword = (card: CardData, keywords: string[]): boolean =>
+  keywords.length === 0 || keywords.some((keyword) => isCardMatchingKeyword(card, keyword))

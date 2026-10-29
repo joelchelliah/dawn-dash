@@ -1,5 +1,7 @@
 import { createCx } from '@/shared/utils/classnames'
 
+import { isRarityToken } from '@/codex/utils/keywordMatching'
+
 import styles from './index.module.scss'
 
 const cx = createCx(styles)
@@ -65,6 +67,7 @@ const KeywordPills = ({
           key={`${keyword}-${index}`}
           className={cx('pill', {
             'pill--full-match': lowercasedMatches.has(keyword.toLowerCase()),
+            'pill--rarity': isRarityToken(keyword),
             'pill--readonly': !setKeywords,
           })}
         >

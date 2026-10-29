@@ -34,6 +34,16 @@ const NOTIFICATION_CONTENT: Record<
       </>
     ),
   },
+  specialKeywordRulesTextNotScored: {
+    icon: '📝',
+    text: (
+      <>
+        A <strong>rarity level</strong> is used as a keyword in this challenge! All cards of this{' '}
+        <strong>rarity</strong> will be scored. Cards that only include it in their text won&apos;t
+        be scored.
+      </>
+    ),
+  },
   negativeKeywords: {
     icon: '🧼',
     text: (

@@ -40,6 +40,11 @@
     color: rgba($color-rarity-legendary, 0.9);
   }
 
+  &--rarity {
+    border-color: rgba($color-danger-special-card, 0.65);
+    color: color-mix(in srgb, $color-danger-special-card, white 15%);
+  }
+
   &--readonly {
     padding: 0.0625rem 0.4375rem;
     background-color: transparent;
@@ -47,6 +52,10 @@
 
     &.pill--full-match {
       color: rgba($color-rarity-legendary, 0.75);
+    }
+
+    &.pill--rarity {
+      color: color-mix(in srgb, $color-danger-special-card, white 5%);
     }
   }
 }
