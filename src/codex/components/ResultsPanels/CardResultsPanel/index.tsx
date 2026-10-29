@@ -100,7 +100,7 @@ const CardResultsPanel = ({ useSearchFilters }: CardResultsPanelProps) => {
 
           return (
             <div key={banner} className={cx('results-cards')}>
-              <div className={cx(`results-cards__banner--${banner}`)}>
+              <div className={cx('results-cards__banner', `results-cards__banner--${banner}`)}>
                 {cards.map((card, cardIndex) => (
                   <ResultCard
                     key={card.blightbane_id}

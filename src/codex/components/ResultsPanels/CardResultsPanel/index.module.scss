@@ -50,16 +50,20 @@
   color: $color-primary-base;
   gap: 0.125rem;
 
+  // Transparent fallback so cards with no banner in the color map still get the rain texture
   &__banner {
     padding: 0;
     border-top: 1px solid $color-component-bg;
     border-bottom: 1px solid $color-component-bg;
+    @include rainTexture(transparent, false);
+  }
+  &:nth-child(even) &__banner {
+    @include rainTexture(transparent, true);
   }
 
   // Apply rain texture and color to all banner variations
   @each $number, $color in $banner-index-to-color-map {
     &__banner--#{$number} {
-      @extend .results-cards__banner;
       @include rainTexture($color, false);
     }
     &:nth-child(even) &__banner--#{$number} {
