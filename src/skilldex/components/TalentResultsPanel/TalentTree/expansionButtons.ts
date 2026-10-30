@@ -3,12 +3,12 @@ import { select, Selection } from 'd3-selection'
 import { createCx } from '@/shared/utils/classnames'
 import { isNullOrEmpty } from '@/shared/utils/lists'
 
-import { HierarchicalTalentTreeNode, TalentTreeNodeType } from '@/codex/types/talents'
+import { HierarchicalTalentTreeNode, TalentTreeNodeType } from '@/skilldex/types/talents'
 import {
   getNodeInTree,
   matchesKeywordOrHasMatchingDescendant,
-} from '@/codex/utils/talentTreeHelper'
-import { NODE, EXPANSION_BUTTON } from '@/codex/constants/talentTreeValues'
+} from '@/skilldex/utils/talentTreeHelper'
+import { NODE, EXPANSION_BUTTON } from '@/skilldex/constants/talentTreeValues'
 
 import styles from './index.module.scss'
 

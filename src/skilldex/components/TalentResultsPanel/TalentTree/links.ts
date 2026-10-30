@@ -2,9 +2,9 @@ import { HierarchyPointNode, type HierarchyPointLink } from 'd3-hierarchy'
 
 import { createCx } from '@/shared/utils/classnames'
 
-import { HierarchicalTalentTreeNode } from '@/codex/types/talents'
-import { getLinkColor } from '@/codex/utils/talentTreeHelper'
-import { getNodeHalfWidth } from '@/codex/utils/talentNodeDimensions'
+import { HierarchicalTalentTreeNode } from '@/skilldex/types/talents'
+import { getLinkColor } from '@/skilldex/utils/talentTreeHelper'
+import { getNodeHalfWidth } from '@/skilldex/utils/talentNodeDimensions'
 
 import styles from './links.module.scss'
 

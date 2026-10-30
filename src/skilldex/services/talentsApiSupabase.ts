@@ -1,8 +1,8 @@
 import { handleError } from '@/shared/utils/apiErrorHandling'
 import { supabase, SUPABASE_MAX_PAGE_SIZE, SUPABASE_TABLE_TALENTS } from '@/shared/config/supabase'
 
-import { mapTalentsDataToTalentTree } from '@/codex/utils/talentsResponseMapper'
-import { TalentData, TalentTree } from '@/codex/types/talents'
+import { mapTalentsDataToTalentTree } from '@/skilldex/utils/talentsResponseMapper'
+import { TalentData, TalentTree } from '@/skilldex/types/talents'
 
 export const fetchTalents = async (onProgress: (progress: number) => void): Promise<TalentTree> => {
   try {

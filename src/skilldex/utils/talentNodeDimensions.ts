@@ -6,8 +6,8 @@ import {
   TalentTreeNodeType,
   TalentRenderingContext,
   TalentNodeHeight,
-} from '@/codex/types/talents'
-import { NODE, REQUIREMENT_NODE } from '@/codex/constants/talentTreeValues'
+} from '@/skilldex/types/talents'
+import { NODE, REQUIREMENT_NODE } from '@/skilldex/constants/talentTreeValues'
 
 import { wrapTalentText } from './talentTextMeasurer'
 import { getMatchingKeywords } from './talentTreeHelper'

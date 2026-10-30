@@ -4,7 +4,7 @@ import {
   TalentCodexSearchFilterCache,
   FormattingTalent,
   FormattingTalentFilterOption,
-} from '@/codex/types/talentFilters'
+} from '@/skilldex/types/talentFilters'
 
 const defaultFilters = {
   [FormattingTalentFilterOption.ShowTalentArt]: true,

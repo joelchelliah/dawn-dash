@@ -8,7 +8,7 @@ import {
   TalentTreeRequirementNode,
   TalentTreeRequirementNodeType,
   TalentTreeTalentNode,
-} from '@/codex/types/talents'
+} from '@/skilldex/types/talents'
 
 import { RequirementFilterOption } from '../types/talentFilters'
 import {

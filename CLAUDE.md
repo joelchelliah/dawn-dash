@@ -101,7 +101,7 @@ Each feature directory has its own `CLAUDE.md` with architecture details and inv
 
 1. **Speedruns** (`/speedruns`, `src/speedruns/`) — interactive Chart.js charts of speedrun data from the external Blightbane API, with class/difficulty/time controls
 2. **Cardex** (`/cardex`, `src/codex/`) — multi-keyword card search and advanced filtering, plus card tracking for weekly challenges; card data fetched live from the Blightbane API
-3. **Skilldex** (`/skilldex`, `src/codex/`) — interactive talent-tree visualizer (D3 hierarchy) with prerequisite tracking and requirement filters; talent data from Supabase
+3. **Skilldex** (`/skilldex`, `src/skilldex/`) — interactive talent-tree visualizer (D3 hierarchy) with prerequisite tracking and requirement filters; talent data from Supabase
 4. **Eventmaps** (`/eventmaps`, `src/eventmaps/`) — fully mapped event trees (branches, requirements, rewards) rendered from static `src/shared/data/event-trees.json`
 5. **Booty** (`/booty`, `src/booty/`) — a breakdown of every treasure card, special basic attack and card pool, and the ways of acquiring each, rendered from static `src/booty/data/treasure-cards.json` / `treasure-pools.json` / `special-weapons.json`, with card details joined live from the Blightbane API via `useCardData`. **`src/booty/index.tsx` owns the one `useCardData()` call for all three panels** and shares it through `BootyCardDataContext` — see the single-fetch invariant in `src/booty/CLAUDE.md`
 6. **Scoring** (`/scoring`, `src/scoring/`) — prose-heavy scoring guides per game mode plus real score-calculation logic (`advancedScoring.ts`)
@@ -156,7 +156,7 @@ Besides the site-wide pieces below, `shared/` holds what the codex tools share �
 - **Service contracts**: all API fetchers **throw** on failure — never return `[]` or partial data silently
 - **Custom hooks** (`useCardData`, `useTalentData`, `useSpeedrunData`) abstract data fetching with progress callbacks. **Each hook's source differs**: `useCardData` → `cardsApiBlightbane.ts` (live Blightbane API), `useTalentData` → `talentsApiSupabase.ts` (Supabase — the only Supabase read in the app), `useSpeedrunData` → Blightbane. Cardex once read the Supabase `Cards` table; that fetcher was deleted, so recreate one if cards ever move back
 - **localStorage caching** with staleness detection: 10-minute TTL for speedrun leaderboard data (intentionally short — new runs arrive continuously), 24-hour TTL for codex card/talent data
-- **Stores are plain localStorage wrapper modules** (not subscription/Zustand stores): versioned cache keys are co-located with each store — `src/speedruns/utils/speedrunsStore.ts`, `src/shared/utils/codexCardsStore.ts`, `src/codex/utils/codexTalentsStore.ts`, and one filter store per tool (`cardFilterStore.ts`, `talentFilterStore.ts`, `eventFilterStore.ts`)
+- **Stores are plain localStorage wrapper modules** (not subscription/Zustand stores): versioned cache keys are co-located with each store — `src/speedruns/utils/speedrunsStore.ts`, `src/shared/utils/codexCardsStore.ts`, `src/skilldex/utils/codexTalentsStore.ts`, and one filter store per tool (`cardFilterStore.ts`, `talentFilterStore.ts`, `eventFilterStore.ts`)
 
 ### Data Synchronization (three ownership paths)
 

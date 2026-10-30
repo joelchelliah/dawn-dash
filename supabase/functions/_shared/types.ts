@@ -23,7 +23,7 @@ export type CardsApiResponse = {
   >
 }
 
-// Exact copy of TalentData from src/codex/types/talents.ts
+// Exact copy of TalentData from src/skilldex/types/talents.ts
 // Duplicated here because Supabase functions can't import from there
 export interface TalentData {
   name: string

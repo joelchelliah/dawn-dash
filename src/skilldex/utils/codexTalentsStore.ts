@@ -1,7 +1,7 @@
 import { CachedData } from '@/shared/types/cache'
 import { CacheWriteResult, getFromCache, saveToCache } from '@/shared/utils/storage'
 
-import { TalentTree } from '@/codex/types/talents'
+import { TalentTree } from '@/skilldex/types/talents'
 
 const CACHE_VERSION = 'v7'
 const CACHE_KEY = `codex_talents_${CACHE_VERSION}`

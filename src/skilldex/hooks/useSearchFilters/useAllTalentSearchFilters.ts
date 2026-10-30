@@ -11,8 +11,8 @@ import { useFilterTracking } from '@/shared/hooks/useSearchFilters/useFilterTrac
 import {
   cacheTalentCodexSearchFilters,
   getCachedTalentCodexSearchFilters,
-} from '@/codex/utils/talentFilterStore'
-import { TalentTree, TalentTreeNode, TalentTreeNodeType } from '@/codex/types/talents'
+} from '@/skilldex/utils/talentFilterStore'
+import { TalentTree, TalentTreeNode, TalentTreeNodeType } from '@/skilldex/types/talents'
 
 import { tierUrlCodec, useTierFilters } from './useTierFilters'
 import { useFormattingTalentFilters } from './useFormattingTalentFilters'

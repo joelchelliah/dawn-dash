@@ -8,7 +8,7 @@ import {
   RequirementFilterOption,
   Requirement,
   TalentCodexSearchFilterCache,
-} from '@/codex/types/talentFilters'
+} from '@/skilldex/types/talentFilters'
 
 const defaultFilters = {
   [RequirementFilterOption.NoRequirements]: true,

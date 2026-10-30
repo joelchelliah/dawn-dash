@@ -11,8 +11,8 @@ import { useScrollToResultsOnArrival } from '@/shared/hooks/useScrollToResultsOn
 import PanelHeader from '@/shared/components/PanelHeader'
 import KeywordsSummary from '@/shared/components/KeywordsSummary'
 
-import { useExpandableNodes } from '@/codex/hooks/useExpandableNodes'
-import { UseAllTalentSearchFilters } from '@/codex/hooks/useSearchFilters/useAllTalentSearchFilters'
+import { useExpandableNodes } from '@/skilldex/hooks/useExpandableNodes'
+import { UseAllTalentSearchFilters } from '@/skilldex/hooks/useSearchFilters/useAllTalentSearchFilters'
 
 import TalentTree from './TalentTree'
 import styles from './index.module.scss'

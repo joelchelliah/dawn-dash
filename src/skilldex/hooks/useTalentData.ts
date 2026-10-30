@@ -5,13 +5,13 @@ import useSWR from 'swr'
 import { isNotNullOrUndefined } from '@/shared/utils/object'
 import { logger } from '@/shared/utils/logger'
 
-import { fetchTalents } from '@/codex/services/talentsApiSupabase'
+import { fetchTalents } from '@/skilldex/services/talentsApiSupabase'
 import {
   getCachedTalentTreeTimestamp,
   getCachedTalentTree,
   cacheTalentTree,
-} from '@/codex/utils/codexTalentsStore'
-import { TalentTree } from '@/codex/types/talents'
+} from '@/skilldex/utils/codexTalentsStore'
+import { TalentTree } from '@/skilldex/types/talents'
 
 export interface UseTalentData {
   talentTree: TalentTree | undefined

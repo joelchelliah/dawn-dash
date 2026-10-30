@@ -4,14 +4,14 @@ import { HierarchyPointLink } from 'd3-hierarchy'
 import { createCx } from '@/shared/utils/classnames'
 import { lighten } from '@/shared/utils/classColors'
 
-import { HierarchicalTalentTreeNode, TalentTreeNodeType } from '@/codex/types/talents'
-import { getTalentRequirementIconProps } from '@/codex/utils/talentTreeHelper'
-import { getNodeHalfWidth } from '@/codex/utils/talentNodeDimensions'
+import { HierarchicalTalentTreeNode, TalentTreeNodeType } from '@/skilldex/types/talents'
+import { getTalentRequirementIconProps } from '@/skilldex/utils/talentTreeHelper'
+import { getNodeHalfWidth } from '@/skilldex/utils/talentNodeDimensions'
 import {
   REQUIREMENT_CLASS_TO_FILTER_OPTIONS_MAP,
   REQUIREMENT_ENERGY_TO_FILTER_OPTIONS_MAP,
-} from '@/codex/constants/talentsMappingValues'
-import { REQUIREMENT_NODE, REQUIREMENT_INDICATOR } from '@/codex/constants/talentTreeValues'
+} from '@/skilldex/constants/talentsMappingValues'
+import { REQUIREMENT_NODE, REQUIREMENT_INDICATOR } from '@/skilldex/constants/talentTreeValues'
 
 import styles from './index.module.scss'
 

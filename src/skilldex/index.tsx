@@ -14,13 +14,13 @@ import CodexLoadingMessage from '@/shared/components/CodexLoadingMessage'
 
 import { useAllTalentSearchFilters } from './hooks/useSearchFilters/useAllTalentSearchFilters'
 import { useTalentData } from './hooks/useTalentData'
-import styles from './skills.module.scss'
+import styles from './index.module.scss'
 
-const TalentResultsPanel = dynamic(() => import('./components/ResultsPanels/TalentResultsPanel'), {
+const TalentResultsPanel = dynamic(() => import('./components/TalentResultsPanel'), {
   loading: () => <div>Loading talent tree...</div>,
 })
 
-const TalentSearchPanel = dynamic(() => import('./components/SearchPanels/TalentSearchPanel'), {
+const TalentSearchPanel = dynamic(() => import('./components/TalentSearchPanel'), {
   loading: () => <div>Loading search filters...</div>,
 })
 

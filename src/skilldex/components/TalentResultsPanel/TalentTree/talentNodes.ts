@@ -4,16 +4,16 @@ import { createCx } from '@/shared/utils/classnames'
 import { isNotNullOrUndefined } from '@/shared/utils/object'
 import { getCardImageSrc, TALENT_ARTWORK_CATEGORY } from '@/shared/hooks/useCardImageSrc'
 
-import { HierarchicalTalentTreeNode, TalentRenderingContext } from '@/codex/types/talents'
-import { getMatchingKeywords } from '@/codex/utils/talentTreeHelper'
-import { getNameRowHeight, getNodeHeight } from '@/codex/utils/talentNodeDimensions'
+import { HierarchicalTalentTreeNode, TalentRenderingContext } from '@/skilldex/types/talents'
+import { getMatchingKeywords } from '@/skilldex/utils/talentTreeHelper'
+import { getNameRowHeight, getNodeHeight } from '@/skilldex/utils/talentNodeDimensions'
 import {
   measureTalentTextWidth,
   truncateTalentName,
   wrapTalentText,
   type TalentNameVariant,
-} from '@/codex/utils/talentTextMeasurer'
-import { NODE } from '@/codex/constants/talentTreeValues'
+} from '@/skilldex/utils/talentTextMeasurer'
+import { NODE } from '@/skilldex/constants/talentTreeValues'
 
 import styles from './index.module.scss'
 

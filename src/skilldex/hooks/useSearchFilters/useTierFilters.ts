@@ -2,7 +2,11 @@ import { SharedFilterOption } from '@/shared/types/filters'
 import { createFilterUrlCodec } from '@/shared/utils/filterUrlCodec'
 import { createFilterHook } from '@/shared/hooks/useSearchFilters/useFilterFactory'
 
-import { TalentCodexSearchFilterCache, Tier, TierFilterOption } from '@/codex/types/talentFilters'
+import {
+  TalentCodexSearchFilterCache,
+  Tier,
+  TierFilterOption,
+} from '@/skilldex/types/talentFilters'
 
 const defaultTierFilters = {
   [TierFilterOption.Tier0]: true,

@@ -1,6 +1,6 @@
 import { getFromCache, saveToCache } from '@/shared/utils/storage'
 
-import { TalentCodexSearchFilterCache } from '@/codex/types/talentFilters'
+import { TalentCodexSearchFilterCache } from '@/skilldex/types/talentFilters'
 
 const TALENTS_CACHE_VERSION = 'v3'
 const TALENTS_CACHE_KEY = `codex_talents_filters_${TALENTS_CACHE_VERSION}`

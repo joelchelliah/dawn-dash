@@ -13,15 +13,15 @@ import {
   TalentTreeNodeType,
   HierarchicalTalentTreeNode,
   TalentRenderingContext,
-} from '@/codex/types/talents'
+} from '@/skilldex/types/talents'
 import {
   calculateTalentTreeBounds,
   matchesKeywordOrHasMatchingDescendant,
   getNodeInTree,
-} from '@/codex/utils/talentTreeHelper'
-import { cacheAllNodeDimensions, getNodeHeight } from '@/codex/utils/talentNodeDimensions'
-import { NODE, TREE } from '@/codex/constants/talentTreeValues'
-import { buildHierarchicalTreeFromTalentTree } from '@/codex/utils/talentTreeBuilder'
+} from '@/skilldex/utils/talentTreeHelper'
+import { cacheAllNodeDimensions, getNodeHeight } from '@/skilldex/utils/talentNodeDimensions'
+import { NODE, TREE } from '@/skilldex/constants/talentTreeValues'
+import { buildHierarchicalTreeFromTalentTree } from '@/skilldex/utils/talentTreeBuilder'
 
 import { drawLinks, getLinksWithNewRequirements } from './links'
 import { renderRequirementNode, renderRequirementIndicators } from './requirementNodes'

@@ -308,7 +308,7 @@ Most self-contained (54 files, nothing else imports it). `booty.tsx` → `index.
 `events.tsx` → `index.tsx`. `eventTreeSpacing/` with its `README.md`. Both `pages/eventmaps/` files.
 Write `src/eventmaps/CLAUDE.md`.
 
-### Task 6 — Skilldex → `src/skilldex/`
+### Task 6 — Skilldex → `src/skilldex/` — COMPLETED
 
 `skills.tsx` → `index.tsx`. Talent data layer (`useTalentData`, `talentsApiSupabase`,
 `codexTalentsStore`) moves here. Update the path hints in `sync-talents-preflight.js` and the links in

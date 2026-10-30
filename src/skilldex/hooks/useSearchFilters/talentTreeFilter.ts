@@ -6,9 +6,9 @@ import {
   TalentTreeNodeType,
   TalentTreeRequirementNode,
   TalentTreeTalentNode,
-} from '@/codex/types/talents'
-import { isTalentOffer } from '@/codex/utils/talentTreeHelper'
-import { RequirementFilterOption } from '@/codex/types/talentFilters'
+} from '@/skilldex/types/talents'
+import { isTalentOffer } from '@/skilldex/utils/talentTreeHelper'
+import { RequirementFilterOption } from '@/skilldex/types/talentFilters'
 
 export interface TalentFilterCriteria {
   parsedKeywords: string[]

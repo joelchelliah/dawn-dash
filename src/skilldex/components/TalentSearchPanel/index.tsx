@@ -25,12 +25,12 @@ import PanelHeader from '@/shared/components/PanelHeader'
 import FilterGroup from '@/shared/components/FilterGroup'
 import SearchField from '@/shared/components/SearchField'
 
-import { allTiers } from '@/codex/hooks/useSearchFilters/useTierFilters'
-import { UseAllTalentSearchFilters } from '@/codex/hooks/useSearchFilters/useAllTalentSearchFilters'
-import { UseTalentData } from '@/codex/hooks/useTalentData'
-import { allFormattingTalentFilters } from '@/codex/hooks/useSearchFilters/useFormattingTalentFilters'
-import { RequirementFilterOption } from '@/codex/types/talentFilters'
-import { allRequirements } from '@/codex/hooks/useSearchFilters/useRequirementFilters'
+import { allTiers } from '@/skilldex/hooks/useSearchFilters/useTierFilters'
+import { UseAllTalentSearchFilters } from '@/skilldex/hooks/useSearchFilters/useAllTalentSearchFilters'
+import { UseTalentData } from '@/skilldex/hooks/useTalentData'
+import { allFormattingTalentFilters } from '@/skilldex/hooks/useSearchFilters/useFormattingTalentFilters'
+import { RequirementFilterOption } from '@/skilldex/types/talentFilters'
+import { allRequirements } from '@/skilldex/hooks/useSearchFilters/useRequirementFilters'
 
 import styles from './index.module.scss'
 
