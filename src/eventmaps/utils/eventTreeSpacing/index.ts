@@ -3,8 +3,8 @@ import { flextree } from 'd3-flextree'
 
 import { Event, EventTreeNode } from '@/shared/types/events'
 
-import { NODE } from '@/codex/constants/eventTreeValues'
-import { LevelOfDetail } from '@/codex/constants/eventSearchValues'
+import { NODE } from '@/eventmaps/constants/eventTreeValues'
+import { LevelOfDetail } from '@/eventmaps/constants/eventSearchValues'
 
 import { type NodeMap } from '../eventNodeDimensions'
 

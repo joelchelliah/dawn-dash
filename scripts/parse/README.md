@@ -40,7 +40,7 @@ scripts/data/events.json                 scripts/data/events-from-dump.json
         src/shared/data/event-trees.json  (~200 trees, ~4.2k nodes, statically imported)
                          │
                          ▼
-        Eventmaps (src/codex/) renders each tree with d3-flextree
+        Eventmaps (src/eventmaps/) renders each tree with d3-flextree
 ```
 
 Both files have the identical shape — an array of `{ name, type, artwork, text, caption,
@@ -284,7 +284,7 @@ child carrying its own condition; `ResultNode` has no `text` field, so prose alw
 children.
 
 This depends on dialogue/end nodes rendering a requirements box (`isRequirementsNode` in
-`src/codex/utils/eventNodeDimensions.ts`) — without it the remark's condition is in the data but
+`src/eventmaps/utils/eventNodeDimensions.ts`) — without it the remark's condition is in the data but
 invisible in the tree. And like `COLLECTOR`/`CARDPUZZLE`, an engine-test `special` node keeps its own
 `choiceLabel`: `separateChoicesFromEffects` deliberately skips `special` nodes.
 

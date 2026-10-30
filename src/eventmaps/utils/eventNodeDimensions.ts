@@ -10,8 +10,8 @@ import {
 } from '@/shared/types/events'
 import { createNodeDimensionEngine } from '@/shared/utils/tree/nodeDimensions'
 
-import { TEXT, INNER_BOX, NODE, NODE_BOX } from '@/codex/constants/eventTreeValues'
-import { LevelOfDetail } from '@/codex/constants/eventSearchValues'
+import { TEXT, INNER_BOX, NODE, NODE_BOX } from '@/eventmaps/constants/eventTreeValues'
+import { LevelOfDetail } from '@/eventmaps/constants/eventSearchValues'
 
 import { measureEventTextWidth, wrapEventText } from './eventTextMeasurer'
 import { isEmojiOnlyNode } from './eventTreeHelper'

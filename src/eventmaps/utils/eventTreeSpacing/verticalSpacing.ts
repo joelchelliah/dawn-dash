@@ -1,4 +1,4 @@
-import { NODE } from '@/codex/constants/eventTreeValues'
+import { NODE } from '@/eventmaps/constants/eventTreeValues'
 
 import { HORIZONTAL_SPREAD_PX_PER_VERTICAL_INCREMENT } from './config'
 import { SpacingContext, TreeNode, getHeight } from './context'

@@ -20,11 +20,11 @@ import {
   getEmojiMargin,
   hasChoiceLabel,
   hasText,
-} from '@/codex/utils/eventNodeDimensions'
-import { TEXT, INNER_BOX, NODE_BOX } from '@/codex/constants/eventTreeValues'
-import { LevelOfDetail } from '@/codex/constants/eventSearchValues'
-import { findNodeById } from '@/codex/utils/eventTreeHelper'
-import { wrapEventText } from '@/codex/utils/eventTextMeasurer'
+} from '@/eventmaps/utils/eventNodeDimensions'
+import { TEXT, INNER_BOX, NODE_BOX } from '@/eventmaps/constants/eventTreeValues'
+import { LevelOfDetail } from '@/eventmaps/constants/eventSearchValues'
+import { findNodeById } from '@/eventmaps/utils/eventTreeHelper'
+import { wrapEventText } from '@/eventmaps/utils/eventTextMeasurer'
 
 import styles from './index.module.scss'
 

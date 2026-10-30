@@ -3,9 +3,9 @@ import { select } from 'd3-selection'
 import { createCx } from '@/shared/utils/classnames'
 import { Event, EventTreeNode } from '@/shared/types/events'
 
-import { isEmojiBadgeNode, isEmojiOnlyNode } from '@/codex/utils/eventTreeHelper'
-import { getNodeDimensions, type NodeMap } from '@/codex/utils/eventNodeDimensions'
-import { LevelOfDetail } from '@/codex/constants/eventSearchValues'
+import { isEmojiBadgeNode, isEmojiOnlyNode } from '@/eventmaps/utils/eventTreeHelper'
+import { getNodeDimensions, type NodeMap } from '@/eventmaps/utils/eventNodeDimensions'
+import { LevelOfDetail } from '@/eventmaps/constants/eventSearchValues'
 
 import styles from './links.module.scss'
 

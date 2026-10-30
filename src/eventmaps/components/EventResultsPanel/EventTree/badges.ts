@@ -5,9 +5,9 @@ import {
   getCustomNodeEmoji,
   hasCustomNodeType,
   isEmojiOnlyNode,
-} from '@/codex/utils/eventTreeHelper'
-import { getNodeDimensions, type NodeMap } from '@/codex/utils/eventNodeDimensions'
-import { LevelOfDetail } from '@/codex/constants/eventSearchValues'
+} from '@/eventmaps/utils/eventTreeHelper'
+import { getNodeDimensions, type NodeMap } from '@/eventmaps/utils/eventNodeDimensions'
+import { LevelOfDetail } from '@/eventmaps/constants/eventSearchValues'
 
 import styles from './badges.module.scss'
 

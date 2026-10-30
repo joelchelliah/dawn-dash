@@ -9,12 +9,12 @@ import { useFilterTracking } from '@/shared/hooks/useSearchFilters/useFilterTrac
 import {
   cacheEventCodexSearchFilters,
   getCachedEventCodexSearchFilters,
-} from '@/codex/utils/eventFilterStore'
+} from '@/eventmaps/utils/eventFilterStore'
 import {
   LoopingPathMode,
   TreeNavigationMode,
   LevelOfDetail,
-} from '@/codex/constants/eventSearchValues'
+} from '@/eventmaps/constants/eventSearchValues'
 
 import { useEventFilterText } from './useEventFilterText'
 

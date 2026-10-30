@@ -303,7 +303,7 @@ Most self-contained (54 files, nothing else imports it). `booty.tsx` → `index.
 `src/booty/data/`; update `sync-treasures.js`/`sync-weapons.js` `OUTPUT_DIR`. Update both
 `pages/booty/` files, keeping them bare re-exports. Write `src/booty/CLAUDE.md`.
 
-### Task 5 — Eventmaps → `src/eventmaps/`
+### Task 5 — Eventmaps → `src/eventmaps/` — COMPLETED
 
 `events.tsx` → `index.tsx`. `eventTreeSpacing/` with its `README.md`. Both `pages/eventmaps/` files.
 Write `src/eventmaps/CLAUDE.md`.

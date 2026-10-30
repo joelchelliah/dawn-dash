@@ -18,7 +18,7 @@ import ZoomSlider from '@/shared/components/ZoomSlider'
 import Checkbox from '@/shared/components/FilterGroup/Checkbox'
 import PanelHeader from '@/shared/components/PanelHeader'
 
-import { UseAllEventSearchFilters } from '@/codex/hooks/useSearchFilters/useAllEventSearchFilters'
+import { UseAllEventSearchFilters } from '@/eventmaps/hooks/useSearchFilters/useAllEventSearchFilters'
 import {
   LoopingPathMode,
   LOOPING_PATH_MODES,
@@ -27,7 +27,7 @@ import {
   ALL_EVENTS_INDEX,
   LevelOfDetail,
   LEVEL_OF_DETAIL_OPTIONS,
-} from '@/codex/constants/eventSearchValues'
+} from '@/eventmaps/constants/eventSearchValues'
 
 import styles from './index.module.scss'
 

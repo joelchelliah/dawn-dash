@@ -14,23 +14,23 @@ import { setupTreeSvg, createGlowFilter, applyTreeZoom } from '@/shared/utils/tr
 import { ZoomLevel, COVER } from '@/shared/constants/zoomValues'
 import { useEventImageSrc } from '@/shared/hooks/useEventImageSrc'
 
-import { isEmojiOnlyNode, hasCustomNodeType } from '@/codex/utils/eventTreeHelper'
+import { isEmojiOnlyNode, hasCustomNodeType } from '@/eventmaps/utils/eventTreeHelper'
 import {
   getNodeDimensions,
   cacheAllNodeDimensions,
   clearEventCache,
-} from '@/codex/utils/eventNodeDimensions'
+} from '@/eventmaps/utils/eventNodeDimensions'
 import {
   adjustHorizontalNodeSpacing,
   adjustVerticalNodeSpacing,
   centerRootNodeHorizontally,
-} from '@/codex/utils/eventTreeSpacing'
-import { TREE, NODE_BOX } from '@/codex/constants/eventTreeValues'
+} from '@/eventmaps/utils/eventTreeSpacing'
+import { TREE, NODE_BOX } from '@/eventmaps/constants/eventTreeValues'
 import {
   LoopingPathMode,
   TreeNavigationMode,
   LevelOfDetail,
-} from '@/codex/constants/eventSearchValues'
+} from '@/eventmaps/constants/eventSearchValues'
 
 import { drawLinks, drawRefChildrenLinks, drawLoopBackLinks } from './links'
 import {

@@ -12,13 +12,13 @@ import { useBreakpoint } from '@/shared/hooks/useBreakpoint'
 import eventTreesData from '@/shared/data/event-trees.json'
 import { Event } from '@/shared/types/events'
 
-import EventSearchPanel from './components/SearchPanels/EventSearchPanel'
-import EventResultsPanel from './components/ResultsPanels/EventResultsPanel'
+import EventSearchPanel from './components/EventSearchPanel'
+import EventResultsPanel from './components/EventResultsPanel'
 import { ALL_EVENTS_INDEX } from './constants/eventSearchValues'
 import { useAllEventSearchFilters } from './hooks/useSearchFilters/useAllEventSearchFilters'
 import { useEventUrlParam } from './hooks/useEventUrlParam'
 import { searchEventTree } from './utils/eventTreeSearch'
-import styles from './events.module.scss'
+import styles from './index.module.scss'
 
 const cx = createCx(styles)
 

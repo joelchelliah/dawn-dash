@@ -11,8 +11,8 @@ import { ClassColorVariant, getClassColor } from '@/shared/utils/classColors'
 import { Event } from '@/shared/types/events'
 import PanelHeader from '@/shared/components/PanelHeader'
 
-import { ALL_EVENTS_INDEX } from '@/codex/constants/eventSearchValues'
-import { UseAllEventSearchFilters } from '@/codex/hooks/useSearchFilters/useAllEventSearchFilters'
+import { ALL_EVENTS_INDEX } from '@/eventmaps/constants/eventSearchValues'
+import { UseAllEventSearchFilters } from '@/eventmaps/hooks/useSearchFilters/useAllEventSearchFilters'
 
 import EventTree from './EventTree'
 import EventList from './EventList'

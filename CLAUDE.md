@@ -102,7 +102,7 @@ Each feature directory has its own `CLAUDE.md` with architecture details and inv
 1. **Speedruns** (`/speedruns`, `src/speedruns/`) — interactive Chart.js charts of speedrun data from the external Blightbane API, with class/difficulty/time controls
 2. **Cardex** (`/cardex`, `src/codex/`) — multi-keyword card search and advanced filtering, plus card tracking for weekly challenges; card data fetched live from the Blightbane API
 3. **Skilldex** (`/skilldex`, `src/codex/`) — interactive talent-tree visualizer (D3 hierarchy) with prerequisite tracking and requirement filters; talent data from Supabase
-4. **Eventmaps** (`/eventmaps`, `src/codex/`) — fully mapped event trees (branches, requirements, rewards) rendered from static `src/shared/data/event-trees.json`
+4. **Eventmaps** (`/eventmaps`, `src/eventmaps/`) — fully mapped event trees (branches, requirements, rewards) rendered from static `src/shared/data/event-trees.json`
 5. **Booty** (`/booty`, `src/booty/`) — a breakdown of every treasure card, special basic attack and card pool, and the ways of acquiring each, rendered from static `src/booty/data/treasure-cards.json` / `treasure-pools.json` / `special-weapons.json`, with card details joined live from the Blightbane API via `useCardData`. **`src/booty/index.tsx` owns the one `useCardData()` call for all three panels** and shares it through `BootyCardDataContext` — see the single-fetch invariant in `src/booty/CLAUDE.md`
 6. **Scoring** (`/scoring`, `src/scoring/`) — prose-heavy scoring guides per game mode plus real score-calculation logic (`advancedScoring.ts`)
 

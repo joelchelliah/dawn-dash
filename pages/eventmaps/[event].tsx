@@ -5,10 +5,10 @@ import { normalizeEventNameForUrl } from '@/shared/utils/urlHelper'
 import { Event } from '@/shared/types/events'
 import eventTreesData from '@/shared/data/event-trees.json'
 
-import { findEventByName } from '@/codex/hooks/useEventUrlParam'
-import { EventmapHead } from '@/codex/components/EventMapHead'
+import { findEventByName } from '@/eventmaps/hooks/useEventUrlParam'
+import { EventmapHead } from '@/eventmaps/components/EventMapHead'
 
-const Events = dynamic(() => import('../../src/codex/events'), {
+const Events = dynamic(() => import('../../src/eventmaps'), {
   loading: () => <div>Loading events...</div>,
 })
 
