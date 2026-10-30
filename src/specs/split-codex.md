@@ -321,7 +321,7 @@ Write `src/eventmaps/CLAUDE.md`.
 Task 8 then splits it. Write `src/cardex/CLAUDE.md`. _Done by `git mv`-ing what was left of
 `src/codex/CLAUDE.md` — by then exactly Cardex's content — so `src/codex/` is gone after this task._
 
-### Task 8 — Merge the weekly-challenge fetchers
+### Task 8 — Merge the weekly-challenge fetchers — COMPLETED
 
 A content change, so its own commit after the moves (see decisions).
 

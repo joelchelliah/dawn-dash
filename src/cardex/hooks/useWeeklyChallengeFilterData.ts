@@ -1,29 +1,203 @@
 import useSWR from 'swr'
 
-import { fetchLatestChallengeData } from '@/cardex/services/challengesApiBlightbane'
-import { ChallengeData } from '@/cardex/types/challenges'
-import { WeeklyChallengeFilterData } from '@/cardex/types/cardFilters'
+import { fetchLatestChallenge } from '@/shared/services/challengesApiBlightbane'
+import { isNonEmptyString, isNotNullOrUndefined } from '@/shared/utils/object'
+import { CharacterClass } from '@/shared/types/characterClass'
+import { ChallengeApiResponse } from '@/shared/types/challengeApi'
+import { CardSet } from '@/shared/types/filters'
 
-export function useWeeklyChallengeFilterData() {
-  const { data, error, isLoading, isValidating, mutate } = useSWR<ChallengeData>(
-    'weekly-challenge-filter-data',
-    fetchLatestChallengeData
+import { WeeklyChallengeFilterData, Banner } from '@/cardex/types/cardFilters'
+
+/**
+ * Turns the latest weekly challenge into the filter settings the weekly-challenge button applies.
+ */
+const toWeeklyChallengeFilterData = (
+  challenge: ChallengeApiResponse['challenge']
+): WeeklyChallengeFilterData => {
+  const {
+    name,
+    scoringParams,
+    expansions,
+    setups,
+    affixes,
+    additionalCards = [],
+    additionalTalents = [],
+    class: challengeClass,
+    weapon: challengeWeapon,
+    power: challengePower,
+    card: challengeCard,
+  } = challenge
+
+  const keywords =
+    scoringParams.cardBaseValue > 0 ? new Set(scoringParams.keywords) : new Set<string>()
+  const specialKeywords = new Set(
+    scoringParams.miscPointsRules
+      .filter(
+        (rule) => ['DeckContainsCard', 'PointsPerCard'].includes(rule.action) && rule.pointValue > 0
+      )
+      .map((rule) => rule.keyword)
   )
 
-  const filterData: WeeklyChallengeFilterData | null = data
-    ? {
-        id: data.id,
-        name: data.name,
-        keywords: data.keywords,
-        specialKeywords: data.specialKeywords,
-        hadNegativeKeywords: data.hadNegativeKeywords,
-        cardSets: data.cardSets,
-        banners: data.banners,
-      }
-    : null
+  const hadNegativeKeywords =
+    scoringParams.cardBaseValue < 0 ||
+    scoringParams.miscPointsRules.some(
+      (rule) => ['DeckContainsCard', 'PointsPerCard'].includes(rule.action) && rule.pointValue < 0
+    )
+
+  const isSingleSetupAvailable =
+    isNonEmptyString(challengeClass) &&
+    isNonEmptyString(challengeWeapon) &&
+    isNonEmptyString(challengePower) &&
+    isNonEmptyString(challengeCard)
+
+  const allSetups = [
+    isSingleSetupAvailable
+      ? {
+          class: challengeClass,
+          weapon: challengeWeapon,
+          power: challengePower,
+          card: challengeCard,
+        }
+      : null,
+    ...setups,
+  ].filter(isNotNullOrUndefined)
+
+  const isBoundless = (affixes || []).some(
+    (malignancy) => malignancy.toLowerCase() === 'boundless spoils'
+  )
+  const isDeckedOut = (affixes || []).some(
+    (malignancy) => malignancy.toLowerCase() === 'decked out'
+  )
+  const hasAccessToAllColors = isBoundless || isDeckedOut
+
+  const banners = hasAccessToAllColors
+    ? new Set([Banner.All])
+    : getBanners(allSetups, additionalCards, additionalTalents)
+
+  const cardSets = isBoundless ? new Set([CardSet.All]) : getCardSets(expansions)
 
   return {
-    filterData,
+    id: challenge.uid,
+    name,
+    keywords,
+    specialKeywords,
+    hadNegativeKeywords,
+    banners,
+    cardSets: new Set(cardSets as CardSet[]),
+  }
+}
+
+// -------------------- Helper Functions --------------------
+
+const getBanners = (
+  allSetups: Array<{ class: string; weapon: string; power: string; card: string }>,
+  additionalCards: string[],
+  additionalTalents: string[]
+): Set<Banner> => {
+  const isHolyTalent = (talent: string) =>
+    [
+      // Regular Talents
+      'devotion',
+      'doctrine',
+      'faithbound',
+      'gather following',
+      'initiation',
+      'righteous charge',
+      // Weapon Powers
+      'angelic weapon',
+      'devout weapon',
+      'holy weapon',
+      'vengeful weapon',
+      'zealous weapon',
+    ].some((it) => talent.toLowerCase().includes(it))
+
+  const allClasses = new Set(allSetups.map((setup) => setup.class))
+
+  const dexCard = "rogue's locket"
+  const includeGreenBanner =
+    allClasses.has(CharacterClass.Rogue) ||
+    allClasses.has(CharacterClass.Hunter) ||
+    allClasses.has(CharacterClass.Seeker) ||
+    additionalCards.some((card) => card.toLowerCase().includes(dexCard)) ||
+    (allSetups.length > 0 && allSetups.some(({ card }) => card.toLowerCase().includes(dexCard)))
+
+  const intCard = "arcanist's locket"
+  const includeBlueBanner =
+    allClasses.has(CharacterClass.Arcanist) ||
+    allClasses.has(CharacterClass.Knight) ||
+    allClasses.has(CharacterClass.Seeker) ||
+    additionalCards.some((card) => card.toLowerCase().includes(intCard)) ||
+    (allSetups.length > 0 && allSetups.some(({ card }) => card.toLowerCase().includes(intCard)))
+
+  const strCard = "warrior's locket"
+  const includeRedBanner =
+    allClasses.has(CharacterClass.Warrior) ||
+    allClasses.has(CharacterClass.Knight) ||
+    allClasses.has(CharacterClass.Hunter) ||
+    additionalCards.some((card) => card.toLowerCase().includes(strCard)) ||
+    (allSetups.length > 0 && allSetups.some(({ card }) => card.toLowerCase().includes(strCard)))
+
+  const holyCard = 'divine focus'
+  const includeGoldBanner =
+    additionalTalents.some(isHolyTalent) ||
+    (allSetups.length > 0 && allSetups.every(({ power }) => isHolyTalent(power))) ||
+    additionalCards.some((card) => card.toLowerCase().includes(holyCard)) ||
+    (allSetups.length > 0 && allSetups.some(({ card }) => card.toLowerCase().includes(holyCard)))
+
+  const includePurpleBanner = allClasses.has(CharacterClass.Knight)
+  const includeAquaBanner = allClasses.has(CharacterClass.Seeker)
+  const includeOrangeBanner = allClasses.has(CharacterClass.Hunter)
+
+  return new Set([
+    Banner.Brown,
+    Banner.Black,
+    ...(includeGreenBanner ? [Banner.Green] : []),
+    ...(includeBlueBanner ? [Banner.Blue] : []),
+    ...(includeRedBanner ? [Banner.Red] : []),
+    ...(includePurpleBanner ? [Banner.Purple] : []),
+    ...(includeAquaBanner ? [Banner.Aqua] : []),
+    ...(includeOrangeBanner ? [Banner.Orange] : []),
+    ...(includeGoldBanner ? [Banner.Gold] : []),
+  ])
+}
+
+const getCardSets = (expansions: string[]): CardSet[] =>
+  Array.from(expansions)
+    .map((expansion) => {
+      switch (expansion.toLowerCase()) {
+        case 'core':
+          return CardSet.Core
+        case 'progression':
+          return CardSet.Metaprogress
+        case 'metamorphosis':
+          return CardSet.Metamorphosis
+        case 'core extended':
+          return CardSet.Core
+        case 'infinitum':
+          return CardSet.Infinitum
+        case 'catalyst':
+          return CardSet.Catalyst
+        case 'eclypse':
+          return CardSet.Eclypse
+        case 'synthesis':
+          return CardSet.Synthesis
+        default:
+          return null
+      }
+    })
+    .filter(isNotNullOrUndefined)
+
+const fetchWeeklyChallengeFilterData = async () =>
+  toWeeklyChallengeFilterData(await fetchLatestChallenge())
+
+export function useWeeklyChallengeFilterData() {
+  const { data, error, isLoading, isValidating, mutate } = useSWR<WeeklyChallengeFilterData>(
+    'weekly-challenge-filter-data',
+    fetchWeeklyChallengeFilterData
+  )
+
+  return {
+    filterData: data ?? null,
     isFilterDataError: error,
     isFilterDataValidating: isValidating,
     isFilterDataLoading: isLoading,

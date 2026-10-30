@@ -1,8 +1,43 @@
 import { useState, useEffect } from 'react'
 
-import { fetchLatestChallengeData } from '@/scoring/services/weeklyChallengeDataApi'
+import { fetchLatestChallenge } from '@/shared/services/challengesApiBlightbane'
+import { ChallengeApiResponse } from '@/shared/types/challengeApi'
 
 import { WeeklyChallengeData } from '../types'
+
+const toWeeklyChallengeData = (
+  challenge: ChallengeApiResponse['challenge']
+): WeeklyChallengeData => {
+  const scoring = challenge.scoringParams
+
+  return {
+    from: challenge.from,
+    image: challenge.image,
+    intro: challenge.intro,
+    name: challenge.name,
+    notes: challenge.notes,
+    scoring: {
+      accuracyBaseValue: scoring.accuracyBaseValue,
+      allowNegativeAccuracy: scoring.allowNegativeAccuracy,
+      buffer: scoring.buffer,
+      calculationType: scoring.calculationType,
+      cardBaseValue: scoring.cardBaseValue,
+      keywords: scoring.keywords,
+      lowestXAmount: scoring.lowestXAmount,
+      diminishingReturnsLimit: scoring.maxNumberOfCopiesForDiminishingReturns,
+      fixedValueScoring: scoring.miscPointsRules.map((rule) => ({
+        action: rule.action,
+        keyword: rule.keyword,
+        pointValue: rule.pointValue,
+        pointLimit: rule.pointLimit,
+      })),
+      target: scoring.target,
+    },
+    isInvalid: challenge.isTest || !challenge.show,
+    to: challenge.to,
+    uid: challenge.uid,
+  }
+}
 
 interface UseWeeklyChallengeData {
   challengeData: WeeklyChallengeData | null
@@ -23,7 +58,7 @@ export function useWeeklyChallengeData(): UseWeeklyChallengeData {
         setIsLoading(true)
         setIsError(false)
 
-        const data = await fetchLatestChallengeData()
+        const data = toWeeklyChallengeData(await fetchLatestChallenge())
 
         if (isMounted) {
           if (data) {

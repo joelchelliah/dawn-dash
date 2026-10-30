@@ -6,7 +6,7 @@ Multi-keyword card search with advanced filtering, plus card tracking for weekly
 
 - `index.tsx` — the feature entry
 - `components/CardSearchPanel/` + `components/CardResultsPanel/` — search UI and result rendering (each row is `CardResultsPanel/ResultCard/`)
-- `hooks/useWeeklyChallengeFilterData.ts` → `services/challengesApiBlightbane.ts` — the latest weekly challenge, turned into filter settings by the weekly-challenge button
+- `hooks/useWeeklyChallengeFilterData.ts` — the latest weekly challenge, fetched through the shared `fetchLatestChallenge` (also used by Scoring) and turned into filter settings for the weekly-challenge button by a mapper private to the hook
 - `hooks/useSearchFilters/` — Cardex's filter groups and `useAllCardSearchFilters`; the shared framework and `useCardSetFilters.ts` (which exports **two** hooks — see the nil-expansion invariant) live in `src/shared/hooks/useSearchFilters/`
 
 ## Invariants
