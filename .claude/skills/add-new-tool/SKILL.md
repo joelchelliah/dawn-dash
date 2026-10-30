@@ -26,7 +26,7 @@ Create `pages/<id>.tsx` following the existing pattern (see `pages/cardex.tsx`):
 
 ## 3. Feature code
 
-Put the feature's components/hooks/utils under `src/<id>/` (or an existing feature dir if it belongs there), with an `index.tsx` entry.
+Put the feature's components/hooks/utils under `src/<id>/`, with an `index.tsx` entry, and add `<id>` to `TOOL_DIRS` in `.eslintrc.js` so the no-cross-tool-imports rule covers it. Anything it shares with another tool goes in `src/shared/`, never imported from that tool's folder.
 
 ## 4. Sitemap
 

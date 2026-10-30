@@ -23,7 +23,6 @@ const customJestConfig = {
     // Handle path aliases
     '^@/(.*)$': '<rootDir>/src/$1',
     '^@/shared/(.*)$': '<rootDir>/src/shared/$1',
-    '^@/codex/(.*)$': '<rootDir>/src/codex/$1',
     '^@/speedruns/(.*)$': '<rootDir>/src/speedruns/$1',
   },
   testPathIgnorePatterns: ['<rootDir>/.next/', '<rootDir>/node_modules/'],

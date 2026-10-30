@@ -346,7 +346,7 @@ A content change, so its own commit after the moves (see decisions).
 Verify: `npm run verify`, `npm run build`; in the dev server, Cardex's weekly-challenge button applies
 the same filters as before, and the Scoring weekly panels render the current challenge.
 
-### Task 9 — Remove the `codex` alias and enforce the boundary
+### Task 9 — Remove the `codex` alias and enforce the boundary — COMPLETED
 
 - Remove `@/codex` from `tsconfig.json`, `next.config.ts` and `jest.config.ts`.
 - Add `import/no-restricted-paths` zones to `.eslintrc.js`: each tool folder may not import from the

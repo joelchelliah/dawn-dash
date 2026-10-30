@@ -86,7 +86,7 @@ This is a Next.js application (dawn-dash.com) for Dawncaster game data visualiza
 
 - **Next.js 15** (pages router) with React 18, TypeScript, and SCSS modules
 - **`/pages`**: thin page components — one per tool, plus `pages/eventmaps/[event].tsx` for per-event pages
-- **`/src`**: application logic organized by feature: `landing/`, `speedruns/`, `cardex/`, `skilldex/`, `eventmaps/`, `booty/`, `scoring/`, `shared/` — one folder per tool, plus `shared/` for anything more than one tool uses
+- **`/src`**: application logic organized by feature: `landing/`, `speedruns/`, `cardex/`, `skilldex/`, `eventmaps/`, `booty/`, `scoring/`, `shared/` — one folder per tool, plus `shared/` for anything more than one tool uses. **Tools never import from each other**, and `shared/` never imports from a tool: code a second tool needs moves to `shared/`. ESLint's `import/no-restricted-paths` enforces this (`TOOL_DIRS` in `.eslintrc.js` — add a new tool's folder there)
 - **Supabase backend**: database and edge functions for **talents** data. Cards are _not_ read from Supabase — Cardex fetches them live from the Blightbane API (see Data Layer)
 
 ### Tool Registry
@@ -147,7 +147,7 @@ Besides the site-wide pieces below, `shared/` holds what the codex tools share �
 ### Path Aliases
 
 - `@/*` maps to `src/*` (so `@/scoring/*`, `@/landing/*`, `@/styles/*` work via the catch-all)
-- Explicit aliases: `@/shared/*`, `@/codex/*`, `@/speedruns/*`
+- Explicit aliases: `@/shared/*`, `@/speedruns/*` (redundant with the catch-all; every other tool folder resolves through `@/*` alone)
 - `next.config.ts` cannot use `@/` aliases — it imports via relative paths
 
 ### Data Layer
