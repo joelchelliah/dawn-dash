@@ -161,7 +161,7 @@ To fix, add the index to:
 - `KNOWN_EXPANSIONS` — [`scripts/sync/sync-talents-preflight.js`](../../scripts/sync/sync-talents-preflight.js)
 
 Then bump `TALENTS_CACHE_VERSION` in
-[`codexFilterStore.ts`](../../src/codex/utils/codexFilterStore.ts) if the tree shape changes or if there is any danger of the new data causing an error.
+[`talentFilterStore.ts`](../../src/codex/utils/talentFilterStore.ts) if the tree shape changes or if there is any danger of the new data causing an error.
 
 Same idea for a **new tier** beyond 6: `TierFilterOption`,
 [`useTierFilters.ts`](../../src/codex/hooks/useSearchFilters/useTierFilters.ts), and

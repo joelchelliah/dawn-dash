@@ -12,7 +12,7 @@ import StarField from '@/shared/components/StarField'
 
 import CodexErrorMessage from './components/CodexErrorMessage'
 import CodexLoadingMessage from './components/CodexLoadingMessage'
-import { useAllTalentSearchFilters } from './hooks/useSearchFilters'
+import { useAllTalentSearchFilters } from './hooks/useSearchFilters/useAllTalentSearchFilters'
 import { useTalentData } from './hooks/useTalentData'
 import styles from './skills.module.scss'
 

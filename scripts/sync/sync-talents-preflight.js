@@ -181,12 +181,12 @@ function printReport(
       log('  • defaultCardSetFilterValueMap, indexMap, indexToValueMap')
       log('                                 src/codex/hooks/useSearchFilters/useCardSetFilters.ts')
       log('  • KNOWN_EXPANSIONS             scripts/sync/sync-talents-preflight.js')
-      log('Then bump TALENTS_CACHE_VERSION in src/codex/utils/codexFilterStore.ts')
+      log('Then bump TALENTS_CACHE_VERSION in src/codex/utils/talentFilterStore.ts')
       log('so existing users get the new card set enabled by default.')
     }
     if (unknownTiers.length > 0) {
       log(`\nNew tier(s): ${unknownTiers.join(', ')}`)
-      log('Add them to TierFilterOption (src/codex/types/filters.ts), useTierFilters.ts,')
+      log('Add them to TierFilterOption (src/codex/types/talentFilters.ts), useTierFilters.ts,')
       log('and MAX_KNOWN_TIER in scripts/sync/sync-talents-preflight.js.')
     }
   } else if (newTalents.length > 0) {

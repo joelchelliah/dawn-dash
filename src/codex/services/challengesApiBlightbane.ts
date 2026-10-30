@@ -5,7 +5,8 @@ import { AllChallengesApiResponse, ChallengeApiResponse } from '@/shared/types/c
 
 import { ChallengeData } from '@/codex/types/challenges'
 
-import { Banner, CardSet } from '../types/filters'
+import { Banner } from '../types/cardFilters'
+import { CardSet } from '../types/filters'
 
 const BLIGHTBANE_URL = 'https://blightbane.io/api'
 

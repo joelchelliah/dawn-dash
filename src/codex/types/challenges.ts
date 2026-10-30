@@ -1,4 +1,5 @@
-import { Banner, CardSet } from './filters'
+import { Banner } from './cardFilters'
+import { CardSet } from './filters'
 
 export type ChallengeData = {
   id: number

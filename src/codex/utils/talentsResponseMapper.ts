@@ -10,7 +10,7 @@ import {
   TalentTreeTalentNode,
 } from '@/codex/types/talents'
 
-import { RequirementFilterOption } from '../types/filters'
+import { RequirementFilterOption } from '../types/talentFilters'
 import {
   ACTUALLY_EVENT_ONLY_TALENTS,
   UNAVAILABLE_TALENTS,

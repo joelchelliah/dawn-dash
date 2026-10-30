@@ -7,7 +7,7 @@ import { isNotNullOrUndefined } from '@/shared/utils/object'
 import {
   cacheEventCodexSearchFilters,
   getCachedEventCodexSearchFilters,
-} from '@/codex/utils/codexFilterStore'
+} from '@/codex/utils/eventFilterStore'
 import { ZoomLevel, COVER } from '@/codex/constants/zoomValues'
 import {
   LoopingPathMode,

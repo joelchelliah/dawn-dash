@@ -8,7 +8,7 @@ import {
   TalentTreeTalentNode,
 } from '@/codex/types/talents'
 import { isTalentOffer } from '@/codex/utils/talentTreeHelper'
-import { RequirementFilterOption } from '@/codex/types/filters'
+import { RequirementFilterOption } from '@/codex/types/talentFilters'
 
 export interface TalentFilterCriteria {
   parsedKeywords: string[]

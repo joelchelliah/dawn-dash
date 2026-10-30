@@ -4,8 +4,8 @@ import {
   CardCodexSearchFilterCache,
   CardType,
   CardTypeFilterOption,
-  SharedFilterOption,
-} from '@/codex/types/filters'
+} from '@/codex/types/cardFilters'
+import { SharedFilterOption } from '@/codex/types/filters'
 import { createFilterUrlCodec } from '@/codex/utils/filterUrlCodec'
 
 import { createFilterHook } from './useFilterFactory'

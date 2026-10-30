@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef } from 'react'
 
 import { NextRouter, useRouter } from 'next/router'
 
+import { SEARCH_QUERY_PARAM, WEEKLY_CHALLENGE_PARAM } from '@/codex/constants/urlParams'
 import { FilterUrlCodec } from '@/codex/utils/filterUrlCodec'
 
 export interface UrlFilterBinding {
@@ -22,9 +23,6 @@ interface UseCodexUrlParamsOptions {
 interface UseCodexUrlParams {
   setWeeklyChallengeParam: () => void
 }
-
-export const SEARCH_QUERY_PARAM = 'query'
-export const WEEKLY_CHALLENGE_PARAM = 'weekly'
 
 const DEBOUNCE_MS = 500
 

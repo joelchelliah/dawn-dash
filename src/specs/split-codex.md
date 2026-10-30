@@ -232,7 +232,7 @@ obvious from the names (e.g. why `KeywordsSummary` takes a structural type inste
 
 ## Tasks
 
-### Task 1 — Move the specs to `src/specs/`
+### Task 1 — Move the specs to `src/specs/` — COMPLETED
 
 Docs only. `git mv` `src/codex/specs-inp.md` → `src/specs/inp.md`,
 `specs-next-pwa-replacement.md` → `next-pwa-replacement.md`, `specs-card-metadata.md` →
@@ -245,7 +245,7 @@ wait for Task 10.
 Verify: `npm run verify` (Prettier covers the markdown), and the `git grep` above returns nothing
 that still means the old locations.
 
-### Task 2 — Untangle the thin couplings, in place
+### Task 2 — Untangle the thin couplings, in place — COMPLETED
 
 No file leaves `src/codex/` yet. Apart from Task 8, this is the only task that changes file contents
 beyond import paths.
@@ -281,8 +281,12 @@ Verify: `npm run verify`, `npm run build`. No visible change.
 `useScrollToResultsOnArrival`, and `useSearchFilters/` for `useFilterFactory`, `useFilterTracking`,
 `useCardSetFilters`, `useKeywords`), `shared/services/cardsApiBlightbane.ts`, `shared/utils/`
 (`cardsResponseMapper`, `codexCardsStore`, `filterUrlCodec`, `keywordMatching`, `urlHelper`, the
-`parseCardDescription` module, `tree/`), `shared/types/` (`cards`, the shared filter types,
-`events`), `shared/constants/zoomValues.ts`, `shared/data/event-trees.json`.
+`cardDescription` module, `tree/`), `shared/types/` (`cards`, `filters` — now only the shared
+filter types — and `events`), `shared/constants/` (`zoomValues.ts`, `urlParams.ts`),
+`shared/data/event-trees.json`. Task 2 left these behind as tool-only, so they wait for their tool's
+move: `types/cardFilters.ts`, `utils/cardFilterStore.ts`, `useCardStrike` (Cardex);
+`types/talentFilters.ts`, `utils/talentFilterStore.ts` (Skilldex); `types/eventFilters.ts`,
+`utils/eventFilterStore.ts` (Eventmaps).
 
 Check for name collisions first — `shared/components/` and `shared/hooks/` have none today, but
 confirm. Update `scripts/` and `tsconfig.scripts.json` / `.prettierignore` for `event-trees.json` and
@@ -332,6 +336,12 @@ A content change, so its own commit after the moves (see decisions).
   `latestChallengeId` debugging override, in the shared fetch, if it's still wanted.
 - Both hooks keep their own SWR keys and return shapes; check neither key changes, so neither tool's
   cache behaviour does.
+- **Fold Cardex's duplicate challenge type.** `WeeklyChallengeFilterData` (in
+  `types/cardFilters.ts`, used by `useWeeklyChallengeFilterData` and `useAllCardSearchFilters`) and
+  `ChallengeData` (in `types/challenges.ts`, returned by the fetcher) are the same seven fields
+  declared twice; the hook just re-types one as the other. Keep `WeeklyChallengeFilterData` as the
+  mapper's return type and delete `types/challenges.ts`. Found in Task 2 and deliberately left for
+  this task, since it's the one already rewriting that mapper.
 
 Verify: `npm run verify`, `npm run build`; in the dev server, Cardex's weekly-challenge button applies
 the same filters as before, and the Scoring weekly panels render the current challenge.

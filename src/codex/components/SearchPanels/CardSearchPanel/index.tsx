@@ -13,7 +13,7 @@ import {
 import GradientButton from '@/shared/components/Buttons/GradientButton'
 import ButtonRow from '@/shared/components/Buttons/ButtonRow'
 
-import { ExtraCardFilterOption, RarityFilterOption } from '@/codex/types/filters'
+import { ExtraCardFilterOption, RarityFilterOption } from '@/codex/types/cardFilters'
 import { UseAllCardSearchFilters } from '@/codex/hooks/useSearchFilters/useAllCardSearchFilters'
 import { allFormattingCardFilters } from '@/codex/hooks/useSearchFilters/useFormattingCardFilters'
 import { allRarities } from '@/codex/hooks/useSearchFilters/useRarityFilters'

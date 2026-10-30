@@ -1,9 +1,5 @@
-import {
-  Banner,
-  BannerFilterOption,
-  CardCodexSearchFilterCache,
-  SharedFilterOption,
-} from '@/codex/types/filters'
+import { Banner, BannerFilterOption, CardCodexSearchFilterCache } from '@/codex/types/cardFilters'
+import { SharedFilterOption } from '@/codex/types/filters'
 import { createFilterUrlCodec } from '@/codex/utils/filterUrlCodec'
 
 import { createFilterHook } from './useFilterFactory'

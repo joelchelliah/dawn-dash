@@ -2,7 +2,7 @@ import {
   CardCodexSearchFilterCache,
   FormattingCard,
   FormattingCardFilterOption,
-} from '@/codex/types/filters'
+} from '@/codex/types/cardFilters'
 
 import { createFilterHook } from './useFilterFactory'
 

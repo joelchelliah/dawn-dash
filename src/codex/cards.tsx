@@ -10,7 +10,7 @@ import StarField from '@/shared/components/StarField'
 import { useScrollToTop } from '@/shared/hooks/useScrollToTop'
 import { useBreakpoint } from '@/shared/hooks/useBreakpoint'
 
-import { useAllCardSearchFilters } from './hooks/useSearchFilters'
+import { useAllCardSearchFilters } from './hooks/useSearchFilters/useAllCardSearchFilters'
 import { useCardData } from './hooks/useCardData'
 import CodexErrorMessage from './components/CodexErrorMessage'
 import CodexLoadingMessage from './components/CodexLoadingMessage'

@@ -5,7 +5,7 @@ import { createCx } from '@/shared/utils/classnames'
 import { CharacterClass } from '@/shared/types/characterClass'
 import { useBreakpoint } from '@/shared/hooks/useBreakpoint'
 
-import { UseAllTalentSearchFilters } from '@/codex/hooks/useSearchFilters'
+import { UseAllTalentSearchFilters } from '@/codex/hooks/useSearchFilters/useAllTalentSearchFilters'
 import { useExpandableNodes } from '@/codex/hooks/useExpandableNodes'
 import { ZoomLevel, COVER } from '@/codex/constants/zoomValues'
 import StickyZoomSlider from '@/codex/components/shared/StickyZoomSlider'

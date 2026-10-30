@@ -2,7 +2,7 @@ import {
   TalentCodexSearchFilterCache,
   FormattingTalent,
   FormattingTalentFilterOption,
-} from '@/codex/types/filters'
+} from '@/codex/types/talentFilters'
 
 import { createFilterHook } from './useFilterFactory'
 

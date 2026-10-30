@@ -1,11 +1,11 @@
 import { useCallback } from 'react'
 
+import { SharedFilterOption } from '@/codex/types/filters'
 import {
   RequirementFilterOption,
   Requirement,
   TalentCodexSearchFilterCache,
-  SharedFilterOption,
-} from '@/codex/types/filters'
+} from '@/codex/types/talentFilters'
 import { createFilterUrlCodec } from '@/codex/utils/filterUrlCodec'
 
 import { createFilterHook } from './useFilterFactory'

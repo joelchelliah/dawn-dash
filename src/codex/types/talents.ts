@@ -1,4 +1,4 @@
-import { RequirementFilterOption } from './filters'
+import { RequirementFilterOption } from './talentFilters'
 
 export type TalentData = {
   id: number

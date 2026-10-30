@@ -2,7 +2,7 @@ import treasureCardsData from '@/codex/data/treasure-cards.json'
 import specialWeaponsData from '@/codex/data/special-weapons.json'
 import { TreasureCard } from '@/codex/types/treasures'
 import { SpecialWeapon } from '@/codex/types/weapons'
-import { normalizeEventNameForUrl } from '@/codex/hooks/useEventUrlParam'
+import { normalizeEventNameForUrl } from '@/codex/utils/urlHelper'
 
 const treasures = treasureCardsData as TreasureCard[]
 const weapons = specialWeaponsData as SpecialWeapon[]

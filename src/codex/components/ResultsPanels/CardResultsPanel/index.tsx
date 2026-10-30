@@ -4,7 +4,7 @@ import GradientButton from '@/shared/components/Buttons/GradientButton'
 import { createCx } from '@/shared/utils/classnames'
 
 import { CardData } from '@/codex/types/cards'
-import { UseAllCardSearchFilters } from '@/codex/hooks/useSearchFilters'
+import { UseAllCardSearchFilters } from '@/codex/hooks/useSearchFilters/useAllCardSearchFilters'
 import { isCardStruckIn } from '@/codex/utils/cardHelper'
 import { useScrollToResultsOnArrival } from '@/codex/hooks/useScrollToResultsOnArrival'
 

@@ -4,7 +4,7 @@ import { TalentTree, TalentTreeNode, TalentTreeNodeType } from '@/codex/types/ta
 import {
   cacheTalentCodexSearchFilters,
   getCachedTalentCodexSearchFilters,
-} from '@/codex/utils/codexFilterStore'
+} from '@/codex/utils/talentFilterStore'
 
 import { useCodexUrlParams } from '../useCodexUrlParams'
 

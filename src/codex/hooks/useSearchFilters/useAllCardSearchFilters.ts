@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
-import { ExtraCardFilterOption, WeeklyChallengeFilterData } from '@/codex/types/filters'
+import { ExtraCardFilterOption, WeeklyChallengeFilterData } from '@/codex/types/cardFilters'
 import {
   hasMonsterBanner,
   hasMonsterRarity,
@@ -12,7 +12,7 @@ import { CardData } from '@/codex/types/cards'
 import {
   cacheCardCodexSearchFilters,
   getCachedCardCodexSearchFilters,
-} from '@/codex/utils/codexFilterStore'
+} from '@/codex/utils/cardFilterStore'
 import {
   isCardMatchingKeyword,
   RARITY_KEYWORDS,

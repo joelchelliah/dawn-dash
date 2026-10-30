@@ -1,9 +1,5 @@
-import {
-  SharedFilterOption,
-  TalentCodexSearchFilterCache,
-  Tier,
-  TierFilterOption,
-} from '@/codex/types/filters'
+import { SharedFilterOption } from '@/codex/types/filters'
+import { TalentCodexSearchFilterCache, Tier, TierFilterOption } from '@/codex/types/talentFilters'
 import { createFilterUrlCodec } from '@/codex/utils/filterUrlCodec'
 
 import { createFilterHook } from './useFilterFactory'

@@ -1,9 +1,5 @@
-import {
-  CardCodexSearchFilterCache,
-  Rarity,
-  RarityFilterOption,
-  SharedFilterOption,
-} from '@/codex/types/filters'
+import { CardCodexSearchFilterCache, Rarity, RarityFilterOption } from '@/codex/types/cardFilters'
+import { SharedFilterOption } from '@/codex/types/filters'
 import { createFilterUrlCodec } from '@/codex/utils/filterUrlCodec'
 
 import { createFilterHook } from './useFilterFactory'

@@ -2,7 +2,7 @@ import useSWR from 'swr'
 
 import { fetchLatestChallengeData } from '@/codex/services/challengesApiBlightbane'
 import { ChallengeData } from '@/codex/types/challenges'
-import { WeeklyChallengeFilterData } from '@/codex/types/filters'
+import { WeeklyChallengeFilterData } from '@/codex/types/cardFilters'
 
 export function useWeeklyChallengeFilterData() {
   const { data, error, isLoading, isValidating, mutate } = useSWR<ChallengeData>(

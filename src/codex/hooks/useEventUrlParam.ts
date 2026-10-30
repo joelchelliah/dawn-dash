@@ -4,6 +4,7 @@ import { useRouter } from 'next/router'
 
 import { ALL_EVENTS_INDEX } from '../constants/eventSearchValues'
 import { Event } from '../types/events'
+import { normalizeEventNameForUrl } from '../utils/urlHelper'
 
 interface UseEventUrlParam {
   selectEventAndUpdateUrl: (index: number) => void
@@ -49,10 +50,6 @@ export function useEventUrlParam(
   )
 
   return { selectEventAndUpdateUrl }
-}
-
-export function normalizeEventNameForUrl(name: string): string {
-  return name.toLowerCase().replace(/\s+/g, '_')
 }
 
 export function findEventByName(events: Event[], urlParam: string): Event | null {

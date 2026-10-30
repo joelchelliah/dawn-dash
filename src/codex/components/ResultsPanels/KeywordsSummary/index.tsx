@@ -3,16 +3,22 @@ import { useState } from 'react'
 import { createCx } from '@/shared/utils/classnames'
 import GradientLink from '@/shared/components/GradientLink'
 
-import { useCardStrike } from '../../../hooks/useSearchFilters/useCardStrike'
 import KeywordPills from '../../SearchPanels/shared/KeywordPills'
 
 import styles from './index.module.scss'
 
 const cx = createCx(styles)
 
+// Only the parts of Cardex's `useCardStrike` this reads, so Skilldex can render the summary without
+// depending on Cardex's card-tracking hook.
+interface TrackedCardUndo {
+  undoLastTrackedCard: () => void
+  lastUndoneTrackedCard: string | null
+}
+
 interface KeywordsSummaryProps {
   matches: string[]
-  useCardStrike?: ReturnType<typeof useCardStrike>
+  useCardStrike?: TrackedCardUndo
   struckMatchCount?: number
   parsedKeywords: string[]
   showingResultsWithoutKeywords: boolean

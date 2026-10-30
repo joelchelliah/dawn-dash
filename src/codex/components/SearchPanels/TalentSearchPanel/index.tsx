@@ -21,11 +21,11 @@ import {
 } from '@/shared/utils/imageUrls'
 
 import { allTiers } from '@/codex/hooks/useSearchFilters/useTierFilters'
-import { UseAllTalentSearchFilters } from '@/codex/hooks/useSearchFilters'
+import { UseAllTalentSearchFilters } from '@/codex/hooks/useSearchFilters/useAllTalentSearchFilters'
 import { allCardSets } from '@/codex/hooks/useSearchFilters/useCardSetFilters'
 import { UseTalentData } from '@/codex/hooks/useTalentData'
 import { allFormattingTalentFilters } from '@/codex/hooks/useSearchFilters/useFormattingTalentFilters'
-import { RequirementFilterOption } from '@/codex/types/filters'
+import { RequirementFilterOption } from '@/codex/types/talentFilters'
 import { allRequirements } from '@/codex/hooks/useSearchFilters/useRequirementFilters'
 
 import CodexLastUpdated from '../../CodexLastUpdated'

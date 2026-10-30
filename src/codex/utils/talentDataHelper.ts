@@ -4,7 +4,7 @@ import {
   REQUIREMENT_CLASS_TO_FILTER_OPTIONS_MAP,
   REQUIREMENT_ENERGY_TO_FILTER_OPTIONS_MAP,
 } from '../constants/talentsMappingValues'
-import { RequirementFilterOption } from '../types/filters'
+import { RequirementFilterOption } from '../types/talentFilters'
 import { TalentData } from '../types/talents'
 
 /**

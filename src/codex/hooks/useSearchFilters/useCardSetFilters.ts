@@ -1,11 +1,6 @@
 import { useCallback } from 'react'
 
-import {
-  CardCodexSearchFilterCache,
-  CardSet,
-  CardSetFilterOption,
-  SharedFilterOption,
-} from '@/codex/types/filters'
+import { CardSet, CardSetFilterOption, SharedFilterOption } from '@/codex/types/filters'
 import { createFilterUrlCodec } from '@/codex/utils/filterUrlCodec'
 
 import { createFilterHook } from './useFilterFactory'
@@ -66,7 +61,7 @@ const toCardSetIndex = (index: number) => (index === 0 ? CORE_INDEX : index)
 
 export const getCardSetName = (index: number) => indexToValueMap[toCardSetIndex(index)] ?? ''
 
-const useSharedCardSetFilters = (cachedFilters?: CardCodexSearchFilterCache['cardSets']) => {
+const useSharedCardSetFilters = (cachedFilters?: Record<string, boolean>) => {
   const {
     filters,
     isIndexSelected,
@@ -96,7 +91,7 @@ const useSharedCardSetFilters = (cachedFilters?: CardCodexSearchFilterCache['car
 /*
  * Cardex: nil expansion cards are *selected* by the Core checkbox, so unticking Core hides them.
  */
-export const useCardSetFilters = (cachedFilters?: CardCodexSearchFilterCache['cardSets']) => {
+export const useCardSetFilters = (cachedFilters?: Record<string, boolean>) => {
   const { isIndexSelected, ...rest } = useSharedCardSetFilters(cachedFilters)
 
   const isCardSetIndexSelected = useCallback(
@@ -114,7 +109,7 @@ export const useCardSetFilters = (cachedFilters?: CardCodexSearchFilterCache['ca
  * unavailable talents. Those are filtered by their own tree sections rather than by card set, and
  * must stay visible even when Core is unticked — so `isIndexSelected(0)` must stay false here.
  */
-export const useTalentCardSetFilters = (cachedFilters?: CardCodexSearchFilterCache['cardSets']) => {
+export const useTalentCardSetFilters = (cachedFilters?: Record<string, boolean>) => {
   const { isIndexSelected, ...rest } = useSharedCardSetFilters(cachedFilters)
 
   return { ...rest, isCardSetIndexSelected: isIndexSelected }

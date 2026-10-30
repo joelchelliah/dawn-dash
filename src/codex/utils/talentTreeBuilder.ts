@@ -7,7 +7,7 @@ import {
   TalentTreeRequirementNode,
   TalentTreeTalentNode,
 } from '../types/talents'
-import { RequirementFilterOption } from '../types/filters'
+import { RequirementFilterOption } from '../types/talentFilters'
 
 export const buildHierarchicalTreeFromTalentTree = (
   talentTree: TalentTree

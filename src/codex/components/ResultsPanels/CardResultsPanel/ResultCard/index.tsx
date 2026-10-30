@@ -6,7 +6,8 @@ import { createCx } from '@/shared/utils/classnames'
 import { HOVER_TRIGGER } from '@/shared/utils/hoverTrigger'
 
 import { CardData } from '@/codex/types/cards'
-import { getBlightbaneCardUrl, parseCardDescription } from '@/codex/utils/cardHelper'
+import { parseCardDescription } from '@/codex/utils/cardDescription'
+import { getBlightbaneCardUrl } from '@/codex/utils/cardHelper'
 import { isCardMatchingKeyword } from '@/codex/utils/keywordMatching'
 import KeywordPills from '@/codex/components/SearchPanels/shared/KeywordPills'
 
