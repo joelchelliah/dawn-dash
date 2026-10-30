@@ -1,0 +1,56 @@
+import { useMemo } from 'react'
+
+import { CardData } from '@/shared/types/cards'
+
+import { useBootyCardUrlParam } from '@/booty/hooks/useBootyCardUrlParam'
+import { EnrichedTreasureCard } from '@/booty/types/treasures'
+import { getBootyCardUrlParam } from '@/booty/utils/bootyCardUrl'
+
+import CardList, { CardListItem } from '../../shared/CardsList'
+import { TREASURE_ARTWORK } from '../../shared/cardArtwork'
+import TreasureModal from '../TreasureModal'
+
+interface TreasureListProps {
+  treasures: EnrichedTreasureCard[]
+  cardData: CardData[] | undefined
+}
+
+function TreasureList({ treasures, cardData }: TreasureListProps): JSX.Element {
+  const { cardNameInUrl, selectCardAndUpdateUrl, clearCardInUrl } = useBootyCardUrlParam()
+
+  const selectedTreasure = cardNameInUrl
+    ? treasures.find(
+        ({ treasureDetails }) =>
+          getBootyCardUrlParam(treasureDetails.name, 'treasure') === cardNameInUrl
+      )
+    : undefined
+
+  const items = useMemo<CardListItem[]>(
+    () =>
+      treasures.map(({ treasureDetails, cardDetails }) => ({
+        id: treasureDetails.id,
+        name: treasureDetails.name,
+        rarity: cardDetails.rarity,
+        category: cardDetails.category,
+        categoryString: treasureDetails.category,
+      })),
+    [treasures]
+  )
+
+  const selectById = (id: number) => {
+    const treasure = treasures.find(({ treasureDetails }) => treasureDetails.id === id)
+    if (treasure)
+      selectCardAndUpdateUrl(getBootyCardUrlParam(treasure.treasureDetails.name, 'treasure'))
+  }
+
+  return (
+    <>
+      <CardList items={items} artwork={TREASURE_ARTWORK} onSelect={selectById} />
+      {selectedTreasure && (
+        <TreasureModal treasure={selectedTreasure} cardData={cardData} onClose={clearCardInUrl} />
+      )}
+    </>
+  )
+}
+
+export default TreasureList

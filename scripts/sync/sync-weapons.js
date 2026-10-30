@@ -4,7 +4,7 @@
  * Parse special weapons data
  *
  * Reads scripts/data/weapons.json and writes the whitelisted fields of its `entries`
- * to src/codex/data/special-weapons.json.
+ * to src/booty/data/special-weapons.json.
  */
 
 const path = require('path')
@@ -18,7 +18,7 @@ const {
 } = require('./whitelist-fields')
 
 const INPUT_FILE = path.join(__dirname, '../data', 'weapons.json')
-const OUTPUT_DIR = path.join(__dirname, '../../src/codex/data')
+const OUTPUT_DIR = path.join(__dirname, '../../src/booty/data')
 const OUTPUT_FILE = path.join(OUTPUT_DIR, 'special-weapons.json')
 
 /*

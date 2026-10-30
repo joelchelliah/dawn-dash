@@ -1,0 +1,73 @@
+import dynamic from 'next/dynamic'
+
+import { createCx } from '@/shared/utils/classnames'
+import { useNavigation } from '@/shared/hooks/useNavigation'
+import { useScrollToTop } from '@/shared/hooks/useScrollToTop'
+import { useBreakpoint } from '@/shared/hooks/useBreakpoint'
+import { TreasureImageUrl } from '@/shared/utils/imageUrls'
+import Footer from '@/shared/components/Footer'
+import Header from '@/shared/components/Header'
+import ScrollToTopButton from '@/shared/components/ScrollToTopButton'
+import StarField from '@/shared/components/StarField'
+import { useCardData } from '@/shared/hooks/useCardData'
+
+import { BootyCardDataProvider } from './components/BootyCardDataContext'
+import styles from './index.module.scss'
+
+const TreasureCardsPanel = dynamic(() => import('./components/TreasureCardsPanel'), {
+  loading: () => <div>Loading treasure cards...</div>,
+})
+
+const SpecialWeaponsPanel = dynamic(() => import('./components/SpecialWeaponsPanel'), {
+  loading: () => <div>Loading special weapons...</div>,
+})
+
+const CardPoolsPanel = dynamic(() => import('./components/CardPoolsPanel'), {
+  loading: () => <div>Loading card pools...</div>,
+})
+
+const cx = createCx(styles)
+
+function useBootyScrollToTop() {
+  const { isTabletOrSmaller } = useBreakpoint()
+  return useScrollToTop(isTabletOrSmaller ? 750 : 1000)
+}
+
+function Booty(): JSX.Element {
+  const { navigateTo } = useNavigation()
+  const { showScrollToTopButton, scrollToTop } = useBootyScrollToTop()
+  const cardData = useCardData()
+  const hasCardData = !cardData.isLoading && !cardData.isError
+
+  return (
+    <div className={cx('container')}>
+      <StarField position="upper" />
+      <StarField position="lower" />
+      <Header
+        onLogoClick={() => navigateTo('booty')}
+        logoSrc={TreasureImageUrl}
+        title="Booty"
+        subtitle="Dawncaster treasures"
+        currentPage="booty"
+      />
+
+      <BootyCardDataProvider value={cardData}>
+        <div className={cx('content')}>
+          <TreasureCardsPanel />
+          {hasCardData && (
+            <>
+              <SpecialWeaponsPanel />
+              <CardPoolsPanel />
+            </>
+          )}
+        </div>
+      </BootyCardDataProvider>
+
+      <Footer />
+
+      <ScrollToTopButton show={showScrollToTopButton} onClick={scrollToTop} alwaysOnTop />
+    </div>
+  )
+}
+
+export default Booty

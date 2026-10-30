@@ -1,7 +1,7 @@
 import { GetStaticProps, GetStaticPaths } from 'next'
 
-import { BootyPageProps } from '@/codex/BootyPage'
-import { findBootyCardByUrlParam, getBootyCardUrlParams } from '@/codex/utils/bootyCardUrl'
+import { BootyPageProps } from '@/booty/BootyPage'
+import { findBootyCardByUrlParam, getBootyCardUrlParams } from '@/booty/utils/bootyCardUrl'
 
 /**
  * Static route handler for `/booty/[card]`
@@ -11,7 +11,7 @@ import { findBootyCardByUrlParam, getBootyCardUrlParams } from '@/codex/utils/bo
  * The page itself is `BootyPage`, exported directly rather than wrapped so that this route and
  * `/booty` are the same component type.
  */
-export { default } from '@/codex/BootyPage'
+export { default } from '@/booty/BootyPage'
 
 /**
  * Generates a path per treasure and special weapon at build time.

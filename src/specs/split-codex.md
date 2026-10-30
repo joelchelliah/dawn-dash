@@ -296,7 +296,7 @@ move the shared invariants into it.
 Verify: as above, plus the `scripts/` grep and `node scripts/generate-sitemap.js`. Smoke-test all four
 tools briefly — this task touches every one of them.
 
-### Task 4 — Booty → `src/booty/`
+### Task 4 — Booty → `src/booty/` — COMPLETED
 
 Most self-contained (54 files, nothing else imports it). `booty.tsx` → `index.tsx`,
 `booty.module.scss` → `index.module.scss`, `BootyPage.tsx` stays named. Treasure/weapon JSON to
