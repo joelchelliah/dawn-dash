@@ -105,7 +105,7 @@ shaped the way they are.
   Blightbane, not Supabase), *Data Synchronization* (local Node scripts own artwork; the
   `scripts/` vs edge-function split), and *PWA & Performance* (the `card-artwork` service-worker
   bucket keyed on `/images/icons/**`).
-- **[`src/codex/CLAUDE.md`](../codex/CLAUDE.md)** — the artwork invariants this work directly rewrites:
+- **[`src/shared/CLAUDE.md`](../shared/CLAUDE.md)** — the artwork invariants this work directly rewrites:
   - Artwork resolves through **module-scope `Map`s built once at import**, never a per-render
     linear `.find`. The new file must keep that shape.
   - Lookups use the JSON's key **verbatim** — artwork names carry curly apostrophes, typos and set
@@ -170,7 +170,7 @@ fresh context can tell what is already done from the spec alone.
 
 Grep before editing — these were found by grepping, not recalled:
 
-- **[`src/codex/CLAUDE.md`](../codex/CLAUDE.md)** — three artwork bullets. The "module-scope `Map`s"
+- **[`src/shared/CLAUDE.md`](../shared/CLAUDE.md)** — three artwork bullets. The "module-scope `Map`s"
   bullet needs its file name and key updated; the "same name carries different artwork per
   `category`" bullet and the "dozen card names still collide" bullet both describe a problem that
   Cardex and Skilldex no longer have (Scoring still does). Rewrite in Task 6, not before.
@@ -290,20 +290,20 @@ still true and still load-bearing.
 Two call sites, both of which have an id available:
 
 - **Cardex** —
-  [`CardArtwork.tsx:34`](../codex/components/ResultsPanels/CardResultsPanel/ResultCard/CardArtwork.tsx#L34)
+  [`CardArtwork.tsx:34`](../cardex/components/CardResultsPanel/ResultCard/CardArtwork.tsx#L34)
   currently calls `useCardImageSrc(card.name, null, card.category)`. `CardData` carries `id`, so
   switch to the id accessor. Keep `null` as the fallback — that is what opts into the rarity-tinted
   placeholder square.
 - **Skilldex** —
-  [`talentNodes.ts:272`](../codex/components/ResultsPanels/TalentResultsPanel/TalentTree/talentNodes.ts#L272)
+  [`talentNodes.ts:272`](../skilldex/components/TalentResultsPanel/TalentTree/talentNodes.ts#L272)
   calls `getCardImageSrc(data.name, null, TALENT_ARTWORK_CATEGORY)`. **This one needs plumbing**:
   `TalentTreeTalentNode` has **no id field** — only `name`. `TalentData.blightbane_id` exists and
   all 385 match Blightbane, so thread it through
-  [`talentsResponseMapper.ts`](../codex/utils/talentsResponseMapper.ts) onto the tree node first. The
+  [`talentsResponseMapper.ts`](../skilldex/utils/talentsResponseMapper.ts) onto the tree node first. The
   mapper already keys its internal maps on `blightbane_id`, so the value is in hand.
 
   ⚠️ **The node-dimension cache key** in
-  [`talentNodeDimensions.ts:185`](../codex/utils/talentNodeDimensions.ts#L185) is built from node fields.
+  [`talentNodeDimensions.ts:185`](../skilldex/utils/talentNodeDimensions.ts#L185) is built from node fields.
   Adding a field to the node type does not require a key change (art presence is already in the
   key via `art-${...}`), but check the key still discriminates correctly.
 
@@ -317,7 +317,7 @@ expanded/collapsed and two zoom levels because artwork affects node height.
 
 Only now that behaviour is settled:
 
-- **[`src/codex/CLAUDE.md`](../codex/CLAUDE.md)** — update the module-scope-`Map`s bullet to the new file
+- **[`src/shared/CLAUDE.md`](../shared/CLAUDE.md)** — update the module-scope-`Map`s bullet to the new file
   and id key. Rewrite the two collision bullets: the name+category disambiguation and the
   "dozen colliding names" caveat **no longer apply to Cardex or Skilldex** (both key by id), but
   **still apply to Scoring's name lookup** — say exactly that rather than deleting them. Record the
@@ -348,7 +348,7 @@ already has orb assets via [`energyImages.ts`](../shared/utils/energyImages.ts),
 here (`dexint`, `dexstr`, `intstr`, `blood`) are **not** a 1:1 match for `CharacterClass`, so a
 mapping is needed and hybrid costs may have no single orb. Start with text, look at it, iterate.
 
-Note [`src/codex/CLAUDE.md`](../codex/CLAUDE.md)'s warning that `.result-card__name`'s widths are
+Note [`src/cardex/CLAUDE.md`](../cardex/CLAUDE.md)'s warning that `.result-card__name`'s widths are
 **minimums, not fixed sizes** — its `flex-shrink: 1` + `min-width: 0` are what keep the
 `CardMetadata` pill pinned to the right edge on narrow widths. Adding an element to that row risks
 exactly the overflow that invariant describes, so check mobile early.

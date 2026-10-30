@@ -182,7 +182,7 @@ tasks.
 
 - **Root `CLAUDE.md`** — Working Style (the user runs the dev server, not the agent), the no-permanent-tests
   policy, and `npm run verify` as the required check.
-- **`src/codex/CLAUDE.md`** — three invariants constrain this work directly:
+- **`src/cardex/CLAUDE.md`** and **`src/shared/CLAUDE.md`** — three invariants constrain this work directly:
   - *"Both tree components are `React.memo`'d and take scalar props, not whole hook-result objects."*
     Cardex now follows the same rule; keep it that way when props move around.
   - *"`.result-card__name`'s widths are minimums, not fixed sizes."* Its `flex-shrink: 1` +
@@ -190,7 +190,7 @@ tasks.
     measurement must not introduce a fixed width here.
   - *"Tree layout/rendering changes are verified visually … The **user** runs the dev server."*
     Applies equally to this list.
-- **`src/codex/components/ResultsPanels/CardResultsPanel/ResultCard/index.module.scss`** — the
+- **`src/cardex/components/CardResultsPanel/ResultCard/index.module.scss`** — the
   comment block above `$row-entry-animation` explains why the animation is declared once and
   restated in `--full-match`, and why `backwards` is load-bearing.
 - **`src/styles/_textures.scss`** — `rainTexture` and `_applyTexture`. Read before Task 4; the
@@ -244,18 +244,18 @@ component. That is expected, not a broken step.
 
 ### Which docs change with the work
 
-- **`src/codex/CLAUDE.md`** — Task 5's virtualization invariant is **moot** (never implemented).
+- **`src/cardex/CLAUDE.md`** — Task 5's virtualization invariant is **moot** (never implemented).
   What *did* need recording is Task 1's: `.result-card` carries `content-visibility: auto`, so every
   row is a `contain: layout paint` context, and `contain-intrinsic-size` must stay paired with it.
   Added.
-- **`src/codex/components/ResultsPanels/CardResultsPanel/ResultCard/index.module.scss`** — the
+- **`src/cardex/components/CardResultsPanel/ResultCard/index.module.scss`** — the
   `$row-entry-animation` comment block still describes a cascade over the whole result set, which is
   **still accurate**: Task 6 (which would have narrowed it to the first screenful) was never
   implemented. No change needed. The `.result-card` rule did gain a comment for
   `content-visibility`.
 - **Root `CLAUDE.md`** — no change: this was conditional on Task 5 adding
   `@tanstack/react-virtual`, and no dependency was added.
-- If any task appears to contradict an invariant in `src/codex/CLAUDE.md`, **raise it with the user**
+- If any task appears to contradict an invariant in `src/cardex/CLAUDE.md` or `src/shared/CLAUDE.md`, **raise it with the user**
   rather than rewriting the invariant to fit the change.
 
 ### Comment style
@@ -336,7 +336,7 @@ off-screen elements — browser-native virtualization, with no JS, no dependency
 the component tree or the DOM.
 
 Add to `.result-card` in
-`src/codex/components/ResultsPanels/CardResultsPanel/ResultCard/index.module.scss`:
+`src/cardex/components/CardResultsPanel/ResultCard/index.module.scss`:
 
 ```scss
 content-visibility: auto;
@@ -581,7 +581,7 @@ Candidates, in rough order of promise:
    `scale()` transform on the content group, yet `zoomLevel` invalidates the whole draw effect. That
    is 293 ms of Skilldex scripting to set three attributes.
 
-**Constraints that apply before touching either tree** — from `src/codex/CLAUDE.md`, and these are
+**Constraints that apply before touching either tree** — from `src/shared/CLAUDE.md`, and these are
 the reason this work is harder than it looks:
 
 - The **layout/render split is an invariant**: layout is memoized on tree/filter/formatting inputs,
@@ -667,7 +667,7 @@ Pin these and write them into the table:
 
 ### Skilldex — interactions to measure
 
-Controls confirmed in `SearchPanels/TalentSearchPanel/index.tsx` and the tree's own expansion
+Controls confirmed in `src/skilldex/components/TalentSearchPanel/index.tsx` and the tree's own expansion
 buttons. Ordered by how much of the pipeline each is expected to re-run.
 
 | # | Interaction | Why it is on this list |
@@ -843,7 +843,7 @@ say what changed and which states to compare, and wait. **The user runs the dev 
 
 ### Which docs change with the work
 
-- **`src/codex/CLAUDE.md`** — the layout/render split invariant is *extended* by Task 1, not
+- **`src/shared/CLAUDE.md`** — the layout/render split invariant is *extended* by Task 1, not
   contradicted: zoom moves from "only re-renders" to "does not redraw at all". Update that wording
   once Task 1 lands. If a task appears to contradict an invariant there, **raise it with the user**
   rather than rewriting the invariant to fit.
@@ -1038,10 +1038,10 @@ feels worse to use, drop it rather than keeping it for the metric — and record
 
 Unknown until traced. Likely candidates:
 
-- **`src/codex/CLAUDE.md`** — if the layout/render split or the dimension-cache keying changes, the
+- **`src/shared/CLAUDE.md`** — if the layout/render split or the dimension-cache keying changes, the
   invariants describing them change with it. A change that *contradicts* one gets raised with the
   user rather than quietly rewritten.
-- **`src/codex/utils/eventTreeSpacing/README.md`** — if the event-tree layout passes change.
+- **`src/eventmaps/utils/eventTreeSpacing/README.md`** — if the event-tree layout passes change.
 - **This file** — record the matched-pair measurements per tool the way Part 1 does, including the
   numbers that do not flatter the change.
 - **Root `CLAUDE.md`** — PWA & Performance already carries a line pointing here and stating that

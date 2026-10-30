@@ -354,7 +354,7 @@ the same filters as before, and the Scoring weekly panels render the current cha
   adding a cross-tool import and seeing `npm run lint` fail — an alias the resolver doesn't map would
   make the rule silently pass.
 
-### Task 10 — Docs and cleanup
+### Task 10 — Docs and cleanup — COMPLETED
 
 Fix the `src/codex/` code paths inside `src/specs/*.md` (`src/codex/` itself is already gone, Task 7). Update the root `CLAUDE.md` (list above, plus the new boundary invariant),
 `verify-changes/SKILL.md`, `scripts/parse/README.md`, `supabase/functions/`. Final check:
