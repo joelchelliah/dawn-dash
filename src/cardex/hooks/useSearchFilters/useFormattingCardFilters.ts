@@ -4,7 +4,7 @@ import {
   CardCodexSearchFilterCache,
   FormattingCard,
   FormattingCardFilterOption,
-} from '@/codex/types/cardFilters'
+} from '@/cardex/types/cardFilters'
 
 const defaultFilters = {
   [FormattingCardFilterOption.ShowCardArt]: true,

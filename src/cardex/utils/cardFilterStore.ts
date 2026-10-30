@@ -1,6 +1,6 @@
 import { getFromCache, saveToCache } from '@/shared/utils/storage'
 
-import { CardCodexSearchFilterCache, FormattingCardFilterOption } from '@/codex/types/cardFilters'
+import { CardCodexSearchFilterCache, FormattingCardFilterOption } from '@/cardex/types/cardFilters'
 
 const CARDS_CACHE_VERSION = 'v1'
 const CARDS_CACHE_KEY = `codex_cards_filters_${CARDS_CACHE_VERSION}`

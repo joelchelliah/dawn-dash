@@ -86,7 +86,7 @@ This is a Next.js application (dawn-dash.com) for Dawncaster game data visualiza
 
 - **Next.js 15** (pages router) with React 18, TypeScript, and SCSS modules
 - **`/pages`**: thin page components — one per tool, plus `pages/eventmaps/[event].tsx` for per-event pages
-- **`/src`**: application logic organized by feature: `landing/`, `speedruns/`, `codex/` (Cardex + Skilldex + Eventmaps + Booty), `scoring/`, `shared/`
+- **`/src`**: application logic organized by feature: `landing/`, `speedruns/`, `cardex/`, `skilldex/`, `eventmaps/`, `booty/`, `scoring/`, `shared/` — one folder per tool, plus `shared/` for anything more than one tool uses
 - **Supabase backend**: database and edge functions for **talents** data. Cards are _not_ read from Supabase — Cardex fetches them live from the Blightbane API (see Data Layer)
 
 ### Tool Registry
@@ -100,7 +100,7 @@ A tool marked `unlisted: true` stays reachable by direct URL but is hidden from 
 Each feature directory has its own `CLAUDE.md` with architecture details and invariants — read it before changing that feature.
 
 1. **Speedruns** (`/speedruns`, `src/speedruns/`) — interactive Chart.js charts of speedrun data from the external Blightbane API, with class/difficulty/time controls
-2. **Cardex** (`/cardex`, `src/codex/`) — multi-keyword card search and advanced filtering, plus card tracking for weekly challenges; card data fetched live from the Blightbane API
+2. **Cardex** (`/cardex`, `src/cardex/`) — multi-keyword card search and advanced filtering, plus card tracking for weekly challenges; card data fetched live from the Blightbane API
 3. **Skilldex** (`/skilldex`, `src/skilldex/`) — interactive talent-tree visualizer (D3 hierarchy) with prerequisite tracking and requirement filters; talent data from Supabase
 4. **Eventmaps** (`/eventmaps`, `src/eventmaps/`) — fully mapped event trees (branches, requirements, rewards) rendered from static `src/shared/data/event-trees.json`
 5. **Booty** (`/booty`, `src/booty/`) — a breakdown of every treasure card, special basic attack and card pool, and the ways of acquiring each, rendered from static `src/booty/data/treasure-cards.json` / `treasure-pools.json` / `special-weapons.json`, with card details joined live from the Blightbane API via `useCardData`. **`src/booty/index.tsx` owns the one `useCardData()` call for all three panels** and shares it through `BootyCardDataContext` — see the single-fetch invariant in `src/booty/CLAUDE.md`
@@ -172,7 +172,7 @@ Besides the site-wide pieces below, `shared/` holds what the codex tools share �
 - **Service worker** with CacheFirst strategy for Blightbane images (10-day cache expiry), split across **two** `runtimeCaching` buckets: `card-artwork` for `/images/icons/**` (1500 entries, ~3.2MB — sized for Cardex result sets, which easily exceed 100 images) and `external-images` for everything else (100 entries: classes, energy orbs, events). The specific pattern must stay **first**, since Workbox uses the first match. Keeping them separate is what stops a large Cardex session from evicting the rest of the site's images.
 - **Offline support** via localStorage + service worker caching
 - **Dynamic imports** with `next/dynamic` for code splitting (each tool page lazy-loads its feature component)
-- **INP (interaction responsiveness)** is tracked in `src/specs/inp.md`. Cardex is **done**: `.result-card` carries `content-visibility: auto`, which cut its interaction's layout+paint 42% and is why the results list is _not_ virtualized (the invariant is in `src/codex/CLAUDE.md`). **Skilldex and Eventmaps are traced, with Task 1 done**: both trees wiped and rebuilt their whole SVG on every zoom change, so zoom now updates the svg's dimensions and the content group's transform without redrawing (scripting −93% / −81%; see Part 2 and the layout/render-split invariant in `src/codex/CLAUDE.md`). Their remaining tasks are unimplemented, and **Speedruns is still scoped but untraced**. Read Part 2 before optimising any of them, chiefly because the Cardex fix does **not** transfer: they render one SVG or a canvas, so there are no off-screen DOM children to skip and the cost is scripting rather than layout+paint.
+- **INP (interaction responsiveness)** is tracked in `src/specs/inp.md`. Cardex is **done**: `.result-card` carries `content-visibility: auto`, which cut its interaction's layout+paint 42% and is why the results list is _not_ virtualized (the invariant is in `src/cardex/CLAUDE.md`). **Skilldex and Eventmaps are traced, with Task 1 done**: both trees wiped and rebuilt their whole SVG on every zoom change, so zoom now updates the svg's dimensions and the content group's transform without redrawing (scripting −93% / −81%; see Part 2 and the layout/render-split invariant in `src/shared/CLAUDE.md`). Their remaining tasks are unimplemented, and **Speedruns is still scoped but untraced**. Read Part 2 before optimising any of them, chiefly because the Cardex fix does **not** transfer: they render one SVG or a canvas, so there are no off-screen DOM children to skip and the cost is scripting rather than layout+paint.
 - **Image optimization** via `next/image` with remote patterns for Blightbane assets
 
 ### Styling Conventions

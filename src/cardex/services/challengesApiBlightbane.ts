@@ -4,7 +4,7 @@ import { CharacterClass } from '@/shared/types/characterClass'
 import { AllChallengesApiResponse, ChallengeApiResponse } from '@/shared/types/challengeApi'
 import { CardSet } from '@/shared/types/filters'
 
-import { ChallengeData } from '@/codex/types/challenges'
+import { ChallengeData } from '@/cardex/types/challenges'
 
 import { Banner } from '../types/cardFilters'
 

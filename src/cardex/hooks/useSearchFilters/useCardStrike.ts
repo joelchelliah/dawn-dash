@@ -2,12 +2,12 @@ import { useCallback, useMemo, useRef, useState } from 'react'
 
 import { CardData } from '@/shared/types/cards'
 
-import { CardCodexSearchFilterCache } from '@/codex/types/cardFilters'
+import { CardCodexSearchFilterCache } from '@/cardex/types/cardFilters'
 import {
   getCardNameFromStrikeKey,
   getCardStrikeKey,
   isCardStruckIn,
-} from '@/codex/utils/cardHelper'
+} from '@/cardex/utils/cardHelper'
 
 export const useCardStrike = (cachedFilters?: CardCodexSearchFilterCache['struckCards']) => {
   // Strike keys, not plain names — see `getCardStrikeKey`

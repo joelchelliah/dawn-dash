@@ -8,7 +8,7 @@ import {
   CardCodexSearchFilterCache,
   CardType,
   CardTypeFilterOption,
-} from '@/codex/types/cardFilters'
+} from '@/cardex/types/cardFilters'
 
 const defaultFilters: Record<string, boolean> = {
   [CardTypeFilterOption.Melee]: true,

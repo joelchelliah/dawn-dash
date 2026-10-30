@@ -7,8 +7,8 @@ import { useScrollToResultsOnArrival } from '@/shared/hooks/useScrollToResultsOn
 import KeywordsSummary from '@/shared/components/KeywordsSummary'
 import PanelHeader from '@/shared/components/PanelHeader'
 
-import { isCardStruckIn } from '@/codex/utils/cardHelper'
-import { UseAllCardSearchFilters } from '@/codex/hooks/useSearchFilters/useAllCardSearchFilters'
+import { isCardStruckIn } from '@/cardex/utils/cardHelper'
+import { UseAllCardSearchFilters } from '@/cardex/hooks/useSearchFilters/useAllCardSearchFilters'
 
 import ResultCard from './ResultCard'
 import styles from './index.module.scss'

@@ -4,7 +4,7 @@ import {
   ExtraCardFilterOption,
   ExtraCard,
   CardCodexSearchFilterCache,
-} from '@/codex/types/cardFilters'
+} from '@/cardex/types/cardFilters'
 
 const defaultFilters = {
   [ExtraCardFilterOption.IncludeMonsterCards]: false,

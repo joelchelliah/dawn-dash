@@ -19,18 +19,18 @@ import PanelHeader from '@/shared/components/PanelHeader'
 import FilterGroup from '@/shared/components/FilterGroup'
 import SearchField from '@/shared/components/SearchField'
 
-import { ExtraCardFilterOption, RarityFilterOption } from '@/codex/types/cardFilters'
-import { UseAllCardSearchFilters } from '@/codex/hooks/useSearchFilters/useAllCardSearchFilters'
-import { allFormattingCardFilters } from '@/codex/hooks/useSearchFilters/useFormattingCardFilters'
-import { allRarities } from '@/codex/hooks/useSearchFilters/useRarityFilters'
-import { allBanners } from '@/codex/hooks/useSearchFilters/useBannerFilters'
+import { ExtraCardFilterOption, RarityFilterOption } from '@/cardex/types/cardFilters'
+import { UseAllCardSearchFilters } from '@/cardex/hooks/useSearchFilters/useAllCardSearchFilters'
+import { allFormattingCardFilters } from '@/cardex/hooks/useSearchFilters/useFormattingCardFilters'
+import { allRarities } from '@/cardex/hooks/useSearchFilters/useRarityFilters'
+import { allBanners } from '@/cardex/hooks/useSearchFilters/useBannerFilters'
 import {
   allCardTypes,
   getCardTypeEmojiFromName,
-} from '@/codex/hooks/useSearchFilters/useCardTypeFilters'
-import { allExtraCardFilters } from '@/codex/hooks/useSearchFilters/useExtraCardFilters'
+} from '@/cardex/hooks/useSearchFilters/useCardTypeFilters'
+import { allExtraCardFilters } from '@/cardex/hooks/useSearchFilters/useExtraCardFilters'
 
-import WeeklyChallengeButton from '../shared/WeeklyChallengeButton'
+import WeeklyChallengeButton from '../WeeklyChallengeButton'
 
 import WeeklyOptimizationNotification from './WeeklyOptimizationNotification'
 import styles from './index.module.scss'

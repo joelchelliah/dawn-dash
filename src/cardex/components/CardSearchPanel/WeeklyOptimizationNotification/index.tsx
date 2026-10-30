@@ -3,7 +3,7 @@ import { Fragment, useCallback, useEffect, useState } from 'react'
 import { createCx } from '@/shared/utils/classnames'
 import Notification from '@/shared/components/Notification'
 
-import { WeeklyChallengeNotification } from '@/codex/hooks/useSearchFilters/useAllCardSearchFilters'
+import { WeeklyChallengeNotification } from '@/cardex/hooks/useSearchFilters/useAllCardSearchFilters'
 
 import styles from './index.module.scss'
 

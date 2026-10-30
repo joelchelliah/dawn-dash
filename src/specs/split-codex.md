@@ -314,12 +314,12 @@ Write `src/eventmaps/CLAUDE.md`.
 `codexTalentsStore`) moves here. Update the path hints in `sync-talents-preflight.js` and the links in
 `supabase/functions/README.md`. Write `src/skilldex/CLAUDE.md`.
 
-### Task 7 — Cardex → `src/cardex/`
+### Task 7 — Cardex → `src/cardex/` — COMPLETED
 
 `cards.tsx` → `index.tsx`. Weekly-challenge data (`useWeeklyChallengeFilterData`,
 `challengesApiBlightbane`, `types/challenges`) is Cardex-only for now and moves here unchanged;
-Task 8 then splits it. Write `src/cardex/CLAUDE.md`. After this task `src/codex/` holds only
-`CLAUDE.md`.
+Task 8 then splits it. Write `src/cardex/CLAUDE.md`. _Done by `git mv`-ing what was left of
+`src/codex/CLAUDE.md` — by then exactly Cardex's content — so `src/codex/` is gone after this task._
 
 ### Task 8 — Merge the weekly-challenge fetchers
 
@@ -356,8 +356,7 @@ the same filters as before, and the Scoring weekly panels render the current cha
 
 ### Task 10 — Docs and cleanup
 
-Fix the `src/codex/` code paths inside `src/specs/*.md`; delete `src/codex/CLAUDE.md` once empty and
-`src/codex/` with it. Update the root `CLAUDE.md` (list above, plus the new boundary invariant),
+Fix the `src/codex/` code paths inside `src/specs/*.md` (`src/codex/` itself is already gone, Task 7). Update the root `CLAUDE.md` (list above, plus the new boundary invariant),
 `verify-changes/SKILL.md`, `scripts/parse/README.md`, `supabase/functions/`. Final check:
 `git grep -n "src/codex\|@/codex"` returns only this spec — then delete this spec too.
 

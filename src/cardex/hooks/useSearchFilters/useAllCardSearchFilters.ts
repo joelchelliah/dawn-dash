@@ -14,18 +14,18 @@ import {
 import { useKeywords } from '@/shared/hooks/useSearchFilters/useKeywords'
 import { useFilterTracking } from '@/shared/hooks/useSearchFilters/useFilterTracking'
 
-import { ExtraCardFilterOption, WeeklyChallengeFilterData } from '@/codex/types/cardFilters'
+import { ExtraCardFilterOption, WeeklyChallengeFilterData } from '@/cardex/types/cardFilters'
 import {
   hasMonsterBanner,
   hasMonsterRarity,
   hasNoBanner,
   isAnimalCompanionCard,
   isNonCollectible,
-} from '@/codex/utils/cardHelper'
+} from '@/cardex/utils/cardHelper'
 import {
   cacheCardCodexSearchFilters,
   getCachedCardCodexSearchFilters,
-} from '@/codex/utils/cardFilterStore'
+} from '@/cardex/utils/cardFilterStore'
 
 import { useWeeklyChallengeFilterData } from '../useWeeklyChallengeFilterData'
 

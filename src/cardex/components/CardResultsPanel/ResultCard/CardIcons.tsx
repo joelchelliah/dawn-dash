@@ -10,7 +10,7 @@ import {
 import { createCx } from '@/shared/utils/classnames'
 import { CardData } from '@/shared/types/cards'
 
-import { isNonCollectible, isAnimalCompanionCard } from '@/codex/utils/cardHelper'
+import { isNonCollectible, isAnimalCompanionCard } from '@/cardex/utils/cardHelper'
 
 import styles from './CardIcons.module.scss'
 

@@ -14,13 +14,13 @@ import CodexErrorMessage from '@/shared/components/CodexErrorMessage'
 import CodexLoadingMessage from '@/shared/components/CodexLoadingMessage'
 
 import { useAllCardSearchFilters } from './hooks/useSearchFilters/useAllCardSearchFilters'
-import styles from './cards.module.scss'
+import styles from './index.module.scss'
 
-const CardResultsPanel = dynamic(() => import('./components/ResultsPanels/CardResultsPanel'), {
+const CardResultsPanel = dynamic(() => import('./components/CardResultsPanel'), {
   loading: () => <div>Loading cards...</div>,
 })
 
-const CardSearchPanel = dynamic(() => import('./components/SearchPanels/CardSearchPanel'), {
+const CardSearchPanel = dynamic(() => import('./components/CardSearchPanel'), {
   loading: () => <div>Loading search filters...</div>,
 })
 

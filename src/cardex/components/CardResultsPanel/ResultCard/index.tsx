@@ -9,7 +9,7 @@ import { parseCardDescription } from '@/shared/utils/cardDescription'
 import { isCardMatchingKeyword } from '@/shared/utils/keywordMatching'
 import KeywordPills from '@/shared/components/KeywordPills'
 
-import { getBlightbaneCardUrl } from '@/codex/utils/cardHelper'
+import { getBlightbaneCardUrl } from '@/cardex/utils/cardHelper'
 
 import { STRUCK_TRIGGER } from './struckTrigger'
 import CardArtwork from './CardArtwork'
