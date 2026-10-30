@@ -1,4 +1,4 @@
-import { SharedFilterOption } from '@/codex/types/filters'
+import { SharedFilterOption } from '@/shared/types/filters'
 
 const SEPARATOR = '.'
 const RANGE = '-'

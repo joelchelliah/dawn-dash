@@ -1,10 +1,10 @@
+import { createFilterHook } from '@/shared/hooks/useSearchFilters/useFilterFactory'
+
 import {
   ExtraCardFilterOption,
   ExtraCard,
   CardCodexSearchFilterCache,
 } from '@/codex/types/cardFilters'
-
-import { createFilterHook } from './useFilterFactory'
 
 const defaultFilters = {
   [ExtraCardFilterOption.IncludeMonsterCards]: false,

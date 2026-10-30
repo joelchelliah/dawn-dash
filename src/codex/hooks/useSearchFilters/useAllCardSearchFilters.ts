@@ -1,5 +1,19 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
+import { CardData } from '@/shared/types/cards'
+import {
+  isCardMatchingKeyword,
+  RARITY_KEYWORDS,
+  toRarityToken,
+} from '@/shared/utils/keywordMatching'
+import { useCodexUrlParams } from '@/shared/hooks/useCodexUrlParams'
+import {
+  cardSetUrlCodec,
+  useCardSetFilters,
+} from '@/shared/hooks/useSearchFilters/useCardSetFilters'
+import { useKeywords } from '@/shared/hooks/useSearchFilters/useKeywords'
+import { useFilterTracking } from '@/shared/hooks/useSearchFilters/useFilterTracking'
+
 import { ExtraCardFilterOption, WeeklyChallengeFilterData } from '@/codex/types/cardFilters'
 import {
   hasMonsterBanner,
@@ -8,29 +22,19 @@ import {
   isAnimalCompanionCard,
   isNonCollectible,
 } from '@/codex/utils/cardHelper'
-import { CardData } from '@/codex/types/cards'
 import {
   cacheCardCodexSearchFilters,
   getCachedCardCodexSearchFilters,
 } from '@/codex/utils/cardFilterStore'
-import {
-  isCardMatchingKeyword,
-  RARITY_KEYWORDS,
-  toRarityToken,
-} from '@/codex/utils/keywordMatching'
 
 import { useWeeklyChallengeFilterData } from '../useWeeklyChallengeFilterData'
-import { useCodexUrlParams } from '../useCodexUrlParams'
 
-import { cardSetUrlCodec, useCardSetFilters } from './useCardSetFilters'
 import { allRarities, rarityUrlCodec, useRarityFilters } from './useRarityFilters'
 import { bannerUrlCodec, useBannerFilters } from './useBannerFilters'
 import { allCardTypes, cardTypeUrlCodec, useCardTypeFilters } from './useCardTypeFilters'
 import { useExtraCardFilters } from './useExtraCardFilters'
 import { useFormattingCardFilters } from './useFormattingCardFilters'
 import { useCardStrike } from './useCardStrike'
-import { useKeywords } from './useKeywords'
-import { useFilterTracking } from './useFilterTracking'
 
 export type WeeklyChallengeNotification =
   'untrackedCards' | 'specialKeywordRules' | 'specialKeywordRulesTextNotScored' | 'negativeKeywords'

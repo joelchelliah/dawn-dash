@@ -1,8 +1,8 @@
 import { useMemo } from 'react'
 
 import { CharacterClass } from '@/shared/types/characterClass'
+import { CardData } from '@/shared/types/cards'
 
-import { CardData } from '@/codex/types/cards'
 import { EnrichedTreasureCard, TreasureCard } from '@/codex/types/treasures'
 import {
   getRelatedEvents,

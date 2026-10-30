@@ -1,6 +1,6 @@
 import { createCx } from '@/shared/utils/classnames'
+import { Event, EventTreeNode } from '@/shared/types/events'
 
-import { Event, EventTreeNode } from '@/codex/types/events'
 import {
   getCustomNodeEmoji,
   hasCustomNodeType,

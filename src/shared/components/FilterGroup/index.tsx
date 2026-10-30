@@ -1,7 +1,6 @@
 import { createCx } from '@/shared/utils/classnames'
-
-import { FilterTypeCard, FilterTypeTalent } from '@/codex/types/filters'
-import Section from '@/codex/components/shared/Section'
+import { FilterTypeCard, FilterTypeTalent } from '@/shared/types/filters'
+import Section from '@/shared/components/Section'
 
 import Checkbox from './Checkbox'
 import styles from './index.module.scss'

@@ -2,15 +2,15 @@ import { useMemo } from 'react'
 
 import { RARITIES } from '@/shared/components/RarityBorderedArtwork'
 import { createCx } from '@/shared/utils/classnames'
+import { CardData } from '@/shared/types/cards'
+import Section from '@/shared/components/Section'
 
-import { CardData } from '@/codex/types/cards'
 import { SpecialWeapon } from '@/codex/types/weapons'
 import {
   getRelatedEvents,
   getRelatedTreasurePoolCards,
   getRelatedTreasurePoolTalents,
 } from '@/codex/utils/treasureHelper'
-import Section from '@/codex/components/shared/Section'
 
 import CardModal, { getCardSubtitle } from '../../shared/CardModal'
 import { WEAPON_ARTWORK } from '../../shared/cardArtwork'

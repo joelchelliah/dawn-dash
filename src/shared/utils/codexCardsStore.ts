@@ -1,7 +1,6 @@
 import { CachedData } from '@/shared/types/cache'
 import { CacheWriteResult, getFromCache, saveToCache } from '@/shared/utils/storage'
-
-import { CardData } from '@/codex/types/cards'
+import { CardData } from '@/shared/types/cards'
 
 const CACHE_VERSION = 'v3'
 const CACHE_KEY = `codex_cards_${CACHE_VERSION}`

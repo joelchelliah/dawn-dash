@@ -1,10 +1,10 @@
+import { createFilterHook } from '@/shared/hooks/useSearchFilters/useFilterFactory'
+
 import {
   TalentCodexSearchFilterCache,
   FormattingTalent,
   FormattingTalentFilterOption,
 } from '@/codex/types/talentFilters'
-
-import { createFilterHook } from './useFilterFactory'
 
 const defaultFilters = {
   [FormattingTalentFilterOption.ShowTalentArt]: true,

@@ -3,11 +3,10 @@ import { createCx } from '@/shared/utils/classnames'
 import { HOVER_TRIGGER } from '@/shared/utils/hoverTrigger'
 import { CharacterClass } from '@/shared/types/characterClass'
 import { useBreakpoint } from '@/shared/hooks/useBreakpoint'
-
-import { Event } from '@/codex/types/events'
-import { useEventImageSrc } from '@/codex/hooks/useEventImageSrc'
-import SearchField from '@/codex/components/SearchPanels/shared/SearchField'
-import Section from '@/codex/components/shared/Section'
+import { Event } from '@/shared/types/events'
+import { useEventImageSrc } from '@/shared/hooks/useEventImageSrc'
+import SearchField from '@/shared/components/SearchField'
+import Section from '@/shared/components/Section'
 
 import styles from './index.module.scss'
 

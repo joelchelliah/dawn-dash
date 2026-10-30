@@ -1,9 +1,8 @@
 import Head from 'next/head'
 
 import { getTool } from '@/shared/config/toolRegistry'
-
-import { ChoiceNode, DialogueNode, Event, EventTreeNode } from '@/codex/types/events'
-import { useEventImageSrc } from '@/codex/hooks/useEventImageSrc'
+import { ChoiceNode, DialogueNode, Event, EventTreeNode } from '@/shared/types/events'
+import { useEventImageSrc } from '@/shared/hooks/useEventImageSrc'
 
 const BASE_URL = 'https://www.dawn-dash.com'
 

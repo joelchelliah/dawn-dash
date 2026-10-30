@@ -1,10 +1,11 @@
 import { GetStaticProps, GetStaticPaths } from 'next'
 import dynamic from 'next/dynamic'
 
+import { normalizeEventNameForUrl } from '@/shared/utils/urlHelper'
+import { Event } from '@/shared/types/events'
+import eventTreesData from '@/shared/data/event-trees.json'
+
 import { findEventByName } from '@/codex/hooks/useEventUrlParam'
-import { normalizeEventNameForUrl } from '@/codex/utils/urlHelper'
-import { Event } from '@/codex/types/events'
-import eventTreesData from '@/codex/data/event-trees.json'
 import { EventmapHead } from '@/codex/components/EventMapHead'
 
 const Events = dynamic(() => import('../../src/codex/events'), {

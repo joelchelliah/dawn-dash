@@ -1,6 +1,7 @@
 import { HierarchyPointNode } from 'd3-hierarchy'
 
-import { EventTreeNode } from '@/codex/types/events'
+import { EventTreeNode } from '@/shared/types/events'
+import { findNodeInTree } from '@/shared/utils/tree/treeHelper'
 
 import {
   hasEffects,
@@ -10,7 +11,6 @@ import {
   hasChoiceLabel,
   isEffectsNode,
 } from './eventNodeDimensions'
-import { findNodeInTree } from './tree/treeHelper'
 
 /**
  * Find a node by ID within the tree

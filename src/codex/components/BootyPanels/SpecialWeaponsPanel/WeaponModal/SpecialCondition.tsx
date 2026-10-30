@@ -3,9 +3,9 @@ import { useMemo } from 'react'
 import { getCardImageSrc } from '@/shared/hooks/useCardImageSrc'
 import { createCx } from '@/shared/utils/classnames'
 import { capitalize } from '@/shared/utils/textHelper'
+import { CardData } from '@/shared/types/cards'
 
 import { useBootyCardUrlParam } from '@/codex/hooks/useBootyCardUrlParam'
-import { CardData } from '@/codex/types/cards'
 import { findBootyCard, getBootyCardUrlParam } from '@/codex/utils/bootyCardUrl'
 
 import { ArtworkLinkItem, ArtworkLinkList } from '../../shared/ArtworkLinkList'

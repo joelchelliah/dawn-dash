@@ -1,5 +1,5 @@
-import { CardData } from '@/codex/types/cards'
-import { Event } from '@/codex/types/events'
+import { CardData } from '@/shared/types/cards'
+import { Event } from '@/shared/types/events'
 
 export type TreasureSourceType = 'card' | 'talent' | 'event'
 

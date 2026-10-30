@@ -1,10 +1,10 @@
+import { createFilterHook } from '@/shared/hooks/useSearchFilters/useFilterFactory'
+
 import {
   CardCodexSearchFilterCache,
   FormattingCard,
   FormattingCardFilterOption,
 } from '@/codex/types/cardFilters'
-
-import { createFilterHook } from './useFilterFactory'
 
 const defaultFilters = {
   [FormattingCardFilterOption.ShowCardArt]: true,

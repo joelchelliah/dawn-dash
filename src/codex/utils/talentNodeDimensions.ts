@@ -1,4 +1,5 @@
 import { isNotNullOrUndefined } from '@/shared/utils/object'
+import { createNodeDimensionEngine } from '@/shared/utils/tree/nodeDimensions'
 
 import {
   HierarchicalTalentTreeNode,
@@ -9,7 +10,6 @@ import {
 import { NODE, REQUIREMENT_NODE } from '@/codex/constants/talentTreeValues'
 
 import { wrapTalentText } from './talentTextMeasurer'
-import { createNodeDimensionEngine } from './tree/nodeDimensions'
 import { getMatchingKeywords } from './talentTreeHelper'
 
 /**

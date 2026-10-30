@@ -1,8 +1,7 @@
 import RarityBorderedArtwork from '@/shared/components/RarityBorderedArtwork'
 import { useBreakpoint } from '@/shared/hooks/useBreakpoint'
 import { createCx } from '@/shared/utils/classnames'
-
-import { CardData } from '@/codex/types/cards'
+import { CardData } from '@/shared/types/cards'
 
 import styles from './CardArtwork.module.scss'
 

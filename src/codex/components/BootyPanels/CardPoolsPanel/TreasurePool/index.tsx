@@ -1,6 +1,7 @@
 import { useFocusBand } from '@/shared/hooks/useFocusBand'
 import { createCx } from '@/shared/utils/classnames'
 import { FOCUS_TRIGGER, HOVER_TRIGGER, HOVER_TRIGGER_SHALLOW } from '@/shared/utils/hoverTrigger'
+import Section from '@/shared/components/Section'
 
 import {
   getPoolName,
@@ -9,7 +10,6 @@ import {
   getPoolSources,
   TreasurePoolDisplay,
 } from '@/codex/constants/treasurePools'
-import Section from '@/codex/components/shared/Section'
 
 import PoolSourceList from '../../shared/PoolSourceList'
 import WhirlpoolArtwork from '../WhirlpoolArtwork'

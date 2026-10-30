@@ -16,5 +16,5 @@
     "resolveJsonModule": false,
     "types": ["node"]
   },
-  "include": ["scripts/**/*.js", "src/codex/types/events.ts"]
+  "include": ["scripts/**/*.js", "src/shared/types/events.ts"]
 }

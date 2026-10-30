@@ -8,8 +8,8 @@ import {
   PawIcon,
 } from '@/shared/components/Icons'
 import { createCx } from '@/shared/utils/classnames'
+import { CardData } from '@/shared/types/cards'
 
-import { CardData } from '@/codex/types/cards'
 import { isNonCollectible, isAnimalCompanionCard } from '@/codex/utils/cardHelper'
 
 import styles from './CardIcons.module.scss'

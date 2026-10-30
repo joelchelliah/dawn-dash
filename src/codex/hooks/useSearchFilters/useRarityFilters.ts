@@ -1,8 +1,8 @@
-import { CardCodexSearchFilterCache, Rarity, RarityFilterOption } from '@/codex/types/cardFilters'
-import { SharedFilterOption } from '@/codex/types/filters'
-import { createFilterUrlCodec } from '@/codex/utils/filterUrlCodec'
+import { SharedFilterOption } from '@/shared/types/filters'
+import { createFilterUrlCodec } from '@/shared/utils/filterUrlCodec'
+import { createFilterHook } from '@/shared/hooks/useSearchFilters/useFilterFactory'
 
-import { createFilterHook } from './useFilterFactory'
+import { CardCodexSearchFilterCache, Rarity, RarityFilterOption } from '@/codex/types/cardFilters'
 
 const defaultFilters: Record<string, boolean> = {
   [RarityFilterOption.Legendary]: true,

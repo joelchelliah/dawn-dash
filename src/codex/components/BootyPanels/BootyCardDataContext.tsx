@@ -1,6 +1,6 @@
 import { createContext, useContext } from 'react'
 
-import { UseCardData } from '@/codex/hooks/useCardData'
+import { UseCardData } from '@/shared/hooks/useCardData'
 
 const BootyCardDataContext = createContext<UseCardData | null>(null)
 

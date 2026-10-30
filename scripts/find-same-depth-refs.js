@@ -1,7 +1,7 @@
 const fs = require('fs')
 const path = require('path')
 
-const EVENT_TREES_FILE = path.join(__dirname, '../src/codex/data/event-trees.json')
+const EVENT_TREES_FILE = path.join(__dirname, '../src/shared/data/event-trees.json')
 
 /**
  * Script to find nodes with refs pointing to other nodes at the same depth.

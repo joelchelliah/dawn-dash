@@ -1,10 +1,11 @@
 import { useMemo } from 'react'
 
+import CodexErrorMessage from '@/shared/components/CodexErrorMessage'
+import CodexLastUpdated from '@/shared/components/CodexLastUpdated'
+import CodexLoadingMessage from '@/shared/components/CodexLoadingMessage'
+
 import { enrichTreasureCards } from '@/codex/utils/treasureHelper'
 
-import CodexErrorMessage from '../../CodexErrorMessage'
-import CodexLastUpdated from '../../CodexLastUpdated'
-import CodexLoadingMessage from '../../CodexLoadingMessage'
 import { useBootyCardData } from '../BootyCardDataContext'
 import TreasureBasePanel, { TreasurePanelMessage, TreasurePanelRow } from '../TreasureBasePanel'
 

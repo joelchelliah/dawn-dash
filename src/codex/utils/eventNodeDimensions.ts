@@ -1,5 +1,4 @@
 import { logger } from '@/shared/utils/logger'
-
 import {
   EventTreeNode,
   DialogueNode,
@@ -8,12 +7,13 @@ import {
   SpecialNode,
   RequirementsNode,
   Event,
-} from '@/codex/types/events'
+} from '@/shared/types/events'
+import { createNodeDimensionEngine } from '@/shared/utils/tree/nodeDimensions'
+
 import { TEXT, INNER_BOX, NODE, NODE_BOX } from '@/codex/constants/eventTreeValues'
 import { LevelOfDetail } from '@/codex/constants/eventSearchValues'
 
 import { measureEventTextWidth, wrapEventText } from './eventTextMeasurer'
-import { createNodeDimensionEngine } from './tree/nodeDimensions'
 import { isEmojiOnlyNode } from './eventTreeHelper'
 
 /**

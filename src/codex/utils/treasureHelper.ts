@@ -1,7 +1,8 @@
 import { logger } from '@/shared/utils/logger'
+import { CardData } from '@/shared/types/cards'
+import { Event } from '@/shared/types/events'
+import eventTrees from '@/shared/data/event-trees.json'
 
-import { CardData } from '@/codex/types/cards'
-import { Event } from '@/codex/types/events'
 import {
   EnrichedEvent,
   EnrichedTreasureCard,
@@ -11,7 +12,6 @@ import {
   TreasurePool,
   TreasureSource,
 } from '@/codex/types/treasures'
-import eventTrees from '@/codex/data/event-trees.json'
 import { SpecialWeapon } from '@/codex/types/weapons'
 import specialWeapons from '@/codex/data/special-weapons.json'
 import treasureCards from '@/codex/data/treasure-cards.json'

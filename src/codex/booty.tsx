@@ -9,9 +9,9 @@ import Footer from '@/shared/components/Footer'
 import Header from '@/shared/components/Header'
 import ScrollToTopButton from '@/shared/components/ScrollToTopButton'
 import StarField from '@/shared/components/StarField'
+import { useCardData } from '@/shared/hooks/useCardData'
 
 import { BootyCardDataProvider } from './components/BootyPanels/BootyCardDataContext'
-import { useCardData } from './hooks/useCardData'
 import styles from './booty.module.scss'
 
 const TreasureCardsPanel = dynamic(() => import('./components/BootyPanels/TreasureCardsPanel'), {

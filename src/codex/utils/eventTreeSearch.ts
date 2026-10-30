@@ -1,4 +1,5 @@
-import { ChoiceNode, Event, EventTreeNode } from '@/codex/types/events'
+import { ChoiceNode, Event, EventTreeNode } from '@/shared/types/events'
+import { findNodeInTree } from '@/shared/utils/tree/treeHelper'
 
 import {
   hasChoiceLabel,
@@ -6,7 +7,6 @@ import {
   isRequirementsNode,
   isTextNode,
 } from './eventNodeDimensions'
-import { findNodeInTree } from './tree/treeHelper'
 
 /**
  * Searches an event tree for text that appears anywhere in:

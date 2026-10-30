@@ -1,4 +1,4 @@
-import { CardData } from '@/codex/types/cards'
+import { CardData } from '@/shared/types/cards'
 
 // Keyed lowercase so a hand-typed `<rarity:monster>` works too
 const RARITY_INDEX_BY_NAME: Record<string, number> = {

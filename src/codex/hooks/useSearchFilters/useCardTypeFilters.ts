@@ -1,14 +1,14 @@
 import { useCallback } from 'react'
 
+import { SharedFilterOption } from '@/shared/types/filters'
+import { createFilterUrlCodec } from '@/shared/utils/filterUrlCodec'
+import { createFilterHook } from '@/shared/hooks/useSearchFilters/useFilterFactory'
+
 import {
   CardCodexSearchFilterCache,
   CardType,
   CardTypeFilterOption,
 } from '@/codex/types/cardFilters'
-import { SharedFilterOption } from '@/codex/types/filters'
-import { createFilterUrlCodec } from '@/codex/utils/filterUrlCodec'
-
-import { createFilterHook } from './useFilterFactory'
 
 const defaultFilters: Record<string, boolean> = {
   [CardTypeFilterOption.Melee]: true,

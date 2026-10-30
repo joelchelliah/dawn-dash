@@ -2,11 +2,11 @@ import { handleError } from '@/shared/utils/apiErrorHandling'
 import { isNonEmptyString, isNotNullOrUndefined } from '@/shared/utils/object'
 import { CharacterClass } from '@/shared/types/characterClass'
 import { AllChallengesApiResponse, ChallengeApiResponse } from '@/shared/types/challengeApi'
+import { CardSet } from '@/shared/types/filters'
 
 import { ChallengeData } from '@/codex/types/challenges'
 
 import { Banner } from '../types/cardFilters'
-import { CardSet } from '../types/filters'
 
 const BLIGHTBANE_URL = 'https://blightbane.io/api'
 

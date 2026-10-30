@@ -1,4 +1,5 @@
-import { CardData } from '@/codex/types/cards'
+import { CardData } from '@/shared/types/cards'
+
 import { TreasureSource } from '@/codex/types/treasures'
 
 export interface SpecialWeapon {

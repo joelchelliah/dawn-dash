@@ -155,9 +155,9 @@ case there's no frontend work. But if it introduces a **new expansion index**, t
 card-set filter silently hides those talents and labels them `-`. The preflight flags this.
 To fix, add the index to:
 
-- `CardSetFilterOption` — [`src/codex/types/filters.ts`](../../src/codex/types/filters.ts)
+- `CardSetFilterOption` — [`src/shared/types/filters.ts`](../../src/shared/types/filters.ts)
 - `defaultCardSetFilterValueMap`, `indexMap`, `indexToValueMap` —
-  [`useCardSetFilters.ts`](../../src/codex/hooks/useSearchFilters/useCardSetFilters.ts)
+  [`useCardSetFilters.ts`](../../src/shared/hooks/useSearchFilters/useCardSetFilters.ts)
 - `KNOWN_EXPANSIONS` — [`scripts/sync/sync-talents-preflight.js`](../../scripts/sync/sync-talents-preflight.js)
 
 Then bump `TALENTS_CACHE_VERSION` in

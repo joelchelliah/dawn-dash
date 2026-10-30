@@ -1,4 +1,4 @@
-import { CardSet, SharedFilterOption } from './filters'
+import { CardSet, SharedFilterOption } from '@/shared/types/filters'
 
 // -------------------- Rarity --------------------
 

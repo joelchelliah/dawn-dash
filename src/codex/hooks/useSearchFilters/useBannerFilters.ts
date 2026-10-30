@@ -1,8 +1,8 @@
-import { Banner, BannerFilterOption, CardCodexSearchFilterCache } from '@/codex/types/cardFilters'
-import { SharedFilterOption } from '@/codex/types/filters'
-import { createFilterUrlCodec } from '@/codex/utils/filterUrlCodec'
+import { SharedFilterOption } from '@/shared/types/filters'
+import { createFilterUrlCodec } from '@/shared/utils/filterUrlCodec'
+import { createFilterHook } from '@/shared/hooks/useSearchFilters/useFilterFactory'
 
-import { createFilterHook } from './useFilterFactory'
+import { Banner, BannerFilterOption, CardCodexSearchFilterCache } from '@/codex/types/cardFilters'
 
 const defaultBannerFilters: Record<string, boolean> = {
   [BannerFilterOption.Green]: true,

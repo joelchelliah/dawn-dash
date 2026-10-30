@@ -1,7 +1,7 @@
 const fs = require('fs')
 const path = require('path')
 
-const EVENTS_FILE = path.join(__dirname, '../src/codex/data/event-trees.json')
+const EVENTS_FILE = path.join(__dirname, '../src/shared/data/event-trees.json')
 const OUTPUT_FILE = path.join(__dirname, '../public/sitemap.xml')
 const BASE_URL = 'https://www.dawn-dash.com'
 

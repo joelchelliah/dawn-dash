@@ -12,6 +12,12 @@ import {
 } from '@/shared/components/Icons'
 import GradientButton from '@/shared/components/Buttons/GradientButton'
 import ButtonRow from '@/shared/components/Buttons/ButtonRow'
+import { allCardSets } from '@/shared/hooks/useSearchFilters/useCardSetFilters'
+import { UseCardData } from '@/shared/hooks/useCardData'
+import CodexLastUpdated from '@/shared/components/CodexLastUpdated'
+import PanelHeader from '@/shared/components/PanelHeader'
+import FilterGroup from '@/shared/components/FilterGroup'
+import SearchField from '@/shared/components/SearchField'
 
 import { ExtraCardFilterOption, RarityFilterOption } from '@/codex/types/cardFilters'
 import { UseAllCardSearchFilters } from '@/codex/hooks/useSearchFilters/useAllCardSearchFilters'
@@ -23,14 +29,8 @@ import {
   getCardTypeEmojiFromName,
 } from '@/codex/hooks/useSearchFilters/useCardTypeFilters'
 import { allExtraCardFilters } from '@/codex/hooks/useSearchFilters/useExtraCardFilters'
-import { allCardSets } from '@/codex/hooks/useSearchFilters/useCardSetFilters'
-import { UseCardData } from '@/codex/hooks/useCardData'
 
-import CodexLastUpdated from '../../CodexLastUpdated'
-import PanelHeader from '../../PanelHeader'
-import FilterGroup from '../shared/FilterGroup'
 import WeeklyChallengeButton from '../shared/WeeklyChallengeButton'
-import SearchField from '../shared/SearchField'
 
 import WeeklyOptimizationNotification from './WeeklyOptimizationNotification'
 import styles from './index.module.scss'

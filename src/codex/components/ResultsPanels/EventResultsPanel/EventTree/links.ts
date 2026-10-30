@@ -1,8 +1,8 @@
 import { select } from 'd3-selection'
 
 import { createCx } from '@/shared/utils/classnames'
+import { Event, EventTreeNode } from '@/shared/types/events'
 
-import { Event, EventTreeNode } from '@/codex/types/events'
 import { isEmojiBadgeNode, isEmojiOnlyNode } from '@/codex/utils/eventTreeHelper'
 import { getNodeDimensions, type NodeMap } from '@/codex/utils/eventNodeDimensions'
 import { LevelOfDetail } from '@/codex/constants/eventSearchValues'

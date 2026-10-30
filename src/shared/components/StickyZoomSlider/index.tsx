@@ -1,8 +1,7 @@
 import { createCx } from '@/shared/utils/classnames'
 import { CharacterClass } from '@/shared/types/characterClass'
-
-import { ZoomLevel } from '@/codex/constants/zoomValues'
-import ZoomSlider from '@/codex/components/shared/ZoomSlider'
+import { ZoomLevel } from '@/shared/constants/zoomValues'
+import ZoomSlider from '@/shared/components/ZoomSlider'
 
 import styles from './index.module.scss'
 

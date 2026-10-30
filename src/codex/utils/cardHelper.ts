@@ -1,6 +1,5 @@
 import { BlightbaneCardByIdUrl, BlightbaneCardUrl } from '@/shared/utils/imageUrls'
-
-import { CardData } from '@/codex/types/cards'
+import { CardData } from '@/shared/types/cards'
 
 const NON_COLLECTIBLE_CATEGORIES = [
   6, // Summons

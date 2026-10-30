@@ -8,12 +8,11 @@ import LoadingDots from '@/shared/components/LoadingDots'
 import { BolgarImageUrl } from '@/shared/utils/imageUrls'
 import { CharacterClass } from '@/shared/types/characterClass'
 import { ClassColorVariant, getClassColor } from '@/shared/utils/classColors'
+import { Event } from '@/shared/types/events'
+import PanelHeader from '@/shared/components/PanelHeader'
 
-import { Event } from '@/codex/types/events'
 import { ALL_EVENTS_INDEX } from '@/codex/constants/eventSearchValues'
 import { UseAllEventSearchFilters } from '@/codex/hooks/useSearchFilters/useAllEventSearchFilters'
-
-import PanelHeader from '../../PanelHeader'
 
 import EventTree from './EventTree'
 import EventList from './EventList'

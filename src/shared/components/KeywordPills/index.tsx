@@ -1,6 +1,5 @@
 import { createCx } from '@/shared/utils/classnames'
-
-import { isRarityToken } from '@/codex/utils/keywordMatching'
+import { isRarityToken } from '@/shared/utils/keywordMatching'
 
 import styles from './index.module.scss'
 

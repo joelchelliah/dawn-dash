@@ -11,7 +11,7 @@
  * turn each <br> into an actual line break instead.
  */
 
-import { createTextMeasurer } from './tree/textWidthEstimation'
+import { createTextMeasurer } from '@/shared/utils/tree/textWidthEstimation'
 
 export type EventFontVariant = 'default' | 'choice' | 'special' | 'indicatorHeader'
 

@@ -9,10 +9,16 @@ import GradientButton from '@/shared/components/Buttons/GradientButton'
 import GradientLink from '@/shared/components/GradientLink'
 import { ClassColorVariant, getClassColor } from '@/shared/utils/classColors'
 import { useBreakpoint } from '@/shared/hooks/useBreakpoint'
+import eventTreesData from '@/shared/data/event-trees.json'
+import { Event } from '@/shared/types/events'
+import { COVER } from '@/shared/constants/zoomValues'
+import { useStickyZoom } from '@/shared/hooks/useStickyZoom'
+import StickyZoomSlider from '@/shared/components/StickyZoomSlider'
+import ZoomSlider from '@/shared/components/ZoomSlider'
+import Checkbox from '@/shared/components/FilterGroup/Checkbox'
+import PanelHeader from '@/shared/components/PanelHeader'
 
-import eventTreesData from '@/codex/data/event-trees.json'
-import { Event } from '@/codex/types/events'
-import { COVER } from '@/codex/constants/zoomValues'
+import { UseAllEventSearchFilters } from '@/codex/hooks/useSearchFilters/useAllEventSearchFilters'
 import {
   LoopingPathMode,
   LOOPING_PATH_MODES,
@@ -22,13 +28,6 @@ import {
   LevelOfDetail,
   LEVEL_OF_DETAIL_OPTIONS,
 } from '@/codex/constants/eventSearchValues'
-import { UseAllEventSearchFilters } from '@/codex/hooks/useSearchFilters/useAllEventSearchFilters'
-import { useStickyZoom } from '@/codex/hooks/useStickyZoom'
-import StickyZoomSlider from '@/codex/components/shared/StickyZoomSlider'
-import ZoomSlider from '@/codex/components/shared/ZoomSlider'
-import Checkbox from '@/codex/components/SearchPanels/shared/FilterGroup/Checkbox'
-
-import PanelHeader from '../../PanelHeader'
 
 import styles from './index.module.scss'
 

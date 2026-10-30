@@ -2,12 +2,12 @@ import InfoModal from '@/shared/components/Modals/InfoModal'
 import RarityBorderedArtwork, { RARITIES } from '@/shared/components/RarityBorderedArtwork'
 import { createCx } from '@/shared/utils/classnames'
 import { splitCamelCaseWords } from '@/shared/utils/textHelper'
+import { getCardSetName } from '@/shared/hooks/useSearchFilters/useCardSetFilters'
+import { CardData } from '@/shared/types/cards'
+import { parseCardDescription } from '@/shared/utils/cardDescription'
+import Section from '@/shared/components/Section'
 
-import { getCardSetName } from '@/codex/hooks/useSearchFilters/useCardSetFilters'
-import { CardData } from '@/codex/types/cards'
 import { RelatedCards, RelatedEvents } from '@/codex/utils/treasureHelper'
-import { parseCardDescription } from '@/codex/utils/cardDescription'
-import Section from '@/codex/components/shared/Section'
 
 import { CardListArtwork } from '../CardsList'
 

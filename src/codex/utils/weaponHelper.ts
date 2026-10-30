@@ -1,6 +1,6 @@
 import { logger } from '@/shared/utils/logger'
+import { CardData } from '@/shared/types/cards'
 
-import { CardData } from '@/codex/types/cards'
 import { EnrichedSpecialWeapon, SpecialWeapon } from '@/codex/types/weapons'
 import specialWeapons from '@/codex/data/special-weapons.json'
 

@@ -1,4 +1,4 @@
-import { SharedFilterOption } from './filters'
+import { SharedFilterOption } from '@/shared/types/filters'
 
 // ------------------ Requirements ------------------
 

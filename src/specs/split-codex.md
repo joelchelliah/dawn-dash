@@ -208,18 +208,18 @@ rewriting the invariant.
 A new **`src/shared/CLAUDE.md`** takes the invariants about code that moves to `shared/`, so they
 load only when working there rather than bloating the root file. Tool files point at it.
 
-| Invariant / section                                                                                               | Destination                                                                                          |
-| ----------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| Layout/render split, zoom commits on drag end, `ZOOM_STOPS`, node-dimension cache keying, `utils/tree/`           | `shared/CLAUDE.md`, with a one-line pointer from both `skilldex/` and `eventmaps/`                   |
-| Nil expansion (`Core°`)                                                                                           | `shared/CLAUDE.md` (lives in `useCardSetFilters`); the `TalentTree` half as a pointer in `skilldex/` |
-| `TRACKED_FILTER_HANDLERS`, filter URL codes are permanent, no version bump for filter options                     | `shared/CLAUDE.md`                                                                                   |
-| `blightbane_id`, cards vs talents sources, artwork `Map`s + per-category artwork + name collisions                | `shared/CLAUDE.md` (card data layer), talent half to `skilldex/`                                     |
-| Duplicate card names                                                                                              | `shared/CLAUDE.md` for the rule; the Blightbane-link/strike-key specifics to `cardex/`               |
-| Monster cards, `<rarity:X>` tokens, `content-visibility` rows, `.result-card__name` widths, weekly-challenge data | `cardex/CLAUDE.md`                                                                                   |
-| Talent artwork (×5 bullets), talent text measurement                                                              | `skilldex/CLAUDE.md`                                                                                 |
-| `requirements` on dialogue/end nodes, `eventTreeSpacing/`, the un-shared `pages/eventmaps/` shape                 | `eventmaps/CLAUDE.md`                                                                                |
-| Every treasure / pool / weapon / modal / route / striping bullet, `useCardData` ownership                         | `booty/CLAUDE.md`                                                                                    |
-| Visual verification of tree changes                                                                               | each tree tool's file                                                                                |
+| Invariant / section                                                                                                                                          | Destination                                                                                          |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------- |
+| Layout/render split, zoom commits on drag end, `ZOOM_STOPS`, node-dimension cache keying, `utils/tree/`                                                      | `shared/CLAUDE.md`, with a one-line pointer from both `skilldex/` and `eventmaps/`                   |
+| Nil expansion (`Core°`)                                                                                                                                      | `shared/CLAUDE.md` (lives in `useCardSetFilters`); the `TalentTree` half as a pointer in `skilldex/` |
+| `TRACKED_FILTER_HANDLERS`, filter URL codes are permanent, no version bump for filter options, `<rarity:X>` tokens (`keywordMatching.ts` lives in `shared/`) | `shared/CLAUDE.md`                                                                                   |
+| `blightbane_id`, cards vs talents sources, artwork `Map`s + per-category artwork + name collisions                                                           | `shared/CLAUDE.md` (card data layer), talent half to `skilldex/`                                     |
+| Duplicate card names                                                                                                                                         | `shared/CLAUDE.md` for the rule; the Blightbane-link/strike-key specifics to `cardex/`               |
+| Monster cards, `content-visibility` rows, `.result-card__name` widths, weekly-challenge data                                                                 | `cardex/CLAUDE.md`                                                                                   |
+| Talent artwork (×5 bullets), talent text measurement                                                                                                         | `skilldex/CLAUDE.md`                                                                                 |
+| `requirements` on dialogue/end nodes, `eventTreeSpacing/`, the un-shared `pages/eventmaps/` shape                                                            | `eventmaps/CLAUDE.md`                                                                                |
+| Every treasure / pool / weapon / modal / route / striping bullet, `useCardData` ownership                                                                    | `booty/CLAUDE.md`                                                                                    |
+| Visual verification of tree changes                                                                                                                          | each tree tool's file                                                                                |
 
 Keep the wording; change only paths and the cross-references between files. Each new file follows
 the `speedruns/CLAUDE.md` shape (title, one-line purpose, Key files, Invariants) and the root file's
@@ -272,7 +272,7 @@ beyond import paths.
 
 Verify: `npm run verify`, `npm run build`. No visible change.
 
-### Task 3 — Move the shared set to `src/shared/`
+### Task 3 — Move the shared set to `src/shared/` — COMPLETED
 
 `git mv` each shared file to its destination and rewrite imports; no content changes. Destinations:
 `shared/components/` (`PanelHeader`, `Section`, `Codex*Message`, `CodexLastUpdated`, `ZoomSlider`,

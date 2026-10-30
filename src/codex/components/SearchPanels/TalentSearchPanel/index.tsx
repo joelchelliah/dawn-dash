@@ -19,19 +19,18 @@ import {
   RuneOfPersistenceImageUrl,
   NoSoupImageUrl,
 } from '@/shared/utils/imageUrls'
+import { allCardSets } from '@/shared/hooks/useSearchFilters/useCardSetFilters'
+import CodexLastUpdated from '@/shared/components/CodexLastUpdated'
+import PanelHeader from '@/shared/components/PanelHeader'
+import FilterGroup from '@/shared/components/FilterGroup'
+import SearchField from '@/shared/components/SearchField'
 
 import { allTiers } from '@/codex/hooks/useSearchFilters/useTierFilters'
 import { UseAllTalentSearchFilters } from '@/codex/hooks/useSearchFilters/useAllTalentSearchFilters'
-import { allCardSets } from '@/codex/hooks/useSearchFilters/useCardSetFilters'
 import { UseTalentData } from '@/codex/hooks/useTalentData'
 import { allFormattingTalentFilters } from '@/codex/hooks/useSearchFilters/useFormattingTalentFilters'
 import { RequirementFilterOption } from '@/codex/types/talentFilters'
 import { allRequirements } from '@/codex/hooks/useSearchFilters/useRequirementFilters'
-
-import CodexLastUpdated from '../../CodexLastUpdated'
-import PanelHeader from '../../PanelHeader'
-import FilterGroup from '../shared/FilterGroup'
-import SearchField from '../shared/SearchField'
 
 import styles from './index.module.scss'
 

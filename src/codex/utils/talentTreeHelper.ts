@@ -30,6 +30,7 @@ import {
 } from '@/shared/utils/imageUrls'
 import { CharacterClass } from '@/shared/types/characterClass'
 import { ClassColorVariant, darken, getClassColor } from '@/shared/utils/classColors'
+import { TreeBounds, calculateTreeBounds, findNodeInTree } from '@/shared/utils/tree/treeHelper'
 
 import {
   HierarchicalTalentTreeNode,
@@ -40,7 +41,6 @@ import {
 import { NODE, REQUIREMENT_NODE } from '../constants/talentTreeValues'
 
 import { getNodeHeight } from './talentNodeDimensions'
-import { TreeBounds, calculateTreeBounds, findNodeInTree } from './tree/treeHelper'
 
 const colorGrey = getClassColor(CharacterClass.Neutral, ClassColorVariant.Default)
 const colorRed = getClassColor(CharacterClass.Warrior, ClassColorVariant.Default)

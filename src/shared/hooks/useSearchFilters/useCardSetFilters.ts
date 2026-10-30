@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 
-import { CardSet, CardSetFilterOption, SharedFilterOption } from '@/codex/types/filters'
-import { createFilterUrlCodec } from '@/codex/utils/filterUrlCodec'
+import { CardSet, CardSetFilterOption, SharedFilterOption } from '@/shared/types/filters'
+import { createFilterUrlCodec } from '@/shared/utils/filterUrlCodec'
 
 import { createFilterHook } from './useFilterFactory'
 

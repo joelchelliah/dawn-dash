@@ -3,8 +3,14 @@ import { HierarchyPointNode } from 'd3-hierarchy'
 
 import { createCx } from '@/shared/utils/classnames'
 import { truncateLine } from '@/shared/utils/textHelper'
+import {
+  CombatNode,
+  DialogueNode,
+  EndNode,
+  EventTreeNode,
+  SpecialNode,
+} from '@/shared/types/events'
 
-import { CombatNode, DialogueNode, EndNode, EventTreeNode, SpecialNode } from '@/codex/types/events'
 import {
   getNodeTextOrChoiceLabel,
   calculateEffectsBoxDimensions,

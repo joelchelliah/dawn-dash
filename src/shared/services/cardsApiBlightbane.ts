@@ -1,7 +1,6 @@
 import { handleError } from '@/shared/utils/apiErrorHandling'
-
-import { mapAndSortCardsResponse } from '@/codex/utils/cardsResponseMapper'
-import { CardData, CardsApiResponse } from '@/codex/types/cards'
+import { mapAndSortCardsResponse } from '@/shared/utils/cardsResponseMapper'
+import { CardData, CardsApiResponse } from '@/shared/types/cards'
 
 const BLIGHTBANE_URL = 'https://blightbane.io/api'
 const PROGRESS_INTERVAL = 100

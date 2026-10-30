@@ -1,7 +1,8 @@
 import { HierarchyNode, HierarchyPointNode } from 'd3-hierarchy'
 import { flextree } from 'd3-flextree'
 
-import { Event, EventTreeNode } from '@/codex/types/events'
+import { Event, EventTreeNode } from '@/shared/types/events'
+
 import { NODE } from '@/codex/constants/eventTreeValues'
 import { LevelOfDetail } from '@/codex/constants/eventSearchValues'
 

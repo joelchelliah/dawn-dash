@@ -1,8 +1,7 @@
 import { useCallback, useMemo, useState } from 'react'
 
 import { isNotNullOrUndefined } from '@/shared/utils/object'
-
-import { SharedFilterOption } from '@/codex/types/filters'
+import { SharedFilterOption } from '@/shared/types/filters'
 
 /**
  * Factory function to create reusable filter hooks

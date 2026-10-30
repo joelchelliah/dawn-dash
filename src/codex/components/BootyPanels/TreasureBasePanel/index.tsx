@@ -1,6 +1,5 @@
 import { createCx } from '@/shared/utils/classnames'
-
-import PanelHeader, { PanelHeaderType } from '../../PanelHeader'
+import PanelHeader, { PanelHeaderType } from '@/shared/components/PanelHeader'
 
 import styles from './index.module.scss'
 

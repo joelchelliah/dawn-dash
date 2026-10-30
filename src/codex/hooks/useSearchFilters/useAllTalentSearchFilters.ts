@@ -1,17 +1,20 @@
 import { useEffect, useMemo, useRef } from 'react'
 
-import { TalentTree, TalentTreeNode, TalentTreeNodeType } from '@/codex/types/talents'
+import { useCodexUrlParams } from '@/shared/hooks/useCodexUrlParams'
+import {
+  cardSetUrlCodec,
+  useTalentCardSetFilters,
+} from '@/shared/hooks/useSearchFilters/useCardSetFilters'
+import { useKeywords } from '@/shared/hooks/useSearchFilters/useKeywords'
+import { useFilterTracking } from '@/shared/hooks/useSearchFilters/useFilterTracking'
+
 import {
   cacheTalentCodexSearchFilters,
   getCachedTalentCodexSearchFilters,
 } from '@/codex/utils/talentFilterStore'
+import { TalentTree, TalentTreeNode, TalentTreeNodeType } from '@/codex/types/talents'
 
-import { useCodexUrlParams } from '../useCodexUrlParams'
-
-import { cardSetUrlCodec, useTalentCardSetFilters } from './useCardSetFilters'
 import { tierUrlCodec, useTierFilters } from './useTierFilters'
-import { useKeywords } from './useKeywords'
-import { useFilterTracking } from './useFilterTracking'
 import { useFormattingTalentFilters } from './useFormattingTalentFilters'
 import { requirementUrlCodec, useRequirementFilters } from './useRequirementFilters'
 import { filterTalentTree, TalentFilterCriteria } from './talentTreeFilter'

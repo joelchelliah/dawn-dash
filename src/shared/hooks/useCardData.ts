@@ -4,14 +4,13 @@ import useSWR from 'swr'
 
 import { isNotNullOrEmpty } from '@/shared/utils/lists'
 import { logger } from '@/shared/utils/logger'
-
-import { fetchCards } from '@/codex/services/cardsApiBlightbane'
-import { CardData } from '@/codex/types/cards'
+import { fetchCards } from '@/shared/services/cardsApiBlightbane'
+import { CardData } from '@/shared/types/cards'
 import {
   cacheCardData,
   getCachedCardData,
   getCachedCardDataTimestamp,
-} from '@/codex/utils/codexCardsStore'
+} from '@/shared/utils/codexCardsStore'
 
 export interface UseCardData {
   cardData: CardData[] | undefined

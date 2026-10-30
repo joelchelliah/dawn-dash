@@ -1,6 +1,7 @@
 import { HierarchyPointNode } from 'd3-hierarchy'
 
-import { Event, EventTreeNode } from '@/codex/types/events'
+import { Event, EventTreeNode } from '@/shared/types/events'
+
 import { NODE } from '@/codex/constants/eventTreeValues'
 import { LevelOfDetail } from '@/codex/constants/eventSearchValues'
 

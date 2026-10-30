@@ -30,7 +30,7 @@ const TALENTS_API =
 
 const ENV_FILE = path.join(__dirname, '../../.env.local')
 
-// Kept in sync with src/codex/hooks/useSearchFilters/useCardSetFilters.ts (indexToValueMap)
+// Kept in sync with src/shared/hooks/useSearchFilters/useCardSetFilters.ts (indexToValueMap)
 // and src/codex/hooks/useSearchFilters/useTierFilters.ts (tierIndexMap). A talent whose
 // expansion/tier is missing from those maps is silently hidden or mislabelled in Skilldex,
 // so we check the synced data against them rather than trusting it to fit.
@@ -177,9 +177,9 @@ function printReport(
       log(`New expansion index/indices: ${unknownExpansions.join(', ')}`)
       log('These are not in the Skilldex card-set filters, so the talents will be')
       log('hidden by the filter and labelled "-". Add them to:')
-      log('  • CardSetFilterOption          src/codex/types/filters.ts')
+      log('  • CardSetFilterOption          src/shared/types/filters.ts')
       log('  • defaultCardSetFilterValueMap, indexMap, indexToValueMap')
-      log('                                 src/codex/hooks/useSearchFilters/useCardSetFilters.ts')
+      log('                                 src/shared/hooks/useSearchFilters/useCardSetFilters.ts')
       log('  • KNOWN_EXPANSIONS             scripts/sync/sync-talents-preflight.js')
       log('Then bump TALENTS_CACHE_VERSION in src/codex/utils/talentFilterStore.ts')
       log('so existing users get the new card set enabled by default.')

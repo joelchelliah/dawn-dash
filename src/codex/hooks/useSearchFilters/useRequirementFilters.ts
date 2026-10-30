@@ -1,14 +1,14 @@
 import { useCallback } from 'react'
 
-import { SharedFilterOption } from '@/codex/types/filters'
+import { SharedFilterOption } from '@/shared/types/filters'
+import { createFilterUrlCodec } from '@/shared/utils/filterUrlCodec'
+import { createFilterHook } from '@/shared/hooks/useSearchFilters/useFilterFactory'
+
 import {
   RequirementFilterOption,
   Requirement,
   TalentCodexSearchFilterCache,
 } from '@/codex/types/talentFilters'
-import { createFilterUrlCodec } from '@/codex/utils/filterUrlCodec'
-
-import { createFilterHook } from './useFilterFactory'
 
 const defaultFilters = {
   [RequirementFilterOption.NoRequirements]: true,

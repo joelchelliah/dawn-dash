@@ -1,8 +1,7 @@
 import { memo, useEffect, useRef, useState } from 'react'
 
 import { createCx } from '@/shared/utils/classnames'
-
-import { FilterTypeCard, FilterTypeTalent, FilterTypeEvent } from '@/codex/types/filters'
+import { FilterTypeCard, FilterTypeTalent, FilterTypeEvent } from '@/shared/types/filters'
 
 import styles from './index.module.scss'
 

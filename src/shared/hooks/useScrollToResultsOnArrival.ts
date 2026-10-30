@@ -3,8 +3,7 @@ import { RefObject, useEffect, useRef } from 'react'
 import { useRouter } from 'next/router'
 
 import { MEDIA_QUERY_MOBILE } from '@/shared/hooks/useBreakpoint'
-
-import { SEARCH_QUERY_PARAM } from '@/codex/constants/urlParams'
+import { SEARCH_QUERY_PARAM } from '@/shared/constants/urlParams'
 
 /**
  * Arriving with `?query` on mobile, where the results panel stacks below the search panel.

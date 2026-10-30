@@ -3,19 +3,19 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { flushSync } from 'react-dom'
 
 import { isNotNullOrUndefined } from '@/shared/utils/object'
+import { ZoomLevel, COVER } from '@/shared/constants/zoomValues'
+import { useFilterTracking } from '@/shared/hooks/useSearchFilters/useFilterTracking'
 
 import {
   cacheEventCodexSearchFilters,
   getCachedEventCodexSearchFilters,
 } from '@/codex/utils/eventFilterStore'
-import { ZoomLevel, COVER } from '@/codex/constants/zoomValues'
 import {
   LoopingPathMode,
   TreeNavigationMode,
   LevelOfDetail,
 } from '@/codex/constants/eventSearchValues'
 
-import { useFilterTracking } from './useFilterTracking'
 import { useEventFilterText } from './useEventFilterText'
 
 export interface UseAllEventSearchFilters {

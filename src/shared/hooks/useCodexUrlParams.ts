@@ -2,8 +2,8 @@ import { useCallback, useEffect, useRef } from 'react'
 
 import { NextRouter, useRouter } from 'next/router'
 
-import { SEARCH_QUERY_PARAM, WEEKLY_CHALLENGE_PARAM } from '@/codex/constants/urlParams'
-import { FilterUrlCodec } from '@/codex/utils/filterUrlCodec'
+import { SEARCH_QUERY_PARAM, WEEKLY_CHALLENGE_PARAM } from '@/shared/constants/urlParams'
+import { FilterUrlCodec } from '@/shared/utils/filterUrlCodec'
 
 export interface UrlFilterBinding {
   codec: FilterUrlCodec

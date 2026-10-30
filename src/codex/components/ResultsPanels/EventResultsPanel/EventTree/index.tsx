@@ -8,10 +8,13 @@ import { createCx } from '@/shared/utils/classnames'
 import GradientLink from '@/shared/components/GradientLink'
 import { useDraggable } from '@/shared/hooks/useDraggable'
 import { useBreakpoint } from '@/shared/hooks/useBreakpoint'
+import { Event, EventTreeNode } from '@/shared/types/events'
+import { buildNodeMap, calculateTreeBounds } from '@/shared/utils/tree/treeHelper'
+import { setupTreeSvg, createGlowFilter, applyTreeZoom } from '@/shared/utils/tree/svgHelper'
+import { ZoomLevel, COVER } from '@/shared/constants/zoomValues'
+import { useEventImageSrc } from '@/shared/hooks/useEventImageSrc'
 
-import { Event, EventTreeNode } from '@/codex/types/events'
 import { isEmojiOnlyNode, hasCustomNodeType } from '@/codex/utils/eventTreeHelper'
-import { buildNodeMap, calculateTreeBounds } from '@/codex/utils/tree/treeHelper'
 import {
   getNodeDimensions,
   cacheAllNodeDimensions,
@@ -22,15 +25,12 @@ import {
   adjustVerticalNodeSpacing,
   centerRootNodeHorizontally,
 } from '@/codex/utils/eventTreeSpacing'
-import { setupTreeSvg, createGlowFilter, applyTreeZoom } from '@/codex/utils/tree/svgHelper'
 import { TREE, NODE_BOX } from '@/codex/constants/eventTreeValues'
-import { ZoomLevel, COVER } from '@/codex/constants/zoomValues'
 import {
   LoopingPathMode,
   TreeNavigationMode,
   LevelOfDetail,
 } from '@/codex/constants/eventSearchValues'
-import { useEventImageSrc } from '@/codex/hooks/useEventImageSrc'
 
 import { drawLinks, drawRefChildrenLinks, drawLoopBackLinks } from './links'
 import {

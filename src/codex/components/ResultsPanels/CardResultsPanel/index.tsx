@@ -2,14 +2,13 @@ import { useEffect, useRef, useState, useMemo } from 'react'
 
 import GradientButton from '@/shared/components/Buttons/GradientButton'
 import { createCx } from '@/shared/utils/classnames'
+import { CardData } from '@/shared/types/cards'
+import { useScrollToResultsOnArrival } from '@/shared/hooks/useScrollToResultsOnArrival'
+import KeywordsSummary from '@/shared/components/KeywordsSummary'
+import PanelHeader from '@/shared/components/PanelHeader'
 
-import { CardData } from '@/codex/types/cards'
-import { UseAllCardSearchFilters } from '@/codex/hooks/useSearchFilters/useAllCardSearchFilters'
 import { isCardStruckIn } from '@/codex/utils/cardHelper'
-import { useScrollToResultsOnArrival } from '@/codex/hooks/useScrollToResultsOnArrival'
-
-import KeywordsSummary from '../KeywordsSummary'
-import PanelHeader from '../../PanelHeader'
+import { UseAllCardSearchFilters } from '@/codex/hooks/useSearchFilters/useAllCardSearchFilters'
 
 import ResultCard from './ResultCard'
 import styles from './index.module.scss'

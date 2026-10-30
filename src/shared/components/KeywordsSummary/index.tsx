@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { createCx } from '@/shared/utils/classnames'
 import GradientLink from '@/shared/components/GradientLink'
 
-import KeywordPills from '../../SearchPanels/shared/KeywordPills'
+import KeywordPills from '../KeywordPills'
 
 import styles from './index.module.scss'
 

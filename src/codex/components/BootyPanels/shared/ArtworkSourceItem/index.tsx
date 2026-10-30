@@ -1,8 +1,8 @@
 import { TALENT_ARTWORK_CATEGORY, useCardImageSrc } from '@/shared/hooks/useCardImageSrc'
 import { BlightbaneCardUrl } from '@/shared/utils/imageUrls'
+import { useEventImageSrc } from '@/shared/hooks/useEventImageSrc'
+import { normalizeEventNameForUrl, SkilldexTalentUrl } from '@/shared/utils/urlHelper'
 
-import { useEventImageSrc } from '@/codex/hooks/useEventImageSrc'
-import { normalizeEventNameForUrl, SkilldexTalentUrl } from '@/codex/utils/urlHelper'
 import { getEventArtwork } from '@/codex/utils/treasureHelper'
 
 import { ArtworkLinkItem } from '../ArtworkLinkList'

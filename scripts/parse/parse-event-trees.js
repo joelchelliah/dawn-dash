@@ -3,7 +3,7 @@
  *
  * Reads scripts/data/events.json, builds one tree per event using the inkjs runtime
  * (see tree-building.js), runs the post-processing PIPELINE defined below, and writes
- * the result to src/codex/data/event-trees.json.
+ * the result to src/shared/data/event-trees.json.
  *
  * Module layout:
  * - tree-building.js     Ink story exploration -> raw event trees
@@ -39,7 +39,7 @@ function suppressInkjsVersionWarning() {
 }
 suppressInkjsVersionWarning()
 
-const OUTPUT_FILE = path.join(__dirname, '../../src/codex/data/event-trees.json')
+const OUTPUT_FILE = path.join(__dirname, '../../src/shared/data/event-trees.json')
 const { OPTIMIZATION_PASS_CONFIG } = require('./configs.js')
 const {
   DEFAULT_NODE_BLACKLIST,

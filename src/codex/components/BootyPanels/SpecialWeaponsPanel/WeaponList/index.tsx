@@ -1,7 +1,8 @@
 import { useMemo } from 'react'
 
+import { CardData } from '@/shared/types/cards'
+
 import { useBootyCardUrlParam } from '@/codex/hooks/useBootyCardUrlParam'
-import { CardData } from '@/codex/types/cards'
 import { EnrichedSpecialWeapon } from '@/codex/types/weapons'
 import { getBootyCardUrlParam } from '@/codex/utils/bootyCardUrl'
 

@@ -1,4 +1,4 @@
-import { SEARCH_QUERY_PARAM } from '@/codex/constants/urlParams'
+import { SEARCH_QUERY_PARAM } from '@/shared/constants/urlParams'
 
 const SKILLDEX_PATH = '/skilldex'
 

@@ -7,7 +7,7 @@
  * parsed into the form that is actually displayed.
  */
 
-import { createTextMeasurer } from './tree/textWidthEstimation'
+import { createTextMeasurer } from '@/shared/utils/tree/textWidthEstimation'
 
 // Resource keywords are rendered as emoji in the tree; measure them as such
 const KEYWORD_TO_EMOJI_MAP: Record<string, string> = {

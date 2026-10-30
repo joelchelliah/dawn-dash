@@ -2,9 +2,10 @@ import { useEffect, useRef, useCallback } from 'react'
 
 import { useRouter } from 'next/router'
 
+import { Event } from '@/shared/types/events'
+import { normalizeEventNameForUrl } from '@/shared/utils/urlHelper'
+
 import { ALL_EVENTS_INDEX } from '../constants/eventSearchValues'
-import { Event } from '../types/events'
-import { normalizeEventNameForUrl } from '../utils/urlHelper'
 
 interface UseEventUrlParam {
   selectEventAndUpdateUrl: (index: number) => void

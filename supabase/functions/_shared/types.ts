@@ -1,4 +1,4 @@
-// Exact copy of CardData from src/codex/types/cards.ts
+// Exact copy of CardData from src/shared/types/cards.ts
 // Duplicated here because Supabase functions can't import from there
 export interface CardData {
   name: string

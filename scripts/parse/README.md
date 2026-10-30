@@ -1,7 +1,7 @@
 # Event-tree parsing pipeline
 
 Turns the game's own [Ink](https://www.inklestudios.com/ink/) stories into the static
-`src/codex/data/event-trees.json` that the Eventmaps tool renders. The whole pipeline is run by
+`src/shared/data/event-trees.json` that the Eventmaps tool renders. The whole pipeline is run by
 `scripts/sync/sync-events.js`; this folder implements the final (and biggest) step.
 
 ## The big picture
@@ -37,7 +37,7 @@ scripts/data/events.json                 scripts/data/events-from-dump.json
         3. validation: diff output vs baseline, ignore known noise
                          │
                          ▼
-        src/codex/data/event-trees.json  (~200 trees, ~4.2k nodes, statically imported)
+        src/shared/data/event-trees.json  (~200 trees, ~4.2k nodes, statically imported)
                          │
                          ▼
         Eventmaps (src/codex/) renders each tree with d3-flextree
@@ -77,7 +77,7 @@ and restoring story state to explore every choice.
 
 The scripts are linted and type-checked as part of `npm run verify`: the node shape the
 parser produces is the `ParseNode` JSDoc typedef in `tree-utils.js` (a superset of the
-app's `EventTreeNode` in `src/codex/types/events.ts`), checked via `tsconfig.scripts.json`.
+app's `EventTreeNode` in `src/shared/types/events.ts`), checked via `tsconfig.scripts.json`.
 
 ## Step 0: Config validation (`config-validation.js`)
 
@@ -353,7 +353,7 @@ ref:  a jump link back/across            refChildren: converging lines
 
 ## Step 3: Output & validation
 
-The trees are written pretty-printed to `src/codex/data/event-trees.json` (never hand-edit it),
+The trees are written pretty-printed to `src/shared/data/event-trees.json` (never hand-edit it),
 then `parse-validation.js` compares the result **structurally** against git HEAD (or
 `--baseline <file>`) and reports which **events** changed meaningfully. Both versions are
 deep-normalized before comparison: `id` fields are stripped, each `ref`/`refChildren` value is

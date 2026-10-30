@@ -1,7 +1,8 @@
 import { useCallback, useMemo, useRef, useState } from 'react'
 
+import { CardData } from '@/shared/types/cards'
+
 import { CardCodexSearchFilterCache } from '@/codex/types/cardFilters'
-import { CardData } from '@/codex/types/cards'
 import {
   getCardNameFromStrikeKey,
   getCardStrikeKey,

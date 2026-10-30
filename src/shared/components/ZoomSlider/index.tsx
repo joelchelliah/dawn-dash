@@ -9,8 +9,7 @@ import { ClassColorVariant, getClassColor } from '@/shared/utils/classColors'
 import { CharacterClass } from '@/shared/types/characterClass'
 import { getEnergyImageUrl } from '@/shared/utils/energyImages'
 import Thumb from '@/shared/components/Sliders/Thumb'
-
-import { ZoomLevel, ZOOM_STOPS, formatZoomLabel } from '@/codex/constants/zoomValues'
+import { ZoomLevel, ZOOM_STOPS, formatZoomLabel } from '@/shared/constants/zoomValues'
 
 import styles from './index.module.scss'
 

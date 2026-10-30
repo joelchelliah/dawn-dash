@@ -5,6 +5,8 @@ import { hierarchy, tree } from 'd3-hierarchy'
 
 import { createCx } from '@/shared/utils/classnames'
 import { isNullOrEmpty } from '@/shared/utils/lists'
+import { setupTreeSvg, createGlowFilter, applyTreeZoom } from '@/shared/utils/tree/svgHelper'
+import { ZoomLevel, COVER } from '@/shared/constants/zoomValues'
 
 import {
   TalentTree as TalentTreeType,
@@ -18,10 +20,8 @@ import {
   getNodeInTree,
 } from '@/codex/utils/talentTreeHelper'
 import { cacheAllNodeDimensions, getNodeHeight } from '@/codex/utils/talentNodeDimensions'
-import { setupTreeSvg, createGlowFilter, applyTreeZoom } from '@/codex/utils/tree/svgHelper'
 import { NODE, TREE } from '@/codex/constants/talentTreeValues'
 import { buildHierarchicalTreeFromTalentTree } from '@/codex/utils/talentTreeBuilder'
-import { ZoomLevel, COVER } from '@/codex/constants/zoomValues'
 
 import { drawLinks, getLinksWithNewRequirements } from './links'
 import { renderRequirementNode, renderRequirementIndicators } from './requirementNodes'

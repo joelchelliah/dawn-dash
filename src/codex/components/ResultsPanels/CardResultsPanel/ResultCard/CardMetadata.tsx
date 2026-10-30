@@ -1,6 +1,5 @@
 import { createCx } from '@/shared/utils/classnames'
-
-import { CardData } from '@/codex/types/cards'
+import { CardData } from '@/shared/types/cards'
 
 import styles from './CardMetadata.module.scss'
 
