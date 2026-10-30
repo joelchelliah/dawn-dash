@@ -3,9 +3,9 @@
 /**
  * Parse treasures data
  *
- * Reads scripts/data/treasures.json and splits it into the two lists the codex consumes:
- * 1. src/codex/data/treasure-cards.json  <- the `entries` field
- * 2. src/codex/data/treasure-pools.json  <- the `pools` field
+ * Reads scripts/data/treasures.json and splits it into the two lists Booty consumes:
+ * 1. src/booty/data/treasure-cards.json  <- the `entries` field
+ * 2. src/booty/data/treasure-pools.json  <- the `pools` field
  */
 
 const path = require('path')
@@ -19,7 +19,7 @@ const {
 } = require('./whitelist-fields')
 
 const INPUT_FILE = path.join(__dirname, '../data', 'treasures.json')
-const OUTPUT_DIR = path.join(__dirname, '../../src/codex/data')
+const OUTPUT_DIR = path.join(__dirname, '../../src/booty/data')
 const CARDS_OUTPUT_FILE = path.join(OUTPUT_DIR, 'treasure-cards.json')
 const POOLS_OUTPUT_FILE = path.join(OUTPUT_DIR, 'treasure-pools.json')
 

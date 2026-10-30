@@ -1,0 +1,50 @@
+import { SharedFilterOption } from '@/shared/types/filters'
+import { createFilterUrlCodec } from '@/shared/utils/filterUrlCodec'
+import { createFilterHook } from '@/shared/hooks/useSearchFilters/useFilterFactory'
+
+import { TalentSearchFilterCache, Tier, TierFilterOption } from '@/skilldex/types/talentFilters'
+
+const defaultTierFilters = {
+  [TierFilterOption.Tier0]: true,
+  [TierFilterOption.Tier1]: true,
+  [TierFilterOption.Tier2]: true,
+  [TierFilterOption.Tier3]: true,
+  [TierFilterOption.Tier4]: true,
+  [TierFilterOption.Tier5]: true,
+  [TierFilterOption.Tier6]: true,
+  [SharedFilterOption.All]: true,
+  [SharedFilterOption.None]: false,
+}
+
+const tierIndexMap = {
+  [TierFilterOption.Tier0]: 0,
+  [TierFilterOption.Tier1]: 1,
+  [TierFilterOption.Tier2]: 2,
+  [TierFilterOption.Tier3]: 3,
+  [TierFilterOption.Tier4]: 4,
+  [TierFilterOption.Tier5]: 5,
+  [TierFilterOption.Tier6]: 6,
+}
+
+export const allTiers: Tier[] = Tier.getAll()
+
+export const tierUrlCodec = createFilterUrlCodec('tiers', tierIndexMap)
+
+const useBaseTierFilters = createFilterHook({
+  defaultFilters: defaultTierFilters,
+  allValues: allTiers,
+  indexMap: tierIndexMap,
+})
+
+export const useTierFilters = (cachedFilters?: TalentSearchFilterCache['tiers']) => {
+  const { filters, isIndexSelected, handleFilterToggle, enableFilters, resetFilters } =
+    useBaseTierFilters(cachedFilters)
+
+  return {
+    tierFilters: filters,
+    isTierIndexSelected: isIndexSelected,
+    handleTierFilterToggle: handleFilterToggle,
+    enableTierFilters: enableFilters,
+    resetTierFilters: resetFilters,
+  }
+}

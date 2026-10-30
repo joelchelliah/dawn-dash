@@ -1,0 +1,117 @@
+import { useCallback } from 'react'
+
+import { SharedFilterOption } from '@/shared/types/filters'
+import { createFilterUrlCodec } from '@/shared/utils/filterUrlCodec'
+import { createFilterHook } from '@/shared/hooks/useSearchFilters/useFilterFactory'
+
+import {
+  RequirementFilterOption,
+  Requirement,
+  TalentSearchFilterCache,
+} from '@/skilldex/types/talentFilters'
+
+const defaultFilters = {
+  [RequirementFilterOption.NoRequirements]: true,
+  [RequirementFilterOption.Dexterity]: true,
+  [RequirementFilterOption.Intelligence]: true,
+  [RequirementFilterOption.Strength]: true,
+  [RequirementFilterOption.Arcanist]: true,
+  [RequirementFilterOption.Hunter]: true,
+  [RequirementFilterOption.Knight]: true,
+  [RequirementFilterOption.Rogue]: true,
+  [RequirementFilterOption.Seeker]: true,
+  [RequirementFilterOption.Warrior]: true,
+  [RequirementFilterOption.Sunforge]: true,
+  [RequirementFilterOption.ObtainedFromEvents]: true,
+  [RequirementFilterOption.Offer]: true,
+  [RequirementFilterOption.ObtainedFromCards]: true,
+  [RequirementFilterOption.Unavailable]: true,
+  [SharedFilterOption.All]: true,
+  [SharedFilterOption.None]: false,
+}
+
+const valueToStringMap = {
+  [RequirementFilterOption.NoRequirements]: 'No requirements',
+  [RequirementFilterOption.Dexterity]: 'Dexterity',
+  [RequirementFilterOption.Intelligence]: 'Intelligence',
+  [RequirementFilterOption.Strength]: 'Strength',
+  [RequirementFilterOption.Arcanist]: 'Arcanist',
+  [RequirementFilterOption.Hunter]: 'Hunter',
+  [RequirementFilterOption.Knight]: 'Knight',
+  [RequirementFilterOption.Rogue]: 'Rogue',
+  [RequirementFilterOption.Seeker]: 'Seeker',
+  [RequirementFilterOption.Warrior]: 'Warrior',
+  [RequirementFilterOption.Sunforge]: 'Sunforge',
+  [RequirementFilterOption.ObtainedFromEvents]: 'Obtained from events',
+  [RequirementFilterOption.Offer]: 'Offer',
+  [RequirementFilterOption.ObtainedFromCards]: 'Obtained from cards',
+  [RequirementFilterOption.Unavailable]: 'Unavailable talents',
+  [SharedFilterOption.All]: SharedFilterOption.All,
+  [SharedFilterOption.None]: SharedFilterOption.None,
+}
+
+const indexMap = {
+  [RequirementFilterOption.NoRequirements]: 0,
+  [RequirementFilterOption.Dexterity]: 1,
+  [RequirementFilterOption.Intelligence]: 2,
+  [RequirementFilterOption.Strength]: 3,
+  [RequirementFilterOption.Arcanist]: 4,
+  [RequirementFilterOption.Hunter]: 5,
+  [RequirementFilterOption.Knight]: 6,
+  [RequirementFilterOption.Rogue]: 7,
+  [RequirementFilterOption.Seeker]: 8,
+  [RequirementFilterOption.Warrior]: 9,
+  [RequirementFilterOption.Sunforge]: 10,
+  [RequirementFilterOption.ObtainedFromEvents]: 11,
+  [RequirementFilterOption.Offer]: 12,
+  [RequirementFilterOption.ObtainedFromCards]: 13,
+  [RequirementFilterOption.Unavailable]: 14,
+}
+
+export const allRequirements: string[] = Requirement.getAll()
+
+export const requirementUrlCodec = createFilterUrlCodec('reqs', {
+  [RequirementFilterOption.NoRequirements]: 'noreq',
+  [RequirementFilterOption.Dexterity]: 'dex',
+  [RequirementFilterOption.Intelligence]: 'int',
+  [RequirementFilterOption.Strength]: 'str',
+  [RequirementFilterOption.Arcanist]: 'arc',
+  [RequirementFilterOption.Hunter]: 'hun',
+  [RequirementFilterOption.Knight]: 'kni',
+  [RequirementFilterOption.Rogue]: 'rog',
+  [RequirementFilterOption.Seeker]: 'see',
+  [RequirementFilterOption.Warrior]: 'war',
+  [RequirementFilterOption.Sunforge]: 'sun',
+  [RequirementFilterOption.ObtainedFromEvents]: 'evt',
+  [RequirementFilterOption.Offer]: 'off',
+  [RequirementFilterOption.ObtainedFromCards]: 'crd',
+  [RequirementFilterOption.Unavailable]: 'una',
+})
+
+const useBaseRequirementFilters = createFilterHook({
+  defaultFilters,
+  allValues: allRequirements,
+  valueToStringMap,
+  indexMap,
+})
+
+export const useRequirementFilters = (cachedFilters?: TalentSearchFilterCache['requirements']) => {
+  const { filters, handleFilterToggle, getValueToString, enableFilters, resetFilters } =
+    useBaseRequirementFilters(cachedFilters)
+
+  // Stable reference (only changes when the filter state changes) so that
+  // downstream filtering can be memoized on it
+  const isRequirementSelected = useCallback(
+    (options: RequirementFilterOption[]) => options.some((option) => filters[option]),
+    [filters]
+  )
+
+  return {
+    requirementFilters: filters,
+    isRequirementSelected,
+    handleRequirementFilterToggle: handleFilterToggle,
+    enableRequirementFilters: enableFilters,
+    resetRequirementFilters: resetFilters,
+    getRequirementFilterName: getValueToString,
+  }
+}

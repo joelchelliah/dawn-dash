@@ -10,6 +10,6 @@ Interactive speedrun leaderboard charts for all Dawncaster game modes, classes, 
 - `components/Buttons/ClassColorButton/` — class-colored button with `variant: 'primary' | 'secondary'`; class-color theming comes from `@/shared/utils/classColors`
 
 ## Invariants
-- The cache TTL is **10 minutes on purpose** (leaderboards receive new runs continuously, unlike codex data) — don't "align" it with the codex 24h TTL.
+- The cache TTL is **10 minutes on purpose** (leaderboards receive new runs continuously, unlike card/talent data) — don't "align" it with their 24h TTL.
 - `useSpeedrunData` guards against stale responses via `prevCacheKeyRef` checks in `onSuccess` — the pattern is unusual but correct; don't simplify it away.
 - Data is fetched live from Blightbane at runtime; there is no sync/backend step for speedruns.

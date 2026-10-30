@@ -1,0 +1,326 @@
+import { useEffect, useState } from 'react'
+
+import { createCx } from '@/shared/utils/classnames'
+import Select from '@/shared/components/Select'
+import LoadingDots from '@/shared/components/LoadingDots'
+import { CharacterClass } from '@/shared/types/characterClass'
+import Button from '@/shared/components/Buttons/Button'
+import GradientButton from '@/shared/components/Buttons/GradientButton'
+import GradientLink from '@/shared/components/GradientLink'
+import { ClassColorVariant, getClassColor } from '@/shared/utils/classColors'
+import { useBreakpoint } from '@/shared/hooks/useBreakpoint'
+import eventTreesData from '@/shared/data/event-trees.json'
+import { Event } from '@/shared/types/events'
+import { COVER } from '@/shared/constants/zoomValues'
+import { useStickyZoom } from '@/shared/hooks/useStickyZoom'
+import StickyZoomSlider from '@/shared/components/StickyZoomSlider'
+import ZoomSlider from '@/shared/components/ZoomSlider'
+import Checkbox from '@/shared/components/FilterGroup/Checkbox'
+import PanelHeader from '@/shared/components/PanelHeader'
+
+import { UseAllEventSearchFilters } from '@/eventmaps/hooks/useSearchFilters/useAllEventSearchFilters'
+import {
+  LoopingPathMode,
+  LOOPING_PATH_MODES,
+  TreeNavigationMode,
+  TREE_NAVIGATION_MODES,
+  ALL_EVENTS_INDEX,
+  LevelOfDetail,
+  LEVEL_OF_DETAIL_OPTIONS,
+} from '@/eventmaps/constants/eventSearchValues'
+
+import styles from './index.module.scss'
+
+const cx = createCx(styles)
+
+const eventTrees = eventTreesData as Event[]
+const eventIndexByEvent = new Map(eventTrees.map((event, index) => [event, index]))
+
+interface EventSearchPanelProps {
+  selectedEventIndex: number
+  onEventChange: (index: number) => void
+  filteredEvents: Event[]
+  useSearchFilters: UseAllEventSearchFilters
+}
+
+// En-space character for wide spacing between emoji and text
+const wideSpace = ' '
+
+const getLevelOfDetailLabel = (level: LevelOfDetail): string => {
+  switch (level) {
+    case LevelOfDetail.COMPACT:
+      return `🔖${wideSpace}Compressed`
+    case LevelOfDetail.BALANCED:
+      return `✨${wideSpace}Balanced`
+    case LevelOfDetail.WALL_OF_TEXT:
+      return `📰${wideSpace}Wall of text!`
+  }
+}
+
+const getLoopingPathModeLabel = (mode: LoopingPathMode): string =>
+  mode === LoopingPathMode.INDICATOR
+    ? `🔄${wideSpace}With «Loops back to» tags on nodes`
+    : `🔗${wideSpace}With links back to the looping nodes`
+
+const getEventOptionLabel = (event: Event): string =>
+  event.deprecated ? `${event.name}${wideSpace}🚫` : event.name
+
+const getNavigationModeLabel = (mode: TreeNavigationMode): string =>
+  mode === TreeNavigationMode.DRAG
+    ? `🖐${wideSpace}By clicking and dragging`
+    : `↕️${wideSpace}By scrolling (all directions)`
+
+const EventSearchPanel = ({
+  selectedEventIndex,
+  onEventChange,
+  filteredEvents,
+  useSearchFilters,
+}: EventSearchPanelProps) => {
+  const selectedClass = CharacterClass.Sunforge
+  const {
+    filterText,
+    zoomLevel,
+    setZoomLevel,
+    showAdvancedOptions,
+    setShowAdvancedOptions,
+    loopingPathMode,
+    setLoopingPathMode,
+    navigationMode,
+    setNavigationMode,
+    levelOfDetail,
+    setLevelOfDetail,
+    showContinuesTags,
+    setShowContinuesTags,
+    showAlteredBadges,
+    setShowAlteredBadges,
+    includeRemovedEvents,
+    setIncludeRemovedEvents,
+    resetFilters,
+  } = useSearchFilters
+
+  const showStickyZoom = useStickyZoom(250, 300)
+  const { isMobile } = useBreakpoint()
+  const [isReloadingMap, setIsReloadingMap] = useState(false)
+  const loadingColor = getClassColor(CharacterClass.Rogue, ClassColorVariant.Dark)
+
+  const isAllEventsSelected = selectedEventIndex === ALL_EVENTS_INDEX
+
+  const getAllEventsLabel = () => {
+    if (filteredEvents.length === 0) {
+      return 'No matching events'
+    }
+    if (filterText.trim()) {
+      return `All matching events (${filteredEvents.length})`
+    }
+    return `All events (${filteredEvents.length})`
+  }
+
+  // Add selected removed event into the list when «Include removed events» is unticked
+  const selectedEvent = isAllEventsSelected ? undefined : eventTrees[selectedEventIndex]
+  const filteredOutSelectedOption =
+    selectedEvent && !filteredEvents.includes(selectedEvent)
+      ? { value: selectedEventIndex, label: getEventOptionLabel(selectedEvent) }
+      : null
+
+  const eventOptions = [
+    {
+      value: ALL_EVENTS_INDEX,
+      label: getAllEventsLabel(),
+    },
+    ...(filteredOutSelectedOption ? [filteredOutSelectedOption] : []),
+    ...filteredEvents.map((event) => ({
+      value: eventIndexByEvent.get(event) ?? ALL_EVENTS_INDEX,
+      label: getEventOptionLabel(event),
+    })),
+  ]
+
+  const levelOfDetailOptions = LEVEL_OF_DETAIL_OPTIONS.map((level) => ({
+    value: level,
+    label: getLevelOfDetailLabel(level),
+  }))
+
+  const loopingPathModeOptions = LOOPING_PATH_MODES.map((mode) => ({
+    value: mode,
+    label: getLoopingPathModeLabel(mode),
+  }))
+
+  const navigationModeOptions = TREE_NAVIGATION_MODES.map((mode) => ({
+    value: mode,
+    label: getNavigationModeLabel(mode),
+  }))
+
+  const advancedOptionsArrow = showAdvancedOptions ? '▴' : '▾'
+  const advancedOptionsText = isMobile
+    ? `Advanced ${advancedOptionsArrow}`
+    : `Advanced options ${advancedOptionsArrow}`
+
+  // Force Cover mode when switching events to ensure clean coverScale calculation
+  useEffect(() => {
+    setZoomLevel(COVER)
+  }, [selectedEventIndex, setZoomLevel])
+
+  const handleResetClick = () => {
+    resetFilters(() => {
+      onEventChange(-1)
+    })
+  }
+
+  const handleRedrawMap = () => {
+    setIsReloadingMap(true)
+    window.location.reload()
+  }
+
+  const renderRedrawMapMessage = () => {
+    if (isReloadingMap) {
+      return <LoadingDots color={loadingColor} className={cx('info-message-loading')} />
+    }
+
+    return (
+      <div className={cx('info-message')}>
+        <span className={cx('info-message__emoji')}>✏️</span>
+        <span className={cx('info-message__text')}>
+          <GradientLink
+            text="Redraw the map"
+            onClick={handleRedrawMap}
+            className={cx('info-message__link')}
+          />
+        </span>
+      </div>
+    )
+  }
+
+  return (
+    <div className={cx('search-panel')}>
+      <PanelHeader type="Search" />
+
+      <div className={cx('controls')}>
+        <div className={cx('control-wrapper', 'control-wrapper--event')}>
+          <Select
+            id="event-select"
+            selectedClass={selectedClass}
+            label="Select Event"
+            options={eventOptions}
+            value={selectedEventIndex}
+            onChange={onEventChange}
+            disabled={filteredEvents.length === 0 && !filteredOutSelectedOption}
+          />
+        </div>
+
+        <div className={cx('control-wrapper', 'control-wrapper--zoom')}>
+          <ZoomSlider
+            selectedClass={selectedClass}
+            zoomLevel={zoomLevel}
+            setZoomLevel={setZoomLevel}
+            disabled={filteredEvents.length === 0 || selectedEventIndex === ALL_EVENTS_INDEX}
+          />
+        </div>
+        <div className={cx('control-wrapper', 'control-wrapper--button-wrapper')}>
+          <Button
+            className={cx('control-wrapper--reset-search-button')}
+            style={{
+              color: getClassColor(selectedClass, ClassColorVariant.Light),
+              borderColor: getClassColor(selectedClass, ClassColorVariant.Dark),
+            }}
+            onClick={handleResetClick}
+          >
+            Reset search
+          </Button>
+        </div>
+        <div className={cx('control-wrapper', 'control-wrapper--button-wrapper')}>
+          <GradientButton
+            className={cx('control-wrapper--advanced-options-button')}
+            onClick={() => setShowAdvancedOptions(!showAdvancedOptions)}
+          >
+            {advancedOptionsText}
+          </GradientButton>
+        </div>
+      </div>
+
+      {selectedEventIndex !== ALL_EVENTS_INDEX && !showAdvancedOptions && (
+        <div className={cx('info-message-wrapper')}>{renderRedrawMapMessage()}</div>
+      )}
+
+      {showAdvancedOptions && (
+        <div className={cx('advanced-options')}>
+          <div className={cx('advanced-options__content')}>
+            <div className={cx('control-wrapper', 'control-wrapper--level-of-detail')}>
+              <Select
+                id="level-of-detail-select"
+                selectedClass={selectedClass}
+                label="Level of detail"
+                options={levelOfDetailOptions}
+                value={levelOfDetail}
+                onChange={setLevelOfDetail}
+              />
+            </div>
+            <div className={cx('control-wrapper', 'control-wrapper--looping-path')}>
+              <Select
+                id="looping-path-mode-select"
+                selectedClass={selectedClass}
+                label="Show looping paths"
+                options={loopingPathModeOptions}
+                value={loopingPathMode}
+                onChange={setLoopingPathMode}
+              />
+            </div>
+            {!isMobile && (
+              <div className={cx('control-wrapper', 'control-wrapper--navigation-mode')}>
+                <Select
+                  id="navigation-mode-select"
+                  selectedClass={selectedClass}
+                  label="Navigate the tree"
+                  options={navigationModeOptions}
+                  value={navigationMode}
+                  onChange={setNavigationMode}
+                />
+              </div>
+            )}
+            <div className={cx('checkbox-row')}>
+              <div className={cx('control-wrapper', 'control-wrapper--checkbox')}>
+                <Checkbox
+                  name="include-removed-events"
+                  checkboxLabel="🚫 Include removed events"
+                  checked={includeRemovedEvents}
+                  onChange={() => setIncludeRemovedEvents(!includeRemovedEvents)}
+                  type="formatting-event"
+                />
+              </div>
+              <div className={cx('control-wrapper', 'control-wrapper--checkbox')}>
+                <Checkbox
+                  name="show-continues-tags"
+                  checkboxLabel="⏭️ Show «Continues» tags"
+                  checked={showContinuesTags}
+                  onChange={() => setShowContinuesTags(!showContinuesTags)}
+                  type="formatting-event"
+                />
+              </div>
+              <div className={cx('control-wrapper', 'control-wrapper--checkbox')}>
+                <Checkbox
+                  name="show-altered-badges"
+                  checkboxLabel={'🛠️ Mark altered content'}
+                  checked={showAlteredBadges}
+                  onChange={() => setShowAlteredBadges(!showAlteredBadges)}
+                  type="formatting-event"
+                />
+              </div>
+            </div>
+            <div className={cx('control-wrapper', 'control-wrapper--info-message')}>
+              {!isAllEventsSelected && renderRedrawMapMessage()}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showStickyZoom && !isAllEventsSelected && (
+        <StickyZoomSlider
+          selectedClass={selectedClass}
+          zoomLevel={zoomLevel}
+          setZoomLevel={setZoomLevel}
+          disabled={filteredEvents.length === 0 || selectedEventIndex === ALL_EVENTS_INDEX}
+        />
+      )}
+    </div>
+  )
+}
+
+export default EventSearchPanel

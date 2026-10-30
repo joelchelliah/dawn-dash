@@ -2,7 +2,7 @@ import dynamic from 'next/dynamic'
 
 import { PageHead } from '@/shared/components/PageHead'
 
-const Cards = dynamic(() => import('../src/codex/cards'), {
+const Cards = dynamic(() => import('../src/cardex'), {
   loading: () => <div>Loading cardex...</div>,
 })
 

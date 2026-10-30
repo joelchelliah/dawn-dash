@@ -1,9 +1,3 @@
-export enum CacheType {
-  Speedruns = 'speedruns',
-  CodexCards = 'codex-cards',
-  CodexCardsFilters = 'codex-cards-filters',
-}
-
 export type CacheSchema<T> = {
   data: T
   timestamp: number

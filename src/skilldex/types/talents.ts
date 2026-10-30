@@ -1,0 +1,112 @@
+import { RequirementFilterOption } from './talentFilters'
+
+export type TalentData = {
+  id: number
+  name: string
+  description: string
+  flavour_text: string
+  tier: number
+  expansion: number
+  events: string[]
+  requires_classes: string[]
+  requires_energy: string[]
+  requires_talents: number[]
+  required_for_talents: number[]
+  event_requirement_matrix: string[][]
+  requires_cards: string[]
+  blightbane_id: number
+  last_updated: string
+  verified: boolean
+}
+
+export enum TalentTreeNodeType {
+  TALENT = 'TALENT',
+  EVENT = 'EVENT',
+  CLASS_REQUIREMENT = 'CLASS_REQUIREMENT',
+  ENERGY_REQUIREMENT = 'ENERGY_REQUIREMENT',
+  NO_REQUIREMENTS = 'NO_REQUIREMENTS',
+  OFFER_REQUIREMENT = 'OFFER_REQUIREMENT',
+  UNAVAILABLE_REQUIREMENT = 'UNAVAILABLE_REQUIREMENT',
+  EVENT_REQUIREMENT = 'EVENT_REQUIREMENT',
+  CARD_REQUIREMENT = 'CARD_REQUIREMENT',
+}
+
+export type TalentTreeRequirementNodeType =
+  | TalentTreeNodeType.CLASS_REQUIREMENT
+  | TalentTreeNodeType.ENERGY_REQUIREMENT
+  | TalentTreeNodeType.NO_REQUIREMENTS
+  | TalentTreeNodeType.OFFER_REQUIREMENT
+  | TalentTreeNodeType.EVENT_REQUIREMENT
+  | TalentTreeNodeType.CARD_REQUIREMENT
+  | TalentTreeNodeType.UNAVAILABLE_REQUIREMENT
+export type TalentTreeRequirementNode = {
+  type: TalentTreeRequirementNodeType
+  name: string
+  requirementFilterOptions: RequirementFilterOption[]
+  children: TalentTreeTalentNode[]
+}
+
+export type TalentTreeTalentNode = {
+  type: TalentTreeNodeType.TALENT
+  name: string
+  description: string
+  flavourText: string
+  tier: number
+  expansion: number
+  events: string[]
+  children: TalentTreeTalentNode[]
+  // Names of all descendants (children, grandchildren, etc.)
+  descendants: string[]
+  // A combined set of all of the node's class and energy requirements.
+  // This also includes the requirements inherited from the parent node.
+  // Unless the parent node is an event node, in which case only the event requirements are included.
+  // NOTE: If a talent has X different such sets of requirements, it will be represented by X different nodes!
+  classOrEnergyRequirements: string[]
+  // Names of all of the node's talent requirements.
+  talentRequirements: string[]
+  // Other niche requirements
+  otherRequirements: string[]
+}
+
+export type TalentTree = {
+  noReqNode: TalentTreeRequirementNode
+  classNodes: TalentTreeRequirementNode[]
+  energyNodes: TalentTreeRequirementNode[]
+  eventNodes: TalentTreeRequirementNode[]
+  cardNode: TalentTreeRequirementNode
+  offerNode: TalentTreeRequirementNode
+  unavailableNode: TalentTreeRequirementNode
+}
+
+export type TalentTreeNode = TalentTreeTalentNode | TalentTreeRequirementNode
+
+// Simplified recursive tree node for hierarchical rendering via d3.js
+export interface HierarchicalTalentTreeNode {
+  name: string
+  description: string
+  type?: TalentTreeNodeType
+  tier?: number
+  cardSetIndex?: number
+  children?: HierarchicalTalentTreeNode[]
+  // To be able to check if node has additional requirements, not present in parent node.
+  // Or special requirements when talent is obtained from an event.
+  classOrEnergyRequirements: string[]
+  // Names of all of the node's talent requirements.
+  talentRequirements: string[]
+  // Other niche requirements
+  otherRequirements: string[]
+}
+
+// The rendering settings that talent node dimensions depend on
+export interface TalentRenderingContext {
+  shouldShowTalentArt: boolean
+  shouldShowDescription: boolean
+  shouldShowCardSet: (index?: number) => boolean
+  shouldShowBlightbaneLink: boolean
+  parsedKeywords: string[]
+}
+
+export interface TalentNodeHeight {
+  height: number
+  contentHeight: number
+}

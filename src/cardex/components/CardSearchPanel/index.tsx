@@ -1,0 +1,276 @@
+import { useMemo } from 'react'
+
+import { createCx } from '@/shared/utils/classnames'
+import {
+  CircleIcon,
+  CrossIcon,
+  DoubleStarsIcon,
+  PawIcon,
+  SingleStarIcon,
+  SkullIcon,
+  TripleStarsIcon,
+} from '@/shared/components/Icons'
+import GradientButton from '@/shared/components/Buttons/GradientButton'
+import ButtonRow from '@/shared/components/Buttons/ButtonRow'
+import { allCardSets } from '@/shared/hooks/useSearchFilters/useCardSetFilters'
+import { UseCardData } from '@/shared/hooks/useCardData'
+import DataLastUpdated from '@/shared/components/DataLastUpdated'
+import PanelHeader from '@/shared/components/PanelHeader'
+import FilterGroup from '@/shared/components/FilterGroup'
+import SearchField from '@/shared/components/SearchField'
+
+import { ExtraCardFilterOption, RarityFilterOption } from '@/cardex/types/cardFilters'
+import { UseAllCardSearchFilters } from '@/cardex/hooks/useSearchFilters/useAllCardSearchFilters'
+import { allFormattingCardFilters } from '@/cardex/hooks/useSearchFilters/useFormattingCardFilters'
+import { allRarities } from '@/cardex/hooks/useSearchFilters/useRarityFilters'
+import { allBanners } from '@/cardex/hooks/useSearchFilters/useBannerFilters'
+import {
+  allCardTypes,
+  getCardTypeEmojiFromName,
+} from '@/cardex/hooks/useSearchFilters/useCardTypeFilters'
+import { allExtraCardFilters } from '@/cardex/hooks/useSearchFilters/useExtraCardFilters'
+
+import WeeklyChallengeButton from '../WeeklyChallengeButton'
+
+import WeeklyOptimizationNotification from './WeeklyOptimizationNotification'
+import styles from './index.module.scss'
+
+const cx = createCx(styles)
+
+interface CardSearchPanelProps {
+  useSearchFilters: UseAllCardSearchFilters
+  useCardData: UseCardData
+}
+
+const CardSearchPanel = ({ useSearchFilters, useCardData }: CardSearchPanelProps) => {
+  const {
+    keywords,
+    setKeywords,
+    parsedKeywords,
+    matchingCards,
+    useCardSetFilters,
+    useRarityFilters,
+    useBannerFilters,
+    useCardTypeFilters,
+    useExtraCardFilters,
+    useFormattingFilters,
+    resetFilters,
+    resetStruckCards,
+    setFiltersFromWeeklyChallengeData,
+    weeklyChallengeData,
+    isWeelyChallengeLoading,
+    isWeeklyChallengeError,
+    weeklyChallengeNotifications,
+    clearWeeklyChallengeNotification,
+  } = useSearchFilters
+  const { cardSetFilters, handleCardSetFilterToggle } = useCardSetFilters
+  const { rarityFilters, handleRarityFilterToggle } = useRarityFilters
+  const { bannerFilters, handleBannerFilterToggle } = useBannerFilters
+  const { cardTypeFilters, handleCardTypeFilterToggle } = useCardTypeFilters
+  const { extraCardFilters, handleExtraCardFilterToggle, getExtraCardFilterName } =
+    useExtraCardFilters
+  const { formattingFilters, handleFormattingFilterToggle, getFormattingFilterName } =
+    useFormattingFilters
+
+  // Memoized because the matching set can run to thousands of cards, and only the names are needed.
+  const matchingCardNames = useMemo(() => matchingCards.map((card) => card.name), [matchingCards])
+
+  const getRarityFilterLabel = (filter: string) => {
+    switch (filter) {
+      case RarityFilterOption.Legendary:
+        return (
+          <span className={cx('filter-label')}>
+            <TripleStarsIcon className={cx('filter-icon--legendary')} />
+            Legendary
+          </span>
+        )
+      case RarityFilterOption.Rare:
+        return (
+          <span className={cx('filter-label')}>
+            <DoubleStarsIcon className={cx('filter-icon--rare')} />
+            Rare
+          </span>
+        )
+      case RarityFilterOption.Uncommon:
+        return (
+          <span className={cx('filter-label')}>
+            <SingleStarIcon className={cx('filter-icon--uncommon')} />
+            Uncommon
+          </span>
+        )
+      case RarityFilterOption.Common:
+        return (
+          <span className={cx('filter-label')}>
+            <CircleIcon className={cx('filter-icon--common')} />
+            Common
+          </span>
+        )
+    }
+
+    return <span className={cx('filter-label')}>{filter}</span>
+  }
+
+  const getCardTypeFilterLabel = (filter: string) => {
+    const emoji = getCardTypeEmojiFromName(filter)
+    if (!emoji) return <span className={cx('filter-label')}>{filter}</span>
+
+    return (
+      <span className={cx('filter-label')}>
+        <span className={cx('filter-emoji')}>{emoji}</span>
+        {filter}
+      </span>
+    )
+  }
+
+  const getExtraFilterLabel = (filter: string) => {
+    const name = getExtraCardFilterName(filter)
+
+    switch (filter) {
+      case ExtraCardFilterOption.IncludeMonsterCards:
+        return (
+          <span className={cx('filter-label')}>
+            <SkullIcon className={cx('filter-icon--monster')} />
+            {name}
+          </span>
+        )
+      case ExtraCardFilterOption.IncludeAnimalCompanionCards:
+        return (
+          <span className={cx('filter-label')}>
+            <PawIcon className={cx('filter-icon--animal-companion')} />
+            {name}
+          </span>
+        )
+      case ExtraCardFilterOption.IncludeNonCollectibleCards:
+        return (
+          <span className={cx('filter-label')}>
+            <CrossIcon className={cx('filter-icon--non-collectible')} />
+            {name}
+          </span>
+        )
+      default:
+        return <span className={cx('filter-label')}>{name}</span>
+    }
+  }
+
+  const preventFormSubmission = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+  }
+
+  const renderWeeklyChallengeButton = () => {
+    if (isWeeklyChallengeError && !isWeelyChallengeLoading) return null
+
+    return (
+      <ButtonRow align="left" className={cx('button-row--weekly-challenge')}>
+        <WeeklyChallengeButton
+          isLoading={isWeelyChallengeLoading}
+          challengeName={weeklyChallengeData?.name}
+          challengeId={weeklyChallengeData?.id}
+          onClick={setFiltersFromWeeklyChallengeData}
+        />
+      </ButtonRow>
+    )
+  }
+
+  return (
+    <div className={cx('search-panel')}>
+      <PanelHeader type="Search" />
+
+      <form onSubmit={preventFormSubmission} aria-label="Card search and filters">
+        <SearchField
+          keywords={keywords}
+          setKeywords={setKeywords}
+          parsedKeywords={parsedKeywords}
+          matches={matchingCardNames}
+        />
+
+        <div className={cx('filters')}>
+          <FilterGroup
+            title="Card Sets"
+            filters={allCardSets}
+            selectedFilters={cardSetFilters}
+            type="card-set"
+            onFilterToggle={handleCardSetFilterToggle}
+          />
+          <FilterGroup
+            title="Banners"
+            filters={allBanners}
+            selectedFilters={bannerFilters}
+            type="banner"
+            onFilterToggle={handleBannerFilterToggle}
+          />
+          <FilterGroup
+            title="Rarities"
+            filters={allRarities}
+            selectedFilters={rarityFilters}
+            type="rarity"
+            onFilterToggle={handleRarityFilterToggle}
+            getFilterLabel={getRarityFilterLabel}
+          />
+          <FilterGroup
+            title="Types"
+            filters={allCardTypes}
+            selectedFilters={cardTypeFilters}
+            type="card-type"
+            onFilterToggle={handleCardTypeFilterToggle}
+            getFilterLabel={getCardTypeFilterLabel}
+          />
+          <FilterGroup
+            title="Extras"
+            filters={allExtraCardFilters}
+            selectedFilters={extraCardFilters}
+            type="extra"
+            onFilterToggle={handleExtraCardFilterToggle}
+            getFilterLabel={getExtraFilterLabel}
+            className={cx('filters__extras')}
+          />
+          <FilterGroup
+            title="Results formatting"
+            filters={allFormattingCardFilters}
+            selectedFilters={formattingFilters}
+            type="formatting-card"
+            onFilterToggle={handleFormattingFilterToggle}
+            getFilterLabel={getFormattingFilterName}
+          />
+        </div>
+
+        <ButtonRow align="left" includeBorder className={cx('button-row')}>
+          <GradientButton
+            subtle
+            onClick={resetFilters}
+            className={cx('filter-button')}
+            showClickAnimation
+          >
+            Reset search
+          </GradientButton>
+          <GradientButton
+            subtle
+            onClick={resetStruckCards}
+            className={cx('filter-button', 'filter-button--fill-width')}
+            showClickAnimation
+          >
+            Reset tracked cards
+          </GradientButton>
+        </ButtonRow>
+
+        {renderWeeklyChallengeButton()}
+      </form>
+
+      <DataLastUpdated
+        type="card"
+        lastUpdated={useCardData.lastUpdated}
+        isLoading={useCardData.isLoading}
+        isLoadingInBackground={useCardData.isLoadingInBackground}
+        isErrorInBackground={useCardData.isErrorInBackground}
+        progress={useCardData.progress}
+        refresh={useCardData.refresh}
+      />
+
+      <WeeklyOptimizationNotification
+        notifications={weeklyChallengeNotifications}
+        onShown={clearWeeklyChallengeNotification}
+      />
+    </div>
+  )
+}
+
+export default CardSearchPanel

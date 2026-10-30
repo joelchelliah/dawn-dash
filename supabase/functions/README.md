@@ -66,7 +66,7 @@ Everything else (`name`, `description`, `flavour_text`, `tier`, `expansion`, `ev
 `verified = false` is the marker for "imported but not yet reviewed". Note the column default
 is `true`, so only sync-inserted rows start out unverified.
 
-**Why this matters for Skilldex:** [`talentsResponseMapper.ts`](../../src/codex/utils/talentsResponseMapper.ts)
+**Why this matters for Skilldex:** [`talentsResponseMapper.ts`](../../src/skilldex/utils/talentsResponseMapper.ts)
 sorts the tree by exactly these manual fields — `isRootTalent` requires empty class/energy/talent
 requirements. So a freshly synced talent with no `requires_talents` lands under
 **"No Requirements"** until you fill its requirements in. That post-processing _is_ the real work.
@@ -94,7 +94,7 @@ requirements. So a freshly synced talent with no `requires_talents` lands under
    `event_requirement_matrix`, then set `verified = true`.
 
 5. **Bump the talents cache version** — `CACHE_VERSION` in
-   [`codexTalentsStore.ts`](../../src/codex/utils/codexTalentsStore.ts). Without this, returning
+   [`talentsStore.ts`](../../src/skilldex/utils/talentsStore.ts). Without this, returning
    users keep a stale tree for up to 24h.
 
 6. **Verify.** `npm run verify`, then check `/skilldex` in the dev server.
@@ -155,22 +155,22 @@ case there's no frontend work. But if it introduces a **new expansion index**, t
 card-set filter silently hides those talents and labels them `-`. The preflight flags this.
 To fix, add the index to:
 
-- `CardSetFilterOption` — [`src/codex/types/filters.ts`](../../src/codex/types/filters.ts)
+- `CardSetFilterOption` — [`src/shared/types/filters.ts`](../../src/shared/types/filters.ts)
 - `defaultCardSetFilterValueMap`, `indexMap`, `indexToValueMap` —
-  [`useCardSetFilters.ts`](../../src/codex/hooks/useSearchFilters/useCardSetFilters.ts)
+  [`useCardSetFilters.ts`](../../src/shared/hooks/useSearchFilters/useCardSetFilters.ts)
 - `KNOWN_EXPANSIONS` — [`scripts/sync/sync-talents-preflight.js`](../../scripts/sync/sync-talents-preflight.js)
 
 Then bump `TALENTS_CACHE_VERSION` in
-[`codexFilterStore.ts`](../../src/codex/utils/codexFilterStore.ts) if the tree shape changes or if there is any danger of the new data causing an error.
+[`talentFilterStore.ts`](../../src/skilldex/utils/talentFilterStore.ts) if the tree shape changes or if there is any danger of the new data causing an error.
 
 Same idea for a **new tier** beyond 6: `TierFilterOption`,
-[`useTierFilters.ts`](../../src/codex/hooks/useSearchFilters/useTierFilters.ts), and
+[`useTierFilters.ts`](../../src/skilldex/hooks/useSearchFilters/useTierFilters.ts), and
 `MAX_KNOWN_TIER` in the script.
 
 ### Other things to keep in mind
 
 - **Hand-curated exception lists.** `ACTUALLY_EVENT_ONLY_TALENTS` and `UNAVAILABLE_TALENTS` in
-  [`talentsMappingValues.ts`](../../src/codex/constants/talentsMappingValues.ts) are maintained by
+  [`talentsMappingValues.ts`](../../src/skilldex/constants/talentsMappingValues.ts) are maintained by
   hand. New event-only talents need adding there.
 - **The mapper fails loudly, not gracefully.** It throws on recursive prereq loops and on
   multiple event-requirement sets. If bad prereq data comes in, Skilldex breaks rather than

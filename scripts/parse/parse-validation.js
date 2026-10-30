@@ -157,7 +157,7 @@ function compareEventTrees(baselineTrees, currentTrees) {
  *                                          version of the canonical output file).
  */
 function validateEventTreesChanges(options = {}) {
-  const filePath = path.join(__dirname, '../../src/codex/data/event-trees.json')
+  const filePath = path.join(__dirname, '../../src/shared/data/event-trees.json')
   const relativePath = path.relative(process.cwd(), filePath)
   const currentPath = options.currentPath || filePath
 

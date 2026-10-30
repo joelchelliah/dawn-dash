@@ -1,0 +1,61 @@
+import { createFilterHook } from '@/shared/hooks/useSearchFilters/useFilterFactory'
+
+import {
+  CardSearchFilterCache,
+  FormattingCard,
+  FormattingCardFilterOption,
+} from '@/cardex/types/cardFilters'
+
+const defaultFilters = {
+  [FormattingCardFilterOption.ShowCardArt]: true,
+  [FormattingCardFilterOption.ShowDescription]: true,
+  [FormattingCardFilterOption.ShowKeywords]: true,
+  [FormattingCardFilterOption.ShowCardSet]: true,
+  [FormattingCardFilterOption.ShowCardType]: true,
+  [FormattingCardFilterOption.ShowBlightbaneLink]: false,
+  [FormattingCardFilterOption.HideTrackedCards]: false,
+}
+
+const valueToStringMap = {
+  [FormattingCard.ShowCardArt]: 'Show card art',
+  [FormattingCard.ShowDescription]: 'Show card description',
+  [FormattingCard.ShowKeywords]: 'Show matching keywords',
+  [FormattingCard.ShowCardSet]: 'Show card set',
+  [FormattingCard.ShowCardType]: 'Show card type',
+  [FormattingCard.ShowBlightbaneLink]: 'Show Blightbane link',
+  [FormattingCard.HideTrackedCards]: 'Hide tracked cards',
+}
+
+export const allFormattingCardFilters = FormattingCard.getAll()
+
+const useBaseFilters = createFilterHook({
+  defaultFilters,
+  allValues: allFormattingCardFilters,
+  valueToStringMap,
+})
+
+export const useFormattingCardFilters = (cachedFilters?: CardSearchFilterCache['formatting']) => {
+  const { filters, handleFilterToggle, getValueToString, resetFilters } =
+    useBaseFilters(cachedFilters)
+  const shouldShowDescription = filters[FormattingCard.ShowDescription]
+  const shouldShowKeywords = filters[FormattingCard.ShowKeywords]
+  const shouldShowCardSet = filters[FormattingCard.ShowCardSet]
+  const shouldShowCardType = filters[FormattingCard.ShowCardType]
+  const shouldShowCardArt = filters[FormattingCard.ShowCardArt]
+  const shouldShowBlightbaneLink = filters[FormattingCard.ShowBlightbaneLink]
+  const shouldHideTrackedCards = filters[FormattingCard.HideTrackedCards]
+
+  return {
+    formattingFilters: filters,
+    handleFormattingFilterToggle: handleFilterToggle,
+    getFormattingFilterName: getValueToString,
+    resetFormattingFilters: resetFilters,
+    shouldShowDescription,
+    shouldShowKeywords,
+    shouldShowCardSet,
+    shouldShowCardType,
+    shouldShowCardArt,
+    shouldShowBlightbaneLink,
+    shouldHideTrackedCards,
+  }
+}

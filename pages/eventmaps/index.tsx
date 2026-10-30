@@ -1,8 +1,8 @@
 import dynamic from 'next/dynamic'
 
-import { EventmapHead } from '@/codex/components/EventMapHead'
+import { EventmapHead } from '@/eventmaps/components/EventMapHead'
 
-const Events = dynamic(() => import('../../src/codex/events'), {
+const Events = dynamic(() => import('../../src/eventmaps'), {
   loading: () => <div>Loading events...</div>,
 })
 

@@ -40,7 +40,6 @@ const nextConfig = {
       ...config.resolve.alias,
       '@': path.join(__dirname, 'src'),
       '@/shared': path.join(__dirname, 'src/shared'),
-      '@/codex': path.join(__dirname, 'src/codex'),
       '@/speedruns': path.join(__dirname, 'src/speedruns'),
     }
     return config

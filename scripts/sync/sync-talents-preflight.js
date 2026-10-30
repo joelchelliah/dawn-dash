@@ -30,8 +30,8 @@ const TALENTS_API =
 
 const ENV_FILE = path.join(__dirname, '../../.env.local')
 
-// Kept in sync with src/codex/hooks/useSearchFilters/useCardSetFilters.ts (indexToValueMap)
-// and src/codex/hooks/useSearchFilters/useTierFilters.ts (tierIndexMap). A talent whose
+// Kept in sync with src/shared/hooks/useSearchFilters/useCardSetFilters.ts (indexToValueMap)
+// and src/skilldex/hooks/useSearchFilters/useTierFilters.ts (tierIndexMap). A talent whose
 // expansion/tier is missing from those maps is silently hidden or mislabelled in Skilldex,
 // so we check the synced data against them rather than trusting it to fit.
 const KNOWN_EXPANSIONS = {
@@ -177,16 +177,16 @@ function printReport(
       log(`New expansion index/indices: ${unknownExpansions.join(', ')}`)
       log('These are not in the Skilldex card-set filters, so the talents will be')
       log('hidden by the filter and labelled "-". Add them to:')
-      log('  • CardSetFilterOption          src/codex/types/filters.ts')
+      log('  • CardSetFilterOption          src/shared/types/filters.ts')
       log('  • defaultCardSetFilterValueMap, indexMap, indexToValueMap')
-      log('                                 src/codex/hooks/useSearchFilters/useCardSetFilters.ts')
+      log('                                 src/shared/hooks/useSearchFilters/useCardSetFilters.ts')
       log('  • KNOWN_EXPANSIONS             scripts/sync/sync-talents-preflight.js')
-      log('Then bump TALENTS_CACHE_VERSION in src/codex/utils/codexFilterStore.ts')
+      log('Then bump TALENTS_CACHE_VERSION in src/skilldex/utils/talentFilterStore.ts')
       log('so existing users get the new card set enabled by default.')
     }
     if (unknownTiers.length > 0) {
       log(`\nNew tier(s): ${unknownTiers.join(', ')}`)
-      log('Add them to TierFilterOption (src/codex/types/filters.ts), useTierFilters.ts,')
+      log('Add them to TierFilterOption (src/skilldex/types/talentFilters.ts), useTierFilters.ts,')
       log('and MAX_KNOWN_TIER in scripts/sync/sync-talents-preflight.js.')
     }
   } else if (newTalents.length > 0) {
@@ -225,11 +225,11 @@ function printReport(
     log('     select * from "Talents" where verified = false;')
     log('   Populate requires_classes / requires_energy / requires_cards /')
     log('   event_requirement_matrix, then set verified = true.')
-    log('4. Bump CACHE_VERSION in src/codex/utils/codexTalentsStore.ts.')
+    log('4. Bump CACHE_VERSION in src/skilldex/utils/talentsStore.ts.')
     log('5. npm run verify, then check /skilldex in the dev server.')
   } else {
     log('1. Finish the manual post-processing for the unverified rows listed above.')
-    log('2. Bump CACHE_VERSION in src/codex/utils/codexTalentsStore.ts.')
+    log('2. Bump CACHE_VERSION in src/skilldex/utils/talentsStore.ts.')
     log('3. npm run verify, then check /skilldex in the dev server.')
   }
   log('')

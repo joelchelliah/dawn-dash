@@ -5,14 +5,14 @@
  *
  * This module also defines the ParseNode typedef — the single JSDoc definition of the
  * node shape the parser produces. It is deliberately a SUPERSET of the app's
- * EventTreeNode union (src/codex/types/events.ts): during parsing a node may
+ * EventTreeNode union (src/shared/types/events.ts): during parsing a node may
  * temporarily carry any combination of fields (e.g. a dialogue node still holding its
  * choiceLabel before separateChoicesFromEffects splits it into two nodes). The `type`
  * field reuses the app's EventNodeType, so a renamed/added node type shows up here.
  */
 
 /**
- * @typedef {import('../../src/codex/types/events').EventNodeType} EventNodeType
+ * @typedef {import('../../src/shared/types/events').EventNodeType} EventNodeType
  */
 
 /**

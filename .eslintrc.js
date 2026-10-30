@@ -1,3 +1,7 @@
+// Each tool's folder. A tool may import only from itself and `src/shared/`; anything a second tool
+// needs moves to `shared/`, so the tools never form a dependency web between them.
+const TOOL_DIRS = ['landing', 'speedruns', 'scoring', 'cardex', 'skilldex', 'eventmaps', 'booty']
+
 module.exports = {
   parser: '@typescript-eslint/parser',
   parserOptions: {
@@ -43,6 +47,23 @@ module.exports = {
 
     // Import Rules
     'import/prefer-default-export': 'off',
+    'import/no-restricted-paths': [
+      'error',
+      {
+        zones: [
+          ...TOOL_DIRS.map((tool) => ({
+            target: `./src/${tool}`,
+            from: TOOL_DIRS.filter((other) => other !== tool).map((other) => `./src/${other}`),
+            message: 'Tools must not import from each other — move shared code to src/shared/.',
+          })),
+          {
+            target: './src/shared',
+            from: TOOL_DIRS.map((tool) => `./src/${tool}`),
+            message: 'src/shared/ must not import from a tool.',
+          },
+        ],
+      },
+    ],
     'import/no-unresolved': 'error',
     'import/order': [
       'error',

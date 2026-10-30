@@ -1,0 +1,138 @@
+import { BlightbaneCardByIdUrl, BlightbaneCardUrl } from '@/shared/utils/imageUrls'
+import { CardData } from '@/shared/types/cards'
+
+const NON_COLLECTIBLE_CATEGORIES = [
+  6, // Summons
+  7, // Performances
+  8, // Forms
+  13, // Attunements
+  19, // Offerings
+]
+// Categories that are only non-collectible within the nil (unset) expansion
+const NON_COLLECTIBLE_CATEGORIES_FOR_NIL_EXPANSION = [
+  1, // Items
+  4, // Enchantments
+  6, // Summons
+  7, // Performances
+  8, // Forms
+  9, // Hymn
+  11, // Revelations
+  12, // Affixes
+  13, // Attunements
+  14, // Equipment effects
+  15, // Code
+  17, // Paths II and III
+  18, // Location
+  19, // Offerings
+  20, // Mantra
+  21, // Adaptations
+]
+
+const NON_COLLECTIBLE_CARDS = [
+  'Alignment',
+  'Bloodbank',
+  'Vexing Echo 1',
+  'Vexing Echo 2',
+  'Pacified',
+
+  // Imp Offers
+  'Imp Offer 1',
+  'Imp Offer 2',
+  'Imp Offer 3',
+  'Imp Offer 4',
+  'Imp Offer 5',
+  'Imp Offer 6',
+
+  // Lost Lagoon
+  'City of Gold',
+  'Font of Youth',
+  'Sunken Forge',
+  'Wasteland',
+
+  // Pirate Ink
+  'Pirate Ink I',
+  'Pirate Ink II',
+  'Pirate Ink III',
+  'Pirate Ink IV',
+  'Pirate Ink V',
+
+  // Larceny
+  'Larceny INT',
+  'Larceny STR',
+  'Larceny DEX',
+  'Larceny HOLY',
+
+  // Compel
+  'Compel 1',
+  'Compel 2',
+
+  // Treaties
+  'Treaty of Joy',
+  'Treaty of Insight',
+  'Treaty of Might',
+  'Treaty of Peace',
+  'Treaty of Mercy',
+
+  // Agile Mind
+  'Agile',
+  'Mind',
+
+  // Hypnosis
+  'Hypnosis 1',
+  'Hypnosis 2',
+
+  // Typhon's Cunning
+  "Typhon's Cunning II",
+  "Typhon's Cunning III",
+
+  // That card that does one of these things
+  'Haste',
+  'Slow',
+  'Draw',
+]
+
+export const hasMonsterRarity = (card: CardData) => card.rarity === 4
+export const hasMonsterBanner = (card: CardData) => card.color === 11
+export const hasNoBanner = (card: CardData) => card.color === 0
+export const isAnimalCompanionCard = (card: CardData) => card.name.endsWith('(Companion)')
+
+/*
+ * Expansion 0 is the game's nil/unset bucket. Only used for picking the right category list
+ * below — nil expansion cards are otherwise treated as Core cards, see `useCardSetFilters`.
+ */
+const hasNilExpansion = (card: CardData) => card.expansion === 0
+
+/*
+ * The two category lists are disjoint and mutually exclusive: a category counts as
+ * non-collectible either in the nil expansion or outside it, never both. The name
+ * blacklist applies regardless of expansion.
+ */
+export const isNonCollectible = (card: CardData) =>
+  NON_COLLECTIBLE_CARDS.some((cardName) => cardName.toLowerCase() === card.name.toLowerCase()) ||
+  (hasNilExpansion(card)
+    ? NON_COLLECTIBLE_CATEGORIES_FOR_NIL_EXPANSION.includes(card.category)
+    : NON_COLLECTIBLE_CATEGORIES.includes(card.category))
+
+export const getBlightbaneCardUrl = (card: CardData) =>
+  card.hasDuplicateName ? BlightbaneCardByIdUrl(card.blightbane_id) : BlightbaneCardUrl(card.name)
+
+/*
+ * Tracked cards are saved as names, so a card sharing its name with another is saved as
+ * `name#id` instead. Saved progress for every other card keeps its existing format.
+ */
+const STRIKE_KEY_ID_SEPARATOR = '#'
+
+export const getCardStrikeKey = (card: CardData) =>
+  card.hasDuplicateName ? `${card.name}${STRIKE_KEY_ID_SEPARATOR}${card.blightbane_id}` : card.name
+
+export const getCardNameFromStrikeKey = (key: string) => key.split(STRIKE_KEY_ID_SEPARATOR)[0]
+
+// A bare name saved before same-named cards were shown still marks all of them as tracked
+export const isCardStruckIn = (struckKeys: Set<string>, card: CardData) =>
+  struckKeys.has(getCardStrikeKey(card)) || (card.hasDuplicateName && struckKeys.has(card.name))
+
+export const containsNonCollectible = (cards: CardData[]) =>
+  cards.some((card) => isNonCollectible(card))
+
+export const containsAnimalCompanionCard = (cards: CardData[]) =>
+  cards.some((card) => isAnimalCompanionCard(card))

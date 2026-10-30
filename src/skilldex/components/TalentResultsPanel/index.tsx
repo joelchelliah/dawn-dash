@@ -1,0 +1,145 @@
+import { useEffect, useRef, useState } from 'react'
+
+import GradientButton from '@/shared/components/Buttons/GradientButton'
+import { createCx } from '@/shared/utils/classnames'
+import { CharacterClass } from '@/shared/types/characterClass'
+import { useBreakpoint } from '@/shared/hooks/useBreakpoint'
+import { ZoomLevel, COVER } from '@/shared/constants/zoomValues'
+import StickyZoomSlider from '@/shared/components/StickyZoomSlider'
+import { useStickyZoom } from '@/shared/hooks/useStickyZoom'
+import { useScrollToResultsOnArrival } from '@/shared/hooks/useScrollToResultsOnArrival'
+import PanelHeader from '@/shared/components/PanelHeader'
+import KeywordsSummary from '@/shared/components/KeywordsSummary'
+
+import { useExpandableNodes } from '@/skilldex/hooks/useExpandableNodes'
+import { UseAllTalentSearchFilters } from '@/skilldex/hooks/useSearchFilters/useAllTalentSearchFilters'
+
+import TalentTree from './TalentTree'
+import styles from './index.module.scss'
+
+interface TalentResultsPanelProps {
+  useSearchFilters: UseAllTalentSearchFilters
+}
+
+const cx = createCx(styles)
+
+const TalentResultsPanel = ({ useSearchFilters }: TalentResultsPanelProps) => {
+  const [showTalentsWithoutKeywords, setShowTalentsWithoutKeywords] = useState(false)
+  const [zoomLevel, setZoomLevel] = useState<ZoomLevel>(COVER)
+  const panelRef = useRef<HTMLDivElement>(null)
+
+  const { isMobile } = useBreakpoint()
+  const {
+    parsedKeywords,
+    matchingTalentTree,
+    matchingTalentNames,
+    useFormattingFilters,
+    useCardSetFilters,
+  } = useSearchFilters
+  const { getCardSetNameFromIndex } = useCardSetFilters
+  const {
+    shouldExpandNodes,
+    shouldShowTalentArt,
+    shouldShowDescription,
+    shouldShowCardSet,
+    shouldShowKeywords,
+    shouldShowBlightbaneLink,
+  } = useFormattingFilters
+  const { isNodeExpanded, toggleNodeExpansion } = useExpandableNodes(shouldExpandNodes)
+  const showStickyZoom = useStickyZoom(0, 1300)
+
+  // We want the sticky zoom to move to the top once the user scrolls down a bit.
+  useEffect(() => {
+    const handleScroll = () => {
+      document.documentElement.style.setProperty(
+        '--sticky-zoom-margin',
+        window.scrollY > 100 ? '-2rem' : '6rem'
+      )
+    }
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  useScrollToResultsOnArrival(panelRef, parsedKeywords.length > 0)
+
+  useEffect(() => {
+    if (parsedKeywords.length > 0) {
+      setShowTalentsWithoutKeywords(false)
+    }
+    // Reset zoom to Cover when keywords change
+    setZoomLevel(COVER)
+  }, [parsedKeywords])
+
+  const renderMatchingTalents = () => {
+    const showingTalentsWithoutKeywords = parsedKeywords.length === 0 && showTalentsWithoutKeywords
+
+    return (
+      <div className={cx('results-container')}>
+        <KeywordsSummary
+          matches={matchingTalentNames}
+          resultType="talent"
+          parsedKeywords={parsedKeywords}
+          showingResultsWithoutKeywords={showingTalentsWithoutKeywords}
+          className={cx('results-container__info')}
+        />
+
+        <TalentTree
+          talentTree={matchingTalentTree}
+          parsedKeywords={parsedKeywords}
+          shouldShowTalentArt={shouldShowTalentArt}
+          shouldShowDescription={shouldShowDescription}
+          shouldShowCardSet={shouldShowCardSet}
+          shouldShowKeywords={shouldShowKeywords}
+          shouldShowBlightbaneLink={shouldShowBlightbaneLink}
+          getCardSetNameFromIndex={getCardSetNameFromIndex}
+          areChildrenExpanded={isNodeExpanded}
+          toggleChildrenExpansion={toggleNodeExpansion}
+          zoomLevel={zoomLevel}
+        />
+      </div>
+    )
+  }
+
+  const hasResults = parsedKeywords.length > 0 || showTalentsWithoutKeywords
+  const showZoomControl = hasResults && showStickyZoom
+
+  return (
+    <div ref={panelRef} className={cx('results-panel')}>
+      <PanelHeader type="TalentResults" />
+
+      {showZoomControl && (
+        <StickyZoomSlider
+          position={isMobile ? 'left' : 'right'}
+          className={cx('results-panel__sticky-zoom')}
+          selectedClass={CharacterClass.Rogue}
+          zoomLevel={zoomLevel}
+          setZoomLevel={setZoomLevel}
+          disabled={!matchingTalentTree}
+        />
+      )}
+
+      {parsedKeywords.length > 0 || showTalentsWithoutKeywords ? (
+        renderMatchingTalents()
+      ) : (
+        <div className={cx('results-container')}>
+          <div className={cx('results-container__info')}>
+            No <strong>keywords</strong> have been provided yet. Do you want to see all talents
+            matching only the filters?
+          </div>
+
+          <GradientButton
+            className={cx('results-container__no-keywords-button')}
+            subtle
+            onClick={() => setShowTalentsWithoutKeywords(true)}
+          >
+            Show <strong>all talents</strong> matching
+            <br />
+            only the filters
+          </GradientButton>
+        </div>
+      )}
+    </div>
+  )
+}
+
+export default TalentResultsPanel
