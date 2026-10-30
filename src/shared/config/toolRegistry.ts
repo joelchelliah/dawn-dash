@@ -46,7 +46,6 @@ export const TOOL_REGISTRY: ToolDefinition[] = [
     logoImage: 'https://www.dawn-dash.com/logo-cardex.png',
     landingImage: '/landing-cardex.webp',
     navIcon: AbracadabraImageUrl,
-    legacyPaths: ['/codex/cards'],
   },
   {
     id: 'skilldex',
@@ -63,7 +62,6 @@ export const TOOL_REGISTRY: ToolDefinition[] = [
     logoImage: 'https://www.dawn-dash.com/logo-skilldex.png',
     landingImage: '/landing-skilldex.webp',
     navIcon: EleganceImageUrl,
-    legacyPaths: ['/codex/skills'],
   },
   {
     id: 'eventmaps',
@@ -80,7 +78,6 @@ export const TOOL_REGISTRY: ToolDefinition[] = [
     logoImage: 'https://www.dawn-dash.com/logo-eventmaps.png',
     landingImage: '/landing-eventmaps.webp',
     navIcon: MapOfHuesImageUrl,
-    legacyPaths: ['/codex/events'],
   },
   {
     id: 'booty',
