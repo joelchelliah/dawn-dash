@@ -1,8 +1,8 @@
 import { useMemo } from 'react'
 
-import CodexErrorMessage from '@/shared/components/CodexErrorMessage'
-import CodexLastUpdated from '@/shared/components/CodexLastUpdated'
-import CodexLoadingMessage from '@/shared/components/CodexLoadingMessage'
+import DataErrorMessage from '@/shared/components/DataErrorMessage'
+import DataLastUpdated from '@/shared/components/DataLastUpdated'
+import DataLoadingMessage from '@/shared/components/DataLoadingMessage'
 
 import { enrichTreasureCards } from '@/booty/utils/treasureHelper'
 
@@ -42,7 +42,7 @@ const TreasureCardsPanel = () => {
           <TreasureList treasures={treasures} cardData={cardData} />
         </TreasurePanelRow>
         <TreasurePanelRow>
-          <CodexLastUpdated
+          <DataLastUpdated
             type="card"
             lastUpdated={lastUpdated}
             isLoading={isLoading}
@@ -57,8 +57,8 @@ const TreasureCardsPanel = () => {
 
   return (
     <TreasureBasePanel type="TreasureCards" info={treasureInfo}>
-      <CodexLoadingMessage isVisible={isLoading} progress={progress} codexType="card" />
-      <CodexErrorMessage isVisible={isError && !isLoading} codexType="card" />
+      <DataLoadingMessage isVisible={isLoading} progress={progress} dataType="card" />
+      <DataErrorMessage isVisible={isError && !isLoading} dataType="card" />
       {!isLoading && !isError && renderTreasures()}
     </TreasureBasePanel>
   )

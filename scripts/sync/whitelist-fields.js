@@ -2,7 +2,7 @@
  * Shared plumbing for the whitelist-based sync scripts (sync-treasures, sync-weapons).
  *
  * Each of those reads a JSON file pasted in from an external extraction tool, which carries
- * far more per-entry data than the codex panels render. Rather than trusting upstream to stay
+ * far more per-entry data than the Booty panels render. Rather than trusting upstream to stay
  * stable, every script declares exactly which fields it wants and drops the rest — and prints
  * what it dropped, so a newly added upstream field is noticed instead of silently discarded.
  *

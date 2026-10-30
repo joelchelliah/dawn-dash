@@ -12,7 +12,7 @@ export interface UrlFilterBinding {
   enableFilters: (keys: string[]) => void
 }
 
-interface UseCodexUrlParamsOptions {
+interface UseFilterUrlParamsOptions {
   keywords: string
   setKeywords: (keywords: string) => void
   filterBindings: UrlFilterBinding[]
@@ -20,7 +20,7 @@ interface UseCodexUrlParamsOptions {
   onWeeklyParam?: () => void
 }
 
-interface UseCodexUrlParams {
+interface UseFilterUrlParams {
   setWeeklyChallengeParam: () => void
 }
 
@@ -64,11 +64,11 @@ const encodeFilterParams = (bindings: UrlFilterBinding[]): ParamUpdates =>
 
 /**
  * Explicit params win over `?weekly` if both are somehow present.
- * Without any codex param nothing is touched.
+ * Without any filter param nothing is touched.
  */
 const applyParamsOnArrival = (
   query: Query,
-  { setKeywords, resetFilters, onWeeklyParam, filterBindings }: UseCodexUrlParamsOptions
+  { setKeywords, resetFilters, onWeeklyParam, filterBindings }: UseFilterUrlParamsOptions
 ) => {
   const keywords = getParamValue(query, SEARCH_QUERY_PARAM)?.trim()
   const presentBindings = filterBindings.filter(({ codec }) => codec.param in query)
@@ -98,7 +98,7 @@ const useLatestRef = <T>(value: T) => {
 /**
  * Two-way binding between the search field + filter checkboxes and the URL, on Cardex and Skilldex.
  */
-export function useCodexUrlParams(options: UseCodexUrlParamsOptions): UseCodexUrlParams {
+export function useFilterUrlParams(options: UseFilterUrlParamsOptions): UseFilterUrlParams {
   const { keywords, filterBindings } = options
   const router = useRouter()
   const isRouterReady = router.isReady

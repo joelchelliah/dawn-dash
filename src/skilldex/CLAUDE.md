@@ -7,7 +7,7 @@ Interactive talent-tree visualizer: every talent as a small D3 tree, with prereq
 - `index.tsx` — the feature entry
 - `components/TalentResultsPanel/TalentTree/` — the tree component (layout memo, draw effect, zoom effect); node drawing in `talentNodes.ts` / `requirementNodes.ts`, sizing in `utils/talentNodeDimensions.ts`
 - `hooks/useSearchFilters/` — Skilldex's filter groups and `talentTreeFilter.ts`, which is concrete/talent-specific by design; don't re-generalize for one consumer. The framework and the card-set group shared with Cardex are in `src/shared/hooks/useSearchFilters/`
-- `hooks/useTalentData.ts` → `services/talentsApiSupabase.ts` → `utils/talentsResponseMapper.ts`, cached 24h by `utils/codexTalentsStore.ts`. `supabase/functions/README.md` covers what to change here when the talents sync brings new card sets or tiers
+- `hooks/useTalentData.ts` → `services/talentsApiSupabase.ts` → `utils/talentsResponseMapper.ts`, cached 24h by `utils/talentsStore.ts`. `supabase/functions/README.md` covers what to change here when the talents sync brings new card sets or tiers
 
 ## Invariants
 

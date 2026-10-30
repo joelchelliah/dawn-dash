@@ -38,7 +38,7 @@ interface ZoomSliderProps {
 }
 
 /**
- * Zoom control for the codex trees.
+ * Zoom control for the Skilldex and Eventmaps trees.
  *
  * The tree redraw is expensive (full D3 teardown + redraw), so `setZoomLevel` is
  * only called when the drag ends. While dragging, the thumb and the number label

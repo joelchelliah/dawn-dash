@@ -2,7 +2,7 @@ import { SharedFilterOption } from '@/shared/types/filters'
 import { createFilterUrlCodec } from '@/shared/utils/filterUrlCodec'
 import { createFilterHook } from '@/shared/hooks/useSearchFilters/useFilterFactory'
 
-import { Banner, BannerFilterOption, CardCodexSearchFilterCache } from '@/cardex/types/cardFilters'
+import { Banner, BannerFilterOption, CardSearchFilterCache } from '@/cardex/types/cardFilters'
 
 const defaultBannerFilters: Record<string, boolean> = {
   [BannerFilterOption.Green]: true,
@@ -41,7 +41,7 @@ const useBaseBannerFilters = createFilterHook({
   indexMap: bannerIndexMap,
 })
 
-export const useBannerFilters = (cachedFilters?: CardCodexSearchFilterCache['banners']) => {
+export const useBannerFilters = (cachedFilters?: CardSearchFilterCache['banners']) => {
   const { filters, isIndexSelected, handleFilterToggle, enableFilters, resetFilters } =
     useBaseBannerFilters(cachedFilters)
 

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef } from 'react'
 
-import { useCodexUrlParams } from '@/shared/hooks/useCodexUrlParams'
+import { useFilterUrlParams } from '@/shared/hooks/useFilterUrlParams'
 import {
   cardSetUrlCodec,
   useTalentCardSetFilters,
@@ -9,8 +9,8 @@ import { useKeywords } from '@/shared/hooks/useSearchFilters/useKeywords'
 import { useFilterTracking } from '@/shared/hooks/useSearchFilters/useFilterTracking'
 
 import {
-  cacheTalentCodexSearchFilters,
-  getCachedTalentCodexSearchFilters,
+  cacheTalentSearchFilters,
+  getCachedTalentSearchFilters,
 } from '@/skilldex/utils/talentFilterStore'
 import { TalentTree, TalentTreeNode, TalentTreeNodeType } from '@/skilldex/types/talents'
 
@@ -59,7 +59,7 @@ const collectDistinctTalentNames = (tree: TalentTree | undefined): string[] => {
 export const useAllTalentSearchFilters = (
   talentTree: TalentTree | undefined
 ): UseAllTalentSearchFilters => {
-  const cachedFilters = getCachedTalentCodexSearchFilters()
+  const cachedFilters = getCachedTalentSearchFilters()
   const {
     keywords,
     setKeywords: setKeywordsUntracked,
@@ -125,7 +125,7 @@ export const useAllTalentSearchFilters = (
     resetFormattingFilters()
   }
 
-  useCodexUrlParams({
+  useFilterUrlParams({
     keywords,
     setKeywords: trackedSetKeywords,
     filterBindings: [
@@ -153,7 +153,7 @@ export const useAllTalentSearchFilters = (
     }
 
     filterDebounceTimeoutRef.current = setTimeout(() => {
-      cacheTalentCodexSearchFilters({
+      cacheTalentSearchFilters({
         keywords,
         cardSets: cardSetFilters,
         requirements: requirementFilters,

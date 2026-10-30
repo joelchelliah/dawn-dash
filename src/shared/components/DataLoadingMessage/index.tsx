@@ -1,18 +1,18 @@
 import styles from './index.module.scss'
 
-type CodexLoadingMessageProps = {
+type DataLoadingMessageProps = {
   isVisible: boolean
-  codexType: 'card' | 'talent'
+  dataType: 'card' | 'talent'
   progress: number
   isWaitingForWeeklyChallenge?: boolean
 }
 
-const CodexLoadingMessage = ({
+const DataLoadingMessage = ({
   isVisible,
-  codexType,
+  dataType,
   progress,
   isWaitingForWeeklyChallenge = false,
-}: CodexLoadingMessageProps) => {
+}: DataLoadingMessageProps) => {
   if (!isVisible) return null
 
   if (isWaitingForWeeklyChallenge) {
@@ -28,7 +28,7 @@ const CodexLoadingMessage = ({
 
   return (
     <div className={styles['loading']}>
-      <div>⏳ Loading {codexType} data!</div>
+      <div>⏳ Loading {dataType} data!</div>
       <div className={styles['loading__progress-container']}>
         <div className={styles['loading__progress-bar']} style={{ width: `${progress}%` }} />
       </div>
@@ -37,4 +37,4 @@ const CodexLoadingMessage = ({
   )
 }
 
-export default CodexLoadingMessage
+export default DataLoadingMessage

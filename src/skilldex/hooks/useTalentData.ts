@@ -10,7 +10,7 @@ import {
   getCachedTalentTreeTimestamp,
   getCachedTalentTree,
   cacheTalentTree,
-} from '@/skilldex/utils/codexTalentsStore'
+} from '@/skilldex/utils/talentsStore'
 import { TalentTree } from '@/skilldex/types/talents'
 
 export interface UseTalentData {

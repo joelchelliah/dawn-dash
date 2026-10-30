@@ -1,7 +1,7 @@
 import { createFilterHook } from '@/shared/hooks/useSearchFilters/useFilterFactory'
 
 import {
-  CardCodexSearchFilterCache,
+  CardSearchFilterCache,
   FormattingCard,
   FormattingCardFilterOption,
 } from '@/cardex/types/cardFilters'
@@ -34,9 +34,7 @@ const useBaseFilters = createFilterHook({
   valueToStringMap,
 })
 
-export const useFormattingCardFilters = (
-  cachedFilters?: CardCodexSearchFilterCache['formatting']
-) => {
+export const useFormattingCardFilters = (cachedFilters?: CardSearchFilterCache['formatting']) => {
   const { filters, handleFilterToggle, getValueToString, resetFilters } =
     useBaseFilters(cachedFilters)
   const shouldShowDescription = filters[FormattingCard.ShowDescription]

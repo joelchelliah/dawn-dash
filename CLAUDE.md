@@ -8,14 +8,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Suggestions**: if the request looks mistaken or a better approach exists, say so in a single sentence prefixed with `💡 [SUGGESTION]`, then continue with the task as asked.
 - **Written deliverables**: match a document's length to its substance. No filler sections, redundant summaries, or boilerplate — this file and the per-feature `CLAUDE.md` files included.
 - **Long tasks**: for multi-session or long-running work, keep a short running state file in the session scratchpad (not in the repo — the working tree stays clean) and re-read it after a context refresh, along with `git log`/`git status`, before acting.
-- **Long documents**: when analyzing or summarizing a large document (roughly >20k tokens — e.g. `src/specs/*.md`, `event-trees.json`), quote the relevant lines before drawing conclusions from them rather than working from recall.
+- **Long documents**: when analyzing or summarizing a large document (roughly >20k tokens — e.g. `src/unfinished-specs/*.md`, `event-trees.json`), quote the relevant lines before drawing conclusions from them rather than working from recall.
 - **The dev server is the user's to run**: never start `npm run dev` yourself, in the foreground or the background. The user typically already has one running, so a second either dies on the busy port or outlives the session as an orphan holding port 3000. When a change needs looking at, say it's ready and name the pages and states to check, then wait. `npm run verify`, `npm run build`, and `npm run check-sw` are yours to run as usual.
-- **The React DevTools Chrome extension breaks Fast Refresh on this project.** With it enabled, an edit 404s on `/_next/static/webpack/<hash>.hot-update.json` and the terminal logs `⚠ Fast Refresh had to perform a full reload` — a _different_ hash each time, because the extension desyncs the Fast Refresh client from the server's compilation. The server is fine: the hot-update files are written to `.next/static/webpack/` correctly, the browser just asks for hashes that were never produced. It is **not** a stale `.next`, a stale tab, or a service worker, so `rm -rf .next`, restarting the server and unregistering workers all change nothing. Disable the extension at `chrome://extensions` and hot reload returns immediately. **It is still the right tool for profiling and INP work** (see `src/specs/inp.md`) — so turn it on for a profiling session and back off afterwards, rather than leaving it enabled. To confirm this is the cause in seconds, open the site in incognito or another browser: working there means an extension, not the code.
+- **The React DevTools Chrome extension breaks Fast Refresh on this project.** With it enabled, an edit 404s on `/_next/static/webpack/<hash>.hot-update.json` and the terminal logs `⚠ Fast Refresh had to perform a full reload` — a _different_ hash each time, because the extension desyncs the Fast Refresh client from the server's compilation. The server is fine: the hot-update files are written to `.next/static/webpack/` correctly, the browser just asks for hashes that were never produced. It is **not** a stale `.next`, a stale tab, or a service worker, so `rm -rf .next`, restarting the server and unregistering workers all change nothing. Disable the extension at `chrome://extensions` and hot reload returns immediately. **It is still the right tool for profiling and INP work** (see `src/unfinished-specs/inp.md`) — so turn it on for a profiling session and back off afterwards, rather than leaving it enabled. To confirm this is the cause in seconds, open the site in incognito or another browser: working there means an extension, not the code.
 
 ## Writing a spec
 
-All specs live in one folder, as `src/specs/<topic>.md` — each spec says which part of the app it
-covers, so they aren't spread beside their features. Before writing one, read the root `CLAUDE.md`,
+All specs live in one folder, as `src/unfinished-specs/<topic>.md` — each spec says which part of the app it
+covers, so they aren't spread beside their features. The folder holds only work still to do: **once
+every task in a spec is `COMPLETED`, delete the spec** (git keeps it), after moving anything worth
+keeping — new invariants, decisions — into the relevant `CLAUDE.md`. Before writing one, read the root `CLAUDE.md`,
 the `CLAUDE.md` of each feature the spec covers, and any `README.md` under the directories the work
 will touch — the invariants recorded there are usually the reason a task is harder than it looks,
 and a spec that contradicts one is worth catching before any code is written, not after.
@@ -76,7 +78,7 @@ operationally — the sequence they should be built in, not a topical grouping.
 - `npm run test:watch` - Run Jest in watch mode
 - `npm run test:coverage` - Run tests with coverage report
 - **Test framework**: Jest 30 with React Testing Library 16 (kept configured for temporary development tests)
-- **Testing policy: no permanent tests.** Tests are written only as temporary aids _during_ development to verify a change, then **deleted before the work is considered done**. Do not add permanent test files unless the user explicitly requests them. Visual/rendering code (e.g. the codex trees) is verified by manual before/after comparison in the user's dev server instead.
+- **Testing policy: no permanent tests.** Tests are written only as temporary aids _during_ development to verify a change, then **deleted before the work is considered done**. Do not add permanent test files unless the user explicitly requests them. Visual/rendering code (e.g. the Skilldex and Eventmaps trees) is verified by manual before/after comparison in the user's dev server instead.
 
 ## Project Architecture
 
@@ -108,7 +110,7 @@ Each feature directory has its own `CLAUDE.md` with architecture details and inv
 
 ### Shared Infrastructure (`/src/shared/`)
 
-Besides the site-wide pieces below, `shared/` holds what the codex tools share — the card data layer (`useCardData`), event data (`data/event-trees.json`), the search-filter framework and search UI, tree infrastructure and zoom. Their invariants are in `src/shared/CLAUDE.md`.
+Besides the site-wide pieces below, `shared/` holds what Cardex, Skilldex, Eventmaps and Booty share — the card data layer (`useCardData`), event data (`data/event-trees.json`), the search-filter framework and search UI, tree infrastructure and zoom. Their invariants are in `src/shared/CLAUDE.md`.
 
 **Components**:
 
@@ -117,7 +119,7 @@ Besides the site-wide pieces below, `shared/` holds what the codex tools share �
 - Buttons: Button, GradientButton, IllustratedButton, ButtonRow — all extend `BaseButtonProps` from `Buttons/types.ts`
 - Modals: Modal, InfoModal
 - UI elements: LoadingDots, ScrollToTopButton, Divider, GradientLink, ScrollableWithFade, Select, Code, Image
-- `Sliders/Thumb` — the draggable energy-orb thumb shared by the speedruns sliders and the codex zoom slider; takes an `orientation` prop because the CSS centering axis differs between horizontal and vertical tracks
+- `Sliders/Thumb` — the draggable energy-orb thumb shared by the speedruns sliders and the tree zoom slider; takes an `orientation` prop because the CSS centering axis differs between horizontal and vertical tracks
 - Notifications: Notification (toast-style with auto-dismiss and progress bar)
 - `Icons/` — one component per SVG icon, each taking only `className` and `onClick`, so **size and color are set entirely in CSS**. An icon's apparent size depends on its _fill_ (how much of the viewBox is ink rather than margin), which varies a lot between icons — so equal CSS sizes do not look equal. To make an icon look bigger or smaller, crop or widen its `viewBox` rather than fighting it with CSS: run `npm run icon-viewbox -- <IconName>` for its current fill and a table of candidate viewBoxes. These components are shared (result cards _and_ search-panel filters), so a viewBox change affects every consumer — use a stylesheet's `svg { width/height }` when only one place should change.
 
@@ -155,8 +157,8 @@ Besides the site-wide pieces below, `shared/` holds what the codex tools share �
 - **SWR** for client-side data fetching with `onSuccess`/`onError` handling; fetch failures surface visible error states in the panels
 - **Service contracts**: all API fetchers **throw** on failure — never return `[]` or partial data silently
 - **Custom hooks** (`useCardData`, `useTalentData`, `useSpeedrunData`) abstract data fetching with progress callbacks. **Each hook's source differs**: `useCardData` → `cardsApiBlightbane.ts` (live Blightbane API), `useTalentData` → `talentsApiSupabase.ts` (Supabase — the only Supabase read in the app), `useSpeedrunData` → Blightbane. Cardex once read the Supabase `Cards` table; that fetcher was deleted, so recreate one if cards ever move back
-- **localStorage caching** with staleness detection: 10-minute TTL for speedrun leaderboard data (intentionally short — new runs arrive continuously), 24-hour TTL for codex card/talent data
-- **Stores are plain localStorage wrapper modules** (not subscription/Zustand stores): versioned cache keys are co-located with each store — `src/speedruns/utils/speedrunsStore.ts`, `src/shared/utils/codexCardsStore.ts`, `src/skilldex/utils/codexTalentsStore.ts`, and one filter store per tool (`cardFilterStore.ts`, `talentFilterStore.ts`, `eventFilterStore.ts`)
+- **localStorage caching** with staleness detection: 10-minute TTL for speedrun leaderboard data (intentionally short — new runs arrive continuously), 24-hour TTL for card/talent data
+- **Stores are plain localStorage wrapper modules** (not subscription/Zustand stores): versioned cache keys are co-located with each store — `src/speedruns/utils/speedrunsStore.ts`, `src/shared/utils/cardsStore.ts`, `src/skilldex/utils/talentsStore.ts`, and one filter store per tool (`cardFilterStore.ts`, `talentFilterStore.ts`, `eventFilterStore.ts`)
 
 ### Data Synchronization (three ownership paths)
 
@@ -168,11 +170,11 @@ Besides the site-wide pieces below, `shared/` holds what the codex tools share �
 
 ### PWA & Performance
 
-- **Progressive Web App** with `next-pwa` (applied as `withPWA(options)(nextConfig)` in `next.config.ts`). **`next-pwa` 5.6.0 is the latest release and dates from 2022**, well before Next 15 — its peer range (`next >=9.0.0`) means nothing warns about the mismatch. It precached a Next 15 build file that 404s (`dynamic-css-manifest.json`), and because Workbox precaching is atomic that silently disabled the whole service worker, `runtimeCaching` included. Hence the `buildExcludes` entry — don't remove it. A broken worker looks identical to a working one outside DevTools, so **verify service-worker changes against `npm run build && npm start`** and check the caches actually fill. Replacement options are scoped in `src/specs/next-pwa-replacement.md`.
+- **Progressive Web App** with `next-pwa` (applied as `withPWA(options)(nextConfig)` in `next.config.ts`). **`next-pwa` 5.6.0 is the latest release and dates from 2022**, well before Next 15 — its peer range (`next >=9.0.0`) means nothing warns about the mismatch. It precached a Next 15 build file that 404s (`dynamic-css-manifest.json`), and because Workbox precaching is atomic that silently disabled the whole service worker, `runtimeCaching` included. Hence the `buildExcludes` entry — don't remove it. A broken worker looks identical to a working one outside DevTools, so **verify service-worker changes against `npm run build && npm start`** and check the caches actually fill. Replacement options are scoped in `src/unfinished-specs/next-pwa-replacement.md`.
 - **Service worker** with CacheFirst strategy for Blightbane images (10-day cache expiry), split across **two** `runtimeCaching` buckets: `card-artwork` for `/images/icons/**` (1500 entries, ~3.2MB — sized for Cardex result sets, which easily exceed 100 images) and `external-images` for everything else (100 entries: classes, energy orbs, events). The specific pattern must stay **first**, since Workbox uses the first match. Keeping them separate is what stops a large Cardex session from evicting the rest of the site's images.
 - **Offline support** via localStorage + service worker caching
 - **Dynamic imports** with `next/dynamic` for code splitting (each tool page lazy-loads its feature component)
-- **INP (interaction responsiveness)** is tracked in `src/specs/inp.md`. Cardex is **done**: `.result-card` carries `content-visibility: auto`, which cut its interaction's layout+paint 42% and is why the results list is _not_ virtualized (the invariant is in `src/cardex/CLAUDE.md`). **Skilldex and Eventmaps are traced, with Task 1 done**: both trees wiped and rebuilt their whole SVG on every zoom change, so zoom now updates the svg's dimensions and the content group's transform without redrawing (scripting −93% / −81%; see Part 2 and the layout/render-split invariant in `src/shared/CLAUDE.md`). Their remaining tasks are unimplemented, and **Speedruns is still scoped but untraced**. Read Part 2 before optimising any of them, chiefly because the Cardex fix does **not** transfer: they render one SVG or a canvas, so there are no off-screen DOM children to skip and the cost is scripting rather than layout+paint.
+- **INP (interaction responsiveness)** is tracked in `src/unfinished-specs/inp.md`. Cardex is **done**: `.result-card` carries `content-visibility: auto`, which cut its interaction's layout+paint 42% and is why the results list is _not_ virtualized (the invariant is in `src/cardex/CLAUDE.md`). **Skilldex and Eventmaps are traced, with Task 1 done**: both trees wiped and rebuilt their whole SVG on every zoom change, so zoom now updates the svg's dimensions and the content group's transform without redrawing (scripting −93% / −81%; see Part 2 and the layout/render-split invariant in `src/shared/CLAUDE.md`). Their remaining tasks are unimplemented, and **Speedruns is still scoped but untraced**. Read Part 2 before optimising any of them, chiefly because the Cardex fix does **not** transfer: they render one SVG or a canvas, so there are no off-screen DOM children to skip and the cost is scripting rather than layout+paint.
 - **Image optimization** via `next/image` with remote patterns for Blightbane assets
 
 ### Styling Conventions

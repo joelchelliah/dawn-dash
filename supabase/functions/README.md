@@ -94,7 +94,7 @@ requirements. So a freshly synced talent with no `requires_talents` lands under
    `event_requirement_matrix`, then set `verified = true`.
 
 5. **Bump the talents cache version** — `CACHE_VERSION` in
-   [`codexTalentsStore.ts`](../../src/skilldex/utils/codexTalentsStore.ts). Without this, returning
+   [`talentsStore.ts`](../../src/skilldex/utils/talentsStore.ts). Without this, returning
    users keep a stale tree for up to 24h.
 
 6. **Verify.** `npm run verify`, then check `/skilldex` in the dev server.

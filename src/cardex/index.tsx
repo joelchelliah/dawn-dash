@@ -10,8 +10,8 @@ import StarField from '@/shared/components/StarField'
 import { useScrollToTop } from '@/shared/hooks/useScrollToTop'
 import { useBreakpoint } from '@/shared/hooks/useBreakpoint'
 import { useCardData } from '@/shared/hooks/useCardData'
-import CodexErrorMessage from '@/shared/components/CodexErrorMessage'
-import CodexLoadingMessage from '@/shared/components/CodexLoadingMessage'
+import DataErrorMessage from '@/shared/components/DataErrorMessage'
+import DataLoadingMessage from '@/shared/components/DataLoadingMessage'
 
 import { useAllCardSearchFilters } from './hooks/useSearchFilters/useAllCardSearchFilters'
 import styles from './index.module.scss'
@@ -60,13 +60,13 @@ function Cards(): JSX.Element {
       />
 
       <div className={cx('content')}>
-        <CodexLoadingMessage
+        <DataLoadingMessage
           isVisible={isLoadingAnything}
           progress={progress}
-          codexType="card"
+          dataType="card"
           isWaitingForWeeklyChallenge={!isLoading && isWaitingForWeeklyChallenge}
         />
-        <CodexErrorMessage isVisible={isError && !isLoadingAnything} codexType="card" />
+        <DataErrorMessage isVisible={isError && !isLoadingAnything} dataType="card" />
         {!isError && !isLoadingAnything && (
           <>
             <CardSearchPanel

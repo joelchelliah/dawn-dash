@@ -7,7 +7,7 @@ import { createFilterHook } from '@/shared/hooks/useSearchFilters/useFilterFacto
 import {
   RequirementFilterOption,
   Requirement,
-  TalentCodexSearchFilterCache,
+  TalentSearchFilterCache,
 } from '@/skilldex/types/talentFilters'
 
 const defaultFilters = {
@@ -95,9 +95,7 @@ const useBaseRequirementFilters = createFilterHook({
   indexMap,
 })
 
-export const useRequirementFilters = (
-  cachedFilters?: TalentCodexSearchFilterCache['requirements']
-) => {
+export const useRequirementFilters = (cachedFilters?: TalentSearchFilterCache['requirements']) => {
   const { filters, handleFilterToggle, getValueToString, enableFilters, resetFilters } =
     useBaseRequirementFilters(cachedFilters)
 

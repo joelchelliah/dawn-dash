@@ -7,8 +7,8 @@ import { ZoomLevel, COVER } from '@/shared/constants/zoomValues'
 import { useFilterTracking } from '@/shared/hooks/useSearchFilters/useFilterTracking'
 
 import {
-  cacheEventCodexSearchFilters,
-  getCachedEventCodexSearchFilters,
+  cacheEventSearchFilters,
+  getCachedEventSearchFilters,
 } from '@/eventmaps/utils/eventFilterStore'
 import {
   LoopingPathMode,
@@ -58,7 +58,7 @@ export const useAllEventSearchFilters = (): UseAllEventSearchFilters => {
 
   // Load from localStorage after hydration to avoid SSR mismatch
   useEffect(() => {
-    const cachedFilters = getCachedEventCodexSearchFilters()
+    const cachedFilters = getCachedEventSearchFilters()
     if (isNotNullOrUndefined(cachedFilters?.showAdvancedOptions)) {
       setShowAdvancedOptionsUntracked(cachedFilters.showAdvancedOptions)
     }
@@ -117,7 +117,7 @@ export const useAllEventSearchFilters = (): UseAllEventSearchFilters => {
         clearTimeout(filterDebounceTimeoutRef.current)
         filterDebounceTimeoutRef.current = null
       }
-      cacheEventCodexSearchFilters({
+      cacheEventSearchFilters({
         showAdvancedOptions: false,
         loopingPathMode: LoopingPathMode.LINK,
         navigationMode: TreeNavigationMode.DRAG,
@@ -156,7 +156,7 @@ export const useAllEventSearchFilters = (): UseAllEventSearchFilters => {
     }
 
     filterDebounceTimeoutRef.current = setTimeout(() => {
-      cacheEventCodexSearchFilters({
+      cacheEventSearchFilters({
         showAdvancedOptions,
         loopingPathMode,
         navigationMode,

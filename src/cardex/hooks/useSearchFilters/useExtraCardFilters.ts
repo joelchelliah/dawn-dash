@@ -1,10 +1,6 @@
 import { createFilterHook } from '@/shared/hooks/useSearchFilters/useFilterFactory'
 
-import {
-  ExtraCardFilterOption,
-  ExtraCard,
-  CardCodexSearchFilterCache,
-} from '@/cardex/types/cardFilters'
+import { ExtraCardFilterOption, ExtraCard, CardSearchFilterCache } from '@/cardex/types/cardFilters'
 
 const defaultFilters = {
   [ExtraCardFilterOption.IncludeMonsterCards]: false,
@@ -26,7 +22,7 @@ const useBaseFilters = createFilterHook({
   valueToStringMap,
 })
 
-export const useExtraCardFilters = (cachedFilters?: CardCodexSearchFilterCache['extras']) => {
+export const useExtraCardFilters = (cachedFilters?: CardSearchFilterCache['extras']) => {
   const { filters, handleFilterToggle, getValueToString, enableFilters, resetFilters } =
     useBaseFilters(cachedFilters)
   const shouldIncludeMonsterCards = filters[ExtraCardFilterOption.IncludeMonsterCards]

@@ -2,11 +2,7 @@ import { SharedFilterOption } from '@/shared/types/filters'
 import { createFilterUrlCodec } from '@/shared/utils/filterUrlCodec'
 import { createFilterHook } from '@/shared/hooks/useSearchFilters/useFilterFactory'
 
-import {
-  TalentCodexSearchFilterCache,
-  Tier,
-  TierFilterOption,
-} from '@/skilldex/types/talentFilters'
+import { TalentSearchFilterCache, Tier, TierFilterOption } from '@/skilldex/types/talentFilters'
 
 const defaultTierFilters = {
   [TierFilterOption.Tier0]: true,
@@ -40,7 +36,7 @@ const useBaseTierFilters = createFilterHook({
   indexMap: tierIndexMap,
 })
 
-export const useTierFilters = (cachedFilters?: TalentCodexSearchFilterCache['tiers']) => {
+export const useTierFilters = (cachedFilters?: TalentSearchFilterCache['tiers']) => {
   const { filters, isIndexSelected, handleFilterToggle, enableFilters, resetFilters } =
     useBaseTierFilters(cachedFilters)
 

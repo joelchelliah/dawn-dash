@@ -10,7 +10,7 @@ import {
   cacheCardData,
   getCachedCardData,
   getCachedCardDataTimestamp,
-} from '@/shared/utils/codexCardsStore'
+} from '@/shared/utils/cardsStore'
 
 export interface UseCardData {
   cardData: CardData[] | undefined

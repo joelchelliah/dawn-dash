@@ -1,4 +1,4 @@
-export interface EventCodexSearchFilterCache {
+export interface EventSearchFilterCache {
   showAdvancedOptions: boolean
   loopingPathMode: string
   navigationMode: string

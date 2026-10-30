@@ -2,7 +2,7 @@ import { SharedFilterOption } from '@/shared/types/filters'
 import { createFilterUrlCodec } from '@/shared/utils/filterUrlCodec'
 import { createFilterHook } from '@/shared/hooks/useSearchFilters/useFilterFactory'
 
-import { CardCodexSearchFilterCache, Rarity, RarityFilterOption } from '@/cardex/types/cardFilters'
+import { CardSearchFilterCache, Rarity, RarityFilterOption } from '@/cardex/types/cardFilters'
 
 const defaultFilters: Record<string, boolean> = {
   [RarityFilterOption.Legendary]: true,
@@ -30,7 +30,7 @@ const useBaseRarityFilters = createFilterHook({
   indexMap,
 })
 
-export const useRarityFilters = (cachedFilters?: CardCodexSearchFilterCache['rarities']) => {
+export const useRarityFilters = (cachedFilters?: CardSearchFilterCache['rarities']) => {
   const { filters, isIndexSelected, handleFilterToggle, enableFilters, resetFilters } =
     useBaseRarityFilters(cachedFilters)
 

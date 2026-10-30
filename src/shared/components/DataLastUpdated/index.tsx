@@ -7,7 +7,7 @@ import styles from './index.module.scss'
 
 const cx = createCx(styles)
 
-interface CodexLastUpdatedProps {
+interface DataLastUpdatedProps {
   type: 'card' | 'talent'
   lastUpdated: number | null
   isLoading: boolean
@@ -17,7 +17,7 @@ interface CodexLastUpdatedProps {
   refresh?: () => void
 }
 
-const CodexLastUpdated = ({
+const DataLastUpdated = ({
   type,
   lastUpdated,
   isLoading,
@@ -25,7 +25,7 @@ const CodexLastUpdated = ({
   isErrorInBackground,
   progress,
   refresh,
-}: CodexLastUpdatedProps) => {
+}: DataLastUpdatedProps) => {
   const fromNow = useFromNow(
     lastUpdated,
     `${type.charAt(0).toUpperCase() + type.slice(1)} data synced`
@@ -61,4 +61,4 @@ const CodexLastUpdated = ({
   )
 }
 
-export default CodexLastUpdated
+export default DataLastUpdated

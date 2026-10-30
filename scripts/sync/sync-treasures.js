@@ -3,7 +3,7 @@
 /**
  * Parse treasures data
  *
- * Reads scripts/data/treasures.json and splits it into the two lists the codex consumes:
+ * Reads scripts/data/treasures.json and splits it into the two lists Booty consumes:
  * 1. src/booty/data/treasure-cards.json  <- the `entries` field
  * 2. src/booty/data/treasure-pools.json  <- the `pools` field
  */

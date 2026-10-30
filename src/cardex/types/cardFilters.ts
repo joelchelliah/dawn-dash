@@ -110,7 +110,7 @@ export const FormattingCard = {
 
 // -------------------- Cache --------------------
 
-export interface CardCodexSearchFilterCache {
+export interface CardSearchFilterCache {
   keywords: string
   cardSets: Record<string, boolean>
   rarities: Record<string, boolean>

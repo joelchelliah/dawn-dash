@@ -1,7 +1,7 @@
 import { createFilterHook } from '@/shared/hooks/useSearchFilters/useFilterFactory'
 
 import {
-  TalentCodexSearchFilterCache,
+  TalentSearchFilterCache,
   FormattingTalent,
   FormattingTalentFilterOption,
 } from '@/skilldex/types/talentFilters'
@@ -33,7 +33,7 @@ const useBaseFilters = createFilterHook({
 })
 
 export const useFormattingTalentFilters = (
-  cachedFilters?: TalentCodexSearchFilterCache['formatting']
+  cachedFilters?: TalentSearchFilterCache['formatting']
 ) => {
   const { filters, handleFilterToggle, getValueToString, resetFilters } =
     useBaseFilters(cachedFilters)

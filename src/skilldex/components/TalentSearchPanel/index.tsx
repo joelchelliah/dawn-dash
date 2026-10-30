@@ -20,7 +20,7 @@ import {
   NoSoupImageUrl,
 } from '@/shared/utils/imageUrls'
 import { allCardSets } from '@/shared/hooks/useSearchFilters/useCardSetFilters'
-import CodexLastUpdated from '@/shared/components/CodexLastUpdated'
+import DataLastUpdated from '@/shared/components/DataLastUpdated'
 import PanelHeader from '@/shared/components/PanelHeader'
 import FilterGroup from '@/shared/components/FilterGroup'
 import SearchField from '@/shared/components/SearchField'
@@ -246,7 +246,7 @@ const TalentSearchPanel = ({ useSearchFilters, useTalentData }: TalentSearchPane
         </ButtonRow>
       </form>
 
-      <CodexLastUpdated
+      <DataLastUpdated
         type="talent"
         lastUpdated={useTalentData.lastUpdated}
         isLoading={useTalentData.isLoading}

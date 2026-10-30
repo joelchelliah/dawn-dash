@@ -1,6 +1,6 @@
 import { getFromCache, saveToCache } from '@/shared/utils/storage'
 
-import { CardCodexSearchFilterCache, FormattingCardFilterOption } from '@/cardex/types/cardFilters'
+import { CardSearchFilterCache, FormattingCardFilterOption } from '@/cardex/types/cardFilters'
 
 const CARDS_CACHE_VERSION = 'v1'
 const CARDS_CACHE_KEY = `codex_cards_filters_${CARDS_CACHE_VERSION}`
@@ -16,9 +16,7 @@ const SHOW_DESCRIPTION_MIGRATION_KEY = `${CARDS_CACHE_KEY}_show_description_migr
 
 const isClient = typeof window !== 'undefined'
 
-const applyShowDescriptionMigration = (
-  cached: CardCodexSearchFilterCache
-): CardCodexSearchFilterCache => {
+const applyShowDescriptionMigration = (cached: CardSearchFilterCache): CardSearchFilterCache => {
   if (!isClient) return cached
 
   try {
@@ -48,12 +46,12 @@ const applyShowDescriptionMigration = (
   }
 }
 
-export const cacheCardCodexSearchFilters = (filters: CardCodexSearchFilterCache) => {
+export const cacheCardSearchFilters = (filters: CardSearchFilterCache) => {
   saveToCache(CARDS_CACHE_KEY, filters)
 }
 
-export const getCachedCardCodexSearchFilters = (): CardCodexSearchFilterCache | null => {
-  const cached = getFromCache<CardCodexSearchFilterCache>(CARDS_CACHE_KEY, null).data
+export const getCachedCardSearchFilters = (): CardSearchFilterCache | null => {
+  const cached = getFromCache<CardSearchFilterCache>(CARDS_CACHE_KEY, null).data
 
   return cached ? applyShowDescriptionMigration(cached) : null
 }

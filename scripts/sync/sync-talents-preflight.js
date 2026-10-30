@@ -225,11 +225,11 @@ function printReport(
     log('     select * from "Talents" where verified = false;')
     log('   Populate requires_classes / requires_energy / requires_cards /')
     log('   event_requirement_matrix, then set verified = true.')
-    log('4. Bump CACHE_VERSION in src/skilldex/utils/codexTalentsStore.ts.')
+    log('4. Bump CACHE_VERSION in src/skilldex/utils/talentsStore.ts.')
     log('5. npm run verify, then check /skilldex in the dev server.')
   } else {
     log('1. Finish the manual post-processing for the unverified rows listed above.')
-    log('2. Bump CACHE_VERSION in src/skilldex/utils/codexTalentsStore.ts.')
+    log('2. Bump CACHE_VERSION in src/skilldex/utils/talentsStore.ts.')
     log('3. npm run verify, then check /skilldex in the dev server.')
   }
   log('')

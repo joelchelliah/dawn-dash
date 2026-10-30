@@ -14,7 +14,7 @@ import GradientButton from '@/shared/components/Buttons/GradientButton'
 import ButtonRow from '@/shared/components/Buttons/ButtonRow'
 import { allCardSets } from '@/shared/hooks/useSearchFilters/useCardSetFilters'
 import { UseCardData } from '@/shared/hooks/useCardData'
-import CodexLastUpdated from '@/shared/components/CodexLastUpdated'
+import DataLastUpdated from '@/shared/components/DataLastUpdated'
 import PanelHeader from '@/shared/components/PanelHeader'
 import FilterGroup from '@/shared/components/FilterGroup'
 import SearchField from '@/shared/components/SearchField'
@@ -255,7 +255,7 @@ const CardSearchPanel = ({ useSearchFilters, useCardData }: CardSearchPanelProps
         {renderWeeklyChallengeButton()}
       </form>
 
-      <CodexLastUpdated
+      <DataLastUpdated
         type="card"
         lastUpdated={useCardData.lastUpdated}
         isLoading={useCardData.isLoading}

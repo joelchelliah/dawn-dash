@@ -9,8 +9,8 @@ import Footer from '@/shared/components/Footer'
 import Header from '@/shared/components/Header'
 import ScrollToTopButton from '@/shared/components/ScrollToTopButton'
 import StarField from '@/shared/components/StarField'
-import CodexErrorMessage from '@/shared/components/CodexErrorMessage'
-import CodexLoadingMessage from '@/shared/components/CodexLoadingMessage'
+import DataErrorMessage from '@/shared/components/DataErrorMessage'
+import DataLoadingMessage from '@/shared/components/DataLoadingMessage'
 
 import { useAllTalentSearchFilters } from './hooks/useSearchFilters/useAllTalentSearchFilters'
 import { useTalentData } from './hooks/useTalentData'
@@ -52,8 +52,8 @@ function Skills(): JSX.Element {
       />
 
       <div className={cx('content')}>
-        <CodexLoadingMessage isVisible={isLoading} progress={progress} codexType="talent" />
-        <CodexErrorMessage isVisible={isError && !isLoading} codexType="talent" />
+        <DataLoadingMessage isVisible={isLoading} progress={progress} dataType="talent" />
+        <DataErrorMessage isVisible={isError && !isLoading} dataType="talent" />
         {!isError && !isLoading && (
           <>
             <TalentSearchPanel

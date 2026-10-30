@@ -6,7 +6,7 @@ import {
   RARITY_KEYWORDS,
   toRarityToken,
 } from '@/shared/utils/keywordMatching'
-import { useCodexUrlParams } from '@/shared/hooks/useCodexUrlParams'
+import { useFilterUrlParams } from '@/shared/hooks/useFilterUrlParams'
 import {
   cardSetUrlCodec,
   useCardSetFilters,
@@ -22,10 +22,7 @@ import {
   isAnimalCompanionCard,
   isNonCollectible,
 } from '@/cardex/utils/cardHelper'
-import {
-  cacheCardCodexSearchFilters,
-  getCachedCardCodexSearchFilters,
-} from '@/cardex/utils/cardFilterStore'
+import { cacheCardSearchFilters, getCachedCardSearchFilters } from '@/cardex/utils/cardFilterStore'
 
 import { useWeeklyChallengeFilterData } from '../useWeeklyChallengeFilterData'
 
@@ -70,7 +67,7 @@ export interface UseAllCardSearchFilters {
 export const useAllCardSearchFilters = (
   cardData: CardData[] | undefined
 ): UseAllCardSearchFilters => {
-  const cachedFilters = getCachedCardCodexSearchFilters()
+  const cachedFilters = getCachedCardSearchFilters()
   const { filterData, isFilterDataError, isFilterDataLoading } = useWeeklyChallengeFilterData()
   const {
     keywords,
@@ -202,7 +199,7 @@ export const useAllCardSearchFilters = (
    */
   const [isPendingWeeklyChallengeFromUrl, setIsPendingWeeklyChallengeFromUrl] = useState(false)
 
-  const { setWeeklyChallengeParam } = useCodexUrlParams({
+  const { setWeeklyChallengeParam } = useFilterUrlParams({
     keywords,
     setKeywords: trackedSetKeywords,
     filterBindings: [
@@ -309,7 +306,7 @@ export const useAllCardSearchFilters = (
     }
 
     filterDebounceTimeoutRef.current = setTimeout(() => {
-      cacheCardCodexSearchFilters({
+      cacheCardSearchFilters({
         keywords,
         cardSets: cardSetFilters,
         rarities: rarityFilters,

@@ -71,7 +71,7 @@ export const FormattingTalent = {
 
 // -------------------- Cache --------------------
 
-export interface TalentCodexSearchFilterCache {
+export interface TalentSearchFilterCache {
   keywords: string
   cardSets: Record<string, boolean>
   requirements: Record<string, boolean>

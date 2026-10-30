@@ -4,11 +4,7 @@ import { SharedFilterOption } from '@/shared/types/filters'
 import { createFilterUrlCodec } from '@/shared/utils/filterUrlCodec'
 import { createFilterHook } from '@/shared/hooks/useSearchFilters/useFilterFactory'
 
-import {
-  CardCodexSearchFilterCache,
-  CardType,
-  CardTypeFilterOption,
-} from '@/cardex/types/cardFilters'
+import { CardSearchFilterCache, CardType, CardTypeFilterOption } from '@/cardex/types/cardFilters'
 
 const defaultFilters: Record<string, boolean> = {
   [CardTypeFilterOption.Melee]: true,
@@ -68,7 +64,7 @@ const useBaseCardTypeFilters = createFilterHook({
   indexToValueMap,
 })
 
-export const useCardTypeFilters = (cachedFilters?: CardCodexSearchFilterCache['cardTypes']) => {
+export const useCardTypeFilters = (cachedFilters?: CardSearchFilterCache['cardTypes']) => {
   const {
     filters,
     isIndexSelected,
