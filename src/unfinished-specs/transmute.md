@@ -334,7 +334,7 @@ handles non-array output), reports dropped upstream fields, and fails on:
 - `count` not matching `cards`;
 - Tradepost adds/removes not lining up with `pool`.
 
-### Task 2b — Lookup module
+### Task 2b — Lookup module — COMPLETED
 
 `src/transmute/utils/`: the module-scope lookups from Data format, plus one function per direction
 × mode returning the candidate ids, or a reason there are none:
