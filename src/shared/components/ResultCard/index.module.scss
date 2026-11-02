@@ -6,7 +6,7 @@
 }
 
 /*
- * Staggered entry on a new search, declared once because `--full-match` has to restate it: CSS has no
+ * Staggered entry on a new query, declared once because `--highlighted` has to restate it: CSS has no
  * way to *append* to an animation list, so any `animation` there replaces the base rule's outright.
  *
  * `backwards` matters — the per-row `animation-delay` is set inline in `ResultCard`, and without it
@@ -23,18 +23,18 @@ $row-entry-animation: resultRowIn 0.5s ease-out backwards;
  * pass through a muddy midpoint, so the alpha does all the work.
  *
  * A function, not a mixin, because three rules need the gradient as a *value* — the base row, the
- * hovered row, and `--full-match`, which lists it as a second background layer under its shine.
+ * hovered row, and `--highlighted`, which lists it as a second background layer under its shine.
  */
 @function row-divider($color: $color-component-border, $start-alpha: 0.85, $end: 100%) {
   @return linear-gradient(to right, rgba($color, $start-alpha) 0%, rgba($color, 0) $end);
 }
 
 /*
- * The exact-match shine. The tile scrolls right-to-left, so the *higher* stops are the ones entering
- * from the right — their ramp is symmetric with the leading stops', or the shine appears abruptly and
- * then leaves gently. Also a function, so the hover rule can restate both layers without repeating it.
+ * The highlighted-row shine (Cardex: an exact name match). The tile scrolls right-to-left, so the
+ * *higher* stops are the ones entering from the right — their ramp is symmetric with the leading
+ * stops', or the shine appears abruptly and then leaves gently. Also a function, so the hover rule can restate both layers without repeating it.
  */
-@function full-match-shine() {
+@function highlight-shine() {
   @return linear-gradient(
     45deg,
     rgba(155, 255, 255, 0) 0%,
@@ -55,7 +55,6 @@ $row-entry-animation: resultRowIn 0.5s ease-out backwards;
   align-items: center;
   gap: 0.5rem;
   padding: 0.25rem 0.5rem;
-  cursor: pointer;
   /*
    * Lets the browser skip style, layout and paint for rows outside the viewport
    *
@@ -83,7 +82,12 @@ $row-entry-animation: resultRowIn 0.5s ease-out backwards;
     padding-bottom: 0.5rem;
   }
 
-  &--struck {
+  &--clickable {
+    cursor: pointer;
+  }
+
+  // The marker class is the consumer's (Cardex's `STRUCK_TRIGGER`), passed in through `className`.
+  &:global(.struck) {
     color: $color-primary-dark;
     background-color: rgba(0, 0, 0, 0.5) !important;
 
@@ -98,10 +102,10 @@ $row-entry-animation: resultRowIn 0.5s ease-out backwards;
     }
   }
 
-  &--full-match {
+  &--highlighted {
     position: relative;
     // Two layers: the animated shine, then the row divider re-declared.
-    background-image: full-match-shine(), row-divider();
+    background-image: highlight-shine(), row-divider();
     background-repeat: repeat, no-repeat;
     background-position:
       0% 0%,
@@ -116,20 +120,20 @@ $row-entry-animation: resultRowIn 0.5s ease-out backwards;
       card-shine-shift 1.75s linear infinite;
   }
 
-  &:hover:not(&--full-match) {
+  &:hover:not(&--highlighted) {
     background-image: row-divider($color-primary-hover, 0.5, 90%);
   }
 
-  &:has(+ &:hover):not(&--full-match) {
+  &:has(+ &:hover):not(&--highlighted) {
     background-image: row-divider($color-primary-hover, 0.35, 90%);
   }
 
-  &--full-match:hover {
-    background-image: full-match-shine(), row-divider($color-primary-hover, 0.5, 90%);
+  &--highlighted:hover {
+    background-image: highlight-shine(), row-divider($color-primary-hover, 0.5, 90%);
   }
 
-  &--full-match:has(+ &:hover) {
-    background-image: full-match-shine(), row-divider($color-primary-hover, 0.25, 90%);
+  &--highlighted:has(+ &:hover) {
+    background-image: highlight-shine(), row-divider($color-primary-hover, 0.25, 90%);
   }
 
   &:hover {
@@ -155,7 +159,7 @@ $row-entry-animation: resultRowIn 0.5s ease-out backwards;
 }
 
 // `min-width: 0` lets the truncating children shrink instead of overflowing.
-// `position: relative` is the strike badge's positioning context — it centres on this column's
+// `position: relative` is the badge's positioning context — it centres on this column's
 // leading edge, so it lands on the name whether or not card art is shown.
 .result-card__content {
   position: relative;
@@ -171,7 +175,6 @@ $row-entry-animation: resultRowIn 0.5s ease-out backwards;
   flex-direction: row;
   align-items: center;
   padding: 0.25rem 0;
-  cursor: pointer;
   min-height: 1.25rem;
 }
 
@@ -228,7 +231,6 @@ $row-entry-animation: resultRowIn 0.5s ease-out backwards;
 .result-card__description {
   font-size: font-size('xxs');
   color: $color-primary-muted;
-  cursor: pointer;
   @include description-margins-based-on-filters;
 
   &__icon {
@@ -241,7 +243,7 @@ $row-entry-animation: resultRowIn 0.5s ease-out backwards;
   }
 }
 
-// Stops a link click from also toggling the card strike handler on the container.
+// Stops a link click from also triggering the container's click handler.
 .result-card__blightbane-link-wrapper {
   width: fit-content;
   margin-bottom: 0.125rem;

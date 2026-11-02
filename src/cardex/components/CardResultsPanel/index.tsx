@@ -6,6 +6,7 @@ import { CardData } from '@/shared/types/cards'
 import { useScrollToResultsOnArrival } from '@/shared/hooks/useScrollToResultsOnArrival'
 import KeywordsSummary from '@/shared/components/KeywordsSummary'
 import PanelHeader from '@/shared/components/PanelHeader'
+import ResultCardsByBanner from '@/shared/components/ResultCardsByBanner'
 
 import { isCardStruckIn } from '@/cardex/utils/cardHelper'
 import { UseAllCardSearchFilters } from '@/cardex/hooks/useSearchFilters/useAllCardSearchFilters'
@@ -55,19 +56,13 @@ const CardResultsPanel = ({ useSearchFilters }: CardResultsPanelProps) => {
     }
   }, [parsedKeywords])
 
-  const cardsByBanner = useMemo(() => {
-    const visibleCards = shouldHideTrackedCards
-      ? matchingCards.filter((card) => !isCardStruckIn(struckCardKeys, card))
-      : matchingCards
-
-    return visibleCards.reduce(
-      (acc, card) => {
-        acc[card.color] = [...(acc[card.color] || []), card]
-        return acc
-      },
-      {} as Record<number, CardData[]>
-    )
-  }, [matchingCards, shouldHideTrackedCards, struckCardKeys])
+  const visibleCards = useMemo(
+    () =>
+      shouldHideTrackedCards
+        ? matchingCards.filter((card) => !isCardStruckIn(struckCardKeys, card))
+        : matchingCards,
+    [matchingCards, shouldHideTrackedCards, struckCardKeys]
+  )
 
   const struckMatchCount = useMemo(
     () => matchingCards.filter((card) => isCardStruckIn(struckCardKeys, card)).length,
@@ -90,42 +85,31 @@ const CardResultsPanel = ({ useSearchFilters }: CardResultsPanelProps) => {
           className={cx('results-container__info')}
         />
 
-        {Object.entries(cardsByBanner).map(([banner, cards], groupIndex, groups) => {
-          // Row index across *all* groups, so the stagger keeps running from one banner into the
-          // next instead of restarting per group (which a CSS `nth-child` delay would do).
-          const precedingCards = groups
-            .slice(0, groupIndex)
-            .reduce((total, [, groupCards]) => total + groupCards.length, 0)
-
-          return (
-            <div key={banner} className={cx('results-cards')}>
-              <div className={cx('results-cards__banner', `results-cards__banner--${banner}`)}>
-                {cards.map((card, cardIndex) => (
-                  <ResultCard
-                    key={card.blightbane_id}
-                    card={card}
-                    parsedKeywords={parsedKeywords}
-                    isStruck={isCardStruckIn(struckCardKeys, card)}
-                    toggleCardStrike={toggleCardStrike}
-                    getCardSetNameFromIndex={getCardSetNameFromIndex}
-                    getCardTypeNameFromIndex={getCardTypeNameFromIndex}
-                    getCardTypeEmojiFromIndex={getCardTypeEmojiFromIndex}
-                    shouldIncludeNonCollectibleCards={shouldIncludeNonCollectibleCards}
-                    shouldIncludeAnimalCompanionCards={shouldIncludeAnimalCompanionCards}
-                    shouldShowDescription={shouldShowDescription}
-                    shouldShowKeywords={shouldShowKeywords}
-                    shouldShowCardSet={shouldShowCardSet}
-                    shouldShowCardType={shouldShowCardType}
-                    shouldShowCardArt={shouldShowCardArt}
-                    shouldShowBlightbaneLink={shouldShowBlightbaneLink}
-                    showCardsWithoutKeywords={showCardsWithoutKeywords}
-                    entryIndex={precedingCards + cardIndex}
-                  />
-                ))}
-              </div>
-            </div>
-          )
-        })}
+        <ResultCardsByBanner
+          cards={visibleCards}
+          renderCard={(card: CardData, entryIndex: number) => (
+            <ResultCard
+              key={card.blightbane_id}
+              card={card}
+              parsedKeywords={parsedKeywords}
+              isStruck={isCardStruckIn(struckCardKeys, card)}
+              toggleCardStrike={toggleCardStrike}
+              getCardSetNameFromIndex={getCardSetNameFromIndex}
+              getCardTypeNameFromIndex={getCardTypeNameFromIndex}
+              getCardTypeEmojiFromIndex={getCardTypeEmojiFromIndex}
+              shouldIncludeNonCollectibleCards={shouldIncludeNonCollectibleCards}
+              shouldIncludeAnimalCompanionCards={shouldIncludeAnimalCompanionCards}
+              shouldShowDescription={shouldShowDescription}
+              shouldShowKeywords={shouldShowKeywords}
+              shouldShowCardSet={shouldShowCardSet}
+              shouldShowCardType={shouldShowCardType}
+              shouldShowCardArt={shouldShowCardArt}
+              shouldShowBlightbaneLink={shouldShowBlightbaneLink}
+              showCardsWithoutKeywords={showCardsWithoutKeywords}
+              entryIndex={entryIndex}
+            />
+          )}
+        />
       </div>
     )
   }

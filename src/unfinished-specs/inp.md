@@ -190,7 +190,7 @@ tasks.
     measurement must not introduce a fixed width here.
   - *"Tree layout/rendering changes are verified visually … The **user** runs the dev server."*
     Applies equally to this list.
-- **`src/cardex/components/CardResultsPanel/ResultCard/index.module.scss`** — the
+- **`src/shared/components/ResultCard/index.module.scss`** — the
   comment block above `$row-entry-animation` explains why the animation is declared once and
   restated in `--full-match`, and why `backwards` is load-bearing.
 - **`src/styles/_textures.scss`** — `rainTexture` and `_applyTexture`. Read before Task 4; the
@@ -248,7 +248,7 @@ component. That is expected, not a broken step.
   What *did* need recording is Task 1's: `.result-card` carries `content-visibility: auto`, so every
   row is a `contain: layout paint` context, and `contain-intrinsic-size` must stay paired with it.
   Added.
-- **`src/cardex/components/CardResultsPanel/ResultCard/index.module.scss`** — the
+- **`src/shared/components/ResultCard/index.module.scss`** — the
   `$row-entry-animation` comment block still describes a cascade over the whole result set, which is
   **still accurate**: Task 6 (which would have narrowed it to the first screenful) was never
   implemented. No change needed. The `.result-card` rule did gain a comment for
@@ -336,7 +336,7 @@ off-screen elements — browser-native virtualization, with no JS, no dependency
 the component tree or the DOM.
 
 Add to `.result-card` in
-`src/cardex/components/CardResultsPanel/ResultCard/index.module.scss`:
+`src/shared/components/ResultCard/index.module.scss`:
 
 ```scss
 content-visibility: auto;

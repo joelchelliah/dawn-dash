@@ -1,0 +1,36 @@
+@use 'index' as *;
+
+.results-groups {
+  display: flex;
+  flex-direction: column;
+}
+
+.results-cards {
+  display: flex;
+  flex-direction: column;
+  font-size: font-size('xs');
+  color: $color-primary-base;
+  gap: 0.125rem;
+
+  // Transparent fallback so cards with no banner in the color map still get the rain texture
+  &__banner {
+    padding: 0;
+    border-top: 1px solid $color-component-bg;
+    border-bottom: 1px solid $color-component-bg;
+    @include rainTexture(transparent, false);
+  }
+  // Alternate groups get the flipped rain texture, starting with the first
+  &:nth-child(odd) &__banner {
+    @include rainTexture(transparent, true);
+  }
+
+  // Apply rain texture and color to all banner variations
+  @each $number, $color in $banner-index-to-color-map {
+    &__banner--#{$number} {
+      @include rainTexture($color, false);
+    }
+    &:nth-child(odd) &__banner--#{$number} {
+      @include rainTexture($color, true);
+    }
+  }
+}

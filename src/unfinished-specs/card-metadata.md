@@ -290,7 +290,7 @@ still true and still load-bearing.
 Two call sites, both of which have an id available:
 
 - **Cardex** —
-  [`CardArtwork.tsx:34`](../cardex/components/CardResultsPanel/ResultCard/CardArtwork.tsx#L34)
+  [`CardArtwork.tsx:34`](../shared/components/ResultCard/CardArtwork.tsx#L34)
   currently calls `useCardImageSrc(card.name, null, card.category)`. `CardData` carries `id`, so
   switch to the id accessor. Keep `null` as the fallback — that is what opts into the rarity-tinted
   placeholder square.
@@ -348,7 +348,7 @@ already has orb assets via [`energyImages.ts`](../shared/utils/energyImages.ts),
 here (`dexint`, `dexstr`, `intstr`, `blood`) are **not** a 1:1 match for `CharacterClass`, so a
 mapping is needed and hybrid costs may have no single orb. Start with text, look at it, iterate.
 
-Note [`src/cardex/CLAUDE.md`](../cardex/CLAUDE.md)'s warning that `.result-card__name`'s widths are
+Note [`src/shared/CLAUDE.md`](../shared/CLAUDE.md)'s warning that `.result-card__name`'s widths are
 **minimums, not fixed sizes** — its `flex-shrink: 1` + `min-width: 0` are what keep the
 `CardMetadata` pill pinned to the right edge on narrow widths. Adding an element to that row risks
 exactly the overflow that invariant describes, so check mobile early.

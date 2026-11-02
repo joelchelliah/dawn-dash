@@ -10,8 +10,6 @@ import {
 import { createCx } from '@/shared/utils/classnames'
 import { CardData } from '@/shared/types/cards'
 
-import { isNonCollectible, isAnimalCompanionCard } from '@/cardex/utils/cardHelper'
-
 import styles from './CardIcons.module.scss'
 
 const cx = createCx(styles)
@@ -38,21 +36,18 @@ const indexToRarityClassMap = {
 
 interface CardIconsProps {
   card: CardData
-  shouldIncludeNonCollectibleCards: boolean
-  shouldIncludeAnimalCompanionCards: boolean
+  hasNonCollectible: boolean
+  hasAnimalCompanion: boolean
   shouldOverlapWithCardArt: boolean
 }
 
 const CardIcons = ({
   card,
-  shouldIncludeNonCollectibleCards,
-  shouldIncludeAnimalCompanionCards,
+  hasNonCollectible,
+  hasAnimalCompanion,
   shouldOverlapWithCardArt,
 }: CardIconsProps) => {
   const renderSpecialIcons = () => {
-    const hasNonCollectible = shouldIncludeNonCollectibleCards && isNonCollectible(card)
-    const hasAnimalCompanion = shouldIncludeAnimalCompanionCards && isAnimalCompanionCard(card)
-
     if (hasNonCollectible && hasAnimalCompanion) {
       return (
         <span className={cx('card-icons__non-collectible-and-animal-companion')}>

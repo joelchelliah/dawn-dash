@@ -302,7 +302,7 @@ history of a change.
 
 ## Tasks
 
-### Task 1 — Move Cardex's result rows into `shared/`
+### Task 1 — Move Cardex's result rows into `shared/` — COMPLETED
 
 Transmute can't import from `src/cardex/`. Move these to `src/shared/components/`:
 

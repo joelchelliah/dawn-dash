@@ -1,4 +1,3 @@
-import { BlightbaneCardByIdUrl, BlightbaneCardUrl } from '@/shared/utils/imageUrls'
 import { CardData } from '@/shared/types/cards'
 
 const NON_COLLECTIBLE_CATEGORIES = [
@@ -112,9 +111,6 @@ export const isNonCollectible = (card: CardData) =>
   (hasNilExpansion(card)
     ? NON_COLLECTIBLE_CATEGORIES_FOR_NIL_EXPANSION.includes(card.category)
     : NON_COLLECTIBLE_CATEGORIES.includes(card.category))
-
-export const getBlightbaneCardUrl = (card: CardData) =>
-  card.hasDuplicateName ? BlightbaneCardByIdUrl(card.blightbane_id) : BlightbaneCardUrl(card.name)
 
 /*
  * Tracked cards are saved as names, so a card sharing its name with another is saved as
