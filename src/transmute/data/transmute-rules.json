@@ -1,7 +1,7 @@
 {
   "version": "1.19.004",
   "date": "2026-11-01",
-  "routes": {
+  "modes": {
     "transmute": {
       "events": ["A Familiar Face", "Alchemist", "Shrine of Evolution", "The Nexus"],
       "cards": ["Cursed Cauldron"]

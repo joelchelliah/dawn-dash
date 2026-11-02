@@ -3,7 +3,7 @@
  * editing both. Card ids are game ids (`CardData.blightbane_id`).
  */
 
-export type TransmuteRoute = 'transmute' | 'sidemute' | 'tradepost'
+export type TransmuteMode = 'transmute' | 'sidemute' | 'tradepost'
 
 export type TransmuteEnergy = 'dex' | 'int' | 'str' | 'holy'
 
@@ -14,18 +14,18 @@ export type TransmuteEnergy = 'dex' | 'int' | 'str' | 'holy'
 export type CardColorAndRarity = [color: number, rarity: number]
 
 export interface CannotBeSourceGroup {
-  // e.g. `EXCEPTION-CURSE`. For mapping to UI copy only: which routes are blocked comes from `blocks`
+  // e.g. `EXCEPTION-CURSE`. For mapping to UI copy only: which modes are blocked comes from `blocks`
   id: string
   reason: string
-  blocks: TransmuteRoute[]
+  blocks: TransmuteMode[]
   cards: number[]
 }
 
 export interface TransmuteRules {
   version: string
   date: string
-  // Where each route is offered, for display only
-  routes: {
+  // Where each mode is offered, for display only
+  modes: {
     transmute: { events: string[]; cards: string[] }
     sidemute: { events: string[] }
     tradepost: { cards: string[] }

@@ -42,7 +42,7 @@ const COLORS = {
 
 const RARITIES = { Common: 0, Uncommon: 1, Rare: 2, Legendary: 3, Monster: 4 }
 
-const ROUTES = ['transmute', 'sidemute', 'tradepost']
+const MODES = ['transmute', 'sidemute', 'tradepost']
 
 // Upstream lists stats in this order, so anything else is a format change worth stopping for
 const REQUIREMENT_PATTERN = /^(HOLY|any|DEX(\|INT)?(\|STR)?|INT(\|STR)?|STR)$/
@@ -121,9 +121,9 @@ function main() {
     if (!data.cards || typeof data.cards !== 'object') {
       throw new Error('Missing or invalid `cards` field')
     }
-    for (const route of ROUTES) {
-      if (!rules?.[route]) throw new Error(`Missing \`rules.${route}\``)
-      pickFields(rules[route], RULE_FIELDS[route], ignored, `rules.${route}`)
+    for (const mode of MODES) {
+      if (!rules?.[mode]) throw new Error(`Missing \`rules.${mode}\``)
+      pickFields(rules[mode], RULE_FIELDS[mode], ignored, `rules.${mode}`)
     }
     pickFields(exceptions ?? {}, EXCEPTION_FIELDS, ignored, 'exceptions')
 
@@ -182,8 +182,8 @@ function main() {
 
       if (typeof group.id !== 'string') throw new Error(`${label}: missing \`id\``)
       if (typeof group.reason !== 'string') throw new Error(`${label}: missing \`reason\``)
-      if (!Array.isArray(group.blocks) || group.blocks.some((r) => !ROUTES.includes(r))) {
-        throw new Error(`${label}: \`blocks\` must only name ${ROUTES.join(', ')}`)
+      if (!Array.isArray(group.blocks) || group.blocks.some((r) => !MODES.includes(r))) {
+        throw new Error(`${label}: \`blocks\` must only name ${MODES.join(', ')}`)
       }
 
       return {
@@ -233,7 +233,7 @@ function main() {
     const output = {
       version: data.version,
       date: data.date,
-      routes: {
+      modes: {
         transmute: { events: rules.transmute.events, cards: rules.transmute.cards },
         sidemute: { events: rules.sidemute.events },
         tradepost: { cards: rules.tradepost.cards },

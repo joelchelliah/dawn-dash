@@ -1,7 +1,7 @@
 # Spec: Transmute (new tool)
 
 A seventh tool, **Transmute** (`/transmute`, `src/transmute/`). Pick one card and see every card it
-can turn **into**, or every card that can turn **into it**, through one of three routes:
+can turn **into**, or every card that can turn **into it**, through one of three modes:
 
 - **Transmute**: one rarity higher.
 - **Sidemute**: the community's name for a same-rarity transmute.
@@ -44,12 +44,12 @@ needs.
   candidate**, so Tradepost on a Monster-rarity card finds nothing and the card stays in the deck.
   Card sets apply; energies don't. `adds` are Tradepost-only results, and the potions are in
   `removes`.
-- **Blocked sources**: a card can't go through route R if it is in a `cannotBeSource` group whose
+- **Blocked sources**: a card can't go through mode R if it is in a `cannotBeSource` group whose
   `blocks` includes R. Show that group's `reason`. Read groups by `blocks`, never by group `id`,
   because upstream may add groups. The `id` is kept only for mapping a group to UI copy. Today:
   Cursed cards block transmute and sidemute. Monster-rarity cards without a Monster banner block
   sidemute (nothing shares their banner and rarity).
-- **Energy access gates the Transmute route only**, and it is checked on the **result**, not the
+- **Energy access gates the Transmute mode only**, and it is checked on the **result**, not the
   source. Each energy is enough on its own:
 
   | Banner                                        | Needs (any one of) |
@@ -76,7 +76,7 @@ needs.
   potion of the source's rarity joins it, whatever the source's color. There are Common, Uncommon
   and Rare potions only. The data lists potions as ordinary Brown results (`potions` holds their
   ids). Whether and how to say this is optional (Task 6).
-- **Distant Memory (`990007`)**, the only White card, comes back empty on every route. The game does
+- **Distant Memory (`990007`)**, the only White card, comes back empty on every mode. The game does
   something else: transmute offers Rares of any color you have access to, sidemute offers only the 6
   Uncommon potions, and Tradepost offers nothing. Show that as fixed text.
 - **Unlocks.** The 41 Metaprogress cards (class starting cards) and the Hunter companions Rend,
@@ -86,16 +86,16 @@ needs.
 
 **Reverse lookups** (_To_ mode, "what turns into X"):
 
-| Route     | X must be in                 | Sources                                                                                          |
+| Mode      | X must be in                 | Sources                                                                                          |
 | --------- | ---------------------------- | ------------------------------------------------------------------------------------------------ |
 | Transmute | `pool`                       | X's color, one rarity below X. A Legendary X also has the other Legendaries                      |
 | Sidemute  | `monsterSidemute`            | Every Monster-banner card, any rarity                                                            |
 | Sidemute  | `pool`, X not Monster-banner | X's color and rarity, plus **Black** cards of that rarity if X is Brown. Never any for a Black X |
 | Tradepost | `pool` + `adds` − `removes`  | X's color and rarity, **X included**, no Monster-rarity sources                                  |
 
-Then drop X from its own sources (except Tradepost), and drop sources blocked for the route. X's
+Then drop X from its own sources (except Tradepost), and drop sources blocked for the mode. X's
 card set must be enabled, except for a `monsterSidemute` X. For Transmute, **X itself must be
-reachable with the ticked energies**. If it isn't, there are no sources at all. A card that no route
+reachable with the ticked energies**. If it isn't, there are no sources at all. A card that no mode
 reaches "can't be reached by transmute, sidemute or Tradepost". Don't say "can't be obtained":
 events and other routes are outside this data.
 
@@ -110,7 +110,7 @@ about 55 KB minified, 20 KB gzipped.
 {
   "version": "1.19.004",
   "date": "2026-11-01",
-  "routes": {
+  "modes": {
     "transmute": { "events": [], "cards": [] },
     "sidemute": { "events": [] },
     "tradepost": { "cards": [] }
@@ -135,7 +135,7 @@ about 55 KB minified, 20 KB gzipped.
 - **Ids are game ids** (`blightbane_id` on `CardData`; see the invariant in `src/shared/CLAUDE.md`).
 - **`cards` uses `CardData`'s numbering**: `[banner 1–11, rarity 0–4]`. It covers **every card in the
   game data**: 2751 ids, enemy-only cards included (see "Which cards count as sources" below).
-- **`routes`** is display-only: where each route is offered ("Available at Alchemist, …").
+- **`modes`** is display-only: where each mode is offered ("Available at Alchemist, …").
 - **Upstream prose is dropped**: the rule descriptions and `notes`. The tool implements those rules,
   so the sync script **warns** when the prose changes or a new note appears, instead of failing.
 - **An id not in `cards` is "newer than the data"** (a patch landed before the next sync), which is
@@ -145,7 +145,7 @@ about 55 KB minified, 20 KB gzipped.
 - **Lookups are built once at module scope** (like `EVENTS_BY_NAME` in Booty):
   - `pool` and the Tradepost list, each grouped by `color|rarity`;
   - `monsterSidemute` as a `Set`;
-  - the blocked ids per route;
+  - the blocked ids per mode;
   - all of `cards` grouped by `color|rarity`, for reverse-lookup sources.
 
   Never rebuild them per render.
@@ -189,12 +189,13 @@ can sidemute into this". Even after narrowing, it would be about 600 cards.
 - **Filters**, all in the left panel:
   - Card search with suggestions.
   - Direction toggle: _From_ / _To_. Default _From_.
-  - Route toggle: _Transmute_ / _Sidemute_ / _Tradepost_. Default _Sidemute_. A three-way control:
-    the existing slider or a segmented control, left to trial in the browser (Task 4).
+  - Mode toggle: _Transmute_ / _Sidemute_ / _Tradepost_, **always in that order**, whatever the
+    control. Default _Transmute_. The control itself (slider, segmented control, radio buttons, …)
+    is left to trial in the browser (Task 4).
   - Card sets: the shared `useCardSetFilters`, **without** a Core checkbox. Core (1), Extended (4)
     and the nil expansion (0) are always on in the game and can't be switched off.
   - Energies: Dex / Int / Str / Holy, with Skilldex's energy icons (`DexImageUrl`, …), all ticked by
-    default. **They only affect the Transmute route.** Show them disabled or hidden for the other two.
+    default. **They only affect the Transmute mode.** Show them disabled or hidden for the other two.
   - Formatting: **Show card art** and **Show Blightbane link** only, for now.
 - **Card sets narrow the _results_, and energies gate _Transmute_ results** (see Game rules).
   Neither limits which card you can pick.
@@ -209,7 +210,7 @@ can sidemute into this". Even after narrowing, it would be about 600 cards.
   Cardex, because they are a viewer preference, not part of the view.
   - `?card=<slug>` holds the selected card: the name lowercased with `_` for spaces, plus a
     `_<blightbane_id>` suffix only for `hasDuplicateName` cards.
-  - `?dir=to` and `?route=transmute|tradepost` are written only when they differ from the defaults.
+  - `?dir=to` and `?mode=sidemute|tradepost` are written only when they differ from the defaults.
   - `?sets=` uses the existing `cardSetUrlCodec`, and `?energies=` uses **named** codes
     (`dex,int,str,holy`), the same as Skilldex requirements.
 
@@ -328,7 +329,7 @@ handles non-array output), reports dropped upstream fields, and fails on:
 
 - an id missing from `cards`;
 - a non-numeric or duplicate id;
-- an unknown color, rarity or `blocks` route;
+- an unknown color, rarity or `blocks` mode;
 - an unexpected `requires` value;
 - `count` not matching `cards`;
 - Tradepost adds/removes not lining up with `pool`.
@@ -336,11 +337,11 @@ handles non-array output), reports dropped upstream fields, and fails on:
 ### Task 2b — Lookup module
 
 `src/transmute/utils/`: the module-scope lookups from Data format, plus one function per direction
-× route returning the candidate ids, or a reason there are none:
+× mode returning the candidate ids, or a reason there are none:
 
 - blocked;
 - unknown to the data;
-- X not in the route's result list;
+- X not in the mode's result list;
 - X not reachable with the ticked energies;
 - the White card.
 
@@ -376,7 +377,8 @@ landing page and side menu, and has `noindex` in `<head>`.
 ### Task 4 — Filter state and the non-search filters
 
 - Filter hooks:
-  - the direction toggle and the three-way route toggle;
+  - the direction toggle and the three-way mode toggle (Transmute, Sidemute, Tradepost in that
+    order, default Transmute);
   - card sets (shared `useCardSetFilters`, with the Core checkbox hidden for Transmute only);
   - a new energy-filter hook with named URL codes;
   - formatting (card art, Blightbane link).
@@ -384,10 +386,10 @@ landing page and side menu, and has `noindex` in `<head>`.
   `TRACKED_FILTER_HANDLERS`.
 - Render them in the left panel. Energy labels reuse Skilldex's icon-label pattern, so lift
   `renderRequirementFilterLabelIcon` into `shared/` if Transmute would otherwise copy it. Energies
-  are disabled or hidden outside the Transmute route.
-- **The route control is left to trial and error in the browser.** Try the existing slider and a
+  are disabled or hidden outside the Transmute mode.
+- **The mode control is left to trial and error in the browser.** Try the existing slider and a
   segmented control (check `ButtonRow` first). The slider implies an ordered scale, which the three
-  routes aren't.
+  modes aren't.
 
 Check: every control toggles, survives a reload, and resets. Cardex's card-set filter still shows
 Core.
@@ -411,9 +413,9 @@ Check: typing, mouse and keyboard selection, twins (e.g. the Whirlpools), mobile
 
 - **The selected card at the top**, rendered with the shared `ResultCard`.
 - **A header that makes the mode unmistakable**: the direction (_turns into_ / _comes from_) and the
-  route. It should be visible without reading the filter panel.
+  mode. It should be visible without reading the filter panel.
 - **A one-line subtext by the selected card**, explaining what the results are. One line per
-  direction × route, kept in one lookup so they're easy to tweak. The placeholders below are the
+  direction × mode, kept in one lookup so they're easy to tweak. The placeholders below are the
   user's to reword, and the placement is left to trial and error:
   - _From_, Transmute: "Cards one rarity higher, of the same banner color, that you can transmute
     into"
@@ -433,7 +435,7 @@ Check: typing, mouse and keyboard selection, twins (e.g. the Whirlpools), mobile
 - States:
   - no card selected;
   - card unknown to the data;
-  - card blocked for this route, showing the group's `reason` (copy may be keyed by group `id`);
+  - card blocked for this mode, showing the group's `reason` (copy may be keyed by group `id`);
   - Distant Memory's fixed text;
   - Transmute, _From_, same-color list emptied by energies or sets: the fallback message ("all
     choices come from {rarity} cards of the colors you have access to"), with the ticked energy
@@ -447,20 +449,20 @@ Check: typing, mouse and keyboard selection, twins (e.g. the Whirlpools), mobile
     with no list;
   - Tradepost on a Monster-rarity card, or any empty Tradepost list: nothing, and the card stays in
     the deck;
-  - a card no route reaches in this direction: "can't be reached by {route}";
+  - a card no mode reaches in this direction: "can't be reached by {mode}";
   - every result hidden by the card-set filter.
 - **Optional, the user decides in the browser**:
   - an "Only appears once unlocked" note on Metaprogress cards and Rend/Claw/Maul;
   - the sidemute potion top-up line;
   - a "Tradepost only" badge on `tradepost.adds` cards;
-  - an "Available at …" line from `routes`.
+  - an "Available at …" line from `modes`.
 
-Check: each state above. Outside the Transmute route, check that toggling energies changes nothing.
+Check: each state above. Outside the Transmute mode, check that toggling energies changes nothing.
 A Monster-banner sidemute (444) and a small Legendary list. Card art on and off. Desktop and mobile.
 
 ### Task 7 — URL state
 
-The `?card`, `?dir`, `?route`, `?sets`, `?energies` params, read on load and written on change.
+The `?card`, `?dir`, `?mode`, `?sets`, `?energies` params, read on load and written on change.
 `useFilterUrlParams` is built around `keywords`/`?weekly`, so generalize it rather than forking it:
 keep Cardex and Skilldex behavior identical. A URL whose card slug doesn't resolve falls back to no
 selection.
