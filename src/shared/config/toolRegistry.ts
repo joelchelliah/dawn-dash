@@ -95,6 +95,23 @@ export const TOOL_REGISTRY: ToolDefinition[] = [
     navIcon: TreasureImageUrl,
   },
   {
+    id: 'transmute',
+    path: '/transmute',
+    title: 'Transmute',
+    ogTitle: '⚗️ Transmute',
+    description:
+      'An interactive transmute tool for every card in Dawncaster, showing all transmute, sidemute and Tradepost results for every card!',
+    shortDescription: 'Transmute, sidemute and Tradepost results for every card in Dawncaster!',
+    ogDescription:
+      'Look up the transmute, sidemute or Tradepost results for every card in Dawncaster!',
+    // Cardex's images until the Transmute assets exist
+    ogImage: 'https://www.dawn-dash.com/og-image-cardex.png',
+    logoImage: 'https://www.dawn-dash.com/logo-cardex.png',
+    landingImage: '/landing-cardex.webp',
+    navIcon: AbracadabraImageUrl,
+    unlisted: true,
+  },
+  {
     id: 'scoring',
     path: '/scoring',
     title: 'Scoring',

@@ -1,0 +1,10 @@
+@use 'index' as *;
+@use '../shared/page-base';
+
+.container {
+  @extend %page-container;
+}
+
+.content {
+  @extend %page-content;
+}

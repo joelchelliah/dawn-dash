@@ -1,0 +1,13 @@
+@use 'index' as *;
+
+.results-panel {
+  flex: 2;
+  min-width: 300px;
+  background-color: $color-component-bg;
+  padding: 1rem;
+  border-radius: 4px;
+
+  @media (max-width: $breakpoint-mobile) {
+    flex: 1;
+  }
+}

@@ -1,6 +1,6 @@
 // Each tool's folder. A tool may import only from itself and `src/shared/`; anything a second tool
 // needs moves to `shared/`, so the tools never form a dependency web between them.
-const TOOL_DIRS = ['landing', 'speedruns', 'scoring', 'cardex', 'skilldex', 'eventmaps', 'booty']
+const TOOL_DIRS = ['landing', 'speedruns', 'scoring', 'cardex', 'skilldex', 'eventmaps', 'booty', 'transmute']
 
 module.exports = {
   parser: '@typescript-eslint/parser',

@@ -358,7 +358,7 @@ Check: a temporary test, deleted afterwards, against the examples in Game rules:
 - _To_ for a Brown card (Black sources included), for a Black card (no sidemute sources), and for
   Oathbreaker (Tradepost only).
 
-### Task 3 — Scaffold the tool
+### Task 3 — Scaffold the tool — COMPLETED
 
 Follow the `add-new-tool` skill, steps 1–3 and 5:
 

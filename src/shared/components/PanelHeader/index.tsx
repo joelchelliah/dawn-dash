@@ -19,6 +19,7 @@ export type PanelHeaderType =
   | 'TreasureCards'
   | 'CardPools'
   | 'SpecialWeapons'
+  | 'TransmuteResults'
 
 const PANEL_TITLES: Record<PanelHeaderType, string> = {
   Search: 'Search',
@@ -28,6 +29,7 @@ const PANEL_TITLES: Record<PanelHeaderType, string> = {
   TreasureCards: 'Treasure Cards',
   CardPools: 'Card Pools',
   SpecialWeapons: 'Special Weapons',
+  TransmuteResults: 'Results',
 }
 
 interface PanelHeaderProps {
