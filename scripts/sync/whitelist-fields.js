@@ -1,5 +1,6 @@
 /**
- * Shared plumbing for the whitelist-based sync scripts (sync-treasures, sync-weapons).
+ * Shared plumbing for the whitelist-based sync scripts (sync-treasures, sync-weapons,
+ * sync-transmute-rules).
  *
  * Each of those reads a JSON file pasted in from an external extraction tool, which carries
  * far more per-entry data than the Booty panels render. Rather than trusting upstream to stay
@@ -85,7 +86,8 @@ function writeJson(outputFile, data, label) {
   })
 
   const sizeKb = (fs.statSync(outputFile).size / 1024).toFixed(2)
-  console.log(`   ✅ ${data.length} ${label} -> ${outputFile} (${sizeKb} KB)`)
+  const count = Array.isArray(data) ? `${data.length} ` : ''
+  console.log(`   ✅ ${count}${label} -> ${outputFile} (${sizeKb} KB)`)
 }
 
 /**

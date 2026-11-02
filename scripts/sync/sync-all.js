@@ -17,6 +17,7 @@ const DIVIDER = '='.repeat(80)
 const scripts = [
   { name: 'Sync treasures', path: path.join(__dirname, 'sync-treasures.js') },
   { name: 'Sync weapons', path: path.join(__dirname, 'sync-weapons.js') },
+  { name: 'Sync transmute rules', path: path.join(__dirname, 'sync-transmute-rules.js') },
   { name: 'Sync events', path: path.join(__dirname, 'sync-events.js') },
   { name: 'Talents preflight', path: path.join(__dirname, 'sync-talents-preflight.js') },
 ]

@@ -49,6 +49,7 @@
     "sync-events": "node scripts/sync/sync-events.js",
     "sync-treasures": "node scripts/sync/sync-treasures.js",
     "sync-weapons": "node scripts/sync/sync-weapons.js",
+    "sync-transmute-rules": "node scripts/sync/sync-transmute-rules.js",
     "sync-talents-preflight": "node scripts/sync/sync-talents-preflight.js",
     "backup-talents": "node scripts/backup-talents.js",
     "sync-artwork": "node scripts/fetch-card-artwork-mapping.js",
