@@ -1,4 +1,3 @@
-import Image from '@/shared/components/Image'
 import GradientButton from '@/shared/components/Buttons/GradientButton'
 import ButtonRow from '@/shared/components/Buttons/ButtonRow'
 import { createCx } from '@/shared/utils/classnames'
@@ -23,6 +22,7 @@ import { allCardSets } from '@/shared/hooks/useSearchFilters/useCardSetFilters'
 import DataLastUpdated from '@/shared/components/DataLastUpdated'
 import PanelHeader from '@/shared/components/PanelHeader'
 import FilterGroup from '@/shared/components/FilterGroup'
+import IconFilterLabel from '@/shared/components/FilterGroup/IconFilterLabel'
 import SearchField from '@/shared/components/SearchField'
 
 import { allTiers } from '@/skilldex/hooks/useSearchFilters/useTierFilters'
@@ -60,16 +60,6 @@ const TalentSearchPanel = ({ useSearchFilters, useTalentData }: TalentSearchPane
   const { formattingFilters, handleFormattingFilterToggle, getFormattingFilterName } =
     useFormattingFilters
 
-  const renderRequirementFilterLabelIcon = (icon: string, alt: string, isClass = false) => (
-    <Image
-      src={icon}
-      alt={alt}
-      width={24}
-      height={24}
-      className={cx('filter-icon', { 'filter-icon--class': isClass })}
-    />
-  )
-
   const getRequirementFilterLabel = (filter: string) => {
     const name = getRequirementFilterName(filter)
     const alt = `${name} icon`
@@ -77,108 +67,93 @@ const TalentSearchPanel = ({ useSearchFilters, useTalentData }: TalentSearchPane
     switch (filter) {
       case RequirementFilterOption.NoRequirements:
         return (
-          <span className={cx('filter-label')}>
-            {renderRequirementFilterLabelIcon(NeutralImageUrl, alt)}
-            No req...
-          </span>
+          <IconFilterLabel icon={NeutralImageUrl} alt={alt}>
+            No require...
+          </IconFilterLabel>
         )
       case RequirementFilterOption.Dexterity:
         return (
-          <span className={cx('filter-label')}>
-            {renderRequirementFilterLabelIcon(DexImageUrl, alt)}
+          <IconFilterLabel icon={DexImageUrl} alt={alt}>
             {name}
-          </span>
+          </IconFilterLabel>
         )
       case RequirementFilterOption.Intelligence:
         return (
-          <span className={cx('filter-label')}>
-            {renderRequirementFilterLabelIcon(IntImageUrl, alt)}
+          <IconFilterLabel icon={IntImageUrl} alt={alt}>
             {name}
-          </span>
+          </IconFilterLabel>
         )
       case RequirementFilterOption.Strength:
         return (
-          <span className={cx('filter-label')}>
-            {renderRequirementFilterLabelIcon(StrImageUrl, alt)}
+          <IconFilterLabel icon={StrImageUrl} alt={alt}>
             {name}
-          </span>
+          </IconFilterLabel>
         )
       case RequirementFilterOption.Arcanist:
         return (
-          <span className={cx('filter-label')}>
-            {renderRequirementFilterLabelIcon(ArcanistImageUrl, alt, true)}
+          <IconFilterLabel icon={ArcanistImageUrl} alt={alt} isClass>
             {name}
-          </span>
+          </IconFilterLabel>
         )
       case RequirementFilterOption.Hunter:
         return (
-          <span className={cx('filter-label')}>
-            {renderRequirementFilterLabelIcon(HunterImageUrl, alt, true)}
+          <IconFilterLabel icon={HunterImageUrl} alt={alt} isClass>
             {name}
-          </span>
+          </IconFilterLabel>
         )
       case RequirementFilterOption.Knight:
         return (
-          <span className={cx('filter-label')}>
-            {renderRequirementFilterLabelIcon(KnightImageUrl, alt, true)}
+          <IconFilterLabel icon={KnightImageUrl} alt={alt} isClass>
             {name}
-          </span>
+          </IconFilterLabel>
         )
       case RequirementFilterOption.Rogue:
         return (
-          <span className={cx('filter-label')}>
-            {renderRequirementFilterLabelIcon(RogueImageUrl, alt, true)}
+          <IconFilterLabel icon={RogueImageUrl} alt={alt} isClass>
             {name}
-          </span>
+          </IconFilterLabel>
         )
       case RequirementFilterOption.Seeker:
         return (
-          <span className={cx('filter-label')}>
-            {renderRequirementFilterLabelIcon(SeekerImageUrl, alt, true)}
+          <IconFilterLabel icon={SeekerImageUrl} alt={alt} isClass>
             {name}
-          </span>
+          </IconFilterLabel>
         )
       case RequirementFilterOption.Warrior:
         return (
-          <span className={cx('filter-label')}>
-            {renderRequirementFilterLabelIcon(WarriorImageUrl, alt, true)}
+          <IconFilterLabel icon={WarriorImageUrl} alt={alt} isClass>
             {name}
-          </span>
+          </IconFilterLabel>
         )
       case RequirementFilterOption.Sunforge:
         return (
-          <span className={cx('filter-label')}>
-            {renderRequirementFilterLabelIcon(SunforgeImageUrl, alt, true)}
+          <IconFilterLabel icon={SunforgeImageUrl} alt={alt} isClass>
             {name}
-          </span>
+          </IconFilterLabel>
         )
       case RequirementFilterOption.ObtainedFromEvents:
         return (
-          <span className={cx('filter-label')}>
-            {renderRequirementFilterLabelIcon(CoinsOfPassingImageUrl, alt, true)}
+          <IconFilterLabel icon={CoinsOfPassingImageUrl} alt={alt} isClass>
             Event
-          </span>
+          </IconFilterLabel>
         )
       case RequirementFilterOption.Offer:
         return (
-          <span className={cx('filter-label')}>
-            {renderRequirementFilterLabelIcon(InfernalContractUrl, alt, true)}
+          <IconFilterLabel icon={InfernalContractUrl} alt={alt} isClass>
             {name}
-          </span>
+          </IconFilterLabel>
         )
       case RequirementFilterOption.ObtainedFromCards:
         return (
-          <span className={cx('filter-label')}>
-            {renderRequirementFilterLabelIcon(RuneOfPersistenceImageUrl, alt, true)}
+          <IconFilterLabel icon={RuneOfPersistenceImageUrl} alt={alt} isClass>
             Card
-          </span>
+          </IconFilterLabel>
         )
       case RequirementFilterOption.Unavailable:
         return (
-          <span className={cx('filter-label')}>
-            {renderRequirementFilterLabelIcon(NoSoupImageUrl, alt, true)}
+          <IconFilterLabel icon={NoSoupImageUrl} alt={alt} isClass>
             Unavailable
-          </span>
+          </IconFilterLabel>
         )
       default:
         return <span className={cx('filter-label')}>{name}</span>

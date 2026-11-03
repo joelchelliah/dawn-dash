@@ -1,5 +1,5 @@
 import { createCx } from '@/shared/utils/classnames'
-import { FilterTypeCard, FilterTypeTalent } from '@/shared/types/filters'
+import { FilterTypeCard, FilterTypeTalent, FilterTypeTransmute } from '@/shared/types/filters'
 import Section from '@/shared/components/Section'
 
 import Checkbox from './Checkbox'
@@ -11,7 +11,7 @@ interface FilterGroupProps {
   title: string
   filters: string[]
   selectedFilters: Record<string, boolean>
-  type: FilterTypeCard | FilterTypeTalent
+  type: FilterTypeCard | FilterTypeTalent | FilterTypeTransmute
   onFilterToggle: (filter: string) => void
   getFilterLabel?: (filter: string) => React.ReactNode
   className?: string

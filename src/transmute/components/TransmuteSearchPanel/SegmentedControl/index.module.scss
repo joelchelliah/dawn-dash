@@ -1,0 +1,62 @@
+@use 'index' as *;
+
+.segmented-control {
+  display: flex;
+  border: 1px solid $color-component-border-dark;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.segment {
+  @extend %flex-center;
+  flex-direction: column;
+  gap: 0.125rem;
+  flex: 1;
+  position: relative;
+  padding: 0.5rem 0.25rem;
+  cursor: pointer;
+  color: $color-primary-base;
+  opacity: 0.5;
+  transition:
+    opacity 150ms ease,
+    background-color 150ms ease;
+
+  & + & {
+    border-left: 1px solid $color-component-border-dark;
+  }
+
+  &:hover {
+    @include rainTexture(rgba($yellow-hover, 0.2), true);
+    color: $yellow-hover;
+    opacity: 0.75;
+  }
+
+  &--selected {
+    @include rainTexture(rgba($yellow-base, 0.15), true);
+    color: $yellow-base;
+    opacity: 1 !important;
+  }
+
+  // Keyboard focus lands on the hidden radio, so it's shown on the segment instead
+  &:has(.segment__input:focus-visible) {
+    outline: 2px solid $yellow-base;
+    outline-offset: -2px;
+  }
+
+  &__input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  &__label {
+    text-align: center;
+  }
+
+  &__subtitle {
+    text-align: center;
+    font-size: font-size('xxs');
+    opacity: 0.75;
+  }
+}

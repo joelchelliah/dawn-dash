@@ -13,3 +13,37 @@
     flex: 1 0 100%;
   }
 }
+
+.filters {
+  margin-top: 1rem;
+}
+
+.filter-note {
+  margin: 0;
+  font-size: font-size('xs');
+  color: $color-primary-base;
+  opacity: 0.6;
+}
+
+.button-row {
+  width: 20rem;
+
+  @media (max-width: $breakpoint-mobile) {
+    width: 16rem;
+  }
+}
+
+.filter-button {
+  width: 100%;
+  padding-left: 0.8125rem !important;
+  padding-right: 0.8125rem !important;
+
+  @media (max-width: $breakpoint-mobile) {
+    width: auto;
+  }
+
+  &:hover {
+    padding-left: 0.875rem !important;
+    padding-right: 0.875rem !important;
+  }
+}

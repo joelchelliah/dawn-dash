@@ -5,7 +5,7 @@
 
 export type TransmuteMode = 'transmute' | 'sidemute' | 'tradepost'
 
-export type TransmuteEnergy = 'dex' | 'int' | 'str' | 'holy'
+export type TransmuteEnergyAttribute = 'dex' | 'int' | 'str' | 'holy'
 
 /*
  * `[color, rarity]` in `CardData`'s numbering (banner 1–11, rarity 0–4), as the game computes them.
@@ -42,8 +42,8 @@ export interface TransmuteRules {
   // Read by `blocks`, never by position: upstream can add groups
   cannotBeSource: CannotBeSourceGroup[]
   /*
-   * Replaces the color's default requirement. Any one of the listed energies is enough, and an
+   * Replaces the color's default requirement. Any one of the listed energy attributes is enough, and an
    * empty list means anyone can transmute into the card.
    */
-  castRequirements: Record<string, TransmuteEnergy[]>
+  castRequirements: Record<string, TransmuteEnergyAttribute[]>
 }

@@ -5,6 +5,8 @@ export type FilterTypeTalent = 'card-set' | 'requirement' | 'tier' | 'formatting
 
 export type FilterTypeEvent = 'formatting-event'
 
+export type FilterTypeTransmute = 'card-set' | 'energy-attribute' | 'formatting-transmute'
+
 export enum SharedFilterOption {
   All = 'Select all',
   None = 'Select none',

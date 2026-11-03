@@ -10,6 +10,7 @@ import { useCardData } from '@/shared/hooks/useCardData'
 import DataErrorMessage from '@/shared/components/DataErrorMessage'
 import DataLoadingMessage from '@/shared/components/DataLoadingMessage'
 
+import { useAllTransmuteSearchFilters } from './hooks/useSearchFilters/useAllTransmuteSearchFilters'
 import styles from './index.module.scss'
 
 const TransmuteResultsPanel = dynamic(() => import('./components/TransmuteResultsPanel'), {
@@ -25,6 +26,7 @@ const cx = createCx(styles)
 function Transmute(): JSX.Element {
   const { navigateTo } = useNavigation()
   const { isLoading, isError, progress } = useCardData()
+  const useSearchFiltersHook = useAllTransmuteSearchFilters()
 
   return (
     <div className={cx('container')}>
@@ -43,7 +45,7 @@ function Transmute(): JSX.Element {
         <DataErrorMessage isVisible={isError && !isLoading} dataType="card" />
         {!isError && !isLoading && (
           <>
-            <TransmuteSearchPanel />
+            <TransmuteSearchPanel useSearchFilters={useSearchFiltersHook} />
             <TransmuteResultsPanel />
           </>
         )}

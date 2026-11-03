@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 
 import { CardSet, CardSetFilterOption, SharedFilterOption } from '@/shared/types/filters'
 import { createFilterUrlCodec } from '@/shared/utils/filterUrlCodec'
@@ -61,32 +61,35 @@ const toCardSetIndex = (index: number) => (index === 0 ? CORE_INDEX : index)
 
 export const getCardSetName = (index: number) => indexToValueMap[toCardSetIndex(index)] ?? ''
 
-const useSharedCardSetFilters = (cachedFilters?: Record<string, boolean>) => {
-  const {
-    filters,
-    isIndexSelected,
-    getValueFromIndex,
-    handleFilterToggle,
-    enableFilters,
-    resetFilters,
-  } = useBaseCardSetFilters(cachedFilters)
+const createSharedCardSetFilters =
+  (useBase: typeof useBaseCardSetFilters) => (cachedFilters?: Record<string, boolean>) => {
+    const {
+      filters,
+      isIndexSelected,
+      getValueFromIndex,
+      handleFilterToggle,
+      enableFilters,
+      resetFilters,
+    } = useBase(cachedFilters)
 
-  // Names nil expansion as Core. Only Cardex renders this — `TalentTree` skips index 0
-  // entirely, since talents use expansion 0 as a structural marker.
-  const getCardSetNameFromIndex = useCallback(
-    (index: number) => getValueFromIndex(toCardSetIndex(index)),
-    [getValueFromIndex]
-  )
+    // Names nil expansion as Core. Only Cardex renders this — `TalentTree` skips index 0
+    // entirely, since talents use expansion 0 as a structural marker.
+    const getCardSetNameFromIndex = useCallback(
+      (index: number) => getValueFromIndex(toCardSetIndex(index)),
+      [getValueFromIndex]
+    )
 
-  return {
-    cardSetFilters: filters,
-    isIndexSelected,
-    getCardSetNameFromIndex,
-    handleCardSetFilterToggle: handleFilterToggle,
-    enableCardSetFilters: enableFilters,
-    resetCardSetFilters: resetFilters,
+    return {
+      cardSetFilters: filters,
+      isIndexSelected,
+      getCardSetNameFromIndex,
+      handleCardSetFilterToggle: handleFilterToggle,
+      enableCardSetFilters: enableFilters,
+      resetCardSetFilters: resetFilters,
+    }
   }
-}
+
+const useSharedCardSetFilters = createSharedCardSetFilters(useBaseCardSetFilters)
 
 /*
  * Cardex: nil expansion cards are *selected* by the Core checkbox, so unticking Core hides them.
@@ -113,4 +116,49 @@ export const useTalentCardSetFilters = (cachedFilters?: Record<string, boolean>)
   const { isIndexSelected, ...rest } = useSharedCardSetFilters(cachedFilters)
 
   return { ...rest, isCardSetIndexSelected: isIndexSelected }
+}
+
+/*
+ * Transmute: Core, Extended and nil expansion are always on in the game, so Core has no checkbox.
+ */
+export const allCardSetsWithoutCore = allCardSets.filter(
+  (cardSet) => cardSet !== CardSetFilterOption.Core
+)
+
+const useBaseCardSetFiltersWithoutCore = createFilterHook({
+  defaultFilters: Object.fromEntries(
+    Object.entries(defaultCardSetFilterValueMap).filter(
+      ([cardSet]) => cardSet !== CardSetFilterOption.Core
+    )
+  ),
+  allValues: allCardSetsWithoutCore,
+  indexMap,
+  indexToValueMap,
+})
+
+const useSharedCardSetFiltersWithoutCore = createSharedCardSetFilters(
+  useBaseCardSetFiltersWithoutCore
+)
+
+export const useTransmuteCardSetFilters = (cachedFilters?: Record<string, boolean>) => {
+  const { cardSetFilters, isIndexSelected, ...rest } =
+    useSharedCardSetFiltersWithoutCore(cachedFilters)
+
+  // Core reads as ticked, so `cardSetUrlCodec` sees an all-selected state as "all"
+  const cardSetFiltersWithCore = useMemo(
+    () => ({ ...cardSetFilters, [CardSetFilterOption.Core]: true }),
+    [cardSetFilters]
+  )
+
+  const isCardSetIndexSelected = useCallback(
+    (index: number) => {
+      const cardSetIndex = toCardSetIndex(index)
+      return (
+        indexMap[CardSetFilterOption.Core].includes(cardSetIndex) || isIndexSelected(cardSetIndex)
+      )
+    },
+    [isIndexSelected]
+  )
+
+  return { ...rest, cardSetFilters: cardSetFiltersWithCore, isCardSetIndexSelected }
 }

@@ -1,18 +1,33 @@
-import { memo, useEffect, useRef, useState } from 'react'
+import { isValidElement, memo, useEffect, useRef, useState } from 'react'
 
 import { createCx } from '@/shared/utils/classnames'
-import { FilterTypeCard, FilterTypeTalent, FilterTypeEvent } from '@/shared/types/filters'
+import {
+  FilterTypeCard,
+  FilterTypeTalent,
+  FilterTypeEvent,
+  FilterTypeTransmute,
+} from '@/shared/types/filters'
 
 import styles from './index.module.scss'
 
 const cx = createCx(styles)
+
+const LONG_LABEL_LENGTH = 12
+
+const getTextLength = (node: React.ReactNode): number => {
+  if (typeof node === 'string' || typeof node === 'number') return String(node).length
+  if (Array.isArray(node)) return node.reduce((sum: number, child) => sum + getTextLength(child), 0)
+  if (isValidElement<{ children?: React.ReactNode }>(node))
+    return getTextLength(node.props.children)
+  return 0
+}
 
 interface CheckboxProps {
   name: string
   checkboxLabel: React.ReactNode
   checked: boolean
   onChange: () => void
-  type: FilterTypeCard | FilterTypeTalent | FilterTypeEvent
+  type: FilterTypeCard | FilterTypeTalent | FilterTypeEvent | FilterTypeTransmute
 }
 
 const Checkbox = ({ checkboxLabel, checked, onChange, type, name }: CheckboxProps) => {
@@ -40,6 +55,7 @@ const Checkbox = ({ checkboxLabel, checked, onChange, type, name }: CheckboxProp
   const checkboxClassName = cx('checkbox', `checkbox--${type}`)
   const labelTextClassName = cx('checkbox-label-text', `checkbox-label-text--${type}`, {
     'checkbox-label-text--checked': isHydrated ? checked : false,
+    'checkbox-label-text--long': getTextLength(checkboxLabel) > LONG_LABEL_LENGTH,
   })
 
   return (

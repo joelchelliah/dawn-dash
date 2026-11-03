@@ -194,8 +194,9 @@ can sidemute into this". Even after narrowing, it would be about 600 cards.
     is left to trial in the browser (Task 4).
   - Card sets: the shared `useCardSetFilters`, **without** a Core checkbox. Core (1), Extended (4)
     and the nil expansion (0) are always on in the game and can't be switched off.
-  - Energies: Dex / Int / Str / Holy, with Skilldex's energy icons (`DexImageUrl`, …), all ticked by
-    default. **They only affect the Transmute mode.** Show them disabled or hidden for the other two.
+  - Energy attributes: Dex / Int / Str / "Access to Holy" (Holy isn't really an attribute, but is
+    treated as one here), with Skilldex's energy icons (`DexImageUrl`, …), all ticked by default.
+    **They only affect the Transmute mode.** They're hidden for the other two, leaving a note.
   - Formatting: **Show card art** and **Show Blightbane link** only, for now.
 - **Card sets narrow the _results_, and energies gate _Transmute_ results** (see Game rules).
   Neither limits which card you can pick.
@@ -211,8 +212,8 @@ can sidemute into this". Even after narrowing, it would be about 600 cards.
   - `?card=<slug>` holds the selected card: the name lowercased with `_` for spaces, plus a
     `_<blightbane_id>` suffix only for `hasDuplicateName` cards.
   - `?dir=to` and `?mode=sidemute|tradepost` are written only when they differ from the defaults.
-  - `?sets=` uses the existing `cardSetUrlCodec`, and `?energies=` uses **named** codes
-    (`dex,int,str,holy`), the same as Skilldex requirements.
+  - `?sets=` uses the existing `cardSetUrlCodec`, and `?attributes=` uses **named** codes
+    (`dex.int.str.holy`), the same as Skilldex requirements.
 
   The selected card is a query param rather than a `/transmute/[card]` route. That keeps one page
   component, so the Booty remount problem can't arise. Per-card OG previews aren't worth building,
@@ -374,7 +375,17 @@ Follow the `add-new-tool` skill, steps 1–3 and 5:
 Check: `/transmute` renders both empty panels with the card-loading bar. The tool is absent from the
 landing page and side menu, and has `noindex` in `<head>`.
 
-### Task 4 — Filter state and the non-search filters
+### Task 4 — Filter state and the non-search filters — COMPLETED
+
+Built as: `useTransmuteCardSetFilters` in `shared/` (Core is left out of the state rather than
+hidden, so "Select none" can't strand it; `cardSetFilters` still reports Core as ticked so
+`cardSetUrlCodec` reads a full selection as "all"), `src/transmute/hooks/useSearchFilters/`, and a
+shared `IconFilterLabel` (Skilldex now uses it). Energy attributes are hidden outside the Transmute
+mode, leaving a note. The mode and direction controls are a segmented control of native radios, gold
+like Eventmaps' formatting filters, each option with a one-line subtitle. The speedruns slider wasn't
+tried, because it lives in `src/speedruns/` and is styled by character class. For Task 7: the
+filter state is ready, `energyAttributeUrlCodec` is exported, and the codec joins codes with `.`
+(`?attributes=dex.int`), not `,`. The code says _energy attributes_ throughout, not _energies_.
 
 - Filter hooks:
   - the direction toggle and the three-way mode toggle (Transmute, Sidemute, Tradepost in that
@@ -462,13 +473,28 @@ A Monster-banner sidemute (444) and a small Legendary list. Card art on and off.
 
 ### Task 7 — URL state
 
-The `?card`, `?dir`, `?mode`, `?sets`, `?energies` params, read on load and written on change.
+The `?card`, `?dir`, `?mode`, `?sets`, `?attributes` params, read on load and written on change.
 `useFilterUrlParams` is built around `keywords`/`?weekly`, so generalize it rather than forking it:
 keep Cardex and Skilldex behavior identical. A URL whose card slug doesn't resolve falls back to no
 selection.
 
 Check: share a URL with every param into a fresh tab. Check back/forward. Check that Cardex's and
 Skilldex's URLs still round-trip.
+
+### Task 7b — Hints about the selected filters
+
+Extra hints that explain what the current filter combination means, so a user doesn't have to
+know the game rules to read the results. **The form and placement are to be discussed with the
+user before building**; the candidates so far:
+
+- an info box just above the results in the results panel, covering the whole combination (mode,
+  direction, and what the energy attributes and card sets are doing to the list);
+- a one-line helper under the Mode buttons saying what the selected mode means.
+
+Overlaps Task 6's one-line subtext by the selected card, so settle the two together rather than
+saying the same thing twice.
+
+Check: each mode × direction, with energy attributes and card sets narrowed and not. Mobile width.
 
 ### Task 8 — Docs
 

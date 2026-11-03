@@ -1,7 +1,7 @@
 import {
   CannotBeSourceGroup,
   CardColorAndRarity,
-  TransmuteEnergy,
+  TransmuteEnergyAttribute,
   TransmuteMode,
   TransmuteRules,
 } from '@/transmute/types/rules'
@@ -43,8 +43,8 @@ const PREVIOUS_RARITIES: Record<number, number[]> = {
   [RARITY.Monster]: [],
 }
 
-// Any one energy is enough. A color left out needs nothing.
-const ENERGIES_BY_COLOR: Partial<Record<number, TransmuteEnergy[]>> = {
+// Any one energy attribute is enough. A color left out needs nothing.
+const ENERGY_ATTRIBUTES_BY_COLOR: Partial<Record<number, TransmuteEnergyAttribute[]>> = {
   [COLOR.Green]: ['dex'],
   [COLOR.Blue]: ['int'],
   [COLOR.Red]: ['str'],
@@ -94,9 +94,13 @@ for (const group of RULES.cannotBeSource) {
 export const getCardColorAndRarity = (id: number): CardColorAndRarity | undefined => RULES.cards[id]
 
 // Gates the Transmute mode only, and is checked on the *result*
-export const canReachWithEnergies = (id: number, energies: readonly TransmuteEnergy[]) => {
-  const required = RULES.castRequirements[id] ?? ENERGIES_BY_COLOR[RULES.cards[id][0]] ?? []
-  return required.length === 0 || required.some((energy) => energies.includes(energy))
+export const canReachWithEnergyAttributes = (
+  id: number,
+  energyAttributes: readonly TransmuteEnergyAttribute[]
+) => {
+  const required =
+    RULES.castRequirements[id] ?? ENERGY_ATTRIBUTES_BY_COLOR[RULES.cards[id][0]] ?? []
+  return required.length === 0 || required.some((attribute) => energyAttributes.includes(attribute))
 }
 
 /*
@@ -109,8 +113,8 @@ export type LookupResult =
   | {
       kind: 'ids'
       ids: number[]
-      // Candidates the ticked energies excluded. Only Transmute _From_ fills this.
-      excludedByEnergy: number[]
+      // Candidates the ticked energy attributes excluded. Only Transmute _From_ fills this.
+      excludedByEnergyAttributes: number[]
       branch: LookupBranch
     }
   | { kind: 'unknown' }
@@ -119,12 +123,12 @@ export type LookupResult =
   | { kind: 'not-a-result' }
   // Black is never a sidemute result: Black sidemutes into Brown
   | { kind: 'black-target' }
-  | { kind: 'unreachable-with-energies' }
+  | { kind: 'unreachable-with-energy-attributes' }
 
 const ids = (list: number[], branch: LookupBranch = 'normal'): LookupResult => ({
   kind: 'ids',
   ids: list,
-  excludedByEnergy: [],
+  excludedByEnergyAttributes: [],
   branch,
 })
 
@@ -143,7 +147,7 @@ const checkSource = (id: number, mode: TransmuteMode): LookupResult | undefined 
 
 export const getTransmuteResults = (
   id: number,
-  energies: readonly TransmuteEnergy[]
+  energyAttributes: readonly TransmuteEnergyAttribute[]
 ): LookupResult => {
   const stop = checkSource(id, 'transmute')
   if (stop) return stop
@@ -152,8 +156,10 @@ export const getTransmuteResults = (
   const candidates = without(POOL_BY_BUCKET.get(bucketKey(color, NEXT_RARITY[rarity])), id)
   return {
     kind: 'ids',
-    ids: candidates.filter((x) => canReachWithEnergies(x, energies)),
-    excludedByEnergy: candidates.filter((x) => !canReachWithEnergies(x, energies)),
+    ids: candidates.filter((x) => canReachWithEnergyAttributes(x, energyAttributes)),
+    excludedByEnergyAttributes: candidates.filter(
+      (x) => !canReachWithEnergyAttributes(x, energyAttributes)
+    ),
     branch: 'normal',
   }
 }
@@ -186,11 +192,12 @@ const withoutBlocked = (list: number[], mode: TransmuteMode) =>
 
 export const getTransmuteSources = (
   id: number,
-  energies: readonly TransmuteEnergy[]
+  energyAttributes: readonly TransmuteEnergyAttribute[]
 ): LookupResult => {
   if (!RULES.cards[id]) return { kind: 'unknown' }
   if (!POOL.has(id)) return { kind: 'not-a-result' }
-  if (!canReachWithEnergies(id, energies)) return { kind: 'unreachable-with-energies' }
+  if (!canReachWithEnergyAttributes(id, energyAttributes))
+    return { kind: 'unreachable-with-energy-attributes' }
 
   const [color, rarity] = RULES.cards[id]
   const sources = PREVIOUS_RARITIES[rarity].flatMap(

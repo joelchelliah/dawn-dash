@@ -6,5 +6,12 @@
 
 .button-row {
   gap: 0.625rem;
-  @extend %flex-end;
+
+  &--left {
+    @extend %flex-start;
+  }
+
+  &--right {
+    @extend %flex-end;
+  }
 }

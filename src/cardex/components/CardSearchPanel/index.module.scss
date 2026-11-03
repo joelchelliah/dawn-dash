@@ -124,7 +124,6 @@
 }
 
 .button-row {
-  @extend %flex-start;
   width: 20rem;
 
   @media (max-width: $breakpoint-mobile) {
