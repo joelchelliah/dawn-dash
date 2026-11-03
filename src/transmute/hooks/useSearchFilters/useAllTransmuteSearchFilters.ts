@@ -44,12 +44,18 @@ export const useAllTransmuteSearchFilters = (): UseAllTransmuteSearchFilters => 
   const [direction, setDirectionUntracked] = useState<TransmuteDirection>(DEFAULT_DIRECTION)
   const [mode, setModeUntracked] = useState<TransmuteMode>(DEFAULT_MODE)
   // Not cached: a shared URL carries the selected card instead (Task 7)
-  const [searchText, setSearchText] = useState('')
+  const [searchText, setSearchTextUnlinked] = useState('')
   const [selectedCard, setSelectedCard] = useState<CardData | null>(null)
+
+  // An empty field means no card, however it was emptied. Editing the text otherwise keeps the card.
+  const setSearchText = (text: string) => {
+    setSearchTextUnlinked(text)
+    if (!text) setSelectedCard(null)
+  }
 
   const selectCard = (card: CardData) => {
     setSelectedCard(card)
-    setSearchText(card.name)
+    setSearchTextUnlinked(card.name)
   }
 
   /*

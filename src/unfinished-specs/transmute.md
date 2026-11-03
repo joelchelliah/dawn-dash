@@ -505,6 +505,21 @@ saying the same thing twice.
 
 Check: each mode × direction, with energy attributes and card sets narrowed and not. Mobile width.
 
+### Task 7c — Fine-tune the selected-card row
+
+The selected card under the search field is the shared `ResultCard`, so it carries everything a
+Cardex row does, including the hover animation, though clicking it does nothing. **To discuss with
+the user once most of the functionality is in place**:
+
+- whether to drop the hover effect, and any other row behaviour that only makes sense for a
+  clickable row;
+- or keep the row identical to the results, if a Transmute-only variant would add more styling
+  branches to `ResultCard` than it's worth. `ResultCard` already has a `result-card--clickable`
+  modifier keyed on `onClick`, so check first whether the hover can hang off that.
+- The slot's reserved `min-height` (`SelectedCard/index.module.scss`), against real descriptions.
+
+Check: the row with and without card art, a long description, desktop and mobile.
+
 ### Task 8 — Docs
 
 Write `src/transmute/CLAUDE.md` and apply the doc changes listed under "How to work through this

@@ -1,7 +1,6 @@
-import { useCallback } from 'react'
-
 import { SharedFilterOption } from '@/shared/types/filters'
 import { createFilterUrlCodec } from '@/shared/utils/filterUrlCodec'
+import { getCardTypeEmoji, getCardTypeName } from '@/shared/utils/cardTypes'
 import { createFilterHook } from '@/shared/hooks/useSearchFilters/useFilterFactory'
 
 import { CardSearchFilterCache, CardType, CardTypeFilterOption } from '@/cardex/types/cardFilters'
@@ -26,21 +25,7 @@ const indexMap: Record<string, number> = {
   // Skipping 5 (Move) — never used in the game
   [CardTypeFilterOption.Corruption]: 6,
   // Skipping 7 (Monster) — Weird set of cards... Ignored. Monster cards are already handled by the "Include Monster cards" checkbox.
-}
-
-const indexToValueMap: Record<number, string> = {
-  ...Object.fromEntries(Object.entries(indexMap).map(([value, index]) => [index, value])),
-  7: 'Monster',
-}
-
-const indexToEmojiMap: Record<number, string> = {
-  0: '⚔️',
-  1: '🔮',
-  2: '🏹',
-  3: '🛠️',
-  4: '☀️',
-  6: '🌙',
-  7: '👹',
+  // Its name and emoji still come from `@/shared/utils/cardTypes`, so those cards render a label.
 }
 
 /*
@@ -48,7 +33,7 @@ const indexToEmojiMap: Record<number, string> = {
  * both ways. Unmapped keys give '' — which is what keeps `Select all`/`Select none` emoji-free.
  */
 const valueToEmojiMap: Record<string, string> = Object.fromEntries(
-  Object.entries(indexMap).map(([value, index]) => [value, indexToEmojiMap[index] ?? ''])
+  Object.entries(indexMap).map(([value, index]) => [value, getCardTypeEmoji(index)])
 )
 
 export const getCardTypeEmojiFromName = (filter: string): string => valueToEmojiMap[filter] ?? ''
@@ -61,27 +46,17 @@ const useBaseCardTypeFilters = createFilterHook({
   defaultFilters,
   allValues: allCardTypes,
   indexMap,
-  indexToValueMap,
 })
 
 export const useCardTypeFilters = (cachedFilters?: CardSearchFilterCache['cardTypes']) => {
-  const {
-    filters,
-    isIndexSelected,
-    getValueFromIndex,
-    handleFilterToggle,
-    enableFilters,
-    resetFilters,
-  } = useBaseCardTypeFilters(cachedFilters)
-
-  // Stable reference, like the factory's own getters, so `ResultCard` stays memoizable
-  const getCardTypeEmojiFromIndex = useCallback((index: number) => indexToEmojiMap[index] ?? '', [])
+  const { filters, isIndexSelected, handleFilterToggle, enableFilters, resetFilters } =
+    useBaseCardTypeFilters(cachedFilters)
 
   return {
     cardTypeFilters: filters,
     isCardTypeIndexSelected: isIndexSelected,
-    getCardTypeNameFromIndex: getValueFromIndex,
-    getCardTypeEmojiFromIndex,
+    getCardTypeNameFromIndex: getCardTypeName,
+    getCardTypeEmojiFromIndex: getCardTypeEmoji,
     handleCardTypeFilterToggle: handleFilterToggle,
     enableCardTypeFilters: enableFilters,
     resetCardTypeFilters: resetFilters,

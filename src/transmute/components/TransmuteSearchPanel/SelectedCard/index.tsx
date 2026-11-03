@@ -1,6 +1,7 @@
 import { createCx } from '@/shared/utils/classnames'
 import { CardData } from '@/shared/types/cards'
 import { getCardSetName } from '@/shared/hooks/useSearchFilters/useCardSetFilters'
+import { getCardTypeEmoji, getCardTypeName } from '@/shared/utils/cardTypes'
 import ResultCard from '@/shared/components/ResultCard'
 
 import styles from './index.module.scss'
@@ -27,6 +28,9 @@ const SelectedCard = ({ card, shouldShowCardArt, shouldShowBlightbaneLink }: Sel
         shouldShowBlightbaneLink={shouldShowBlightbaneLink}
         shouldShowCardSet
         getCardSetNameFromIndex={getCardSetName}
+        shouldShowCardType
+        getCardTypeNameFromIndex={getCardTypeName}
+        getCardTypeEmojiFromIndex={getCardTypeEmoji}
       />
     ) : (
       <p className={cx('selected-card__placeholder')}>No card selected</p>
