@@ -25,7 +25,7 @@ const cx = createCx(styles)
 
 function Transmute(): JSX.Element {
   const { navigateTo } = useNavigation()
-  const { isLoading, isError, progress } = useCardData()
+  const { cardData, isLoading, isError, progress } = useCardData()
   const useSearchFiltersHook = useAllTransmuteSearchFilters()
 
   return (
@@ -43,9 +43,9 @@ function Transmute(): JSX.Element {
       <div className={cx('content')}>
         <DataLoadingMessage isVisible={isLoading} progress={progress} dataType="card" />
         <DataErrorMessage isVisible={isError && !isLoading} dataType="card" />
-        {!isError && !isLoading && (
+        {!isError && !isLoading && cardData && (
           <>
-            <TransmuteSearchPanel useSearchFilters={useSearchFiltersHook} />
+            <TransmuteSearchPanel cards={cardData} useSearchFilters={useSearchFiltersHook} />
             <TransmuteResultsPanel />
           </>
         )}

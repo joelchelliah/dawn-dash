@@ -405,7 +405,16 @@ filter state is ready, `energyAttributeUrlCodec` is exported, and the codec join
 Check: every control toggles, survives a reload, and resets. Cardex's card-set filter still shows
 Core.
 
-### Task 5 — Card search with suggestions
+### Task 5 — Card search with suggestions — COMPLETED
+
+Built as: `isNonCollectible` (with its lists) in `src/shared/utils/cardHelper.ts`; `SearchField`
+extended with optional `id`, `ariaLabel`, `inputProps` and `children` (the popup) rather than
+duplicated; `src/transmute/utils/cardSearch.ts` for the searchable list and matching; and a
+`CardSearch` combobox in the search panel. The search text and selected card live in
+`useAllTransmuteSearchFilters`, uncached (Task 7 puts the card in the URL), and Reset clears both.
+Enter with nothing highlighted picks the top match. **Twins are told apart by the start of their
+description**, not rarity/banner: 9 of the 18 twin pairs in the data share both.
+
 
 Move Cardex's `isNonCollectible` to `shared/` first. The search offers only cards that are in
 `cards` and that it doesn't flag (see "Which cards count as sources").

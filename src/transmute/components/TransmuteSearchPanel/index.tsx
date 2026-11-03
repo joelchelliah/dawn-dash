@@ -1,4 +1,5 @@
 import { createCx } from '@/shared/utils/classnames'
+import { CardData } from '@/shared/types/cards'
 import { DexImageUrl, HolyImageUrl, IntImageUrl, StrImageUrl } from '@/shared/utils/imageUrls'
 import { allCardSetsWithoutCore } from '@/shared/hooks/useSearchFilters/useCardSetFilters'
 import GradientButton from '@/shared/components/Buttons/GradientButton'
@@ -19,7 +20,9 @@ import { UseAllTransmuteSearchFilters } from '@/transmute/hooks/useSearchFilters
 import { allEnergyAttributes } from '@/transmute/hooks/useSearchFilters/useEnergyAttributeFilters'
 import { allFormattingTransmuteFilters } from '@/transmute/hooks/useSearchFilters/useFormattingTransmuteFilters'
 
+import CardSearch from './CardSearch'
 import SegmentedControl from './SegmentedControl'
+import SelectedCard from './SelectedCard'
 import styles from './index.module.scss'
 
 const cx = createCx(styles)
@@ -54,11 +57,16 @@ const ENERGY_ATTRIBUTE_ICONS: Record<EnergyAttributeFilterOption, string> = {
 }
 
 interface TransmuteSearchPanelProps {
+  cards: CardData[]
   useSearchFilters: UseAllTransmuteSearchFilters
 }
 
-const TransmuteSearchPanel = ({ useSearchFilters }: TransmuteSearchPanelProps) => {
+const TransmuteSearchPanel = ({ cards, useSearchFilters }: TransmuteSearchPanelProps) => {
   const {
+    searchText,
+    setSearchText,
+    selectedCard,
+    selectCard,
     direction,
     setDirection,
     mode,
@@ -74,8 +82,13 @@ const TransmuteSearchPanel = ({ useSearchFilters }: TransmuteSearchPanelProps) =
     handleEnergyAttributeFilterToggle,
     getEnergyAttributeFilterName,
   } = useEnergyAttributeFilters
-  const { formattingFilters, handleFormattingFilterToggle, getFormattingFilterName } =
-    useFormattingFilters
+  const {
+    formattingFilters,
+    handleFormattingFilterToggle,
+    getFormattingFilterName,
+    shouldShowCardArt,
+    shouldShowBlightbaneLink,
+  } = useFormattingFilters
 
   const showEnergyAttributes = mode === 'transmute'
 
@@ -103,6 +116,19 @@ const TransmuteSearchPanel = ({ useSearchFilters }: TransmuteSearchPanelProps) =
       <PanelHeader type="Search" />
 
       <form onSubmit={preventFormSubmission} aria-label="Transmute filters">
+        <CardSearch
+          cards={cards}
+          searchText={searchText}
+          setSearchText={setSearchText}
+          selectedCard={selectedCard}
+          selectCard={selectCard}
+        />
+        <SelectedCard
+          card={selectedCard}
+          shouldShowCardArt={shouldShowCardArt}
+          shouldShowBlightbaneLink={shouldShowBlightbaneLink}
+        />
+
         <div className={cx('filters')}>
           <Section title="Mode">
             <SegmentedControl

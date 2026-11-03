@@ -13,6 +13,7 @@ import {
 } from '@/shared/hooks/useSearchFilters/useCardSetFilters'
 import { useKeywords } from '@/shared/hooks/useSearchFilters/useKeywords'
 import { useFilterTracking } from '@/shared/hooks/useSearchFilters/useFilterTracking'
+import { isNonCollectible } from '@/shared/utils/cardHelper'
 
 import { ExtraCardFilterOption, WeeklyChallengeFilterData } from '@/cardex/types/cardFilters'
 import {
@@ -20,7 +21,6 @@ import {
   hasMonsterRarity,
   hasNoBanner,
   isAnimalCompanionCard,
-  isNonCollectible,
 } from '@/cardex/utils/cardHelper'
 import { cacheCardSearchFilters, getCachedCardSearchFilters } from '@/cardex/utils/cardFilterStore'
 

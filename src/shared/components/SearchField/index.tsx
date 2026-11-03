@@ -19,6 +19,11 @@ interface SearchFieldProps {
   selectedClass?: CharacterClass
   parsedKeywords?: string[]
   matches?: string[]
+  id?: string
+  ariaLabel?: string
+  // For a combobox: ARIA attributes and key handlers on the input, and its popup as `children`
+  inputProps?: React.InputHTMLAttributes<HTMLInputElement>
+  children?: React.ReactNode
 }
 
 function getStylesByMode(mode: 'keywords' | 'text', selectedClass?: CharacterClass) {
@@ -46,6 +51,10 @@ const SearchField = ({
   selectedClass,
   parsedKeywords,
   matches,
+  id = 'search-field',
+  ariaLabel = 'Search keywords',
+  inputProps,
+  children,
 }: SearchFieldProps) => {
   const [isClient, setIsClient] = useState(false)
 
@@ -58,18 +67,19 @@ const SearchField = ({
   return (
     <>
       {label && (
-        <label className={cx('input-label')} htmlFor="search-field" style={labelStyle}>
+        <label className={cx('input-label')} htmlFor={id} style={labelStyle}>
           {label}
         </label>
       )}
       <div className={cx('input-container')}>
         <input
-          id="search-field"
+          {...inputProps}
+          id={id}
           type="text"
           placeholder={placeholder || 'Keywords, separated, by, comma'}
           value={keywords}
           onChange={(e) => setKeywords(e.target.value)}
-          aria-label="Search keywords"
+          aria-label={ariaLabel}
           style={inputStyle}
         />
         {keywords && (
@@ -80,6 +90,7 @@ const SearchField = ({
             style={clearButtonStyle}
           />
         )}
+        {children}
       </div>
 
       {parsedKeywords && (

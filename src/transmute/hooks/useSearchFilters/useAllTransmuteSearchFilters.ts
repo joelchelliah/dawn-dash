@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 
+import { CardData } from '@/shared/types/cards'
 import { useTransmuteCardSetFilters } from '@/shared/hooks/useSearchFilters/useCardSetFilters'
 import { useFilterTracking } from '@/shared/hooks/useSearchFilters/useFilterTracking'
 
@@ -20,6 +21,10 @@ import { useEnergyAttributeFilters } from './useEnergyAttributeFilters'
 import { useFormattingTransmuteFilters } from './useFormattingTransmuteFilters'
 
 export interface UseAllTransmuteSearchFilters {
+  searchText: string
+  setSearchText: (text: string) => void
+  selectedCard: CardData | null
+  selectCard: (card: CardData) => void
   direction: TransmuteDirection
   setDirection: (direction: TransmuteDirection) => void
   mode: TransmuteMode
@@ -38,6 +43,14 @@ export const useAllTransmuteSearchFilters = (): UseAllTransmuteSearchFilters => 
 
   const [direction, setDirectionUntracked] = useState<TransmuteDirection>(DEFAULT_DIRECTION)
   const [mode, setModeUntracked] = useState<TransmuteMode>(DEFAULT_MODE)
+  // Not cached: a shared URL carries the selected card instead (Task 7)
+  const [searchText, setSearchText] = useState('')
+  const [selectedCard, setSelectedCard] = useState<CardData | null>(null)
+
+  const selectCard = (card: CardData) => {
+    setSelectedCard(card)
+    setSearchText(card.name)
+  }
 
   /*
    * Applied after mount, not as the initial state: the server renders the defaults, and the mode
@@ -91,6 +104,8 @@ export const useAllTransmuteSearchFilters = (): UseAllTransmuteSearchFilters => 
   const { formattingFilters, resetFormattingFilters } = trackedUseFormattingFilters
 
   const resetFilters = () => {
+    setSearchText('')
+    setSelectedCard(null)
     trackedSetDirection(DEFAULT_DIRECTION)
     trackedSetMode(DEFAULT_MODE)
     resetCardSetFilters()
@@ -136,6 +151,10 @@ export const useAllTransmuteSearchFilters = (): UseAllTransmuteSearchFilters => 
   ])
 
   return {
+    searchText,
+    setSearchText,
+    selectedCard,
+    selectCard,
     direction,
     setDirection: trackedSetDirection,
     mode,

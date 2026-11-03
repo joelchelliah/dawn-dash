@@ -3,8 +3,9 @@ import { memo, useMemo } from 'react'
 import ResultCard from '@/shared/components/ResultCard'
 import { CardData } from '@/shared/types/cards'
 import { isCardMatchingKeyword } from '@/shared/utils/keywordMatching'
+import { isNonCollectible } from '@/shared/utils/cardHelper'
 
-import { isAnimalCompanionCard, isNonCollectible } from '@/cardex/utils/cardHelper'
+import { isAnimalCompanionCard } from '@/cardex/utils/cardHelper'
 
 import { STRUCK_TRIGGER } from './struckTrigger'
 import CardStrikeBadge from './CardStrikeBadge'

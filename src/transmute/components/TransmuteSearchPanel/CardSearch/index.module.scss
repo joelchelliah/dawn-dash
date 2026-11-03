@@ -1,0 +1,51 @@
+@use 'index' as *;
+
+.card-search {
+  display: flex;
+  flex-direction: column;
+}
+
+.suggestions {
+  position: absolute;
+  top: calc(100% + 0.25rem);
+  left: 0;
+  right: 0;
+  z-index: 10;
+  margin: 0;
+  padding: 0.25rem;
+  list-style: none;
+  background-color: $color-base-bg;
+  border: 1px solid $color-component-border;
+  border-radius: 0.5rem;
+}
+
+.suggestion {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.375rem;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  color: $color-primary-base;
+
+  &--active {
+    background-color: $color-component-bg-hover;
+    color: $color-primary-hover;
+  }
+
+  &__text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  &__name {
+    @include text-truncate;
+  }
+
+  &__hint {
+    @include text-truncate;
+    font-size: font-size('xxs');
+    color: $color-primary-muted;
+  }
+}

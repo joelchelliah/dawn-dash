@@ -1,0 +1,18 @@
+@use 'index' as *;
+
+// Tall enough for a row with a two-line description. Longer ones still grow the slot.
+.selected-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 6.5rem;
+  margin-top: 0.75rem;
+
+  &__placeholder {
+    margin: 0;
+    text-align: center;
+    font-size: font-size('xs');
+    color: $color-primary-base;
+    opacity: 0.4;
+  }
+}
