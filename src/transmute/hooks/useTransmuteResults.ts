@@ -13,6 +13,7 @@ import {
   getTransmuteResultRarity,
   getTransmuteResults,
   getTransmuteSources,
+  getWhiteSidemuteOffer,
   isMonsterSidemuteResult,
   LookupBranch,
   LookupResult,
@@ -22,7 +23,8 @@ import { sortLikeCardex, toCards, TransmuteCards } from '@/transmute/utils/trans
 // Everything the panel shows instead of a list. Copy lives in `ResultStateDetails`.
 export type TransmuteState =
   | { kind: 'unknown' }
-  | { kind: 'white' }
+  // White sidemute (the potions of its rarity) or Tradepost. Its transmute is a list.
+  | { kind: 'white'; rarity: number; count: number }
   | { kind: 'blocked'; reason: string }
   | { kind: 'not-a-result' }
   | { kind: 'black-target' }
@@ -106,6 +108,11 @@ const getView = ({
       requiredCardSet,
     })
   }
+  if (result.kind === 'white') {
+    const offer = getWhiteSidemuteOffer(id)
+    const count = toCards(offer.ids, cards).filter(isInSelectedSet).length
+    return state({ kind: 'white', rarity: offer.rarity, count })
+  }
   if (result.kind !== 'ids') return state(result)
 
   if (direction === 'to') {
@@ -133,11 +140,9 @@ const getView = ({
   const visible = result.branch === 'monster' ? candidates : candidates.filter(isInSelectedSet)
 
   const hiddenBySets = candidates.length - visible.length
-  // A Monster-banner transmute already lists every color, so there's no fallback left to mention
+  // These already list every color, so there's no fallback left to mention
   const transmuteRarity =
-    mode === 'transmute' && result.branch !== 'monster-transmute'
-      ? getTransmuteResultRarity(id)
-      : undefined
+    mode === 'transmute' && result.branch === 'normal' ? getTransmuteResultRarity(id) : undefined
 
   if (visible.length === 0) {
     if (transmuteRarity !== undefined) {

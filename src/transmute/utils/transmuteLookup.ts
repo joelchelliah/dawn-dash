@@ -73,7 +73,8 @@ const TRADEPOST_IDS = [...RULES.pool, ...RULES.tradepost.adds].filter(
 
 const POOL = new Set(RULES.pool)
 const POOL_BY_BUCKET = groupByBucket(RULES.pool)
-const POOL_COMMONS = RULES.pool.filter((id) => RULES.cards[id][1] === RARITY.Common)
+const poolOfRarity = (rarity: number) => RULES.pool.filter((id) => RULES.cards[id][1] === rarity)
+const POOL_COMMONS = poolOfRarity(RARITY.Common)
 const TRADEPOST = new Set(TRADEPOST_IDS)
 const TRADEPOST_BY_BUCKET = groupByBucket(TRADEPOST_IDS)
 const MONSTER_SIDEMUTE = new Set(RULES.monsterSidemute)
@@ -98,11 +99,21 @@ export const getCardColorAndRarity = (id: number): CardColorAndRarity | undefine
 export const getTransmuteResultRarity = (id: number): number | undefined =>
   RULES.cards[id] && NEXT_RARITY[RULES.cards[id][1]]
 
+// Neither a Tradepost source nor a result, so the direction changes nothing there
+export const getTradepostExcludedGroup = ({ color, rarity }: { color: number; rarity: number }) =>
+  rarity === RARITY.Monster ? 'Monster' : color === COLOR.White ? 'White' : undefined
+
 export const isMonsterSidemuteResult = (id: number) => MONSTER_SIDEMUTE.has(id)
 
 // Any one of these is enough. Empty when the card needs none.
 const getRequiredEnergyAttributes = (id: number): TransmuteEnergyAttribute[] =>
   RULES.castRequirements[id] ?? ENERGY_ATTRIBUTES_BY_COLOR[RULES.cards[id][0]] ?? []
+
+// A White source's sidemute, which no lookup finds (see `checkSource`): the potions of its rarity
+export const getWhiteSidemuteOffer = (id: number): { rarity: number; ids: number[] } => {
+  const rarity = RULES.cards[id][1]
+  return { rarity, ids: RULES.potions.filter((x) => RULES.cards[x]?.[1] === rarity) }
+}
 
 // Gates the Transmute mode only, and is checked on the *result*
 export const canReachWithEnergyAttributes = (
@@ -117,8 +128,10 @@ export const canReachWithEnergyAttributes = (
  * `monster`: the Monster-banner sidemute, which mixes rarities and ignores card sets.
  * `black-to-brown`: a Black source sidemutes into Brown, so the results aren't its color.
  * `monster-transmute`: a Monster-banner source transmutes into Commons of every color.
+ * `white-transmute`: a White source transmutes into the next rarity of every color.
  */
-export type LookupBranch = 'normal' | 'monster' | 'black-to-brown' | 'monster-transmute'
+export type LookupBranch =
+  'normal' | 'monster' | 'black-to-brown' | 'monster-transmute' | 'white-transmute'
 
 export type LookupResult =
   | {
@@ -149,8 +162,9 @@ const without = (list: number[] | undefined, id: number) => (list ?? []).filter(
 const checkSource = (id: number, mode: TransmuteMode): LookupResult | undefined => {
   const colorAndRarity = RULES.cards[id]
   if (!colorAndRarity) return { kind: 'unknown' }
-  // Every lookup comes back empty, but the game falls back to something else
-  if (colorAndRarity[0] === COLOR.White) return { kind: 'white' }
+  // Its sidemute and Tradepost lookups come back empty, but the game offers something else.
+  // Its transmute is listed instead (see `getTransmuteResults`).
+  if (colorAndRarity[0] === COLOR.White && mode !== 'transmute') return { kind: 'white' }
   const group = BLOCKING_GROUPS[mode].get(id)
   if (group) return { kind: 'blocked', group }
   return undefined
@@ -165,20 +179,24 @@ export const getTransmuteResults = (
 
   const [color, rarity] = RULES.cards[id]
   /*
-   * `Monster|Common` is empty, so the game's fallback is what always answers a Monster-banner source.
-   * Players know it as "Monster cards transmute into any Common", so it's listed as the result.
+   * `Monster|Common` and `White|*` are empty, so the game's fallback (every color of the next
+   * rarity) is what always answers these sources. Players know it as "Monster cards transmute into
+   * any Common", so it's listed as the result.
    */
   const isMonsterBanner = color === COLOR.Monster
+  const isWhite = color === COLOR.White
   const candidates = isMonsterBanner
     ? POOL_COMMONS
-    : without(POOL_BY_BUCKET.get(bucketKey(color, NEXT_RARITY[rarity])), id)
+    : isWhite
+      ? poolOfRarity(NEXT_RARITY[rarity])
+      : without(POOL_BY_BUCKET.get(bucketKey(color, NEXT_RARITY[rarity])), id)
   return {
     kind: 'ids',
     ids: candidates.filter((x) => canReachWithEnergyAttributes(x, energyAttributes)),
     excludedByEnergyAttributes: candidates.filter(
       (x) => !canReachWithEnergyAttributes(x, energyAttributes)
     ),
-    branch: isMonsterBanner ? 'monster-transmute' : 'normal',
+    branch: isMonsterBanner ? 'monster-transmute' : isWhite ? 'white-transmute' : 'normal',
   }
 }
 

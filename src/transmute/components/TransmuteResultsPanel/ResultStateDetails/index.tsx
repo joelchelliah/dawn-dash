@@ -5,7 +5,12 @@ import { RARITIES } from '@/shared/components/RarityBorderedArtwork'
 import { TransmuteEnergyAttribute, TransmuteMode } from '@/transmute/types/rules'
 import { TransmuteDirection } from '@/transmute/types/filters'
 import { TransmuteState, TransmuteView } from '@/transmute/hooks/useTransmuteResults'
-import { COLOR, RARITY } from '@/transmute/utils/transmuteLookup'
+import {
+  COLOR,
+  getTradepostExcludedGroup,
+  getTransmuteResultRarity,
+  RARITY,
+} from '@/transmute/utils/transmuteLookup'
 
 import EnergyAttributeIconsInline from './EnergyAttributeIconsInline'
 import styles from './index.module.scss'
@@ -52,12 +57,20 @@ const SUBTEXT_MONSTER_SIDEMUTE = (
 const SUBTEXT_BROWN_SOURCES = 'Brown and Black cards of the same rarity that sidemute into this one'
 const SUBTEXT_MONSTER_TRANSMUTE = (
   <>
-    All <strong>Monster</strong> cards transmute into <strong>Common</strong> cards, depending on
-    your <strong>energy attributes</strong>.
+    <strong>Monster</strong> cards transmute into <strong>Common</strong> cards of any{' '}
+    <strong>color</strong> you have access to.
   </>
 )
 
 const getRarityName = (rarity: number) => RARITIES[rarity]?.name ?? ''
+
+const getWhiteTransmuteSubtext = (card: CardData) => (
+  <>
+    It transmutes into{' '}
+    <strong>{getRarityName(getTransmuteResultRarity(card.blightbane_id) ?? card.rarity)}</strong>{' '}
+    cards of any <strong>color</strong> you have access to.
+  </>
+)
 
 interface ResultStateDetailsProps {
   view: TransmuteView
@@ -90,22 +103,13 @@ const ResultStateDetails = ({
       case 'unknown':
         return [<>{Card} is newer than the transmute data, so there’s nothing to show for it yet</>]
       // Distant Memory: every lookup comes back empty, but the game offers something else
+      // Distant Memory. Its transmute is a list, and Tradepost is covered by the excluded-group
+      // headline below, so only sidemute gets here.
       case 'white':
-        if (mode === 'transmute')
-          return [
-            <>
-              {Card} can {Mode} into Rare cards of any color you have access to
-            </>,
-          ]
-        if (mode === 'sidemute')
-          return [
-            <>
-              {Card} can {Mode} into one of the 6 Uncommon potions
-            </>,
-          ]
         return [
           <>
-            {Card} has nothing to {Mode} into, so it stays in your deck
+            {Card} can {Mode} into one of the <strong>{state.count}</strong>{' '}
+            <strong>{getRarityName(state.rarity)}</strong> potions
           </>,
         ]
       case 'blocked':
@@ -218,11 +222,13 @@ const ResultStateDetails = ({
     )
   }
 
-  // Monster-rarity cards are neither Tradepost sources nor results, so one rule covers both directions
-  if (view.kind === 'state' && mode === 'tradepost' && selectedCard?.rarity === RARITY.Monster) {
+  const tradepostExcludedGroup =
+    mode === 'tradepost' && selectedCard && getTradepostExcludedGroup(selectedCard)
+  // One rule covers both directions
+  if (view.kind === 'state' && tradepostExcludedGroup) {
     return renderHeadline(
       <>
-        The {Mode} neither accepts nor grants any <strong>Monster</strong> cards!
+        The {Mode} neither accepts nor grants any <strong>{tradepostExcludedGroup}</strong> cards!
       </>
     )
   }
@@ -236,9 +242,11 @@ const ResultStateDetails = ({
         ? SUBTEXT_MONSTER_SIDEMUTE
         : view.branch === 'monster-transmute'
           ? SUBTEXT_MONSTER_TRANSMUTE
-          : direction === 'to' && mode === 'sidemute' && selectedCard?.color === COLOR.Brown
-            ? SUBTEXT_BROWN_SOURCES
-            : ''
+          : view.branch === 'white-transmute' && selectedCard
+            ? getWhiteTransmuteSubtext(selectedCard)
+            : direction === 'to' && mode === 'sidemute' && selectedCard?.color === COLOR.Brown
+              ? SUBTEXT_BROWN_SOURCES
+              : ''
 
   const qualifier = subtext ? null : <> {getCardsQualifier(mode, direction)}</>
   // Checked rather than assumed for Tradepost: an unticked card set can filter the card itself out

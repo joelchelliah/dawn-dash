@@ -18,7 +18,7 @@ import {
 import { UseAllTransmuteSearchFilters } from '@/transmute/hooks/useSearchFilters/useAllTransmuteSearchFilters'
 import { allEnergyAttributes } from '@/transmute/hooks/useSearchFilters/useEnergyAttributeFilters'
 import { allFormattingTransmuteFilters } from '@/transmute/hooks/useSearchFilters/useFormattingTransmuteFilters'
-import { COLOR, RARITY } from '@/transmute/utils/transmuteLookup'
+import { COLOR, getTradepostExcludedGroup } from '@/transmute/utils/transmuteLookup'
 import { TransmuteCards } from '@/transmute/utils/transmuteCards'
 
 import CardSearch from './CardSearch'
@@ -93,8 +93,8 @@ const TransmuteSearchPanel = ({ cards, useSearchFilters }: TransmuteSearchPanelP
 
   const showEnergyAttributes = mode === 'transmute'
   const showCardSets = !(mode === 'sidemute' && selectedCard?.color === COLOR.Monster)
-  // Monster-rarity cards are neither Tradepost sources nor results, so the direction changes nothing
-  const showDirection = !(mode === 'tradepost' && selectedCard?.rarity === RARITY.Monster)
+  const tradepostExcludedGroup =
+    mode === 'tradepost' && selectedCard ? getTradepostExcludedGroup(selectedCard) : undefined
 
   const getEnergyAttributeFilterLabel = (filter: string) => {
     if (!(filter in ENERGY_ATTRIBUTE_ICONS)) return filter
@@ -146,7 +146,7 @@ const TransmuteSearchPanel = ({ cards, useSearchFilters }: TransmuteSearchPanelP
             />
           </Section>
           <Section title="Direction" spacing="medium">
-            {showDirection ? (
+            {!tradepostExcludedGroup ? (
               <SegmentedControl
                 name="transmute-direction"
                 ariaLabel="Direction"
@@ -158,8 +158,17 @@ const TransmuteSearchPanel = ({ cards, useSearchFilters }: TransmuteSearchPanelP
               />
             ) : (
               <p className={cx('filter-note')}>
-                Not relevant for <strong>{MODE_LABELS.tradepost}</strong> + <strong>Monster</strong>{' '}
-                card.
+                Not relevant for <strong>{MODE_LABELS.tradepost}</strong> +{' '}
+                {tradepostExcludedGroup === 'White' ? (
+                  <>
+                    <strong>White</strong> card
+                  </>
+                ) : (
+                  <>
+                    <strong>Monster</strong> card
+                  </>
+                )}
+                .
               </p>
             )}
           </Section>

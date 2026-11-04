@@ -78,7 +78,10 @@ needs.
   ids). Whether and how to say this is optional (Task 6).
 - **Distant Memory (`990007`)**, the only White card, comes back empty on every mode. The game does
   something else: transmute offers Rares of any color you have access to, sidemute offers only the 6
-  Uncommon potions, and Tradepost offers nothing. Show that as fixed text.
+  Uncommon potions, and Tradepost offers nothing. Those are the generic transmute fallback and
+  potion top-up for its rarity, so nothing hardcodes Rare/Uncommon: its transmute is listed like a
+  Monster-banner one (branch `white-transmute`), and its sidemute counts the potions
+  (`getWhiteSidemuteOffer`).
 - **Unlocks.** The 41 Metaprogress cards (class starting cards) and the Hunter companions Rend,
   Claw and Maul (Tradepost only) appear in the game only once unlocked. The data lists them as if
   unlocked. A note on them is optional (Task 6).
