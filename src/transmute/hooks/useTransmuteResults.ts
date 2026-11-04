@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 
+import { getCardSetName } from '@/shared/hooks/useSearchFilters/useCardSetFilters'
 import { CardData } from '@/shared/types/cards'
 
 import { TransmuteEnergyAttribute, TransmuteMode } from '@/transmute/types/rules'
@@ -25,9 +26,14 @@ export type TransmuteState =
   | { kind: 'blocked'; reason: string }
   | { kind: 'not-a-result' }
   | { kind: 'black-target' }
-  | { kind: 'unreachable-with-energy-attributes' }
-  | { kind: 'monster-sidemute-target' }
-  | { kind: 'card-set-unticked' }
+  // Only the filters rule it out: with every energy attribute and card set ticked it is reachable.
+  // An empty `requiredEnergyAttributes` means the energy attributes aren't what's in the way.
+  | {
+      kind: 'unreachable-with-filters'
+      requiredEnergyAttributes: TransmuteEnergyAttribute[]
+      requiredCardSet?: string
+    }
+  | { kind: 'monster-sidemute-target'; count: number }
   // Transmute _From_ emptied by the filters: the game fills the offer from other colors instead
   | { kind: 'transmute-fallback'; rarity: number }
   | { kind: 'all-hidden-by-card-sets'; count: number }
@@ -85,18 +91,35 @@ const getView = ({
   const id = selectedCard.blightbane_id
   const result = lookUp(id, direction, mode, selectedEnergyAttributes)
 
-  if (result.kind === 'blocked') return state({ kind: 'blocked', reason: result.group.reason })
-  if (result.kind !== 'ids') return state({ kind: result.kind })
-
   const isInSelectedSet = (card: CardData) => isCardSetIndexSelected(card.expansion)
+  // The game never offers a card from an unticked set. Monster sidemutes ignore card sets.
+  const requiredCardSet =
+    direction === 'to' && !isMonsterSidemuteResult(id) && !isInSelectedSet(selectedCard)
+      ? getCardSetName(selectedCard.expansion)
+      : undefined
+
+  if (result.kind === 'blocked') return state({ kind: 'blocked', reason: result.group.reason })
+  if (result.kind === 'unreachable-with-energy-attributes') {
+    return state({
+      kind: 'unreachable-with-filters',
+      requiredEnergyAttributes: result.required,
+      requiredCardSet,
+    })
+  }
+  if (result.kind !== 'ids') return state(result)
 
   if (direction === 'to') {
-    // Every Monster-banner card
-    if (result.branch === 'monster') return state({ kind: 'monster-sidemute-target' })
+    // Every Monster-banner card: too many to list, so only counted
+    if (result.branch === 'monster') {
+      return state({ kind: 'monster-sidemute-target', count: toCards(result.ids, cards).length })
+    }
 
-    // The game never offers a card from an unticked set. Monster sidemutes ignore card sets.
-    if (!isMonsterSidemuteResult(id) && !isInSelectedSet(selectedCard)) {
-      return state({ kind: 'card-set-unticked' })
+    if (requiredCardSet) {
+      return state({
+        kind: 'unreachable-with-filters',
+        requiredEnergyAttributes: [],
+        requiredCardSet,
+      })
     }
 
     const sources = sortLikeCardex(toCards(result.ids, cards))

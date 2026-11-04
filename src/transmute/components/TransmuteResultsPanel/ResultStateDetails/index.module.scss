@@ -1,11 +1,16 @@
 @use 'index' as *;
 
 .headline {
-  margin: 0 0 0.5rem;
+  margin: 0 0 0.75rem;
   font-size: font-size('xs');
   font-weight: normal;
   line-height: 1.5;
   color: $color-primary-muted;
+
+  @media (max-width: $breakpoint-mobile) {
+    font-size: font-size('xxs');
+    margin-bottom: 0.5rem;
+  }
 }
 
 .mode {

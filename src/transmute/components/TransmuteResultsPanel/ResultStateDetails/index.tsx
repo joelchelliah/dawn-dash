@@ -18,44 +18,41 @@ const MODE_NAMES: Record<TransmuteMode, string> = {
   tradepost: 'Tradepost',
 }
 
-const getSubtext = (mode: TransmuteMode, direction: TransmuteDirection) => {
+const getCardsQualifier = (mode: TransmuteMode, direction: TransmuteDirection) => {
   switch (mode) {
     case 'transmute':
       return (
         <>
-          Cards of a {direction === 'from' ? 'higher' : 'lower'} <strong>rarity</strong>, and of the
-          same <strong>banner color</strong>.
+          of a {direction === 'from' ? 'higher' : 'lower'} <strong>rarity</strong> and the same{' '}
+          <strong>banner color</strong>
         </>
       )
     case 'sidemute':
-      return (
-        <>
-          Cards of the same <strong>rarity</strong> and <strong>banner color</strong>.
-        </>
-      )
     case 'tradepost':
       return (
         <>
-          Cards of the same <strong>rarity</strong> and <strong>banner color</strong>, including
-          this one.
+          of the same <strong>rarity</strong> and <strong>banner color</strong>
         </>
       )
   }
 }
 
 // "Same banner color" isn't true for these
-const SUBTEXT_BLACK_TO_BROWN = 'Black cards sidemute into Brown cards of the same rarity'
+const SUBTEXT_BLACK_TO_BROWN = (
+  <>
+    <strong>Black</strong> cards sidemute into <strong>Brown</strong> cards of the same rarity.
+  </>
+)
 const SUBTEXT_MONSTER_SIDEMUTE = (
   <>
     <strong>Monster</strong>-banner cards sidemute into any of the following{' '}
-    <strong>Monster</strong> cards. Results are NOT affected by <strong>rarity</strong>,{' '}
-    <strong>energy attributes</strong> or enabled <strong>card sets</strong>.
+    <strong>Monster</strong> cards.
   </>
 )
 const SUBTEXT_BROWN_SOURCES = 'Brown and Black cards of the same rarity that sidemute into this one'
 const SUBTEXT_MONSTER_TRANSMUTE = (
   <>
-    All <strong>Monster</strong> cards transmute into any <strong>Common</strong> card, depending on
+    All <strong>Monster</strong> cards transmute into <strong>Common</strong> cards, depending on
     your <strong>energy attributes</strong>.
   </>
 )
@@ -150,23 +147,47 @@ const ResultStateDetails = ({
           ]
         return [cantBeObtained]
       case 'black-target':
-        return [cantBeObtained, 'Black cards sidemute into Brown instead']
-      case 'unreachable-with-energy-attributes':
         return [
-          cantBeObtained,
           <>
-            None of the energy colors you have access to will let you transmute into this card{' '}
-            {energyIcons}
+            <strong>Black</strong> cards can never be obtained <strong>from</strong> a {Mode}!
+          </>,
+          <>
+            Since <strong>Black</strong> cards sidemute into <strong>Brown</strong>, there is no way
+            to sidemute <strong>into</strong> a <strong>Black</strong> card.
           </>,
         ]
+      case 'unreachable-with-filters': {
+        const { requiredEnergyAttributes, requiredCardSet } = state
+        const cardSetPhrase = requiredCardSet && (
+          <>
+            the <strong>{requiredCardSet}</strong> card set
+          </>
+        )
+        const energyPhrase = requiredEnergyAttributes.length > 0 && (
+          <>
+            <strong>{requiredEnergyAttributes.length > 1 ? 'one of ' : ''}</strong>
+            <EnergyAttributeIconsInline attributes={requiredEnergyAttributes} />
+          </>
+        )
+        return [
+          <>
+            {Card} cannot be obtained <strong>from</strong> a {Mode} with your current{' '}
+            <strong>filters</strong>.
+          </>,
+          <>
+            It requires {cardSetPhrase}
+            {cardSetPhrase && energyPhrase && ' and '}
+            {energyPhrase} to be obtainable.
+          </>,
+        ]
+      }
       case 'monster-sidemute-target':
         return [
           <>
-            Any Monster-banner card can {Mode} into {Card}
+            Any of the <strong>{state.count}</strong> <strong>Monster</strong>-banner cards can{' '}
+            {Mode} into {Card}!
           </>,
         ]
-      case 'card-set-unticked':
-        return [cantBeObtained, 'Its card set is unticked, so the game won’t offer it']
       case 'empty':
         return [
           direction === 'from' ? (
@@ -208,16 +229,6 @@ const ResultStateDetails = ({
 
   if (view.kind === 'state') return renderHeadline(...getStateText(view.state))
 
-  const mainTextFrom = (
-    <>
-      {Card} can {Mode} into <strong>{view.cards.length}</strong> different cards.
-    </>
-  )
-  const mainTextTo = (
-    <>
-      <strong>{view.cards.length}</strong> different cards can {Mode} into {Card}.
-    </>
-  )
   const subtext =
     direction === 'from' && view.branch === 'black-to-brown'
       ? SUBTEXT_BLACK_TO_BROWN
@@ -227,11 +238,47 @@ const ResultStateDetails = ({
           ? SUBTEXT_MONSTER_TRANSMUTE
           : direction === 'to' && mode === 'sidemute' && selectedCard?.color === COLOR.Brown
             ? SUBTEXT_BROWN_SOURCES
-            : getSubtext(mode, direction)
+            : ''
+
+  const qualifier = subtext ? null : <> {getCardsQualifier(mode, direction)}</>
+  // Checked rather than assumed for Tradepost: an unticked card set can filter the card itself out
+  const includesItself = view.cards.some(
+    (card) => card.blightbane_id === selectedCard?.blightbane_id
+  )
+  const isOnlyItself = includesItself && view.cards.length === 1
+  const includingItself = !subtext && mode === 'tradepost' && includesItself && ', including itself'
+  const isSingular = view.cards.length === 1
+  const count = <strong>{view.cards.length}</strong>
+  const cardsPhrase = isSingular ? <>{count} card</> : <>{count} different cards</>
+
+  const headlineFrom = isOnlyItself ? (
+    <>
+      {Card} can only {Mode} into itself.
+    </>
+  ) : (
+    <>
+      {Card} can {isSingular && 'only '}
+      {Mode} into {cardsPhrase}
+      {qualifier}
+      {includingItself}.
+    </>
+  )
+  const headlineTo = isOnlyItself ? (
+    <>
+      Only {Card} itself can {Mode} into {Card}.
+    </>
+  ) : (
+    <>
+      {isSingular ? 'Only ' : ''}
+      {cardsPhrase}
+      {qualifier} can {Mode} into {Card}
+      {includingItself}.
+    </>
+  )
 
   return (
     <>
-      {renderHeadline(direction === 'from' ? mainTextFrom : mainTextTo, subtext)}
+      {renderHeadline(direction === 'from' ? headlineFrom : headlineTo, subtext)}
       {view.transmuteRarity !== undefined && (
         <p className={cx('detail', 'detail--note')}>
           If you run out of valid {Mode} options, you will be offered random{' '}

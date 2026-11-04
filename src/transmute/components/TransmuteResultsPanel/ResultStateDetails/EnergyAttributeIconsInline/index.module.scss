@@ -4,6 +4,8 @@
   display: inline-flex;
   gap: 0.125rem;
   vertical-align: middle;
+  top: -0.0625rem;
+  position: relative;
 
   &__icon {
     width: 1.125rem;

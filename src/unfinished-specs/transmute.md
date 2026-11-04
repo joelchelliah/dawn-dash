@@ -177,8 +177,8 @@ in `isNonCollectible` as they turn up, which fixes Cardex too.
 They're technically reachable through Tradepost, but they aren't real playable cards, so leaving
 them out is correct.
 
-**A Monster-banner sidemute in _To_ mode is shown as a rule, not a list**: "Any Monster-banner card
-can sidemute into this". Even after narrowing, it would be about 600 cards.
+**A Monster-banner sidemute in _To_ mode is shown as a rule with a count, not a list**: "Any of
+the N Monster-banner cards can sidemute into this". Even after narrowing, it would be about 600 cards.
 
 ## Decisions already made
 
@@ -468,12 +468,14 @@ and the rarity icon already show it. The optional items below are not built.
     choices come from {rarity} cards of the colors you have access to"), with the ticked energy
     icons;
   - Transmute, _From_, non-empty list: the general fallback line;
-  - Transmute, _To_, selected card not reachable with the ticked energies: _"None of the energy
-    colors you have access to will let you transmute into this card"_, with the ticked energy icons;
+  - _To_, selected card ruled out only by the filters (its card set unticked, and for Transmute its
+    required energies unticked): _"X cannot be obtained from a {mode} with your current filters"_,
+    then one merged line, _"It requires the {set} card set and (one of) [icons] to be obtainable"_,
+    naming whichever of the two is missing, with the card's **required** energy icons;
   - Sidemute, _From_, Black source: say the results are Brown;
   - Sidemute, _To_, Black card: no sources, with the rule as text;
-  - Sidemute, _To_, a `monsterSidemute` card: "Any Monster-banner card can sidemute into this",
-    with no list;
+  - Sidemute, _To_, a `monsterSidemute` card: "Any of the N Monster-banner cards can sidemute into
+    this", with no list;
   - Tradepost on a Monster-rarity card, or any empty Tradepost list: nothing, and the card stays in
     the deck;
   - a card no mode reaches in this direction: "can't be reached by {mode}";

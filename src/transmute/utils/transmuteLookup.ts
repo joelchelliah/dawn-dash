@@ -100,13 +100,16 @@ export const getTransmuteResultRarity = (id: number): number | undefined =>
 
 export const isMonsterSidemuteResult = (id: number) => MONSTER_SIDEMUTE.has(id)
 
+// Any one of these is enough. Empty when the card needs none.
+const getRequiredEnergyAttributes = (id: number): TransmuteEnergyAttribute[] =>
+  RULES.castRequirements[id] ?? ENERGY_ATTRIBUTES_BY_COLOR[RULES.cards[id][0]] ?? []
+
 // Gates the Transmute mode only, and is checked on the *result*
 export const canReachWithEnergyAttributes = (
   id: number,
   energyAttributes: readonly TransmuteEnergyAttribute[]
 ) => {
-  const required =
-    RULES.castRequirements[id] ?? ENERGY_ATTRIBUTES_BY_COLOR[RULES.cards[id][0]] ?? []
+  const required = getRequiredEnergyAttributes(id)
   return required.length === 0 || required.some((attribute) => energyAttributes.includes(attribute))
 }
 
@@ -131,7 +134,7 @@ export type LookupResult =
   | { kind: 'not-a-result' }
   // Black is never a sidemute result: Black sidemutes into Brown
   | { kind: 'black-target' }
-  | { kind: 'unreachable-with-energy-attributes' }
+  | { kind: 'unreachable-with-energy-attributes'; required: TransmuteEnergyAttribute[] }
 
 const ids = (list: number[], branch: LookupBranch = 'normal'): LookupResult => ({
   kind: 'ids',
@@ -212,7 +215,7 @@ export const getTransmuteSources = (
   if (!RULES.cards[id]) return { kind: 'unknown' }
   if (!POOL.has(id)) return { kind: 'not-a-result' }
   if (!canReachWithEnergyAttributes(id, energyAttributes))
-    return { kind: 'unreachable-with-energy-attributes' }
+    return { kind: 'unreachable-with-energy-attributes', required: getRequiredEnergyAttributes(id) }
 
   const [color, rarity] = RULES.cards[id]
   const sources = PREVIOUS_RARITIES[rarity].flatMap(
