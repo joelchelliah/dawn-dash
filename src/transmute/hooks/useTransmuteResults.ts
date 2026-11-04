@@ -40,8 +40,6 @@ export type TransmuteView =
   | {
       kind: 'cards'
       cards: CardData[]
-      // How many the filters hid: card sets, and energy attributes (Transmute _From_ only)
-      hiddenCount: number
       branch: LookupBranch
       // The rarity Transmute _From_ offers, for the general fallback line
       transmuteRarity?: number
@@ -104,7 +102,7 @@ const getView = ({
     const sources = sortLikeCardex(toCards(result.ids, cards))
 
     if (sources.length === 0) return state({ kind: 'empty' })
-    return { kind: 'cards', cards: sources, hiddenCount: 0, branch: result.branch }
+    return { kind: 'cards', cards: sources, branch: result.branch }
   }
 
   const candidates = toCards(result.ids, cards)
@@ -112,10 +110,11 @@ const getView = ({
   const visible = result.branch === 'monster' ? candidates : candidates.filter(isInSelectedSet)
 
   const hiddenBySets = candidates.length - visible.length
-  const hiddenByEnergyAttributes = toCards(result.excludedByEnergyAttributes, cards).filter(
-    isInSelectedSet
-  ).length
-  const transmuteRarity = mode === 'transmute' ? getTransmuteResultRarity(id) : undefined
+  // A Monster-banner transmute already lists every color, so there's no fallback left to mention
+  const transmuteRarity =
+    mode === 'transmute' && result.branch !== 'monster-transmute'
+      ? getTransmuteResultRarity(id)
+      : undefined
 
   if (visible.length === 0) {
     if (transmuteRarity !== undefined) {
@@ -129,7 +128,6 @@ const getView = ({
   return {
     kind: 'cards',
     cards: sortLikeCardex(visible),
-    hiddenCount: hiddenBySets + hiddenByEnergyAttributes,
     branch: result.branch,
     transmuteRarity,
   }

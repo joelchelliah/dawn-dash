@@ -2,10 +2,10 @@
 
 .headline {
   margin: 0 0 0.5rem;
-  font-size: font-size('sm');
+  font-size: font-size('xs');
   font-weight: normal;
   line-height: 1.5;
-  color: $color-primary-base;
+  color: $color-primary-muted;
 }
 
 .mode {
@@ -18,8 +18,15 @@
   font-size: font-size('xs');
   line-height: 1.6;
   color: $color-primary-muted;
+  opacity: 0.75;
+
+  @media (max-width: $breakpoint-mobile) {
+    font-size: font-size('xxs');
+    opacity: 0.9;
+  }
 
   &--note {
+    font-size: font-size('xxs');
     opacity: 0.75;
   }
 

@@ -70,7 +70,7 @@ needs.
 
 - **The transmute fallback.** When too few same-color candidates survive the filters, the game fills
   the offer with same-rarity cards of **every** color you have access to (potions included, except
-  at Legendary). Always the case for a Monster-banner source (`Monster|Common` is empty) and for
+  at Legendary). Always the case for a Monster-banner source (`Monster|Common` is empty), which is why the tool lists every Common you can access as its results instead of calling it a fallback (branch `monster-transmute`), and for
   Black Commons and Uncommons. **Worded without the offer size N** (see Decisions).
 - **The sidemute potion top-up.** When a source's own list is shorter than the event's offer, every
   potion of the source's rarity joins it, whatever the source's color. There are Common, Uncommon
@@ -526,6 +526,35 @@ the user once most of the functionality is in place**:
 - The slot's reserved `min-height` (`SelectedCard/index.module.scss`), against real descriptions.
 
 Check: the row with and without card art, a long description, desktop and mobile.
+
+### Task 7d — Irrelevant filters without the layout jump
+
+Today a filter that can't affect the result is swapped for a one-line "Not relevant when…" note,
+which changes the panel's height and makes everything below it jump. There are three such cases in
+`TransmuteSearchPanel/index.tsx`: Card Sets (a Monster-banner card on Sidemute), Energy attributes
+(Sidemute and Tradepost), and Direction (a Monster-rarity card on Tradepost).
+
+The point of hiding them is to make clear that those choices don't change the result, so it's fine
+for most of the controls to be covered. The proposal, for desktop at least:
+
+- Keep the filter rendered, but **disabled and dimmed** (`disabled` on the inputs, so keyboard and
+  screen-reader users get it too). Nothing is removed, so the height can't change, and the user's
+  choices are still there when they switch back.
+- Lay a **straight horizontal strip** across the group's vertical centre, absolutely positioned so
+  it takes no space. A semi-opaque background lets the dimmed controls show through above and
+  below it, with **dotted top and bottom borders in the mode's yellow** (`$yellow-base`). The
+  existing note text sits centred on it.
+- Neither `FilterGroup` (shared) nor `SegmentedControl` takes `disabled` today. Both need an
+  optional prop, additive so Cardex and Skilldex are unaffected, plus a slot for the strip.
+
+Rejected while brainstorming: a diagonal banner (it doesn't fit the short, wide Direction group,
+and the long notes get tiny at mobile width) and red (it reads as an error, not "not used here").
+
+**On mobile, hiding probably stays better**: it saves scrolling to reach the results. That would
+mean two different treatments split by breakpoint. **Discuss with the user before building**
+whether that split is worth it, or whether one treatment should cover both.
+
+Check: each of the three cases, switching in and out of it, desktop and mobile.
 
 ### Task 8 — Docs
 

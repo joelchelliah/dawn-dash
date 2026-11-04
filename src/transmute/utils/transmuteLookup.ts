@@ -73,6 +73,7 @@ const TRADEPOST_IDS = [...RULES.pool, ...RULES.tradepost.adds].filter(
 
 const POOL = new Set(RULES.pool)
 const POOL_BY_BUCKET = groupByBucket(RULES.pool)
+const POOL_COMMONS = RULES.pool.filter((id) => RULES.cards[id][1] === RARITY.Common)
 const TRADEPOST = new Set(TRADEPOST_IDS)
 const TRADEPOST_BY_BUCKET = groupByBucket(TRADEPOST_IDS)
 const MONSTER_SIDEMUTE = new Set(RULES.monsterSidemute)
@@ -112,8 +113,9 @@ export const canReachWithEnergyAttributes = (
 /*
  * `monster`: the Monster-banner sidemute, which mixes rarities and ignores card sets.
  * `black-to-brown`: a Black source sidemutes into Brown, so the results aren't its color.
+ * `monster-transmute`: a Monster-banner source transmutes into Commons of every color.
  */
-export type LookupBranch = 'normal' | 'monster' | 'black-to-brown'
+export type LookupBranch = 'normal' | 'monster' | 'black-to-brown' | 'monster-transmute'
 
 export type LookupResult =
   | {
@@ -159,14 +161,21 @@ export const getTransmuteResults = (
   if (stop) return stop
 
   const [color, rarity] = RULES.cards[id]
-  const candidates = without(POOL_BY_BUCKET.get(bucketKey(color, NEXT_RARITY[rarity])), id)
+  /*
+   * `Monster|Common` is empty, so the game's fallback is what always answers a Monster-banner source.
+   * Players know it as "Monster cards transmute into any Common", so it's listed as the result.
+   */
+  const isMonsterBanner = color === COLOR.Monster
+  const candidates = isMonsterBanner
+    ? POOL_COMMONS
+    : without(POOL_BY_BUCKET.get(bucketKey(color, NEXT_RARITY[rarity])), id)
   return {
     kind: 'ids',
     ids: candidates.filter((x) => canReachWithEnergyAttributes(x, energyAttributes)),
     excludedByEnergyAttributes: candidates.filter(
       (x) => !canReachWithEnergyAttributes(x, energyAttributes)
     ),
-    branch: 'normal',
+    branch: isMonsterBanner ? 'monster-transmute' : 'normal',
   }
 }
 

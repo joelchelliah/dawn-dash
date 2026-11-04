@@ -18,7 +18,7 @@ import {
 import { UseAllTransmuteSearchFilters } from '@/transmute/hooks/useSearchFilters/useAllTransmuteSearchFilters'
 import { allEnergyAttributes } from '@/transmute/hooks/useSearchFilters/useEnergyAttributeFilters'
 import { allFormattingTransmuteFilters } from '@/transmute/hooks/useSearchFilters/useFormattingTransmuteFilters'
-import { COLOR } from '@/transmute/utils/transmuteLookup'
+import { COLOR, RARITY } from '@/transmute/utils/transmuteLookup'
 import { TransmuteCards } from '@/transmute/utils/transmuteCards'
 
 import CardSearch from './CardSearch'
@@ -42,12 +42,6 @@ const MODE_LABELS: Record<TransmuteMode, string> = {
   transmute: 'Transmute',
   sidemute: 'Sidemute',
   tradepost: 'Tradepost',
-}
-
-const MODE_VERBS: Record<TransmuteMode, string> = {
-  transmute: 'Transmuting',
-  sidemute: 'Sidemuting',
-  tradepost: 'Tradeposting',
 }
 
 const MODE_SUBTITLES: Record<TransmuteMode, string> = {
@@ -99,6 +93,8 @@ const TransmuteSearchPanel = ({ cards, useSearchFilters }: TransmuteSearchPanelP
 
   const showEnergyAttributes = mode === 'transmute'
   const showCardSets = !(mode === 'sidemute' && selectedCard?.color === COLOR.Monster)
+  // Monster-rarity cards are neither Tradepost sources nor results, so the direction changes nothing
+  const showDirection = !(mode === 'tradepost' && selectedCard?.rarity === RARITY.Monster)
 
   const getEnergyAttributeFilterLabel = (filter: string) => {
     if (!(filter in ENERGY_ATTRIBUTE_ICONS)) return filter
@@ -150,15 +146,22 @@ const TransmuteSearchPanel = ({ cards, useSearchFilters }: TransmuteSearchPanelP
             />
           </Section>
           <Section title="Direction" spacing="medium">
-            <SegmentedControl
-              name="transmute-direction"
-              ariaLabel="Direction"
-              options={ALL_DIRECTIONS}
-              selected={direction}
-              getLabel={(option) => DIRECTION[option]}
-              getSubtitle={(option) => DIRECTION_SUBTITLES[option]}
-              onChange={setDirection}
-            />
+            {showDirection ? (
+              <SegmentedControl
+                name="transmute-direction"
+                ariaLabel="Direction"
+                options={ALL_DIRECTIONS}
+                selected={direction}
+                getLabel={(option) => DIRECTION[option]}
+                getSubtitle={(option) => DIRECTION_SUBTITLES[option]}
+                onChange={setDirection}
+              />
+            ) : (
+              <p className={cx('filter-note')}>
+                Not relevant for <strong>{MODE_LABELS.tradepost}</strong> + <strong>Monster</strong>{' '}
+                card.
+              </p>
+            )}
           </Section>
           {showCardSets ? (
             <FilterGroup
@@ -171,7 +174,8 @@ const TransmuteSearchPanel = ({ cards, useSearchFilters }: TransmuteSearchPanelP
           ) : (
             <Section title="Card Sets" spacing="medium">
               <p className={cx('filter-note')}>
-                Not relevant when <strong>{MODE_VERBS.sidemute}</strong> a monster-banner card.
+                Not relevant for <strong>{MODE_LABELS.sidemute}</strong> + <strong>Monster</strong>{' '}
+                card.
               </p>
             </Section>
           )}
@@ -187,7 +191,7 @@ const TransmuteSearchPanel = ({ cards, useSearchFilters }: TransmuteSearchPanelP
           ) : (
             <Section title="Energy attributes" spacing="medium">
               <p className={cx('filter-note')}>
-                Not relevant when <strong>{MODE_VERBS[mode]}</strong> a card.
+                Not relevant for <strong>{MODE_LABELS[mode]}</strong>.
               </p>
             </Section>
           )}

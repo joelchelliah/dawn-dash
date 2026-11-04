@@ -5,7 +5,7 @@ import { RARITIES } from '@/shared/components/RarityBorderedArtwork'
 import { TransmuteEnergyAttribute, TransmuteMode } from '@/transmute/types/rules'
 import { TransmuteDirection } from '@/transmute/types/filters'
 import { TransmuteState, TransmuteView } from '@/transmute/hooks/useTransmuteResults'
-import { COLOR } from '@/transmute/utils/transmuteLookup'
+import { COLOR, RARITY } from '@/transmute/utils/transmuteLookup'
 
 import EnergyAttributeIconsInline from './EnergyAttributeIconsInline'
 import styles from './index.module.scss'
@@ -18,25 +18,47 @@ const MODE_NAMES: Record<TransmuteMode, string> = {
   tradepost: 'Tradepost',
 }
 
-// One line per direction × mode, kept together so they're easy to reword
-const SUBTEXTS: Record<TransmuteDirection, Record<TransmuteMode, string>> = {
-  from: {
-    transmute: 'Cards one rarity higher, of the same banner color, that you can transmute into',
-    sidemute: 'Cards of the same rarity and banner color',
-    tradepost: 'Cards of the same rarity and banner color, this one included',
-  },
-  to: {
-    transmute: 'Cards one rarity lower, of the same banner color, that transmute into this one',
-    sidemute: 'Cards of the same rarity and banner color that sidemute into this one',
-    tradepost: 'Cards of the same rarity and banner color that Tradepost can swap for this one',
-  },
+const getSubtext = (mode: TransmuteMode, direction: TransmuteDirection) => {
+  switch (mode) {
+    case 'transmute':
+      return (
+        <>
+          Cards of a {direction === 'from' ? 'higher' : 'lower'} <strong>rarity</strong>, and of the
+          same <strong>banner color</strong>.
+        </>
+      )
+    case 'sidemute':
+      return (
+        <>
+          Cards of the same <strong>rarity</strong> and <strong>banner color</strong>.
+        </>
+      )
+    case 'tradepost':
+      return (
+        <>
+          Cards of the same <strong>rarity</strong> and <strong>banner color</strong>, including
+          this one.
+        </>
+      )
+  }
 }
 
 // "Same banner color" isn't true for these
 const SUBTEXT_BLACK_TO_BROWN = 'Black cards sidemute into Brown cards of the same rarity'
-const SUBTEXT_MONSTER_SIDEMUTE =
-  'Monster-banner cards can sidemute into any of these, regardless of rarity or enabled card sets.'
+const SUBTEXT_MONSTER_SIDEMUTE = (
+  <>
+    <strong>Monster</strong>-banner cards sidemute into any of the following{' '}
+    <strong>Monster</strong> cards. Results are NOT affected by <strong>rarity</strong>,{' '}
+    <strong>energy attributes</strong> or enabled <strong>card sets</strong>.
+  </>
+)
 const SUBTEXT_BROWN_SOURCES = 'Brown and Black cards of the same rarity that sidemute into this one'
+const SUBTEXT_MONSTER_TRANSMUTE = (
+  <>
+    All <strong>Monster</strong> cards transmute into any <strong>Common</strong> card, depending on
+    your <strong>energy attributes</strong>.
+  </>
+)
 
 const getRarityName = (rarity: number) => RARITIES[rarity]?.name ?? ''
 
@@ -61,7 +83,7 @@ const ResultStateDetails = ({
   const energyIcons = <EnergyAttributeIconsInline attributes={selectedEnergyAttributes} />
   const cantBeObtained = (
     <>
-      {Card} can’t be obtained from a {Mode}
+      {Card} can never be obtained <strong>from</strong> a {Mode}!
     </>
   )
 
@@ -119,6 +141,13 @@ const ResultStateDetails = ({
           </>,
         ]
       case 'not-a-result':
+        // Monster is the bottom of the ladder, so nothing transmutes into a Monster-rarity card
+        if (mode === 'transmute' && selectedCard?.rarity === RARITY.Monster)
+          return [
+            <>
+              <strong>Monster</strong> cards can never be obtained <strong>from</strong> a {Mode}!
+            </>,
+          ]
         return [cantBeObtained]
       case 'black-target':
         return [cantBeObtained, 'Black cards sidemute into Brown instead']
@@ -168,47 +197,46 @@ const ResultStateDetails = ({
     )
   }
 
+  // Monster-rarity cards are neither Tradepost sources nor results, so one rule covers both directions
+  if (view.kind === 'state' && mode === 'tradepost' && selectedCard?.rarity === RARITY.Monster) {
+    return renderHeadline(
+      <>
+        The {Mode} neither accepts nor grants any <strong>Monster</strong> cards!
+      </>
+    )
+  }
+
   if (view.kind === 'state') return renderHeadline(...getStateText(view.state))
 
+  const mainTextFrom = (
+    <>
+      {Card} can {Mode} into <strong>{view.cards.length}</strong> different cards.
+    </>
+  )
+  const mainTextTo = (
+    <>
+      <strong>{view.cards.length}</strong> different cards can {Mode} into {Card}.
+    </>
+  )
   const subtext =
     direction === 'from' && view.branch === 'black-to-brown'
       ? SUBTEXT_BLACK_TO_BROWN
       : direction === 'from' && view.branch === 'monster'
         ? SUBTEXT_MONSTER_SIDEMUTE
-        : direction === 'to' && mode === 'sidemute' && selectedCard?.color === COLOR.Brown
-          ? SUBTEXT_BROWN_SOURCES
-          : SUBTEXTS[direction][mode]
-
-  const cardCount = (
-    <>
-      {view.cards.length} {view.cards.length === 1 ? 'card' : 'cards'}
-    </>
-  )
+        : view.branch === 'monster-transmute'
+          ? SUBTEXT_MONSTER_TRANSMUTE
+          : direction === 'to' && mode === 'sidemute' && selectedCard?.color === COLOR.Brown
+            ? SUBTEXT_BROWN_SOURCES
+            : getSubtext(mode, direction)
 
   return (
     <>
-      {renderHeadline(
-        <>
-          {Mode} results for {Card}
-        </>
-      )}
-      <p className={cx('detail')}>
-        {direction === 'from' ? (
-          <>
-            {Card} can {Mode} into {cardCount}
-          </>
-        ) : (
-          <>
-            {cardCount} can {Mode} into {Card}
-          </>
-        )}
-        {view.hiddenCount > 0 && ` · ${view.hiddenCount} hidden by your filters`}
-      </p>
-      <p className={cx('detail')}>{subtext}</p>
+      {renderHeadline(direction === 'from' ? mainTextFrom : mainTextTo, subtext)}
       {view.transmuteRarity !== undefined && (
         <p className={cx('detail', 'detail--note')}>
-          If the number of {Mode} results is smaller than your card choices, you will be offered
-          random {getRarityName(view.transmuteRarity)} cards of any colors you have access to
+          If you run out of valid {Mode} options, you will be offered random{' '}
+          <strong>{getRarityName(view.transmuteRarity)}</strong> cards, depending on your{' '}
+          <strong>energy attributes</strong>.
         </p>
       )}
     </>
