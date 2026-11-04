@@ -415,7 +415,6 @@ duplicated; `src/transmute/utils/cardSearch.ts` for the searchable list and matc
 Enter with nothing highlighted picks the top match. **Twins are told apart by the start of their
 description**, not rarity/banner: 9 of the 18 twin pairs in the data share both.
 
-
 Move Cardex's `isNonCollectible` to `shared/` first. The search offers only cards that are in
 `cards` and that it doesn't flag (see "Which cards count as sources").
 
@@ -429,7 +428,15 @@ Move Cardex's `isNonCollectible` to `shared/` first. The search offers only card
 
 Check: typing, mouse and keyboard selection, twins (e.g. the Whirlpools), mobile width.
 
-### Task 6 — Results panel
+### Task 6 — Results panel — COMPLETED
+
+Built as: `utils/transmuteCards.ts` (the one id → `CardData` step: deckable check, drift warning,
+and the data's color/rarity swapped onto the card, so the shared grouping, sort and rarity border
+need no Transmute branches; the search uses the same map), `hooks/useTransmuteResults.ts` (lookup →
+one of the states below, or a list), and the panel, with all copy in lookups at its top. The
+selected card is **not** repeated at the top of the results: the search panel already shows it (Task
+5), so the header names it instead. Monster-branch rows need no rarity label: the artwork border
+and the rarity icon already show it. The optional items below are not built.
 
 - **The selected card at the top**, rendered with the shared `ResultCard`.
 - **A header that makes the mode unmistakable**: the direction (_turns into_ / _comes from_) and the

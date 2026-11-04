@@ -1,3 +1,5 @@
+import { useMemo } from 'react'
+
 import dynamic from 'next/dynamic'
 
 import { createCx } from '@/shared/utils/classnames'
@@ -11,6 +13,7 @@ import DataErrorMessage from '@/shared/components/DataErrorMessage'
 import DataLoadingMessage from '@/shared/components/DataLoadingMessage'
 
 import { useAllTransmuteSearchFilters } from './hooks/useSearchFilters/useAllTransmuteSearchFilters'
+import { buildTransmuteCards } from './utils/transmuteCards'
 import styles from './index.module.scss'
 
 const TransmuteResultsPanel = dynamic(() => import('./components/TransmuteResultsPanel'), {
@@ -27,6 +30,7 @@ function Transmute(): JSX.Element {
   const { navigateTo } = useNavigation()
   const { cardData, isLoading, isError, progress } = useCardData()
   const useSearchFiltersHook = useAllTransmuteSearchFilters()
+  const transmuteCards = useMemo(() => cardData && buildTransmuteCards(cardData), [cardData])
 
   return (
     <div className={cx('container')}>
@@ -43,10 +47,10 @@ function Transmute(): JSX.Element {
       <div className={cx('content')}>
         <DataLoadingMessage isVisible={isLoading} progress={progress} dataType="card" />
         <DataErrorMessage isVisible={isError && !isLoading} dataType="card" />
-        {!isError && !isLoading && cardData && (
+        {!isError && !isLoading && transmuteCards && (
           <>
-            <TransmuteSearchPanel cards={cardData} useSearchFilters={useSearchFiltersHook} />
-            <TransmuteResultsPanel />
+            <TransmuteSearchPanel cards={transmuteCards} useSearchFilters={useSearchFiltersHook} />
+            <TransmuteResultsPanel cards={transmuteCards} useSearchFilters={useSearchFiltersHook} />
           </>
         )}
       </div>

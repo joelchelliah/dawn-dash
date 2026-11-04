@@ -1,0 +1,12 @@
+@use 'index' as *;
+
+.energy-attribute-icons {
+  display: inline-flex;
+  gap: 0.125rem;
+  vertical-align: middle;
+
+  &__icon {
+    width: 1.125rem;
+    height: 1.125rem;
+  }
+}

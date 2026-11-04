@@ -6,6 +6,7 @@ import SearchField from '@/shared/components/SearchField'
 import RarityBorderedArtwork from '@/shared/components/RarityBorderedArtwork'
 
 import { findCardSuggestions, getSearchableCards, getTwinHint } from '@/transmute/utils/cardSearch'
+import { TransmuteCards } from '@/transmute/utils/transmuteCards'
 
 import styles from './index.module.scss'
 
@@ -18,7 +19,7 @@ const ARTWORK_SIZE = 28
 const getOptionId = (card: CardData) => `transmute-card-suggestion-${card.blightbane_id}`
 
 interface CardSearchProps {
-  cards: CardData[]
+  cards: TransmuteCards
   searchText: string
   setSearchText: (text: string) => void
   selectedCard: CardData | null

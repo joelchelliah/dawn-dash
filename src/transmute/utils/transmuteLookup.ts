@@ -93,6 +93,12 @@ for (const group of RULES.cannotBeSource) {
 
 export const getCardColorAndRarity = (id: number): CardColorAndRarity | undefined => RULES.cards[id]
 
+// The rarity a transmute of this card offers, which the fallback copy names
+export const getTransmuteResultRarity = (id: number): number | undefined =>
+  RULES.cards[id] && NEXT_RARITY[RULES.cards[id][1]]
+
+export const isMonsterSidemuteResult = (id: number) => MONSTER_SIDEMUTE.has(id)
+
 // Gates the Transmute mode only, and is checked on the *result*
 export const canReachWithEnergyAttributes = (
   id: number,

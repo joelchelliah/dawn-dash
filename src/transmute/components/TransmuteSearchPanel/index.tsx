@@ -1,5 +1,4 @@
 import { createCx } from '@/shared/utils/classnames'
-import { CardData } from '@/shared/types/cards'
 import { DexImageUrl, HolyImageUrl, IntImageUrl, StrImageUrl } from '@/shared/utils/imageUrls'
 import { allCardSetsWithoutCore } from '@/shared/hooks/useSearchFilters/useCardSetFilters'
 import GradientButton from '@/shared/components/Buttons/GradientButton'
@@ -19,6 +18,8 @@ import {
 import { UseAllTransmuteSearchFilters } from '@/transmute/hooks/useSearchFilters/useAllTransmuteSearchFilters'
 import { allEnergyAttributes } from '@/transmute/hooks/useSearchFilters/useEnergyAttributeFilters'
 import { allFormattingTransmuteFilters } from '@/transmute/hooks/useSearchFilters/useFormattingTransmuteFilters'
+import { COLOR } from '@/transmute/utils/transmuteLookup'
+import { TransmuteCards } from '@/transmute/utils/transmuteCards'
 
 import CardSearch from './CardSearch'
 import SegmentedControl from './SegmentedControl'
@@ -43,6 +44,12 @@ const MODE_LABELS: Record<TransmuteMode, string> = {
   tradepost: 'Tradepost',
 }
 
+const MODE_VERBS: Record<TransmuteMode, string> = {
+  transmute: 'Transmuting',
+  sidemute: 'Sidemuting',
+  tradepost: 'Tradeposting',
+}
+
 const MODE_SUBTITLES: Record<TransmuteMode, string> = {
   transmute: 'Same color, higher rarity',
   sidemute: 'Same color and rarity',
@@ -57,7 +64,7 @@ const ENERGY_ATTRIBUTE_ICONS: Record<EnergyAttributeFilterOption, string> = {
 }
 
 interface TransmuteSearchPanelProps {
-  cards: CardData[]
+  cards: TransmuteCards
   useSearchFilters: UseAllTransmuteSearchFilters
 }
 
@@ -91,6 +98,7 @@ const TransmuteSearchPanel = ({ cards, useSearchFilters }: TransmuteSearchPanelP
   } = useFormattingFilters
 
   const showEnergyAttributes = mode === 'transmute'
+  const showCardSets = !(mode === 'sidemute' && selectedCard?.color === COLOR.Monster)
 
   const getEnergyAttributeFilterLabel = (filter: string) => {
     if (!(filter in ENERGY_ATTRIBUTE_ICONS)) return filter
@@ -152,13 +160,21 @@ const TransmuteSearchPanel = ({ cards, useSearchFilters }: TransmuteSearchPanelP
               onChange={setDirection}
             />
           </Section>
-          <FilterGroup
-            title="Card Sets"
-            filters={allCardSetsWithoutCore}
-            selectedFilters={cardSetFilters}
-            type="card-set"
-            onFilterToggle={handleCardSetFilterToggle}
-          />
+          {showCardSets ? (
+            <FilterGroup
+              title="Card Sets"
+              filters={allCardSetsWithoutCore}
+              selectedFilters={cardSetFilters}
+              type="card-set"
+              onFilterToggle={handleCardSetFilterToggle}
+            />
+          ) : (
+            <Section title="Card Sets" spacing="medium">
+              <p className={cx('filter-note')}>
+                Not relevant when <strong>{MODE_VERBS.sidemute}</strong> a monster-banner card.
+              </p>
+            </Section>
+          )}
           {showEnergyAttributes ? (
             <FilterGroup
               title="Energy attributes"
@@ -171,7 +187,7 @@ const TransmuteSearchPanel = ({ cards, useSearchFilters }: TransmuteSearchPanelP
           ) : (
             <Section title="Energy attributes" spacing="medium">
               <p className={cx('filter-note')}>
-                Your energy attributes only affect the Transmute mode.
+                Not relevant when <strong>{MODE_VERBS[mode]}</strong> a card.
               </p>
             </Section>
           )}

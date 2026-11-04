@@ -11,3 +11,37 @@
     flex: 1;
   }
 }
+
+.results {
+  display: flex;
+  flex-direction: column;
+  margin-top: 1rem;
+
+  &__headline {
+    margin: 0 0 0.5rem;
+    font-size: font-size('sm');
+    font-weight: normal;
+    line-height: 1.5;
+    color: $color-primary-base;
+  }
+
+  &__mode {
+    color: $yellow-base;
+    font-weight: bold;
+  }
+
+  &__detail {
+    margin: 0 0 0.5rem;
+    font-size: font-size('xs');
+    line-height: 1.6;
+    color: $color-primary-muted;
+
+    &--note {
+      opacity: 0.75;
+    }
+
+    &:last-of-type {
+      margin-bottom: 1rem;
+    }
+  }
+}

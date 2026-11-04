@@ -1,16 +1,13 @@
 import { CardData } from '@/shared/types/cards'
-import { isNonCollectible } from '@/shared/utils/cardHelper'
 import { parseCardDescription } from '@/shared/utils/cardDescription'
 
-import { getCardColorAndRarity } from './transmuteLookup'
+import { TransmuteCards } from './transmuteCards'
 
 const MAX_SUGGESTIONS = 5
 
 // Cards the data knows and a player can keep in their deck (see "Which cards count as sources")
-export const getSearchableCards = (cards: CardData[]) =>
-  cards
-    .filter((card) => getCardColorAndRarity(card.blightbane_id) && !isNonCollectible(card))
-    .sort((a, b) => a.name.localeCompare(b.name))
+export const getSearchableCards = ({ byId }: TransmuteCards) =>
+  Array.from(byId.values()).sort((a, b) => a.name.localeCompare(b.name))
 
 // Prefix matches first, then the rest. `cards` is pre-sorted by name, so each half stays alphabetical.
 export const findCardSuggestions = (cards: CardData[], query: string) => {
