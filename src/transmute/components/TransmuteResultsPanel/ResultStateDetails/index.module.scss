@@ -1,0 +1,30 @@
+@use 'index' as *;
+
+.headline {
+  margin: 0 0 0.5rem;
+  font-size: font-size('sm');
+  font-weight: normal;
+  line-height: 1.5;
+  color: $color-primary-base;
+}
+
+.mode {
+  color: $yellow-base;
+  font-weight: bold;
+}
+
+.detail {
+  margin: 0 0 0.5rem;
+  font-size: font-size('xs');
+  line-height: 1.6;
+  color: $color-primary-muted;
+
+  &--note {
+    opacity: 0.75;
+  }
+
+  // Rendered as siblings of the result list, so this spaces the last line from it
+  &:last-of-type {
+    margin-bottom: 1rem;
+  }
+}

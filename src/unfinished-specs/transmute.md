@@ -433,7 +433,7 @@ Check: typing, mouse and keyboard selection, twins (e.g. the Whirlpools), mobile
 Built as: `utils/transmuteCards.ts` (the one id → `CardData` step: deckable check, drift warning,
 and the data's color/rarity swapped onto the card, so the shared grouping, sort and rarity border
 need no Transmute branches; the search uses the same map), `hooks/useTransmuteResults.ts` (lookup →
-one of the states below, or a list), and the panel, with all copy in lookups at its top. The
+one of the states below, or a list), and the panel, with all copy in its `ResultStateDetails` component. The
 selected card is **not** repeated at the top of the results: the search panel already shows it (Task
 5), so the header names it instead. Monster-branch rows need no rarity label: the artwork border
 and the rarity icon already show it. The optional items below are not built.

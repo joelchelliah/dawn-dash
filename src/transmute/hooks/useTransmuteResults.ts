@@ -18,7 +18,7 @@ import {
 } from '@/transmute/utils/transmuteLookup'
 import { sortLikeCardex, toCards, TransmuteCards } from '@/transmute/utils/transmuteCards'
 
-// Everything the panel shows instead of a list. Copy lives in the panel.
+// Everything the panel shows instead of a list. Copy lives in `ResultStateDetails`.
 export type TransmuteState =
   | { kind: 'unknown' }
   | { kind: 'white' }
