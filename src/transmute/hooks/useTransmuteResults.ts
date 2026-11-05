@@ -7,6 +7,7 @@ import { TransmuteEnergyAttribute, TransmuteMode } from '@/transmute/types/rules
 import { TransmuteDirection } from '@/transmute/types/filters'
 import {
   COLOR,
+  canReachWithEnergyAttributes,
   getCardColorAndRarity,
   getPotionIds,
   getSidemuteResults,
@@ -21,11 +22,18 @@ import {
   LookupBranch,
   LookupResult,
   MONSTER_TRANSMUTE_SOURCE_IDS,
+  poolOfRarity,
   RARITY,
 } from '@/transmute/utils/transmuteLookup'
 import { sortLikeCardex, toCards, TransmuteCards } from '@/transmute/utils/transmuteCards'
 
-// Everything the panel shows instead of a list. Copy lives in `ResultStateDetails`.
+// What the game fills a short _From_ offer with, counted with the same filters as a listed result
+export interface FallbackPool {
+  rarity: number
+  count: number
+}
+
+// Everything the panel shows instead of a list. Copy lives in `ResultsHeader` and `ResultsFooter`.
 export type TransmuteState =
   | { kind: 'unknown' }
   // White sidemute (no player can do one yet, so either direction) or Tradepost. Its transmute is a
@@ -52,13 +60,12 @@ export type TransmuteState =
       rarity: number
       requiredEnergyAttributes: TransmuteEnergyAttribute[]
     }
-  // `cardSets` are the unticked card sets holding the results, in card-set order. Sidemute only:
-  // the potions of the source's rarity, which the game's top-up offers in their place.
+  // `cardSets` are the unticked card sets holding the results, in card-set order
   | {
       kind: 'all-hidden-by-card-sets'
       count: number
       cardSets: string[]
-      potions?: { rarity: number; cards: CardData[] }
+      sidemuteFallback?: FallbackPool
     }
   | { kind: 'tradepost-nothing' }
   | { kind: 'empty' }
@@ -70,8 +77,10 @@ export type TransmuteView =
       kind: 'cards'
       cards: CardData[]
       branch: LookupBranch
-      // The rarity Transmute _From_ offers, for the general fallback line
-      transmuteRarity?: number
+      // Transmute _From_: every color of the next rarity
+      transmuteFallback?: FallbackPool
+      // Sidemute _From_: the potion top-up of the source's rarity
+      sidemuteFallback?: FallbackPool
       // Transmute _To_ a Common: the Monster-banner cards that also transmute into it
       monsterTransmuteSourceCount?: number
     }
@@ -173,6 +182,20 @@ const getView = ({
   const transmuteRarity =
     mode === 'transmute' && result.branch === 'normal' ? getTransmuteResultRarity(id) : undefined
 
+  const toFallback = (rarity: number | undefined, ids: (rarity: number) => number[]) => {
+    if (rarity === undefined) return undefined
+    const count = toCards(ids(rarity), cards).filter(isInSelectedSet).length
+    return count > 0 ? { rarity, count } : undefined
+  }
+  const transmuteFallback = toFallback(transmuteRarity, (rarity) =>
+    poolOfRarity(rarity).filter((x) => canReachWithEnergyAttributes(x, selectedEnergyAttributes))
+  )
+  // The Monster-banner sidemute always fills its offer, so it never needs the top-up
+  const sidemuteFallback = toFallback(
+    mode === 'sidemute' && result.branch !== 'monster' ? getCardColorAndRarity(id)?.[1] : undefined,
+    getPotionIds
+  )
+
   if (visible.length === 0) {
     if (transmuteRarity !== undefined) {
       // Only candidates in a ticked card set: ticking an attribute wouldn't bring the others back
@@ -195,17 +218,11 @@ const getView = ({
             .map((card) => getCardSetName(card.expansion))
         )
       )
-      const rarity = getCardColorAndRarity(id)?.[1]
-      const potions =
-        mode === 'sidemute' && rarity !== undefined
-          ? sortLikeCardex(toCards(getPotionIds(rarity), cards).filter(isInSelectedSet))
-          : []
       return state({
         kind: 'all-hidden-by-card-sets',
         count: hiddenBySets,
         cardSets,
-        potions:
-          potions.length > 0 && rarity !== undefined ? { rarity, cards: potions } : undefined,
+        sidemuteFallback,
       })
     }
     if (mode === 'tradepost') return state({ kind: 'tradepost-nothing' })
@@ -216,17 +233,9 @@ const getView = ({
     kind: 'cards',
     cards: sortLikeCardex(visible),
     branch: result.branch,
-    transmuteRarity,
+    transmuteFallback,
+    sidemuteFallback,
   }
-}
-
-// The cards listed under the headline: the results, or what the game offers in their place
-export const getViewCards = (view: TransmuteView): CardData[] | undefined => {
-  if (view.kind === 'cards') return view.cards
-  if (view.kind === 'state' && view.state.kind === 'all-hidden-by-card-sets') {
-    return view.state.potions?.cards
-  }
-  return undefined
 }
 
 export const useTransmuteResults = (props: UseTransmuteResultsProps): TransmuteView => {

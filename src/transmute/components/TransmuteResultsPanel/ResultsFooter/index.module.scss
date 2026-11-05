@@ -1,0 +1,14 @@
+@use 'index' as *;
+
+.detail {
+  margin: 1rem 0 0;
+  font-size: font-size('xs');
+  line-height: 1.6;
+  color: $color-primary-muted;
+  opacity: 0.75;
+
+  @media (max-width: $breakpoint-mobile) {
+    font-size: font-size('xxs');
+    opacity: 0.9;
+  }
+}

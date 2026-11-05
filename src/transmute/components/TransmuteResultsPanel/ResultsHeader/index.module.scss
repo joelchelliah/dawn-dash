@@ -13,11 +13,6 @@
   }
 }
 
-.mode {
-  color: $yellow-base;
-  font-weight: bold;
-}
-
 .detail {
   margin: 0 0 0.5rem;
   font-size: font-size('xs');
@@ -30,20 +25,10 @@
     opacity: 0.9;
   }
 
-  &--note {
-    font-size: font-size('xxs');
-    opacity: 0.75;
-  }
-
   &__list {
     display: block;
     margin-top: 0.25rem;
     padding-left: 1.25rem;
-  }
-
-  &__line {
-    display: block;
-    margin-top: 0.5rem;
   }
 
   &__list-item {

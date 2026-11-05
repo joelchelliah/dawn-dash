@@ -1,6 +1,5 @@
 import { createCx } from '@/shared/utils/classnames'
 import { CardData } from '@/shared/types/cards'
-import { RARITIES } from '@/shared/components/RarityBorderedArtwork'
 
 import { TransmuteMode } from '@/transmute/types/rules'
 import { TransmuteDirection } from '@/transmute/types/filters'
@@ -12,16 +11,12 @@ import {
   RARITY,
 } from '@/transmute/utils/transmuteLookup'
 
+import ModeName, { getRarityName } from '../ModeName'
+
 import EnergyAttributeIconsInline from './EnergyAttributeIconsInline'
 import styles from './index.module.scss'
 
 const cx = createCx(styles)
-
-const MODE_NAMES: Record<TransmuteMode, string> = {
-  transmute: 'Transmute',
-  sidemute: 'Sidemute',
-  tradepost: 'Tradepost',
-}
 
 const getCardsQualifier = (mode: TransmuteMode, direction: TransmuteDirection) => {
   switch (mode) {
@@ -42,7 +37,6 @@ const getCardsQualifier = (mode: TransmuteMode, direction: TransmuteDirection) =
   }
 }
 
-// "Same banner color" isn't true for these
 const SUBTEXT_BLACK_TO_BROWN = (
   <>
     <strong>Black</strong> cards sidemute into <strong>Brown</strong> cards of the same rarity.
@@ -62,8 +56,6 @@ const SUBTEXT_MONSTER_TRANSMUTE = (
   </>
 )
 
-const getRarityName = (rarity: number) => RARITIES[rarity]?.name ?? ''
-
 const getWhiteTransmuteSubtext = (card: CardData) => (
   <>
     It transmutes into{' '}
@@ -72,7 +64,7 @@ const getWhiteTransmuteSubtext = (card: CardData) => (
   </>
 )
 
-interface ResultStateDetailsProps {
+interface ResultsHeaderProps {
   view: TransmuteView
   selectedCard: CardData | null
   direction: TransmuteDirection
@@ -80,8 +72,8 @@ interface ResultStateDetailsProps {
 }
 
 // The headline above the results, plus the detail lines the filters and results call for
-const ResultStateDetails = ({ view, selectedCard, direction, mode }: ResultStateDetailsProps) => {
-  const Mode = <span className={cx('mode')}>{MODE_NAMES[mode]}</span>
+const ResultsHeader = ({ view, selectedCard, direction, mode }: ResultsHeaderProps) => {
+  const Mode = <ModeName mode={mode} />
   const Card = <strong>{selectedCard?.name}</strong>
   const cantBeObtained = (
     <>
@@ -154,13 +146,6 @@ const ResultStateDetails = ({ view, selectedCard, direction, mode }: ResultState
                 </span>
               ))}
             </span>
-            {state.potions && (
-              <span className={cx('detail__line')}>
-                Without any of these card sets, you will be offered the following{' '}
-                <strong>{state.potions.cards.length}</strong>{' '}
-                <strong>{getRarityName(state.potions.rarity)}</strong> potions.
-              </span>
-            )}
           </>,
         ]
       case 'tradepost-nothing':
@@ -251,9 +236,9 @@ const ResultStateDetails = ({ view, selectedCard, direction, mode }: ResultState
   if (view.kind === 'no-card') {
     return renderHeadline(
       direction === 'from' ? (
-        <>Search for a card to see which cards it can {Mode} into</>
+        <>Search for a card to see which cards it can {Mode} into.</>
       ) : (
-        <>Search for a card to see which cards can {Mode} into it</>
+        <>Search for a card to see which cards can {Mode} into it.</>
       )
     )
   }
@@ -328,18 +313,7 @@ const ResultStateDetails = ({ view, selectedCard, direction, mode }: ResultState
     </>
   )
 
-  return (
-    <>
-      {renderHeadline(direction === 'from' ? headlineFrom : headlineTo, subtext || monsterNote)}
-      {view.transmuteRarity !== undefined && (
-        <p className={cx('detail', 'detail--note')}>
-          If you run out of valid {Mode} options, you will be offered random{' '}
-          <strong>{getRarityName(view.transmuteRarity)}</strong> cards of any{' '}
-          <strong>banner color</strong> you have access to..
-        </p>
-      )}
-    </>
-  )
+  return renderHeadline(direction === 'from' ? headlineFrom : headlineTo, subtext || monsterNote)
 }
 
-export default ResultStateDetails
+export default ResultsHeader

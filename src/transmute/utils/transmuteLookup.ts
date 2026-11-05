@@ -73,7 +73,8 @@ const TRADEPOST_IDS = [...RULES.pool, ...RULES.tradepost.adds].filter(
 
 const POOL = new Set(RULES.pool)
 const POOL_BY_BUCKET = groupByBucket(RULES.pool)
-const poolOfRarity = (rarity: number) => RULES.pool.filter((id) => RULES.cards[id][1] === rarity)
+export const poolOfRarity = (rarity: number) =>
+  RULES.pool.filter((id) => RULES.cards[id][1] === rarity)
 const POOL_COMMONS = poolOfRarity(RARITY.Common)
 const TRADEPOST = new Set(TRADEPOST_IDS)
 const TRADEPOST_BY_BUCKET = groupByBucket(TRADEPOST_IDS)
