@@ -7,7 +7,7 @@ import ResultCard from '@/shared/components/ResultCard'
 import ResultCardsByBanner from '@/shared/components/ResultCardsByBanner'
 
 import { UseAllTransmuteSearchFilters } from '@/transmute/hooks/useSearchFilters/useAllTransmuteSearchFilters'
-import { useTransmuteResults } from '@/transmute/hooks/useTransmuteResults'
+import { getViewCards, useTransmuteResults } from '@/transmute/hooks/useTransmuteResults'
 import { TransmuteCards } from '@/transmute/utils/transmuteCards'
 
 import ResultStateDetails from './ResultStateDetails'
@@ -35,6 +35,7 @@ const TransmuteResultsPanel = ({ cards, useSearchFilters }: TransmuteResultsPane
     selectedEnergyAttributes,
     isCardSetIndexSelected,
   })
+  const resultCards = getViewCards(view)
 
   return (
     <div className={cx('results-panel')}>
@@ -47,11 +48,10 @@ const TransmuteResultsPanel = ({ cards, useSearchFilters }: TransmuteResultsPane
           selectedCard={selectedCard}
           direction={direction}
           mode={mode}
-          selectedEnergyAttributes={selectedEnergyAttributes}
         />
-        {view.kind === 'cards' && (
+        {resultCards && (
           <ResultCardsByBanner
-            cards={view.cards}
+            cards={resultCards}
             renderCard={(card: CardData, entryIndex: number) => (
               <ResultCard
                 key={card.blightbane_id}

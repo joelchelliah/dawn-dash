@@ -35,6 +35,22 @@
     opacity: 0.75;
   }
 
+  &__list {
+    display: block;
+    margin-top: 0.25rem;
+    padding-left: 1.25rem;
+  }
+
+  &__line {
+    display: block;
+    margin-top: 0.5rem;
+  }
+
+  &__list-item {
+    display: list-item;
+    list-style: disc;
+  }
+
   // Rendered as siblings of the result list, so this spaces the last line from it
   &:last-of-type {
     margin-bottom: 1rem;

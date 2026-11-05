@@ -2,7 +2,7 @@ import { createCx } from '@/shared/utils/classnames'
 import { CardData } from '@/shared/types/cards'
 import { RARITIES } from '@/shared/components/RarityBorderedArtwork'
 
-import { TransmuteEnergyAttribute, TransmuteMode } from '@/transmute/types/rules'
+import { TransmuteMode } from '@/transmute/types/rules'
 import { TransmuteDirection } from '@/transmute/types/filters'
 import { TransmuteState, TransmuteView } from '@/transmute/hooks/useTransmuteResults'
 import {
@@ -50,15 +50,15 @@ const SUBTEXT_BLACK_TO_BROWN = (
 )
 const SUBTEXT_MONSTER_SIDEMUTE = (
   <>
-    <strong>Monster</strong>-banner cards sidemute into any of the following{' '}
-    <strong>Monster</strong> cards.
+    All <strong>Monster</strong>-banner cards can <strong>sidemute</strong> into any of the
+    following <strong>Monster</strong> cards.
   </>
 )
 const SUBTEXT_BROWN_SOURCES = 'Brown and Black cards of the same rarity that sidemute into this one'
 const SUBTEXT_MONSTER_TRANSMUTE = (
   <>
     <strong>Monster</strong> cards transmute into <strong>Common</strong> cards of any{' '}
-    <strong>color</strong> you have access to.
+    <strong>banner color</strong> you have access to.
   </>
 )
 
@@ -68,7 +68,7 @@ const getWhiteTransmuteSubtext = (card: CardData) => (
   <>
     It transmutes into{' '}
     <strong>{getRarityName(getTransmuteResultRarity(card.blightbane_id) ?? card.rarity)}</strong>{' '}
-    cards of any <strong>color</strong> you have access to.
+    cards of any <strong>banner color</strong> you have access to.
   </>
 )
 
@@ -77,20 +77,12 @@ interface ResultStateDetailsProps {
   selectedCard: CardData | null
   direction: TransmuteDirection
   mode: TransmuteMode
-  selectedEnergyAttributes: TransmuteEnergyAttribute[]
 }
 
 // The headline above the results, plus the detail lines the filters and results call for
-const ResultStateDetails = ({
-  view,
-  selectedCard,
-  direction,
-  mode,
-  selectedEnergyAttributes,
-}: ResultStateDetailsProps) => {
+const ResultStateDetails = ({ view, selectedCard, direction, mode }: ResultStateDetailsProps) => {
   const Mode = <span className={cx('mode')}>{MODE_NAMES[mode]}</span>
   const Card = <strong>{selectedCard?.name}</strong>
-  const energyIcons = <EnergyAttributeIconsInline attributes={selectedEnergyAttributes} />
   const cantBeObtained = (
     <>
       {Card} can never be obtained <strong>from</strong> a {Mode}!
@@ -102,43 +94,79 @@ const ResultStateDetails = ({
     switch (state.kind) {
       case 'unknown':
         return [<>{Card} is newer than the transmute data, so there’s nothing to show for it yet</>]
-      // Distant Memory: every lookup comes back empty, but the game offers something else
-      // Distant Memory. Its transmute is a list, and Tradepost is covered by the excluded-group
-      // headline below, so only sidemute gets here.
+      // Tradepost is covered by the excluded-group headline below, so only sidemute gets here
       case 'white':
         return [
           <>
-            {Card} can {Mode} into one of the <strong>{state.count}</strong>{' '}
-            <strong>{getRarityName(state.rarity)}</strong> potions
+            Not enough data to know how <strong>White</strong> cards {Mode}!
           </>,
         ]
       case 'blocked':
         return [
           <>
-            {Card} can’t {Mode}
+            {Card} has no {Mode} results.
           </>,
-          state.reason,
+          // Not blocked as such: no result is Monster rarity, so their same-color sidemute is empty
+          state.groupId === 'EXCEPTION-MONSTER' ? (
+            <>
+              <strong>Monster</strong> cards without a <strong>Monster</strong>-banner will never{' '}
+              {Mode} into anything.
+            </>
+          ) : state.groupId === 'EXCEPTION-CURSE' ? (
+            <>
+              <strong>Cursed</strong> cards can never be selected as the target of a {Mode}.
+            </>
+          ) : (
+            state.reason
+          ),
         ]
       case 'transmute-fallback':
         return [
           <>
-            {Card} has no same-color {Mode} results left after your filters
+            {Card} has no {Mode} results left after your <strong>filters</strong>.
           </>,
-          <>
-            You will be offered random {getRarityName(state.rarity)} cards of any colors you have
-            access to {energyIcons}
-          </>,
+          state.requiredEnergyAttributes.length > 0 ? (
+            <>
+              Without <EnergyAttributeIconsInline attributes={state.requiredEnergyAttributes} />{' '}
+              <strong>energy</strong>, you will be offered random{' '}
+              <strong>{getRarityName(state.rarity)}</strong> cards of any{' '}
+              <strong>banner color</strong> you have access to.
+            </>
+          ) : (
+            <>
+              You will be offered random <strong>{getRarityName(state.rarity)}</strong> cards of any{' '}
+              <strong>banner color</strong> you have access to.
+            </>
+          ),
         ]
       case 'all-hidden-by-card-sets':
         return [
           <>
-            All {state.count} {Mode} results for {Card} are in card sets you’ve unticked
+            All {state.count} {Mode} results for {Card} are hidden by your <strong>filters</strong>.
+          </>,
+          <>
+            They are in the following card {state.cardSets.length > 1 ? 'sets' : 'set'}:
+            {/* Spans rather than a list, since this renders inside the detail paragraph */}
+            <span className={cx('detail__list')}>
+              {state.cardSets.map((cardSet) => (
+                <span key={cardSet} className={cx('detail__list-item')}>
+                  <strong>{cardSet}</strong>
+                </span>
+              ))}
+            </span>
+            {state.potions && (
+              <span className={cx('detail__line')}>
+                Without any of these card sets, you will be offered the following{' '}
+                <strong>{state.potions.cards.length}</strong>{' '}
+                <strong>{getRarityName(state.potions.rarity)}</strong> potions.
+              </span>
+            )}
           </>,
         ]
       case 'tradepost-nothing':
         return [
           <>
-            {Card} has nothing to {Mode} into, so it stays in your deck
+            {Card} has no {Mode} results.
           </>,
         ]
       case 'not-a-result':
@@ -170,7 +198,8 @@ const ResultStateDetails = ({
         const energyPhrase = requiredEnergyAttributes.length > 0 && (
           <>
             <strong>{requiredEnergyAttributes.length > 1 ? 'one of ' : ''}</strong>
-            <EnergyAttributeIconsInline attributes={requiredEnergyAttributes} />
+            <EnergyAttributeIconsInline attributes={requiredEnergyAttributes} />{' '}
+            <strong>energy</strong>
           </>
         )
         return [
@@ -186,6 +215,13 @@ const ResultStateDetails = ({
         ]
       }
       case 'monster-sidemute-target':
+        return [
+          <>
+            Any of the <strong>{state.count}</strong> <strong>Monster</strong>-banner cards can{' '}
+            {Mode} into {Card}!
+          </>,
+        ]
+      case 'monster-transmute-target':
         return [
           <>
             Any of the <strong>{state.count}</strong> <strong>Monster</strong>-banner cards can{' '}
@@ -228,7 +264,7 @@ const ResultStateDetails = ({
   if (view.kind === 'state' && tradepostExcludedGroup) {
     return renderHeadline(
       <>
-        The {Mode} neither accepts nor grants any <strong>{tradepostExcludedGroup}</strong> cards!
+        The {Mode} does not work with any <strong>{tradepostExcludedGroup}</strong> cards!
       </>
     )
   }
@@ -247,6 +283,14 @@ const ResultStateDetails = ({
             : direction === 'to' && mode === 'sidemute' && selectedCard?.color === COLOR.Brown
               ? SUBTEXT_BROWN_SOURCES
               : ''
+
+  // Kept apart from `subtext`, since the headline's qualifier still holds for the listed cards
+  const monsterNote = view.monsterTransmuteSourceCount !== undefined && (
+    <>
+      Any of the <strong>{view.monsterTransmuteSourceCount}</strong> <strong>Monster</strong>
+      -banner cards can transmute into {Card}!
+    </>
+  )
 
   const qualifier = subtext ? null : <> {getCardsQualifier(mode, direction)}</>
   // Checked rather than assumed for Tradepost: an unticked card set can filter the card itself out
@@ -286,12 +330,12 @@ const ResultStateDetails = ({
 
   return (
     <>
-      {renderHeadline(direction === 'from' ? headlineFrom : headlineTo, subtext)}
+      {renderHeadline(direction === 'from' ? headlineFrom : headlineTo, subtext || monsterNote)}
       {view.transmuteRarity !== undefined && (
         <p className={cx('detail', 'detail--note')}>
           If you run out of valid {Mode} options, you will be offered random{' '}
-          <strong>{getRarityName(view.transmuteRarity)}</strong> cards, depending on your{' '}
-          <strong>energy attributes</strong>.
+          <strong>{getRarityName(view.transmuteRarity)}</strong> cards of any{' '}
+          <strong>banner color</strong> you have access to..
         </p>
       )}
     </>

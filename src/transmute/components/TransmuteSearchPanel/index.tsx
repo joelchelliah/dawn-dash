@@ -95,6 +95,9 @@ const TransmuteSearchPanel = ({ cards, useSearchFilters }: TransmuteSearchPanelP
   const showCardSets = !(mode === 'sidemute' && selectedCard?.color === COLOR.Monster)
   const tradepostExcludedGroup =
     mode === 'tradepost' && selectedCard ? getTradepostExcludedGroup(selectedCard) : undefined
+  // No player can sidemute a White card yet, so neither direction has anything to show
+  const directionExcludedGroup =
+    mode === 'sidemute' && selectedCard?.color === COLOR.White ? 'White' : tradepostExcludedGroup
 
   const getEnergyAttributeFilterLabel = (filter: string) => {
     if (!(filter in ENERGY_ATTRIBUTE_ICONS)) return filter
@@ -146,7 +149,7 @@ const TransmuteSearchPanel = ({ cards, useSearchFilters }: TransmuteSearchPanelP
             />
           </Section>
           <Section title="Direction" spacing="medium">
-            {!tradepostExcludedGroup ? (
+            {!directionExcludedGroup ? (
               <SegmentedControl
                 name="transmute-direction"
                 ariaLabel="Direction"
@@ -158,17 +161,8 @@ const TransmuteSearchPanel = ({ cards, useSearchFilters }: TransmuteSearchPanelP
               />
             ) : (
               <p className={cx('filter-note')}>
-                Not relevant for <strong>{MODE_LABELS.tradepost}</strong> +{' '}
-                {tradepostExcludedGroup === 'White' ? (
-                  <>
-                    <strong>White</strong> card
-                  </>
-                ) : (
-                  <>
-                    <strong>Monster</strong> card
-                  </>
-                )}
-                .
+                Not relevant for <strong>{MODE_LABELS[mode]}</strong> +{' '}
+                <strong>{directionExcludedGroup}</strong> card.
               </p>
             )}
           </Section>

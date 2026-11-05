@@ -103,17 +103,15 @@ export const getTransmuteResultRarity = (id: number): number | undefined =>
 export const getTradepostExcludedGroup = ({ color, rarity }: { color: number; rarity: number }) =>
   rarity === RARITY.Monster ? 'Monster' : color === COLOR.White ? 'White' : undefined
 
+// The sidemute top-up: when a source's list runs short, these join it whatever its color
+export const getPotionIds = (rarity: number) =>
+  RULES.potions.filter((id) => RULES.cards[id]?.[1] === rarity)
+
 export const isMonsterSidemuteResult = (id: number) => MONSTER_SIDEMUTE.has(id)
 
 // Any one of these is enough. Empty when the card needs none.
-const getRequiredEnergyAttributes = (id: number): TransmuteEnergyAttribute[] =>
+export const getRequiredEnergyAttributes = (id: number): TransmuteEnergyAttribute[] =>
   RULES.castRequirements[id] ?? ENERGY_ATTRIBUTES_BY_COLOR[RULES.cards[id][0]] ?? []
-
-// A White source's sidemute, which no lookup finds (see `checkSource`): the potions of its rarity
-export const getWhiteSidemuteOffer = (id: number): { rarity: number; ids: number[] } => {
-  const rarity = RULES.cards[id][1]
-  return { rarity, ids: RULES.potions.filter((x) => RULES.cards[x]?.[1] === rarity) }
-}
 
 // Gates the Transmute mode only, and is checked on the *result*
 export const canReachWithEnergyAttributes = (
@@ -225,6 +223,10 @@ export const getTradepostResults = (id: number): LookupResult => {
 
 const withoutBlocked = (list: number[], mode: TransmuteMode) =>
   list.filter((x) => !BLOCKING_GROUPS[mode].has(x))
+
+// Every one of these transmutes into any Common through the game's fallback (see
+// `getTransmuteResults`), so they're counted for a Common target rather than listed
+export const MONSTER_TRANSMUTE_SOURCE_IDS = withoutBlocked(MONSTER_BANNER_IDS, 'transmute')
 
 export const getTransmuteSources = (
   id: number,

@@ -80,8 +80,9 @@ needs.
   something else: transmute offers Rares of any color you have access to, sidemute offers only the 6
   Uncommon potions, and Tradepost offers nothing. Those are the generic transmute fallback and
   potion top-up for its rarity, so nothing hardcodes Rare/Uncommon: its transmute is listed like a
-  Monster-banner one (branch `white-transmute`), and its sidemute counts the potions
-  (`getWhiteSidemuteOffer`).
+  Monster-banner one (branch `white-transmute`). Its sidemute shows a "not enough data" headline
+  in both directions instead, with the direction toggle hidden: no player can sidemute a White card
+  yet, so the potion offer was unconfirmed.
 - **Unlocks.** The 41 Metaprogress cards (class starting cards) and the Hunter companions Rend,
   Claw and Maul (Tradepost only) appear in the game only once unlocked. The data lists them as if
   unlocked. A note on them is optional (Task 6).
