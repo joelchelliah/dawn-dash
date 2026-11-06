@@ -7,6 +7,7 @@ import {
   toRarityToken,
 } from '@/shared/utils/keywordMatching'
 import { useFilterUrlParams } from '@/shared/hooks/useFilterUrlParams'
+import { SEARCH_QUERY_PARAM } from '@/shared/constants/urlParams'
 import {
   cardSetUrlCodec,
   useCardSetFilters,
@@ -201,8 +202,13 @@ export const useAllCardSearchFilters = (
   const [isPendingWeeklyChallengeFromUrl, setIsPendingWeeklyChallengeFromUrl] = useState(false)
 
   const { setWeeklyChallengeParam } = useFilterUrlParams({
-    keywords,
-    setKeywords: trackedSetKeywords,
+    valueBindings: [
+      {
+        param: SEARCH_QUERY_PARAM,
+        value: keywords.trim() ? keywords : undefined,
+        apply: trackedSetKeywords,
+      },
+    ],
     filterBindings: [
       { codec: cardSetUrlCodec, filters: cardSetFilters, enableFilters: enableCardSetFilters },
       { codec: bannerUrlCodec, filters: bannerFilters, enableFilters: enableBannerFilters },

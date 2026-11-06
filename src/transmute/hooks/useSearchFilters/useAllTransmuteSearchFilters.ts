@@ -1,8 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 
 import { CardData } from '@/shared/types/cards'
-import { useTransmuteCardSetFilters } from '@/shared/hooks/useSearchFilters/useCardSetFilters'
+import {
+  cardSetUrlCodec,
+  useTransmuteCardSetFilters,
+} from '@/shared/hooks/useSearchFilters/useCardSetFilters'
 import { useFilterTracking } from '@/shared/hooks/useSearchFilters/useFilterTracking'
+import { useFilterUrlParams } from '@/shared/hooks/useFilterUrlParams'
 
 import { TransmuteMode } from '@/transmute/types/rules'
 import {
@@ -16,8 +20,17 @@ import {
   cacheTransmuteSearchFilters,
   getCachedTransmuteSearchFilters,
 } from '@/transmute/utils/transmuteFilterStore'
+import { TransmuteCards } from '@/transmute/utils/transmuteCards'
+import {
+  CARD_PARAM,
+  decodeModeParam,
+  encodeModeParam,
+  findCardBySlug,
+  MODE_PARAM,
+  toCardSlug,
+} from '@/transmute/utils/transmuteUrlParams'
 
-import { useEnergyAttributeFilters } from './useEnergyAttributeFilters'
+import { energyAttributeUrlCodec, useEnergyAttributeFilters } from './useEnergyAttributeFilters'
 import { useFormattingTransmuteFilters } from './useFormattingTransmuteFilters'
 
 export interface UseAllTransmuteSearchFilters {
@@ -33,19 +46,24 @@ export interface UseAllTransmuteSearchFilters {
   useEnergyAttributeFilters: ReturnType<typeof useEnergyAttributeFilters>
   useFormattingFilters: ReturnType<typeof useFormattingTransmuteFilters>
   resetFilters: () => void
+  // A `?card` arrived before the card data, so it can't be resolved yet
+  isPendingCardFromUrl: boolean
 }
 
 const pickValid = <T extends string>(value: unknown, valid: readonly T[], fallback: T): T =>
   valid.includes(value as T) ? (value as T) : fallback
 
-export const useAllTransmuteSearchFilters = (): UseAllTransmuteSearchFilters => {
+export const useAllTransmuteSearchFilters = (
+  cards: TransmuteCards | undefined
+): UseAllTransmuteSearchFilters => {
   const cachedFilters = getCachedTransmuteSearchFilters()
 
   const [direction, setDirectionUntracked] = useState<TransmuteDirection>(DEFAULT_DIRECTION)
   const [mode, setModeUntracked] = useState<TransmuteMode>(DEFAULT_MODE)
-  // Not cached: a shared URL carries the selected card instead (Task 7)
+  // Not cached: a shared URL carries the selected card instead
   const [searchText, setSearchTextUnlinked] = useState('')
   const [selectedCard, setSelectedCard] = useState<CardData | null>(null)
+  const [pendingCardSlug, setPendingCardSlug] = useState<string | null>(null)
 
   // An empty field means no card, however it was emptied. Editing the text otherwise keeps the card.
   const setSearchText = (text: string) => {
@@ -105,8 +123,9 @@ export const useAllTransmuteSearchFilters = (): UseAllTransmuteSearchFilters => 
   // --------------------------------------------------
   // --------------------------------------------------
 
-  const { cardSetFilters, resetCardSetFilters } = trackedUseCardSetFilters
-  const { energyAttributeFilters, resetEnergyAttributeFilters } = trackedUseEnergyAttributeFilters
+  const { cardSetFilters, enableCardSetFilters, resetCardSetFilters } = trackedUseCardSetFilters
+  const { energyAttributeFilters, enableEnergyAttributeFilters, resetEnergyAttributeFilters } =
+    trackedUseEnergyAttributeFilters
   const { formattingFilters, resetFormattingFilters } = trackedUseFormattingFilters
 
   const resetFilters = () => {
@@ -118,6 +137,59 @@ export const useAllTransmuteSearchFilters = (): UseAllTransmuteSearchFilters => 
     resetEnergyAttributeFilters()
     resetFormattingFilters()
   }
+
+  // --------------------------------------------------
+  // ------------------- URL params -------------------
+  // --------------------------------------------------
+
+  // An unresolvable slug falls back to no selection, which `resetFilters` already left in place
+  const applyCardSlug = (slug: string, from: TransmuteCards) => {
+    const card = findCardBySlug(slug, from)
+    if (card) selectCard(card)
+  }
+
+  // Resolved straight away when the cards are already here, so there's no pending render to flash
+  const applyCardParam = (slug: string) => {
+    if (cards) applyCardSlug(slug, cards)
+    else setPendingCardSlug(slug)
+  }
+
+  useEffect(() => {
+    if (pendingCardSlug === null || !cards) return
+    applyCardSlug(pendingCardSlug, cards)
+    setPendingCardSlug(null)
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- `applyCardSlug` is recreated every render
+  }, [pendingCardSlug, cards])
+
+  const applyModeParam = (value: string) => {
+    const decoded = decodeModeParam(value)
+    if (!decoded) return
+    trackedSetMode(decoded.mode)
+    trackedSetDirection(decoded.direction)
+  }
+
+  // Declared after the cached-mode effect above, so on arrival the URL's mode wins over the cache
+  useFilterUrlParams({
+    valueBindings: [
+      {
+        param: CARD_PARAM,
+        // The pending slug holds the param in place, or the writer would erase it before it resolves
+        value:
+          pendingCardSlug ?? (selectedCard && cards ? toCardSlug(selectedCard, cards) : undefined),
+        apply: applyCardParam,
+      },
+      { param: MODE_PARAM, value: encodeModeParam(mode, direction), apply: applyModeParam },
+    ],
+    filterBindings: [
+      { codec: cardSetUrlCodec, filters: cardSetFilters, enableFilters: enableCardSetFilters },
+      {
+        codec: energyAttributeUrlCodec,
+        filters: energyAttributeFilters,
+        enableFilters: enableEnergyAttributeFilters,
+      },
+    ],
+    resetFilters,
+  })
 
   // --------------------------------------------------
   // -------- Debounced caching of filters ------------
@@ -169,5 +241,6 @@ export const useAllTransmuteSearchFilters = (): UseAllTransmuteSearchFilters => 
     useEnergyAttributeFilters: trackedUseEnergyAttributeFilters,
     useFormattingFilters: trackedUseFormattingFilters,
     resetFilters,
+    isPendingCardFromUrl: pendingCardSlug !== null,
   }
 }

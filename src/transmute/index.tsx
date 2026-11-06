@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 
 import dynamic from 'next/dynamic'
+import { useRouter } from 'next/router'
 
 import { createCx } from '@/shared/utils/classnames'
 import { useNavigation } from '@/shared/hooks/useNavigation'
@@ -29,8 +30,11 @@ const cx = createCx(styles)
 function Transmute(): JSX.Element {
   const { navigateTo } = useNavigation()
   const { cardData, isLoading, isError, progress } = useCardData()
-  const useSearchFiltersHook = useAllTransmuteSearchFilters()
   const transmuteCards = useMemo(() => cardData && buildTransmuteCards(cardData), [cardData])
+  const useSearchFiltersHook = useAllTransmuteSearchFilters(transmuteCards)
+
+  const isLoadingAnything = isLoading || useSearchFiltersHook.isPendingCardFromUrl
+  const { isReady: isRouterReady } = useRouter()
 
   return (
     <div className={cx('container')}>
@@ -45,9 +49,9 @@ function Transmute(): JSX.Element {
       />
 
       <div className={cx('content')}>
-        <DataLoadingMessage isVisible={isLoading} progress={progress} dataType="card" />
-        <DataErrorMessage isVisible={isError && !isLoading} dataType="card" />
-        {!isError && !isLoading && transmuteCards && (
+        <DataLoadingMessage isVisible={isLoadingAnything} progress={progress} dataType="card" />
+        <DataErrorMessage isVisible={isError && !isLoadingAnything} dataType="card" />
+        {!isError && !isLoadingAnything && isRouterReady && transmuteCards && (
           <>
             <TransmuteSearchPanel cards={transmuteCards} useSearchFilters={useSearchFiltersHook} />
             <TransmuteResultsPanel cards={transmuteCards} useSearchFilters={useSearchFiltersHook} />

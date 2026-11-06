@@ -215,10 +215,14 @@ the N Monster-banner cards can sidemute into this". Even after narrowing, it wou
   so a shared link reproduces the whole view. Formatting options stay out of the URL, as they do in
   Cardex, because they are a viewer preference, not part of the view.
   - `?card=<slug>` holds the selected card: the name lowercased with `_` for spaces, plus a
-    `_<blightbane_id>` suffix only for `hasDuplicateName` cards.
-  - `?dir=to` and `?mode=sidemute|tradepost` are written only when they differ from the defaults.
-  - `?sets=` uses the existing `cardSetUrlCodec`, and `?attributes=` uses **named** codes
-    (`dex.int.str.holy`), the same as Skilldex requirements.
+    `-<blightbane_id>` suffix only when another of the tool's cards shares that slug
+    (`whirlpool-12345`). That is wider than `hasDuplicateName`, which is case-sensitive and misses
+    `Detonate`/`DETONATE`. No param means no card.
+  - `?mode=` holds mode **and** direction, in the short form: `sidemute`, `transmute-to`,
+    `tradepost-to`. The default, Transmute _From_, writes no param. `-from` is accepted but never
+    written.
+  - `?sets=` uses the existing `cardSetUrlCodec`, and `?energy=` uses **named** codes
+    (`dex.int.str.holy`), the same as Skilldex requirements. No param means all are ticked.
 
   The selected card is a query param rather than a `/transmute/[card]` route. That keeps one page
   component, so the Booty remount problem can't arise. Per-card OG previews aren't worth building,
@@ -390,7 +394,7 @@ mode, leaving a note. The mode and direction controls are a segmented control of
 like Eventmaps' formatting filters, each option with a one-line subtitle. The speedruns slider wasn't
 tried, because it lives in `src/speedruns/` and is styled by character class. For Task 7: the
 filter state is ready, `energyAttributeUrlCodec` is exported, and the codec joins codes with `.`
-(`?attributes=dex.int`), not `,`. The code says _energy attributes_ throughout, not _energies_.
+(`?energy=dex.int`), not `,`. The code says _energy attributes_ throughout, not _energies_.
 
 - Filter hooks:
   - the direction toggle and the three-way mode toggle (Transmute, Sidemute, Tradepost in that
@@ -545,15 +549,39 @@ Check, at desktop and mobile:
 - a potion in _To_ on Sidemute and on Tradepost;
 - a state that already has a detail line, to confirm the new lines stack under it.
 
-### Task 7 — URL state
+### Task 7 — URL state — COMPLETED
 
-The `?card`, `?dir`, `?mode`, `?sets`, `?attributes` params, read on load and written on change.
-`useFilterUrlParams` is built around `keywords`/`?weekly`, so generalize it rather than forking it:
-keep Cardex and Skilldex behavior identical. A URL whose card slug doesn't resolve falls back to no
-selection.
+Built as: `transmute/utils/transmuteUrlParams.ts` (slugs, the `?mode` codec) and the bindings in
+`useAllTransmuteSearchFilters`, which now takes the card list. The page keeps its loading bar up
+while a `?card` is pending, and holds the panels until the router is ready. A `?card` that arrives
+after the cards resolves straight away, with no pending render.
 
-Check: share a URL with every param into a fresh tab. Check back/forward. Check that Cardex's and
-Skilldex's URLs still round-trip.
+The `?card`, `?mode`, `?sets` and `?energy` params (see the URL decision), read on load and
+written on change. Decided with the user:
+
+- **Generalize `useFilterUrlParams` rather than fork it.** Its hard-coded `keywords` become a list
+  of single-value params (`{ param, value, apply }`), so Cardex's and Skilldex's `?query` is one
+  such param and Transmute adds `card` and `mode`. Cardex and Skilldex behave exactly as before.
+- **Same arrival rules as Cardex.** With any param present, every filter resets to its default and
+  then the params apply, so a missing param means its default. A bare `/transmute` touches nothing:
+  the cached filters stay and are then written to the URL.
+- **History is replaced, like Cardex**, so back/forward leaves the page rather than stepping
+  through filter changes.
+- **`?card` resolves once the card data has loaded.** Until then the page keeps showing its
+  card-loading bar, the same way Cardex holds its panels for `?weekly`. The pending slug stays as
+  the param's value meanwhile, so the URL writer can't erase it. A slug that resolves to nothing
+  falls back to no selection. The exact name is tried first, then a trailing `-<id>`, so a renamed
+  card still resolves by id.
+- **Core is inert in `?sets`.** The Transmute card-set filter has no Core option, so a Core code is
+  ignored when read. Core still counts as ticked when written, so `?sets=` means the same here as
+  in Cardex.
+- Rename the energy codec's param from `attributes` to `energy`. Only the param changes: the code
+  keeps saying _energy attributes_.
+
+Check: a URL with every param in a fresh tab; `?mode=sidemute`, `?mode=transmute-to`, a bad
+`?mode`; a twin's `-<id>` slug; an unknown slug; `?sets=1` and a range; a bare `/transmute` keeping
+cached filters. Then confirm Cardex's (`?query`, `?weekly`, `?sets`) and Skilldex's URLs still
+round-trip.
 
 ### Task 7b — Hints about the selected filters
 
@@ -649,6 +677,22 @@ Check:
 - Searching "Rend", "Claw" and "Maul" offers no `(Companion)` card.
 - A Synthesis-color Tradepost list (_From_) no longer contains them.
 - Cardex's animal-companion filter still works.
+
+### Task 7f — Scroll to top
+
+Reuse what Cardex and Skilldex do in their `index.tsx`: a local `useXScrollToTop()` wrapping the
+shared `useScrollToTop(threshold)`, with the threshold picked by `useBreakpoint().isTabletOrSmaller`,
+and the shared `ScrollToTopButton`, hidden while card data is loading or has failed. Nothing in
+`shared/` changes.
+
+The thresholds are the only new decision. Start from Cardex's (1750 on tablet and below, 1250
+above): the results panel is the same kind of list. On mobile the filter panel sits above the
+results, so the right threshold there is left to trial in the browser.
+
+Check:
+- the button appears and scrolls back up on a Monster-banner sidemute (444 rows);
+- it stays hidden on a short list and while cards load;
+- desktop, tablet and mobile widths.
 
 ### Task 8 — Docs
 

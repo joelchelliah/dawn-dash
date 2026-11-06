@@ -36,7 +36,7 @@ const energyAttributeByOption: Record<EnergyAttributeFilterOption, TransmuteEner
 
 export const allEnergyAttributes: string[] = EnergyAttribute.getAll()
 
-export const energyAttributeUrlCodec = createFilterUrlCodec('attributes', energyAttributeByOption)
+export const energyAttributeUrlCodec = createFilterUrlCodec('energy', energyAttributeByOption)
 
 const useBaseEnergyAttributeFilters = createFilterHook({
   defaultFilters,

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef } from 'react'
 
 import { useFilterUrlParams } from '@/shared/hooks/useFilterUrlParams'
+import { SEARCH_QUERY_PARAM } from '@/shared/constants/urlParams'
 import {
   cardSetUrlCodec,
   useTalentCardSetFilters,
@@ -126,8 +127,13 @@ export const useAllTalentSearchFilters = (
   }
 
   useFilterUrlParams({
-    keywords,
-    setKeywords: trackedSetKeywords,
+    valueBindings: [
+      {
+        param: SEARCH_QUERY_PARAM,
+        value: keywords.trim() ? keywords : undefined,
+        apply: trackedSetKeywords,
+      },
+    ],
     filterBindings: [
       { codec: cardSetUrlCodec, filters: cardSetFilters, enableFilters: enableCardSetFilters },
       { codec: tierUrlCodec, filters: tierFilters, enableFilters: enableTierFilters },

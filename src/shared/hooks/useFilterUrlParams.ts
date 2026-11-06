@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef } from 'react'
 
 import { NextRouter, useRouter } from 'next/router'
 
-import { SEARCH_QUERY_PARAM, WEEKLY_CHALLENGE_PARAM } from '@/shared/constants/urlParams'
+import { WEEKLY_CHALLENGE_PARAM } from '@/shared/constants/urlParams'
 import { FilterUrlCodec } from '@/shared/utils/filterUrlCodec'
 
 export interface UrlFilterBinding {
@@ -12,9 +12,17 @@ export interface UrlFilterBinding {
   enableFilters: (keys: string[]) => void
 }
 
+/** A param holding one value rather than a checkbox group, e.g. the search text or a selected card. */
+export interface UrlValueBinding {
+  param: string
+  /** `undefined` leaves the param out of the URL. */
+  value: string | undefined
+  /** Gets the trimmed value. Must be tracked, like `enableFilters`. */
+  apply: (value: string) => void
+}
+
 interface UseFilterUrlParamsOptions {
-  keywords: string
-  setKeywords: (keywords: string) => void
+  valueBindings: UrlValueBinding[]
   filterBindings: UrlFilterBinding[]
   resetFilters: () => void
   onWeeklyParam?: () => void
@@ -59,8 +67,15 @@ const isSameQuery = (a: Query, b: Query) => {
 const replaceQuery = (router: NextRouter, query: Query) =>
   router.replace({ pathname: router.pathname, query }, undefined, { shallow: true })
 
-const encodeFilterParams = (bindings: UrlFilterBinding[]): ParamUpdates =>
-  Object.fromEntries(bindings.map(({ codec, filters }) => [codec.param, codec.encode(filters)]))
+const encodeParams = (
+  valueBindings: UrlValueBinding[],
+  filterBindings: UrlFilterBinding[]
+): ParamUpdates => ({
+  ...Object.fromEntries(valueBindings.map(({ param, value }) => [param, value])),
+  ...Object.fromEntries(
+    filterBindings.map(({ codec, filters }) => [codec.param, codec.encode(filters)])
+  ),
+})
 
 /**
  * Explicit params win over `?weekly` if both are somehow present.
@@ -68,14 +83,18 @@ const encodeFilterParams = (bindings: UrlFilterBinding[]): ParamUpdates =>
  */
 const applyParamsOnArrival = (
   query: Query,
-  { setKeywords, resetFilters, onWeeklyParam, filterBindings }: UseFilterUrlParamsOptions
+  { valueBindings, resetFilters, onWeeklyParam, filterBindings }: UseFilterUrlParamsOptions
 ) => {
-  const keywords = getParamValue(query, SEARCH_QUERY_PARAM)?.trim()
+  // An empty value counts as absent, as an empty `?query=` always has
+  const presentValues = valueBindings.flatMap(({ param, apply }) => {
+    const value = getParamValue(query, param)?.trim()
+    return value ? [{ value, apply }] : []
+  })
   const presentBindings = filterBindings.filter(({ codec }) => codec.param in query)
 
-  if (keywords || presentBindings.length > 0) {
+  if (presentValues.length > 0 || presentBindings.length > 0) {
     resetFilters()
-    if (keywords) setKeywords(keywords)
+    presentValues.forEach(({ value, apply }) => apply(value))
 
     presentBindings.forEach(({ codec, enableFilters }) => {
       const keys = codec.decode(getParamValue(query, codec.param) ?? '')
@@ -96,10 +115,11 @@ const useLatestRef = <T>(value: T) => {
 }
 
 /**
- * Two-way binding between the search field + filter checkboxes and the URL, on Cardex and Skilldex.
+ * Two-way binding between a tool's search state + filter checkboxes and the URL (Cardex, Skilldex,
+ * Transmute).
  */
 export function useFilterUrlParams(options: UseFilterUrlParamsOptions): UseFilterUrlParams {
-  const { keywords, filterBindings } = options
+  const { valueBindings, filterBindings } = options
   const router = useRouter()
   const isRouterReady = router.isReady
 
@@ -107,9 +127,9 @@ export function useFilterUrlParams(options: UseFilterUrlParamsOptions): UseFilte
   const routerRef = useLatestRef(router)
   const optionsRef = useLatestRef(options)
 
-  const filterParams = encodeFilterParams(filterBindings)
-  const filterParamsRef = useLatestRef(filterParams)
-  const filterParamsKey = JSON.stringify(filterParams)
+  const params = encodeParams(valueBindings, filterBindings)
+  const paramsRef = useLatestRef(params)
+  const paramsKey = JSON.stringify(params)
 
   const hasReadParamsRef = useRef(false)
   const shouldSkipNextWriteRef = useRef(false)
@@ -124,17 +144,14 @@ export function useFilterUrlParams(options: UseFilterUrlParamsOptions): UseFilte
     }, 0)
 
     // `?weekly` stands alone: the filters it produces are what it means
-    const clearedFilterParams = Object.fromEntries(
-      optionsRef.current.filterBindings.map(({ codec }) => [codec.param, undefined])
+    const { valueBindings, filterBindings } = optionsRef.current
+    const clearedParams = Object.fromEntries(
+      Object.keys(encodeParams(valueBindings, filterBindings)).map((param) => [param, undefined])
     )
 
     replaceQuery(
       routerRef.current,
-      withParams(routerRef.current.query, {
-        [SEARCH_QUERY_PARAM]: undefined,
-        ...clearedFilterParams,
-        [WEEKLY_CHALLENGE_PARAM]: '',
-      })
+      withParams(routerRef.current.query, { ...clearedParams, [WEEKLY_CHALLENGE_PARAM]: '' })
     )
   }, [optionsRef, routerRef])
 
@@ -158,15 +175,14 @@ export function useFilterUrlParams(options: UseFilterUrlParamsOptions): UseFilte
       // Drops `?weekly`: once edited, the filters are the accurate description of the screen
       const nextQuery = withParams(currentQuery, {
         [WEEKLY_CHALLENGE_PARAM]: undefined,
-        [SEARCH_QUERY_PARAM]: keywords.trim() ? keywords : undefined,
-        ...filterParamsRef.current,
+        ...paramsRef.current,
       })
 
       if (!isSameQuery(currentQuery, nextQuery)) replaceQuery(routerRef.current, nextQuery)
     }, DEBOUNCE_MS)
 
     return () => clearTimeout(timeout)
-  }, [isRouterReady, keywords, filterParamsKey, filterParamsRef, routerRef])
+  }, [isRouterReady, paramsKey, paramsRef, routerRef])
 
   return { setWeeklyChallengeParam }
 }
