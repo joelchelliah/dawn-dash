@@ -57,7 +57,7 @@ needs.
   | Green (1)                                     | Dex                |
   | Blue (2)                                      | Int                |
   | Red (3)                                       | Str                |
-  | Holy (8)                                      | Holy               |
+  | Gold (8)                                      | Holy               |
   | Aqua (6)                                      | Dex, Int           |
   | Orange (10)                                   | Dex, Str           |
   | Purple (4)                                    | Int, Str           |

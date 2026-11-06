@@ -34,7 +34,7 @@ const COLORS = {
   Brown: 5,
   Aqua: 6,
   White: 7,
-  Holy: 8,
+  Gold: 8,
   Black: 9,
   Orange: 10,
   Monster: 11,
