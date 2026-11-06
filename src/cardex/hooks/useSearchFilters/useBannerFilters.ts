@@ -25,7 +25,7 @@ const bannerIndexMap: Record<string, number> = {
   [BannerFilterOption.Purple]: 4,
   [BannerFilterOption.Brown]: 5,
   [BannerFilterOption.Aqua]: 6,
-  // Skipping 7 (unused)
+  // Skipping 7: White has no checkbox, so White cards bypass the banner filter instead
   [BannerFilterOption.Gold]: 8,
   [BannerFilterOption.Black]: 9,
   [BannerFilterOption.Orange]: 10,

@@ -65,6 +65,14 @@ $color-rarity-rare: #007bff;
 $color-rarity-rare-hover: #32a6ff;
 $color-rarity-legendary: #ffd900;
 $color-rarity-legendary-hover: #fff067;
+
+$rarity-name-to-color-map: (
+  'common': $color-rarity-common,
+  'uncommon': $color-rarity-uncommon,
+  'rare': $color-rarity-rare,
+  'legendary': $color-rarity-legendary,
+  'monster': $color-danger-special-card,
+);
 // -- -- -- -- -- -- -- //
 
 // -- Class colors -- //
@@ -101,6 +109,7 @@ $color-banner-3: #580000;
 $color-banner-4: #370054;
 $color-banner-5: #3f230d;
 $color-banner-6: #00434c;
+$color-banner-7: #555;
 $color-banner-8: #504c00;
 $color-banner-9: #111;
 $color-banner-10: #582800;
@@ -113,6 +122,7 @@ $banner-index-to-color-map: (
   4: $color-banner-4,
   5: $color-banner-5,
   6: $color-banner-6,
+  7: $color-banner-7,
   8: $color-banner-8,
   9: $color-banner-9,
   10: $color-banner-10,
@@ -128,7 +138,11 @@ $banner-name-to-color-map: (
   'Aqua': $color-banner-6,
   'Gold': $color-banner-8,
   'Black': $color-banner-9,
-  'Orange': $color-banner-10,
+  'Orange': $color-banner-10
+    /* Not needed for filters:
+     * 'White': $color-banner-7,
+     * 'Monster': $color-banner-11,
+     */,
 );
 // -- -- -- -- -- -- -- //
 

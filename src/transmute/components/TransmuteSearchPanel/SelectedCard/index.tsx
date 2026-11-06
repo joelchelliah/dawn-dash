@@ -3,6 +3,7 @@ import { CardData } from '@/shared/types/cards'
 import { getCardSetName } from '@/shared/hooks/useSearchFilters/useCardSetFilters'
 import { getCardTypeEmoji, getCardTypeName } from '@/shared/utils/cardTypes'
 import ResultCard from '@/shared/components/ResultCard'
+import ResultCardsByBanner from '@/shared/components/ResultCardsByBanner'
 
 import styles from './index.module.scss'
 
@@ -18,19 +19,25 @@ interface SelectedCardProps {
 const SelectedCard = ({ card, shouldShowCardArt, shouldShowBlightbaneLink }: SelectedCardProps) => (
   <div className={cx('selected-card')}>
     {card ? (
-      <ResultCard
-        // Keyed so the entry animation replays when another card is picked
-        key={card.blightbane_id}
-        card={card}
-        entryIndex={0}
-        shouldShowDescription
-        shouldShowCardArt={shouldShowCardArt}
-        shouldShowBlightbaneLink={shouldShowBlightbaneLink}
-        shouldShowCardSet
-        getCardSetNameFromIndex={getCardSetName}
-        shouldShowCardType
-        getCardTypeNameFromIndex={getCardTypeName}
-        getCardTypeEmojiFromIndex={getCardTypeEmoji}
+      // Wrapped like the results so the card sits on its banner band
+      <ResultCardsByBanner
+        cards={[card]}
+        renderCard={(card: CardData, entryIndex: number) => (
+          <ResultCard
+            // Keyed so the entry animation replays when another card is picked
+            key={card.blightbane_id}
+            card={card}
+            entryIndex={entryIndex}
+            shouldShowDescription
+            shouldShowCardArt={shouldShowCardArt}
+            shouldShowBlightbaneLink={shouldShowBlightbaneLink}
+            shouldShowCardSet
+            getCardSetNameFromIndex={getCardSetName}
+            shouldShowCardType
+            getCardTypeNameFromIndex={getCardTypeName}
+            getCardTypeEmojiFromIndex={getCardTypeEmoji}
+          />
+        )}
       />
     ) : (
       <p className={cx('selected-card__placeholder')}>No card selected</p>

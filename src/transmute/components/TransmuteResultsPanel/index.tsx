@@ -64,7 +64,7 @@ const TransmuteResultsPanel = ({ cards, useSearchFilters }: TransmuteResultsPane
             )}
           />
         )}
-        <ResultsFooter view={view} mode={mode} />
+        <ResultsFooter view={view} selectedCard={selectedCard} mode={mode} />
       </div>
     </div>
   )

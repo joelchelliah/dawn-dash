@@ -5,10 +5,9 @@
   font-size: font-size('xs');
   line-height: 1.6;
   color: $color-primary-muted;
-  opacity: 0.75;
+  opacity: 0.9;
 
   @media (max-width: $breakpoint-mobile) {
     font-size: font-size('xxs');
-    opacity: 0.9;
   }
 }

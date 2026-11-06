@@ -1,0 +1,38 @@
+@use 'index' as *;
+@use '../inline-labels' as *;
+
+@mixin pill-colors($color) {
+  @include rainTexture($color, false);
+  border-color: color-mix(in srgb, $color 65%, white 30%);
+}
+
+.banner-pill {
+  display: inline-block;
+  padding: 0.0625rem 0.375rem;
+  margin: 0 0.125rem;
+  border: 1px dotted rgba(white, 0.375);
+  border-radius: 0.25rem;
+  vertical-align: baseline;
+  line-height: 1.4;
+  white-space: nowrap;
+  color: $color-primary-base;
+  font-weight: 500;
+  @include rainTexture(transparent, false);
+  @include inline-label-shadow;
+
+  // Rounds the texture rather than clipping with `overflow: hidden`, which would move the
+  // inline-block's baseline to its bottom edge and lift the pill above the surrounding text
+  &::before {
+    border-radius: inherit;
+  }
+
+  @media (max-width: $breakpoint-mobile) {
+    margin-top: 0.125rem;
+  }
+
+  @each $number, $color in $banner-index-to-color-map {
+    &--#{$number} {
+      @include pill-colors($color);
+    }
+  }
+}

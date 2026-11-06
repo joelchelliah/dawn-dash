@@ -4,63 +4,44 @@ import { CardData } from '@/shared/types/cards'
 import { TransmuteMode } from '@/transmute/types/rules'
 import { TransmuteDirection } from '@/transmute/types/filters'
 import { TransmuteState, TransmuteView } from '@/transmute/hooks/useTransmuteResults'
-import {
-  COLOR,
-  getTradepostExcludedGroup,
-  getTransmuteResultRarity,
-  RARITY,
-} from '@/transmute/utils/transmuteLookup'
+import { COLOR, getTradepostExcludedGroup, RARITY } from '@/transmute/utils/transmuteLookup'
 
-import ModeName, { getRarityName } from '../ModeName'
+import BannerPill from '../BannerPill'
+import ModeName from '../ModeName'
+import RarityLabel from '../RarityLabel'
 
 import EnergyAttributeIconsInline from './EnergyAttributeIconsInline'
 import styles from './index.module.scss'
 
 const cx = createCx(styles)
 
-const getCardsQualifier = (mode: TransmuteMode, direction: TransmuteDirection) => {
-  switch (mode) {
-    case 'transmute':
-      return (
-        <>
-          of a {direction === 'from' ? 'higher' : 'lower'} <strong>rarity</strong> and the same{' '}
-          <strong>banner color</strong>
-        </>
-      )
-    case 'sidemute':
-    case 'tradepost':
-      return (
-        <>
-          of the same <strong>rarity</strong> and <strong>banner color</strong>
-        </>
-      )
-  }
-}
+// The value every item shares, or `undefined` when they differ
+const getSharedValue = (values: number[]) =>
+  values.length > 0 && values.every((value) => value === values[0]) ? values[0] : undefined
 
 const SUBTEXT_BLACK_TO_BROWN = (
   <>
-    <strong>Black</strong> cards sidemute into <strong>Brown</strong> cards of the same rarity.
+    <BannerPill color={COLOR.Black} /> cards always sidemute into <BannerPill color={COLOR.Brown} />{' '}
+    cards.
   </>
 )
 const SUBTEXT_MONSTER_SIDEMUTE = (
   <>
-    All <strong>Monster</strong>-banner cards can <strong>sidemute</strong> into any of the
-    following <strong>Monster</strong> cards.
+    All <BannerPill color={COLOR.Monster} /> cards can <strong>sidemute</strong> into any of the
+    following <RarityLabel rarity={RARITY.Monster} /> cards.
   </>
 )
-const SUBTEXT_BROWN_SOURCES = 'Brown and Black cards of the same rarity that sidemute into this one'
+const SUBTEXT_BROWN_SOURCES = (
+  <>
+    Both <BannerPill color={COLOR.Brown} /> and <BannerPill color={COLOR.Black} /> cards sidemute
+    into <BannerPill color={COLOR.Brown} /> cards.
+  </>
+)
 const SUBTEXT_MONSTER_TRANSMUTE = (
   <>
-    <strong>Monster</strong> cards transmute into <strong>Common</strong> cards of any{' '}
-    <strong>banner color</strong> you have access to.
-  </>
-)
-
-const getWhiteTransmuteSubtext = (card: CardData) => (
-  <>
-    It transmutes into{' '}
-    <strong>{getRarityName(getTransmuteResultRarity(card.blightbane_id) ?? card.rarity)}</strong>{' '}
-    cards of any <strong>banner color</strong> you have access to.
+    <RarityLabel rarity={RARITY.Monster} /> cards transmute into{' '}
+    <RarityLabel rarity={RARITY.Common} /> cards of any <strong>banner color</strong> you have
+    access to.
   </>
 )
 
@@ -90,7 +71,7 @@ const ResultsHeader = ({ view, selectedCard, direction, mode }: ResultsHeaderPro
       case 'white':
         return [
           <>
-            Not enough data to know how <strong>White</strong> cards {Mode}!
+            Not enough data to know how <BannerPill color={COLOR.White} /> cards {Mode}!
           </>,
         ]
       case 'blocked':
@@ -101,8 +82,8 @@ const ResultsHeader = ({ view, selectedCard, direction, mode }: ResultsHeaderPro
           // Not blocked as such: no result is Monster rarity, so their same-color sidemute is empty
           state.groupId === 'EXCEPTION-MONSTER' ? (
             <>
-              <strong>Monster</strong> cards without a <strong>Monster</strong>-banner will never{' '}
-              {Mode} into anything.
+              <RarityLabel rarity={RARITY.Monster} /> cards without a{' '}
+              <BannerPill color={COLOR.Monster} /> cannot {Mode} into anything.
             </>
           ) : state.groupId === 'EXCEPTION-CURSE' ? (
             <>
@@ -121,12 +102,12 @@ const ResultsHeader = ({ view, selectedCard, direction, mode }: ResultsHeaderPro
             <>
               Without <EnergyAttributeIconsInline attributes={state.requiredEnergyAttributes} />{' '}
               <strong>energy</strong>, you will be offered random{' '}
-              <strong>{getRarityName(state.rarity)}</strong> cards of any{' '}
-              <strong>banner color</strong> you have access to.
+              <RarityLabel rarity={state.rarity} /> cards of any <strong>banner color</strong> you
+              have access to.
             </>
           ) : (
             <>
-              You will be offered random <strong>{getRarityName(state.rarity)}</strong> cards of any{' '}
+              You will be offered random <RarityLabel rarity={state.rarity} /> cards of any{' '}
               <strong>banner color</strong> you have access to.
             </>
           ),
@@ -159,18 +140,20 @@ const ResultsHeader = ({ view, selectedCard, direction, mode }: ResultsHeaderPro
         if (mode === 'transmute' && selectedCard?.rarity === RARITY.Monster)
           return [
             <>
-              <strong>Monster</strong> cards can never be obtained <strong>from</strong> a {Mode}!
+              <RarityLabel rarity={RARITY.Monster} /> cards can never be obtained{' '}
+              <strong>from</strong> a {Mode}!
             </>,
           ]
         return [cantBeObtained]
       case 'black-target':
         return [
           <>
-            <strong>Black</strong> cards can never be obtained <strong>from</strong> a {Mode}!
+            <BannerPill color={COLOR.Black} /> cards can never be obtained <strong>from</strong> a{' '}
+            {Mode}!
           </>,
           <>
-            Since <strong>Black</strong> cards sidemute into <strong>Brown</strong>, there is no way
-            to sidemute <strong>into</strong> a <strong>Black</strong> card.
+            This is because <BannerPill color={COLOR.Black} /> cards sidemute into{' '}
+            <BannerPill color={COLOR.Brown} /> cards.
           </>,
         ]
       case 'unreachable-with-filters': {
@@ -202,15 +185,16 @@ const ResultsHeader = ({ view, selectedCard, direction, mode }: ResultsHeaderPro
       case 'monster-sidemute-target':
         return [
           <>
-            Any of the <strong>{state.count}</strong> <strong>Monster</strong>-banner cards can{' '}
+            Any of the <strong>{state.count}</strong> <BannerPill color={COLOR.Monster} /> cards can{' '}
             {Mode} into {Card}!
           </>,
         ]
+      // Mirrors the listed case's headline. The Monster-banner route is in the footer for both.
       case 'monster-transmute-target':
         return [
           <>
-            Any of the <strong>{state.count}</strong> <strong>Monster</strong>-banner cards can{' '}
-            {Mode} into {Card}!
+            No {selectedCard && <BannerPill color={selectedCard.color} />}{' '}
+            <RarityLabel rarity={RARITY.Monster} /> cards can {Mode} into {Card}.
           </>,
         ]
       case 'empty':
@@ -249,7 +233,14 @@ const ResultsHeader = ({ view, selectedCard, direction, mode }: ResultsHeaderPro
   if (view.kind === 'state' && tradepostExcludedGroup) {
     return renderHeadline(
       <>
-        The {Mode} does not work with any <strong>{tradepostExcludedGroup}</strong> cards!
+        The {Mode} does not work with any{' '}
+        {/* Monster is excluded by rarity, not banner: Monster-banner Rares and Legendaries are fine */}
+        {tradepostExcludedGroup === 'Monster' ? (
+          <RarityLabel rarity={RARITY.Monster} />
+        ) : (
+          <BannerPill color={COLOR.White} />
+        )}{' '}
+        cards!
       </>
     )
   }
@@ -263,21 +254,30 @@ const ResultsHeader = ({ view, selectedCard, direction, mode }: ResultsHeaderPro
         ? SUBTEXT_MONSTER_SIDEMUTE
         : view.branch === 'monster-transmute'
           ? SUBTEXT_MONSTER_TRANSMUTE
-          : view.branch === 'white-transmute' && selectedCard
-            ? getWhiteTransmuteSubtext(selectedCard)
-            : direction === 'to' && mode === 'sidemute' && selectedCard?.color === COLOR.Brown
-              ? SUBTEXT_BROWN_SOURCES
-              : ''
+          : direction === 'to' && mode === 'sidemute' && selectedCard?.color === COLOR.Brown
+            ? SUBTEXT_BROWN_SOURCES
+            : ''
 
-  // Kept apart from `subtext`, since the headline's qualifier still holds for the listed cards
-  const monsterNote = view.monsterTransmuteSourceCount !== undefined && (
+  // Read off the visible cards rather than the rules, so the special branches (Black→Brown, Brown's
+  // mixed sources, White's any-color results) name exactly what is listed, or nothing at all
+  const sharedBanner = getSharedValue(view.cards.map((card) => card.color))
+  const sharedRarity = getSharedValue(view.cards.map((card) => card.rarity))
+  const hasDescriptor = sharedBanner !== undefined || sharedRarity !== undefined
+  const descriptor = hasDescriptor && (
     <>
-      Any of the <strong>{view.monsterTransmuteSourceCount}</strong> <strong>Monster</strong>
-      -banner cards can transmute into {Card}!
+      {sharedBanner !== undefined && (
+        <>
+          <BannerPill color={sharedBanner} />{' '}
+        </>
+      )}
+      {sharedRarity !== undefined && (
+        <>
+          <RarityLabel rarity={sharedRarity} />{' '}
+        </>
+      )}
     </>
   )
 
-  const qualifier = subtext ? null : <> {getCardsQualifier(mode, direction)}</>
   // Checked rather than assumed for Tradepost: an unticked card set can filter the card itself out
   const includesItself = view.cards.some(
     (card) => card.blightbane_id === selectedCard?.blightbane_id
@@ -286,7 +286,16 @@ const ResultsHeader = ({ view, selectedCard, direction, mode }: ResultsHeaderPro
   const includingItself = !subtext && mode === 'tradepost' && includesItself && ', including itself'
   const isSingular = view.cards.length === 1
   const count = <strong>{view.cards.length}</strong>
-  const cardsPhrase = isSingular ? <>{count} card</> : <>{count} different cards</>
+  const cardsPhrase = hasDescriptor ? (
+    <>
+      {count} {descriptor}
+      {isSingular ? 'card' : 'cards'}
+    </>
+  ) : isSingular ? (
+    <>{count} card</>
+  ) : (
+    <>{count} different cards</>
+  )
 
   const headlineFrom = isOnlyItself ? (
     <>
@@ -296,7 +305,6 @@ const ResultsHeader = ({ view, selectedCard, direction, mode }: ResultsHeaderPro
     <>
       {Card} can {isSingular && 'only '}
       {Mode} into {cardsPhrase}
-      {qualifier}
       {includingItself}.
     </>
   )
@@ -307,13 +315,12 @@ const ResultsHeader = ({ view, selectedCard, direction, mode }: ResultsHeaderPro
   ) : (
     <>
       {isSingular ? 'Only ' : ''}
-      {cardsPhrase}
-      {qualifier} can {Mode} into {Card}
+      {cardsPhrase} can {Mode} into {Card}
       {includingItself}.
     </>
   )
 
-  return renderHeadline(direction === 'from' ? headlineFrom : headlineTo, subtext || monsterNote)
+  return renderHeadline(direction === 'from' ? headlineFrom : headlineTo, subtext)
 }
 
 export default ResultsHeader

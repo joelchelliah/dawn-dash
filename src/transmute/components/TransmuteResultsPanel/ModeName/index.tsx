@@ -1,5 +1,4 @@
 import { createCx } from '@/shared/utils/classnames'
-import { RARITIES } from '@/shared/components/RarityBorderedArtwork'
 
 import { TransmuteMode } from '@/transmute/types/rules'
 
@@ -12,8 +11,6 @@ const MODE_NAMES: Record<TransmuteMode, string> = {
   sidemute: 'Sidemute',
   tradepost: 'Tradepost',
 }
-
-export const getRarityName = (rarity: number) => RARITIES[rarity]?.name ?? ''
 
 const ModeName = ({ mode }: { mode: TransmuteMode }) => (
   <span className={cx('mode')}>{MODE_NAMES[mode]}</span>

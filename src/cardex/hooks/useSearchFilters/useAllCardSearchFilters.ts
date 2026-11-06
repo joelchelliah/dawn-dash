@@ -20,6 +20,7 @@ import {
   hasMonsterBanner,
   hasMonsterRarity,
   hasNoBanner,
+  hasWhiteBanner,
   isAnimalCompanionCard,
 } from '@/cardex/utils/cardHelper'
 import { cacheCardSearchFilters, getCachedCardSearchFilters } from '@/cardex/utils/cardFilterStore'
@@ -425,12 +426,13 @@ const isCardMatching = (
   const passesRarityFilter = hasMonsterRarity(card)
     ? shouldIncludeMonsterCards
     : isRaritySelected(card.rarity)
-  // Bannerless cards fall through the banner filter entirely
-  const passesBannerFilter = hasNoBanner(card)
-    ? true
-    : hasMonsterBanner(card)
-      ? shouldIncludeMonsterCards
-      : isBannerSelected(card.color)
+  // Bannerless and White cards fall through the banner filter entirely: neither has a checkbox
+  const passesBannerFilter =
+    hasNoBanner(card) || hasWhiteBanner(card)
+      ? true
+      : hasMonsterBanner(card)
+        ? shouldIncludeMonsterCards
+        : isBannerSelected(card.color)
   /*
    * Unlike rarity 4 and banner 11, type 7 is not a card-wide monster marker!
    * Keying the deferral on the type would let the Type group veto monster cards
