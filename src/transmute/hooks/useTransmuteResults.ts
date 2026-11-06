@@ -57,6 +57,8 @@ export type TransmuteState =
   // are in the way.
   | {
       kind: 'transmute-fallback'
+      // Every same-color result the filters hide, whether by card set or by energy attribute
+      count: number
       rarity: number
       requiredEnergyAttributes: TransmuteEnergyAttribute[]
     }
@@ -205,6 +207,7 @@ const getView = ({
       )
       return state({
         kind: 'transmute-fallback',
+        count: candidates.length + toCards(result.excludedByEnergyAttributes, cards).length,
         rarity: transmuteRarity,
         requiredEnergyAttributes,
       })

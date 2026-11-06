@@ -66,7 +66,7 @@ const ResultsHeader = ({ view, selectedCard, direction, mode }: ResultsHeaderPro
   const getStateText = (state: TransmuteState): [React.ReactNode, React.ReactNode?] => {
     switch (state.kind) {
       case 'unknown':
-        return [<>{Card} is newer than the transmute data, so there’s nothing to show for it yet</>]
+        return [<>Failed to find transmute data for {Card}!</>]
       // Tradepost is covered by the excluded-group headline below, so only sidemute gets here
       case 'white':
         return [
@@ -95,9 +95,17 @@ const ResultsHeader = ({ view, selectedCard, direction, mode }: ResultsHeaderPro
         ]
       case 'transmute-fallback':
         return [
-          <>
-            {Card} has no {Mode} results left after your <strong>filters</strong>.
-          </>,
+          // A color with nothing at the next rarity also lands here, with nothing to hide
+          state.count > 0 ? (
+            <>
+              All of {Card}’s <strong>{state.count}</strong> {Mode} results are hidden by your{' '}
+              <strong>filters</strong>.
+            </>
+          ) : (
+            <>
+              {Card} has no {Mode} results.
+            </>
+          ),
           state.requiredEnergyAttributes.length > 0 ? (
             <>
               Without <EnergyAttributeIconsInline attributes={state.requiredEnergyAttributes} />{' '}
@@ -115,7 +123,8 @@ const ResultsHeader = ({ view, selectedCard, direction, mode }: ResultsHeaderPro
       case 'all-hidden-by-card-sets':
         return [
           <>
-            All {state.count} {Mode} results for {Card} are hidden by your <strong>filters</strong>.
+            All of {Card}’s <strong>{state.count}</strong> {Mode} results are hidden by your{' '}
+            <strong>filters</strong>.
           </>,
           <>
             They are in the following card {state.cardSets.length > 1 ? 'sets' : 'set'}:
@@ -172,13 +181,12 @@ const ResultsHeader = ({ view, selectedCard, direction, mode }: ResultsHeaderPro
         )
         return [
           <>
-            {Card} cannot be obtained <strong>from</strong> a {Mode} with your current{' '}
-            <strong>filters</strong>.
+            {Card} cannot be obtained with your current <strong>filters</strong>.
           </>,
           <>
             It requires {cardSetPhrase}
             {cardSetPhrase && energyPhrase && ' and '}
-            {energyPhrase} to be obtainable.
+            {energyPhrase} to be obtainable via {Mode}.
           </>,
         ]
       }
@@ -201,7 +209,7 @@ const ResultsHeader = ({ view, selectedCard, direction, mode }: ResultsHeaderPro
         return [
           direction === 'from' ? (
             <>
-              {Card} can’t {Mode} into anything
+              {Card} cannot {Mode} into anything
             </>
           ) : (
             cantBeObtained
