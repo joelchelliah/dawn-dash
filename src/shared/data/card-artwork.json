@@ -396,7 +396,7 @@
   },
   {
     "name": "Anguished Blow",
-    "artwork": null,
+    "artwork": "non_dreamwell_sharedPain",
     "category": 0
   },
   {
@@ -800,6 +800,11 @@
     "category": 4
   },
   {
+    "name": "Augment Body",
+    "artwork": "Augment body",
+    "category": 1
+  },
+  {
     "name": "Augury",
     "artwork": "augury",
     "category": 0
@@ -986,12 +991,12 @@
   },
   {
     "name": "Awakening",
-    "artwork": "Prayer",
+    "artwork": "cardart_5_4",
     "category": 0
   },
   {
-    "name": "Awakening",
-    "artwork": "cardart_5_4",
+    "name": "Awakening (Monster)",
+    "artwork": "Prayer",
     "category": 0
   },
   {
@@ -1048,6 +1053,11 @@
     "name": "Bandages",
     "artwork": "Bandages",
     "category": 1
+  },
+  {
+    "name": "Banditry",
+    "artwork": "barricades",
+    "category": 4
   },
   {
     "name": "Baneful Weapon",
@@ -2410,6 +2420,11 @@
     "category": 0
   },
   {
+    "name": "Channel Changer",
+    "artwork": "Channel changer",
+    "category": 4
+  },
+  {
     "name": "Chaos Armor",
     "artwork": "chaos-armor",
     "category": 0
@@ -2843,6 +2858,11 @@
     "name": "Commanding Presence",
     "artwork": "creature_abilties_1_27",
     "category": 4
+  },
+  {
+    "name": "Community Chest",
+    "artwork": "Community chest",
+    "category": 14
   },
   {
     "name": "Compassionate",
@@ -3393,6 +3413,11 @@
     "name": "Dance of Blight",
     "artwork": "Dance of Blight_eclypse",
     "category": 0
+  },
+  {
+    "name": "Dance of Gloom",
+    "artwork": "Dance of gloom",
+    "category": 4
   },
   {
     "name": "Dance of Life",
@@ -4265,6 +4290,11 @@
     "category": 0
   },
   {
+    "name": "Dragonstone",
+    "artwork": "Dragonstone",
+    "category": 2
+  },
+  {
     "name": "Drain (Companion)",
     "artwork": "Drain",
     "category": 0
@@ -5083,6 +5113,11 @@
     "name": "Falling Apart",
     "artwork": "creature_abilties_2_57",
     "category": 4
+  },
+  {
+    "name": "False Idol",
+    "artwork": "False Idol",
+    "category": 2
   },
   {
     "name": "False Life",
@@ -6797,7 +6832,7 @@
   {
     "name": "Hold the Line",
     "artwork": "cathedral_holdTheLine",
-    "category": 0
+    "category": 4
   },
   {
     "name": "Hold the Line",
@@ -7142,6 +7177,11 @@
   {
     "name": "Imaginarium",
     "artwork": "Imaginarium",
+    "category": 0
+  },
+  {
+    "name": "Imbue with Life",
+    "artwork": "Imbue with life",
     "category": 0
   },
   {
@@ -9220,6 +9260,11 @@
     "category": 4
   },
   {
+    "name": "Overrun",
+    "artwork": "siegeOfShadows_abilities-behemoth_earth-pound",
+    "category": 0
+  },
+  {
     "name": "Overwatch",
     "artwork": "Overwatch",
     "category": 4
@@ -10043,6 +10088,11 @@
     "name": "Purple Ray",
     "artwork": "creature_abilties_4_5",
     "category": 3
+  },
+  {
+    "name": "Purrformance",
+    "artwork": "Purrformance",
+    "category": 0
   },
   {
     "name": "Put 'em Up",
@@ -11930,6 +11980,11 @@
     "category": 0
   },
   {
+    "name": "Shroud of the Ifrit",
+    "artwork": "Shroud of Ifrit",
+    "category": 4
+  },
+  {
     "name": "Shuriken",
     "artwork": "shuriken",
     "category": 5
@@ -12696,7 +12751,7 @@
   },
   {
     "name": "Stampede",
-    "artwork": "siegeOfShadows_abilities-behemoth_earth-pound",
+    "artwork": "Stampede",
     "category": 0
   },
   {
@@ -13965,6 +14020,11 @@
     "category": 4
   },
   {
+    "name": "Toxic Suffocation",
+    "artwork": "Toxic suffication",
+    "category": 0
+  },
+  {
     "name": "Toxic Triage",
     "artwork": "cardart_1_63",
     "category": 10
@@ -14923,6 +14983,11 @@
     "name": "Voracity",
     "artwork": "creature_abilties_3_43",
     "category": 0
+  },
+  {
+    "name": "Vow of Silence",
+    "artwork": "Vow of silence",
+    "category": 15
   },
   {
     "name": "Vow of Vengeance",
