@@ -10,3 +10,13 @@
     list-style: disc;
   }
 }
+
+.message-emoji {
+  font-size: 1rem;
+  margin-right: 0.125rem;
+
+  @media (max-width: $breakpoint-mobile) {
+    font-size: 0.75rem;
+    margin-right: 0.0625rem;
+  }
+}

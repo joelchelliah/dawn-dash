@@ -1,10 +1,19 @@
+import { ReactNode } from 'react'
+
 import { createCx } from '@/shared/utils/classnames'
 import { CardData } from '@/shared/types/cards'
 
 import { TransmuteMode } from '@/transmute/types/rules'
 import { TransmuteDirection } from '@/transmute/types/filters'
 import { TransmuteState, TransmuteView } from '@/transmute/hooks/useTransmuteResults'
-import { COLOR, getTradepostExcludedGroup, RARITY } from '@/transmute/utils/transmuteLookup'
+import {
+  ARE_ALL_POTIONS_REMOVED_FROM_TRADEPOST,
+  COLOR,
+  getTradepostExcludedGroup,
+  isPotion,
+  RARITY,
+} from '@/transmute/utils/transmuteLookup'
+import { isMetaprogressCard } from '@/transmute/utils/transmuteCards'
 
 import BannerPill from '../BannerPill'
 import { MESSAGES } from '../messages'
@@ -33,7 +42,7 @@ const ResultsHeader = ({ view, selectedCard, direction, mode }: ResultsHeaderPro
   const context = { Card, Mode }
 
   // The headline, plus an optional detail line under it
-  const getStateText = (state: TransmuteState): [React.ReactNode, React.ReactNode?] => {
+  const getStateText = (state: TransmuteState): [ReactNode, ReactNode?] => {
     switch (state.kind) {
       case 'unknown':
         return [MESSAGES.missingTransmuteData(context)]
@@ -69,6 +78,13 @@ const ResultsHeader = ({ view, selectedCard, direction, mode }: ResultsHeaderPro
       case 'not-a-result':
         if (mode === 'transmute' && selectedCard?.rarity === RARITY.Monster)
           return [MESSAGES.monsterRarityCannotBeObtainedFrom(context)]
+        if (
+          mode === 'tradepost' &&
+          selectedCard &&
+          isPotion(selectedCard.blightbane_id) &&
+          ARE_ALL_POTIONS_REMOVED_FROM_TRADEPOST
+        )
+          return [MESSAGES.cannotBeObtainedFrom(context), MESSAGES.potionsNeverOfferedBy(context)]
         return [MESSAGES.cannotBeObtainedFrom(context)]
       case 'black-target':
         return [
@@ -94,10 +110,16 @@ const ResultsHeader = ({ view, selectedCard, direction, mode }: ResultsHeaderPro
     }
   }
 
-  const renderHeadline = (headline: React.ReactNode, detail?: React.ReactNode) => (
+  // Lines about the selected card itself, stacked under whatever detail the state or list has
+  const isComesFrom = direction === 'to' && selectedCard
+  const unlockLine =
+    isComesFrom && isMetaprogressCard(selectedCard) && MESSAGES.onlyOfferedOnceUnlocked(context)
+
+  const renderHeadline = (headline: ReactNode, detail?: ReactNode) => (
     <>
       <h2 className={cx('headline')}>{headline}</h2>
       {detail && <p className={cx('detail')}>{detail}</p>}
+      {unlockLine && <p className={cx('detail')}>{unlockLine}</p>}
     </>
   )
 

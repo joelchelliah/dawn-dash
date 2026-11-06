@@ -75,7 +75,7 @@ needs.
 - **The sidemute potion top-up.** When a source's own list is shorter than the event's offer, every
   potion of the source's rarity joins it, whatever the source's color. There are Common, Uncommon
   and Rare potions only. The data lists potions as ordinary Brown results (`potions` holds their
-  ids). Whether and how to say this is optional (Task 6).
+  ids). _From_ says so in a footer line (Task 6). _To_ a potion gets its own line (Task 6b).
 - **Distant Memory (`990007`)**, the only White card, comes back empty on every mode. The game does
   something else: transmute offers Rares of any color you have access to, sidemute offers only the 6
   Uncommon potions, and Tradepost offers nothing. Those are the generic transmute fallback and
@@ -85,7 +85,8 @@ needs.
   yet, so the potion offer was unconfirmed.
 - **Unlocks.** The 41 Metaprogress cards (class starting cards) and the Hunter companions Rend,
   Claw and Maul (Tradepost only) appear in the game only once unlocked. The data lists them as if
-  unlocked. A note on them is optional (Task 6).
+  unlocked. Task 6b notes this for Metaprogress cards. Rend, Claw and Maul are the
+  `(Companion)` cards, which Task 7e removes from the tool.
 - **Out of scope**: offer sizes, and deck-dependent rules (Unique cards already owned, imbued cards).
 
 **Reverse lookups** (_To_ mode, "what turns into X"):
@@ -440,7 +441,9 @@ need no Transmute branches; the search uses the same map), `hooks/useTransmuteRe
 one of the states below, or a list), and the panel, with all copy in its `ResultsHeader` and `ResultsFooter` components. The
 selected card is **not** repeated at the top of the results: the search panel already shows it (Task
 5), so the header names it instead. Monster-branch rows need no rarity label: the artwork border
-and the rarity icon already show it. The optional items below are not built.
+and the rarity icon already show it. The optional items below were planned as Task 6b, except
+"Available at …", which moved to Task 7b. The _From_ potion top-up line was built here
+(`sidemuteFallbackPool`).
 
 - **The selected card at the top**, rendered with the shared `ResultCard`.
 - **A header that makes the mode unmistakable**: the direction (_turns into_ / _comes from_) and the
@@ -493,6 +496,55 @@ and the rarity icon already show it. The optional items below are not built.
 Check: each state above. Outside the Transmute mode, check that toggling energies changes nothing.
 A Monster-banner sidemute (444) and a small Legendary list. Card art on and off. Desktop and mobile.
 
+### Task 6b — Extra header and footer lines — COMPLETED
+
+Built as described. Details that differ from or add to the plan:
+- `isPotion` and `ARE_ALL_POTIONS_REMOVED_FROM_TRADEPOST` are in `transmuteLookup`, and
+  `isMetaprogressCard` is in `transmuteCards`.
+- **The Tradepost-only hint was built, then dropped by the user as overkill**: switching the mode
+  yourself already shows the card. Don't bring it back.
+- The _To_ potion top-up line shows only under a list, so it can never sit under a "never" headline.
+
+Copy-only additions to `ResultsHeader`/`ResultsFooter`, with all wording in `messages.tsx`. No
+`ResultCard` changes.
+
+**Lines stack rather than replace each other.** `renderHeadline` takes a single detail line today,
+and `ResultsFooter` renders a single message. Both become lists, in this order:
+
+1. the existing subtext or detail;
+2. the unlock line.
+
+Do this first, because every item below relies on it.
+
+- **Unlocks, _To_.** When the selected card is Metaprogress (`expansion === 2`), append to the
+  header: "**Daggerstorm** is only offered once unlocked via **Progress Rewards**." Check in the
+  browser whether it reads oddly under a "can never be obtained from a {mode}" headline. If it does,
+  limit it to the states where the card can be obtained.
+- **Unlocks, _From_.** Whatever the selected card is, count the Metaprogress cards among the
+  _visible_ results. When there are any, add a footer line:
+  - one: "The Metaprogress card here is only offered once unlocked via Progress Rewards."
+  - several: "The **N** Metaprogress cards here are only offered once unlocked via Progress
+    Rewards."
+
+  No row icon: every row already shows its card set.
+- **Potion top-up, _To_.** Sidemute, with a selected card in `RULES.potions` (export an `isPotion`
+  helper from `transmuteLookup`). Add a footer line: "**Healing Potion** can also be offered if any
+  **Uncommon** card's sidemute runs short of options." Today every potion has direct Brown sources,
+  so "also" is always true. If that ever fails, follow `monsterBannerFallback`'s `hasDirectSources`
+  pattern rather than let the line contradict a "never" headline.
+- **Potions on Tradepost, _To_.** The headline stays "can never be obtained from a Tradepost". Under
+  it, add "**Potions** are never offered by **Tradepost**." **Drift guard**: show the line only
+  while a module-scope `ARE_ALL_POTIONS_REMOVED_FROM_TRADEPOST` (every potion is in
+  `tradepost.removes`) is true. Make `sync-transmute-rules.js` warn when it isn't. Upstream changing
+  the rule then hides the line and flags it at sync time, so the copy can't go wrong silently.
+- No Tradepost badge on rows, and no count of `adds` cards in the Tradepost list.
+
+Check, at desktop and mobile:
+- a Metaprogress card in _To_ (e.g. Daggerstorm), each mode;
+- a class-color _From_ list containing one Metaprogress card and one containing several;
+- a potion in _To_ on Sidemute and on Tradepost;
+- a state that already has a detail line, to confirm the new lines stack under it.
+
 ### Task 7 — URL state
 
 The `?card`, `?dir`, `?mode`, `?sets`, `?attributes` params, read on load and written on change.
@@ -515,6 +567,18 @@ user before building**; the candidates so far:
 
 Overlaps Task 6's one-line subtext by the selected card, so settle the two together rather than
 saying the same thing twice.
+
+**"Available at …" (moved here from Task 6)**: a muted line for the selected mode, from
+`RULES.modes` (display-only data). It sits under the Mode buttons or in the results footer; place it
+with the helper line above. Each entry gets a tiny icon:
+- **Events** (Alchemist, The Nexus, …): Eventmaps' event artwork, each linked to
+  `/eventmaps/<event>`. That is a URL link, not an import, so the no-cross-tool-imports rule holds.
+  Check that every event name resolves to an existing Eventmaps slug, and decide what an unknown
+  name renders as.
+- **Cards** (Cursed Cauldron, Tradepost): card artwork via `useCardImageSrc`, linked to Blightbane
+  the way Booty's card modals do.
+
+Details to be worked out when the task starts.
 
 Check: each mode × direction, with energy attributes and card sets narrowed and not. Mobile width.
 
@@ -561,6 +625,30 @@ mean two different treatments split by breakpoint. **Discuss with the user befor
 whether that split is worth it, or whether one treatment should cover both.
 
 Check: each of the three cases, switching in and out of it, desktop and mobile.
+
+### Task 7e — Drop animal companion cards
+
+Decided by the user: animal companion cards (name ending `(Companion)`, Cardex's
+`isAnimalCompanionCard`) are never a valid source or result of any mode. They must not appear in
+results, in _To_-mode sources, or as search suggestions.
+
+**This contradicts upstream, so confirm it before building.** Three of them are in
+`tradepost.adds`: `Rend (Companion)`, `Claw (Companion)` and `Maul (Companion)`. The external tool
+calls them Tradepost results "once the Hunter has unlocked them". All 28 are in `cards`, which makes
+them possible _To_ sources.
+
+- Move `isAnimalCompanionCard` from `src/cardex/utils/cardHelper.ts` to
+  `src/shared/utils/cardHelper.ts`, next to `isNonCollectible`, since tools can't import from each
+  other. Cardex imports it from there.
+- Exclude companions in `buildTransmuteCards`, beside the `isNonCollectible` check. That is the one
+  step where ids become `CardData`, so search, results and sources all lose them together. The
+  sync script can't do this, because it has only ids, not names.
+- Rewrite the "Unlocks" bullet in Game rules to say they're excluded and why.
+
+Check:
+- Searching "Rend", "Claw" and "Maul" offers no `(Companion)` card.
+- A Synthesis-color Tradepost list (_From_) no longer contains them.
+- Cardex's animal-companion filter still works.
 
 ### Task 8 — Docs
 

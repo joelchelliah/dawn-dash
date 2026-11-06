@@ -108,6 +108,15 @@ export const getTradepostExcludedGroup = ({ color, rarity }: { color: number; ra
 export const getPotionIds = (rarity: number) =>
   RULES.potions.filter((id) => RULES.cards[id]?.[1] === rarity)
 
+const POTIONS = new Set(RULES.potions)
+export const isPotion = (id: number) => POTIONS.has(id)
+
+// Gates the "Potions are never offered by Tradepost" copy, so a data change hides it rather than
+// making it false. `sync-transmute-rules.js` warns when this stops holding.
+export const ARE_ALL_POTIONS_REMOVED_FROM_TRADEPOST = RULES.potions.every((id) =>
+  TRADEPOST_REMOVES.has(id)
+)
+
 export const isMonsterSidemuteResult = (id: number) => MONSTER_SIDEMUTE.has(id)
 
 // Any one of these is enough. Empty when the card needs none.

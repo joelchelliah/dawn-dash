@@ -176,6 +176,16 @@ function main() {
       }
     }
 
+    // The tool says "Potions are never offered by Tradepost" only while this holds
+    const removedIds = new Set(removes)
+    const tradepostPotions = potions.filter((id) => !removedIds.has(id))
+    if (tradepostPotions.length > 0) {
+      console.warn(
+        `\n⚠️  Potions not in rules.tradepost.removes: ${tradepostPotions.join(', ')}\n` +
+          '   Tradepost now offers potions, so the tool hides its "never offered by Tradepost" line.'
+      )
+    }
+
     const cannotBeSource = (exceptions?.cannotBeSource ?? []).map((group, index) => {
       const label = `exceptions.cannotBeSource[${group.id ?? index}]`
       pickFields(group, CANNOT_BE_SOURCE_FIELDS, ignored, 'exceptions.cannotBeSource[]')

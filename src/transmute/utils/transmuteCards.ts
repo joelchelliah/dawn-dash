@@ -1,4 +1,6 @@
+import { getCardSetName } from '@/shared/hooks/useSearchFilters/useCardSetFilters'
 import { CardData } from '@/shared/types/cards'
+import { CardSetFilterOption } from '@/shared/types/filters'
 import { isNonCollectible } from '@/shared/utils/cardHelper'
 import { logger } from '@/shared/utils/logger'
 
@@ -34,6 +36,10 @@ export const toCards = (ids: number[], { byId, liveIds }: TransmuteCards) =>
     }
     return []
   })
+
+// Class starting cards: the game only offers them once a player has unlocked them
+export const isMetaprogressCard = (card: CardData) =>
+  getCardSetName(card.expansion) === CardSetFilterOption.Metaprogress
 
 const getRarityRank = (rarity: number) => (rarity === 4 ? -1 : rarity)
 

@@ -2,7 +2,10 @@ import { createCx } from '@/shared/utils/classnames'
 import { CardData } from '@/shared/types/cards'
 
 import { TransmuteMode } from '@/transmute/types/rules'
+import { TransmuteDirection } from '@/transmute/types/filters'
 import { TransmuteView } from '@/transmute/hooks/useTransmuteResults'
+import { isPotion } from '@/transmute/utils/transmuteLookup'
+import { isMetaprogressCard } from '@/transmute/utils/transmuteCards'
 
 import { MESSAGES } from '../messages'
 import ModeName from '../ModeName'
@@ -14,11 +17,13 @@ const cx = createCx(styles)
 interface ResultsFooterProps {
   view: TransmuteView
   selectedCard: CardData | null
+  direction: TransmuteDirection
   mode: TransmuteMode
 }
 
-const ResultsFooter = ({ view, selectedCard, mode }: ResultsFooterProps) => {
+const ResultsFooter = ({ view, selectedCard, direction, mode }: ResultsFooterProps) => {
   const Mode = <ModeName mode={mode} />
+  const Card = selectedCard && <strong>{selectedCard.name}</strong>
 
   const fallbacks =
     view.kind === 'cards'
@@ -38,11 +43,11 @@ const ResultsFooter = ({ view, selectedCard, mode }: ResultsFooterProps) => {
         ? view.state.count
         : undefined
 
-  const message = transmuteFallback
+  const fallbackMessage = transmuteFallback
     ? MESSAGES.transmuteFallbackPool({ Mode, ...transmuteFallback })
-    : monsterTransmuteSourceCount !== undefined && selectedCard
+    : monsterTransmuteSourceCount !== undefined && Card
       ? MESSAGES.monsterBannerFallback({
-          Card: <strong>{selectedCard.name}</strong>,
+          Card,
           count: monsterTransmuteSourceCount,
           hasDirectSources: view.kind === 'cards',
         })
@@ -50,7 +55,33 @@ const ResultsFooter = ({ view, selectedCard, mode }: ResultsFooterProps) => {
         ? MESSAGES.sidemuteFallbackPool({ Mode, ...sidemuteFallback })
         : null
 
-  return message && <p className={cx('detail')}>{message}</p>
+  // Only under a list: every potion has direct Brown sources today, so "also" holds. An empty
+  // list would sit under a "never" headline, which this line would contradict.
+  const potionTopUpMessage =
+    direction === 'to' &&
+    mode === 'sidemute' &&
+    view.kind === 'cards' &&
+    selectedCard &&
+    Card &&
+    isPotion(selectedCard.blightbane_id) &&
+    MESSAGES.potionSidemuteTopUp({ Card, Mode, rarity: selectedCard.rarity })
+
+  const metaprogressCount =
+    direction === 'from' && view.kind === 'cards' ? view.cards.filter(isMetaprogressCard).length : 0
+  const metaprogressMessage =
+    metaprogressCount > 0 && MESSAGES.metaprogressResults({ count: metaprogressCount })
+
+  const messages = [fallbackMessage, potionTopUpMessage, metaprogressMessage].filter(Boolean)
+
+  return (
+    <>
+      {messages.map((message, index) => (
+        <p key={index} className={cx('detail')}>
+          {message}
+        </p>
+      ))}
+    </>
+  )
 }
 
 export default ResultsFooter
