@@ -14,25 +14,15 @@
 }
 
 .detail {
-  margin: 0 0 0.5rem;
+  margin: 0 0 0.75rem;
   font-size: font-size('xs');
   line-height: 1.6;
   color: $color-primary-muted;
   opacity: 0.75;
 
   @media (max-width: $breakpoint-mobile) {
+    margin-bottom: 0.5rem;
     font-size: font-size('xxs');
-  }
-
-  &__list {
-    display: block;
-    margin-top: 0.25rem;
-    padding-left: 1.25rem;
-  }
-
-  &__list-item {
-    display: list-item;
-    list-style: disc;
   }
 
   // Rendered as siblings of the result list, so this spaces the last line from it

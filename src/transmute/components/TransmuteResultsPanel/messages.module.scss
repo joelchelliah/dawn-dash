@@ -1,0 +1,12 @@
+@use 'index' as *;
+
+.list {
+  display: block;
+  margin-top: 0.25rem;
+  padding-left: 1.25rem;
+
+  &__item {
+    display: list-item;
+    list-style: disc;
+  }
+}

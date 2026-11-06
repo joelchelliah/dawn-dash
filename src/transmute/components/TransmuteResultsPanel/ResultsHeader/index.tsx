@@ -7,10 +7,10 @@ import { TransmuteState, TransmuteView } from '@/transmute/hooks/useTransmuteRes
 import { COLOR, getTradepostExcludedGroup, RARITY } from '@/transmute/utils/transmuteLookup'
 
 import BannerPill from '../BannerPill'
+import { MESSAGES } from '../messages'
 import ModeName from '../ModeName'
 import RarityLabel from '../RarityLabel'
 
-import EnergyAttributeIconsInline from './EnergyAttributeIconsInline'
 import styles from './index.module.scss'
 
 const cx = createCx(styles)
@@ -18,32 +18,6 @@ const cx = createCx(styles)
 // The value every item shares, or `undefined` when they differ
 const getSharedValue = (values: number[]) =>
   values.length > 0 && values.every((value) => value === values[0]) ? values[0] : undefined
-
-const SUBTEXT_BLACK_TO_BROWN = (
-  <>
-    <BannerPill color={COLOR.Black} /> cards always sidemute into <BannerPill color={COLOR.Brown} />{' '}
-    cards.
-  </>
-)
-const SUBTEXT_MONSTER_SIDEMUTE = (
-  <>
-    All <BannerPill color={COLOR.Monster} /> cards can <strong>sidemute</strong> into any of the
-    following <RarityLabel rarity={RARITY.Monster} /> cards.
-  </>
-)
-const SUBTEXT_BROWN_SOURCES = (
-  <>
-    Both <BannerPill color={COLOR.Brown} /> and <BannerPill color={COLOR.Black} /> cards sidemute
-    into <BannerPill color={COLOR.Brown} /> cards.
-  </>
-)
-const SUBTEXT_MONSTER_TRANSMUTE = (
-  <>
-    <RarityLabel rarity={RARITY.Monster} /> cards transmute into{' '}
-    <RarityLabel rarity={RARITY.Common} /> cards of any <strong>banner color</strong> you have
-    access to.
-  </>
-)
 
 interface ResultsHeaderProps {
   view: TransmuteView
@@ -56,164 +30,66 @@ interface ResultsHeaderProps {
 const ResultsHeader = ({ view, selectedCard, direction, mode }: ResultsHeaderProps) => {
   const Mode = <ModeName mode={mode} />
   const Card = <strong>{selectedCard?.name}</strong>
-  const cantBeObtained = (
-    <>
-      {Card} can never be obtained <strong>from</strong> a {Mode}!
-    </>
-  )
+  const context = { Card, Mode }
 
   // The headline, plus an optional detail line under it
   const getStateText = (state: TransmuteState): [React.ReactNode, React.ReactNode?] => {
     switch (state.kind) {
       case 'unknown':
-        return [<>Failed to find transmute data for {Card}!</>]
+        return [MESSAGES.missingTransmuteData(context)]
       // Tradepost is covered by the excluded-group headline below, so only sidemute gets here
       case 'white':
-        return [
-          <>
-            Not enough data to know how <BannerPill color={COLOR.White} /> cards {Mode}!
-          </>,
-        ]
+        return [MESSAGES.whiteSidemuteUnknown(context)]
       case 'blocked':
         return [
-          <>
-            {Card} has no {Mode} results.
-          </>,
-          // Not blocked as such: no result is Monster rarity, so their same-color sidemute is empty
-          state.groupId === 'EXCEPTION-MONSTER' ? (
-            <>
-              <RarityLabel rarity={RARITY.Monster} /> cards without a{' '}
-              <BannerPill color={COLOR.Monster} /> cannot {Mode} into anything.
-            </>
-          ) : state.groupId === 'EXCEPTION-CURSE' ? (
-            <>
-              <strong>Cursed</strong> cards can never be selected as the target of a {Mode}.
-            </>
-          ) : (
-            state.reason
-          ),
+          MESSAGES.noResults(context),
+          state.groupId === 'EXCEPTION-MONSTER'
+            ? MESSAGES.monsterRarityWithoutMonsterBanner(context)
+            : state.groupId === 'EXCEPTION-CURSE'
+              ? MESSAGES.cursedCannotBeTarget(context)
+              : state.reason,
         ]
       case 'transmute-fallback':
         return [
           // A color with nothing at the next rarity also lands here, with nothing to hide
-          state.count > 0 ? (
-            <>
-              All of {Card}’s <strong>{state.count}</strong> {Mode} results are hidden by your{' '}
-              <strong>filters</strong>.
-            </>
-          ) : (
-            <>
-              {Card} has no {Mode} results.
-            </>
-          ),
-          state.requiredEnergyAttributes.length > 0 ? (
-            <>
-              Without <EnergyAttributeIconsInline attributes={state.requiredEnergyAttributes} />{' '}
-              <strong>energy</strong>, you will be offered random{' '}
-              <RarityLabel rarity={state.rarity} /> cards of any <strong>banner color</strong> you
-              have access to.
-            </>
-          ) : (
-            <>
-              You will be offered random <RarityLabel rarity={state.rarity} /> cards of any{' '}
-              <strong>banner color</strong> you have access to.
-            </>
-          ),
+          state.count > 0
+            ? MESSAGES.allResultsHiddenByFilters({ ...context, count: state.count })
+            : MESSAGES.noResults(context),
+          state.requiredEnergyAttributes.length > 0
+            ? MESSAGES.randomOfferWithoutEnergy(state)
+            : MESSAGES.randomOffer(state),
         ]
       case 'all-hidden-by-card-sets':
         return [
-          <>
-            All of {Card}’s <strong>{state.count}</strong> {Mode} results are hidden by your{' '}
-            <strong>filters</strong>.
-          </>,
-          <>
-            They are in the following card {state.cardSets.length > 1 ? 'sets' : 'set'}:
-            {/* Spans rather than a list, since this renders inside the detail paragraph */}
-            <span className={cx('detail__list')}>
-              {state.cardSets.map((cardSet) => (
-                <span key={cardSet} className={cx('detail__list-item')}>
-                  <strong>{cardSet}</strong>
-                </span>
-              ))}
-            </span>
-          </>,
+          MESSAGES.allResultsHiddenByFilters({ ...context, count: state.count }),
+          MESSAGES.hiddenInCardSets(state),
         ]
       case 'tradepost-nothing':
-        return [
-          <>
-            {Card} has no {Mode} results.
-          </>,
-        ]
+        return [MESSAGES.noResults(context)]
       case 'not-a-result':
-        // Monster is the bottom of the ladder, so nothing transmutes into a Monster-rarity card
         if (mode === 'transmute' && selectedCard?.rarity === RARITY.Monster)
-          return [
-            <>
-              <RarityLabel rarity={RARITY.Monster} /> cards can never be obtained{' '}
-              <strong>from</strong> a {Mode}!
-            </>,
-          ]
-        return [cantBeObtained]
+          return [MESSAGES.monsterRarityCannotBeObtainedFrom(context)]
+        return [MESSAGES.cannotBeObtainedFrom(context)]
       case 'black-target':
         return [
-          <>
-            <BannerPill color={COLOR.Black} /> cards can never be obtained <strong>from</strong> a{' '}
-            {Mode}!
-          </>,
-          <>
-            This is because <BannerPill color={COLOR.Black} /> cards sidemute into{' '}
-            <BannerPill color={COLOR.Brown} /> cards.
-          </>,
+          MESSAGES.blackBannerCannotBeObtainedFrom(context),
+          MESSAGES.blackBannerCannotBeObtainedFromReason(context),
         ]
-      case 'unreachable-with-filters': {
-        const { requiredEnergyAttributes, requiredCardSet } = state
-        const cardSetPhrase = requiredCardSet && (
-          <>
-            the <strong>{requiredCardSet}</strong> card set
-          </>
-        )
-        const energyPhrase = requiredEnergyAttributes.length > 0 && (
-          <>
-            <strong>{requiredEnergyAttributes.length > 1 ? 'one of ' : ''}</strong>
-            <EnergyAttributeIconsInline attributes={requiredEnergyAttributes} />{' '}
-            <strong>energy</strong>
-          </>
-        )
+      case 'unreachable-with-filters':
         return [
-          <>
-            {Card} cannot be obtained with your current <strong>filters</strong>.
-          </>,
-          <>
-            It requires {cardSetPhrase}
-            {cardSetPhrase && energyPhrase && ' and '}
-            {energyPhrase} to be obtainable via {Mode}.
-          </>,
+          MESSAGES.cannotBeObtainedWithFilters(context),
+          MESSAGES.cannotBeObtainedWithFiltersRequirements({ ...context, ...state }),
         ]
-      }
       case 'monster-sidemute-target':
-        return [
-          <>
-            Any of the <strong>{state.count}</strong> <BannerPill color={COLOR.Monster} /> cards can{' '}
-            {Mode} into {Card}!
-          </>,
-        ]
-      // Mirrors the listed case's headline. The Monster-banner route is in the footer for both.
+        return [MESSAGES.monsterBannerSidemuteSources({ ...context, count: state.count })]
       case 'monster-transmute-target':
-        return [
-          <>
-            No {selectedCard && <BannerPill color={selectedCard.color} />}{' '}
-            <RarityLabel rarity={RARITY.Monster} /> cards can {Mode} into {Card}.
-          </>,
-        ]
+        return [MESSAGES.noSameBannerMonsterSources({ ...context, color: selectedCard?.color })]
+      // _From_ only empties through data drift: live data missing every id in the result list
       case 'empty':
         return [
-          direction === 'from' ? (
-            <>
-              {Card} cannot {Mode} into anything
-            </>
-          ) : (
-            cantBeObtained
-          ),
+          direction === 'from'
+            ? MESSAGES.noResults(context)
+            : MESSAGES.cannotBeObtainedFrom(context),
         ]
     }
   }
@@ -227,11 +103,7 @@ const ResultsHeader = ({ view, selectedCard, direction, mode }: ResultsHeaderPro
 
   if (view.kind === 'no-card') {
     return renderHeadline(
-      direction === 'from' ? (
-        <>Search for a card to see which cards it can {Mode} into.</>
-      ) : (
-        <>Search for a card to see which cards can {Mode} into it.</>
-      )
+      direction === 'from' ? MESSAGES.searchPromptFrom(context) : MESSAGES.searchPromptTo(context)
     )
   }
 
@@ -239,17 +111,11 @@ const ResultsHeader = ({ view, selectedCard, direction, mode }: ResultsHeaderPro
     mode === 'tradepost' && selectedCard && getTradepostExcludedGroup(selectedCard)
   // One rule covers both directions
   if (view.kind === 'state' && tradepostExcludedGroup) {
+    // Monster is excluded by rarity, not banner: Monster-banner Rares and Legendaries are fine
     return renderHeadline(
-      <>
-        The {Mode} does not work with any{' '}
-        {/* Monster is excluded by rarity, not banner: Monster-banner Rares and Legendaries are fine */}
-        {tradepostExcludedGroup === 'Monster' ? (
-          <RarityLabel rarity={RARITY.Monster} />
-        ) : (
-          <BannerPill color={COLOR.White} />
-        )}{' '}
-        cards!
-      </>
+      tradepostExcludedGroup === 'Monster'
+        ? MESSAGES.tradepostExcludesMonsterRarity(context)
+        : MESSAGES.tradepostExcludesWhiteBanner(context)
     )
   }
 
@@ -257,13 +123,13 @@ const ResultsHeader = ({ view, selectedCard, direction, mode }: ResultsHeaderPro
 
   const subtext =
     direction === 'from' && view.branch === 'black-to-brown'
-      ? SUBTEXT_BLACK_TO_BROWN
+      ? MESSAGES.blackSidemutesIntoBrown()
       : direction === 'from' && view.branch === 'monster'
-        ? SUBTEXT_MONSTER_SIDEMUTE
+        ? MESSAGES.monsterBannerSidemuteResults()
         : view.branch === 'monster-transmute'
-          ? SUBTEXT_MONSTER_TRANSMUTE
+          ? MESSAGES.monsterTransmuteResults()
           : direction === 'to' && mode === 'sidemute' && selectedCard?.color === COLOR.Brown
-            ? SUBTEXT_BROWN_SOURCES
+            ? MESSAGES.brownSidemuteSources()
             : ''
 
   // Read off the visible cards rather than the rules, so the special branches (Black→Brown, Brown's
@@ -304,31 +170,18 @@ const ResultsHeader = ({ view, selectedCard, direction, mode }: ResultsHeaderPro
   ) : (
     <>{count} different cards</>
   )
+  const listedContext = { ...context, cardsPhrase, isSingular, includingItself }
 
-  const headlineFrom = isOnlyItself ? (
-    <>
-      {Card} can only {Mode} into itself.
-    </>
-  ) : (
-    <>
-      {Card} can {isSingular && 'only '}
-      {Mode} into {cardsPhrase}
-      {includingItself}.
-    </>
-  )
-  const headlineTo = isOnlyItself ? (
-    <>
-      Only {Card} itself can {Mode} into {Card}.
-    </>
-  ) : (
-    <>
-      {isSingular ? 'Only ' : ''}
-      {cardsPhrase} can {Mode} into {Card}
-      {includingItself}.
-    </>
-  )
+  const headline =
+    direction === 'from'
+      ? isOnlyItself
+        ? MESSAGES.listedOnlyItselfFrom(context)
+        : MESSAGES.listedFrom(listedContext)
+      : isOnlyItself
+        ? MESSAGES.listedOnlyItselfTo(context)
+        : MESSAGES.listedTo(listedContext)
 
-  return renderHeadline(direction === 'from' ? headlineFrom : headlineTo, subtext)
+  return renderHeadline(headline, subtext)
 }
 
 export default ResultsHeader
