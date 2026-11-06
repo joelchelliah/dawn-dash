@@ -33,10 +33,15 @@ const DIRECTION: Record<TransmuteDirection, string> = {
   to: 'Comes from',
 }
 
-const DIRECTION_SUBTITLES: Record<TransmuteDirection, string> = {
-  from: 'What this transforms into',
-  to: 'What transforms into this',
+// The mode as a verb, for the Direction subtitles. Tradepost is a card, so it stays capitalized.
+const MODE_VERBS: Record<TransmuteMode, string> = {
+  transmute: 'transmutes',
+  sidemute: 'sidemutes',
+  tradepost: 'Tradeposts',
 }
+
+const getDirectionSubtitle = (direction: TransmuteDirection, mode: TransmuteMode) =>
+  direction === 'from' ? `What this ${MODE_VERBS[mode]} into` : `What ${MODE_VERBS[mode]} into this`
 
 const MODE_LABELS: Record<TransmuteMode, string> = {
   transmute: 'Transmute',
@@ -45,9 +50,9 @@ const MODE_LABELS: Record<TransmuteMode, string> = {
 }
 
 const MODE_SUBTITLES: Record<TransmuteMode, string> = {
-  transmute: 'Same color, higher rarity',
-  sidemute: 'Same color and rarity',
-  tradepost: 'Same color and rarity',
+  transmute: 'Higher rarity',
+  sidemute: 'Same rarity',
+  tradepost: 'Same rarity',
 }
 
 const ENERGY_ATTRIBUTE_ICONS: Record<EnergyAttributeFilterOption, string> = {
@@ -156,7 +161,7 @@ const TransmuteSearchPanel = ({ cards, useSearchFilters }: TransmuteSearchPanelP
                 options={ALL_DIRECTIONS}
                 selected={direction}
                 getLabel={(option) => DIRECTION[option]}
-                getSubtitle={(option) => DIRECTION_SUBTITLES[option]}
+                getSubtitle={(option) => getDirectionSubtitle(option, mode)}
                 onChange={setDirection}
               />
             ) : (

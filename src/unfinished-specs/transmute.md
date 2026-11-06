@@ -446,7 +446,7 @@ one of the states below, or a list), and the panel, with all copy in its `Result
 selected card is **not** repeated at the top of the results: the search panel already shows it (Task
 5), so the header names it instead. Monster-branch rows need no rarity label: the artwork border
 and the rarity icon already show it. The optional items below were planned as Task 6b, except
-"Available at …", which moved to Task 7b. The _From_ potion top-up line was built here
+"Available at …", which moved to Task 7b-6. The _From_ potion top-up line was built here
 (`sidemuteFallbackPool`).
 
 - **The selected card at the top**, rendered with the shared `ResultCard`.
@@ -503,6 +503,7 @@ A Monster-banner sidemute (444) and a small Legendary list. Card art on and off.
 ### Task 6b — Extra header and footer lines — COMPLETED
 
 Built as described. Details that differ from or add to the plan:
+
 - `isPotion` and `ARE_ALL_POTIONS_REMOVED_FROM_TRADEPOST` are in `transmuteLookup`, and
   `isMetaprogressCard` is in `transmuteCards`.
 - **The Tradepost-only hint was built, then dropped by the user as overkill**: switching the mode
@@ -531,6 +532,7 @@ Do this first, because every item below relies on it.
     Rewards."
 
   No row icon: every row already shows its card set.
+
 - **Potion top-up, _To_.** Sidemute, with a selected card in `RULES.potions` (export an `isPotion`
   helper from `transmuteLookup`). Add a footer line: "**Healing Potion** can also be offered if any
   **Uncommon** card's sidemute runs short of options." Today every potion has direct Brown sources,
@@ -544,6 +546,7 @@ Do this first, because every item below relies on it.
 - No Tradepost badge on rows, and no count of `adds` cards in the Tradepost list.
 
 Check, at desktop and mobile:
+
 - a Metaprogress card in _To_ (e.g. Daggerstorm), each mode;
 - a class-color _From_ list containing one Metaprogress card and one containing several;
 - a potion in _To_ on Sidemute and on Tradepost;
@@ -585,30 +588,149 @@ round-trip.
 
 ### Task 7b — Hints about the selected filters
 
-Extra hints that explain what the current filter combination means, so a user doesn't have to
-know the game rules to read the results. **The form and placement are to be discussed with the
-user before building**; the candidates so far:
+Explain the rules without making the user learn them first. Split into 7b-1 … 7b-6, built in that
+order and **paused after each** like the rest of the spec. Decided with the user:
 
-- an info box just above the results in the results panel, covering the whole combination (mode,
-  direction, and what the energy attributes and card sets are doing to the list);
-- a one-line helper under the Mode buttons saying what the selected mode means.
+- **No helper line under Mode or Direction.** It would repeat the results headline, which already
+  names the mode, direction and the special branch (Black → Brown, Monster). The general rules
+  go in the help modals (7b-4 – 7b-6) instead.
+- **Direction labels stay** _Turns into_ / _Comes from_. Labels that change with the mode were
+  rejected, because "Transmute into" can be read either way. The mode shows in the subtitles instead
+  (7b-1).
+- **Help modals are static**: the same content whatever is selected, so the copy can't go wrong
+  for an edge case. All copy is a draft for the user to reword.
+- **Offer sizes, owned Unique cards, imbued cards and the data version stay unmentioned.** The tool
+  doesn't know the player's game state.
 
-Overlaps Task 6's one-line subtext by the selected card, so settle the two together rather than
-saying the same thing twice.
+#### Task 7b-1 — Shorter subtitles — COMPLETED
 
-**"Available at …" (moved here from Task 6)**: a muted line for the selected mode, from
-`RULES.modes` (display-only data). It sits under the Mode buttons or in the results footer; place it
-with the helper line above. Each entry gets a tiny icon:
-- **Events** (Alchemist, The Nexus, …): Eventmaps' event artwork, each linked to
-  `/eventmaps/<event>`. That is a URL link, not an import, so the no-cross-tool-imports rule holds.
-  Check that every event name resolves to an existing Eventmaps slug, and decide what an unknown
-  name renders as.
-- **Cards** (Cursed Cauldron, Tradepost): card artwork via `useCardImageSrc`, linked to Blightbane
-  the way Booty's card modals do.
+- Mode subtitles become _Higher rarity_ / _Same rarity_ / _Same rarity_ (`MODE_SUBTITLES`).
+  Banner color was wrong for the Black → Brown and Monster branches, and Legendary → Legendary
+  isn't higher.
+- The Direction subtitles follow the mode: "What this transmutes into" / "What transmutes into
+  this", and likewise for _sidemutes_ and _Tradeposts_ (capitalized, as it's a card).
+  `MODE_VERBS` + `getDirectionSubtitle`. The labels stay _Turns into_ / _Comes from_.
+- Subtitles are a size smaller (`xxxs`) on mobile, so the longer Direction ones fit.
 
-Details to be worked out when the task starts.
+Check: both controls in each mode, at desktop and mobile.
 
-Check: each mode × direction, with energy attributes and card sets narrowed and not. Mobile width.
+#### Task 7b-2 — Hidden-results footer line
+
+A footer line, **always last**, under a _Turns into_ list whose filters hid some results:
+"**N** additional results are hidden by your filters." / "**1** additional result is hidden by
+your filters."
+
+- N = `hiddenBySets` + the energy-excluded cards (`toCards(result.excludedByEnergyAttributes)`), as
+  `transmute-fallback`'s count already sums them. Add it to the `cards` view in
+  `useTransmuteResults`.
+- Never shown on a Monster-banner sidemute (card sets are ignored, so N is always 0) or in _Comes
+  from_ (sources aren't filtered by card set or energy).
+- Not shown under a state headline: `all-hidden-by-card-sets` and `transmute-fallback` already say
+  it.
+
+Check: a Red Uncommon transmute with Str unticked, a list narrowed by card sets, both together, and
+everything ticked (no line).
+
+#### Task 7b-3 — Results reached through a `castRequirements` exception
+
+18 cards have their own energy requirement instead of their banner's, 14 of them Holy. Today, with
+Dex and Holy ticked, a Red Uncommon transmute lists three Red Rares with nothing saying why.
+Show a line only when **a listed card's banner energy isn't ticked**: it has a `castRequirements`
+entry, its banner default (`ENERGY_ATTRIBUTES_BY_COLOR`) is non-empty, and none of that default is
+ticked. A Brown card needing Holy doesn't qualify: its banner has no default to break.
+
+- **_Turns into_ (Transmute, any branch)**, a footer line before 7b-2's:
+  "**Martyr's Assault**, **X** and **Y** are offered through your [Holy] access, despite their
+  banner." Name up to 3, otherwise "**N** of these cards are offered …". The icons are the
+  ticked energies that match the cards' requirements (`EnergyAttributeIconsInline`). If the
+  qualifying cards are reached through different energies, use one line per energy combination.
+- **_Comes from_ (Transmute, a list)**, a header detail line stacked like the unlock line:
+  "**Martyr's Assault** is reached through your [Holy] access, despite its [Red] banner." The
+  unticked case is already `unreachable-with-filters`.
+- Export a predicate from `transmuteLookup` (e.g. `isReachedOnlyThroughException(id, ticked)`)
+  so both directions use one rule.
+
+Check: Red Uncommon _Turns into_ with Dex + Holy (line) and Str + Holy (no line); Martyr's Assault
+_Comes from_ with Holy only (line) and Str + Holy (no line); Ceremony of Roses (Purple, any of
+Dex/Int/Str) _Comes from_ with only Dex ticked (line).
+
+#### Task 7b-4 — Help button in section headers, and the Card sets modal
+
+A "?" at the far right of a section header, opening an `InfoModal`:
+
+```
+Card Sets                    (?)
+--------------------------------
+```
+
+- `Section` (shared) gets an optional `titleAction?: ReactNode`, rendered at the right end of the
+  title row. `FilterGroup` forwards it. Additive, so Cardex and Skilldex are unchanged. 7d also adds
+  props to both, so keep them independent.
+- The button is Transmute-local (`HelpButton`, one consumer): Cardex's `QuestionIcon` inside a
+  `<button type="button">` with an `aria-label`. Cardex puts `onClick` on the bare svg, which can't
+  be reached by keyboard. The `type` matters because the panel is a `<form>`.
+- The header shows whether the group is rendered or replaced by its "Not relevant" note, so the
+  "?" is always there.
+- **Card sets modal** (draft, the user rewords):
+  - Card sets narrow the results, never which card you can pick.
+  - Core and Extended are always enabled in the game, so they have no checkbox here, along with
+    the cards that belong to no set, which includes every Monster card.
+  - A Monster-banner card's sidemute ignores card sets entirely.
+  - In _Comes from_, the selected card's own set must be ticked for anything to reach it.
+
+Check: the button by mouse and keyboard (Tab, Enter/Space), the modal at desktop and mobile, and
+that Cardex's and Skilldex's section headers look unchanged.
+
+#### Task 7b-5 — Energy attributes modal
+
+The same "?" on the Energy attributes header. Content (draft):
+
+- Tick the energies your character has access to. They only affect **Transmute**: the game offers
+  only results whose banner color you can access.
+- The banner → energy table from Game rules, with banner pills and energy icons. Any one listed
+  energy is enough.
+- Holy is about _access_, not an attribute you build.
+- The exceptions: every `castRequirements` card, built from the data (not hand-written) with its
+  required energies, so a sync keeps it right. Rendered as an artwork list linking to Blightbane,
+  reusing what 7b-6 moves into `shared/`. **If 7b-6 isn't done yet, build 7b-6's move first.**
+
+Check: the modal with the exceptions list at desktop and mobile; the "?" also shows on Sidemute and
+Tradepost while the group shows its note.
+
+#### Task 7b-6 — Mode modal with "Available at"
+
+A "?" on the Mode header. Content (draft), one section per mode, always in the order Transmute,
+Sidemute, Tradepost:
+
+- **Transmute**: one rarity higher, same banner color, gated by energy access; Legendary →
+  Legendary; Monster-banner and White cards get random cards of any color you have access to; the
+  fallback when same-color options run short.
+- **Sidemute**: same rarity and banner color; Black → Brown; Monster-banner cards get their own
+  pool of mixed rarities and ignore card sets; the potion top-up.
+- **Tradepost**: same rarity and banner color, the card itself included; Black stays Black; never
+  works on Monster-rarity or White cards; potions are never offered.
+- **Monster banner vs. Monster rarity**: Monster-banner cards can have any rarity (Abolish), and
+  Monster-rarity cards can have another banner (Aura of Fear is Black). Sidemute follows the banner,
+  and Tradepost excludes by rarity.
+- **Available at**, under each mode, from `RULES.modes`, laid out like Booty's card modal (3 → 2
+  columns):
+  - events with their Eventmaps artwork, linking to `/eventmaps/<event>`. All 6 names resolve
+    today; an unknown name renders as plain text without a link, with a dev-only `logger.warn`;
+  - cards (Cursed Cauldron, Tradepost) with `useCardImageSrc` artwork, linking to Blightbane.
+
+**First, move Booty's list components to `shared/`** (no visible change to Booty):
+
+- `ArtworkLinkList` and `ArtworkSourceItem` (`EventSourceItem`, `CardSourceItem`), from
+  `src/booty/components/shared/` to `src/shared/components/`.
+- `ArtworkSourceItem` imports `getEventArtwork` from `@/booty/utils/treasureHelper`, which
+  builds `EVENTS_BY_NAME` from `shared/data/event-trees.json`. Move that lookup into
+  `shared/utils/` too, and have Booty import it from there. It stays one module-scope `Map`.
+- Docs: `src/booty/CLAUDE.md` (the `ArtworkSourceItem` and striping bullets name the old paths)
+  and Key files in `src/shared/CLAUDE.md`.
+
+Check: Booty's card modal, weapon modal and pool tables look unchanged (`npm run build` too). Then
+the Mode modal at desktop and mobile, every event and card link, and that it scrolls at mobile
+height.
 
 ### Task 7c — Fine-tune the selected-card row
 
@@ -674,6 +796,7 @@ them possible _To_ sources.
 - Rewrite the "Unlocks" bullet in Game rules to say they're excluded and why.
 
 Check:
+
 - Searching "Rend", "Claw" and "Maul" offers no `(Companion)` card.
 - A Synthesis-color Tradepost list (_From_) no longer contains them.
 - Cardex's animal-companion filter still works.
@@ -690,6 +813,7 @@ above): the results panel is the same kind of list. On mobile the filter panel s
 results, so the right threshold there is left to trial in the browser.
 
 Check:
+
 - the button appears and scrolls back up on a Monster-banner sidemute (444 rows);
 - it stays hidden on a short list and while cards load;
 - desktop, tablet and mobile widths.

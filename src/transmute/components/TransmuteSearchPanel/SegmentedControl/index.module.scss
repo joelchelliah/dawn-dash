@@ -57,6 +57,11 @@
   &__subtitle {
     text-align: center;
     font-size: font-size('xxs');
-    opacity: 0.75;
+    opacity: 0.8;
+
+    @media (max-width: $breakpoint-mobile) {
+      font-size: font-size('xxxs');
+      opacity: 0.9;
+    }
   }
 }
