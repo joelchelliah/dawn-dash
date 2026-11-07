@@ -271,7 +271,8 @@ states to look at, and wait. The user runs the dev server.
 
 - **Task 1 has no visible effect by design**: Cardex must look and behave exactly as before.
 - **Task 2b has no visible effect**: check it through its temporary test.
-- **Tasks 9 and 11 are the user's**: an agent prepares what it can and waits.
+- **Tasks 9 and 11, and Task 13's GitHub steps, are the user's**: an agent prepares what it can
+  and waits.
 
 **Verification:**
 
@@ -446,7 +447,7 @@ one of the states below, or a list), and the panel, with all copy in its `Result
 selected card is **not** repeated at the top of the results: the search panel already shows it (Task
 5), so the header names it instead. Monster-branch rows need no rarity label: the artwork border
 and the rarity icon already show it. The optional items below were planned as Task 6b, except
-"Available at …", which moved to Task 7b-6. The _From_ potion top-up line was built here
+"Available at …", which moved to Task 14c. The _From_ potion top-up line was built here
 (`sidemuteFallbackPool`).
 
 - **The selected card at the top**, rendered with the shared `ResultCard`.
@@ -588,12 +589,13 @@ round-trip.
 
 ### Task 7b — Hints about the selected filters
 
-Explain the rules without making the user learn them first. Split into 7b-1 … 7b-6, built in that
-order and **paused after each** like the rest of the spec. Decided with the user:
+Explain the rules without making the user learn them first. Split into 7b-1 … 7b-3, built in that
+order and **paused after each** like the rest of the spec. The help modals planned as 7b-4 – 7b-6
+moved to Task 14, to wait until the rest of the tool is finished. Decided with the user:
 
 - **No helper line under Mode or Direction.** It would repeat the results headline, which already
   names the mode, direction and the special branch (Black → Brown, Monster). The general rules
-  go in the help modals (7b-4 – 7b-6) instead.
+  go in the help modals (Task 14) instead.
 - **Direction labels stay** _Turns into_ / _Comes from_. Labels that change with the mode were
   rejected, because "Transmute into" can be read either way. The mode shows in the subtitles instead
   (7b-1).
@@ -658,84 +660,6 @@ ticked. A Brown card needing Holy doesn't qualify: its banner has no default to 
 Check: Red Uncommon _Turns into_ with Dex + Holy (line) and Str + Holy (no line); Martyr's Assault
 _Comes from_ with Holy only (line) and Str + Holy (no line); Ceremony of Roses (Purple, any of
 Dex/Int/Str) _Comes from_ with only Dex ticked (line).
-
-#### Task 7b-4 — Help button in section headers, and the Card sets modal
-
-A "?" at the far right of a section header, opening an `InfoModal`:
-
-```
-Card Sets                    (?)
---------------------------------
-```
-
-- `Section` (shared) gets an optional `titleAction?: ReactNode`, rendered at the right end of the
-  title row. `FilterGroup` forwards it. Additive, so Cardex and Skilldex are unchanged. 7d also adds
-  props to both, so keep them independent.
-- The button is Transmute-local (`HelpButton`, one consumer): Cardex's `QuestionIcon` inside a
-  `<button type="button">` with an `aria-label`. Cardex puts `onClick` on the bare svg, which can't
-  be reached by keyboard. The `type` matters because the panel is a `<form>`.
-- The header shows whether the group is rendered or replaced by its "Not relevant" note, so the
-  "?" is always there.
-- **Card sets modal** (draft, the user rewords):
-  - Card sets narrow the results, never which card you can pick.
-  - Core and Extended are always enabled in the game, so they have no checkbox here, along with
-    the cards that belong to no set, which includes every Monster card.
-  - A Monster-banner card's sidemute ignores card sets entirely.
-  - In _Comes from_, the selected card's own set must be ticked for anything to reach it.
-
-Check: the button by mouse and keyboard (Tab, Enter/Space), the modal at desktop and mobile, and
-that Cardex's and Skilldex's section headers look unchanged.
-
-#### Task 7b-5 — Energy attributes modal
-
-The same "?" on the Energy attributes header. Content (draft):
-
-- Tick the energies your character has access to. They only affect **Transmute**: the game offers
-  only results whose banner color you can access.
-- The banner → energy table from Game rules, with banner pills and energy icons. Any one listed
-  energy is enough.
-- Holy is about _access_, not an attribute you build.
-- The exceptions: every `castRequirements` card, built from the data (not hand-written) with its
-  required energies, so a sync keeps it right. Rendered as an artwork list linking to Blightbane,
-  reusing what 7b-6 moves into `shared/`. **If 7b-6 isn't done yet, build 7b-6's move first.**
-
-Check: the modal with the exceptions list at desktop and mobile; the "?" also shows on Sidemute and
-Tradepost while the group shows its note.
-
-#### Task 7b-6 — Mode modal with "Available at"
-
-A "?" on the Mode header. Content (draft), one section per mode, always in the order Transmute,
-Sidemute, Tradepost:
-
-- **Transmute**: one rarity higher, same banner color, gated by energy access; Legendary →
-  Legendary; Monster-banner and White cards get random cards of any color you have access to; the
-  fallback when same-color options run short.
-- **Sidemute**: same rarity and banner color; Black → Brown; Monster-banner cards get their own
-  pool of mixed rarities and ignore card sets; the potion top-up.
-- **Tradepost**: same rarity and banner color, the card itself included; Black stays Black; never
-  works on Monster-rarity or White cards; potions are never offered.
-- **Monster banner vs. Monster rarity**: Monster-banner cards can have any rarity (Abolish), and
-  Monster-rarity cards can have another banner (Aura of Fear is Black). Sidemute follows the banner,
-  and Tradepost excludes by rarity.
-- **Available at**, under each mode, from `RULES.modes`, laid out like Booty's card modal (3 → 2
-  columns):
-  - events with their Eventmaps artwork, linking to `/eventmaps/<event>`. All 6 names resolve
-    today; an unknown name renders as plain text without a link, with a dev-only `logger.warn`;
-  - cards (Cursed Cauldron, Tradepost) with `useCardImageSrc` artwork, linking to Blightbane.
-
-**First, move Booty's list components to `shared/`** (no visible change to Booty):
-
-- `ArtworkLinkList` and `ArtworkSourceItem` (`EventSourceItem`, `CardSourceItem`), from
-  `src/booty/components/shared/` to `src/shared/components/`.
-- `ArtworkSourceItem` imports `getEventArtwork` from `@/booty/utils/treasureHelper`, which
-  builds `EVENTS_BY_NAME` from `shared/data/event-trees.json`. Move that lookup into
-  `shared/utils/` too, and have Booty import it from there. It stays one module-scope `Map`.
-- Docs: `src/booty/CLAUDE.md` (the `ArtworkSourceItem` and striping bullets name the old paths)
-  and Key files in `src/shared/CLAUDE.md`.
-
-Check: Booty's card modal, weapon modal and pool tables look unchanged (`npm run build` too). Then
-the Mode modal at desktop and mobile, every event and card link, and that it scrolls at mobile
-height.
 
 ### Task 7c — Fine-tune the selected-card row
 
@@ -839,6 +763,14 @@ The agent can draft copy on request, but the final wording is the user's.
 - Pick the nav icon, a Blightbane image URL from `src/shared/utils/imageUrls.ts`.
 - Rewrite the drafted registry copy: `description`, `shortDescription`, `ogTitle` (emoji included),
   `ogDescription`.
+- **The side menu's About modal** (`src/shared/components/Header/SideMenu/index.tsx`): add a
+  Transmute section, written by hand like the other tools' (`getInfoTitle('transmute')`, a
+  paragraph, an `info-divider`). Unlike the nav link, it isn't registry-driven.
+- **`README.md`**: a Transmute section in the same shape as the others (emoji heading, a line or
+  two, bullets, the "Check it out here" link and the OG image linked to `/transmute`).
+
+The side menu's **nav link** needs no work: it iterates `getListedTools()`, so it appears once Task
+10 removes `unlisted`, and Task 10 checks it.
 
 ### Task 10 — Launch and cleanup
 
@@ -895,5 +827,124 @@ Black).
   visible change to Cardex's banner filter, not just a fix.
 
 Check: Cardex's banner filter with the affected banners, and a search for a Song and a Totem.
+
+### Task 13 — Make the repo private
+
+Not part of Transmute. The GitHub repo (`joelchelliah/dawn-dash`) goes from public to private, and
+the site stops presenting itself as open source. **Ship the code changes first**, so the live site
+never links to a repo that 404s for visitors.
+
+- **Footer**: replace `src/shared/components/Footer/OpenSourceInfo/` with a way to reach the
+  developer for suggestions and requests: Discord, as `joel6801` in the
+  [Dawncaster Discord](https://discord.gg/pfeMG9c), the contact the README already gives. Keep the
+  existing pattern (hover text on desktop, an `InfoModal` from the icon on tablet and below), and
+  rename the component to match (e.g. `ContactInfo`). **There is no Discord icon in `Icons/`**:
+  decide with the user whether to add one or reuse another. `GitHubIcon` then has no consumer, so
+  delete it and its export, and swap the example in the `scripts/icon-viewbox.js` comment that
+  names it.
+- **`README.md`**: drop "open-source" from the intro, the Contribution section, and "Open an issue
+  here" (others can't see issues on a private repo). Keep the Discord contact.
+- **`CONTRIBUTING.md`**: delete it (git keeps it), since nobody outside can contribute.
+- **GitHub (the user's)**: Settings → Danger Zone → Change visibility. Check first:
+  - **Deployment**: whatever deploys dawn-dash.com (nothing in the repo configures it) must still
+    have access to a private repo.
+  - **Actions minutes**: private repos get a monthly quota on the Free plan. `ci.yml` runs on pushes
+    and PRs, and `keep-supabase-alive.yml` on a cron every two days. That should fit, but look at
+    the usage after the first month: if `keep-supabase-alive` stops, the Supabase project pauses
+    and Skilldex loses its talents.
+  - Stars and watchers are lost, and existing forks stay public with the history up to now.
+    Nothing already published is retracted.
+  - Branch protection rules aren't enforced on private repos on the Free plan.
+
+Check: the footer at desktop (hover) and tablet/mobile (modal); no `github.com/joelchelliah` left
+outside git history (`grep -rn` over `src/`, `README.md`, `scripts/`). `npm run verify` and
+`npm run build`. After the switch: a deploy still goes out, and the CI and keep-alive workflows still
+run.
+
+### Task 14 — Help modals for the filters
+
+The help modals planned as Task 7b-4 – 7b-6, deferred by the user until the rest of the tool is
+finished. Task 7b's decisions apply: the modals are static and their copy is a draft for the user to
+reword. Build 14a → 14c in order, pausing after each. Task 8's `src/transmute/CLAUDE.md` gains a
+line on them, and 14c's move changes `src/booty/CLAUDE.md` and `src/shared/CLAUDE.md` (listed
+there).
+
+#### Task 14a — Help button in section headers, and the Card sets modal
+
+A "?" at the far right of a section header, opening an `InfoModal`:
+
+```
+Card Sets                    (?)
+--------------------------------
+```
+
+- `Section` (shared) gets an optional `titleAction?: ReactNode`, rendered at the right end of the
+  title row. `FilterGroup` forwards it. Additive, so Cardex and Skilldex are unchanged. 7d also adds
+  props to both, so keep them independent.
+- The button is Transmute-local (`HelpButton`, one consumer): Cardex's `QuestionIcon` inside a
+  `<button type="button">` with an `aria-label`. Cardex puts `onClick` on the bare svg, which can't
+  be reached by keyboard. The `type` matters because the panel is a `<form>`.
+- The header shows whether the group is rendered or replaced by its "Not relevant" note, so the
+  "?" is always there.
+- **Card sets modal** (draft, the user rewords):
+  - Card sets narrow the results, never which card you can pick.
+  - Core and Extended are always enabled in the game, so they have no checkbox here, along with
+    the cards that belong to no set, which includes every Monster card.
+  - A Monster-banner card's sidemute ignores card sets entirely.
+  - In _Comes from_, the selected card's own set must be ticked for anything to reach it.
+
+Check: the button by mouse and keyboard (Tab, Enter/Space), the modal at desktop and mobile, and
+that Cardex's and Skilldex's section headers look unchanged.
+
+#### Task 14b — Energy attributes modal
+
+The same "?" on the Energy attributes header. Content (draft):
+
+- Tick the energies your character has access to. They only affect **Transmute**: the game offers
+  only results whose banner color you can access.
+- The banner → energy table from Game rules, with banner pills and energy icons. Any one listed
+  energy is enough.
+- Holy is about _access_, not an attribute you build.
+- The exceptions: every `castRequirements` card, built from the data (not hand-written) with its
+  required energies, so a sync keeps it right. Rendered as an artwork list linking to Blightbane,
+  reusing what 14c moves into `shared/`. **If 14c isn't done yet, build 14c's move first.**
+
+Check: the modal with the exceptions list at desktop and mobile; the "?" also shows on Sidemute and
+Tradepost while the group shows its note.
+
+#### Task 14c — Mode modal with "Available at"
+
+A "?" on the Mode header. Content (draft), one section per mode, always in the order Transmute,
+Sidemute, Tradepost:
+
+- **Transmute**: one rarity higher, same banner color, gated by energy access; Legendary →
+  Legendary; Monster-banner and White cards get random cards of any color you have access to; the
+  fallback when same-color options run short.
+- **Sidemute**: same rarity and banner color; Black → Brown; Monster-banner cards get their own
+  pool of mixed rarities and ignore card sets; the potion top-up.
+- **Tradepost**: same rarity and banner color, the card itself included; Black stays Black; never
+  works on Monster-rarity or White cards; potions are never offered.
+- **Monster banner vs. Monster rarity**: Monster-banner cards can have any rarity (Abolish), and
+  Monster-rarity cards can have another banner (Aura of Fear is Black). Sidemute follows the banner,
+  and Tradepost excludes by rarity.
+- **Available at**, under each mode, from `RULES.modes`, laid out like Booty's card modal (3 → 2
+  columns):
+  - events with their Eventmaps artwork, linking to `/eventmaps/<event>`. All 6 names resolve
+    today; an unknown name renders as plain text without a link, with a dev-only `logger.warn`;
+  - cards (Cursed Cauldron, Tradepost) with `useCardImageSrc` artwork, linking to Blightbane.
+
+**First, move Booty's list components to `shared/`** (no visible change to Booty):
+
+- `ArtworkLinkList` and `ArtworkSourceItem` (`EventSourceItem`, `CardSourceItem`), from
+  `src/booty/components/shared/` to `src/shared/components/`.
+- `ArtworkSourceItem` imports `getEventArtwork` from `@/booty/utils/treasureHelper`, which
+  builds `EVENTS_BY_NAME` from `shared/data/event-trees.json`. Move that lookup into
+  `shared/utils/` too, and have Booty import it from there. It stays one module-scope `Map`.
+- Docs: `src/booty/CLAUDE.md` (the `ArtworkSourceItem` and striping bullets name the old paths)
+  and Key files in `src/shared/CLAUDE.md`.
+
+Check: Booty's card modal, weapon modal and pool tables look unchanged (`npm run build` too). Then
+the Mode modal at desktop and mobile, every event and card link, and that it scrolls at mobile
+height.
 
 Once every task is `COMPLETED`, delete this spec.
