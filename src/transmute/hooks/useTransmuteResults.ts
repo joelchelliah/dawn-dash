@@ -79,12 +79,14 @@ export type TransmuteView =
       kind: 'cards'
       cards: CardData[]
       branch: LookupBranch
-      // Transmute _From_: every color of the next rarity
+      // Transmute (From): every color of the next rarity
       transmuteFallback?: FallbackPool
-      // Sidemute _From_: the potion top-up of the source's rarity
+      // Sidemute (From): the potion top-up of the source's rarity
       sidemuteFallback?: FallbackPool
-      // Transmute _To_ a Common: the Monster-banner cards that also transmute into it
+      // Transmute (To) a Common: the Monster-banner cards that also transmute into it
       monsterTransmuteSourceCount?: number
+      // (From): results the card-set and energy-attribute filters hid
+      hiddenCount?: number
     }
 
 interface UseTransmuteResultsProps {
@@ -180,6 +182,7 @@ const getView = ({
   const visible = result.branch === 'monster' ? candidates : candidates.filter(isInSelectedSet)
 
   const hiddenBySets = candidates.length - visible.length
+  const hiddenByEnergyAttributes = toCards(result.excludedByEnergyAttributes, cards).length
   // These already list every color, so there's no fallback left to mention
   const transmuteRarity =
     mode === 'transmute' && result.branch === 'normal' ? getTransmuteResultRarity(id) : undefined
@@ -207,7 +210,7 @@ const getView = ({
       )
       return state({
         kind: 'transmute-fallback',
-        count: candidates.length + toCards(result.excludedByEnergyAttributes, cards).length,
+        count: candidates.length + hiddenByEnergyAttributes,
         rarity: transmuteRarity,
         requiredEnergyAttributes,
       })
@@ -238,6 +241,7 @@ const getView = ({
     branch: result.branch,
     transmuteFallback,
     sidemuteFallback,
+    hiddenCount: hiddenBySets + hiddenByEnergyAttributes,
   }
 }
 

@@ -19,6 +19,7 @@ interface Context {
 }
 
 const UnlockIcon = () => <span className={cx('message-emoji')}>🔓</span>
+const HiddenIcon = () => <span className={cx('message-emoji')}>🫥</span>
 
 export const MESSAGES = {
   // - - - - - - - - - - - - - - - -
@@ -262,11 +263,19 @@ export const MESSAGES = {
     )
   },
 
+  // (From): results the filters hid from a non-empty list
+  hiddenResults: ({ count }: { count: number }) => (
+    <>
+      <HiddenIcon /> <strong>{count}</strong> additional {count === 1 ? 'result is' : 'results are'}{' '}
+      hidden by your <strong>filters</strong>.
+    </>
+  ),
+
   // - - - - - - - - - - - - - - - -
   // - - - - Footer messages - - - -
   // - - - - - - - - - - - - - - - -
 
-  // Transmute _From_: what the game offers once the same-color results run out
+  // Transmute (From): what the game offers once the same-color results run out
   transmuteFallbackPool: ({ Mode, count, rarity }: Pick<Context, 'Mode'> & FallbackPoolProps) => (
     <>
       If you run short of {Mode} options, you are offered cards from a pool of{' '}
@@ -274,14 +283,14 @@ export const MESSAGES = {
       <strong>banner color</strong> you have access to.
     </>
   ),
-  // Sidemute _From_: the potion top-up
+  // Sidemute (From): the potion top-up
   sidemuteFallbackPool: ({ Mode, count, rarity }: Pick<Context, 'Mode'> & FallbackPoolProps) => (
     <>
       If you run short of {Mode} options, you are offered cards from a pool of{' '}
       <strong>{count}</strong> <RarityLabel rarity={rarity} /> potions.
     </>
   ),
-  // Transmute _To_ a Common: Monster-banner cards offer random Commons of any color
+  // Transmute (To) a Common: Monster-banner cards offer random Commons of any color
   monsterBannerFallback: ({
     Card,
     count,
@@ -294,26 +303,20 @@ export const MESSAGES = {
       <BannerPill color={COLOR.Monster} /> cards.
     </>
   ),
-  // Sidemute _To_ a potion: the top-up offers it to every source of its rarity
+  // Sidemute (To) a potion: the top-up offers it to every source of its rarity
   potionSidemuteTopUp: ({ Card, Mode, rarity }: Context & { rarity: number }) => (
     <>
       {Card} can also be offered if any <RarityLabel rarity={rarity} /> card&apos;s {Mode} runs
       short of options.
     </>
   ),
-  // _From_: how many of the listed results are locked behind meta progress
-  metaprogressResults: ({ count }: { count: number }) =>
-    count === 1 ? (
-      <>
-        <UnlockIcon /> The <strong>Metaprogress</strong> card here is only offered if unlocked via{' '}
-        <strong>Progress Rewards</strong>.
-      </>
-    ) : (
-      <>
-        <UnlockIcon /> The <strong>{count}</strong> <strong>Metaprogress</strong> cards here are
-        only offered if unlocked via <strong>Progress Rewards</strong>.
-      </>
-    ),
+  // (From): some of the listed results are locked behind meta progress
+  metaprogressResults: () => (
+    <>
+      <UnlockIcon /> <strong>Metaprogress</strong> cards are only offered if unlocked via{' '}
+      <strong>Progress Rewards</strong>.
+    </>
+  ),
 }
 
 interface FallbackPoolProps {

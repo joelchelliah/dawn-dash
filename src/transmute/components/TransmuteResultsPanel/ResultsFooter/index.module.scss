@@ -10,4 +10,8 @@
   @media (max-width: $breakpoint-mobile) {
     font-size: font-size('xxs');
   }
+
+  & + & {
+    margin-top: 0.5rem;
+  }
 }

@@ -66,10 +66,11 @@ const ResultsFooter = ({ view, selectedCard, direction, mode }: ResultsFooterPro
     isPotion(selectedCard.blightbane_id) &&
     MESSAGES.potionSidemuteTopUp({ Card, Mode, rarity: selectedCard.rarity })
 
-  const metaprogressCount =
-    direction === 'from' && view.kind === 'cards' ? view.cards.filter(isMetaprogressCard).length : 0
   const metaprogressMessage =
-    metaprogressCount > 0 && MESSAGES.metaprogressResults({ count: metaprogressCount })
+    direction === 'from' &&
+    view.kind === 'cards' &&
+    view.cards.some(isMetaprogressCard) &&
+    MESSAGES.metaprogressResults()
 
   const messages = [fallbackMessage, potionTopUpMessage, metaprogressMessage].filter(Boolean)
 

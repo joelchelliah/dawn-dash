@@ -13,10 +13,10 @@
 
 .message-emoji {
   font-size: 1rem;
-  margin-right: 0.125rem;
+  margin: 0 0.25rem;
 
   @media (max-width: $breakpoint-mobile) {
     font-size: 0.75rem;
-    margin-right: 0.0625rem;
+    margin: 0 0.125rem;
   }
 }

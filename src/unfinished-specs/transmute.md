@@ -614,9 +614,10 @@ order and **paused after each** like the rest of the spec. Decided with the user
 
 Check: both controls in each mode, at desktop and mobile.
 
-#### Task 7b-2 — Hidden-results footer line
+#### Task 7b-2 — Hidden-results line — COMPLETED
 
-A footer line, **always last**, under a _Turns into_ list whose filters hid some results:
+Built as a header detail line (after the subtext) rather than the planned footer line, by the
+user's choice. A line under a _Turns into_ list whose filters hid some results:
 "**N** additional results are hidden by your filters." / "**1** additional result is hidden by
 your filters."
 

@@ -115,11 +115,14 @@ const ResultsHeader = ({ view, selectedCard, direction, mode }: ResultsHeaderPro
   const unlockLine =
     isComesFrom && isMetaprogressCard(selectedCard) && MESSAGES.onlyOfferedOnceUnlocked(context)
 
-  const renderHeadline = (headline: ReactNode, detail?: ReactNode) => (
+  const renderHeadline = (headline: ReactNode, ...details: ReactNode[]) => (
     <>
       <h2 className={cx('headline')}>{headline}</h2>
-      {detail && <p className={cx('detail')}>{detail}</p>}
-      {unlockLine && <p className={cx('detail')}>{unlockLine}</p>}
+      {[...details, unlockLine].filter(Boolean).map((detail, index) => (
+        <p key={index} className={cx('detail')}>
+          {detail}
+        </p>
+      ))}
     </>
   )
 
@@ -203,7 +206,13 @@ const ResultsHeader = ({ view, selectedCard, direction, mode }: ResultsHeaderPro
         ? MESSAGES.listedOnlyItselfTo(context)
         : MESSAGES.listedTo(listedContext)
 
-  return renderHeadline(headline, subtext)
+  // Not under a state headline: the all-hidden states already say it
+  const hiddenResultsLine =
+    view.hiddenCount !== undefined &&
+    view.hiddenCount > 0 &&
+    MESSAGES.hiddenResults({ count: view.hiddenCount })
+
+  return renderHeadline(headline, subtext, hiddenResultsLine)
 }
 
 export default ResultsHeader
