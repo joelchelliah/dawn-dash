@@ -1,6 +1,11 @@
 @use 'index' as *;
 
 .mode {
-  color: $yellow-base;
+  color: $color-primary-base;
   font-weight: bold;
+  letter-spacing: 0.025em;
+
+  text-shadow:
+    0 0 0.125rem rgba(255, 255, 255, 0.35),
+    0 0 0.5rem rgba(255, 255, 255, 0.15);
 }

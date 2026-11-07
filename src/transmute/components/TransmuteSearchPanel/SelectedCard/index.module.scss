@@ -8,6 +8,13 @@
   min-height: 6.5rem;
   margin-top: 0.75rem;
 
+  // Nested to outrank the band's own top/bottom borders. `overflow` clips the rain texture to the corners.
+  & &__frame {
+    border: 1px dashed $color-component-border-dark;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
   &__placeholder {
     margin: 0;
     text-align: center;

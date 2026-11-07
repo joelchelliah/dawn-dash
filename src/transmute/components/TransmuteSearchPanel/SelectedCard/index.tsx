@@ -22,12 +22,14 @@ const SelectedCard = ({ card, shouldShowCardArt, shouldShowBlightbaneLink }: Sel
       // Wrapped like the results so the card sits on its banner band
       <ResultCardsByBanner
         cards={[card]}
+        bannerClassName={cx('selected-card__frame')}
         renderCard={(card: CardData, entryIndex: number) => (
           <ResultCard
             // Keyed so the entry animation replays when another card is picked
             key={card.blightbane_id}
             card={card}
             entryIndex={entryIndex}
+            isStatic
             shouldShowDescription
             shouldShowCardArt={shouldShowCardArt}
             shouldShowBlightbaneLink={shouldShowBlightbaneLink}

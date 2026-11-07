@@ -10,6 +10,8 @@ interface ResultCardsByBannerProps {
   renderCard: (card: CardData, entryIndex: number) => ReactNode
   // Which banner a card is grouped under. Defaults to `card.color`; Transmute passes its data's own.
   getBanner?: (card: CardData) => number
+  // Extra classes on each banner band
+  bannerClassName?: string
 }
 
 const cx = createCx(styles)
@@ -20,6 +22,7 @@ const ResultCardsByBanner = ({
   cards,
   renderCard,
   getBanner = getCardColor,
+  bannerClassName,
 }: ResultCardsByBannerProps) => {
   const cardsByBanner = useMemo(
     () =>
@@ -45,7 +48,13 @@ const ResultCardsByBanner = ({
 
         return (
           <div key={banner} className={cx('results-cards')}>
-            <div className={cx('results-cards__banner', `results-cards__banner--${banner}`)}>
+            <div
+              className={cx(
+                'results-cards__banner',
+                `results-cards__banner--${banner}`,
+                bannerClassName
+              )}
+            >
               {bannerCards.map((card, cardIndex) => renderCard(card, precedingCards + cardIndex))}
             </div>
           </div>

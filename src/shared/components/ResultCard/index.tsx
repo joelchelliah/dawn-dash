@@ -35,6 +35,8 @@ interface ResultCardProps {
   // Drawn over the leading edge of the content column (Cardex's tracked-card check).
   badge?: ReactNode
   onClick?: (card: CardData) => void
+  // A lone row that isn't part of a list
+  isStatic?: boolean
 }
 
 const cx = createCx(styles)
@@ -51,6 +53,8 @@ const ENTRY_STAGGER_MAX_ROWS = 12
 const MAX_KEYWORD_CHARACTERS_INLINE = 75
 const MAX_KEYWORD_CHARACTERS_OWN_ROW = 95
 const MAX_KEYWORD_CHARACTERS_OWN_MOBILE = 35
+
+const MAX_ENLARGED_NAME_LENGTH_MOBILE = 18
 
 const ResultCard = ({
   card,
@@ -70,10 +74,12 @@ const ResultCard = ({
   className,
   badge,
   onClick,
+  isStatic = false,
 }: ResultCardProps) => {
   const { isMobile } = useBreakpoint()
 
-  const cardContainerClassName = cx('result-card', HOVER_TRIGGER, className, {
+  const cardContainerClassName = cx('result-card', !isStatic && HOVER_TRIGGER, className, {
+    'result-card--static': isStatic,
     'result-card--clickable': !!onClick,
     'result-card--highlighted': isHighlighted,
   })
@@ -88,10 +94,17 @@ const ResultCard = ({
     (isShowingKeywords && !shouldShowBlightbaneLink)
   const isShowingNoAdditionalNonDescElements = !isShowingKeywords && !shouldShowBlightbaneLink
 
+  const shouldEnlargeName =
+    isStatic || (!shouldShowDescription && isShowingOneAdditionalNonDescElement)
+  const isCardNameShortEnoughToEnlarge = isMobile
+    ? card.name.length < MAX_ENLARGED_NAME_LENGTH_MOBILE
+    : true
   const nameClassName = cx('result-card__name', {
-    'result-card__name--enlarged': !shouldShowDescription && isShowingOneAdditionalNonDescElement,
+    'result-card__name--enlarged': shouldEnlargeName && isCardNameShortEnoughToEnlarge,
     'result-card__name--enlarged-more':
-      !shouldShowDescription && isShowingNoAdditionalNonDescElements,
+      !shouldShowDescription &&
+      isShowingNoAdditionalNonDescElements &&
+      isCardNameShortEnoughToEnlarge,
   })
 
   const shouldShowKeywordsOnSeparateRow = isShowingKeywords && (!shouldShowDescription || isMobile)

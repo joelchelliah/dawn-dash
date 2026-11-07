@@ -661,7 +661,12 @@ Check: Red Uncommon _Turns into_ with Dex + Holy (line) and Str + Holy (no line)
 _Comes from_ with Holy only (line) and Str + Holy (no line); Ceremony of Roses (Purple, any of
 Dex/Int/Str) _Comes from_ with only Dex ticked (line).
 
-### Task 7c — Fine-tune the selected-card row
+### Task 7c — Fine-tune the selected-card row — COMPLETED
+
+Built as: `ResultCard`'s `isStatic` (no `HOVER_TRIGGER`, so no row or nested hovers, and no
+divider) and a `bannerClassName` on `ResultCardsByBanner`, which `SelectedCard` uses to frame the
+band like the toggles. The slot's `min-height` stays. Decided with the user: no yellow on the frame
+until the "active" color itself is settled; a larger name is left to trial in the browser.
 
 The selected card under the search field is the shared `ResultCard`, so it carries everything a
 Cardex row does, including the hover animation, though clicking it does nothing. **To discuss with

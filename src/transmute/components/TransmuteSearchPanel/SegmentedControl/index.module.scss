@@ -21,25 +21,45 @@
     opacity 150ms ease,
     background-color 150ms ease;
 
+  // The selected segment's gradient bar, faintly shown on hover
+  &::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 2px;
+    opacity: 0;
+    transition: opacity 250ms ease;
+    @include yellowGreenGradientBackground(false);
+  }
+
   & + & {
     border-left: 1px solid $color-component-border-dark;
   }
 
   &:hover {
-    @include rainTexture(rgba($yellow-hover, 0.2), true);
-    color: $yellow-hover;
-    opacity: 0.75;
+    color: $color-primary-hover;
+    opacity: 0.8;
+
+    &::after {
+      opacity: 0.4;
+    }
   }
 
   &--selected {
-    @include rainTexture(rgba($yellow-base, 0.15), true);
-    color: $yellow-base;
+    color: $color-primary-base;
+    font-weight: 500;
     opacity: 1 !important;
+
+    &::after {
+      opacity: 1 !important;
+    }
   }
 
   // Keyboard focus lands on the hidden radio, so it's shown on the segment instead
   &:has(.segment__input:focus-visible) {
-    outline: 2px solid $yellow-base;
+    outline: 2px solid $color-primary-hover;
     outline-offset: -2px;
   }
 
@@ -57,11 +77,10 @@
   &__subtitle {
     text-align: center;
     font-size: font-size('xxs');
-    opacity: 0.8;
+    opacity: 0.75;
 
     @media (max-width: $breakpoint-mobile) {
       font-size: font-size('xxxs');
-      opacity: 0.9;
     }
   }
 }

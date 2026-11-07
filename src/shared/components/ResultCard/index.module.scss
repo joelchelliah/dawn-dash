@@ -86,6 +86,10 @@ $row-entry-animation: resultRowIn 0.5s ease-out backwards;
     cursor: pointer;
   }
 
+  &--static {
+    background-image: none;
+  }
+
   // The marker class is the consumer's (Cardex's `STRUCK_TRIGGER`), passed in through `className`.
   &:global(.struck) {
     color: $color-primary-dark;
@@ -120,7 +124,7 @@ $row-entry-animation: resultRowIn 0.5s ease-out backwards;
       card-shine-shift 1.75s linear infinite;
   }
 
-  &:hover:not(&--highlighted) {
+  &:not(&--static):hover:not(&--highlighted) {
     background-image: row-divider($color-primary-hover, 0.5, 90%);
   }
 
@@ -136,7 +140,7 @@ $row-entry-animation: resultRowIn 0.5s ease-out backwards;
     background-image: highlight-shine(), row-divider($color-primary-hover, 0.25, 90%);
   }
 
-  &:hover {
+  &:not(&--static):hover {
     color: $color-primary-hover;
     background-color: rgba(255, 255, 255, 0.03);
 
