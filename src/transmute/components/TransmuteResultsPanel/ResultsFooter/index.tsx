@@ -72,10 +72,30 @@ const ResultsFooter = ({ view, selectedCard, direction, mode }: ResultsFooterPro
     view.cards.some(isMetaprogressCard) &&
     MESSAGES.metaprogressResults()
 
+  const exceptionMessages =
+    view.kind === 'cards'
+      ? (view.exceptionResults ?? []).map(({ energyAttributes, cards }) =>
+          MESSAGES.offeredThroughException({
+            names: cards.map((card) => card.name),
+            energyAttributes,
+            // Branches listing every color can mix banners in one group
+            color: cards.every((card) => card.color === cards[0].color)
+              ? cards[0].color
+              : undefined,
+            resultCount: view.cards.length,
+          })
+        )
+      : []
+
   const messages = [fallbackMessage, potionTopUpMessage, metaprogressMessage].filter(Boolean)
 
   return (
     <>
+      {exceptionMessages.map((message, index) => (
+        <p key={`exception-${index}`} className={cx('detail', 'detail--exception')}>
+          {message}
+        </p>
+      ))}
       {messages.map((message, index) => (
         <p key={index} className={cx('detail')}>
           {message}

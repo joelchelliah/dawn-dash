@@ -133,6 +133,30 @@ export const canReachWithEnergyAttributes = (
 }
 
 /*
+ * Reached only because its `castRequirements` entry replaces its banner's energy attributes, none
+ * of which are ticked. A banner that needs nothing (Brown needing Holy) has no default to break.
+ */
+export const isReachedOnlyThroughException = (
+  id: number,
+  energyAttributes: readonly TransmuteEnergyAttribute[]
+) => {
+  const exception = RULES.castRequirements[id]
+  const bannerDefault = ENERGY_ATTRIBUTES_BY_COLOR[RULES.cards[id]?.[0]] ?? []
+  return (
+    exception !== undefined &&
+    bannerDefault.length > 0 &&
+    !bannerDefault.some((attribute) => energyAttributes.includes(attribute)) &&
+    exception.some((attribute) => energyAttributes.includes(attribute))
+  )
+}
+
+// The ticked energy attributes that reach the card
+export const getReachingEnergyAttributes = (
+  id: number,
+  energyAttributes: readonly TransmuteEnergyAttribute[]
+) => getRequiredEnergyAttributes(id).filter((attribute) => energyAttributes.includes(attribute))
+
+/*
  * `monster`: the Monster-banner sidemute, which mixes rarities and ignores card sets.
  * `black-to-brown`: a Black source sidemutes into Brown, so the results aren't its color.
  * `monster-transmute`: a Monster-banner source transmutes into Commons of every color.

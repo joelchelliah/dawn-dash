@@ -632,7 +632,11 @@ your filters."
 Check: a Red Uncommon transmute with Str unticked, a list narrowed by card sets, both together, and
 everything ticked (no line).
 
-#### Task 7b-3 — Results reached through a `castRequirements` exception
+#### Task 7b-3 — Results reached through a `castRequirements` exception — COMPLETED
+
+Built as planned, except the _Turns into_ lines come **first** in the footer, since 7b-2's line moved
+to the header. `isReachedOnlyThroughException` and `getReachingEnergyAttributes` are in
+`transmuteLookup`; the view carries `exceptionResults` / `selectedCardExceptionEnergyAttributes`.
 
 18 cards have their own energy requirement instead of their banner's, 14 of them Holy. Today, with
 Dex and Holy ticked, a Red Uncommon transmute lists three Red Rares with nothing saying why.

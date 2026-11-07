@@ -212,7 +212,16 @@ const ResultsHeader = ({ view, selectedCard, direction, mode }: ResultsHeaderPro
     view.hiddenCount > 0 &&
     MESSAGES.hiddenResults({ count: view.hiddenCount })
 
-  return renderHeadline(headline, subtext, hiddenResultsLine)
+  const exceptionLine =
+    view.selectedCardExceptionEnergyAttributes &&
+    selectedCard &&
+    MESSAGES.reachedThroughException({
+      ...context,
+      energyAttributes: view.selectedCardExceptionEnergyAttributes,
+      color: selectedCard.color,
+    })
+
+  return renderHeadline(headline, subtext, exceptionLine, hiddenResultsLine)
 }
 
 export default ResultsHeader

@@ -16,9 +16,11 @@ import {
   getTradepostSources,
   getTransmuteResultRarity,
   getRequiredEnergyAttributes,
+  getReachingEnergyAttributes,
   getTransmuteResults,
   getTransmuteSources,
   isMonsterSidemuteResult,
+  isReachedOnlyThroughException,
   LookupBranch,
   LookupResult,
   MONSTER_TRANSMUTE_SOURCE_IDS,
@@ -72,6 +74,13 @@ export type TransmuteState =
   | { kind: 'tradepost-nothing' }
   | { kind: 'empty' }
 
+// Listed cards reached only through a `castRequirements` exception, by the energy attributes that
+// reach them
+export interface ExceptionResults {
+  energyAttributes: TransmuteEnergyAttribute[]
+  cards: CardData[]
+}
+
 export type TransmuteView =
   | { kind: 'no-card' }
   | { kind: 'state'; state: TransmuteState }
@@ -87,6 +96,10 @@ export type TransmuteView =
       monsterTransmuteSourceCount?: number
       // (From): results the card-set and energy-attribute filters hid
       hiddenCount?: number
+      // Transmute (From)
+      exceptionResults?: ExceptionResults[]
+      // Transmute (To): the energy attributes reaching the selected card through its exception
+      selectedCardExceptionEnergyAttributes?: TransmuteEnergyAttribute[]
     }
 
 interface UseTransmuteResultsProps {
@@ -112,6 +125,22 @@ const lookUp = (
   if (mode === 'transmute') return getTransmuteSources(id, energyAttributes)
   if (mode === 'sidemute') return getSidemuteSources(id)
   return getTradepostSources(id)
+}
+
+const getExceptionResults = (
+  cards: CardData[],
+  energyAttributes: TransmuteEnergyAttribute[]
+): ExceptionResults[] => {
+  const groups = new Map<string, ExceptionResults>()
+  for (const card of cards) {
+    if (!isReachedOnlyThroughException(card.blightbane_id, energyAttributes)) continue
+    const reaching = getReachingEnergyAttributes(card.blightbane_id, energyAttributes)
+    const key = reaching.join('.')
+    const group = groups.get(key) ?? { energyAttributes: reaching, cards: [] }
+    group.cards.push(card)
+    groups.set(key, group)
+  }
+  return Array.from(groups.values())
 }
 
 const state = (value: TransmuteState): TransmuteView => ({ kind: 'state', state: value })
@@ -174,7 +203,17 @@ const getView = ({
         ? state({ kind: 'monster-transmute-target', count: monsterTransmuteSourceCount })
         : state({ kind: 'empty' })
     }
-    return { kind: 'cards', cards: sources, branch: result.branch, monsterTransmuteSourceCount }
+    const selectedCardExceptionEnergyAttributes =
+      mode === 'transmute' && isReachedOnlyThroughException(id, selectedEnergyAttributes)
+        ? getReachingEnergyAttributes(id, selectedEnergyAttributes)
+        : undefined
+    return {
+      kind: 'cards',
+      cards: sources,
+      branch: result.branch,
+      monsterTransmuteSourceCount,
+      selectedCardExceptionEnergyAttributes,
+    }
   }
 
   const candidates = toCards(result.ids, cards)
@@ -235,13 +274,16 @@ const getView = ({
     return state({ kind: 'empty' })
   }
 
+  const sorted = sortLikeCardex(visible)
   return {
     kind: 'cards',
-    cards: sortLikeCardex(visible),
+    cards: sorted,
     branch: result.branch,
     transmuteFallback,
     sidemuteFallback,
     hiddenCount: hiddenBySets + hiddenByEnergyAttributes,
+    exceptionResults:
+      mode === 'transmute' ? getExceptionResults(sorted, selectedEnergyAttributes) : undefined,
   }
 }
 

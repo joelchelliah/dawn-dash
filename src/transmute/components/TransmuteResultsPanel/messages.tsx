@@ -18,6 +18,11 @@ interface Context {
   Mode: ReactNode
 }
 
+// Holy isn't really an energy attribute, so it's "access" on its own
+const EnergyWord = ({ attributes }: { attributes: TransmuteEnergyAttribute[] }) => (
+  <strong>{attributes.every((attribute) => attribute === 'holy') ? 'access' : 'energy'}</strong>
+)
+
 const UnlockIcon = () => <span className={cx('message-emoji')}>🔓</span>
 const HiddenIcon = () => <span className={cx('message-emoji')}>🫥</span>
 
@@ -183,6 +188,18 @@ export const MESSAGES = {
     </>
   ),
 
+  // Transmute (To), a list: the card's `castRequirements` entry is what makes it reachable
+  reachedThroughException: ({
+    Card,
+    energyAttributes,
+    color,
+  }: Pick<Context, 'Card'> & { energyAttributes: TransmuteEnergyAttribute[]; color: number }) => (
+    <>
+      {Card} is reached through your <EnergyAttributeIconsInline attributes={energyAttributes} />{' '}
+      <EnergyWord attributes={energyAttributes} />, despite its <BannerPill color={color} />.
+    </>
+  ),
+
   // `Comes from`, stacked under any other detail
   onlyOfferedOnceUnlocked: ({ Card }: Pick<Context, 'Card'>) => (
     <>
@@ -218,9 +235,11 @@ export const MESSAGES = {
     requiredEnergyAttributes: TransmuteEnergyAttribute[]
   }) => (
     <>
-      Without <EnergyAttributeIconsInline attributes={requiredEnergyAttributes} />{' '}
-      <strong>energy</strong>, you will be offered random <RarityLabel rarity={rarity} /> cards of
-      any <strong>banner color</strong> you have access to.
+      {/* "any of", not "one of": every one of them is missing, and any would bring results back */}
+      Without <strong>{requiredEnergyAttributes.length > 1 ? 'any of ' : ''}</strong>
+      <EnergyAttributeIconsInline attributes={requiredEnergyAttributes} />{' '}
+      <EnergyWord attributes={requiredEnergyAttributes} />, you will be offered random{' '}
+      <RarityLabel rarity={rarity} /> cards of any <strong>banner color</strong> you have access to.
     </>
   ),
   randomOffer: ({ rarity }: { rarity: number }) => (
@@ -251,7 +270,8 @@ export const MESSAGES = {
     const energyPhrase = requiredEnergyAttributes.length > 0 && (
       <>
         <strong>{requiredEnergyAttributes.length > 1 ? 'one of ' : ''}</strong>
-        <EnergyAttributeIconsInline attributes={requiredEnergyAttributes} /> <strong>energy</strong>
+        <EnergyAttributeIconsInline attributes={requiredEnergyAttributes} />{' '}
+        <EnergyWord attributes={requiredEnergyAttributes} />
       </>
     )
     return (
@@ -275,10 +295,51 @@ export const MESSAGES = {
   // - - - - Footer messages - - - -
   // - - - - - - - - - - - - - - - -
 
+  // Transmute (From): listed cards a `castRequirements` entry makes reachable. Named up to 3,
+  // unless they are the whole list. `color` is the banner they share, if any.
+  offeredThroughException: ({
+    names,
+    energyAttributes,
+    color,
+    resultCount,
+  }: {
+    names: string[]
+    energyAttributes: TransmuteEnergyAttribute[]
+    color?: number
+    resultCount: number
+  }) => {
+    const isSingular = names.length === 1
+    const cardsPhrase =
+      names.length === resultCount && !isSingular ? (
+        <>
+          These <strong>{names.length}</strong> cards
+        </>
+      ) : names.length > 3 ? (
+        <>
+          <strong>{names.length}</strong> of these cards
+        </>
+      ) : (
+        names.map((name, index) => (
+          <span key={index}>
+            {index > 0 && (index === names.length - 1 ? ' and ' : ', ')}
+            <strong>{name}</strong>
+          </span>
+        ))
+      )
+    return (
+      <>
+        {cardsPhrase} {isSingular ? 'is' : 'are'} offered through your{' '}
+        <EnergyAttributeIconsInline attributes={energyAttributes} />{' '}
+        <EnergyWord attributes={energyAttributes} />, despite {isSingular ? 'its' : 'their'}{' '}
+        {color !== undefined ? <BannerPill color={color} /> : 'banner'}.
+      </>
+    )
+  },
+
   // Transmute (From): what the game offers once the same-color results run out
   transmuteFallbackPool: ({ Mode, count, rarity }: Pick<Context, 'Mode'> & FallbackPoolProps) => (
     <>
-      If you run short of {Mode} options, you are offered cards from a pool of{' '}
+      If you run short of {Mode} options, you&apos;ll be offered cards from a pool of{' '}
       <strong>{count}</strong> <RarityLabel rarity={rarity} /> cards, of any{' '}
       <strong>banner color</strong> you have access to.
     </>
@@ -286,7 +347,7 @@ export const MESSAGES = {
   // Sidemute (From): the potion top-up
   sidemuteFallbackPool: ({ Mode, count, rarity }: Pick<Context, 'Mode'> & FallbackPoolProps) => (
     <>
-      If you run short of {Mode} options, you are offered cards from a pool of{' '}
+      If you run short of {Mode} options, you&apos;ll be offered cards from a pool of{' '}
       <strong>{count}</strong> <RarityLabel rarity={rarity} /> potions.
     </>
   ),
